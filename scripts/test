@@ -2,3 +2,5 @@
 # run the test suite including coverage
 
 set -euo pipefail
+
+just test-e2e
