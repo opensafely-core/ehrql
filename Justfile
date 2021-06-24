@@ -1,5 +1,5 @@
 build-cohort-extractor:
-    docker build .
+    docker build . -t cohort-extractor-v2
 
 test-e2e: build-cohort-extractor
-    pytest tests/end_to_end_tests.py
+    pytest tests/test_end_to_end.py
