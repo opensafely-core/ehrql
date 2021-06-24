@@ -23,7 +23,9 @@ class Study:
 def study():
     def read_dir(path):
         return Study(path)
+
     return read_dir
+
 
 def pytest_sessionfinish(session, exitstatus):
     # TODO: clean up after ourselves more carefully
