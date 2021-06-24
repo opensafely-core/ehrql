@@ -1,5 +1,6 @@
 import csv
 import shutil
+import time
 from pathlib import Path
 
 import docker
@@ -25,23 +26,51 @@ def run_cohort_extractor(study, tmpdir):
     return study_dir / "outputs"
 
 
-def start_sql_server(tables, tmpdir):
-    mssql_dir = tmpdir.mkdir("mssql")
-    shutil.copy(tables, mssql_dir)
-    shutil.copy(
-        Path(__file__).parent.absolute() / "support/mssql/entrypoint.sh", mssql_dir
-    )
+def start_sql_server(tables):
+    mssql_dir = Path(__file__).parent.absolute() / "support/mssql"
 
-    client.containers.run(
+    container = client.containers.run(
         "mcr.microsoft.com/mssql/server:2017-latest",
         remove=True,
         name="mssql",
-        volumes={mssql_dir: {"bind": "/mssql", "mode": "ro"}},
+        volumes={
+            mssql_dir: {"bind": "/mssql", "mode": "ro"},
+            tables: {"bind": "/tables.sql", "mode": "ro"},
+        },
         environment={"SA_PASSWORD": "Your_password123!", "ACCEPT_EULA": "Y"},
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
         detach=True,
     )
+    start = time.time()
+    timeout = 10
+    while True:
+        exit_code, output = container.exec_run(
+            [
+                "/opt/mssql-tools/bin/sqlcmd",
+                "-b",
+                "-S",
+                "localhost",
+                "-U",
+                "SA",
+                "-P",
+                "Your_password123!",
+                "-d",
+                "test",
+                "-i",
+                "/tables.sql",
+            ]
+        )
+        if exit_code == 0:
+            break
+        else:
+            if (
+                (b"Server is not found or not accessible" in output or b"Login failed for user" in output)
+                and time.time() - start < timeout
+            ):
+                time.sleep(1)
+            else:
+                raise ValueError(f"Docker error:\n{output}")
 
 
 def assert_results_equivalent(actual_results, expected_results):
@@ -58,7 +87,7 @@ def test_extracts_data_from_sql_server(study, tmpdir):
     our_study = study("end_to_end_tests")
 
     tables = our_study.grab_tables()
-    start_sql_server(tables, tmpdir)
+    start_sql_server(tables)
 
     study = our_study.grab_study_definition()
 

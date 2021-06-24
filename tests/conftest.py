@@ -30,4 +30,7 @@ def study():
 def pytest_sessionfinish(session, exitstatus):
     # TODO: clean up after ourselves more carefully
     client = docker.from_env()
-    client.containers.get("mssql").remove(force=True)
+    try:
+        client.containers.get("mssql").remove(force=True)
+    except docker.errors.NotFound:
+        pass
