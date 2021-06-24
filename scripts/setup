@@ -1,0 +1,4 @@
+#!/bin/bash
+# set up production environment
+
+set -euo pipefail

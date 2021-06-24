@@ -1,0 +1,7 @@
+#!/bin/bash
+# set up development environment
+
+set -euo pipefail
+
+$VIRTUAL_ENV/bin/pip install --require-hashes -r requirements.dev.txt
+$VIRTUAL_ENV/bin/pre-commit install

@@ -1,0 +1,53 @@
+---
+name: CI
+
+on:
+  push:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -m pip install --upgrade pip
+          python -m venv venv
+          venv/bin/pip install --progress-bar=off --require-hashes --requirement requirements.dev.txt
+      - run: ls -lah ${{ github.workspace }}
+      - name: Check formatting, linting and import sorting
+        run: |
+          source ${{ github.workspace }}/venv/bin/activate
+          ./scripts/check
+
+  test:
+    needs: [check]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -m pip install --upgrade pip
+          python -m venv venv
+          venv/bin/pip install --progress-bar=off --require-hashes --requirement requirements.dev.txt
+      - name: Run tests
+#       env:  # Add environment variables required for tests
+        run: |
+          source ${{ github.workspace }}/venv/bin/activate
+          ./scripts/test
+
+  lint-dockerfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hadolint/hadolint-action@v1.4.0

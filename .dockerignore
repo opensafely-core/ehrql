@@ -1,0 +1,14 @@
+.git/
+
+**/*~
+**/.#*
+**/*#
+**/htmlcov
+**/__pycache__
+**/*.pyc
+**/.python-version
+**/.env
+**/.venv
+**/venv
+**/.coverage
+**/*.egg-info/

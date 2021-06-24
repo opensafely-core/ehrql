@@ -1,0 +1,4 @@
+#!/bin/bash
+# run the test suite including coverage
+
+set -euo pipefail
