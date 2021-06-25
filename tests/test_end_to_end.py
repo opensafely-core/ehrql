@@ -1,9 +1,11 @@
 import csv
 import shutil
+import sys
 import time
 from pathlib import Path
 
 import docker
+from docker.errors import ContainerError
 
 
 client = docker.from_env()
@@ -13,15 +15,20 @@ def run_cohort_extractor(study, tmpdir):
     study_dir = tmpdir.mkdir("study")
     shutil.copy(study, study_dir)
 
-    client.containers.run(
-        "cohort-extractor-v2:latest",
-        remove=True,
-        links={"mssql": "mssql"},
-        environment={
-            "TPP_DATABASE_URL": "mssql://SA:Your_password123!@mssql/Test_OpenCorona"
-        },
-        volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
-    )
+    try:
+        client.containers.run(
+            "cohort-extractor-v2:latest",
+            remove=True,
+            links={"mssql": "mssql"},
+            environment={
+                "TPP_DATABASE_URL": "mssql://SA:Your_password123!@mssql/Test_OpenCorona"
+            },
+            volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
+        )
+    except ContainerError as e:
+        print(str(e.stderr, "utf-8"), file=sys.stderr)
+        e.stderr = "See stderr below"
+        raise
 
     return study_dir / "outputs"
 
@@ -65,9 +72,9 @@ def start_sql_server(tables):
             break
         else:
             if (
-                (b"Server is not found or not accessible" in output or b"Login failed for user" in output)
-                and time.time() - start < timeout
-            ):
+                b"Server is not found or not accessible" in output
+                or b"Login failed for user" in output
+            ) and time.time() - start < timeout:
                 time.sleep(1)
             else:
                 raise ValueError(f"Docker error:\n{output}")
