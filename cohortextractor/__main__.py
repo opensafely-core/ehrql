@@ -1,11 +1,12 @@
 import csv
 import importlib
+import os
 import sys
 import time
 from pathlib import Path
 
-import pymssql
-from pymssql import OperationalError
+import sqlalchemy
+import sqlalchemy.exc
 
 
 def get_class_vars(cls):
@@ -32,33 +33,36 @@ if __name__ == "__main__":
     column_string = ", ".join(f"{src} as {dst}" for src, dst in columns)
 
     sql = f"SELECT {column_string} from {table}"
-    print(sql, file=sys.stderr)
+
+    url = sqlalchemy.engine.make_url(os.environ["TPP_DATABASE_URL"])
+    assert url.drivername == "mssql"
+    url = url.set(drivername="mssql+pymssql")
+    engine = sqlalchemy.create_engine(url, echo=True, future=True)
 
     timeout = 20
     limit = time.time() + timeout
-    conn = None
-    while not conn:
+    up = False
+    while not up:
         try:
-            conn = pymssql.connect(
-                server="mssql", user="SA", password="Your_password123!", database="test"
-            )
-        except OperationalError as e:
+            with engine.connect() as conn:
+                result = conn.execute(sqlalchemy.text("select 'hello world'"))
+                assert result.first() == ("hello world",)
+                up = True
+        except sqlalchemy.exc.OperationalError as e:
             if time.time() >= limit:
                 raise Exception(
                     f"Failed to connect to mssql after {timeout} seconds"
                 ) from e
             time.sleep(1)
 
-    cursor = conn.cursor()
-    cursor.execute(sql)
+    with engine.connect() as conn:
+        results = conn.execute(sqlalchemy.text(sql))
 
-    path = Path("/workspace/outputs/cohort.csv")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open(mode="w") as f:
-        writer = csv.writer(f)
-        writer.writerow(dst for _, dst in columns)
+        path = Path("/workspace/outputs/cohort.csv")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open(mode="w") as f:
+            writer = csv.writer(f)
+            writer.writerow(dst for _, dst in columns)
 
-        for fields in cursor:
-            writer.writerow(fields)
-
-    conn.close()
+            for row in results:
+                writer.writerow(row)

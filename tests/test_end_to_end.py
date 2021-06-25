@@ -21,9 +21,7 @@ def run_cohort_extractor(study, tmpdir, db_password):
             remove=True,
             stderr=True,
             network="test_network",
-            environment={
-                "TPP_DATABASE_URL": f"mssql://SA:{db_password}@mssql/Test_OpenCorona"
-            },
+            environment={"TPP_DATABASE_URL": f"mssql://SA:{db_password}@mssql/test"},
             volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
         )
 
