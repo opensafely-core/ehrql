@@ -1,8 +1,0 @@
-#!/bin/bash
-# compile and update python dependencies
-
-set -euo pipefail
-
-target="${1:-prod}"
-
-$VIRTUAL_ENV/bin/pip-compile requirements.$target.in && $VIRTUAL_ENV/bin/pip install -r requirements.$target.txt

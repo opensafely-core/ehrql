@@ -1,8 +1,0 @@
-#!/bin/bash
-# fix formatting and import sort ordering
-
-set -euo pipefail
-
-echo "Running black, isort and flake8"
-black .
-isort .
