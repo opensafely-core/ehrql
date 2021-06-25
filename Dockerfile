@@ -9,8 +9,11 @@ RUN \
 RUN \
   mkdir /app && \
   mkdir /workspace
-COPY . /app
+
+COPY requirements.prod.txt /app
+RUN python -m pip install --requirement /app/requirements.prod.txt
+
+COPY cohortextractor /app/cohortextractor
 
 WORKDIR /app
-
 ENTRYPOINT ["python", "-m", "cohortextractor"]
