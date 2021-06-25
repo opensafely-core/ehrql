@@ -15,25 +15,6 @@ def get_class_vars(cls):
 
 
 if __name__ == "__main__":
-    sys.path.append("/workspace")
-    study_definition = importlib.import_module("study_definition")
-    Cohort = getattr(study_definition, "Cohort")
-
-    cohort = {key: value for key, value in get_class_vars(Cohort)}
-
-    columns = [("patient_id", "patient_id")]
-    table = None
-    for dst_column, query in cohort.items():
-        if not table:
-            table = query.table
-        else:
-            assert table == query.table
-        columns.append((query.column, dst_column))
-
-    column_string = ", ".join(f"{src} as {dst}" for src, dst in columns)
-
-    sql = f"SELECT {column_string} from {table}"
-
     url = sqlalchemy.engine.make_url(os.environ["TPP_DATABASE_URL"])
     assert url.drivername == "mssql"
     url = url.set(drivername="mssql+pymssql")
@@ -55,8 +36,33 @@ if __name__ == "__main__":
                 ) from e
             time.sleep(1)
 
+    sys.path.append("/workspace")
+    study_definition = importlib.import_module("study_definition")
+    Cohort = getattr(study_definition, "Cohort")
+
+    cohort = {key: value for key, value in get_class_vars(Cohort)}
+
+    # We always want to include the patient id.
+    columns = [("patient_id", "patient_id")]
+
+    table_name = None
+
+    for dst_column, query in cohort.items():
+        # For now, we only support querying a single table.
+        if not table_name:
+            table_name = query.table
+        else:
+            assert table_name == query.table
+        columns.append((query.column, dst_column))
+
+    metadata = sqlalchemy.MetaData()
+    table = sqlalchemy.Table(table_name, metadata, autoload_with=engine)
+
+    # Turn each source/destination pair into a SQL "AS" clause.
+    query = sqlalchemy.select(*[table.c[src].label(dst) for src, dst in columns])
+
     with engine.connect() as conn:
-        results = conn.execute(sqlalchemy.text(sql))
+        results = conn.execute(query)
 
         path = Path("/workspace/outputs/cohort.csv")
         path.parent.mkdir(parents=True, exist_ok=True)
