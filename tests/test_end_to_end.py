@@ -16,18 +16,20 @@ def run_cohort_extractor(study, tmpdir):
     shutil.copy(study, study_dir)
 
     try:
-        client.containers.run(
+        output = client.containers.run(
             "cohort-extractor-v2:latest",
             remove=True,
+            stderr=True,
             links={"mssql": "mssql"},
             environment={
                 "TPP_DATABASE_URL": "mssql://SA:Your_password123!@mssql/Test_OpenCorona"
             },
             volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
         )
+
+        print(str(output, "utf-8"))
     except ContainerError as e:
         print(str(e.stderr, "utf-8"), file=sys.stderr)
-        e.stderr = "See stderr below"
         raise
 
     return study_dir / "outputs"
@@ -81,11 +83,10 @@ def start_sql_server(tables):
 
 
 def assert_results_equivalent(actual_results, expected_results):
-    with open(actual_results / "some_file.csv") as actual_file, open(
-        expected_results
-    ) as expected_file:
-        actual_data = list(csv.DictReader(actual_file))
-        expected_data = list(csv.DictReader(expected_file))
+    with open(actual_results / "some_file.csv") as actual_file:
+        with open(expected_results) as expected_file:
+            actual_data = list(csv.DictReader(actual_file))
+            expected_data = list(csv.DictReader(expected_file))
 
         assert actual_data == expected_data
 
