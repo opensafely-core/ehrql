@@ -11,7 +11,7 @@ from docker.errors import ContainerError
 client = docker.from_env()
 
 
-def run_cohort_extractor(study, tmpdir):
+def run_cohort_extractor(study, tmpdir, db_password):
     study_dir = tmpdir.mkdir("study")
     shutil.copy(study, study_dir)
 
@@ -22,7 +22,7 @@ def run_cohort_extractor(study, tmpdir):
             stderr=True,
             network="test_network",
             environment={
-                "TPP_DATABASE_URL": "mssql://SA:Your_password123!@mssql/Test_OpenCorona"
+                "TPP_DATABASE_URL": f"mssql://SA:{db_password}@mssql/Test_OpenCorona"
             },
             volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
         )
@@ -35,7 +35,7 @@ def run_cohort_extractor(study, tmpdir):
     return study_dir / "outputs"
 
 
-def start_sql_server(tables):
+def start_sql_server(tables, password):
     mssql_dir = Path(__file__).parent.absolute() / "support/mssql"
 
     container = client.containers.run(
@@ -46,7 +46,7 @@ def start_sql_server(tables):
             mssql_dir: {"bind": "/mssql", "mode": "ro"},
             tables: {"bind": "/tables.sql", "mode": "ro"},
         },
-        environment={"SA_PASSWORD": "Your_password123!", "ACCEPT_EULA": "Y"},
+        environment={"SA_PASSWORD": password, "ACCEPT_EULA": "Y"},
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
         detach=True,
@@ -64,7 +64,7 @@ def start_sql_server(tables):
                 "-U",
                 "SA",
                 "-P",
-                "Your_password123!",
+                password,
                 "-d",
                 "test",
                 "-i",
@@ -99,13 +99,14 @@ def assert_results_equivalent(actual_results, expected_results):
 def test_extracts_data_from_sql_server(study, tmpdir):
     our_study = study("end_to_end_tests")
 
+    db_password = "Your_password123!"
     tables = our_study.grab_tables()
     create_network()
-    start_sql_server(tables)
+    start_sql_server(tables, db_password)
 
     study = our_study.grab_study_definition()
 
-    actual_results = run_cohort_extractor(study, tmpdir)
+    actual_results = run_cohort_extractor(study, tmpdir, db_password)
 
     expected_results = our_study.grab_expected_results()
 
