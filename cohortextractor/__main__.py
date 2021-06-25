@@ -52,7 +52,7 @@ if __name__ == "__main__":
     cursor = conn.cursor()
     cursor.execute(sql)
 
-    path = Path("/workspace/outputs/some_file.csv")
+    path = Path("/workspace/outputs/cohort.csv")
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open(mode="w") as f:
         writer = csv.writer(f)

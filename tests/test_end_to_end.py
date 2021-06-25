@@ -88,7 +88,7 @@ def create_network():
 
 
 def assert_results_equivalent(actual_results, expected_results):
-    with open(actual_results / "some_file.csv") as actual_file:
+    with open(actual_results / "cohort.csv") as actual_file:
         with open(expected_results) as expected_file:
             actual_data = list(csv.DictReader(actual_file))
             expected_data = list(csv.DictReader(expected_file))
