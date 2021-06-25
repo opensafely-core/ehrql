@@ -1,4 +1,0 @@
-#!/bin/bash
-# run the dev project
-
-set -euo pipefail

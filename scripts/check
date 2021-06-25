@@ -1,8 +1,0 @@
-#!/bin/bash
-# runs the format (black), sort (isort) and lint (flake8) check but does not change any files
-
-set -euo pipefail
-
-$VIRTUAL_ENV/bin/black --check .
-$VIRTUAL_ENV/bin/isort --check-only --diff .
-$VIRTUAL_ENV/bin/flake8
