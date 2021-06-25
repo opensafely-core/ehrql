@@ -13,14 +13,20 @@ if [ "$1" = '/opt/mssql/bin/sqlservr' ]; then
     # Server process once, as opposed to starting, stopping, then
     # starting it again.
     function initialize_app_database() {
-        # Wait a bit for SQL Server to start. SQL Server's process
-        # doesn't provide a clever way to check if it's up or not, and
-        # it needs to be up before we can import the application
-        # database
-        sleep 10s
-        # Run the setup script to create the DB and the schema in the
-        # DB
-        /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "Your_password123!" -d master -i /mssql/setup.sql
+        timeout=20
+        limit="$((SECONDS + timeout))}"
+        # Run the setup script to create the DB and the schema in the DB
+        until /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "Your_password123!" -d master -i /mssql/setup.sql; do
+          # Wait a bit for SQL Server to start. SQL Server's process
+          # doesn't provide a clever way to check if it's up or not, and
+          # it needs to be up before we can import the application
+          # database
+          sleep 1s
+          if [[ "${SECONDS}" -gt "${limit}" ]]; then
+            echo >&2 "Failed to connect to mssql after ${timeout} seconds"
+            exit 1
+          fi
+        done
         # Note that the container has been initialized so future
         # starts won't wipe changes to the data
         touch /tmp/app-initialized
