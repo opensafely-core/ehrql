@@ -1,3 +1,4 @@
+import csv
 import importlib
 import sys
 import time
@@ -19,8 +20,18 @@ if __name__ == "__main__":
 
     cohort = {key: value for key, value in get_class_vars(Cohort)}
 
-    query = cohort["everything"]
-    sql = f"SELECT patient_id, {query.column} FROM {query.table}"
+    columns = [("patient_id", "patient_id")]
+    table = None
+    for dst_column, query in cohort.items():
+        if not table:
+            table = query.table
+        else:
+            assert table == query.table
+        columns.append((query.column, dst_column))
+
+    column_string = ", ".join(f"{src} as {dst}" for src, dst in columns)
+
+    sql = f"SELECT {column_string} from {table}"
     print(sql, file=sys.stderr)
 
     timeout = 20
@@ -44,9 +55,10 @@ if __name__ == "__main__":
     path = Path("/workspace/outputs/some_file.csv")
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open(mode="w") as f:
-        f.write("patient_id,everything\n")
+        writer = csv.writer(f)
+        writer.writerow(dst for _, dst in columns)
 
-        for patient_id, code in cursor:
-            f.write(f"{patient_id},{code}\n")
+        for fields in cursor:
+            writer.writerow(fields)
 
     conn.close()

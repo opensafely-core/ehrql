@@ -1,2 +1,2 @@
-patient_id,everything
-1,xyz
+patient_id,date,event
+1,2021-01-01,xyz
