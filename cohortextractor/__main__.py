@@ -14,7 +14,7 @@ def get_class_vars(cls):
     return [(key, value) for key, value in vars(cls).items() if key not in default_vars]
 
 
-if __name__ == "__main__":
+def main():
     url = sqlalchemy.engine.make_url(os.environ["TPP_DATABASE_URL"])
     assert url.drivername == "mssql"
     url = url.set(drivername="mssql+pymssql")
@@ -72,3 +72,7 @@ if __name__ == "__main__":
 
             for row in results:
                 writer.writerow(row)
+
+
+if __name__ == "__main__":
+    main()
