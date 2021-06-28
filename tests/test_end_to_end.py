@@ -1,74 +1,60 @@
 import csv
 import shutil
-import sys
 import time
+from collections import namedtuple
 from pathlib import Path
 
-import docker
-from docker.errors import ContainerError
+import pytest
 
 
-client = docker.from_env()
+DbDetails = namedtuple("DbDetails", ["address", "password", "sql_dir", "container"])
 
 
-def run_cohort_extractor(study, tmpdir, db_password):
-    study_dir = tmpdir.mkdir("study")
-    shutil.copy(study, study_dir)
-
-    try:
-        output = client.containers.run(
-            "cohort-extractor-v2:latest",
-            remove=True,
-            stderr=True,
-            network="test_network",
-            environment={"TPP_DATABASE_URL": f"mssql://SA:{db_password}@mssql/test"},
-            volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
-        )
-
-        print(str(output, "utf-8"))
-    except ContainerError as e:
-        print(str(e.stderr, "utf-8"), file=sys.stderr)
-        raise
-
-    return study_dir / "outputs"
-
-
-def start_sql_server(tables, password):
+@pytest.fixture
+def database(containers, tmpdir):
+    address = "mssql"
+    password = "Your_password123!"
     mssql_dir = Path(__file__).parent.absolute() / "support/mssql"
+    sql_dir = tmpdir.mkdir("sql")
 
-    container = client.containers.run(
-        "mcr.microsoft.com/mssql/server:2017-latest",
-        remove=True,
-        name="mssql",
+    container = containers.run_bg(
+        name=address,
+        image="mcr.microsoft.com/mssql/server:2017-latest",
         volumes={
             mssql_dir: {"bind": "/mssql", "mode": "ro"},
-            tables: {"bind": "/tables.sql", "mode": "ro"},
+            sql_dir: {"bind": "/sql", "mode": "ro"},
         },
         environment={"SA_PASSWORD": password, "ACCEPT_EULA": "Y"},
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
-        detach=True,
-        network="test_network",
     )
+
+    yield DbDetails(address, password, sql_dir, container)
+    containers.destroy(container)
+
+
+def load_data(containers, database, tables_file):
+    shutil.copy(tables_file, database.sql_dir)
+    container_path = Path("/sql") / Path(tables_file).name
+    command = [
+        "/opt/mssql-tools/bin/sqlcmd",
+        "-b",
+        "-S",
+        "localhost",
+        "-U",
+        "SA",
+        "-P",
+        database.password,
+        "-d",
+        "test",
+        "-i",
+        str(container_path),
+    ]
+
     start = time.time()
     timeout = 10
     while True:
-        exit_code, output = container.exec_run(
-            [
-                "/opt/mssql-tools/bin/sqlcmd",
-                "-b",
-                "-S",
-                "localhost",
-                "-U",
-                "SA",
-                "-P",
-                password,
-                "-d",
-                "test",
-                "-i",
-                "/tables.sql",
-            ]
-        )
+        exit_code, output = containers.exec_run(database.container, command)
         if exit_code == 0:
             break
         else:
@@ -81,8 +67,19 @@ def start_sql_server(tables, password):
                 raise ValueError(f"Docker error:\n{output}")
 
 
-def create_network():
-    client.networks.create("test_network")
+def run_cohort_extractor(study, tmpdir, database, containers):
+    study_dir = tmpdir.mkdir("study")
+    shutil.copy(study, study_dir)
+
+    containers.run_fg(
+        image="cohort-extractor-v2:latest",
+        environment={
+            "TPP_DATABASE_URL": f"mssql://SA:{database.password}@{database.address}/test"
+        },
+        volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
+    )
+
+    return study_dir / "outputs"
 
 
 def assert_results_equivalent(actual_results, expected_results):
@@ -94,18 +91,11 @@ def assert_results_equivalent(actual_results, expected_results):
         assert actual_data == expected_data
 
 
-def test_extracts_data_from_sql_server(study, tmpdir):
+def test_extracts_data_from_sql_server(study, tmpdir, database, containers):
     our_study = study("end_to_end_tests")
-
-    db_password = "Your_password123!"
-    tables = our_study.grab_tables()
-    create_network()
-    start_sql_server(tables, db_password)
-
-    study = our_study.grab_study_definition()
-
-    actual_results = run_cohort_extractor(study, tmpdir, db_password)
-
+    load_data(containers, database, our_study.grab_tables())
+    actual_results = run_cohort_extractor(
+        our_study.grab_study_definition(), tmpdir, database, containers
+    )
     expected_results = our_study.grab_expected_results()
-
     assert_results_equivalent(actual_results, expected_results)
