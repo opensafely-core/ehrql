@@ -5,42 +5,40 @@ from collections import namedtuple
 from pathlib import Path
 
 import pytest
+from docker.errors import ContainerError
 
 
-DbDetails = namedtuple("DbDetails", ["address", "password", "sql_dir", "container"])
+DbDetails = namedtuple("DbDetails", ["address", "password"])
 
 
 @pytest.fixture
-def database(containers, tmpdir):
-    address = "mssql"
-    password = "Your_password123!"
+def database(run_container):
     mssql_dir = Path(__file__).parent.absolute() / "support/mssql"
-    sql_dir = tmpdir.mkdir("sql")
+    details = DbDetails("mssql", "Your_password123!")
 
-    container = containers.run_bg(
-        name=address,
+    run_container(
+        name=details.address,
         image="mcr.microsoft.com/mssql/server:2017-latest",
         volumes={
             mssql_dir: {"bind": "/mssql", "mode": "ro"},
-            sql_dir: {"bind": "/sql", "mode": "ro"},
         },
-        environment={"SA_PASSWORD": password, "ACCEPT_EULA": "Y"},
+        environment={"SA_PASSWORD": details.password, "ACCEPT_EULA": "Y"},
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
     )
 
-    yield DbDetails(address, password, sql_dir, container)
-    containers.destroy(container)
+    yield details
 
 
-def load_data(containers, database, tables_file):
-    shutil.copy(tables_file, database.sql_dir)
+def load_data(containers, database, tables_file, tmpdir):
+    sql_dir = tmpdir.mkdir("sql")
+    shutil.copy(tables_file, sql_dir)
     container_path = Path("/sql") / Path(tables_file).name
     command = [
         "/opt/mssql-tools/bin/sqlcmd",
         "-b",
         "-S",
-        "localhost",
+        database.address,
         "-U",
         "SA",
         "-P",
@@ -54,17 +52,23 @@ def load_data(containers, database, tables_file):
     start = time.time()
     timeout = 10
     while True:
-        exit_code, output = containers.exec_run(database.container, command)
-        if exit_code == 0:
+        try:
+            containers.run_fg(
+                image="mcr.microsoft.com/mssql/server:2017-latest",
+                volumes={
+                    sql_dir: {"bind": "/sql", "mode": "ro"},
+                },
+                command=command,
+            )
             break
-        else:
+        except ContainerError as e:
             if (
-                b"Server is not found or not accessible" in output
-                or b"Login failed for user" in output
+                b"Server is not found or not accessible" in e.stderr
+                or b"Login failed for user" in e.stderr
             ) and time.time() - start < timeout:
                 time.sleep(1)
             else:
-                raise ValueError(f"Docker error:\n{output}")
+                raise
 
 
 def run_cohort_extractor(study, tmpdir, database, containers):
@@ -93,7 +97,7 @@ def assert_results_equivalent(actual_results, expected_results):
 
 def test_extracts_data_from_sql_server(study, tmpdir, database, containers):
     our_study = study("end_to_end_tests")
-    load_data(containers, database, our_study.grab_tables())
+    load_data(containers, database, our_study.grab_tables(), tmpdir)
     actual_results = run_cohort_extractor(
         our_study.grab_study_definition(), tmpdir, database, containers
     )

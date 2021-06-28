@@ -62,9 +62,6 @@ class Containers:
             print(str(e.stderr, "utf-8"), file=sys.stderr)
             raise
 
-    def exec_run(self, container, command):
-        return container.exec_run(command)
-
     def destroy(self, container):
         container.remove(force=True)
 
@@ -76,3 +73,16 @@ class Containers:
 def containers(docker_client, network):
     cs = Containers(docker_client, network)
     yield cs
+
+
+@pytest.fixture
+def run_container(containers):
+    container = None
+
+    def run(**kwargs):
+        nonlocal container
+        container = containers.run_bg(**kwargs)
+
+    yield run
+    if container:
+        containers.destroy(container)
