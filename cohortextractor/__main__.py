@@ -1,10 +1,12 @@
+import csv
 import importlib
+import os
 import sys
 import time
 from pathlib import Path
 
-import pymssql
-from pymssql import OperationalError
+import sqlalchemy
+import sqlalchemy.exc
 
 
 def get_class_vars(cls):
@@ -13,40 +15,60 @@ def get_class_vars(cls):
 
 
 if __name__ == "__main__":
-    sys.path.append("/workspace")
-    study_definition = importlib.import_module("study_definition")
-    Cohort = getattr(study_definition, "Cohort")
-
-    cohort = {key: value for key, value in get_class_vars(Cohort)}
-
-    query = cohort["everything"]
-    sql = f"SELECT patient_id, {query.column} FROM {query.table}"
-    print(sql, file=sys.stderr)
+    url = sqlalchemy.engine.make_url(os.environ["TPP_DATABASE_URL"])
+    assert url.drivername == "mssql"
+    url = url.set(drivername="mssql+pymssql")
+    engine = sqlalchemy.create_engine(url, echo=True, future=True)
 
     timeout = 20
     limit = time.time() + timeout
-    conn = None
-    while not conn:
+    up = False
+    while not up:
         try:
-            conn = pymssql.connect(
-                server="mssql", user="SA", password="Your_password123!", database="test"
-            )
-        except OperationalError as e:
+            with engine.connect() as conn:
+                result = conn.execute(sqlalchemy.text("select 'hello world'"))
+                assert result.first() == ("hello world",)
+                up = True
+        except sqlalchemy.exc.OperationalError as e:
             if time.time() >= limit:
                 raise Exception(
                     f"Failed to connect to mssql after {timeout} seconds"
                 ) from e
             time.sleep(1)
 
-    cursor = conn.cursor()
-    cursor.execute(sql)
+    sys.path.append("/workspace")
+    study_definition = importlib.import_module("study_definition")
+    Cohort = getattr(study_definition, "Cohort")
 
-    path = Path("/workspace/outputs/some_file.csv")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open(mode="w") as f:
-        f.write("patient_id,everything\n")
+    cohort = {key: value for key, value in get_class_vars(Cohort)}
 
-        for patient_id, code in cursor:
-            f.write(f"{patient_id},{code}\n")
+    # We always want to include the patient id.
+    columns = [("patient_id", "patient_id")]
 
-    conn.close()
+    table_name = None
+
+    for dst_column, query in cohort.items():
+        # For now, we only support querying a single table.
+        if not table_name:
+            table_name = query.table
+        else:
+            assert table_name == query.table
+        columns.append((query.column, dst_column))
+
+    metadata = sqlalchemy.MetaData()
+    table = sqlalchemy.Table(table_name, metadata, autoload_with=engine)
+
+    # Turn each source/destination pair into a SQL "AS" clause.
+    query = sqlalchemy.select(*[table.c[src].label(dst) for src, dst in columns])
+
+    with engine.connect() as conn:
+        results = conn.execute(query)
+
+        path = Path("/workspace/outputs/cohort.csv")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open(mode="w") as f:
+            writer = csv.writer(f)
+            writer.writerow(dst for _, dst in columns)
+
+            for row in results:
+                writer.writerow(row)
