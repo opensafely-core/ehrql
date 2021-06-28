@@ -14,6 +14,14 @@ def get_class_vars(cls):
     return [(key, value) for key, value in vars(cls).items() if key not in default_vars]
 
 
+def get_column_definitions(cohort_cls):
+    return {
+        key: value
+        for key, value in get_class_vars(cohort_cls)
+        if not key.startswith("_")
+    }
+
+
 def main():
     url = sqlalchemy.engine.make_url(os.environ["TPP_DATABASE_URL"])
     assert url.drivername == "mssql"
@@ -40,7 +48,7 @@ def main():
     study_definition = importlib.import_module("study_definition")
     Cohort = getattr(study_definition, "Cohort")
 
-    cohort = {key: value for key, value in get_class_vars(Cohort)}
+    cohort = get_column_definitions(Cohort)
 
     # We always want to include the patient id.
     columns = [("patient_id", "patient_id")]

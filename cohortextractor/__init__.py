@@ -1,4 +1,4 @@
-from query_language import table
+from .query_language import table
 
 
 __all__ = [
