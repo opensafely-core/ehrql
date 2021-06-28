@@ -34,3 +34,8 @@ def pytest_sessionfinish(session, exitstatus):
         client.containers.get("mssql").remove(force=True)
     except docker.errors.NotFound:
         pass
+
+    try:
+        client.networks.get("test_network").remove()
+    except docker.errors.NotFound:
+        pass

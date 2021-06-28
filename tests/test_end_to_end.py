@@ -20,7 +20,7 @@ def run_cohort_extractor(study, tmpdir):
             "cohort-extractor-v2:latest",
             remove=True,
             stderr=True,
-            links={"mssql": "mssql"},
+            network="test_network",
             environment={
                 "TPP_DATABASE_URL": "mssql://SA:Your_password123!@mssql/Test_OpenCorona"
             },
@@ -50,6 +50,7 @@ def start_sql_server(tables):
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
         detach=True,
+        network="test_network",
     )
     start = time.time()
     timeout = 10
@@ -82,6 +83,10 @@ def start_sql_server(tables):
                 raise ValueError(f"Docker error:\n{output}")
 
 
+def create_network():
+    client.networks.create("test_network")
+
+
 def assert_results_equivalent(actual_results, expected_results):
     with open(actual_results / "some_file.csv") as actual_file:
         with open(expected_results) as expected_file:
@@ -95,6 +100,7 @@ def test_extracts_data_from_sql_server(study, tmpdir):
     our_study = study("end_to_end_tests")
 
     tables = our_study.grab_tables()
+    create_network()
     start_sql_server(tables)
 
     study = our_study.grab_study_definition()
