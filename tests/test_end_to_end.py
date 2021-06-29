@@ -1,36 +1,80 @@
 import csv
+import os
 import shutil
 import time
 from collections import namedtuple
 from pathlib import Path
 
+import docker.errors
 import pytest
 from docker.errors import ContainerError
 
 
-DbDetails = namedtuple("DbDetails", ["address", "password"])
+DbDetails = namedtuple("DbDetails", ["network", "host", "port", "password"])
+
+
+def is_fast_mode():
+    return not os.environ.get("MODE") == "slow"
 
 
 @pytest.fixture
-def database(run_container):
-    mssql_dir = Path(__file__).parent.absolute() / "support/mssql"
-    details = DbDetails("mssql", "Your_password123!")
+def mssql_dir():
+    return Path(__file__).parent.absolute() / "support/mssql"
+
+
+@pytest.fixture
+def database(run_container, containers, network, docker_client, mssql_dir):
+    password = "Your_password123!"
+    if is_fast_mode():
+        yield persistent_database(containers, password, docker_client, mssql_dir)
+    else:
+        yield ephemeral_database(run_container, password, mssql_dir, network)
+
+
+def persistent_database(containers, password, docker_client, mssql_dir):
+    container = "cohort-extractor-mssql"
+    network = "cohort-extractor-network"
+
+    try:
+        docker_client.networks.get(network)
+    except docker.errors.NotFound:
+        docker_client.networks.create(network)
+
+    if not containers.is_running(container):
+        containers.run_bg(
+            name=container,
+            image="mcr.microsoft.com/mssql/server:2017-latest",
+            volumes={
+                mssql_dir: {"bind": "/mssql", "mode": "ro"},
+            },
+            network=network,
+            environment={"SA_PASSWORD": password, "ACCEPT_EULA": "Y"},
+            entrypoint="/mssql/entrypoint.sh",
+            command="/opt/mssql/bin/sqlservr",
+        )
+
+    return DbDetails(network=network, host=container, port=1433, password=password)
+
+
+def ephemeral_database(run_container, password, mssql_dir, network):
+    details = DbDetails(network=network, host="mssql", port="1433", password=password)
 
     run_container(
-        name=details.address,
+        name=details.host,
         image="mcr.microsoft.com/mssql/server:2017-latest",
         volumes={
             mssql_dir: {"bind": "/mssql", "mode": "ro"},
         },
+        network=network,
         environment={"SA_PASSWORD": details.password, "ACCEPT_EULA": "Y"},
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
     )
 
-    yield details
+    return details
 
 
-def load_data(containers, database, tables_file, tmpdir):
+def load_data(containers, database, tables_file, tmpdir, mssql_dir):
     sql_dir = tmpdir.mkdir("sql")
     shutil.copy(tables_file, sql_dir)
     container_path = Path("/sql") / Path(tables_file).name
@@ -38,7 +82,7 @@ def load_data(containers, database, tables_file, tmpdir):
         "/opt/mssql-tools/bin/sqlcmd",
         "-b",
         "-S",
-        database.address,
+        f"{database.host},{database.port}",
         "-U",
         "SA",
         "-P",
@@ -57,7 +101,10 @@ def load_data(containers, database, tables_file, tmpdir):
                 image="mcr.microsoft.com/mssql/server:2017-latest",
                 volumes={
                     sql_dir: {"bind": "/sql", "mode": "ro"},
+                    mssql_dir: {"bind": "/mssql", "mode": "ro"},
                 },
+                network=database.network,
+                entrypoint="/mssql/entrypoint.sh",
                 command=command,
             )
             break
@@ -78,9 +125,10 @@ def run_cohort_extractor(study, tmpdir, database, containers):
     containers.run_fg(
         image="cohort-extractor-v2:latest",
         environment={
-            "TPP_DATABASE_URL": f"mssql://SA:{database.password}@{database.address}/test"
+            "TPP_DATABASE_URL": f"mssql://SA:{database.password}@{database.host}:{database.port}/test"
         },
         volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
+        network=database.network,
     )
 
     return study_dir / "outputs"
@@ -95,9 +143,9 @@ def assert_results_equivalent(actual_results, expected_results):
         assert actual_data == expected_data
 
 
-def test_extracts_data_from_sql_server(study, tmpdir, database, containers):
+def test_extracts_data_from_sql_server(study, tmpdir, database, containers, mssql_dir):
     our_study = study("end_to_end_tests")
-    load_data(containers, database, our_study.grab_tables(), tmpdir)
+    load_data(containers, database, our_study.grab_tables(), tmpdir, mssql_dir)
     actual_results = run_cohort_extractor(
         our_study.grab_study_definition(), tmpdir, database, containers
     )

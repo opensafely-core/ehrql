@@ -43,9 +43,15 @@ def network(docker_client):
 
 
 class Containers:
-    def __init__(self, docker_client, network):
+    def __init__(self, docker_client):
         self._docker = docker_client
-        self._network = network
+
+    def is_running(self, name):
+        try:
+            container = self._docker.containers.get(name)
+            return container.status == "running"
+        except docker.errors.NotFound:
+            return False
 
     # All available arguments documented here:
     # https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run
@@ -62,17 +68,19 @@ class Containers:
             print(str(e.stderr, "utf-8"), file=sys.stderr)
             raise
 
+    # noinspection PyMethodMayBeStatic
     def destroy(self, container):
         container.remove(force=True)
 
     def _run(self, **kwargs):
-        return self._docker.containers.run(remove=True, network=self._network, **kwargs)
+        return self._docker.containers.run(remove=True, **kwargs)
 
 
 @pytest.fixture
 def containers(docker_client, network):
-    cs = Containers(docker_client, network)
-    yield cs
+    # `network` is specified as an argument for sequencing reasons. We need to make sure that the network is created
+    # before containers that use it and that all containers are cleaned up before the network is removed.
+    yield Containers(docker_client)
 
 
 @pytest.fixture
@@ -85,4 +93,5 @@ def run_container(containers):
 
     yield run
     if container:
+        # noinspection PyTypeChecker
         containers.destroy(container)
