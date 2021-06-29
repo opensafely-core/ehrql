@@ -1,5 +1,6 @@
 import csv
 import importlib
+import inspect
 import os
 import sys
 import time
@@ -35,7 +36,14 @@ def main():
 
     sys.path.append("/workspace")
     study_definition = importlib.import_module("study_definition")
-    Cohort = getattr(study_definition, "Cohort")
+
+    cohort_classes = [
+        obj
+        for name, obj in inspect.getmembers(study_definition)
+        if inspect.isclass(obj)
+    ]
+    assert len(cohort_classes) == 1, "A study definition must contain one class only"
+    Cohort = cohort_classes[0]
 
     cohort = get_column_definitions(Cohort)
 
