@@ -12,8 +12,10 @@ import sqlalchemy.exc
 from .query_utils import get_column_definitions
 
 
-def main():
-    url = sqlalchemy.engine.make_url(os.environ["TPP_DATABASE_URL"])
+def main(workspace="/workspace", db_url=None):
+    if not db_url:
+        db_url = os.environ["TPP_DATABASE_URL"]
+    url = sqlalchemy.engine.make_url(db_url)
     assert url.drivername == "mssql"
     url = url.set(drivername="mssql+pymssql")
     engine = sqlalchemy.create_engine(url, echo=True, future=True)
@@ -34,7 +36,7 @@ def main():
                 ) from e
             time.sleep(1)
 
-    sys.path.append("/workspace")
+    sys.path.append(workspace)
     study_definition = importlib.import_module("study_definition")
 
     cohort_classes = [
@@ -69,7 +71,7 @@ def main():
     with engine.connect() as conn:
         results = conn.execute(query)
 
-        path = Path("/workspace/outputs/cohort.csv")
+        path = Path(workspace) / "outputs/cohort.csv"
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open(mode="w") as f:
             writer = csv.writer(f)

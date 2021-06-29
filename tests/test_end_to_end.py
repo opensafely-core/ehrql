@@ -10,7 +10,19 @@ import pytest
 from docker.errors import ContainerError
 
 
-DbDetails = namedtuple("DbDetails", ["network", "host", "port", "password"])
+DEFULT_MSSQL_PORT = 1433
+
+DbDetails = namedtuple(
+    "DbDetails",
+    [
+        "network",
+        "host_from_container",
+        "port_from_container",
+        "host_from_host",
+        "port_from_host",
+        "password",
+    ],
+)
 
 
 def is_fast_mode():
@@ -34,6 +46,7 @@ def database(run_container, containers, network, docker_client, mssql_dir):
 def persistent_database(containers, password, docker_client, mssql_dir):
     container = "cohort-extractor-mssql"
     network = "cohort-extractor-network"
+    published_port = 12345
 
     try:
         docker_client.networks.get(network)
@@ -48,30 +61,45 @@ def persistent_database(containers, password, docker_client, mssql_dir):
                 mssql_dir: {"bind": "/mssql", "mode": "ro"},
             },
             network=network,
+            ports={f"{DEFULT_MSSQL_PORT}/TCP": published_port},
             environment={"SA_PASSWORD": password, "ACCEPT_EULA": "Y"},
             entrypoint="/mssql/entrypoint.sh",
             command="/opt/mssql/bin/sqlservr",
         )
 
-    return DbDetails(network=network, host=container, port=1433, password=password)
+    return DbDetails(
+        network=network,
+        host_from_container=container,
+        port_from_container=DEFULT_MSSQL_PORT,
+        host_from_host="localhost",
+        port_from_host=published_port,
+        password=password,
+    )
 
 
 def ephemeral_database(run_container, password, mssql_dir, network):
-    details = DbDetails(network=network, host="mssql", port="1433", password=password)
+    container = "mssql"
 
     run_container(
-        name=details.host,
+        name=container,
         image="mcr.microsoft.com/mssql/server:2017-latest",
         volumes={
             mssql_dir: {"bind": "/mssql", "mode": "ro"},
         },
         network=network,
-        environment={"SA_PASSWORD": details.password, "ACCEPT_EULA": "Y"},
+        environment={"SA_PASSWORD": password, "ACCEPT_EULA": "Y"},
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
     )
 
-    return details
+    return DbDetails(
+        network=network,
+        host_from_container=container,
+        port_from_container=DEFULT_MSSQL_PORT,
+        host_from_host=None,
+        port_from_host=None,
+        password=password,
+    )
 
 
 @pytest.fixture
@@ -84,7 +112,7 @@ def load_data(containers, database, tmpdir, mssql_dir):
             "/opt/mssql-tools/bin/sqlcmd",
             "-b",
             "-S",
-            f"{database.host},{database.port}",
+            f"{database.host_from_container},{database.port_from_container}",
             "-U",
             "SA",
             "-P",
@@ -122,24 +150,41 @@ def load_data(containers, database, tmpdir, mssql_dir):
     return load
 
 
+def container_cohort_extractor(study, database, containers, study_dir):
+    shutil.copy(study, study_dir)
+
+    containers.run_fg(
+        image="cohort-extractor-v2:latest",
+        environment={
+            "TPP_DATABASE_URL": f"mssql://SA:{database.password}@{database.host_from_container}:{database.port_from_container}/test"
+        },
+        volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
+        network=database.network,
+    )
+
+    return study_dir / "outputs"
+
+
+def in_process_cohort_extractor(study, database, study_dir):
+    shutil.copy(study, study_dir)
+    from cohortextractor.main import main
+
+    main(
+        workspace=str(study_dir),
+        db_url=f"mssql://SA:{database.password}@{database.host_from_host}:{database.port_from_host}/test",
+    )
+    return study_dir / "outputs"
+
+
 @pytest.fixture
 def run_cohort_extractor(tmpdir, database, containers):
-    def run(study):
-        study_dir = tmpdir.mkdir("study")
-        shutil.copy(study, study_dir)
-
-        containers.run_fg(
-            image="cohort-extractor-v2:latest",
-            environment={
-                "TPP_DATABASE_URL": f"mssql://SA:{database.password}@{database.host}:{database.port}/test"
-            },
-            volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
-            network=database.network,
+    study_dir = tmpdir.mkdir("study")
+    if is_fast_mode():
+        return lambda study: in_process_cohort_extractor(study, database, study_dir)
+    else:
+        return lambda study: container_cohort_extractor(
+            study, database, containers, study_dir
         )
-
-        return study_dir / "outputs"
-
-    return run
 
 
 def assert_results_equivalent(actual_results, expected_results):

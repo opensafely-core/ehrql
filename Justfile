@@ -1,7 +1,7 @@
 build-cohort-extractor:
     docker build . -t cohort-extractor-v2
 
-test-e2e ARGS="": build-cohort-extractor
+test-e2e ARGS="":
     MODE=fast pytest --tb=native tests/test_end_to_end.py {{ ARGS }}
 
 test-e2e-slow ARGS="": build-cohort-extractor
