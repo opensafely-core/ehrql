@@ -49,6 +49,9 @@ dev_setup () {
     echo "Setting up pre-commit hooks"
     "$VIRTUAL_ENV"/bin/pre-commit install
   fi
+
+  # set PYTHONPATH
+  export PYTHONPATH="$BASE_DIR"
 }
 
 check () {
@@ -82,9 +85,19 @@ update() {
     "$VIRTUAL_ENV"/bin/pip install -r requirements."$target".txt
 }
 
-test () {
+test_unit () {
+  dev_setup
+  just test-unit "$other_args"
+}
+
+test_e2e () {
   dev_setup
   just test-e2e "$other_args"
+}
+
+test () {
+  dev_setup
+  just test-all "$other_args"
 }
 
 
@@ -97,7 +110,9 @@ case $command in
     echo "    ./scripts/setup            set up production environment."
     echo "    ./scripts/dev_setup        set up/update the local dev env."
     echo "    ./scripts/run              run the dev project."
-    echo "    ./scripts/test <args>      run the test suite. Optional args are passed to pytest."
+    echo "    ./scripts/test_unit <args>      run the unit tests only. Optional args are passed to pytest."
+    echo "    ./scripts/test_e2e <args>      run the end-to-end tests only. Optional args are passed to pytest."
+    echo "    ./scripts/test <args>      run the full test suite. Optional args are passed to pytest."
     echo "    ./scripts/update <target>  compile and update python dependencies.  <target> specifies an environment to update (dev/prod)."
   ;;
 
@@ -118,6 +133,12 @@ case $command in
     ;;
   "test")
     test
+    ;;
+  "test_e2e")
+    test_e2e
+    ;;
+  "test_unit")
+    test_unit
     ;;
   "run")
     run

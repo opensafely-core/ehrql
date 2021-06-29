@@ -4,6 +4,12 @@ build-cohort-extractor:
 test-e2e ARGS="": build-cohort-extractor
     pytest --tb=native tests/test_end_to_end.py {{ ARGS }}
 
+test-all ARGS="": build-cohort-extractor
+    pytest --tb=native --cov=cohortextractor --cov=tests  {{ ARGS }}
+
+test-unit ARGS="":
+    pytest --tb=native --ignore=tests/test_end_to_end.py {{ ARGS }}
+
 # run the format checker, sort checker and linter
 check:
     black --check .
