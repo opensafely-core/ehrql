@@ -55,9 +55,9 @@ def main():
     for dst_column, query in cohort.items():
         # For now, we only support querying a single table.
         if not table_name:
-            table_name = query.table
+            table_name = query.source.name
         else:
-            assert table_name == query.table
+            assert table_name == query.source.name
         columns.append((query.column, dst_column))
 
     metadata = sqlalchemy.MetaData()
