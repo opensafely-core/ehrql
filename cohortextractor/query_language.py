@@ -11,7 +11,7 @@ class Table(QueryNode):
         self.name = name
 
     def get(self, column):
-        return Column(table=self, name=column)
+        return Column(source=self, column=column)
 
     @property
     def _filter_operator_mapping(self):
@@ -89,13 +89,9 @@ class FilteredTable(Table):
 
 
 class Column(QueryNode):
-    def __init__(self, table, name) -> None:
-        self._table = table
-        self.column = name
-
-    @property
-    def table(self):
-        return self._table.name
+    def __init__(self, source, column):
+        self.source = source
+        self.column = column
 
 
 class Row(QueryNode):

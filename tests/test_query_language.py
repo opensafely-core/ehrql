@@ -166,4 +166,4 @@ def test_cohort_column_definitions_return_column():
     column_definitions = get_column_definitions(Cohort)
     assert isinstance(column_definitions["output_value"], Column)
     assert column_definitions["output_value"].column == "code"
-    assert column_definitions["output_value"].table == "clinical_events"
+    assert column_definitions["output_value"].source.name == "clinical_events"
