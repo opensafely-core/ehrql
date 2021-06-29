@@ -11,18 +11,18 @@ class Study:
         super().__init__()
         self._path = Path(__file__).parent.absolute() / "fixtures" / study_path
 
-    def grab_tables(self):
+    def tables(self):
         return self._path / "tables.sql"
 
-    def grab_study_definition(self):
+    def study_definition(self):
         return self._path / "study_definition.py"
 
-    def grab_expected_results(self):
+    def expected_results(self):
         return self._path / "results.csv"
 
 
 @pytest.fixture
-def study():
+def load_study():
     def read_dir(path):
         return Study(path)
 

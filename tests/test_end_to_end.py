@@ -74,64 +74,72 @@ def ephemeral_database(run_container, password, mssql_dir, network):
     return details
 
 
-def load_data(containers, database, tables_file, tmpdir, mssql_dir):
-    sql_dir = tmpdir.mkdir("sql")
-    shutil.copy(tables_file, sql_dir)
-    container_path = Path("/sql") / Path(tables_file).name
-    command = [
-        "/opt/mssql-tools/bin/sqlcmd",
-        "-b",
-        "-S",
-        f"{database.host},{database.port}",
-        "-U",
-        "SA",
-        "-P",
-        database.password,
-        "-d",
-        "test",
-        "-i",
-        str(container_path),
-    ]
+@pytest.fixture
+def load_data(containers, database, tmpdir, mssql_dir):
+    def load(tables_file):
+        sql_dir = tmpdir.mkdir("sql")
+        shutil.copy(tables_file, sql_dir)
+        container_path = Path("/sql") / Path(tables_file).name
+        command = [
+            "/opt/mssql-tools/bin/sqlcmd",
+            "-b",
+            "-S",
+            f"{database.host},{database.port}",
+            "-U",
+            "SA",
+            "-P",
+            database.password,
+            "-d",
+            "test",
+            "-i",
+            str(container_path),
+        ]
 
-    start = time.time()
-    timeout = 10
-    while True:
-        try:
-            containers.run_fg(
-                image="mcr.microsoft.com/mssql/server:2017-latest",
-                volumes={
-                    sql_dir: {"bind": "/sql", "mode": "ro"},
-                    mssql_dir: {"bind": "/mssql", "mode": "ro"},
-                },
-                network=database.network,
-                entrypoint="/mssql/entrypoint.sh",
-                command=command,
-            )
-            break
-        except ContainerError as e:
-            if (
-                b"Server is not found or not accessible" in e.stderr
-                or b"Login failed for user" in e.stderr
-            ) and time.time() - start < timeout:
-                time.sleep(1)
-            else:
-                raise
+        start = time.time()
+        timeout = 10
+        while True:
+            try:
+                containers.run_fg(
+                    image="mcr.microsoft.com/mssql/server:2017-latest",
+                    volumes={
+                        sql_dir: {"bind": "/sql", "mode": "ro"},
+                        mssql_dir: {"bind": "/mssql", "mode": "ro"},
+                    },
+                    network=database.network,
+                    entrypoint="/mssql/entrypoint.sh",
+                    command=command,
+                )
+                break
+            except ContainerError as e:
+                if (
+                    b"Server is not found or not accessible" in e.stderr
+                    or b"Login failed for user" in e.stderr
+                ) and time.time() - start < timeout:
+                    time.sleep(1)
+                else:
+                    raise
+
+    return load
 
 
-def run_cohort_extractor(study, tmpdir, database, containers):
-    study_dir = tmpdir.mkdir("study")
-    shutil.copy(study, study_dir)
+@pytest.fixture
+def run_cohort_extractor(tmpdir, database, containers):
+    def run(study):
+        study_dir = tmpdir.mkdir("study")
+        shutil.copy(study, study_dir)
 
-    containers.run_fg(
-        image="cohort-extractor-v2:latest",
-        environment={
-            "TPP_DATABASE_URL": f"mssql://SA:{database.password}@{database.host}:{database.port}/test"
-        },
-        volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
-        network=database.network,
-    )
+        containers.run_fg(
+            image="cohort-extractor-v2:latest",
+            environment={
+                "TPP_DATABASE_URL": f"mssql://SA:{database.password}@{database.host}:{database.port}/test"
+            },
+            volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
+            network=database.network,
+        )
 
-    return study_dir / "outputs"
+        return study_dir / "outputs"
+
+    return run
 
 
 def assert_results_equivalent(actual_results, expected_results):
@@ -143,11 +151,9 @@ def assert_results_equivalent(actual_results, expected_results):
         assert actual_data == expected_data
 
 
-def test_extracts_data_from_sql_server(study, tmpdir, database, containers, mssql_dir):
-    our_study = study("end_to_end_tests")
-    load_data(containers, database, our_study.grab_tables(), tmpdir, mssql_dir)
-    actual_results = run_cohort_extractor(
-        our_study.grab_study_definition(), tmpdir, database, containers
-    )
-    expected_results = our_study.grab_expected_results()
-    assert_results_equivalent(actual_results, expected_results)
+def test_extracts_data_from_sql_server(load_study, load_data, run_cohort_extractor):
+    study = load_study("end_to_end_tests")
+    load_data(study.tables())
+
+    actual_results = run_cohort_extractor(study.study_definition())
+    assert_results_equivalent(actual_results, study.expected_results())
