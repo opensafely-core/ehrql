@@ -1,4 +1,5 @@
 import os
+import random
 import shutil
 import sys
 import time
@@ -151,10 +152,13 @@ def database(run_container, containers, network, docker_client, mssql_dir):
         yield ephemeral_database(run_container, password, mssql_dir, network)
 
 
+PERSISTENT_DATABASE_PORT = 49152
+
+
 def persistent_database(containers, password, docker_client, mssql_dir):
     container = "cohort-extractor-mssql"
     network = "cohort-extractor-network"
-    published_port = 12345
+    published_port = PERSISTENT_DATABASE_PORT
 
     try:
         docker_client.networks.get(network)
@@ -188,6 +192,7 @@ def persistent_database(containers, password, docker_client, mssql_dir):
 
 def ephemeral_database(run_container, password, mssql_dir, network):
     container = "mssql"
+    published_port = random.randint(PERSISTENT_DATABASE_PORT + 1, 65535)
 
     run_container(
         name=container,
@@ -196,6 +201,7 @@ def ephemeral_database(run_container, password, mssql_dir, network):
             mssql_dir: {"bind": "/mssql", "mode": "ro"},
         },
         network=network,
+        ports={f"{DEFAULT_MSSQL_PORT}/TCP": published_port},
         environment={"SA_PASSWORD": password, "ACCEPT_EULA": "Y"},
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
@@ -205,8 +211,8 @@ def ephemeral_database(run_container, password, mssql_dir, network):
         network=network,
         host_from_container=container,
         port_from_container=DEFAULT_MSSQL_PORT,
-        host_from_host=None,
-        port_from_host=None,
+        host_from_host="localhost",
+        port_from_host=published_port,
         password=password,
         db_name="test",
     )
