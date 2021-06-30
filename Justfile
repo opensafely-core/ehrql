@@ -2,10 +2,10 @@ build-cohort-extractor:
     docker build . -t cohort-extractor-v2
 
 test-e2e ARGS="":
-    MODE=fast pytest --tb=native tests/test_end_to_end.py {{ ARGS }}
+    MODE=fast pytest tests/test_end_to_end.py {{ ARGS }}
 
 test-e2e-slow ARGS="": build-cohort-extractor
-    MODE=slow pytest --tb=native tests/test_end_to_end.py {{ ARGS }}
+    MODE=slow pytest tests/test_end_to_end.py {{ ARGS }}
 
 remove-persistent-database:
     docker rm --force cohort-extractor-mssql

@@ -30,3 +30,4 @@ skip_glob = [".direnv", "venv", ".venv"]
 use_parentheses = true
 
 [tool.pytest.ini_options]
+addopts = "--tb=native"
