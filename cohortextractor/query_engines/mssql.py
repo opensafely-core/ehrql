@@ -64,7 +64,7 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def get_select_expression(self, base_table, columns):
         # every table must have a patient_id column; select it and the specified columns
-        columns = {"patient_id"}.union(columns)
+        columns = sorted({"patient_id"}.union(columns))
         table_expr = self.backend.get_table_expression(base_table.name)
         column_objs = [table_expr.c[column] for column in columns]
         query = sqlalchemy.select(column_objs).select_from(table_expr)
@@ -115,10 +115,8 @@ class MssqlQueryEngine(BaseQueryEngine):
         )
         return query.select_from(join)
 
-    def generate_query(self):
+    def generate_results_query(self):
         column_definitions = self.column_definitions.copy()
-        self.get_and_populate_output_group_tables(self.output_groups)
-
         # `population` is a special-cased boolean column, it doesn't appear
         # itself in the output but it determines what rows are included
         # TODO Currently just uses a default population table and expression
@@ -134,6 +132,7 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def get_sql(self):
         """Build the SQL"""
+        self.get_and_populate_output_group_tables(self.output_groups)
         sql = []
         # Generate each of the interim output group tables and populate them
         for group, table in self.output_group_tables.items():
@@ -142,7 +141,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             sql.append(f"SELECT * INTO {table.name} FROM (\n{query_sql}\n) t")
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
-        sql.append(self.query_expression_to_sql(self.generate_query()))
+        sql.append(self.query_expression_to_sql(self.generate_results_query()))
         return "\n\n\n".join(sql)
 
     def query_expression_to_sql(self, query):

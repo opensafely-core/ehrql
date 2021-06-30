@@ -24,7 +24,7 @@ class BackendTable:
 class SQLTable(BackendTable):
     def __init__(self, *, columns, source=None):
         if "patient_id" not in columns:
-            columns["patient_id"] = Column("int")
+            columns["patient_id"] = Column("int", "patient_id")
         self.name = source
         self.columns = columns
 

@@ -31,10 +31,14 @@ def test_mssql_query_engine():
     query_engine = MssqlQueryEngine(
         column_definitions=column_definitions, backend=MockBackend()
     )
+
     sql = query_engine.get_sql()
     assert (
-        sql
-        == "SELECT practice_registrations.patient_id AS patient_id, group_table_0.code "
+        sql == "SELECT * INTO group_table_0 FROM (\n"
+        "SELECT clinical_events.code, clinical_events.patient_id \n"
+        "FROM (SELECT EventCode AS code, patient_id AS patient_id \n"
+        "FROM events) AS clinical_events\n) t\n\n\n"
+        "SELECT practice_registrations.patient_id AS patient_id, group_table_0.code "
         "AS output_value \nFROM practice_registrations LEFT OUTER JOIN group_table_0 "
         "ON practice_registrations.patient_id = group_table_0.patient_id"
     )
