@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # shellcheck source=../.venv/bin/activate
 
 # This is the base script to call all other commands
