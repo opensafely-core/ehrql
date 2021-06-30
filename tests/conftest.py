@@ -214,10 +214,26 @@ def ephemeral_database(run_container, password, mssql_dir, network):
 
 @pytest.fixture
 def load_data(containers, database, tmpdir, mssql_dir):
-    def load(tables_file):
-        sql_dir = tmpdir.mkdir("sql")
-        shutil.copy(tables_file, sql_dir)
-        container_path = Path("/sql") / Path(tables_file).name
+    filename = "data.sql"
+    host_dir = tmpdir.mkdir("sql")
+    host_file = host_dir / filename
+    container_dir = Path("/sql")
+    container_file = container_dir / filename
+
+    def load(file=None, sql=None):
+        if file and sql:
+            raise ValueError(
+                "You must provide exactly one of the file or sql arguments"
+            )
+        elif file:
+            shutil.copy(file, host_file)
+        elif sql:
+            host_file.write(sql)
+        else:
+            raise ValueError(
+                "You must provide exactly one of the file or sql arguments"
+            )
+
         command = [
             "/opt/mssql-tools/bin/sqlcmd",
             "-b",
@@ -230,7 +246,7 @@ def load_data(containers, database, tmpdir, mssql_dir):
             "-d",
             "test",
             "-i",
-            str(container_path),
+            str(container_file),
         ]
 
         start = time.time()
@@ -240,7 +256,7 @@ def load_data(containers, database, tmpdir, mssql_dir):
                 containers.run_fg(
                     image="mcr.microsoft.com/mssql/server:2017-latest",
                     volumes={
-                        sql_dir: {"bind": "/sql", "mode": "ro"},
+                        host_dir: {"bind": str(container_dir), "mode": "ro"},
                         mssql_dir: {"bind": "/mssql", "mode": "ro"},
                     },
                     network=database.network,
