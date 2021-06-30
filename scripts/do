@@ -8,7 +8,7 @@ set -euo pipefail
 # Find the project root directory
 PYTHON_VERSION="${PYTHON_VERSION:-python3.9}"
 BASE_DIR="$(git rev-parse --show-toplevel)"
-command="$1"
+command="${1:-help}"
 other_args="${*:2}"
 
 echo "Doing $command"
