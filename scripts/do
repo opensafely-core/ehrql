@@ -105,52 +105,19 @@ test() {
   just test-all "$other_args"
 }
 
+help() {
+  echo "Usage:"
+  echo "    ./scripts/help             prints this help."
+  echo "    ./scripts/check            runs the format (black), sort (isort) and lint (flake8) check but does not change any files"
+  echo "    ./scripts/fix              fix formatting and import sort ordering."
+  echo "    ./scripts/setup            set up production environment."
+  echo "    ./scripts/dev_setup        set up/update the local dev env."
+  echo "    ./scripts/run              run the dev project."
+  echo "    ./scripts/test_unit <args>     run the unit tests only. Optional args are passed to pytest."
+  echo "    ./scripts/test_e2e <args>      run the end-to-end tests only in slow mode. Optional args are passed to pytest."
+  echo "    ./scripts/test_e2e_fast <args> run the end-to-end tests only in fast mode (not suitable for GHAs). Optional args are passed to pytest."
+  echo "    ./scripts/test <args>      run the full test suite. Optional args are passed to pytest."
+  echo "    ./scripts/update <target>  compile and update python dependencies.  <target> specifies an environment to update (dev/prod)."
+}
 
-case $command in
-  "help")
-    echo "Usage:"
-    echo "    ./scripts/help             prints this help."
-    echo "    ./scripts/check            runs the format (black), sort (isort) and lint (flake8) check but does not change any files"
-    echo "    ./scripts/fix              fix formatting and import sort ordering."
-    echo "    ./scripts/setup            set up production environment."
-    echo "    ./scripts/dev_setup        set up/update the local dev env."
-    echo "    ./scripts/run              run the dev project."
-    echo "    ./scripts/test_unit <args>     run the unit tests only. Optional args are passed to pytest."
-    echo "    ./scripts/test_e2e <args>      run the end-to-end tests only in slow mode. Optional args are passed to pytest."
-    echo "    ./scripts/test_e2e_fast <args> run the end-to-end tests only in fast mode (not suitable for GHAs). Optional args are passed to pytest."
-    echo "    ./scripts/test <args>      run the full test suite. Optional args are passed to pytest."
-    echo "    ./scripts/update <target>  compile and update python dependencies.  <target> specifies an environment to update (dev/prod)."
-  ;;
-
-  "check")
-    check
-    ;;
-  "fix")
-    fix
-    ;;
-  "dev_setup")
-    dev_setup
-    ;;
-  "setup")
-    setup
-    ;;
-  "update")
-    update
-    ;;
-  "test")
-    test
-    ;;
-  "test_e2e")
-    test_e2e
-    ;;
-  "test_e2e_fast")
-    test_e2e_fast
-    ;;
-  "test_unit")
-    test_unit
-    ;;
-  "run")
-    run
-    ;;
-
-esac
+"${command}"
