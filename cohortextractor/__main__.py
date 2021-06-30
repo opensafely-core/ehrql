@@ -1,5 +1,6 @@
 import csv
 import importlib
+import inspect
 import os
 import sys
 import time
@@ -8,13 +9,10 @@ from pathlib import Path
 import sqlalchemy
 import sqlalchemy.exc
 
-
-def get_class_vars(cls):
-    default_vars = set(dir(type("ArbitraryEmptyClass", (), {})))
-    return [(key, value) for key, value in vars(cls).items() if key not in default_vars]
+from .query_utils import get_column_definitions
 
 
-if __name__ == "__main__":
+def main():
     url = sqlalchemy.engine.make_url(os.environ["TPP_DATABASE_URL"])
     assert url.drivername == "mssql"
     url = url.set(drivername="mssql+pymssql")
@@ -38,9 +36,16 @@ if __name__ == "__main__":
 
     sys.path.append("/workspace")
     study_definition = importlib.import_module("study_definition")
-    Cohort = getattr(study_definition, "Cohort")
 
-    cohort = {key: value for key, value in get_class_vars(Cohort)}
+    cohort_classes = [
+        obj
+        for name, obj in inspect.getmembers(study_definition)
+        if inspect.isclass(obj)
+    ]
+    assert len(cohort_classes) == 1, "A study definition must contain one class only"
+    Cohort = cohort_classes[0]
+
+    cohort = get_column_definitions(Cohort)
 
     # We always want to include the patient id.
     columns = [("patient_id", "patient_id")]
@@ -50,9 +55,9 @@ if __name__ == "__main__":
     for dst_column, query in cohort.items():
         # For now, we only support querying a single table.
         if not table_name:
-            table_name = query.table
+            table_name = query.source.name
         else:
-            assert table_name == query.table
+            assert table_name == query.source.name
         columns.append((query.column, dst_column))
 
     metadata = sqlalchemy.MetaData()
@@ -72,3 +77,7 @@ if __name__ == "__main__":
 
             for row in results:
                 writer.writerow(row)
+
+
+if __name__ == "__main__":
+    main()
