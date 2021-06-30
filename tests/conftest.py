@@ -2,7 +2,6 @@ import os
 import shutil
 import sys
 import time
-from collections import namedtuple
 from pathlib import Path
 
 import docker
@@ -102,19 +101,36 @@ def run_container(containers):
         containers.destroy(container)
 
 
-DEFULT_MSSQL_PORT = 1433
+DEFAULT_MSSQL_PORT = 1433
 
-DbDetails = namedtuple(
-    "DbDetails",
-    [
-        "network",
-        "host_from_container",
-        "port_from_container",
-        "host_from_host",
-        "port_from_host",
-        "password",
-    ],
-)
+
+class DbDetails:
+    def __init__(
+        self,
+        network,
+        host_from_container,
+        port_from_container,
+        host_from_host,
+        port_from_host,
+        password,
+        db_name,
+    ):
+        self.network = network
+        self.host_from_container = host_from_container
+        self.port_from_container = port_from_container
+        self.host_from_host = host_from_host
+        self.port_from_host = port_from_host
+        self.password = password
+        self.db_name = db_name
+
+    def host_url(self):
+        return self._url(self.host_from_host, self.port_from_host)
+
+    def container_url(self):
+        return self._url(self.host_from_container, self.port_from_container)
+
+    def _url(self, host, port):
+        return f"mssql://SA:{self.password}@{host}:{port}/{self.db_name}"
 
 
 def is_fast_mode():
@@ -153,7 +169,7 @@ def persistent_database(containers, password, docker_client, mssql_dir):
                 mssql_dir: {"bind": "/mssql", "mode": "ro"},
             },
             network=network,
-            ports={f"{DEFULT_MSSQL_PORT}/TCP": published_port},
+            ports={f"{DEFAULT_MSSQL_PORT}/TCP": published_port},
             environment={"SA_PASSWORD": password, "ACCEPT_EULA": "Y"},
             entrypoint="/mssql/entrypoint.sh",
             command="/opt/mssql/bin/sqlservr",
@@ -162,10 +178,11 @@ def persistent_database(containers, password, docker_client, mssql_dir):
     return DbDetails(
         network=network,
         host_from_container=container,
-        port_from_container=DEFULT_MSSQL_PORT,
+        port_from_container=DEFAULT_MSSQL_PORT,
         host_from_host="localhost",
         port_from_host=published_port,
         password=password,
+        db_name="test",
     )
 
 
@@ -187,10 +204,11 @@ def ephemeral_database(run_container, password, mssql_dir, network):
     return DbDetails(
         network=network,
         host_from_container=container,
-        port_from_container=DEFULT_MSSQL_PORT,
+        port_from_container=DEFAULT_MSSQL_PORT,
         host_from_host=None,
         port_from_host=None,
         password=password,
+        db_name="test",
     )
 
 
