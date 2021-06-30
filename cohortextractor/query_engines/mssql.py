@@ -91,9 +91,9 @@ class MssqlQueryEngine(BaseQueryEngine):
     def get_population_table_query(self, population_table_name=None):
         # TODO currently just select all patients
         population_table_name = population_table_name or "practice_registrations"
-        population_table = make_table_expression(population_table_name, {"patient_id"})
+        population_table = make_table_expression(population_table_name, {"PatientId"})
         return sqlalchemy.select(
-            [population_table.c.patient_id.label("patient_id")]
+            [population_table.c.PatientId.label("patient_id")]
         ).select_from(population_table)
 
     def get_value_expression(self, value):
