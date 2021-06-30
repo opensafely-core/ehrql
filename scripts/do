@@ -90,19 +90,18 @@ test_unit() {
   just test-unit "$other_args"
 }
 
-test_e2e() {
+test_all() {
   dev_setup
-  just test-e2e-slow "$other_args"
+  just test-all "$other_args"
 }
 
-test_e2e_fast() {
+test_all_fast() {
   dev_setup
-  just test-e2e "$other_args"
+  just test-all-fast "$other_args"
 }
 
 test() {
-  dev_setup
-  just test-all "$other_args"
+  test_all
 }
 
 help() {
@@ -114,9 +113,9 @@ help() {
   echo "    ./scripts/dev_setup        set up/update the local dev env."
   echo "    ./scripts/run              run the dev project."
   echo "    ./scripts/test_unit <args>     run the unit tests only. Optional args are passed to pytest."
-  echo "    ./scripts/test_e2e <args>      run the end-to-end tests only in slow mode. Optional args are passed to pytest."
-  echo "    ./scripts/test_e2e_fast <args> run the end-to-end tests only in fast mode (not suitable for GHAs). Optional args are passed to pytest."
-  echo "    ./scripts/test <args>      run the full test suite. Optional args are passed to pytest."
+  echo "    ./scripts/test_all <args>      run all tests including integration tests in slow mode. Optional args are passed to pytest."
+  echo "    ./scripts/test_all_fast <args> run all tests including integration tests in fast mode (not suitable for GHAs). Optional args are passed to pytest."
+  echo "    ./scripts/test <args>          alias for test_all. Optional args are passed to pytest."
   echo "    ./scripts/update <target>  compile and update python dependencies.  <target> specifies an environment to update (dev/prod)."
 }
 

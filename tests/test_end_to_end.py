@@ -49,6 +49,7 @@ def assert_results_equivalent(actual_results, expected_results):
         assert actual_data == expected_data
 
 
+@pytest.mark.integration
 def test_extracts_data_from_sql_server(load_study, load_data, run_cohort_extractor):
     study = load_study("end_to_end_tests")
     load_data(study.tables())
