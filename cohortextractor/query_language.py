@@ -104,7 +104,11 @@ class Row(QueryNode):
         return ValueFromRow(source=self, column=column)
 
 
-class ValueFromRow(QueryNode):
+class Value(QueryNode):
+    ...
+
+
+class ValueFromRow(Value):
     def __init__(self, source, column):
         self.source = source
         self.column = column
