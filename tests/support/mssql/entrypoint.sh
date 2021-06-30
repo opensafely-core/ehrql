@@ -35,4 +35,6 @@ if [ "$1" = '/opt/mssql/bin/sqlservr' ]; then
   fi
 fi
 
-exec "$@"
+# The Docker library we're using hides stdout from us if the container exits with an error, so send everything to
+# stderr.
+exec "$@" 1>&2
