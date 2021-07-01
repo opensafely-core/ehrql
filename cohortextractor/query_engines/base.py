@@ -68,9 +68,9 @@ class BaseQueryEngine:
         node_list.reverse()
         return node_list
 
-    def generate_query(self):
+    def execute_query(self):
         """
-        Override this method to do the things necessary to generate query code that
-        can be executed against a particular backend
+        Override this method to do the things necessary to generate query code and execute
+        it against a particular backend
         """
         raise NotImplementedError

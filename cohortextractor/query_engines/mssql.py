@@ -41,8 +41,17 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def __init__(self, column_definitions, backend):
         super().__init__(column_definitions, backend)
+        self._engine = None
         self.output_group_tables = {}
         self.output_group_tables_queries = {}
+
+    @property
+    def engine(self):
+        if self._engine is None:
+            engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
+            engine_url = engine_url.set(drivername="mssql+pymssql")
+            self._engine = sqlalchemy.create_engine(engine_url, echo=True, future=True)
+        return self._engine
 
     def get_and_populate_output_group_tables(self, output_groups):
         # For each group of output nodes (nodes that produce a single output value),
@@ -151,3 +160,11 @@ class MssqlQueryEngine(BaseQueryEngine):
                 compile_kwargs={"literal_binds": True},
             )
         )
+
+    def execute_query(self):
+        """Execute a query against an MSSQL backend"""
+        sql = self.get_sql()
+        with self.engine.connect() as connection:
+            result = connection.execute(sqlalchemy.text(sql))
+            result = result.fetchall()
+        return result

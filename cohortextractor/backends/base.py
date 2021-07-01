@@ -8,6 +8,9 @@ class BaseBackend:
             if isinstance(value, BackendTable):
                 cls.tables.add(name)
 
+    def __init__(self, database_url):
+        self.database_url = database_url
+
     def get_table_expression(self, table_name):
         if table_name not in self.tables:
             raise ValueError(f"Unknown table '{table_name}'")
