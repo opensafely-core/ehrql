@@ -3,21 +3,20 @@ import importlib
 import inspect
 import os
 import sys
-import time
 from pathlib import Path
 
-import sqlalchemy
-import sqlalchemy.exc
-
+from .backends import BACKENDS
 from .query_utils import get_column_definitions
 
 
-def main(workspace="/workspace", db_url=None):
+def main(workspace="/workspace", backend_id=None, db_url=None):
     if not db_url:
         db_url = os.environ["TPP_DATABASE_URL"]
-
+    if not backend_id:
+        backend_id = os.environ["BACKEND"]
+    backend = BACKENDS[backend_id](db_url)
     cohort = load_cohort(workspace)
-    results = extract(cohort, db_url)
+    results = extract(cohort, backend)
     write_output(results, workspace)
 
 
@@ -33,47 +32,14 @@ def load_cohort(workspace):
     return cohort_classes[0]
 
 
-def extract(cohort, db_url):
-    url = sqlalchemy.engine.make_url(db_url)
-    assert url.drivername == "mssql"
-    url = url.set(drivername="mssql+pymssql")
-    engine = sqlalchemy.create_engine(url, echo=True, future=True)
-    timeout = 20
-    limit = time.time() + timeout
-    up = False
-    while not up:
-        try:
-            with engine.connect() as conn:
-                result = conn.execute(sqlalchemy.text("select 'hello world'"))
-                assert result.first() == ("hello world",)
-                up = True
-        except sqlalchemy.exc.OperationalError as e:
-            if time.time() >= limit:
-                raise Exception(
-                    f"Failed to connect to mssql after {timeout} seconds"
-                ) from e
-            time.sleep(1)
+def extract(cohort, backend):
     cohort = get_column_definitions(cohort)
-    # We always want to include the patient id.
-    columns = [("patient_id", "patient_id")]
-    table_name = None
-    for dst_column, query in cohort.items():
-        # For now, we only support querying a single table.
-        if not table_name:
-            table_name = query.source.name
-        else:
-            assert table_name == query.source.name
-        columns.append((query.column, dst_column))
-    metadata = sqlalchemy.MetaData()
-    table = sqlalchemy.Table(table_name, metadata, autoload_with=engine)
-    # Turn each source/destination pair into a SQL "AS" clause.
-    query = sqlalchemy.select(*[table.c[src].label(dst) for src, dst in columns])
-    with engine.connect() as conn:
-        results = conn.execute(query)
+    query_engine = backend.query_engine_class(cohort, backend)
+    results = query_engine.execute_query()
 
-        headers = [dst for _, dst in columns]
-        for row in results:
-            yield dict(zip(headers, row))
+    for row in results:
+        yield dict(row)
+    query_engine.close()
 
 
 def write_output(results, workspace):

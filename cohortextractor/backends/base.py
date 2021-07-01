@@ -1,8 +1,22 @@
 import sqlalchemy
 
 
+BACKENDS = {}
+
+
+def register_backend(backend_class):
+    BACKENDS[backend_class.backend_id] = backend_class
+
+
 class BaseBackend:
+
+    query_engine_class = NotImplemented
+    backend_id = NotImplemented
+
     def __init_subclass__(cls, **kwargs):
+        # Register each Backend by its id so we can identify it from an environment variable
+        register_backend(cls)
+        # Make sure each Backend knows what its tables are
         cls.tables = set()
         for name, value in vars(cls).items():
             if isinstance(value, BackendTable):
