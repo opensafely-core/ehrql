@@ -63,22 +63,29 @@ def test_mssql_query_engine():
     )
 
 
-def test_run_generated_sql(db_engine_and_session):
-    # TODO use database fixture
-    db_url = "mssql://SA:Your_password123!@localhost:12345/test"
-    engine, session = db_engine_and_session(db_url=db_url)
+@pytest.mark.integration
+def test_run_generated_sql(database, load_data, db_engine_and_session):
+    # Load data with a dummy SQL command; this will just set up the database
+    load_data(sql="GO")
+    # Create the sqlalchemy engine and set up the session for the test data
+    engine, session = db_engine_and_session(db_url=database.host_url())
+    # Load test data
     reg = RegistrationHistory(PatientId=1, StpId="STP1")
     event1 = Events(PatientId=1, EventCode="Code1")
     event2 = Events(PatientId=2, EventCode="Code2")
     session.add_all([reg, event1, event2])
     session.commit()
 
+    # Cohort to extract all clinical events and return just the code column
+    # Note that the RegistrationHistory table is used for the default population query
+    # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
+    # table will be returned
     class Cohort:
         output_value = table("clinical_events").get("code")
 
     column_definitions = get_column_definitions(Cohort)
     query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=MockBackend(db_url)
+        column_definitions=column_definitions, backend=MockBackend(database.host_url())
     )
     result = query_engine.execute_query()
     assert result == [(1, "Code1")]
