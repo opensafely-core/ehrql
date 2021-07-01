@@ -1,11 +1,28 @@
 import pytest
 import sqlalchemy
-from sql_setup import Base
+from sql_setup import Base, Events, RegistrationHistory
+from sqlalchemy.orm import sessionmaker
 
 from cohortextractor.backends.base import BaseBackend, Column, SQLTable
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
+
+
+@pytest.fixture
+def db_engine_and_session():
+    def create_engine_and_setup_session(db_url, drivername="mssql+pymssql"):
+        url = sqlalchemy.engine.make_url(db_url)
+        url = url.set(drivername=drivername)
+        engine = sqlalchemy.create_engine(url, echo=True, future=True)
+
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
+        Session = sessionmaker()
+        Session.configure(bind=engine)
+        return engine, Session()
+
+    return create_engine_and_setup_session
 
 
 class MockBackend(BaseBackend):
@@ -31,7 +48,7 @@ def test_mssql_query_engine():
 
     column_definitions = get_column_definitions(Cohort)
     query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=MockBackend()
+        column_definitions=column_definitions, backend=MockBackend(database_url=None)
     )
 
     sql = query_engine.get_sql()
@@ -46,33 +63,24 @@ def test_mssql_query_engine():
     )
 
 
-def test_run_generated_sql():
+def test_run_generated_sql(db_engine_and_session):
     # TODO use database fixture
     db_url = "mssql://SA:Your_password123!@localhost:12345/test"
-    url = sqlalchemy.engine.make_url(db_url)
-    url = url.set(drivername="mssql+pymssql")
-    engine = sqlalchemy.create_engine(url, echo=True, future=True)
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    engine, session = db_engine_and_session(db_url=db_url)
+    reg = RegistrationHistory(PatientId=1, StpId="STP1")
+    event1 = Events(PatientId=1, EventCode="Code1")
+    event2 = Events(PatientId=2, EventCode="Code2")
+    session.add_all([reg, event1, event2])
+    session.commit()
 
     class Cohort:
         output_value = table("clinical_events").get("code")
 
     column_definitions = get_column_definitions(Cohort)
     query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=MockBackend()
+        column_definitions=column_definitions, backend=MockBackend(db_url)
     )
-
-    setup_sql = """
-    INSERT INTO practice_registrations (PatientId, StpId) VALUES (1, 'STP1');
-    INSERT INTO events (PatientId, EventCode) VALUES (1, 'Code1')
-    """
-    sql = query_engine.get_sql()
-    with engine.connect() as conn:
-        conn.execute(sqlalchemy.text(setup_sql))
-        result = conn.execute(sqlalchemy.text(sql))
-        result = result.fetchall()
-
+    result = query_engine.execute_query()
     assert result == [(1, "Code1")]
 
 
@@ -82,7 +90,7 @@ def test_invalid_table():
 
     column_definitions = get_column_definitions(Cohort)
     query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=MockBackend()
+        column_definitions=column_definitions, backend=MockBackend(database_url=None)
     )
     with pytest.raises(ValueError, match="Unknown table 'unknown'"):
         query_engine.get_sql()
