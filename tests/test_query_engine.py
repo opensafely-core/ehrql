@@ -85,9 +85,8 @@ def test_run_generated_sql_get_single_column(
     query_engine = MssqlQueryEngine(
         column_definitions=column_definitions, backend=MockBackend(database.host_url())
     )
-    result = query_engine.execute_query()
-    assert list(result) == [(1, "Code1")]
-    query_engine.close()
+    with query_engine.execute_query() as result:
+        assert list(result) == [(1, "Code1")]
 
 
 @pytest.mark.integration

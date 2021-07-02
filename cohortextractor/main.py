@@ -35,11 +35,9 @@ def load_cohort(workspace):
 def extract(cohort, backend):
     cohort = get_column_definitions(cohort)
     query_engine = backend.query_engine_class(cohort, backend)
-    results = query_engine.execute_query()
-
-    for row in results:
-        yield dict(row)
-    query_engine.close()
+    with query_engine.execute_query() as results:
+        for row in results:
+            yield dict(row)
 
 
 def write_output(results, workspace):
