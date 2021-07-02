@@ -8,6 +8,7 @@ from cohortextractor.main import extract
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
+from tests.conftest import is_fast_mode
 
 
 @pytest.fixture
@@ -55,8 +56,10 @@ def test_mssql_query_engine():
 
 
 def set_up_test_data(database, load_data, db_engine_and_session):
-    # Load data with a dummy SQL command; this will just set up the database
-    load_data(sql="GO")
+    if not is_fast_mode():
+        # call Load data with a dummy SQL command; this will just ensure the container
+        # is started, with the test database created
+        load_data(sql="GO")
     # Create the sqlalchemy engine and set up the session for the test data
     engine, session = db_engine_and_session(db_url=database.host_url())
     # Load test data
