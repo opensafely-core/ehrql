@@ -10,7 +10,7 @@ def container_cohort_extractor(study, database, containers, study_dir):
 
     containers.run_fg(
         image="cohort-extractor-v2:latest",
-        environment={"TPP_DATABASE_URL": database.container_url()},
+        environment={"TPP_DATABASE_URL": database.container_url(), "BACKEND": "mock"},
         volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
         network=database.network,
     )
@@ -24,6 +24,7 @@ def in_process_cohort_extractor(study, database, study_dir):
 
     main(
         workspace=str(study_dir),
+        backend_id="mock",
         db_url=database.host_url(),
     )
     return study_dir / "outputs"
