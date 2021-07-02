@@ -5,63 +5,17 @@
 
 set -euo pipefail
 
-# Find the project root directory
-PYTHON_VERSION="${PYTHON_VERSION:-python3.9}"
-BASE_DIR="$(git rev-parse --show-toplevel)"
 command="${1:-help}"
 other_args="${*:2}"
 
 echo "Doing $command"
 
-ensure_virtual_env () {
-  # look for VIRTUAL_ENV variable; create virtualenv in .venv in this directory if not found
-  # activate it
-  echo "Ensuring virtual environment is set up and activated"
-  if [[ ! -v VIRTUAL_ENV ]]; then
-    if [[ ! -f "$BASE_DIR/.venv/bin/activate" ]]; then
-        echo "venv does not exist, creating it at $BASE_DIR/.venv"
-        "$PYTHON_VERSION" -m pip install --upgrade pip
-        "$PYTHON_VERSION" -m venv "$BASE_DIR"/.venv
-    fi
-    echo "Activating virtual env"
-    . "$BASE_DIR/.venv/bin/activate"
-  fi
-}
-
-dev_setup () {
-  ensure_virtual_env
-
-  # Ensure pip-tools has been installed
-  if [[ ! -f "$VIRTUAL_ENV/bin/pip-compile" ]]; then
-    echo "Installing pip tools"
-    "$VIRTUAL_ENV"/bin/pip install pip-tools
-  fi
-
-  # Ensure dev requirements have been installed; black should be a requirement of every project, so if it isn't present
-  # yet, assure we need to install them all
-  if [[ ! -f "$VIRTUAL_ENV/bin/black" ]]; then
-    echo "Installing dev requirements"
-    "$VIRTUAL_ENV"/bin/pip install --require-hashes -r requirements.dev.txt
-  fi
-
-  # Ensure pre-commit has been set up
-  if [[ ! -f "$BASE_DIR/.git/hooks/pre-commit" ]]; then
-    echo "Setting up pre-commit hooks"
-    "$VIRTUAL_ENV"/bin/pre-commit install
-  fi
-
-  # set PYTHONPATH
-  export PYTHONPATH="$BASE_DIR"
-}
-
 check () {
-  dev_setup
   echo "Checking black, isort and flake8"
   just check
 }
 
 fix () {
-  dev_setup
   echo "Running black and isort"
   just fix
 }
@@ -72,31 +26,23 @@ setup () {
 }
 
 run () {
-  dev_setup
   echo "Running..."
   # Implement run for this project
 }
 
 update() {
-  dev_setup
-  echo "Updating and installing requirements"
-  target="${other_args[0]:-prod}"
-  "$VIRTUAL_ENV"/bin/pip-compile --generate-hashes --output-file=requirements."$target".txt requirements."$target".in && \
-    "$VIRTUAL_ENV"/bin/pip install -r requirements."$target".txt
+  just update  "$other_args"
 }
 
 test_unit() {
-  dev_setup
   just test-unit "$other_args"
 }
 
 test_all() {
-  dev_setup
   just test-all "$other_args"
 }
 
 test_all_fast() {
-  dev_setup
   just test-all-fast "$other_args"
 }
 
