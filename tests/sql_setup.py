@@ -17,3 +17,4 @@ class Events(Base):
     EventId = Column(Integer, primary_key=True)
     PatientId = Column(Integer)
     EventCode = Column(String)
+    Date = Column(String)

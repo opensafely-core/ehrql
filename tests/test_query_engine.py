@@ -3,7 +3,8 @@ import sqlalchemy
 from sql_setup import Base, Events, RegistrationHistory
 from sqlalchemy.orm import sessionmaker
 
-from cohortextractor.backends.base import BaseBackend, Column, SQLTable
+from cohortextractor.backends.mock import MockBackend
+from cohortextractor.main import extract
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
@@ -23,16 +24,6 @@ def db_engine_and_session():
         return engine, Session()
 
     return create_engine_and_setup_session
-
-
-class MockBackend(BaseBackend):
-    practice_registrations = SQLTable(
-        source="practice_registrations",
-        columns=dict(id=Column("id", source="PatientId")),
-    )
-    clinical_events = SQLTable(
-        source="events", columns=dict(code=Column("code", source="EventCode"))
-    )
 
 
 def test_backend_tables():
@@ -55,7 +46,7 @@ def test_mssql_query_engine():
     assert (
         sql == "SELECT * INTO group_table_0 FROM (\n"
         "SELECT clinical_events.code, clinical_events.patient_id \n"
-        "FROM (SELECT EventCode AS code, PatientId AS patient_id \n"
+        "FROM (SELECT EventCode AS code, Date AS date, PatientId AS patient_id \n"
         "FROM events) AS clinical_events\n) t\n\n\n"
         "SELECT practice_registrations.[PatientId] AS patient_id, group_table_0.code "
         "AS output_value \nFROM practice_registrations LEFT OUTER JOIN group_table_0 "
@@ -63,8 +54,7 @@ def test_mssql_query_engine():
     )
 
 
-@pytest.mark.integration
-def test_run_generated_sql(database, load_data, db_engine_and_session):
+def set_up_test_data(database, load_data, db_engine_and_session):
     # Load data with a dummy SQL command; this will just set up the database
     load_data(sql="GO")
     # Create the sqlalchemy engine and set up the session for the test data
@@ -76,6 +66,13 @@ def test_run_generated_sql(database, load_data, db_engine_and_session):
     session.add_all([reg, event1, event2])
     session.commit()
 
+
+@pytest.mark.integration
+def test_run_generated_sql_get_single_column(
+    database, load_data, db_engine_and_session
+):
+    set_up_test_data(database, load_data, db_engine_and_session)
+
     # Cohort to extract all clinical events and return just the code column
     # Note that the RegistrationHistory table is used for the default population query
     # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
@@ -84,11 +81,29 @@ def test_run_generated_sql(database, load_data, db_engine_and_session):
         output_value = table("clinical_events").get("code")
 
     column_definitions = get_column_definitions(Cohort)
+
     query_engine = MssqlQueryEngine(
         column_definitions=column_definitions, backend=MockBackend(database.host_url())
     )
     result = query_engine.execute_query()
-    assert result == [(1, "Code1")]
+    assert list(result) == [(1, "Code1")]
+    query_engine.close()
+
+
+@pytest.mark.integration
+def test_extract_get_single_column(database, load_data, db_engine_and_session):
+    set_up_test_data(database, load_data, db_engine_and_session)
+
+    # Cohort to extract all clinical events and return just the code column
+    # Note that the RegistrationHistory table is used for the default population query
+    # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
+    # table will be returned
+    class Cohort:
+        output_value = table("clinical_events").get("code")
+
+    backend = MockBackend(database.host_url())
+    result = extract(Cohort, backend)
+    assert list(result) == [{"patient_id": 1, "output_value": "Code1"}]
 
 
 def test_invalid_table():
