@@ -49,9 +49,13 @@ def test_mssql_query_engine():
         "SELECT clinical_events.code, clinical_events.patient_id \n"
         "FROM (SELECT EventCode AS code, Date AS date, PatientId AS patient_id \n"
         "FROM events) AS clinical_events\n) t\n\n\n"
-        "SELECT practice_registrations.[PatientId] AS patient_id, group_table_0.code "
-        "AS output_value \nFROM practice_registrations LEFT OUTER JOIN group_table_0 "
-        "ON practice_registrations.[PatientId] = group_table_0.patient_id"
+        "SELECT * INTO group_table_1 FROM (\n"
+        "SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n"
+        "FROM (SELECT PatientId AS patient_id \n"
+        "FROM practice_registrations) AS practice_registrations GROUP BY practice_registrations.patient_id\n) t\n\n\n"
+        "SELECT group_table_1.patient_id AS patient_id, group_table_0.code AS output_value \n"
+        "FROM group_table_1 LEFT OUTER JOIN group_table_0 ON group_table_1.patient_id = group_table_0.patient_id \n"
+        "WHERE group_table_1.patient_id_exists = 1"
     )
 
 
@@ -71,7 +75,7 @@ def set_up_test_data(database, load_data, db_engine_and_session):
 
 
 @pytest.mark.integration
-def test_run_generated_sql_get_single_column(
+def test_run_generated_sql_get_single_column_default_population(
     database, load_data, db_engine_and_session
 ):
     set_up_test_data(database, load_data, db_engine_and_session)
@@ -82,6 +86,29 @@ def test_run_generated_sql_get_single_column(
     # table will be returned
     class Cohort:
         output_value = table("clinical_events").get("code")
+
+    column_definitions = get_column_definitions(Cohort)
+
+    query_engine = MssqlQueryEngine(
+        column_definitions=column_definitions, backend=MockBackend(database.host_url())
+    )
+    with query_engine.execute_query() as result:
+        assert list(result) == [(1, "Code1")]
+
+
+@pytest.mark.integration
+def test_run_generated_sql_get_single_column_specified_population(
+    database, load_data, db_engine_and_session
+):
+    set_up_test_data(database, load_data, db_engine_and_session)
+
+    # Cohort to extract all clinical events and return just the code column
+    # Note that the RegistrationHistory table is used for the default population query
+    # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
+    # table will be returned
+    class Cohort:
+        output_value = table("clinical_events").get("code")
+        population = table("practice_registrations").exists()
 
     column_definitions = get_column_definitions(Cohort)
 

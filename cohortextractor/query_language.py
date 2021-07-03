@@ -79,6 +79,12 @@ class Table(QueryNode):
         assert columns
         return Row(source=self, sort_columns=columns, descending=False)
 
+    def exists(self):
+        return self.aggregate("exists", "patient_id")
+
+    def aggregate(self, function, column):
+        return ValueFromAggregate(self, function, column)
+
 
 class FilteredTable(Table):
     def __init__(self, source, column, operator, value):
@@ -111,4 +117,11 @@ class Value(QueryNode):
 class ValueFromRow(Value):
     def __init__(self, source, column):
         self.source = source
+        self.column = column
+
+
+class ValueFromAggregate(Value):
+    def __init__(self, source, function, column):
+        self.source = source
+        self.function = function
         self.column = column
