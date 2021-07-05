@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -18,3 +18,10 @@ class Events(Base):
     PatientId = Column(Integer)
     EventCode = Column(String)
     Date = Column(String)
+
+
+class PositiveTests(Base):
+    __tablename__ = "pos_tests"
+    Id = Column(Integer, primary_key=True)
+    PatientId = Column(Integer)
+    PositiveResult = Column(Boolean)

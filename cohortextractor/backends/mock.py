@@ -12,11 +12,12 @@ class MockBackend(BaseBackend):
 
     practice_registrations = SQLTable(
         source="practice_registrations",
-        columns=dict(patient_id=Column("patient_id", source="PatientId")),
+        columns=dict(patient_id=Column("int", source="PatientId")),
     )
     clinical_events = SQLTable(
         source="events",
         columns=dict(
-            code=Column("code", source="EventCode"), date=Column("date", source="Date")
+            code=Column("varchar", source="EventCode"),
+            date=Column("varchar", source="Date"),
         ),
     )

@@ -4,7 +4,14 @@ from collections import defaultdict
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 
-from ..query_language import Column, QueryNode, Table, Value, ValueFromRow
+from ..query_language import (
+    Column,
+    QueryNode,
+    Table,
+    Value,
+    ValueFromAggregate,
+    ValueFromRow,
+)
 from .base import BaseQueryEngine
 
 
@@ -45,6 +52,15 @@ class MssqlQueryEngine(BaseQueryEngine):
     def __init__(self, column_definitions, backend):
         super().__init__(column_definitions, backend)
         self._engine = None
+        # If no "population" was specified in the column definitions, use a default value
+        # which just selects rows that exist by patient_id from the default population
+        # table (practice_registrations)
+        if "population" not in column_definitions:
+            column_definitions["population"] = ValueFromAggregate(
+                source=Table(name="practice_registrations"),
+                function="exists",
+                column="patient_id",
+            )
         # Walk the nodes and identify output groups
         self.output_groups = self.get_output_groups(column_definitions)
         self.output_group_tables = {}
@@ -87,8 +103,9 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     @staticmethod
     def get_output_column_name(node):
-        # TODO deal with ValueFromAggregate
-        if isinstance(node, (ValueFromRow, Column)):
+        if isinstance(node, ValueFromAggregate):
+            return f"{node.column}_{node.function}"
+        elif isinstance(node, (ValueFromRow, Column)):
             return node.column
         else:
             raise TypeError(f"Unhandled type: {node}")
@@ -163,19 +180,24 @@ class MssqlQueryEngine(BaseQueryEngine):
         base_table = node_list.pop(0)
         assert isinstance(base_table, Table)
 
-        # TODO For now, we only deal with selecting columns, will need to add filters and aggregates
+        # TODO For now, we only deal with selecting columns and aggregates, need to add filters
         selected_columns = {node.column for node in output_nodes}
         query = self.get_select_expression(base_table, selected_columns)
 
+        if issubclass(output_type, ValueFromAggregate):
+            query = self.apply_aggregates(query, output_nodes)
+
         return query
 
-    def get_population_table_query(self, population_table_name=None):
-        # TODO currently just select all patients; needs a minimal aggregation implementation (exists)
-        population_table_name = population_table_name or "practice_registrations"
-        population_table = make_table_expression(population_table_name, {"PatientId"})
-        return sqlalchemy.select(
-            [population_table.c.PatientId.label("patient_id")]
-        ).select_from(population_table)
+    def get_population_table_query(self):
+        """Build the query that selects the patient population we're interested in"""
+        population = self.column_definitions.pop("population")
+        is_included, population_table = self.get_value_expression(population)
+        return (
+            sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
+            .select_from(population_table)
+            .where(is_included == True)  # noqa: E712
+        )
 
     def get_value_expression(self, value):
         """
@@ -187,6 +209,45 @@ class MssqlQueryEngine(BaseQueryEngine):
         column = self.get_output_column_name(value)
         value_expr = table.c[column]
         return value_expr, table
+
+    def apply_aggregates(self, query, aggregate_nodes):
+        """
+        For each aggregate node, get the query that will select it with its generated
+        column label, plus the patient id column, and then group by the patient id.
+
+        e.g. For the default population exists query, it will select patient_id as a column
+        labelled patient_id_exists from the entire column of patient_id and then group
+         by patient id; i.e.
+
+        SELECT practice_registrations.patient_id, :param_1 AS patient_id_exists
+        FROM (SELECT PatientId AS patient_id FROM practice_registrations) AS practice_registrations
+        GROUP BY practice_registrations.patient_id
+
+        """
+        columns = [
+            self.get_aggregate_column(query, aggregate_node)
+            for aggregate_node in aggregate_nodes
+        ]
+        query = query.with_only_columns([query.selected_columns.patient_id] + columns)
+        query = query.group_by(query.selected_columns.patient_id)
+
+        return query
+
+    def get_aggregate_column(self, query, aggregate_node):
+        """
+        For an aggregate node, build the column to hold its value
+        Aggregate column names are a combination of column and aggregate function,
+        e.g. "patient_id_exists"
+        """
+        output_column = self.get_output_column_name(aggregate_node)
+        if aggregate_node.function == "exists":
+            return sqlalchemy.literal(True).label(output_column)
+        else:
+            # The aggregate node function is a string corresponding to an available
+            # sqlalchemy function (e.g. "exists", "count")
+            function = getattr(sqlalchemy.func, aggregate_node.function)
+            source_column = aggregate_node.column
+            return function(query.selected_columns[source_column]).label(output_column)
 
     @staticmethod
     def include_joined_table(query, table):
@@ -202,13 +263,12 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def generate_results_query(self):
         """Query to generate the final single results table"""
-        column_definitions = self.column_definitions.copy()
         # `population` is a special-cased boolean column, it doesn't appear
         # itself in the output but it determines what rows are included
-        # TODO Currently just uses a default population table and expression
         # Build the base results table from the population table
         results_query = self.get_population_table_query()
 
+        column_definitions = self.column_definitions.copy()
         # Build big JOIN query which selects the results
         for column_name, output_node in column_definitions.items():
             # For each output column, generate the query that selects it from its interim table
