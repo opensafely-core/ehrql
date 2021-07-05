@@ -2,7 +2,6 @@ from datetime import date
 
 import pytest
 import sqlalchemy
-from conftest import is_fast_mode
 from sql_setup import Base, Events, PositiveTests, RegistrationHistory
 from sqlalchemy.orm import sessionmaker
 
@@ -61,15 +60,10 @@ def mock_backend():
 
 
 @pytest.fixture
-def setup_test_database(database, load_data):
+def setup_test_database(database):
     db_url = database.host_url()
 
     def setup(input_data, drivername="mssql+pymssql"):
-        if not is_fast_mode():
-            # call Load data with a dummy SQL command; this will just ensure the container
-            # is started, with the test database created
-            load_data(sql="GO")
-
         # Create engine
         url = sqlalchemy.engine.make_url(db_url)
         url = url.set(drivername=drivername)

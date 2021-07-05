@@ -1,6 +1,4 @@
-import os
 import random
-import shutil
 import sys
 import time
 from pathlib import Path
@@ -8,7 +6,11 @@ from pathlib import Path
 import docker
 import docker.errors
 import pytest
+import sqlalchemy
+import sqlalchemy.exc
 from docker.errors import ContainerError
+from lib import playback
+from lib.util import get_mode
 
 
 class Study:
@@ -134,22 +136,104 @@ class DbDetails:
         return f"mssql://SA:{self.password}@{host}:{port}/{self.db_name}"
 
 
-def is_fast_mode():
-    return not os.environ.get("MODE") == "slow"
-
-
 @pytest.fixture
 def mssql_dir():
     return Path(__file__).parent.absolute() / "support/mssql"
 
 
+def is_smoke_test(request):
+    return request.node.get_closest_marker("smoke")
+
+
+def is_integration_test(request):
+    return request.node.get_closest_marker("integration")
+
+
+# This hook makes the result of a test available during fixture teardown via the boolean `request.node.passed`.
+# noinspection PyUnusedLocal
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+
+    if rep.when == "call":
+        setattr(item, "passed", rep.passed)
+
+
 @pytest.fixture
-def database(run_container, containers, network, docker_client, mssql_dir):
+def database(request, run_container, containers, network, docker_client, mssql_dir):
+    assert is_smoke_test(request) or is_integration_test(
+        request
+    ), "Only smoke and integration tests can use the database"
+    assert not (
+        is_smoke_test(request) and is_integration_test(request)
+    ), "A test cannot be both a smoke test and an integration test"
+
+    if is_smoke_test(request):
+        database = make_database(
+            containers, docker_client, mssql_dir, network, run_container
+        )
+        wait_for_database(database)
+        yield database
+        return
+
+    def is_passing():
+        return request.node.passed
+
+    with playback.recording_for(test_identifier(request), is_passing) as recording:
+        database = None
+        if playback.recording_mode() == "playback":
+            database = DbDetails("", "", 0, "", 0, "", "")
+        if playback.recording_mode() == "record":
+            database = make_database(
+                containers, docker_client, mssql_dir, network, run_container
+            )
+            with recording.suspended():
+                # The queries we issue while waiting for the database will differ, so don't record them. We don't
+                # wait during playback.
+                wait_for_database(database)
+        yield database
+
+
+def test_identifier(request):
+    test_module = request.module.__name__
+    test_name = request.node.name
+    identifier = f"{test_module}::{test_name}"
+    return identifier
+
+
+def make_database(containers, docker_client, mssql_dir, network, run_container):
     password = "Your_password123!"
-    if is_fast_mode():
-        yield persistent_database(containers, password, docker_client, mssql_dir)
-    else:
-        yield ephemeral_database(run_container, password, mssql_dir, network)
+
+    if database_mode() == "persistent":
+        return persistent_database(containers, password, docker_client, mssql_dir)
+    if database_mode() == "ephemeral":
+        return ephemeral_database(run_container, password, mssql_dir, network)
+
+
+def wait_for_database(database):
+    url = sqlalchemy.engine.make_url(database.host_url())
+    url = url.set(drivername="mssql+pymssql")
+    engine = sqlalchemy.create_engine(url, future=True)
+
+    start = time.time()
+    timeout = 10
+    limit = start + timeout
+    while True:
+        try:
+            with engine.connect() as connection:
+                connection.execute(sqlalchemy.text("SELECT 'hello'"))
+            break
+        except sqlalchemy.exc.OperationalError as e:
+            if time.time() >= limit:
+                raise Exception(
+                    f"Failed to connect to mssql after {timeout} seconds"
+                ) from e
+            time.sleep(1)
+
+
+def database_mode():
+    return get_mode("DATABASE", ["persistent", "ephemeral"], "persistent")
 
 
 PERSISTENT_DATABASE_PORT = 49152
@@ -219,64 +303,26 @@ def ephemeral_database(run_container, password, mssql_dir, network):
 
 
 @pytest.fixture
-def load_data(containers, database, tmpdir, mssql_dir):
-    filename = "data.sql"
-    host_dir = tmpdir.mkdir("sql")
-    host_file = host_dir / filename
-    container_dir = Path("/sql")
-    container_file = container_dir / filename
+def load_data(database):
+    url = sqlalchemy.engine.make_url(database.host_url())
+    url = url.set(drivername="mssql+pymssql")
+    engine = sqlalchemy.create_engine(url, future=True)
 
     def load(file=None, sql=None):
         if file and sql:
             raise ValueError(
                 "You must provide exactly one of the file or sql arguments"
             )
-        elif file:
-            shutil.copy(file, host_file)
-        elif sql:
-            host_file.write(sql)
-        else:
+        if (not file) and (not sql):
             raise ValueError(
                 "You must provide exactly one of the file or sql arguments"
             )
 
-        command = [
-            "/opt/mssql-tools/bin/sqlcmd",
-            "-b",
-            "-S",
-            f"{database.host_from_container},{database.port_from_container}",
-            "-U",
-            "SA",
-            "-P",
-            database.password,
-            "-d",
-            "test",
-            "-i",
-            str(container_file),
-        ]
+        if not sql:
+            with open(file, "r") as f:
+                sql = f.read()
 
-        start = time.time()
-        timeout = 10
-        while True:
-            try:
-                containers.run_fg(
-                    image="mcr.microsoft.com/mssql/server:2017-latest",
-                    volumes={
-                        host_dir: {"bind": str(container_dir), "mode": "ro"},
-                        mssql_dir: {"bind": "/mssql", "mode": "ro"},
-                    },
-                    network=database.network,
-                    entrypoint="/mssql/entrypoint.sh",
-                    command=command,
-                )
-                break
-            except ContainerError as e:
-                if (
-                    b"Server is not found or not accessible" in e.stderr
-                    or b"Login failed for user" in e.stderr
-                ) and time.time() - start < timeout:
-                    time.sleep(1)
-                else:
-                    raise
+        with engine.begin() as connection:
+            connection.execute(sqlalchemy.text(sql))
 
-    return load
+    yield load
