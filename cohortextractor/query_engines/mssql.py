@@ -7,6 +7,7 @@ import sqlalchemy.dialects.mssql
 from ..query_language import (
     Column,
     QueryNode,
+    Row,
     Table,
     Value,
     ValueFromAggregate,
@@ -169,8 +170,8 @@ class MssqlQueryEngine(BaseQueryEngine):
         From a group of output nodes that represent the route to a single output value,
         generate the query that will return the value from its source table(s)
         """
-        # output_nodes must all be of the same group so we arbitrarily use the
-        # first one
+        # output_nodes must all be of the same group, and all have the same output
+        # type and source, so we arbitrarily use the first one
         output_type, query_node = self.get_type_and_source(output_nodes[0])
 
         # Queries (currently) always have a linear structure so we can
@@ -180,9 +181,25 @@ class MssqlQueryEngine(BaseQueryEngine):
         base_table = node_list.pop(0)
         assert isinstance(base_table, Table)
 
+        # If there's an operation applied to reduce the results to a single row
+        # per patient, then that will be the final element of the list
+        row_selector = None
+        if issubclass(output_type, ValueFromRow):
+            row_selector = node_list.pop()
+            assert isinstance(row_selector, Row)
+
         # TODO For now, we only deal with selecting columns and aggregates, need to add filters
+        # Get all the required columns from the base table
         selected_columns = {node.column for node in output_nodes}
         query = self.get_select_expression(base_table, selected_columns)
+
+        # Apply the row selector to select the single row per patient
+        if row_selector is not None:
+            query = self.apply_row_selector(
+                query,
+                sort_columns=row_selector.sort_columns,
+                descending=row_selector.descending,
+            )
 
         if issubclass(output_type, ValueFromAggregate):
             query = self.apply_aggregates(query, output_nodes)
@@ -248,6 +265,36 @@ class MssqlQueryEngine(BaseQueryEngine):
             function = getattr(sqlalchemy.func, aggregate_node.function)
             source_column = aggregate_node.column
             return function(query.selected_columns[source_column]).label(output_column)
+
+    @staticmethod
+    def apply_row_selector(query, sort_columns, descending):
+        """
+        Generate query to apply a row selector by sorting by sort_columns in
+        specified direction, and then selecting the first row
+        """
+        # Get the base table - the first in the FROM clauses
+        table_expr = query.froms[0]
+        # Find all the selected column names
+        column_names = [column.name for column in query.selected_columns]
+
+        # Query to select the columns that we need to sort on
+        order_columns = [table_expr.c[column] for column in sort_columns]
+        # change ordering to descending on all order columns if necessary
+        if descending:
+            order_columns = [c.desc() for c in order_columns]
+
+        # Number rows sequentially over the order by columns for each patient id
+        row_num = (
+            sqlalchemy.func.row_number()
+            .over(order_by=order_columns, partition_by=table_expr.c.patient_id)
+            .label("_row_num")
+        )
+        # Add the _row_num column and select just the first row
+        query = query.add_columns(row_num)
+        subquery = query.alias()
+        query = sqlalchemy.select([subquery.c[column] for column in column_names])
+        query = query.select_from(subquery).where(subquery.c._row_num == 1)
+        return query
 
     @staticmethod
     def include_joined_table(query, table):

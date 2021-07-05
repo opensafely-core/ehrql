@@ -73,11 +73,11 @@ class Table(QueryNode):
 
     def first_by(self, *columns):
         assert columns
-        return Row(source=self, sort_columns=columns, descending=True)
+        return Row(source=self, sort_columns=columns, descending=False)
 
     def last_by(self, *columns):
         assert columns
-        return Row(source=self, sort_columns=columns, descending=False)
+        return Row(source=self, sort_columns=columns, descending=True)
 
     def exists(self):
         return self.aggregate("exists", "patient_id")
