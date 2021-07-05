@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# shellcheck source=../.venv/bin/activate
+
+# Get a current virtual env or create one and return the path to it for use in other scripts
+
+set -euo pipefail
+
+# Find the project root directory
+PYTHON_VERSION="${PYTHON_VERSION:-python3.9}"
+BASE_DIR="$(git rev-parse --show-toplevel)"
+
+ensure_virtual_env () {
+  # look for VIRTUAL_ENV variable; create virtualenv in .venv in this directory if not found, or if the path
+  # does not exist (which can happen if a virtualenv folder is deleted while the virtualenv is still activated)
+  if [[ -v VIRTUAL_ENV && (! -f $VIRTUAL_ENV) ]] || [[ ! -v VIRTUAL_ENV ]]; then
+    if [[ ! -f "$BASE_DIR/.venv/bin/activate" ]]; then
+        echo "venv does not exist, creating it at $BASE_DIR/.venv"
+        "$PYTHON_VERSION" -m pip install --upgrade pip
+        "$PYTHON_VERSION" -m venv "$BASE_DIR"/.venv
+    fi
+    echo "Activating virtual environment"
+    . "$BASE_DIR/.venv/bin/activate"
+  fi
+}
+
+
+dev_setup () {
+  ensure_virtual_env
+  echo "Ensuring dev setup"
+
+  # Ensure pip-tools has been installed
+  if [[ ! -f "$VIRTUAL_ENV/bin/pip-compile" ]]; then
+    echo "Installing pip tools"
+    pip install pip-tools
+  fi
+
+  # Ensure dev requirements have been installed; black should be a requirement of every project, so if it isn't present
+  # yet, assure we need to install them all
+  if [[ ! -f "$VIRTUAL_ENV/bin/black" ]]; then
+    echo "Installing dev requirements"
+    pip install --require-hashes -r requirements.dev.txt
+  fi
+
+  # Ensure pre-commit has been set up
+  if [[ ! -f "$BASE_DIR/.git/hooks/pre-commit" ]]; then
+    echo "Setting up pre-commit hooks"
+    pre-commit install
+  fi
+
+  export PYTHONPATH=$BASE_DIR
+}
