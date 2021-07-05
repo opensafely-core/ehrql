@@ -6,8 +6,8 @@
 set -euo pipefail
 
 # Find the project root directory
-  PYTHON_VERSION="${PYTHON_VERSION:-python3.9}"
-  BASE_DIR="$(git rev-parse --show-toplevel)"
+PYTHON_VERSION="${PYTHON_VERSION:-python3.9}"
+BASE_DIR="$(git rev-parse --show-toplevel)"
 
 ensure_virtual_env () {
   # look for VIRTUAL_ENV variable; create virtualenv in .venv in this directory if not found, or if the path

@@ -38,9 +38,8 @@ test-all-fast ARGS="":
 
     MODE=fast pytest --cov=cohortextractor --cov=tests {{ ARGS }}
 
-# alias for test_all. Optional args are passed to pytest
-test:
-    just test-all
+# alias for test_all
+test: test-all
 
 # runs the format (black), sort (isort) and lint (flake8) check but does not change any files
 check:
