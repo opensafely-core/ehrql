@@ -6,6 +6,7 @@ import sqlalchemy.dialects.mssql
 
 from ..query_language import (
     Column,
+    FilteredTable,
     QueryNode,
     Row,
     Table,
@@ -44,6 +45,13 @@ def get_joined_tables(query):
     # more sense to return them as left to right
     tables.reverse()
     return tables
+
+
+def get_primary_table(query):
+    """
+    Return the left-most table referenced in the query
+    """
+    return get_joined_tables(query)[0]
 
 
 class MssqlQueryEngine(BaseQueryEngine):
@@ -188,10 +196,16 @@ class MssqlQueryEngine(BaseQueryEngine):
             row_selector = node_list.pop()
             assert isinstance(row_selector, Row)
 
-        # TODO For now, we only deal with selecting columns and aggregates, need to add filters
+        # All remaining nodes should be filter operations
+        filters = node_list
+        assert all(isinstance(filter_node, FilteredTable) for filter_node in filters)
+
         # Get all the required columns from the base table
         selected_columns = {node.column for node in output_nodes}
         query = self.get_select_expression(base_table, selected_columns)
+        # Apply all filter operations
+        for filter_node in filters:
+            query = self.apply_filter(query, filter_node)
 
         # Apply the row selector to select the single row per patient
         if row_selector is not None:
@@ -221,11 +235,12 @@ class MssqlQueryEngine(BaseQueryEngine):
         Given a single value output node, select it from its interim table
         Return the expression to select it, and the table to select it from
         """
-        # Every value is an output node at the moment
-        table = self.output_group_tables[self.get_type_and_source(value)]
-        column = self.get_output_column_name(value)
-        value_expr = table.c[column]
-        return value_expr, table
+        if self.is_output_node(value):
+            table = self.output_group_tables[self.get_type_and_source(value)]
+            column = self.get_output_column_name(value)
+            value_expr = table.c[column]
+            return value_expr, table
+        return value, None
 
     def apply_aggregates(self, query, aggregate_nodes):
         """
@@ -266,6 +281,21 @@ class MssqlQueryEngine(BaseQueryEngine):
             source_column = aggregate_node.column
             return function(query.selected_columns[source_column]).label(output_column)
 
+    def apply_filter(self, query, filter_node):
+        column_name = filter_node.column
+        operator_name = filter_node.operator
+        # Does this filter require another table? i.e. is the filter value itself an
+        # Output node, which has a source that we may need to include here
+        value_expr, other_table = self.get_value_expression(filter_node.value)
+        if other_table is not None:
+            query = self.include_joined_table(query, other_table)
+
+        # Get the base table
+        table_expr = get_primary_table(query)
+        column = table_expr.c[column_name]
+        method = getattr(column, operator_name)
+        return query.where(method(value_expr))
+
     @staticmethod
     def apply_row_selector(query, sort_columns, descending):
         """
@@ -273,7 +303,8 @@ class MssqlQueryEngine(BaseQueryEngine):
         specified direction, and then selecting the first row
         """
         # Get the base table - the first in the FROM clauses
-        table_expr = query.froms[0]
+        table_expr = get_primary_table(query)
+
         # Find all the selected column names
         column_names = [column.name for column in query.selected_columns]
 

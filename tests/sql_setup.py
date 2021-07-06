@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column
+from sqlalchemy import Date as SqlaDate
+from sqlalchemy import Float, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -17,7 +19,8 @@ class Events(Base):
     EventId = Column(Integer, primary_key=True)
     PatientId = Column(Integer)
     EventCode = Column(String)
-    Date = Column(String)
+    Date = Column(SqlaDate)
+    ResultValue = Column(Float)
 
 
 class PositiveTests(Base):
@@ -25,3 +28,4 @@ class PositiveTests(Base):
     Id = Column(Integer, primary_key=True)
     PatientId = Column(Integer)
     PositiveResult = Column(Boolean)
+    TestDate = Column(SqlaDate)
