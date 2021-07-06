@@ -12,6 +12,8 @@ class RegistrationHistory(Base):
     RegistrationId = Column(Integer, primary_key=True)
     PatientId = Column(Integer)
     StpId = Column(String)
+    StartDate = Column(SqlaDate)
+    EndDate = Column(SqlaDate)
 
 
 class Events(Base):

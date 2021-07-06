@@ -82,15 +82,17 @@ class Table(QueryNode):
         assert columns
         return Row(source=self, sort_columns=columns, descending=True)
 
-    def exists_on(self, date, start_column="date_start", end_column="date_end"):
+    def date_in_range(self, date, start_column="date_start", end_column="date_end"):
         """
         A filter that returns the latest of two boundary date fields, where start values
-        are >= a target date and end values are <= a target. If both start and end dates
-        exist, the latest one will be returned
+        are <= a target date and end values are >= a target. If more than one entry matches,
+        the latest one will be returned.
+        Note that this filter currently expects that a value will be present for BOTH
+        start and end columns.
         """
         return (
-            self.filter(start_column, greater_than_or_equals=date)
-            .filter(end_column, less_than_or_equals=date)
+            self.filter(start_column, less_than_or_equals=date)
+            .filter(end_column, greater_than_or_equals=date)
             .last_by(start_column, end_column)
         )
 

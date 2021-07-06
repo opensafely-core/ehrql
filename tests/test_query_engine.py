@@ -17,7 +17,12 @@ from tests.conftest import is_fast_mode
 DEFAULT_TABLES = {
     "practice_registrations": SQLTable(
         source="practice_registrations",
-        columns=dict(patient_id=Column("int", source="PatientId")),
+        columns=dict(
+            patient_id=Column("int", source="PatientId"),
+            stp=Column("varchar", source="StpId"),
+            date_start=Column("date", source="StartDate"),
+            date_end=Column("date", source="EndDate"),
+        ),
     ),
     "clinical_events": SQLTable(
         source="events",
@@ -533,4 +538,51 @@ def test_filter_between_other_query_values(database, setup_test_database, mock_b
             "last_pos": date(2021, 3, 1),
             "value": None,
         },
+    ]
+
+
+def test_date_in_range_filter(database, setup_test_database, mock_backend):
+    input_data = [
+        # (9999-12-31 is the default TPP null value)
+        # registraion start date before target date; no end date - included
+        RegistrationHistory(
+            PatientId=1, StpId="STP1", StartDate="2021-1-2", EndDate="9999-12-31"
+        ),
+        # registration starts after target date; no end date - not included
+        RegistrationHistory(
+            PatientId=2, StpId="STP2", StartDate="2021-3-3", EndDate="9999-12-31"
+        ),
+        # 2 registrations, not overlapping; include the one that contains the target date
+        RegistrationHistory(
+            PatientId=3, StpId="STP1", StartDate="2021-2-2", EndDate="2021-3-1"
+        ),
+        RegistrationHistory(
+            PatientId=3, StpId="STP2", StartDate="2021-3-1", EndDate="2021-4-1"
+        ),
+        # registered with 2 STPs overlapping target date; latest included
+        RegistrationHistory(
+            PatientId=4, StpId="STP2", StartDate="2021-2-2", EndDate="2021-4-1"
+        ),
+        RegistrationHistory(
+            PatientId=4, StpId="STP3", StartDate="2021-1-1", EndDate="2021-3-3"
+        ),
+        # Patient test results with dates
+        Events(PatientId=1, EventCode="Code1", Date="2021-3-1", ResultValue=10.1),
+        Events(PatientId=2, EventCode="Code1", Date="2021-3-1", ResultValue=10.2),
+        Events(PatientId=3, EventCode="Code1", Date="2021-3-1", ResultValue=10.3),
+        Events(PatientId=4, EventCode="Code1", Date="2021-3-1", ResultValue=10.4),
+    ]
+    setup_test_database(input_data)
+
+    class Cohort:
+        _events = table("clinical_events").latest()
+        value = _events.get("result")
+        stp = table("practice_registrations").date_in_range("2021-3-2").get("stp")
+
+    result = list(extract(Cohort, mock_backend(database.host_url())))
+    assert result == [
+        {"patient_id": 1, "value": 10.1, "stp": "STP1"},
+        {"patient_id": 2, "value": 10.2, "stp": None},
+        {"patient_id": 3, "value": 10.3, "stp": "STP2"},
+        {"patient_id": 4, "value": 10.4, "stp": "STP2"},
     ]
