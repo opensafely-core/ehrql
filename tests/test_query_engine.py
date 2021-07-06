@@ -240,3 +240,47 @@ def test_invalid_table(mock_backend):
     )
     with pytest.raises(ValueError, match="Unknown table 'unknown'"):
         query_engine.get_sql()
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "code_output,date_output,expected",
+    [
+        (
+            table("clinical_events").latest().get("code"),
+            table("clinical_events").latest().get("date"),
+            [(1, "Code2", "2021-5-2"), (2, "Code1", "2021-6-5")],
+        ),
+        (
+            table("clinical_events").earliest().get("code"),
+            table("clinical_events").earliest().get("date"),
+            [(1, "Code1", "2021-1-3"), (2, "Code1", "2021-2-4")],
+        ),
+    ],
+)
+def test_run_generated_sql_get_single_row_per_patient(
+    database, setup_test_database, mock_backend, code_output, date_output, expected
+):
+    input_data = [
+        RegistrationHistory(PatientId=1, StpId="STP1"),
+        RegistrationHistory(PatientId=2, StpId="STP1"),
+        Events(PatientId=1, EventCode="Code1", Date="2021-1-3"),
+        Events(PatientId=1, EventCode="Code1", Date="2021-2-1"),
+        Events(PatientId=1, EventCode="Code2", Date="2021-5-2"),
+        Events(PatientId=2, EventCode="Code1", Date="2021-6-5"),
+        Events(PatientId=2, EventCode="Code1", Date="2021-2-4"),
+    ]
+    setup_test_database(input_data)
+
+    # Cohort to extract the earliest/latest event for each patient, and return code and date
+    class Cohort:
+        code_value = code_output
+        date_value = date_output
+
+    column_definitions = get_column_definitions(Cohort)
+
+    query_engine = MssqlQueryEngine(
+        column_definitions=column_definitions, backend=mock_backend(database.host_url())
+    )
+    with query_engine.execute_query() as result:
+        assert list(result) == expected
