@@ -4,8 +4,8 @@
   'fetchone',
   (),
   {},
-  ('Microsoft SQL Server 2017 (RTM-CU23) (KB5000685) - 14.0.3381.3 (X64) \n'
-   '\tFeb  9 2021 12:08:50 \n'
+  ('Microsoft SQL Server 2017 (RTM-CU24) (KB5001228) - 14.0.3391.2 (X64) \n'
+   '\tApr 28 2021 10:32:18 \n'
    '\tCopyright (C) 2017 Microsoft Corporation\n'
    '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
  ('Cursor', 'close', (), {}, None),
@@ -64,8 +64,8 @@
   'fetchone',
   (),
   {},
-  ('Microsoft SQL Server 2017 (RTM-CU23) (KB5000685) - 14.0.3381.3 (X64) \n'
-   '\tFeb  9 2021 12:08:50 \n'
+  ('Microsoft SQL Server 2017 (RTM-CU24) (KB5001228) - 14.0.3391.2 (X64) \n'
+   '\tApr 28 2021 10:32:18 \n'
    '\tCopyright (C) 2017 Microsoft Corporation\n'
    '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
  ('Cursor', 'close', (), {}, None),
@@ -117,8 +117,8 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT group_table_1.patient_id AS patient_id, group_table_0.code AS '
-   'code \n'
+   'SELECT DISTINCT group_table_1.patient_id AS patient_id, group_table_0.code '
+   'AS code \n'
    'FROM group_table_1 LEFT OUTER JOIN group_table_0 ON '
    'group_table_1.patient_id = group_table_0.patient_id \n'
    'WHERE group_table_1.patient_id_exists = 1',
