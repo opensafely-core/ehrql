@@ -294,6 +294,7 @@ def test_run_generated_sql_get_single_row_per_patient(
         assert list(result) == expected
 
 
+@pytest.mark.integration
 @pytest.mark.parametrize(
     "filtered_table,expected",
     [
@@ -452,6 +453,7 @@ def test_simple_filters(
         assert list(result) == expected
 
 
+@pytest.mark.integration
 def test_filter_between_other_query_values(database, setup_test_database, mock_backend):
     # set up input data for 3 patients, with positive test dates and clinical event results
     input_data = [
@@ -541,6 +543,7 @@ def test_filter_between_other_query_values(database, setup_test_database, mock_b
     ]
 
 
+@pytest.mark.integration
 def test_date_in_range_filter(database, setup_test_database, mock_backend):
     input_data = [
         # (9999-12-31 is the default TPP null value)
