@@ -70,6 +70,10 @@ class MssqlQueryEngine(BaseQueryEngine):
                 function="exists",
                 column="patient_id",
             )
+        # Find outputs that need to be excluded from the final table (e.g. filtered outputs
+        # that are used in another filter)
+        self.exclude_columns = column_definitions.pop("excludes", [])
+
         # Walk the nodes and identify output groups
         self.output_groups = self.get_output_groups(column_definitions)
         self.output_group_tables = {}
@@ -290,6 +294,14 @@ class MssqlQueryEngine(BaseQueryEngine):
         if other_table is not None:
             query = self.include_joined_table(query, other_table)
 
+            if isinstance(value_expr, sqlalchemy.Column) and operator_name in [
+                "in_",
+                "not_in",
+            ]:
+                # For an in_/not_in query that uses a column from another table, we need to convert
+                # the Column to a select query
+                value_expr = sqlalchemy.select(value_expr).select_from(other_table)
+
         # Get the base table
         table_expr = get_primary_table(query)
         column = table_expr.c[column_name]
@@ -347,6 +359,8 @@ class MssqlQueryEngine(BaseQueryEngine):
         results_query = self.get_population_table_query()
 
         column_definitions = self.column_definitions.copy()
+        for column_name in self.exclude_columns:
+            column_definitions.pop(column_name)
         # Build big JOIN query which selects the results
         for column_name, output_node in column_definitions.items():
             # For each output column, generate the query that selects it from its interim table
@@ -355,6 +369,8 @@ class MssqlQueryEngine(BaseQueryEngine):
             results_query = self.include_joined_table(results_query, table)
             # Add this column to the final selected results
             results_query = results_query.add_columns(column.label(column_name))
+        # remove any duplicate rows
+        results_query = results_query.distinct()
         return results_query
 
     def get_sql(self):
