@@ -1,3 +1,4 @@
+import re
 from datetime import date
 
 import pytest
@@ -677,3 +678,45 @@ def test_not_in_filter_on_query_values(database, setup_test_database, mock_backe
         {"patient_id": 2, "date": date(2021, 5, 2), "value": 50.3},
     ]
     assert result == expected
+
+
+@pytest.mark.integration
+def test_excludes(database, setup_test_database, mock_backend):
+    input_data = [
+        RegistrationHistory(PatientId=1, StpId="STP1"),
+        RegistrationHistory(PatientId=2, StpId="STP1"),
+        Events(PatientId=1, EventCode="Code1", Date="2021-6-1"),
+        Events(PatientId=1, EventCode="Code2", Date="2021-5-1"),
+        Events(PatientId=2, EventCode="Code3", Date="2021-1-1"),
+        Events(PatientId=2, EventCode="Code4", Date="2021-2-1"),
+    ]
+    setup_test_database(input_data)
+
+    # Filter the events to the latest date only, but exclude the date as an output column
+    class Cohort:
+        output_date = table("clinical_events").latest().get("date")
+        output_code = table("clinical_events").filter(date=output_date).get("code")
+        excludes = ["output_date"]
+
+    backend = mock_backend(database_url=database.host_url())
+    result = list(extract(Cohort, backend))
+    expected = [
+        {"patient_id": 1, "output_code": "Code1"},
+        {"patient_id": 2, "output_code": "Code4"},
+    ]
+    assert result == expected
+
+
+def test_excludes_invalid(mock_backend):
+    class Cohort:
+        output_code = table("clinical_events").get("code")
+        excludes = ["output_date"]
+
+    column_definitions = get_column_definitions(Cohort)
+    with pytest.raises(
+        ValueError, match=re.escape("Unknown excludes variable(s): output_date")
+    ):
+        MssqlQueryEngine(
+            column_definitions=column_definitions,
+            backend=mock_backend(database_url=None),
+        )

@@ -72,7 +72,12 @@ class MssqlQueryEngine(BaseQueryEngine):
             )
         # Find outputs that need to be excluded from the final table (e.g. filtered outputs
         # that are used in another filter)
-        self.exclude_columns = column_definitions.pop("excludes", [])
+        self.exclude_columns = set(column_definitions.pop("excludes", []))
+        unknown_exclude_cols = self.exclude_columns - set(column_definitions)
+        if unknown_exclude_cols:
+            raise ValueError(
+                f"Unknown excludes variable(s): {', '.join([col for col in unknown_exclude_cols])}"
+            )
 
         # Walk the nodes and identify output groups
         self.output_groups = self.get_output_groups(column_definitions)
