@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 import sqlalchemy
+from conftest import is_fast_mode
 from sql_setup import Base, Events, PositiveTests, RegistrationHistory
 from sqlalchemy.orm import sessionmaker
 
@@ -11,7 +12,6 @@ from cohortextractor.main import extract
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
-from tests.conftest import is_fast_mode
 
 
 DEFAULT_TABLES = {
@@ -113,7 +113,7 @@ def test_mssql_query_engine(mock_backend):
         "FROM events) AS clinical_events\n) t\n\n\n"
         "SELECT * INTO group_table_1 FROM (\n"
         "SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n"
-        "FROM (SELECT PatientId AS patient_id \n"
+        "FROM (SELECT PatientId AS patient_id, StpId AS stp, StartDate AS date_start, EndDate AS date_end \n"
         "FROM practice_registrations) AS practice_registrations GROUP BY practice_registrations.patient_id\n) t\n\n\n"
         "SELECT group_table_1.patient_id AS patient_id, group_table_0.code AS output_value \n"
         "FROM group_table_1 LEFT OUTER JOIN group_table_0 ON group_table_1.patient_id = group_table_0.patient_id \n"
