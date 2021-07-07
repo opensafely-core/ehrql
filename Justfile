@@ -34,7 +34,7 @@ test-integration ARGS="":
 
 # run the integration tests only against a persistent database. Optional args are passed to pytest
 test-integration-fast ARGS="":
-    DATABASE_MODE=persistent just test-integration {{ ARGS }}
+    DATABASE_MODE=persistent just test-integration '{{ ARGS }}'
 
 # run the smoke tests only. Optional args are passed to pytest
 test-smoke ARGS="":
@@ -47,7 +47,7 @@ test-smoke ARGS="":
 
 # run the smoke tests only against a persistent database. Optional args are passed to pytest
 test-smoke-fast ARGS="":
-    DATABASE_MODE=persistent just test-smoke {{ ARGS }}
+    DATABASE_MODE=persistent just test-smoke '{{ ARGS }}'
 
 # run all tests including integration and smoke tests. Optional args are passed to pytest
 test-all ARGS="": build-cohort-extractor
@@ -60,15 +60,15 @@ test-all ARGS="": build-cohort-extractor
 
 # run all tests including integration and smoke tests against a persistent database. Optional args are passed to pytest
 test-all-fast ARGS="":
-    DATABASE_MODE=persistent just test-all {{ ARGS }}
+    DATABASE_MODE=persistent just test-all '{{ ARGS }}'
 
 # run all tests in record mode with ephemeral databases. Optional args are passed to pytest
 test-record ARGS="":
-    RECORDING_MODE=record just test-integration {{ ARGS }}
+    RECORDING_MODE=record just test-integration '{{ ARGS }}'
 
 # run all tests in record mode with a persistent database (note: may produce unexpected recording changes relating to clearing out the database contents). Optional args are passed to pytest
 test-record-fast ARGS="":
-    RECORDING_MODE=record just test-integration-fast {{ ARGS }}
+    RECORDING_MODE=record just test-integration-fast '{{ ARGS }}'
 
 # check that the recordings are up-to-date
 test-assert-recordings-up-to-date:
