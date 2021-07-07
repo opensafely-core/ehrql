@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pytest
 
+from cohortextractor.main import main
+
 
 class Study:
     def __init__(self, study_path):
@@ -66,3 +68,12 @@ def test_extracts_data_from_sql_server(load_study, load_data, cohort_extractor):
 
     actual_results = cohort_extractor(study)
     assert_results_equivalent(actual_results, study.expected_results())
+
+
+@pytest.mark.integration
+def test_main(load_study, load_data, database):
+    study = load_study("end_to_end_tests")
+    load_data(study.tables())
+    main(workspace=str(study.path), backend_id="mock", db_url=database.host_url())
+    output_file_path = study.path / "outputs" / "cohort.csv"
+    assert output_file_path.read_text() == study.expected_results().read_text()
