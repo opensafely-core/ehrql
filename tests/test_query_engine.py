@@ -88,33 +88,6 @@ def test_backend_tables():
     assert MockBackend.tables == {"practice_registrations", "clinical_events"}
 
 
-def test_mssql_query_engine(mock_backend):
-    """Test the simplest Cohort definition that just selects a single column"""
-
-    class Cohort:
-        output_value = table("clinical_events").get("code")
-
-    column_definitions = get_column_definitions(Cohort)
-    query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=mock_backend(database_url=None)
-    )
-
-    sql = query_engine.get_sql()
-    assert (
-        sql == "SELECT * INTO group_table_0 FROM (\n"
-        "SELECT clinical_events.code, clinical_events.patient_id \n"
-        "FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, PatientId AS patient_id \n"
-        "FROM events) AS clinical_events\n) t\n\n\n"
-        "SELECT * INTO group_table_1 FROM (\n"
-        "SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n"
-        "FROM (SELECT PatientId AS patient_id, StpId AS stp, StartDate AS date_start, EndDate AS date_end \n"
-        "FROM practice_registrations) AS practice_registrations GROUP BY practice_registrations.patient_id\n) t\n\n\n"
-        "SELECT DISTINCT group_table_1.patient_id AS patient_id, group_table_0.code AS output_value \n"
-        "FROM group_table_1 LEFT OUTER JOIN group_table_0 ON group_table_1.patient_id = group_table_0.patient_id \n"
-        "WHERE group_table_1.patient_id_exists = 1"
-    )
-
-
 @pytest.mark.integration
 def test_run_generated_sql_get_single_column_default_population(
     database, setup_test_database, mock_backend
