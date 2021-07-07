@@ -17,12 +17,15 @@ class Table(QueryNode):
     def _filter_operator_mapping(self):
         return {
             "equals": "__eq__",
+            "not_equals": "__ne__",
             "less_than": "__lt__",
             "less_than_or_equals": "__le__",
             "greater_than": "__gt__",
             "greater_than_or_equals": "__ge__",
             "on_or_before": "__le__",
             "on_or_after": "__ge__",
+            "is_in": "in_",
+            "not_in": "not_in",
         }
 
     def filter(self, *args, **kwargs):  # noqa: A003
@@ -78,6 +81,20 @@ class Table(QueryNode):
     def last_by(self, *columns):
         assert columns
         return Row(source=self, sort_columns=columns, descending=True)
+
+    def date_in_range(self, date, start_column="date_start", end_column="date_end"):
+        """
+        A filter that returns the latest of two boundary date fields, where start values
+        are <= a target date and end values are >= a target. If more than one entry matches,
+        the latest one will be returned.
+        Note that this filter currently expects that a value will be present for BOTH
+        start and end columns.
+        """
+        return (
+            self.filter(start_column, less_than_or_equals=date)
+            .filter(end_column, greater_than_or_equals=date)
+            .last_by(start_column, end_column)
+        )
 
     def exists(self):
         return self.aggregate("exists", "patient_id")
