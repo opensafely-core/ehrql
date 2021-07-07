@@ -140,7 +140,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         if self._engine is None:
             engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
             engine_url = engine_url.set(drivername="mssql+pymssql")
-            self._engine = sqlalchemy.create_engine(engine_url, echo=True, future=True)
+            self._engine = sqlalchemy.create_engine(engine_url, future=True)
         return self._engine
 
     #

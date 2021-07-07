@@ -2,43 +2,28 @@ import csv
 import shutil
 
 import pytest
-from conftest import is_fast_mode
-
-
-def container_cohort_extractor(study, database, containers, study_dir):
-    shutil.copy(study, study_dir)
-
-    containers.run_fg(
-        image="cohort-extractor-v2:latest",
-        environment={"TPP_DATABASE_URL": database.container_url(), "BACKEND": "mock"},
-        volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
-        network=database.network,
-    )
-
-    return study_dir / "outputs"
-
-
-def in_process_cohort_extractor(study, database, study_dir):
-    shutil.copy(study, study_dir)
-    from cohortextractor.main import main
-
-    main(
-        workspace=str(study_dir),
-        backend_id="mock",
-        db_url=database.host_url(),
-    )
-    return study_dir / "outputs"
 
 
 @pytest.fixture
-def run_cohort_extractor(tmpdir, database, containers):
+def cohort_extractor(tmpdir, database, containers):
     study_dir = tmpdir.mkdir("study")
-    if is_fast_mode():
-        return lambda study: in_process_cohort_extractor(study, database, study_dir)
-    else:
-        return lambda study: container_cohort_extractor(
-            study, database, containers, study_dir
+
+    def run(study):
+        shutil.copy(study, study_dir)
+
+        containers.run_fg(
+            image="cohort-extractor-v2:latest",
+            environment={
+                "TPP_DATABASE_URL": database.container_url(),
+                "BACKEND": "mock",
+            },
+            volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
+            network=database.network,
         )
+
+        return study_dir / "outputs"
+
+    return run
 
 
 def assert_results_equivalent(actual_results, expected_results):
@@ -50,10 +35,10 @@ def assert_results_equivalent(actual_results, expected_results):
         assert actual_data == expected_data
 
 
-@pytest.mark.integration
-def test_extracts_data_from_sql_server(load_study, load_data, run_cohort_extractor):
+@pytest.mark.smoke
+def test_extracts_data_from_sql_server(load_study, load_data, cohort_extractor):
     study = load_study("end_to_end_tests")
     load_data(study.tables())
 
-    actual_results = run_cohort_extractor(study.study_definition())
+    actual_results = cohort_extractor(study.study_definition())
     assert_results_equivalent(actual_results, study.expected_results())

@@ -14,7 +14,6 @@ def test_pick_a_single_value(database, load_data):
         INSERT INTO events (PatientId, EventCode) VALUES (1, 'xyz');
         CREATE TABLE practice_registrations (PatientId int);
         INSERT INTO practice_registrations (PatientId) VALUES (1);
-        GO
     """
 
     class Cohort:
