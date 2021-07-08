@@ -27,7 +27,7 @@ def load_study():
 
 
 @pytest.fixture
-def cohort_extractor(tmpdir, database, containers):
+def cohort_extractor_in_container(tmpdir, database, containers):
     workspace = tmpdir.mkdir("workspace")
     analysis_dir = workspace / "analysis"
     analysis_dir.mkdir()
@@ -52,6 +52,28 @@ def cohort_extractor(tmpdir, database, containers):
     return run
 
 
+@pytest.fixture
+def cohort_extractor_in_process(tmpdir, database, containers):
+    workspace = tmpdir.mkdir("workspace")
+    analysis_dir = workspace / "analysis"
+    analysis_dir.mkdir()
+
+    def run(study):
+        shutil.copy(study.definition(), analysis_dir)
+        definition_path = analysis_dir / study.definition().name
+
+        main(
+            workspace_dir=Path(workspace),
+            definition_path=definition_path,
+            backend_id="mock",
+            db_url=database.host_url(),
+        )
+
+        return workspace / "outputs"
+
+    return run
+
+
 def assert_results_equivalent(actual_results, expected_results):
     with open(actual_results / "cohort.csv") as actual_file:
         with open(expected_results) as expected_file:
@@ -62,18 +84,21 @@ def assert_results_equivalent(actual_results, expected_results):
 
 
 @pytest.mark.smoke
-def test_extracts_data_from_sql_server(load_study, load_data, cohort_extractor):
-    study = load_study("end_to_end_tests")
-    load_data(study.tables())
-
-    actual_results = cohort_extractor(study)
-    assert_results_equivalent(actual_results, study.expected_results())
+def test_extracts_data_from_sql_server_smoke_test(
+    load_study, load_data, cohort_extractor_in_container
+):
+    run_test(load_study, load_data, cohort_extractor_in_container)
 
 
 @pytest.mark.integration
-def test_main(load_study, load_data, database):
+def test_extracts_data_from_sql_server_integration_test(
+    load_study, load_data, cohort_extractor_in_process
+):
+    run_test(load_study, load_data, cohort_extractor_in_process)
+
+
+def run_test(load_study, load_data, cohort_extractor):
     study = load_study("end_to_end_tests")
     load_data(study.tables())
-    main(workspace=str(study.path), backend_id="mock", db_url=database.host_url())
-    output_file_path = study.path / "outputs" / "cohort.csv"
-    assert output_file_path.read_text() == study.expected_results().read_text()
+    actual_results = cohort_extractor(study)
+    assert_results_equivalent(actual_results, study.expected_results())
