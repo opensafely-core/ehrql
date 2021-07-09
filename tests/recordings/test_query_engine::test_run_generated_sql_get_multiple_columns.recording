@@ -59,7 +59,7 @@
   (),
   {},
   (('TABLE_NAME', 1, None, None, None, None, None),)),
- ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'fetchone', (), {}, ('practice_registrations',)),
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
@@ -80,7 +80,7 @@
   (),
   {},
   (('TABLE_NAME', 1, None, None, None, None, None),)),
- ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'fetchone', (), {}, ('events',)),
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
@@ -101,8 +101,14 @@
   (),
   {},
   (('TABLE_NAME', 1, None, None, None, None, None),)),
- ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'fetchone', (), {}, ('pos_tests',)),
  ('Cursor', 'close', (), {}, None),
+ ('Cursor', 'execute', ('\nDROP TABLE pos_tests', {}), {}, None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'execute', ('\nDROP TABLE events', {}), {}, None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'execute', ('\nDROP TABLE practice_registrations', {}), {}, None),
+ ('Cursor', 'description', (), {}, None),
  ('Connection', 'commit', (), {}, None),
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
@@ -360,7 +366,7 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO group_table_0 FROM (\n'
+  ('SELECT * INTO #group_table_0 FROM (\n'
    'SELECT clinical_events.code, clinical_events.patient_id \n'
    'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
    'PatientId AS patient_id \n'
@@ -368,14 +374,14 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO group_table_1 FROM (\n'
+   'SELECT * INTO #group_table_1 FROM (\n'
    'SELECT positive_tests.patient_id, positive_tests.result \n'
    'FROM (SELECT PositiveResult AS result, PatientId AS patient_id \n'
    'FROM pos_tests) AS positive_tests\n'
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO group_table_2 FROM (\n'
+   'SELECT * INTO #group_table_2 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
    'FROM (SELECT PatientId AS patient_id, StpId AS stp, StartDate AS '
    'date_start, EndDate AS date_end \n'
@@ -384,12 +390,13 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT group_table_2.patient_id AS patient_id, group_table_0.code AS '
-   'output_value, group_table_1.result AS positive \n'
-   'FROM group_table_2 LEFT OUTER JOIN group_table_0 ON '
-   'group_table_2.patient_id = group_table_0.patient_id LEFT OUTER JOIN '
-   'group_table_1 ON group_table_2.patient_id = group_table_1.patient_id \n'
-   'WHERE group_table_2.patient_id_exists = 1',
+   'SELECT [#group_table_2].patient_id AS patient_id, [#group_table_0].code AS '
+   'output_value, [#group_table_1].result AS positive \n'
+   'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_0] ON '
+   '[#group_table_2].patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '
+   '[#group_table_1] ON [#group_table_2].patient_id = '
+   '[#group_table_1].patient_id \n'
+   'WHERE [#group_table_2].patient_id_exists = 1',
    {}),
   {},
   None),

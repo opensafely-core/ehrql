@@ -102,14 +102,14 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO group_table_0 FROM (\n'
+  ('SELECT * INTO #group_table_0 FROM (\n'
    'SELECT clinical_events.code, clinical_events.patient_id \n'
    'FROM (SELECT EventCode AS code, Date AS date, PatientId AS patient_id \n'
    'FROM events) AS clinical_events\n'
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO group_table_1 FROM (\n'
+   'SELECT * INTO #group_table_1 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
    'FROM (SELECT PatientId AS patient_id \n'
    'FROM practice_registrations) AS practice_registrations GROUP BY '
@@ -117,11 +117,11 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT group_table_1.patient_id AS patient_id, group_table_0.code AS '
+   'SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].code AS '
    'code \n'
-   'FROM group_table_1 LEFT OUTER JOIN group_table_0 ON '
-   'group_table_1.patient_id = group_table_0.patient_id \n'
-   'WHERE group_table_1.patient_id_exists = 1',
+   'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
+   '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
+   'WHERE [#group_table_1].patient_id_exists = 1',
    {}),
   {},
   None),
