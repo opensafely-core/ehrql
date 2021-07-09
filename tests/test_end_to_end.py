@@ -1,27 +1,51 @@
 import csv
 import shutil
+from pathlib import Path
 
 import pytest
 
 
+class Study:
+    def __init__(self, study_path):
+        self._path = Path(__file__).parent.absolute() / "fixtures" / study_path
+
+    def tables(self):
+        return self._path / "tables.sql"
+
+    def definition(self):
+        return self._path / "my_cohort.py"
+
+    def expected_results(self):
+        return self._path / "results.csv"
+
+
+@pytest.fixture
+def load_study():
+    return Study
+
+
 @pytest.fixture
 def cohort_extractor(tmpdir, database, containers):
-    study_dir = tmpdir.mkdir("study")
+    workspace = tmpdir.mkdir("workspace")
+    analysis_dir = workspace / "analysis"
+    analysis_dir.mkdir()
 
     def run(study):
-        shutil.copy(study, study_dir)
+        shutil.copy(study.definition(), analysis_dir)
+        definition_path = Path("analysis") / study.definition().name
 
         containers.run_fg(
             image="cohort-extractor-v2:latest",
+            command=["--cohort-definition", str(definition_path)],
             environment={
                 "TPP_DATABASE_URL": database.container_url(),
                 "BACKEND": "mock",
             },
-            volumes={study_dir: {"bind": "/workspace", "mode": "rw"}},
+            volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
             network=database.network,
         )
 
-        return study_dir / "outputs"
+        return workspace / "outputs"
 
     return run
 
@@ -40,5 +64,5 @@ def test_extracts_data_from_sql_server(load_study, load_data, cohort_extractor):
     study = load_study("end_to_end_tests")
     load_data(study.tables())
 
-    actual_results = cohort_extractor(study.study_definition())
+    actual_results = cohort_extractor(study)
     assert_results_equivalent(actual_results, study.expected_results())

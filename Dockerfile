@@ -8,15 +8,12 @@ RUN \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1 && \
     rm -rf /var/lib/apt/lists/*
 
-# hadolint ignore=DL3059
-RUN \
-  mkdir /app && \
-  mkdir /workspace
-
-COPY requirements.prod.txt /app
-RUN python -m pip install --no-cache-dir --requirement /app/requirements.prod.txt
+COPY requirements.prod.txt /app/requirements.txt
+RUN python -m pip install --no-cache-dir --requirement /app/requirements.txt
 
 COPY cohortextractor /app/cohortextractor
+ENV PYTHONPATH="/app:${PYTHONPATH}"
 
-WORKDIR /app
+RUN mkdir /workspace
+WORKDIR /workspace
 ENTRYPOINT ["python", "-m", "cohortextractor"]
