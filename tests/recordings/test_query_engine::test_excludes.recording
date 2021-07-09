@@ -402,8 +402,8 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT DISTINCT group_table_2.patient_id AS patient_id, group_table_1.code '
-   'AS output_code \n'
+   'SELECT group_table_2.patient_id AS patient_id, group_table_1.code AS '
+   'output_code \n'
    'FROM group_table_2 LEFT OUTER JOIN group_table_1 ON '
    'group_table_2.patient_id = group_table_1.patient_id \n'
    'WHERE group_table_2.patient_id_exists = 1',

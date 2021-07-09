@@ -430,8 +430,8 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT DISTINCT group_table_1.patient_id AS patient_id, group_table_0.code '
-   'AS code, group_table_0.date AS date, group_table_0.result AS value \n'
+   'SELECT group_table_1.patient_id AS patient_id, group_table_0.code AS code, '
+   'group_table_0.date AS date, group_table_0.result AS value \n'
    'FROM group_table_1 LEFT OUTER JOIN group_table_0 ON '
    'group_table_1.patient_id = group_table_0.patient_id \n'
    'WHERE group_table_1.patient_id_exists = 1',

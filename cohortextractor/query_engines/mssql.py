@@ -296,22 +296,26 @@ class MssqlQueryEngine(BaseQueryEngine):
         # Does this filter require another table? i.e. is the filter value itself an
         # Output node, which has a source that we may need to include here
         value_expr, other_table = self.get_value_expression(filter_node.value)
-        if other_table is not None:
-            query = self.include_joined_table(query, other_table)
 
+        if other_table is not None:
             if isinstance(value_expr, sqlalchemy.Column) and operator_name in [
                 "in_",
                 "not_in",
             ]:
-                # For an in_/not_in query that uses a column from another table, we need to convert
-                # the Column to a select query
-                value_expr = sqlalchemy.select(value_expr).select_from(other_table)
+                # For an in_/not_in query that uses a query from another table, convert
+                # the Column to a select query, and use a correlated query on the other table to
+                # select over only the rows for each patient
+                value_expr = sqlalchemy.select(value_expr)
+                query = query.correlate(other_table)
+            else:
+                query = self.include_joined_table(query, other_table)
 
         # Get the base table
         table_expr = get_primary_table(query)
         column = table_expr.c[column_name]
         method = getattr(column, operator_name)
-        return query.where(method(value_expr))
+        query = query.where(method(value_expr))
+        return query
 
     @staticmethod
     def apply_row_selector(query, sort_columns, descending):
@@ -374,8 +378,6 @@ class MssqlQueryEngine(BaseQueryEngine):
             results_query = self.include_joined_table(results_query, table)
             # Add this column to the final selected results
             results_query = results_query.add_columns(column.label(column_name))
-        # remove any duplicate rows
-        results_query = results_query.distinct()
         return results_query
 
     def get_sql(self):
