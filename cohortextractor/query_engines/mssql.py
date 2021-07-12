@@ -161,7 +161,8 @@ class MssqlQueryEngine(BaseQueryEngine):
         # make a table object representing a temporary table into which we will write the required
         # values
         for i, (group, output_nodes) in enumerate(self.output_groups.items()):
-            table_name = f"group_table_{i}"
+            # The `#` prefix makes this a session-scoped temporary table
+            table_name = f"#group_table_{i}"
             columns = {self.get_output_column_name(output) for output in output_nodes}
             self.output_group_tables[group] = make_table_expression(
                 table_name, {"patient_id"} | columns
