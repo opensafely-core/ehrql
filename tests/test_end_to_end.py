@@ -28,9 +28,11 @@ def load_study():
 
 @pytest.fixture
 def cohort_extractor_in_container(tmpdir, database, containers):
-    workspace = tmpdir.mkdir("workspace")
+    workspace = Path(tmpdir.mkdir("workspace"))
     analysis_dir = workspace / "analysis"
     analysis_dir.mkdir()
+    output_rel_path = Path("outputs") / "cohort.csv"
+    output_host_path = workspace / output_rel_path
 
     def run(study):
         shutil.copy(study.definition(), analysis_dir)
@@ -38,7 +40,12 @@ def cohort_extractor_in_container(tmpdir, database, containers):
 
         containers.run_fg(
             image="cohort-extractor-v2:latest",
-            command=["--cohort-definition", str(definition_path)],
+            command=[
+                "--cohort-definition",
+                str(definition_path),
+                "--output",
+                str(output_rel_path),
+            ],
             environment={
                 "TPP_DATABASE_URL": database.container_url(),
                 "BACKEND": "mock",
@@ -47,35 +54,37 @@ def cohort_extractor_in_container(tmpdir, database, containers):
             network=database.network,
         )
 
-        return workspace / "outputs"
+        return output_host_path
 
     return run
 
 
 @pytest.fixture
 def cohort_extractor_in_process(tmpdir, database, containers):
-    workspace = tmpdir.mkdir("workspace")
+    workspace = Path(tmpdir.mkdir("workspace"))
     analysis_dir = workspace / "analysis"
     analysis_dir.mkdir()
+    output_rel_path = Path("outputs") / "cohort.csv"
+    output_host_path = workspace / output_rel_path
 
     def run(study):
         shutil.copy(study.definition(), analysis_dir)
         definition_path = analysis_dir / study.definition().name
 
         main(
-            workspace_dir=Path(workspace),
             definition_path=definition_path,
+            output_file=output_host_path,
             backend_id="mock",
             db_url=database.host_url(),
         )
 
-        return workspace / "outputs"
+        return output_host_path
 
     return run
 
 
 def assert_results_equivalent(actual_results, expected_results):
-    with open(actual_results / "cohort.csv") as actual_file:
+    with open(actual_results) as actual_file:
         with open(expected_results) as expected_file:
             actual_data = list(csv.DictReader(actual_file))
             expected_data = list(csv.DictReader(expected_file))
