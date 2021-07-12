@@ -4,8 +4,13 @@
   'fetchone',
   (),
   {},
+<<<<<<< HEAD
   ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
    '\tJun 25 2021 14:02:48 \n'
+=======
+  ('Microsoft SQL Server 2017 (RTM-CU24) (KB5001228) - 14.0.3391.2 (X64) \n'
+   '\tApr 28 2021 10:32:18 \n'
+>>>>>>> Updated recordings
    '\tCopyright (C) 2017 Microsoft Corporation\n'
    '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
  ('Cursor', 'close', (), {}, None),
@@ -102,6 +107,30 @@
   {},
   (('TABLE_NAME', 1, None, None, None, None, None),)),
  ('Cursor', 'fetchone', (), {}, None),
+<<<<<<< HEAD
+=======
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'patients',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+>>>>>>> Updated recordings
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'commit', (), {}, None),
  ('Connection', 'rollback', (), {}, None),
@@ -170,6 +199,27 @@
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'patients',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
   ('\n'
    'CREATE TABLE practice_registrations (\n'
    '\t[RegistrationId] INTEGER NOT NULL IDENTITY, \n'
@@ -208,6 +258,20 @@
    '\t[PatientId] INTEGER NULL, \n'
    '\t[PositiveResult] BIT NULL, \n'
    '\t[TestDate] DATE NULL, \n'
+   '\tPRIMARY KEY ([Id])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE patients (\n'
+   '\t[Id] INTEGER NOT NULL IDENTITY, \n'
+   '\t[PatientId] INTEGER NULL, \n'
+   '\t[Height] FLOAT NULL, \n'
    '\tPRIMARY KEY ([Id])\n'
    ')\n'
    '\n',
@@ -583,8 +647,13 @@
   'fetchone',
   (),
   {},
+<<<<<<< HEAD
   ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
    '\tJun 25 2021 14:02:48 \n'
+=======
+  ('Microsoft SQL Server 2017 (RTM-CU24) (KB5001228) - 14.0.3391.2 (X64) \n'
+   '\tApr 28 2021 10:32:18 \n'
+>>>>>>> Updated recordings
    '\tCopyright (C) 2017 Microsoft Corporation\n'
    '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
  ('Cursor', 'close', (), {}, None),
