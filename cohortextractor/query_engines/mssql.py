@@ -311,24 +311,32 @@ class MssqlQueryEngine(BaseQueryEngine):
             return function(query.selected_columns[source_column]).label(output_column)
 
     def apply_filter(self, query, filter_node):
+        # Get the base table
+        table_expr = get_primary_table(query)
+
         column_name = filter_node.column
         operator_name = filter_node.operator
         # Does this filter require another table? i.e. is the filter value itself an
         # Output node, which has a source that we may need to include here
         value_expr, other_table = self.get_value_expression(filter_node.value)
         if other_table is not None:
-            query = self.include_joined_table(query, other_table)
+            # If we have a "Value" (i.e. a single value per patient) then we
+            # include the other table in the join
+            if isinstance(filter_node.value, Value):
+                query = self.include_joined_table(query, other_table)
+            # If we have a "Column" (i.e. multipe values per patient) then we
+            # can directly join this with our single-value-per-patient query,
+            # so we have to use a correlated subquery
+            elif isinstance(filter_node.value, Column):
+                value_expr = (
+                    sqlalchemy.select(value_expr)
+                    .select_from(other_table)
+                    .where(other_table.c.patient_id == table_expr.c.patient_id)
+                )
+            else:
+                # Shouldn't get any other type here
+                assert False
 
-            if isinstance(value_expr, sqlalchemy.Column) and operator_name in [
-                "in_",
-                "not_in",
-            ]:
-                # For an in_/not_in query that uses a column from another table, we need to convert
-                # the Column to a select query
-                value_expr = sqlalchemy.select(value_expr).select_from(other_table)
-
-        # Get the base table
-        table_expr = get_primary_table(query)
         column = table_expr.c[column_name]
         method = getattr(column, operator_name)
         return query.where(method(value_expr))
