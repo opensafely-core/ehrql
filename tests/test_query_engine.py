@@ -641,8 +641,8 @@ def test_not_in_filter_on_query_values(database, setup_test_database, mock_backe
         Events(PatientId=2, EventCode="Code1", Date="2021-1-10", ResultValue=50.1),
         # pt2 1 matches a negative result date
         Events(PatientId=2, EventCode="Code1", Date="2021-2-1", ResultValue=50.2),
-        # pt2 1 result doesn't matches a positive result date and a different code
-        Events(PatientId=2, EventCode="Code2", Date="2021-5-2", ResultValue=50.3),
+        # pt2 1 result doesn't match any result date: SELECTED
+        Events(PatientId=2, EventCode="Code1", Date="2021-5-2", ResultValue=50.3),
     ]
     setup_test_database(input_data)
 
@@ -660,11 +660,11 @@ def test_not_in_filter_on_query_values(database, setup_test_database, mock_backe
     # Cohort to extract the results that were NOT on a test date (positive or negative)
     class Cohort:
         _test_dates = table("positive_tests").get("test_date")
-        _last_code1_events_on_positive_test_dates = (
+        _last_event_not_on_test_date = (
             table("clinical_events").filter("date", not_in=_test_dates).latest()
         )
-        date = _last_code1_events_on_positive_test_dates.get("date")
-        value = _last_code1_events_on_positive_test_dates.get("result")
+        date = _last_event_not_on_test_date.get("date")
+        value = _last_event_not_on_test_date.get("result")
 
     backend = mock_backend(database.host_url(), tables=backend_tables)
 
