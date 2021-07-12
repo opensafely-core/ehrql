@@ -37,7 +37,7 @@ test-integration-fast ARGS="":
     DATABASE_MODE=persistent just test-integration '{{ ARGS }}'
 
 # run the smoke tests only. Optional args are passed to pytest
-test-smoke ARGS="":
+test-smoke ARGS="": build-cohort-extractor
     #!/usr/bin/env bash
     set -euo pipefail
     . scripts/setup_functions

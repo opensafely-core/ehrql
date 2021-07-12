@@ -13,29 +13,6 @@ from lib import playback
 from lib.util import get_mode
 
 
-class Study:
-    def __init__(self, study_path):
-        super().__init__()
-        self._path = Path(__file__).parent.absolute() / "fixtures" / study_path
-
-    def tables(self):
-        return self._path / "tables.sql"
-
-    def study_definition(self):
-        return self._path / "study_definition.py"
-
-    def expected_results(self):
-        return self._path / "results.csv"
-
-
-@pytest.fixture
-def load_study():
-    def read_dir(path):
-        return Study(path)
-
-    return read_dir
-
-
 @pytest.fixture
 def docker_client():
     yield docker.from_env()
