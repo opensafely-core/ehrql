@@ -6,11 +6,11 @@ from .backends import BACKENDS
 from .query_utils import get_column_definitions
 
 
-def main(workspace_dir, definition_path, backend_id, db_url):
+def main(definition_path, output_file, backend_id, db_url):
     backend = BACKENDS[backend_id](db_url)
     cohort = load_cohort(definition_path)
     results = extract(cohort, backend)
-    write_output(results, workspace_dir)
+    write_output(results, output_file)
 
 
 def load_cohort(definition):
@@ -41,10 +41,9 @@ def extract(cohort, backend):
             yield dict(row)
 
 
-def write_output(results, workspace):
-    path = workspace / "outputs/cohort.csv"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open(mode="w") as f:
+def write_output(results, output_file):
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with output_file.open(mode="w") as f:
         writer = csv.writer(f)
         headers = None
         for entry in results:
