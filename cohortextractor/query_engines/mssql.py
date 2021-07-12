@@ -303,10 +303,11 @@ class MssqlQueryEngine(BaseQueryEngine):
                 "not_in",
             ]:
                 # For an in_/not_in query that uses a query from another table, convert
-                # the Column to a select query, and use a correlated query on the other table to
-                # select over only the rows for each patient
+                # the Column to a select query, and select over only the rows for each patient
                 value_expr = sqlalchemy.select(value_expr)
-                query = query.correlate(other_table)
+                value_expr = value_expr.where(
+                    query.selected_columns.patient_id == other_table.c.patient_id
+                ).correlate(other_table)
             else:
                 query = self.include_joined_table(query, other_table)
 

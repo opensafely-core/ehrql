@@ -494,7 +494,10 @@
    'FROM events) AS clinical_events \n'
    "WHERE clinical_events.code = N'Code1' AND clinical_events.date IN (SELECT "
    'group_table_0.test_date \n'
-   'FROM group_table_0)) AS anon_1 \n'
+   'FROM group_table_0, (SELECT EventCode AS code, Date AS date, ResultValue '
+   'AS result, PatientId AS patient_id \n'
+   'FROM events) AS clinical_events \n'
+   'WHERE group_table_0.patient_id = clinical_events.patient_id)) AS anon_1 \n'
    'WHERE anon_1._row_num = 1\n'
    ') t\n'
    '\n'
