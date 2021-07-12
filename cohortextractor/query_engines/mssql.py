@@ -393,8 +393,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             results_query = self.include_joined_table(results_query, table)
             # Add this column to the final selected results
             results_query = results_query.add_columns(column.label(column_name))
-        # remove any duplicate rows
-        results_query = results_query.distinct()
+
         return results_query
 
     def get_sql(self):

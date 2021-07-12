@@ -154,7 +154,6 @@ def test_run_generated_sql_get_multiple_columns(
         Events(PatientId=1, EventCode="Code1"),
         Events(PatientId=2, EventCode="Code2"),
         PositiveTests(PatientId=1, PositiveResult=True),
-        PositiveTests(PatientId=2, PositiveResult=True),
         PositiveTests(PatientId=2, PositiveResult=False),
     ]
     setup_test_database(input_data)
@@ -181,7 +180,6 @@ def test_run_generated_sql_get_multiple_columns(
         assert list(result) == [
             (1, "Code1", True),
             (2, "Code2", False),
-            (2, "Code2", True),
         ]
 
 
@@ -598,22 +596,22 @@ def test_in_filter_on_query_values(database, setup_test_database, mock_backend):
 
     # Cohort to extract the Code1 results that were on a positive test date
     class Cohort:
-        positive_test_dates = (
+        _positive_test_dates = (
             table("positive_tests").filter(positive_result=True).get("test_date")
         )
-        _code1_events_on_positive_test_dates = (
+        _last_code1_events_on_positive_test_dates = (
             table("clinical_events")
             .filter(code="Code1")
-            .filter("date", is_in=positive_test_dates)
+            .filter("date", is_in=_positive_test_dates)
+            .latest()
         )
-        date = _code1_events_on_positive_test_dates.get("date")
-        value = _code1_events_on_positive_test_dates.get("result")
+        date = _last_code1_events_on_positive_test_dates.get("date")
+        value = _last_code1_events_on_positive_test_dates.get("result")
 
     backend = mock_backend(database.host_url(), tables=backend_tables)
 
     result = list(extract(Cohort, backend))
     expected = [
-        {"patient_id": 1, "date": date(2021, 1, 1), "value": 10.1},
         {"patient_id": 1, "date": date(2021, 2, 15), "value": 10.2},
         {"patient_id": 2, "date": date(2021, 1, 10), "value": 50.1},
     ]
@@ -660,12 +658,12 @@ def test_not_in_filter_on_query_values(database, setup_test_database, mock_backe
 
     # Cohort to extract the results that were NOT on a test date (positive or negative)
     class Cohort:
-        test_dates = table("positive_tests").get("test_date")
-        _code1_events_on_positive_test_dates = table("clinical_events").filter(
-            "date", not_in=test_dates
+        _test_dates = table("positive_tests").get("test_date")
+        _last_code1_events_on_positive_test_dates = (
+            table("clinical_events").filter("date", not_in=_test_dates).latest()
         )
-        date = _code1_events_on_positive_test_dates.get("date")
-        value = _code1_events_on_positive_test_dates.get("result")
+        date = _last_code1_events_on_positive_test_dates.get("date")
+        value = _last_code1_events_on_positive_test_dates.get("result")
 
     backend = mock_backend(database.host_url(), tables=backend_tables)
 
