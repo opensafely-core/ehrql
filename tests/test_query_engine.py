@@ -573,7 +573,7 @@ def test_in_filter_on_query_values(database, setup_test_database, mock_backend):
         Events(PatientId=1, EventCode="Code1", Date="2021-1-1", ResultValue=10.1),
         Events(PatientId=1, EventCode="Code1", Date="2021-2-15", ResultValue=10.2),
         # pt1 1 result that doesn't match a positive result date
-        Events(PatientId=1, EventCode="Code1", Date="2021-3-1", ResultValue=10.3),
+        Events(PatientId=1, EventCode="Code1", Date="2021-5-1", ResultValue=10.3),
         # pt2 1 result matches a positive result date: SELECTED
         Events(PatientId=2, EventCode="Code1", Date="2021-1-10", ResultValue=50.1),
         # pt2 1 matches a negative result date
@@ -628,6 +628,7 @@ def test_not_in_filter_on_query_values(database, setup_test_database, mock_backe
         PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-1-1"),
         PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-2-15"),
         PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-3-2"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-5-1"),
         PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-1-10"),
         PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-2-1"),
         PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-5-1"),
