@@ -88,33 +88,6 @@ def test_backend_tables():
     assert MockBackend.tables == {"practice_registrations", "clinical_events"}
 
 
-def test_mssql_query_engine(mock_backend):
-    """Test the simplest Cohort definition that just selects a single column"""
-
-    class Cohort:
-        output_value = table("clinical_events").get("code")
-
-    column_definitions = get_column_definitions(Cohort)
-    query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=mock_backend(database_url=None)
-    )
-
-    sql = query_engine.get_sql()
-    assert (
-        sql == "SELECT * INTO group_table_0 FROM (\n"
-        "SELECT clinical_events.code, clinical_events.patient_id \n"
-        "FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, PatientId AS patient_id \n"
-        "FROM events) AS clinical_events\n) t\n\n\n"
-        "SELECT * INTO group_table_1 FROM (\n"
-        "SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n"
-        "FROM (SELECT PatientId AS patient_id, StpId AS stp, StartDate AS date_start, EndDate AS date_end \n"
-        "FROM practice_registrations) AS practice_registrations GROUP BY practice_registrations.patient_id\n) t\n\n\n"
-        "SELECT group_table_1.patient_id AS patient_id, group_table_0.code AS output_value \n"
-        "FROM group_table_1 LEFT OUTER JOIN group_table_0 ON group_table_1.patient_id = group_table_0.patient_id \n"
-        "WHERE group_table_1.patient_id_exists = 1"
-    )
-
-
 @pytest.mark.integration
 def test_run_generated_sql_get_single_column_default_population(
     database, setup_test_database, mock_backend
@@ -181,7 +154,6 @@ def test_run_generated_sql_get_multiple_columns(
         Events(PatientId=1, EventCode="Code1"),
         Events(PatientId=2, EventCode="Code2"),
         PositiveTests(PatientId=1, PositiveResult=True),
-        PositiveTests(PatientId=2, PositiveResult=True),
         PositiveTests(PatientId=2, PositiveResult=False),
     ]
     setup_test_database(input_data)
@@ -207,7 +179,6 @@ def test_run_generated_sql_get_multiple_columns(
     with query_engine.execute_query() as result:
         assert list(result) == [
             (1, "Code1", True),
-            (2, "Code2", True),
             (2, "Code2", False),
         ]
 
@@ -583,3 +554,123 @@ def test_date_in_range_filter(database, setup_test_database, mock_backend):
         {"patient_id": 3, "value": 10.3, "stp": "STP2"},
         {"patient_id": 4, "value": 10.4, "stp": "STP2"},
     ]
+
+
+@pytest.mark.integration
+def test_in_filter_on_query_values(database, setup_test_database, mock_backend):
+    # set up input data for 2 patients, with positive test dates and clinical event results
+    input_data = [
+        RegistrationHistory(PatientId=1, StpId="STP1"),
+        RegistrationHistory(PatientId=2, StpId="STP1"),
+        # Patient test results with dates
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-1-1"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-2-15"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-3-2"),
+        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-1-10"),
+        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-2-1"),
+        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-5-1"),
+        # pt1 2 results with dates matching a positive result: SELECTED
+        Events(PatientId=1, EventCode="Code1", Date="2021-1-1", ResultValue=10.1),
+        Events(PatientId=1, EventCode="Code1", Date="2021-2-15", ResultValue=10.2),
+        # pt1 1 result that doesn't match a positive result date
+        Events(PatientId=1, EventCode="Code1", Date="2021-5-1", ResultValue=10.3),
+        # pt2 1 result matches a positive result date: SELECTED
+        Events(PatientId=2, EventCode="Code1", Date="2021-1-10", ResultValue=50.1),
+        # pt2 1 matches a negative result date
+        Events(PatientId=2, EventCode="Code1", Date="2021-2-1", ResultValue=50.2),
+        # pt2 1 result matches a positive result date but a different code
+        Events(PatientId=2, EventCode="Code2", Date="2021-5-1", ResultValue=50.3),
+    ]
+    setup_test_database(input_data)
+
+    backend_tables = {
+        **DEFAULT_TABLES,
+        "positive_tests": SQLTable(
+            source="pos_tests",
+            columns=dict(
+                positive_result=Column("bool", source="PositiveResult"),
+                test_date=Column("date", source="TestDate"),
+            ),
+        ),
+    }
+
+    # Cohort to extract the Code1 results that were on a positive test date
+    class Cohort:
+        _positive_test_dates = (
+            table("positive_tests").filter(positive_result=True).get("test_date")
+        )
+        _last_code1_events_on_positive_test_dates = (
+            table("clinical_events")
+            .filter(code="Code1")
+            .filter("date", is_in=_positive_test_dates)
+            .latest()
+        )
+        date = _last_code1_events_on_positive_test_dates.get("date")
+        value = _last_code1_events_on_positive_test_dates.get("result")
+
+    backend = mock_backend(database.host_url(), tables=backend_tables)
+
+    result = list(extract(Cohort, backend))
+    expected = [
+        {"patient_id": 1, "date": date(2021, 2, 15), "value": 10.2},
+        {"patient_id": 2, "date": date(2021, 1, 10), "value": 50.1},
+    ]
+    assert result == expected
+
+
+@pytest.mark.integration
+def test_not_in_filter_on_query_values(database, setup_test_database, mock_backend):
+    # set up input data for 2 patients, with positive test dates and clinical event results
+    input_data = [
+        RegistrationHistory(PatientId=1, StpId="STP1"),
+        RegistrationHistory(PatientId=2, StpId="STP1"),
+        # Patient test results with dates
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-1-1"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-2-15"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-3-2"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-5-1"),
+        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-1-10"),
+        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-2-1"),
+        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-5-1"),
+        # pt1 2 results with dates matching a positive result
+        Events(PatientId=1, EventCode="Code1", Date="2021-1-1", ResultValue=10.1),
+        Events(PatientId=1, EventCode="Code1", Date="2021-2-15", ResultValue=10.2),
+        # pt1 1 result that doesn't match a positive result date: SELECTED
+        Events(PatientId=1, EventCode="Code1", Date="2021-4-1", ResultValue=10.3),
+        # pt2 1 result matches a positive result date
+        Events(PatientId=2, EventCode="Code1", Date="2021-1-10", ResultValue=50.1),
+        # pt2 1 matches a negative result date
+        Events(PatientId=2, EventCode="Code1", Date="2021-2-1", ResultValue=50.2),
+        # pt2 1 result doesn't match any result date: SELECTED
+        Events(PatientId=2, EventCode="Code1", Date="2021-5-2", ResultValue=50.3),
+    ]
+    setup_test_database(input_data)
+
+    backend_tables = {
+        **DEFAULT_TABLES,
+        "positive_tests": SQLTable(
+            source="pos_tests",
+            columns=dict(
+                positive_result=Column("bool", source="PositiveResult"),
+                test_date=Column("date", source="TestDate"),
+            ),
+        ),
+    }
+
+    # Cohort to extract the results that were NOT on a test date (positive or negative)
+    class Cohort:
+        _test_dates = table("positive_tests").get("test_date")
+        _last_event_not_on_test_date = (
+            table("clinical_events").filter("date", not_in=_test_dates).latest()
+        )
+        date = _last_event_not_on_test_date.get("date")
+        value = _last_event_not_on_test_date.get("result")
+
+    backend = mock_backend(database.host_url(), tables=backend_tables)
+
+    result = list(extract(Cohort, backend))
+    expected = [
+        {"patient_id": 1, "date": date(2021, 4, 1), "value": 10.3},
+        {"patient_id": 2, "date": date(2021, 5, 2), "value": 50.3},
+    ]
+    assert result == expected

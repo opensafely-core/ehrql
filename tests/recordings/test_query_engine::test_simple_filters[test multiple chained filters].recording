@@ -59,7 +59,7 @@
   (),
   {},
   (('TABLE_NAME', 1, None, None, None, None, None),)),
- ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'fetchone', (), {}, ('practice_registrations',)),
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
@@ -80,7 +80,7 @@
   (),
   {},
   (('TABLE_NAME', 1, None, None, None, None, None),)),
- ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'fetchone', (), {}, ('events',)),
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
@@ -101,8 +101,14 @@
   (),
   {},
   (('TABLE_NAME', 1, None, None, None, None, None),)),
- ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'fetchone', (), {}, ('pos_tests',)),
  ('Cursor', 'close', (), {}, None),
+ ('Cursor', 'execute', ('\nDROP TABLE pos_tests', {}), {}, None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'execute', ('\nDROP TABLE events', {}), {}, None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'execute', ('\nDROP TABLE practice_registrations', {}), {}, None),
+ ('Cursor', 'description', (), {}, None),
  ('Connection', 'commit', (), {}, None),
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
@@ -409,7 +415,7 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO group_table_0 FROM (\n'
+  ('SELECT * INTO #group_table_0 FROM (\n'
    'SELECT clinical_events.code, clinical_events.date, '
    'clinical_events.patient_id, clinical_events.result \n'
    'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
@@ -421,7 +427,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO group_table_1 FROM (\n'
+   'SELECT * INTO #group_table_1 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
    'FROM (SELECT PatientId AS patient_id, StpId AS stp, StartDate AS '
    'date_start, EndDate AS date_end \n'
@@ -430,11 +436,11 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT group_table_1.patient_id AS patient_id, group_table_0.code AS code, '
-   'group_table_0.date AS date, group_table_0.result AS value \n'
-   'FROM group_table_1 LEFT OUTER JOIN group_table_0 ON '
-   'group_table_1.patient_id = group_table_0.patient_id \n'
-   'WHERE group_table_1.patient_id_exists = 1',
+   'SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].code AS '
+   'code, [#group_table_0].date AS date, [#group_table_0].result AS value \n'
+   'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
+   '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
+   'WHERE [#group_table_1].patient_id_exists = 1',
    {}),
   {},
   None),
