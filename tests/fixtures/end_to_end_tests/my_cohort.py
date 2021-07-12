@@ -1,6 +1,6 @@
-from cohortextractor import table
+from cohort_lib import clinical_events
 
 
 class Cohort:
-    date = table("clinical_events").get("date")
-    event = table("clinical_events").get("code")
+    date = clinical_events().get("date")
+    event = clinical_events().get("code")

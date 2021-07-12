@@ -1,6 +1,8 @@
 import csv
 import importlib.util
 import inspect
+import sys
+from contextlib import contextmanager
 
 from .backends import BACKENDS
 from .query_utils import get_column_definitions
@@ -13,24 +15,35 @@ def main(definition_path, output_file, backend_id, db_url):
     write_output(results, output_file)
 
 
-def load_cohort(definition):
-    cohort_definition = load_module_by_path(definition)
+def load_cohort(definition_path):
+    definition_module = load_module(definition_path)
     cohort_classes = [
         obj
-        for name, obj in inspect.getmembers(cohort_definition)
+        for name, obj in inspect.getmembers(definition_module)
         if inspect.isclass(obj)
     ]
     assert len(cohort_classes) == 1, "A study definition must contain one class only"
     return cohort_classes[0]
 
 
-def load_module_by_path(path):
-    # We have to jump through hoops here because the thing we've got in our hand is the full path of the file where the
-    # module is defined.
-    spec = importlib.util.spec_from_file_location("cohort_definition", path)
-    cohort_definition = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(cohort_definition)
-    return cohort_definition
+def load_module(definition_path):
+    definition_dir = definition_path.parent
+    module_name = definition_path.stem
+
+    # Add the directory containing the definition to the path so that the definition can import library modules from
+    # that directory
+    with added_to_path(str(definition_dir)):
+        return importlib.import_module(module_name)
+
+
+@contextmanager
+def added_to_path(directory):
+    original = sys.path.copy()
+    sys.path.append(directory)
+    try:
+        yield
+    finally:
+        sys.path = original
 
 
 def extract(cohort, backend):
