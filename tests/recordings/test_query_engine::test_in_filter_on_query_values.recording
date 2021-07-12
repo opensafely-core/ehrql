@@ -4,8 +4,8 @@
   'fetchone',
   (),
   {},
-  ('Microsoft SQL Server 2017 (RTM-CU24) (KB5001228) - 14.0.3391.2 (X64) \n'
-   '\tApr 28 2021 10:32:18 \n'
+  ('Microsoft SQL Server 2017 (RTM-CU23) (KB5000685) - 14.0.3381.3 (X64) \n'
+   '\tFeb  9 2021 12:08:50 \n'
    '\tCopyright (C) 2017 Microsoft Corporation\n'
    '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
  ('Cursor', 'close', (), {}, None),
@@ -59,7 +59,7 @@
   (),
   {},
   (('TABLE_NAME', 1, None, None, None, None, None),)),
- ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'fetchone', (), {}, ('practice_registrations',)),
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
@@ -80,7 +80,7 @@
   (),
   {},
   (('TABLE_NAME', 1, None, None, None, None, None),)),
- ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'fetchone', (), {}, ('events',)),
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
@@ -101,8 +101,14 @@
   (),
   {},
   (('TABLE_NAME', 1, None, None, None, None, None),)),
- ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'fetchone', (), {}, ('pos_tests',)),
  ('Cursor', 'close', (), {}, None),
+ ('Cursor', 'execute', ('\nDROP TABLE pos_tests', {}), {}, None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'execute', ('\nDROP TABLE events', {}), {}, None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'execute', ('\nDROP TABLE practice_registrations', {}), {}, None),
+ ('Cursor', 'description', (), {}, None),
  ('Connection', 'commit', (), {}, None),
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
@@ -262,7 +268,7 @@
    '%(ResultValue)s)',
    {'PatientId': 1,
     'EventCode': 'Code1',
-    'Date': '2021-3-1',
+    'Date': '2021-5-1',
     'ResultValue': 10.3}),
   {},
   None),
@@ -437,8 +443,8 @@
   'fetchone',
   (),
   {},
-  ('Microsoft SQL Server 2017 (RTM-CU24) (KB5001228) - 14.0.3391.2 (X64) \n'
-   '\tApr 28 2021 10:32:18 \n'
+  ('Microsoft SQL Server 2017 (RTM-CU23) (KB5000685) - 14.0.3381.3 (X64) \n'
+   '\tFeb  9 2021 12:08:50 \n'
    '\tCopyright (C) 2017 Microsoft Corporation\n'
    '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
  ('Cursor', 'close', (), {}, None),
@@ -475,7 +481,7 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO group_table_0 FROM (\n'
+  ('SELECT * INTO #group_table_0 FROM (\n'
    'SELECT positive_tests.patient_id, positive_tests.test_date \n'
    'FROM (SELECT PositiveResult AS positive_result, TestDate AS test_date, '
    'PatientId AS patient_id \n'
@@ -484,20 +490,25 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO group_table_1 FROM (\n'
-   'SELECT clinical_events.date, clinical_events.patient_id, '
-   'clinical_events.result \n'
+   'SELECT * INTO #group_table_1 FROM (\n'
+   'SELECT anon_1.date, anon_1.patient_id, anon_1.result \n'
+   'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
+   'patient_id, clinical_events.result AS result, row_number() OVER (PARTITION '
+   'BY clinical_events.patient_id ORDER BY clinical_events.date DESC) AS '
+   '_row_num \n'
    'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
    'PatientId AS patient_id \n'
-   'FROM events) AS clinical_events LEFT OUTER JOIN group_table_0 ON '
-   'group_table_0.patient_id = clinical_events.patient_id \n'
+   'FROM events) AS clinical_events \n'
    "WHERE clinical_events.code = N'Code1' AND clinical_events.date IN (SELECT "
-   'group_table_0.test_date \n'
-   'FROM group_table_0)\n'
+   '[#group_table_0].test_date \n'
+   'FROM [#group_table_0] \n'
+   'WHERE [#group_table_0].patient_id = clinical_events.patient_id)) AS '
+   'anon_1 \n'
+   'WHERE anon_1._row_num = 1\n'
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO group_table_2 FROM (\n'
+   'SELECT * INTO #group_table_2 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
    'FROM (SELECT PatientId AS patient_id, StpId AS stp, StartDate AS '
    'date_start, EndDate AS date_end \n'
@@ -506,11 +517,11 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT DISTINCT group_table_2.patient_id AS patient_id, group_table_1.date '
-   'AS date, group_table_1.result AS value \n'
-   'FROM group_table_2 LEFT OUTER JOIN group_table_1 ON '
-   'group_table_2.patient_id = group_table_1.patient_id \n'
-   'WHERE group_table_2.patient_id_exists = 1',
+   'SELECT [#group_table_2].patient_id AS patient_id, [#group_table_1].date AS '
+   'date, [#group_table_1].result AS value \n'
+   'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_1] ON '
+   '[#group_table_2].patient_id = [#group_table_1].patient_id \n'
+   'WHERE [#group_table_2].patient_id_exists = 1',
    {}),
   {},
   None),
@@ -521,7 +532,6 @@
   (('patient_id', 3, None, None, None, None, None),
    ('date', 2, None, None, None, None, None),
    ('value', 3, None, None, None, None, None))),
- ('Cursor', 'fetchone', (), {}, (1, datetime.date(2021, 1, 1), 10.1)),
  ('Cursor', 'fetchone', (), {}, (1, datetime.date(2021, 2, 15), 10.2)),
  ('Cursor', 'fetchone', (), {}, (2, datetime.date(2021, 1, 10), 50.1)),
  ('Cursor', 'fetchone', (), {}, None),
