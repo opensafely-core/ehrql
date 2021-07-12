@@ -70,14 +70,6 @@ class MssqlQueryEngine(BaseQueryEngine):
                 function="exists",
                 column="patient_id",
             )
-        # Find outputs that need to be excluded from the final table (e.g. filtered outputs
-        # that are used in another filter)
-        self.exclude_columns = set(column_definitions.pop("excludes", []))
-        unknown_exclude_cols = self.exclude_columns - set(column_definitions)
-        if unknown_exclude_cols:
-            raise ValueError(
-                f"Unknown excludes variable(s): {', '.join([col for col in unknown_exclude_cols])}"
-            )
 
         # Walk the nodes and identify output groups
         self.output_groups = self.get_output_groups(column_definitions)
@@ -258,9 +250,8 @@ class MssqlQueryEngine(BaseQueryEngine):
 
         return query
 
-    def get_population_table_query(self):
+    def get_population_table_query(self, population):
         """Build the query that selects the patient population we're interested in"""
-        population = self.column_definitions.pop("population")
         is_included, population_table = self.get_value_expression(population)
         return (
             sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
@@ -390,11 +381,10 @@ class MssqlQueryEngine(BaseQueryEngine):
         # `population` is a special-cased boolean column, it doesn't appear
         # itself in the output but it determines what rows are included
         # Build the base results table from the population table
-        results_query = self.get_population_table_query()
-
         column_definitions = self.column_definitions.copy()
-        for column_name in self.exclude_columns:
-            column_definitions.pop(column_name)
+        population = column_definitions.pop("population")
+        results_query = self.get_population_table_query(population)
+
         # Build big JOIN query which selects the results
         for column_name, output_node in column_definitions.items():
             # For each output column, generate the query that selects it from its interim table
