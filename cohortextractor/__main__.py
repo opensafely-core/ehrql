@@ -5,11 +5,20 @@ from pathlib import Path
 from .main import main
 
 
+def existing_python_file(value):
+    path = Path(value)
+    if not path.exists():
+        raise ValueError(f"{value} does not exit")
+    if not path.suffix == ".py":
+        raise ValueError(f"{value} is not a Python file")
+    return path
+
+
 parser = ArgumentParser(description="Generate cohorts in OpenSAFELY")
 parser.add_argument(
     "--cohort-definition",
     help="The path of the file where the cohort is defined",
-    type=Path,
+    type=existing_python_file,
 )
 parser.add_argument(
     "--output",

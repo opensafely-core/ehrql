@@ -17,6 +17,9 @@ class Study:
     def definition(self):
         return self._path / "my_cohort.py"
 
+    def code(self):
+        return self._path.glob("*.py")
+
     def expected_results(self):
         return self._path / "results.csv"
 
@@ -35,7 +38,8 @@ def cohort_extractor_in_container(tmpdir, database, containers):
     output_host_path = workspace / output_rel_path
 
     def run(study):
-        shutil.copy(study.definition(), analysis_dir)
+        for file in study.code():
+            shutil.copy(file, analysis_dir)
         definition_path = Path("analysis") / study.definition().name
 
         containers.run_fg(
@@ -68,7 +72,8 @@ def cohort_extractor_in_process(tmpdir, database, containers):
     output_host_path = workspace / output_rel_path
 
     def run(study):
-        shutil.copy(study.definition(), analysis_dir)
+        for file in study.code():
+            shutil.copy(file, analysis_dir)
         definition_path = analysis_dir / study.definition().name
 
         main(
