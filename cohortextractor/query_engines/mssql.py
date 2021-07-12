@@ -5,6 +5,7 @@ import sqlalchemy
 import sqlalchemy.dialects.mssql
 
 from ..query_language import (
+    Category,
     Column,
     FilteredTable,
     QueryNode,
@@ -134,6 +135,10 @@ class MssqlQueryEngine(BaseQueryEngine):
     @staticmethod
     def is_output_node(node):
         return isinstance(node, (Value, Column))
+
+    @staticmethod
+    def is_category_node(node):
+        return isinstance(node, Category)
 
     def get_type_and_source(self, node):
         assert self.is_output_node(node)
@@ -341,6 +346,19 @@ class MssqlQueryEngine(BaseQueryEngine):
         method = getattr(column, operator_name)
         return query.where(method(value_expr))
 
+    def get_case_expression(self, category_node):
+        category_definitions = category_node.definitions.copy()
+        statements = []
+        for label, category_definition in category_definitions.items():
+            source_col = category_definition.source
+            table = self.output_group_tables[self.get_type_and_source(source_col)]
+            column = table.c[source_col.column]
+            method = getattr(column, category_definition.operator)
+            statements.append((method(category_definition.value), label))
+
+        case_expression = sqlalchemy.case(*statements, else_=category_node.default)
+        return case_expression
+
     @staticmethod
     def apply_row_selector(query, sort_columns, descending):
         """
@@ -395,10 +413,17 @@ class MssqlQueryEngine(BaseQueryEngine):
 
         # Build big JOIN query which selects the results
         for column_name, output_node in column_definitions.items():
-            # For each output column, generate the query that selects it from its interim table
-            column, table = self.get_value_expression(output_node)
-            # Then generate the query to join on it
-            results_query = self.include_joined_table(results_query, table)
+            if self.is_output_node(output_node):
+                # For each output column, generate the query that selects it from its interim table
+                column, table = self.get_value_expression(output_node)
+                # Then generate the query to join on it
+                results_query = self.include_joined_table(results_query, table)
+
+            else:
+                # category outputs
+                assert self.is_category_node(output_node)
+                column = self.get_case_expression(output_node)
+
             # Add this column to the final selected results
             results_query = results_query.add_columns(column.label(column_name))
 

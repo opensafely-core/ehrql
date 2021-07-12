@@ -1,5 +1,26 @@
+from collections import namedtuple
+
+
+_OPERATOR_MAPPING = {
+    "equals": "__eq__",
+    "not_equals": "__ne__",
+    "less_than": "__lt__",
+    "less_than_or_equals": "__le__",
+    "greater_than": "__gt__",
+    "greater_than_or_equals": "__ge__",
+    "on_or_before": "__le__",
+    "on_or_after": "__ge__",
+    "is_in": "in_",
+    "not_in": "not_in",
+}
+
+
 def table(name):
     return Table(name)
+
+
+def category_group(source, comparison, value):
+    return CategoryGroup(source, _OPERATOR_MAPPING[comparison], value)
 
 
 class QueryNode:
@@ -12,21 +33,6 @@ class Table(QueryNode):
 
     def get(self, column):
         return Column(source=self, column=column)
-
-    @property
-    def _filter_operator_mapping(self):
-        return {
-            "equals": "__eq__",
-            "not_equals": "__ne__",
-            "less_than": "__lt__",
-            "less_than_or_equals": "__le__",
-            "greater_than": "__gt__",
-            "greater_than_or_equals": "__ge__",
-            "on_or_before": "__le__",
-            "on_or_after": "__ge__",
-            "is_in": "in_",
-            "not_in": "not_in",
-        }
 
     def filter(self, *args, **kwargs):  # noqa: A003
         """
@@ -61,7 +67,7 @@ class Table(QueryNode):
 
         assert len(args) == len(kwargs) == 1
 
-        operator = self._filter_operator_mapping[operator]
+        operator = _OPERATOR_MAPPING[operator]
         return FilteredTable(
             source=self, column=args[0], operator=operator, value=value
         )
@@ -148,3 +154,16 @@ class ValueFromAggregate(Value):
         self.source = source
         self.function = function
         self.column = column
+
+
+def categorise(mapping, default):
+    return Category(mapping, default)
+
+
+CategoryGroup = namedtuple("CategoryGroup", ("source", "operator", "value"))
+
+
+class Category(QueryNode):
+    def __init__(self, groups, default):
+        self.default = default
+        self.definitions = groups

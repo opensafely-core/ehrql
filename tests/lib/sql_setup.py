@@ -31,3 +31,10 @@ class PositiveTests(Base):
     PatientId = Column(Integer)
     PositiveResult = Column(Boolean)
     TestDate = Column(SqlaDate)
+
+
+class Patients(Base):
+    __tablename__ = "patients"
+    Id = Column(Integer, primary_key=True)
+    PatientId = Column(Integer)
+    Height = Column(Float)
