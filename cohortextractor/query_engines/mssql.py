@@ -158,7 +158,13 @@ class MssqlQueryEngine(BaseQueryEngine):
     @staticmethod
     def get_query_node_references(node):
         if hasattr(node, "definitions"):
-            return tuple({group.source for group in node.definitions.values()})
+            return tuple(
+                {
+                    condition.source
+                    for definition in node.definitions.values()
+                    for condition in definition
+                }
+            )
         elif hasattr(node, "source"):
             return (node.source,)
         else:

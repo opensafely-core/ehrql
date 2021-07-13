@@ -10,7 +10,7 @@ from lib.mock_backend import (
     RegistrationHistory,
 )
 
-from cohortextractor.query_language import categorise, category_group, table
+from cohortextractor.query_language import categorise, condition, table
 
 
 def test_backend_tables():
@@ -617,15 +617,48 @@ def test_categorise(database, setup_test_database):
 
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
-        _mapping = {
-            "tall": category_group(_height, "greater_than", 190),
-            "short": category_group(_height, "less_than_or_equals", 190),
+        _height_categories = {
+            "tall": condition(_height > 190),
+            "short": condition(_height <= 190),
         }
-        height_group = categorise(_mapping, default="missing")
+        height_group = categorise(_height_categories, default="missing")
 
     result = extract(Cohort, MockBackend, database)
     assert result == [
         dict(patient_id=1, height_group="short"),
         dict(patient_id=2, height_group="tall"),
         dict(patient_id=3, height_group="missing"),
+    ]
+
+
+@pytest.mark.integration
+def test_categorise_with_and_conditions(database, setup_test_database):
+    input_data = [
+        RegistrationHistory(PatientId=1, StpId="STP1"),
+        RegistrationHistory(PatientId=2, StpId="STP2"),
+        RegistrationHistory(PatientId=3, StpId="STP2"),
+        RegistrationHistory(PatientId=4, StpId="STP2"),
+        # Patient test results with dates
+        Patients(PatientId=1, Height=180),
+        Patients(PatientId=2, Height=200.5),
+        Patients(PatientId=3),
+        Patients(PatientId=4, Height=145),
+    ]
+    setup_test_database(input_data)
+
+    class Cohort:
+        _height = table("patients").first_by("patient_id").get("height")
+        _height_categories = {
+            "tall": condition(_height > 190),
+            "medium": condition(_height <= 190, _height > 150),
+            "short": condition(_height < 150),
+        }
+        height_group = categorise(_height_categories, default="missing")
+
+    result = list(extract(Cohort, MockBackend, database))
+    assert result == [
+        dict(patient_id=1, height_group="medium"),
+        dict(patient_id=2, height_group="tall"),
+        dict(patient_id=3, height_group="missing"),
+        dict(patient_id=4, height_group="short"),
     ]
