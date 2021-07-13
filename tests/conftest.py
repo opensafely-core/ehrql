@@ -14,6 +14,8 @@ from lib import playback
 from lib.util import get_mode
 from sqlalchemy.orm import sessionmaker
 
+import cohortextractor.main
+
 
 @pytest.fixture
 def docker_client():
@@ -328,3 +330,7 @@ def setup_test_database(database):
         session.commit()
 
     return setup
+
+
+def extract(cohort, backend, database):
+    return list(cohortextractor.main.extract(cohort, backend(database.host_url())))
