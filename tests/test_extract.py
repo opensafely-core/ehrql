@@ -1,8 +1,8 @@
 import pytest
 from conftest import extract
+from lib.mock_backend import MockBackend
 
 from cohortextractor import table
-from cohortextractor.backends import MockBackend
 
 
 @pytest.mark.integration

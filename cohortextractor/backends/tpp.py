@@ -11,6 +11,7 @@ class TPPBackend(BaseBackend):
         columns=dict(
             code=Column("varchar", source="CTV3Code"),
             patient_id=Column("int", source="Patient_ID"),
+            date=Column("datetime", source="ConsultationDate"),
         ),
     )
 

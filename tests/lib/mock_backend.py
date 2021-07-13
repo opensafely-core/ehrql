@@ -1,5 +1,5 @@
-from ..query_engines.mssql import MssqlQueryEngine
-from .base import BaseBackend, Column, SQLTable
+from cohortextractor.backends.base import BaseBackend, Column, SQLTable
+from cohortextractor.query_engines.mssql import MssqlQueryEngine
 
 
 class MockBackend(BaseBackend):

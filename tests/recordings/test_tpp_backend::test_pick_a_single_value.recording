@@ -201,6 +201,7 @@
    '\t[CodedEvent_ID] INTEGER NOT NULL IDENTITY, \n'
    '\t[Patient_ID] INTEGER NULL, \n'
    '\t[CTV3Code] VARCHAR(max) COLLATE Latin1_General_BIN NULL, \n'
+   '\t[ConsultationDate] DATETIME NULL, \n'
    '\tPRIMARY KEY ([CodedEvent_ID]), \n'
    '\tFOREIGN KEY([Patient_ID]) REFERENCES [Patient] ([Patient_ID])\n'
    ')\n'
@@ -243,9 +244,10 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [CodedEvent] ([Patient_ID], [CTV3Code]) OUTPUT '
-   'inserted.[CodedEvent_ID] VALUES (%(Patient_ID)s, %(CTV3Code)s)',
-   {'Patient_ID': 1, 'CTV3Code': 'Code1'}),
+  ('INSERT INTO [CodedEvent] ([Patient_ID], [CTV3Code], [ConsultationDate]) '
+   'OUTPUT inserted.[CodedEvent_ID] VALUES (%(Patient_ID)s, %(CTV3Code)s, '
+   '%(ConsultationDate)s)',
+   {'Patient_ID': 1, 'CTV3Code': 'Code1', 'ConsultationDate': None}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -304,7 +306,8 @@
   'execute',
   ('SELECT * INTO #group_table_0 FROM (\n'
    'SELECT clinical_events.code, clinical_events.patient_id \n'
-   'FROM (SELECT CTV3Code AS code, Patient_ID AS patient_id \n'
+   'FROM (SELECT CTV3Code AS code, Patient_ID AS patient_id, ConsultationDate '
+   'AS date \n'
    'FROM [CodedEvent]) AS clinical_events\n'
    ') t\n'
    '\n'

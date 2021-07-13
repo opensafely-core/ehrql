@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS events, practice_registrations;
-CREATE TABLE events (PatientId int, Date varchar(255), EventCode varchar(255));
-INSERT INTO events (PatientId, Date, EventCode) VALUES (1, '2021-01-01', 'xyz');
-CREATE TABLE practice_registrations (PatientId int);
-INSERT INTO practice_registrations (PatientId) VALUES (1);
+DROP TABLE IF EXISTS CodedEvent, RegistrationHistory;
+CREATE TABLE CodedEvent (Patient_ID int, ConsultationDate datetime, CTV3Code varchar(255));
+INSERT INTO CodedEvent (Patient_ID, ConsultationDate, CTV3Code) VALUES (1, '2021-01-01', 'xyz');
+CREATE TABLE RegistrationHistory (Patient_ID int);
+INSERT INTO RegistrationHistory (Patient_ID) VALUES (1);

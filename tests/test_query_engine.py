@@ -2,10 +2,10 @@ from datetime import date
 
 import pytest
 from conftest import extract
+from lib.mock_backend import MockBackend
 from lib.sql_setup import Events, PositiveTests, RegistrationHistory
 
 import cohortextractor.main
-from cohortextractor.backends import MockBackend
 from cohortextractor.backends.base import BaseBackend, Column, SQLTable
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 from cohortextractor.query_language import table

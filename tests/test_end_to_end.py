@@ -52,7 +52,7 @@ def cohort_extractor_in_container(tmpdir, database, containers):
             ],
             environment={
                 "TPP_DATABASE_URL": database.container_url(),
-                "BACKEND": "mock",
+                "BACKEND": "tpp",
             },
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
             network=database.network,
@@ -79,7 +79,7 @@ def cohort_extractor_in_process(tmpdir, database, containers):
         main(
             definition_path=definition_path,
             output_file=output_host_path,
-            backend_id="mock",
+            backend_id="tpp",
             db_url=database.host_url(),
         )
 
