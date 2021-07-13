@@ -124,10 +124,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             seen.update(nodes)
         parents = set()
         for node in nodes:
-            if self.is_output_node(node):
-                # output nodes are directly based on a temporary table.  For other nodes
-                # (e.g. category nodes) we need to add their parents, but not the node itself
-                yield node
+            yield node
             for attr in ("source", "value"):
                 references = getattr(node, attr, None)
                 if not isinstance(references, tuple):
