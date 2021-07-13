@@ -4,8 +4,8 @@
   'fetchone',
   (),
   {},
-  ('Microsoft SQL Server 2017 (RTM-CU23) (KB5000685) - 14.0.3381.3 (X64) \n'
-   '\tFeb  9 2021 12:08:50 \n'
+  ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
+   '\tJun 25 2021 14:02:48 \n'
    '\tCopyright (C) 2017 Microsoft Corporation\n'
    '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
  ('Cursor', 'close', (), {}, None),
@@ -364,8 +364,8 @@
   'fetchone',
   (),
   {},
-  ('Microsoft SQL Server 2017 (RTM-CU23) (KB5000685) - 14.0.3381.3 (X64) \n'
-   '\tFeb  9 2021 12:08:50 \n'
+  ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
+   '\tJun 25 2021 14:02:48 \n'
    '\tCopyright (C) 2017 Microsoft Corporation\n'
    '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
  ('Cursor', 'close', (), {}, None),
