@@ -281,31 +281,26 @@ class MssqlQueryEngine(BaseQueryEngine):
         Given a single value output node, select it from its interim table(s)
         Return the expression to select it, and the table(s) to select it from
         """
+        tables = None
+        value_expr = value
         if self.is_category_node(value):
-            value_expr, tables = self.get_case_expression(value)
-            return value_expr, tables
+            category_definitions = value.definitions.copy()
+            statements = []
+            tables = set()
+            for label, category_definition in category_definitions.items():
+                source_col = category_definition.source
+                table = self.output_group_tables[self.get_type_and_source(source_col)]
+                column = table.c[source_col.column]
+                tables.add(table)
+                method = getattr(column, category_definition.operator)
+                statements.append((method(category_definition.value), label))
+            value_expr = sqlalchemy.case(*statements, else_=value.default)
         elif self.is_output_node(value):
             table = self.output_group_tables[self.get_type_and_source(value)]
             column = self.get_output_column_name(value)
             value_expr = table.c[column]
-            return value_expr, (table,)
-        else:
-            return value, None
-
-    def get_case_expression(self, category_node):
-        category_definitions = category_node.definitions.copy()
-        statements = []
-        tables_used = set()
-        for label, category_definition in category_definitions.items():
-            source_col = category_definition.source
-            table = self.output_group_tables[self.get_type_and_source(source_col)]
-            tables_used.add(table)
-            column = table.c[source_col.column]
-            method = getattr(column, category_definition.operator)
-            statements.append((method(category_definition.value), label))
-
-        case_expression = sqlalchemy.case(*statements, else_=category_node.default)
-        return case_expression, tables_used
+            tables = (table,)
+        return value_expr, tables
 
     def apply_aggregates(self, query, aggregate_nodes):
         """
