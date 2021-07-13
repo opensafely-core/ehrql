@@ -155,15 +155,21 @@ class MssqlQueryEngine(BaseQueryEngine):
         else:
             raise TypeError(f"Unhandled type: {node}")
 
-    @staticmethod
-    def get_query_node_references(node):
+    def get_sources_from_category_definitions(self, definitions, sources=None):
+        sources = sources or set()
+        for definition in definitions:
+            if definition.source:
+                sources.add(definition.source)
+            else:
+                sources = self.get_sources_from_category_definitions(
+                    definition.children, sources
+                )
+        return sources
+
+    def get_query_node_references(self, node):
         if hasattr(node, "definitions"):
             return tuple(
-                {
-                    condition.source
-                    for definition in node.definitions.values()
-                    for condition in definition
-                }
+                self.get_sources_from_category_definitions(node.definitions.values())
             )
         elif hasattr(node, "source"):
             return (node.source,)
@@ -292,17 +298,37 @@ class MssqlQueryEngine(BaseQueryEngine):
         if self.is_category_node(value):
             category_definitions = value.definitions.copy()
             tables = {
-                label: self.output_group_tables[
-                    self.get_type_and_source(category_definition.source)
+                condition_source: self.output_group_tables[
+                    self.get_type_and_source(condition_source)
                 ]
-                for label, category_definition in category_definitions.items()
+                for condition_source in self.get_sources_from_category_definitions(
+                    category_definitions.values()
+                )
             }
             category_mapping = {}
-            for label, category_definition in category_definitions.items():
-                table = tables[label]
-                column = table.c[category_definition.source.column]
-                method = getattr(column, category_definition.operator)
-                category_mapping[label] = method(category_definition.value)
+            for label, category_group in category_definitions.items():
+                condition_statements = []
+
+                if category_group.children:
+                    conditions = category_group.children
+                else:
+                    conditions = [category_group]
+
+                for condition in conditions:
+                    source_col = condition.source
+                    table = tables[source_col]
+                    column = table.c[source_col.column]
+                    method = getattr(column, condition.operator)
+                    condition_statements.append(method(condition.value))
+
+                if len(condition_statements) > 1:
+                    # multiple conditions, join with the group connector
+                    connector = getattr(sqlalchemy, category_group.connector)
+                    definition_statement = connector(*condition_statements)
+                else:
+                    definition_statement = condition_statements[0]
+
+                category_mapping[label] = definition_statement
             value_expr = self.get_case_expression(category_mapping, value.default)
             tables = tuple(tables.values())
         elif self.is_output_node(value):
