@@ -5,7 +5,6 @@ import sqlalchemy
 import sqlalchemy.dialects.mssql
 
 from ..query_language import (
-    Category,
     Column,
     FilteredTable,
     QueryNode,
@@ -13,6 +12,7 @@ from ..query_language import (
     Table,
     Value,
     ValueFromAggregate,
+    ValueFromCategory,
     ValueFromRow,
 )
 from .base import BaseQueryEngine
@@ -124,21 +124,27 @@ class MssqlQueryEngine(BaseQueryEngine):
             seen.update(nodes)
         parents = set()
         for node in nodes:
-            yield node
+            if self.is_output_node(node):
+                # output nodes are directly based on a temporary table.  For other nodes
+                # (e.g. category nodes) we need to add their parents, but not the node itself
+                yield node
             for attr in ("source", "value"):
-                reference = getattr(node, attr, None)
-                if isinstance(reference, QueryNode) and reference not in seen:
-                    parents.add(reference)
+                references = getattr(node, attr, None)
+                if not isinstance(references, tuple):
+                    references = (references,)
+                for reference in references:
+                    if isinstance(reference, QueryNode) and reference not in seen:
+                        parents.add(reference)
         if parents:
             yield from self.walk_query_dag(parents, seen=seen)
 
     @staticmethod
     def is_output_node(node):
-        return isinstance(node, (Value, Column))
+        return isinstance(node, (ValueFromRow, ValueFromAggregate, Column))
 
     @staticmethod
     def is_category_node(node):
-        return isinstance(node, Category)
+        return isinstance(node, ValueFromCategory)
 
     def get_type_and_source(self, node):
         assert self.is_output_node(node)
@@ -257,7 +263,9 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def get_population_table_query(self, population):
         """Build the query that selects the patient population we're interested in"""
-        is_included, population_table = self.get_value_expression(population)
+        is_included, tables = self.get_value_expression(population)
+        assert len(tables) == 1
+        population_table = tables[0]
         return (
             sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
             .select_from(population_table)
@@ -266,15 +274,34 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def get_value_expression(self, value):
         """
-        Given a single value output node, select it from its interim table
-        Return the expression to select it, and the table to select it from
+        Given a single value output node, select it from its interim table(s)
+        Return the expression to select it, and the table(s) to select it from
         """
-        if self.is_output_node(value):
+        if self.is_category_node(value):
+            value_expr, tables = self.get_case_expression(value)
+            return value_expr, tables
+        elif self.is_output_node(value):
             table = self.output_group_tables[self.get_type_and_source(value)]
             column = self.get_output_column_name(value)
             value_expr = table.c[column]
-            return value_expr, table
-        return value, None
+            return value_expr, (table,)
+        else:
+            return value, None
+
+    def get_case_expression(self, category_node):
+        category_definitions = category_node.definitions.copy()
+        statements = []
+        tables_used = set()
+        for label, category_definition in category_definitions.items():
+            source_col = category_definition.source
+            table = self.output_group_tables[self.get_type_and_source(source_col)]
+            tables_used.add(table)
+            column = table.c[source_col.column]
+            method = getattr(column, category_definition.operator)
+            statements.append((method(category_definition.value), label))
+
+        case_expression = sqlalchemy.case(*statements, else_=category_node.default)
+        return case_expression, tables_used
 
     def apply_aggregates(self, query, aggregate_nodes):
         """
@@ -323,8 +350,10 @@ class MssqlQueryEngine(BaseQueryEngine):
         operator_name = filter_node.operator
         # Does this filter require another table? i.e. is the filter value itself an
         # Output node, which has a source that we may need to include here
-        value_expr, other_table = self.get_value_expression(filter_node.value)
-        if other_table is not None:
+        value_expr, other_tables = self.get_value_expression(filter_node.value)
+        if other_tables is not None:
+            assert len(other_tables) == 1
+            other_table = other_tables[0]
             # If we have a "Value" (i.e. a single value per patient) then we
             # include the other table in the join
             if isinstance(filter_node.value, Value):
@@ -345,19 +374,6 @@ class MssqlQueryEngine(BaseQueryEngine):
         column = table_expr.c[column_name]
         method = getattr(column, operator_name)
         return query.where(method(value_expr))
-
-    def get_case_expression(self, category_node):
-        category_definitions = category_node.definitions.copy()
-        statements = []
-        for label, category_definition in category_definitions.items():
-            source_col = category_definition.source
-            table = self.output_group_tables[self.get_type_and_source(source_col)]
-            column = table.c[source_col.column]
-            method = getattr(column, category_definition.operator)
-            statements.append((method(category_definition.value), label))
-
-        case_expression = sqlalchemy.case(*statements, else_=category_node.default)
-        return case_expression
 
     @staticmethod
     def apply_row_selector(query, sort_columns, descending):
@@ -413,16 +429,13 @@ class MssqlQueryEngine(BaseQueryEngine):
 
         # Build big JOIN query which selects the results
         for column_name, output_node in column_definitions.items():
-            if self.is_output_node(output_node):
-                # For each output column, generate the query that selects it from its interim table
-                column, table = self.get_value_expression(output_node)
-                # Then generate the query to join on it
+            # For each output column, generate the query that selects it from its interim table(s)
+            # For most outputs there will just be a single interim table.  Category outputs
+            # may require more than one.
+            column, tables = self.get_value_expression(output_node)
+            # Then generate the query to join on it
+            for table in tables:
                 results_query = self.include_joined_table(results_query, table)
-
-            else:
-                # category outputs
-                assert self.is_category_node(output_node)
-                column = self.get_case_expression(output_node)
 
             # Add this column to the final selected results
             results_query = results_query.add_columns(column.label(column_name))

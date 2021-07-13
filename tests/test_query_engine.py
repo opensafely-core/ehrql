@@ -741,16 +741,16 @@ def test_categorise(database, setup_test_database, mock_backend):
     backend = mock_backend(database.host_url(), tables=backend_tables)
 
     class Cohort:
-        height = table("patients").first_by("patient_id").get("height")
+        _height = table("patients").first_by("patient_id").get("height")
         _mapping = {
-            "tall": category_group(height, "greater_than", 190),
-            "short": category_group(height, "less_than_or_equals", 190),
+            "tall": category_group(_height, "greater_than", 190),
+            "short": category_group(_height, "less_than_or_equals", 190),
         }
         height_group = categorise(_mapping, default="missing")
 
     result = list(cohortextractor.main.extract(Cohort, backend))
     assert result == [
-        {"patient_id": 1, "height": 180, "height_group": "short"},
-        {"patient_id": 2, "height": 200.5, "height_group": "tall"},
-        {"patient_id": 3, "height": None, "height_group": "missing"},
+        {"patient_id": 1, "height_group": "short"},
+        {"patient_id": 2, "height_group": "tall"},
+        {"patient_id": 3, "height_group": "missing"},
     ]

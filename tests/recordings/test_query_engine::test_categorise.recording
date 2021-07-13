@@ -420,10 +420,9 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].height '
-   "AS height, CASE WHEN ([#group_table_0].height > 190) THEN N'tall' WHEN "
-   "([#group_table_0].height <= 190) THEN N'short' ELSE N'missing' END AS "
-   'height_group \n'
+   'SELECT [#group_table_1].patient_id AS patient_id, CASE WHEN '
+   "([#group_table_0].height > 190) THEN N'tall' WHEN ([#group_table_0].height "
+   "<= 190) THEN N'short' ELSE N'missing' END AS height_group \n"
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
    'WHERE [#group_table_1].patient_id_exists = 1',
@@ -435,11 +434,10 @@
   (),
   {},
   (('patient_id', 3, None, None, None, None, None),
-   ('height', 3, None, None, None, None, None),
    ('height_group', 1, None, None, None, None, None))),
- ('Cursor', 'fetchone', (), {}, (1, 180.0, 'short')),
- ('Cursor', 'fetchone', (), {}, (2, 200.5, 'tall')),
- ('Cursor', 'fetchone', (), {}, (3, None, 'missing')),
+ ('Cursor', 'fetchone', (), {}, (1, 'short')),
+ ('Cursor', 'fetchone', (), {}, (2, 'tall')),
+ ('Cursor', 'fetchone', (), {}, (3, 'missing')),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]

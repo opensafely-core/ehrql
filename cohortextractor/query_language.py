@@ -157,13 +157,14 @@ class ValueFromAggregate(Value):
 
 
 def categorise(mapping, default):
-    return Category(mapping, default)
+    return ValueFromCategory(mapping, default)
 
 
 CategoryGroup = namedtuple("CategoryGroup", ("source", "operator", "value"))
 
 
-class Category(QueryNode):
+class ValueFromCategory(Value):
     def __init__(self, groups, default):
         self.default = default
+        self.source = tuple({group.source for group in groups.values()})
         self.definitions = groups
