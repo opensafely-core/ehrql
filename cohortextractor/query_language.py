@@ -1,6 +1,3 @@
-from collections import namedtuple
-
-
 _OPERATOR_MAPPING = {
     "equals": "__eq__",
     "not_equals": "__ne__",
@@ -19,8 +16,21 @@ def table(name):
     return Table(name)
 
 
-def category_group(source, comparison, value):
-    return CategoryGroup(source, _OPERATOR_MAPPING[comparison], value)
+def condition(*comparators):
+    for comparator in comparators:
+        assert isinstance(
+            comparator.source, Value
+        ), "category comparison conditions must use an output value"
+    return comparators
+
+
+class Comparator:
+    """A generic comparator to represent a comparison between a source object and a value"""
+
+    def __init__(self, source, operator, value):
+        self.source = source
+        self.operator = operator
+        self.value = value
 
 
 class QueryNode:
@@ -140,7 +150,23 @@ class Row(QueryNode):
 
 
 class Value(QueryNode):
-    ...
+    def __gt__(self, other):
+        return Comparator(self, "__gt__", other)
+
+    def __ge__(self, other):
+        return Comparator(self, "__ge__", other)
+
+    def __lt__(self, other):
+        return Comparator(self, "__lt__", other)
+
+    def __le__(self, other):
+        return Comparator(self, "__le__", other)
+
+    def __eq__(self, other):
+        return Comparator(self, "__eq__", other)
+
+    def __hash__(self):
+        return id(self)
 
 
 class ValueFromRow(Value):
@@ -160,10 +186,8 @@ def categorise(mapping, default):
     return ValueFromCategory(mapping, default)
 
 
-CategoryGroup = namedtuple("CategoryGroup", ("source", "operator", "value"))
-
-
 class ValueFromCategory(Value):
-    def __init__(self, groups, default):
+    def __init__(self, definitions, default):
         self.default = default
-        self.definitions = groups
+        self.definitions = definitions
+
