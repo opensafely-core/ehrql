@@ -47,7 +47,7 @@ test_all_fast() {
 }
 
 test() {
-  test_all
+  just test
 }
 
 help() {
