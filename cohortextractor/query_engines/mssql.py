@@ -125,13 +125,12 @@ class MssqlQueryEngine(BaseQueryEngine):
         parents = set()
         for node in nodes:
             yield node
-            for attr in ("source", "value"):
-                references = getattr(node, attr, None)
-                if not isinstance(references, tuple):
-                    references = (references,)
-                for reference in references:
-                    if isinstance(reference, QueryNode) and reference not in seen:
-                        parents.add(reference)
+            for reference in [
+                *self.get_query_node_references(node),
+                getattr(node, "value", None),
+            ]:
+                if isinstance(reference, QueryNode) and reference not in seen:
+                    parents.add(reference)
         if parents:
             yield from self.walk_query_dag(parents, seen=seen)
 
@@ -145,7 +144,7 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def get_type_and_source(self, node):
         assert self.is_output_node(node)
-        return type(node), node.source
+        return type(node), self.get_query_node_references(node)[0]
 
     @staticmethod
     def get_output_column_name(node):
@@ -157,7 +156,15 @@ class MssqlQueryEngine(BaseQueryEngine):
             raise TypeError(f"Unhandled type: {node}")
 
     @staticmethod
-    def get_node_list(node):
+    def get_query_node_references(node):
+        if hasattr(node, "definitions"):
+            return tuple({group.source for group in node.definitions.values()})
+        elif hasattr(node, "source"):
+            return (node.source,)
+        else:
+            return []
+
+    def get_node_list(self, node):
         """For a single node, get a list of it and all its parents in order"""
         node_list = []
         while True:
@@ -165,7 +172,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             if type(node) is Table:
                 break
             else:
-                node = node.source
+                node = self.get_query_node_references(node)[0]
         node_list.reverse()
         return node_list
 

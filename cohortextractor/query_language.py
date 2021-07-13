@@ -166,5 +166,4 @@ CategoryGroup = namedtuple("CategoryGroup", ("source", "operator", "value"))
 class ValueFromCategory(Value):
     def __init__(self, groups, default):
         self.default = default
-        self.source = tuple({group.source for group in groups.values()})
         self.definitions = groups
