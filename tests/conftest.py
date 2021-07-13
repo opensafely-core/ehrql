@@ -326,8 +326,9 @@ def setup_test_database(database):
         Session.configure(bind=engine)
         session = Session()
         # Load test data
-        session.add_all(input_data)
-        session.commit()
+        for entity in input_data:
+            session.add(entity)
+            session.commit()
 
     return setup
 
