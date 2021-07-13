@@ -16,21 +16,44 @@ def table(name):
     return Table(name)
 
 
-def condition(*comparators):
-    for comparator in comparators:
-        assert isinstance(
-            comparator.source, Value
-        ), "category comparison conditions must use an output value"
-    return comparators
-
-
 class Comparator:
     """A generic comparator to represent a comparison between a source object and a value"""
 
-    def __init__(self, source, operator, value):
+    def __init__(
+        self, children=None, connector="and_", source=None, operator=None, value=None
+    ):
+        """
+        Construct a new Comparator.
+        A single comparator will have a source, operator and value.  A tree of Compararors
+        will have at most two child Comparators, which are to be connected with self.connector.
+        Each child may itself have more child Comparators, again with a connector to indicate
+        how they should be joined
+        """
+        self.children = children[:] if children else []
+        self.connector = connector
         self.source = source
         self.operator = operator
         self.value = value
+
+    def __and__(self, other):
+        return self._combine(other, "and_")
+
+    def __or__(self, other):
+        return self._combine(other, "or_")
+
+    def _combine(self, other, conn):
+        if not (isinstance(other, Comparator)):
+            raise TypeError(other)
+
+        obj = type(self)()
+        obj.connector = conn
+        obj.add(self, conn)
+        obj.add(other, conn)
+        return obj
+
+    def add(self, data, conn_type):
+        if not (self.connector == conn_type and data in self.children):
+            self.children.append(data)
 
 
 class QueryNode:
@@ -147,19 +170,19 @@ class Row(QueryNode):
 
 class Value(QueryNode):
     def __gt__(self, other):
-        return Comparator(self, "__gt__", other)
+        return Comparator(source=self, operator="__gt__", value=other)
 
     def __ge__(self, other):
-        return Comparator(self, "__ge__", other)
+        return Comparator(source=self, operator="__ge__", value=other)
 
     def __lt__(self, other):
-        return Comparator(self, "__lt__", other)
+        return Comparator(source=self, operator="__lt__", value=other)
 
     def __le__(self, other):
-        return Comparator(self, "__le__", other)
+        return Comparator(source=self, operator="__le__", value=other)
 
     def __eq__(self, other):
-        return Comparator(self, "__eq__", other)
+        return Comparator(source=self, operator="__eq__", value=other)
 
     def __hash__(self):
         return id(self)
@@ -186,4 +209,3 @@ class ValueFromCategory(Value):
     def __init__(self, definitions, default):
         self.default = default
         self.definitions = definitions
-

@@ -10,7 +10,7 @@ from lib.mock_backend import (
     RegistrationHistory,
 )
 
-from cohortextractor.query_language import categorise, condition, table
+from cohortextractor.query_language import categorise, table
 
 
 def test_backend_tables():
@@ -603,7 +603,7 @@ def test_aggregation(database, setup_test_database, aggregation, column, expecte
 
 
 @pytest.mark.integration
-def test_categorise(database, setup_test_database):
+def test_categorise_simple_comparisons(database, setup_test_database):
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
         RegistrationHistory(PatientId=2, StpId="STP2"),
@@ -618,8 +618,8 @@ def test_categorise(database, setup_test_database):
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
         _height_categories = {
-            "tall": condition(_height > 190),
-            "short": condition(_height <= 190),
+            "tall": _height > 190,
+            "short": _height <= 190,
         }
         height_group = categorise(_height_categories, default="missing")
 
@@ -631,8 +631,41 @@ def test_categorise(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_categorise_with_and_conditions(database, setup_test_database):
+@pytest.mark.parametrize(
+    "categories,default,expected",
+    [
+        (
+            lambda height_value: {
+                "tall": height_value > 190,
+                "medium": (height_value <= 190) & (height_value > 150),
+                "short": height_value < 150,
+            },
+            "missing",
+            [
+                dict(patient_id=1, height_group="medium"),
+                dict(patient_id=1, height_group="tall"),
+                dict(patient_id=1, height_group="missing"),
+                dict(patient_id=1, height_group="short"),
+            ],
+        ),
+        (
+            lambda height_value: {
+                "short_or_tall": (height_value < 150) | (height_value > 190)
+            },
+            "medium",
+            [
+                dict(patient_id=1, height_group="medium"),
+                dict(patient_id=1, height_group="short_or_tall"),
+                dict(patient_id=1, height_group="medium"),
+                dict(patient_id=1, height_group="short_or_tall"),
+            ],
+        ),
+    ],
+    ids=["test simple and on two conditions", "test simple or on two conditions"],
+)
+def test_categorise_single_combined_conditions(
+    database, setup_test_database, categories, default, expected
+):
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
         RegistrationHistory(PatientId=2, StpId="STP2"),
@@ -648,17 +681,8 @@ def test_categorise_with_and_conditions(database, setup_test_database):
 
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
-        _height_categories = {
-            "tall": condition(_height > 190),
-            "medium": condition(_height <= 190, _height > 150),
-            "short": condition(_height < 150),
-        }
-        height_group = categorise(_height_categories, default="missing")
+        _height_categories = categories(_height)
+        height_group = categorise(_height_categories, default=default)
 
     result = list(extract(Cohort, MockBackend, database))
-    assert result == [
-        dict(patient_id=1, height_group="medium"),
-        dict(patient_id=2, height_group="tall"),
-        dict(patient_id=3, height_group="missing"),
-        dict(patient_id=4, height_group="short"),
-    ]
+    assert result == expected
