@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 from conftest import extract
-from sql_setup import Events, PositiveTests, RegistrationHistory
+from lib.sql_setup import Events, PositiveTests, RegistrationHistory
 
 import cohortextractor.main
 from cohortextractor.backends import MockBackend

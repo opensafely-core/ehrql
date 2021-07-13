@@ -6,11 +6,10 @@ from pathlib import Path
 import docker
 import docker.errors
 import pytest
-import sql_setup
 import sqlalchemy
 import sqlalchemy.exc
 from docker.errors import ContainerError
-from lib import playback
+from lib import playback, sql_setup
 from lib.util import get_mode
 from sqlalchemy.orm import sessionmaker
 
