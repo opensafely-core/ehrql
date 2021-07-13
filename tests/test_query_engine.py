@@ -1,9 +1,7 @@
 from datetime import date
 
 import pytest
-import sqlalchemy
-from sql_setup import Base, Events, PositiveTests, RegistrationHistory
-from sqlalchemy.orm import sessionmaker
+from sql_setup import Events, PositiveTests, RegistrationHistory
 
 from cohortextractor.backends import MockBackend
 from cohortextractor.backends.base import BaseBackend, Column, SQLTable
@@ -57,29 +55,6 @@ def mock_backend():
         return MockTestBackend(database_url, **tables)
 
     return create_backend
-
-
-@pytest.fixture
-def setup_test_database(database):
-    db_url = database.host_url()
-
-    def setup(input_data, drivername="mssql+pymssql"):
-        # Create engine
-        url = sqlalchemy.engine.make_url(db_url)
-        url = url.set(drivername=drivername)
-        engine = sqlalchemy.create_engine(url, echo=True, future=True)
-        # Reset the schema
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
-        # Create session
-        Session = sessionmaker()
-        Session.configure(bind=engine)
-        session = Session()
-        # Load test data
-        session.add_all(input_data)
-        session.commit()
-
-    return setup
 
 
 def test_backend_tables():

@@ -6,11 +6,13 @@ from pathlib import Path
 import docker
 import docker.errors
 import pytest
+import sql_setup
 import sqlalchemy
 import sqlalchemy.exc
 from docker.errors import ContainerError
 from lib import playback
 from lib.util import get_mode
+from sqlalchemy.orm import sessionmaker
 
 
 @pytest.fixture
@@ -303,3 +305,26 @@ def load_data(database):
             connection.execute(sqlalchemy.text(sql))
 
     yield load
+
+
+@pytest.fixture
+def setup_test_database(database):
+    db_url = database.host_url()
+
+    def setup(input_data, drivername="mssql+pymssql", base=sql_setup.Base):
+        # Create engine
+        url = sqlalchemy.engine.make_url(db_url)
+        url = url.set(drivername=drivername)
+        engine = sqlalchemy.create_engine(url, echo=True, future=True)
+        # Reset the schema
+        base.metadata.drop_all(engine)
+        base.metadata.create_all(engine)
+        # Create session
+        Session = sessionmaker()
+        Session.configure(bind=engine)
+        session = Session()
+        # Load test data
+        session.add_all(input_data)
+        session.commit()
+
+    return setup
