@@ -96,8 +96,14 @@ class Table(QueryNode):
             .last_by(start_column, end_column)
         )
 
-    def exists(self):
-        return self.aggregate("exists", "patient_id")
+    def exists(self, column="patient_id"):
+        return self.aggregate("exists", column)
+
+    def count(self, column):
+        return self.aggregate("count", column)
+
+    def sum(self, column):  # noqa: A003
+        return self.aggregate("sum", column)
 
     def aggregate(self, function, column):
         return ValueFromAggregate(self, function, column)

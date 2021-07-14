@@ -650,3 +650,61 @@ def test_not_in_filter_on_query_values(database, setup_test_database, mock_backe
         {"patient_id": 2, "date": date(2021, 5, 2), "value": 50.3},
     ]
     assert result == expected
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "aggregation,column,expected",
+    [
+        (
+            "exists",
+            "code",
+            [
+                {"patient_id": 1, "value": True},
+                {"patient_id": 2, "value": True},
+                {"patient_id": 3, "value": None},
+            ],
+        ),
+        (
+            "count",
+            "code",
+            [
+                {"patient_id": 1, "value": 2},
+                {"patient_id": 2, "value": 1},
+                {"patient_id": 3, "value": None},
+            ],
+        ),
+        (
+            "sum",
+            "result",
+            [
+                {"patient_id": 1, "value": 20.6},
+                {"patient_id": 2, "value": 50.1},
+                {"patient_id": 3, "value": None},
+            ],
+        ),
+    ],
+    ids=[],
+)
+def test_aggregation(
+    database, setup_test_database, mock_backend, aggregation, column, expected
+):
+    input_data = [
+        RegistrationHistory(PatientId=1, StpId="STP1"),
+        RegistrationHistory(PatientId=2, StpId="STP1"),
+        RegistrationHistory(PatientId=3, StpId="STP1"),
+        Events(PatientId=1, EventCode="Code1", Date="2021-1-3", ResultValue=10.1),
+        Events(PatientId=1, EventCode="Code1", Date="2021-1-4", ResultValue=10.5),
+        Events(PatientId=1, EventCode="Code2", Date="2021-5-2", ResultValue=30.1),
+        Events(PatientId=2, EventCode="Code1", Date="2021-6-5", ResultValue=50.1),
+        Events(PatientId=2, EventCode="Code2", Date="2021-2-1", ResultValue=60.1),
+        Events(PatientId=3, EventCode="Code2", Date="2021-7-1", ResultValue=70.1),
+    ]
+    setup_test_database(input_data)
+
+    class Cohort:
+        _filtered_table = table("clinical_events").filter(code="Code1")
+        value = getattr(_filtered_table, aggregation)(column)
+
+    result = list(extract(Cohort, mock_backend(database.host_url())))
+    assert result == expected
