@@ -1,8 +1,8 @@
 import pytest
+from conftest import extract
+from lib.mock_backend import MockBackend
 
 from cohortextractor import table
-from cohortextractor.backends import MockBackend
-from cohortextractor.main import extract
 
 
 @pytest.mark.integration
@@ -22,10 +22,5 @@ def test_pick_a_single_value(database, load_data):
     expected = [{"patient_id": 1, "code": "xyz"}]
 
     load_data(sql=sql)
-    backend = MockBackend(database.host_url())
-    actual = run_extraction(Cohort, backend)
+    actual = extract(Cohort, MockBackend, database)
     assert actual == expected
-
-
-def run_extraction(cohort, backend):
-    return list(extract(cohort, backend))

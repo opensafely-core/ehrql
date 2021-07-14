@@ -1,13 +1,12 @@
 from datetime import date
 
 import pytest
-import sqlalchemy
-from sql_setup import Base, Events, PositiveTests, RegistrationHistory
-from sqlalchemy.orm import sessionmaker
+from conftest import extract
+from lib.mock_backend import MockBackend
+from lib.sql_setup import Events, PositiveTests, RegistrationHistory
 
-from cohortextractor.backends import MockBackend
+import cohortextractor.main
 from cohortextractor.backends.base import BaseBackend, Column, SQLTable
-from cohortextractor.main import extract
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
@@ -57,29 +56,6 @@ def mock_backend():
         return MockTestBackend(database_url, **tables)
 
     return create_backend
-
-
-@pytest.fixture
-def setup_test_database(database):
-    db_url = database.host_url()
-
-    def setup(input_data, drivername="mssql+pymssql"):
-        # Create engine
-        url = sqlalchemy.engine.make_url(db_url)
-        url = url.set(drivername=drivername)
-        engine = sqlalchemy.create_engine(url, echo=True, future=True)
-        # Reset the schema
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
-        # Create session
-        Session = sessionmaker()
-        Session.configure(bind=engine)
-        session = Session()
-        # Load test data
-        session.add_all(input_data)
-        session.commit()
-
-    return setup
 
 
 def test_backend_tables():
@@ -199,7 +175,7 @@ def test_extract_get_single_column(database, setup_test_database, mock_backend):
     class Cohort:
         output_value = table("clinical_events").get("code")
 
-    result = extract(Cohort, mock_backend(database.host_url()))
+    result = extract(Cohort, mock_backend, database)
     assert list(result) == [{"patient_id": 1, "output_value": "Code1"}]
 
 
@@ -482,7 +458,7 @@ def test_filter_between_other_query_values(database, setup_test_database, mock_b
 
     backend = mock_backend(database.host_url(), tables=backend_tables)
 
-    result = list(extract(Cohort, backend))
+    result = list(cohortextractor.main.extract(Cohort, backend))
     assert result == [
         {
             "patient_id": 1,
@@ -547,7 +523,7 @@ def test_date_in_range_filter(database, setup_test_database, mock_backend):
         value = _events.get("result")
         stp = table("practice_registrations").date_in_range("2021-3-2").get("stp")
 
-    result = list(extract(Cohort, mock_backend(database.host_url())))
+    result = extract(Cohort, mock_backend, database)
     assert result == [
         {"patient_id": 1, "value": 10.1, "stp": "STP1"},
         {"patient_id": 2, "value": 10.2, "stp": None},
@@ -610,7 +586,7 @@ def test_in_filter_on_query_values(database, setup_test_database, mock_backend):
 
     backend = mock_backend(database.host_url(), tables=backend_tables)
 
-    result = list(extract(Cohort, backend))
+    result = list(cohortextractor.main.extract(Cohort, backend))
     expected = [
         {"patient_id": 1, "date": date(2021, 2, 15), "value": 10.2},
         {"patient_id": 2, "date": date(2021, 1, 10), "value": 50.1},
@@ -668,7 +644,7 @@ def test_not_in_filter_on_query_values(database, setup_test_database, mock_backe
 
     backend = mock_backend(database.host_url(), tables=backend_tables)
 
-    result = list(extract(Cohort, backend))
+    result = list(cohortextractor.main.extract(Cohort, backend))
     expected = [
         {"patient_id": 1, "date": date(2021, 4, 1), "value": 10.3},
         {"patient_id": 2, "date": date(2021, 5, 2), "value": 50.3},

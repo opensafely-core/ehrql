@@ -10,10 +10,13 @@ def register_backend(backend_class):
 
 class BaseBackend:
 
-    query_engine_class = NotImplemented
     backend_id = NotImplemented
+    query_engine_class = NotImplemented
 
     def __init_subclass__(cls, **kwargs):
+        assert cls.backend_id != NotImplemented
+        assert cls.query_engine_class != NotImplemented
+
         # Register each Backend by its id so we can identify it from an environment variable
         register_backend(cls)
         # Make sure each Backend knows what its tables are

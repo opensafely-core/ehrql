@@ -4,8 +4,8 @@
   'fetchone',
   (),
   {},
-  ('Microsoft SQL Server 2017 (RTM-CU23) (KB5000685) - 14.0.3381.3 (X64) \n'
-   '\tFeb  9 2021 12:08:50 \n'
+  ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
+   '\tJun 25 2021 14:02:48 \n'
    '\tCopyright (C) 2017 Microsoft Corporation\n'
    '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
  ('Cursor', 'close', (), {}, None),
@@ -42,13 +42,13 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('DROP TABLE IF EXISTS events, practice_registrations;\n'
-   'CREATE TABLE events (PatientId int, Date varchar(255), EventCode '
-   'varchar(255));\n'
-   "INSERT INTO events (PatientId, Date, EventCode) VALUES (1, '2021-01-01', "
-   "'xyz');\n"
-   'CREATE TABLE practice_registrations (PatientId int);\n'
-   'INSERT INTO practice_registrations (PatientId) VALUES (1);\n',
+  ('DROP TABLE IF EXISTS CodedEvent, RegistrationHistory;\n'
+   'CREATE TABLE CodedEvent (Patient_ID int, ConsultationDate datetime, '
+   'CTV3Code varchar(255));\n'
+   'INSERT INTO CodedEvent (Patient_ID, ConsultationDate, CTV3Code) VALUES (1, '
+   "'2021-01-01', 'xyz');\n"
+   'CREATE TABLE RegistrationHistory (Patient_ID int);\n'
+   'INSERT INTO RegistrationHistory (Patient_ID) VALUES (1);\n',
    {}),
   {},
   None),
@@ -63,8 +63,8 @@
   'fetchone',
   (),
   {},
-  ('Microsoft SQL Server 2017 (RTM-CU23) (KB5000685) - 14.0.3381.3 (X64) \n'
-   '\tFeb  9 2021 12:08:50 \n'
+  ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
+   '\tJun 25 2021 14:02:48 \n'
    '\tCopyright (C) 2017 Microsoft Corporation\n'
    '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
  ('Cursor', 'close', (), {}, None),
@@ -103,22 +103,24 @@
   'execute',
   ('SELECT * INTO #group_table_0 FROM (\n'
    'SELECT clinical_events.date, clinical_events.patient_id \n'
-   'FROM (SELECT EventCode AS code, Date AS date, PatientId AS patient_id \n'
-   'FROM events) AS clinical_events\n'
+   'FROM (SELECT CTV3Code AS code, Patient_ID AS patient_id, ConsultationDate '
+   'AS date \n'
+   'FROM [CodedEvent]) AS clinical_events\n'
    ') t\n'
    '\n'
    '\n'
    'SELECT * INTO #group_table_1 FROM (\n'
    'SELECT clinical_events.code, clinical_events.patient_id \n'
-   'FROM (SELECT EventCode AS code, Date AS date, PatientId AS patient_id \n'
-   'FROM events) AS clinical_events\n'
+   'FROM (SELECT CTV3Code AS code, Patient_ID AS patient_id, ConsultationDate '
+   'AS date \n'
+   'FROM [CodedEvent]) AS clinical_events\n'
    ') t\n'
    '\n'
    '\n'
    'SELECT * INTO #group_table_2 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT PatientId AS patient_id \n'
-   'FROM practice_registrations) AS practice_registrations GROUP BY '
+   'FROM (SELECT Patient_ID AS patient_id \n'
+   'FROM [RegistrationHistory]) AS practice_registrations GROUP BY '
    'practice_registrations.patient_id\n'
    ') t\n'
    '\n'
@@ -138,9 +140,13 @@
   (),
   {},
   (('patient_id', 3, None, None, None, None, None),
-   ('date', 1, None, None, None, None, None),
+   ('date', 4, None, None, None, None, None),
    ('event', 1, None, None, None, None, None))),
- ('Cursor', 'fetchone', (), {}, (1, '2021-01-01', 'xyz')),
+ ('Cursor',
+  'fetchone',
+  (),
+  {},
+  (1, datetime.datetime(2021, 1, 1, 0, 0), 'xyz')),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]
