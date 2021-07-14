@@ -347,9 +347,27 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
+  ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
+   '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
+   '%(StpId)s, %(StartDate)s, %(EndDate)s)',
+   {'PatientId': 5, 'StpId': 'STP2', 'StartDate': None, 'EndDate': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('RegistrationId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(5,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
   ('INSERT INTO patients ([PatientId], [Height]) OUTPUT inserted.[Id] VALUES '
    '(%(PatientId)s, %(Height)s)',
-   {'PatientId': 1, 'Height': 180}),
+   {'PatientId': 1, 'Height': 194}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -375,7 +393,7 @@
   'execute',
   ('INSERT INTO patients ([PatientId], [Height]) OUTPUT inserted.[Id] VALUES '
    '(%(PatientId)s, %(Height)s)',
-   {'PatientId': 3, 'Height': None}),
+   {'PatientId': 3, 'Height': 140.5}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -388,12 +406,66 @@
   'execute',
   ('INSERT INTO patients ([PatientId], [Height]) OUTPUT inserted.[Id] VALUES '
    '(%(PatientId)s, %(Height)s)',
-   {'PatientId': 4, 'Height': 145}),
+   {'PatientId': 4, 'Height': 140.5}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
  ('Cursor', 'description', (), {}, (('Id', 3, None, None, None, None, None),)),
  ('Cursor', 'fetchall', (), {}, [(4,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
+   'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
+   '%(ResultValue)s)',
+   {'PatientId': 1, 'EventCode': 'abc', 'Date': None, 'ResultValue': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('EventId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(1,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
+   'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
+   '%(ResultValue)s)',
+   {'PatientId': 2, 'EventCode': 'xyz', 'Date': None, 'ResultValue': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('EventId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(2,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
+   'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
+   '%(ResultValue)s)',
+   {'PatientId': 3, 'EventCode': 'abc', 'Date': None, 'ResultValue': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('EventId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(3,)]),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'commit', (), {}, None),
  ('Connection', 'rollback', (), {}, None),
@@ -442,6 +514,19 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_0 FROM (\n'
+   'SELECT anon_1.code, anon_1.patient_id \n'
+   'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
+   'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
+   'ORDER BY clinical_events.patient_id) AS _row_num \n'
+   'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
+   'PatientId AS patient_id \n'
+   'FROM events) AS clinical_events \n'
+   "WHERE clinical_events.code = N'abc') AS anon_1 \n"
+   'WHERE anon_1._row_num = 1\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT * INTO #group_table_1 FROM (\n'
    'SELECT anon_1.height, anon_1.patient_id \n'
    'FROM (SELECT patients.height AS height, patients.patient_id AS patient_id, '
    'row_number() OVER (PARTITION BY patients.patient_id ORDER BY '
@@ -452,7 +537,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
+   'SELECT * INTO #group_table_2 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
    'FROM (SELECT PatientId AS patient_id, StpId AS stp, StartDate AS '
    'date_start, EndDate AS date_end \n'
@@ -461,14 +546,17 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT [#group_table_1].patient_id AS patient_id, CASE WHEN '
-   "([#group_table_0].height > 190) THEN N'tall' WHEN ([#group_table_0].height "
-   "<= 190 AND [#group_table_0].height > 150) THEN N'medium' WHEN "
-   "([#group_table_0].height < 150) THEN N'short' ELSE N'missing' END AS "
-   'height_group \n'
-   'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
-   '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
-   'WHERE [#group_table_1].patient_id_exists = 1',
+   'SELECT [#group_table_2].patient_id AS patient_id, CASE WHEN '
+   '([#group_table_1].height > 190 OR [#group_table_1].height < 150 AND '
+   "[#group_table_0].code = N'abc') THEN N'tall_or_code' ELSE N'na' END AS "
+   'height_group, CASE WHEN ([#group_table_1].height < 150 AND '
+   "[#group_table_0].code = N'abc' OR [#group_table_1].height > 190) THEN "
+   "N'code_or_tall' ELSE N'na' END AS height_group1 \n"
+   'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_1] ON '
+   '[#group_table_2].patient_id = [#group_table_1].patient_id LEFT OUTER JOIN '
+   '[#group_table_0] ON [#group_table_2].patient_id = '
+   '[#group_table_0].patient_id \n'
+   'WHERE [#group_table_2].patient_id_exists = 1',
    {}),
   {},
   None),
@@ -477,11 +565,13 @@
   (),
   {},
   (('patient_id', 3, None, None, None, None, None),
-   ('height_group', 1, None, None, None, None, None))),
- ('Cursor', 'fetchone', (), {}, (1, 'medium')),
- ('Cursor', 'fetchone', (), {}, (2, 'tall')),
- ('Cursor', 'fetchone', (), {}, (3, 'missing')),
- ('Cursor', 'fetchone', (), {}, (4, 'short')),
+   ('height_group', 1, None, None, None, None, None),
+   ('height_group1', 1, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, 'tall_or_code', 'code_or_tall')),
+ ('Cursor', 'fetchone', (), {}, (2, 'tall_or_code', 'code_or_tall')),
+ ('Cursor', 'fetchone', (), {}, (3, 'tall_or_code', 'code_or_tall')),
+ ('Cursor', 'fetchone', (), {}, (4, 'na', 'na')),
+ ('Cursor', 'fetchone', (), {}, (5, 'na', 'na')),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]

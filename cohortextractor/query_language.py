@@ -41,6 +41,9 @@ class Comparator:
     def __or__(self, other):
         return self._combine(other, "or_")
 
+    def __len__(self):
+        return len(self.children)
+
     def _combine(self, other, conn):
         if not (isinstance(other, Comparator)):
             raise TypeError(other)
