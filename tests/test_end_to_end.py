@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 
 import pytest
+from lib.tpp_schema import Events, Patient, RegistrationHistory
 
 from cohortextractor.main import main
 
@@ -10,9 +11,6 @@ from cohortextractor.main import main
 class Study:
     def __init__(self, study_path):
         self._path = Path(__file__).parent.absolute() / "fixtures" / study_path
-
-    def tables(self):
-        return self._path / "tables.sql"
 
     def definition(self):
         return self._path / "my_cohort.py"
@@ -99,20 +97,27 @@ def assert_results_equivalent(actual_results, expected_results):
 
 @pytest.mark.smoke
 def test_extracts_data_from_sql_server_smoke_test(
-    load_study, load_data, cohort_extractor_in_container
+    load_study, setup_tpp_database, cohort_extractor_in_container
 ):
-    run_test(load_study, load_data, cohort_extractor_in_container)
+    run_test(load_study, setup_tpp_database, cohort_extractor_in_container)
 
 
 @pytest.mark.integration
 def test_extracts_data_from_sql_server_integration_test(
-    load_study, load_data, cohort_extractor_in_process
+    load_study, setup_tpp_database, cohort_extractor_in_process
 ):
-    run_test(load_study, load_data, cohort_extractor_in_process)
+    run_test(load_study, setup_tpp_database, cohort_extractor_in_process)
 
 
-def run_test(load_study, load_data, cohort_extractor):
+def run_test(load_study, setup_tpp_database, cohort_extractor):
+    setup_tpp_database(
+        [
+            Patient(Patient_ID=1),
+            Events(Patient_ID=1, ConsultationDate="2021-01-01", CTV3Code="xyz"),
+            RegistrationHistory(Patient_ID=1),
+        ]
+    )
+
     study = load_study("end_to_end_tests")
-    load_data(study.tables())
     actual_results = cohort_extractor(study)
     assert_results_equivalent(actual_results, study.expected_results())

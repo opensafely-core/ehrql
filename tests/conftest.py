@@ -10,6 +10,7 @@ import sqlalchemy
 import sqlalchemy.exc
 from docker.errors import ContainerError
 from lib import mock_backend, playback
+from lib.tpp_schema import Base
 from lib.util import get_mode
 from sqlalchemy.orm import sessionmaker
 
@@ -290,32 +291,6 @@ def ephemeral_database(run_container, password, mssql_dir, network):
 
 
 @pytest.fixture
-def load_data(database):
-    url = sqlalchemy.engine.make_url(database.host_url())
-    url = url.set(drivername="mssql+pymssql")
-    engine = sqlalchemy.create_engine(url, future=True)
-
-    def load(file=None, sql=None):
-        if file and sql:
-            raise ValueError(
-                "You must provide exactly one of the file or sql arguments"
-            )
-        if (not file) and (not sql):
-            raise ValueError(
-                "You must provide exactly one of the file or sql arguments"
-            )
-
-        if not sql:
-            with open(file, "r") as f:
-                sql = f.read()
-
-        with engine.begin() as connection:
-            connection.execute(sqlalchemy.text(sql))
-
-    yield load
-
-
-@pytest.fixture
 def setup_test_database(database):
     db_url = database.host_url()
 
@@ -341,3 +316,11 @@ def setup_test_database(database):
 
 def extract(cohort, backend, database):
     return list(cohortextractor.main.extract(cohort, backend(database.host_url())))
+
+
+@pytest.fixture
+def setup_tpp_database(setup_test_database):
+    def setup(data):
+        setup_test_database(data, base=Base)
+
+    yield setup
