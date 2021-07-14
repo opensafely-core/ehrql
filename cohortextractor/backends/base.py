@@ -12,11 +12,14 @@ class BaseBackend:
 
     backend_id = NotImplemented
     query_engine_class = NotImplemented
+    patient_join_column = NotImplemented
+
     tables = set()
 
     def __init_subclass__(cls, **kwargs):
         assert cls.backend_id != NotImplemented
         assert cls.query_engine_class != NotImplemented
+        assert cls.patient_join_column != NotImplemented
 
         # Register each Backend by its id so we can identify it from an environment variable
         register_backend(cls)
@@ -24,6 +27,7 @@ class BaseBackend:
         for name, value in vars(cls).items():
             if isinstance(value, SQLTable):
                 cls.tables.add(name)
+                value.columns["patient_id"] = Column("int", cls.patient_join_column)
 
     def __init__(self, database_url):
         self.database_url = database_url
@@ -38,11 +42,9 @@ class BaseBackend:
 
 
 class SQLTable:
-    def __init__(self, *, columns, source=None):
-        if "patient_id" not in columns:
-            columns["patient_id"] = Column("int", "PatientId")
+    def __init__(self, *, columns=None, source=None):
         self.name = source
-        self.columns = columns
+        self.columns = columns or {}
 
     def get_query(self):
         columns = []

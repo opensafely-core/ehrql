@@ -8,6 +8,7 @@ from cohortextractor.query_engines.mssql import MssqlQueryEngine
 class MockBackend(BaseBackend):
     backend_id = "mock"
     query_engine_class = MssqlQueryEngine
+    patient_join_column = "PatientId"
 
     patients = SQLTable(
         source="patients",
@@ -18,7 +19,6 @@ class MockBackend(BaseBackend):
     practice_registrations = SQLTable(
         source="practice_registrations",
         columns=dict(
-            patient_id=Column("int", source="PatientId"),
             stp=Column("varchar", source="StpId"),
             date_start=Column("datetime", source="StartDate"),
             date_end=Column("datetime", source="EndDate"),

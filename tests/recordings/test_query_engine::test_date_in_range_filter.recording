@@ -547,8 +547,8 @@
    'practice_registrations.patient_id ORDER BY '
    'practice_registrations.date_start DESC, practice_registrations.date_end '
    'DESC) AS _row_num \n'
-   'FROM (SELECT PatientId AS patient_id, StpId AS stp, StartDate AS '
-   'date_start, EndDate AS date_end \n'
+   'FROM (SELECT StpId AS stp, StartDate AS date_start, EndDate AS date_end, '
+   'PatientId AS patient_id \n'
    'FROM practice_registrations) AS practice_registrations \n'
    "WHERE practice_registrations.date_start <= N'2021-3-2' AND "
    "practice_registrations.date_end >= N'2021-3-2') AS anon_1 \n"
@@ -558,8 +558,8 @@
    '\n'
    'SELECT * INTO #group_table_2 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT PatientId AS patient_id, StpId AS stp, StartDate AS '
-   'date_start, EndDate AS date_end \n'
+   'FROM (SELECT StpId AS stp, StartDate AS date_start, EndDate AS date_end, '
+   'PatientId AS patient_id \n'
    'FROM practice_registrations) AS practice_registrations GROUP BY '
    'practice_registrations.patient_id\n'
    ') t\n'
