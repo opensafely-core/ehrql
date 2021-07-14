@@ -1,26 +1,22 @@
 import pytest
 from conftest import extract
-from lib.mock_backend import MockBackend
+from lib.mock_backend import Events, MockBackend, RegistrationHistory
 
 from cohortextractor import table
 
 
 @pytest.mark.integration
-def test_pick_a_single_value(database, load_data):
-    # setup SQL that insert into the source tables as defined in MockBackend
-    sql = """
-        DROP TABLE IF EXISTS events, practice_registrations;
-        CREATE TABLE events (PatientId int, EventCode varchar(255), Date varchar(255));
-        INSERT INTO events (PatientId, EventCode) VALUES (1, 'xyz');
-        CREATE TABLE practice_registrations (PatientId int);
-        INSERT INTO practice_registrations (PatientId) VALUES (1);
-    """
+def test_pick_a_single_value(database, setup_test_database):
+    input_data = [
+        RegistrationHistory(PatientId=1),
+        Events(PatientId=1, EventCode="xyz"),
+    ]
+    setup_test_database(input_data)
 
     class Cohort:
         code = table("clinical_events").get("code")
 
     expected = [{"patient_id": 1, "code": "xyz"}]
 
-    load_data(sql=sql)
     actual = extract(Cohort, MockBackend, database)
     assert actual == expected
