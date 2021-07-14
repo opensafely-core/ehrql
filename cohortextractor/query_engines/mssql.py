@@ -12,6 +12,7 @@ from ..query_language import (
     Table,
     Value,
     ValueFromAggregate,
+    ValueFromCategory,
     ValueFromRow,
 )
 from .base import BaseQueryEngine
@@ -124,8 +125,10 @@ class MssqlQueryEngine(BaseQueryEngine):
         parents = set()
         for node in nodes:
             yield node
-            for attr in ("source", "value"):
-                reference = getattr(node, attr, None)
+            for reference in [
+                *self.get_query_node_references(node),
+                getattr(node, "value", None),
+            ]:
                 if isinstance(reference, QueryNode) and reference not in seen:
                     parents.add(reference)
         if parents:
@@ -133,11 +136,15 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     @staticmethod
     def is_output_node(node):
-        return isinstance(node, (Value, Column))
+        return isinstance(node, (ValueFromRow, ValueFromAggregate, Column))
+
+    @staticmethod
+    def is_category_node(node):
+        return isinstance(node, ValueFromCategory)
 
     def get_type_and_source(self, node):
         assert self.is_output_node(node)
-        return type(node), node.source
+        return type(node), self.get_query_node_references(node)[0]
 
     @staticmethod
     def get_output_column_name(node):
@@ -149,7 +156,15 @@ class MssqlQueryEngine(BaseQueryEngine):
             raise TypeError(f"Unhandled type: {node}")
 
     @staticmethod
-    def get_node_list(node):
+    def get_query_node_references(node):
+        if hasattr(node, "definitions"):
+            return tuple({group.source for group in node.definitions.values()})
+        elif hasattr(node, "source"):
+            return (node.source,)
+        else:
+            return []
+
+    def get_node_list(self, node):
         """For a single node, get a list of it and all its parents in order"""
         node_list = []
         while True:
@@ -157,7 +172,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             if type(node) is Table:
                 break
             else:
-                node = node.source
+                node = self.get_query_node_references(node)[0]
         node_list.reverse()
         return node_list
 
@@ -252,7 +267,9 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def get_population_table_query(self, population):
         """Build the query that selects the patient population we're interested in"""
-        is_included, population_table = self.get_value_expression(population)
+        is_included, tables = self.get_value_expression(population)
+        assert len(tables) == 1
+        population_table = tables[0]
         return (
             sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
             .select_from(population_table)
@@ -261,15 +278,39 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def get_value_expression(self, value):
         """
-        Given a single value output node, select it from its interim table
-        Return the expression to select it, and the table to select it from
+        Given a single value output node, select it from its interim table(s)
+        Return the expression to select it, and the table(s) to select it from
         """
-        if self.is_output_node(value):
+        tables = None
+        value_expr = value
+        if self.is_category_node(value):
+            category_definitions = value.definitions.copy()
+            tables = {
+                label: self.output_group_tables[
+                    self.get_type_and_source(category_definition.source)
+                ]
+                for label, category_definition in category_definitions.items()
+            }
+            category_mapping = {}
+            for label, category_definition in category_definitions.items():
+                table = tables[label]
+                column = table.c[category_definition.source.column]
+                method = getattr(column, category_definition.operator)
+                category_mapping[label] = method(category_definition.value)
+            value_expr = self.get_case_expression(category_mapping, value.default)
+            tables = tuple(tables.values())
+        elif self.is_output_node(value):
             table = self.output_group_tables[self.get_type_and_source(value)]
             column = self.get_output_column_name(value)
             value_expr = table.c[column]
-            return value_expr, table
-        return value, None
+            tables = (table,)
+        return value_expr, tables
+
+    def get_case_expression(self, mapping, default):
+        return sqlalchemy.case(
+            [(expression, label) for label, expression in mapping.items()],
+            else_=default,
+        )
 
     def apply_aggregates(self, query, aggregate_nodes):
         """
@@ -318,8 +359,10 @@ class MssqlQueryEngine(BaseQueryEngine):
         operator_name = filter_node.operator
         # Does this filter require another table? i.e. is the filter value itself an
         # Output node, which has a source that we may need to include here
-        value_expr, other_table = self.get_value_expression(filter_node.value)
-        if other_table is not None:
+        value_expr, other_tables = self.get_value_expression(filter_node.value)
+        if other_tables is not None:
+            assert len(other_tables) == 1
+            other_table = other_tables[0]
             # If we have a "Value" (i.e. a single value per patient) then we
             # include the other table in the join
             if isinstance(filter_node.value, Value):
@@ -395,10 +438,14 @@ class MssqlQueryEngine(BaseQueryEngine):
 
         # Build big JOIN query which selects the results
         for column_name, output_node in column_definitions.items():
-            # For each output column, generate the query that selects it from its interim table
-            column, table = self.get_value_expression(output_node)
+            # For each output column, generate the query that selects it from its interim table(s)
+            # For most outputs there will just be a single interim table.  Category outputs
+            # may require more than one.
+            column, tables = self.get_value_expression(output_node)
             # Then generate the query to join on it
-            results_query = self.include_joined_table(results_query, table)
+            for table in tables:
+                results_query = self.include_joined_table(results_query, table)
+
             # Add this column to the final selected results
             results_query = results_query.add_columns(column.label(column_name))
 
