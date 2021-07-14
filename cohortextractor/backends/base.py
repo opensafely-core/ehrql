@@ -22,7 +22,7 @@ class BaseBackend:
         register_backend(cls)
         # Make sure each Backend knows what its tables are
         for name, value in vars(cls).items():
-            if isinstance(value, BackendTable):
+            if isinstance(value, SQLTable):
                 cls.tables.add(name)
 
     def __init__(self, database_url):
@@ -37,11 +37,7 @@ class BaseBackend:
         return table_expression
 
 
-class BackendTable:
-    ...
-
-
-class SQLTable(BackendTable):
+class SQLTable:
     def __init__(self, *, columns, source=None):
         if "patient_id" not in columns:
             columns["patient_id"] = Column("int", "PatientId")
