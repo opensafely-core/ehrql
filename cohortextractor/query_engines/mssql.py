@@ -285,22 +285,32 @@ class MssqlQueryEngine(BaseQueryEngine):
         value_expr = value
         if self.is_category_node(value):
             category_definitions = value.definitions.copy()
-            statements = []
-            tables = set()
+            tables = {
+                label: self.output_group_tables[
+                    self.get_type_and_source(category_definition.source)
+                ]
+                for label, category_definition in category_definitions.items()
+            }
+            category_mapping = {}
             for label, category_definition in category_definitions.items():
-                source_col = category_definition.source
-                table = self.output_group_tables[self.get_type_and_source(source_col)]
-                column = table.c[source_col.column]
-                tables.add(table)
+                table = tables[label]
+                column = table.c[category_definition.source.column]
                 method = getattr(column, category_definition.operator)
-                statements.append((method(category_definition.value), label))
-            value_expr = sqlalchemy.case(*statements, else_=value.default)
+                category_mapping[label] = method(category_definition.value)
+            value_expr = self.get_case_expression(category_mapping, value.default)
+            tables = tuple(tables.values())
         elif self.is_output_node(value):
             table = self.output_group_tables[self.get_type_and_source(value)]
             column = self.get_output_column_name(value)
             value_expr = table.c[column]
             tables = (table,)
         return value_expr, tables
+
+    def get_case_expression(self, mapping, default):
+        return sqlalchemy.case(
+            [(expression, label) for label, expression in mapping.items()],
+            else_=default,
+        )
 
     def apply_aggregates(self, query, aggregate_nodes):
         """

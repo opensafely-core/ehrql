@@ -1,15 +1,9 @@
 from datetime import date
 
 import pytest
-<<<<<<< HEAD
 from conftest import extract
 from lib.mock_backend import MockBackend
-from lib.sql_setup import Events, PositiveTests, RegistrationHistory
-=======
-import sqlalchemy
-from sql_setup import Base, Events, Patients, PositiveTests, RegistrationHistory
-from sqlalchemy.orm import sessionmaker
->>>>>>> Add the most basic categorisation
+from lib.sql_setup import Events, Patients, PositiveTests, RegistrationHistory
 
 import cohortextractor.main
 from cohortextractor.backends.base import BaseBackend, Column, SQLTable
