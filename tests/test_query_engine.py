@@ -1,72 +1,31 @@
 from datetime import date
 
 import pytest
-from conftest import extract
-from lib.mock_backend import MockBackend
-from lib.sql_setup import Events, Patients, PositiveTests, RegistrationHistory
+from conftest import extract, null_database
+from lib.mock_backend import (
+    Events,
+    MockBackend,
+    Patients,
+    PositiveTests,
+    RegistrationHistory,
+)
 
-import cohortextractor.main
-from cohortextractor.backends.base import BaseBackend, Column, SQLTable
-from cohortextractor.query_engines.mssql import MssqlQueryEngine
 from cohortextractor.query_language import categorise, category_group, table
-from cohortextractor.query_utils import get_column_definitions
-
-
-DEFAULT_TABLES = {
-    "practice_registrations": SQLTable(
-        source="practice_registrations",
-        columns=dict(
-            patient_id=Column("int", source="PatientId"),
-            stp=Column("varchar", source="StpId"),
-            date_start=Column("date", source="StartDate"),
-            date_end=Column("date", source="EndDate"),
-        ),
-    ),
-    "clinical_events": SQLTable(
-        source="events",
-        columns=dict(
-            code=Column("varchar", source="EventCode"),
-            date=Column("date", source="Date"),
-            result=Column("float", source="ResultValue"),
-        ),
-    ),
-}
-
-
-@pytest.fixture
-def mock_backend():
-    class MockTestBackend(BaseBackend):
-        """
-        A backend class which has no class-defined tables and sets up its tables
-        on init
-        """
-
-        backend_id = "testing"
-        query_engine_class = MssqlQueryEngine
-
-        def __init__(self, database_url, **tables):
-            super(MockTestBackend, self).__init__(database_url)
-            for table_name, sql_table in tables.items():
-                setattr(self, table_name, sql_table)
-            self.tables = tables.keys()
-
-    def create_backend(database_url, tables=None):
-        if tables is None:
-            tables = DEFAULT_TABLES
-        return MockTestBackend(database_url, **tables)
-
-    return create_backend
 
 
 def test_backend_tables():
     """Test that a backend registers its table names"""
-    # Use the base MockBackend for this test, so we're testing the real __init_subclass__ method
-    assert MockBackend.tables == {"practice_registrations", "clinical_events"}
+    assert MockBackend.tables == {
+        "practice_registrations",
+        "clinical_events",
+        "patients",
+        "positive_tests",
+    }
 
 
 @pytest.mark.integration
 def test_run_generated_sql_get_single_column_default_population(
-    database, setup_test_database, mock_backend
+    database, setup_test_database
 ):
 
     input_data = [
@@ -83,18 +42,14 @@ def test_run_generated_sql_get_single_column_default_population(
     class Cohort:
         output_value = table("clinical_events").get("code")
 
-    column_definitions = get_column_definitions(Cohort)
-
-    query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=mock_backend(database.host_url())
-    )
-    with query_engine.execute_query() as result:
-        assert list(result) == [(1, "Code1")]
+    assert extract(Cohort, MockBackend, database) == [
+        dict(patient_id=1, output_value="Code1")
+    ]
 
 
 @pytest.mark.integration
 def test_run_generated_sql_get_single_column_specified_population(
-    database, setup_test_database, mock_backend
+    database, setup_test_database
 ):
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
@@ -111,19 +66,13 @@ def test_run_generated_sql_get_single_column_specified_population(
         output_value = table("clinical_events").get("code")
         population = table("practice_registrations").exists()
 
-    column_definitions = get_column_definitions(Cohort)
-
-    query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=mock_backend(database.host_url())
-    )
-    with query_engine.execute_query() as result:
-        assert list(result) == [(1, "Code1")]
+    assert extract(Cohort, MockBackend, database) == [
+        dict(patient_id=1, output_value="Code1")
+    ]
 
 
 @pytest.mark.integration
-def test_run_generated_sql_get_multiple_columns(
-    database, setup_test_database, mock_backend
-):
+def test_run_generated_sql_get_multiple_columns(database, setup_test_database):
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
         RegistrationHistory(PatientId=2, StpId="STP1"),
@@ -139,28 +88,14 @@ def test_run_generated_sql_get_multiple_columns(
         output_value = table("clinical_events").get("code")
         positive = table("positive_tests").get("result")
 
-    column_definitions = get_column_definitions(Cohort)
-
-    backend_tables = {
-        **DEFAULT_TABLES,
-        "positive_tests": SQLTable(
-            source="pos_tests",
-            columns=dict(result=Column("bool", source="PositiveResult")),
-        ),
-    }
-    backend = mock_backend(database.host_url(), tables=backend_tables)
-    query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=backend
-    )
-    with query_engine.execute_query() as result:
-        assert list(result) == [
-            (1, "Code1", True),
-            (2, "Code2", False),
-        ]
+    assert extract(Cohort, MockBackend, database) == [
+        dict(patient_id=1, output_value="Code1", positive=True),
+        dict(patient_id=2, output_value="Code2", positive=False),
+    ]
 
 
 @pytest.mark.integration
-def test_extract_get_single_column(database, setup_test_database, mock_backend):
+def test_extract_get_single_column(database, setup_test_database):
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
         Events(PatientId=1, EventCode="Code1"),
@@ -175,20 +110,16 @@ def test_extract_get_single_column(database, setup_test_database, mock_backend):
     class Cohort:
         output_value = table("clinical_events").get("code")
 
-    result = extract(Cohort, mock_backend, database)
-    assert list(result) == [{"patient_id": 1, "output_value": "Code1"}]
+    result = extract(Cohort, MockBackend, database)
+    assert list(result) == [dict(patient_id=1, output_value="Code1")]
 
 
-def test_invalid_table(mock_backend):
+def test_invalid_table():
     class Cohort:
         output_value = table("unknown").get("code")
 
-    column_definitions = get_column_definitions(Cohort)
-    query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=mock_backend(database_url=None)
-    )
     with pytest.raises(ValueError, match="Unknown table 'unknown'"):
-        query_engine.get_sql()
+        extract(Cohort, MockBackend, null_database())
 
 
 @pytest.mark.integration
@@ -198,17 +129,23 @@ def test_invalid_table(mock_backend):
         (
             table("clinical_events").latest().get("code"),
             table("clinical_events").latest().get("date"),
-            [(1, "Code2", date(2021, 5, 2)), (2, "Code1", date(2021, 6, 5))],
+            [
+                dict(patient_id=1, code="Code2", date=date(2021, 5, 2)),
+                dict(patient_id=2, code="Code1", date=date(2021, 6, 5)),
+            ],
         ),
         (
             table("clinical_events").earliest().get("code"),
             table("clinical_events").earliest().get("date"),
-            [(1, "Code1", date(2021, 1, 3)), (2, "Code1", date(2021, 2, 4))],
+            [
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 3)),
+                dict(patient_id=2, code="Code1", date=date(2021, 2, 4)),
+            ],
         ),
     ],
 )
 def test_run_generated_sql_get_single_row_per_patient(
-    database, setup_test_database, mock_backend, code_output, date_output, expected
+    database, setup_test_database, code_output, date_output, expected
 ):
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
@@ -223,16 +160,10 @@ def test_run_generated_sql_get_single_row_per_patient(
 
     # Cohort to extract the earliest/latest event for each patient, and return code and date
     class Cohort:
-        code_value = code_output
-        date_value = date_output
+        code = code_output
+        date = date_output
 
-    column_definitions = get_column_definitions(Cohort)
-
-    query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=mock_backend(database.host_url())
-    )
-    with query_engine.execute_query() as result:
-        assert list(result) == expected
+    assert extract(Cohort, MockBackend, database) == expected
 
 
 @pytest.mark.integration
@@ -242,99 +173,108 @@ def test_run_generated_sql_get_single_row_per_patient(
         (
             table("clinical_events").filter(code="Code1"),
             [
-                (1, "Code1", date(2021, 1, 3), 10.1),
-                (1, "Code1", date(2021, 2, 1), 20.1),
-                (2, "Code1", date(2021, 6, 5), 50.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
+                dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
             ],
         ),
         (
             table("clinical_events").filter(code="Code1", date="2021-2-1"),
-            [(1, "Code1", date(2021, 2, 1), 20.1), (2, None, None, None)],
+            [
+                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
+                dict(patient_id=2, code=None, date=None, value=None),
+            ],
         ),
         (
             table("clinical_events").filter("date", between=["2021-1-15", "2021-5-3"]),
             [
-                (1, "Code1", date(2021, 2, 1), 20.1),
-                (1, "Code2", date(2021, 5, 2), 30.1),
-                (1, "Code3", date(2021, 5, 3), 40.1),
-                (2, "Code2", date(2021, 2, 1), 60.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
+                dict(patient_id=1, code="Code2", date=date(2021, 5, 2), value=30.1),
+                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
+                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
             ],
         ),
         (
             table("clinical_events").filter("result", greater_than=40),
             [
-                (1, "Code3", date(2021, 5, 3), 40.1),
-                (2, "Code1", date(2021, 6, 5), 50.1),
-                (2, "Code2", date(2021, 2, 1), 60.1),
+                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
+                dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
+                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
             ],
         ),
         (
             table("clinical_events").filter("date", greater_than="2021-5-3"),
-            [(1, None, None, None), (2, "Code1", date(2021, 6, 5), 50.1)],
+            [
+                dict(patient_id=1, code=None, date=None, value=None),
+                dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
+            ],
         ),
         (
             table("clinical_events").filter("date", greater_than_or_equals="2021-5-3"),
             [
-                (1, "Code3", date(2021, 5, 3), 40.1),
-                (2, "Code1", date(2021, 6, 5), 50.1),
+                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
+                dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
             ],
         ),
         (
             table("clinical_events").filter("date", on_or_after="2021-5-3"),
             [
-                (1, "Code3", date(2021, 5, 3), 40.1),
-                (2, "Code1", date(2021, 6, 5), 50.1),
+                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
+                dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
             ],
         ),
         (
             table("clinical_events").filter("date", less_than="2021-2-1"),
-            [(1, "Code1", date(2021, 1, 3), 10.1), (2, None, None, None)],
+            [
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
+                dict(patient_id=2, code=None, date=None, value=None),
+            ],
         ),
         (
             table("clinical_events").filter("date", less_than_or_equals="2021-2-1"),
             [
-                (1, "Code1", date(2021, 1, 3), 10.1),
-                (1, "Code1", date(2021, 2, 1), 20.1),
-                (2, "Code2", date(2021, 2, 1), 60.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
+                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
             ],
         ),
         (
             table("clinical_events").filter("date", on_or_before="2021-2-1"),
             [
-                (1, "Code1", date(2021, 1, 3), 10.1),
-                (1, "Code1", date(2021, 2, 1), 20.1),
-                (2, "Code2", date(2021, 2, 1), 60.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
+                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
             ],
         ),
         (
             table("clinical_events").filter("result", less_than_or_equals=20.2),
             [
-                (1, "Code1", date(2021, 1, 3), 10.1),
-                (1, "Code1", date(2021, 2, 1), 20.1),
-                (2, None, None, None),
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
+                dict(patient_id=2, code=None, date=None, value=None),
             ],
         ),
         (
             table("clinical_events").filter("code", not_equals="Code1"),
             [
-                (1, "Code2", date(2021, 5, 2), 30.1),
-                (1, "Code3", date(2021, 5, 3), 40.1),
-                (2, "Code2", date(2021, 2, 1), 60.1),
+                dict(patient_id=1, code="Code2", date=date(2021, 5, 2), value=30.1),
+                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
+                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
             ],
         ),
         (
             table("clinical_events").filter("code", is_in=["Code2", "Code3"]),
             [
-                (1, "Code2", date(2021, 5, 2), 30.1),
-                (1, "Code3", date(2021, 5, 3), 40.1),
-                (2, "Code2", date(2021, 2, 1), 60.1),
+                dict(patient_id=1, code="Code2", date=date(2021, 5, 2), value=30.1),
+                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
+                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
             ],
         ),
         (
             table("clinical_events").filter("code", not_in=["Code1", "Code2"]),
             [
-                (1, "Code3", date(2021, 5, 3), 40.1),
-                (2, None, None, None),
+                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
+                dict(patient_id=2, code=None, date=None, value=None),
             ],
         ),
         (
@@ -342,7 +282,10 @@ def test_run_generated_sql_get_single_row_per_patient(
             .filter(code="Code1")
             .filter("result", less_than=50)
             .filter("date", between=["2021-1-15", "2021-6-6"]),
-            [(1, "Code1", date(2021, 2, 1), 20.1), (2, None, None, None)],
+            [
+                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
+                dict(patient_id=2, code=None, date=None, value=None),
+            ],
         ),
     ],
     ids=[
@@ -363,9 +306,7 @@ def test_run_generated_sql_get_single_row_per_patient(
         "test multiple chained filters",
     ],
 )
-def test_simple_filters(
-    database, setup_test_database, mock_backend, filtered_table, expected
-):
+def test_simple_filters(database, setup_test_database, filtered_table, expected):
     """Test the filters on simple value comparisons"""
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
@@ -385,17 +326,11 @@ def test_simple_filters(
         date = _filtered.get("date")
         value = _filtered.get("result")
 
-    column_definitions = get_column_definitions(Cohort)
-
-    query_engine = MssqlQueryEngine(
-        column_definitions=column_definitions, backend=mock_backend(database.host_url())
-    )
-    with query_engine.execute_query() as result:
-        assert list(result) == expected
+    assert extract(Cohort, MockBackend, database) == expected
 
 
 @pytest.mark.integration
-def test_filter_between_other_query_values(database, setup_test_database, mock_backend):
+def test_filter_between_other_query_values(database, setup_test_database):
     # set up input data for 3 patients, with positive test dates and clinical event results
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
@@ -431,17 +366,6 @@ def test_filter_between_other_query_values(database, setup_test_database, mock_b
     ]
     setup_test_database(input_data)
 
-    backend_tables = {
-        **DEFAULT_TABLES,
-        "positive_tests": SQLTable(
-            source="pos_tests",
-            columns=dict(
-                result=Column("bool", source="PositiveResult"),
-                test_date=Column("date", source="TestDate"),
-            ),
-        ),
-    }
-
     # Cohort to extract the last Code1 result between a patient's first and last positive test dates
     class Cohort:
         _positive_tests = table("positive_tests").filter(result=True)
@@ -456,36 +380,34 @@ def test_filter_between_other_query_values(database, setup_test_database, mock_b
         date = _events.get("date")
         value = _events.get("result")
 
-    backend = mock_backend(database.host_url(), tables=backend_tables)
-
-    result = list(cohortextractor.main.extract(Cohort, backend))
+    result = extract(Cohort, MockBackend, database)
     assert result == [
-        {
-            "patient_id": 1,
-            "date": date(2021, 3, 1),
-            "first_pos": date(2021, 1, 1),
-            "last_pos": date(2021, 3, 2),
-            "value": 10.3,
-        },
-        {
-            "patient_id": 2,
-            "date": date(2021, 2, 1),
-            "first_pos": date(2021, 1, 21),
-            "last_pos": date(2021, 5, 1),
-            "value": 50.2,
-        },
-        {
-            "patient_id": 3,
-            "date": None,
-            "first_pos": date(2021, 1, 10),
-            "last_pos": date(2021, 3, 1),
-            "value": None,
-        },
+        dict(
+            patient_id=1,
+            date=date(2021, 3, 1),
+            first_pos=date(2021, 1, 1),
+            last_pos=date(2021, 3, 2),
+            value=10.3,
+        ),
+        dict(
+            patient_id=2,
+            date=date(2021, 2, 1),
+            first_pos=date(2021, 1, 21),
+            last_pos=date(2021, 5, 1),
+            value=50.2,
+        ),
+        dict(
+            patient_id=3,
+            date=None,
+            first_pos=date(2021, 1, 10),
+            last_pos=date(2021, 3, 1),
+            value=None,
+        ),
     ]
 
 
 @pytest.mark.integration
-def test_date_in_range_filter(database, setup_test_database, mock_backend):
+def test_date_in_range_filter(database, setup_test_database):
     input_data = [
         # (9999-12-31 is the default TPP null value)
         # registraion start date before target date; no end date - included
@@ -523,17 +445,17 @@ def test_date_in_range_filter(database, setup_test_database, mock_backend):
         value = _events.get("result")
         stp = table("practice_registrations").date_in_range("2021-3-2").get("stp")
 
-    result = extract(Cohort, mock_backend, database)
+    result = extract(Cohort, MockBackend, database)
     assert result == [
-        {"patient_id": 1, "value": 10.1, "stp": "STP1"},
-        {"patient_id": 2, "value": 10.2, "stp": None},
-        {"patient_id": 3, "value": 10.3, "stp": "STP2"},
-        {"patient_id": 4, "value": 10.4, "stp": "STP2"},
+        dict(patient_id=1, value=10.1, stp="STP1"),
+        dict(patient_id=2, value=10.2, stp=None),
+        dict(patient_id=3, value=10.3, stp="STP2"),
+        dict(patient_id=4, value=10.4, stp="STP2"),
     ]
 
 
 @pytest.mark.integration
-def test_in_filter_on_query_values(database, setup_test_database, mock_backend):
+def test_in_filter_on_query_values(database, setup_test_database):
     # set up input data for 2 patients, with positive test dates and clinical event results
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
@@ -559,21 +481,10 @@ def test_in_filter_on_query_values(database, setup_test_database, mock_backend):
     ]
     setup_test_database(input_data)
 
-    backend_tables = {
-        **DEFAULT_TABLES,
-        "positive_tests": SQLTable(
-            source="pos_tests",
-            columns=dict(
-                positive_result=Column("bool", source="PositiveResult"),
-                test_date=Column("date", source="TestDate"),
-            ),
-        ),
-    }
-
     # Cohort to extract the Code1 results that were on a positive test date
     class Cohort:
         _positive_test_dates = (
-            table("positive_tests").filter(positive_result=True).get("test_date")
+            table("positive_tests").filter(result=True).get("test_date")
         )
         _last_code1_events_on_positive_test_dates = (
             table("clinical_events")
@@ -584,18 +495,15 @@ def test_in_filter_on_query_values(database, setup_test_database, mock_backend):
         date = _last_code1_events_on_positive_test_dates.get("date")
         value = _last_code1_events_on_positive_test_dates.get("result")
 
-    backend = mock_backend(database.host_url(), tables=backend_tables)
-
-    result = list(cohortextractor.main.extract(Cohort, backend))
-    expected = [
-        {"patient_id": 1, "date": date(2021, 2, 15), "value": 10.2},
-        {"patient_id": 2, "date": date(2021, 1, 10), "value": 50.1},
+    result = extract(Cohort, MockBackend, database)
+    assert result == [
+        dict(patient_id=1, date=date(2021, 2, 15), value=10.2),
+        dict(patient_id=2, date=date(2021, 1, 10), value=50.1),
     ]
-    assert result == expected
 
 
 @pytest.mark.integration
-def test_not_in_filter_on_query_values(database, setup_test_database, mock_backend):
+def test_not_in_filter_on_query_values(database, setup_test_database):
     # set up input data for 2 patients, with positive test dates and clinical event results
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
@@ -622,17 +530,6 @@ def test_not_in_filter_on_query_values(database, setup_test_database, mock_backe
     ]
     setup_test_database(input_data)
 
-    backend_tables = {
-        **DEFAULT_TABLES,
-        "positive_tests": SQLTable(
-            source="pos_tests",
-            columns=dict(
-                positive_result=Column("bool", source="PositiveResult"),
-                test_date=Column("date", source="TestDate"),
-            ),
-        ),
-    }
-
     # Cohort to extract the results that were NOT on a test date (positive or negative)
     class Cohort:
         _test_dates = table("positive_tests").get("test_date")
@@ -642,14 +539,11 @@ def test_not_in_filter_on_query_values(database, setup_test_database, mock_backe
         date = _last_event_not_on_test_date.get("date")
         value = _last_event_not_on_test_date.get("result")
 
-    backend = mock_backend(database.host_url(), tables=backend_tables)
-
-    result = list(cohortextractor.main.extract(Cohort, backend))
-    expected = [
-        {"patient_id": 1, "date": date(2021, 4, 1), "value": 10.3},
-        {"patient_id": 2, "date": date(2021, 5, 2), "value": 50.3},
+    result = extract(Cohort, MockBackend, database)
+    assert result == [
+        dict(patient_id=1, date=date(2021, 4, 1), value=10.3),
+        dict(patient_id=2, date=date(2021, 5, 2), value=50.3),
     ]
-    assert result == expected
 
 
 @pytest.mark.integration
@@ -660,35 +554,33 @@ def test_not_in_filter_on_query_values(database, setup_test_database, mock_backe
             "exists",
             "code",
             [
-                {"patient_id": 1, "value": True},
-                {"patient_id": 2, "value": True},
-                {"patient_id": 3, "value": None},
+                dict(patient_id=1, value=True),
+                dict(patient_id=2, value=True),
+                dict(patient_id=3, value=None),
             ],
         ),
         (
             "count",
             "code",
             [
-                {"patient_id": 1, "value": 2},
-                {"patient_id": 2, "value": 1},
-                {"patient_id": 3, "value": None},
+                dict(patient_id=1, value=2),
+                dict(patient_id=2, value=1),
+                dict(patient_id=3, value=None),
             ],
         ),
         (
             "sum",
             "result",
             [
-                {"patient_id": 1, "value": 20.6},
-                {"patient_id": 2, "value": 50.1},
-                {"patient_id": 3, "value": None},
+                dict(patient_id=1, value=20.6),
+                dict(patient_id=2, value=50.1),
+                dict(patient_id=3, value=None),
             ],
         ),
     ],
     ids=[],
 )
-def test_aggregation(
-    database, setup_test_database, mock_backend, aggregation, column, expected
-):
+def test_aggregation(database, setup_test_database, aggregation, column, expected):
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
         RegistrationHistory(PatientId=2, StpId="STP1"),
@@ -706,11 +598,11 @@ def test_aggregation(
         _filtered_table = table("clinical_events").filter(code="Code1")
         value = getattr(_filtered_table, aggregation)(column)
 
-    assert extract(Cohort, mock_backend, database) == expected
+    assert extract(Cohort, MockBackend, database) == expected
 
 
 @pytest.mark.integration
-def test_categorise(database, setup_test_database, mock_backend):
+def test_categorise(database, setup_test_database):
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
         RegistrationHistory(PatientId=2, StpId="STP2"),
@@ -722,18 +614,6 @@ def test_categorise(database, setup_test_database, mock_backend):
     ]
     setup_test_database(input_data)
 
-    backend_tables = {
-        **DEFAULT_TABLES,
-        "patients": SQLTable(
-            source="patients",
-            columns=dict(
-                height=Column("float", source="Height"),
-            ),
-        ),
-    }
-
-    backend = mock_backend(database.host_url(), tables=backend_tables)
-
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
         _mapping = {
@@ -742,9 +622,9 @@ def test_categorise(database, setup_test_database, mock_backend):
         }
         height_group = categorise(_mapping, default="missing")
 
-    result = list(cohortextractor.main.extract(Cohort, backend))
+    result = extract(Cohort, MockBackend, database)
     assert result == [
-        {"patient_id": 1, "height_group": "short"},
-        {"patient_id": 2, "height_group": "tall"},
-        {"patient_id": 3, "height_group": "missing"},
+        dict(patient_id=1, height_group="short"),
+        dict(patient_id=2, height_group="tall"),
+        dict(patient_id=3, height_group="missing"),
     ]

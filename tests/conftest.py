@@ -9,7 +9,7 @@ import pytest
 import sqlalchemy
 import sqlalchemy.exc
 from docker.errors import ContainerError
-from lib import playback, sql_setup
+from lib import mock_backend, playback
 from lib.util import get_mode
 from sqlalchemy.orm import sessionmaker
 
@@ -114,6 +114,10 @@ class DbDetails:
 
     def _url(self, host, port):
         return f"mssql://SA:{self.password}@{host}:{port}/{self.db_name}"
+
+
+def null_database():
+    return DbDetails(None, None, None, None, None, None, None)
 
 
 @pytest.fixture
@@ -315,7 +319,7 @@ def load_data(database):
 def setup_test_database(database):
     db_url = database.host_url()
 
-    def setup(input_data, drivername="mssql+pymssql", base=sql_setup.Base):
+    def setup(input_data, drivername="mssql+pymssql", base=mock_backend.Base):
         # Create engine
         url = sqlalchemy.engine.make_url(db_url)
         url = url.set(drivername=drivername)

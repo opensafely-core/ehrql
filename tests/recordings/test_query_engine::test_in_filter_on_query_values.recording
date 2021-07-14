@@ -559,10 +559,10 @@
   'execute',
   ('SELECT * INTO #group_table_0 FROM (\n'
    'SELECT positive_tests.patient_id, positive_tests.test_date \n'
-   'FROM (SELECT PositiveResult AS positive_result, TestDate AS test_date, '
-   'PatientId AS patient_id \n'
+   'FROM (SELECT PositiveResult AS result, TestDate AS test_date, PatientId AS '
+   'patient_id \n'
    'FROM pos_tests) AS positive_tests \n'
-   'WHERE positive_tests.positive_result = 1\n'
+   'WHERE positive_tests.result = 1\n'
    ') t\n'
    '\n'
    '\n'
