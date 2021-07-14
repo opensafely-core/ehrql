@@ -14,6 +14,8 @@ class RegistrationHistory(Base):
     __tablename__ = "RegistrationHistory"
     Registration_ID = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
+    StartDate = Column(DateTime)
+    EndDate = Column(DateTime)
 
 
 class Events(Base):

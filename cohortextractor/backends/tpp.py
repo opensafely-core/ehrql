@@ -17,4 +17,8 @@ class TPPBackend(BaseBackend):
 
     practice_registrations = SQLTable(
         source="RegistrationHistory",
+        columns=dict(
+            date_start=Column("datetime", source="StartDate"),
+            date_end=Column("datetime", source="EndDate"),
+        ),
     )

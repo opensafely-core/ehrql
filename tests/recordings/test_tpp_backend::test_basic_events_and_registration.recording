@@ -229,24 +229,6 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [CodedEvent] ([Patient_ID], [CTV3Code], [ConsultationDate]) '
-   'OUTPUT inserted.[CodedEvent_ID] VALUES (%(Patient_ID)s, %(CTV3Code)s, '
-   '%(ConsultationDate)s)',
-   {'Patient_ID': 1, 'CTV3Code': 'xyz', 'ConsultationDate': '2021-01-01'}),
-  {},
-  None),
- ('Cursor', 'rowcount', (), {}, -1),
- ('Cursor',
-  'description',
-  (),
-  {},
-  (('CodedEvent_ID', 3, None, None, None, None, None),)),
- ('Cursor', 'fetchall', (), {}, [(1,)]),
- ('Cursor', 'close', (), {}, None),
- ('Connection', 'commit', (), {}, None),
- ('Connection', 'rollback', (), {}, None),
- ('Cursor',
-  'execute',
   ('INSERT INTO [RegistrationHistory] ([Patient_ID], [StartDate], [EndDate]) '
    'OUTPUT inserted.[Registration_ID] VALUES (%(Patient_ID)s, %(StartDate)s, '
    '%(EndDate)s)',
@@ -259,6 +241,24 @@
   (),
   {},
   (('Registration_ID', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(1,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [CodedEvent] ([Patient_ID], [CTV3Code], [ConsultationDate]) '
+   'OUTPUT inserted.[CodedEvent_ID] VALUES (%(Patient_ID)s, %(CTV3Code)s, '
+   '%(ConsultationDate)s)',
+   {'Patient_ID': 1, 'CTV3Code': 'Code1', 'ConsultationDate': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('CodedEvent_ID', 3, None, None, None, None, None),)),
  ('Cursor', 'fetchall', (), {}, [(1,)]),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'commit', (), {}, None),
@@ -308,14 +308,6 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT clinical_events.date, clinical_events.patient_id \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
    'SELECT clinical_events.code, clinical_events.patient_id \n'
    'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
    'patient_id \n'
@@ -323,7 +315,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_2 FROM (\n'
+   'SELECT * INTO #group_table_1 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
    'FROM (SELECT StartDate AS date_start, EndDate AS date_end, Patient_ID AS '
    'patient_id \n'
@@ -332,13 +324,11 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT [#group_table_2].patient_id AS patient_id, [#group_table_0].date AS '
-   'date, [#group_table_1].code AS event \n'
-   'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_0] ON '
-   '[#group_table_2].patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '
-   '[#group_table_1] ON [#group_table_2].patient_id = '
-   '[#group_table_1].patient_id \n'
-   'WHERE [#group_table_2].patient_id_exists = 1',
+   'SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].code AS '
+   'code \n'
+   'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
+   '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
+   'WHERE [#group_table_1].patient_id_exists = 1',
    {}),
   {},
   None),
@@ -347,13 +337,8 @@
   (),
   {},
   (('patient_id', 3, None, None, None, None, None),
-   ('date', 4, None, None, None, None, None),
-   ('event', 1, None, None, None, None, None))),
- ('Cursor',
-  'fetchone',
-  (),
-  {},
-  (1, datetime.datetime(2021, 1, 1, 0, 0), 'xyz')),
+   ('code', 1, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, 'Code1')),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]
