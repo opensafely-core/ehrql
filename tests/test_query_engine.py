@@ -425,7 +425,7 @@ def test_date_in_range_filter(database, setup_test_database):
         RegistrationHistory(
             PatientId=3, StpId="STP2", StartDate="2021-3-1", EndDate="2021-4-1"
         ),
-        # registered with 2 STPs overlapping target date; latest included
+        # registered with 2 STPs overlapping target date; both are included
         RegistrationHistory(
             PatientId=4, StpId="STP2", StartDate="2021-2-2", EndDate="2021-4-1"
         ),
@@ -451,6 +451,7 @@ def test_date_in_range_filter(database, setup_test_database):
         dict(patient_id=2, value=10.2, stp=None),
         dict(patient_id=3, value=10.3, stp="STP2"),
         dict(patient_id=4, value=10.4, stp="STP2"),
+        dict(patient_id=4, value=10.4, stp="STP3"),
     ]
 
 

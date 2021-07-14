@@ -90,16 +90,12 @@ class Table(QueryNode):
 
     def date_in_range(self, date, start_column="date_start", end_column="date_end"):
         """
-        A filter that returns the latest of two boundary date fields, where start values
-        are <= a target date and end values are >= a target. If more than one entry matches,
-        the latest one will be returned.
+        A filter that returns rows for which a date falls between a start and end date (inclusive).
         Note that this filter currently expects that a value will be present for BOTH
         start and end columns.
         """
-        return (
-            self.filter(start_column, less_than_or_equals=date)
-            .filter(end_column, greater_than_or_equals=date)
-            .last_by(start_column, end_column)
+        return self.filter(start_column, less_than_or_equals=date).filter(
+            end_column, greater_than_or_equals=date
         )
 
     def exists(self, column="patient_id"):
