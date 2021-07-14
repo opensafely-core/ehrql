@@ -158,7 +158,10 @@ def database(request, run_container, containers, network, docker_client, mssql_d
         return
 
     def is_passing():
-        return request.node.passed
+        try:
+            return request.node.passed
+        except AttributeError:
+            return False
 
     with playback.recording_for(test_identifier(request), is_passing) as recording:
         database = None
