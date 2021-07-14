@@ -492,7 +492,7 @@
    '\n'
    '\n'
    'SELECT [#group_table_2].patient_id AS patient_id, [#group_table_0].code AS '
-   'code_value, [#group_table_1].date AS date_value \n'
+   'code, [#group_table_1].date AS date \n'
    'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_2].patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '
    '[#group_table_1] ON [#group_table_2].patient_id = '
@@ -506,8 +506,8 @@
   (),
   {},
   (('patient_id', 3, None, None, None, None, None),
-   ('code_value', 1, None, None, None, None, None),
-   ('date_value', 2, None, None, None, None, None))),
+   ('code', 1, None, None, None, None, None),
+   ('date', 2, None, None, None, None, None))),
  ('Cursor', 'fetchone', (), {}, (1, 'Code2', datetime.date(2021, 5, 2))),
  ('Cursor', 'fetchone', (), {}, (2, 'Code1', datetime.date(2021, 6, 5))),
  ('Cursor', 'fetchone', (), {}, None),

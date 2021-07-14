@@ -42,18 +42,221 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('DROP TABLE IF EXISTS CodedEvent, RegistrationHistory;\n'
-   'CREATE TABLE CodedEvent (Patient_ID int, ConsultationDate datetime, '
-   'CTV3Code varchar(255));\n'
-   'INSERT INTO CodedEvent (Patient_ID, ConsultationDate, CTV3Code) VALUES (1, '
-   "'2021-01-01', 'xyz');\n"
-   'CREATE TABLE RegistrationHistory (Patient_ID int);\n'
-   'INSERT INTO RegistrationHistory (Patient_ID) VALUES (1);\n',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'Patient',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'RegistrationHistory',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'CodedEvent',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'Patient',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'RegistrationHistory',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'CodedEvent',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE [Patient] (\n'
+   '\t[Patient_ID] INTEGER NOT NULL IDENTITY, \n'
+   '\tPRIMARY KEY ([Patient_ID])\n'
+   ')\n'
+   '\n',
    {}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE [RegistrationHistory] (\n'
+   '\t[Registration_ID] INTEGER NOT NULL IDENTITY, \n'
+   '\t[Patient_ID] INTEGER NULL, \n'
+   '\tPRIMARY KEY ([Registration_ID]), \n'
+   '\tFOREIGN KEY([Patient_ID]) REFERENCES [Patient] ([Patient_ID])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE [CodedEvent] (\n'
+   '\t[CodedEvent_ID] INTEGER NOT NULL IDENTITY, \n'
+   '\t[Patient_ID] INTEGER NULL, \n'
+   '\t[CTV3Code] VARCHAR(max) COLLATE Latin1_General_BIN NULL, \n'
+   '\t[ConsultationDate] DATETIME NULL, \n'
+   '\tPRIMARY KEY ([CodedEvent_ID]), \n'
+   '\tFOREIGN KEY([Patient_ID]) REFERENCES [Patient] ([Patient_ID])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor', 'execute', ('SET IDENTITY_INSERT [Patient] ON', ()), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [Patient] ([Patient_ID]) VALUES (%(Patient_ID)s)',
+   {'Patient_ID': 1}),
+  {},
+  None),
  ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'execute', ('SET IDENTITY_INSERT [Patient] OFF', ()), {}, None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [CodedEvent] ([Patient_ID], [CTV3Code], [ConsultationDate]) '
+   'OUTPUT inserted.[CodedEvent_ID] VALUES (%(Patient_ID)s, %(CTV3Code)s, '
+   '%(ConsultationDate)s)',
+   {'Patient_ID': 1, 'CTV3Code': 'xyz', 'ConsultationDate': '2021-01-01'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('CodedEvent_ID', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(1,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [RegistrationHistory] ([Patient_ID]) OUTPUT '
+   'inserted.[Registration_ID] VALUES (%(Patient_ID)s)',
+   {'Patient_ID': 1}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('Registration_ID', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(1,)]),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'commit', (), {}, None),
  ('Connection', 'rollback', (), {}, None),

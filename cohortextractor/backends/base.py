@@ -12,6 +12,7 @@ class BaseBackend:
 
     backend_id = NotImplemented
     query_engine_class = NotImplemented
+    tables = set()
 
     def __init_subclass__(cls, **kwargs):
         assert cls.backend_id != NotImplemented
@@ -20,7 +21,6 @@ class BaseBackend:
         # Register each Backend by its id so we can identify it from an environment variable
         register_backend(cls)
         # Make sure each Backend knows what its tables are
-        cls.tables = set()
         for name, value in vars(cls).items():
             if isinstance(value, BackendTable):
                 cls.tables.add(name)
