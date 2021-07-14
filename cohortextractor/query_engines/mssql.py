@@ -288,6 +288,27 @@ class MssqlQueryEngine(BaseQueryEngine):
             .where(is_included == True)  # noqa: E712
         )
 
+    def build_condition_statement(self, comparator, tables):
+        """
+        Traverse a comparator's children in order and build the nested condition statement
+        """
+        if comparator.children:
+            left_conditions = self.build_condition_statement(
+                comparator.children[0], tables
+            )
+            right_conditions = self.build_condition_statement(
+                comparator.children[1], tables
+            )
+            connector = getattr(sqlalchemy, comparator.connector)
+            condition_statement = connector(left_conditions, right_conditions)
+        else:
+            source_col = comparator.source
+            table = tables[source_col]
+            column = table.c[source_col.column]
+            method = getattr(column, comparator.operator)
+            condition_statement = method(comparator.value)
+        return condition_statement
+
     def get_value_expression(self, value):
         """
         Given a single value output node, select it from its interim table(s)
@@ -297,38 +318,21 @@ class MssqlQueryEngine(BaseQueryEngine):
         value_expr = value
         if self.is_category_node(value):
             category_definitions = value.definitions.copy()
+            all_category_sources = self.get_sources_from_category_definitions(
+                category_definitions.values()
+            )
             tables = {
-                condition_source: self.output_group_tables[
-                    self.get_type_and_source(condition_source)
-                ]
-                for condition_source in self.get_sources_from_category_definitions(
-                    category_definitions.values()
-                )
+                source: self.output_group_tables[self.get_type_and_source(source)]
+                for source in all_category_sources
             }
             category_mapping = {}
-            for label, category_group in category_definitions.items():
-                condition_statements = []
-
-                if category_group.children:
-                    conditions = category_group.children
-                else:
-                    conditions = [category_group]
-
-                for condition in conditions:
-                    source_col = condition.source
-                    table = tables[source_col]
-                    column = table.c[source_col.column]
-                    method = getattr(column, condition.operator)
-                    condition_statements.append(method(condition.value))
-
-                if len(condition_statements) > 1:
-                    # multiple conditions, join with the group connector
-                    connector = getattr(sqlalchemy, category_group.connector)
-                    definition_statement = connector(*condition_statements)
-                else:
-                    definition_statement = condition_statements[0]
-
-                category_mapping[label] = definition_statement
+            for label, category_definition in category_definitions.items():
+                # A category definition is always a single Comparator, which may contain
+                # nested Comparators
+                condition_statement = self.build_condition_statement(
+                    category_definition, tables
+                )
+                category_mapping[label] = condition_statement
             value_expr = self.get_case_expression(category_mapping, value.default)
             tables = tuple(tables.values())
         elif self.is_output_node(value):

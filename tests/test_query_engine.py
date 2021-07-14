@@ -608,7 +608,6 @@ def test_categorise_simple_comparisons(database, setup_test_database):
         RegistrationHistory(PatientId=1, StpId="STP1"),
         RegistrationHistory(PatientId=2, StpId="STP2"),
         RegistrationHistory(PatientId=3, StpId="STP2"),
-        # Patient test results with dates
         Patients(PatientId=1, Height=180),
         Patients(PatientId=2, Height=200.5),
         Patients(PatientId=3),
@@ -643,9 +642,9 @@ def test_categorise_simple_comparisons(database, setup_test_database):
             "missing",
             [
                 dict(patient_id=1, height_group="medium"),
-                dict(patient_id=1, height_group="tall"),
-                dict(patient_id=1, height_group="missing"),
-                dict(patient_id=1, height_group="short"),
+                dict(patient_id=2, height_group="tall"),
+                dict(patient_id=3, height_group="missing"),
+                dict(patient_id=4, height_group="short"),
             ],
         ),
         (
@@ -655,9 +654,9 @@ def test_categorise_simple_comparisons(database, setup_test_database):
             "medium",
             [
                 dict(patient_id=1, height_group="medium"),
-                dict(patient_id=1, height_group="short_or_tall"),
-                dict(patient_id=1, height_group="medium"),
-                dict(patient_id=1, height_group="short_or_tall"),
+                dict(patient_id=2, height_group="short_or_tall"),
+                dict(patient_id=3, height_group="medium"),
+                dict(patient_id=4, height_group="short_or_tall"),
             ],
         ),
     ],
@@ -671,7 +670,6 @@ def test_categorise_single_combined_conditions(
         RegistrationHistory(PatientId=2, StpId="STP2"),
         RegistrationHistory(PatientId=3, StpId="STP2"),
         RegistrationHistory(PatientId=4, StpId="STP2"),
-        # Patient test results with dates
         Patients(PatientId=1, Height=180),
         Patients(PatientId=2, Height=200.5),
         Patients(PatientId=3),
@@ -686,3 +684,88 @@ def test_categorise_single_combined_conditions(
 
     result = list(extract(Cohort, MockBackend, database))
     assert result == expected
+
+
+@pytest.mark.integration
+def test_categorise_multiple_values(database, setup_test_database):
+    """Test that categories can combine conditions that use different source values"""
+    input_data = [
+        RegistrationHistory(PatientId=1, StpId="STP1"),
+        RegistrationHistory(PatientId=2, StpId="STP2"),
+        RegistrationHistory(PatientId=3, StpId="STP2"),
+        Patients(PatientId=1, Height=200),
+        Patients(PatientId=2, Height=150),
+        Patients(PatientId=3, Height=160),
+        Events(PatientId=1, EventCode="abc"),
+        Events(PatientId=2, EventCode="xyz"),
+        Events(PatientId=3, EventCode="abc"),
+    ]
+    setup_test_database(input_data)
+
+    class Cohort:
+        _height = table("patients").first_by("patient_id").get("height")
+        _code = (
+            table("clinical_events")
+            .filter(code="abc")
+            .first_by("patient_id")
+            .get("code")
+        )
+        _height_with_codes_categories = {
+            "short": (_height < 190) & (_code == "abc"),
+            "tall": (_height > 190) & (_code == "abc"),
+        }
+        height_group = categorise(_height_with_codes_categories, default="missing")
+
+    result = extract(Cohort, MockBackend, database)
+    assert result == [
+        dict(patient_id=1, height_group="tall"),
+        dict(patient_id=2, height_group="missing"),
+        dict(patient_id=3, height_group="short"),
+    ]
+
+
+@pytest.mark.integration
+def test_categorise_nested_comparisons(database, setup_test_database):
+    input_data = [
+        RegistrationHistory(PatientId=1, StpId="STP1"),
+        RegistrationHistory(PatientId=2, StpId="STP2"),
+        RegistrationHistory(PatientId=3, StpId="STP2"),
+        RegistrationHistory(PatientId=4, StpId="STP2"),
+        RegistrationHistory(PatientId=5, StpId="STP2"),
+        Patients(PatientId=1, Height=194),  # tall with code - matches
+        Patients(PatientId=2, Height=200.5),  # tall no code  - matches
+        Patients(PatientId=3, Height=140.5),  # short with code - matches
+        Patients(PatientId=4, Height=140.5),  # short no code
+        Events(PatientId=1, EventCode="abc"),
+        Events(PatientId=2, EventCode="xyz"),
+        Events(PatientId=3, EventCode="abc"),
+    ]
+    setup_test_database(input_data)
+
+    class Cohort:
+        _height = table("patients").first_by("patient_id").get("height")
+        _code = (
+            table("clinical_events")
+            .filter(code="abc")
+            .first_by("patient_id")
+            .get("code")
+        )
+        # make sure the parentheses precedence is followed; these two expressions are equivalent
+        _height_with_codes_categories = {
+            "tall_or_code": (_height > 190) | ((_height < 150) & (_code == "abc")),
+        }
+        _codes_with_height_categories = {
+            "code_or_tall": ((_height < 150) & (_code == "abc")) | (_height > 190),
+        }
+        height_group = categorise(_height_with_codes_categories, default="na")
+        height_group1 = categorise(_codes_with_height_categories, default="na")
+
+    result = extract(Cohort, MockBackend, database)
+
+    assert result == [
+        dict(patient_id=1, height_group="tall_or_code", height_group1="code_or_tall"),
+        dict(patient_id=2, height_group="tall_or_code", height_group1="code_or_tall"),
+        dict(patient_id=3, height_group="tall_or_code", height_group1="code_or_tall"),
+        dict(patient_id=4, height_group="na", height_group1="na"),
+        dict(patient_id=5, height_group="na", height_group1="na"),
+    ]
