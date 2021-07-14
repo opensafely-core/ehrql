@@ -240,7 +240,7 @@ def persistent_database(containers, password, docker_client, mssql_dir):
     if not containers.is_running(container):
         containers.run_bg(
             name=container,
-            image="mcr.microsoft.com/mssql/server:2017-latest",
+            image="mcr.microsoft.com/mssql/server:2017-CU25-ubuntu-16.04",
             volumes={
                 mssql_dir: {"bind": "/mssql", "mode": "ro"},
             },
