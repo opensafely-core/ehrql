@@ -706,5 +706,4 @@ def test_aggregation(
         _filtered_table = table("clinical_events").filter(code="Code1")
         value = getattr(_filtered_table, aggregation)(column)
 
-    result = list(extract(Cohort, mock_backend(database.host_url())))
-    assert result == expected
+    assert extract(Cohort, mock_backend, database) == expected
