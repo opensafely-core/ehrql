@@ -278,7 +278,7 @@
   ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
    '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
    '%(StpId)s, %(StartDate)s, %(EndDate)s)',
-   {'PatientId': 1, 'StpId': 'STP1', 'StartDate': None, 'EndDate': None}),
+   {'PatientId': 1, 'StpId': None, 'StartDate': None, 'EndDate': None}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -296,7 +296,7 @@
   ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
    '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
    '%(StpId)s, %(StartDate)s, %(EndDate)s)',
-   {'PatientId': 2, 'StpId': 'STP1', 'StartDate': None, 'EndDate': None}),
+   {'PatientId': 2, 'StpId': None, 'StartDate': None, 'EndDate': None}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
