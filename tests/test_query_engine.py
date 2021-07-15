@@ -650,20 +650,6 @@ def test_categorise_simple_comparisons(database, setup_test_database):
         ),
         (
             lambda height_value: {
-                "tall": height_value > 190,
-                "medium": 150 < height_value <= 190,
-                "short": height_value < 150,
-            },
-            "missing",
-            [
-                dict(patient_id=1, height_group="medium"),
-                dict(patient_id=2, height_group="tall"),
-                dict(patient_id=3, height_group="missing"),
-                dict(patient_id=4, height_group="short"),
-            ],
-        ),
-        (
-            lambda height_value: {
                 "short_or_tall": (height_value < 150) | (height_value > 190)
             },
             "medium",
@@ -690,7 +676,6 @@ def test_categorise_simple_comparisons(database, setup_test_database):
     ],
     ids=[
         "test simple and on two conditions",
-        "test shorthand between conditions",
         "test simple or on two conditions",
         "test a not-equals condition",
     ],
