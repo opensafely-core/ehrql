@@ -186,6 +186,8 @@
    'CREATE TABLE [RegistrationHistory] (\n'
    '\t[Registration_ID] INTEGER NOT NULL IDENTITY, \n'
    '\t[Patient_ID] INTEGER NULL, \n'
+   '\t[StartDate] DATETIME NULL, \n'
+   '\t[EndDate] DATETIME NULL, \n'
    '\tPRIMARY KEY ([Registration_ID]), \n'
    '\tFOREIGN KEY([Patient_ID]) REFERENCES [Patient] ([Patient_ID])\n'
    ')\n'
@@ -245,9 +247,10 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [RegistrationHistory] ([Patient_ID]) OUTPUT '
-   'inserted.[Registration_ID] VALUES (%(Patient_ID)s)',
-   {'Patient_ID': 1}),
+  ('INSERT INTO [RegistrationHistory] ([Patient_ID], [StartDate], [EndDate]) '
+   'OUTPUT inserted.[Registration_ID] VALUES (%(Patient_ID)s, %(StartDate)s, '
+   '%(EndDate)s)',
+   {'Patient_ID': 1, 'StartDate': None, 'EndDate': None}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -306,23 +309,24 @@
   'execute',
   ('SELECT * INTO #group_table_0 FROM (\n'
    'SELECT clinical_events.date, clinical_events.patient_id \n'
-   'FROM (SELECT CTV3Code AS code, Patient_ID AS patient_id, ConsultationDate '
-   'AS date \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
+   'patient_id \n'
    'FROM [CodedEvent]) AS clinical_events\n'
    ') t\n'
    '\n'
    '\n'
    'SELECT * INTO #group_table_1 FROM (\n'
    'SELECT clinical_events.code, clinical_events.patient_id \n'
-   'FROM (SELECT CTV3Code AS code, Patient_ID AS patient_id, ConsultationDate '
-   'AS date \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
+   'patient_id \n'
    'FROM [CodedEvent]) AS clinical_events\n'
    ') t\n'
    '\n'
    '\n'
    'SELECT * INTO #group_table_2 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT Patient_ID AS patient_id \n'
+   'FROM (SELECT StartDate AS date_start, EndDate AS date_end, Patient_ID AS '
+   'patient_id \n'
    'FROM [RegistrationHistory]) AS practice_registrations GROUP BY '
    'practice_registrations.patient_id\n'
    ') t\n'

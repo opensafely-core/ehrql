@@ -5,12 +5,12 @@ from cohortextractor.query_engines.mssql import MssqlQueryEngine
 class TPPBackend(BaseBackend):
     backend_id = "tpp"
     query_engine_class = MssqlQueryEngine
+    patient_join_column = "Patient_ID"
 
     clinical_events = SQLTable(
         source="CodedEvent",
         columns=dict(
             code=Column("varchar", source="CTV3Code"),
-            patient_id=Column("int", source="Patient_ID"),
             date=Column("datetime", source="ConsultationDate"),
         ),
     )
@@ -18,6 +18,7 @@ class TPPBackend(BaseBackend):
     practice_registrations = SQLTable(
         source="RegistrationHistory",
         columns=dict(
-            patient_id=Column("int", source="Patient_ID"),
+            date_start=Column("datetime", source="StartDate"),
+            date_end=Column("datetime", source="EndDate"),
         ),
     )
