@@ -507,8 +507,8 @@ def test_in_filter_on_query_values(database, setup_test_database):
 def test_not_in_filter_on_query_values(database, setup_test_database):
     # set up input data for 2 patients, with positive test dates and clinical event results
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP1"),
+        RegistrationHistory(PatientId=1),
+        RegistrationHistory(PatientId=2),
         # Patient test results with dates
         PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-1-1"),
         PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-2-15"),
@@ -583,15 +583,15 @@ def test_not_in_filter_on_query_values(database, setup_test_database):
 )
 def test_aggregation(database, setup_test_database, aggregation, column, expected):
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP1"),
-        RegistrationHistory(PatientId=3, StpId="STP1"),
-        Events(PatientId=1, EventCode="Code1", Date="2021-1-3", ResultValue=10.1),
-        Events(PatientId=1, EventCode="Code1", Date="2021-1-4", ResultValue=10.5),
-        Events(PatientId=1, EventCode="Code2", Date="2021-5-2", ResultValue=30.1),
-        Events(PatientId=2, EventCode="Code1", Date="2021-6-5", ResultValue=50.1),
-        Events(PatientId=2, EventCode="Code2", Date="2021-2-1", ResultValue=60.1),
-        Events(PatientId=3, EventCode="Code2", Date="2021-7-1", ResultValue=70.1),
+        RegistrationHistory(PatientId=1),
+        RegistrationHistory(PatientId=2),
+        RegistrationHistory(PatientId=3),
+        Events(PatientId=1, EventCode="Code1", ResultValue=10.1),
+        Events(PatientId=1, EventCode="Code1", ResultValue=10.5),
+        Events(PatientId=1, EventCode="Code2", ResultValue=30.1),
+        Events(PatientId=2, EventCode="Code1", ResultValue=50.1),
+        Events(PatientId=2, EventCode="Code2", ResultValue=60.1),
+        Events(PatientId=3, EventCode="Code2", ResultValue=70.1),
     ]
     setup_test_database(input_data)
 
@@ -605,9 +605,9 @@ def test_aggregation(database, setup_test_database, aggregation, column, expecte
 @pytest.mark.integration
 def test_categorise_simple_comparisons(database, setup_test_database):
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP2"),
-        RegistrationHistory(PatientId=3, StpId="STP2"),
+        RegistrationHistory(PatientId=1),
+        RegistrationHistory(PatientId=2),
+        RegistrationHistory(PatientId=3),
         Patients(PatientId=1, Height=180),
         Patients(PatientId=2, Height=200.5),
         Patients(PatientId=3),
@@ -699,10 +699,10 @@ def test_categorise_single_combined_conditions(
     database, setup_test_database, categories, default, expected
 ):
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP2"),
-        RegistrationHistory(PatientId=3, StpId="STP2"),
-        RegistrationHistory(PatientId=4, StpId="STP2"),
+        RegistrationHistory(PatientId=1),
+        RegistrationHistory(PatientId=2),
+        RegistrationHistory(PatientId=3),
+        RegistrationHistory(PatientId=4),
         Patients(PatientId=1, Height=180),
         Patients(PatientId=2, Height=200.5),
         Patients(PatientId=3),
@@ -723,9 +723,9 @@ def test_categorise_single_combined_conditions(
 def test_categorise_multiple_values(database, setup_test_database):
     """Test that categories can combine conditions that use different source values"""
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP2"),
-        RegistrationHistory(PatientId=3, StpId="STP2"),
+        RegistrationHistory(PatientId=1),
+        RegistrationHistory(PatientId=2),
+        RegistrationHistory(PatientId=3),
         Patients(PatientId=1, Height=200),
         Patients(PatientId=2, Height=150),
         Patients(PatientId=3, Height=160),
@@ -737,12 +737,7 @@ def test_categorise_multiple_values(database, setup_test_database):
 
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
-        _code = (
-            table("clinical_events")
-            .filter(code="abc")
-            .first_by("patient_id")
-            .get("code")
-        )
+        _code = table("clinical_events").first_by("patient_id").get("code")
         _height_with_codes_categories = {
             "short": (_height < 190) & (_code == "abc"),
             "tall": (_height > 190) & (_code == "abc"),
@@ -760,11 +755,11 @@ def test_categorise_multiple_values(database, setup_test_database):
 @pytest.mark.integration
 def test_categorise_nested_comparisons(database, setup_test_database):
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP2"),
-        RegistrationHistory(PatientId=3, StpId="STP2"),
-        RegistrationHistory(PatientId=4, StpId="STP2"),
-        RegistrationHistory(PatientId=5, StpId="STP2"),
+        RegistrationHistory(PatientId=1),
+        RegistrationHistory(PatientId=2),
+        RegistrationHistory(PatientId=3),
+        RegistrationHistory(PatientId=4),
+        RegistrationHistory(PatientId=5),
         Patients(PatientId=1, Height=194),  # tall with code - matches
         Patients(PatientId=2, Height=200.5),  # tall no code  - matches
         Patients(PatientId=3, Height=140.5),  # short with code - matches
@@ -777,12 +772,8 @@ def test_categorise_nested_comparisons(database, setup_test_database):
 
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
-        _code = (
-            table("clinical_events")
-            .filter(code="abc")
-            .first_by("patient_id")
-            .get("code")
-        )
+        _code = table("clinical_events").first_by("patient_id").get("code")
+
         # make sure the parentheses precedence is followed; these two expressions are equivalent
         _height_with_codes_categories = {
             "tall_or_code": (_height > 190) | ((_height < 150) & (_code == "abc")),

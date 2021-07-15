@@ -278,7 +278,7 @@
   ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
    '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
    '%(StpId)s, %(StartDate)s, %(EndDate)s)',
-   {'PatientId': 1, 'StpId': 'STP1', 'StartDate': None, 'EndDate': None}),
+   {'PatientId': 1, 'StpId': None, 'StartDate': None, 'EndDate': None}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -296,7 +296,7 @@
   ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
    '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
    '%(StpId)s, %(StartDate)s, %(EndDate)s)',
-   {'PatientId': 2, 'StpId': 'STP2', 'StartDate': None, 'EndDate': None}),
+   {'PatientId': 2, 'StpId': None, 'StartDate': None, 'EndDate': None}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -314,7 +314,7 @@
   ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
    '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
    '%(StpId)s, %(StartDate)s, %(EndDate)s)',
-   {'PatientId': 3, 'StpId': 'STP2', 'StartDate': None, 'EndDate': None}),
+   {'PatientId': 3, 'StpId': None, 'StartDate': None, 'EndDate': None}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -471,8 +471,7 @@
    'ORDER BY clinical_events.patient_id) AS _row_num \n'
    'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
    'PatientId AS patient_id \n'
-   'FROM events) AS clinical_events \n'
-   "WHERE clinical_events.code = N'abc') AS anon_1 \n"
+   'FROM events) AS clinical_events) AS anon_1 \n'
    'WHERE anon_1._row_num = 1\n'
    ') t\n'
    '\n'
