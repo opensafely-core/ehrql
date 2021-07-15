@@ -463,8 +463,9 @@
    '\n'
    'SELECT [#group_table_1].patient_id AS patient_id, CASE WHEN '
    "([#group_table_0].height > 190) THEN N'tall' WHEN ([#group_table_0].height "
-   "> 150) THEN N'medium' WHEN ([#group_table_0].height < 150) THEN N'short' "
-   "ELSE N'missing' END AS height_group \n"
+   "> 150 AND [#group_table_0].height <= 190) THEN N'medium' WHEN "
+   "([#group_table_0].height < 150) THEN N'short' ELSE N'missing' END AS "
+   'height_group \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
    'WHERE [#group_table_1].patient_id_exists = 1',

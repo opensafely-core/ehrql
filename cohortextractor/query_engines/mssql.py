@@ -6,6 +6,8 @@ import sqlalchemy.dialects.mssql
 
 from ..query_language import (
     Column,
+    Comparator,
+    Conjunction,
     FilteredTable,
     QueryNode,
     Row,
@@ -158,7 +160,7 @@ class MssqlQueryEngine(BaseQueryEngine):
     def get_sources_from_category_definitions(self, definitions, sources=None):
         sources = sources or set()
         for definition in definitions:
-            if definition.source:
+            if isinstance(definition, Comparator):
                 sources.add(definition.source)
             else:
                 sources = self.get_sources_from_category_definitions(
@@ -288,25 +290,26 @@ class MssqlQueryEngine(BaseQueryEngine):
             .where(is_included == True)  # noqa: E712
         )
 
-    def build_condition_statement(self, comparator, tables):
+    def build_condition_statement(self, condition, tables):
         """
         Traverse a comparator's children in order and build the nested condition statement
         """
-        if comparator.children:
+        if isinstance(condition, Conjunction):
             left_conditions = self.build_condition_statement(
-                comparator.children[0], tables
+                condition.children[0], tables
             )
             right_conditions = self.build_condition_statement(
-                comparator.children[1], tables
+                condition.children[1], tables
             )
-            connector = getattr(sqlalchemy, comparator.connector)
+            connector = getattr(sqlalchemy, condition.connector)
             condition_statement = connector(left_conditions, right_conditions)
         else:
-            source_col = comparator.source
+            assert isinstance(condition, Comparator)
+            source_col = condition.source
             table = tables[source_col]
             column = table.c[source_col.column]
-            method = getattr(column, comparator.operator)
-            condition_statement = method(comparator.value)
+            method = getattr(column, condition.operator)
+            condition_statement = method(condition.value)
         return condition_statement
 
     def get_value_expression(self, value):

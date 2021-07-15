@@ -19,21 +19,31 @@ def table(name):
 class Comparator:
     """A generic comparator to represent a comparison between a source object and a value"""
 
-    def __init__(
-        self, children=None, connector="and_", source=None, operator=None, value=None
-    ):
+    def __init__(self, source=None, operator=None, value=None):
+        self.source = source
+        self.operator = operator
+        self.value = value
+
+    def __and__(self, other):
+        return Conjunction(children=[self, other], connector="and_")
+
+    def __or__(self, other):
+        return Conjunction(children=[self, other], connector="or_")
+
+
+class Conjunction:
+    """A generic comparator to represent a comparison between a source object and a value"""
+
+    def __init__(self, children=None, connector="and_"):
         """
-        Construct a new Comparator.
-        A single comparator will have a source, operator and value.  A tree of Compararors
-        will have at most two child Comparators, which are to be connected with self.connector.
-        Each child may itself have more child Comparators, again with a connector to indicate
+        Construct a new Conjunction.
+        A Conjunction will have at most two children (either Comparators or other Conjunctions),
+        which are to be connected with self.connector.
+        Each child may itself have more child Comparators/Conjunctions, again with a connector to indicate
         how they should be joined
         """
         self.children = children[:] if children else []
         self.connector = connector
-        self.source = source
-        self.operator = operator
-        self.value = value
 
     def __and__(self, other):
         return self._combine(other, "and_")
@@ -45,7 +55,7 @@ class Comparator:
         return len(self.children)
 
     def _combine(self, other, conn):
-        if not (isinstance(other, Comparator)):
+        if not (isinstance(other, (Comparator, Conjunction))):
             raise TypeError(other)
 
         obj = type(self)()
@@ -192,6 +202,12 @@ class Value(QueryNode):
         return Comparator(source=self, operator="__eq__", value=other)
 
     def __ne__(self, other):
+        return Comparator(source=self, operator="__ne__", value=other)
+
+    def __and__(self, other):
+        return Comparator(source=self, operator="__ne__", value=other)
+
+    def __or__(self, other):
         return Comparator(source=self, operator="__ne__", value=other)
 
     def __hash__(self):
