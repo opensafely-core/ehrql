@@ -660,8 +660,25 @@ def test_categorise_simple_comparisons(database, setup_test_database):
                 dict(patient_id=4, height_group="short_or_tall"),
             ],
         ),
+        (
+            lambda height_value: {
+                "tallish": (height_value > 175) & (height_value != 180),
+                "short": height_value <= 175,
+            },
+            "missing",
+            [
+                dict(patient_id=1, height_group="missing"),
+                dict(patient_id=2, height_group="tallish"),
+                dict(patient_id=3, height_group="missing"),
+                dict(patient_id=4, height_group="short"),
+            ],
+        ),
     ],
-    ids=["test simple and on two conditions", "test simple or on two conditions"],
+    ids=[
+        "test simple and on two conditions",
+        "test simple or on two conditions",
+        "test a not-equals condition",
+    ],
 )
 def test_categorise_single_combined_conditions(
     database, setup_test_database, categories, default, expected
