@@ -191,6 +191,9 @@ class Value(QueryNode):
     def __eq__(self, other):
         return Comparator(source=self, operator="__eq__", value=other)
 
+    def __ne__(self, other):
+        return Comparator(source=self, operator="__ne__", value=other)
+
     def __hash__(self):
         return id(self)
 
