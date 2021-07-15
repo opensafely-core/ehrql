@@ -629,6 +629,7 @@ def test_categorise_simple_comparisons(database, setup_test_database):
     ]
 
 
+@pytest.mark.integration
 @pytest.mark.parametrize(
     "categories,default,expected",
     [
