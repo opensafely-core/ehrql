@@ -404,7 +404,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             if isinstance(filter_node.value, Value):
                 query = self.include_joined_table(query, other_table)
             # If we have a "Column" (i.e. multipe values per patient) then we
-            # can directly join this with our single-value-per-patient query,
+            # can't directly join this with our single-value-per-patient query,
             # so we have to use a correlated subquery
             elif isinstance(filter_node.value, Column):
                 value_expr = (
