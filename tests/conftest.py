@@ -26,8 +26,10 @@ def docker_client():
 def network(docker_client):
     name = "test_network"
     docker_client.networks.create(name)
-    yield name
-    docker_client.networks.get(name).remove()
+    try:
+        yield name
+    finally:
+        docker_client.networks.get(name).remove()
 
 
 class Containers:
