@@ -155,10 +155,22 @@ class MssqlQueryEngine(BaseQueryEngine):
         else:
             raise TypeError(f"Unhandled type: {node}")
 
-    @staticmethod
-    def get_query_node_references(node):
+    def get_sources_from_category_definitions(self, definitions, sources=None):
+        sources = sources or set()
+        for definition in definitions:
+            if definition.source:
+                sources.add(definition.source)
+            else:
+                sources = self.get_sources_from_category_definitions(
+                    definition.children, sources
+                )
+        return sources
+
+    def get_query_node_references(self, node):
         if hasattr(node, "definitions"):
-            return tuple({group.source for group in node.definitions.values()})
+            return tuple(
+                self.get_sources_from_category_definitions(node.definitions.values())
+            )
         elif hasattr(node, "source"):
             return (node.source,)
         else:
@@ -276,6 +288,27 @@ class MssqlQueryEngine(BaseQueryEngine):
             .where(is_included == True)  # noqa: E712
         )
 
+    def build_condition_statement(self, comparator, tables):
+        """
+        Traverse a comparator's children in order and build the nested condition statement
+        """
+        if comparator.children:
+            left_conditions = self.build_condition_statement(
+                comparator.children[0], tables
+            )
+            right_conditions = self.build_condition_statement(
+                comparator.children[1], tables
+            )
+            connector = getattr(sqlalchemy, comparator.connector)
+            condition_statement = connector(left_conditions, right_conditions)
+        else:
+            source_col = comparator.source
+            table = tables[source_col]
+            column = table.c[source_col.column]
+            method = getattr(column, comparator.operator)
+            condition_statement = method(comparator.value)
+        return condition_statement
+
     def get_value_expression(self, value):
         """
         Given a single value output node, select it from its interim table(s)
@@ -285,18 +318,21 @@ class MssqlQueryEngine(BaseQueryEngine):
         value_expr = value
         if self.is_category_node(value):
             category_definitions = value.definitions.copy()
+            all_category_sources = self.get_sources_from_category_definitions(
+                category_definitions.values()
+            )
             tables = {
-                label: self.output_group_tables[
-                    self.get_type_and_source(category_definition.source)
-                ]
-                for label, category_definition in category_definitions.items()
+                source: self.output_group_tables[self.get_type_and_source(source)]
+                for source in all_category_sources
             }
             category_mapping = {}
             for label, category_definition in category_definitions.items():
-                table = tables[label]
-                column = table.c[category_definition.source.column]
-                method = getattr(column, category_definition.operator)
-                category_mapping[label] = method(category_definition.value)
+                # A category definition is always a single Comparator, which may contain
+                # nested Comparators
+                condition_statement = self.build_condition_statement(
+                    category_definition, tables
+                )
+                category_mapping[label] = condition_statement
             value_expr = self.get_case_expression(category_mapping, value.default)
             tables = tuple(tables.values())
         elif self.is_output_node(value):

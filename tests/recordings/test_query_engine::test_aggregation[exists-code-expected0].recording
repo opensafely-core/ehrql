@@ -278,7 +278,7 @@
   ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
    '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
    '%(StpId)s, %(StartDate)s, %(EndDate)s)',
-   {'PatientId': 1, 'StpId': 'STP1', 'StartDate': None, 'EndDate': None}),
+   {'PatientId': 1, 'StpId': None, 'StartDate': None, 'EndDate': None}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -296,7 +296,7 @@
   ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
    '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
    '%(StpId)s, %(StartDate)s, %(EndDate)s)',
-   {'PatientId': 2, 'StpId': 'STP1', 'StartDate': None, 'EndDate': None}),
+   {'PatientId': 2, 'StpId': None, 'StartDate': None, 'EndDate': None}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -314,7 +314,7 @@
   ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
    '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
    '%(StpId)s, %(StartDate)s, %(EndDate)s)',
-   {'PatientId': 3, 'StpId': 'STP1', 'StartDate': None, 'EndDate': None}),
+   {'PatientId': 3, 'StpId': None, 'StartDate': None, 'EndDate': None}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -332,10 +332,7 @@
   ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
    'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
    '%(ResultValue)s)',
-   {'PatientId': 1,
-    'EventCode': 'Code1',
-    'Date': '2021-1-3',
-    'ResultValue': 10.1}),
+   {'PatientId': 1, 'EventCode': 'Code1', 'Date': None, 'ResultValue': 10.1}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -353,10 +350,7 @@
   ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
    'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
    '%(ResultValue)s)',
-   {'PatientId': 1,
-    'EventCode': 'Code1',
-    'Date': '2021-1-4',
-    'ResultValue': 10.5}),
+   {'PatientId': 1, 'EventCode': 'Code1', 'Date': None, 'ResultValue': 10.5}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -374,10 +368,7 @@
   ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
    'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
    '%(ResultValue)s)',
-   {'PatientId': 1,
-    'EventCode': 'Code2',
-    'Date': '2021-5-2',
-    'ResultValue': 30.1}),
+   {'PatientId': 1, 'EventCode': 'Code2', 'Date': None, 'ResultValue': 30.1}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -395,10 +386,7 @@
   ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
    'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
    '%(ResultValue)s)',
-   {'PatientId': 2,
-    'EventCode': 'Code1',
-    'Date': '2021-6-5',
-    'ResultValue': 50.1}),
+   {'PatientId': 2, 'EventCode': 'Code1', 'Date': None, 'ResultValue': 50.1}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -416,10 +404,7 @@
   ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
    'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
    '%(ResultValue)s)',
-   {'PatientId': 2,
-    'EventCode': 'Code2',
-    'Date': '2021-2-1',
-    'ResultValue': 60.1}),
+   {'PatientId': 2, 'EventCode': 'Code2', 'Date': None, 'ResultValue': 60.1}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
@@ -437,10 +422,7 @@
   ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
    'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
    '%(ResultValue)s)',
-   {'PatientId': 3,
-    'EventCode': 'Code2',
-    'Date': '2021-7-1',
-    'ResultValue': 70.1}),
+   {'PatientId': 3, 'EventCode': 'Code2', 'Date': None, 'ResultValue': 70.1}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, -1),
