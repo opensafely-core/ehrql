@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from pathlib import Path
 
 import docker
@@ -75,7 +76,38 @@ def pytest_runtest_makereport(item, call):
 
 
 @pytest.fixture
-def database(request, run_container, containers, network, docker_client, mssql_dir):
+def recording(request):
+    if is_smoke_test(request):
+        yield DummyRecording()
+        return
+
+    def is_passing():
+        try:
+            return request.node.passed
+        except AttributeError:
+            return False
+
+    with playback.recording_for(test_identifier(request), is_passing) as recording:
+        yield recording
+
+
+class DummyRecording:
+    @contextmanager
+    def suspended(self):
+        yield
+
+
+def test_identifier(request):
+    test_module = request.module.__name__
+    test_name = request.node.name
+    identifier = f"{test_module}::{test_name}"
+    return identifier
+
+
+@pytest.fixture
+def database(
+    request, run_container, containers, network, docker_client, mssql_dir, recording
+):
     assert is_smoke_test(request) or is_integration_test(
         request
     ), "Only smoke and integration tests can use the database"
@@ -91,54 +123,45 @@ def database(request, run_container, containers, network, docker_client, mssql_d
         yield database
         return
 
-    def is_passing():
-        try:
-            return request.node.passed
-        except AttributeError:
-            return False
-
-    with playback.recording_for(test_identifier(request), is_passing) as recording:
-        database = None
-        if playback.recording_mode() == "playback":
-            database = DbDetails("", "", 0, "", 0, "", "")
-        if playback.recording_mode() == "record":
-            database = make_database(
-                containers, docker_client, mssql_dir, network, run_container
-            )
-            with recording.suspended():
-                # The queries we issue while waiting for the database will differ, so don't record them. We don't
-                # wait during playback.
-                wait_for_database(database)
-        yield database
-
-
-def test_identifier(request):
-    test_module = request.module.__name__
-    test_name = request.node.name
-    identifier = f"{test_module}::{test_name}"
-    return identifier
+    database = None
+    if playback.recording_mode() == "playback":
+        database = DbDetails("", "", 0, "", 0, "", "")
+    if playback.recording_mode() == "record":
+        database = make_database(
+            containers, docker_client, mssql_dir, network, run_container
+        )
+        with recording.suspended():
+            # The queries we issue while waiting for the database will differ, so don't record them. We don't
+            # wait during playback.
+            wait_for_database(database)
+    yield database
 
 
 @pytest.fixture
-def setup_test_database(database):
+def setup_test_database(database, recording, request):
     db_url = database.host_url()
 
     def setup(input_data, drivername="mssql+pymssql", base=mock_backend.Base):
-        # Create engine
-        url = sqlalchemy.engine.make_url(db_url)
-        url = url.set(drivername=drivername)
-        engine = sqlalchemy.create_engine(url, echo=True, future=True)
-        # Reset the schema
-        base.metadata.drop_all(engine)
-        base.metadata.create_all(engine)
-        # Create session
-        Session = sessionmaker()
-        Session.configure(bind=engine)
-        session = Session()
-        # Load test data
-        for entity in input_data:
-            session.add(entity)
-            session.commit()
+        if is_integration_test(request) and playback.recording_mode() == "playback":
+            # Since we suspend recording during setup, we must skip it altogether during playback.
+            return
+
+        with recording.suspended():
+            # Create engine
+            url = sqlalchemy.engine.make_url(db_url)
+            url = url.set(drivername=drivername)
+            engine = sqlalchemy.create_engine(url, echo=True, future=True)
+            # Reset the schema
+            base.metadata.drop_all(engine)
+            base.metadata.create_all(engine)
+            # Create session
+            Session = sessionmaker()
+            Session.configure(bind=engine)
+            session = Session()
+            # Load test data
+            for entity in input_data:
+                session.add(entity)
+                session.commit()
 
     return setup
 
