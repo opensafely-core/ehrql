@@ -42,10 +42,12 @@ def run_container(containers):
         nonlocal container
         container = containers.run_bg(**kwargs)
 
-    yield run
-    if container:
-        # noinspection PyTypeChecker
-        containers.destroy(container)
+    try:
+        yield run
+    finally:
+        if container:
+            # noinspection PyTypeChecker
+            containers.destroy(container)
 
 
 @pytest.fixture
