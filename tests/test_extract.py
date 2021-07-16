@@ -1,6 +1,6 @@
 import pytest
-from conftest import extract
 from lib.mock_backend import Events, MockBackend, RegistrationHistory
+from lib.util import extract
 
 from cohortextractor import table
 

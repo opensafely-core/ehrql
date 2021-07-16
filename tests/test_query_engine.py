@@ -1,7 +1,7 @@
 from datetime import date
 
 import pytest
-from conftest import extract, null_database
+from lib.databases import null_database
 from lib.mock_backend import (
     Events,
     MockBackend,
@@ -9,6 +9,7 @@ from lib.mock_backend import (
     PositiveTests,
     RegistrationHistory,
 )
+from lib.util import extract
 
 from cohortextractor.query_language import categorise, table
 
