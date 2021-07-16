@@ -10,12 +10,22 @@ class Patient(Base):
     Patient_ID = Column(Integer, primary_key=True)
 
 
+def patient(patient_id, *entities):
+    for entity in entities:
+        entity.Patient_ID = patient_id
+    return [Patient(Patient_ID=patient_id), *entities]
+
+
 class RegistrationHistory(Base):
     __tablename__ = "RegistrationHistory"
     Registration_ID = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     StartDate = Column(DateTime)
     EndDate = Column(DateTime)
+
+
+def registration(start_date, end_date):
+    return RegistrationHistory(StartDate=start_date, EndDate=end_date)
 
 
 class Events(Base):
@@ -40,6 +50,12 @@ class SGSSPositiveTests(Base):
     Specimen_Date = Column(Date)
 
 
+def positive_test(specimen_date):
+    return SGSSPositiveTests(
+        Specimen_Date=specimen_date, Organism_Species_Name="SARS-CoV-2"
+    )
+
+
 class SGSSNegativeTests(Base):
     __tablename__ = "SGSS_AllTests_Negative"
     Result_ID = Column(
@@ -48,3 +64,9 @@ class SGSSNegativeTests(Base):
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Organism_Species_Name = Column(String)
     Specimen_Date = Column(Date)
+
+
+def negative_test(specimen_date):
+    return SGSSNegativeTests(
+        Specimen_Date=specimen_date, Organism_Species_Name="SARS-CoV-2"
+    )

@@ -1,12 +1,7 @@
 from datetime import date
 
 import pytest
-from lib.tpp_schema import (
-    Patient,
-    RegistrationHistory,
-    SGSSNegativeTests,
-    SGSSPositiveTests,
-)
+from lib.tpp_schema import negative_test, patient, positive_test, registration
 from lib.util import extract
 
 from cohortextractor import table
@@ -72,31 +67,17 @@ class SimplifiedCohort:
 @pytest.mark.integration
 def test_simplified_cohort(database, setup_tpp_database):
     setup_tpp_database(
-        [
-            Patient(Patient_ID=1),
-            RegistrationHistory(
-                Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
-            ),
-            SGSSPositiveTests(
-                Patient_ID=1,
-                Organism_Species_Name="SARS-CoV-2",
-                Specimen_Date="2020-05-05",
-            ),
-            SGSSPositiveTests(
-                Patient_ID=1,
-                Organism_Species_Name="SARS-CoV-2",
-                Specimen_Date="2020-06-06",
-            ),  # excluded by picking the earliest result
-            SGSSNegativeTests(
-                Patient_ID=1,
-                Organism_Species_Name="SARS-CoV-2",
-                Specimen_Date="2020-04-04",
-            ),  # excluded by being a negative result
-            Patient(Patient_ID=2),  # excluded by registration date
-            RegistrationHistory(
-                Patient_ID=2, StartDate="2001-01-01", EndDate="2002-02-02"
-            ),
-        ]
+        patient(
+            1,
+            registration(start_date="2001-01-01", end_date="2026-06-26"),
+            positive_test(specimen_date="2020-05-05"),
+            # excluded by picking the earliest result
+            positive_test(specimen_date="2020-06-06"),
+            # excluded by being a negative result
+            negative_test(specimen_date="2020-04-04"),
+        )
+        # excluded by registration date
+        + patient(2, registration(start_date="2001-01-01", end_date="2002-02-02"))
     )
     assert extract(SimplifiedCohort, TPPBackend, database) == [
         dict(patient_id=1, sgss_first_positive_test_date=date(2020, 5, 5))
