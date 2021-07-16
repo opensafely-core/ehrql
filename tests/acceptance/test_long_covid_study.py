@@ -1,13 +1,13 @@
 from datetime import date
 
 import pytest
-from conftest import extract
 from lib.tpp_schema import (
     Patient,
     RegistrationHistory,
     SGSSNegativeTests,
     SGSSPositiveTests,
 )
+from lib.util import extract
 
 from cohortextractor import table
 from cohortextractor.backends import TPPBackend

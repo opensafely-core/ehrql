@@ -1,7 +1,6 @@
 from datetime import date, datetime
 
 import pytest
-from conftest import extract
 from lib.tpp_schema import (
     Events,
     Patient,
@@ -9,6 +8,7 @@ from lib.tpp_schema import (
     SGSSNegativeTests,
     SGSSPositiveTests,
 )
+from lib.util import extract
 
 from cohortextractor import table
 from cohortextractor.backends.tpp import TPPBackend
