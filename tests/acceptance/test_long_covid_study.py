@@ -67,7 +67,7 @@ class SimplifiedCohort:
 @pytest.mark.integration
 def test_simplified_cohort(database, setup_tpp_database):
     setup_tpp_database(
-        patient(
+        *patient(
             1,
             registration(start_date="2001-01-01", end_date="2026-06-26"),
             positive_test(specimen_date="2020-05-05"),
@@ -75,9 +75,9 @@ def test_simplified_cohort(database, setup_tpp_database):
             positive_test(specimen_date="2020-06-06"),
             # excluded by being a negative result
             negative_test(specimen_date="2020-04-04"),
-        )
+        ),
         # excluded by registration date
-        + patient(2, registration(start_date="2001-01-01", end_date="2002-02-02"))
+        *patient(2, registration(start_date="2001-01-01", end_date="2002-02-02"))
     )
     assert extract(SimplifiedCohort, TPPBackend, database) == [
         dict(patient_id=1, sgss_first_positive_test_date=date(2020, 5, 5))

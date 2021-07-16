@@ -111,11 +111,9 @@ def test_extracts_data_from_sql_server_integration_test(
 
 def run_test(load_study, setup_tpp_database, cohort_extractor):
     setup_tpp_database(
-        [
-            Patient(Patient_ID=1),
-            Events(Patient_ID=1, ConsultationDate="2021-01-01", CTV3Code="xyz"),
-            RegistrationHistory(Patient_ID=1),
-        ]
+        Patient(Patient_ID=1),
+        Events(Patient_ID=1, ConsultationDate="2021-01-01", CTV3Code="xyz"),
+        RegistrationHistory(Patient_ID=1),
     )
 
     study = load_study("end_to_end_tests")
