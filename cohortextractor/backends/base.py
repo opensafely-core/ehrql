@@ -9,7 +9,6 @@ def register_backend(backend_class):
 
 
 class BaseBackend:
-
     backend_id = NotImplemented
     query_engine_class = NotImplemented
     patient_join_column = NotImplemented
@@ -27,7 +26,7 @@ class BaseBackend:
         for name, value in vars(cls).items():
             if isinstance(value, SQLTable):
                 cls.tables.add(name)
-                value.columns["patient_id"] = Column("int", cls.patient_join_column)
+                value.learn_patient_join(cls.patient_join_column)
 
     def __init__(self, database_url):
         self.database_url = database_url
@@ -36,23 +35,46 @@ class BaseBackend:
         if table_name not in self.tables:
             raise ValueError(f"Unknown table '{table_name}'")
         table = getattr(self, table_name)
-        table_expression = table.get_query()
-        table_expression = table_expression.alias(table_name)
-        return table_expression
+        return table.get_query().alias(table_name)
 
 
 class SQLTable:
-    def __init__(self, *, columns=None, source=None):
-        self.name = source
-        self.columns = columns or {}
+    def learn_patient_join(self, source):
+        raise NotImplementedError()
+
+
+class MappedTable(SQLTable):
+    def __init__(self, source, columns):
+        self.source = source
+        self._columns = columns
+
+    def learn_patient_join(self, source):
+        self._columns["patient_id"] = Column("int", source)
 
     def get_query(self):
-        columns = []
-        for name, column in self.columns.items():
-            source = column.source
-            columns.append(sqlalchemy.literal_column(source).label(name))
-        query = sqlalchemy.select(columns).select_from(sqlalchemy.table(self.name))
+        columns = [
+            self._make_column(name, column.source)
+            for name, column in self._columns.items()
+        ]
+        query = sqlalchemy.select(columns).select_from(sqlalchemy.table(self.source))
         return query
+
+    @staticmethod
+    def _make_column(name, source):
+        return sqlalchemy.literal_column(source).label(name)
+
+
+class QueryTable(SQLTable):
+    def __init__(self, query, columns):
+        self.query = query
+        self._columns = columns
+
+    def learn_patient_join(self, source):
+        self._columns["patient_id"] = Column("int")
+
+    def get_query(self):
+        columns = [sqlalchemy.literal_column(column) for column in self._columns.keys()]
+        return sqlalchemy.text(self.query).columns(*columns)
 
 
 class Column:

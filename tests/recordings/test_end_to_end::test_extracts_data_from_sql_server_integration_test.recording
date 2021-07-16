@@ -103,6 +103,48 @@
   (('TABLE_NAME', 1, None, None, None, None, None),)),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'SGSS_AllTests_Positive',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'SGSS_AllTests_Negative',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
  ('Connection', 'commit', (), {}, None),
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
@@ -170,6 +212,48 @@
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'SGSS_AllTests_Positive',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'SGSS_AllTests_Negative',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
   ('\n'
    'CREATE TABLE [Patient] (\n'
    '\t[Patient_ID] INTEGER NOT NULL IDENTITY, \n'
@@ -205,6 +289,38 @@
    '\t[CTV3Code] VARCHAR(max) COLLATE Latin1_General_BIN NULL, \n'
    '\t[ConsultationDate] DATETIME NULL, \n'
    '\tPRIMARY KEY ([CodedEvent_ID]), \n'
+   '\tFOREIGN KEY([Patient_ID]) REFERENCES [Patient] ([Patient_ID])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE [SGSS_AllTests_Positive] (\n'
+   '\t[Result_ID] INTEGER NOT NULL IDENTITY, \n'
+   '\t[Patient_ID] INTEGER NULL, \n'
+   '\t[Organism_Species_Name] VARCHAR(max) NULL, \n'
+   '\t[Specimen_Date] DATE NULL, \n'
+   '\tPRIMARY KEY ([Result_ID]), \n'
+   '\tFOREIGN KEY([Patient_ID]) REFERENCES [Patient] ([Patient_ID])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE [SGSS_AllTests_Negative] (\n'
+   '\t[Result_ID] INTEGER NOT NULL IDENTITY, \n'
+   '\t[Patient_ID] INTEGER NULL, \n'
+   '\t[Organism_Species_Name] VARCHAR(max) NULL, \n'
+   '\t[Specimen_Date] DATE NULL, \n'
+   '\tPRIMARY KEY ([Result_ID]), \n'
    '\tFOREIGN KEY([Patient_ID]) REFERENCES [Patient] ([Patient_ID])\n'
    ')\n'
    '\n',

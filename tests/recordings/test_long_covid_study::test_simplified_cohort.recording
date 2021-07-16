@@ -103,6 +103,48 @@
   (('TABLE_NAME', 1, None, None, None, None, None),)),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'SGSS_AllTests_Positive',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'SGSS_AllTests_Negative',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
  ('Connection', 'commit', (), {}, None),
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
@@ -170,6 +212,48 @@
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'SGSS_AllTests_Positive',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'SGSS_AllTests_Negative',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
   ('\n'
    'CREATE TABLE [Patient] (\n'
    '\t[Patient_ID] INTEGER NOT NULL IDENTITY, \n'
@@ -212,6 +296,38 @@
   {},
   None),
  ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE [SGSS_AllTests_Positive] (\n'
+   '\t[Result_ID] INTEGER NOT NULL IDENTITY, \n'
+   '\t[Patient_ID] INTEGER NULL, \n'
+   '\t[Organism_Species_Name] VARCHAR(max) NULL, \n'
+   '\t[Specimen_Date] DATE NULL, \n'
+   '\tPRIMARY KEY ([Result_ID]), \n'
+   '\tFOREIGN KEY([Patient_ID]) REFERENCES [Patient] ([Patient_ID])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE [SGSS_AllTests_Negative] (\n'
+   '\t[Result_ID] INTEGER NOT NULL IDENTITY, \n'
+   '\t[Patient_ID] INTEGER NULL, \n'
+   '\t[Organism_Species_Name] VARCHAR(max) NULL, \n'
+   '\t[Specimen_Date] DATE NULL, \n'
+   '\tPRIMARY KEY ([Result_ID]), \n'
+   '\tFOREIGN KEY([Patient_ID]) REFERENCES [Patient] ([Patient_ID])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
  ('Connection', 'commit', (), {}, None),
  ('Connection', 'rollback', (), {}, None),
  ('Cursor', 'execute', ('SET IDENTITY_INSERT [Patient] ON', ()), {}, None),
@@ -241,6 +357,66 @@
   (),
   {},
   (('Registration_ID', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(1,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [SGSS_AllTests_Positive] ([Patient_ID], '
+   '[Organism_Species_Name], [Specimen_Date]) OUTPUT inserted.[Result_ID] '
+   'VALUES (%(Patient_ID)s, %(Organism_Species_Name)s, %(Specimen_Date)s)',
+   {'Patient_ID': 1,
+    'Organism_Species_Name': 'SARS-CoV-2',
+    'Specimen_Date': '2020-05-05'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('Result_ID', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(1,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [SGSS_AllTests_Positive] ([Patient_ID], '
+   '[Organism_Species_Name], [Specimen_Date]) OUTPUT inserted.[Result_ID] '
+   'VALUES (%(Patient_ID)s, %(Organism_Species_Name)s, %(Specimen_Date)s)',
+   {'Patient_ID': 1,
+    'Organism_Species_Name': 'SARS-CoV-2',
+    'Specimen_Date': '2020-06-06'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('Result_ID', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(2,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [SGSS_AllTests_Negative] ([Patient_ID], '
+   '[Organism_Species_Name], [Specimen_Date]) OUTPUT inserted.[Result_ID] '
+   'VALUES (%(Patient_ID)s, %(Organism_Species_Name)s, %(Specimen_Date)s)',
+   {'Patient_ID': 1,
+    'Organism_Species_Name': 'SARS-CoV-2',
+    'Specimen_Date': '2020-04-04'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('Result_ID', 3, None, None, None, None, None),)),
  ('Cursor', 'fetchall', (), {}, [(1,)]),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'commit', (), {}, None),
@@ -331,8 +507,27 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT [#group_table_0].patient_id AS patient_id \n'
-   'FROM [#group_table_0] \n'
+   'SELECT * INTO #group_table_1 FROM (\n'
+   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM (SELECT sgss_sars_cov_2.date, sgss_sars_cov_2.patient_id, '
+   'row_number() OVER (PARTITION BY sgss_sars_cov_2.patient_id ORDER BY '
+   'sgss_sars_cov_2.date) AS _row_num \n'
+   'FROM (\n'
+   '            SELECT Patient_ID as patient_id, Specimen_Date AS date, 1 AS '
+   'positive_result FROM SGSS_AllTests_Positive\n'
+   '            UNION ALL\n'
+   '            SELECT Patient_ID as patient_id, Specimen_Date AS date, 0 AS '
+   'positive_result FROM SGSS_AllTests_Negative\n'
+   '        ) AS sgss_sars_cov_2 \n'
+   'WHERE sgss_sars_cov_2.positive_result = 1) AS anon_1 \n'
+   'WHERE anon_1._row_num = 1\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT [#group_table_0].patient_id AS patient_id, [#group_table_1].date AS '
+   'sgss_first_positive_test_date \n'
+   'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
+   '[#group_table_0].patient_id = [#group_table_1].patient_id \n'
    'WHERE [#group_table_0].patient_id_exists = 1',
    {}),
   {},
@@ -341,8 +536,9 @@
   'description',
   (),
   {},
-  (('patient_id', 3, None, None, None, None, None),)),
- ('Cursor', 'fetchone', (), {}, (1,)),
+  (('patient_id', 3, None, None, None, None, None),
+   ('sgss_first_positive_test_date', 2, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, datetime.date(2020, 5, 5))),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]
