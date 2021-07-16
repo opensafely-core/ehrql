@@ -13,7 +13,7 @@ class BaseBackend:
     query_engine_class = NotImplemented
     patient_join_column = NotImplemented
 
-    tables = set()
+    tables = None
 
     def __init_subclass__(cls, **kwargs):
         assert cls.backend_id != NotImplemented
@@ -23,6 +23,7 @@ class BaseBackend:
         # Register each Backend by its id so we can identify it from an environment variable
         register_backend(cls)
         # Make sure each Backend knows what its tables are
+        cls.tables = set()
         for name, value in vars(cls).items():
             if isinstance(value, SQLTable):
                 cls.tables.add(name)
