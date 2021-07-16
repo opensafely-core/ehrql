@@ -1,8 +1,14 @@
-from datetime import datetime
+from datetime import date, datetime
 
 import pytest
 from conftest import extract
-from lib.tpp_schema import Events, Patient, RegistrationHistory
+from lib.tpp_schema import (
+    Events,
+    Patient,
+    RegistrationHistory,
+    SGSSNegativeTests,
+    SGSSPositiveTests,
+)
 
 from cohortextractor import table
 from cohortextractor.backends.tpp import TPPBackend
@@ -42,4 +48,59 @@ def test_registration_dates(database, setup_tpp_database):
 
     assert extract(Cohort, TPPBackend, database) == [
         dict(patient_id=1, arrived=datetime(2001, 1, 1), left=datetime(2012, 12, 12))
+    ]
+
+
+@pytest.mark.integration
+def test_covid_test_positive_result(database, setup_tpp_database):
+    setup_tpp_database(
+        [
+            Patient(Patient_ID=1),
+            RegistrationHistory(
+                Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
+            ),
+            SGSSPositiveTests(
+                Patient_ID=1,
+                Organism_Species_Name="SARS-CoV-2",
+                Specimen_Date="2020-05-05",
+            ),
+        ]
+    )
+
+    class Cohort:
+        date = (
+            table("sgss_sars_cov_2").filter(positive_result=True).earliest().get("date")
+        )
+
+    assert extract(Cohort, TPPBackend, database) == [
+        dict(patient_id=1, date=date(2020, 5, 5))
+    ]
+
+
+@pytest.mark.integration
+def test_covid_test_negative_result(database, setup_tpp_database):
+    setup_tpp_database(
+        [
+            Patient(Patient_ID=1),
+            RegistrationHistory(
+                Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
+            ),
+            SGSSNegativeTests(
+                Patient_ID=1,
+                Organism_Species_Name="SARS-CoV-2",
+                Specimen_Date="2020-05-05",
+            ),
+        ]
+    )
+
+    class Cohort:
+        date = (
+            table("sgss_sars_cov_2")
+            .filter(positive_result=False)
+            .earliest()
+            .get("date")
+        )
+
+    assert extract(Cohort, TPPBackend, database) == [
+        dict(patient_id=1, date=date(2020, 5, 5))
     ]

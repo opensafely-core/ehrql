@@ -1,7 +1,7 @@
 import sqlalchemy
 import sqlalchemy.orm
 
-from cohortextractor.backends.base import BaseBackend, Column, SQLTable
+from cohortextractor.backends.base import BaseBackend, Column, MappedTable
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 
 
@@ -10,13 +10,13 @@ class MockBackend(BaseBackend):
     query_engine_class = MssqlQueryEngine
     patient_join_column = "PatientId"
 
-    patients = SQLTable(
+    patients = MappedTable(
         source="patients",
         columns=dict(
             height=Column("float", source="Height"),
         ),
     )
-    practice_registrations = SQLTable(
+    practice_registrations = MappedTable(
         source="practice_registrations",
         columns=dict(
             stp=Column("varchar", source="StpId"),
@@ -24,7 +24,7 @@ class MockBackend(BaseBackend):
             date_end=Column("datetime", source="EndDate"),
         ),
     )
-    clinical_events = SQLTable(
+    clinical_events = MappedTable(
         source="events",
         columns=dict(
             code=Column("varchar", source="EventCode"),
@@ -32,7 +32,7 @@ class MockBackend(BaseBackend):
             result=Column("float", source="ResultValue"),
         ),
     )
-    positive_tests = SQLTable(
+    positive_tests = MappedTable(
         source="pos_tests",
         columns=dict(
             result=Column("bool", source="PositiveResult"),
