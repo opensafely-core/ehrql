@@ -42,22 +42,20 @@ class SimplifiedCohort:
     # first_long_covid_date = _long_covid_table.earliest().get("code")
 
     # # Demographics
+    # _age = table("patients").age_as_of(registration_date)
     # _age_categories = {
-    #     "0-17": "age < 18",
-    #     "18-24": "age >= 18 AND age < 25",
-    #     "25-34": "age >= 25 AND age < 35",
-    #     "35-44": "age >= 35 AND age < 45",
-    #     "45-54": "age >= 45 AND age < 55",
-    #     "55-69": "age >= 55 AND age < 70",
-    #     "70-79": "age >= 70 AND age < 80",
-    #     "80+": "age >= 80",
-    #     "missing": "DEFAULT",
+    #     "0-17": _age < 18,
+    #     "18-24": _age >= 18 & _age < 25,
+    #     "25-34": _age >= 25 & _age < 35,
+    #     "35-44": _age >= 35 & _age < 45,
+    #     "45-54": _age >= 45 & _age < 55,
+    #     "55-69": _age >= 55 & _age < 70,
+    #     "70-79": _age >= 70 & _age < 80,
+    #     "80+": _age >= 80,
     # }
-    # age_group = (
-    #     table("patients")
-    #     .categorise("age", groups=_age_categories, reference=registration_date)
-    # )
-    # sex = table("patients").categorise("sex")
+    # age_group = categorise(_age_categories, default="missing")
+    #
+    # sex = table("patients").latest("sex")
 
 
 # # Add the Long covid code count variables
