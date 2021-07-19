@@ -8,12 +8,13 @@ Base = sqlalchemy.orm.declarative_base()
 class Patient(Base):
     __tablename__ = "Patient"
     Patient_ID = Column(Integer, primary_key=True)
+    Sex = Column(String())
 
 
-def patient(patient_id, *entities):
+def patient(patient_id, sex, *entities):
     for entity in entities:
         entity.Patient_ID = patient_id
-    return [Patient(Patient_ID=patient_id), *entities]
+    return [Patient(Patient_ID=patient_id, Sex=sex), *entities]
 
 
 class RegistrationHistory(Base):

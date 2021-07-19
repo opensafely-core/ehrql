@@ -36,7 +36,7 @@ class SimplifiedCohort:
     # long_covid = _long_covid_table.exists()
     # first_long_covid_date = _long_covid_table.earliest().get("code")
 
-    # # Demographics
+    # Demographics
     # _age = table("patients").age_as_of(registration_date)
     # _age_categories = {
     #     "0-17": _age < 18,
@@ -50,7 +50,7 @@ class SimplifiedCohort:
     # }
     # age_group = categorise(_age_categories, default="missing")
     #
-    # sex = table("patients").get("sex")
+    sex = table("patients").get("sex")
 
 
 # # Add the Long covid code count variables
@@ -69,6 +69,7 @@ def test_simplified_cohort(database, setup_tpp_database):
     setup_tpp_database(
         *patient(
             1,
+            "F",
             registration(start_date="2001-01-01", end_date="2026-06-26"),
             positive_test(specimen_date="2020-05-05"),
             # excluded by picking the earliest result
@@ -77,8 +78,8 @@ def test_simplified_cohort(database, setup_tpp_database):
             negative_test(specimen_date="2020-04-04"),
         ),
         # excluded by registration date
-        *patient(2, registration(start_date="2001-01-01", end_date="2002-02-02"))
+        *patient(2, "M", registration(start_date="2001-01-01", end_date="2002-02-02"))
     )
     assert extract(SimplifiedCohort, TPPBackend, database) == [
-        dict(patient_id=1, sgss_first_positive_test_date=date(2020, 5, 5))
+        dict(patient_id=1, sex="F", sgss_first_positive_test_date=date(2020, 5, 5))
     ]

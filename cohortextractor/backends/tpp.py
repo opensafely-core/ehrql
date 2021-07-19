@@ -7,6 +7,13 @@ class TPPBackend(BaseBackend):
     query_engine_class = MssqlQueryEngine
     patient_join_column = "Patient_ID"
 
+    patients = MappedTable(
+        source="Patient",
+        columns=dict(
+            sex=Column("varchar", source="Sex"),
+        ),
+    )
+
     clinical_events = MappedTable(
         source="CodedEvent",
         columns=dict(
