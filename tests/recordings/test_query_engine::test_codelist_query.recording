@@ -1,0 +1,752 @@
+[('Cursor', 'execute', ('select @@version', {}), {}, None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor',
+  'fetchone',
+  (),
+  {},
+  ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
+   '\tJun 25 2021 14:02:48 \n'
+   '\tCopyright (C) 2017 Microsoft Corporation\n'
+   '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor', 'execute', ('SELECT schema_name()', {}), {}, None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, ('dbo',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   '                  SELECT CASE transaction_isolation_level\n'
+   '                    WHEN 0 THEN NULL\n'
+   "                    WHEN 1 THEN 'READ UNCOMMITTED'\n"
+   "                    WHEN 2 THEN 'READ COMMITTED'\n"
+   "                    WHEN 3 THEN 'REPEATABLE READ'\n"
+   "                    WHEN 4 THEN 'SERIALIZABLE'\n"
+   "                    WHEN 5 THEN 'SNAPSHOT' END AS "
+   'TRANSACTION_ISOLATION_LEVEL\n'
+   '                    FROM sys.dm_exec_sessions\n'
+   '                    where session_id = @@SPID\n'
+   '                  ',),
+  {},
+  None),
+ ('Cursor', 'fetchone', (), {}, ('READ COMMITTED',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ("SELECT CAST('test max support' AS NVARCHAR(max))", {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, ('test max support',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'practice_registrations',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'events',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'pos_tests',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'patients',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'practice_registrations',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'events',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'pos_tests',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] \n'
+   'FROM [INFORMATION_SCHEMA].[TABLES] \n'
+   'WHERE [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(%(table_type_1)s '
+   'AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = '
+   'CAST(%(table_name_1)s AS NVARCHAR(max)) AND '
+   '[INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(%(table_schema_1)s AS '
+   'NVARCHAR(max))',
+   {'table_type_1': 'BASE TABLE',
+    'table_name_1': 'patients',
+    'table_schema_1': 'dbo'}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('TABLE_NAME', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE practice_registrations (\n'
+   '\t[RegistrationId] INTEGER NOT NULL IDENTITY, \n'
+   '\t[PatientId] INTEGER NULL, \n'
+   '\t[StpId] VARCHAR(max) NULL, \n'
+   '\t[StartDate] DATE NULL, \n'
+   '\t[EndDate] DATE NULL, \n'
+   '\tPRIMARY KEY ([RegistrationId])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE events (\n'
+   '\t[EventId] INTEGER NOT NULL IDENTITY, \n'
+   '\t[PatientId] INTEGER NULL, \n'
+   '\t[EventCode] VARCHAR(max) NULL, \n'
+   '\t[Date] DATE NULL, \n'
+   '\t[ResultValue] FLOAT NULL, \n'
+   '\tPRIMARY KEY ([EventId])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE pos_tests (\n'
+   '\t[Id] INTEGER NOT NULL IDENTITY, \n'
+   '\t[PatientId] INTEGER NULL, \n'
+   '\t[PositiveResult] BIT NULL, \n'
+   '\t[TestDate] DATE NULL, \n'
+   '\tPRIMARY KEY ([Id])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE patients (\n'
+   '\t[Id] INTEGER NOT NULL IDENTITY, \n'
+   '\t[PatientId] INTEGER NULL, \n'
+   '\t[Height] FLOAT NULL, \n'
+   '\tPRIMARY KEY ([Id])\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
+   '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
+   '%(StpId)s, %(StartDate)s, %(EndDate)s)',
+   {'PatientId': 1, 'StpId': None, 'StartDate': None, 'EndDate': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('RegistrationId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(1,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
+   'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
+   '%(ResultValue)s)',
+   {'PatientId': 1,
+    'EventCode': 'abc',
+    'Date': '2021-1-1',
+    'ResultValue': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('EventId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(1,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
+   'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
+   '%(ResultValue)s)',
+   {'PatientId': 1,
+    'EventCode': 'xyz',
+    'Date': '2021-2-1',
+    'ResultValue': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('EventId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(2,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
+   'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
+   '%(ResultValue)s)',
+   {'PatientId': 1,
+    'EventCode': 'foo',
+    'Date': '2021-3-1',
+    'ResultValue': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('EventId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(3,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
+   '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
+   '%(StpId)s, %(StartDate)s, %(EndDate)s)',
+   {'PatientId': 2, 'StpId': None, 'StartDate': None, 'EndDate': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('RegistrationId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(2,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
+   'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
+   '%(ResultValue)s)',
+   {'PatientId': 2,
+    'EventCode': 'bar',
+    'Date': '2021-1-1',
+    'ResultValue': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('EventId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(4,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO practice_registrations ([PatientId], [StpId], [StartDate], '
+   '[EndDate]) OUTPUT inserted.[RegistrationId] VALUES (%(PatientId)s, '
+   '%(StpId)s, %(StartDate)s, %(EndDate)s)',
+   {'PatientId': 3, 'StpId': None, 'StartDate': None, 'EndDate': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('RegistrationId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(3,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO events ([PatientId], [EventCode], [Date], [ResultValue]) '
+   'OUTPUT inserted.[EventId] VALUES (%(PatientId)s, %(EventCode)s, %(Date)s, '
+   '%(ResultValue)s)',
+   {'PatientId': 3,
+    'EventCode': 'ijk',
+    'Date': '2021-1-1',
+    'ResultValue': None}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, -1),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('EventId', 3, None, None, None, None, None),)),
+ ('Cursor', 'fetchall', (), {}, [(5,)]),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor', 'execute', ('select @@version', {}), {}, None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor',
+  'fetchone',
+  (),
+  {},
+  ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
+   '\tJun 25 2021 14:02:48 \n'
+   '\tCopyright (C) 2017 Microsoft Corporation\n'
+   '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor', 'execute', ('SELECT schema_name()', {}), {}, None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, ('dbo',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   '                  SELECT CASE transaction_isolation_level\n'
+   '                    WHEN 0 THEN NULL\n'
+   "                    WHEN 1 THEN 'READ UNCOMMITTED'\n"
+   "                    WHEN 2 THEN 'READ COMMITTED'\n"
+   "                    WHEN 3 THEN 'REPEATABLE READ'\n"
+   "                    WHEN 4 THEN 'SERIALIZABLE'\n"
+   "                    WHEN 5 THEN 'SNAPSHOT' END AS "
+   'TRANSACTION_ISOLATION_LEVEL\n'
+   '                    FROM sys.dm_exec_sessions\n'
+   '                    where session_id = @@SPID\n'
+   '                  ',),
+  {},
+  None),
+ ('Cursor', 'fetchone', (), {}, ('READ COMMITTED',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ("SELECT CAST('test max support' AS NVARCHAR(max))", {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, ('test max support',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE [#codelist_0] (\n'
+   '\tcode VARCHAR(8) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL\n'
+   ')\n'
+   '\n'
+   '\n'
+   '\n'
+   '\n'
+   "INSERT INTO [#codelist_0] (code) VALUES ('abc'), ('xyz'), ('Code0'), "
+   "('Code1'), ('Code2'), ('Code3'), ('Code4'), ('Code5'), ('Code6'), "
+   "('Code7'), ('Code8'), ('Code9'), ('Code10'), ('Code11'), ('Code12'), "
+   "('Code13'), ('Code14'), ('Code15'), ('Code16'), ('Code17'), ('Code18'), "
+   "('Code19'), ('Code20'), ('Code21'), ('Code22'), ('Code23'), ('Code24'), "
+   "('Code25'), ('Code26'), ('Code27'), ('Code28'), ('Code29'), ('Code30'), "
+   "('Code31'), ('Code32'), ('Code33'), ('Code34'), ('Code35'), ('Code36'), "
+   "('Code37'), ('Code38'), ('Code39'), ('Code40'), ('Code41'), ('Code42'), "
+   "('Code43'), ('Code44'), ('Code45'), ('Code46'), ('Code47'), ('Code48'), "
+   "('Code49'), ('Code50'), ('Code51'), ('Code52'), ('Code53'), ('Code54'), "
+   "('Code55'), ('Code56'), ('Code57'), ('Code58'), ('Code59'), ('Code60'), "
+   "('Code61'), ('Code62'), ('Code63'), ('Code64'), ('Code65'), ('Code66'), "
+   "('Code67'), ('Code68'), ('Code69'), ('Code70'), ('Code71'), ('Code72'), "
+   "('Code73'), ('Code74'), ('Code75'), ('Code76'), ('Code77'), ('Code78'), "
+   "('Code79'), ('Code80'), ('Code81'), ('Code82'), ('Code83'), ('Code84'), "
+   "('Code85'), ('Code86'), ('Code87'), ('Code88'), ('Code89'), ('Code90'), "
+   "('Code91'), ('Code92'), ('Code93'), ('Code94'), ('Code95'), ('Code96'), "
+   "('Code97'), ('Code98'), ('Code99'), ('Code100'), ('Code101'), ('Code102'), "
+   "('Code103'), ('Code104'), ('Code105'), ('Code106'), ('Code107'), "
+   "('Code108'), ('Code109'), ('Code110'), ('Code111'), ('Code112'), "
+   "('Code113'), ('Code114'), ('Code115'), ('Code116'), ('Code117'), "
+   "('Code118'), ('Code119'), ('Code120'), ('Code121'), ('Code122'), "
+   "('Code123'), ('Code124'), ('Code125'), ('Code126'), ('Code127'), "
+   "('Code128'), ('Code129'), ('Code130'), ('Code131'), ('Code132'), "
+   "('Code133'), ('Code134'), ('Code135'), ('Code136'), ('Code137'), "
+   "('Code138'), ('Code139'), ('Code140'), ('Code141'), ('Code142'), "
+   "('Code143'), ('Code144'), ('Code145'), ('Code146'), ('Code147'), "
+   "('Code148'), ('Code149'), ('Code150'), ('Code151'), ('Code152'), "
+   "('Code153'), ('Code154'), ('Code155'), ('Code156'), ('Code157'), "
+   "('Code158'), ('Code159'), ('Code160'), ('Code161'), ('Code162'), "
+   "('Code163'), ('Code164'), ('Code165'), ('Code166'), ('Code167'), "
+   "('Code168'), ('Code169'), ('Code170'), ('Code171'), ('Code172'), "
+   "('Code173'), ('Code174'), ('Code175'), ('Code176'), ('Code177'), "
+   "('Code178'), ('Code179'), ('Code180'), ('Code181'), ('Code182'), "
+   "('Code183'), ('Code184'), ('Code185'), ('Code186'), ('Code187'), "
+   "('Code188'), ('Code189'), ('Code190'), ('Code191'), ('Code192'), "
+   "('Code193'), ('Code194'), ('Code195'), ('Code196'), ('Code197'), "
+   "('Code198'), ('Code199'), ('Code200'), ('Code201'), ('Code202'), "
+   "('Code203'), ('Code204'), ('Code205'), ('Code206'), ('Code207'), "
+   "('Code208'), ('Code209'), ('Code210'), ('Code211'), ('Code212'), "
+   "('Code213'), ('Code214'), ('Code215'), ('Code216'), ('Code217'), "
+   "('Code218'), ('Code219'), ('Code220'), ('Code221'), ('Code222'), "
+   "('Code223'), ('Code224'), ('Code225'), ('Code226'), ('Code227'), "
+   "('Code228'), ('Code229'), ('Code230'), ('Code231'), ('Code232'), "
+   "('Code233'), ('Code234'), ('Code235'), ('Code236'), ('Code237'), "
+   "('Code238'), ('Code239'), ('Code240'), ('Code241'), ('Code242'), "
+   "('Code243'), ('Code244'), ('Code245'), ('Code246'), ('Code247'), "
+   "('Code248'), ('Code249'), ('Code250'), ('Code251'), ('Code252'), "
+   "('Code253'), ('Code254'), ('Code255'), ('Code256'), ('Code257'), "
+   "('Code258'), ('Code259'), ('Code260'), ('Code261'), ('Code262'), "
+   "('Code263'), ('Code264'), ('Code265'), ('Code266'), ('Code267'), "
+   "('Code268'), ('Code269'), ('Code270'), ('Code271'), ('Code272'), "
+   "('Code273'), ('Code274'), ('Code275'), ('Code276'), ('Code277'), "
+   "('Code278'), ('Code279'), ('Code280'), ('Code281'), ('Code282'), "
+   "('Code283'), ('Code284'), ('Code285'), ('Code286'), ('Code287'), "
+   "('Code288'), ('Code289'), ('Code290'), ('Code291'), ('Code292'), "
+   "('Code293'), ('Code294'), ('Code295'), ('Code296'), ('Code297'), "
+   "('Code298'), ('Code299'), ('Code300'), ('Code301'), ('Code302'), "
+   "('Code303'), ('Code304'), ('Code305'), ('Code306'), ('Code307'), "
+   "('Code308'), ('Code309'), ('Code310'), ('Code311'), ('Code312'), "
+   "('Code313'), ('Code314'), ('Code315'), ('Code316'), ('Code317'), "
+   "('Code318'), ('Code319'), ('Code320'), ('Code321'), ('Code322'), "
+   "('Code323'), ('Code324'), ('Code325'), ('Code326'), ('Code327'), "
+   "('Code328'), ('Code329'), ('Code330'), ('Code331'), ('Code332'), "
+   "('Code333'), ('Code334'), ('Code335'), ('Code336'), ('Code337'), "
+   "('Code338'), ('Code339'), ('Code340'), ('Code341'), ('Code342'), "
+   "('Code343'), ('Code344'), ('Code345'), ('Code346'), ('Code347'), "
+   "('Code348'), ('Code349'), ('Code350'), ('Code351'), ('Code352'), "
+   "('Code353'), ('Code354'), ('Code355'), ('Code356'), ('Code357'), "
+   "('Code358'), ('Code359'), ('Code360'), ('Code361'), ('Code362'), "
+   "('Code363'), ('Code364'), ('Code365'), ('Code366'), ('Code367'), "
+   "('Code368'), ('Code369'), ('Code370'), ('Code371'), ('Code372'), "
+   "('Code373'), ('Code374'), ('Code375'), ('Code376'), ('Code377'), "
+   "('Code378'), ('Code379'), ('Code380'), ('Code381'), ('Code382'), "
+   "('Code383'), ('Code384'), ('Code385'), ('Code386'), ('Code387'), "
+   "('Code388'), ('Code389'), ('Code390'), ('Code391'), ('Code392'), "
+   "('Code393'), ('Code394'), ('Code395'), ('Code396'), ('Code397'), "
+   "('Code398'), ('Code399'), ('Code400'), ('Code401'), ('Code402'), "
+   "('Code403'), ('Code404'), ('Code405'), ('Code406'), ('Code407'), "
+   "('Code408'), ('Code409'), ('Code410'), ('Code411'), ('Code412'), "
+   "('Code413'), ('Code414'), ('Code415'), ('Code416'), ('Code417'), "
+   "('Code418'), ('Code419'), ('Code420'), ('Code421'), ('Code422'), "
+   "('Code423'), ('Code424'), ('Code425'), ('Code426'), ('Code427'), "
+   "('Code428'), ('Code429'), ('Code430'), ('Code431'), ('Code432'), "
+   "('Code433'), ('Code434'), ('Code435'), ('Code436'), ('Code437'), "
+   "('Code438'), ('Code439'), ('Code440'), ('Code441'), ('Code442'), "
+   "('Code443'), ('Code444'), ('Code445'), ('Code446'), ('Code447'), "
+   "('Code448'), ('Code449'), ('Code450'), ('Code451'), ('Code452'), "
+   "('Code453'), ('Code454'), ('Code455'), ('Code456'), ('Code457'), "
+   "('Code458'), ('Code459'), ('Code460'), ('Code461'), ('Code462'), "
+   "('Code463'), ('Code464'), ('Code465'), ('Code466'), ('Code467'), "
+   "('Code468'), ('Code469'), ('Code470'), ('Code471'), ('Code472'), "
+   "('Code473'), ('Code474'), ('Code475'), ('Code476'), ('Code477'), "
+   "('Code478'), ('Code479'), ('Code480'), ('Code481'), ('Code482'), "
+   "('Code483'), ('Code484'), ('Code485'), ('Code486'), ('Code487'), "
+   "('Code488'), ('Code489'), ('Code490'), ('Code491'), ('Code492'), "
+   "('Code493'), ('Code494'), ('Code495'), ('Code496'), ('Code497'), "
+   "('Code498'), ('Code499'), ('Code500'), ('Code501'), ('Code502'), "
+   "('Code503'), ('Code504'), ('Code505'), ('Code506'), ('Code507'), "
+   "('Code508'), ('Code509'), ('Code510'), ('Code511'), ('Code512'), "
+   "('Code513'), ('Code514'), ('Code515'), ('Code516'), ('Code517'), "
+   "('Code518'), ('Code519'), ('Code520'), ('Code521'), ('Code522'), "
+   "('Code523'), ('Code524'), ('Code525'), ('Code526'), ('Code527'), "
+   "('Code528'), ('Code529'), ('Code530'), ('Code531'), ('Code532'), "
+   "('Code533'), ('Code534'), ('Code535'), ('Code536'), ('Code537'), "
+   "('Code538'), ('Code539'), ('Code540'), ('Code541'), ('Code542'), "
+   "('Code543'), ('Code544'), ('Code545'), ('Code546'), ('Code547'), "
+   "('Code548'), ('Code549'), ('Code550'), ('Code551'), ('Code552'), "
+   "('Code553'), ('Code554'), ('Code555'), ('Code556'), ('Code557'), "
+   "('Code558'), ('Code559'), ('Code560'), ('Code561'), ('Code562'), "
+   "('Code563'), ('Code564'), ('Code565'), ('Code566'), ('Code567'), "
+   "('Code568'), ('Code569'), ('Code570'), ('Code571'), ('Code572'), "
+   "('Code573'), ('Code574'), ('Code575'), ('Code576'), ('Code577'), "
+   "('Code578'), ('Code579'), ('Code580'), ('Code581'), ('Code582'), "
+   "('Code583'), ('Code584'), ('Code585'), ('Code586'), ('Code587'), "
+   "('Code588'), ('Code589'), ('Code590'), ('Code591'), ('Code592'), "
+   "('Code593'), ('Code594'), ('Code595'), ('Code596'), ('Code597'), "
+   "('Code598'), ('Code599'), ('Code600'), ('Code601'), ('Code602'), "
+   "('Code603'), ('Code604'), ('Code605'), ('Code606'), ('Code607'), "
+   "('Code608'), ('Code609'), ('Code610'), ('Code611'), ('Code612'), "
+   "('Code613'), ('Code614'), ('Code615'), ('Code616'), ('Code617'), "
+   "('Code618'), ('Code619'), ('Code620'), ('Code621'), ('Code622'), "
+   "('Code623'), ('Code624'), ('Code625'), ('Code626'), ('Code627'), "
+   "('Code628'), ('Code629'), ('Code630'), ('Code631'), ('Code632'), "
+   "('Code633'), ('Code634'), ('Code635'), ('Code636'), ('Code637'), "
+   "('Code638'), ('Code639'), ('Code640'), ('Code641'), ('Code642'), "
+   "('Code643'), ('Code644'), ('Code645'), ('Code646'), ('Code647'), "
+   "('Code648'), ('Code649'), ('Code650'), ('Code651'), ('Code652'), "
+   "('Code653'), ('Code654'), ('Code655'), ('Code656'), ('Code657'), "
+   "('Code658'), ('Code659'), ('Code660'), ('Code661'), ('Code662'), "
+   "('Code663'), ('Code664'), ('Code665'), ('Code666'), ('Code667'), "
+   "('Code668'), ('Code669'), ('Code670'), ('Code671'), ('Code672'), "
+   "('Code673'), ('Code674'), ('Code675'), ('Code676'), ('Code677'), "
+   "('Code678'), ('Code679'), ('Code680'), ('Code681'), ('Code682'), "
+   "('Code683'), ('Code684'), ('Code685'), ('Code686'), ('Code687'), "
+   "('Code688'), ('Code689'), ('Code690'), ('Code691'), ('Code692'), "
+   "('Code693'), ('Code694'), ('Code695'), ('Code696'), ('Code697'), "
+   "('Code698'), ('Code699'), ('Code700'), ('Code701'), ('Code702'), "
+   "('Code703'), ('Code704'), ('Code705'), ('Code706'), ('Code707'), "
+   "('Code708'), ('Code709'), ('Code710'), ('Code711'), ('Code712'), "
+   "('Code713'), ('Code714'), ('Code715'), ('Code716'), ('Code717'), "
+   "('Code718'), ('Code719'), ('Code720'), ('Code721'), ('Code722'), "
+   "('Code723'), ('Code724'), ('Code725'), ('Code726'), ('Code727'), "
+   "('Code728'), ('Code729'), ('Code730'), ('Code731'), ('Code732'), "
+   "('Code733'), ('Code734'), ('Code735'), ('Code736'), ('Code737'), "
+   "('Code738'), ('Code739'), ('Code740'), ('Code741'), ('Code742'), "
+   "('Code743'), ('Code744'), ('Code745'), ('Code746'), ('Code747'), "
+   "('Code748'), ('Code749'), ('Code750'), ('Code751'), ('Code752'), "
+   "('Code753'), ('Code754'), ('Code755'), ('Code756'), ('Code757'), "
+   "('Code758'), ('Code759'), ('Code760'), ('Code761'), ('Code762'), "
+   "('Code763'), ('Code764'), ('Code765'), ('Code766'), ('Code767'), "
+   "('Code768'), ('Code769'), ('Code770'), ('Code771'), ('Code772'), "
+   "('Code773'), ('Code774'), ('Code775'), ('Code776'), ('Code777'), "
+   "('Code778'), ('Code779'), ('Code780'), ('Code781'), ('Code782'), "
+   "('Code783'), ('Code784'), ('Code785'), ('Code786'), ('Code787'), "
+   "('Code788'), ('Code789'), ('Code790'), ('Code791'), ('Code792'), "
+   "('Code793'), ('Code794'), ('Code795'), ('Code796'), ('Code797'), "
+   "('Code798'), ('Code799'), ('Code800'), ('Code801'), ('Code802'), "
+   "('Code803'), ('Code804'), ('Code805'), ('Code806'), ('Code807'), "
+   "('Code808'), ('Code809'), ('Code810'), ('Code811'), ('Code812'), "
+   "('Code813'), ('Code814'), ('Code815'), ('Code816'), ('Code817'), "
+   "('Code818'), ('Code819'), ('Code820'), ('Code821'), ('Code822'), "
+   "('Code823'), ('Code824'), ('Code825'), ('Code826'), ('Code827'), "
+   "('Code828'), ('Code829'), ('Code830'), ('Code831'), ('Code832'), "
+   "('Code833'), ('Code834'), ('Code835'), ('Code836'), ('Code837'), "
+   "('Code838'), ('Code839'), ('Code840'), ('Code841'), ('Code842'), "
+   "('Code843'), ('Code844'), ('Code845'), ('Code846'), ('Code847'), "
+   "('Code848'), ('Code849'), ('Code850'), ('Code851'), ('Code852'), "
+   "('Code853'), ('Code854'), ('Code855'), ('Code856'), ('Code857'), "
+   "('Code858'), ('Code859'), ('Code860'), ('Code861'), ('Code862'), "
+   "('Code863'), ('Code864'), ('Code865'), ('Code866'), ('Code867'), "
+   "('Code868'), ('Code869'), ('Code870'), ('Code871'), ('Code872'), "
+   "('Code873'), ('Code874'), ('Code875'), ('Code876'), ('Code877'), "
+   "('Code878'), ('Code879'), ('Code880'), ('Code881'), ('Code882'), "
+   "('Code883'), ('Code884'), ('Code885'), ('Code886'), ('Code887'), "
+   "('Code888'), ('Code889'), ('Code890'), ('Code891'), ('Code892'), "
+   "('Code893'), ('Code894'), ('Code895'), ('Code896'), ('Code897'), "
+   "('Code898'), ('Code899'), ('Code900'), ('Code901'), ('Code902'), "
+   "('Code903'), ('Code904'), ('Code905'), ('Code906'), ('Code907'), "
+   "('Code908'), ('Code909'), ('Code910'), ('Code911'), ('Code912'), "
+   "('Code913'), ('Code914'), ('Code915'), ('Code916'), ('Code917'), "
+   "('Code918'), ('Code919'), ('Code920'), ('Code921'), ('Code922'), "
+   "('Code923'), ('Code924'), ('Code925'), ('Code926'), ('Code927'), "
+   "('Code928'), ('Code929'), ('Code930'), ('Code931'), ('Code932'), "
+   "('Code933'), ('Code934'), ('Code935'), ('Code936'), ('Code937'), "
+   "('Code938'), ('Code939'), ('Code940'), ('Code941'), ('Code942'), "
+   "('Code943'), ('Code944'), ('Code945'), ('Code946'), ('Code947'), "
+   "('Code948'), ('Code949'), ('Code950'), ('Code951'), ('Code952'), "
+   "('Code953'), ('Code954'), ('Code955'), ('Code956'), ('Code957'), "
+   "('Code958'), ('Code959'), ('Code960'), ('Code961'), ('Code962'), "
+   "('Code963'), ('Code964'), ('Code965'), ('Code966'), ('Code967'), "
+   "('Code968'), ('Code969'), ('Code970'), ('Code971'), ('Code972'), "
+   "('Code973'), ('Code974'), ('Code975'), ('Code976'), ('Code977'), "
+   "('Code978'), ('Code979'), ('Code980'), ('Code981'), ('Code982'), "
+   "('Code983'), ('Code984'), ('Code985'), ('Code986'), ('Code987'), "
+   "('Code988'), ('Code989'), ('Code990'), ('Code991'), ('Code992'), "
+   "('Code993'), ('Code994'), ('Code995'), ('Code996')\n"
+   '\n'
+   '\n'
+   "INSERT INTO [#codelist_0] (code) VALUES ('Code997'), ('Code998'), "
+   "('Code999'), ('Code1000'), ('Code1001'), ('Code1002'), ('Code1003'), "
+   "('Code1004'), ('Code1005'), ('Code1006'), ('Code1007'), ('Code1008'), "
+   "('Code1009'), ('Code1010'), ('Code1011'), ('Code1012'), ('Code1013'), "
+   "('Code1014'), ('Code1015'), ('Code1016'), ('Code1017'), ('Code1018'), "
+   "('Code1019'), ('Code1020'), ('Code1021'), ('Code1022'), ('Code1023'), "
+   "('Code1024'), ('Code1025'), ('Code1026'), ('Code1027'), ('Code1028'), "
+   "('Code1029'), ('Code1030'), ('Code1031'), ('Code1032'), ('Code1033'), "
+   "('Code1034'), ('Code1035'), ('Code1036'), ('Code1037'), ('Code1038'), "
+   "('Code1039'), ('Code1040'), ('Code1041'), ('Code1042'), ('Code1043'), "
+   "('Code1044'), ('Code1045'), ('Code1046'), ('Code1047'), ('Code1048'), "
+   "('Code1049'), ('Code1050'), ('Code1051'), ('Code1052'), ('Code1053'), "
+   "('Code1054'), ('Code1055'), ('Code1056'), ('Code1057'), ('Code1058'), "
+   "('Code1059'), ('Code1060'), ('Code1061'), ('Code1062'), ('Code1063'), "
+   "('Code1064'), ('Code1065'), ('Code1066'), ('Code1067'), ('Code1068'), "
+   "('Code1069'), ('Code1070'), ('Code1071'), ('Code1072'), ('Code1073'), "
+   "('Code1074'), ('Code1075'), ('Code1076'), ('Code1077'), ('Code1078'), "
+   "('Code1079'), ('Code1080'), ('Code1081'), ('Code1082'), ('Code1083'), "
+   "('Code1084'), ('Code1085'), ('Code1086'), ('Code1087'), ('Code1088'), "
+   "('Code1089'), ('Code1090'), ('Code1091'), ('Code1092'), ('Code1093'), "
+   "('Code1094'), ('Code1095'), ('Code1096'), ('Code1097'), ('Code1098'), "
+   "('Code1099'), ('ijk')\n"
+   '\n'
+   '\n'
+   'SELECT * INTO #group_table_0 FROM (\n'
+   'SELECT anon_1.code, anon_1.patient_id \n'
+   'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
+   'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
+   'ORDER BY clinical_events.date DESC) AS _row_num \n'
+   'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
+   'PatientId AS patient_id \n'
+   'FROM events) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_0].code \n'
+   'FROM [#codelist_0])) AS anon_1 \n'
+   'WHERE anon_1._row_num = 1\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT * INTO #group_table_1 FROM (\n'
+   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
+   'FROM (SELECT StpId AS stp, StartDate AS date_start, EndDate AS date_end, '
+   'PatientId AS patient_id \n'
+   'FROM practice_registrations) AS practice_registrations GROUP BY '
+   'practice_registrations.patient_id\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].code AS '
+   'code \n'
+   'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
+   '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
+   'WHERE [#group_table_1].patient_id_exists = 1',
+   {}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('patient_id', 3, None, None, None, None, None),
+   ('code', 1, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, 'xyz')),
+ ('Cursor', 'fetchone', (), {}, (2, None)),
+ ('Cursor', 'fetchone', (), {}, (3, 'ijk')),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'rollback', (), {}, None)]
