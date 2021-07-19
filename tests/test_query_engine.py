@@ -797,7 +797,10 @@ def test_codelist_query(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    codelist = Codelist(["abc", "xyz", "ijk"], system="ctv3")
+    # Insert a load of extra codes as padding to force this test to exercise
+    # the "insert in multiple batches" codepath
+    extra_codes = [f"Code{n}" for n in range(1100)]
+    codelist = Codelist(["abc", "xyz", *extra_codes, "ijk"], system="ctv3")
 
     class Cohort:
         code = (
