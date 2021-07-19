@@ -59,6 +59,10 @@ class Comparator:
             self.children.append(data)
 
 
+def c(value):
+    return Comparator(source=value, operator="__ne__", value=None)
+
+
 class QueryNode:
     pass
 
