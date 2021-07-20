@@ -20,7 +20,13 @@ class Comparator:
     """A generic comparator to represent a comparison between a source object and a value"""
 
     def __init__(
-        self, children=None, connector="and_", source=None, operator=None, value=None
+        self,
+        children=None,
+        connector="and_",
+        negated=False,
+        source=None,
+        operator=None,
+        value=None,
     ):
         """
         Construct a new Comparator.
@@ -31,6 +37,7 @@ class Comparator:
         """
         self.children = children[:] if children else []
         self.connector = connector
+        self.negated = negated
         self.source = source
         self.operator = operator
         self.value = value
@@ -43,6 +50,14 @@ class Comparator:
 
     def __len__(self):
         return len(self.children)
+
+    def __invert__(self):
+        self.negate()
+        return self
+
+    def negate(self):
+        """Negate the sense of the root comparator."""
+        self.negated = not self.negated
 
     def _combine(self, other, conn):
         if not (isinstance(other, Comparator)):

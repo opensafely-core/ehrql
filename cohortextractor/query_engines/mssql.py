@@ -334,6 +334,10 @@ class MssqlQueryEngine(BaseQueryEngine):
             column = table.c[source_col.column]
             method = getattr(column, comparator.operator)
             condition_statement = method(comparator.value)
+
+        if comparator.negated:
+            condition_statement = sqlalchemy.not_(condition_statement)
+
         return condition_statement
 
     def get_value_expression(self, value):

@@ -916,3 +916,114 @@ def test_categorise_multiple_truthiness_values(database, setup_test_database):
         dict(patient_id=3, has_positive_code="na"),
         dict(patient_id=4, has_positive_code="yes"),
     ]
+
+
+@pytest.mark.integration
+def test_categorise_invert(database, setup_test_database):
+    input_data = [
+        RegistrationHistory(PatientId=1),
+        RegistrationHistory(PatientId=2),
+        RegistrationHistory(PatientId=3),
+        RegistrationHistory(PatientId=4),
+        RegistrationHistory(PatientId=5),
+        Patients(PatientId=1, Height=194),  # tall with code - matches
+        Patients(PatientId=2, Height=160.5),  # tall no code  - matches
+        Patients(PatientId=3, Height=155.5),  # short with code - matches
+        Patients(PatientId=4, Height=140.5),  # short no code
+    ]
+    setup_test_database(input_data)
+
+    class Cohort:
+        _height = table("patients").first_by("patient_id").get("height")
+        _code = table("clinical_events").first_by("patient_id").get("code")
+
+        # make sure the parentheses precedence is followed; these two expressions are equivalent
+        _height_inverted = {
+            "tall": _height > 190,
+            "not_tall": ~(_height > 190),
+        }
+        height_group = categorise(_height_inverted, default="na")
+
+    result = extract(Cohort, MockBackend, database)
+
+    assert result == [
+        dict(patient_id=1, height_group="tall"),
+        dict(patient_id=2, height_group="not_tall"),
+        dict(patient_id=3, height_group="not_tall"),
+        dict(patient_id=4, height_group="not_tall"),
+        dict(patient_id=5, height_group="na"),
+    ]
+
+
+@pytest.mark.integration
+def test_categorise_invert_truthiness_values(database, setup_test_database):
+    """Test truthiness of a Value from a filtered value"""
+    input_data = [
+        RegistrationHistory(PatientId=1),
+        RegistrationHistory(PatientId=2),
+        RegistrationHistory(PatientId=3),
+        RegistrationHistory(PatientId=4),
+        Events(PatientId=1, EventCode="abc"),
+        Events(PatientId=2, EventCode="xyz"),
+        Events(PatientId=3, EventCode="abc"),
+        Events(PatientId=4, EventCode="def"),
+    ]
+    setup_test_database(input_data)
+
+    class Cohort:
+        _code = (
+            table("clinical_events")
+            .filter("code", is_in=["abc", "def"])
+            .latest()
+            .get("code")
+        )
+        _codes_categories = {"yes": c(_code), "no": ~c(_code)}
+        has_code = categorise(_codes_categories, default="na")
+
+    result = extract(Cohort, MockBackend, database)
+    assert result == [
+        dict(patient_id=1, has_code="yes"),
+        dict(patient_id=2, has_code="no"),
+        dict(patient_id=3, has_code="yes"),
+        dict(patient_id=4, has_code="yes"),
+    ]
+
+
+@pytest.mark.integration
+def test_categorise_invert_combined_values(database, setup_test_database):
+    """Test truthiness of a Value from a filtered value"""
+    input_data = [
+        RegistrationHistory(PatientId=1),
+        RegistrationHistory(PatientId=2),
+        RegistrationHistory(PatientId=3),
+        RegistrationHistory(PatientId=4),
+        Events(PatientId=1, EventCode="abc"),
+        Events(PatientId=2, EventCode="xyz"),
+        Events(PatientId=3, EventCode="abc"),
+        Events(PatientId=4, EventCode="def"),
+        # Patient test results with dates
+        PositiveTests(PatientId=1, PositiveResult=True),
+        PositiveTests(PatientId=2, PositiveResult=False),
+        PositiveTests(PatientId=3, PositiveResult=False),
+        PositiveTests(PatientId=4, PositiveResult=True),
+    ]
+    setup_test_database(input_data)
+
+    class Cohort:
+        _code = (
+            table("clinical_events")
+            .filter("code", is_in=["abc", "def"])
+            .latest()
+            .get("code")
+        )
+        _has_positive_test = table("positive_tests").filter(result=True).exists()
+        _codes_categories = {"neg_or_no_code": ~(c(_code) & c(_has_positive_test))}
+        result_group = categorise(_codes_categories, default="pos")
+
+    result = extract(Cohort, MockBackend, database)
+    assert result == [
+        dict(patient_id=1, result_group="pos"),
+        dict(patient_id=2, result_group="neg_or_no_code"),
+        dict(patient_id=3, result_group="neg_or_no_code"),
+        dict(patient_id=4, result_group="pos"),
+    ]
