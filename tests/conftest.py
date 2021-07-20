@@ -168,7 +168,7 @@ def setup_test_database(database, recording, request):
 
 @pytest.fixture
 def setup_tpp_database(setup_test_database):
-    def setup(data):
+    def setup(*data):
         setup_test_database(data, base=Base)
 
     yield setup
