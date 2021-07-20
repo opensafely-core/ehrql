@@ -1,3 +1,6 @@
+from copy import deepcopy
+
+
 _OPERATOR_MAPPING = {
     "equals": "__eq__",
     "not_equals": "__ne__",
@@ -52,8 +55,9 @@ class Comparator:
         return len(self.children)
 
     def __invert__(self):
-        self.negate()
-        return self
+        obj = deepcopy(self)
+        obj.negate()
+        return obj
 
     def negate(self):
         """Negate the sense of the root comparator."""
