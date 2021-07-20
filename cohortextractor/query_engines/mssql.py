@@ -131,7 +131,7 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def get_parent_nodes(self, node):
         if hasattr(node, "definitions"):
-            yield from self.get_sources_from_category_definitions(
+            yield from self.list_sources_from_category_definitions(
                 node.definitions.values()
             )
         if hasattr(node, "source"):
@@ -170,6 +170,9 @@ class MssqlQueryEngine(BaseQueryEngine):
                     definition.children, sources
                 )
         return sources
+
+    def list_sources_from_category_definitions(self, definitions):
+        return sorted(self.get_sources_from_category_definitions(definitions))
 
     def get_node_list(self, node):
         """For a single node, get a list of it and all its parents in order"""
@@ -349,7 +352,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         value_expr = value
         if self.is_category_node(value):
             category_definitions = value.definitions.copy()
-            all_category_sources = self.get_sources_from_category_definitions(
+            all_category_sources = self.list_sources_from_category_definitions(
                 category_definitions.values()
             )
             tables = {
