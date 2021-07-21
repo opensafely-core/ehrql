@@ -7,6 +7,9 @@ from lib.tpp_schema import (
     RegistrationHistory,
     SGSSNegativeTests,
     SGSSPositiveTests,
+    apcs,
+    patient,
+    registration,
 )
 from lib.util import extract
 
@@ -106,4 +109,18 @@ def test_patients_table(database, setup_tpp_database):
 
     assert extract(Cohort, TPPBackend, database) == [
         dict(patient_id=1, sex="F", dob=date(1950, 1, 1))
+    ]
+
+
+@pytest.mark.integration
+def test_hospitalization_table(database, setup_tpp_database):
+    setup_tpp_database(
+        *patient(1, "M", registration("2001-01-01", "2026-06-26"), apcs("2020-12-12"))
+    )
+
+    class Cohort:
+        admission = table("hospitalizations").get("date")
+
+    assert extract(Cohort, TPPBackend, database) == [
+        dict(patient_id=1, admission=date(2020, 12, 12))
     ]

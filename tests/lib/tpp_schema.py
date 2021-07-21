@@ -72,3 +72,14 @@ def negative_test(specimen_date):
     return SGSSNegativeTests(
         Specimen_Date=specimen_date, Organism_Species_Name="SARS-CoV-2"
     )
+
+
+class APCS(Base):
+    __tablename__ = "APCS"
+    APCS_Ident = Column(Integer, primary_key=True)
+    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
+    Admission_Date = Column(Date)
+
+
+def apcs(admission_date):
+    return APCS(Admission_Date=admission_date)
