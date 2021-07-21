@@ -78,10 +78,10 @@
    "([#group_table_0].height < 190 AND [#group_table_1].code = N'abc') THEN "
    "N'short' WHEN ([#group_table_0].height > 190 AND [#group_table_1].code = "
    "N'abc') THEN N'tall' ELSE N'missing' END AS height_group \n"
-   'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_0] ON '
-   '[#group_table_2].patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '
-   '[#group_table_1] ON [#group_table_2].patient_id = '
-   '[#group_table_1].patient_id \n'
+   'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_1] ON '
+   '[#group_table_2].patient_id = [#group_table_1].patient_id LEFT OUTER JOIN '
+   '[#group_table_0] ON [#group_table_2].patient_id = '
+   '[#group_table_0].patient_id \n'
    'WHERE [#group_table_2].patient_id_exists = 1',
    {}),
   {},

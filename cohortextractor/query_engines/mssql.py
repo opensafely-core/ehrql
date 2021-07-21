@@ -174,7 +174,12 @@ class MssqlQueryEngine(BaseQueryEngine):
         return query_nodes
 
     def list_query_nodes_from_category_definitions(self, definitions):
-        return sorted(self.get_query_nodes_from_category_definitions(definitions))
+        # Sort the query nodes to ensure consistent order.  We have to use a custom sort key
+        # here because query nodes are Values with overloaded lt/gt operators.
+        return sorted(
+            self.get_query_nodes_from_category_definitions(definitions),
+            key=lambda x: (x.column, x.source),
+        )
 
     def get_node_list(self, node):
         """For a single node, get a list of it and all its parents in order"""
