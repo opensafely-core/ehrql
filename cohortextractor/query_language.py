@@ -191,6 +191,15 @@ class Table(QueryNode):
             .get("index_of_multiple_deprivation_rounded")
         )
 
+    def age_as_of(self, reference_date):
+        if self.name != "patients":
+            raise NotImplementedError(
+                "This method is only available on the patients table"
+            )
+        return DateDifferenceInYears(
+            self.first_by("patient_id").get("date_of_birth"), reference_date
+        )
+
 
 class FilteredTable(Table):
     def __init__(self, source, column, operator, value):
@@ -320,3 +329,15 @@ class Codelist(QueryNode):
         else:
             codes = self.codes
         return f"Codelist(system={self.system}, codes={codes})"
+
+
+class ValueFromFunction(Value):
+    def __init__(self, *args):
+        self.arguments = args
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(arguments={self.arguments})"
+
+
+class DateDifferenceInYears(ValueFromFunction):
+    pass

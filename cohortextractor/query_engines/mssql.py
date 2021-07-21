@@ -10,6 +10,7 @@ from ..query_language import (
     Codelist,
     Column,
     Comparator,
+    DateDifferenceInYears,
     FilteredTable,
     QueryNode,
     Row,
@@ -17,6 +18,7 @@ from ..query_language import (
     Value,
     ValueFromAggregate,
     ValueFromCategory,
+    ValueFromFunction,
     ValueFromRow,
 )
 from .base import BaseQueryEngine
@@ -139,6 +141,10 @@ class MssqlQueryEngine(BaseQueryEngine):
             yield node.source
         if hasattr(node, "value") and isinstance(node.value, QueryNode):
             yield node.value
+        if hasattr(node, "arguments"):
+            for arg in node.arguments:
+                if isinstance(arg, QueryNode):
+                    yield arg
 
     @staticmethod
     def is_output_node(node):
@@ -365,7 +371,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         Given a single value output node, select it from its interim table(s)
         Return the expression to select it, and the table(s) to select it from
         """
-        tables = None
+        tables = ()
         value_expr = value
         if self.is_category_node(value):
             category_definitions = value.definitions.copy()
@@ -396,12 +402,56 @@ class MssqlQueryEngine(BaseQueryEngine):
         elif isinstance(value, Codelist):
             codelist_table = self.codelist_tables[value]
             value_expr = sqlalchemy.select(codelist_table.c.code)
+        elif isinstance(value, ValueFromFunction):
+            value_expr, tables = self.get_expression_for_value_from_function(value)
         return value_expr, tables
 
     def get_case_expression(self, mapping, default):
         return sqlalchemy.case(
             [(expression, label) for label, expression in mapping.items()],
             else_=default,
+        )
+
+    def get_expression_for_value_from_function(self, value):
+        argument_expressions = []
+        tables = set()
+        for arg in value.arguments:
+            arg_expr, arg_tables = self.get_value_expression(arg)
+            argument_expressions.append(arg_expr)
+            tables.update(arg_tables)
+
+        # TODO: I'd quite like to build this map by decorating the methods e.g.
+        #
+        #   @handler_for(DateDifferenceInYears)
+        #   def my_handle_fun(...)
+        #
+        # but the simple thing will do for now.
+        class_method_map = {DateDifferenceInYears: self.date_difference_in_years}
+
+        try:
+            method = class_method_map[value.__class__]
+        except KeyError:
+            raise ValueError(f"Unsupported function: {value}")
+        value_expression = method(*argument_expressions)
+
+        # This is not required for correctness, just for consistent test
+        # recordings.
+        tables = sorted(tables, key=lambda i: i.name)
+        return value_expression, tuple(tables)
+
+    def date_difference_in_years(self, start_date, end_date):
+        # `literal_column` doesn't seem quite the right construct here, but I
+        # need SQLAlchemy to generate the string "year" without quotes, and
+        # this seems to do the trick
+        YEAR = sqlalchemy.literal_column("year")
+        # The year difference here is just the difference between the year
+        # components of the dates and takes no account of the month or day
+        year_diff = sqlalchemy.func.datediff(YEAR, start_date, end_date)
+        # so we add the resulting number of years back on to the start date
+        start_date_plus_year_diff = sqlalchemy.func.dateadd(YEAR, year_diff, start_date)
+        # and then adjust it down by one year if this takes us past our end date
+        return sqlalchemy.case(
+            (start_date_plus_year_diff > end_date, year_diff - 1), else_=year_diff
         )
 
     def apply_aggregates(self, query, aggregate_nodes):
@@ -452,7 +502,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         # Does this filter require another table? i.e. is the filter value itself an
         # Output node, which has a source that we may need to include here
         value_expr, other_tables = self.get_value_expression(filter_node.value)
-        if other_tables is not None:
+        if other_tables:
             assert len(other_tables) == 1
             other_table = other_tables[0]
             # If we have a "Value" (i.e. a single value per patient) then we
