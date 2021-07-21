@@ -131,7 +131,7 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def get_parent_nodes(self, node):
         if hasattr(node, "definitions"):
-            yield from self.list_sources_from_category_definitions(
+            yield from self.list_query_nodes_from_category_definitions(
                 node.definitions.values()
             )
         if hasattr(node, "source"):
@@ -160,19 +160,21 @@ class MssqlQueryEngine(BaseQueryEngine):
         else:
             raise TypeError(f"Unhandled type: {node}")
 
-    def get_sources_from_category_definitions(self, definitions, sources=None):
-        sources = sources or set()
+    def get_query_nodes_from_category_definitions(self, definitions, query_nodes=None):
+        """Get all the referenced query nodes for category definitions.  If a category
+        definition (Comparator) has a LHS, it will be a query node"""
+        query_nodes = query_nodes or set()
         for definition in definitions:
-            if definition.source:
-                sources.add(definition.source)
+            if definition.lhs:
+                query_nodes.add(definition.lhs)
             else:
-                sources = self.get_sources_from_category_definitions(
-                    definition.children, sources
+                query_nodes = self.get_query_nodes_from_category_definitions(
+                    definition.children, query_nodes
                 )
-        return sources
+        return query_nodes
 
-    def list_sources_from_category_definitions(self, definitions):
-        return sorted(self.get_sources_from_category_definitions(definitions))
+    def list_query_nodes_from_category_definitions(self, definitions):
+        return sorted(self.get_query_nodes_from_category_definitions(definitions))
 
     def get_node_list(self, node):
         """For a single node, get a list of it and all its parents in order"""
@@ -332,11 +334,11 @@ class MssqlQueryEngine(BaseQueryEngine):
             connector = getattr(sqlalchemy, comparator.connector)
             condition_statement = connector(left_conditions, right_conditions)
         else:
-            source_col = comparator.source
-            table = tables[source_col]
-            column = table.c[source_col.column]
+            query_node = comparator.lhs
+            table = tables[query_node]
+            column = table.c[query_node.column]
             method = getattr(column, comparator.operator)
-            condition_statement = method(comparator.value)
+            condition_statement = method(comparator.rhs)
 
         if comparator.negated:
             condition_statement = sqlalchemy.not_(condition_statement)
@@ -352,12 +354,14 @@ class MssqlQueryEngine(BaseQueryEngine):
         value_expr = value
         if self.is_category_node(value):
             category_definitions = value.definitions.copy()
-            all_category_sources = self.list_sources_from_category_definitions(
-                category_definitions.values()
+            all_category_referenced_nodes = (
+                self.list_query_nodes_from_category_definitions(
+                    category_definitions.values()
+                )
             )
             tables = {
-                source: self.output_group_tables[self.get_output_group(source)]
-                for source in all_category_sources
+                query_node: self.output_group_tables[self.get_output_group(query_node)]
+                for query_node in all_category_referenced_nodes
             }
             category_mapping = {}
             for label, category_definition in category_definitions.items():

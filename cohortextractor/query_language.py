@@ -27,13 +27,15 @@ class Comparator:
         children=None,
         connector="and_",
         negated=False,
-        source=None,
+        lhs=None,
         operator=None,
-        value=None,
+        rhs=None,
     ):
         """
         Construct a new Comparator.
-        A single comparator will have a source, operator and value.  A tree of Compararors
+        A single comparator is created from an expression such as `foo > 3` and
+        will have a lhs ('foo'; a Value object), operator ('__gt__')
+        and a rhs (3; a simple type - str/int/float/None).  A tree of Comparators
         will have at most two child Comparators, which are to be connected with self.connector.
         Each child may itself have more child Comparators, again with a connector to indicate
         how they should be joined
@@ -41,9 +43,9 @@ class Comparator:
         self.children = children[:] if children else []
         self.connector = connector
         self.negated = negated
-        self.source = source
+        self.lhs = lhs
         self.operator = operator
-        self.value = value
+        self.rhs = rhs
 
     def __and__(self, other):
         return self._combine(other, "and_")
@@ -64,9 +66,9 @@ class Comparator:
             children=self.children,
             connector=self.connector,
             negated=self.negated,
-            source=self.source,
+            lhs=self.lhs,
             operator=self.operator,
-            value=self.value,
+            rhs=self.rhs,
         )
         return obj
 
@@ -87,7 +89,7 @@ class Comparator:
 
 def boolean_comparator(obj, negated=False):
     """returns a comparator which represents a comparison against null values"""
-    return Comparator(source=obj, operator="__ne__", value=None, negated=negated)
+    return Comparator(lhs=obj, operator="__ne__", rhs=None, negated=negated)
 
 
 class QueryNode:
@@ -211,7 +213,7 @@ class Value(QueryNode):
 
     def _get_comparator(self, operator, other):
         other = self._other_as_comparator(other)
-        return Comparator(source=self, operator=operator, value=other)
+        return Comparator(lhs=self, operator=operator, rhs=other)
 
     def __gt__(self, other):
         return self._get_comparator("__gt__", other)
