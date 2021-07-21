@@ -9,6 +9,7 @@ import sqlalchemy.types
 from ..query_language import (
     Codelist,
     Column,
+    Comparator,
     FilteredTable,
     QueryNode,
     Row,
@@ -161,16 +162,25 @@ class MssqlQueryEngine(BaseQueryEngine):
             raise TypeError(f"Unhandled type: {node}")
 
     def get_query_nodes_from_category_definitions(self, definitions, query_nodes=None):
-        """Get all the referenced query nodes for category definitions.  If a category
-        definition (Comparator) has a LHS, it will be a query node"""
+        """
+        Get all the referenced query nodes for category definitions.  If a category
+        definition (Comparator) has a LHS which is not itself a Comparator,
+        it will be a query node
+        """
         query_nodes = query_nodes or set()
         for definition in definitions:
-            if definition.lhs:
+            if isinstance(definition.lhs, Value):
                 query_nodes.add(definition.lhs)
             else:
                 query_nodes = self.get_query_nodes_from_category_definitions(
-                    definition.children, query_nodes
+                    [definition.lhs], query_nodes
                 )
+
+            if isinstance(definition.rhs, Comparator):
+                query_nodes = self.get_query_nodes_from_category_definitions(
+                    [definition.rhs], query_nodes
+                )
+
         return query_nodes
 
     def list_query_nodes_from_category_definitions(self, definitions):
@@ -327,15 +337,14 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def build_condition_statement(self, comparator, tables):
         """
-        Traverse a comparator's children in order and build the nested condition statement
+        Traverse a comparator's left and right hand sides in order and build the nested condition statement
         """
-        if comparator.children:
-            left_conditions = self.build_condition_statement(
-                comparator.children[0], tables
+        if comparator.connector is not None:
+            assert isinstance(comparator.lhs, Comparator) and isinstance(
+                comparator.rhs, Comparator
             )
-            right_conditions = self.build_condition_statement(
-                comparator.children[1], tables
-            )
+            left_conditions = self.build_condition_statement(comparator.lhs, tables)
+            right_conditions = self.build_condition_statement(comparator.rhs, tables)
             connector = getattr(sqlalchemy, comparator.connector)
             condition_statement = connector(left_conditions, right_conditions)
         else:
