@@ -4,7 +4,12 @@ default:
 
 # build the cohort-extractor docker image
 build-cohort-extractor:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    [[ -v CI ]] && echo "::group::Build cohort-extractor (click to view)" || echo "Build cohort-extractor"
     docker build . -t cohort-extractor-v2
+    [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 # tear down the persistent cohort-extractor-mssql docker container and network
 remove-persistent-database:
@@ -53,10 +58,13 @@ test-smoke-fast ARGS="":
 test-all ARGS="": build-cohort-extractor
     #!/usr/bin/env bash
     set -euo pipefail
+
+    [[ -v CI ]] && echo "::group::Run tests (playback mode) (click to view)" || echo "Run tests (playback mode)"
     . scripts/setup_functions
     dev_setup
 
     DATABASE_MODE="${DATABASE_MODE:-ephemeral}" RECORDING_MODE="${RECORDING_MODE:-playback}" pytest --cov=cohortextractor --cov=tests {{ ARGS }}
+    [[ -v CI ]]  && echo "::endgroup::" || echo ""
 
 # run all tests including integration and smoke tests against a persistent database. Optional args are passed to pytest
 test-all-fast ARGS="":
@@ -75,14 +83,23 @@ test-assert-recordings-up-to-date:
     #!/usr/bin/env bash
     set -euo pipefail
 
+    [[ -v CI ]] && echo "::group::Run tests (record mode) (click to view)" || echo "Run tests (record mode)"
     rm tests/recordings/*.recording
     just test-record
+    [[ -v CI ]] && echo "::endgroup::" || echo ""
+
+    [[ -v CI ]] && echo "::group::Diff Recordings (click to view)" || echo "Diff Recordings"
     git update-index -q --really-refresh # avoid false positives due to last modification time changing
     if ! git diff-index --quiet HEAD -- tests/recordings; then
         git status -- tests/recordings
         echo >&2 "ERROR: Recordings are not up-to-date"
+        git diff tests/recordings
         exit 1
+    else
+        echo "Recordings are up-to-date"
     fi
+    [[ -v CI ]] && echo "::endgroup::" || echo ""
+
 
 # runs the format (black), sort (isort) and lint (flake8) check but does not change any files
 check:

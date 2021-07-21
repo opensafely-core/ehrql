@@ -20,20 +20,29 @@ class Comparator:
     """A generic comparator to represent a comparison between a source object and a value"""
 
     def __init__(
-        self, children=None, connector="and_", source=None, operator=None, value=None
+        self,
+        children=None,
+        connector="and_",
+        negated=False,
+        lhs=None,
+        operator=None,
+        rhs=None,
     ):
         """
         Construct a new Comparator.
-        A single comparator will have a source, operator and value.  A tree of Compararors
+        A single comparator is created from an expression such as `foo > 3` and
+        will have a lhs ('foo'; a Value object), operator ('__gt__')
+        and a rhs (3; a simple type - str/int/float/None).  A tree of Comparators
         will have at most two child Comparators, which are to be connected with self.connector.
         Each child may itself have more child Comparators, again with a connector to indicate
         how they should be joined
         """
         self.children = children[:] if children else []
         self.connector = connector
-        self.source = source
+        self.negated = negated
+        self.lhs = lhs
         self.operator = operator
-        self.value = value
+        self.rhs = rhs
 
     def __and__(self, other):
         return self._combine(other, "and_")
@@ -43,6 +52,22 @@ class Comparator:
 
     def __len__(self):
         return len(self.children)
+
+    def __invert__(self):
+        obj = self.copy()
+        obj.negated = not self.negated
+        return obj
+
+    def copy(self):
+        obj = type(self)(
+            children=self.children,
+            connector=self.connector,
+            negated=self.negated,
+            lhs=self.lhs,
+            operator=self.operator,
+            rhs=self.rhs,
+        )
+        return obj
 
     def _combine(self, other, conn):
         if not (isinstance(other, Comparator)):
@@ -57,6 +82,11 @@ class Comparator:
     def add(self, data, conn_type):
         if not (self.connector == conn_type and data in self.children):
             self.children.append(data)
+
+
+def boolean_comparator(obj, negated=False):
+    """returns a comparator which represents a comparison against null values"""
+    return Comparator(lhs=obj, operator="__ne__", rhs=None, negated=negated)
 
 
 class QueryNode:
@@ -172,23 +202,44 @@ class Row(QueryNode):
 
 
 class Value(QueryNode):
+    @staticmethod
+    def _other_as_comparator(other):
+        if isinstance(other, Value):
+            other = boolean_comparator(other)
+        return other
+
+    def _get_comparator(self, operator, other):
+        other = self._other_as_comparator(other)
+        return Comparator(lhs=self, operator=operator, rhs=other)
+
     def __gt__(self, other):
-        return Comparator(source=self, operator="__gt__", value=other)
+        return self._get_comparator("__gt__", other)
 
     def __ge__(self, other):
-        return Comparator(source=self, operator="__ge__", value=other)
+        return self._get_comparator("__ge__", other)
 
     def __lt__(self, other):
-        return Comparator(source=self, operator="__lt__", value=other)
+        return self._get_comparator("__lt__", other)
 
     def __le__(self, other):
-        return Comparator(source=self, operator="__le__", value=other)
+        return self._get_comparator("__le__", other)
 
     def __eq__(self, other):
-        return Comparator(source=self, operator="__eq__", value=other)
+        return self._get_comparator("__eq__", other)
 
     def __ne__(self, other):
-        return Comparator(source=self, operator="__ne__", value=other)
+        return self._get_comparator("__ne__", other)
+
+    def __and__(self, other):
+        other = self._other_as_comparator(other)
+        return boolean_comparator(self) & other
+
+    def __or__(self, other):
+        other = self._other_as_comparator(other)
+        return boolean_comparator(self) | other
+
+    def __invert__(self):
+        return boolean_comparator(self, negated=True)
 
     def __hash__(self):
         return id(self)
@@ -208,6 +259,10 @@ class ValueFromAggregate(Value):
 
 
 def categorise(mapping, default):
+    mapping = {
+        key: boolean_comparator(value) if isinstance(value, Value) else value
+        for key, value in mapping.items()
+    }
     return ValueFromCategory(mapping, default)
 
 
