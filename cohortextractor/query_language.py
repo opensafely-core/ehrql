@@ -1,6 +1,3 @@
-from copy import copy
-
-
 _OPERATOR_MAPPING = {
     "equals": "__eq__",
     "not_equals": "__ne__",
@@ -57,11 +54,11 @@ class Comparator:
         return len(self.children)
 
     def __invert__(self):
-        obj = copy(self)
+        obj = self.copy()
         obj.negated = not self.negated
         return obj
 
-    def __copy__(self):
+    def copy(self):
         obj = type(self)(
             children=self.children,
             connector=self.connector,
