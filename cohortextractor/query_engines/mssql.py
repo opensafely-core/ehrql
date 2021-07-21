@@ -97,7 +97,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         output_groups = defaultdict(list)
         for node in all_nodes:
             if self.is_output_node(node):
-                output_groups[self.get_type_and_source(node)].append(node)
+                output_groups[self.get_output_group(node)].append(node)
         return output_groups
 
     def get_all_query_nodes(self, column_definitions):
@@ -112,34 +112,32 @@ class MssqlQueryEngine(BaseQueryEngine):
         # simple trick to get the nodes in topological order. We exploit the
         # fact that the Python-based DSL will naturally enforce a topological
         # order on the leaf nodes (you can't reference variables before you've
-        # defined them), and the fact that `walk_query_dag` gives its results
-        # in reverse-topological order (it starts with the leaf nodes and works
-        # its way back up). So we reverse the order of the leaf nodes, pass
-        # them through `walk_query_dag` and then reverse the whole list of
-        # results. Further down the line we might need to this "properly"
-        # (maybe using the networkx library?) but this will do us for now.
-        leaf_nodes = list(column_definitions.values())
-        leaf_nodes.reverse()
-        all_nodes = list(self.walk_query_dag(leaf_nodes))
-        all_nodes.reverse()
-        return all_nodes
+        # defined them). Then for each leaf node we traverse depth-first,
+        # returning parents before their children. Further down the line we
+        # might need to this "properly" (maybe using the networkx library?) but
+        # this will do us for now.
+        leaf_nodes = column_definitions.values()
+        return self.walk_query_dag(leaf_nodes)
 
-    def walk_query_dag(self, nodes, seen=None):
-        if seen is None:
-            seen = set(nodes)
-        else:
-            seen.update(nodes)
-        parents = set()
-        for node in nodes:
-            yield node
-            for reference in [
-                *self.get_query_node_references(node),
-                getattr(node, "value", None),
-            ]:
-                if isinstance(reference, QueryNode) and reference not in seen:
-                    parents.add(reference)
-        if parents:
-            yield from self.walk_query_dag(parents, seen=seen)
+    def walk_query_dag(self, nodes):
+        def recurse(nodes, seen):
+            for node in nodes:
+                yield from recurse(self.get_parent_nodes(node), seen)
+                if node not in seen:
+                    seen.add(node)
+                    yield node
+
+        return list(recurse(nodes, set()))
+
+    def get_parent_nodes(self, node):
+        if hasattr(node, "definitions"):
+            yield from self.get_sources_from_category_definitions(
+                node.definitions.values()
+            )
+        if hasattr(node, "source"):
+            yield node.source
+        if hasattr(node, "value") and isinstance(node.value, QueryNode):
+            yield node.value
 
     @staticmethod
     def is_output_node(node):
@@ -149,9 +147,9 @@ class MssqlQueryEngine(BaseQueryEngine):
     def is_category_node(node):
         return isinstance(node, ValueFromCategory)
 
-    def get_type_and_source(self, node):
+    def get_output_group(self, node):
         assert self.is_output_node(node)
-        return type(node), self.get_query_node_references(node)[0]
+        return type(node), node.source
 
     @staticmethod
     def get_output_column_name(node):
@@ -173,16 +171,6 @@ class MssqlQueryEngine(BaseQueryEngine):
                 )
         return sources
 
-    def get_query_node_references(self, node):
-        if hasattr(node, "definitions"):
-            return tuple(
-                self.get_sources_from_category_definitions(node.definitions.values())
-            )
-        elif hasattr(node, "source"):
-            return (node.source,)
-        else:
-            return []
-
     def get_node_list(self, node):
         """For a single node, get a list of it and all its parents in order"""
         node_list = []
@@ -191,7 +179,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             if type(node) is Table:
                 break
             else:
-                node = self.get_query_node_references(node)[0]
+                node = node.source
         node_list.reverse()
         return node_list
 
@@ -225,7 +213,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         # For each group of output nodes, build a query expression
         # to populate the associated temporary table
         self.output_group_tables_queries = {
-            group: self.get_query_expression(output_nodes)
+            group: self.get_query_expression(group, output_nodes)
             for group, output_nodes in self.output_groups.items()
         }
 
@@ -271,14 +259,12 @@ class MssqlQueryEngine(BaseQueryEngine):
         query = sqlalchemy.select(column_objs).select_from(table_expr)
         return query
 
-    def get_query_expression(self, output_nodes):
+    def get_query_expression(self, group, output_nodes):
         """
         From a group of output nodes that represent the route to a single output value,
         generate the query that will return the value from its source table(s)
         """
-        # output_nodes must all be of the same group, and all have the same output
-        # type and source, so we arbitrarily use the first one
-        output_type, query_node = self.get_type_and_source(output_nodes[0])
+        output_type, query_node = group
 
         # Queries (currently) always have a linear structure so we can
         # decompose them into a list
@@ -363,7 +349,7 @@ class MssqlQueryEngine(BaseQueryEngine):
                 category_definitions.values()
             )
             tables = {
-                source: self.output_group_tables[self.get_type_and_source(source)]
+                source: self.output_group_tables[self.get_output_group(source)]
                 for source in all_category_sources
             }
             category_mapping = {}
@@ -377,7 +363,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             value_expr = self.get_case_expression(category_mapping, value.default)
             tables = tuple(tables.values())
         elif self.is_output_node(value):
-            table = self.output_group_tables[self.get_type_and_source(value)]
+            table = self.output_group_tables[self.get_output_group(value)]
             column = self.get_output_column_name(value)
             value_expr = table.c[column]
             tables = (table,)
