@@ -21,8 +21,7 @@ class Comparator:
 
     def __init__(
         self,
-        children=None,
-        connector="and_",
+        connector=None,
         negated=False,
         lhs=None,
         operator=None,
@@ -30,14 +29,12 @@ class Comparator:
     ):
         """
         Construct a new Comparator.
-        A single comparator is created from an expression such as `foo > 3` and
+        The simplest comparator is created from an expression such as `foo > 3` and
         will have a lhs ('foo'; a Value object), operator ('__gt__')
-        and a rhs (3; a simple type - str/int/float/None).  A tree of Comparators
-        will have at most two child Comparators, which are to be connected with self.connector.
-        Each child may itself have more child Comparators, again with a connector to indicate
-        how they should be joined
+        and a rhs (3; a simple type - str/int/float/None).
+        The lhs and rhs of a Comparator can themselves be Comparators, which are to be
+        connected with self.connector.
         """
-        self.children = children[:] if children else []
         self.connector = connector
         self.negated = negated
         self.lhs = lhs
@@ -50,9 +47,6 @@ class Comparator:
     def __or__(self, other):
         return self._combine(other, "or_")
 
-    def __len__(self):
-        return len(self.children)
-
     def __invert__(self):
         obj = self.copy()
         obj.negated = not self.negated
@@ -60,7 +54,6 @@ class Comparator:
 
     def copy(self):
         obj = type(self)(
-            children=self.children,
             connector=self.connector,
             negated=self.negated,
             lhs=self.lhs,
@@ -72,16 +65,11 @@ class Comparator:
     def _combine(self, other, conn):
         if not (isinstance(other, Comparator)):
             raise TypeError(other)
-
         obj = type(self)()
         obj.connector = conn
-        obj.add(self, conn)
-        obj.add(other, conn)
+        obj.lhs = self
+        obj.rhs = other
         return obj
-
-    def add(self, data, conn_type):
-        if not (self.connector == conn_type and data in self.children):
-            self.children.append(data)
 
 
 def boolean_comparator(obj, negated=False):
