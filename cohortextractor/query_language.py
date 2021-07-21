@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import copy
 
 
 _OPERATOR_MAPPING = {
@@ -55,13 +55,20 @@ class Comparator:
         return len(self.children)
 
     def __invert__(self):
-        obj = deepcopy(self)
-        obj.negate()
+        obj = copy(self)
+        obj.negated = not self.negated
         return obj
 
-    def negate(self):
-        """Negate the sense of the root comparator."""
-        self.negated = not self.negated
+    def __copy__(self):
+        obj = type(self)(
+            children=self.children,
+            connector=self.connector,
+            negated=self.negated,
+            source=self.source,
+            operator=self.operator,
+            value=self.value,
+        )
+        return obj
 
     def _combine(self, other, conn):
         if not (isinstance(other, Comparator)):
