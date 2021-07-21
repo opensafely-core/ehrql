@@ -9,6 +9,7 @@ class Patient(Base):
     __tablename__ = "Patient"
     Patient_ID = Column(Integer, primary_key=True)
     Sex = Column(String())
+    DateOfBirth = Column(Date)
 
 
 def patient(patient_id, sex, *entities):

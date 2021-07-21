@@ -11,6 +11,7 @@ class TPPBackend(BaseBackend):
         source="Patient",
         columns=dict(
             sex=Column("varchar", source="Sex"),
+            date_of_birth=Column("date", source="DateOfBirth"),
         ),
     )
 

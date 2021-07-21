@@ -95,11 +95,15 @@ def test_covid_test_negative_result(database, setup_tpp_database):
 @pytest.mark.integration
 def test_patients_table(database, setup_tpp_database):
     setup_tpp_database(
-        Patient(Patient_ID=1, Sex="F"),
+        Patient(Patient_ID=1, Sex="F", DateOfBirth="1950-01-01"),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
     )
 
     class Cohort:
-        sex = table("patients").get("sex")
+        _patients = table("patients")
+        sex = _patients.get("sex")
+        dob = _patients.get("date_of_birth")
 
-    assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, sex="F")]
+    assert extract(Cohort, TPPBackend, database) == [
+        dict(patient_id=1, sex="F", dob=date(1950, 1, 1))
+    ]
