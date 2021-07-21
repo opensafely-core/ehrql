@@ -85,8 +85,9 @@ class Comparator:
             self.children.append(data)
 
 
-def c(value):
-    return Comparator(source=value, operator="__ne__", value=None)
+def boolean_comparator(obj, negated=False):
+    """returns a comparator which represents a comparison against null values"""
+    return Comparator(source=obj, operator="__ne__", value=None, negated=negated)
 
 
 class QueryNode:
@@ -202,23 +203,44 @@ class Row(QueryNode):
 
 
 class Value(QueryNode):
+    @staticmethod
+    def _other_as_comparator(other):
+        if isinstance(other, Value):
+            other = boolean_comparator(other)
+        return other
+
+    def _get_comparator(self, operator, other):
+        other = self._other_as_comparator(other)
+        return Comparator(source=self, operator=operator, value=other)
+
     def __gt__(self, other):
-        return Comparator(source=self, operator="__gt__", value=other)
+        return self._get_comparator("__gt__", other)
 
     def __ge__(self, other):
-        return Comparator(source=self, operator="__ge__", value=other)
+        return self._get_comparator("__ge__", other)
 
     def __lt__(self, other):
-        return Comparator(source=self, operator="__lt__", value=other)
+        return self._get_comparator("__lt__", other)
 
     def __le__(self, other):
-        return Comparator(source=self, operator="__le__", value=other)
+        return self._get_comparator("__le__", other)
 
     def __eq__(self, other):
-        return Comparator(source=self, operator="__eq__", value=other)
+        return self._get_comparator("__eq__", other)
 
     def __ne__(self, other):
-        return Comparator(source=self, operator="__ne__", value=other)
+        return self._get_comparator("__ne__", other)
+
+    def __and__(self, other):
+        other = self._other_as_comparator(other)
+        return boolean_comparator(self) & other
+
+    def __or__(self, other):
+        other = self._other_as_comparator(other)
+        return boolean_comparator(self) | other
+
+    def __invert__(self):
+        return boolean_comparator(self, negated=True)
 
     def __hash__(self):
         return id(self)
@@ -238,6 +260,10 @@ class ValueFromAggregate(Value):
 
 
 def categorise(mapping, default):
+    mapping = {
+        key: boolean_comparator(value) if isinstance(value, Value) else value
+        for key, value in mapping.items()
+    }
     return ValueFromCategory(mapping, default)
 
 

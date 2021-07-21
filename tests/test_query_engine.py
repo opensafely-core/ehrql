@@ -11,7 +11,7 @@ from lib.mock_backend import (
 )
 from lib.util import extract
 
-from cohortextractor.query_language import Codelist, c, categorise, table
+from cohortextractor.query_language import Codelist, categorise, table
 
 
 def test_backend_tables():
@@ -832,7 +832,7 @@ def test_categorise_on_truthiness(database, setup_test_database):
 
     class Cohort:
         _code = table("clinical_events").filter(code="abc").exists()
-        _codes_categories = {"yes": c(_code)}
+        _codes_categories = {"yes": _code}
         abc = categorise(_codes_categories, default="na")
 
     result = extract(Cohort, MockBackend, database)
@@ -866,7 +866,7 @@ def test_categorise_on_truthiness_from_filter(database, setup_test_database):
             .latest()
             .get("code")
         )
-        _codes_categories = {"yes": c(_code)}
+        _codes_categories = {"yes": _code}
         has_code = categorise(_codes_categories, default="na")
 
     result = extract(Cohort, MockBackend, database)
@@ -906,7 +906,7 @@ def test_categorise_multiple_truthiness_values(database, setup_test_database):
             .get("code")
         )
         _has_positive_test = table("positive_tests").filter(result=True).exists()
-        _codes_categories = {"yes": c(_code) & c(_has_positive_test)}
+        _codes_categories = {"yes": _code & _has_positive_test}
         has_positive_code = categorise(_codes_categories, default="na")
 
     result = extract(Cohort, MockBackend, database)
@@ -976,7 +976,7 @@ def test_categorise_invert_truthiness_values(database, setup_test_database):
             .latest()
             .get("code")
         )
-        _codes_categories = {"yes": c(_code), "no": ~c(_code)}
+        _codes_categories = {"yes": _code, "no": ~_code}
         has_code = categorise(_codes_categories, default="na")
 
     result = extract(Cohort, MockBackend, database)
@@ -1015,7 +1015,7 @@ def test_categorise_invert_combined_values(database, setup_test_database):
             .get("code")
         )
         _has_positive_test = table("positive_tests").filter(result=True).exists()
-        _codes_categories = {"neg_or_no_code": ~(c(_code) & c(_has_positive_test))}
+        _codes_categories = {"neg_or_no_code": ~(_code & _has_positive_test)}
         result_group = categorise(_codes_categories, default="pos")
 
     result = extract(Cohort, MockBackend, database)
@@ -1048,7 +1048,7 @@ def test_categorise_double_invert(database, setup_test_database):
             .latest()
             .get("code")
         )
-        _codes_categories = {"yes": ~(~c(_code))}
+        _codes_categories = {"yes": ~~_code}
         has_code = categorise(_codes_categories, default="na")
 
     result = extract(Cohort, MockBackend, database)
