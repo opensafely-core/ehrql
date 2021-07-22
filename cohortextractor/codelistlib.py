@@ -1,15 +1,7 @@
 import csv
 from pathlib import Path
 
-from cohortextractor.query_language import QueryNode
-
-
-class Codelist(QueryNode):
-    def __init__(self, codes, system, has_categories=False):
-        if has_categories:
-            raise NotImplementedError("Categorised codelists are currently unsupported")
-        self.codes = list(codes)
-        self.system = system
+from cohortextractor.query_language import Codelist
 
 
 def codelist(codes, system):

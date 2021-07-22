@@ -6,8 +6,8 @@ import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
 import sqlalchemy.types
 
-from ..codelistlib import Codelist
 from ..query_language import (
+    Codelist,
     Column,
     Comparator,
     FilteredTable,
