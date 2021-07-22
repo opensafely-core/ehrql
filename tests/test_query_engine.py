@@ -11,7 +11,7 @@ from lib.mock_backend import (
 )
 from lib.util import extract
 
-from cohortextractor.query_language import Codelist, categorise, table
+from cohortextractor.query_language import categorise, table
 
 
 def test_backend_tables():
@@ -778,41 +778,6 @@ def test_categorise_nested_comparisons(database, setup_test_database):
         dict(patient_id=3, height_group="tall_or_code", height_group1="code_or_tall"),
         dict(patient_id=4, height_group="na", height_group1="na"),
         dict(patient_id=5, height_group="na", height_group1="na"),
-    ]
-
-
-@pytest.mark.integration
-def test_codelist_query(database, setup_test_database):
-    input_data = [
-        # Patient 1
-        RegistrationHistory(PatientId=1),
-        Events(PatientId=1, EventCode="abc", Date="2021-1-1"),
-        Events(PatientId=1, EventCode="xyz", Date="2021-2-1"),
-        Events(PatientId=1, EventCode="foo", Date="2021-3-1"),
-        # Patient 2
-        RegistrationHistory(PatientId=2),
-        Events(PatientId=2, EventCode="bar", Date="2021-1-1"),
-        # Patient 3
-        RegistrationHistory(PatientId=3),
-        Events(PatientId=3, EventCode="ijk", Date="2021-1-1"),
-    ]
-    setup_test_database(input_data)
-
-    # Insert a load of extra codes as padding to force this test to exercise
-    # the "insert in multiple batches" codepath
-    extra_codes = [f"Code{n}" for n in range(1100)]
-    codelist = Codelist(["abc", "xyz", *extra_codes, "ijk"], system="ctv3")
-
-    class Cohort:
-        code = (
-            table("clinical_events").filter("code", is_in=codelist).latest().get("code")
-        )
-
-    result = extract(Cohort, MockBackend, database)
-    assert result == [
-        {"patient_id": 1, "code": "xyz"},
-        {"patient_id": 2, "code": None},
-        {"patient_id": 3, "code": "ijk"},
     ]
 
 
