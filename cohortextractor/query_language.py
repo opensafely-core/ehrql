@@ -42,7 +42,7 @@ class Comparator:
         self.rhs = rhs
 
     def __repr__(self):
-        return f"Comparator(children={self.children}, connector={self.connector}, source={self.source}, operator={self.operator}, value={self.value})"
+        return f"Comparator(connector={self.connector}, negated={self.negated}, lhs={self.lhs}, operator={self.operator}, rhs={self.rhs})"
 
     def __and__(self, other):
         return self._combine(other, "and_")
