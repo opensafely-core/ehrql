@@ -1,0 +1,114 @@
+[('Cursor', 'execute', ('select @@version', {}), {}, None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor',
+  'fetchone',
+  (),
+  {},
+  ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
+   '\tJun 25 2021 14:02:48 \n'
+   '\tCopyright (C) 2017 Microsoft Corporation\n'
+   '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor', 'execute', ('SELECT schema_name()', {}), {}, None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, ('dbo',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   '                  SELECT CASE transaction_isolation_level\n'
+   '                    WHEN 0 THEN NULL\n'
+   "                    WHEN 1 THEN 'READ UNCOMMITTED'\n"
+   "                    WHEN 2 THEN 'READ COMMITTED'\n"
+   "                    WHEN 3 THEN 'REPEATABLE READ'\n"
+   "                    WHEN 4 THEN 'SERIALIZABLE'\n"
+   "                    WHEN 5 THEN 'SNAPSHOT' END AS "
+   'TRANSACTION_ISOLATION_LEVEL\n'
+   '                    FROM sys.dm_exec_sessions\n'
+   '                    where session_id = @@SPID\n'
+   '                  ',),
+  {},
+  None),
+ ('Cursor', 'fetchone', (), {}, ('READ COMMITTED',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ("SELECT CAST('test max support' AS NVARCHAR(max))", {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, ('test max support',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE [#codelist_0] (\n'
+   '\tcode VARCHAR(3) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL\n'
+   ')\n'
+   '\n'
+   '\n'
+   '\n'
+   '\n'
+   "INSERT INTO [#codelist_0] (code) VALUES ('xyz')\n"
+   '\n'
+   '\n'
+   'SELECT * INTO #group_table_0 FROM (\n'
+   'SELECT hospitalizations.code, hospitalizations.patient_id \n'
+   'FROM (\n'
+   '            SELECT Patient_ID as patient_id, Admission_Date as date, \n'
+   '        REVERSE(\n'
+   '            SUBSTRING(\n'
+   '                REVERSE(fully_split.Value),\n'
+   '                PATINDEX(\n'
+   "                    '%[^X]%',\n"
+   '                    REVERSE(fully_split.Value)\n'
+   '                ),\n'
+   "                LEN(fully_split.Value) - PATINDEX('%[^X]%', "
+   'REVERSE(fully_split.Value)) + 1\n'
+   '            )\n'
+   '        )\n'
+   '     as code\n'
+   '            FROM APCS\n'
+   '            -- STRING_SPLIT() only accepts a single-character delimiter, '
+   'so collapse multi-character delimiters before\n'
+   '            -- splitting. This only works because we know the codes '
+   "themselves don't container commas and pipes.\n"
+   "            CROSS APPLY STRING_SPLIT(REPLACE(Der_Diagnosis_All, ' ||', "
+   "'|'), '|') pipe_split\n"
+   "            CROSS APPLY STRING_SPLIT(REPLACE(pipe_split.Value, ' ,', ','), "
+   "',') fully_split\n"
+   '        ) AS hospitalizations \n'
+   'WHERE hospitalizations.code IN (SELECT [#codelist_0].code \n'
+   'FROM [#codelist_0])\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT * INTO #group_table_1 FROM (\n'
+   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
+   'FROM (SELECT StartDate AS date_start, EndDate AS date_end, Patient_ID AS '
+   'patient_id \n'
+   'FROM [RegistrationHistory]) AS practice_registrations GROUP BY '
+   'practice_registrations.patient_id\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].code AS '
+   'code \n'
+   'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
+   '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
+   'WHERE [#group_table_1].patient_id_exists = 1',
+   {}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('patient_id', 3, None, None, None, None, None),
+   ('code', 1, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, None)),
+ ('Cursor', 'fetchone', (), {}, (2, 'xyz')),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'rollback', (), {}, None)]

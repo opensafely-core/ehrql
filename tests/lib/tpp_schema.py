@@ -79,7 +79,11 @@ class APCS(Base):
     APCS_Ident = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Admission_Date = Column(Date)
+    Der_Diagnosis_All = Column(String)
 
 
-def apcs(admission_date):
-    return APCS(Admission_Date=admission_date)
+def apcs(admission_date=None, codes=None):
+    return APCS(
+        Admission_Date=(admission_date or "2012-12-12"),
+        Der_Diagnosis_All=codes or "xyz",
+    )

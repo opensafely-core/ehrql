@@ -13,7 +13,7 @@ from lib.tpp_schema import (
 )
 from lib.util import extract
 
-from cohortextractor import table
+from cohortextractor import codelist, table
 from cohortextractor.backends.tpp import TPPBackend
 
 
@@ -113,9 +113,14 @@ def test_patients_table(database, setup_tpp_database):
 
 
 @pytest.mark.integration
-def test_hospitalization_table(database, setup_tpp_database):
+def test_hospitalization_table_returns_admission_date(database, setup_tpp_database):
     setup_tpp_database(
-        *patient(1, "M", registration("2001-01-01", "2026-06-26"), apcs("2020-12-12"))
+        *patient(
+            1,
+            "M",
+            registration("2001-01-01", "2026-06-26"),
+            apcs(admission_date="2020-12-12"),
+        )
     )
 
     class Cohort:
@@ -123,4 +128,72 @@ def test_hospitalization_table(database, setup_tpp_database):
 
     assert extract(Cohort, TPPBackend, database) == [
         dict(patient_id=1, admission=date(2020, 12, 12))
+    ]
+
+
+@pytest.mark.parametrize(
+    "raw, codes",
+    [
+        ("flim", ["flim"]),
+        ("flim ,flam ,flum", ["flim", "flam", "flum"]),
+        ("flim ||flam ||flum", ["flim", "flam", "flum"]),
+        ("abc ,def ||ghi ,jkl", ["abc", "def", "ghi", "jkl"]),
+        ("ABCX ,XYZ ,OXO", ["ABC", "XYZ", "OXO"]),
+    ],
+    ids=[
+        "returns a single code",
+        "returns multiple space comma separated codes",
+        "returns multiple space double pipe separated codes",
+        "copes with comma pipe combinations",
+        "strips just trailing xs",
+    ],
+)
+@pytest.mark.integration
+def test_hospitalization_table_code_conversion(
+    database, setup_tpp_database, raw, codes
+):
+    setup_tpp_database(
+        *patient(
+            1,
+            "M",
+            registration("2001-01-01", "2026-06-26"),
+            apcs(codes=raw),
+        )
+    )
+
+    class Cohort:
+        code = table("hospitalizations").get("code")
+
+    assert extract(Cohort, TPPBackend, database) == [
+        dict(patient_id=1, code=code) for code in codes
+    ]
+
+
+@pytest.mark.integration
+def test_hospitalization_code_parsing_works_with_filters(database, setup_tpp_database):
+    setup_tpp_database(
+        *patient(
+            1,
+            "X",
+            registration("2001-01-01", "2026-06-26"),
+            apcs(codes="abc"),
+        ),
+        *patient(
+            2,
+            "X",
+            registration("2001-01-01", "2026-06-26"),
+            apcs(codes="xyz"),
+        ),
+    )
+
+    class Cohort:
+        code = (
+            table("hospitalizations")
+            .filter("code", is_in=codelist(["xyz"], system="ctv3"))
+            .get("code")
+        )
+
+    assert extract(Cohort, TPPBackend, database) == [
+        dict(patient_id=1, code=None),
+        dict(patient_id=2, code="xyz"),
     ]
