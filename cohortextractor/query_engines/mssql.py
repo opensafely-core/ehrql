@@ -217,6 +217,18 @@ class MssqlQueryEngine(BaseQueryEngine):
     #
     # MSSQL-SPECIFIC QUERIES
     #
+
+    def _replace_categorised_codelist_columns(self, columns):
+        """
+        Update selected columns for a temporary table
+        A "category" column is selected from a categorised codelist, matched on
+        code.  We don't want category in the temporary table, we need code instead
+        """
+        if "category" in columns:
+            columns.add("code")
+            columns.remove("category")
+        return columns
+
     def create_output_group_tables(self):
         """Queries to generate and populate interim tables for each output"""
         # For each group of output nodes (nodes that produce a single output value),
@@ -226,6 +238,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             # The `#` prefix makes this a session-scoped temporary table
             table_name = f"#group_table_{i}"
             columns = {self.get_output_column_name(output) for output in output_nodes}
+            columns = self._replace_categorised_codelist_columns(columns)
             self.output_group_tables[group] = make_table_expression(
                 table_name, {"patient_id"} | columns
             )
@@ -245,6 +258,8 @@ class MssqlQueryEngine(BaseQueryEngine):
         """
         for n, codelist in enumerate(self.codelists):
             codes = codelist.codes
+            if codelist.has_categories:
+                codes = [code[0] for code in codes]
             max_code_len = max(map(len, codes))
             # TODO: Figure out the best way to get the appropriate collation
             # here. Possibly something like:
@@ -260,6 +275,11 @@ class MssqlQueryEngine(BaseQueryEngine):
                     sqlalchemy.types.String(max_code_len, collation=collation),
                     nullable=False,
                 ),
+                sqlalchemy.Column(
+                    "category",
+                    sqlalchemy.VARCHAR(None),
+                    nullable=True,
+                ),
             )
             self.codelist_tables[codelist] = table
             # Constuct the queries needed to create and populate this table
@@ -267,12 +287,17 @@ class MssqlQueryEngine(BaseQueryEngine):
             # There's a limit of 999 on how many rows we can insert in one go using
             # this method See:
             # https://docs.microsoft.com/en-us/sql/t-sql/queries/table-value-constructor-transact-sql?view=sql-server-ver15#limitations-and-restrictions
-            for codes_batch in split_list_into_batches(codes, size=999):
-                insert_query = table.insert().values([(code,) for code in codes_batch])
+            for codes_batch in split_list_into_batches(codelist.codes, size=999):
+                if codelist.has_categories:
+                    batch = [(code, category) for (code, category) in codes_batch]
+                else:
+                    batch = [(code,) for code in codes_batch]
+                insert_query = table.insert().values(batch)
                 self.codelist_tables_queries.append(insert_query)
 
     def get_select_expression(self, base_table, columns):
         # every table must have a patient_id column; select it and the specified columns
+        columns = self._replace_categorised_codelist_columns(columns)
         columns = sorted({"patient_id"}.union(columns))
         table_expr = self.backend.get_table_expression(base_table.name)
         column_objs = [table_expr.c[column] for column in columns]
@@ -390,7 +415,23 @@ class MssqlQueryEngine(BaseQueryEngine):
         elif self.is_output_node(value):
             table = self.output_group_tables[self.get_output_group(value)]
             column = self.get_output_column_name(value)
-            value_expr = table.c[column]
+            if column == "category":
+                # A "category" column means we're returning the category from a
+                # categorised codelist
+                # Find the parent codelist node and its table
+                codelist_node = next(
+                    node
+                    for node in self.walk_query_dag([value])
+                    if isinstance(node, Codelist)
+                )
+                codelist_table = self.codelist_tables[codelist_node]
+                value_expr = (
+                    sqlalchemy.select(codelist_table.c.category)
+                    .select_from(codelist_table)
+                    .where(table.c.code == codelist_table.c.code)
+                )
+            else:
+                value_expr = table.c[column]
             tables = (table,)
         elif isinstance(value, Codelist):
             codelist_table = self.codelist_tables[value]

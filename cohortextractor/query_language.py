@@ -288,10 +288,9 @@ class ValueFromCategory(Value):
 
 class Codelist(QueryNode):
     def __init__(self, codes, system, has_categories=False):
-        if has_categories:
-            raise NotImplementedError("Categorised codelists are currently unsupported")
         self.codes = list(codes)
         self.system = system
+        self.has_categories = has_categories
 
     def __repr__(self):
         if len(self.codes) > 5:

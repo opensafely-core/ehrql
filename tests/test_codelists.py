@@ -1,10 +1,17 @@
+import re
 from pathlib import Path
 
 import pytest
 from lib.mock_backend import Events, MockBackend, RegistrationHistory
 from lib.util import extract
 
-from cohortextractor import codelist, codelist_from_csv, combine_codelists, table
+from cohortextractor import (
+    codelist,
+    codelist_from_csv,
+    combine_codelists,
+    filter_codes_by_category,
+    table,
+)
 
 
 @pytest.fixture
@@ -87,10 +94,19 @@ def test_codelist_from_csv_unknown_column(codelist_csv):
 
 def test_codelist_from_csv_with_categories(codelist_csv):
     csv_path = codelist_csv("categories")
-    with pytest.raises(
-        NotImplementedError, match="Categorised codelists are currently unsupported"
-    ):
-        codelist_from_csv(csv_path, system="ctv3", category_column="category")
+    expected = codelist(
+        [
+            ("123A", "respiratory"),
+            ("123B", "respiratory"),
+            ("234C", "other"),
+            ("345D", "other"),
+        ],
+        system="ctv3",
+    )
+    actual = codelist_from_csv(csv_path, system="ctv3", category_column="category")
+    assert actual.codes == expected.codes
+    assert actual.system == expected.system
+    assert actual.has_categories
 
 
 @pytest.mark.parametrize(
@@ -165,4 +181,79 @@ def test_codelist_query_with_codelist_from_csv(
         {"patient_id": 1, "code": "abc"},
         {"patient_id": 2, "code": None},
         {"patient_id": 3, "code": None},
+    ]
+
+
+def test_filter_codes_by_category():
+    codes = codelist([("1", "A"), ("2", "B"), ("3", "A"), ("4", "C")], "ctv3")
+    filtered = filter_codes_by_category(codes, include=["B", "C"])
+    assert filtered.system == codes.system
+    assert filtered.codes == [("2", "B"), ("4", "C")]
+
+
+def test_combine_codelists_with_categories():
+    list_1 = codelist([("A", "foo"), ("B", "bar")], system="icd10")
+    list_2 = codelist([("X", "foo"), ("Y", "bar")], system="icd10")
+    combined = combine_codelists(list_1, list_2)
+    expected = codelist(
+        [("A", "foo"), ("B", "bar"), ("X", "foo"), ("Y", "bar")], system="icd10"
+    )
+    assert combined.codes == expected.codes
+    assert combined.system == expected.system
+
+
+def test_combine_codelists_mixed_categorisation():
+    list_1 = codelist([("A", "foo"), ("B", "bar")], system="icd10")
+    list_2 = codelist(["X", "Y", "Z"], system="icd10")
+    with pytest.raises(
+        ValueError, match="Cannot combine categorised and uncategorised codelists"
+    ):
+        combine_codelists(list_1, list_2)
+
+
+def test_combine_codelists_inconsistent_categories():
+    list_1 = codelist([("A", "foo"), ("B", "bar")], system="icd10")
+    list_2 = codelist([("X", "foo"), ("B", "foo")], system="icd10")
+    with pytest.raises(
+        ValueError,
+        match=re.escape("Inconsistent categorisation: ('B', 'foo') and ('B', 'bar')"),
+    ):
+        combine_codelists(list_1, list_2)
+
+
+@pytest.mark.integration
+def test_codelist_query_with_categorised_codelist(database, setup_test_database):
+    input_data = [
+        # Patient 1
+        RegistrationHistory(PatientId=1),
+        Events(PatientId=1, EventCode="abc", Date="2021-1-1"),
+        Events(PatientId=1, EventCode="xyz", Date="2021-2-1"),
+        Events(PatientId=1, EventCode="foo", Date="2021-3-1"),
+        # Patient 2
+        RegistrationHistory(PatientId=2),
+        Events(PatientId=2, EventCode="bar", Date="2021-1-1"),
+        # Patient 3
+        RegistrationHistory(PatientId=3),
+        Events(PatientId=3, EventCode="ijk", Date="2021-1-1"),
+    ]
+    setup_test_database(input_data)
+
+    test_codelist = codelist(
+        [("abc", "cat1"), ("xyz", "cat1"), ("foo", "cat2"), ("bar", "cat1")],
+        system="ctv3",
+    )
+
+    class Cohort:
+        category = (
+            table("clinical_events")
+            .filter("code", is_in=test_codelist)
+            .latest()
+            .get("category")
+        )
+
+    result = extract(Cohort, MockBackend, database)
+    assert result == [
+        {"patient_id": 1, "category": "cat2"},
+        {"patient_id": 2, "category": "cat1"},
+        {"patient_id": 3, "category": None},
     ]
