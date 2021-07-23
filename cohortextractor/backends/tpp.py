@@ -11,6 +11,7 @@ class TPPBackend(BaseBackend):
         source="Patient",
         columns=dict(
             sex=Column("varchar", source="Sex"),
+            date_of_birth=Column("date", source="DateOfBirth"),
         ),
     )
 
@@ -40,4 +41,11 @@ class TPPBackend(BaseBackend):
             UNION ALL
             SELECT Patient_ID as patient_id, Specimen_Date AS date, 0 AS positive_result FROM SGSS_AllTests_Negative
         """,
+    )
+
+    hospitalizations = MappedTable(
+        source="APCS",
+        columns=dict(
+            date=Column("date", source="Admission_Date"),
+        ),
     )

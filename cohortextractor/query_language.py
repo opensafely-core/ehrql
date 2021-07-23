@@ -41,6 +41,9 @@ class Comparator:
         self.operator = operator
         self.rhs = rhs
 
+    def __repr__(self):
+        return f"Comparator(children={self.children}, connector={self.connector}, source={self.source}, operator={self.operator}, value={self.value})"
+
     def __and__(self, other):
         return self._combine(other, "and_")
 
@@ -84,6 +87,9 @@ class QueryNode:
 class Table(QueryNode):
     def __init__(self, name):
         self.name = name
+
+    def __repr__(self):
+        return f"Table(name={self.name})"
 
     def get(self, column):
         return Column(source=self, column=column)
@@ -172,11 +178,17 @@ class FilteredTable(Table):
         self.operator = operator
         self.value = value
 
+    def __repr__(self):
+        return f"FilteredTable(source={self.source}, column={self.column}, operator={self.operator}, value={self.value})"
+
 
 class Column(QueryNode):
     def __init__(self, source, column):
         self.source = source
         self.column = column
+
+    def __repr__(self):
+        return f"Column(source={self.source}, column={self.column})"
 
 
 class Row(QueryNode):
@@ -184,6 +196,9 @@ class Row(QueryNode):
         self.source = source
         self.sort_columns = sort_columns
         self.descending = descending
+
+    def __repr__(self):
+        return f"Row(source={self.source}, columns={self.sort_columns}, descending={self.descending})"
 
     def get(self, column):
         return ValueFromRow(source=self, column=column)
@@ -238,12 +253,18 @@ class ValueFromRow(Value):
         self.source = source
         self.column = column
 
+    def __repr__(self):
+        return f"ValueFromRow(source={self.source}, column={self.column})"
+
 
 class ValueFromAggregate(Value):
     def __init__(self, source, function, column):
         self.source = source
         self.function = function
         self.column = column
+
+    def __repr__(self):
+        return f"ValueFromAggregate(source={self.source}, function={self.function}, column={self.column})"
 
 
 def categorise(mapping, default):
@@ -259,6 +280,11 @@ class ValueFromCategory(Value):
         self.default = default
         self.definitions = definitions
 
+    def __repr__(self):
+        return (
+            f"ValueFromCategory(default={self.default}, definitions={self.definitions})"
+        )
+
 
 class Codelist(QueryNode):
     def __init__(self, codes, system, has_categories=False):
@@ -266,3 +292,10 @@ class Codelist(QueryNode):
             raise NotImplementedError("Categorised codelists are currently unsupported")
         self.codes = list(codes)
         self.system = system
+
+    def __repr__(self):
+        if len(self.codes) > 5:
+            codes = self.codes[:5] + ["..."]
+        else:
+            codes = self.codes
+        return f"Codelist(system={self.system}, codes={codes})"

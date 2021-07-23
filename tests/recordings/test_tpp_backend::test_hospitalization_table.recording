@@ -43,10 +43,9 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT patients.date_of_birth, patients.patient_id, patients.sex \n'
-   'FROM (SELECT Sex AS sex, DateOfBirth AS date_of_birth, Patient_ID AS '
-   'patient_id \n'
-   'FROM [Patient]) AS patients\n'
+   'SELECT hospitalizations.date, hospitalizations.patient_id \n'
+   'FROM (SELECT Admission_Date AS date, Patient_ID AS patient_id \n'
+   'FROM [APCS]) AS hospitalizations\n'
    ') t\n'
    '\n'
    '\n'
@@ -59,8 +58,8 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].sex AS '
-   'sex, [#group_table_0].date_of_birth AS dob \n'
+   'SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].date AS '
+   'admission \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
    'WHERE [#group_table_1].patient_id_exists = 1',
@@ -72,9 +71,8 @@
   (),
   {},
   (('patient_id', 3, None, None, None, None, None),
-   ('sex', 1, None, None, None, None, None),
-   ('dob', 2, None, None, None, None, None))),
- ('Cursor', 'fetchone', (), {}, (1, 'F', datetime.date(1950, 1, 1))),
+   ('admission', 2, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, datetime.date(2020, 12, 12))),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]
