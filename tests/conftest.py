@@ -13,23 +13,31 @@ from lib.tpp_schema import Base
 from sqlalchemy.orm import sessionmaker
 
 
-@pytest.fixture
-def docker_client(request):
-    yield request.session.docker_client
+@pytest.fixture(scope="session")
+def docker_client():
+    yield docker.from_env()
 
 
-@pytest.fixture
-def network(request):
-    yield request.session.network_name
+@pytest.fixture(scope="session")
+def network(docker_client):
+    name = "test_network"
+    docker_client.networks.create(name)
+    yield name
+    docker_client.networks.get(name).remove()
 
 
-@pytest.fixture
-def containers(request):
-    yield Containers(request.session.docker_client)
+@pytest.fixture(scope="session")
+def containers(docker_client):
+    yield Containers(docker_client)
 
 
-def mssql_dir():
+def mssql_dir_path():
     return Path(__file__).parent.absolute() / "support/mssql"
+
+
+@pytest.fixture(scope="session")
+def mssql_dir():
+    yield mssql_dir_path()
 
 
 def is_smoke_test(request):
@@ -80,8 +88,22 @@ def test_identifier(request):
     return identifier
 
 
+@pytest.fixture(scope="session")
+def record_db(containers, docker_client, network, mssql_dir):
+    container, database = make_database(containers, docker_client, mssql_dir, network)
+    wait_for_database(database)
+    yield database
+    if container is not None:
+        containers.destroy(containers.get_container(container))
+
+
+@pytest.fixture(scope="session")
+def playback_db():
+    yield DbDetails("", "", 0, "", 0, "", "")
+
+
 @pytest.fixture
-def database(request, recording, containers, docker_client, network):
+def database(request, record_db, playback_db):
     assert is_smoke_test(request) or is_integration_test(
         request
     ), "Only smoke and integration tests can use the database"
@@ -90,16 +112,9 @@ def database(request, recording, containers, docker_client, network):
     ), "A test cannot be both a smoke test and an integration test"
 
     if is_smoke_test(request) or playback.recording_mode() == "record":
-        if request.session.database is None:
-            container, database = make_database(
-                containers, docker_client, mssql_dir(), network
-            )
-            wait_for_database(database)
-            request.session.container = container
-            request.session.database = database
-        yield request.session.database
+        yield record_db
     else:
-        yield request.session.playback_database
+        yield playback_db
 
 
 @pytest.fixture
@@ -137,35 +152,3 @@ def setup_tpp_database(setup_test_database):
         setup_test_database(data, base=Base)
 
     yield setup
-
-
-def pytest_sessionstart(session):
-    """
-    Called after the Session object has been created and before performing collection
-    and entering the run test loop.
-    Set up the session-based docker client and database.
-    """
-    session.docker_client = docker.from_env()
-    session.network_name = "test_network"
-    session.docker_client.networks.create(session.network_name)
-    containers = Containers(session.docker_client)
-
-    session.playback_database = DbDetails("", "", 0, "", 0, "", "")
-    session.container = None
-    session.database = None
-    if playback.recording_mode() != "playback":
-        session.container, session.database = make_database(
-            containers, session.docker_client, mssql_dir(), session.network_name
-        )
-        wait_for_database(session.database)
-
-
-def pytest_sessionfinish(session, exitstatus):
-    """
-    Called after whole test run finished, right before
-    returning the exit status to the system.
-    """
-    containers = Containers(session.docker_client)
-    if session.container:
-        containers.destroy(containers.get_container(session.container))
-    session.docker_client.networks.get(session.network_name).remove()
