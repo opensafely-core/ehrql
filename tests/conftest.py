@@ -31,13 +31,9 @@ def containers(docker_client):
     yield Containers(docker_client)
 
 
-def mssql_dir_path():
-    return Path(__file__).parent.absolute() / "support/mssql"
-
-
 @pytest.fixture(scope="session")
 def mssql_dir():
-    yield mssql_dir_path()
+    yield Path(__file__).parent.absolute() / "support/mssql"
 
 
 def is_smoke_test(request):
@@ -89,21 +85,35 @@ def test_identifier(request):
 
 
 @pytest.fixture(scope="session")
-def record_db(containers, docker_client, network, mssql_dir):
-    container, database = make_database(containers, docker_client, mssql_dir, network)
-    wait_for_database(database)
-    yield database
+def real_db(containers, docker_client, network, mssql_dir, request):
+    container = None
+
+    def lazily_created_session_scoped_database(recording):
+        nonlocal container
+        try:
+            database = request.session.database
+        except AttributeError:
+            container, database = make_database(
+                containers, docker_client, mssql_dir, network
+            )
+            with recording.suspended():
+                wait_for_database(database)
+            request.session.database = database
+        return database
+
+    yield lazily_created_session_scoped_database
+
     if container is not None:
         containers.destroy(containers.get_container(container))
 
 
 @pytest.fixture(scope="session")
-def playback_db():
+def dummy_db():
     yield DbDetails("", "", 0, "", 0, "", "")
 
 
 @pytest.fixture
-def database(request, record_db, playback_db):
+def database(request, real_db, dummy_db, recording):
     assert is_smoke_test(request) or is_integration_test(
         request
     ), "Only smoke and integration tests can use the database"
@@ -112,9 +122,9 @@ def database(request, record_db, playback_db):
     ), "A test cannot be both a smoke test and an integration test"
 
     if is_smoke_test(request) or playback.recording_mode() == "record":
-        yield record_db
+        yield real_db(recording)
     else:
-        yield playback_db
+        yield dummy_db
 
 
 @pytest.fixture
