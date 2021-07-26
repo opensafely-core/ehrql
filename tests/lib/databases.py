@@ -43,13 +43,13 @@ def null_database():
     return DbDetails(None, None, None, None, None, None, None)
 
 
-def make_database(containers, docker_client, mssql_dir, network, run_container):
+def make_database(containers, docker_client, mssql_dir, network):
     password = "Your_password123!"
 
     if database_mode() == "persistent":
         return persistent_database(containers, password, docker_client, mssql_dir)
     if database_mode() == "ephemeral":
-        return ephemeral_database(run_container, password, mssql_dir, network)
+        return ephemeral_database(containers, password, mssql_dir, network)
 
 
 def wait_for_database(database):
@@ -104,7 +104,7 @@ def persistent_database(containers, password, docker_client, mssql_dir):
             command="/opt/mssql/bin/sqlservr",
         )
 
-    return DbDetails(
+    return None, DbDetails(
         network=network,
         host_from_container=container,
         port_from_container=DEFAULT_MSSQL_PORT,
@@ -115,11 +115,11 @@ def persistent_database(containers, password, docker_client, mssql_dir):
     )
 
 
-def ephemeral_database(run_container, password, mssql_dir, network):
+def ephemeral_database(containers, password, mssql_dir, network):
     container = "mssql"
     published_port = random.randint(PERSISTENT_DATABASE_PORT + 1, 65535)
 
-    run_container(
+    containers.run_bg(
         name=container,
         image="mcr.microsoft.com/mssql/server:2017-CU25-ubuntu-16.04",
         volumes={
@@ -131,8 +131,7 @@ def ephemeral_database(run_container, password, mssql_dir, network):
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
     )
-
-    return DbDetails(
+    return container, DbDetails(
         network=network,
         host_from_container=container,
         port_from_container=DEFAULT_MSSQL_PORT,

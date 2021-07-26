@@ -14,44 +14,20 @@ from sqlalchemy.orm import sessionmaker
 
 
 @pytest.fixture
-def docker_client():
-    yield docker.from_env()
+def docker_client(request):
+    yield request.session.docker_client
 
 
 @pytest.fixture
-def network(docker_client):
-    name = "test_network"
-    docker_client.networks.create(name)
-    try:
-        yield name
-    finally:
-        docker_client.networks.get(name).remove()
+def network(request):
+    yield request.session.network_name
 
 
 @pytest.fixture
-def containers(docker_client, network):
-    # `network` is specified as an argument for sequencing reasons. We need to make sure that the network is created
-    # before containers that use it and that all containers are cleaned up before the network is removed.
-    yield Containers(docker_client)
+def containers(request):
+    yield Containers(request.session.docker_client)
 
 
-@pytest.fixture
-def run_container(containers):
-    container = None
-
-    def run(**kwargs):
-        nonlocal container
-        container = containers.run_bg(**kwargs)
-
-    try:
-        yield run
-    finally:
-        if container:
-            # noinspection PyTypeChecker
-            containers.destroy(container)
-
-
-@pytest.fixture
 def mssql_dir():
     return Path(__file__).parent.absolute() / "support/mssql"
 
@@ -105,9 +81,7 @@ def test_identifier(request):
 
 
 @pytest.fixture
-def database(
-    request, run_container, containers, network, docker_client, mssql_dir, recording
-):
+def database(request, recording, containers, docker_client, network):
     assert is_smoke_test(request) or is_integration_test(
         request
     ), "Only smoke and integration tests can use the database"
@@ -115,26 +89,17 @@ def database(
         is_smoke_test(request) and is_integration_test(request)
     ), "A test cannot be both a smoke test and an integration test"
 
-    if is_smoke_test(request):
-        database = make_database(
-            containers, docker_client, mssql_dir, network, run_container
-        )
-        wait_for_database(database)
-        yield database
-        return
-
-    database = None
-    if playback.recording_mode() == "playback":
-        database = DbDetails("", "", 0, "", 0, "", "")
-    if playback.recording_mode() == "record":
-        database = make_database(
-            containers, docker_client, mssql_dir, network, run_container
-        )
-        with recording.suspended():
-            # The queries we issue while waiting for the database will differ, so don't record them. We don't
-            # wait during playback.
+    if is_smoke_test(request) or playback.recording_mode() == "record":
+        if request.session.database is None:
+            container, database = make_database(
+                containers, docker_client, mssql_dir(), network
+            )
             wait_for_database(database)
-    yield database
+            request.session.container = container
+            request.session.database = database
+        yield request.session.database
+    else:
+        yield request.session.playback_database
 
 
 @pytest.fixture
@@ -172,3 +137,35 @@ def setup_tpp_database(setup_test_database):
         setup_test_database(data, base=Base)
 
     yield setup
+
+
+def pytest_sessionstart(session):
+    """
+    Called after the Session object has been created and before performing collection
+    and entering the run test loop.
+    Set up the session-based docker client and database.
+    """
+    session.docker_client = docker.from_env()
+    session.network_name = "test_network"
+    session.docker_client.networks.create(session.network_name)
+    containers = Containers(session.docker_client)
+
+    session.playback_database = DbDetails("", "", 0, "", 0, "", "")
+    session.container = None
+    session.database = None
+    if playback.recording_mode() != "playback":
+        session.container, session.database = make_database(
+            containers, session.docker_client, mssql_dir(), session.network_name
+        )
+        wait_for_database(session.database)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """
+    Called after whole test run finished, right before
+    returning the exit status to the system.
+    """
+    containers = Containers(session.docker_client)
+    if session.container:
+        containers.destroy(containers.get_container(session.container))
+    session.docker_client.networks.get(session.network_name).remove()
