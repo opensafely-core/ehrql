@@ -13,47 +13,27 @@ from lib.tpp_schema import Base
 from sqlalchemy.orm import sessionmaker
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def docker_client():
     yield docker.from_env()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def network(docker_client):
     name = "test_network"
     docker_client.networks.create(name)
-    try:
-        yield name
-    finally:
-        docker_client.networks.get(name).remove()
+    yield name
+    docker_client.networks.get(name).remove()
 
 
-@pytest.fixture
-def containers(docker_client, network):
-    # `network` is specified as an argument for sequencing reasons. We need to make sure that the network is created
-    # before containers that use it and that all containers are cleaned up before the network is removed.
+@pytest.fixture(scope="session")
+def containers(docker_client):
     yield Containers(docker_client)
 
 
-@pytest.fixture
-def run_container(containers):
-    container = None
-
-    def run(**kwargs):
-        nonlocal container
-        container = containers.run_bg(**kwargs)
-
-    try:
-        yield run
-    finally:
-        if container:
-            # noinspection PyTypeChecker
-            containers.destroy(container)
-
-
-@pytest.fixture
+@pytest.fixture(scope="session")
 def mssql_dir():
-    return Path(__file__).parent.absolute() / "support/mssql"
+    yield Path(__file__).parent.absolute() / "support/mssql"
 
 
 def is_smoke_test(request):
@@ -104,10 +84,36 @@ def test_identifier(request):
     return identifier
 
 
+@pytest.fixture(scope="session")
+def real_db(containers, docker_client, network, mssql_dir, request):
+    container = None
+
+    def lazily_created_session_scoped_database(recording):
+        nonlocal container
+        try:
+            database = request.session.database
+        except AttributeError:
+            container, database = make_database(
+                containers, docker_client, mssql_dir, network
+            )
+            with recording.suspended():
+                wait_for_database(database)
+            request.session.database = database
+        return database
+
+    yield lazily_created_session_scoped_database
+
+    if container is not None:
+        containers.destroy(containers.get_container(container))
+
+
+@pytest.fixture(scope="session")
+def dummy_db():
+    yield DbDetails("", "", 0, "", 0, "", "")
+
+
 @pytest.fixture
-def database(
-    request, run_container, containers, network, docker_client, mssql_dir, recording
-):
+def database(request, real_db, dummy_db, recording):
     assert is_smoke_test(request) or is_integration_test(
         request
     ), "Only smoke and integration tests can use the database"
@@ -115,26 +121,10 @@ def database(
         is_smoke_test(request) and is_integration_test(request)
     ), "A test cannot be both a smoke test and an integration test"
 
-    if is_smoke_test(request):
-        database = make_database(
-            containers, docker_client, mssql_dir, network, run_container
-        )
-        wait_for_database(database)
-        yield database
-        return
-
-    database = None
-    if playback.recording_mode() == "playback":
-        database = DbDetails("", "", 0, "", 0, "", "")
-    if playback.recording_mode() == "record":
-        database = make_database(
-            containers, docker_client, mssql_dir, network, run_container
-        )
-        with recording.suspended():
-            # The queries we issue while waiting for the database will differ, so don't record them. We don't
-            # wait during playback.
-            wait_for_database(database)
-    yield database
+    if is_smoke_test(request) or recording.mode == "record":
+        yield real_db(recording)
+    else:
+        yield dummy_db
 
 
 @pytest.fixture
@@ -142,7 +132,7 @@ def setup_test_database(database, recording, request):
     db_url = database.host_url()
 
     def setup(input_data, drivername="mssql+pymssql", base=mock_backend.Base):
-        if is_integration_test(request) and playback.recording_mode() == "playback":
+        if is_integration_test(request) and recording.mode == "playback":
             # Since we suspend recording during setup, we must skip it altogether during playback.
             return
 

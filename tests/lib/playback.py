@@ -6,18 +6,15 @@ import pymssql
 from lib.util import get_mode
 
 
-def recording_mode():
-    return get_mode("RECORDING", ["record", "playback"], "playback")
-
-
 @contextmanager
 def recording_for(identifier, is_passing):
-    if recording_mode() == "playback":
+    mode = get_mode("RECORDING", ["record", "playback"], "playback")
+    if mode == "playback":
         recording = Recording.load(identifier)
         with _patch_pymssql(recording):
             yield recording.suspendable()
-    if recording_mode() == "record":
-        recording = Recording(identifier)
+    if mode == "record":
+        recording = Recording(identifier, "record")
         with _patch_pymssql(recording):
             yield recording.suspendable()
             if is_passing():
@@ -55,6 +52,10 @@ class Suspendable:
     def __init__(self, recording):
         self._recording = recording
 
+    @property
+    def mode(self):
+        return self._recording.mode
+
     @contextmanager
     def suspended(self):
         self._recording.suspend()
@@ -71,11 +72,12 @@ class Recording:
     calls to all objections.
     """
 
-    def __init__(self, test_name, calls=None):
+    def __init__(self, test_name, mode, calls=None):
         self._test_name = test_name
         self._calls = calls or []
         self._seen_playback_error = False
         self._suspended = False
+        self.mode = mode
 
     def record(self, target, method, args, kwargs, result):
         """Record a single method call."""
@@ -150,7 +152,7 @@ class Recording:
         calls = eval(s)
 
         assert calls, f"Invalid recording {path} has no calls"
-        return Recording(test_name=test, calls=calls)
+        return Recording(test_name=test, calls=calls, mode="playback")
 
     @staticmethod
     def _recording_path(test):
@@ -212,9 +214,9 @@ def record(method):
     """Decorator to allow record and playback of method calls."""
 
     def wrapper(target, *args, **kwargs):
-        if recording_mode() == "playback":
+        if target.recording.mode == "playback":
             return target.recording.playback(target, method, args, kwargs)
-        if recording_mode() == "record":
+        if target.recording.mode == "record":
             result = method(target, *args, **kwargs)
             target.recording.record(target, method, args, kwargs, result)
             return result
@@ -226,9 +228,9 @@ def connect(recording, original):
     """A record/playback wrapper for the DBAPI connect() entrypoint."""
 
     def wrapper(*args, **kwargs):
-        if recording_mode() == "playback":
+        if recording.mode == "playback":
             return Connection(None, recording)
-        if recording_mode() == "record":
+        if recording.mode == "record":
             return Connection(original(*args, **kwargs), recording)
 
     return wrapper
@@ -242,9 +244,9 @@ class Connection:
         self.recording = recording
 
     def cursor(self, *args, **kwargs):
-        if recording_mode() == "playback":
+        if self.recording.mode == "playback":
             return Cursor(None, self.recording)
-        if recording_mode() == "record":
+        if self.recording.mode == "record":
             return Cursor(self._wrapped.cursor(*args, **kwargs), self.recording)
 
     @record

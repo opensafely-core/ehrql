@@ -8,9 +8,12 @@ class Containers:
     def __init__(self, docker_client):
         self._docker = docker_client
 
+    def get_container(self, name):
+        return self._docker.containers.get(name)
+
     def is_running(self, name):
         try:
-            container = self._docker.containers.get(name)
+            container = self.get_container(name)
             return container.status == "running"
         except docker.errors.NotFound:
             return False
