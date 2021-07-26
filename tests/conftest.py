@@ -121,7 +121,7 @@ def database(request, real_db, dummy_db, recording):
         is_smoke_test(request) and is_integration_test(request)
     ), "A test cannot be both a smoke test and an integration test"
 
-    if is_smoke_test(request) or playback.recording_mode() == "record":
+    if is_smoke_test(request) or recording.mode == "record":
         yield real_db(recording)
     else:
         yield dummy_db
@@ -132,7 +132,7 @@ def setup_test_database(database, recording, request):
     db_url = database.host_url()
 
     def setup(input_data, drivername="mssql+pymssql", base=mock_backend.Base):
-        if is_integration_test(request) and playback.recording_mode() == "playback":
+        if is_integration_test(request) and recording.mode == "playback":
             # Since we suspend recording during setup, we must skip it altogether during playback.
             return
 
