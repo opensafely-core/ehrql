@@ -38,6 +38,11 @@ covid_codes = load_codelist(
     "icd10",
     "icd10_code",
 )
+long_covid_diagnostic_codes = load_codelist(
+    "opensafely-nice-managing-the-long-term-effects-of-covid-19.csv",
+    "snomed",
+    "code",
+)
 
 pandemic_start = "2020-02-01"
 registration_date = "2020-11-01"
@@ -67,12 +72,12 @@ class SimplifiedCohort:
         .get("date")
     )
 
-    # # Outcome
-    # _long_covid_table = (
-    #     table("clinical_events").filter("code", is_in=long_covid_diagnostic_codes)
-    # )
-    # long_covid = _long_covid_table.exists()
-    # first_long_covid_date = _long_covid_table.earliest().get("code")
+    # Outcome
+    _long_covid_table = table("clinical_events").filter(
+        "code", is_in=long_covid_diagnostic_codes
+    )
+    long_covid = _long_covid_table.exists()
+    first_long_covid_date = _long_covid_table.earliest().get("date")
 
     # Demographics
     # _age = table("patients").age_as_of(registration_date)
@@ -116,6 +121,7 @@ def test_simplified_cohort(database, setup_tpp_database):
             negative_test(specimen_date="2020-04-04"),
             event(code="Y228e", date="2020-07-07"),  # covid diagnosis
             apcs(codes="U071", admission_date="2020-08-08"),  # covid virus identified
+            event(code="1325161000000102", date="2020-09-09"),  # post-covid syndrome
         ),
         # excluded by registration date
         *patient(2, "M", registration(start_date="2001-01-01", end_date="2002-02-02"))
@@ -127,5 +133,7 @@ def test_simplified_cohort(database, setup_tpp_database):
             sgss_first_positive_test_date=date(2020, 5, 5),
             primary_care_covid_first_date=datetime(2020, 7, 7),
             hospital_covid_first_date=date(2020, 8, 8),
+            long_covid=1,
+            first_long_covid_date=datetime(2020, 9, 9),
         )
     ]
