@@ -55,6 +55,17 @@
    "('Y228e'), ('Y229c'), ('Y22a4'), ('Y22a5'), ('Y22aa'), ('Y246c')\n"
    '\n'
    '\n'
+   '\n'
+   'CREATE TABLE [#codelist_1] (\n'
+   '\tcode VARCHAR(4) COLLATE Latin1_General_BIN NOT NULL\n'
+   ')\n'
+   '\n'
+   '\n'
+   '\n'
+   '\n'
+   "INSERT INTO [#codelist_1] (code) VALUES ('U071'), ('U072')\n"
+   '\n'
+   '\n'
    'SELECT * INTO #group_table_0 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
    'FROM (SELECT StartDate AS date_start, EndDate AS date_end, Patient_ID AS '
@@ -98,6 +109,41 @@
    '\n'
    '\n'
    'SELECT * INTO #group_table_3 FROM (\n'
+   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM (SELECT hospitalizations.date, hospitalizations.patient_id, '
+   'row_number() OVER (PARTITION BY hospitalizations.patient_id ORDER BY '
+   'hospitalizations.date) AS _row_num \n'
+   'FROM (\n'
+   '            SELECT Patient_ID as patient_id, Admission_Date as date, \n'
+   '        REVERSE(\n'
+   '            SUBSTRING(\n'
+   '                REVERSE(fully_split.Value),\n'
+   '                PATINDEX(\n'
+   "                    '%[^X]%',\n"
+   '                    REVERSE(fully_split.Value)\n'
+   '                ),\n'
+   "                LEN(fully_split.Value) - PATINDEX('%[^X]%', "
+   'REVERSE(fully_split.Value)) + 1\n'
+   '            )\n'
+   '        )\n'
+   '     as code\n'
+   '            FROM APCS\n'
+   '            -- STRING_SPLIT() only accepts a single-character delimiter, '
+   'so collapse multi-character delimiters before\n'
+   '            -- splitting. This only works because we know the codes '
+   "themselves don't container commas and pipes.\n"
+   "            CROSS APPLY STRING_SPLIT(REPLACE(Der_Diagnosis_All, ' ||', "
+   "'|'), '|') pipe_split\n"
+   "            CROSS APPLY STRING_SPLIT(REPLACE(pipe_split.Value, ' ,', ','), "
+   "',') fully_split\n"
+   '        ) AS hospitalizations \n'
+   'WHERE hospitalizations.code IN (SELECT [#codelist_1].code \n'
+   'FROM [#codelist_1])) AS anon_1 \n'
+   'WHERE anon_1._row_num = 1\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT * INTO #group_table_4 FROM (\n'
    'SELECT patients.patient_id, patients.sex \n'
    'FROM (SELECT Sex AS sex, DateOfBirth AS date_of_birth, Patient_ID AS '
    'patient_id \n'
@@ -107,12 +153,15 @@
    '\n'
    'SELECT [#group_table_0].patient_id AS patient_id, [#group_table_1].date AS '
    'sgss_first_positive_test_date, [#group_table_2].date AS '
-   'primary_care_covid_first_date, [#group_table_3].sex AS sex \n'
+   'primary_care_covid_first_date, [#group_table_3].date AS '
+   'hospital_covid_first_date, [#group_table_4].sex AS sex \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
    '[#group_table_0].patient_id = [#group_table_1].patient_id LEFT OUTER JOIN '
    '[#group_table_2] ON [#group_table_0].patient_id = '
    '[#group_table_2].patient_id LEFT OUTER JOIN [#group_table_3] ON '
-   '[#group_table_0].patient_id = [#group_table_3].patient_id \n'
+   '[#group_table_0].patient_id = [#group_table_3].patient_id LEFT OUTER JOIN '
+   '[#group_table_4] ON [#group_table_0].patient_id = '
+   '[#group_table_4].patient_id \n'
    'WHERE [#group_table_0].patient_id_exists = 1',
    {}),
   {},
@@ -124,12 +173,17 @@
   (('patient_id', 3, None, None, None, None, None),
    ('sgss_first_positive_test_date', 2, None, None, None, None, None),
    ('primary_care_covid_first_date', 4, None, None, None, None, None),
+   ('hospital_covid_first_date', 2, None, None, None, None, None),
    ('sex', 1, None, None, None, None, None))),
  ('Cursor',
   'fetchone',
   (),
   {},
-  (1, datetime.date(2020, 5, 5), datetime.datetime(2020, 7, 7, 0, 0), 'F')),
+  (1,
+   datetime.date(2020, 5, 5),
+   datetime.datetime(2020, 7, 7, 0, 0),
+   datetime.date(2020, 8, 8),
+   'F')),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]

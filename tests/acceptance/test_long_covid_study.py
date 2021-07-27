@@ -2,21 +2,41 @@ from datetime import date, datetime
 from pathlib import Path
 
 import pytest
-from lib.tpp_schema import event, negative_test, patient, positive_test, registration
+from lib.tpp_schema import (
+    apcs,
+    event,
+    negative_test,
+    patient,
+    positive_test,
+    registration,
+)
 from lib.util import extract
 
 from cohortextractor import codelist_from_csv, table
 from cohortextractor.backends import TPPBackend
 
 
-covid_primary_care_code = codelist_from_csv(
-    Path(__file__).parent.parent.absolute()
-    / "fixtures"
-    / "long_covid_study"
-    / "codelists"
-    / "opensafely-covid-identification-in-primary-care-probable-covid-clinical-code.csv",
-    system="ctv3",
-    column="CTV3ID",
+def load_codelist(csv_file, system, column):
+    return codelist_from_csv(
+        Path(__file__).parent.parent.absolute()
+        / "fixtures"
+        / "long_covid_study"
+        / "codelists"
+        / csv_file,
+        system=system,
+        column=column,
+    )
+
+
+covid_primary_care_code = load_codelist(
+    "opensafely-covid-identification-in-primary-care-probable-covid-clinical-code.csv",
+    "ctv3",
+    "CTV3ID",
+)
+covid_codes = load_codelist(
+    "opensafely-covid-identification.csv",
+    "icd10",
+    "icd10_code",
 )
 
 pandemic_start = "2020-02-01"
@@ -40,8 +60,12 @@ class SimplifiedCohort:
         .get("date")
     )
 
-    # _hospital_covid = table("hospitalisation").filter("code", is_in=covid_codes)
-    # hospital_covid_first_date = _hospital_covid.earliest().get("date")
+    hospital_covid_first_date = (
+        table("hospitalizations")
+        .filter("code", is_in=covid_codes)
+        .earliest()
+        .get("date")
+    )
 
     # # Outcome
     # _long_covid_table = (
@@ -91,6 +115,7 @@ def test_simplified_cohort(database, setup_tpp_database):
             # excluded by being a negative result
             negative_test(specimen_date="2020-04-04"),
             event(code="Y228e", date="2020-07-07"),  # covid diagnosis
+            apcs(codes="U071", admission_date="2020-08-08"),  # covid virus identified
         ),
         # excluded by registration date
         *patient(2, "M", registration(start_date="2001-01-01", end_date="2002-02-02"))
@@ -101,5 +126,6 @@ def test_simplified_cohort(database, setup_tpp_database):
             sex="F",
             sgss_first_positive_test_date=date(2020, 5, 5),
             primary_care_covid_first_date=datetime(2020, 7, 7),
+            hospital_covid_first_date=date(2020, 8, 8),
         )
     ]
