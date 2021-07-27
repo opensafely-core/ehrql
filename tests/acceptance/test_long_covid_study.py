@@ -1,12 +1,48 @@
-from datetime import date
+from datetime import date, datetime
+from pathlib import Path
 
 import pytest
-from lib.tpp_schema import negative_test, patient, positive_test, registration
+from lib.tpp_schema import (
+    apcs,
+    event,
+    negative_test,
+    patient,
+    positive_test,
+    registration,
+)
 from lib.util import extract
 
-from cohortextractor import table
+from cohortextractor import codelist, codelist_from_csv, table
 from cohortextractor.backends import TPPBackend
 
+
+def load_codelist(csv_file, system, column):
+    return codelist_from_csv(
+        Path(__file__).parent.parent.absolute()
+        / "fixtures"
+        / "long_covid_study"
+        / "codelists"
+        / csv_file,
+        system=system,
+        column=column,
+    )
+
+
+covid_primary_care_code = load_codelist(
+    "opensafely-covid-identification-in-primary-care-probable-covid-clinical-code.csv",
+    "ctv3",
+    "CTV3ID",
+)
+covid_codes = load_codelist(
+    "opensafely-covid-identification.csv",
+    "icd10",
+    "icd10_code",
+)
+long_covid_diagnostic_codes = load_codelist(
+    "opensafely-nice-managing-the-long-term-effects-of-covid-19.csv",
+    "snomed",
+    "code",
+)
 
 pandemic_start = "2020-02-01"
 registration_date = "2020-11-01"
@@ -18,23 +54,30 @@ class SimplifiedCohort:
     )
 
     # COVID infection
-    _sgss_positives = table("sgss_sars_cov_2").filter(positive_result=True)
-    sgss_first_positive_test_date = _sgss_positives.earliest().get("date")
+    sgss_first_positive_test_date = (
+        table("sgss_sars_cov_2").filter(positive_result=True).earliest().get("date")
+    )
 
-    # _primary_care_covid = (
-    #     table("clinical_events").filter("code", is_in=covid_primary_care_code)
-    # )
-    # primary_care_covid_first_date = _primary_care_covid.earliest().get("date")
+    primary_care_covid_first_date = (
+        table("clinical_events")
+        .filter("code", is_in=covid_primary_care_code)
+        .earliest()
+        .get("date")
+    )
 
-    # _hospital_covid = table("hospitalisation").filter("code", is_in=covid_codes)
-    # hospital_covid_first_date = _hospital_covid.earliest().get("date")
+    hospital_covid_first_date = (
+        table("hospitalizations")
+        .filter("code", is_in=covid_codes)
+        .earliest()
+        .get("date")
+    )
 
-    # # Outcome
-    # _long_covid_table = (
-    #     table("clinical_events").filter("code", is_in=long_covid_diagnostic_codes)
-    # )
-    # long_covid = _long_covid_table.exists()
-    # first_long_covid_date = _long_covid_table.earliest().get("code")
+    # Outcome
+    _long_covid_table = table("clinical_events").filter(
+        "code", is_in=long_covid_diagnostic_codes
+    )
+    long_covid = _long_covid_table.exists()
+    first_long_covid_date = _long_covid_table.earliest().get("date")
 
     # Demographics
     # _age = table("patients").age_as_of(registration_date)
@@ -53,15 +96,17 @@ class SimplifiedCohort:
     sex = table("patients").get("sex")
 
 
-# # Add the Long covid code count variables
-# for code in long_covid_diagnostic_codes:
-#     variable_def = (
-#         table("clinical_events")
-#         .filter(code=codelist([code]))
-#         .filter("date", on_or_before=pandemic_start)
-#         .count("code")
-#     )
-#     setattr(SimplifiedCohort, f"snomed_{code}", variable_def)
+# Add the Long covid code count variables
+for code in long_covid_diagnostic_codes.codes:
+    variable_def = (
+        table("clinical_events")
+        .filter("code", is_in=codelist([code], long_covid_diagnostic_codes.system))
+        .filter("date", on_or_after=pandemic_start)
+        .count("code")
+    )
+    setattr(
+        SimplifiedCohort, f"{long_covid_diagnostic_codes.system}_{code}", variable_def
+    )
 
 
 @pytest.mark.integration
@@ -76,10 +121,24 @@ def test_simplified_cohort(database, setup_tpp_database):
             positive_test(specimen_date="2020-06-06"),
             # excluded by being a negative result
             negative_test(specimen_date="2020-04-04"),
+            event(code="Y228e", date="2020-07-07"),  # covid diagnosis
+            apcs(codes="U071", admission_date="2020-08-08"),  # covid virus identified
+            event(code="1325161000000102", date="2020-09-09"),  # post-covid syndrome
+            event(code="1325161000000102", date="2020-10-10"),  # post-covid syndrome
         ),
         # excluded by registration date
-        *patient(2, "M", registration(start_date="2001-01-01", end_date="2002-02-02"))
+        *patient(2, "M", registration(start_date="2001-01-01", end_date="2002-02-02")),
     )
     assert extract(SimplifiedCohort, TPPBackend, database) == [
-        dict(patient_id=1, sex="F", sgss_first_positive_test_date=date(2020, 5, 5))
+        dict(
+            patient_id=1,
+            sex="F",
+            sgss_first_positive_test_date=date(2020, 5, 5),
+            primary_care_covid_first_date=datetime(2020, 7, 7),
+            hospital_covid_first_date=date(2020, 8, 8),
+            long_covid=1,
+            first_long_covid_date=datetime(2020, 9, 9),
+            snomed_1325161000000102=2,
+            snomed_1325181000000106=None,
+        )
     ]

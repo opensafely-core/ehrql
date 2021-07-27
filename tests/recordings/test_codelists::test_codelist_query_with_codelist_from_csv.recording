@@ -44,7 +44,7 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_0] (\n'
-   '\tcode VARCHAR(7) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL\n'
+   '\tcode VARCHAR(7) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
    '\n'
    '\n'

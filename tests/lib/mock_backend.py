@@ -57,7 +57,7 @@ class Events(Base):
     __tablename__ = "events"
     EventId = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     PatientId = sqlalchemy.Column(sqlalchemy.Integer)
-    EventCode = sqlalchemy.Column(sqlalchemy.String)
+    EventCode = sqlalchemy.Column(sqlalchemy.String(collation="Latin1_General_BIN"))
     Date = sqlalchemy.Column(sqlalchemy.Date)
     ResultValue = sqlalchemy.Column(sqlalchemy.Float)
 
