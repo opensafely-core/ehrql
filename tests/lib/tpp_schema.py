@@ -38,6 +38,10 @@ class Events(Base):
     ConsultationDate = Column(DateTime)
 
 
+def event(code, date):
+    return Events(CTV3Code=code, ConsultationDate=date)
+
+
 class SGSSPositiveTests(Base):
     __tablename__ = "SGSS_AllTests_Positive"
     Result_ID = Column(

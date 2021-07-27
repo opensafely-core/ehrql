@@ -1,12 +1,23 @@
-from datetime import date
+from datetime import date, datetime
+from pathlib import Path
 
 import pytest
-from lib.tpp_schema import negative_test, patient, positive_test, registration
+from lib.tpp_schema import event, negative_test, patient, positive_test, registration
 from lib.util import extract
 
-from cohortextractor import table
+from cohortextractor import codelist_from_csv, table
 from cohortextractor.backends import TPPBackend
 
+
+covid_primary_care_code = codelist_from_csv(
+    Path(__file__).parent.parent.absolute()
+    / "fixtures"
+    / "long_covid_study"
+    / "codelists"
+    / "opensafely-covid-identification-in-primary-care-probable-covid-clinical-code.csv",
+    system="ctv3",
+    column="CTV3ID",
+)
 
 pandemic_start = "2020-02-01"
 registration_date = "2020-11-01"
@@ -18,13 +29,16 @@ class SimplifiedCohort:
     )
 
     # COVID infection
-    _sgss_positives = table("sgss_sars_cov_2").filter(positive_result=True)
-    sgss_first_positive_test_date = _sgss_positives.earliest().get("date")
+    sgss_first_positive_test_date = (
+        table("sgss_sars_cov_2").filter(positive_result=True).earliest().get("date")
+    )
 
-    # _primary_care_covid = (
-    #     table("clinical_events").filter("code", is_in=covid_primary_care_code)
-    # )
-    # primary_care_covid_first_date = _primary_care_covid.earliest().get("date")
+    primary_care_covid_first_date = (
+        table("clinical_events")
+        .filter("code", is_in=covid_primary_care_code)
+        .earliest()
+        .get("date")
+    )
 
     # _hospital_covid = table("hospitalisation").filter("code", is_in=covid_codes)
     # hospital_covid_first_date = _hospital_covid.earliest().get("date")
@@ -76,10 +90,16 @@ def test_simplified_cohort(database, setup_tpp_database):
             positive_test(specimen_date="2020-06-06"),
             # excluded by being a negative result
             negative_test(specimen_date="2020-04-04"),
+            event(code="Y228e", date="2020-07-07"),  # covid diagnosis
         ),
         # excluded by registration date
         *patient(2, "M", registration(start_date="2001-01-01", end_date="2002-02-02"))
     )
     assert extract(SimplifiedCohort, TPPBackend, database) == [
-        dict(patient_id=1, sex="F", sgss_first_positive_test_date=date(2020, 5, 5))
+        dict(
+            patient_id=1,
+            sex="F",
+            sgss_first_positive_test_date=date(2020, 5, 5),
+            primary_care_covid_first_date=datetime(2020, 7, 7),
+        )
     ]
