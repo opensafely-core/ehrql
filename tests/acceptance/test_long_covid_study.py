@@ -12,7 +12,7 @@ from lib.tpp_schema import (
 )
 from lib.util import extract
 
-from cohortextractor import codelist_from_csv, table
+from cohortextractor import codelist, codelist_from_csv, table
 from cohortextractor.backends import TPPBackend
 
 
@@ -96,15 +96,17 @@ class SimplifiedCohort:
     sex = table("patients").get("sex")
 
 
-# # Add the Long covid code count variables
-# for code in long_covid_diagnostic_codes:
-#     variable_def = (
-#         table("clinical_events")
-#         .filter(code=codelist([code]))
-#         .filter("date", on_or_before=pandemic_start)
-#         .count("code")
-#     )
-#     setattr(SimplifiedCohort, f"snomed_{code}", variable_def)
+# Add the Long covid code count variables
+for code in long_covid_diagnostic_codes.codes:
+    variable_def = (
+        table("clinical_events")
+        .filter("code", is_in=codelist([code], long_covid_diagnostic_codes.system))
+        .filter("date", on_or_after=pandemic_start)
+        .count("code")
+    )
+    setattr(
+        SimplifiedCohort, f"{long_covid_diagnostic_codes.system}_{code}", variable_def
+    )
 
 
 @pytest.mark.integration
@@ -122,9 +124,10 @@ def test_simplified_cohort(database, setup_tpp_database):
             event(code="Y228e", date="2020-07-07"),  # covid diagnosis
             apcs(codes="U071", admission_date="2020-08-08"),  # covid virus identified
             event(code="1325161000000102", date="2020-09-09"),  # post-covid syndrome
+            event(code="1325161000000102", date="2020-10-10"),  # post-covid syndrome
         ),
         # excluded by registration date
-        *patient(2, "M", registration(start_date="2001-01-01", end_date="2002-02-02"))
+        *patient(2, "M", registration(start_date="2001-01-01", end_date="2002-02-02")),
     )
     assert extract(SimplifiedCohort, TPPBackend, database) == [
         dict(
@@ -135,5 +138,7 @@ def test_simplified_cohort(database, setup_tpp_database):
             hospital_covid_first_date=date(2020, 8, 8),
             long_covid=1,
             first_long_covid_date=datetime(2020, 9, 9),
+            snomed_1325161000000102=2,
+            snomed_1325181000000106=None,
         )
     ]

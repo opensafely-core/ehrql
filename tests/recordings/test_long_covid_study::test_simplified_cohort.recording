@@ -78,6 +78,28 @@
    "('1325181000000106')\n"
    '\n'
    '\n'
+   '\n'
+   'CREATE TABLE [#codelist_3] (\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   ')\n'
+   '\n'
+   '\n'
+   '\n'
+   '\n'
+   "INSERT INTO [#codelist_3] (code) VALUES ('1325161000000102')\n"
+   '\n'
+   '\n'
+   '\n'
+   'CREATE TABLE [#codelist_4] (\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   ')\n'
+   '\n'
+   '\n'
+   '\n'
+   '\n'
+   "INSERT INTO [#codelist_4] (code) VALUES ('1325181000000106')\n"
+   '\n'
+   '\n'
    'SELECT * INTO #group_table_0 FROM (\n'
    'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
    'FROM (SELECT StartDate AS date_start, EndDate AS date_end, Patient_ID AS '
@@ -187,12 +209,38 @@
    ') t\n'
    '\n'
    '\n'
+   'SELECT * INTO #group_table_7 FROM (\n'
+   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
+   'code_count \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
+   'patient_id \n'
+   'FROM [CodedEvent]) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_3].code \n'
+   "FROM [#codelist_3]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
+   'clinical_events.patient_id\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT * INTO #group_table_8 FROM (\n'
+   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
+   'code_count \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
+   'patient_id \n'
+   'FROM [CodedEvent]) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_4].code \n'
+   "FROM [#codelist_4]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
+   'clinical_events.patient_id\n'
+   ') t\n'
+   '\n'
+   '\n'
    'SELECT [#group_table_0].patient_id AS patient_id, [#group_table_1].date AS '
    'sgss_first_positive_test_date, [#group_table_2].date AS '
    'primary_care_covid_first_date, [#group_table_3].date AS '
    'hospital_covid_first_date, [#group_table_4].patient_id_exists AS '
    'long_covid, [#group_table_5].date AS first_long_covid_date, '
-   '[#group_table_6].sex AS sex \n'
+   '[#group_table_6].sex AS sex, [#group_table_7].code_count AS '
+   'snomed_1325161000000102, [#group_table_8].code_count AS '
+   'snomed_1325181000000106 \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
    '[#group_table_0].patient_id = [#group_table_1].patient_id LEFT OUTER JOIN '
    '[#group_table_2] ON [#group_table_0].patient_id = '
@@ -202,7 +250,10 @@
    '[#group_table_4].patient_id LEFT OUTER JOIN [#group_table_5] ON '
    '[#group_table_0].patient_id = [#group_table_5].patient_id LEFT OUTER JOIN '
    '[#group_table_6] ON [#group_table_0].patient_id = '
-   '[#group_table_6].patient_id \n'
+   '[#group_table_6].patient_id LEFT OUTER JOIN [#group_table_7] ON '
+   '[#group_table_0].patient_id = [#group_table_7].patient_id LEFT OUTER JOIN '
+   '[#group_table_8] ON [#group_table_0].patient_id = '
+   '[#group_table_8].patient_id \n'
    'WHERE [#group_table_0].patient_id_exists = 1',
    {}),
   {},
@@ -217,7 +268,9 @@
    ('hospital_covid_first_date', 2, None, None, None, None, None),
    ('long_covid', 3, None, None, None, None, None),
    ('first_long_covid_date', 4, None, None, None, None, None),
-   ('sex', 1, None, None, None, None, None))),
+   ('sex', 1, None, None, None, None, None),
+   ('snomed_1325161000000102', 3, None, None, None, None, None),
+   ('snomed_1325181000000106', 3, None, None, None, None, None))),
  ('Cursor',
   'fetchone',
   (),
@@ -228,7 +281,9 @@
    datetime.date(2020, 8, 8),
    1,
    datetime.datetime(2020, 9, 9, 0, 0),
-   'F')),
+   'F',
+   2,
+   None)),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]
