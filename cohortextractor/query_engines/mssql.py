@@ -246,12 +246,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         for n, codelist in enumerate(self.codelists):
             codes = codelist.codes
             max_code_len = max(map(len, codes))
-            # TODO: Figure out the best way to get the appropriate collation
-            # here. Possibly something like:
-            #
-            #  collation = self.backend.collation_for_coding_system(codelists.system)
-            #
-            collation = "SQL_Latin1_General_CP1_CI_AS"
+            collation = "Latin1_General_BIN"
             table = sqlalchemy.Table(
                 f"#codelist_{n}",
                 sqlalchemy.MetaData(),

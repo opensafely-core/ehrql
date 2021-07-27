@@ -34,11 +34,7 @@ class Events(Base):
     __tablename__ = "CodedEvent"
     CodedEvent_ID = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    CTV3Code = Column(
-        String(
-            collation="Latin1_General_BIN"
-        )  # TODO: copied collation from old cohort extractor, do we actually need it?
-    )
+    CTV3Code = Column(String(collation="Latin1_General_BIN"))
     ConsultationDate = Column(DateTime)
 
 
