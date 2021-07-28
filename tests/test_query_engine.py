@@ -1027,7 +1027,16 @@ def test_categorise_double_invert(database, setup_test_database):
 
 @pytest.mark.integration
 def test_categorise_multiple_truthiness_categories(database, setup_test_database):
-    """Test truthiness of a Value from a filtered value"""
+    """
+    Test categorisation on multiple truthy values
+    This tests for a previous bug in sorting the reference nodes in category definitions.
+    A truthy categorisation ({`x`: _codes}) creates a Comparator instance with a ValueFromRow
+    as its LHS and tests for not-equal to None. In the query engine, we find all reference
+    nodes from category definitions and sort them to ensure a consistent order (largely for
+    tests) using the node column and source as a sort key,  The reference node for a
+    ValueFromRow is a Row, which can't be sorted.  THis test checks the workaround for
+    this scenario.
+    """
     input_data = [
         RegistrationHistory(PatientId=1),
         RegistrationHistory(PatientId=2),

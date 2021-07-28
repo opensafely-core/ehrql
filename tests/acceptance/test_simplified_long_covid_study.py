@@ -1,7 +1,7 @@
 from datetime import date, datetime
-from pathlib import Path
 
 import pytest
+from codelists import covid_codes, covid_primary_care_code, long_covid_diagnostic_codes
 from lib.tpp_schema import (
     apcs,
     event,
@@ -12,37 +12,9 @@ from lib.tpp_schema import (
 )
 from lib.util import extract
 
-from cohortextractor import codelist, codelist_from_csv, table
+from cohortextractor import codelist, table
 from cohortextractor.backends import TPPBackend
 
-
-def load_codelist(csv_file, system, column):
-    return codelist_from_csv(
-        Path(__file__).parent.parent.absolute()
-        / "fixtures"
-        / "long_covid_study"
-        / "codelists"
-        / csv_file,
-        system=system,
-        column=column,
-    )
-
-
-covid_primary_care_code = load_codelist(
-    "opensafely-covid-identification-in-primary-care-probable-covid-clinical-code.csv",
-    "ctv3",
-    "CTV3ID",
-)
-covid_codes = load_codelist(
-    "opensafely-covid-identification.csv",
-    "icd10",
-    "icd10_code",
-)
-long_covid_diagnostic_codes = load_codelist(
-    "opensafely-nice-managing-the-long-term-effects-of-covid-19.csv",
-    "snomed",
-    "code",
-)
 
 pandemic_start = "2020-02-01"
 registration_date = "2020-11-01"
