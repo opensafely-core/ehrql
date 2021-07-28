@@ -601,44 +601,42 @@ class MssqlQueryEngine(BaseQueryEngine):
 
         return results_query
 
-    def get_sql(self):
-        """Build the SQL"""
+    def get_queries(self):
+        """Build the list of SQL queries to execute"""
         self.create_codelist_tables()
         self.create_output_group_tables()
-        sql = []
+        queries = []
         # Create and populate tables containing codelists
-        for query in self.codelist_tables_queries:
-            sql.append(self.query_expression_to_sql(query))
+        queries.extend(self.codelist_tables_queries)
         # Generate each of the interim output group tables and populate them
         for group, table in self.output_group_tables.items():
             query = self.output_group_tables_queries[group]
-            query_sql = self.query_expression_to_sql(query)
-            sql.append(f"SELECT * INTO {table.name} FROM (\n{query_sql}\n) t")
+            # This is a bit of a hack but works OK. We want to be able to take
+            # an arbitrary select query and generate the SQL:
+            #
+            #   SELECT * INTO some_temporary_table FROM (some_select_query) AS some_alias
+            #
+            # which is the MSSQL-specific syntax for writing the results of a
+            # query directly into a temporary table. We can trick SQLAlchemy
+            # into generating this for us by giving it a literal column named
+            # "* INTO table_name".
+            write_to_temp_table = sqlalchemy.select(
+                sqlalchemy.literal_column(f"* INTO {table.name}")
+            ).select_from(query.alias())
+            queries.append(write_to_temp_table)
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
-        sql.append(self.query_expression_to_sql(self.generate_results_query()))
-        return "\n\n\n".join(sql)
-
-    def query_expression_to_sql(self, query):
-        dialect = self.sqlalchemy_dialect.dialect()
-        # SQLAlchemy will set this for us when connecting to an actual database
-        # (it asks for the server version and then updates capabilities
-        # accordingly) but we haven't connected to a database here so we have
-        # to set it manually
-        dialect.supports_multivalues_insert = True
-        return str(
-            query.compile(
-                dialect=dialect,
-                compile_kwargs={"literal_binds": True},
-            )
-        )
+        queries.append(self.generate_results_query())
+        return queries
 
     @contextlib.contextmanager
     def execute_query(self):
         """Execute a query against an MSSQL backend"""
-        sql = self.get_sql()
+        queries = self.get_queries()
         with self.engine.connect() as cursor:
-            result = cursor.execute(sqlalchemy.text(sql))
+            for query in queries:
+                result = cursor.execute(query)
+            # We're only interested in the results from the final query
             yield result
 
 
