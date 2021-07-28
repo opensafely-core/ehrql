@@ -188,7 +188,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         # here because query nodes are Values with overloaded lt/gt operators.
         return sorted(
             self.get_query_nodes_from_category_definitions(definitions),
-            key=lambda x: (x.column, x.source),
+            key=lambda x: (x.column, repr(x.source)),
         )
 
     def get_node_list(self, node):
