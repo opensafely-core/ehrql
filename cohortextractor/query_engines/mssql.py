@@ -186,9 +186,15 @@ class MssqlQueryEngine(BaseQueryEngine):
     def list_query_nodes_from_category_definitions(self, definitions):
         # Sort the query nodes to ensure consistent order.  We have to use a custom sort key
         # here because query nodes are Values with overloaded lt/gt operators.
+
+        # Note that we sort on column name first, and source as a tie-breaker in the event of
+        # two nodes with the same column name.  x.source can be a Row in the case of a truthy
+        # Comparator e.g. where a category definition looks something like {"x": code1, "y": code2}
+        # and code1/code2 are ValueFromRow.  In this case we can't use the source Row as a
+        # sort key, so we use its repr instead.
         return sorted(
             self.get_query_nodes_from_category_definitions(definitions),
-            key=lambda x: (x.column, x.source),
+            key=lambda x: (x.column, repr(x.source)),
         )
 
     def get_node_list(self, node):

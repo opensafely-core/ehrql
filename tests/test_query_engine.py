@@ -1023,3 +1023,55 @@ def test_categorise_double_invert(database, setup_test_database):
         dict(patient_id=3, has_code="yes"),
         dict(patient_id=4, has_code="yes"),
     ]
+
+
+@pytest.mark.integration
+def test_categorise_multiple_truthiness_categories(database, setup_test_database):
+    """
+    Test categorisation on multiple truthy values
+    This tests for a previous bug in sorting the reference nodes in category definitions.
+    A truthy categorisation ({`x`: _codes}) creates a Comparator instance with a ValueFromRow
+    as its LHS and tests for not-equal to None. In the query engine, we find all reference
+    nodes from category definitions and sort them to ensure a consistent order (largely for
+    tests) using the node column and source as a sort key,  The reference node for a
+    ValueFromRow is a Row, which can't be sorted.  THis test checks the workaround for
+    this scenario.
+    """
+    input_data = [
+        RegistrationHistory(PatientId=1),
+        RegistrationHistory(PatientId=2),
+        RegistrationHistory(PatientId=3),
+        RegistrationHistory(PatientId=4),
+        RegistrationHistory(PatientId=5),
+        Events(PatientId=1, EventCode="abc"),
+        Events(PatientId=2, EventCode="xyz"),
+        Events(PatientId=3, EventCode="uvw"),
+        Events(PatientId=4, EventCode="def"),
+        Events(PatientId=2, EventCode="lmn"),
+    ]
+    setup_test_database(input_data)
+
+    class Cohort:
+        _codes_1 = (
+            table("clinical_events")
+            .filter("code", is_in=["abc", "def"])
+            .latest()
+            .get("code")
+        )
+        _codes_2 = (
+            table("clinical_events")
+            .filter("code", is_in=["uvw", "xyz"])
+            .latest()
+            .get("code")
+        )
+        _codes_categories = {"1": _codes_1, "2": _codes_2}
+        has_positive_code = categorise(_codes_categories, default="na")
+
+    result = extract(Cohort, MockBackend, database)
+    assert result == [
+        dict(patient_id=1, has_positive_code="1"),
+        dict(patient_id=2, has_positive_code="2"),
+        dict(patient_id=3, has_positive_code="2"),
+        dict(patient_id=4, has_positive_code="1"),
+        dict(patient_id=5, has_positive_code="na"),
+    ]
