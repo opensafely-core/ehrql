@@ -197,3 +197,17 @@ def test_hospitalization_code_parsing_works_with_filters(database, setup_tpp_dat
         dict(patient_id=1, code=None),
         dict(patient_id=2, code="xyz"),
     ]
+
+
+@pytest.mark.integration
+def test_events_with_numeric_value(database, setup_tpp_database):
+    setup_tpp_database(
+        Patient(Patient_ID=1),
+        RegistrationHistory(Patient_ID=1),
+        Events(Patient_ID=1, CTV3Code="Code1", NumericValue=34.7),
+    )
+
+    class Cohort:
+        value = table("clinical_events").latest().get("numeric_value")
+
+    assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, value=34.7)]

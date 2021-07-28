@@ -49,6 +49,7 @@ class TPPBackend(BaseBackend):
         columns=dict(
             code=Column("varchar", source="CTV3Code"),
             date=Column("datetime", source="ConsultationDate"),
+            numeric_value=Column("float", source="NumericValue"),
         ),
     )
 
