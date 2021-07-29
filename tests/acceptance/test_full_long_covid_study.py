@@ -34,8 +34,9 @@ class Cohort:
     # Population
     # Patients registered on 2020-11-01
     _registrations = table("practice_registrations").date_in_range(index_date)
+    _current_registrations = _registrations.latest("date_end")
     population = _registrations.exists()
-    practice_id = _registrations.get("pseudo_id")
+    practice_id = _current_registrations.get("pseudo_id")
 
     # COVID infection
     sgss_first_positive_test_date = (
@@ -83,7 +84,7 @@ class Cohort:
     sex = table("patients").get("sex")
 
     # Region
-    region = _registrations.get("nuts1_region_name")
+    region = _current_registrations.get("nuts1_region_name")
 
     # IMD - TODO syntax TBC
     # _imd_value = (
