@@ -10,6 +10,7 @@ from lib.tpp_schema import (
     apcs,
     organisation,
     patient,
+    patient_address,
     registration,
 )
 from lib.util import extract
@@ -270,3 +271,50 @@ def test_organisation_dates(database, setup_tpp_database):
         dict(patient_id=1, region="South", practice_id=1),
         dict(patient_id=2, region="West", practice_id=3),
     ]
+
+
+@pytest.mark.integration
+def test_index_of_multiple_deprivation(database, setup_tpp_database):
+    setup_tpp_database(
+        *patient(
+            1,
+            "M",
+            registration("2001-01-01", "2026-06-26"),
+            patient_address("2001-01-01", "2026-06-26", 1200, "E02000001"),
+        )
+    )
+
+    class Cohort:
+        imd = (
+            table("patient_address")
+            .date_in_range("2021-06-01")
+            .last_by("date_start", "date_end", "has_postcode", "patientaddress_id")
+            .get("index_of_multiple_deprivation_rounded")
+        )
+
+    assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=1200)]
+
+
+@pytest.mark.integration
+def test_index_of_multiple_deprivation_sorting(database, setup_tpp_database):
+    setup_tpp_database(
+        *patient(
+            1,
+            "M",
+            registration("2001-01-01", "2026-06-26"),
+            patient_address("2001-01-01", "2026-06-26", 100, "NPC"),
+            patient_address("2001-01-01", "2026-06-26", 200, "NPC"),
+            patient_address("2001-01-01", "2026-06-26", 300, "E02000003"),
+            patient_address("2001-01-01", "2026-06-26", 400, "NPC"),
+        )
+    )
+
+    class Cohort:
+        imd = (
+            table("patient_address")
+            .date_in_range("2021-06-01")
+            .last_by("date_start", "date_end", "has_postcode", "patientaddress_id")
+            .get("index_of_multiple_deprivation_rounded")
+        )
+
+    assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=300)]

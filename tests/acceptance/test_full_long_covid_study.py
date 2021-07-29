@@ -15,6 +15,7 @@ from lib.tpp_schema import (
     negative_test,
     organisation,
     patient,
+    patient_address,
     positive_test,
     registration,
 )
@@ -86,20 +87,21 @@ class Cohort:
     # Region
     region = _current_registrations.get("nuts1_region_name")
 
-    # IMD - TODO syntax TBC
-    # _imd_value = (
-    #     table("patient_address").date_in_range(index_date).last_by(
-    #       "date_start", "date_end", "has_postcode", "patientaddress_id"
-    #     )
-    # )
-    # _imd_groups = {
-    #     "1": (_imd_value >= 1) & (_imd_value < (32844 * 1 / 5)),
-    #     "2": (_imd_value >= 32844 * 1 / 5) & (_imd_value < (32844 * 2 / 5)),
-    #     "3": (_imd_value >= 32844 * 2 / 5) & (_imd_value < (32844 * 3 / 5)),
-    #     "4": (_imd_value >= 32844 * 3 / 5) & (_imd_value < (32844 * 4 / 5)),
-    #     "5": (_imd_value >= 32844 * 4 / 5) & (_imd_value < 32844),
-    # }
-    # imd = categorise(_imd_groups, default="0")
+    # IMD
+    _imd_value = (
+        table("patient_address")
+        .date_in_range(index_date)
+        .last_by("date_start", "date_end", "has_postcode", "patientaddress_id")
+        .get("index_of_multiple_deprivation_rounded")
+    )
+    _imd_groups = {
+        "1": (_imd_value >= 1) & (_imd_value < (32844 * 1 / 5)),
+        "2": (_imd_value >= 32844 * 1 / 5) & (_imd_value < (32844 * 2 / 5)),
+        "3": (_imd_value >= 32844 * 2 / 5) & (_imd_value < (32844 * 3 / 5)),
+        "4": (_imd_value >= 32844 * 3 / 5) & (_imd_value < (32844 * 4 / 5)),
+        "5": (_imd_value >= 32844 * 4 / 5) & (_imd_value < 32844),
+    }
+    imd = categorise(_imd_groups, default="0")
 
     # Ethnicity
     ethnicity = (
@@ -155,6 +157,12 @@ def test_cohort(database, setup_tpp_database):
             registration(
                 start_date="2001-01-01", end_date="2026-06-26", organisation_id=1
             ),
+            patient_address(
+                start_date="2001-01-01",
+                end_date="2026-06-26",
+                imd=7000,
+                msoa="E02000003",
+            ),
             positive_test(specimen_date="2020-05-05"),
             # excluded by picking the earliest result
             positive_test(specimen_date="2020-06-06"),
@@ -196,6 +204,7 @@ def test_cohort(database, setup_tpp_database):
             first_long_covid_code="1325031000000108",
             ethnicity="Y9930",
             bmi="Obese I (30-34.9)",
+            imd="2",
             snomed_1325161000000102=2,
             snomed_1325181000000106=None,
             snomed_51771007=2,

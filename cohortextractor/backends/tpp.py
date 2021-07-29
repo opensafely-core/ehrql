@@ -97,3 +97,23 @@ class TPPBackend(BaseBackend):
             CROSS APPLY STRING_SPLIT(REPLACE(pipe_split.Value, ' ,', ','), ',') fully_split
         """,
     )
+
+    patient_address = QueryTable(
+        columns=dict(
+            patientaddress_id=Column("integer"),
+            date_start=Column("date"),
+            date_end=Column("date"),
+            index_of_multiple_deprivation_rounded=Column("integer"),
+            has_postcode=Column("boolean"),
+        ),
+        query="""
+            SELECT
+              Patient_ID as patient_id,
+              PatientAddress_ID as patientaddress_id,
+              StartDate as date_start,
+              EndDate as date_end,
+              ImdRankRounded as index_of_multiple_deprivation_rounded,
+              IIF(MSOACode = 'NPC', 0, 1) as has_postcode
+            FROM PatientAddress
+        """,
+    )

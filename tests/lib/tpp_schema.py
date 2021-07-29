@@ -101,3 +101,19 @@ def apcs(admission_date=None, codes=None):
         Admission_Date=(admission_date or "2012-12-12"),
         Der_Diagnosis_All=codes or "xyz",
     )
+
+
+class PatientAddress(Base):
+    __tablename__ = "PatientAddress"
+    PatientAddress_ID = Column(Integer, primary_key=True)
+    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
+    StartDate = Column(DateTime)
+    EndDate = Column(DateTime)
+    ImdRankRounded = Column(Integer)
+    MSOACode = Column(String)
+
+
+def patient_address(start_date, end_date, imd, msoa):
+    return PatientAddress(
+        StartDate=start_date, EndDate=end_date, ImdRankRounded=imd, MSOACode=msoa
+    )
