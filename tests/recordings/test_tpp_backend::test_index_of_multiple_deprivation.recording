@@ -1,0 +1,94 @@
+[('Cursor', 'execute', ('select @@version', {}), {}, None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor',
+  'fetchone',
+  (),
+  {},
+  ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
+   '\tJun 25 2021 14:02:48 \n'
+   '\tCopyright (C) 2017 Microsoft Corporation\n'
+   '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor', 'execute', ('SELECT schema_name()', {}), {}, None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, ('dbo',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   '                  SELECT CASE transaction_isolation_level\n'
+   '                    WHEN 0 THEN NULL\n'
+   "                    WHEN 1 THEN 'READ UNCOMMITTED'\n"
+   "                    WHEN 2 THEN 'READ COMMITTED'\n"
+   "                    WHEN 3 THEN 'REPEATABLE READ'\n"
+   "                    WHEN 4 THEN 'SERIALIZABLE'\n"
+   "                    WHEN 5 THEN 'SNAPSHOT' END AS "
+   'TRANSACTION_ISOLATION_LEVEL\n'
+   '                    FROM sys.dm_exec_sessions\n'
+   '                    where session_id = @@SPID\n'
+   '                  ',),
+  {},
+  None),
+ ('Cursor', 'fetchone', (), {}, ('READ COMMITTED',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ("SELECT CAST('test max support' AS NVARCHAR(max))", {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, ('test max support',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_0 FROM (\n'
+   'SELECT anon_1.index_of_multiple_deprivation_rounded, anon_1.patient_id \n'
+   'FROM (SELECT patient_address.index_of_multiple_deprivation_rounded, '
+   'patient_address.patient_id, row_number() OVER (PARTITION BY '
+   'patient_address.patient_id ORDER BY patient_address.date_start DESC, '
+   'patient_address.date_end DESC, patient_address.has_postcode DESC, '
+   'patient_address.patientaddress_id DESC) AS _row_num \n'
+   'FROM (\n'
+   '            SELECT\n'
+   '              Patient_ID as patient_id,\n'
+   '              PatientAddress_ID as patientaddress_id,\n'
+   '              StartDate as date_start,\n'
+   '              EndDate as date_end,\n'
+   '              ImdRankRounded as index_of_multiple_deprivation_rounded,\n'
+   "              IIF(MSOACode = 'NPC', 0, 1) as has_postcode\n"
+   '            FROM PatientAddress\n'
+   '        ) AS patient_address \n'
+   "WHERE patient_address.date_start <= N'2021-06-01' AND "
+   "patient_address.date_end >= N'2021-06-01') AS anon_1 \n"
+   'WHERE anon_1._row_num = 1\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT * INTO #group_table_1 FROM (\n'
+   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
+   'FROM (SELECT StartDate AS date_start, EndDate AS date_end, Patient_ID AS '
+   'patient_id \n'
+   'FROM [RegistrationHistory]) AS practice_registrations GROUP BY '
+   'practice_registrations.patient_id\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT [#group_table_1].patient_id AS patient_id, '
+   '[#group_table_0].index_of_multiple_deprivation_rounded AS imd \n'
+   'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
+   '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
+   'WHERE [#group_table_1].patient_id_exists = 1',
+   {}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('patient_id', 3, None, None, None, None, None),
+   ('imd', 3, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, 1200)),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'rollback', (), {}, None)]

@@ -88,12 +88,7 @@ class Cohort:
     region = _current_registrations.get("nuts1_region_name")
 
     # IMD
-    _imd_value = (
-        table("patient_address")
-        .date_in_range(index_date)
-        .last_by("date_start", "date_end", "has_postcode", "patientaddress_id")
-        .get("index_of_multiple_deprivation_rounded")
-    )
+    _imd_value = table("patient_address").imd_rounded_as_of(index_date)
     _imd_groups = {
         "1": (_imd_value >= 1) & (_imd_value < (32844 * 1 / 5)),
         "2": (_imd_value >= 32844 * 1 / 5) & (_imd_value < (32844 * 2 / 5)),

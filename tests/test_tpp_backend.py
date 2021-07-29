@@ -285,36 +285,58 @@ def test_index_of_multiple_deprivation(database, setup_tpp_database):
     )
 
     class Cohort:
-        imd = (
-            table("patient_address")
-            .date_in_range("2021-06-01")
-            .last_by("date_start", "date_end", "has_postcode", "patientaddress_id")
-            .get("index_of_multiple_deprivation_rounded")
-        )
+        imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=1200)]
 
 
 @pytest.mark.integration
-def test_index_of_multiple_deprivation_sorting(database, setup_tpp_database):
+@pytest.mark.parametrize(
+    "patient_addresses,expected",
+    [
+        # two addresses recorded as current, choose the latest start date
+        (
+            [
+                patient_address("2001-01-01", "9999-12-31", 100, "E02000002"),
+                patient_address("2021-01-01", "9999-12-31", 200, "E02000003"),
+            ],
+            200,
+        ),
+        # two addresses with same start, choose the latest end date
+        (
+            [
+                patient_address("2001-01-01", "9999-12-31", 300, "E02000003"),
+                patient_address("2001-01-01", "2021-01-01", 200, "E02000002"),
+            ],
+            300,
+        ),
+        # same dates, prefer the one with a postcode
+        (
+            [
+                patient_address("2001-01-01", "9999-12-31", 300, "E02000003"),
+                patient_address("2001-01-01", "9999-12-31", 400, "NPC"),
+            ],
+            300,
+        ),
+        # same dates and both have postcodes, select latest patientaddress id as tie-breaker
+        (
+            [
+                patient_address("2001-01-01", "9999-12-31", 300, "E02000003"),
+                patient_address("2001-01-01", "9999-12-31", 400, "E02000003"),
+                patient_address("2001-01-01", "9999-12-31", 500, "E02000003"),
+            ],
+            500,
+        ),
+    ],
+)
+def test_index_of_multiple_deprivation_sorting(
+    database, setup_tpp_database, patient_addresses, expected
+):
     setup_tpp_database(
-        *patient(
-            1,
-            "M",
-            registration("2001-01-01", "2026-06-26"),
-            patient_address("2001-01-01", "2026-06-26", 100, "NPC"),
-            patient_address("2001-01-01", "2026-06-26", 200, "NPC"),
-            patient_address("2001-01-01", "2026-06-26", 300, "E02000003"),
-            patient_address("2001-01-01", "2026-06-26", 400, "NPC"),
-        )
+        *patient(1, "M", registration("2001-01-01", "2026-06-26"), *patient_addresses)
     )
 
     class Cohort:
-        imd = (
-            table("patient_address")
-            .date_in_range("2021-06-01")
-            .last_by("date_start", "date_end", "has_postcode", "patientaddress_id")
-            .get("index_of_multiple_deprivation_rounded")
-        )
+        imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
-    assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=300)]
+    assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=expected)]
