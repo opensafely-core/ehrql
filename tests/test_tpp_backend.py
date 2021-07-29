@@ -8,6 +8,7 @@ from lib.tpp_schema import (
     SGSSNegativeTests,
     SGSSPositiveTests,
     apcs,
+    organisation,
     patient,
     registration,
 )
@@ -211,3 +212,61 @@ def test_events_with_numeric_value(database, setup_tpp_database):
         value = table("clinical_events").latest().get("numeric_value")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, value=34.7)]
+
+
+@pytest.mark.integration
+def test_organisation(database, setup_tpp_database):
+    setup_tpp_database(
+        organisation(1, "South"),
+        organisation(2, "North"),
+        *patient(1, "M", registration("2001-01-01", "2021-06-26", 1)),
+        *patient(2, "F", registration("2001-01-01", "2026-06-26", 2)),
+    )
+
+    class Cohort:
+        _registrations = table("practice_registrations").last_by("patient_id")
+        region = _registrations.get("nuts1_region_name")
+        practice_id = _registrations.get("pseudo_id")
+
+    assert extract(Cohort, TPPBackend, database) == [
+        dict(patient_id=1, region="South", practice_id=1),
+        dict(patient_id=2, region="North", practice_id=2),
+    ]
+
+
+@pytest.mark.integration
+def test_organisation_dates(database, setup_tpp_database):
+    setup_tpp_database(
+        organisation(1, "South"),
+        organisation(2, "North"),
+        organisation(3, "West"),
+        organisation(4, "East"),
+        # registered at 2 practices, select the one active on 25/6
+        *patient(
+            1,
+            "M",
+            registration("2001-01-01", "2021-06-26", 1),
+            registration("2021-06-27", "2026-06-26", 2),
+        ),
+        # registered at 2 practices with overlapping dates, select the latest
+        *patient(
+            2,
+            "F",
+            registration("2001-01-01", "2026-06-26", 2),
+            registration("2021-01-01", "9999-12-31", 3),
+        ),
+        # registration not in range, not included
+        *patient(3, "F", registration("2001-01-01", "2020-06-26", 2)),
+    )
+
+    class Cohort:
+        _registrations = table("practice_registrations").date_in_range("2021-06-25")
+        population = _registrations.exists()
+        _registration_table = _registrations.latest("date_end")
+        region = _registration_table.get("nuts1_region_name")
+        practice_id = _registration_table.get("pseudo_id")
+
+    assert extract(Cohort, TPPBackend, database) == [
+        dict(patient_id=1, region="South", practice_id=1),
+        dict(patient_id=2, region="West", practice_id=3),
+    ]

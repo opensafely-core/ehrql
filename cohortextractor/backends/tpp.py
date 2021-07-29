@@ -53,12 +53,22 @@ class TPPBackend(BaseBackend):
         ),
     )
 
-    practice_registrations = MappedTable(
-        source="RegistrationHistory",
+    practice_registrations = QueryTable(
         columns=dict(
-            date_start=Column("datetime", source="StartDate"),
-            date_end=Column("datetime", source="EndDate"),
+            pseudo_id=Column("integer"),
+            nuts1_region_name=Column("varchar"),
+            date_start=Column("datetime"),
+            date_end=Column("datetime"),
         ),
+        query="""
+            SELECT RegistrationHistory.Patient_ID AS patient_id,
+                RegistrationHistory.StartDate AS date_start,
+                RegistrationHistory.EndDate AS date_end,
+                Organisation.Organisation_ID AS pseudo_id,
+                Organisation.Region as nuts1_region_name
+            FROM RegistrationHistory
+            LEFT OUTER JOIN Organisation ON RegistrationHistory.Organisation_ID = Organisation.Organisation_ID
+        """,
     )
 
     sgss_sars_cov_2 = QueryTable(
