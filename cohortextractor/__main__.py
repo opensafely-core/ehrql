@@ -25,6 +25,11 @@ parser.add_argument(
     help="The path of the file where the output will be written",
     type=Path,
 )
+parser.add_argument(
+    "--dummy-data-file",
+    help="Use dummy data from file",
+    type=Path,
+)
 
 options = parser.parse_args()
 
@@ -33,4 +38,5 @@ main(
     output_file=options.output,
     db_url=os.environ["TPP_DATABASE_URL"],
     backend_id=os.environ["BACKEND"],
+    dummy_data_file=options.dummy_data_file,
 )
