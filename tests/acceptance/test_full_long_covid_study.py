@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from pathlib import Path
 
 import pytest
 from codelists import (
@@ -6,7 +7,6 @@ from codelists import (
     any_primary_care_code,
     covid_codes,
     ethnicity_codes,
-    long_covid_diagnostic_codes,
     post_viral_fatigue_codes,
 )
 from lib.tpp_schema import (
@@ -23,6 +23,8 @@ from lib.util import extract
 
 from cohortextractor import categorise, codelist, table
 from cohortextractor.backends import TPPBackend
+from cohortextractor.query_utils import get_column_definitions
+from cohortextractor.validate_dummy_data import validate_dummy_data
 
 
 pandemic_start = "2020-02-01"
@@ -40,18 +42,18 @@ class Cohort:
     practice_id = _current_registrations.get("pseudo_id")
 
     # COVID infection
-    sgss_first_positive_test_date = (
+    sgss_positive = (
         table("sgss_sars_cov_2").filter(positive_result=True).earliest().get("date")
     )
 
-    primary_care_covid_first_date = (
+    primary_care_covid = (
         table("clinical_events")
         .filter("code", is_in=any_primary_care_code)
         .earliest()
         .get("date")
     )
 
-    hospital_covid_first_date = (
+    hospital_covid = (
         table("hospitalizations")
         .filter("code", is_in=covid_codes)
         .earliest()
@@ -65,6 +67,12 @@ class Cohort:
     long_covid = _long_covid_table.exists()
     first_long_covid_date = _long_covid_table.earliest().get("date")
     first_long_covid_code = _long_covid_table.earliest().get("code")
+
+    _post_viral_fatigue_table = table("clinical_events").filter(
+        "code", is_in=post_viral_fatigue_codes
+    )
+    post_viral_fatigue = _post_viral_fatigue_table.exists()
+    first_post_viral_fatigue_date = _post_viral_fatigue_table.earliest().get("date")
 
     # Demographics
     # Age
@@ -121,25 +129,24 @@ class Cohort:
     bmi = categorise(_bmi_groups, default="Not obese")
     # Previous COVID
     _previous_covid_categories = {
-        "COVID positive": (
-            sgss_first_positive_test_date | primary_care_covid_first_date
-        )
-        & ~hospital_covid_first_date,
-        "COVID hospitalised": hospital_covid_first_date,
+        "COVID positive": (sgss_positive | primary_care_covid) & ~hospital_covid,
+        "COVID hospitalised": hospital_covid,
     }
     previous_covid = categorise(_previous_covid_categories, default="No COVID code")
 
 
 # Add the long covid and post viral code count variables
-for target_codelist in [long_covid_diagnostic_codes, post_viral_fatigue_codes]:
+for target_codelist in [any_long_covid_code, post_viral_fatigue_codes]:
     for code in target_codelist.codes:
-        variable_def = (
+        filtered_to_code = (
             table("clinical_events")
             .filter("code", is_in=codelist([code], target_codelist.system))
             .filter("date", on_or_after=pandemic_start)
-            .count("code")
         )
-        setattr(Cohort, f"{target_codelist.system}_{code}", variable_def)
+        count_variable_def = filtered_to_code.count("code")
+        date_variable_def = filtered_to_code.earliest().get("date")
+        setattr(Cohort, f"{target_codelist.system}_{code}", count_variable_def)
+        setattr(Cohort, f"{target_codelist.system}_{code}_date", date_variable_def)
 
 
 @pytest.mark.integration
@@ -198,20 +205,64 @@ def test_cohort(database, setup_tpp_database):
             age_group="25-34",
             practice_id=1,
             region="South",
-            sgss_first_positive_test_date=date(2020, 5, 5),
-            primary_care_covid_first_date=datetime(2020, 7, 2),
-            hospital_covid_first_date=date(2020, 8, 8),
+            sgss_positive=date(2020, 5, 5),
+            primary_care_covid=datetime(2020, 7, 2),
+            hospital_covid=date(2020, 8, 8),
             long_covid=1,
             first_long_covid_date=datetime(2020, 9, 1),
             first_long_covid_code="1325031000000108",
+            post_viral_fatigue=1,
+            first_post_viral_fatigue_date=datetime(2020, 10, 1),
             ethnicity="Y9930",
             bmi="Obese I (30-34.9)",
             imd="2",
             snomed_1325161000000102=2,
+            snomed_1325161000000102_date=datetime(2020, 9, 9),
+            snomed_1325091000000109=1,
+            snomed_1325091000000109_date=datetime(2020, 9, 9),
+            snomed_1325031000000108=1,
+            snomed_1325031000000108_date=datetime(2020, 9, 1),
             snomed_1325181000000106=None,
+            snomed_1325181000000106_date=None,
+            snomed_1325051000000101=None,
+            snomed_1325051000000101_date=None,
+            snomed_1325061000000103=None,
+            snomed_1325061000000103_date=None,
+            snomed_1325071000000105=None,
+            snomed_1325071000000105_date=None,
+            snomed_1325081000000107=None,
+            snomed_1325081000000107_date=None,
+            snomed_1325101000000101=None,
+            snomed_1325101000000101_date=None,
+            snomed_1325121000000105=None,
+            snomed_1325121000000105_date=None,
+            snomed_1325131000000107=None,
+            snomed_1325131000000107_date=None,
+            snomed_1325141000000103=None,
+            snomed_1325141000000103_date=None,
+            snomed_1325151000000100=None,
+            snomed_1325151000000100_date=None,
+            snomed_1325021000000106=None,
+            snomed_1325021000000106_date=None,
+            snomed_1325041000000104=None,
+            snomed_1325041000000104_date=None,
             snomed_51771007=2,
+            snomed_51771007_date=datetime(2020, 10, 1),
             snomed_266226000=None,
+            snomed_266226000_date=None,
             snomed_272038003=None,
+            snomed_272038003_date=None,
             previous_covid="COVID hospitalised",
         )
     ]
+
+
+def test_validate_dummy_data():
+    column_definitions = get_column_definitions(Cohort)
+    dummy_data_file = (
+        Path(__file__).parent.parent
+        / "fixtures"
+        / "dummy_data"
+        / "long_covid_dummy_data_without_age.csv"  # TODO update when age_as_of is implemented
+    )
+    validate_dummy_data(column_definitions, dummy_data_file)

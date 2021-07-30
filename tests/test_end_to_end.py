@@ -21,6 +21,9 @@ class Study:
     def expected_results(self):
         return self._path / "results.csv"
 
+    def dummy_data(self):
+        return self._path / "dummy_data.csv"
+
 
 @pytest.fixture
 def load_study():
@@ -35,19 +38,25 @@ def cohort_extractor_in_container(tmpdir, database, containers):
     output_rel_path = Path("outputs") / "cohort.csv"
     output_host_path = workspace / output_rel_path
 
-    def run(study):
+    def run(study, use_dummy_data=False):
         for file in study.code():
             shutil.copy(file, analysis_dir)
         definition_path = Path("analysis") / study.definition().name
 
+        command = [
+            "--cohort-definition",
+            str(definition_path),
+            "--output",
+            str(output_rel_path),
+        ]
+        if use_dummy_data:
+            shutil.copy(study.dummy_data(), analysis_dir)
+            dummy_data_file = Path("analysis") / study.dummy_data().name
+            command += ["--dummy-data-file", str(dummy_data_file)]
+
         containers.run_fg(
             image="cohort-extractor-v2:latest",
-            command=[
-                "--cohort-definition",
-                str(definition_path),
-                "--output",
-                str(output_rel_path),
-            ],
+            command=command,
             environment={
                 "TPP_DATABASE_URL": database.container_url(),
                 "BACKEND": "tpp",
@@ -61,26 +70,69 @@ def cohort_extractor_in_container(tmpdir, database, containers):
     return run
 
 
-@pytest.fixture
-def cohort_extractor_in_process(tmpdir, database, containers):
+def _in_process_setup(tmpdir):
     workspace = Path(tmpdir.mkdir("workspace"))
     analysis_dir = workspace / "analysis"
     analysis_dir.mkdir()
     output_rel_path = Path("outputs") / "cohort.csv"
     output_host_path = workspace / output_rel_path
+    return analysis_dir, output_host_path
 
-    def run(study):
-        for file in study.code():
-            shutil.copy(file, analysis_dir)
-        definition_path = analysis_dir / study.definition().name
 
-        main(
-            definition_path=definition_path,
-            output_file=output_host_path,
+def _in_process_run(
+    study, analysis_dir, output_host_path, backend_id, db_url, use_dummy_data
+):
+    for file in study.code():
+        shutil.copy(file, analysis_dir)
+    definition_path = analysis_dir / study.definition().name
+    if use_dummy_data:
+        shutil.copy(study.dummy_data(), analysis_dir)
+        dummy_data_file = analysis_dir / study.dummy_data().name
+    else:
+        dummy_data_file = None
+
+    main(
+        definition_path=definition_path,
+        output_file=output_host_path,
+        backend_id=backend_id,
+        db_url=db_url,
+        dummy_data_file=dummy_data_file,
+    )
+
+
+@pytest.fixture
+def cohort_extractor_in_process(tmpdir, database, containers):
+    analysis_dir, output_host_path = _in_process_setup(tmpdir)
+
+    def run(study, use_dummy_data=False):
+
+        _in_process_run(
+            study=study,
+            analysis_dir=analysis_dir,
+            output_host_path=output_host_path,
             backend_id="tpp",
             db_url=database.host_url(),
+            use_dummy_data=use_dummy_data,
         )
 
+        return output_host_path
+
+    return run
+
+
+@pytest.fixture
+def cohort_extractor_in_process_no_database(tmpdir, containers):
+    analysis_dir, output_host_path = _in_process_setup(tmpdir)
+
+    def run(study, use_dummy_data=False):
+        _in_process_run(
+            study=study,
+            analysis_dir=analysis_dir,
+            output_host_path=output_host_path,
+            backend_id=None,
+            db_url=None,
+            use_dummy_data=use_dummy_data,
+        )
         return output_host_path
 
     return run
@@ -118,4 +170,10 @@ def run_test(load_study, setup_tpp_database, cohort_extractor):
 
     study = load_study("end_to_end_tests")
     actual_results = cohort_extractor(study)
+    assert_results_equivalent(actual_results, study.expected_results())
+
+
+def test_dummy_data(load_study, cohort_extractor_in_process_no_database):
+    study = load_study("end_to_end_tests")
+    actual_results = cohort_extractor_in_process_no_database(study, use_dummy_data=True)
     assert_results_equivalent(actual_results, study.expected_results())
