@@ -13,6 +13,7 @@ from lib.tpp_schema import (
     apcs,
     event,
     negative_test,
+    organisation,
     patient,
     positive_test,
     registration,
@@ -33,8 +34,9 @@ class Cohort:
     # Population
     # Patients registered on 2020-11-01
     _registrations = table("practice_registrations").date_in_range(index_date)
+    _current_registrations = _registrations.latest("date_end")
     population = _registrations.exists()
-    # practice_id = _registrations.latest().get("pseudo_id")
+    practice_id = _current_registrations.get("pseudo_id")
 
     # COVID infection
     sgss_first_positive_test_date = (
@@ -82,7 +84,7 @@ class Cohort:
     sex = table("patients").get("sex")
 
     # Region
-    # region = _registrations.latest().get("nuts1_region_name")
+    region = _current_registrations.get("nuts1_region_name")
 
     # IMD - TODO syntax TBC
     # _imd_value = (
@@ -142,10 +144,13 @@ for target_codelist in [long_covid_diagnostic_codes, post_viral_fatigue_codes]:
 @pytest.mark.integration
 def test_cohort(database, setup_tpp_database):
     setup_tpp_database(
+        organisation(organisation_id=1, region="South"),
         *patient(
             1,
             "F",
-            registration(start_date="2001-01-01", end_date="2026-06-26"),
+            registration(
+                start_date="2001-01-01", end_date="2026-06-26", organisation_id=1
+            ),
             positive_test(specimen_date="2020-05-05"),
             # excluded by picking the earliest result
             positive_test(specimen_date="2020-06-06"),
@@ -177,6 +182,8 @@ def test_cohort(database, setup_tpp_database):
         dict(
             patient_id=1,
             sex="F",
+            practice_id=1,
+            region="South",
             sgss_first_positive_test_date=date(2020, 5, 5),
             primary_care_covid_first_date=datetime(2020, 7, 2),
             hospital_covid_first_date=date(2020, 8, 8),

@@ -18,16 +18,29 @@ def patient(patient_id, sex, *entities):
     return [Patient(Patient_ID=patient_id, Sex=sex), *entities]
 
 
+class Organisation(Base):
+    __tablename__ = "Organisation"
+    Organisation_ID = Column(Integer, primary_key=True)
+    Region = Column(String())
+
+
+def organisation(organisation_id, region):
+    return Organisation(Organisation_ID=organisation_id, Region=region)
+
+
 class RegistrationHistory(Base):
     __tablename__ = "RegistrationHistory"
     Registration_ID = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
+    Organisation_ID = Column(Integer, ForeignKey("Organisation.Organisation_ID"))
     StartDate = Column(DateTime)
     EndDate = Column(DateTime)
 
 
-def registration(start_date, end_date):
-    return RegistrationHistory(StartDate=start_date, EndDate=end_date)
+def registration(start_date, end_date, organisation_id=None):
+    return RegistrationHistory(
+        StartDate=start_date, EndDate=end_date, Organisation_ID=organisation_id
+    )
 
 
 class Events(Base):
