@@ -10,6 +10,7 @@ from lib.tpp_schema import (
     apcs,
     organisation,
     patient,
+    patient_address,
     registration,
 )
 from lib.util import extract
@@ -270,3 +271,72 @@ def test_organisation_dates(database, setup_tpp_database):
         dict(patient_id=1, region="South", practice_id=1),
         dict(patient_id=2, region="West", practice_id=3),
     ]
+
+
+@pytest.mark.integration
+def test_index_of_multiple_deprivation(database, setup_tpp_database):
+    setup_tpp_database(
+        *patient(
+            1,
+            "M",
+            registration("2001-01-01", "2026-06-26"),
+            patient_address("2001-01-01", "2026-06-26", 1200, "E02000001"),
+        )
+    )
+
+    class Cohort:
+        imd = table("patient_address").imd_rounded_as_of("2021-06-01")
+
+    assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=1200)]
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "patient_addresses,expected",
+    [
+        # two addresses recorded as current, choose the latest start date
+        (
+            [
+                patient_address("2001-01-01", "9999-12-31", 100, "E02000002"),
+                patient_address("2021-01-01", "9999-12-31", 200, "E02000003"),
+            ],
+            200,
+        ),
+        # two addresses with same start, choose the latest end date
+        (
+            [
+                patient_address("2001-01-01", "9999-12-31", 300, "E02000003"),
+                patient_address("2001-01-01", "2021-01-01", 200, "E02000002"),
+            ],
+            300,
+        ),
+        # same dates, prefer the one with a postcode
+        (
+            [
+                patient_address("2001-01-01", "9999-12-31", 300, "E02000003"),
+                patient_address("2001-01-01", "9999-12-31", 400, "NPC"),
+            ],
+            300,
+        ),
+        # same dates and both have postcodes, select latest patientaddress id as tie-breaker
+        (
+            [
+                patient_address("2001-01-01", "9999-12-31", 300, "E02000003"),
+                patient_address("2001-01-01", "9999-12-31", 400, "E02000003"),
+                patient_address("2001-01-01", "9999-12-31", 500, "E02000003"),
+            ],
+            500,
+        ),
+    ],
+)
+def test_index_of_multiple_deprivation_sorting(
+    database, setup_tpp_database, patient_addresses, expected
+):
+    setup_tpp_database(
+        *patient(1, "M", registration("2001-01-01", "2026-06-26"), *patient_addresses)
+    )
+
+    class Cohort:
+        imd = table("patient_address").imd_rounded_as_of("2021-06-01")
+
+    assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=expected)]

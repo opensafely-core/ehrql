@@ -170,6 +170,27 @@ class Table(QueryNode):
     def aggregate(self, function, column):
         return ValueFromAggregate(self, function, column)
 
+    def imd_rounded_as_of(self, reference_date):
+        """
+        A convenience method to retrieve the IMD on the reference date.
+        """
+        if self.name != "patient_address":
+            raise NotImplementedError(
+                "This method is only available on the patient_address table"
+            )
+
+        # Note that current addresses are recorded with an EndDate of
+        # 9999-12-31. Where address periods overlap we use the one with the
+        # most recent start date. If there are several with the same start date
+        # we use the longest one (i.e. with the latest end date). We then
+        # prefer addresses which have a postcode and inally we use the address ID as a
+        # tie-breaker.
+        return (
+            self.date_in_range(reference_date)
+            .last_by("date_start", "date_end", "has_postcode", "patientaddress_id")
+            .get("index_of_multiple_deprivation_rounded")
+        )
+
 
 class FilteredTable(Table):
     def __init__(self, source, column, operator, value):
