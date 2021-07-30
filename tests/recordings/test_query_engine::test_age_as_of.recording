@@ -88,11 +88,11 @@
    '\n'
    '\n'
    'SELECT [#group_table_3].patient_id AS patient_id, CASE WHEN (dateadd(year, '
-   "datediff(year, [#group_table_0].date_of_birth, N'20100601'), "
-   "[#group_table_0].date_of_birth) > N'20100601') THEN datediff(year, "
-   "[#group_table_0].date_of_birth, N'20100601') - 1 ELSE datediff(year, "
-   "[#group_table_0].date_of_birth, N'20100601') END AS age_in_2010, CASE WHEN "
-   '(dateadd(year, datediff(year, [#group_table_1].date_of_birth, '
+   "datediff(year, [#group_table_0].date_of_birth, N'2010-06-01'), "
+   "[#group_table_0].date_of_birth) > N'2010-06-01') THEN datediff(year, "
+   "[#group_table_0].date_of_birth, N'2010-06-01') - 1 ELSE datediff(year, "
+   "[#group_table_0].date_of_birth, N'2010-06-01') END AS age_in_2010, CASE "
+   'WHEN (dateadd(year, datediff(year, [#group_table_1].date_of_birth, '
    '[#group_table_2].date), [#group_table_1].date_of_birth) > '
    '[#group_table_2].date) THEN datediff(year, [#group_table_1].date_of_birth, '
    '[#group_table_2].date) - 1 ELSE datediff(year, '
