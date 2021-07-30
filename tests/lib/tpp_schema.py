@@ -1,5 +1,5 @@
 import sqlalchemy.orm
-from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String
 
 
 Base = sqlalchemy.orm.declarative_base()
@@ -36,10 +36,11 @@ class Events(Base):
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     CTV3Code = Column(String(collation="Latin1_General_BIN"))
     ConsultationDate = Column(DateTime)
+    NumericValue = Column(Float)
 
 
-def event(code, date):
-    return Events(CTV3Code=code, ConsultationDate=date)
+def event(code, date, numeric_value=None):
+    return Events(CTV3Code=code, ConsultationDate=date, NumericValue=numeric_value)
 
 
 class SGSSPositiveTests(Base):

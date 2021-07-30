@@ -25,7 +25,7 @@ from cohortextractor.backends import TPPBackend
 
 pandemic_start = "2020-02-01"
 index_date = "2020-11-01"
-# bmi_code = "22K.."
+bmi_code = "22K.."
 
 
 class Cohort:
@@ -106,20 +106,16 @@ class Cohort:
 
     # Clinical variables
     # Latest recorded BMI
-    # _bmi_value = (
-    #     table("coded_events")
-    #     .filter(code=bmi_code)
-    #     .latest()
-    #     .get("numeric_value")
-    # )
-    # _bmi_groups = {
-    # "Obese I (30-34.9)": (_bmi_value >= 30) & (_bmi_value < 35),
-    # "Obese II (35-39.9)": (_bmi_value >= 35) & (_bmi_value < 40),
-    # "Obese III (40+)": (_bmi_value >= 40) & (_bmi_value < 100)
-    # # set maximum to avoid any impossibly extreme values being classified as obese
-    # }
-    # bmi = categorise(_bmi_groups, default="Not obese")
-
+    _bmi_value = (
+        table("clinical_events").filter(code=bmi_code).latest().get("numeric_value")
+    )
+    _bmi_groups = {
+        "Obese I (30-34.9)": (_bmi_value >= 30) & (_bmi_value < 35),
+        "Obese II (35-39.9)": (_bmi_value >= 35) & (_bmi_value < 40),
+        "Obese III (40+)": (_bmi_value >= 40) & (_bmi_value < 100)
+        # set maximum to avoid any impossibly extreme values being classified as obese
+    }
+    bmi = categorise(_bmi_groups, default="Not obese")
     # Previous COVID
     _previous_covid_categories = {
         "COVID positive": (
@@ -171,7 +167,7 @@ def test_cohort(database, setup_tpp_database):
             event(code="51771007", date="2020-10-01"),  # post-viral events
             event(code="51771007", date="2020-11-01"),  # post-viral events
             event(code="Y9930", date="2020-09-09"),  # ethnicity
-            # event(code="22..", date="2020-09-09", numeric_value=26),  # BMI
+            event(code="22K..", date="2020-09-09", numeric_value=34.1),  # BMI
         ),
         # excluded by registration date
         *patient(2, "M", registration(start_date="2001-01-01", end_date="2002-02-02")),
@@ -188,7 +184,7 @@ def test_cohort(database, setup_tpp_database):
             first_long_covid_date=datetime(2020, 9, 1),
             first_long_covid_code="1325031000000108",
             ethnicity="Y9930",
-            # bmi=26,
+            bmi="Obese I (30-34.9)",
             snomed_1325161000000102=2,
             snomed_1325181000000106=None,
             snomed_51771007=2,

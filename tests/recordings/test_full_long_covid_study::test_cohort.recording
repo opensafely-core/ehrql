@@ -228,8 +228,8 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_0].code \n'
    'FROM [#codelist_0])) AS anon_1 \n'
@@ -274,8 +274,8 @@
    '\n'
    'SELECT * INTO #group_table_4 FROM (\n'
    'SELECT clinical_events.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_2].code \n'
    'FROM [#codelist_2]) GROUP BY clinical_events.patient_id\n'
@@ -287,8 +287,8 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_2].code \n'
    'FROM [#codelist_2])) AS anon_1 \n'
@@ -301,8 +301,8 @@
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_2].code \n'
    'FROM [#codelist_2])) AS anon_1 \n'
@@ -320,8 +320,8 @@
    '\n'
    'SELECT * INTO #group_table_8 FROM (\n'
    'SELECT clinical_events.code, clinical_events.patient_id \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_3].code \n'
    'FROM [#codelist_3])\n'
@@ -329,10 +329,24 @@
    '\n'
    '\n'
    'SELECT * INTO #group_table_9 FROM (\n'
+   'SELECT anon_1.numeric_value, anon_1.patient_id \n'
+   'FROM (SELECT clinical_events.numeric_value AS numeric_value, '
+   'clinical_events.patient_id AS patient_id, row_number() OVER (PARTITION BY '
+   'clinical_events.patient_id ORDER BY clinical_events.date DESC) AS '
+   '_row_num \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [CodedEvent]) AS clinical_events \n'
+   "WHERE clinical_events.code = N'22K..') AS anon_1 \n"
+   'WHERE anon_1._row_num = 1\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT * INTO #group_table_10 FROM (\n'
    'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
    'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_4].code \n'
    "FROM [#codelist_4]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
@@ -340,11 +354,11 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_10 FROM (\n'
+   'SELECT * INTO #group_table_11 FROM (\n'
    'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
    'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_5].code \n'
    "FROM [#codelist_5]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
@@ -352,11 +366,11 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_11 FROM (\n'
+   'SELECT * INTO #group_table_12 FROM (\n'
    'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
    'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_6].code \n'
    "FROM [#codelist_6]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
@@ -364,11 +378,11 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_12 FROM (\n'
+   'SELECT * INTO #group_table_13 FROM (\n'
    'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
    'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_7].code \n'
    "FROM [#codelist_7]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
@@ -376,11 +390,11 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_13 FROM (\n'
+   'SELECT * INTO #group_table_14 FROM (\n'
    'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
    'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, Patient_ID AS '
-   'patient_id \n'
+   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
+   'numeric_value, Patient_ID AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_8].code \n'
    "FROM [#codelist_8]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
@@ -394,15 +408,20 @@
    'hospital_covid_first_date, [#group_table_4].patient_id_exists AS '
    'long_covid, [#group_table_5].date AS first_long_covid_date, '
    '[#group_table_6].code AS first_long_covid_code, [#group_table_7].sex AS '
-   'sex, [#group_table_8].code AS ethnicity, CASE WHEN (([#group_table_1].date '
-   'IS NOT NULL OR [#group_table_2].date IS NOT NULL) AND '
-   "[#group_table_3].date IS NULL) THEN N'COVID positive' WHEN "
+   'sex, [#group_table_8].code AS ethnicity, CASE WHEN '
+   '([#group_table_9].numeric_value >= 30 AND [#group_table_9].numeric_value < '
+   "35) THEN N'Obese I (30-34.9)' WHEN ([#group_table_9].numeric_value >= 35 "
+   "AND [#group_table_9].numeric_value < 40) THEN N'Obese II (35-39.9)' WHEN "
+   '([#group_table_9].numeric_value >= 40 AND [#group_table_9].numeric_value < '
+   "100) THEN N'Obese III (40+)' ELSE N'Not obese' END AS bmi, CASE WHEN "
+   '(([#group_table_1].date IS NOT NULL OR [#group_table_2].date IS NOT NULL) '
+   "AND [#group_table_3].date IS NULL) THEN N'COVID positive' WHEN "
    "([#group_table_3].date IS NOT NULL) THEN N'COVID hospitalised' ELSE N'No "
-   "COVID code' END AS previous_covid, [#group_table_9].code_count AS "
-   'snomed_1325161000000102, [#group_table_10].code_count AS '
-   'snomed_1325181000000106, [#group_table_11].code_count AS snomed_266226000, '
-   '[#group_table_12].code_count AS snomed_272038003, '
-   '[#group_table_13].code_count AS snomed_51771007 \n'
+   "COVID code' END AS previous_covid, [#group_table_10].code_count AS "
+   'snomed_1325161000000102, [#group_table_11].code_count AS '
+   'snomed_1325181000000106, [#group_table_12].code_count AS snomed_266226000, '
+   '[#group_table_13].code_count AS snomed_272038003, '
+   '[#group_table_14].code_count AS snomed_51771007 \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
    '[#group_table_0].patient_id = [#group_table_1].patient_id LEFT OUTER JOIN '
    '[#group_table_2] ON [#group_table_0].patient_id = '
@@ -422,7 +441,9 @@
    '[#group_table_0].patient_id = [#group_table_11].patient_id LEFT OUTER JOIN '
    '[#group_table_12] ON [#group_table_0].patient_id = '
    '[#group_table_12].patient_id LEFT OUTER JOIN [#group_table_13] ON '
-   '[#group_table_0].patient_id = [#group_table_13].patient_id \n'
+   '[#group_table_0].patient_id = [#group_table_13].patient_id LEFT OUTER JOIN '
+   '[#group_table_14] ON [#group_table_0].patient_id = '
+   '[#group_table_14].patient_id \n'
    'WHERE [#group_table_0].patient_id_exists = 1',
    {}),
   {},
@@ -440,6 +461,7 @@
    ('first_long_covid_code', 1, None, None, None, None, None),
    ('sex', 1, None, None, None, None, None),
    ('ethnicity', 1, None, None, None, None, None),
+   ('bmi', 1, None, None, None, None, None),
    ('previous_covid', 1, None, None, None, None, None),
    ('snomed_1325161000000102', 3, None, None, None, None, None),
    ('snomed_1325181000000106', 3, None, None, None, None, None),
@@ -459,6 +481,7 @@
    '1325031000000108',
    'F',
    'Y9930',
+   'Obese I (30-34.9)',
    'COVID hospitalised',
    2,
    None,
