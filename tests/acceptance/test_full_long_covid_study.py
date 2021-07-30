@@ -103,7 +103,11 @@ class Cohort:
 
     # Ethnicity
     ethnicity = (
-        table("clinical_events").filter("code", is_in=ethnicity_codes).get("code")
+        table("clinical_events")
+        .filter("code", is_in=ethnicity_codes)
+        .filter("date", on_or_before=index_date)
+        .latest()
+        .get("code")
     )
 
     # Clinical variables
