@@ -24,18 +24,6 @@ from ..query_language import (
 from .base import BaseQueryEngine
 
 
-def make_table_expression(table_name, columns):
-    """
-    Return a SQLAlchemy object representing a table with the given name and
-    columns
-    """
-    return sqlalchemy.Table(
-        table_name,
-        sqlalchemy.MetaData(),
-        *[sqlalchemy.Column(column) for column in columns],
-    )
-
-
 def get_joined_tables(query):
     """
     Given a query object return a list of all tables referenced
@@ -241,23 +229,25 @@ class MssqlQueryEngine(BaseQueryEngine):
     #
     def create_output_group_tables(self):
         """Queries to generate and populate interim tables for each output"""
-        # For each group of output nodes (nodes that produce a single output value),
-        # make a table object representing a temporary table into which we will write the required
-        # values
+        # For each group of "output nodes" (roughly, "nodes which we know how
+        # to build a single select query for"), build a SQLAlchemy query to get
+        # their values.
         for i, (group, output_nodes) in enumerate(self.output_groups.items()):
-            # The `#` prefix makes this a session-scoped temporary table
+            query = self.get_query_expression(group, output_nodes)
+            self.output_group_tables_queries[group] = query
+            # Create a Table object representing a temporary table into which
+            # we'll write the results of the query. (The `#` prefix makes this
+            # a session-scoped temporary table.)
             table_name = f"#group_table_{i}"
-            columns = {self.get_output_column_name(output) for output in output_nodes}
-            self.output_group_tables[group] = make_table_expression(
-                table_name, {"patient_id"} | columns
+            columns = [
+                sqlalchemy.Column(c.name, c.type) for c in query.selected_columns
+            ]
+            table = sqlalchemy.Table(
+                table_name,
+                sqlalchemy.MetaData(),
+                *columns,
             )
-
-        # For each group of output nodes, build a query expression
-        # to populate the associated temporary table
-        self.output_group_tables_queries = {
-            group: self.get_query_expression(group, output_nodes)
-            for group, output_nodes in self.output_groups.items()
-        }
+            self.output_group_tables[group] = table
 
     def create_codelist_tables(self):
         """
