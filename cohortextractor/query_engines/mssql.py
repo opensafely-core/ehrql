@@ -350,7 +350,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             .where(is_included == True)  # noqa: E712
         )
 
-    def build_condition_statement(self, comparator, tables):
+    def build_condition_statement(self, comparator):
         """
         Traverse a comparator's left and right hand sides in order and build the nested
         condition statement
@@ -359,8 +359,8 @@ class MssqlQueryEngine(BaseQueryEngine):
             assert isinstance(comparator.lhs, Comparator) and isinstance(
                 comparator.rhs, Comparator
             )
-            left_conditions = self.build_condition_statement(comparator.lhs, tables)
-            right_conditions = self.build_condition_statement(comparator.rhs, tables)
+            left_conditions = self.build_condition_statement(comparator.lhs)
+            right_conditions = self.build_condition_statement(comparator.rhs)
             connector = getattr(sqlalchemy, comparator.connector)
             condition_statement = connector(left_conditions, right_conditions)
         else:
@@ -387,20 +387,19 @@ class MssqlQueryEngine(BaseQueryEngine):
                     category_definitions.values()
                 )
             )
-            tables = {
-                query_node: self.output_group_tables[self.get_output_group(query_node)]
+            tables = tuple(
+                self.output_group_tables[self.get_output_group(query_node)]
                 for query_node in all_category_referenced_nodes
-            }
+            )
             category_mapping = {}
             for label, category_definition in category_definitions.items():
                 # A category definition is always a single Comparator, which may contain
                 # nested Comparators
                 condition_statement = self.build_condition_statement(
-                    category_definition, tables
+                    category_definition
                 )
                 category_mapping[label] = condition_statement
             value_expr = self.get_case_expression(category_mapping, value.default)
-            tables = tuple(tables.values())
         elif self.is_output_node(value):
             table = self.output_group_tables[self.get_output_group(value)]
             column = self.get_output_column_name(value)
