@@ -74,8 +74,8 @@
    '\n'
    '\n'
    'SELECT [#group_table_2].patient_id AS patient_id, CASE WHEN (NOT '
-   '([#group_table_0].code IS NOT NULL AND [#group_table_1].patient_id IS NOT '
-   "NULL)) THEN N'neg_or_no_code' ELSE N'pos' END AS result_group \n"
+   '([#group_table_0].code IS NOT NULL AND [#group_table_1].patient_id_exists '
+   "IS NOT NULL)) THEN N'neg_or_no_code' ELSE N'pos' END AS result_group \n"
    'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_2].patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '
    '[#group_table_1] ON [#group_table_2].patient_id = '

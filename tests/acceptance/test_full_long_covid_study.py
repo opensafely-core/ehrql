@@ -68,18 +68,18 @@ class Cohort:
 
     # Demographics
     # Age
-    # _age = table("patients").age_as_of(index_date)
-    # _age_categories = {
-    #     "0-17": _age < 18,
-    #     "18-24": _age >= 18 & _age < 25,
-    #     "25-34": _age >= 25 & _age < 35,
-    #     "35-44": _age >= 35 & _age < 45,
-    #     "45-54": _age >= 45 & _age < 55,
-    #     "55-69": _age >= 55 & _age < 70,
-    #     "70-79": _age >= 70 & _age < 80,
-    #     "80+": _age >= 80,
-    # }
-    # age_group = categorise(_age_categories, default="missing")
+    _age = table("patients").age_as_of(index_date)
+    _age_categories = {
+        "0-17": _age < 18,
+        "18-24": (_age >= 18) & (_age < 25),
+        "25-34": (_age >= 25) & (_age < 35),
+        "35-44": (_age >= 35) & (_age < 45),
+        "45-54": (_age >= 45) & (_age < 55),
+        "55-69": (_age >= 55) & (_age < 70),
+        "70-79": (_age >= 70) & (_age < 80),
+        "80+": _age >= 80,
+    }
+    age_group = categorise(_age_categories, default="missing")
 
     # Sex
     sex = table("patients").get("sex")
@@ -149,6 +149,7 @@ def test_cohort(database, setup_tpp_database):
         *patient(
             1,
             "F",
+            "1990-8-10",
             registration(
                 start_date="2001-01-01", end_date="2026-06-26", organisation_id=1
             ),
@@ -182,13 +183,19 @@ def test_cohort(database, setup_tpp_database):
             event(code="22K..", date="2020-09-09", numeric_value=34.1),  # BMI
         ),
         # excluded by registration date
-        *patient(2, "M", registration(start_date="2001-01-01", end_date="2002-02-02")),
+        *patient(
+            2,
+            "M",
+            "1990-1-1",
+            registration(start_date="2001-01-01", end_date="2002-02-02"),
+        ),
     )
 
     assert extract(Cohort, TPPBackend, database) == [
         dict(
             patient_id=1,
             sex="F",
+            age_group="25-34",
             practice_id=1,
             region="South",
             sgss_first_positive_test_date=date(2020, 5, 5),
