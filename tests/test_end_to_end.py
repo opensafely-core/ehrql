@@ -58,7 +58,7 @@ def cohort_extractor_in_container(tmpdir, database, containers):
             image="cohort-extractor-v2:latest",
             command=command,
             environment={
-                "TPP_DATABASE_URL": database.container_url(),
+                "DATABASE_URL": database.container_url(),
                 "BACKEND": "tpp",
             },
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},

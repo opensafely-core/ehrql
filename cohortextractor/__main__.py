@@ -33,10 +33,15 @@ parser.add_argument(
 
 options = parser.parse_args()
 
+if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
+    parser.error(
+        "error: either --dummy-data-file or DATABASE_URL environment variable is required"
+    )
+
 main(
     definition_path=options.cohort_definition,
     output_file=options.output,
-    db_url=os.environ.get("TPP_DATABASE_URL"),
+    db_url=os.environ.get("DATABASE_URL"),
     backend_id=os.environ.get("BACKEND"),
     dummy_data_file=options.dummy_data_file,
 )
