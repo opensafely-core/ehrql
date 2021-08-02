@@ -1075,3 +1075,30 @@ def test_categorise_multiple_truthiness_categories(database, setup_test_database
         dict(patient_id=4, has_positive_code="1"),
         dict(patient_id=5, has_positive_code="na"),
     ]
+
+
+@pytest.mark.integration
+def test_age_as_of(database, setup_test_database):
+    input_data = [
+        # Patient 1
+        Patients(PatientId=1, DateOfBirth="1990-8-10"),
+        RegistrationHistory(PatientId=1),
+        Events(PatientId=1, Date="2020-10-1"),
+        # Patient 2
+        Patients(PatientId=2, DateOfBirth="2000-3-20"),
+        RegistrationHistory(PatientId=2),
+        Events(PatientId=2, Date="2018-2-1"),
+    ]
+    setup_test_database(input_data)
+
+    class Cohort:
+        age_in_2010 = table("patients").age_as_of("2010-06-01")
+        age_at_last_event = table("patients").age_as_of(
+            table("clinical_events").latest().get("date")
+        )
+
+    result = extract(Cohort, MockBackend, database)
+    assert result == [
+        {"patient_id": 1, "age_in_2010": 19, "age_at_last_event": 30},
+        {"patient_id": 2, "age_in_2010": 10, "age_at_last_event": 17},
+    ]

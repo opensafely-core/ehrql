@@ -14,6 +14,7 @@ class MockBackend(BaseBackend):
         source="patients",
         columns=dict(
             height=Column("float", source="Height"),
+            date_of_birth=Column("date", source="DateOfBirth"),
         ),
     )
     practice_registrations = MappedTable(
@@ -75,3 +76,4 @@ class Patients(Base):
     Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     PatientId = sqlalchemy.Column(sqlalchemy.Integer)
     Height = sqlalchemy.Column(sqlalchemy.Float)
+    DateOfBirth = sqlalchemy.Column(sqlalchemy.Date)
