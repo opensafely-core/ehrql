@@ -12,10 +12,10 @@ class Patient(Base):
     DateOfBirth = Column(Date)
 
 
-def patient(patient_id, sex, *entities):
+def patient(patient_id, sex, dob, *entities):
     for entity in entities:
         entity.Patient_ID = patient_id
-    return [Patient(Patient_ID=patient_id, Sex=sex), *entities]
+    return [Patient(Patient_ID=patient_id, Sex=sex, DateOfBirth=dob), *entities]
 
 
 class Organisation(Base):

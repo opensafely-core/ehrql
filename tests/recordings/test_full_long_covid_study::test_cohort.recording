@@ -340,6 +340,18 @@
    '\n'
    '\n'
    'SELECT * INTO #group_table_8 FROM (\n'
+   'SELECT anon_1.date_of_birth, anon_1.patient_id \n'
+   'FROM (SELECT patients.date_of_birth AS date_of_birth, patients.patient_id '
+   'AS patient_id, row_number() OVER (PARTITION BY patients.patient_id ORDER '
+   'BY patients.patient_id) AS _row_num \n'
+   'FROM (SELECT Sex AS sex, DateOfBirth AS date_of_birth, Patient_ID AS '
+   'patient_id \n'
+   'FROM [Patient]) AS patients) AS anon_1 \n'
+   'WHERE anon_1._row_num = 1\n'
+   ') t\n'
+   '\n'
+   '\n'
+   'SELECT * INTO #group_table_9 FROM (\n'
    'SELECT patients.patient_id, patients.sex \n'
    'FROM (SELECT Sex AS sex, DateOfBirth AS date_of_birth, Patient_ID AS '
    'patient_id \n'
@@ -347,7 +359,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_9 FROM (\n'
+   'SELECT * INTO #group_table_10 FROM (\n'
    'SELECT anon_1.index_of_multiple_deprivation_rounded, anon_1.patient_id \n'
    'FROM (SELECT patient_address.index_of_multiple_deprivation_rounded, '
    'patient_address.patient_id, row_number() OVER (PARTITION BY '
@@ -370,7 +382,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_10 FROM (\n'
+   'SELECT * INTO #group_table_11 FROM (\n'
    'SELECT anon_1.code, anon_1.patient_id \n'
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
@@ -384,7 +396,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_11 FROM (\n'
+   'SELECT * INTO #group_table_12 FROM (\n'
    'SELECT anon_1.numeric_value, anon_1.patient_id \n'
    'FROM (SELECT clinical_events.numeric_value AS numeric_value, '
    'clinical_events.patient_id AS patient_id, row_number() OVER (PARTITION BY '
@@ -398,7 +410,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_12 FROM (\n'
+   'SELECT * INTO #group_table_13 FROM (\n'
    'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
    'code_count \n'
    'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
@@ -410,7 +422,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_13 FROM (\n'
+   'SELECT * INTO #group_table_14 FROM (\n'
    'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
    'code_count \n'
    'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
@@ -422,7 +434,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_14 FROM (\n'
+   'SELECT * INTO #group_table_15 FROM (\n'
    'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
    'code_count \n'
    'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
@@ -434,7 +446,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_15 FROM (\n'
+   'SELECT * INTO #group_table_16 FROM (\n'
    'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
    'code_count \n'
    'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
@@ -446,7 +458,7 @@
    ') t\n'
    '\n'
    '\n'
-   'SELECT * INTO #group_table_16 FROM (\n'
+   'SELECT * INTO #group_table_17 FROM (\n'
    'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
    'code_count \n'
    'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
@@ -464,34 +476,99 @@
    'primary_care_covid_first_date, [#group_table_4].date AS '
    'hospital_covid_first_date, [#group_table_5].patient_id_exists AS '
    'long_covid, [#group_table_6].date AS first_long_covid_date, '
-   '[#group_table_7].code AS first_long_covid_code, [#group_table_8].sex AS '
-   'sex, [#group_table_1].nuts1_region_name AS region, CASE WHEN '
-   '([#group_table_9].index_of_multiple_deprivation_rounded >= 1 AND '
-   "[#group_table_9].index_of_multiple_deprivation_rounded < 6568.8) THEN N'1' "
-   'WHEN ([#group_table_9].index_of_multiple_deprivation_rounded >= 6568.8 AND '
-   '[#group_table_9].index_of_multiple_deprivation_rounded < 13137.6) THEN '
-   "N'2' WHEN ([#group_table_9].index_of_multiple_deprivation_rounded >= "
-   '13137.6 AND [#group_table_9].index_of_multiple_deprivation_rounded < '
-   "19706.4) THEN N'3' WHEN "
-   '([#group_table_9].index_of_multiple_deprivation_rounded >= 19706.4 AND '
-   '[#group_table_9].index_of_multiple_deprivation_rounded < 26275.2) THEN '
-   "N'4' WHEN ([#group_table_9].index_of_multiple_deprivation_rounded >= "
-   '26275.2 AND [#group_table_9].index_of_multiple_deprivation_rounded < '
-   "32844) THEN N'5' ELSE N'0' END AS imd, [#group_table_10].code AS "
-   'ethnicity, CASE WHEN ([#group_table_11].numeric_value >= 30 AND '
-   "[#group_table_11].numeric_value < 35) THEN N'Obese I (30-34.9)' WHEN "
-   '([#group_table_11].numeric_value >= 35 AND [#group_table_11].numeric_value '
-   "< 40) THEN N'Obese II (35-39.9)' WHEN ([#group_table_11].numeric_value >= "
-   "40 AND [#group_table_11].numeric_value < 100) THEN N'Obese III (40+)' ELSE "
-   "N'Not obese' END AS bmi, CASE WHEN (([#group_table_2].date IS NOT NULL OR "
+   '[#group_table_7].code AS first_long_covid_code, CASE WHEN (CASE WHEN '
+   '(dateadd(year, datediff(year, [#group_table_8].date_of_birth, '
+   "N'2020-11-01'), [#group_table_8].date_of_birth) > N'2020-11-01') THEN "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') END < 18) "
+   "THEN N'0-17' WHEN (CASE WHEN (dateadd(year, datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01'), "
+   "[#group_table_8].date_of_birth) > N'2020-11-01') THEN datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') END >= 18 AND CASE WHEN "
+   '(dateadd(year, datediff(year, [#group_table_8].date_of_birth, '
+   "N'2020-11-01'), [#group_table_8].date_of_birth) > N'2020-11-01') THEN "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') END < 25) "
+   "THEN N'18-24' WHEN (CASE WHEN (dateadd(year, datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01'), "
+   "[#group_table_8].date_of_birth) > N'2020-11-01') THEN datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') END >= 25 AND CASE WHEN "
+   '(dateadd(year, datediff(year, [#group_table_8].date_of_birth, '
+   "N'2020-11-01'), [#group_table_8].date_of_birth) > N'2020-11-01') THEN "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') END < 35) "
+   "THEN N'25-34' WHEN (CASE WHEN (dateadd(year, datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01'), "
+   "[#group_table_8].date_of_birth) > N'2020-11-01') THEN datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') END >= 35 AND CASE WHEN "
+   '(dateadd(year, datediff(year, [#group_table_8].date_of_birth, '
+   "N'2020-11-01'), [#group_table_8].date_of_birth) > N'2020-11-01') THEN "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') END < 45) "
+   "THEN N'35-44' WHEN (CASE WHEN (dateadd(year, datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01'), "
+   "[#group_table_8].date_of_birth) > N'2020-11-01') THEN datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') END >= 45 AND CASE WHEN "
+   '(dateadd(year, datediff(year, [#group_table_8].date_of_birth, '
+   "N'2020-11-01'), [#group_table_8].date_of_birth) > N'2020-11-01') THEN "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') END < 55) "
+   "THEN N'45-54' WHEN (CASE WHEN (dateadd(year, datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01'), "
+   "[#group_table_8].date_of_birth) > N'2020-11-01') THEN datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') END >= 55 AND CASE WHEN "
+   '(dateadd(year, datediff(year, [#group_table_8].date_of_birth, '
+   "N'2020-11-01'), [#group_table_8].date_of_birth) > N'2020-11-01') THEN "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') END < 70) "
+   "THEN N'55-69' WHEN (CASE WHEN (dateadd(year, datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01'), "
+   "[#group_table_8].date_of_birth) > N'2020-11-01') THEN datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') END >= 70 AND CASE WHEN "
+   '(dateadd(year, datediff(year, [#group_table_8].date_of_birth, '
+   "N'2020-11-01'), [#group_table_8].date_of_birth) > N'2020-11-01') THEN "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE "
+   "datediff(year, [#group_table_8].date_of_birth, N'2020-11-01') END < 80) "
+   "THEN N'70-79' WHEN (CASE WHEN (dateadd(year, datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01'), "
+   "[#group_table_8].date_of_birth) > N'2020-11-01') THEN datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
+   "[#group_table_8].date_of_birth, N'2020-11-01') END >= 80) THEN N'80+' ELSE "
+   "N'missing' END AS age_group, [#group_table_9].sex AS sex, "
+   '[#group_table_1].nuts1_region_name AS region, CASE WHEN '
+   '([#group_table_10].index_of_multiple_deprivation_rounded >= 1 AND '
+   '[#group_table_10].index_of_multiple_deprivation_rounded < 6568.8) THEN '
+   "N'1' WHEN ([#group_table_10].index_of_multiple_deprivation_rounded >= "
+   '6568.8 AND [#group_table_10].index_of_multiple_deprivation_rounded < '
+   "13137.6) THEN N'2' WHEN "
+   '([#group_table_10].index_of_multiple_deprivation_rounded >= 13137.6 AND '
+   '[#group_table_10].index_of_multiple_deprivation_rounded < 19706.4) THEN '
+   "N'3' WHEN ([#group_table_10].index_of_multiple_deprivation_rounded >= "
+   '19706.4 AND [#group_table_10].index_of_multiple_deprivation_rounded < '
+   "26275.2) THEN N'4' WHEN "
+   '([#group_table_10].index_of_multiple_deprivation_rounded >= 26275.2 AND '
+   "[#group_table_10].index_of_multiple_deprivation_rounded < 32844) THEN N'5' "
+   "ELSE N'0' END AS imd, [#group_table_11].code AS ethnicity, CASE WHEN "
+   '([#group_table_12].numeric_value >= 30 AND [#group_table_12].numeric_value '
+   "< 35) THEN N'Obese I (30-34.9)' WHEN ([#group_table_12].numeric_value >= "
+   "35 AND [#group_table_12].numeric_value < 40) THEN N'Obese II (35-39.9)' "
+   'WHEN ([#group_table_12].numeric_value >= 40 AND '
+   "[#group_table_12].numeric_value < 100) THEN N'Obese III (40+)' ELSE N'Not "
+   "obese' END AS bmi, CASE WHEN (([#group_table_2].date IS NOT NULL OR "
    '[#group_table_3].date IS NOT NULL) AND [#group_table_4].date IS NULL) THEN '
    "N'COVID positive' WHEN ([#group_table_4].date IS NOT NULL) THEN N'COVID "
    "hospitalised' ELSE N'No COVID code' END AS previous_covid, "
-   '[#group_table_12].code_count AS snomed_1325161000000102, '
-   '[#group_table_13].code_count AS snomed_1325181000000106, '
-   '[#group_table_14].code_count AS snomed_266226000, '
-   '[#group_table_15].code_count AS snomed_272038003, '
-   '[#group_table_16].code_count AS snomed_51771007 \n'
+   '[#group_table_13].code_count AS snomed_1325161000000102, '
+   '[#group_table_14].code_count AS snomed_1325181000000106, '
+   '[#group_table_15].code_count AS snomed_266226000, '
+   '[#group_table_16].code_count AS snomed_272038003, '
+   '[#group_table_17].code_count AS snomed_51771007 \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
    '[#group_table_0].patient_id = [#group_table_1].patient_id LEFT OUTER JOIN '
    '[#group_table_2] ON [#group_table_0].patient_id = '
@@ -516,7 +593,8 @@
    '[#group_table_14].patient_id LEFT OUTER JOIN [#group_table_15] ON '
    '[#group_table_0].patient_id = [#group_table_15].patient_id LEFT OUTER JOIN '
    '[#group_table_16] ON [#group_table_0].patient_id = '
-   '[#group_table_16].patient_id \n'
+   '[#group_table_16].patient_id LEFT OUTER JOIN [#group_table_17] ON '
+   '[#group_table_0].patient_id = [#group_table_17].patient_id \n'
    'WHERE [#group_table_0].patient_id_exists = 1',
    {}),
   {},
@@ -533,6 +611,7 @@
    ('long_covid', 3, None, None, None, None, None),
    ('first_long_covid_date', 4, None, None, None, None, None),
    ('first_long_covid_code', 1, None, None, None, None, None),
+   ('age_group', 1, None, None, None, None, None),
    ('sex', 1, None, None, None, None, None),
    ('region', 1, None, None, None, None, None),
    ('imd', 1, None, None, None, None, None),
@@ -556,6 +635,7 @@
    1,
    datetime.datetime(2020, 9, 1, 0, 0),
    '1325031000000108',
+   '25-34',
    'F',
    'South',
    '2',

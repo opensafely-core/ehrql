@@ -120,6 +120,7 @@ def test_hospitalization_table_returns_admission_date(database, setup_tpp_databa
         *patient(
             1,
             "M",
+            "1990-1-1",
             registration("2001-01-01", "2026-06-26"),
             apcs(admission_date="2020-12-12"),
         )
@@ -158,6 +159,7 @@ def test_hospitalization_table_code_conversion(
         *patient(
             1,
             "M",
+            "1990-1-1",
             registration("2001-01-01", "2026-06-26"),
             apcs(codes=raw),
         )
@@ -177,12 +179,14 @@ def test_hospitalization_code_parsing_works_with_filters(database, setup_tpp_dat
         *patient(
             1,
             "X",
+            "1990-1-1",
             registration("2001-01-01", "2026-06-26"),
             apcs(codes="abc"),
         ),
         *patient(
             2,
             "X",
+            "1990-1-1",
             registration("2001-01-01", "2026-06-26"),
             apcs(codes="xyz"),
         ),
@@ -220,8 +224,8 @@ def test_organisation(database, setup_tpp_database):
     setup_tpp_database(
         organisation(1, "South"),
         organisation(2, "North"),
-        *patient(1, "M", registration("2001-01-01", "2021-06-26", 1)),
-        *patient(2, "F", registration("2001-01-01", "2026-06-26", 2)),
+        *patient(1, "M", "1990-1-1", registration("2001-01-01", "2021-06-26", 1)),
+        *patient(2, "F", "1990-1-1", registration("2001-01-01", "2026-06-26", 2)),
     )
 
     class Cohort:
@@ -246,6 +250,7 @@ def test_organisation_dates(database, setup_tpp_database):
         *patient(
             1,
             "M",
+            "1990-1-1",
             registration("2001-01-01", "2021-06-26", 1),
             registration("2021-06-27", "2026-06-26", 2),
         ),
@@ -253,11 +258,12 @@ def test_organisation_dates(database, setup_tpp_database):
         *patient(
             2,
             "F",
+            "1990-1-1",
             registration("2001-01-01", "2026-06-26", 2),
             registration("2021-01-01", "9999-12-31", 3),
         ),
         # registration not in range, not included
-        *patient(3, "F", registration("2001-01-01", "2020-06-26", 2)),
+        *patient(3, "F", "1990-1-1", registration("2001-01-01", "2020-06-26", 2)),
     )
 
     class Cohort:
@@ -279,6 +285,7 @@ def test_index_of_multiple_deprivation(database, setup_tpp_database):
         *patient(
             1,
             "M",
+            "1990-1-1",
             registration("2001-01-01", "2026-06-26"),
             patient_address("2001-01-01", "2026-06-26", 1200, "E02000001"),
         )
@@ -333,7 +340,13 @@ def test_index_of_multiple_deprivation_sorting(
     database, setup_tpp_database, patient_addresses, expected
 ):
     setup_tpp_database(
-        *patient(1, "M", registration("2001-01-01", "2026-06-26"), *patient_addresses)
+        *patient(
+            1,
+            "M",
+            "1990-1-1",
+            registration("2001-01-01", "2026-06-26"),
+            *patient_addresses,
+        )
     )
 
     class Cohort:

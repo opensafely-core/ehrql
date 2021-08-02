@@ -61,8 +61,8 @@
    '\n'
    '\n'
    'SELECT [#group_table_1].patient_id AS patient_id, CASE WHEN '
-   "([#group_table_0].patient_id IS NOT NULL) THEN N'yes' ELSE N'na' END AS "
-   'abc \n'
+   "([#group_table_0].patient_id_exists IS NOT NULL) THEN N'yes' ELSE N'na' "
+   'END AS abc \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
    'WHERE [#group_table_1].patient_id_exists = 1',

@@ -77,7 +77,6 @@ class MssqlQueryEngine(BaseQueryEngine):
                 function="exists",
                 column="patient_id",
             )
-
         # Walk the nodes and identify output groups
         all_nodes = self.get_all_query_nodes(column_definitions)
         self.output_groups = self.get_output_groups(all_nodes)
@@ -171,12 +170,21 @@ class MssqlQueryEngine(BaseQueryEngine):
         """
         Get all the referenced query nodes for category definitions.  If a category
         definition (Comparator) has a LHS which is not itself a Comparator,
-        it will be a query node
+        it will be a query node or a function-generated node
         """
         query_nodes = query_nodes or set()
         for definition in definitions:
             if isinstance(definition.lhs, Value):
-                query_nodes.add(definition.lhs)
+                # A ValueFromFunction is not itself a QueryNode, so we look for referenced
+                # nodes in its arguments
+                parent_nodes = (
+                    definition.lhs.arguments
+                    if isinstance(definition.lhs, ValueFromFunction)
+                    else [definition.lhs]
+                )
+                for node in parent_nodes:
+                    if isinstance(node, Value):
+                        query_nodes.add(node)
             else:
                 query_nodes = self.get_query_nodes_from_category_definitions(
                     [definition.lhs], query_nodes
@@ -344,7 +352,8 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def build_condition_statement(self, comparator, tables):
         """
-        Traverse a comparator's left and right hand sides in order and build the nested condition statement
+        Traverse a comparator's left and right hand sides in order and build the nested
+        condition statement
         """
         if comparator.connector is not None:
             assert isinstance(comparator.lhs, Comparator) and isinstance(
@@ -355,10 +364,8 @@ class MssqlQueryEngine(BaseQueryEngine):
             connector = getattr(sqlalchemy, comparator.connector)
             condition_statement = connector(left_conditions, right_conditions)
         else:
-            query_node = comparator.lhs
-            table = tables[query_node]
-            column = table.c[query_node.column]
-            method = getattr(column, comparator.operator)
+            lhs, _ = self.get_value_expression(comparator.lhs)
+            method = getattr(lhs, comparator.operator)
             condition_statement = method(comparator.rhs)
 
         if comparator.negated:
