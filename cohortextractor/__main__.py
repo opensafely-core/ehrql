@@ -36,7 +36,7 @@ options = parser.parse_args()
 main(
     definition_path=options.cohort_definition,
     output_file=options.output,
-    db_url=os.environ["TPP_DATABASE_URL"],
-    backend_id=os.environ["BACKEND"],
+    db_url=os.environ.get("TPP_DATABASE_URL"),
+    backend_id=os.environ.get("BACKEND"),
     dummy_data_file=options.dummy_data_file,
 )
