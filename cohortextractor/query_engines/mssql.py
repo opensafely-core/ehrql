@@ -133,7 +133,7 @@ class MssqlQueryEngine(BaseQueryEngine):
 
     def get_parent_nodes(self, node):
         if hasattr(node, "definitions"):
-            yield from self.list_query_nodes_from_category_definitions(
+            yield from self.list_parent_nodes_from_category_definitions(
                 node.definitions.values()
             )
         if hasattr(node, "source"):
@@ -166,40 +166,42 @@ class MssqlQueryEngine(BaseQueryEngine):
         else:
             raise TypeError(f"Unhandled type: {node}")
 
-    def get_query_nodes_from_category_definitions(self, definitions, query_nodes=None):
+    def get_parent_nodes_from_category_definitions(
+        self, definitions, parent_nodes=None
+    ):
         """
-        Get all the referenced query nodes for category definitions.  If a category
+        Get all the referenced parent nodes for category definitions.  If a category
         definition (Comparator) has a LHS which is not itself a Comparator,
         it will be a query node or a function-generated node
         """
-        query_nodes = query_nodes or set()
+        parent_nodes = parent_nodes or set()
         for definition in definitions:
             if isinstance(definition.lhs, Value):
-                # A ValueFromFunction is not itself a QueryNode, so we look for referenced
-                # nodes in its arguments
-                parent_nodes = (
+                # A ValueFromFunction is not itself a node that is derieved directly from a
+                # temporary table.  We look for referenced nodes in its arguments
+                definition_parent_nodes = (
                     definition.lhs.arguments
                     if isinstance(definition.lhs, ValueFromFunction)
                     else [definition.lhs]
                 )
-                for node in parent_nodes:
+                for node in definition_parent_nodes:
                     if isinstance(node, Value):
-                        query_nodes.add(node)
+                        parent_nodes.add(node)
             else:
-                query_nodes = self.get_query_nodes_from_category_definitions(
-                    [definition.lhs], query_nodes
+                parent_nodes = self.get_parent_nodes_from_category_definitions(
+                    [definition.lhs], parent_nodes
                 )
 
             if isinstance(definition.rhs, Comparator):
-                query_nodes = self.get_query_nodes_from_category_definitions(
-                    [definition.rhs], query_nodes
+                parent_nodes = self.get_parent_nodes_from_category_definitions(
+                    [definition.rhs], parent_nodes
                 )
 
-        return query_nodes
+        return parent_nodes
 
-    def list_query_nodes_from_category_definitions(self, definitions):
-        # Sort the query nodes to ensure consistent order.  We have to use a custom sort key
-        # here because query nodes are Values with overloaded lt/gt operators.
+    def list_parent_nodes_from_category_definitions(self, definitions):
+        # Sort the parent nodes to ensure consistent order.  We have to use a custom sort key
+        # here because parent nodes are Values with overloaded lt/gt operators.
 
         # Note that we sort on column name first, and source as a tie-breaker in the event of
         # two nodes with the same column name.  x.source can be a Row in the case of a truthy
@@ -207,7 +209,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         # and code1/code2 are ValueFromRow.  In this case we can't use the source Row as a
         # sort key, so we use its repr instead.
         return sorted(
-            self.get_query_nodes_from_category_definitions(definitions),
+            self.get_parent_nodes_from_category_definitions(definitions),
             key=lambda x: (x.column, repr(x.source)),
         )
 
@@ -383,7 +385,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         if self.is_category_node(value):
             category_definitions = value.definitions.copy()
             all_category_referenced_nodes = (
-                self.list_query_nodes_from_category_definitions(
+                self.list_parent_nodes_from_category_definitions(
                     category_definitions.values()
                 )
             )
