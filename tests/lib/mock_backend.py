@@ -36,7 +36,7 @@ class MockBackend(BaseBackend):
     positive_tests = MappedTable(
         source="pos_tests",
         columns=dict(
-            result=Column("bool", source="PositiveResult"),
+            result=Column("boolean", source="PositiveResult"),
             test_date=Column("date", source="TestDate"),
         ),
     )

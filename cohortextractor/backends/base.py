@@ -50,7 +50,7 @@ class MappedTable(SQLTable):
         self._columns = columns
 
     def learn_patient_join(self, source):
-        self._columns["patient_id"] = Column("int", source)
+        self._columns["patient_id"] = Column("integer", source)
 
     def get_query(self):
         columns = [
@@ -71,7 +71,7 @@ class QueryTable(SQLTable):
         self._columns = columns
 
     def learn_patient_join(self, source):
-        self._columns["patient_id"] = Column("int")
+        self._columns["patient_id"] = Column("integer")
 
     def get_query(self):
         columns = [sqlalchemy.literal_column(column) for column in self._columns.keys()]
