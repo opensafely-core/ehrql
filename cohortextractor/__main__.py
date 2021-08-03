@@ -21,9 +21,15 @@ parser.add_argument(
     type=existing_python_file,
 )
 parser.add_argument(
-    "--output",
-    help="The path of the file where the output will be written",
+    "--output-dir",
+    help="Location to store output files",
     type=Path,
+    default="output",
+)
+parser.add_argument(
+    "--output-file",
+    help="The name of the file where the output will be written",
+    type=str,
 )
 parser.add_argument(
     "--dummy-data-file",
@@ -40,7 +46,7 @@ if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
 
 main(
     definition_path=options.cohort_definition,
-    output_file=options.output,
+    output_file=options.output_dir / options.output_file,
     db_url=os.environ.get("DATABASE_URL"),
     backend_id=os.environ.get("BACKEND"),
     dummy_data_file=options.dummy_data_file,

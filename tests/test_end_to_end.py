@@ -35,8 +35,9 @@ def cohort_extractor_in_container(tmpdir, database, containers):
     workspace = Path(tmpdir.mkdir("workspace"))
     analysis_dir = workspace / "analysis"
     analysis_dir.mkdir()
-    output_rel_path = Path("outputs") / "cohort.csv"
-    output_host_path = workspace / output_rel_path
+    output_dir = Path("outputs")
+    output_file = "cohort.csv"
+    output_host_path = workspace / output_dir / output_file
 
     def run(study, use_dummy_data=False):
         for file in study.code():
@@ -46,8 +47,10 @@ def cohort_extractor_in_container(tmpdir, database, containers):
         command = [
             "--cohort-definition",
             str(definition_path),
-            "--output",
-            str(output_rel_path),
+            "--output-dir",
+            str(output_dir),
+            "--output-file",
+            output_file,
         ]
         if use_dummy_data:
             shutil.copy(study.dummy_data(), analysis_dir)
