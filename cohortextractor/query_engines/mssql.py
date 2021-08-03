@@ -6,6 +6,7 @@ import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
 import sqlalchemy.types
+from sqlalchemy.sql.expression import type_coerce
 
 from ..query_language import (
     Codelist,
@@ -497,15 +498,21 @@ class MssqlQueryEngine(BaseQueryEngine):
         return value_expression, tuple(tables)
 
     def date_difference_in_years(self, start_date, end_date):
+        start_date = type_coerce(start_date, MSSQLDate())
+        end_date = type_coerce(end_date, MSSQLDate())
         # `literal_column` doesn't seem quite the right construct here, but I
         # need SQLAlchemy to generate the string "year" without quotes, and
         # this seems to do the trick
         YEAR = sqlalchemy.literal_column("year")
         # The year difference here is just the difference between the year
         # components of the dates and takes no account of the month or day
-        year_diff = sqlalchemy.func.datediff(YEAR, start_date, end_date)
+        year_diff = sqlalchemy.func.datediff(
+            YEAR, start_date, end_date, type_=sqlalchemy.types.Integer()
+        )
         # so we add the resulting number of years back on to the start date
-        start_date_plus_year_diff = sqlalchemy.func.dateadd(YEAR, year_diff, start_date)
+        start_date_plus_year_diff = sqlalchemy.func.dateadd(
+            YEAR, year_diff, start_date, type_=MSSQLDate()
+        )
         # and then adjust it down by one year if this takes us past our end date
         return sqlalchemy.case(
             (start_date_plus_year_diff > end_date, year_diff - 1), else_=year_diff
