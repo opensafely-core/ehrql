@@ -16,5 +16,5 @@ RUN mkdir /workspace
 WORKDIR /workspace
 
 ENTRYPOINT ["python", "-m", "cohortextractor"]
-ENV PYTHONPATH="/app:${PYTHONPATH}"
+ENV PYTHONPATH="/app"
 COPY cohortextractor /app/cohortextractor
