@@ -1,6 +1,7 @@
 # hadolint ignore=DL3007
 FROM ghcr.io/opensafely-core/base-docker:latest
 
+# hadolit ignore=DL3008
 RUN \
   apt-get update --fix-missing && \
   apt-get install -y --no-install-recommends \
