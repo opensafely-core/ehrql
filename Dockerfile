@@ -16,6 +16,8 @@ RUN python -m pip install --no-cache-dir --requirement /app/requirements.txt
 RUN mkdir /workspace
 WORKDIR /workspace
 
-ENTRYPOINT ["python", "-m", "cohortextractor"]
+# -B: don't write bytecode files
+ENTRYPOINT ["python", "-B", "-m", "cohortextractor"]
 ENV PYTHONPATH="/app"
 COPY cohortextractor /app/cohortextractor
+RUN python -m compileall /app/cohortextractor
