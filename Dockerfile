@@ -11,9 +11,10 @@ RUN \
 COPY requirements.prod.txt /app/requirements.txt
 RUN python -m pip install --no-cache-dir --requirement /app/requirements.txt
 
-COPY cohortextractor /app/cohortextractor
-ENV PYTHONPATH="/app:${PYTHONPATH}"
-
+# hadolint ignore=DL3059
 RUN mkdir /workspace
 WORKDIR /workspace
+
 ENTRYPOINT ["python", "-m", "cohortextractor"]
+ENV PYTHONPATH="/app:${PYTHONPATH}"
+COPY cohortextractor /app/cohortextractor
