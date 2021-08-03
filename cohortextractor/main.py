@@ -14,7 +14,7 @@ def main(definition_path, output_file, backend_id, db_url, dummy_data_file=None)
     cohort = load_cohort(definition_path)
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    if dummy_data_file:
+    if dummy_data_file and not db_url:
         validate_dummy_data(cohort, dummy_data_file, output_file)
         shutil.copyfile(dummy_data_file, output_file)
     else:
