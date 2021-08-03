@@ -42,25 +42,28 @@ class BaseBackend:
     def __init__(self, database_url):
         self.database_url = database_url
 
-    def get_table_expression(self, table_name):
+    def get_table_expression(self, table_name, type_map=None):
         if table_name not in self.tables:
             raise ValueError(f"Unknown table '{table_name}'")
         table = getattr(self, table_name)
-        return table.get_query().alias(table_name)
+        return table.get_query(type_map).alias(table_name)
 
 
 class SQLTable:
     def learn_patient_join(self, source):
         raise NotImplementedError()
 
-    def _make_columns(self):
+    def _make_columns(self, type_map):
         return [
-            self._make_column(name, column) for name, column in self._columns.items()
+            self._make_column(name, column, type_map)
+            for name, column in self._columns.items()
         ]
 
-    def _make_column(self, name, column):
+    def _make_column(self, name, column, type_map):
         source = column.source or name
-        type_ = DEFAULT_SQLALCHEMY_TYPES[column.type]
+        type_ = type_map.get(column.type) if type_map else None
+        if type_ is None:
+            type_ = DEFAULT_SQLALCHEMY_TYPES[column.type]
         sql_column = sqlalchemy.Column(source, type_)
         if source != name:
             sql_column = sql_column.label(name)
@@ -75,8 +78,8 @@ class MappedTable(SQLTable):
     def learn_patient_join(self, source):
         self._columns["patient_id"] = Column("integer", source)
 
-    def get_query(self):
-        columns = self._make_columns()
+    def get_query(self, type_map):
+        columns = self._make_columns(type_map)
         query = sqlalchemy.select(columns).select_from(sqlalchemy.table(self.source))
         return query
 
@@ -89,8 +92,8 @@ class QueryTable(SQLTable):
     def learn_patient_join(self, source):
         self._columns["patient_id"] = Column("integer")
 
-    def get_query(self):
-        columns = self._make_columns()
+    def get_query(self, type_map):
+        columns = self._make_columns(type_map)
         return sqlalchemy.text(self.query).columns(*columns)
 
 
