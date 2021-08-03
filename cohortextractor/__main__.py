@@ -25,12 +25,23 @@ parser.add_argument(
     help="The path of the file where the output will be written",
     type=Path,
 )
+parser.add_argument(
+    "--dummy-data-file",
+    help="Provide dummy data from a file to be validated and used as output",
+    type=Path,
+)
 
 options = parser.parse_args()
+
+if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
+    parser.error(
+        "error: either --dummy-data-file or DATABASE_URL environment variable is required"
+    )
 
 main(
     definition_path=options.cohort_definition,
     output_file=options.output,
-    db_url=os.environ["TPP_DATABASE_URL"],
-    backend_id=os.environ["BACKEND"],
+    db_url=os.environ.get("DATABASE_URL"),
+    backend_id=os.environ.get("BACKEND"),
+    dummy_data_file=options.dummy_data_file,
 )

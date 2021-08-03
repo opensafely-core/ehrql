@@ -1,0 +1,3 @@
+patient_id,sex,has_event,event_count
+11,F,1,1
+22,M,0,

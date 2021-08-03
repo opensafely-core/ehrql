@@ -1,18 +1,26 @@
 import csv
 import importlib.util
 import inspect
+import shutil
 import sys
 from contextlib import contextmanager
 
 from .backends import BACKENDS
 from .query_utils import get_column_definitions
+from .validate_dummy_data import validate_dummy_data
 
 
-def main(definition_path, output_file, backend_id, db_url):
-    backend = BACKENDS[backend_id](db_url)
+def main(definition_path, output_file, backend_id, db_url, dummy_data_file=None):
     cohort = load_cohort(definition_path)
-    results = extract(cohort, backend)
-    write_output(results, output_file)
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    if dummy_data_file:
+        validate_dummy_data(cohort, dummy_data_file, output_file)
+        shutil.copyfile(dummy_data_file, output_file)
+    else:
+        backend = BACKENDS[backend_id](db_url)
+        results = extract(cohort, backend)
+        write_output(results, output_file)
 
 
 def load_cohort(definition_path):
@@ -55,7 +63,6 @@ def extract(cohort, backend):
 
 
 def write_output(results, output_file):
-    output_file.parent.mkdir(parents=True, exist_ok=True)
     with output_file.open(mode="w") as f:
         writer = csv.writer(f)
         headers = None
