@@ -27,7 +27,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--dummy-data-file",
-    help="Use dummy data from file",
+    help="Provide dummy data from a file to be validated and used as output",
     type=Path,
 )
 

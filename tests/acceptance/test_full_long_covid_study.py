@@ -23,7 +23,6 @@ from lib.util import extract
 
 from cohortextractor import categorise, codelist, table
 from cohortextractor.backends import TPPBackend
-from cohortextractor.query_utils import get_column_definitions
 from cohortextractor.validate_dummy_data import validate_dummy_data
 
 
@@ -258,11 +257,10 @@ def test_cohort(database, setup_tpp_database):
 
 
 def test_validate_dummy_data():
-    column_definitions = get_column_definitions(Cohort)
     dummy_data_file = (
         Path(__file__).parent.parent
         / "fixtures"
         / "dummy_data"
-        / "long_covid_dummy_data_without_age.csv"  # TODO update when age_as_of is implemented
+        / "long_covid_dummy_data.csv"
     )
-    validate_dummy_data(column_definitions, dummy_data_file)
+    validate_dummy_data(Cohort, dummy_data_file, Path("output.csv"))

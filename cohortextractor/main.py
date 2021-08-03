@@ -4,30 +4,23 @@ import inspect
 import shutil
 import sys
 from contextlib import contextmanager
-from pathlib import Path
 
-from cohortextractor.backends import BACKENDS
-from cohortextractor.query_utils import get_column_definitions
-from cohortextractor.validate_dummy_data import (
-    DummyDataValidationError,
-    validate_dummy_data,
-)
+from .backends import BACKENDS
+from .query_utils import get_column_definitions
+from .validate_dummy_data import validate_dummy_data
 
 
 def main(definition_path, output_file, backend_id, db_url, dummy_data_file=None):
     cohort = load_cohort(definition_path)
 
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     if dummy_data_file:
-        results = None
-        if Path(output_file).suffixes != dummy_data_file.suffixes:
-            expected_extension = "".join(output_file.suffixes)
-            msg = f"Expected dummy data file with extension {expected_extension}; got {dummy_data_file}"
-            raise DummyDataValidationError(msg)
-        validate_dummy_data(get_column_definitions(cohort), dummy_data_file)
+        validate_dummy_data(cohort, dummy_data_file, output_file)
+        shutil.copyfile(dummy_data_file, output_file)
     else:
         backend = BACKENDS[backend_id](db_url)
         results = extract(cohort, backend)
-    write_output(results, output_file, dummy_data_file=dummy_data_file)
+        write_output(results, output_file)
 
 
 def load_cohort(definition_path):
@@ -69,18 +62,14 @@ def extract(cohort, backend):
             yield dict(row)
 
 
-def write_output(results, output_file, dummy_data_file=None):
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    if dummy_data_file:
-        shutil.copyfile(dummy_data_file, output_file)
-    else:
-        with output_file.open(mode="w") as f:
-            writer = csv.writer(f)
-            headers = None
-            for entry in results:
-                if not headers:
-                    headers = entry.keys()
-                    writer.writerow(headers)
-                else:
-                    assert entry.keys == headers
-                writer.writerow(entry.values())
+def write_output(results, output_file):
+    with output_file.open(mode="w") as f:
+        writer = csv.writer(f)
+        headers = None
+        for entry in results:
+            if not headers:
+                headers = entry.keys()
+                writer.writerow(headers)
+            else:
+                assert entry.keys == headers
+            writer.writerow(entry.values())
