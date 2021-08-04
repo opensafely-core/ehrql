@@ -42,9 +42,10 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT practice_registrations.date_end, practice_registrations.date_start, '
-   'practice_registrations.patient_id \n'
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT practice_registrations.date_end AS date_end, '
+   'practice_registrations.date_start AS date_start, '
+   'practice_registrations.patient_id AS patient_id \n'
    'FROM (\n'
    '            SELECT RegistrationHistory.Patient_ID AS patient_id,\n'
    '                RegistrationHistory.StartDate AS date_start,\n'
@@ -54,12 +55,16 @@
    '            FROM RegistrationHistory\n'
    '            LEFT OUTER JOIN Organisation ON '
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
-   '        ) AS practice_registrations\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
+   '        ) AS practice_registrations) AS anon_1',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
    'FROM (\n'
    '            SELECT RegistrationHistory.Patient_ID AS patient_id,\n'
    '                RegistrationHistory.StartDate AS date_start,\n'
@@ -70,11 +75,14 @@
    '            LEFT OUTER JOIN Organisation ON '
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_1].patient_id AS patient_id, '
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_1].patient_id AS patient_id, '
    '[#group_table_0].date_start AS arrived, [#group_table_0].date_end AS '
    '[left] \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '

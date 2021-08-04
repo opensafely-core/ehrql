@@ -42,69 +42,84 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT anon_1.date_of_birth, anon_1.patient_id \n'
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT anon_2.date_of_birth AS date_of_birth, anon_2.patient_id AS '
+   'patient_id \n'
    'FROM (SELECT patients.date_of_birth AS date_of_birth, patients.patient_id '
    'AS patient_id, row_number() OVER (PARTITION BY patients.patient_id ORDER '
    'BY patients.patient_id) AS _row_num \n'
-   'FROM (SELECT Height AS height, DateOfBirth AS date_of_birth, PatientId AS '
+   'FROM (SELECT [Height] AS height, [DateOfBirth] AS date_of_birth, '
+   '[PatientId] AS patient_id \n'
+   'FROM patients) AS patients) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT anon_2.date_of_birth AS date_of_birth, anon_2.patient_id AS '
    'patient_id \n'
-   'FROM patients) AS patients) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT anon_1.date_of_birth, anon_1.patient_id \n'
    'FROM (SELECT patients.date_of_birth AS date_of_birth, patients.patient_id '
    'AS patient_id, row_number() OVER (PARTITION BY patients.patient_id ORDER '
    'BY patients.patient_id) AS _row_num \n'
-   'FROM (SELECT Height AS height, DateOfBirth AS date_of_birth, PatientId AS '
-   'patient_id \n'
-   'FROM patients) AS patients) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_2 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM (SELECT [Height] AS height, [DateOfBirth] AS date_of_birth, '
+   '[PatientId] AS patient_id \n'
+   'FROM patients) AS patients) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_2 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date DESC) AS _row_num \n'
-   'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
-   'PatientId AS patient_id \n'
-   'FROM events) AS clinical_events) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_3 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT StpId AS stp, StartDate AS date_start, EndDate AS date_end, '
-   'PatientId AS patient_id \n'
+   'FROM (SELECT [EventCode] AS code, [Date] AS date, [ResultValue] AS result, '
+   '[PatientId] AS patient_id \n'
+   'FROM events) AS clinical_events) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_3 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
+   'FROM (SELECT [StpId] AS stp, [StartDate] AS date_start, [EndDate] AS '
+   'date_end, [PatientId] AS patient_id \n'
    'FROM practice_registrations) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_3].patient_id AS patient_id, CASE WHEN (dateadd(year, '
-   "datediff(year, [#group_table_0].date_of_birth, N'2010-06-01'), "
-   "[#group_table_0].date_of_birth) > N'2010-06-01') THEN datediff(year, "
-   "[#group_table_0].date_of_birth, N'2010-06-01') - 1 ELSE datediff(year, "
-   "[#group_table_0].date_of_birth, N'2010-06-01') END AS age_in_2010, CASE "
-   'WHEN (dateadd(year, datediff(year, [#group_table_1].date_of_birth, '
-   '[#group_table_2].date), [#group_table_1].date_of_birth) > '
-   '[#group_table_2].date) THEN datediff(year, [#group_table_1].date_of_birth, '
-   '[#group_table_2].date) - 1 ELSE datediff(year, '
-   '[#group_table_1].date_of_birth, [#group_table_2].date) END AS '
-   'age_at_last_event \n'
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_3].patient_id AS patient_id, CASE WHEN (dateadd(year, '
+   'datediff(year, [#group_table_0].date_of_birth, %(param_1)s), '
+   '[#group_table_0].date_of_birth) > %(param_1)s) THEN datediff(year, '
+   '[#group_table_0].date_of_birth, %(param_1)s) - %(datediff_1)s ELSE '
+   'datediff(year, [#group_table_0].date_of_birth, %(param_1)s) END AS '
+   'age_in_2010, CASE WHEN (dateadd(year, datediff(year, '
+   '[#group_table_1].date_of_birth, [#group_table_2].date), '
+   '[#group_table_1].date_of_birth) > [#group_table_2].date) THEN '
+   'datediff(year, [#group_table_1].date_of_birth, [#group_table_2].date) - '
+   '%(datediff_2)s ELSE datediff(year, [#group_table_1].date_of_birth, '
+   '[#group_table_2].date) END AS age_at_last_event \n'
    'FROM [#group_table_3] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_3].patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '
    '[#group_table_1] ON [#group_table_3].patient_id = '
    '[#group_table_1].patient_id LEFT OUTER JOIN [#group_table_2] ON '
    '[#group_table_3].patient_id = [#group_table_2].patient_id \n'
    'WHERE [#group_table_3].patient_id_exists = 1',
-   {}),
+   {'param_1': '20100601', 'datediff_1': 1, 'datediff_2': 1}),
   {},
   None),
  ('Cursor',

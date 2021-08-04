@@ -42,62 +42,78 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT anon_1.patient_id, anon_1.test_date \n'
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT anon_2.patient_id AS patient_id, anon_2.test_date AS '
+   'test_date \n'
    'FROM (SELECT positive_tests.patient_id AS patient_id, '
    'positive_tests.test_date AS test_date, row_number() OVER (PARTITION BY '
    'positive_tests.patient_id ORDER BY positive_tests.test_date) AS _row_num \n'
-   'FROM (SELECT PositiveResult AS result, TestDate AS test_date, PatientId AS '
-   'patient_id \n'
+   'FROM (SELECT [PositiveResult] AS result, [TestDate] AS test_date, '
+   '[PatientId] AS patient_id \n'
    'FROM pos_tests) AS positive_tests \n'
-   'WHERE positive_tests.result = 1) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT anon_1.patient_id, anon_1.test_date \n'
+   'WHERE positive_tests.result = 1) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT anon_2.patient_id AS patient_id, anon_2.test_date AS '
+   'test_date \n'
    'FROM (SELECT positive_tests.patient_id AS patient_id, '
    'positive_tests.test_date AS test_date, row_number() OVER (PARTITION BY '
    'positive_tests.patient_id ORDER BY positive_tests.test_date DESC) AS '
    '_row_num \n'
-   'FROM (SELECT PositiveResult AS result, TestDate AS test_date, PatientId AS '
-   'patient_id \n'
+   'FROM (SELECT [PositiveResult] AS result, [TestDate] AS test_date, '
+   '[PatientId] AS patient_id \n'
    'FROM pos_tests) AS positive_tests \n'
-   'WHERE positive_tests.result = 1) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_2 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id, anon_1.result \n'
+   'WHERE positive_tests.result = 1) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_2 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id, '
+   'anon_2.result AS result \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, clinical_events.result AS result, row_number() OVER (PARTITION '
    'BY clinical_events.patient_id ORDER BY clinical_events.date DESC) AS '
    '_row_num \n'
-   'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
-   'PatientId AS patient_id \n'
+   'FROM (SELECT [EventCode] AS code, [Date] AS date, [ResultValue] AS result, '
+   '[PatientId] AS patient_id \n'
    'FROM events) AS clinical_events LEFT OUTER JOIN [#group_table_0] ON '
-   '[#group_table_0].patient_id = clinical_events.patient_id LEFT OUTER JOIN '
-   '[#group_table_1] ON [#group_table_1].patient_id = '
-   'clinical_events.patient_id \n'
-   "WHERE clinical_events.code = N'Code1' AND clinical_events.date >= "
+   'clinical_events.patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '
+   '[#group_table_1] ON clinical_events.patient_id = '
+   '[#group_table_1].patient_id \n'
+   'WHERE clinical_events.code = %(code_1)s AND clinical_events.date >= '
    '[#group_table_0].test_date AND clinical_events.date <= '
-   '[#group_table_1].test_date) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_3 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT StpId AS stp, StartDate AS date_start, EndDate AS date_end, '
-   'PatientId AS patient_id \n'
+   '[#group_table_1].test_date) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'code_1': 'Code1', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_3 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
+   'FROM (SELECT [StpId] AS stp, [StartDate] AS date_start, [EndDate] AS '
+   'date_end, [PatientId] AS patient_id \n'
    'FROM practice_registrations) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_3].patient_id AS patient_id, '
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_3].patient_id AS patient_id, '
    '[#group_table_0].test_date AS first_pos, [#group_table_1].test_date AS '
    'last_pos, [#group_table_2].date AS date, [#group_table_2].result AS '
    'value \n'

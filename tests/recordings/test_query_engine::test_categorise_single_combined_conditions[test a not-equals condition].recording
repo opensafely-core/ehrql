@@ -42,35 +42,47 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT anon_1.height, anon_1.patient_id \n'
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT anon_2.height AS height, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT patients.height AS height, patients.patient_id AS patient_id, '
    'row_number() OVER (PARTITION BY patients.patient_id ORDER BY '
    'patients.patient_id) AS _row_num \n'
-   'FROM (SELECT Height AS height, DateOfBirth AS date_of_birth, PatientId AS '
-   'patient_id \n'
-   'FROM patients) AS patients) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT StpId AS stp, StartDate AS date_start, EndDate AS date_end, '
-   'PatientId AS patient_id \n'
+   'FROM (SELECT [Height] AS height, [DateOfBirth] AS date_of_birth, '
+   '[PatientId] AS patient_id \n'
+   'FROM patients) AS patients) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
+   'FROM (SELECT [StpId] AS stp, [StartDate] AS date_start, [EndDate] AS '
+   'date_end, [PatientId] AS patient_id \n'
    'FROM practice_registrations) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_1].patient_id AS patient_id, CASE WHEN '
-   '([#group_table_0].height > 175 AND [#group_table_0].height != 180) THEN '
-   "N'tallish' WHEN ([#group_table_0].height <= 175) THEN N'short' ELSE "
-   "N'missing' END AS height_group \n"
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_1].patient_id AS patient_id, CASE WHEN '
+   '([#group_table_0].height > %(height_1)s AND [#group_table_0].height != '
+   '%(height_2)s) THEN %(param_1)s WHEN ([#group_table_0].height <= '
+   '%(height_3)s) THEN %(param_2)s ELSE %(param_3)s END AS height_group \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
    'WHERE [#group_table_1].patient_id_exists = 1',
-   {}),
+   {'height_1': 175,
+    'height_2': 180,
+    'param_1': 'tallish',
+    'height_3': 175,
+    'param_2': 'short',
+    'param_3': 'missing'}),
   {},
   None),
  ('Cursor',

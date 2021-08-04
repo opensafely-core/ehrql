@@ -42,13 +42,15 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT anon_1.index_of_multiple_deprivation_rounded, anon_1.patient_id \n'
-   'FROM (SELECT patient_address.index_of_multiple_deprivation_rounded, '
-   'patient_address.patient_id, row_number() OVER (PARTITION BY '
-   'patient_address.patient_id ORDER BY patient_address.date_start DESC, '
-   'patient_address.date_end DESC, patient_address.has_postcode DESC, '
-   'patient_address.patientaddress_id DESC) AS _row_num \n'
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT anon_2.index_of_multiple_deprivation_rounded AS '
+   'index_of_multiple_deprivation_rounded, anon_2.patient_id AS patient_id \n'
+   'FROM (SELECT patient_address.index_of_multiple_deprivation_rounded AS '
+   'index_of_multiple_deprivation_rounded, patient_address.patient_id AS '
+   'patient_id, row_number() OVER (PARTITION BY patient_address.patient_id '
+   'ORDER BY patient_address.date_start DESC, patient_address.date_end DESC, '
+   'patient_address.has_postcode DESC, patient_address.patientaddress_id DESC) '
+   'AS _row_num \n'
    'FROM (\n'
    '            SELECT\n'
    '              Patient_ID as patient_id,\n'
@@ -59,14 +61,18 @@
    "              IIF(MSOACode = 'NPC', 0, 1) as has_postcode\n"
    '            FROM PatientAddress\n'
    '        ) AS patient_address \n'
-   "WHERE patient_address.date_start <= N'2021-06-01' AND "
-   "patient_address.date_end >= N'2021-06-01') AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
+   'WHERE patient_address.date_start <= %(date_start_1)s AND '
+   'patient_address.date_end >= %(date_end_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_start_1': '20210601', 'date_end_1': '20210601', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
    'FROM (\n'
    '            SELECT RegistrationHistory.Patient_ID AS patient_id,\n'
    '                RegistrationHistory.StartDate AS date_start,\n'
@@ -77,11 +83,14 @@
    '            LEFT OUTER JOIN Organisation ON '
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_1].patient_id AS patient_id, '
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_1].patient_id AS patient_id, '
    '[#group_table_0].index_of_multiple_deprivation_rounded AS imd \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
