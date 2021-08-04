@@ -42,6 +42,6 @@ main(
     definition_path=options.cohort_definition,
     output_file=options.output,
     db_url=os.environ.get("DATABASE_URL"),
-    backend_id=os.environ.get("BACKEND"),
+    backend_id=os.environ.get("OPENSAFELY_BACKEND"),
     dummy_data_file=options.dummy_data_file,
 )

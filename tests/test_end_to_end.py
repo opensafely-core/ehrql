@@ -60,7 +60,7 @@ def cohort_extractor_in_container(tmpdir, database, containers):
             command=command,
             environment={
                 "DATABASE_URL": database.container_url(),
-                "BACKEND": "tpp",
+                "OPENSAFELY_BACKEND": "tpp",
             },
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
             network=database.network,
