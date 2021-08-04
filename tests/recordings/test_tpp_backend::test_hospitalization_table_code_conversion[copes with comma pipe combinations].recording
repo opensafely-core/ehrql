@@ -59,14 +59,36 @@
    '        )\n'
    '     as code\n'
    '            FROM APCS\n'
-   '            -- STRING_SPLIT() only accepts a single-character delimiter, '
-   'so collapse multi-character delimiters before\n'
-   '            -- splitting. This only works because we know the codes '
-   "themselves don't container commas and pipes.\n"
-   "            CROSS APPLY STRING_SPLIT(REPLACE(Der_Diagnosis_All, ' ||', "
-   "'|'), '|') pipe_split\n"
-   "            CROSS APPLY STRING_SPLIT(REPLACE(pipe_split.Value, ' ,', ','), "
-   "',') fully_split\n"
+   '            -- Our string_split() implementation only works as long as the '
+   "codelists do not contain '<', '>' or '&'\n"
+   '            -- characters. If that assumption is broken then this will '
+   'fail unpredictably.\n'
+   '            CROSS APPLY \n'
+   '        (\n'
+   "            SELECT Value = y.i.value('(./text())[1]', 'nvarchar(4000)')\n"
+   '            FROM\n'
+   '            (\n'
+   '                SELECT x = CONVERT(\n'
+   '                    XML,\n'
+   "                    '<i>' + REPLACE(Der_Diagnosis_All, ' ||', '</i><i>') + "
+   "'</i>'\n"
+   "                ).query('.')\n"
+   "            ) AS t CROSS APPLY x.nodes('i') AS y(i)\n"
+   '        )\n'
+   '     pipe_split\n'
+   '            CROSS APPLY \n'
+   '        (\n'
+   "            SELECT Value = y.i.value('(./text())[1]', 'nvarchar(4000)')\n"
+   '            FROM\n'
+   '            (\n'
+   '                SELECT x = CONVERT(\n'
+   '                    XML,\n'
+   "                    '<i>' + REPLACE(pipe_split.Value, ' ,', '</i><i>') + "
+   "'</i>'\n"
+   "                ).query('.')\n"
+   "            ) AS t CROSS APPLY x.nodes('i') AS y(i)\n"
+   '        )\n'
+   '     fully_split\n'
    '        ) AS hospitalizations\n'
    ') t\n'
    '\n'

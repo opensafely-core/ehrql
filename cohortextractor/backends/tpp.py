@@ -31,6 +31,27 @@ def rtrim(ref, char):
     """
 
 
+def string_split(ref, delim):
+    """
+    The compatibility level that TPP runs SQL Server at doesn't include the `STRING_SPLIT()` function, so we implement
+    it here ourselves. This use of SQL Server's XML-handling capabilities is truly ugly, but it allows us to implement
+    this inline so we don't need to define a function. Implementation copied from
+    https://sqlperformance.com/2012/07/t-sql-queries/split-strings.
+    """
+    return f"""
+        (
+            SELECT Value = y.i.value('(./text())[1]', 'nvarchar(4000)')
+            FROM
+            (
+                SELECT x = CONVERT(
+                    XML,
+                    '<i>' + REPLACE({ref}, '{delim}', '</i><i>') + '</i>'
+                ).query('.')
+            ) AS t CROSS APPLY x.nodes('i') AS y(i)
+        )
+    """
+
+
 class TPPBackend(BaseBackend):
     backend_id = "tpp"
     query_engine_class = MssqlQueryEngine
@@ -91,10 +112,10 @@ class TPPBackend(BaseBackend):
         query=f"""
             SELECT Patient_ID as patient_id, Admission_Date as date, {rtrim("fully_split.Value", "X")} as code
             FROM APCS
-            -- STRING_SPLIT() only accepts a single-character delimiter, so collapse multi-character delimiters before
-            -- splitting. This only works because we know the codes themselves don't container commas and pipes.
-            CROSS APPLY STRING_SPLIT(REPLACE(Der_Diagnosis_All, ' ||', '|'), '|') pipe_split
-            CROSS APPLY STRING_SPLIT(REPLACE(pipe_split.Value, ' ,', ','), ',') fully_split
+            -- Our string_split() implementation only works as long as the codelists do not contain '<', '>' or '&'
+            -- characters. If that assumption is broken then this will fail unpredictably.
+            CROSS APPLY {string_split("Der_Diagnosis_All", " ||")} pipe_split
+            CROSS APPLY {string_split("pipe_split.Value", " ,")} fully_split
         """,
     )
 
