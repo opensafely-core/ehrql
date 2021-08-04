@@ -16,6 +16,10 @@ remove-persistent-database:
     docker rm --force cohort-extractor-mssql
     docker network rm cohort-extractor-network
 
+# open an interactive SQL Server shell running against the persistent database
+connect-to-persistent-database:
+    docker exec -it cohort-extractor-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
+
 # Full set of tests run by CI
 test: test-assert-recordings-up-to-date test-all
 

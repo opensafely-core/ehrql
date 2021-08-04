@@ -12,7 +12,7 @@ BASE_DIR="$(git rev-parse --show-toplevel)"
 ensure_virtual_env () {
   # look for VIRTUAL_ENV variable; create virtualenv in .venv in this directory if not found, or if the path
   # does not exist (which can happen if a virtualenv folder is deleted while the virtualenv is still activated)
-  if [[ -v VIRTUAL_ENV && (! -f $VIRTUAL_ENV) ]] || [[ ! -v VIRTUAL_ENV ]]; then
+  if [[ -v VIRTUAL_ENV && (! -e $VIRTUAL_ENV) ]] || [[ ! -v VIRTUAL_ENV ]]; then
     if [[ ! -f "$BASE_DIR/.venv/bin/activate" ]]; then
         echo "venv does not exist, creating it at $BASE_DIR/.venv"
         "$PYTHON_VERSION" -m pip install --upgrade pip

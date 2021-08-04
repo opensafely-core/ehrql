@@ -168,9 +168,12 @@ def test_hospitalization_table_code_conversion(
     class Cohort:
         code = table("hospitalizations").get("code")
 
-    assert extract(Cohort, TPPBackend, database) == [
-        dict(patient_id=1, code=code) for code in codes
-    ]
+    # Because of the way that we split the raw codes, the order in which they are returned is not the same as the order
+    # they appear in the table.
+    results = extract(Cohort, TPPBackend, database)
+    assert len(results) == len(codes)
+    for code in codes:
+        assert dict(patient_id=1, code=code) in results
 
 
 @pytest.mark.integration
