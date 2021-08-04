@@ -167,6 +167,9 @@ def run_test(load_study, setup_tpp_database, cohort_extractor, dummy_data_file=N
         Patient(Patient_ID=1),
         Events(Patient_ID=1, ConsultationDate="2021-01-01", CTV3Code="xyz"),
         RegistrationHistory(Patient_ID=1),
+        Patient(Patient_ID=2),
+        Events(Patient_ID=2, ConsultationDate="2021-02-02", CTV3Code="abc"),
+        RegistrationHistory(Patient_ID=2),
     )
 
     study = load_study("end_to_end_tests", dummy_data_file)
