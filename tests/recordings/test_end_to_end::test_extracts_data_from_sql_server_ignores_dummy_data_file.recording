@@ -108,6 +108,11 @@
   (),
   {},
   (1, datetime.datetime(2021, 1, 1, 0, 0), 'xyz')),
+ ('Cursor',
+  'fetchone',
+  (),
+  {},
+  (2, datetime.datetime(2021, 2, 2, 0, 0), 'abc')),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]

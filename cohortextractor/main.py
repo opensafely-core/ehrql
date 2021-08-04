@@ -67,9 +67,10 @@ def write_output(results, output_file):
         writer = csv.writer(f)
         headers = None
         for entry in results:
+            fields = entry.keys()
             if not headers:
-                headers = entry.keys()
+                headers = fields
                 writer.writerow(headers)
             else:
-                assert entry.keys == headers
+                assert fields == headers, f"Expected fields {headers}, but got {fields}"
             writer.writerow(entry.values())
