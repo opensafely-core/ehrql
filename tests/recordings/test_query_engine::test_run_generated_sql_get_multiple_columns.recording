@@ -42,32 +42,44 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT clinical_events.code, clinical_events.patient_id \n'
-   'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
-   'PatientId AS patient_id \n'
-   'FROM events) AS clinical_events\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT positive_tests.patient_id, positive_tests.result \n'
-   'FROM (SELECT PositiveResult AS result, TestDate AS test_date, PatientId AS '
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id \n'
-   'FROM pos_tests) AS positive_tests\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_2 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT StpId AS stp, StartDate AS date_start, EndDate AS date_end, '
-   'PatientId AS patient_id \n'
+   'FROM (SELECT [EventCode] AS code, [Date] AS date, [ResultValue] AS result, '
+   '[PatientId] AS patient_id \n'
+   'FROM events) AS clinical_events) AS anon_1',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT positive_tests.patient_id AS patient_id, '
+   'positive_tests.result AS result \n'
+   'FROM (SELECT [PositiveResult] AS result, [TestDate] AS test_date, '
+   '[PatientId] AS patient_id \n'
+   'FROM pos_tests) AS positive_tests) AS anon_1',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_2 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
+   'FROM (SELECT [StpId] AS stp, [StartDate] AS date_start, [EndDate] AS '
+   'date_end, [PatientId] AS patient_id \n'
    'FROM practice_registrations) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_2].patient_id AS patient_id, [#group_table_0].code AS '
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_2].patient_id AS patient_id, [#group_table_0].code AS '
    'output_value, [#group_table_1].result AS positive \n'
    'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_2].patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '

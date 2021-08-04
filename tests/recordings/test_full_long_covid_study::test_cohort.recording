@@ -46,312 +46,850 @@
    'CREATE TABLE [#codelist_0] (\n'
    '\tcode VARCHAR(5) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_0] (code) VALUES ('A795.'), ('A7y00'), ('AyuDC'), "
-   "('X73lE'), ('X73lF'), ('Y20fa'), ('Y210b'), ('Y211c'), ('Y228e'), "
-   "('Y229c'), ('Y22a4'), ('Y22a5'), ('Y22aa'), ('Y246c'), ('XaLTE'), "
-   "('Y20d1'), ('Y213a'), ('Y228d'), ('Y23f7'), ('Y240b'), ('Y20fb'), "
-   "('Y20fc'), ('Y20fe'), ('Y20ff'), ('Y210a'), ('Y23fd')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_0] (code) VALUES (%(code_m0)s), (%(code_m1)s), '
+   '(%(code_m2)s), (%(code_m3)s), (%(code_m4)s), (%(code_m5)s), (%(code_m6)s), '
+   '(%(code_m7)s), (%(code_m8)s), (%(code_m9)s), (%(code_m10)s), '
+   '(%(code_m11)s), (%(code_m12)s), (%(code_m13)s), (%(code_m14)s), '
+   '(%(code_m15)s), (%(code_m16)s), (%(code_m17)s), (%(code_m18)s), '
+   '(%(code_m19)s), (%(code_m20)s), (%(code_m21)s), (%(code_m22)s), '
+   '(%(code_m23)s), (%(code_m24)s), (%(code_m25)s)',
+   {'code_m0': 'A795.',
+    'code_m1': 'A7y00',
+    'code_m2': 'AyuDC',
+    'code_m3': 'X73lE',
+    'code_m4': 'X73lF',
+    'code_m5': 'Y20fa',
+    'code_m6': 'Y210b',
+    'code_m7': 'Y211c',
+    'code_m8': 'Y228e',
+    'code_m9': 'Y229c',
+    'code_m10': 'Y22a4',
+    'code_m11': 'Y22a5',
+    'code_m12': 'Y22aa',
+    'code_m13': 'Y246c',
+    'code_m14': 'XaLTE',
+    'code_m15': 'Y20d1',
+    'code_m16': 'Y213a',
+    'code_m17': 'Y228d',
+    'code_m18': 'Y23f7',
+    'code_m19': 'Y240b',
+    'code_m20': 'Y20fb',
+    'code_m21': 'Y20fc',
+    'code_m22': 'Y20fe',
+    'code_m23': 'Y20ff',
+    'code_m24': 'Y210a',
+    'code_m25': 'Y23fd'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 26),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_1] (\n'
    '\tcode VARCHAR(4) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_1] (code) VALUES ('U071'), ('U072')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_1] (code) VALUES (%(code_m0)s), (%(code_m1)s)',
+   {'code_m0': 'U071', 'code_m1': 'U072'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 2),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_2] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_2] (code) VALUES ('1325161000000102'), "
-   "('1325181000000106'), ('1325021000000106'), ('1325031000000108'), "
-   "('1325041000000104'), ('1325051000000101'), ('1325061000000103'), "
-   "('1325071000000105'), ('1325081000000107'), ('1325091000000109'), "
-   "('1325101000000101'), ('1325121000000105'), ('1325131000000107'), "
-   "('1325141000000103'), ('1325151000000100')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_2] (code) VALUES (%(code_m0)s), (%(code_m1)s), '
+   '(%(code_m2)s), (%(code_m3)s), (%(code_m4)s), (%(code_m5)s), (%(code_m6)s), '
+   '(%(code_m7)s), (%(code_m8)s), (%(code_m9)s), (%(code_m10)s), '
+   '(%(code_m11)s), (%(code_m12)s), (%(code_m13)s), (%(code_m14)s)',
+   {'code_m0': '1325161000000102',
+    'code_m1': '1325181000000106',
+    'code_m2': '1325021000000106',
+    'code_m3': '1325031000000108',
+    'code_m4': '1325041000000104',
+    'code_m5': '1325051000000101',
+    'code_m6': '1325061000000103',
+    'code_m7': '1325071000000105',
+    'code_m8': '1325081000000107',
+    'code_m9': '1325091000000109',
+    'code_m10': '1325101000000101',
+    'code_m11': '1325121000000105',
+    'code_m12': '1325131000000107',
+    'code_m13': '1325141000000103',
+    'code_m14': '1325151000000100'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 15),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_3] (\n'
    '\tcode VARCHAR(9) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_3] (code) VALUES ('266226000'), ('272038003'), "
-   "('51771007')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_3] (code) VALUES (%(code_m0)s), (%(code_m1)s), '
+   '(%(code_m2)s)',
+   {'code_m0': '266226000', 'code_m1': '272038003', 'code_m2': '51771007'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 3),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_4] (\n'
    '\tcode VARCHAR(5) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_4] (code) VALUES ('134B.'), ('Y9930'), ('9S1..'), "
-   "('XaFwD'), ('XaIui'), ('XaJQv'), ('XaQEa'), ('XactH'), ('9SA9.'), "
-   "('XaFwE'), ('XaJQw'), ('XaJSN'), ('XaQEb'), ('XactI'), ('Xacuu'), "
-   "('Y9932'), ('9SAA.'), ('9SAB.'), ('9SAC.'), ('9T11.'), ('XE2Nz'), "
-   "('XE2O0'), ('XM1SF'), ('XM1SG'), ('XM1SH'), ('XM1SI'), ('XS7AU'), "
-   "('XaFwF'), ('XaFx2'), ('XaIuh'), ('XaJQx'), ('XaJRC'), ('XaJRD'), "
-   "('XaJRE'), ('XaJRF'), ('XaJRG'), ('XaJRg'), ('XaJRh'), ('XaJRi'), "
-   "('XaJRj'), ('XaJRk'), ('XaJRl'), ('XaJRm'), ('XaJSB'), ('XaJSC'), "
-   "('XaJSD'), ('XaJSE'), ('XaJSF'), ('XaJSG'), ('XaJSH'), ('XaJSI'), "
-   "('XaJSJ'), ('XaJSK'), ('XaJSL'), ('XaJSM'), ('XaJSO'), ('XaJSP'), "
-   "('XaJSQ'), ('XaR4o'), ('XaR4p'), ('XaR61'), ('XaVw5'), ('XaW8w'), "
-   "('XactJ'), ('XactK'), ('XacuQ'), ('XacuR'), ('Xacus'), ('Xacut'), "
-   "('Xacuv'), ('Xacux'), ('Xacuy'), ('XaedN'), ('XaedQ'), ('XaedS'), "
-   "('XaedT'), ('XaedU'), ('XaedV'), ('XaedW'), ('Y1527'), ('XaIB5'), "
-   "('XaJQy'), ('XactL'), ('XacuS'), ('134L.'), ('XaIB6'), ('XaJQz'), "
-   "('Xactd'), ('XacuT'), ('9SB2.'), ('XaJR0'), ('Xacte'), ('XacuU'), "
-   "('134J.'), ('9S5..'), ('9S5..'), ('9S51.'), ('9S51.'), ('9S52.'), "
-   "('9S52.'), ('9SB..'), ('9SB1.'), ('9SB3.'), ('9SB4.'), ('XaFwG'), "
-   "('XaJR1'), ('XaJRH'), ('XaJRI'), ('XaJRJ'), ('XaJRK'), ('XaJRL'), "
-   "('XaJRM'), ('XaJRN'), ('XaJRY'), ('Xactf'), ('Xacua'), ('Xacuz'), "
-   "('Y9931'), ('9S6..'), ('9SA7.'), ('XaJR2'), ('Xactg'), ('Xacuc'), "
-   "('Xacv2'), ('134M.'), ('9S7..'), ('XaJR3'), ('Xacth'), ('Xacui'), "
-   "('Xacv0'), ('134I.'), ('9S8..'), ('XaJR4'), ('Xacti'), ('Xacuj'), "
-   "('Xacv5'), ('9SA6.'), ('9SA8.'), ('9T1B.'), ('9T1E.'), ('XE2Ny'), "
-   "('XM1SD'), ('XM1SE'), ('XaFwz'), ('XaFx0'), ('XaJR5'), ('XaJRO'), "
-   "('XaJRP'), ('XaJRQ'), ('XaJRR'), ('XaJRS'), ('XaJRT'), ('XaJRU'), "
-   "('XaJRV'), ('XaJRW'), ('XaW95'), ('Xactk'), ('Xacul'), ('XacvG'), "
-   "('134H.'), ('134K.'), ('9S2..'), ('9S42.'), ('9SA3.'), ('XE2Nt'), "
-   "('XE2Nw'), ('XM1S8'), ('XM1S9'), ('XaBz7'), ('XaJR6'), ('XacvJ'), "
-   "('9S3..'), ('9SA5.'), ('XM1S3'), ('XaJR7'), ('XaJST'), ('XacvH'), "
-   "('XacvI'), ('9S4..'), ('9S41.'), ('9S43.'), ('9S44.'), ('9S45.'), "
-   "('9S46.'), ('9S47.'), ('9S48.'), ('XE2Nu'), ('XE2Nv'), ('XM1S4'), "
-   "('XM1S5'), ('XM1S6'), ('XM1S7'), ('XM1SA'), ('XaBz8'), ('XaFwH'), "
-   "('XaFwy'), ('XaJR8'), ('XaJRX'), ('XaJRZ'), ('XaJRa'), ('XaJRb'), "
-   "('Xactl'), ('Xactm'), ('Xactn'), ('Xacum'), ('Xacun'), ('Xacuo'), "
-   "('XacvZ'), ('Xacva'), ('9T1C.'), ('9T1C.'), ('XaJR9'), ('Xactj'), "
-   "('Xacuk'), ('XacvF'), ('134C.'), ('134D.'), ('134E.'), ('134F.'), "
-   "('134G.'), ('X76Gp'), ('9SA..'), ('9SA1.'), ('9SA2.'), ('9SA4.'), "
-   "('9SAD.'), ('9T1..'), ('9T12.'), ('9T13.'), ('9T14.'), ('9T15.'), "
-   "('9T16.'), ('9T17.'), ('9T18.'), ('9T19.'), ('9T1A.'), ('9T1Y.'), "
-   "('9T1Z.'), ('XE2Nx'), ('XM1SB'), ('XM1SC'), ('XaE4A'), ('XaFx1'), "
-   "('XaJRA'), ('XaJRc'), ('XaJRd'), ('XaJRe'), ('XaJRf'), ('XaJSR'), "
-   "('XaJSS'), ('XaJSU'), ('XaJSV'), ('XaJSW'), ('XaJSX'), ('XaJSY'), "
-   "('XaJSZ'), ('XaJSa'), ('XaJSb'), ('XaJSc'), ('XaJSd'), ('XaJSe'), "
-   "('XaJSf'), ('XaJSg'), ('XaN9x'), ('Xacto'), ('Xactp'), ('Xacup'), "
-   "('Xacuq'), ('Xacvb'), ('Xacvc')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_4] (code) VALUES (%(code_m0)s), (%(code_m1)s), '
+   '(%(code_m2)s), (%(code_m3)s), (%(code_m4)s), (%(code_m5)s), (%(code_m6)s), '
+   '(%(code_m7)s), (%(code_m8)s), (%(code_m9)s), (%(code_m10)s), '
+   '(%(code_m11)s), (%(code_m12)s), (%(code_m13)s), (%(code_m14)s), '
+   '(%(code_m15)s), (%(code_m16)s), (%(code_m17)s), (%(code_m18)s), '
+   '(%(code_m19)s), (%(code_m20)s), (%(code_m21)s), (%(code_m22)s), '
+   '(%(code_m23)s), (%(code_m24)s), (%(code_m25)s), (%(code_m26)s), '
+   '(%(code_m27)s), (%(code_m28)s), (%(code_m29)s), (%(code_m30)s), '
+   '(%(code_m31)s), (%(code_m32)s), (%(code_m33)s), (%(code_m34)s), '
+   '(%(code_m35)s), (%(code_m36)s), (%(code_m37)s), (%(code_m38)s), '
+   '(%(code_m39)s), (%(code_m40)s), (%(code_m41)s), (%(code_m42)s), '
+   '(%(code_m43)s), (%(code_m44)s), (%(code_m45)s), (%(code_m46)s), '
+   '(%(code_m47)s), (%(code_m48)s), (%(code_m49)s), (%(code_m50)s), '
+   '(%(code_m51)s), (%(code_m52)s), (%(code_m53)s), (%(code_m54)s), '
+   '(%(code_m55)s), (%(code_m56)s), (%(code_m57)s), (%(code_m58)s), '
+   '(%(code_m59)s), (%(code_m60)s), (%(code_m61)s), (%(code_m62)s), '
+   '(%(code_m63)s), (%(code_m64)s), (%(code_m65)s), (%(code_m66)s), '
+   '(%(code_m67)s), (%(code_m68)s), (%(code_m69)s), (%(code_m70)s), '
+   '(%(code_m71)s), (%(code_m72)s), (%(code_m73)s), (%(code_m74)s), '
+   '(%(code_m75)s), (%(code_m76)s), (%(code_m77)s), (%(code_m78)s), '
+   '(%(code_m79)s), (%(code_m80)s), (%(code_m81)s), (%(code_m82)s), '
+   '(%(code_m83)s), (%(code_m84)s), (%(code_m85)s), (%(code_m86)s), '
+   '(%(code_m87)s), (%(code_m88)s), (%(code_m89)s), (%(code_m90)s), '
+   '(%(code_m91)s), (%(code_m92)s), (%(code_m93)s), (%(code_m94)s), '
+   '(%(code_m95)s), (%(code_m96)s), (%(code_m97)s), (%(code_m98)s), '
+   '(%(code_m99)s), (%(code_m100)s), (%(code_m101)s), (%(code_m102)s), '
+   '(%(code_m103)s), (%(code_m104)s), (%(code_m105)s), (%(code_m106)s), '
+   '(%(code_m107)s), (%(code_m108)s), (%(code_m109)s), (%(code_m110)s), '
+   '(%(code_m111)s), (%(code_m112)s), (%(code_m113)s), (%(code_m114)s), '
+   '(%(code_m115)s), (%(code_m116)s), (%(code_m117)s), (%(code_m118)s), '
+   '(%(code_m119)s), (%(code_m120)s), (%(code_m121)s), (%(code_m122)s), '
+   '(%(code_m123)s), (%(code_m124)s), (%(code_m125)s), (%(code_m126)s), '
+   '(%(code_m127)s), (%(code_m128)s), (%(code_m129)s), (%(code_m130)s), '
+   '(%(code_m131)s), (%(code_m132)s), (%(code_m133)s), (%(code_m134)s), '
+   '(%(code_m135)s), (%(code_m136)s), (%(code_m137)s), (%(code_m138)s), '
+   '(%(code_m139)s), (%(code_m140)s), (%(code_m141)s), (%(code_m142)s), '
+   '(%(code_m143)s), (%(code_m144)s), (%(code_m145)s), (%(code_m146)s), '
+   '(%(code_m147)s), (%(code_m148)s), (%(code_m149)s), (%(code_m150)s), '
+   '(%(code_m151)s), (%(code_m152)s), (%(code_m153)s), (%(code_m154)s), '
+   '(%(code_m155)s), (%(code_m156)s), (%(code_m157)s), (%(code_m158)s), '
+   '(%(code_m159)s), (%(code_m160)s), (%(code_m161)s), (%(code_m162)s), '
+   '(%(code_m163)s), (%(code_m164)s), (%(code_m165)s), (%(code_m166)s), '
+   '(%(code_m167)s), (%(code_m168)s), (%(code_m169)s), (%(code_m170)s), '
+   '(%(code_m171)s), (%(code_m172)s), (%(code_m173)s), (%(code_m174)s), '
+   '(%(code_m175)s), (%(code_m176)s), (%(code_m177)s), (%(code_m178)s), '
+   '(%(code_m179)s), (%(code_m180)s), (%(code_m181)s), (%(code_m182)s), '
+   '(%(code_m183)s), (%(code_m184)s), (%(code_m185)s), (%(code_m186)s), '
+   '(%(code_m187)s), (%(code_m188)s), (%(code_m189)s), (%(code_m190)s), '
+   '(%(code_m191)s), (%(code_m192)s), (%(code_m193)s), (%(code_m194)s), '
+   '(%(code_m195)s), (%(code_m196)s), (%(code_m197)s), (%(code_m198)s), '
+   '(%(code_m199)s), (%(code_m200)s), (%(code_m201)s), (%(code_m202)s), '
+   '(%(code_m203)s), (%(code_m204)s), (%(code_m205)s), (%(code_m206)s), '
+   '(%(code_m207)s), (%(code_m208)s), (%(code_m209)s), (%(code_m210)s), '
+   '(%(code_m211)s), (%(code_m212)s), (%(code_m213)s), (%(code_m214)s), '
+   '(%(code_m215)s), (%(code_m216)s), (%(code_m217)s), (%(code_m218)s), '
+   '(%(code_m219)s), (%(code_m220)s), (%(code_m221)s), (%(code_m222)s), '
+   '(%(code_m223)s), (%(code_m224)s), (%(code_m225)s), (%(code_m226)s), '
+   '(%(code_m227)s), (%(code_m228)s), (%(code_m229)s), (%(code_m230)s), '
+   '(%(code_m231)s), (%(code_m232)s), (%(code_m233)s), (%(code_m234)s), '
+   '(%(code_m235)s), (%(code_m236)s), (%(code_m237)s), (%(code_m238)s), '
+   '(%(code_m239)s), (%(code_m240)s), (%(code_m241)s), (%(code_m242)s), '
+   '(%(code_m243)s), (%(code_m244)s), (%(code_m245)s), (%(code_m246)s), '
+   '(%(code_m247)s), (%(code_m248)s), (%(code_m249)s), (%(code_m250)s), '
+   '(%(code_m251)s), (%(code_m252)s), (%(code_m253)s), (%(code_m254)s), '
+   '(%(code_m255)s), (%(code_m256)s), (%(code_m257)s), (%(code_m258)s), '
+   '(%(code_m259)s), (%(code_m260)s), (%(code_m261)s), (%(code_m262)s), '
+   '(%(code_m263)s), (%(code_m264)s), (%(code_m265)s), (%(code_m266)s), '
+   '(%(code_m267)s), (%(code_m268)s), (%(code_m269)s)',
+   {'code_m0': '134B.',
+    'code_m1': 'Y9930',
+    'code_m2': '9S1..',
+    'code_m3': 'XaFwD',
+    'code_m4': 'XaIui',
+    'code_m5': 'XaJQv',
+    'code_m6': 'XaQEa',
+    'code_m7': 'XactH',
+    'code_m8': '9SA9.',
+    'code_m9': 'XaFwE',
+    'code_m10': 'XaJQw',
+    'code_m11': 'XaJSN',
+    'code_m12': 'XaQEb',
+    'code_m13': 'XactI',
+    'code_m14': 'Xacuu',
+    'code_m15': 'Y9932',
+    'code_m16': '9SAA.',
+    'code_m17': '9SAB.',
+    'code_m18': '9SAC.',
+    'code_m19': '9T11.',
+    'code_m20': 'XE2Nz',
+    'code_m21': 'XE2O0',
+    'code_m22': 'XM1SF',
+    'code_m23': 'XM1SG',
+    'code_m24': 'XM1SH',
+    'code_m25': 'XM1SI',
+    'code_m26': 'XS7AU',
+    'code_m27': 'XaFwF',
+    'code_m28': 'XaFx2',
+    'code_m29': 'XaIuh',
+    'code_m30': 'XaJQx',
+    'code_m31': 'XaJRC',
+    'code_m32': 'XaJRD',
+    'code_m33': 'XaJRE',
+    'code_m34': 'XaJRF',
+    'code_m35': 'XaJRG',
+    'code_m36': 'XaJRg',
+    'code_m37': 'XaJRh',
+    'code_m38': 'XaJRi',
+    'code_m39': 'XaJRj',
+    'code_m40': 'XaJRk',
+    'code_m41': 'XaJRl',
+    'code_m42': 'XaJRm',
+    'code_m43': 'XaJSB',
+    'code_m44': 'XaJSC',
+    'code_m45': 'XaJSD',
+    'code_m46': 'XaJSE',
+    'code_m47': 'XaJSF',
+    'code_m48': 'XaJSG',
+    'code_m49': 'XaJSH',
+    'code_m50': 'XaJSI',
+    'code_m51': 'XaJSJ',
+    'code_m52': 'XaJSK',
+    'code_m53': 'XaJSL',
+    'code_m54': 'XaJSM',
+    'code_m55': 'XaJSO',
+    'code_m56': 'XaJSP',
+    'code_m57': 'XaJSQ',
+    'code_m58': 'XaR4o',
+    'code_m59': 'XaR4p',
+    'code_m60': 'XaR61',
+    'code_m61': 'XaVw5',
+    'code_m62': 'XaW8w',
+    'code_m63': 'XactJ',
+    'code_m64': 'XactK',
+    'code_m65': 'XacuQ',
+    'code_m66': 'XacuR',
+    'code_m67': 'Xacus',
+    'code_m68': 'Xacut',
+    'code_m69': 'Xacuv',
+    'code_m70': 'Xacux',
+    'code_m71': 'Xacuy',
+    'code_m72': 'XaedN',
+    'code_m73': 'XaedQ',
+    'code_m74': 'XaedS',
+    'code_m75': 'XaedT',
+    'code_m76': 'XaedU',
+    'code_m77': 'XaedV',
+    'code_m78': 'XaedW',
+    'code_m79': 'Y1527',
+    'code_m80': 'XaIB5',
+    'code_m81': 'XaJQy',
+    'code_m82': 'XactL',
+    'code_m83': 'XacuS',
+    'code_m84': '134L.',
+    'code_m85': 'XaIB6',
+    'code_m86': 'XaJQz',
+    'code_m87': 'Xactd',
+    'code_m88': 'XacuT',
+    'code_m89': '9SB2.',
+    'code_m90': 'XaJR0',
+    'code_m91': 'Xacte',
+    'code_m92': 'XacuU',
+    'code_m93': '134J.',
+    'code_m94': '9S5..',
+    'code_m95': '9S5..',
+    'code_m96': '9S51.',
+    'code_m97': '9S51.',
+    'code_m98': '9S52.',
+    'code_m99': '9S52.',
+    'code_m100': '9SB..',
+    'code_m101': '9SB1.',
+    'code_m102': '9SB3.',
+    'code_m103': '9SB4.',
+    'code_m104': 'XaFwG',
+    'code_m105': 'XaJR1',
+    'code_m106': 'XaJRH',
+    'code_m107': 'XaJRI',
+    'code_m108': 'XaJRJ',
+    'code_m109': 'XaJRK',
+    'code_m110': 'XaJRL',
+    'code_m111': 'XaJRM',
+    'code_m112': 'XaJRN',
+    'code_m113': 'XaJRY',
+    'code_m114': 'Xactf',
+    'code_m115': 'Xacua',
+    'code_m116': 'Xacuz',
+    'code_m117': 'Y9931',
+    'code_m118': '9S6..',
+    'code_m119': '9SA7.',
+    'code_m120': 'XaJR2',
+    'code_m121': 'Xactg',
+    'code_m122': 'Xacuc',
+    'code_m123': 'Xacv2',
+    'code_m124': '134M.',
+    'code_m125': '9S7..',
+    'code_m126': 'XaJR3',
+    'code_m127': 'Xacth',
+    'code_m128': 'Xacui',
+    'code_m129': 'Xacv0',
+    'code_m130': '134I.',
+    'code_m131': '9S8..',
+    'code_m132': 'XaJR4',
+    'code_m133': 'Xacti',
+    'code_m134': 'Xacuj',
+    'code_m135': 'Xacv5',
+    'code_m136': '9SA6.',
+    'code_m137': '9SA8.',
+    'code_m138': '9T1B.',
+    'code_m139': '9T1E.',
+    'code_m140': 'XE2Ny',
+    'code_m141': 'XM1SD',
+    'code_m142': 'XM1SE',
+    'code_m143': 'XaFwz',
+    'code_m144': 'XaFx0',
+    'code_m145': 'XaJR5',
+    'code_m146': 'XaJRO',
+    'code_m147': 'XaJRP',
+    'code_m148': 'XaJRQ',
+    'code_m149': 'XaJRR',
+    'code_m150': 'XaJRS',
+    'code_m151': 'XaJRT',
+    'code_m152': 'XaJRU',
+    'code_m153': 'XaJRV',
+    'code_m154': 'XaJRW',
+    'code_m155': 'XaW95',
+    'code_m156': 'Xactk',
+    'code_m157': 'Xacul',
+    'code_m158': 'XacvG',
+    'code_m159': '134H.',
+    'code_m160': '134K.',
+    'code_m161': '9S2..',
+    'code_m162': '9S42.',
+    'code_m163': '9SA3.',
+    'code_m164': 'XE2Nt',
+    'code_m165': 'XE2Nw',
+    'code_m166': 'XM1S8',
+    'code_m167': 'XM1S9',
+    'code_m168': 'XaBz7',
+    'code_m169': 'XaJR6',
+    'code_m170': 'XacvJ',
+    'code_m171': '9S3..',
+    'code_m172': '9SA5.',
+    'code_m173': 'XM1S3',
+    'code_m174': 'XaJR7',
+    'code_m175': 'XaJST',
+    'code_m176': 'XacvH',
+    'code_m177': 'XacvI',
+    'code_m178': '9S4..',
+    'code_m179': '9S41.',
+    'code_m180': '9S43.',
+    'code_m181': '9S44.',
+    'code_m182': '9S45.',
+    'code_m183': '9S46.',
+    'code_m184': '9S47.',
+    'code_m185': '9S48.',
+    'code_m186': 'XE2Nu',
+    'code_m187': 'XE2Nv',
+    'code_m188': 'XM1S4',
+    'code_m189': 'XM1S5',
+    'code_m190': 'XM1S6',
+    'code_m191': 'XM1S7',
+    'code_m192': 'XM1SA',
+    'code_m193': 'XaBz8',
+    'code_m194': 'XaFwH',
+    'code_m195': 'XaFwy',
+    'code_m196': 'XaJR8',
+    'code_m197': 'XaJRX',
+    'code_m198': 'XaJRZ',
+    'code_m199': 'XaJRa',
+    'code_m200': 'XaJRb',
+    'code_m201': 'Xactl',
+    'code_m202': 'Xactm',
+    'code_m203': 'Xactn',
+    'code_m204': 'Xacum',
+    'code_m205': 'Xacun',
+    'code_m206': 'Xacuo',
+    'code_m207': 'XacvZ',
+    'code_m208': 'Xacva',
+    'code_m209': '9T1C.',
+    'code_m210': '9T1C.',
+    'code_m211': 'XaJR9',
+    'code_m212': 'Xactj',
+    'code_m213': 'Xacuk',
+    'code_m214': 'XacvF',
+    'code_m215': '134C.',
+    'code_m216': '134D.',
+    'code_m217': '134E.',
+    'code_m218': '134F.',
+    'code_m219': '134G.',
+    'code_m220': 'X76Gp',
+    'code_m221': '9SA..',
+    'code_m222': '9SA1.',
+    'code_m223': '9SA2.',
+    'code_m224': '9SA4.',
+    'code_m225': '9SAD.',
+    'code_m226': '9T1..',
+    'code_m227': '9T12.',
+    'code_m228': '9T13.',
+    'code_m229': '9T14.',
+    'code_m230': '9T15.',
+    'code_m231': '9T16.',
+    'code_m232': '9T17.',
+    'code_m233': '9T18.',
+    'code_m234': '9T19.',
+    'code_m235': '9T1A.',
+    'code_m236': '9T1Y.',
+    'code_m237': '9T1Z.',
+    'code_m238': 'XE2Nx',
+    'code_m239': 'XM1SB',
+    'code_m240': 'XM1SC',
+    'code_m241': 'XaE4A',
+    'code_m242': 'XaFx1',
+    'code_m243': 'XaJRA',
+    'code_m244': 'XaJRc',
+    'code_m245': 'XaJRd',
+    'code_m246': 'XaJRe',
+    'code_m247': 'XaJRf',
+    'code_m248': 'XaJSR',
+    'code_m249': 'XaJSS',
+    'code_m250': 'XaJSU',
+    'code_m251': 'XaJSV',
+    'code_m252': 'XaJSW',
+    'code_m253': 'XaJSX',
+    'code_m254': 'XaJSY',
+    'code_m255': 'XaJSZ',
+    'code_m256': 'XaJSa',
+    'code_m257': 'XaJSb',
+    'code_m258': 'XaJSc',
+    'code_m259': 'XaJSd',
+    'code_m260': 'XaJSe',
+    'code_m261': 'XaJSf',
+    'code_m262': 'XaJSg',
+    'code_m263': 'XaN9x',
+    'code_m264': 'Xacto',
+    'code_m265': 'Xactp',
+    'code_m266': 'Xacup',
+    'code_m267': 'Xacuq',
+    'code_m268': 'Xacvb',
+    'code_m269': 'Xacvc'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 270),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_5] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_5] (code) VALUES ('1325161000000102')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_5] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325161000000102'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_6] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_6] (code) VALUES ('1325181000000106')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_6] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325181000000106'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_7] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_7] (code) VALUES ('1325021000000106')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_7] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325021000000106'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_8] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_8] (code) VALUES ('1325031000000108')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_8] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325031000000108'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_9] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_9] (code) VALUES ('1325041000000104')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_9] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325041000000104'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_10] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_10] (code) VALUES ('1325051000000101')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_10] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325051000000101'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_11] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_11] (code) VALUES ('1325061000000103')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_11] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325061000000103'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_12] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_12] (code) VALUES ('1325071000000105')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_12] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325071000000105'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_13] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_13] (code) VALUES ('1325081000000107')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_13] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325081000000107'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_14] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_14] (code) VALUES ('1325091000000109')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_14] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325091000000109'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_15] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_15] (code) VALUES ('1325101000000101')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_15] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325101000000101'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_16] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_16] (code) VALUES ('1325121000000105')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_16] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325121000000105'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_17] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_17] (code) VALUES ('1325131000000107')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_17] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325131000000107'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_18] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_18] (code) VALUES ('1325141000000103')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_18] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325141000000103'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_19] (\n'
    '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_19] (code) VALUES ('1325151000000100')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_19] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '1325151000000100'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_20] (\n'
    '\tcode VARCHAR(9) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_20] (code) VALUES ('266226000')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_20] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '266226000'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_21] (\n'
    '\tcode VARCHAR(9) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_21] (code) VALUES ('272038003')\n"
-   '\n'
-   '\n'
-   '\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_21] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '272038003'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
    'CREATE TABLE [#codelist_22] (\n'
    '\tcode VARCHAR(8) COLLATE Latin1_General_BIN NOT NULL\n'
    ')\n'
-   '\n'
-   '\n'
-   '\n'
-   '\n'
-   "INSERT INTO [#codelist_22] (code) VALUES ('51771007')\n"
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_22] (code) VALUES (%(code_m0)s)',
+   {'code_m0': '51771007'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
    'FROM (\n'
    '            SELECT RegistrationHistory.Patient_ID AS patient_id,\n'
    '                RegistrationHistory.StartDate AS date_start,\n'
@@ -362,17 +900,24 @@
    '            LEFT OUTER JOIN Organisation ON '
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations \n'
-   "WHERE practice_registrations.date_start <= N'2020-11-01' AND "
-   "practice_registrations.date_end >= N'2020-11-01' GROUP BY "
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT anon_1.nuts1_region_name, anon_1.patient_id, anon_1.pseudo_id \n'
-   'FROM (SELECT practice_registrations.nuts1_region_name, '
-   'practice_registrations.patient_id, practice_registrations.pseudo_id, '
-   'row_number() OVER (PARTITION BY practice_registrations.patient_id ORDER BY '
+   'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
+   'practice_registrations.date_end >= %(date_end_1)s GROUP BY '
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1,
+    'date_start_1': '2020-11-01T00:00:00',
+    'date_end_1': '2020-11-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT anon_2.nuts1_region_name AS nuts1_region_name, '
+   'anon_2.patient_id AS patient_id, anon_2.pseudo_id AS pseudo_id \n'
+   'FROM (SELECT practice_registrations.nuts1_region_name AS '
+   'nuts1_region_name, practice_registrations.patient_id AS patient_id, '
+   'practice_registrations.pseudo_id AS pseudo_id, row_number() OVER '
+   '(PARTITION BY practice_registrations.patient_id ORDER BY '
    'practice_registrations.date_end DESC) AS _row_num \n'
    'FROM (\n'
    '            SELECT RegistrationHistory.Patient_ID AS patient_id,\n'
@@ -384,17 +929,22 @@
    '            LEFT OUTER JOIN Organisation ON '
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations \n'
-   "WHERE practice_registrations.date_start <= N'2020-11-01' AND "
-   "practice_registrations.date_end >= N'2020-11-01') AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_2 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
-   'FROM (SELECT sgss_sars_cov_2.date, sgss_sars_cov_2.patient_id, '
-   'row_number() OVER (PARTITION BY sgss_sars_cov_2.patient_id ORDER BY '
-   'sgss_sars_cov_2.date) AS _row_num \n'
+   'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
+   'practice_registrations.date_end >= %(date_end_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_start_1': '2020-11-01T00:00:00',
+    'date_end_1': '2020-11-01T00:00:00',
+    'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_2 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
+   'FROM (SELECT sgss_sars_cov_2.date AS date, sgss_sars_cov_2.patient_id AS '
+   'patient_id, row_number() OVER (PARTITION BY sgss_sars_cov_2.patient_id '
+   'ORDER BY sgss_sars_cov_2.date) AS _row_num \n'
    'FROM (\n'
    '            SELECT Patient_ID as patient_id, Specimen_Date AS date, 1 AS '
    'positive_result FROM SGSS_AllTests_Positive\n'
@@ -402,30 +952,36 @@
    '            SELECT Patient_ID as patient_id, Specimen_Date AS date, 0 AS '
    'positive_result FROM SGSS_AllTests_Negative\n'
    '        ) AS sgss_sars_cov_2 \n'
-   'WHERE sgss_sars_cov_2.positive_result = 1) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_3 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'WHERE sgss_sars_cov_2.positive_result = 1) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_3 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_0].code \n'
-   'FROM [#codelist_0])) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_4 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
-   'FROM (SELECT hospitalizations.date, hospitalizations.patient_id, '
-   'row_number() OVER (PARTITION BY hospitalizations.patient_id ORDER BY '
-   'hospitalizations.date) AS _row_num \n'
+   'FROM [#codelist_0])) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_4 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
+   'FROM (SELECT hospitalizations.date AS date, hospitalizations.patient_id AS '
+   'patient_id, row_number() OVER (PARTITION BY hospitalizations.patient_id '
+   'ORDER BY hospitalizations.date) AS _row_num \n'
    'FROM (\n'
    '            SELECT Patient_ID as patient_id, Admission_Date as date, \n'
    '        REVERSE(\n'
@@ -473,100 +1029,129 @@
    '     fully_split\n'
    '        ) AS hospitalizations \n'
    'WHERE hospitalizations.code IN (SELECT [#codelist_1].code \n'
-   'FROM [#codelist_1])) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_5 FROM (\n'
-   'SELECT clinical_events.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_1])) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_5 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, %(param_1)s AS '
+   'patient_id_exists \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_2].code \n'
-   'FROM [#codelist_2]) GROUP BY clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_6 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_2]) GROUP BY clinical_events.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_6 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_2].code \n'
-   'FROM [#codelist_2])) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_7 FROM (\n'
-   'SELECT anon_1.code, anon_1.patient_id \n'
+   'FROM [#codelist_2])) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_7 \n'
+   'FROM (SELECT anon_2.code AS code, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_2].code \n'
-   'FROM [#codelist_2])) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_8 FROM (\n'
-   'SELECT clinical_events.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_2])) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_8 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, %(param_1)s AS '
+   'patient_id_exists \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_3].code \n'
-   'FROM [#codelist_3]) GROUP BY clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_9 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_3]) GROUP BY clinical_events.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_9 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_3].code \n'
-   'FROM [#codelist_3])) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_10 FROM (\n'
-   'SELECT anon_1.date_of_birth, anon_1.patient_id \n'
+   'FROM [#codelist_3])) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_10 \n'
+   'FROM (SELECT anon_2.date_of_birth AS date_of_birth, anon_2.patient_id AS '
+   'patient_id \n'
    'FROM (SELECT patients.date_of_birth AS date_of_birth, patients.patient_id '
    'AS patient_id, row_number() OVER (PARTITION BY patients.patient_id ORDER '
    'BY patients.patient_id) AS _row_num \n'
-   'FROM (SELECT Sex AS sex, DateOfBirth AS date_of_birth, Patient_ID AS '
+   'FROM (SELECT [Sex] AS sex, [DateOfBirth] AS date_of_birth, [Patient_ID] AS '
    'patient_id \n'
-   'FROM [Patient]) AS patients) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_11 FROM (\n'
-   'SELECT patients.patient_id, patients.sex \n'
-   'FROM (SELECT Sex AS sex, DateOfBirth AS date_of_birth, Patient_ID AS '
+   'FROM [Patient]) AS patients) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_11 \n'
+   'FROM (SELECT patients.patient_id AS patient_id, patients.sex AS sex \n'
+   'FROM (SELECT [Sex] AS sex, [DateOfBirth] AS date_of_birth, [Patient_ID] AS '
    'patient_id \n'
-   'FROM [Patient]) AS patients\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_12 FROM (\n'
-   'SELECT anon_1.index_of_multiple_deprivation_rounded, anon_1.patient_id \n'
-   'FROM (SELECT patient_address.index_of_multiple_deprivation_rounded, '
-   'patient_address.patient_id, row_number() OVER (PARTITION BY '
-   'patient_address.patient_id ORDER BY patient_address.date_start DESC, '
-   'patient_address.date_end DESC, patient_address.has_postcode DESC, '
-   'patient_address.patientaddress_id DESC) AS _row_num \n'
+   'FROM [Patient]) AS patients) AS anon_1',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_12 \n'
+   'FROM (SELECT anon_2.index_of_multiple_deprivation_rounded AS '
+   'index_of_multiple_deprivation_rounded, anon_2.patient_id AS patient_id \n'
+   'FROM (SELECT patient_address.index_of_multiple_deprivation_rounded AS '
+   'index_of_multiple_deprivation_rounded, patient_address.patient_id AS '
+   'patient_id, row_number() OVER (PARTITION BY patient_address.patient_id '
+   'ORDER BY patient_address.date_start DESC, patient_address.date_end DESC, '
+   'patient_address.has_postcode DESC, patient_address.patientaddress_id DESC) '
+   'AS _row_num \n'
    'FROM (\n'
    '            SELECT\n'
    '              Patient_ID as patient_id,\n'
@@ -577,522 +1162,627 @@
    "              IIF(MSOACode = 'NPC', 0, 1) as has_postcode\n"
    '            FROM PatientAddress\n'
    '        ) AS patient_address \n'
-   "WHERE patient_address.date_start <= N'2020-11-01' AND "
-   "patient_address.date_end >= N'2020-11-01') AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_13 FROM (\n'
-   'SELECT anon_1.code, anon_1.patient_id \n'
+   'WHERE patient_address.date_start <= %(date_start_1)s AND '
+   'patient_address.date_end >= %(date_end_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_start_1': '20201101', 'date_end_1': '20201101', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_13 \n'
+   'FROM (SELECT anon_2.code AS code, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date DESC) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_4].code \n'
-   "FROM [#codelist_4]) AND clinical_events.date <= N'2020-11-01') AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_14 FROM (\n'
-   'SELECT anon_1.numeric_value, anon_1.patient_id \n'
+   'FROM [#codelist_4]) AND clinical_events.date <= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-11-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_14 \n'
+   'FROM (SELECT anon_2.numeric_value AS numeric_value, anon_2.patient_id AS '
+   'patient_id \n'
    'FROM (SELECT clinical_events.numeric_value AS numeric_value, '
    'clinical_events.patient_id AS patient_id, row_number() OVER (PARTITION BY '
    'clinical_events.patient_id ORDER BY clinical_events.date DESC) AS '
    '_row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
-   "WHERE clinical_events.code = N'22K..') AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_15 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_5].code \n'
-   "FROM [#codelist_5]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_16 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
-   'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
-   'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
-   'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'WHERE clinical_events.code = %(code_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'code_1': '22K..', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_15 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_5].code \n'
-   "FROM [#codelist_5]) AND clinical_events.date >= N'2020-02-01') AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_17 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_5]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_16 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
+   'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
+   'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
+   'ORDER BY clinical_events.date) AS _row_num \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
+   'FROM [CodedEvent]) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_5].code \n'
+   'FROM [#codelist_5]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_17 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_6].code \n'
-   "FROM [#codelist_6]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_18 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_6]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_18 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_6].code \n'
-   "FROM [#codelist_6]) AND clinical_events.date >= N'2020-02-01') AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_19 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_6]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_19 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_7].code \n'
-   "FROM [#codelist_7]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_20 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_7]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_20 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_7].code \n'
-   "FROM [#codelist_7]) AND clinical_events.date >= N'2020-02-01') AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_21 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_7]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_21 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_8].code \n'
-   "FROM [#codelist_8]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_22 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_8]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_22 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_8].code \n'
-   "FROM [#codelist_8]) AND clinical_events.date >= N'2020-02-01') AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_23 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_8]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_23 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_9].code \n'
-   "FROM [#codelist_9]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_24 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_9]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_24 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_9].code \n'
-   "FROM [#codelist_9]) AND clinical_events.date >= N'2020-02-01') AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_25 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_9]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_25 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_10].code \n'
-   "FROM [#codelist_10]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_26 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_10]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_26 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_10].code \n'
-   "FROM [#codelist_10]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_27 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_10]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_27 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_11].code \n'
-   "FROM [#codelist_11]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_28 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_11]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_28 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_11].code \n'
-   "FROM [#codelist_11]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_29 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_11]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_29 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_12].code \n'
-   "FROM [#codelist_12]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_30 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_12]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_30 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_12].code \n'
-   "FROM [#codelist_12]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_31 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_12]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_31 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_13].code \n'
-   "FROM [#codelist_13]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_32 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_13]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_32 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_13].code \n'
-   "FROM [#codelist_13]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_33 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_13]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_33 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_14].code \n'
-   "FROM [#codelist_14]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_34 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_14]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_34 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_14].code \n'
-   "FROM [#codelist_14]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_35 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_14]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_35 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_15].code \n'
-   "FROM [#codelist_15]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_36 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_15]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_36 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_15].code \n'
-   "FROM [#codelist_15]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_37 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_15]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_37 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_16].code \n'
-   "FROM [#codelist_16]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_38 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_16]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_38 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_16].code \n'
-   "FROM [#codelist_16]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_39 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_16]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_39 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_17].code \n'
-   "FROM [#codelist_17]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_40 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_17]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_40 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_17].code \n'
-   "FROM [#codelist_17]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_41 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_17]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_41 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_18].code \n'
-   "FROM [#codelist_18]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_42 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_18]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_42 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_18].code \n'
-   "FROM [#codelist_18]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_43 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_18]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_43 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_19].code \n'
-   "FROM [#codelist_19]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_44 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_19]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_44 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_19].code \n'
-   "FROM [#codelist_19]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_45 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_19]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_45 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_20].code \n'
-   "FROM [#codelist_20]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_46 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_20]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_46 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_20].code \n'
-   "FROM [#codelist_20]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_47 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_20]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_47 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_21].code \n'
-   "FROM [#codelist_21]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_48 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_21]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_48 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_21].code \n'
-   "FROM [#codelist_21]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_49 FROM (\n'
-   'SELECT clinical_events.patient_id, count(clinical_events.code) AS '
-   'code_count \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM [#codelist_21]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_49 \n'
+   'FROM (SELECT clinical_events.patient_id AS patient_id, '
+   'count(clinical_events.code) AS code_count \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_22].code \n'
-   "FROM [#codelist_22]) AND clinical_events.date >= N'2020-02-01' GROUP BY "
-   'clinical_events.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_50 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
+   'FROM [#codelist_22]) AND clinical_events.date >= %(date_1)s GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_50 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
    'FROM [CodedEvent]) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_22].code \n'
-   "FROM [#codelist_22]) AND clinical_events.date >= N'2020-02-01') AS "
-   'anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_0].patient_id AS patient_id, '
+   'FROM [#codelist_22]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_0].patient_id AS patient_id, '
    '[#group_table_1].pseudo_id AS practice_id, [#group_table_2].date AS '
    'sgss_positive, [#group_table_3].date AS primary_care_covid, '
    '[#group_table_4].date AS hospital_covid, '
@@ -1101,92 +1791,107 @@
    '[#group_table_8].patient_id_exists AS post_viral_fatigue, '
    '[#group_table_9].date AS first_post_viral_fatigue_date, CASE WHEN (CASE '
    'WHEN (dateadd(year, datediff(year, [#group_table_10].date_of_birth, '
-   "N'2020-11-01'), [#group_table_10].date_of_birth) > N'2020-11-01') THEN "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') END < 18) "
-   "THEN N'0-17' WHEN (CASE WHEN (dateadd(year, datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01'), "
-   "[#group_table_10].date_of_birth) > N'2020-11-01') THEN datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') END >= 18 AND CASE WHEN "
+   '%(param_1)s), [#group_table_10].date_of_birth) > %(param_1)s) THEN '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_1)s) - '
+   '%(datediff_1)s ELSE datediff(year, [#group_table_10].date_of_birth, '
+   '%(param_1)s) END < %(param_2)s) THEN %(param_3)s WHEN (CASE WHEN '
    '(dateadd(year, datediff(year, [#group_table_10].date_of_birth, '
-   "N'2020-11-01'), [#group_table_10].date_of_birth) > N'2020-11-01') THEN "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') END < 25) "
-   "THEN N'18-24' WHEN (CASE WHEN (dateadd(year, datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01'), "
-   "[#group_table_10].date_of_birth) > N'2020-11-01') THEN datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') END >= 25 AND CASE WHEN "
-   '(dateadd(year, datediff(year, [#group_table_10].date_of_birth, '
-   "N'2020-11-01'), [#group_table_10].date_of_birth) > N'2020-11-01') THEN "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') END < 35) "
-   "THEN N'25-34' WHEN (CASE WHEN (dateadd(year, datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01'), "
-   "[#group_table_10].date_of_birth) > N'2020-11-01') THEN datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') END >= 35 AND CASE WHEN "
-   '(dateadd(year, datediff(year, [#group_table_10].date_of_birth, '
-   "N'2020-11-01'), [#group_table_10].date_of_birth) > N'2020-11-01') THEN "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') END < 45) "
-   "THEN N'35-44' WHEN (CASE WHEN (dateadd(year, datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01'), "
-   "[#group_table_10].date_of_birth) > N'2020-11-01') THEN datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') END >= 45 AND CASE WHEN "
-   '(dateadd(year, datediff(year, [#group_table_10].date_of_birth, '
-   "N'2020-11-01'), [#group_table_10].date_of_birth) > N'2020-11-01') THEN "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') END < 55) "
-   "THEN N'45-54' WHEN (CASE WHEN (dateadd(year, datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01'), "
-   "[#group_table_10].date_of_birth) > N'2020-11-01') THEN datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') END >= 55 AND CASE WHEN "
-   '(dateadd(year, datediff(year, [#group_table_10].date_of_birth, '
-   "N'2020-11-01'), [#group_table_10].date_of_birth) > N'2020-11-01') THEN "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') END < 70) "
-   "THEN N'55-69' WHEN (CASE WHEN (dateadd(year, datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01'), "
-   "[#group_table_10].date_of_birth) > N'2020-11-01') THEN datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') END >= 70 AND CASE WHEN "
-   '(dateadd(year, datediff(year, [#group_table_10].date_of_birth, '
-   "N'2020-11-01'), [#group_table_10].date_of_birth) > N'2020-11-01') THEN "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE "
-   "datediff(year, [#group_table_10].date_of_birth, N'2020-11-01') END < 80) "
-   "THEN N'70-79' WHEN (CASE WHEN (dateadd(year, datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01'), "
-   "[#group_table_10].date_of_birth) > N'2020-11-01') THEN datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') - 1 ELSE datediff(year, "
-   "[#group_table_10].date_of_birth, N'2020-11-01') END >= 80) THEN N'80+' "
-   "ELSE N'missing' END AS age_group, [#group_table_11].sex AS sex, "
-   '[#group_table_1].nuts1_region_name AS region, CASE WHEN '
-   '([#group_table_12].index_of_multiple_deprivation_rounded >= 1 AND '
-   '[#group_table_12].index_of_multiple_deprivation_rounded < 6568.8) THEN '
-   "N'1' WHEN ([#group_table_12].index_of_multiple_deprivation_rounded >= "
-   '6568.8 AND [#group_table_12].index_of_multiple_deprivation_rounded < '
-   "13137.6) THEN N'2' WHEN "
-   '([#group_table_12].index_of_multiple_deprivation_rounded >= 13137.6 AND '
-   '[#group_table_12].index_of_multiple_deprivation_rounded < 19706.4) THEN '
-   "N'3' WHEN ([#group_table_12].index_of_multiple_deprivation_rounded >= "
-   '19706.4 AND [#group_table_12].index_of_multiple_deprivation_rounded < '
-   "26275.2) THEN N'4' WHEN "
-   '([#group_table_12].index_of_multiple_deprivation_rounded >= 26275.2 AND '
-   "[#group_table_12].index_of_multiple_deprivation_rounded < 32844) THEN N'5' "
-   "ELSE N'0' END AS imd, [#group_table_13].code AS ethnicity, CASE WHEN "
-   '([#group_table_14].numeric_value >= 30 AND [#group_table_14].numeric_value '
-   "< 35) THEN N'Obese I (30-34.9)' WHEN ([#group_table_14].numeric_value >= "
-   "35 AND [#group_table_14].numeric_value < 40) THEN N'Obese II (35-39.9)' "
-   'WHEN ([#group_table_14].numeric_value >= 40 AND '
-   "[#group_table_14].numeric_value < 100) THEN N'Obese III (40+)' ELSE N'Not "
-   "obese' END AS bmi, CASE WHEN (([#group_table_2].date IS NOT NULL OR "
-   '[#group_table_3].date IS NOT NULL) AND [#group_table_4].date IS NULL) THEN '
-   "N'COVID positive' WHEN ([#group_table_4].date IS NOT NULL) THEN N'COVID "
-   "hospitalised' ELSE N'No COVID code' END AS previous_covid, "
+   '%(param_4)s), [#group_table_10].date_of_birth) > %(param_4)s) THEN '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_4)s) - '
+   '%(datediff_2)s ELSE datediff(year, [#group_table_10].date_of_birth, '
+   '%(param_4)s) END >= %(param_5)s AND CASE WHEN (dateadd(year, '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_6)s), '
+   '[#group_table_10].date_of_birth) > %(param_6)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_6)s) - %(datediff_3)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_6)s) END < '
+   '%(param_7)s) THEN %(param_8)s WHEN (CASE WHEN (dateadd(year, '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_9)s), '
+   '[#group_table_10].date_of_birth) > %(param_9)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_9)s) - %(datediff_4)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_9)s) END >= '
+   '%(param_10)s AND CASE WHEN (dateadd(year, datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_11)s), '
+   '[#group_table_10].date_of_birth) > %(param_11)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_11)s) - %(datediff_5)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_11)s) END < '
+   '%(param_12)s) THEN %(param_13)s WHEN (CASE WHEN (dateadd(year, '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_14)s), '
+   '[#group_table_10].date_of_birth) > %(param_14)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_14)s) - %(datediff_6)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_14)s) END >= '
+   '%(param_15)s AND CASE WHEN (dateadd(year, datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_16)s), '
+   '[#group_table_10].date_of_birth) > %(param_16)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_16)s) - %(datediff_7)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_16)s) END < '
+   '%(param_17)s) THEN %(param_18)s WHEN (CASE WHEN (dateadd(year, '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_19)s), '
+   '[#group_table_10].date_of_birth) > %(param_19)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_19)s) - %(datediff_8)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_19)s) END >= '
+   '%(param_20)s AND CASE WHEN (dateadd(year, datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_21)s), '
+   '[#group_table_10].date_of_birth) > %(param_21)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_21)s) - %(datediff_9)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_21)s) END < '
+   '%(param_22)s) THEN %(param_23)s WHEN (CASE WHEN (dateadd(year, '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_24)s), '
+   '[#group_table_10].date_of_birth) > %(param_24)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_24)s) - %(datediff_10)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_24)s) END >= '
+   '%(param_25)s AND CASE WHEN (dateadd(year, datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_26)s), '
+   '[#group_table_10].date_of_birth) > %(param_26)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_26)s) - %(datediff_11)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_26)s) END < '
+   '%(param_27)s) THEN %(param_28)s WHEN (CASE WHEN (dateadd(year, '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_29)s), '
+   '[#group_table_10].date_of_birth) > %(param_29)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_29)s) - %(datediff_12)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_29)s) END >= '
+   '%(param_30)s AND CASE WHEN (dateadd(year, datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_31)s), '
+   '[#group_table_10].date_of_birth) > %(param_31)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_31)s) - %(datediff_13)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_31)s) END < '
+   '%(param_32)s) THEN %(param_33)s WHEN (CASE WHEN (dateadd(year, '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_34)s), '
+   '[#group_table_10].date_of_birth) > %(param_34)s) THEN datediff(year, '
+   '[#group_table_10].date_of_birth, %(param_34)s) - %(datediff_14)s ELSE '
+   'datediff(year, [#group_table_10].date_of_birth, %(param_34)s) END >= '
+   '%(param_35)s) THEN %(param_36)s ELSE %(param_37)s END AS age_group, '
+   '[#group_table_11].sex AS sex, [#group_table_1].nuts1_region_name AS '
+   'region, CASE WHEN ([#group_table_12].index_of_multiple_deprivation_rounded '
+   '>= %(index_of_multiple_deprivation_rounded_1)s AND '
+   '[#group_table_12].index_of_multiple_deprivation_rounded < '
+   '%(index_of_multiple_deprivation_rounded_2)s) THEN %(param_38)s WHEN '
+   '([#group_table_12].index_of_multiple_deprivation_rounded >= '
+   '%(index_of_multiple_deprivation_rounded_3)s AND '
+   '[#group_table_12].index_of_multiple_deprivation_rounded < '
+   '%(index_of_multiple_deprivation_rounded_4)s) THEN %(param_39)s WHEN '
+   '([#group_table_12].index_of_multiple_deprivation_rounded >= '
+   '%(index_of_multiple_deprivation_rounded_5)s AND '
+   '[#group_table_12].index_of_multiple_deprivation_rounded < '
+   '%(index_of_multiple_deprivation_rounded_6)s) THEN %(param_40)s WHEN '
+   '([#group_table_12].index_of_multiple_deprivation_rounded >= '
+   '%(index_of_multiple_deprivation_rounded_7)s AND '
+   '[#group_table_12].index_of_multiple_deprivation_rounded < '
+   '%(index_of_multiple_deprivation_rounded_8)s) THEN %(param_41)s WHEN '
+   '([#group_table_12].index_of_multiple_deprivation_rounded >= '
+   '%(index_of_multiple_deprivation_rounded_9)s AND '
+   '[#group_table_12].index_of_multiple_deprivation_rounded < '
+   '%(index_of_multiple_deprivation_rounded_10)s) THEN %(param_42)s ELSE '
+   '%(param_43)s END AS imd, [#group_table_13].code AS ethnicity, CASE WHEN '
+   '([#group_table_14].numeric_value >= %(numeric_value_1)s AND '
+   '[#group_table_14].numeric_value < %(numeric_value_2)s) THEN %(param_44)s '
+   'WHEN ([#group_table_14].numeric_value >= %(numeric_value_3)s AND '
+   '[#group_table_14].numeric_value < %(numeric_value_4)s) THEN %(param_45)s '
+   'WHEN ([#group_table_14].numeric_value >= %(numeric_value_5)s AND '
+   '[#group_table_14].numeric_value < %(numeric_value_6)s) THEN %(param_46)s '
+   'ELSE %(param_47)s END AS bmi, CASE WHEN (([#group_table_2].date IS NOT '
+   'NULL OR [#group_table_3].date IS NOT NULL) AND [#group_table_4].date IS '
+   'NULL) THEN %(param_48)s WHEN ([#group_table_4].date IS NOT NULL) THEN '
+   '%(param_49)s ELSE %(param_50)s END AS previous_covid, '
    '[#group_table_15].code_count AS snomed_1325161000000102, '
    '[#group_table_16].date AS snomed_1325161000000102_date, '
    '[#group_table_17].code_count AS snomed_1325181000000106, '
@@ -1299,7 +2004,86 @@
    '[#group_table_50] ON [#group_table_0].patient_id = '
    '[#group_table_50].patient_id \n'
    'WHERE [#group_table_0].patient_id_exists = 1',
-   {}),
+   {'param_1': '20201101',
+    'datediff_1': 1,
+    'param_2': 18,
+    'param_3': '0-17',
+    'param_4': '20201101',
+    'datediff_2': 1,
+    'param_5': 18,
+    'param_6': '20201101',
+    'datediff_3': 1,
+    'param_7': 25,
+    'param_8': '18-24',
+    'param_9': '20201101',
+    'datediff_4': 1,
+    'param_10': 25,
+    'param_11': '20201101',
+    'datediff_5': 1,
+    'param_12': 35,
+    'param_13': '25-34',
+    'param_14': '20201101',
+    'datediff_6': 1,
+    'param_15': 35,
+    'param_16': '20201101',
+    'datediff_7': 1,
+    'param_17': 45,
+    'param_18': '35-44',
+    'param_19': '20201101',
+    'datediff_8': 1,
+    'param_20': 45,
+    'param_21': '20201101',
+    'datediff_9': 1,
+    'param_22': 55,
+    'param_23': '45-54',
+    'param_24': '20201101',
+    'datediff_10': 1,
+    'param_25': 55,
+    'param_26': '20201101',
+    'datediff_11': 1,
+    'param_27': 70,
+    'param_28': '55-69',
+    'param_29': '20201101',
+    'datediff_12': 1,
+    'param_30': 70,
+    'param_31': '20201101',
+    'datediff_13': 1,
+    'param_32': 80,
+    'param_33': '70-79',
+    'param_34': '20201101',
+    'datediff_14': 1,
+    'param_35': 80,
+    'param_36': '80+',
+    'param_37': 'missing',
+    'index_of_multiple_deprivation_rounded_1': 1,
+    'index_of_multiple_deprivation_rounded_2': 6568.8,
+    'param_38': '1',
+    'index_of_multiple_deprivation_rounded_3': 6568.8,
+    'index_of_multiple_deprivation_rounded_4': 13137.6,
+    'param_39': '2',
+    'index_of_multiple_deprivation_rounded_5': 13137.6,
+    'index_of_multiple_deprivation_rounded_6': 19706.4,
+    'param_40': '3',
+    'index_of_multiple_deprivation_rounded_7': 19706.4,
+    'index_of_multiple_deprivation_rounded_8': 26275.2,
+    'param_41': '4',
+    'index_of_multiple_deprivation_rounded_9': 26275.2,
+    'index_of_multiple_deprivation_rounded_10': 32844,
+    'param_42': '5',
+    'param_43': '0',
+    'numeric_value_1': 30,
+    'numeric_value_2': 35,
+    'param_44': 'Obese I (30-34.9)',
+    'numeric_value_3': 35,
+    'numeric_value_4': 40,
+    'param_45': 'Obese II (35-39.9)',
+    'numeric_value_5': 40,
+    'numeric_value_6': 100,
+    'param_46': 'Obese III (40+)',
+    'param_47': 'Not obese',
+    'param_48': 'COVID positive',
+    'param_49': 'COVID hospitalised',
+    'param_50': 'No COVID code'}),
   {},
   None),
  ('Cursor',

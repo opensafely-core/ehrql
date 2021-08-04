@@ -42,50 +42,61 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT anon_1.code, anon_1.patient_id \n'
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT anon_2.code AS code, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date DESC) AS _row_num \n'
-   'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
-   'PatientId AS patient_id \n'
+   'FROM (SELECT [EventCode] AS code, [Date] AS date, [ResultValue] AS result, '
+   '[PatientId] AS patient_id \n'
    'FROM events) AS clinical_events \n'
-   "WHERE clinical_events.code IN (N'abc', N'def')) AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT anon_1.code, anon_1.patient_id \n'
+   'WHERE clinical_events.code IN (%(code_1_1)s, %(code_1_2)s)) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1, 'code_1_1': 'abc', 'code_1_2': 'def'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT anon_2.code AS code, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date DESC) AS _row_num \n'
-   'FROM (SELECT EventCode AS code, Date AS date, ResultValue AS result, '
-   'PatientId AS patient_id \n'
+   'FROM (SELECT [EventCode] AS code, [Date] AS date, [ResultValue] AS result, '
+   '[PatientId] AS patient_id \n'
    'FROM events) AS clinical_events \n'
-   "WHERE clinical_events.code IN (N'uvw', N'xyz')) AS anon_1 \n"
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_2 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
-   'FROM (SELECT StpId AS stp, StartDate AS date_start, EndDate AS date_end, '
-   'PatientId AS patient_id \n'
+   'WHERE clinical_events.code IN (%(code_1_1)s, %(code_1_2)s)) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1, 'code_1_1': 'uvw', 'code_1_2': 'xyz'}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_2 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
+   'FROM (SELECT [StpId] AS stp, [StartDate] AS date_start, [EndDate] AS '
+   'date_end, [PatientId] AS patient_id \n'
    'FROM practice_registrations) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_2].patient_id AS patient_id, CASE WHEN '
-   "([#group_table_0].code IS NOT NULL) THEN N'1' WHEN ([#group_table_1].code "
-   "IS NOT NULL) THEN N'2' ELSE N'na' END AS has_positive_code \n"
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_2].patient_id AS patient_id, CASE WHEN '
+   '([#group_table_0].code IS NOT NULL) THEN %(param_1)s WHEN '
+   '([#group_table_1].code IS NOT NULL) THEN %(param_2)s ELSE %(param_3)s END '
+   'AS has_positive_code \n'
    'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_2].patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '
    '[#group_table_1] ON [#group_table_2].patient_id = '
    '[#group_table_1].patient_id \n'
    'WHERE [#group_table_2].patient_id_exists = 1',
-   {}),
+   {'param_1': '1', 'param_2': '2', 'param_3': 'na'}),
   {},
   None),
  ('Cursor',

@@ -42,11 +42,11 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT anon_1.date, anon_1.patient_id \n'
-   'FROM (SELECT sgss_sars_cov_2.date, sgss_sars_cov_2.patient_id, '
-   'row_number() OVER (PARTITION BY sgss_sars_cov_2.patient_id ORDER BY '
-   'sgss_sars_cov_2.date) AS _row_num \n'
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
+   'FROM (SELECT sgss_sars_cov_2.date AS date, sgss_sars_cov_2.patient_id AS '
+   'patient_id, row_number() OVER (PARTITION BY sgss_sars_cov_2.patient_id '
+   'ORDER BY sgss_sars_cov_2.date) AS _row_num \n'
    'FROM (\n'
    '            SELECT Patient_ID as patient_id, Specimen_Date AS date, 1 AS '
    'positive_result FROM SGSS_AllTests_Positive\n'
@@ -54,13 +54,17 @@
    '            SELECT Patient_ID as patient_id, Specimen_Date AS date, 0 AS '
    'positive_result FROM SGSS_AllTests_Negative\n'
    '        ) AS sgss_sars_cov_2 \n'
-   'WHERE sgss_sars_cov_2.positive_result = 0) AS anon_1 \n'
-   'WHERE anon_1._row_num = 1\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
+   'WHERE sgss_sars_cov_2.positive_result = 0) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
    'FROM (\n'
    '            SELECT RegistrationHistory.Patient_ID AS patient_id,\n'
    '                RegistrationHistory.StartDate AS date_start,\n'
@@ -71,11 +75,14 @@
    '            LEFT OUTER JOIN Organisation ON '
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].date AS '
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].date AS '
    'date \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_1].patient_id = [#group_table_0].patient_id \n'

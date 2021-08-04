@@ -42,8 +42,9 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT hospitalizations.code, hospitalizations.patient_id \n'
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT hospitalizations.code AS code, hospitalizations.patient_id AS '
+   'patient_id \n'
    'FROM (\n'
    '            SELECT Patient_ID as patient_id, Admission_Date as date, \n'
    '        REVERSE(\n'
@@ -89,12 +90,16 @@
    "            ) AS t CROSS APPLY x.nodes('i') AS y(i)\n"
    '        )\n'
    '     fully_split\n'
-   '        ) AS hospitalizations\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
+   '        ) AS hospitalizations) AS anon_1',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
    'FROM (\n'
    '            SELECT RegistrationHistory.Patient_ID AS patient_id,\n'
    '                RegistrationHistory.StartDate AS date_start,\n'
@@ -105,11 +110,14 @@
    '            LEFT OUTER JOIN Organisation ON '
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].code AS '
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].code AS '
    'code \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_1].patient_id = [#group_table_0].patient_id \n'

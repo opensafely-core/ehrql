@@ -1,10 +1,12 @@
 import contextlib
+import datetime
 from collections import defaultdict
 
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
 import sqlalchemy.types
+from sqlalchemy.sql.expression import type_coerce
 
 from ..query_language import (
     Codelist,
@@ -22,18 +24,6 @@ from ..query_language import (
     ValueFromRow,
 )
 from .base import BaseQueryEngine
-
-
-def make_table_expression(table_name, columns):
-    """
-    Return a SQLAlchemy object representing a table with the given name and
-    columns
-    """
-    return sqlalchemy.Table(
-        table_name,
-        sqlalchemy.MetaData(),
-        *[sqlalchemy.Column(column) for column in columns],
-    )
 
 
 def get_joined_tables(query):
@@ -61,9 +51,65 @@ def get_primary_table(query):
     return get_joined_tables(query)[0]
 
 
+# MS-SQL can misinterpret ISO dates, depending on its localisation settings so
+# we need to use particular date formats which we know will be consistently
+# interpreted. We do this by defining custom SQLAlchemy types. See:
+# https://github.com/opensafely-core/cohort-extractor-v2/issues/92
+# http://msdn.microsoft.com/en-us/library/ms180878.aspx
+# https://stackoverflow.com/a/25548626/559140
+class _MSSQLDateTimeBase:
+    text_type = sqlalchemy.types.Text()
+
+    def process_bind_param(self, value, dialect):
+        """
+        Convert a Python value to a form suitable for passing as a parameter to
+        the database connector
+        """
+        if value is None:
+            return None
+        # We accept ISO formated strings as well
+        if isinstance(value, str):
+            value = self.date_type.fromisoformat(value)
+        if not isinstance(value, self.date_type):
+            raise TypeError(f"Expected {self.date_type} or str got: {value!r}")
+        return value.strftime(self.format_str)
+
+    def process_literal_param(self, value, dialect):
+        """
+        Convert a Python value into an escaped string suitable for
+        interpolating directly into an SQL string
+        """
+        # Use the above method to convert to a string first
+        value = self.process_bind_param(value, dialect)
+        # Use the Text literal processor to quote and escape that string
+        literal_processor = self.text_type.literal_processor(dialect)
+        return literal_processor(value)
+
+
+class MSSQLDate(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
+    impl = sqlalchemy.types.Date
+    cache_ok = True
+    date_type = datetime.date
+    # See https://stackoverflow.com/a/25548626/559140
+    format_str = "%Y%m%d"
+
+
+class MSSQLDateTime(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
+    impl = sqlalchemy.types.DateTime
+    cache_ok = True
+    date_type = datetime.datetime
+    # See https://stackoverflow.com/a/25548626/559140
+    format_str = "%Y-%m-%dT%H:%M:%S"
+
+
 class MssqlQueryEngine(BaseQueryEngine):
 
     sqlalchemy_dialect = sqlalchemy.dialects.mssql
+
+    type_map = {
+        "date": MSSQLDate,
+        "datetime": MSSQLDateTime,
+    }
 
     def __init__(self, column_definitions, backend):
         super().__init__(column_definitions, backend)
@@ -241,23 +287,25 @@ class MssqlQueryEngine(BaseQueryEngine):
     #
     def create_output_group_tables(self):
         """Queries to generate and populate interim tables for each output"""
-        # For each group of output nodes (nodes that produce a single output value),
-        # make a table object representing a temporary table into which we will write the required
-        # values
+        # For each group of "output nodes" (roughly, "nodes which we know how
+        # to build a single select query for"), build a SQLAlchemy query to get
+        # their values.
         for i, (group, output_nodes) in enumerate(self.output_groups.items()):
-            # The `#` prefix makes this a session-scoped temporary table
+            query = self.get_query_expression(group, output_nodes)
+            self.output_group_tables_queries[group] = query
+            # Create a Table object representing a temporary table into which
+            # we'll write the results of the query. (The `#` prefix makes this
+            # a session-scoped temporary table.)
             table_name = f"#group_table_{i}"
-            columns = {self.get_output_column_name(output) for output in output_nodes}
-            self.output_group_tables[group] = make_table_expression(
-                table_name, {"patient_id"} | columns
+            columns = [
+                sqlalchemy.Column(c.name, c.type) for c in query.selected_columns
+            ]
+            table = sqlalchemy.Table(
+                table_name,
+                sqlalchemy.MetaData(),
+                *columns,
             )
-
-        # For each group of output nodes, build a query expression
-        # to populate the associated temporary table
-        self.output_group_tables_queries = {
-            group: self.get_query_expression(group, output_nodes)
-            for group, output_nodes in self.output_groups.items()
-        }
+            self.output_group_tables[group] = table
 
     def create_codelist_tables(self):
         """
@@ -291,7 +339,9 @@ class MssqlQueryEngine(BaseQueryEngine):
     def get_select_expression(self, base_table, columns):
         # every table must have a patient_id column; select it and the specified columns
         columns = sorted({"patient_id"}.union(columns))
-        table_expr = self.backend.get_table_expression(base_table.name)
+        table_expr = self.backend.get_table_expression(
+            base_table.name, type_map=self.type_map
+        )
         column_objs = [table_expr.c[column] for column in columns]
         query = sqlalchemy.select(column_objs).select_from(table_expr)
         return query
@@ -448,15 +498,21 @@ class MssqlQueryEngine(BaseQueryEngine):
         return value_expression, tuple(tables)
 
     def date_difference_in_years(self, start_date, end_date):
+        start_date = type_coerce(start_date, MSSQLDate())
+        end_date = type_coerce(end_date, MSSQLDate())
         # `literal_column` doesn't seem quite the right construct here, but I
         # need SQLAlchemy to generate the string "year" without quotes, and
         # this seems to do the trick
         YEAR = sqlalchemy.literal_column("year")
         # The year difference here is just the difference between the year
         # components of the dates and takes no account of the month or day
-        year_diff = sqlalchemy.func.datediff(YEAR, start_date, end_date)
+        year_diff = sqlalchemy.func.datediff(
+            YEAR, start_date, end_date, type_=sqlalchemy.types.Integer()
+        )
         # so we add the resulting number of years back on to the start date
-        start_date_plus_year_diff = sqlalchemy.func.dateadd(YEAR, year_diff, start_date)
+        start_date_plus_year_diff = sqlalchemy.func.dateadd(
+            YEAR, year_diff, start_date, type_=MSSQLDate()
+        )
         # and then adjust it down by one year if this takes us past our end date
         return sqlalchemy.case(
             (start_date_plus_year_diff > end_date, year_diff - 1), else_=year_diff
@@ -601,44 +657,42 @@ class MssqlQueryEngine(BaseQueryEngine):
 
         return results_query
 
-    def get_sql(self):
-        """Build the SQL"""
+    def get_queries(self):
+        """Build the list of SQL queries to execute"""
         self.create_codelist_tables()
         self.create_output_group_tables()
-        sql = []
+        queries = []
         # Create and populate tables containing codelists
-        for query in self.codelist_tables_queries:
-            sql.append(self.query_expression_to_sql(query))
+        queries.extend(self.codelist_tables_queries)
         # Generate each of the interim output group tables and populate them
         for group, table in self.output_group_tables.items():
             query = self.output_group_tables_queries[group]
-            query_sql = self.query_expression_to_sql(query)
-            sql.append(f"SELECT * INTO {table.name} FROM (\n{query_sql}\n) t")
+            # This is a bit of a hack but works OK. We want to be able to take
+            # an arbitrary select query and generate the SQL:
+            #
+            #   SELECT * INTO some_temporary_table FROM (some_select_query) AS some_alias
+            #
+            # which is the MSSQL-specific syntax for writing the results of a
+            # query directly into a temporary table. We can trick SQLAlchemy
+            # into generating this for us by giving it a literal column named
+            # "* INTO table_name".
+            write_to_temp_table = sqlalchemy.select(
+                sqlalchemy.literal_column(f"* INTO {table.name}")
+            ).select_from(query.alias())
+            queries.append(write_to_temp_table)
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
-        sql.append(self.query_expression_to_sql(self.generate_results_query()))
-        return "\n\n\n".join(sql)
-
-    def query_expression_to_sql(self, query):
-        dialect = self.sqlalchemy_dialect.dialect()
-        # SQLAlchemy will set this for us when connecting to an actual database
-        # (it asks for the server version and then updates capabilities
-        # accordingly) but we haven't connected to a database here so we have
-        # to set it manually
-        dialect.supports_multivalues_insert = True
-        return str(
-            query.compile(
-                dialect=dialect,
-                compile_kwargs={"literal_binds": True},
-            )
-        )
+        queries.append(self.generate_results_query())
+        return queries
 
     @contextlib.contextmanager
     def execute_query(self):
         """Execute a query against an MSSQL backend"""
-        sql = self.get_sql()
+        queries = self.get_queries()
         with self.engine.connect() as cursor:
-            result = cursor.execute(sqlalchemy.text(sql))
+            for query in queries:
+                result = cursor.execute(query)
+            # We're only interested in the results from the final query
             yield result
 
 

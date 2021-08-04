@@ -25,15 +25,15 @@ def test_codelist_query(database, setup_test_database):
     input_data = [
         # Patient 1
         RegistrationHistory(PatientId=1),
-        Events(PatientId=1, EventCode="abc", Date="2021-1-1"),
-        Events(PatientId=1, EventCode="xyz", Date="2021-2-1"),
-        Events(PatientId=1, EventCode="foo", Date="2021-3-1"),
+        Events(PatientId=1, EventCode="abc", Date="2021-01-01"),
+        Events(PatientId=1, EventCode="xyz", Date="2021-02-01"),
+        Events(PatientId=1, EventCode="foo", Date="2021-03-01"),
         # Patient 2
         RegistrationHistory(PatientId=2),
-        Events(PatientId=2, EventCode="bar", Date="2021-1-1"),
+        Events(PatientId=2, EventCode="bar", Date="2021-01-01"),
         # Patient 3
         RegistrationHistory(PatientId=3),
-        Events(PatientId=3, EventCode="ijk", Date="2021-1-1"),
+        Events(PatientId=3, EventCode="ijk", Date="2021-01-01"),
     ]
     setup_test_database(input_data)
 
@@ -139,13 +139,13 @@ def test_codelist_query_with_codelist_from_csv(
     input_data = [
         # Patient 1
         RegistrationHistory(PatientId=1),
-        Events(PatientId=1, EventCode="abc", Date="2021-1-1"),
+        Events(PatientId=1, EventCode="abc", Date="2021-01-01"),
         # Patient 2
         RegistrationHistory(PatientId=2),
-        Events(PatientId=2, EventCode="bar", Date="2021-1-1"),
+        Events(PatientId=2, EventCode="bar", Date="2021-01-01"),
         # Patient 3
         RegistrationHistory(PatientId=3),
-        Events(PatientId=3, EventCode="ijk", Date="2021-1-1"),
+        Events(PatientId=3, EventCode="ijk", Date="2021-01-01"),
     ]
     setup_test_database(input_data)
 

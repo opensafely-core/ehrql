@@ -151,11 +151,11 @@ def test_run_generated_sql_get_single_row_per_patient(
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
         RegistrationHistory(PatientId=2, StpId="STP1"),
-        Events(PatientId=1, EventCode="Code1", Date="2021-1-3"),
-        Events(PatientId=1, EventCode="Code1", Date="2021-2-1"),
-        Events(PatientId=1, EventCode="Code2", Date="2021-5-2"),
-        Events(PatientId=2, EventCode="Code1", Date="2021-6-5"),
-        Events(PatientId=2, EventCode="Code1", Date="2021-2-4"),
+        Events(PatientId=1, EventCode="Code1", Date="2021-01-03"),
+        Events(PatientId=1, EventCode="Code1", Date="2021-02-01"),
+        Events(PatientId=1, EventCode="Code2", Date="2021-05-02"),
+        Events(PatientId=2, EventCode="Code1", Date="2021-06-05"),
+        Events(PatientId=2, EventCode="Code1", Date="2021-02-04"),
     ]
     setup_test_database(input_data)
 
@@ -180,14 +180,16 @@ def test_run_generated_sql_get_single_row_per_patient(
             ],
         ),
         (
-            table("clinical_events").filter(code="Code1", date="2021-2-1"),
+            table("clinical_events").filter(code="Code1", date="2021-02-01"),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
                 dict(patient_id=2, code=None, date=None, value=None),
             ],
         ),
         (
-            table("clinical_events").filter("date", between=["2021-1-15", "2021-5-3"]),
+            table("clinical_events").filter(
+                "date", between=["2021-01-15", "2021-05-03"]
+            ),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
                 dict(patient_id=1, code="Code2", date=date(2021, 5, 2), value=30.1),
@@ -204,35 +206,37 @@ def test_run_generated_sql_get_single_row_per_patient(
             ],
         ),
         (
-            table("clinical_events").filter("date", greater_than="2021-5-3"),
+            table("clinical_events").filter("date", greater_than="2021-05-03"),
             [
                 dict(patient_id=1, code=None, date=None, value=None),
                 dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
             ],
         ),
         (
-            table("clinical_events").filter("date", greater_than_or_equals="2021-5-3"),
+            table("clinical_events").filter(
+                "date", greater_than_or_equals="2021-05-03"
+            ),
             [
                 dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
                 dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
             ],
         ),
         (
-            table("clinical_events").filter("date", on_or_after="2021-5-3"),
+            table("clinical_events").filter("date", on_or_after="2021-05-03"),
             [
                 dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
                 dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
             ],
         ),
         (
-            table("clinical_events").filter("date", less_than="2021-2-1"),
+            table("clinical_events").filter("date", less_than="2021-02-01"),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
                 dict(patient_id=2, code=None, date=None, value=None),
             ],
         ),
         (
-            table("clinical_events").filter("date", less_than_or_equals="2021-2-1"),
+            table("clinical_events").filter("date", less_than_or_equals="2021-02-01"),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
                 dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
@@ -240,7 +244,7 @@ def test_run_generated_sql_get_single_row_per_patient(
             ],
         ),
         (
-            table("clinical_events").filter("date", on_or_before="2021-2-1"),
+            table("clinical_events").filter("date", on_or_before="2021-02-01"),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
                 dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
@@ -282,7 +286,7 @@ def test_run_generated_sql_get_single_row_per_patient(
             table("clinical_events")
             .filter(code="Code1")
             .filter("result", less_than=50)
-            .filter("date", between=["2021-1-15", "2021-6-6"]),
+            .filter("date", between=["2021-01-15", "2021-06-06"]),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
                 dict(patient_id=2, code=None, date=None, value=None),
@@ -312,12 +316,12 @@ def test_simple_filters(database, setup_test_database, filtered_table, expected)
     input_data = [
         RegistrationHistory(PatientId=1, StpId="STP1"),
         RegistrationHistory(PatientId=2, StpId="STP1"),
-        Events(PatientId=1, EventCode="Code1", Date="2021-1-3", ResultValue=10.1),
-        Events(PatientId=1, EventCode="Code1", Date="2021-2-1", ResultValue=20.1),
-        Events(PatientId=1, EventCode="Code2", Date="2021-5-2", ResultValue=30.1),
-        Events(PatientId=1, EventCode="Code3", Date="2021-5-3", ResultValue=40.1),
-        Events(PatientId=2, EventCode="Code1", Date="2021-6-5", ResultValue=50.1),
-        Events(PatientId=2, EventCode="Code2", Date="2021-2-1", ResultValue=60.1),
+        Events(PatientId=1, EventCode="Code1", Date="2021-01-03", ResultValue=10.1),
+        Events(PatientId=1, EventCode="Code1", Date="2021-02-01", ResultValue=20.1),
+        Events(PatientId=1, EventCode="Code2", Date="2021-05-02", ResultValue=30.1),
+        Events(PatientId=1, EventCode="Code3", Date="2021-05-03", ResultValue=40.1),
+        Events(PatientId=2, EventCode="Code1", Date="2021-06-05", ResultValue=50.1),
+        Events(PatientId=2, EventCode="Code2", Date="2021-02-01", ResultValue=60.1),
     ]
     setup_test_database(input_data)
 
@@ -338,32 +342,32 @@ def test_filter_between_other_query_values(database, setup_test_database):
         RegistrationHistory(PatientId=2, StpId="STP1"),
         RegistrationHistory(PatientId=3, StpId="STP1"),
         # Patient test results with dates
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-1-1"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-2-15"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-3-2"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-1-21"),
-        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-2-17"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-5-1"),
-        PositiveTests(PatientId=3, PositiveResult=True, TestDate="2021-1-10"),
-        PositiveTests(PatientId=3, PositiveResult=True, TestDate="2021-2-23"),
-        PositiveTests(PatientId=3, PositiveResult=True, TestDate="2021-3-1"),
-        # pt1 first=2021-1-1, last=2021-3-2; 2 values between dates, 1 outside
-        Events(PatientId=1, EventCode="Code1", Date="2021-2-1", ResultValue=10.1),
-        Events(PatientId=1, EventCode="Code1", Date="2021-4-12", ResultValue=10.2),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-01-01"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-02-15"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-03-02"),
+        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-01-21"),
+        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-02-17"),
+        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-05-01"),
+        PositiveTests(PatientId=3, PositiveResult=True, TestDate="2021-01-10"),
+        PositiveTests(PatientId=3, PositiveResult=True, TestDate="2021-02-23"),
+        PositiveTests(PatientId=3, PositiveResult=True, TestDate="2021-03-01"),
+        # pt1 first=2021-01-01, last=2021-03-02; 2 values between dates, 1 outside
+        Events(PatientId=1, EventCode="Code1", Date="2021-02-01", ResultValue=10.1),
+        Events(PatientId=1, EventCode="Code1", Date="2021-04-12", ResultValue=10.2),
         Events(
-            PatientId=1, EventCode="Code1", Date="2021-3-1", ResultValue=10.3
+            PatientId=1, EventCode="Code1", Date="2021-03-01", ResultValue=10.3
         ),  # selected
-        # pt2 first=2021-1-21, last=2021-5-1, 1 between, 2 outside
-        Events(PatientId=2, EventCode="Code1", Date="2021-1-10", ResultValue=50.1),
+        # pt2 first=2021-01-21, last=2021-05-01, 1 between, 2 outside
+        Events(PatientId=2, EventCode="Code1", Date="2021-01-10", ResultValue=50.1),
         Events(
-            PatientId=2, EventCode="Code1", Date="2021-2-1", ResultValue=50.2
+            PatientId=2, EventCode="Code1", Date="2021-02-01", ResultValue=50.2
         ),  # selected
-        Events(PatientId=2, EventCode="Code1", Date="2021-5-2", ResultValue=50.3),
-        # pt3 first=2021-1-10, last=2021-3-1, none inside
-        Events(PatientId=3, EventCode="Code1", Date="2021-3-15", ResultValue=60.1),
-        Events(PatientId=3, EventCode="Code1", Date="2021-4-1", ResultValue=60.1),
+        Events(PatientId=2, EventCode="Code1", Date="2021-05-02", ResultValue=50.3),
+        # pt3 first=2021-01-10, last=2021-03-01, none inside
+        Events(PatientId=3, EventCode="Code1", Date="2021-03-15", ResultValue=60.1),
+        Events(PatientId=3, EventCode="Code1", Date="2021-04-01", ResultValue=60.1),
         # within dates, but different code
-        Events(PatientId=3, EventCode="Code2", Date="2021-2-1", ResultValue=60.1),
+        Events(PatientId=3, EventCode="Code2", Date="2021-02-01", ResultValue=60.1),
     ]
     setup_test_database(input_data)
 
@@ -413,38 +417,38 @@ def test_date_in_range_filter(database, setup_test_database):
         # (9999-12-31 is the default TPP null value)
         # registraion start date before target date; no end date - included
         RegistrationHistory(
-            PatientId=1, StpId="STP1", StartDate="2021-1-2", EndDate="9999-12-31"
+            PatientId=1, StpId="STP1", StartDate="2021-01-02", EndDate="9999-12-31"
         ),
         # registration starts after target date; no end date - not included
         RegistrationHistory(
-            PatientId=2, StpId="STP2", StartDate="2021-3-3", EndDate="9999-12-31"
+            PatientId=2, StpId="STP2", StartDate="2021-03-03", EndDate="9999-12-31"
         ),
         # 2 registrations, not overlapping; include the one that contains the target date
         RegistrationHistory(
-            PatientId=3, StpId="STP1", StartDate="2021-2-2", EndDate="2021-3-1"
+            PatientId=3, StpId="STP1", StartDate="2021-02-02", EndDate="2021-03-01"
         ),
         RegistrationHistory(
-            PatientId=3, StpId="STP2", StartDate="2021-3-1", EndDate="2021-4-1"
+            PatientId=3, StpId="STP2", StartDate="2021-03-01", EndDate="2021-04-01"
         ),
         # registered with 2 STPs overlapping target date; both are included
         RegistrationHistory(
-            PatientId=4, StpId="STP2", StartDate="2021-2-2", EndDate="2021-4-1"
+            PatientId=4, StpId="STP2", StartDate="2021-02-02", EndDate="2021-04-01"
         ),
         RegistrationHistory(
-            PatientId=4, StpId="STP3", StartDate="2021-1-1", EndDate="2021-3-3"
+            PatientId=4, StpId="STP3", StartDate="2021-01-01", EndDate="2021-03-03"
         ),
         # Patient test results with dates
-        Events(PatientId=1, EventCode="Code1", Date="2021-3-1", ResultValue=10.1),
-        Events(PatientId=2, EventCode="Code1", Date="2021-3-1", ResultValue=10.2),
-        Events(PatientId=3, EventCode="Code1", Date="2021-3-1", ResultValue=10.3),
-        Events(PatientId=4, EventCode="Code1", Date="2021-3-1", ResultValue=10.4),
+        Events(PatientId=1, EventCode="Code1", Date="2021-03-01", ResultValue=10.1),
+        Events(PatientId=2, EventCode="Code1", Date="2021-03-01", ResultValue=10.2),
+        Events(PatientId=3, EventCode="Code1", Date="2021-03-01", ResultValue=10.3),
+        Events(PatientId=4, EventCode="Code1", Date="2021-03-01", ResultValue=10.4),
     ]
     setup_test_database(input_data)
 
     class Cohort:
         _events = table("clinical_events").latest()
         value = _events.get("result")
-        stp = table("practice_registrations").date_in_range("2021-3-2").get("stp")
+        stp = table("practice_registrations").date_in_range("2021-03-02").get("stp")
 
     result = extract(Cohort, MockBackend, database)
     assert result == [
@@ -463,23 +467,23 @@ def test_in_filter_on_query_values(database, setup_test_database):
         RegistrationHistory(PatientId=1, StpId="STP1"),
         RegistrationHistory(PatientId=2, StpId="STP1"),
         # Patient test results with dates
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-1-1"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-2-15"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-3-2"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-1-10"),
-        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-2-1"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-5-1"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-01-01"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-02-15"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-03-02"),
+        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-01-10"),
+        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-02-01"),
+        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-05-01"),
         # pt1 2 results with dates matching a positive result: SELECTED
-        Events(PatientId=1, EventCode="Code1", Date="2021-1-1", ResultValue=10.1),
-        Events(PatientId=1, EventCode="Code1", Date="2021-2-15", ResultValue=10.2),
+        Events(PatientId=1, EventCode="Code1", Date="2021-01-01", ResultValue=10.1),
+        Events(PatientId=1, EventCode="Code1", Date="2021-02-15", ResultValue=10.2),
         # pt1 1 result that doesn't match a positive result date
-        Events(PatientId=1, EventCode="Code1", Date="2021-5-1", ResultValue=10.3),
+        Events(PatientId=1, EventCode="Code1", Date="2021-05-01", ResultValue=10.3),
         # pt2 1 result matches a positive result date: SELECTED
-        Events(PatientId=2, EventCode="Code1", Date="2021-1-10", ResultValue=50.1),
+        Events(PatientId=2, EventCode="Code1", Date="2021-01-10", ResultValue=50.1),
         # pt2 1 matches a negative result date
-        Events(PatientId=2, EventCode="Code1", Date="2021-2-1", ResultValue=50.2),
+        Events(PatientId=2, EventCode="Code1", Date="2021-02-01", ResultValue=50.2),
         # pt2 1 result matches a positive result date but a different code
-        Events(PatientId=2, EventCode="Code2", Date="2021-5-1", ResultValue=50.3),
+        Events(PatientId=2, EventCode="Code2", Date="2021-05-01", ResultValue=50.3),
     ]
     setup_test_database(input_data)
 
@@ -511,24 +515,24 @@ def test_not_in_filter_on_query_values(database, setup_test_database):
         RegistrationHistory(PatientId=1),
         RegistrationHistory(PatientId=2),
         # Patient test results with dates
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-1-1"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-2-15"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-3-2"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-5-1"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-1-10"),
-        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-2-1"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-5-1"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-01-01"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-02-15"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-03-02"),
+        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-05-01"),
+        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-01-10"),
+        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-02-01"),
+        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-05-01"),
         # pt1 2 results with dates matching a positive result
-        Events(PatientId=1, EventCode="Code1", Date="2021-1-1", ResultValue=10.1),
-        Events(PatientId=1, EventCode="Code1", Date="2021-2-15", ResultValue=10.2),
+        Events(PatientId=1, EventCode="Code1", Date="2021-01-01", ResultValue=10.1),
+        Events(PatientId=1, EventCode="Code1", Date="2021-02-15", ResultValue=10.2),
         # pt1 1 result that doesn't match a positive result date: SELECTED
-        Events(PatientId=1, EventCode="Code1", Date="2021-4-1", ResultValue=10.3),
+        Events(PatientId=1, EventCode="Code1", Date="2021-04-01", ResultValue=10.3),
         # pt2 1 result matches a positive result date
-        Events(PatientId=2, EventCode="Code1", Date="2021-1-10", ResultValue=50.1),
+        Events(PatientId=2, EventCode="Code1", Date="2021-01-10", ResultValue=50.1),
         # pt2 1 matches a negative result date
-        Events(PatientId=2, EventCode="Code1", Date="2021-2-1", ResultValue=50.2),
+        Events(PatientId=2, EventCode="Code1", Date="2021-02-01", ResultValue=50.2),
         # pt2 1 result doesn't match any result date: SELECTED
-        Events(PatientId=2, EventCode="Code1", Date="2021-5-2", ResultValue=50.3),
+        Events(PatientId=2, EventCode="Code1", Date="2021-05-02", ResultValue=50.3),
     ]
     setup_test_database(input_data)
 
@@ -1083,11 +1087,11 @@ def test_age_as_of(database, setup_test_database):
         # Patient 1
         Patients(PatientId=1, DateOfBirth="1990-8-10"),
         RegistrationHistory(PatientId=1),
-        Events(PatientId=1, Date="2020-10-1"),
+        Events(PatientId=1, Date="2020-10-01"),
         # Patient 2
-        Patients(PatientId=2, DateOfBirth="2000-3-20"),
+        Patients(PatientId=2, DateOfBirth="2000-03-20"),
         RegistrationHistory(PatientId=2),
-        Events(PatientId=2, Date="2018-2-1"),
+        Events(PatientId=2, Date="2018-02-01"),
     ]
     setup_test_database(input_data)
 

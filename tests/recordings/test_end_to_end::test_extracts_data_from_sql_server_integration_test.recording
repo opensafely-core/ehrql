@@ -42,24 +42,33 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO #group_table_0 FROM (\n'
-   'SELECT clinical_events.date, clinical_events.patient_id \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_1 FROM (\n'
-   'SELECT clinical_events.code, clinical_events.patient_id \n'
-   'FROM (SELECT CTV3Code AS code, ConsultationDate AS date, NumericValue AS '
-   'numeric_value, Patient_ID AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT * INTO #group_table_2 FROM (\n'
-   'SELECT practice_registrations.patient_id, 1 AS patient_id_exists \n'
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
+   'patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
+   'FROM [CodedEvent]) AS clinical_events) AS anon_1',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
+   'patient_id \n'
+   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
+   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
+   'FROM [CodedEvent]) AS clinical_events) AS anon_1',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_2 \n'
+   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
+   'AS patient_id_exists \n'
    'FROM (\n'
    '            SELECT RegistrationHistory.Patient_ID AS patient_id,\n'
    '                RegistrationHistory.StartDate AS date_start,\n'
@@ -70,11 +79,14 @@
    '            LEFT OUTER JOIN Organisation ON '
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id\n'
-   ') t\n'
-   '\n'
-   '\n'
-   'SELECT [#group_table_2].patient_id AS patient_id, [#group_table_0].date AS '
+   'practice_registrations.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT [#group_table_2].patient_id AS patient_id, [#group_table_0].date AS '
    'date, [#group_table_1].code AS event \n'
    'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_2].patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '
