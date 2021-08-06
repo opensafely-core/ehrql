@@ -62,8 +62,10 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT anon_2.code AS code, anon_2.patient_id AS patient_id \n'
    'FROM (SELECT hospitalizations.code AS code, hospitalizations.patient_id AS '
-   'patient_id \n'
+   'patient_id, row_number() OVER (PARTITION BY hospitalizations.patient_id '
+   'ORDER BY hospitalizations.patient_id) AS _row_num \n'
    'FROM (\n'
    '            SELECT Patient_ID as patient_id, Admission_Date as date, \n'
    '        REVERSE(\n'
@@ -111,8 +113,9 @@
    '     fully_split\n'
    '        ) AS hospitalizations \n'
    'WHERE hospitalizations.code IN (SELECT [#codelist_0].code \n'
-   'FROM [#codelist_0])) AS anon_1',
-   {}),
+   'FROM [#codelist_0])) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),

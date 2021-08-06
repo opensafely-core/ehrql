@@ -1,7 +1,6 @@
 import pytest
 
 from cohortextractor.query_language import (
-    Column,
     FilteredTable,
     Row,
     Table,
@@ -155,15 +154,3 @@ def test_cohort_column_definitions_multiple_equals_operators():
     penultimate_filtered_table = last_filtered_table.source
     assert penultimate_filtered_table.operator == "__eq__"
     assert penultimate_filtered_table.column == "code"
-
-
-def test_cohort_column_definitions_return_column():
-    """We can return a column as an output"""
-
-    class Cohort:
-        output_value = table("clinical_events").get("code")
-
-    column_definitions = get_column_definitions(Cohort)
-    assert isinstance(column_definitions["output_value"], Column)
-    assert column_definitions["output_value"].column == "code"
-    assert column_definitions["output_value"].source.name == "clinical_events"

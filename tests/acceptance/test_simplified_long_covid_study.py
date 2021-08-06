@@ -64,7 +64,7 @@ class SimplifiedCohort:
         "80+": _age >= 80,
     }
     age_group = categorise(_age_categories, default="missing")
-    sex = table("patients").get("sex")
+    sex = table("patients").first_by("patient_id").get("sex")
 
 
 # Add the Long covid code count variables

@@ -43,9 +43,13 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT anon_2.date_end AS date_end, anon_2.date_start AS date_start, '
+   'anon_2.patient_id AS patient_id \n'
    'FROM (SELECT practice_registrations.date_end AS date_end, '
    'practice_registrations.date_start AS date_start, '
-   'practice_registrations.patient_id AS patient_id \n'
+   'practice_registrations.patient_id AS patient_id, row_number() OVER '
+   '(PARTITION BY practice_registrations.patient_id ORDER BY '
+   'practice_registrations.patient_id) AS _row_num \n'
    'FROM (\n'
    '            SELECT RegistrationHistory.Patient_ID AS patient_id,\n'
    '                RegistrationHistory.StartDate AS date_start,\n'
@@ -55,8 +59,9 @@
    '            FROM RegistrationHistory\n'
    '            LEFT OUTER JOIN Organisation ON '
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
-   '        ) AS practice_registrations) AS anon_1',
-   {}),
+   '        ) AS practice_registrations) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),

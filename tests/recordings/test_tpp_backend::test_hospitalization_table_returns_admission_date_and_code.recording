@@ -43,8 +43,12 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_0 \n'
-   'FROM (SELECT hospitalizations.date AS date, hospitalizations.patient_id AS '
-   'patient_id \n'
+   'FROM (SELECT anon_2.code AS code, anon_2.date AS date, anon_2.patient_id '
+   'AS patient_id \n'
+   'FROM (SELECT hospitalizations.code AS code, hospitalizations.date AS date, '
+   'hospitalizations.patient_id AS patient_id, row_number() OVER (PARTITION BY '
+   'hospitalizations.patient_id ORDER BY hospitalizations.patient_id) AS '
+   '_row_num \n'
    'FROM (\n'
    '            SELECT Patient_ID as patient_id, Admission_Date as date, \n'
    '        REVERSE(\n'
@@ -90,8 +94,9 @@
    "            ) AS t CROSS APPLY x.nodes('i') AS y(i)\n"
    '        )\n'
    '     fully_split\n'
-   '        ) AS hospitalizations) AS anon_1',
-   {}),
+   '        ) AS hospitalizations) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -118,7 +123,7 @@
  ('Cursor',
   'execute',
   ('SELECT [#group_table_1].patient_id AS patient_id, [#group_table_0].date AS '
-   'admission \n'
+   'admission, [#group_table_0].code AS code \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
    'WHERE [#group_table_1].patient_id_exists = 1',
@@ -130,8 +135,9 @@
   (),
   {},
   (('patient_id', 3, None, None, None, None, None),
-   ('admission', 2, None, None, None, None, None))),
- ('Cursor', 'fetchone', (), {}, (1, datetime.date(2020, 12, 12))),
+   ('admission', 2, None, None, None, None, None),
+   ('code', 1, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, datetime.date(2020, 12, 12), 'xyz')),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]
