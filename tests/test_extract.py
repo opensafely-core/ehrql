@@ -14,7 +14,7 @@ def test_pick_a_single_value(database, setup_test_database):
     setup_test_database(input_data)
 
     class Cohort:
-        code = table("clinical_events").get("code")
+        code = table("clinical_events").first_by("patient_id").get("code")
 
     expected = [{"patient_id": 1, "code": "xyz"}]
 

@@ -89,7 +89,7 @@ class Cohort:
     age_group = categorise(_age_categories, default="missing")
 
     # Sex
-    sex = table("patients").get("sex")
+    sex = table("patients").first_by("patient_id").get("sex")
 
     # Region
     region = _current_registrations.get("nuts1_region_name")

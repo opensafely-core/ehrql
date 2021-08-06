@@ -328,11 +328,15 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_7 \n'
-   'FROM (SELECT patients.patient_id AS patient_id, patients.sex AS sex \n'
+   'FROM (SELECT anon_2.patient_id AS patient_id, anon_2.sex AS sex \n'
+   'FROM (SELECT patients.patient_id AS patient_id, patients.sex AS sex, '
+   'row_number() OVER (PARTITION BY patients.patient_id ORDER BY '
+   'patients.patient_id) AS _row_num \n'
    'FROM (SELECT [Sex] AS sex, [DateOfBirth] AS date_of_birth, [Patient_ID] AS '
    'patient_id \n'
-   'FROM [Patient]) AS patients) AS anon_1',
-   {}),
+   'FROM [Patient]) AS patients) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),

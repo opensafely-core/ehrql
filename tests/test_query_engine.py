@@ -8,6 +8,8 @@ from lib.mock_backend import (
     Patients,
     PositiveTests,
     RegistrationHistory,
+    event,
+    patient,
 )
 from lib.util import extract
 
@@ -41,7 +43,7 @@ def test_run_generated_sql_get_single_column_default_population(
     # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
     # table will be returned
     class Cohort:
-        output_value = table("clinical_events").get("code")
+        output_value = table("clinical_events").first_by("patient_id").get("code")
 
     assert extract(Cohort, MockBackend, database) == [
         dict(patient_id=1, output_value="Code1")
@@ -64,7 +66,7 @@ def test_run_generated_sql_get_single_column_specified_population(
     # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
     # table will be returned
     class Cohort:
-        output_value = table("clinical_events").get("code")
+        output_value = table("clinical_events").first_by("patient_id").get("code")
         population = table("practice_registrations").exists()
 
     assert extract(Cohort, MockBackend, database) == [
@@ -86,8 +88,8 @@ def test_run_generated_sql_get_multiple_columns(database, setup_test_database):
 
     # Cohort to extract all clinical events and positive tests
     class Cohort:
-        output_value = table("clinical_events").get("code")
-        positive = table("positive_tests").get("result")
+        output_value = table("clinical_events").first_by("patient_id").get("code")
+        positive = table("positive_tests").first_by("patient_id").get("result")
 
     assert extract(Cohort, MockBackend, database) == [
         dict(patient_id=1, output_value="Code1", positive=True),
@@ -109,7 +111,7 @@ def test_extract_get_single_column(database, setup_test_database):
     # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
     # table will be returned
     class Cohort:
-        output_value = table("clinical_events").get("code")
+        output_value = table("clinical_events").first_by("patient_id").get("code")
 
     result = extract(Cohort, MockBackend, database)
     assert list(result) == [dict(patient_id=1, output_value="Code1")]
@@ -117,7 +119,7 @@ def test_extract_get_single_column(database, setup_test_database):
 
 def test_invalid_table():
     class Cohort:
-        output_value = table("unknown").get("code")
+        output_value = table("unknown").first_by("patient_id").get("code")
 
     with pytest.raises(ValueError, match="Unknown table 'unknown'"):
         extract(Cohort, MockBackend, null_database())
@@ -169,127 +171,189 @@ def test_run_generated_sql_get_single_row_per_patient(
 
 @pytest.mark.integration
 @pytest.mark.parametrize(
-    "filtered_table,expected",
+    "data,filtered_table,expected",
     [
         (
+            [
+                *patient(1, event("Code1", "2021-01-01", 10)),  # equal
+                *patient(2, event("Code2", "2021-02-02", 20)),  # not equal
+            ],
             table("clinical_events").filter(code="Code1"),
             [
-                dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
-                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
-                dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
             ],
         ),
         (
-            table("clinical_events").filter(code="Code1", date="2021-02-01"),
             [
-                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
-                dict(patient_id=2, code=None, date=None, value=None),
+                *patient(1, event("Code1", "2021-01-01", 10)),  # both equal
+                *patient(2, event("Code1", "2021-01-02", 20)),  # only one equal
+            ],
+            table("clinical_events").filter(code="Code1", date="2021-01-01"),
+            [
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
             ],
         ),
         (
+            [
+                *patient(1, event("Code1", "2021-01-01", 10)),  # before
+                *patient(2, event("Code2", "2021-01-02", 20)),  # start of range
+                *patient(3, event("Code3", "2021-01-03", 30)),  # within range
+                *patient(4, event("Code4", "2021-01-04", 40)),  # end of range
+                *patient(5, event("Code5", "2021-01-05", 50)),  # after
+            ],
             table("clinical_events").filter(
-                "date", between=["2021-01-15", "2021-05-03"]
+                "date", between=["2021-01-02", "2021-01-04"]
             ),
             [
-                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
-                dict(patient_id=1, code="Code2", date=date(2021, 5, 2), value=30.1),
-                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
-                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
+                dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=20),
+                dict(patient_id=3, code="Code3", date=date(2021, 1, 3), value=30),
+                dict(patient_id=4, code="Code4", date=date(2021, 1, 4), value=40),
             ],
         ),
         (
-            table("clinical_events").filter("result", greater_than=40),
             [
-                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
-                dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
-                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
+                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
             ],
-        ),
-        (
-            table("clinical_events").filter("date", greater_than="2021-05-03"),
+            table("clinical_events").filter("result", greater_than=20),
             [
-                dict(patient_id=1, code=None, date=None, value=None),
-                dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
+                dict(patient_id=3, code="Code3", date=date(2021, 1, 3), value=30),
             ],
         ),
         (
+            [
+                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
+            ],
+            table("clinical_events").filter("date", greater_than="2021-01-02"),
+            [
+                dict(patient_id=3, code="Code3", date=date(2021, 1, 3), value=30),
+            ],
+        ),
+        (
+            [
+                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
+            ],
             table("clinical_events").filter(
-                "date", greater_than_or_equals="2021-05-03"
+                "date", greater_than_or_equals="2021-01-02"
             ),
             [
-                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
-                dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
+                dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=20),
+                dict(patient_id=3, code="Code3", date=date(2021, 1, 3), value=30),
             ],
         ),
         (
-            table("clinical_events").filter("date", on_or_after="2021-05-03"),
             [
-                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
-                dict(patient_id=2, code="Code1", date=date(2021, 6, 5), value=50.1),
+                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
             ],
-        ),
-        (
-            table("clinical_events").filter("date", less_than="2021-02-01"),
+            table("clinical_events").filter("date", on_or_after="2021-01-02"),
             [
-                dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
-                dict(patient_id=2, code=None, date=None, value=None),
+                dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=20),
+                dict(patient_id=3, code="Code3", date=date(2021, 1, 3), value=30),
             ],
         ),
         (
-            table("clinical_events").filter("date", less_than_or_equals="2021-02-01"),
             [
-                dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
-                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
-                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
+                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
             ],
-        ),
-        (
-            table("clinical_events").filter("date", on_or_before="2021-02-01"),
+            table("clinical_events").filter("date", less_than="2021-01-02"),
             [
-                dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
-                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
-                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
             ],
         ),
         (
-            table("clinical_events").filter("result", less_than_or_equals=20.2),
             [
-                dict(patient_id=1, code="Code1", date=date(2021, 1, 3), value=10.1),
-                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
-                dict(patient_id=2, code=None, date=None, value=None),
+                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
             ],
-        ),
-        (
-            table("clinical_events").filter("code", not_equals="Code1"),
+            table("clinical_events").filter("date", less_than_or_equals="2021-01-02"),
             [
-                dict(patient_id=1, code="Code2", date=date(2021, 5, 2), value=30.1),
-                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
-                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
+                dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=20),
             ],
         ),
         (
-            table("clinical_events").filter("code", is_in=["Code2", "Code3"]),
             [
-                dict(patient_id=1, code="Code2", date=date(2021, 5, 2), value=30.1),
-                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
-                dict(patient_id=2, code="Code2", date=date(2021, 2, 1), value=60.1),
+                *patient(1, event("Code1", "2021-01-01", 10)),  # before
+                *patient(2, event("Code2", "2021-01-02", 20)),  # on
+                *patient(3, event("Code3", "2021-01-03", 30)),  # after
             ],
-        ),
-        (
-            table("clinical_events").filter("code", not_in=["Code1", "Code2"]),
+            table("clinical_events").filter("date", on_or_before="2021-01-02"),
             [
-                dict(patient_id=1, code="Code3", date=date(2021, 5, 3), value=40.1),
-                dict(patient_id=2, code=None, date=None, value=None),
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
+                dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=20),
             ],
         ),
         (
+            [
+                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
+            ],
+            table("clinical_events").filter("result", less_than_or_equals=20),
+            [
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
+                dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=20),
+            ],
+        ),
+        (
+            [
+                *patient(1, event("Code1", "2021-01-01", 10)),  # not equal
+                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
+            ],
+            table("clinical_events").filter("code", not_equals="Code2"),
+            [
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
+            ],
+        ),
+        (
+            [
+                *patient(1, event("Code1", "2021-01-01", 10)),  # in
+                *patient(2, event("Code2", "2021-01-02", 20)),  # not in
+            ],
+            table("clinical_events").filter("code", is_in=["Code1", "Code999"]),
+            [
+                dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
+            ],
+        ),
+        (
+            [
+                *patient(1, event("Code1", "2021-01-01", 10)),  # in
+                *patient(2, event("Code2", "2021-01-02", 20)),  # not in
+            ],
+            table("clinical_events").filter("code", not_in=["Code1", "Code999"]),
+            [
+                dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=20),
+            ],
+        ),
+        (
+            [
+                *patient(
+                    1, event("Code1", "2021-01-01", 10)
+                ),  # excluded by first filter
+                *patient(
+                    2, event("Code2", "2021-01-02", 20)
+                ),  # excluded by second filter
+                *patient(
+                    3, event("Code3", "2021-01-03", 30)
+                ),  # excluded by third filter
+                *patient(4, event("Code4", "2021-01-04", 40)),  # included
+            ],
             table("clinical_events")
-            .filter(code="Code1")
-            .filter("result", less_than=50)
-            .filter("date", between=["2021-01-15", "2021-06-06"]),
+            .filter("result", greater_than=15)
+            .filter("date", between=["2021-01-03", "2021-06-06"])
+            .filter(code="Code4"),
             [
-                dict(patient_id=1, code="Code1", date=date(2021, 2, 1), value=20.1),
-                dict(patient_id=2, code=None, date=None, value=None),
+                dict(patient_id=4, code="Code4", date=date(2021, 1, 4), value=40),
             ],
         ),
     ],
@@ -311,22 +375,12 @@ def test_run_generated_sql_get_single_row_per_patient(
         "test multiple chained filters",
     ],
 )
-def test_simple_filters(database, setup_test_database, filtered_table, expected):
-    """Test the filters on simple value comparisons"""
-    input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP1"),
-        Events(PatientId=1, EventCode="Code1", Date="2021-01-03", ResultValue=10.1),
-        Events(PatientId=1, EventCode="Code1", Date="2021-02-01", ResultValue=20.1),
-        Events(PatientId=1, EventCode="Code2", Date="2021-05-02", ResultValue=30.1),
-        Events(PatientId=1, EventCode="Code3", Date="2021-05-03", ResultValue=40.1),
-        Events(PatientId=2, EventCode="Code1", Date="2021-06-05", ResultValue=50.1),
-        Events(PatientId=2, EventCode="Code2", Date="2021-02-01", ResultValue=60.1),
-    ]
-    setup_test_database(input_data)
+def test_simple_filters(database, setup_test_database, data, filtered_table, expected):
+    setup_test_database(data)
 
     class Cohort:
-        _filtered = filtered_table
+        population = filtered_table.exists()
+        _filtered = filtered_table.first_by("patient_id")
         code = _filtered.get("code")
         date = _filtered.get("date")
         value = _filtered.get("result")
@@ -437,26 +491,20 @@ def test_date_in_range_filter(database, setup_test_database):
         RegistrationHistory(
             PatientId=4, StpId="STP3", StartDate="2021-01-01", EndDate="2021-03-03"
         ),
-        # Patient test results with dates
-        Events(PatientId=1, EventCode="Code1", Date="2021-03-01", ResultValue=10.1),
-        Events(PatientId=2, EventCode="Code1", Date="2021-03-01", ResultValue=10.2),
-        Events(PatientId=3, EventCode="Code1", Date="2021-03-01", ResultValue=10.3),
-        Events(PatientId=4, EventCode="Code1", Date="2021-03-01", ResultValue=10.4),
     ]
     setup_test_database(input_data)
 
     class Cohort:
-        _events = table("clinical_events").latest()
-        value = _events.get("result")
-        stp = table("practice_registrations").date_in_range("2021-03-02").get("stp")
+        _registrations = table("practice_registrations").date_in_range("2021-03-02")
+        stp = _registrations.first_by("patient_id").get("stp")
+        count = _registrations.count("patient_id")
 
     result = extract(Cohort, MockBackend, database)
     assert result == [
-        dict(patient_id=1, value=10.1, stp="STP1"),
-        dict(patient_id=2, value=10.2, stp=None),
-        dict(patient_id=3, value=10.3, stp="STP2"),
-        dict(patient_id=4, value=10.4, stp="STP2"),
-        dict(patient_id=4, value=10.4, stp="STP3"),
+        dict(patient_id=1, stp="STP1", count=1),
+        dict(patient_id=2, stp=None, count=None),
+        dict(patient_id=3, stp="STP2", count=1),
+        dict(patient_id=4, stp="STP2", count=2),
     ]
 
 

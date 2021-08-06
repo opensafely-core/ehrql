@@ -63,6 +63,10 @@ class Events(Base):
     ResultValue = sqlalchemy.Column(sqlalchemy.Float)
 
 
+def event(code, date, value=None):
+    return Events(EventCode=code, Date=date, ResultValue=value)
+
+
 class PositiveTests(Base):
     __tablename__ = "pos_tests"
     Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -77,3 +81,14 @@ class Patients(Base):
     PatientId = sqlalchemy.Column(sqlalchemy.Integer)
     Height = sqlalchemy.Column(sqlalchemy.Float)
     DateOfBirth = sqlalchemy.Column(sqlalchemy.Date)
+
+
+def patient(patient_id, *entities):
+    entities = list(entities)
+    if not filter(lambda e: isinstance(e, RegistrationHistory), entities):
+        entities.append(
+            RegistrationHistory(StartDate="1900-01-01", EndDate="2999-12-31")
+        )
+    for entity in entities:
+        entity.PatientId = patient_id
+    return [Patients(PatientId=patient_id), *entities]

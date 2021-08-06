@@ -1,6 +1,7 @@
 from datetime import date, datetime
 
 import pytest
+import sqlalchemy
 from lib.tpp_schema import (
     Events,
     Patient,
@@ -28,7 +29,7 @@ def test_basic_events_and_registration(database, setup_tpp_database):
     )
 
     class Cohort:
-        code = table("clinical_events").get("code")
+        code = table("clinical_events").first_by("patient_id").get("code")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, code="Code1")]
 
@@ -41,7 +42,7 @@ def test_registration_dates(database, setup_tpp_database):
     )
 
     class Cohort:
-        _registrations = table("practice_registrations")
+        _registrations = table("practice_registrations").first_by("patient_id")
         arrived = _registrations.get("date_start")
         left = _registrations.get("date_end")
 
@@ -105,7 +106,7 @@ def test_patients_table(database, setup_tpp_database):
     )
 
     class Cohort:
-        _patients = table("patients")
+        _patients = table("patients").first_by("patient_id")
         sex = _patients.get("sex")
         dob = _patients.get("date_of_birth")
 
@@ -115,22 +116,26 @@ def test_patients_table(database, setup_tpp_database):
 
 
 @pytest.mark.integration
-def test_hospitalization_table_returns_admission_date(database, setup_tpp_database):
+def test_hospitalization_table_returns_admission_date_and_code(
+    database, setup_tpp_database
+):
     setup_tpp_database(
         *patient(
             1,
             "M",
             "1990-1-1",
             registration("2001-01-01", "2026-06-26"),
-            apcs(admission_date="2020-12-12"),
+            apcs(admission_date="2020-12-12", codes="xyz"),
         )
     )
 
     class Cohort:
-        admission = table("hospitalizations").get("date")
+        _hospitalization = table("hospitalizations").first_by("patient_id")
+        admission = _hospitalization.get("date")
+        code = _hospitalization.get("code")
 
     assert extract(Cohort, TPPBackend, database) == [
-        dict(patient_id=1, admission=date(2020, 12, 12))
+        dict(patient_id=1, admission=date(2020, 12, 12), code="xyz")
     ]
 
 
@@ -165,15 +170,23 @@ def test_hospitalization_table_code_conversion(
         )
     )
 
-    class Cohort:
-        code = table("hospitalizations").get("code")
+    query = TPPBackend.hospitalizations.get_query(type_map=None)
+
+    results = list(run_query(database, query))
 
     # Because of the way that we split the raw codes, the order in which they are returned is not the same as the order
     # they appear in the table.
-    results = extract(Cohort, TPPBackend, database)
     assert len(results) == len(codes)
     for code in codes:
-        assert dict(patient_id=1, code=code) in results
+        assert (1, date(2012, 12, 12), code) in results
+
+
+def run_query(database, query):
+    engine_url = sqlalchemy.engine.make_url(database.host_url())
+    engine_url = engine_url.set(drivername="mssql+pymssql")
+    engine = sqlalchemy.create_engine(engine_url, echo=True, future=True)
+    with engine.connect() as cursor:
+        yield from cursor.execute(query)
 
 
 @pytest.mark.integration
@@ -199,6 +212,7 @@ def test_hospitalization_code_parsing_works_with_filters(database, setup_tpp_dat
         code = (
             table("hospitalizations")
             .filter("code", is_in=codelist(["xyz"], system="ctv3"))
+            .first_by("patient_id")
             .get("code")
         )
 
@@ -328,7 +342,7 @@ def test_index_of_multiple_deprivation(database, setup_tpp_database):
             ],
             300,
         ),
-        # same dates and both have postcodes, select latest patientaddress id as tie-breaker
+        # same dates and both have postcodes, select latest patient address id as tie-breaker
         (
             [
                 patient_address("2001-01-01", "9999-12-31", 300, "E02000003"),
