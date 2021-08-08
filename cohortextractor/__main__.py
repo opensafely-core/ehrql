@@ -8,7 +8,7 @@ from .main import main
 def existing_python_file(value):
     path = Path(value)
     if not path.exists():
-        raise ValueError(f"{value} does not exit")
+        raise ValueError(f"{value} does not exist")
     if not path.suffix == ".py":
         raise ValueError(f"{value} is not a Python file")
     return path
