@@ -4,8 +4,6 @@ from pathlib import Path
 import docker
 import docker.errors
 import pytest
-import sqlalchemy
-import sqlalchemy.exc
 from lib import mock_backend, playback
 from lib.databases import DbDetails, make_database, wait_for_database
 from lib.docker import Containers
@@ -129,18 +127,14 @@ def database(request, real_db, dummy_db, recording):
 
 @pytest.fixture
 def setup_test_database(database, recording, request):
-    db_url = database.host_url()
-
-    def setup(input_data, drivername="mssql+pymssql", base=mock_backend.Base):
+    def setup(input_data, base=mock_backend.Base):
         if is_integration_test(request) and recording.mode == "playback":
             # Since we suspend recording during setup, we must skip it altogether during playback.
             return
 
         with recording.suspended():
             # Create engine
-            url = sqlalchemy.engine.make_url(db_url)
-            url = url.set(drivername=drivername)
-            engine = sqlalchemy.create_engine(url, echo=True, future=True)
+            engine = database.engine()
             # Reset the schema
             base.metadata.drop_all(engine)
             base.metadata.create_all(engine)
