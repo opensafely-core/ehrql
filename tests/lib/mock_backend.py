@@ -85,7 +85,7 @@ class Patients(Base):
 
 def patient(patient_id, *entities):
     entities = list(entities)
-    if not filter(lambda e: isinstance(e, RegistrationHistory), entities):
+    if not any(isinstance(e, RegistrationHistory) for e in entities):
         entities.append(
             RegistrationHistory(StartDate="1900-01-01", EndDate="2999-12-31")
         )
