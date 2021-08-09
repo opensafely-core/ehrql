@@ -58,13 +58,13 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_0 \n'
-   'FROM (SELECT anon_2.date AS date, anon_2.patient_id AS patient_id \n'
-   'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
+   'FROM (SELECT anon_2.code AS code, anon_2.patient_id AS patient_id \n'
+   'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
-   'ORDER BY clinical_events.patient_id) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events) AS anon_2 \n'
+   'ORDER BY clinical_events.date DESC) AS _row_num \n'
+   'FROM (SELECT [EventCode] AS code, [Date] AS date, [ResultValue] AS result, '
+   '[PatientId] AS patient_id \n'
+   'FROM events) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
   {},
@@ -73,33 +73,11 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_1 \n'
-   'FROM (SELECT anon_2.code AS code, anon_2.patient_id AS patient_id \n'
-   'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
-   'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
-   'ORDER BY clinical_events.patient_id) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events) AS anon_2 \n'
-   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'row_num_1': 1}),
-  {},
-  None),
- ('Cursor', 'description', (), {}, None),
- ('Cursor',
-  'execute',
-  ('SELECT * INTO #group_table_2 \n'
    'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
    'AS patient_id_exists \n'
-   'FROM (\n'
-   '            SELECT RegistrationHistory.Patient_ID AS patient_id,\n'
-   '                RegistrationHistory.StartDate AS date_start,\n'
-   '                RegistrationHistory.EndDate AS date_end,\n'
-   '                Organisation.Organisation_ID AS pseudo_id,\n'
-   '                Organisation.Region as nuts1_region_name\n'
-   '            FROM RegistrationHistory\n'
-   '            LEFT OUTER JOIN Organisation ON '
-   'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
-   '        ) AS practice_registrations GROUP BY '
+   'FROM (SELECT [StpId] AS stp, [StartDate] AS date_start, [EndDate] AS '
+   'date_end, [PatientId] AS patient_id \n'
+   'FROM practice_registrations) AS practice_registrations GROUP BY '
    'practice_registrations.patient_id) AS anon_1',
    {'param_1': 1}),
   {},
@@ -108,14 +86,12 @@
  ('Connection', 'commit', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO temp_tables..TempExtract_eeff36ccf8b0655c439396388f29dc87 \n'
-   'FROM (SELECT [#group_table_2].patient_id AS patient_id, '
-   '[#group_table_0].date AS date, [#group_table_1].code AS event \n'
-   'FROM [#group_table_2] LEFT OUTER JOIN [#group_table_0] ON '
-   '[#group_table_2].patient_id = [#group_table_0].patient_id LEFT OUTER JOIN '
-   '[#group_table_1] ON [#group_table_2].patient_id = '
-   '[#group_table_1].patient_id \n'
-   'WHERE [#group_table_2].patient_id_exists = 1) AS anon_1',
+  ('SELECT * INTO temp_tables..TempExtract_93463992a6eaf6863b4b8e8d67268e88 \n'
+   'FROM (SELECT [#group_table_1].patient_id AS patient_id, '
+   '[#group_table_0].code AS code \n'
+   'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
+   '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
+   'WHERE [#group_table_1].patient_id_exists = 1) AS anon_1',
    {}),
   {},
   None),
@@ -123,8 +99,8 @@
  ('Cursor',
   'execute',
   ('CREATE INDEX '
-   '[ix_temp_tables..TempExtract_eeff36ccf8b0655c439396388f29dc87_patient_id] '
-   'ON temp_tables..TempExtract_eeff36ccf8b0655c439396388f29dc87 (patient_id)',
+   '[ix_temp_tables..TempExtract_93463992a6eaf6863b4b8e8d67268e88_patient_id] '
+   'ON temp_tables..TempExtract_93463992a6eaf6863b4b8e8d67268e88 (patient_id)',
    {}),
   {},
   None),
@@ -133,7 +109,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 32000 * \n'
-   'FROM temp_tables..TempExtract_eeff36ccf8b0655c439396388f29dc87 ORDER BY '
+   'FROM temp_tables..TempExtract_93463992a6eaf6863b4b8e8d67268e88 ORDER BY '
    'patient_id',
    {}),
   {},
@@ -143,25 +119,16 @@
   (),
   {},
   (('patient_id', 3, None, None, None, None, None),
-   ('date', 4, None, None, None, None, None),
-   ('event', 1, None, None, None, None, None))),
- ('Cursor',
-  'fetchone',
-  (),
-  {},
-  (1, datetime.datetime(2021, 1, 1, 0, 0), 'xyz')),
- ('Cursor',
-  'fetchone',
-  (),
-  {},
-  (2, datetime.datetime(2021, 2, 2, 0, 0), 'abc')),
+   ('code', 1, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, 'abc')),
+ ('Cursor', 'fetchone', (), {}, (2, 'xyz')),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
   ('\n'
    'DROP TABLE IF EXISTS '
-   'temp_tables..TempExtract_eeff36ccf8b0655c439396388f29dc87',
+   'temp_tables..TempExtract_93463992a6eaf6863b4b8e8d67268e88',
    {}),
   {},
   None),
