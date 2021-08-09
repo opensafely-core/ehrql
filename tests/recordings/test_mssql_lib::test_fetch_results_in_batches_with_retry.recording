@@ -173,7 +173,7 @@
   {},
   None),
  ('Cursor', 'description', (), {}, None),
- ('Cursor', 'execute', ('\nDROP TABLE [#temp_test__pytest123]', {}), {}, None),
+ ('Cursor', 'execute', ('\nDROP TABLE #temp_test__pytest123', {}), {}, None),
  ('Cursor', 'description', (), {}, None),
  ('Connection', 'commit', (), {}, None),
  ('Cursor',
@@ -188,7 +188,7 @@
  ('Cursor',
   'execute',
   ('CREATE INDEX [ix_#temp_4a0aa6f70aa75c3db5476e05267d8ed2_patient_id] ON '
-   '[#temp_4a0aa6f70aa75c3db5476e05267d8ed2] (patient_id)',
+   '#temp_4a0aa6f70aa75c3db5476e05267d8ed2 (patient_id)',
    {}),
   {},
   None),
@@ -197,7 +197,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 5 * \n'
-   'FROM [#temp_4a0aa6f70aa75c3db5476e05267d8ed2] ORDER BY patient_id',
+   'FROM #temp_4a0aa6f70aa75c3db5476e05267d8ed2 ORDER BY patient_id',
    {}),
   {},
   None),
@@ -210,7 +210,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 5 * \n'
-   'FROM [#temp_4a0aa6f70aa75c3db5476e05267d8ed2] ORDER BY patient_id',
+   'FROM #temp_4a0aa6f70aa75c3db5476e05267d8ed2 ORDER BY patient_id',
    {}),
   {},
   None),
@@ -230,7 +230,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 5 * \n'
-   'FROM [#temp_4a0aa6f70aa75c3db5476e05267d8ed2] \n'
+   'FROM #temp_4a0aa6f70aa75c3db5476e05267d8ed2 \n'
    'WHERE patient_id > %(patient_id_1)s ORDER BY patient_id',
    {'patient_id_1': 5}),
   {},
@@ -244,7 +244,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 5 * \n'
-   'FROM [#temp_4a0aa6f70aa75c3db5476e05267d8ed2] \n'
+   'FROM #temp_4a0aa6f70aa75c3db5476e05267d8ed2 \n'
    'WHERE patient_id > %(patient_id_1)s ORDER BY patient_id',
    {'patient_id_1': 5}),
   {},
@@ -265,7 +265,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 5 * \n'
-   'FROM [#temp_4a0aa6f70aa75c3db5476e05267d8ed2] \n'
+   'FROM #temp_4a0aa6f70aa75c3db5476e05267d8ed2 \n'
    'WHERE patient_id > %(patient_id_1)s ORDER BY patient_id',
    {'patient_id_1': 10}),
   {},
@@ -282,7 +282,7 @@
  ('Cursor', 'close', (), {}, None),
  ('Cursor',
   'execute',
-  ('\nDROP TABLE IF EXISTS [#temp_4a0aa6f70aa75c3db5476e05267d8ed2]', {}),
+  ('\nDROP TABLE IF EXISTS #temp_4a0aa6f70aa75c3db5476e05267d8ed2', {}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
