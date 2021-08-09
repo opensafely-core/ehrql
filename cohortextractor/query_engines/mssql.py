@@ -24,6 +24,7 @@ from ..query_language import (
     ValueFromRow,
 )
 from .base import BaseQueryEngine
+from .mssql_lib import write_query_to_table
 
 
 def get_joined_tables(query):
@@ -667,19 +668,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         # Generate each of the interim output group tables and populate them
         for group, table in self.output_group_tables.items():
             query = self.output_group_tables_queries[group]
-            # This is a bit of a hack but works OK. We want to be able to take
-            # an arbitrary select query and generate the SQL:
-            #
-            #   SELECT * INTO some_temporary_table FROM (some_select_query) AS some_alias
-            #
-            # which is the MSSQL-specific syntax for writing the results of a
-            # query directly into a temporary table. We can trick SQLAlchemy
-            # into generating this for us by giving it a literal column named
-            # "* INTO table_name".
-            write_to_temp_table = sqlalchemy.select(
-                sqlalchemy.literal_column(f"* INTO {table.name}")
-            ).select_from(query.alias())
-            queries.append(write_to_temp_table)
+            queries.append(write_query_to_table(table, query))
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
         queries.append(self.generate_results_query())
