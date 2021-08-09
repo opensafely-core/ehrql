@@ -13,5 +13,9 @@ def get_mode(name, values, default):
     return mode
 
 
-def extract(cohort, backend, database):
-    return list(cohortextractor.main.extract(cohort, backend(database.host_url())))
+def extract(cohort, backend, database, **backend_kwargs):
+    return list(
+        cohortextractor.main.extract(
+            cohort, backend(database.host_url(), **backend_kwargs)
+        )
+    )

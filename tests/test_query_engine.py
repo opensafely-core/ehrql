@@ -1154,3 +1154,21 @@ def test_age_as_of(database, setup_test_database):
         {"patient_id": 1, "age_in_2010": 19, "age_at_last_event": 30},
         {"patient_id": 2, "age_in_2010": 10, "age_at_last_event": 17},
     ]
+
+
+@pytest.mark.integration
+def test_fetching_results_using_temporary_database(database, setup_test_database):
+    setup_test_database(
+        [
+            *patient(1, event("abc", "2020-01-01")),
+            *patient(2, event("xyz", "2020-01-01")),
+        ]
+    )
+
+    class Cohort:
+        code = table("clinical_events").latest().get("code")
+
+    assert extract(Cohort, MockBackend, database, temporary_database="temp_tables") == [
+        dict(patient_id=1, code="abc"),
+        dict(patient_id=2, code="xyz"),
+    ]

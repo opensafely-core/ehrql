@@ -39,8 +39,9 @@ class BaseBackend:
                 cls.tables.add(name)
                 value.learn_patient_join(cls.patient_join_column)
 
-    def __init__(self, database_url):
+    def __init__(self, database_url, temporary_database=None):
         self.database_url = database_url
+        self.temporary_database = temporary_database
 
     def get_table_expression(self, table_name, type_map=None):
         if table_name not in self.tables:

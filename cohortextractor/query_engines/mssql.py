@@ -24,7 +24,7 @@ from ..query_language import (
     ValueFromRow,
 )
 from .base import BaseQueryEngine
-from .mssql_lib import write_query_to_table
+from .mssql_lib import fetch_results_in_batches, write_query_to_table
 
 
 def get_joined_tables(query):
@@ -678,11 +678,34 @@ class MssqlQueryEngine(BaseQueryEngine):
     def execute_query(self):
         """Execute a query against an MSSQL backend"""
         queries = self.get_queries()
-        with self.engine.connect() as cursor:
-            for query in queries:
-                result = cursor.execute(query)
-            # We're only interested in the results from the final query
-            yield result
+
+        if self.backend.temporary_database:
+            # If we've got access to a temporary database then we use this
+            # function to manage storing our results in there and downloading
+            # in batches. This gives us the illusion of having a robust
+            # connection to the database, whereas in practice in frequently
+            # errors out when attempting to download large sets of results.
+            with fetch_results_in_batches(
+                engine=self.engine,
+                queries=queries,
+                # The double dot syntax allows us to reference tables in another database
+                temp_table_prefix=f"{self.backend.temporary_database}..TempExtract",
+                # This value was copied from the previous cohortextractor. I
+                # suspect it has no real scientific basis.
+                batch_size=32000,
+                max_retries=2,
+                sleep=0.5,
+                reconnect_on_error=True,
+            ) as results:
+                yield results
+        else:
+            # Otherwise we just execute the queries and download the results in
+            # the normal manner
+            with self.engine.connect() as cursor:
+                for query in queries:
+                    result = cursor.execute(query)
+                # We're only interested in the results from the final query
+                yield result
 
 
 def split_list_into_batches(lst, size):

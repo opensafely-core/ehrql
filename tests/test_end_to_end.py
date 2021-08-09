@@ -61,6 +61,7 @@ def cohort_extractor_in_container(tmpdir, database, containers):
             environment={
                 "DATABASE_URL": database.container_url(),
                 "OPENSAFELY_BACKEND": "tpp",
+                "TEMP_DATABASE_NAME": "temp_tables",
             },
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
             network=database.network,
@@ -98,6 +99,7 @@ def _in_process_run(
         backend_id=backend_id,
         db_url=db_url,
         dummy_data_file=dummy_data_file,
+        temporary_database="temp_tables",
     )
 
 
