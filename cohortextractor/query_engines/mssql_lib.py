@@ -332,6 +332,11 @@ def make_table_with_key(table_name, key_column):
         table_name,
         sqlalchemy.MetaData(),
         sqlalchemy.Column(key_column, sqlalchemy.Integer, index=True),
+        # Because these table names may be fully qualified (i.e.
+        # "DatabaseName.SchemaName.TableName") we don't want SQLAlchemy to
+        # quote them for us. Because these names are fixed in the code and not
+        # user supplied we aren't worried about anything breaking here.
+        quote=False,
     )
 
 

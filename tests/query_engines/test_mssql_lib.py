@@ -96,8 +96,8 @@ def test_fetch_results_in_batches_caches_results(database, temp_tables):
         with fetch_results_in_batches(
             engine,
             [query],
-            # Write to a persistent table so we can try to pick up results even
-            # after erroring
+            # Write to a persistent table in the "temp_tables" database so we
+            # can try to pick up results even after erroring
             temp_table_prefix=temp_tables.prefix,
             max_retries=1,
             sleep=0.001,
@@ -178,7 +178,9 @@ def _as_dicts(results):
 
 @pytest.fixture
 def temp_tables(database):
-    temp_tables = TempTables(engine=database.engine(), prefix="temp_")
+    temp_tables = TempTables(
+        engine=database.engine(), database="temp_tables", prefix="temp_"
+    )
     temp_tables.drop_all()
     try:
         yield temp_tables
@@ -188,28 +190,33 @@ def temp_tables(database):
 
 class TempTables:
     """
-    Convenience wrapper around temporary tables
+    Convenience wrapper around temporary tables stored in a separate database
     """
 
-    def __init__(self, engine, prefix):
+    def __init__(self, engine, database, prefix):
         self.engine = engine
-        self.prefix = prefix
+        self.database = database
+        self._prefix = prefix
+
+    @property
+    def prefix(self):
+        return f"{self.database}..{self._prefix}"
 
     def list_all(self):
         query = sqlalchemy.text(
             f"""
-            SELECT table_name FROM {self.engine.url.database}.information_schema.tables
+            SELECT table_name FROM {self.database}.information_schema.tables
             WHERE table_type = 'BASE TABLE'
             """
         )
         with self.engine.connect() as conn:
             return sorted(
-                row[0] for row in conn.execute(query) if row[0].startswith(self.prefix)
+                row[0] for row in conn.execute(query) if row[0].startswith(self._prefix)
             )
 
     def drop_all(self):
         tables = self.list_all()
         with self.engine.connect() as conn:
             for table in tables:
-                conn.execute(sqlalchemy.text(f"DROP TABLE {table}"))
+                conn.execute(sqlalchemy.text(f"DROP TABLE {self.database}..{table}"))
             conn.commit()
