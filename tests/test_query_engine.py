@@ -11,7 +11,7 @@ from lib.mock_backend import (
     event,
     patient,
 )
-from lib.util import extract
+from lib.util import extract, mark_xfail_in_playback_mode
 
 from cohortextractor.query_language import categorise, table
 
@@ -1156,6 +1156,7 @@ def test_age_as_of(database, setup_test_database):
     ]
 
 
+@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_fetching_results_using_temporary_database(database, setup_test_database):
     setup_test_database(
