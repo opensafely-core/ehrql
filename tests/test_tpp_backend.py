@@ -1,7 +1,6 @@
 from datetime import date, datetime
 
 import pytest
-import sqlalchemy
 from lib.tpp_schema import (
     Events,
     Patient,
@@ -182,10 +181,7 @@ def test_hospitalization_table_code_conversion(
 
 
 def run_query(database, query):
-    engine_url = sqlalchemy.engine.make_url(database.host_url())
-    engine_url = engine_url.set(drivername="mssql+pymssql")
-    engine = sqlalchemy.create_engine(engine_url, echo=True, future=True)
-    with engine.connect() as cursor:
+    with database.engine().connect() as cursor:
         yield from cursor.execute(query)
 
 

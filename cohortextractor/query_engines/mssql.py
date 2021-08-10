@@ -24,6 +24,7 @@ from ..query_language import (
     ValueFromRow,
 )
 from .base import BaseQueryEngine
+from .mssql_lib import fetch_results_in_batches, write_query_to_table
 
 
 def get_joined_tables(query):
@@ -667,19 +668,7 @@ class MssqlQueryEngine(BaseQueryEngine):
         # Generate each of the interim output group tables and populate them
         for group, table in self.output_group_tables.items():
             query = self.output_group_tables_queries[group]
-            # This is a bit of a hack but works OK. We want to be able to take
-            # an arbitrary select query and generate the SQL:
-            #
-            #   SELECT * INTO some_temporary_table FROM (some_select_query) AS some_alias
-            #
-            # which is the MSSQL-specific syntax for writing the results of a
-            # query directly into a temporary table. We can trick SQLAlchemy
-            # into generating this for us by giving it a literal column named
-            # "* INTO table_name".
-            write_to_temp_table = sqlalchemy.select(
-                sqlalchemy.literal_column(f"* INTO {table.name}")
-            ).select_from(query.alias())
-            queries.append(write_to_temp_table)
+            queries.append(write_query_to_table(table, query))
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
         queries.append(self.generate_results_query())
@@ -689,11 +678,34 @@ class MssqlQueryEngine(BaseQueryEngine):
     def execute_query(self):
         """Execute a query against an MSSQL backend"""
         queries = self.get_queries()
-        with self.engine.connect() as cursor:
-            for query in queries:
-                result = cursor.execute(query)
-            # We're only interested in the results from the final query
-            yield result
+
+        if self.backend.temporary_database:
+            # If we've got access to a temporary database then we use this
+            # function to manage storing our results in there and downloading
+            # in batches. This gives us the illusion of having a robust
+            # connection to the database, whereas in practice in frequently
+            # errors out when attempting to download large sets of results.
+            with fetch_results_in_batches(
+                engine=self.engine,
+                queries=queries,
+                # The double dot syntax allows us to reference tables in another database
+                temp_table_prefix=f"{self.backend.temporary_database}..TempExtract",
+                # This value was copied from the previous cohortextractor. I
+                # suspect it has no real scientific basis.
+                batch_size=32000,
+                max_retries=2,
+                sleep=0.5,
+                reconnect_on_error=True,
+            ) as results:
+                yield results
+        else:
+            # Otherwise we just execute the queries and download the results in
+            # the normal manner
+            with self.engine.connect() as cursor:
+                for query in queries:
+                    result = cursor.execute(query)
+                # We're only interested in the results from the final query
+                yield result
 
 
 def split_list_into_batches(lst, size):

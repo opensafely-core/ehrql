@@ -10,7 +10,14 @@ from .query_utils import get_column_definitions
 from .validate_dummy_data import validate_dummy_data
 
 
-def main(definition_path, output_file, backend_id, db_url, dummy_data_file=None):
+def main(
+    definition_path,
+    output_file,
+    backend_id,
+    db_url,
+    dummy_data_file=None,
+    temporary_database=None,
+):
     cohort = load_cohort(definition_path)
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -18,7 +25,7 @@ def main(definition_path, output_file, backend_id, db_url, dummy_data_file=None)
         validate_dummy_data(cohort, dummy_data_file, output_file)
         shutil.copyfile(dummy_data_file, output_file)
     else:
-        backend = BACKENDS[backend_id](db_url)
+        backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
         results = extract(cohort, backend)
         write_output(results, output_file)
 
