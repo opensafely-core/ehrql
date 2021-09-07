@@ -2,12 +2,12 @@ from unittest import mock
 
 import pytest
 import sqlalchemy
+from lib.util import mark_xfail_in_playback_mode
 
 from cohortextractor.query_engines.mssql_lib import (
     ReconnectableConnection,
     fetch_results_in_batches,
 )
-from tests.lib.util import mark_xfail_in_playback_mode
 
 
 @mark_xfail_in_playback_mode
