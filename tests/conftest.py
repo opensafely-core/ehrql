@@ -78,7 +78,7 @@ class DummyRecording:
 def test_identifier(request):
     test_module = request.module.__name__
     test_name = request.node.name
-    identifier = f"{test_module}::{test_name}"
+    identifier = f"{test_module}.{test_name}"
     return identifier
 
 

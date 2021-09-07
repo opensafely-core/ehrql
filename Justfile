@@ -88,7 +88,7 @@ test-assert-recordings-up-to-date:
     set -euo pipefail
 
     [[ -v CI ]] && echo "::group::Run tests (record mode) (click to view)" || echo "Run tests (record mode)"
-    rm tests/recordings/*.recording
+    rm -f tests/recordings/*.recording
     just test-record
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
