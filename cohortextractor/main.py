@@ -19,7 +19,6 @@ def main(
     temporary_database=None,
 ):
     cohort = load_cohort(definition_path)
-
     output_file.parent.mkdir(parents=True, exist_ok=True)
     if dummy_data_file and not db_url:
         validate_dummy_data(cohort, dummy_data_file, output_file)
@@ -48,7 +47,10 @@ def load_module(definition_path):
     # Add the directory containing the definition to the path so that the definition can import library modules from
     # that directory
     with added_to_path(str(definition_dir)):
-        return importlib.import_module(module_name)
+        module = importlib.import_module(module_name)
+        # Reload the module in case a module with the same name was loaded previously
+        importlib.reload(module)
+        return module
 
 
 @contextmanager
