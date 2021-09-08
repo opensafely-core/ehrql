@@ -7,8 +7,12 @@ import pytest
 from lib import mock_backend, playback
 from lib.databases import DbDetails, make_database, wait_for_database
 from lib.docker import Containers
-from lib.tpp_schema import Base
+from lib.graphnet_schema import Base as GraphnetBase
+from lib.tpp_schema import Base as TppBase
 from sqlalchemy.orm import sessionmaker
+
+
+BASES = {"tpp": TppBase, "graphnet": GraphnetBase}
 
 
 @pytest.fixture(scope="session")
@@ -151,8 +155,8 @@ def setup_test_database(database, recording, request):
 
 
 @pytest.fixture
-def setup_tpp_database(setup_test_database):
-    def setup(*data):
-        setup_test_database(data, base=Base)
+def setup_backend_database(setup_test_database):
+    def setup(*data, backend="tpp"):
+        setup_test_database(data, base=BASES[backend])
 
     yield setup

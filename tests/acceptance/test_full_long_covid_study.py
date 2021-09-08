@@ -149,8 +149,8 @@ for target_codelist in [any_long_covid_code, post_viral_fatigue_codes]:
 
 
 @pytest.mark.integration
-def test_cohort(database, setup_tpp_database):
-    setup_tpp_database(
+def test_cohort(database, setup_backend_database):
+    setup_backend_database(
         organisation(organisation_id=1, region="South"),
         *patient(
             1,

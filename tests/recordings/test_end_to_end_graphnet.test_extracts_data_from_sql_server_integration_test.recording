@@ -1,0 +1,135 @@
+[('Cursor', 'execute', ('select @@version', {}), {}, None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor',
+  'fetchone',
+  (),
+  {},
+  ('Microsoft SQL Server 2017 (RTM-CU25) (KB5003830) - 14.0.3401.7 (X64) \n'
+   '\tJun 25 2021 14:02:48 \n'
+   '\tCopyright (C) 2017 Microsoft Corporation\n'
+   '\tDeveloper Edition (64-bit) on Linux (Ubuntu 16.04.7 LTS)',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor', 'execute', ('SELECT schema_name()', {}), {}, None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, ('dbo',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   '                  SELECT CASE transaction_isolation_level\n'
+   '                    WHEN 0 THEN NULL\n'
+   "                    WHEN 1 THEN 'READ UNCOMMITTED'\n"
+   "                    WHEN 2 THEN 'READ COMMITTED'\n"
+   "                    WHEN 3 THEN 'REPEATABLE READ'\n"
+   "                    WHEN 4 THEN 'SERIALIZABLE'\n"
+   "                    WHEN 5 THEN 'SNAPSHOT' END AS "
+   'TRANSACTION_ISOLATION_LEVEL\n'
+   '                    FROM sys.dm_exec_sessions\n'
+   '                    where session_id = @@SPID\n'
+   '                  ',),
+  {},
+  None),
+ ('Cursor', 'fetchone', (), {}, ('READ COMMITTED',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ("SELECT CAST('test max support' AS NVARCHAR(max))", {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, (('', 1, None, None, None, None, None),)),
+ ('Cursor', 'fetchone', (), {}, ('test max support',)),
+ ('Cursor', 'close', (), {}, None),
+ ('Connection', 'rollback', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO temp_tables..TempExtract_test__pytest123 \n'
+   'FROM (SELECT %(param_1)s AS foo) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\nDROP TABLE temp_tables..TempExtract_test__pytest123', {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_0 \n'
+   'FROM (SELECT patients.patient_id AS patient_id, %(param_1)s AS '
+   'patient_id_exists \n'
+   'FROM (SELECT date_of_birth, patient_id \n'
+   'FROM [Patients]) AS patients GROUP BY patients.patient_id) AS anon_1',
+   {'param_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO #group_table_1 \n'
+   'FROM (SELECT anon_2.date_of_birth AS date_of_birth, anon_2.patient_id AS '
+   'patient_id \n'
+   'FROM (SELECT patients.date_of_birth AS date_of_birth, patients.patient_id '
+   'AS patient_id, row_number() OVER (PARTITION BY patients.patient_id ORDER '
+   'BY patients.patient_id) AS _row_num \n'
+   'FROM (SELECT date_of_birth, patient_id \n'
+   'FROM [Patients]) AS patients) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'row_num_1': 1}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT * INTO temp_tables..TempExtract_cbae6ed4e0a5f43f3d515f4c10d27709 \n'
+   'FROM (SELECT [#group_table_0].patient_id AS patient_id, '
+   '[#group_table_1].date_of_birth AS dob \n'
+   'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
+   '[#group_table_0].patient_id = [#group_table_1].patient_id \n'
+   'WHERE [#group_table_0].patient_id_exists = 1) AS anon_1',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('CREATE INDEX '
+   '[ix_temp_tables..TempExtract_cbae6ed4e0a5f43f3d515f4c10d27709_patient_id] '
+   'ON temp_tables..TempExtract_cbae6ed4e0a5f43f3d515f4c10d27709 (patient_id)',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('SELECT TOP 32000 * \n'
+   'FROM temp_tables..TempExtract_cbae6ed4e0a5f43f3d515f4c10d27709 ORDER BY '
+   'patient_id',
+   {}),
+  {},
+  None),
+ ('Cursor',
+  'description',
+  (),
+  {},
+  (('patient_id', 3, None, None, None, None, None),
+   ('dob', 2, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, datetime.date(1980, 1, 1))),
+ ('Cursor', 'fetchone', (), {}, (2, datetime.date(1948, 2, 2))),
+ ('Cursor', 'fetchone', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'DROP TABLE IF EXISTS '
+   'temp_tables..TempExtract_cbae6ed4e0a5f43f3d515f4c10d27709',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Connection', 'commit', (), {}, None),
+ ('Connection', 'rollback', (), {}, None)]
