@@ -49,7 +49,7 @@ def test_extracts_data_from_sql_server_ignores_dummy_data_file(
     load_study, setup_backend_database, cohort_extractor_in_process
 ):
     # A dummy data file is ignored if running in a real backend (i.e. DATABASE_URL is set)
-    # THis provides an invalid dummy data file, but it is ignored so no errors are raised
+    # This provides an invalid dummy data file, but it is ignored so no errors are raised
     run_test(
         load_study,
         setup_backend_database,
