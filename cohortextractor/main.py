@@ -30,7 +30,12 @@ def generate_cohort(
 
 
 def generate_measures(definition_path, output_file):
-    ...
+    measures = load_measures(definition_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    for measure in measures:
+        measure_output_file = str(output_file).replace("*", measure.id)
+        results = measure.calculate()
+        results.to_csv(measure_output_file)
 
 
 def load_cohort(definition_path):
@@ -42,6 +47,10 @@ def load_cohort(definition_path):
     ]
     assert len(cohort_classes) == 1, "A study definition must contain one class only"
     return cohort_classes[0]
+
+
+def load_measures(definition_path):
+    ...
 
 
 def load_module(definition_path):
