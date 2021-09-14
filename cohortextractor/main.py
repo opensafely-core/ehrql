@@ -10,7 +10,7 @@ from .query_utils import get_column_definitions
 from .validate_dummy_data import validate_dummy_data
 
 
-def main(
+def generate_cohort(
     definition_path,
     output_file,
     backend_id,
@@ -27,6 +27,10 @@ def main(
         backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
         results = extract(cohort, backend)
         write_output(results, output_file)
+
+
+def generate_measures(definition_path, output_file):
+    ...
 
 
 def load_cohort(definition_path):
