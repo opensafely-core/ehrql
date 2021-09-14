@@ -194,3 +194,7 @@ sqlalchemy==1.4.22 \
     --hash=sha256:f814d80844969b0d22ea63663da4de5ca1c434cfbae226188901e5d368792c17 \
     --hash=sha256:fd2102a8f8a659522719ed73865dff3d3cc76eb0833039dc473e0ad3041d04be
     # via -r requirements.prod.in
+structlog==21.1.0 \
+    --hash=sha256:62f06fc0ee32fb8580f0715eea66cb87271eb7efb0eaf9af6b639cba8981de47 \
+    --hash=sha256:d9d2d890532e8db83c6977a2a676fb1889922ff0c26ad4dc0ecac26f9fafbc57
+    # via -r requirements.prod.in
