@@ -51,12 +51,12 @@ generate_measures_parser.set_defaults(which="generate_measures")
 generate_measures_parser.add_argument(
     "--input",
     help="Path and filename (or pattern) of the input file(s)",
-    type=str,
+    type=Path,
 )
 generate_measures_parser.add_argument(
     "--output",
     help="Path and filename (or pattern) of the file(s) where the output will be written",
-    type=str,
+    type=Path,
 )
 generate_measures_parser.add_argument(
     "--cohort-definition",
@@ -71,12 +71,14 @@ generate_measures_parser.add_argument(
 
 options = parser.parse_args()
 
-if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
-    parser.error(
-        "error: either --dummy-data-file or DATABASE_URL environment variable is required"
-    )
 
 if options.which == "generate_cohort":
+
+    if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
+        parser.error(
+            "error: either --dummy-data-file or DATABASE_URL environment variable is required"
+        )
+
     generate_cohort(
         definition_path=options.cohort_definition,
         output_file=options.output,

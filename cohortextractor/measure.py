@@ -1,4 +1,15 @@
+import typing
+from pathlib import Path
+
 import numpy
+import pandas
+import structlog
+
+
+# Used for reporting events to users. We may introduce a dedicated
+# mechanism for this eventually, but for now it just uses the logging
+# system.
+reporter = structlog.get_logger("cohortextactor.reporter")
 
 
 SMALL_NUMBER_THRESHOLD = 5
@@ -155,3 +166,71 @@ def _drop_duplicates(lst):
     Preserves the order of the list.
     """
     return list(dict.fromkeys(lst).keys())
+
+
+class MeasuresManager:
+    """
+    Manages calculation of a set of measures based on a single input file
+    """
+
+    def __init__(
+        self,
+        measures: list,
+        input_file: Path,
+        patient_dataframe: typing.Optional[pandas.DataFrame],
+    ):
+        """
+        :param measures: list of Measure instances
+        :param input_file: Path to generated cohort input file
+        :param patient_dataframe: Optional pre-loaded patient dataframe
+        """
+        self.measures = measures
+        self._input_file = input_file
+        self._patient_dataframe = patient_dataframe
+
+    @property
+    def patient_dataframe(self):
+        if self._patient_dataframe is not None:
+            return self._patient_dataframe
+        return self._load_patient_dataframe()
+
+    def _load_patient_dataframe(self):
+        """
+        Given a file name and a list of measures, load the file into a Pandas
+        dataframe with types as appropriate for the supplied measures
+        """
+        if not self._input_file.exists():
+            reporter.info(
+                f"Expected cohort input file {str(self._input_file)} not found"
+            )
+            return
+
+        # TODO: Eventually this will support and expect filenames with dates
+        #  currently supports single filenames only and doesn't care about extracting a
+        #  date from the filename
+        numeric_columns = set()
+        group_by_columns = set()
+        for measure in self.measures:
+            numeric_columns.update([measure.numerator, measure.denominator])
+            group_by_columns.update(measure.group_by)
+        # This is a special column which we don't load from the CSV but whose value
+        # is always set to 1 for every row
+        numeric_columns.discard(Measure.POPULATION_COLUMN)
+        group_by_columns.discard(Measure.POPULATION_COLUMN)
+        dtype = {col: "category" for col in group_by_columns}
+        for col in numeric_columns:
+            dtype[col] = "float64"
+        df = pandas.read_csv(
+            self._input_file,
+            dtype=dtype,
+            usecols=list(dtype.keys()),
+            keep_default_na=False,
+        )
+        df[Measure.POPULATION_COLUMN] = 1
+        self._patient_dataframe = df
+        return self._patient_dataframe
+
+    def calculate_measures(self):
+        for measure in self.measures:
+            result = measure.calculate(self.patient_dataframe, reporter.info)
+            yield measure.id, result
