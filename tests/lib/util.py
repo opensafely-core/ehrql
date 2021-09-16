@@ -39,3 +39,15 @@ def mark_xfail_in_playback_mode(wrapped):
         mode == "playback", reason="playback framework cannot handle this test"
     )
     return decorator(wrapped)
+
+
+class RecordingReporter:
+    def __init__(self):
+        self.msg = ""
+
+    def __call__(self, msg):
+        self.msg = msg
+
+
+def null_reporter(msg):
+    pass

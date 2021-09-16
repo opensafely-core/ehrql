@@ -19,6 +19,18 @@ class Study:
     def dummy_data(self):
         return self._path / self.dummy_data_file
 
+    def path(self, filepath):
+        return self._path / filepath
+
+
+class MeasuresStudy(Study):
+    def __init__(self, study_path, dummy_data_file=None):
+        super(MeasuresStudy, self).__init__(study_path, dummy_data_file)
+        self.input_pattern = "cohort.csv"
+
+    def input_files(self):
+        return self._path.glob("inputs/*")
+
 
 def assert_results_equivalent(actual_results, expected_results):
     with open(actual_results) as actual_file:
