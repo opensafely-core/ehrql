@@ -24,6 +24,17 @@ def generate_cohort(
     dummy_data_file=None,
     temporary_database=None,
 ):
+    log.info(
+        f"Generating cohort for {definition_path.name} as {output_file}",
+    )
+    log.debug(
+        "args:",
+        definition_path=definition_path,
+        output_file=output_file,
+        backend=backend_id,
+        dummy_data_file=dummy_data_file,
+    )
+
     cohort = load_cohort(definition_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     if dummy_data_file and not db_url:
