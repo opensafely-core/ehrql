@@ -17,7 +17,7 @@ from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
 
 
-log = structlog.getLogger(__name__)
+log = structlog.getLogger()
 
 
 def generate_cohort(
