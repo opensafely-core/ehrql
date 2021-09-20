@@ -47,7 +47,7 @@ class GraphnetBackend(BaseBackend):
     covid_test_results = MappedTable(
         source="TRE.CovidTestResults",
         columns=dict(
-            date=Column("date", source="SpecimentDate"),
+            date=Column("date", source="SpecimenDate"),
             positive_result=Column("boolean", source="positive_result"),
         ),
     )
@@ -61,7 +61,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     patient_address = MappedTable(
-        source="TRE.PatientAddresses"
+        source="TRE.PatientAddresses",
         columns=dict(
             patientaddress_id=Column("integer", source="PatientAddress_ID"),
             date_start=Column("date", source="StartDate"),
