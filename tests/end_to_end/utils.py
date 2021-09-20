@@ -33,8 +33,20 @@ class MeasuresStudy(Study):
 
 
 def assert_results_equivalent(actual_results, expected_results):
+    if "*" in actual_results.name:
+        for date_file in actual_results.parent.glob(actual_results.name):
+            date_suffix = date_file.name.rsplit("_", 1)[1]
+            expected_file = (
+                expected_results.parent / f"{expected_results.stem}_{date_suffix}"
+            )
+            _assert_results(date_file, expected_file)
+    else:
+        _assert_results(actual_results, expected_results)
+
+
+def _assert_results(actual_results, expected_results):
     with open(actual_results) as actual_file:
         with open(expected_results) as expected_file:
             actual_data = list(csv.DictReader(actual_file))
             expected_data = list(csv.DictReader(expected_file))
-        assert actual_data == expected_data
+            assert actual_data == expected_data

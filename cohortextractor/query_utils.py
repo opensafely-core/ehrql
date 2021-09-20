@@ -8,8 +8,9 @@ def get_class_vars(cls):
 
 def get_column_definitions(cohort_cls):
     columns = {}
+    ignored_names = ["measures", "BASE_INDEX_DATE"]
     for name, value in get_class_vars(cohort_cls):
-        if name.startswith("_") or name == "measures":
+        if name.startswith("_") or name in ignored_names:
             continue
         if not isinstance(value, Value):
             raise ValueError(f"Cohort variable '{name}' is not a Value")

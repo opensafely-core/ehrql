@@ -30,7 +30,15 @@ def cohort_extractor_in_container(tmpdir, database, containers):
     output_rel_path = Path("outputs") / "cohort.csv"
     output_host_path = workspace / output_rel_path
 
-    def run(study, backend, use_dummy_data=False):
+    def run(study, backend, use_dummy_data=False, index_date_range=None):
+        output_host = output_host_path
+        output_rel = output_rel_path
+        if index_date_range:
+            # If we have an index date range, the output should be a pattern
+            file_pattern = f"{output_host_path.stem}*{output_host_path.suffix}"
+            output_host = output_host_path.parent / file_pattern
+            output_rel = output_rel_path.parent / file_pattern
+
         for file in study.code():
             shutil.copy(file, analysis_dir)
         definition_path = Path("analysis") / study.definition().name
@@ -40,12 +48,15 @@ def cohort_extractor_in_container(tmpdir, database, containers):
             "--cohort-definition",
             str(definition_path),
             "--output",
-            str(output_rel_path),
+            str(output_rel),
         ]
         if use_dummy_data:
             shutil.copy(study.dummy_data(), analysis_dir)
             dummy_data_file = Path("analysis") / study.dummy_data().name
             command += ["--dummy-data-file", str(dummy_data_file)]
+
+        if index_date_range:
+            command += ["--index-date-range", index_date_range]
 
         containers.run_fg(
             image="cohort-extractor-v2:latest",
@@ -58,8 +69,7 @@ def cohort_extractor_in_container(tmpdir, database, containers):
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
             network=database.network,
         )
-
-        return output_host_path
+        return output_host
 
     return run
 
@@ -112,14 +122,26 @@ def _in_process_setup(tmpdir):
 
 
 def _in_process_run(
-    study, analysis_dir, output_host_path, backend_id, db_url, use_dummy_data
+    study,
+    analysis_dir,
+    output_host_path,
+    backend_id,
+    db_url,
+    use_dummy_data,
+    index_date_range=None,
 ):
     for file in study.code():
         shutil.copy(file, analysis_dir)
     definition_path = analysis_dir / study.definition().name
 
     if use_dummy_data:
-        shutil.copy(study.dummy_data(), analysis_dir)
+        if index_date_range:
+            # If we have an index date range, the dummy date file input should be a pattern
+            dummy_data_files = study.dummy_data().parent.glob(study.dummy_data().name)
+        else:
+            dummy_data_files = [study.dummy_data()]
+        for dummy_file in dummy_data_files:
+            shutil.copy(dummy_file, analysis_dir)
         dummy_data_file = analysis_dir / study.dummy_data().name
     else:
         dummy_data_file = None
@@ -130,6 +152,7 @@ def _in_process_run(
         backend_id=backend_id,
         db_url=db_url,
         dummy_data_file=dummy_data_file,
+        index_date_range=index_date_range,
         temporary_database="temp_tables",
     )
 
@@ -138,17 +161,26 @@ def _in_process_run(
 def cohort_extractor_in_process(tmpdir, database, containers):
     _, analysis_dir, output_host_path = _in_process_setup(tmpdir)
 
-    def run(study, backend, use_dummy_data=False):
+    def run(study, backend, use_dummy_data=False, index_date_range=None):
+        output_path = output_host_path
+        if index_date_range:
+            # If we have an index date range, the output should be a pattern
+            output_path = (
+                output_host_path.parent
+                / f"{output_host_path.stem}*{output_host_path.suffix}"
+            )
+
         _in_process_run(
             study=study,
             analysis_dir=analysis_dir,
-            output_host_path=output_host_path,
+            output_host_path=output_path,
             backend_id=backend,
             db_url=database.host_url(),
             use_dummy_data=use_dummy_data,
+            index_date_range=index_date_range,
         )
 
-        return output_host_path
+        return output_path
 
     return run
 
@@ -157,16 +189,25 @@ def cohort_extractor_in_process(tmpdir, database, containers):
 def cohort_extractor_in_process_no_database(tmpdir, containers):
     _, analysis_dir, output_host_path = _in_process_setup(tmpdir)
 
-    def run(study, backend=None, use_dummy_data=False):
+    def run(study, backend=None, use_dummy_data=False, index_date_range=None):
+        output_path = output_host_path
+        if index_date_range:
+            # If we have an index date range, the output should be a pattern
+            output_path = (
+                output_host_path.parent
+                / f"{output_host_path.stem}*{output_host_path.suffix}"
+            )
+
         _in_process_run(
             study=study,
             analysis_dir=analysis_dir,
-            output_host_path=output_host_path,
+            output_host_path=output_path,
             backend_id=backend,
             db_url=None,
             use_dummy_data=use_dummy_data,
+            index_date_range=index_date_range,
         )
-        return output_host_path
+        return output_path
 
     return run
 

@@ -36,6 +36,12 @@ generate_cohort_parser.add_argument(
     help="Provide dummy data from a file to be validated and used as output",
     type=Path,
 )
+generate_cohort_parser.add_argument(
+    "--index-date-range",
+    help="Evaluate the study definition at a range of index dates",
+    type=str,
+    default="",
+)
 
 generate_measures_parser = subparsers.add_parser(
     "generate_measures", help="Generate measures from cohort data"
@@ -74,6 +80,7 @@ if options.which == "generate_cohort":
         output_file=options.output,
         db_url=os.environ.get("DATABASE_URL"),
         backend_id=os.environ.get("OPENSAFELY_BACKEND"),
+        index_date_range=options.index_date_range,
         dummy_data_file=options.dummy_data_file,
         temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
     )
