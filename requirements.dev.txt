@@ -7,18 +7,16 @@
 appdirs==1.4.4 \
     --hash=sha256:7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41 \
     --hash=sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128
-    # via
-    #   black
-    #   virtualenv
+    # via virtualenv
 attrs==20.3.0 \
     --hash=sha256:31b2eced602aa8423c2aea9c76a724617ed67cf9513173fd3a4f03e3a929c7e6 \
     --hash=sha256:832aa3cde19744e49938b91fea06d69ecb9e649c93ba974535d08ad92164f700
     # via
     #   flake8-implicit-str-concat
     #   pytest
-black==21.7b0 \
-    --hash=sha256:1c7aa6ada8ee864db745b22790a32f94b2795c253a75d6d9b5e439ff10d23116 \
-    --hash=sha256:c8373c6491de9362e39271630b65b964607bc5c79c83783547d76c839b3aa219
+black==21.9b0 \
+    --hash=sha256:380f1b5da05e5a1429225676655dddb96f5ae8c75bdf91e53d798871b902a115 \
+    --hash=sha256:7de4cfc7eb6b710de325712d40125689101d21d25283eed7e9998722cf10eb91
     # via -r requirements.dev.in
 certifi==2021.5.30 \
     --hash=sha256:2bbf76fd432960138b3ef6dda3dde0544f27cbf8546c458e60baf371917ba9ee \
@@ -256,9 +254,13 @@ pandas==1.3.1 \
     # via
     #   -c requirements.prod.in
     #   -r requirements.prod.in
-pathspec==0.8.1 \
-    --hash=sha256:86379d6b86d75816baba717e64b1a3a3469deb93bb76d613c9ce79edc5cb68fd \
-    --hash=sha256:aa0cb481c4041bf52ffa7b0d8fa6cd3e88a2ca4879c533c9153882ee2556790d
+pathspec==0.9.0 \
+    --hash=sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a \
+    --hash=sha256:e564499435a2673d586f6b2130bb5b95f04a3ba06f81b8f895b651a3c76aabb1
+    # via black
+platformdirs==2.3.0 \
+    --hash=sha256:15b056538719b1c94bdaccb29e5f81879c7f7f0f4a153f46086d155dffcd4f0f \
+    --hash=sha256:8003ac87717ae2c7ee1ea5a84a1a61e87f3fbd16eb5aadba194ea30a9019f648
     # via black
 pluggy==0.13.1 \
     --hash=sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0 \
@@ -477,6 +479,11 @@ toml==0.10.2 \
 tomli==1.0.4 \
     --hash=sha256:0713b16ff91df8638a6a694e295c8159ab35ba93e3424a626dd5226d386057be \
     --hash=sha256:be670d0d8d7570fd0ea0113bd7bb1ba3ac6706b4de062cc4c952769355c9c268
+    # via black
+typing-extensions==3.10.0.2 \
+    --hash=sha256:49f75d16ff11f1cd258e1b988ccff82a3ca5570217d7ad8c5f48205dd99a677e \
+    --hash=sha256:d8226d10bc02a29bcc81df19a26e56a9647f8b0a6d4a83924139f4a8b01f17b7 \
+    --hash=sha256:f1d25edafde516b146ecd0613dabcc61409817af4766fbbcfb8d1ad4ec441a34
     # via black
 urllib3==1.26.5 \
     --hash=sha256:753a0374df26658f99d826cfe40394a686d05985786d946fbe4165b5148f5a7c \
