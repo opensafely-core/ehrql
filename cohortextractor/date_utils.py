@@ -62,6 +62,7 @@ def _increment_date(date, period):
                 # If the month we've replaced the date in is out of range, it will be at the end
                 # of a month which has fewer days than the previous month (e.g. 31st Aug + 1 month)
                 # set to last day of previous month instead
+                date = date.replace(day=1, month=date.month + 1)
                 _, last_day_of_month = calendar.monthrange(date.year, date.month)
                 return date.replace(day=last_day_of_month)
         else:

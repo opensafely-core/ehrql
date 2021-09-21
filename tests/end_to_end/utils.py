@@ -33,9 +33,14 @@ class MeasuresStudy(Study):
         return self._path.glob("inputs/*")
 
 
-def assert_results_equivalent(actual_results, expected_results):
+def assert_results_equivalent(
+    actual_results, expected_results, expected_number_of_results=None
+):
     if "*" in actual_results.name:
-        for date_file in actual_results.parent.glob(actual_results.name):
+        results_files = list(actual_results.parent.glob(actual_results.name))
+        if expected_number_of_results:
+            assert len(results_files) == expected_number_of_results
+        for date_file in results_files:
             date_suffix = date_file.name.rsplit("_", 1)[1]
             expected_file = (
                 expected_results.parent / f"{expected_results.stem}_{date_suffix}"

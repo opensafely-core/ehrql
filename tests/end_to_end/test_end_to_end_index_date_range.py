@@ -13,26 +13,48 @@ def test_extracts_data_with_index_date_range_smoke_test(
         study,
         setup_backend_database,
         cohort_extractor_in_container,
-        "2021-01-01 to 2021-03-01 by month",
+        index_date_range="2021-01-01 to 2021-03-01 by month",
+        expected_number_of_results=3,
     )
 
 
 @mark_xfail_in_playback_mode
 @pytest.mark.integration
+@pytest.mark.freeze_time("2021-02-01")
+@pytest.mark.parametrize(
+    "index_date_range,expected_number_of_results",
+    [
+        ("2021-01-01 to 2021-03-01 by month", 3),
+        ("2021-01-01 to 2021-03-01", 3),
+        ("2021-01-01 to today by month", 2),
+        ("2021-01-01 to 2021-02-01 by week", 5),
+        ("2021-01-31 to 2021-03-01 by month", 2),
+        ("2021-01-31", 1),
+    ],
+)
 def test_extracts_data_with_index_date_range_integration_test(
-    load_study, setup_backend_database, cohort_extractor_in_process
+    load_study,
+    setup_backend_database,
+    cohort_extractor_in_process,
+    index_date_range,
+    expected_number_of_results,
 ):
     study = load_study("end_to_end_index_date_range")
     run_index_date_range_test(
         study,
         setup_backend_database,
         cohort_extractor_in_process,
-        "2021-01-01 to 2021-03-01 by month",
+        index_date_range,
+        expected_number_of_results=expected_number_of_results,
     )
 
 
 def run_index_date_range_test(
-    study, setup_backend_database, cohort_extractor, index_date_range
+    study,
+    setup_backend_database,
+    cohort_extractor,
+    index_date_range,
+    expected_number_of_results,
 ):
     setup_backend_database(
         *patient(
@@ -50,8 +72,7 @@ def run_index_date_range_test(
             "1980-6-15",
             registration(
                 start_date="2021-01-14", end_date="2021-06-26"
-            ),  # registered at index dates 2 & 3
-            # registered at all index dates
+            ),  # registered at index dates 2021-01-15, 21, 28, 31, 2021-02-01, 28, 2021-03-01
             event(code="def", date="2020-02-01"),  # covid diagnosis
         ),
         *patient(
@@ -60,8 +81,7 @@ def run_index_date_range_test(
             "1990-8-10",
             registration(
                 start_date="2021-03-01", end_date="2026-06-26"
-            ),  # registered at index date 3 only
-            # registered at all index dates
+            ),  # registered at index date 2021-03-01 only
             event(code="ghi", date="2020-03-01"),  # covid diagnosis
         ),
         *patient(
@@ -70,8 +90,7 @@ def run_index_date_range_test(
             "2000-8-18",
             registration(
                 start_date="2021-01-15", end_date="2021-02-20"
-            ),  # registered at index date 2 only
-            # registered at all index dates
+            ),  # registered at all index dates 2021-01-15, 21, 28, 31, 2021-02-01
             event(code="jkl", date="2020-04-01"),  # covid diagnosis
         ),
     )
@@ -81,7 +100,9 @@ def run_index_date_range_test(
         use_dummy_data=False,
         index_date_range=index_date_range,
     )
-    assert_results_equivalent(actual_results, study.expected_results())
+    assert_results_equivalent(
+        actual_results, study.expected_results(), expected_number_of_results
+    )
 
 
 def test_dummy_data_with_index_date_range(
@@ -91,7 +112,9 @@ def test_dummy_data_with_index_date_range(
     actual_results = cohort_extractor_in_process_no_database(
         study, use_dummy_data=True, index_date_range="2021-01-01 to 2021-03-01 by month"
     )
-    assert_results_equivalent(actual_results, study.expected_results())
+    assert_results_equivalent(
+        actual_results, study.expected_results(), expected_number_of_results=3
+    )
 
 
 @pytest.mark.parametrize(
