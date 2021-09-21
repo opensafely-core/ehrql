@@ -100,9 +100,18 @@ def load_module(definition_path, index_date=None):
                 # Copy the cohort definition file, replace the BASE_INDEX_DATE definition
                 # with the current index date and load this modified module
                 contents = orig.read()
-                pattern = r"(BASE_INDEX_DATE\s*=\s*.+)([\s|\n].*)"
+                base_index_date_pattern = r"BASE_INDEX_DATE\s*=\s*.+"
+                if not re.findall(base_index_date_pattern, contents):
+                    raise RuntimeError(
+                        "index-date-range requires BASE_INDEX_DATE to be defined in study definition"
+                    )
+                index_date_definition_pattern = (
+                    rf"({base_index_date_pattern})([\s|\n].*)"
+                )
                 contents = re.sub(
-                    pattern, rf'BASE_INDEX_DATE = "{index_date}"\2', contents
+                    index_date_definition_pattern,
+                    rf'BASE_INDEX_DATE = "{index_date}"\2',
+                    contents,
                 )
                 new.write(contents)
             module = _load_module(temp_path)
