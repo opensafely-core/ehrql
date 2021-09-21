@@ -3,12 +3,13 @@ from pathlib import Path
 
 
 class Study:
-    def __init__(self, study_path, dummy_data_file=None):
+    def __init__(self, study_path, dummy_data_file=None, definition_file=None):
         self._path = Path(__file__).parent.parent.absolute() / "fixtures" / study_path
         self.dummy_data_file = dummy_data_file or "dummy_data.csv"
+        self.definition_file = definition_file or "my_cohort.py"
 
     def definition(self):
-        return self._path / "my_cohort.py"
+        return self._path / self.definition_file
 
     def code(self):
         return self._path.glob("*.py")
