@@ -45,12 +45,9 @@ def generate_measures(definition_path, input_file, output_file):
         log.info("Created measure output", output=output_file)
 
 
-def calculate_measures_results(cohort, input_file, patient_dataframe=None):
+def calculate_measures_results(cohort, input_file):
     measures = get_measures(cohort)
-    measures_manager = MeasuresManager(measures, input_file, patient_dataframe)
-    assert (
-        measures_manager.patient_dataframe is not None
-    ), "No matching input file found. You may need to first run:\n  cohortextractor generate_cohort ..."
+    measures_manager = MeasuresManager(measures, input_file)
     yield from measures_manager.calculate_measures()
 
 

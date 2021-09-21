@@ -1,4 +1,3 @@
-import typing
 from pathlib import Path
 
 import numpy
@@ -173,12 +172,7 @@ class MeasuresManager:
     Manages calculation of a set of measures based on a single input file
     """
 
-    def __init__(
-        self,
-        measures: list,
-        input_file: Path,
-        patient_dataframe: typing.Optional[pandas.DataFrame],
-    ):
+    def __init__(self, measures: list, input_file: Path):
         """
         :param measures: list of Measure instances
         :param input_file: Path to generated cohort input file
@@ -186,7 +180,7 @@ class MeasuresManager:
         """
         self.measures = measures
         self._input_file = input_file
-        self._patient_dataframe = patient_dataframe
+        self._patient_dataframe = None
 
     @property
     def patient_dataframe(self):
@@ -199,11 +193,9 @@ class MeasuresManager:
         Given a file name and a list of measures, load the file into a Pandas
         dataframe with types as appropriate for the supplied measures
         """
-        if not self._input_file.exists():
-            reporter.info(
-                f"Expected cohort input file {str(self._input_file)} not found"
-            )
-            return
+        assert (
+            self._input_file.exists()
+        ), f"Expected cohort input file {str(self._input_file)} not found. You may need to first run:\n  cohortextractor generate_cohort ..."
 
         # TODO: Eventually this will support and expect filenames with dates
         #  currently supports single filenames only and doesn't care about extracting a
