@@ -5,12 +5,18 @@ import shutil
 import sys
 from contextlib import contextmanager
 
+import structlog
+
 from .backends import BACKENDS
-from .query_utils import get_column_definitions
+from .measure import Measure, MeasuresManager
+from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
 
 
-def main(
+log = structlog.getLogger(__name__)
+
+
+def generate_cohort(
     definition_path,
     output_file,
     backend_id,
@@ -29,12 +35,29 @@ def main(
         write_output(results, output_file)
 
 
+def generate_measures(definition_path, input_file, output_file):
+    cohort = load_cohort(definition_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    for measure_id, results in calculate_measures_results(cohort, input_file):
+        measure_output_file = str(output_file).replace("*", measure_id)
+        results.to_csv(measure_output_file, index=False)
+        log.info("Created measure output", output=output_file)
+
+
+def calculate_measures_results(cohort, input_file):
+    measures = get_measures(cohort)
+    measures_manager = MeasuresManager(measures, input_file)
+    yield from measures_manager.calculate_measures()
+
+
 def load_cohort(definition_path):
     definition_module = load_module(definition_path)
+    imported_classes = [Measure]
     cohort_classes = [
         obj
         for name, obj in inspect.getmembers(definition_module)
-        if inspect.isclass(obj)
+        if inspect.isclass(obj) and obj not in imported_classes
     ]
     assert len(cohort_classes) == 1, "A study definition must contain one class only"
     return cohort_classes[0]

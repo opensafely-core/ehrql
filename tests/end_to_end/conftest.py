@@ -2,9 +2,9 @@ import shutil
 from pathlib import Path
 
 import pytest
-from end_to_end.utils import Study
+from end_to_end.utils import MeasuresStudy, Study
 
-from cohortextractor.main import main
+from cohortextractor.main import generate_cohort, generate_measures
 
 
 @pytest.fixture
@@ -13,10 +13,20 @@ def load_study():
 
 
 @pytest.fixture
-def cohort_extractor_in_container(tmpdir, database, containers):
+def load_measures_study():
+    return MeasuresStudy
+
+
+def _in_container_setup(tmpdir):
     workspace = Path(tmpdir.mkdir("workspace"))
     analysis_dir = workspace / "analysis"
     analysis_dir.mkdir()
+    return workspace, analysis_dir
+
+
+@pytest.fixture
+def cohort_extractor_in_container(tmpdir, database, containers):
+    workspace, analysis_dir = _in_container_setup(tmpdir)
     output_rel_path = Path("outputs") / "cohort.csv"
     output_host_path = workspace / output_rel_path
 
@@ -26,6 +36,7 @@ def cohort_extractor_in_container(tmpdir, database, containers):
         definition_path = Path("analysis") / study.definition().name
 
         command = [
+            "generate_cohort",
             "--cohort-definition",
             str(definition_path),
             "--output",
@@ -53,13 +64,51 @@ def cohort_extractor_in_container(tmpdir, database, containers):
     return run
 
 
+@pytest.fixture
+def cohort_extractor_generate_measures_in_container(tmpdir, database, containers):
+    workspace, analysis_dir = _in_container_setup(tmpdir)
+    output_rel_path = Path("outputs") / "measures_*.csv"
+    output_host_path = workspace / output_rel_path
+    input_dir = workspace / "inputs"
+    input_dir.mkdir()
+
+    def run(study):
+        for file in study.code():
+            shutil.copy(file, analysis_dir)
+        for file in study.input_files():
+            shutil.copy(file, input_dir)
+        input_path = Path("inputs") / study.input_pattern
+        definition_path = Path("analysis") / study.definition().name
+
+        command = [
+            "generate_measures",
+            "--cohort-definition",
+            str(definition_path),
+            "--input",
+            str(input_path),
+            "--output",
+            str(output_rel_path),
+        ]
+
+        containers.run_fg(
+            image="cohort-extractor-v2:latest",
+            command=command,
+            volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
+            network=database.network,
+        )
+
+        return output_host_path
+
+    return run
+
+
 def _in_process_setup(tmpdir):
     workspace = Path(tmpdir.mkdir("workspace"))
     analysis_dir = workspace / "analysis"
     analysis_dir.mkdir()
     output_rel_path = Path("outputs") / "cohort.csv"
     output_host_path = workspace / output_rel_path
-    return analysis_dir, output_host_path
+    return workspace, analysis_dir, output_host_path
 
 
 def _in_process_run(
@@ -75,7 +124,7 @@ def _in_process_run(
     else:
         dummy_data_file = None
 
-    main(
+    generate_cohort(
         definition_path=definition_path,
         output_file=output_host_path,
         backend_id=backend_id,
@@ -87,7 +136,7 @@ def _in_process_run(
 
 @pytest.fixture
 def cohort_extractor_in_process(tmpdir, database, containers):
-    analysis_dir, output_host_path = _in_process_setup(tmpdir)
+    _, analysis_dir, output_host_path = _in_process_setup(tmpdir)
 
     def run(study, backend, use_dummy_data=False):
         _in_process_run(
@@ -106,7 +155,7 @@ def cohort_extractor_in_process(tmpdir, database, containers):
 
 @pytest.fixture
 def cohort_extractor_in_process_no_database(tmpdir, containers):
-    analysis_dir, output_host_path = _in_process_setup(tmpdir)
+    _, analysis_dir, output_host_path = _in_process_setup(tmpdir)
 
     def run(study, backend=None, use_dummy_data=False):
         _in_process_run(
@@ -117,6 +166,27 @@ def cohort_extractor_in_process_no_database(tmpdir, containers):
             db_url=None,
             use_dummy_data=use_dummy_data,
         )
+        return output_host_path
+
+    return run
+
+
+@pytest.fixture
+def cohort_extractor_generate_measures_in_process(tmpdir, containers):
+    workspace, analysis_dir, output_host_path = _in_process_setup(tmpdir)
+    inputs_dir = workspace / "inputs"
+    inputs_dir.mkdir()
+    output_host_path = output_host_path.parent / "measures_*.csv"
+
+    def run(study):
+        for file in study.code():
+            shutil.copy(file, analysis_dir)
+        for file in study.input_files():
+            shutil.copy(file, inputs_dir)
+
+        definition_path = analysis_dir / study.definition().name
+        input_file_path_pattern = inputs_dir / study.input_pattern
+        generate_measures(definition_path, input_file_path_pattern, output_host_path)
         return output_host_path
 
     return run
