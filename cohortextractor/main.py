@@ -94,6 +94,14 @@ def load_cohort(definition_path, index_date=None):
 
 
 def load_module(definition_path, index_date=None):
+    """
+    Load a study definition module from the given definition_path.  If an index date is
+    provided, generate a temporary study definition file using that index date instead
+    and load that instead.
+
+    definition_path: Path to cohort definition
+    index_date: date string in format YYYY-MM-DD
+    """
     if index_date is not None:
         with temp_definition_path(definition_path, index_date) as temp_path:
             with open(definition_path, "r") as orig, open(temp_path, "w") as new:
