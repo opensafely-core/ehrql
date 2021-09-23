@@ -8,7 +8,7 @@ from lib.util import mark_xfail_in_playback_mode
 def test_extracts_data_with_index_date_range_smoke_test(
     load_study, setup_backend_database, cohort_extractor_in_container
 ):
-    study = load_study("end_to_end_index_date_range")
+    study = load_study("end_to_end_index_date_range", output_file_name="cohort*.csv")
     run_index_date_range_test(
         study,
         setup_backend_database,
@@ -19,35 +19,20 @@ def test_extracts_data_with_index_date_range_smoke_test(
 
 @mark_xfail_in_playback_mode
 @pytest.mark.integration
-@pytest.mark.freeze_time("2021-02-01")
-@pytest.mark.parametrize(
-    "definition_file,expected_number_of_results",
-    [
-        ("cohort_by_month", 3),
-        ("cohort_by_month_default", 3),
-        ("cohort_to_today", 2),
-        ("cohort_by_week", 5),
-        ("cohort_by_month_tolerate_out_of_range_end_date", 2),
-        ("cohort_single_date", 1),
-    ],
-)
 def test_extracts_data_with_index_date_range_integration_test(
     load_study,
     setup_backend_database,
     cohort_extractor_in_process,
-    definition_file,
-    expected_number_of_results,
 ):
     study = load_study(
         "end_to_end_index_date_range",
-        definition_file=f"{definition_file}.py",
         output_file_name="cohort*.csv",
     )
     run_index_date_range_test(
         study,
         setup_backend_database,
         cohort_extractor_in_process,
-        expected_number_of_results=expected_number_of_results,
+        expected_number_of_results=3,
     )
 
 
@@ -111,51 +96,15 @@ def run_index_date_range_test(
 def test_dummy_data_with_index_date_range(
     load_study, cohort_extractor_in_process_no_database
 ):
-    study = load_study("end_to_end_index_date_range", dummy_data_file="dummy_data*.csv")
-    actual_results = cohort_extractor_in_process_no_database(
-        study, use_dummy_data=True, index_date_range="2021-01-01 to 2021-03-01 by month"
+    study = load_study(
+        "end_to_end_index_date_range",
+        dummy_data_file="dummy_data*.csv",
+        output_file_name="cohort*.csv",
     )
+    actual_results = cohort_extractor_in_process_no_database(study, use_dummy_data=True)
     assert_results_equivalent(
         actual_results,
         study.expected_results(),
         expected_number_of_results=3,
         match_output_pattern=True,
     )
-
-
-@pytest.mark.parametrize(
-    "definition_file,index_date_range,error,error_message",
-    [
-        (None, "2021-01-01 to 2021-02-31 by month", ValueError, "Invalid date range"),
-        (None, "2021-01-01 to 2021-02-20 by year", ValueError, "Unknown time period"),
-        (None, "2021-01-01 to 2020-02-20 by week", ValueError, "Invalid date range"),
-        (
-            "cohort_no_base_index_date.py",
-            "2021-01-01 to 2021-02-20 by month",
-            RuntimeError,
-            "index-date-range requires BASE_INDEX_DATE to be defined in study definition",
-        ),
-    ],
-    ids=[
-        "test invalid date",
-        "test unknown by",
-        "test to date before from date",
-        "test no BASE_INDEX_DATE defined in cohort definition",
-    ],
-)
-def test_index_date_range_errors(
-    load_study,
-    cohort_extractor_in_process_no_database,
-    definition_file,
-    index_date_range,
-    error,
-    error_message,
-):
-    study = load_study("end_to_end_index_date_range", definition_file=definition_file)
-
-    with pytest.raises(error, match=error_message):
-        return cohort_extractor_in_process_no_database(
-            study,
-            backend="tpp",
-            use_dummy_data=False,
-        )

@@ -32,8 +32,16 @@ class Study:
 
 
 class MeasuresStudy(Study):
-    def __init__(self, study_path, dummy_data_file=None):
-        super(MeasuresStudy, self).__init__(study_path, dummy_data_file)
+    def __init__(
+        self,
+        study_path,
+        dummy_data_file=None,
+        definition_file=None,
+        output_file_name=None,
+    ):
+        super(MeasuresStudy, self).__init__(
+            study_path, dummy_data_file, definition_file, output_file_name
+        )
         self.input_pattern = "cohort.csv"
 
     def input_files(self):
