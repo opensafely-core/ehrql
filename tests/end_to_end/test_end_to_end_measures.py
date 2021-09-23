@@ -9,6 +9,7 @@ def test_generate_measures_smoke_test(
     run_test(load_measures_study, cohort_extractor_generate_measures_in_container)
 
 
+@pytest.mark.integration
 def test_generate_measures_integration_test(
     load_measures_study, cohort_extractor_generate_measures_in_process
 ):
@@ -16,7 +17,9 @@ def test_generate_measures_integration_test(
 
 
 def run_test(load_measures_study, cohort_extractor):
-    study = load_measures_study("end_to_end_tests_measures")
+    study = load_measures_study(
+        "end_to_end_tests_measures", definition_file="measures_cohort.py"
+    )
     actual_results = cohort_extractor(study)
     actual_results_file = list(actual_results.parent.glob(actual_results.name))[0]
     # measures results file is named with the Measure id
