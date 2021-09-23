@@ -2,53 +2,36 @@ import calendar
 import datetime
 
 
-def generate_date_range(date_range_str):
-    # Bail out with an "empty" range: this means we don't need separate
-    # codepaths to handle the range, single date, and no date supplied cases
-    if not date_range_str:
-        return [None]
-    start, end, period = _parse_date_range(date_range_str)
-    if end < start:
+def cohort_date_range(start=None, end=None, increment="month"):
+    if increment not in ["month", "week"]:
         raise ValueError(
-            f"Invalid date range '{date_range_str}': end cannot be earlier than start"
+            f"Unknown time period '{increment}': must be 'week' or 'month'"
         )
+    if not (start or end):
+        raise ValueError("At least one of start or end is required")
+        # if only one of start/end date was provided, set both to the provided value
+    start = start or end
+    end = end or start
+
+    start = _parse_date(start)
+    end = _parse_date(end)
+    if end < start:
+        raise ValueError("Invalid date range: end cannot be earlier than start")
     dates = []
     while start <= end:
         dates.append(start.isoformat())
-        start = _increment_date(start, period)
-    # The latest data is generally more interesting/useful so we may as well
-    # extract that first
-    dates.reverse()
+        start = _increment_date(start, increment)
     return dates
-
-
-def _parse_date_range(date_range_str):
-    period = "month"
-    if " to " in date_range_str:
-        start, end = date_range_str.split(" to ", 1)
-        if " by " in end:
-            end, period = end.split(" by ", 1)
-    else:
-        start = end = date_range_str
-    try:
-        start = _parse_date(start)
-        end = _parse_date(end)
-    except ValueError:
-        raise ValueError(
-            f"Invalid date range '{date_range_str}': Dates must be in YYYY-MM-DD "
-            f"format or 'today' and ranges must be in the form "
-            f"'DATE to DATE by (week|month)'"
-        )
-    if period not in ("week", "month"):
-        raise ValueError(f"Unknown time period '{period}': must be 'week' or 'month'")
-    return start, end, period
 
 
 def _parse_date(date_str):
     if date_str == "today":
         return datetime.date.today()
     else:
-        return datetime.date.fromisoformat(date_str)
+        try:
+            return datetime.date.fromisoformat(date_str)
+        except ValueError:
+            raise ValueError(f"Invalid date '{date_str}': Dates must be in YYYY-MM-DD")
 
 
 def _increment_date(date, period):

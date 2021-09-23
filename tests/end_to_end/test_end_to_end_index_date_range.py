@@ -13,7 +13,6 @@ def test_extracts_data_with_index_date_range_smoke_test(
         study,
         setup_backend_database,
         cohort_extractor_in_container,
-        index_date_range="2021-01-01 to 2021-03-01 by month",
         expected_number_of_results=3,
     )
 
@@ -22,29 +21,32 @@ def test_extracts_data_with_index_date_range_smoke_test(
 @pytest.mark.integration
 @pytest.mark.freeze_time("2021-02-01")
 @pytest.mark.parametrize(
-    "index_date_range,expected_number_of_results",
+    "definition_file,expected_number_of_results",
     [
-        ("2021-01-01 to 2021-03-01 by month", 3),
-        ("2021-01-01 to 2021-03-01", 3),
-        ("2021-01-01 to today by month", 2),
-        ("2021-01-01 to 2021-02-01 by week", 5),
-        ("2021-01-31 to 2021-03-01 by month", 2),
-        ("2021-01-31", 1),
+        ("cohort_by_month", 3),
+        ("cohort_by_month_default", 3),
+        ("cohort_to_today", 2),
+        ("cohort_by_week", 5),
+        ("cohort_by_month_tolerate_out_of_range_end_date", 2),
+        ("cohort_single_date", 1),
     ],
 )
 def test_extracts_data_with_index_date_range_integration_test(
     load_study,
     setup_backend_database,
     cohort_extractor_in_process,
-    index_date_range,
+    definition_file,
     expected_number_of_results,
 ):
-    study = load_study("end_to_end_index_date_range")
+    study = load_study(
+        "end_to_end_index_date_range",
+        definition_file=f"{definition_file}.py",
+        output_file_name="cohort*.csv",
+    )
     run_index_date_range_test(
         study,
         setup_backend_database,
         cohort_extractor_in_process,
-        index_date_range,
         expected_number_of_results=expected_number_of_results,
     )
 
@@ -53,7 +55,6 @@ def run_index_date_range_test(
     study,
     setup_backend_database,
     cohort_extractor,
-    index_date_range,
     expected_number_of_results,
 ):
     setup_backend_database(
@@ -98,10 +99,12 @@ def run_index_date_range_test(
         study,
         backend="tpp",
         use_dummy_data=False,
-        index_date_range=index_date_range,
     )
     assert_results_equivalent(
-        actual_results, study.expected_results(), expected_number_of_results
+        actual_results,
+        study.expected_results(),
+        expected_number_of_results,
+        match_output_pattern=True,
     )
 
 
@@ -113,7 +116,10 @@ def test_dummy_data_with_index_date_range(
         study, use_dummy_data=True, index_date_range="2021-01-01 to 2021-03-01 by month"
     )
     assert_results_equivalent(
-        actual_results, study.expected_results(), expected_number_of_results=3
+        actual_results,
+        study.expected_results(),
+        expected_number_of_results=3,
+        match_output_pattern=True,
     )
 
 
@@ -152,5 +158,4 @@ def test_index_date_range_errors(
             study,
             backend="tpp",
             use_dummy_data=False,
-            index_date_range=index_date_range,
         )

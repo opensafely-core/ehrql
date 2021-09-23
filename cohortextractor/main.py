@@ -1,7 +1,6 @@
 import csv
 import importlib.util
 import inspect
-import re
 import shutil
 import sys
 from contextlib import contextmanager
@@ -10,7 +9,6 @@ from pathlib import Path
 import structlog
 
 from .backends import BACKENDS
-from .date_utils import generate_date_range
 from .measure import Measure, MeasuresManager
 from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
@@ -24,7 +22,6 @@ def generate_cohort(
     output_file,
     backend_id,
     db_url,
-    index_date_range=None,
     dummy_data_file=None,
     temporary_database=None,
 ):
@@ -36,18 +33,24 @@ def generate_cohort(
         definition_path=definition_path,
         output_file=output_file,
         backend=backend_id,
-        index_date_range=index_date_range,
         dummy_data_file=dummy_data_file,
     )
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    for index_date in generate_date_range(index_date_range):
+    cohort_class_generator, index_date_range = load_cohort_generator(definition_path)
+
+    for index_date in index_date_range:
         if index_date is not None:
             log.info(f"Setting index_date to {index_date}")
             date_suffix = f"_{index_date}"
         else:
             date_suffix = ""
-        cohort = load_cohort(definition_path, index_date)
+
+        cohort = (
+            cohort_class_generator(index_date)
+            if index_date
+            else cohort_class_generator()
+        )
         output_file_with_date = Path(str(output_file).replace("*", date_suffix))
         if dummy_data_file and not db_url:
             dummy_data_file_with_date = Path(
@@ -93,41 +96,29 @@ def load_cohort(definition_path, index_date=None):
     return cohort_classes[0]
 
 
-def load_module(definition_path, index_date=None):
-    """
-    Load a study definition module from the given definition_path.  If an index date is
-    provided, generate a temporary study definition file using that index date instead
-    and load that instead.
+def load_cohort_generator(definition_path):
+    definition_module = load_module(definition_path)
 
-    definition_path: Path to cohort definition
-    index_date: date string in format YYYY-MM-DD
-    """
-    if index_date is not None:
-        with temp_definition_path(definition_path, index_date) as temp_path:
-            with open(definition_path, "r") as orig, open(temp_path, "w") as new:
-                # Copy the cohort definition file, replace the BASE_INDEX_DATE definition
-                # with the current index date and load this modified module
-                contents = orig.read()
-                base_index_date_pattern = r"BASE_INDEX_DATE\s*=\s*.+"
-                if not re.findall(base_index_date_pattern, contents):
-                    raise RuntimeError(
-                        "index-date-range requires BASE_INDEX_DATE to be defined in study definition"
-                    )
-                index_date_definition_pattern = (
-                    rf"({base_index_date_pattern})([\s|\n].*)"
-                )
-                contents = re.sub(
-                    index_date_definition_pattern,
-                    rf'BASE_INDEX_DATE = "{index_date}"\2',
-                    contents,
-                )
-                new.write(contents)
-            module = _load_module(temp_path)
-        return module
-    return _load_module(definition_path)
+    cohort_functions = [
+        obj
+        for name, obj in inspect.getmembers(definition_module)
+        if inspect.isfunction(obj) and obj.__name__ == "cohort"
+    ]
+
+    assert (
+        len(cohort_functions) == 1
+    ), "A study definition must contain one and only one 'cohort' function"
+    cohort_function = cohort_functions[0]
+    index_date_range = getattr(definition_module, "index_date_range", None)
+    if index_date_range:
+        if list(inspect.signature(cohort_function).parameters.keys()) != ["index_date"]:
+            raise ValueError(
+                "A cohort function with index_date_range must take a single index_date argument"
+            )
+    return cohort_function, index_date_range or [None]
 
 
-def _load_module(definition_path):
+def load_module(definition_path):
     # Add the directory containing the definition to the path so that the definition can import library modules from
     # that directory
     definition_dir = definition_path.parent
@@ -137,13 +128,6 @@ def _load_module(definition_path):
         # Reload the module in case a module with the same name was loaded previously
         importlib.reload(module)
         return module
-
-
-@contextmanager
-def temp_definition_path(definition_path, index_date):
-    temp_path = definition_path.parent / f"{definition_path.stem}_{index_date}.py"
-    yield temp_path
-    temp_path.unlink()
 
 
 @contextmanager
