@@ -9,7 +9,7 @@ from pathlib import Path
 import structlog
 
 from .backends import BACKENDS
-from .measure import Measure, MeasuresManager
+from .measure import MeasuresManager
 from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
 
@@ -37,7 +37,9 @@ def generate_cohort(
     )
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    cohort_class_generator, index_date_range = load_cohort_generator(definition_path)
+    module = load_module(definition_path)
+
+    cohort_class_generator, index_date_range = load_cohort_generator(module)
 
     for index_date in index_date_range:
         if index_date is not None:
@@ -69,7 +71,9 @@ def generate_cohort(
 
 
 def generate_measures(definition_path, input_file, output_file):
-    cohort = load_cohort(definition_path)
+    definition_module = load_module(definition_path)
+    cohort_generator, _ = load_cohort_generator(definition_module)
+    cohort = cohort_generator()
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
     for measure_id, results in calculate_measures_results(cohort, input_file):
@@ -84,36 +88,43 @@ def calculate_measures_results(cohort, input_file):
     yield from measures_manager.calculate_measures()
 
 
-def load_cohort(definition_path, index_date=None):
-    definition_module = load_module(definition_path, index_date)
-    imported_classes = [Measure]
-    cohort_classes = [
+def load_cohort_classes(definition_module):
+    return [
         obj
         for name, obj in inspect.getmembers(definition_module)
-        if inspect.isclass(obj) and obj not in imported_classes
+        if inspect.isclass(obj) and obj.__name__ == "Cohort"
     ]
-    assert len(cohort_classes) == 1, "A study definition must contain one class only"
-    return cohort_classes[0]
 
 
-def load_cohort_generator(definition_path):
-    definition_module = load_module(definition_path)
-
-    cohort_functions = [
+def load_cohort_functions(definition_module):
+    return [
         obj
         for name, obj in inspect.getmembers(definition_module)
         if inspect.isfunction(obj) and obj.__name__ == "cohort"
     ]
 
-    assert (
-        len(cohort_functions) == 1
-    ), "A study definition must contain one and only one 'cohort' function"
+
+def load_cohort_generator(definition_module):
+    """
+    Load the cohort definition module and identify the Cohort class or cohort generator
+    function.
+    Return a function that returns a Cohort class, and the index date range, if applicable.
+    """
+    cohort_classes = load_cohort_classes(definition_module)
+    cohort_functions = load_cohort_functions(definition_module)
+
+    if (len(cohort_classes) + len(cohort_functions)) != 1:
+        "A study definition must contain one and only one 'cohort' function or 'Cohort' class"
+
+    if cohort_classes:
+        return lambda: cohort_classes[0], [None]
+
     cohort_function = cohort_functions[0]
     index_date_range = getattr(definition_module, "index_date_range", None)
     if index_date_range:
         if list(inspect.signature(cohort_function).parameters.keys()) != ["index_date"]:
             raise ValueError(
-                "A cohort function with index_date_range must take a single index_date argument"
+                "A study definition with index_date_range must pass a single index_date argument to the 'cohort' function"
             )
     return cohort_function, index_date_range or [None]
 
@@ -125,8 +136,6 @@ def load_module(definition_path):
     module_name = definition_path.stem
     with added_to_path(str(definition_dir)):
         module = importlib.import_module(module_name)
-        # Reload the module in case a module with the same name was loaded previously
-        importlib.reload(module)
         return module
 
 
