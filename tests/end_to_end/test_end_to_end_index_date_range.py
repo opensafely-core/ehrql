@@ -36,6 +36,37 @@ def test_extracts_data_with_index_date_range_integration_test(
     )
 
 
+@mark_xfail_in_playback_mode
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "definition_file,error",
+    [
+        (
+            "cohort_no_valid_class_or_function.py",
+            "A study definition must contain one and only one 'cohort' function or 'Cohort' class",
+        ),
+        (
+            "cohort_invalid_function_args.py",
+            "A study definition with index_date_range must pass a single index_date argument to the 'cohort' function",
+        ),
+    ],
+)
+def test_index_date_range_cohort_definition_errors(
+    load_study, cohort_extractor_in_process_no_database, definition_file, error
+):
+    study = load_study(
+        "end_to_end_index_date_range",
+        definition_file=definition_file,
+        output_file_name="cohort*.csv",
+    )
+    with pytest.raises(ValueError, match=error):
+        cohort_extractor_in_process_no_database(
+            study,
+            backend="tpp",
+            use_dummy_data=False,
+        )
+
+
 def run_index_date_range_test(
     study,
     setup_backend_database,

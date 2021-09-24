@@ -114,7 +114,9 @@ def load_cohort_generator(definition_module):
     cohort_functions = load_cohort_functions(definition_module)
 
     if (len(cohort_classes) + len(cohort_functions)) != 1:
-        "A study definition must contain one and only one 'cohort' function or 'Cohort' class"
+        raise ValueError(
+            "A study definition must contain one and only one 'cohort' function or 'Cohort' class"
+        )
 
     if cohort_classes:
         return lambda: cohort_classes[0], [None]
