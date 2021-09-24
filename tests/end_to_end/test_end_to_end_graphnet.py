@@ -27,7 +27,11 @@ def run_test(
         Patients(patient_id=2, date_of_birth="1948-02-02"),
         backend="graphnet",
     )
-    study = load_study("end_to_end_tests_graphnet", dummy_data_file)
+    study = load_study(
+        "end_to_end_tests_graphnet",
+        dummy_data_file=dummy_data_file,
+        definition_file="cohort_graphnet.py",
+    )
     actual_results = cohort_extractor(
         study, backend="graphnet", use_dummy_data=dummy_data_file is not None
     )

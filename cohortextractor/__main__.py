@@ -36,11 +36,6 @@ generate_cohort_parser.add_argument(
     help="Provide dummy data from a file to be validated and used as output",
     type=Path,
 )
-generate_cohort_parser.add_argument(
-    "--skip-existing",
-    help="Do not regenerate data if output file already exists",
-    action="store_true",
-)
 
 generate_measures_parser = subparsers.add_parser(
     "generate_measures", help="Generate measures from cohort data"
@@ -62,11 +57,6 @@ generate_measures_parser.add_argument(
     "--cohort-definition",
     help="The path of the file where the cohort is defined",
     type=existing_python_file,
-)
-generate_measures_parser.add_argument(
-    "--skip-existing",
-    help="Do not regenerate measure if output file already exists",
-    action="store_true",
 )
 
 options = parser.parse_args()
