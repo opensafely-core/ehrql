@@ -43,6 +43,7 @@ class MeasuresStudy(Study):
         super(MeasuresStudy, self).__init__(
             study_path, dummy_data_file, definition_file, output_file_name
         )
+        self.output_file_name = "measures_*.csv"
         self.input_pattern = input_pattern or "cohort.csv"
 
     def input_files(self):
@@ -59,12 +60,15 @@ def assert_results_equivalent(
         results_files = list(actual_results.parent.glob(actual_results.name))
         if expected_number_of_results:
             assert len(results_files) == expected_number_of_results
-        for date_file in results_files:
-            date_suffix = date_file.name.rsplit("_", 1)[1]
-            expected_file = (
-                expected_results.parent / f"{expected_results.stem}_{date_suffix}"
+        for results_file in results_files:
+            name_parts = [part for part in results_file.stem.split("_", 1) if part][1:]
+            name_stem = expected_results.stem.split("_")[0]
+            name = "_".join([name_stem, *name_parts])
+            expected_results = (
+                expected_results.parent / f"{name}{expected_results.suffix}"
             )
-            _assert_results(date_file, expected_file)
+
+            _assert_results(results_file, expected_results)
     else:
         _assert_results(actual_results, expected_results)
 

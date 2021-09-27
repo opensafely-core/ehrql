@@ -11,7 +11,9 @@ def test_generate_measures_smoke_test(
     )
     expected_results_name = "measures_event_rate.csv"
     run_test(
-        study, cohort_extractor_generate_measures_in_container, expected_results_name
+        study,
+        cohort_extractor_generate_measures_in_container,
+        expected_results_name,
     )
 
 
@@ -24,7 +26,9 @@ def test_generate_measures_integration_test(
     )
     expected_results_name = "measures_event_rate.csv"
     run_test(
-        study, cohort_extractor_generate_measures_in_process, expected_results_name
+        study,
+        cohort_extractor_generate_measures_in_process,
+        expected_results_name,
     )
 
 
@@ -35,9 +39,9 @@ def test_generate_measures_with_index_date_range_test(
     study = load_measures_study(
         "end_to_end_tests_measures_with_index_date_range",
         definition_file="measures_date_range_cohort.py",
-        input_pattern="cohort*.csv",
+        input_pattern="cohort_*.csv",
     )
-    expected_results_name = "measures_event_rate_2021-03-01.csv"
+    expected_results_name = "measures_event_rate_2021-01-01.csv"
     run_test(
         study, cohort_extractor_generate_measures_in_process, expected_results_name
     )
@@ -45,7 +49,7 @@ def test_generate_measures_with_index_date_range_test(
 
 def run_test(study, cohort_extractor, expected_results_name):
     actual_results = cohort_extractor(study)
-    first_results_file = list(actual_results.parent.glob(actual_results.name))[0]
+    first_results_file = sorted(actual_results.parent.glob(actual_results.name))[0]
     assert first_results_file.name == expected_results_name
     assert_results_equivalent(
         actual_results, study.expected_results(), match_output_pattern=True
