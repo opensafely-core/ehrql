@@ -1,0 +1,5 @@
+patient_id,practice,has_event
+1,A,0
+2,B,0
+3,A,0
+4,C,1

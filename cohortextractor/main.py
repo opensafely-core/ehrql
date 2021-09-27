@@ -44,7 +44,13 @@ def generate_cohort(
     for index_date in index_date_range:
         if index_date is not None:
             log.info(f"Setting index_date to {index_date}")
-            date_suffix = f"_{index_date}"
+            date_suffix = index_date
+            if len(index_date_range) > 1 and "*" not in output_file.name:
+                # ensure we have a replaceable pattern as an output file when multiple
+                # dates ranges are to be output
+                raise ValueError(
+                    f"No output pattern found in output file {output_file}"
+                )
         else:
             date_suffix = ""
 
@@ -53,7 +59,7 @@ def generate_cohort(
             if index_date
             else cohort_class_generator()
         )
-        output_file_with_date = Path(str(output_file).replace("*", date_suffix))
+        output_file_with_date = _replace_filepath_pattern(output_file, date_suffix)
         if dummy_data_file and not db_url:
             dummy_data_file_with_date = Path(
                 str(dummy_data_file).replace("*", date_suffix)
@@ -72,14 +78,31 @@ def generate_cohort(
 
 def generate_measures(definition_path, input_file, output_file):
     definition_module = load_module(definition_path)
-    cohort_generator, _ = load_cohort_generator(definition_module)
-    cohort = cohort_generator()
+    cohort_generator, index_date_range = load_cohort_generator(definition_module)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    for measure_id, results in calculate_measures_results(cohort, input_file):
-        measure_output_file = str(output_file).replace("*", measure_id)
-        results.to_csv(measure_output_file, index=False)
-        log.info("Created measure output", output=output_file)
+    for index_date in index_date_range:
+        cohort = (
+            cohort_generator() if index_date is None else cohort_generator(index_date)
+        )
+        input_file_with_date = _replace_filepath_pattern(input_file, index_date or "")
+        for measure_id, results in calculate_measures_results(
+            cohort, input_file_with_date
+        ):
+            filename_part = (
+                measure_id if index_date is None else f"{measure_id}_{index_date}"
+            )
+            measure_output_file = _replace_filepath_pattern(output_file, filename_part)
+            results.to_csv(measure_output_file, index=False)
+            log.info("Created measure output", output=output_file)
+
+
+def _replace_filepath_pattern(filepath, filename_part):
+    """
+    Take a filepath and replace a '*' with the specified filename part
+    Returns a new Path
+    """
+    return Path(str(filepath).replace("*", filename_part))
 
 
 def calculate_measures_results(cohort, input_file):
