@@ -1,7 +1,19 @@
 import sqlalchemy.orm
-from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, Boolean, BigInteger, NVARCHAR
+from sqlalchemy import (
+    NVARCHAR,
+    BigInteger,
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+)
+
 
 Base = sqlalchemy.orm.declarative_base()
+
 
 class Patients(Base):
     __tablename__ = "TRE.Patients"
@@ -9,6 +21,13 @@ class Patients(Base):
     Sex = Column(NVARCHAR(50))
     DateOfBirth = Column(Date)
     DateOfDeath = Column(Date)
+
+
+def patient(patient_id, sex, dob, *entities):
+    for entity in entities:
+        entity.Patient_ID = patient_id
+    return [Patients(Patient_ID=patient_id, Sex=sex, DateOfBirth=dob), *entities]
+
 
 class ClinicalEvents(Base):
     __tablename__ = "TRE.ClinicalEvents"
@@ -18,6 +37,13 @@ class ClinicalEvents(Base):
     ConsultationDate = Column(DateTime)
     NumericValue = Column(Float)
 
+
+def clinical_event(code, date, numeric_value=None):
+    return ClinicalEvents(
+        CTV3Code=code, Consultationdate=date, NumericValue=numeric_value
+    )
+
+
 class ClinicalEventsSnomed(Base):
     __tablename__ = "TRE.ClinicalEvents_Snomed"
     ClinicalEvent_ID = Column(BigInteger, primary_key=True)
@@ -25,6 +51,7 @@ class ClinicalEventsSnomed(Base):
     ConceptID = Column(NVARCHAR(64))
     ConsultationDate = Column(DateTime)
     NumericValue = Column(Float)
+
 
 class PracticeRegistrations(Base):
     __tablename__ = "TRE.PracticeRegistrations"
@@ -35,12 +62,23 @@ class PracticeRegistrations(Base):
     StartDate = Column(DateTime)
     EndDate = Column(DateTime)
 
+
+def registration(start_date, end_date, organisation_id=None, region=None):
+    return PracticeRegistrations(
+        StartDate=start_date,
+        EndDate=end_date,
+        Organisation_ID=organisation_id,
+        Region=region,
+    )
+
+
 class CovidTestResults(Base):
     __tablename__ = "TRE.CovidTestResults"
     CovidTestResult_ID = Column(BigInteger, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("TRE.Patients.Patient_ID"))
     SpecimenDate = Column(DateTime)
     positive_result = Column(Boolean)
+
 
 class Hospitalizations(Base):
     __tablename__ = "TRE.Hospitalisations"
@@ -49,6 +87,11 @@ class Hospitalizations(Base):
     AdmitDate = Column(DateTime)
     DiagCode = Column(NVARCHAR(32))
 
+
+def hospitalization(admit_date=None, code=None):
+    return Hospitalizations(AdmitDate=admit_date, DiagCode=code)
+
+
 class PatientAddress(Base):
     __tablename__ = "TRE.PatientAddresses"
     PatientAddress_ID = Column(Integer, primary_key=True)
@@ -56,4 +99,15 @@ class PatientAddress(Base):
     StartDate = Column(DateTime)
     EndDate = Column(DateTime)
     IMD = Column(Integer)
+    MSOACode = Column(NVARCHAR(9))
     has_postcode = Column(Boolean)
+
+
+def patient_address(start_date, end_date, imd, msoa, postcode):
+    return PatientAddress(
+        StartDate=start_date,
+        EndDate=end_date,
+        IMD=imd,
+        MSOACode=msoa,
+        has_postcode=postcode,
+    )

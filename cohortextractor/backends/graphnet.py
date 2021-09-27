@@ -67,6 +67,7 @@ class GraphnetBackend(BaseBackend):
             date_start=Column("date", source="StartDate"),
             date_end=Column("date", source="EndDate"),
             index_of_multiple_deprivation_rounded=Column("integer", source="IMD"),
+            msoa_code=Column("varchar", source="MSOACode"),
             has_postcode=Column("boolean", source="has_postcode"),
         ),
     )
