@@ -1,3 +1,6 @@
+import csv
+import datetime
+import re
 from pathlib import Path
 
 import numpy
@@ -226,3 +229,43 @@ class MeasuresManager:
         for measure in self.measures:
             result = measure.calculate(self.patient_dataframe, reporter.info)
             yield measure.id, result
+
+
+def combine_csv_files_with_dates(output_filepath, measure_id):
+    """
+    Takes an output filepath and a measure ID, finds any matching CSV measure output
+    files with dates in their filenames and combines them into a single CSV file with an
+    additional "date" column indicating the date for each row
+    """
+    output_dir = output_filepath.parent
+    # output filepath for measures is provided as a pattern, where "*" is replaced by the
+    # measure ID and date (if applicable).  Adjust the pattern to look for files matching
+    # just this measure
+    measure_output_pattern = output_filepath.name.replace("*", f"{measure_id}_*")
+    input_files = sorted(output_dir.glob(measure_output_pattern))
+
+    if input_files:
+        # There may be no matching date files if generate_measures was run without an
+        # index date range; in this case, no combining is required.
+        combined_filename = output_filepath.name.replace("*", measure_id)
+        with open(input_files[0]) as first_file:
+            reader = csv.reader(first_file)
+            headers = next(reader)
+        with open(output_dir / combined_filename, "w", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(headers + ["date"])
+            for input_file in input_files:
+                file_date = _get_date_from_filename(input_file.stem)
+                with open(input_file) as input_csvfile:
+                    reader = csv.reader(input_csvfile)
+                    if next(reader) != headers:
+                        raise RuntimeError(
+                            f"Files {input_files[0]} and {input_file} have different headers"
+                        )
+                    for row in reader:
+                        writer.writerow(row + [file_date])
+
+
+def _get_date_from_filename(filename_stem):
+    match = re.search(r"_(\d\d\d\d\-\d\d\-\d\d)$", filename_stem)
+    return datetime.date.fromisoformat(match.group(1)) if match else None
