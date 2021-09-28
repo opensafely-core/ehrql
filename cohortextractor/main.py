@@ -9,7 +9,7 @@ from pathlib import Path
 import structlog
 
 from .backends import BACKENDS
-from .measure import MeasuresManager
+from .measure import MeasuresManager, combine_csv_files_with_dates
 from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
 
@@ -81,13 +81,15 @@ def generate_measures(definition_path, input_file, output_file):
     cohort_generator, index_date_range = load_cohort_generator(definition_module)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
+    measures = []
     for index_date in index_date_range:
         cohort = (
             cohort_generator() if index_date is None else cohort_generator(index_date)
         )
         input_file_with_date = _replace_filepath_pattern(input_file, index_date or "")
+        measures = get_measures(cohort)
         for measure_id, results in calculate_measures_results(
-            cohort, input_file_with_date
+            measures, input_file_with_date
         ):
             filename_part = (
                 measure_id if index_date is None else f"{measure_id}_{index_date}"
@@ -95,6 +97,12 @@ def generate_measures(definition_path, input_file, output_file):
             measure_output_file = _replace_filepath_pattern(output_file, filename_part)
             results.to_csv(measure_output_file, index=False)
             log.info("Created measure output", output=output_file)
+
+    # Combine any date-stamped files into one additional single file per measure
+    # Use the measures from the latest cohort, since we only care about their ids here
+    for measure in measures:
+        combine_csv_files_with_dates(output_file, measure.id)
+        log.info(f"Combined measure output for all dates in {output_file}")
 
 
 def _replace_filepath_pattern(filepath, filename_part):
@@ -105,8 +113,7 @@ def _replace_filepath_pattern(filepath, filename_part):
     return Path(str(filepath).replace("*", filename_part))
 
 
-def calculate_measures_results(cohort, input_file):
-    measures = get_measures(cohort)
+def calculate_measures_results(measures, input_file):
     measures_manager = MeasuresManager(measures, input_file)
     yield from measures_manager.calculate_measures()
 
