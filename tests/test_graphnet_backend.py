@@ -1,11 +1,12 @@
 from datetime import date, datetime
 
 import pytest
-from lib.graphnet_schema import (  # ClinicalEventsSnomed,; Hospitalizations,; PatientAddress,; hospitalization,
+from lib.graphnet_schema import (
     ClinicalEvents,
     CovidTestResults,
     Patients,
     PracticeRegistrations,
+    hospitalization,
     patient,
     patient_address,
     registration,
@@ -13,7 +14,6 @@ from lib.graphnet_schema import (  # ClinicalEventsSnomed,; Hospitalizations,; P
 from lib.util import extract
 
 from cohortextractor import table
-#  from cohortextractor import codelist, table
 from cohortextractor.backends.graphnet import GraphnetBackend
 
 
@@ -55,6 +55,29 @@ def test_registration_dates(database, setup_backend_database):
     ]
 
 
+@pytest.mark.xfail
+def test_registration_dates_no_end(database, setup_backend_database):
+    setup_backend_database(
+        Patients(Patient_ID=1),
+        PracticeRegistrations(
+            Patient_ID=1, StartDate="2011-01-01", EndDate="2012-12-31"
+        ),
+        PracticeRegistrations(
+            Patient_ID=1, StartDate="2013-01-01", EndDate=None
+        ),
+        backend="graphnet",
+    )
+
+    class Cohort:
+        _registrations = table("practice_registrations").date_in_range("2014-01-01")
+        arrived = _registrations.get("date_start")
+        left = _registrations.get("date_end")
+
+    assert extract(Cohort, GraphnetBackend, database) == [
+        dict(patient_id=1, arrived=datetime(2013, 1, 1), left=None)
+    ]
+
+
 @pytest.mark.integration
 def test_covid_test_positive_result(database, setup_backend_database):
     setup_backend_database(
@@ -64,8 +87,6 @@ def test_covid_test_positive_result(database, setup_backend_database):
         ),
         CovidTestResults(
             Patient_ID=1,
-            #  Remove the next line - not relevant to graphnet schema
-            # Organism_Species_Name="SARS-CoV-2",
             SpecimenDate="2020-05-05",
             positive_result=True,
         ),
@@ -94,8 +115,6 @@ def test_covid_test_negative_result(database, setup_backend_database):
         ),
         CovidTestResults(
             Patient_ID=1,
-            #  Remove the next line - not relevant to graphnet schema
-            # Organism_Species_Name="SARS-CoV-2",
             SpecimenDate="2020-05-05",
             positive_result=False,
         ),
@@ -135,7 +154,6 @@ def test_patients_table(database, setup_backend_database):
     ]
 
 
-""" Removing hospitalization tests - code parsing doesn't occur in the graphnet backend, so these won't work
 @pytest.mark.integration
 def test_hospitalization_table_returns_admission_date_and_code(
     database, setup_backend_database
@@ -148,7 +166,7 @@ def test_hospitalization_table_returns_admission_date_and_code(
             registration("2001-01-01", "2026-06-26"),
             hospitalization(admit_date="2020-12-12", code="xyz"),
         ),
-        backend="graphnet"
+        backend="graphnet",
     )
 
     class Cohort:
@@ -161,6 +179,7 @@ def test_hospitalization_table_returns_admission_date_and_code(
     ]
 
 
+""" Removing hospitalization tests - code parsing doesn't occur in the graphnet backend, so these won't work
 @pytest.mark.parametrize(
     "raw, codes",
     [
