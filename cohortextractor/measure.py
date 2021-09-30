@@ -242,20 +242,28 @@ def combine_csv_files_with_dates(output_filepath, measure_id):
     # measure ID and date (if applicable).  Adjust the pattern to look for files matching
     # just this measure
     measure_output_pattern = output_filepath.name.replace("*", f"{measure_id}_*")
-    input_files = sorted(output_dir.glob(measure_output_pattern))
+    # This output pattern may overmatch if we have a measure_id that contains another
+    # (e.g. measure_copd_* would match both measure_copd_2021-01-01 and
+    # measure_copd_practice_only_2021-01-01), so we look for files that match both the
+    # full measure id, and the expected date pattern
+    input_files = []
+    for filepath in output_dir.glob(measure_output_pattern):
+        file_date = _get_date_from_filename(filepath.stem, measure_id)
+        if file_date:
+            input_files.append((file_date, filepath))
+    input_files = sorted(input_files)
 
     if input_files:
         # There may be no matching date files if generate_measures was run without an
         # index date range; in this case, no combining is required.
         combined_filename = output_filepath.name.replace("*", measure_id)
-        with open(input_files[0]) as first_file:
+        with open(input_files[0][1]) as first_file:
             reader = csv.reader(first_file)
             headers = next(reader)
         with open(output_dir / combined_filename, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(headers + ["date"])
-            for input_file in input_files:
-                file_date = _get_date_from_filename(input_file.stem)
+            for file_date, input_file in input_files:
                 with open(input_file) as input_csvfile:
                     reader = csv.reader(input_csvfile)
                     if next(reader) != headers:
@@ -266,6 +274,6 @@ def combine_csv_files_with_dates(output_filepath, measure_id):
                         writer.writerow(row + [file_date])
 
 
-def _get_date_from_filename(filename_stem):
-    match = re.search(r"_(\d\d\d\d\-\d\d\-\d\d)$", filename_stem)
+def _get_date_from_filename(filename_stem, measure_id):
+    match = re.search(rf"_{measure_id}_(\d\d\d\d\-\d\d\-\d\d)$", filename_stem)
     return datetime.date.fromisoformat(match.group(1)) if match else None
