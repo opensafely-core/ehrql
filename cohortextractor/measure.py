@@ -160,7 +160,8 @@ class Measure:
         reporter(f"Additional suppression in column {column} in measure {self.id}")
 
     def _calculate_results(self, data):
-        data["value"] = data[self.numerator] / data[self.denominator]
+        if self.numerator in data:
+            data["value"] = data[self.numerator] / data[self.denominator]
 
 
 def _drop_duplicates(lst):
@@ -191,18 +192,18 @@ class MeasuresManager:
             return self._patient_dataframe
         return self._load_patient_dataframe()
 
-    def _load_patient_dataframe(self):
+    def _load_patient_dataframe(self, input_data=None):
         """
         Given a file name and a list of measures, load the file into a Pandas
         dataframe with types as appropriate for the supplied measures
+        Optionally, input data can be provided as a list of dicts, as would be read from
+        the input CSV file.
         """
-        assert (
-            self._input_file.exists()
-        ), f"Expected cohort input file {str(self._input_file)} not found. You may need to first run:\n  cohortextractor generate_cohort ..."
+        if input_data is None:
+            assert (
+                self._input_file.exists()
+            ), f"Expected cohort input file {str(self._input_file)} not found. You may need to first run:\n  cohortextractor generate_cohort ..."
 
-        # TODO: Eventually this will support and expect filenames with dates
-        #  currently supports single filenames only and doesn't care about extracting a
-        #  date from the filename
         numeric_columns = set()
         group_by_columns = set()
         for measure in self.measures:
@@ -215,12 +216,24 @@ class MeasuresManager:
         dtype = {col: "category" for col in group_by_columns}
         for col in numeric_columns:
             dtype[col] = "float64"
-        df = pandas.read_csv(
-            self._input_file,
-            dtype=dtype,
-            usecols=list(dtype.keys()),
-            keep_default_na=False,
-        )
+
+        if input_data:
+            df = pandas.DataFrame.from_records(
+                input_data,
+                columns=list(dtype.keys()),
+                coerce_float=True,
+            )
+            for column in numeric_columns:
+                df[column].astype("float64")
+            for column in group_by_columns:
+                df[column].astype("category")
+        else:
+            df = pandas.read_csv(
+                self._input_file,
+                dtype=dtype,
+                usecols=list(dtype.keys()),
+                keep_default_na=False,
+            )
         df[Measure.POPULATION_COLUMN] = 1
         self._patient_dataframe = df
         return self._patient_dataframe

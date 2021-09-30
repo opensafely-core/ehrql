@@ -1,0 +1,22 @@
+code,term
+198081000000101,Ambulatory systolic blood pressure
+251070002,Non-invasive systolic arterial pressure
+271649006,Systolic blood pressure
+314438006,Minimum systolic blood pressure
+314439003,Maximum systolic blood pressure
+314440001,Average systolic blood pressure
+314441002,Minimum day interval systolic blood pressure
+314444005,Maximum day interval systolic blood pressure
+314445006,Average night interval systolic blood pressure
+314446007,Average day interval systolic blood pressure
+314447003,Minimum 24 hour systolic blood pressure
+314448008,Maximum 24 hour systolic blood pressure
+314449000,Average 24 hour systolic blood pressure
+314464000,24 hour systolic blood pressure
+400974009,Standing systolic blood pressure
+407554009,Sitting systolic blood pressure
+407556006,Lying systolic blood pressure
+413606001,Average home systolic blood pressure
+707303003,Post exercise systolic blood pressure response abnormal
+716579001,Baseline systolic blood pressure
+72313002,Systolic arterial pressure
