@@ -1,9 +1,13 @@
+import shutil
+from pathlib import Path
+
 import numpy
 import pandas
+import pytest
 from lib.util import RecordingReporter, null_reporter
 
 import cohortextractor.measure as measure
-from cohortextractor.measure import Measure
+from cohortextractor.measure import Measure, combine_csv_files_with_dates
 
 
 def test_calculates_quotients():
@@ -299,3 +303,61 @@ def test_reports_suppression_of_extra_values():
 
 def calculate(measure, data, reporter=null_reporter):
     return measure.calculate(data, reporter)
+
+
+@pytest.mark.parametrize(
+    "measure_id,creates_new_combined_file,expected_output_file,expected_contents",
+    [
+        (
+            # combines only date files with the measure id "test"; doesn't try to combine
+            # others that start with "test", and ignores a file with an invalid date format
+            "test",
+            True,
+            "measure_test.csv",
+            [
+                dict(a=1, b=2, c=3, date="2021-01-01"),
+                dict(a=4, b=5, c=6, date="2021-02-01"),
+                dict(a=7, b=8, c=9, date="2021-03-01"),
+            ],
+        ),
+        (
+            "test_code",
+            True,
+            "measure_test_code.csv",
+            [
+                dict(d=1, e=2, f=3, date="2021-03-01"),
+                dict(d=4, e=5, f=6, date="2021-04-01"),
+            ],
+        ),
+        (
+            # No date stamped files; the existing non-date file remains unchanged (no date column added)
+            "test_event",
+            False,
+            "measure_test_event.csv",
+            [
+                dict(a=0, b=0, c=0),
+            ],
+        ),
+    ],
+)
+def test_csv_merging(
+    tmpdir,
+    measure_id,
+    creates_new_combined_file,
+    expected_output_file,
+    expected_contents,
+):
+    fixtures_dir = Path(__file__).parent.absolute() / "fixtures" / "csv_date_merging"
+    for file in fixtures_dir.iterdir():
+        shutil.copy(file, tmpdir)
+    output_dir = Path(tmpdir)
+    output_file = output_dir / "measure_*.csv"
+
+    assert (output_dir / expected_output_file).exists() is not creates_new_combined_file
+
+    combine_csv_files_with_dates(output_file, measure_id)
+    expected_file = output_dir / expected_output_file
+    assert expected_file.exists()
+    with open(expected_file) as infile:
+        df = pandas.read_csv(infile)
+        assert df.to_dict("records") == expected_contents
