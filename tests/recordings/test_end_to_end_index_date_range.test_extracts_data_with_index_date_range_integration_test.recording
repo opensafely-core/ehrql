@@ -86,9 +86,15 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.patient_id) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
   {},
@@ -101,9 +107,15 @@
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.patient_id) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
   {},
@@ -112,7 +124,7 @@
  ('Connection', 'commit', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO temp_tables..TempExtract_ddbd975bb572691df898a67329579a19 \n'
+  ('SELECT * INTO temp_tables..TempExtract_4a7ba3163980b5f8932feec48b201312 \n'
    'FROM (SELECT [#group_table_0].patient_id AS patient_id, '
    '[#group_table_1].date AS date, [#group_table_2].code AS event \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
@@ -127,8 +139,8 @@
  ('Cursor',
   'execute',
   ('CREATE INDEX '
-   '[ix_temp_tables..TempExtract_ddbd975bb572691df898a67329579a19_patient_id] '
-   'ON temp_tables..TempExtract_ddbd975bb572691df898a67329579a19 (patient_id)',
+   '[ix_temp_tables..TempExtract_4a7ba3163980b5f8932feec48b201312_patient_id] '
+   'ON temp_tables..TempExtract_4a7ba3163980b5f8932feec48b201312 (patient_id)',
    {}),
   {},
   None),
@@ -137,7 +149,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 32000 * \n'
-   'FROM temp_tables..TempExtract_ddbd975bb572691df898a67329579a19 ORDER BY '
+   'FROM temp_tables..TempExtract_4a7ba3163980b5f8932feec48b201312 ORDER BY '
    'patient_id',
    {}),
   {},
@@ -160,7 +172,7 @@
   'execute',
   ('\n'
    'DROP TABLE IF EXISTS '
-   'temp_tables..TempExtract_ddbd975bb572691df898a67329579a19',
+   'temp_tables..TempExtract_4a7ba3163980b5f8932feec48b201312',
    {}),
   {},
   None),
@@ -255,9 +267,15 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.patient_id) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
   {},
@@ -270,9 +288,15 @@
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.patient_id) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
   {},
@@ -281,7 +305,7 @@
  ('Connection', 'commit', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO temp_tables..TempExtract_1f06e21d4a92c1896777b62d5c049705 \n'
+  ('SELECT * INTO temp_tables..TempExtract_f9da03c334a553defd7a63ffe9208835 \n'
    'FROM (SELECT [#group_table_0].patient_id AS patient_id, '
    '[#group_table_1].date AS date, [#group_table_2].code AS event \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
@@ -296,8 +320,8 @@
  ('Cursor',
   'execute',
   ('CREATE INDEX '
-   '[ix_temp_tables..TempExtract_1f06e21d4a92c1896777b62d5c049705_patient_id] '
-   'ON temp_tables..TempExtract_1f06e21d4a92c1896777b62d5c049705 (patient_id)',
+   '[ix_temp_tables..TempExtract_f9da03c334a553defd7a63ffe9208835_patient_id] '
+   'ON temp_tables..TempExtract_f9da03c334a553defd7a63ffe9208835 (patient_id)',
    {}),
   {},
   None),
@@ -306,7 +330,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 32000 * \n'
-   'FROM temp_tables..TempExtract_1f06e21d4a92c1896777b62d5c049705 ORDER BY '
+   'FROM temp_tables..TempExtract_f9da03c334a553defd7a63ffe9208835 ORDER BY '
    'patient_id',
    {}),
   {},
@@ -339,7 +363,7 @@
   'execute',
   ('\n'
    'DROP TABLE IF EXISTS '
-   'temp_tables..TempExtract_1f06e21d4a92c1896777b62d5c049705',
+   'temp_tables..TempExtract_f9da03c334a553defd7a63ffe9208835',
    {}),
   {},
   None),
@@ -434,9 +458,15 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.patient_id) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
   {},
@@ -449,9 +479,15 @@
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.patient_id) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
   {},
@@ -460,7 +496,7 @@
  ('Connection', 'commit', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO temp_tables..TempExtract_7658ee339c73c9a7723c1447fec4e83d \n'
+  ('SELECT * INTO temp_tables..TempExtract_be078e81b958c306778f951cb287b9fc \n'
    'FROM (SELECT [#group_table_0].patient_id AS patient_id, '
    '[#group_table_1].date AS date, [#group_table_2].code AS event \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
@@ -475,8 +511,8 @@
  ('Cursor',
   'execute',
   ('CREATE INDEX '
-   '[ix_temp_tables..TempExtract_7658ee339c73c9a7723c1447fec4e83d_patient_id] '
-   'ON temp_tables..TempExtract_7658ee339c73c9a7723c1447fec4e83d (patient_id)',
+   '[ix_temp_tables..TempExtract_be078e81b958c306778f951cb287b9fc_patient_id] '
+   'ON temp_tables..TempExtract_be078e81b958c306778f951cb287b9fc (patient_id)',
    {}),
   {},
   None),
@@ -485,7 +521,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 32000 * \n'
-   'FROM temp_tables..TempExtract_7658ee339c73c9a7723c1447fec4e83d ORDER BY '
+   'FROM temp_tables..TempExtract_be078e81b958c306778f951cb287b9fc ORDER BY '
    'patient_id',
    {}),
   {},
@@ -518,7 +554,7 @@
   'execute',
   ('\n'
    'DROP TABLE IF EXISTS '
-   'temp_tables..TempExtract_7658ee339c73c9a7723c1447fec4e83d',
+   'temp_tables..TempExtract_be078e81b958c306778f951cb287b9fc',
    {}),
   {},
   None),

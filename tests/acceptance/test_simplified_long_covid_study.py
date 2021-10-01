@@ -9,6 +9,7 @@ from lib.tpp_schema import (
     patient,
     positive_test,
     registration,
+    snomed_event,
 )
 from lib.util import extract
 
@@ -95,8 +96,12 @@ def test_simplified_cohort(database, setup_backend_database):
             negative_test(specimen_date="2020-04-04"),
             event(code="Y228e", date="2020-07-07"),  # covid diagnosis
             apcs(codes="U071", admission_date="2020-08-08"),  # covid virus identified
-            event(code="1325161000000102", date="2020-09-09"),  # post-covid syndrome
-            event(code="1325161000000102", date="2020-10-10"),  # post-covid syndrome
+            snomed_event(
+                code="1325161000000102", date="2020-09-09"
+            ),  # post-covid syndrome
+            snomed_event(
+                code="1325161000000102", date="2020-10-10"
+            ),  # post-covid syndrome
         ),
         # excluded by registration date
         *patient(

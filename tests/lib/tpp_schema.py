@@ -56,6 +56,22 @@ def event(code, date, numeric_value=None):
     return Events(CTV3Code=code, ConsultationDate=date, NumericValue=numeric_value)
 
 
+class SnomedEvents(Base):
+    __tablename__ = "CodedEvent_SNOMED"
+
+    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
+    CodedEvent_ID = Column(Integer, primary_key=True)
+    NumericValue = Column(Float)
+    ConsultationDate = Column(DateTime)
+    ConceptID = Column(String(collation="Latin1_General_BIN"))
+
+
+def snomed_event(code, date, numeric_value=None):
+    return SnomedEvents(
+        ConceptID=code, ConsultationDate=date, NumericValue=numeric_value
+    )
+
+
 class SGSSPositiveTests(Base):
     __tablename__ = "SGSS_AllTests_Positive"
     Result_ID = Column(

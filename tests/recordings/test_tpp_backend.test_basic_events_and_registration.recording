@@ -47,9 +47,15 @@
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.patient_id) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
   {},

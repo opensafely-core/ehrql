@@ -47,8 +47,8 @@
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date DESC) AS _row_num \n'
-   'FROM (SELECT [EventCode] AS code, [Date] AS date, [ResultValue] AS result, '
-   '[PatientId] AS patient_id \n'
+   'FROM (SELECT [EventCode] AS code, [System] AS system, [Date] AS date, '
+   '[ResultValue] AS result, [PatientId] AS patient_id \n'
    'FROM events) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
@@ -62,8 +62,8 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date DESC) AS _row_num \n'
-   'FROM (SELECT [EventCode] AS code, [Date] AS date, [ResultValue] AS result, '
-   '[PatientId] AS patient_id \n'
+   'FROM (SELECT [EventCode] AS code, [System] AS system, [Date] AS date, '
+   '[ResultValue] AS result, [PatientId] AS patient_id \n'
    'FROM events) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),

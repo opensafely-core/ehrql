@@ -3,6 +3,7 @@ import os
 import pytest
 
 import cohortextractor.main
+from cohortextractor import codelist
 
 
 def get_mode(name, values, default):
@@ -51,3 +52,7 @@ class RecordingReporter:
 
 def null_reporter(msg):
     pass
+
+
+def make_codelist(*codes, system="ctv3"):
+    return codelist(codes, system=system)

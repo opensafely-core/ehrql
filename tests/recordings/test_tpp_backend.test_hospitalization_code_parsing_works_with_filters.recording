@@ -44,7 +44,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_0] (\n'
-   '\tcode VARCHAR(3) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(3) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -53,7 +54,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_0] (code) VALUES (%(code_m0)s)', {'code_m0': 'xyz'}),
+  ('INSERT INTO [#codelist_0] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': 'xyz', 'system_m0': 'icd10'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -79,7 +82,7 @@
    'REVERSE(fully_split.Value)) + 1\n'
    '            )\n'
    '        )\n'
-   '     as code\n'
+   "     as code, 'icd10' as system\n"
    '            FROM APCS\n'
    '            -- Our string_split() implementation only works as long as the '
    "codelists do not contain '<', '>' or '&'\n"
@@ -113,9 +116,10 @@
    '     fully_split\n'
    '        ) AS hospitalizations \n'
    'WHERE hospitalizations.code IN (SELECT [#codelist_0].code \n'
-   'FROM [#codelist_0])) AS anon_2 \n'
+   'FROM [#codelist_0] \n'
+   'WHERE hospitalizations.system = %(system_1)s)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'row_num_1': 1}),
+   {'system_1': 'icd10', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),

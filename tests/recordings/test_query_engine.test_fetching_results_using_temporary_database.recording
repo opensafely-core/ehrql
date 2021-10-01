@@ -62,8 +62,8 @@
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date DESC) AS _row_num \n'
-   'FROM (SELECT [EventCode] AS code, [Date] AS date, [ResultValue] AS result, '
-   '[PatientId] AS patient_id \n'
+   'FROM (SELECT [EventCode] AS code, [System] AS system, [Date] AS date, '
+   '[ResultValue] AS result, [PatientId] AS patient_id \n'
    'FROM events) AS clinical_events) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
@@ -86,7 +86,7 @@
  ('Connection', 'commit', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO temp_tables..TempExtract_93463992a6eaf6863b4b8e8d67268e88 \n'
+  ('SELECT * INTO temp_tables..TempExtract_667ff9a78afa7c4aa07c074c9c668c04 \n'
    'FROM (SELECT [#group_table_1].patient_id AS patient_id, '
    '[#group_table_0].code AS code \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
@@ -99,8 +99,8 @@
  ('Cursor',
   'execute',
   ('CREATE INDEX '
-   '[ix_temp_tables..TempExtract_93463992a6eaf6863b4b8e8d67268e88_patient_id] '
-   'ON temp_tables..TempExtract_93463992a6eaf6863b4b8e8d67268e88 (patient_id)',
+   '[ix_temp_tables..TempExtract_667ff9a78afa7c4aa07c074c9c668c04_patient_id] '
+   'ON temp_tables..TempExtract_667ff9a78afa7c4aa07c074c9c668c04 (patient_id)',
    {}),
   {},
   None),
@@ -109,7 +109,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 32000 * \n'
-   'FROM temp_tables..TempExtract_93463992a6eaf6863b4b8e8d67268e88 ORDER BY '
+   'FROM temp_tables..TempExtract_667ff9a78afa7c4aa07c074c9c668c04 ORDER BY '
    'patient_id',
    {}),
   {},
@@ -128,7 +128,7 @@
   'execute',
   ('\n'
    'DROP TABLE IF EXISTS '
-   'temp_tables..TempExtract_93463992a6eaf6863b4b8e8d67268e88',
+   'temp_tables..TempExtract_667ff9a78afa7c4aa07c074c9c668c04',
    {}),
   {},
   None),

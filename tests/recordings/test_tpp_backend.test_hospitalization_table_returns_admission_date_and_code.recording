@@ -62,7 +62,7 @@
    'REVERSE(fully_split.Value)) + 1\n'
    '            )\n'
    '        )\n'
-   '     as code\n'
+   "     as code, 'icd10' as system\n"
    '            FROM APCS\n'
    '            -- Our string_split() implementation only works as long as the '
    "codelists do not contain '<', '>' or '&'\n"
