@@ -13,5 +13,6 @@ flake8-implicit-str-concat
 isort
 pytest
 pytest-cov
+pytest-freezegun
 docker
 six # undeclared dependency of docker (https://github.com/docker/docker-py/issues/2842)

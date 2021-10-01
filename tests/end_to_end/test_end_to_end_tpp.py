@@ -30,7 +30,11 @@ def run_test(
         Events(Patient_ID=2, ConsultationDate="2021-02-02", CTV3Code="abc"),
         RegistrationHistory(Patient_ID=2),
     )
-    study = load_study("end_to_end_tests_tpp", dummy_data_file)
+    study = load_study(
+        "end_to_end_tests_tpp",
+        definition_file="tpp_cohort.py",
+        dummy_data_file=dummy_data_file,
+    )
     actual_results = cohort_extractor(
         study, backend="tpp", use_dummy_data=dummy_data_file is not None
     )
@@ -38,7 +42,7 @@ def run_test(
 
 
 def test_dummy_data(load_study, cohort_extractor_in_process_no_database):
-    study = load_study("end_to_end_tests_tpp")
+    study = load_study("end_to_end_tests_tpp", definition_file="tpp_cohort.py")
     actual_results = cohort_extractor_in_process_no_database(study, use_dummy_data=True)
     assert_results_equivalent(actual_results, study.expected_results())
 
