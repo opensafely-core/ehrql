@@ -65,13 +65,18 @@ class TPPBackend(BaseBackend):
         ),
     )
 
-    clinical_events = MappedTable(
-        source="CodedEvent",
+    clinical_events = QueryTable(
         columns=dict(
-            code=Column("varchar", source="CTV3Code"),
-            date=Column("datetime", source="ConsultationDate"),
-            numeric_value=Column("float", source="NumericValue"),
+            code=Column("varchar"),
+            system=Column("varchar"),
+            date=Column("datetime"),
+            numeric_value=Column("float"),
         ),
+        query="""
+            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as system, ConsultationDate AS date, NumericValue AS numeric_value FROM CodedEvent
+            UNION ALL
+            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' as system, ConsultationDate AS date, NumericValue AS numeric_value FROM CodedEvent_SNOMED
+        """,
     )
 
     practice_registrations = QueryTable(
@@ -108,9 +113,10 @@ class TPPBackend(BaseBackend):
         columns=dict(
             date=Column("date"),
             code=Column("varchar"),
+            system=Column("varchar"),
         ),
         query=f"""
-            SELECT Patient_ID as patient_id, Admission_Date as date, {rtrim("fully_split.Value", "X")} as code
+            SELECT Patient_ID as patient_id, Admission_Date as date, {rtrim("fully_split.Value", "X")} as code, 'icd10' as system
             FROM APCS
             -- Our string_split() implementation only works as long as the codelists do not contain '<', '>' or '&'
             -- characters. If that assumption is broken then this will fail unpredictably.
