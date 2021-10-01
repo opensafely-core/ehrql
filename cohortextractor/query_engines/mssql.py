@@ -326,6 +326,11 @@ class MssqlQueryEngine(BaseQueryEngine):
                     sqlalchemy.types.String(max_code_len, collation=collation),
                     nullable=False,
                 ),
+                sqlalchemy.Column(
+                    "system",
+                    sqlalchemy.types.String(6),
+                    nullable=False,
+                ),
             )
             self.codelist_tables[codelist] = table
             # Constuct the queries needed to create and populate this table
@@ -334,7 +339,9 @@ class MssqlQueryEngine(BaseQueryEngine):
             # this method See:
             # https://docs.microsoft.com/en-us/sql/t-sql/queries/table-value-constructor-transact-sql?view=sql-server-ver15#limitations-and-restrictions
             for codes_batch in split_list_into_batches(codes, size=999):
-                insert_query = table.insert().values([(code,) for code in codes_batch])
+                insert_query = table.insert().values(
+                    [(code, codelist.system) for code in codes_batch]
+                )
                 self.codelist_tables_queries.append(insert_query)
 
     def get_select_expression(self, base_table, columns):
@@ -587,9 +594,15 @@ class MssqlQueryEngine(BaseQueryEngine):
                 # Shouldn't get any other type here
                 assert False
 
+        if isinstance(filter_node.value, Codelist):
+            # Codelist queries must also match on system
+            system_column = table_expr.c["system"]
+            value_expr = value_expr.where(system_column == filter_node.value.system)
+
         column = table_expr.c[column_name]
         method = getattr(column, operator_name)
-        return query.where(method(value_expr))
+        query_expr = method(value_expr)
+        return query.where(query_expr)
 
     @staticmethod
     def apply_row_selector(query, sort_columns, descending):
