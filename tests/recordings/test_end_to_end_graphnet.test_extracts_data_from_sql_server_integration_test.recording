@@ -60,8 +60,9 @@
   ('SELECT * INTO #group_table_0 \n'
    'FROM (SELECT patients.patient_id AS patient_id, %(param_1)s AS '
    'patient_id_exists \n'
-   'FROM (SELECT date_of_birth, patient_id \n'
-   'FROM [Patients]) AS patients GROUP BY patients.patient_id) AS anon_1',
+   'FROM (SELECT [Sex] AS sex, [DateOfBirth] AS date_of_birth, [DateOfDeath] '
+   'AS date_of_death, [Patient_ID] AS patient_id \n'
+   'FROM [TRE.Patients]) AS patients GROUP BY patients.patient_id) AS anon_1',
    {'param_1': 1}),
   {},
   None),
@@ -74,8 +75,9 @@
    'FROM (SELECT patients.date_of_birth AS date_of_birth, patients.patient_id '
    'AS patient_id, row_number() OVER (PARTITION BY patients.patient_id ORDER '
    'BY patients.patient_id) AS _row_num \n'
-   'FROM (SELECT date_of_birth, patient_id \n'
-   'FROM [Patients]) AS patients) AS anon_2 \n'
+   'FROM (SELECT [Sex] AS sex, [DateOfBirth] AS date_of_birth, [DateOfDeath] '
+   'AS date_of_death, [Patient_ID] AS patient_id \n'
+   'FROM [TRE.Patients]) AS patients) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'row_num_1': 1}),
   {},
@@ -84,7 +86,7 @@
  ('Connection', 'commit', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO temp_tables..TempExtract_cbae6ed4e0a5f43f3d515f4c10d27709 \n'
+  ('SELECT * INTO temp_tables..TempExtract_84c1c2c5de32306317f9a8b895381f51 \n'
    'FROM (SELECT [#group_table_0].patient_id AS patient_id, '
    '[#group_table_1].date_of_birth AS dob \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
@@ -97,8 +99,8 @@
  ('Cursor',
   'execute',
   ('CREATE INDEX '
-   '[ix_temp_tables..TempExtract_cbae6ed4e0a5f43f3d515f4c10d27709_patient_id] '
-   'ON temp_tables..TempExtract_cbae6ed4e0a5f43f3d515f4c10d27709 (patient_id)',
+   '[ix_temp_tables..TempExtract_84c1c2c5de32306317f9a8b895381f51_patient_id] '
+   'ON temp_tables..TempExtract_84c1c2c5de32306317f9a8b895381f51 (patient_id)',
    {}),
   {},
   None),
@@ -107,7 +109,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 32000 * \n'
-   'FROM temp_tables..TempExtract_cbae6ed4e0a5f43f3d515f4c10d27709 ORDER BY '
+   'FROM temp_tables..TempExtract_84c1c2c5de32306317f9a8b895381f51 ORDER BY '
    'patient_id',
    {}),
   {},
@@ -126,7 +128,7 @@
   'execute',
   ('\n'
    'DROP TABLE IF EXISTS '
-   'temp_tables..TempExtract_cbae6ed4e0a5f43f3d515f4c10d27709',
+   'temp_tables..TempExtract_84c1c2c5de32306317f9a8b895381f51',
    {}),
   {},
   None),
