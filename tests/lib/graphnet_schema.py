@@ -23,27 +23,41 @@ class Patients(Base):
     DateOfDeath = Column(Date)
 
 
-def patient(patient_id, sex, dob, *entities):
+def patient(patient_id, sex, dob, *entities, date_of_death=None):
     for entity in entities:
         entity.Patient_ID = patient_id
-    return [Patients(Patient_ID=patient_id, Sex=sex, DateOfBirth=dob), *entities]
+    return [
+        Patients(
+            Patient_ID=patient_id, Sex=sex, DateOfBirth=dob, DateOfDeath=date_of_death
+        ),
+        *entities,
+    ]
 
 
 class ClinicalEvents(Base):
     __tablename__ = "TRE.ClinicalEvents"
     ClinicalEvent_ID = Column(BigInteger, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("TRE.Patients.Patient_ID"))
-    Code = Column(NVARCHAR(128))
+    Code = Column(NVARCHAR(128, collation="Latin1_General_BIN"))
     CodingSystem = Column(NVARCHAR(32))
     ConsultationDate = Column(DateTime)
     NumericValue = Column(Float)
 
 
-def clinical_event(code, system, date, numeric_value=None):
+def ctv3_clinical_event(code, date, numeric_value=None):
     return ClinicalEvents(
         Code=code,
-        CodingSystem=system,
-        Consultationdate=date,
+        CodingSystem="ctv3",
+        ConsultationDate=date,
+        NumericValue=numeric_value,
+    )
+
+
+def snomed_clinical_event(code, date, numeric_value=None):
+    return ClinicalEvents(
+        Code=code,
+        CodingSystem="snomed",
+        ConsultationDate=date,
         NumericValue=numeric_value,
     )
 
