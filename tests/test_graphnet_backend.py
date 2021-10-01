@@ -62,9 +62,7 @@ def test_registration_dates_no_end(database, setup_backend_database):
         PracticeRegistrations(
             Patient_ID=1, StartDate="2011-01-01", EndDate="2012-12-31"
         ),
-        PracticeRegistrations(
-            Patient_ID=1, StartDate="2013-01-01", EndDate=None
-        ),
+        PracticeRegistrations(Patient_ID=1, StartDate="2013-01-01", EndDate=None),
         backend="graphnet",
     )
 
