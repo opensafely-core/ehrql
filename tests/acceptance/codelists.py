@@ -7,7 +7,7 @@ def load_codelist(csv_file, system, column):
     return codelist_from_csv(
         Path(__file__).parent.parent.absolute()
         / "fixtures"
-        / "long_covid_study"
+        / "acceptance"
         / "codelists"
         / csv_file,
         system=system,
@@ -88,3 +88,78 @@ ethnicity_codes = load_codelist(
     "ctv3",
     "Code",
 )
+
+
+# SRO MEASURES
+
+asthma_codelist = load_codelist(
+    "opensafely-asthma-annual-review-qof.csv", "snomed", "code"
+)
+
+copd_codelist = load_codelist(
+    "opensafely-chronic-obstructive-pulmonary-disease-copd-review-qof.csv",
+    "snomed",
+    "code",
+)
+
+qrisk_codelist = load_codelist(
+    "opensafely-cvd-risk-assessment-score-qof.csv",
+    "snomed",
+    "code",
+)
+
+tsh_codelist = load_codelist(
+    "opensafely-thyroid-stimulating-hormone-tsh-testing.csv",
+    "snomed",
+    "code",
+)
+
+alt_codelist = load_codelist(
+    "opensafely-alanine-aminotransferase-alt-tests.csv",
+    "snomed",
+    "code",
+)
+
+cholesterol_codelist = load_codelist(
+    "opensafely-cholesterol-tests.csv",
+    "snomed",
+    "code",
+)
+
+hba1c_codelist = load_codelist(
+    "opensafely-glycated-haemoglobin-hba1c-tests.csv",
+    "snomed",
+    "code",
+)
+
+rbc_codelist = load_codelist(
+    "opensafely-red-blood-cell-rbc-tests.csv",
+    "snomed",
+    "code",
+)
+
+sodium_codelist = load_codelist(
+    "opensafely-sodium-tests-numerical-value.csv",
+    "snomed",
+    "code",
+)
+
+systolic_bp_codelist = load_codelist(
+    "opensafely-systolic-blood-pressure-qof.csv",
+    "snomed",
+    "code",
+)
+
+medication_review_1 = load_codelist(
+    "opensafely-care-planning-medication-review-simple-reference-set-nhs-digital.csv",
+    "snomed",
+    "code",
+)
+
+medication_review_2 = load_codelist(
+    "nhsd-primary-care-domain-refsets-medrvw_cod.csv",
+    "snomed",
+    "code",
+)
+
+medication_review_codelist = combine_codelists(medication_review_1, medication_review_2)
