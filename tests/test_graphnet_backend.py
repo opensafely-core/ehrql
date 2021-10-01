@@ -199,7 +199,7 @@ def test_events_with_numeric_value(database, setup_backend_database):
 @pytest.mark.integration
 def test_organisation(database, setup_backend_database):
     setup_backend_database(
-        # Organisation not a separate table, so will just move detail to registration record
+        # Organisation not a separate table, so will just move detail to single registration record
         # organisation(1, "South"),
         # organisation(2, "North"),
         *patient(
