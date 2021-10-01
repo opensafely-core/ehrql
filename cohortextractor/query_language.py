@@ -12,6 +12,10 @@ _OPERATOR_MAPPING = {
 }
 
 
+class ValidationError(Exception):
+    ...
+
+
 def table(name):
     return Table(name)
 
@@ -207,6 +211,14 @@ class FilteredTable(Table):
         self.column = column
         self.operator = operator
         self.value = value
+        self._validate()
+
+    def _validate(self):
+        # validate specific columns
+        if self.column == "code" and not isinstance(self.value, Codelist):
+            raise ValidationError(
+                "A 'code' filter must filter on a codelist.  e.g. `.filter(code=codelist(['abc'], system='ctv3')`"
+            )
 
     def __repr__(self):
         return f"FilteredTable(source={self.source}, column={self.column}, operator={self.operator}, value={self.value})"
