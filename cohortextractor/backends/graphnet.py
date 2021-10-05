@@ -19,16 +19,8 @@ class GraphnetBackend(BaseBackend):
     clinical_events = MappedTable(
         source="TRE.ClinicalEvents",
         columns=dict(
-            code=Column("varchar", source="CTV3Code"),
-            date=Column("datetime", source="ConsultationDate"),
-            numeric_value=Column("float", source="NumericValue"),
-        ),
-    )
-
-    clinical_events_snomed = MappedTable(
-        source="TRE.ClinicalEvents_Snomed",
-        columns=dict(
-            code=Column("varchar", source="ConceptID"),
+            code=Column("varchar", source="Code"),
+            system=Column("varchar", source="CodingSystem"),
             date=Column("datetime", source="ConsultationDate"),
             numeric_value=Column("float", source="NumericValue"),
         ),

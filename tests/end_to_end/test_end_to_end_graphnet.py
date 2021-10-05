@@ -24,10 +24,14 @@ def run_test(
 ):
     setup_backend_database(
         Patients(Patient_ID=1, DateOfBirth="1980-01-01"),
-        ClinicalEvents(Patient_ID=1, ConsultationDate="2021-01-01", CTV3Code="xyz"),
+        ClinicalEvents(
+            Patient_ID=1, ConsultationDate="2021-01-01", Code="xyz", CodingSystem="CTV3"
+        ),
         PracticeRegistrations(Patient_ID=1),
         Patients(Patient_ID=2, DateOfBirth="1948-02-02"),
-        ClinicalEvents(Patient_ID=2, ConsultationDate="2021-02-02", CTV3Code="abc"),
+        ClinicalEvents(
+            Patient_ID=2, ConsultationDate="2021-02-02", Code="abc", CodingSystem="CTV3"
+        ),
         PracticeRegistrations(Patient_ID=2),
         backend="graphnet",
     )
