@@ -33,24 +33,19 @@ class ClinicalEvents(Base):
     __tablename__ = "TRE.ClinicalEvents"
     ClinicalEvent_ID = Column(BigInteger, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("TRE.Patients.Patient_ID"))
-    CTV3Code = Column(NVARCHAR(64))
+    Code = Column(NVARCHAR(128))
+    CodingSystem = Column(NVARCHAR(32))
     ConsultationDate = Column(DateTime)
     NumericValue = Column(Float)
 
 
-def clinical_event(code, date, numeric_value=None):
+def clinical_event(code, system, date, numeric_value=None):
     return ClinicalEvents(
-        CTV3Code=code, Consultationdate=date, NumericValue=numeric_value
+        Code=code,
+        CodingSystem=system,
+        Consultationdate=date,
+        NumericValue=numeric_value,
     )
-
-
-class ClinicalEventsSnomed(Base):
-    __tablename__ = "TRE.ClinicalEvents_Snomed"
-    ClinicalEvent_ID = Column(BigInteger, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("TRE.Patients.Patient_ID"))
-    ConceptID = Column(NVARCHAR(64))
-    ConsultationDate = Column(DateTime)
-    NumericValue = Column(Float)
 
 
 class PracticeRegistrations(Base):

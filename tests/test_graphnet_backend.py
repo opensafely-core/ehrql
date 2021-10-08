@@ -22,15 +22,16 @@ def test_basic_events_and_registration(database, setup_backend_database):
     setup_backend_database(
         Patients(Patient_ID=1),
         PracticeRegistrations(Patient_ID=1),
-        ClinicalEvents(Patient_ID=1, CTV3Code="Code1"),
+        ClinicalEvents(Patient_ID=1, Code="Code1", CodingSystem="CTV3"),
         backend="graphnet",
     )
 
     class Cohort:
         code = table("clinical_events").first_by("patient_id").get("code")
+        system = table("clinical_events").first_by("patient_id").get("system")
 
     assert extract(Cohort, GraphnetBackend, database) == [
-        dict(patient_id=1, code="Code1")
+        dict(patient_id=1, code="Code1", system="CTV3")
     ]
 
 
@@ -182,7 +183,9 @@ def test_events_with_numeric_value(database, setup_backend_database):
     setup_backend_database(
         Patients(Patient_ID=1),
         PracticeRegistrations(Patient_ID=1),
-        ClinicalEvents(Patient_ID=1, CTV3Code="Code1", NumericValue=34.7),
+        ClinicalEvents(
+            Patient_ID=1, Code="Code1", CodingSystem="CTV3", NumericValue=34.7
+        ),
         backend="graphnet",
     )
 
