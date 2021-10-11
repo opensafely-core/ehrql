@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from lib.mock_backend import MockBackend, event, patient
+from lib.mock_backend import MockBackend, ctv3_event, patient
 from lib.util import extract
 
 from cohortextractor import codelist, codelist_from_csv, combine_codelists, table
@@ -25,12 +25,12 @@ def test_codelist_query(database, setup_test_database):
     input_data = [
         *patient(
             1,
-            event(code="abc", date="2021-01-01"),
-            event(code="xyz", date="2021-02-01"),
-            event(code="foo", date="2021-03-01"),
+            ctv3_event(code="abc", date="2021-01-01"),
+            ctv3_event(code="xyz", date="2021-02-01"),
+            ctv3_event(code="foo", date="2021-03-01"),
         ),
-        *patient(2, event(code="bar", date="2021-01-01")),
-        *patient(3, event(code="ijk", date="2021-01-01")),
+        *patient(2, ctv3_event(code="bar", date="2021-01-01")),
+        *patient(3, ctv3_event(code="ijk", date="2021-01-01")),
     ]
     setup_test_database(input_data)
 
@@ -58,9 +58,9 @@ def test_codelist_query(database, setup_test_database):
 @pytest.mark.integration
 def test_codelist_equals_query(database, setup_test_database):
     input_data = [
-        *patient(1, event(code="abc", date="2021-01-01")),
-        *patient(2, event(code="bar", date="2021-01-01")),
-        *patient(3, event(code="ijk", date="2021-01-01")),
+        *patient(1, ctv3_event(code="abc", date="2021-01-01")),
+        *patient(2, ctv3_event(code="bar", date="2021-01-01")),
+        *patient(3, ctv3_event(code="ijk", date="2021-01-01")),
     ]
     setup_test_database(input_data)
 
@@ -83,11 +83,11 @@ def test_codelist_query_selects_correct_system(database, setup_test_database):
     input_data = [
         *patient(
             1,
-            event(code="abc", date="2021-01-01"),
-            event(code="sabc", date="2021-01-01", system="snomed"),
+            ctv3_event(code="abc", date="2021-01-01"),
+            ctv3_event(code="sabc", date="2021-01-01", system="snomed"),
         ),
-        *patient(2, event(code="sabc", date="2021-01-01")),
-        *patient(3, event(code="ijk", date="2021-01-01", system="snomed")),
+        *patient(2, ctv3_event(code="sabc", date="2021-01-01")),
+        *patient(3, ctv3_event(code="ijk", date="2021-01-01", system="snomed")),
     ]
     setup_test_database(input_data)
 
@@ -189,9 +189,9 @@ def test_codelist_query_with_codelist_from_csv(
     database, setup_test_database, codelist_csv
 ):
     input_data = [
-        *patient(1, event(code="abc", date="2021-01-01")),
-        *patient(2, event(code="bar", date="2021-01-01")),
-        *patient(3, event(code="ijk", date="2021-01-01")),
+        *patient(1, ctv3_event(code="abc", date="2021-01-01")),
+        *patient(2, ctv3_event(code="bar", date="2021-01-01")),
+        *patient(3, ctv3_event(code="ijk", date="2021-01-01")),
     ]
     setup_test_database(input_data)
 

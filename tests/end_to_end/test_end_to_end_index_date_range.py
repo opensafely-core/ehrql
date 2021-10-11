@@ -1,6 +1,6 @@
 import pytest
 from end_to_end.utils import assert_results_equivalent
-from lib.tpp_schema import event, patient, registration
+from lib.tpp_schema import ctv3_event, patient, registration
 from lib.util import mark_xfail_in_playback_mode
 
 
@@ -92,7 +92,7 @@ def run_index_date_range_test(
             registration(
                 start_date="2020-01-01", end_date="2026-06-26"
             ),  # registered at all index dates
-            event(code="abc", date="2020-01-01"),  # covid diagnosis
+            ctv3_event(code="abc", date="2020-01-01"),  # covid diagnosis
         ),
         *patient(
             2,
@@ -101,7 +101,7 @@ def run_index_date_range_test(
             registration(
                 start_date="2021-01-14", end_date="2021-06-26"
             ),  # registered at index dates 2021-01-15, 21, 28, 31, 2021-02-01, 28, 2021-03-01
-            event(code="def", date="2020-02-01"),  # covid diagnosis
+            ctv3_event(code="def", date="2020-02-01"),  # covid diagnosis
         ),
         *patient(
             3,
@@ -110,7 +110,7 @@ def run_index_date_range_test(
             registration(
                 start_date="2021-03-01", end_date="2026-06-26"
             ),  # registered at index date 2021-03-01 only
-            event(code="ghi", date="2020-03-01"),  # covid diagnosis
+            ctv3_event(code="ghi", date="2020-03-01"),  # covid diagnosis
         ),
         *patient(
             4,
@@ -119,7 +119,7 @@ def run_index_date_range_test(
             registration(
                 start_date="2021-01-15", end_date="2021-02-20"
             ),  # registered at all index dates 2021-01-15, 21, 28, 31, 2021-02-01
-            event(code="jkl", date="2020-04-01"),  # covid diagnosis
+            ctv3_event(code="jkl", date="2020-04-01"),  # covid diagnosis
         ),
     )
     actual_results = cohort_extractor(

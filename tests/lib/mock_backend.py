@@ -55,7 +55,7 @@ class RegistrationHistory(Base):
     EndDate = sqlalchemy.Column(sqlalchemy.Date)
 
 
-class Events(Base):
+class CTV3Events(Base):
     __tablename__ = "events"
     EventId = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     PatientId = sqlalchemy.Column(sqlalchemy.Integer)
@@ -65,8 +65,8 @@ class Events(Base):
     ResultValue = sqlalchemy.Column(sqlalchemy.Float)
 
 
-def event(code, date=None, value=None, system="ctv3"):
-    return Events(EventCode=code, Date=date, ResultValue=value, System=system)
+def ctv3_event(code, date=None, value=None, system="ctv3"):
+    return CTV3Events(EventCode=code, Date=date, ResultValue=value, System=system)
 
 
 class PositiveTests(Base):

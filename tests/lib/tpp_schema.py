@@ -43,7 +43,7 @@ def registration(start_date, end_date, organisation_id=None):
     )
 
 
-class Events(Base):
+class CTV3Events(Base):
     __tablename__ = "CodedEvent"
     CodedEvent_ID = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
@@ -52,8 +52,8 @@ class Events(Base):
     NumericValue = Column(Float)
 
 
-def event(code, date, numeric_value=None):
-    return Events(CTV3Code=code, ConsultationDate=date, NumericValue=numeric_value)
+def ctv3_event(code, date, numeric_value=None):
+    return CTV3Events(CTV3Code=code, ConsultationDate=date, NumericValue=numeric_value)
 
 
 class SnomedEvents(Base):

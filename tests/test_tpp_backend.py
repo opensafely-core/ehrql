@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 import pytest
 from lib.tpp_schema import (
-    Events,
+    CTV3Events,
     Patient,
     RegistrationHistory,
     SGSSNegativeTests,
@@ -25,7 +25,7 @@ def test_basic_events_and_registration(database, setup_backend_database):
     setup_backend_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1),
-        Events(Patient_ID=1, CTV3Code="Code1"),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1"),
     )
 
     class Cohort:
@@ -226,7 +226,7 @@ def test_events_with_numeric_value(database, setup_backend_database):
     setup_backend_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1),
-        Events(Patient_ID=1, CTV3Code="Code1", NumericValue=34.7),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1", NumericValue=34.7),
     )
 
     class Cohort:
@@ -376,7 +376,7 @@ def test_clinical_events_table(database, setup_backend_database):
     setup_backend_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
-        Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-01-01"),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-01-01"),
         SnomedEvents(Patient_ID=1, ConceptID="Code2", ConsultationDate="2021-02-01"),
     )
 
@@ -403,9 +403,9 @@ def test_clinical_events_table_multiple_codes(database, setup_backend_database):
     setup_backend_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
-        Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-01-01"),
-        Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-02-01"),
-        Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-03-01"),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-01-01"),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-02-01"),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-03-01"),
         SnomedEvents(Patient_ID=1, ConceptID="Code2", ConsultationDate="2021-03-01"),
     )
 
