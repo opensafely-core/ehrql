@@ -29,6 +29,7 @@ class MockBackend(BaseBackend):
         source="events",
         columns=dict(
             code=Column("varchar", source="EventCode"),
+            system=Column("varchar", source="System"),
             date=Column("varchar", source="Date"),
             result=Column("float", source="ResultValue"),
         ),
@@ -54,17 +55,18 @@ class RegistrationHistory(Base):
     EndDate = sqlalchemy.Column(sqlalchemy.Date)
 
 
-class Events(Base):
+class CTV3Events(Base):
     __tablename__ = "events"
     EventId = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     PatientId = sqlalchemy.Column(sqlalchemy.Integer)
     EventCode = sqlalchemy.Column(sqlalchemy.String(collation="Latin1_General_BIN"))
+    System = sqlalchemy.Column(sqlalchemy.String)
     Date = sqlalchemy.Column(sqlalchemy.Date)
     ResultValue = sqlalchemy.Column(sqlalchemy.Float)
 
 
-def event(code, date, value=None):
-    return Events(EventCode=code, Date=date, ResultValue=value)
+def ctv3_event(code, date=None, value=None, system="ctv3"):
+    return CTV3Events(EventCode=code, Date=date, ResultValue=value, System=system)
 
 
 class PositiveTests(Base):
@@ -75,6 +77,10 @@ class PositiveTests(Base):
     TestDate = sqlalchemy.Column(sqlalchemy.Date)
 
 
+def positive_test(result, test_date=None):
+    return PositiveTests(PositiveResult=result, TestDate=test_date)
+
+
 class Patients(Base):
     __tablename__ = "patients"
     Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -83,7 +89,7 @@ class Patients(Base):
     DateOfBirth = sqlalchemy.Column(sqlalchemy.Date)
 
 
-def patient(patient_id, *entities):
+def patient(patient_id, *entities, height=None, dob=None):
     entities = list(entities)
     if not any(isinstance(e, RegistrationHistory) for e in entities):
         entities.append(
@@ -91,4 +97,4 @@ def patient(patient_id, *entities):
         )
     for entity in entities:
         entity.PatientId = patient_id
-    return [Patients(PatientId=patient_id), *entities]
+    return [Patients(PatientId=patient_id, Height=height, DateOfBirth=dob), *entities]

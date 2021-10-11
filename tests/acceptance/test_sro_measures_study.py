@@ -15,7 +15,7 @@ from codelists import (
     systolic_bp_codelist,
     tsh_codelist,
 )
-from lib.tpp_schema import event, organisation, patient, registration
+from lib.tpp_schema import organisation, patient, registration, snomed_event
 from lib.util import extract
 
 from cohortextractor import Measure, cohort_date_range, table
@@ -108,11 +108,17 @@ def test_cohort_tpp_backend(database, setup_backend_database):
             registration(
                 start_date="2001-01-01", end_date="2019-01-10", organisation_id=1
             ),
-            event(code="1079381000000109", date="2019-01-28"),  # medication review
-            event(code="314440001", date="2019-01-28"),  # systolic_bp
-            event(code="1085871000000105", date="2019-02-28"),  # qrisk, out of range
-            event(code="389608004", date="2019-01-28"),  # cholesterol
-            event(code="1013211000000103", date="2018-12-28"),  # alt, out of range
+            snomed_event(
+                code="1079381000000109", date="2019-01-28"
+            ),  # medication review
+            snomed_event(code="314440001", date="2019-01-28"),  # systolic_bp
+            snomed_event(
+                code="1085871000000105", date="2019-02-28"
+            ),  # qrisk, out of range
+            snomed_event(code="389608004", date="2019-01-28"),  # cholesterol
+            snomed_event(
+                code="1013211000000103", date="2018-12-28"
+            ),  # alt, out of range
         ),
         # present at index date 2
         *patient(
@@ -122,12 +128,14 @@ def test_cohort_tpp_backend(database, setup_backend_database):
             registration(
                 start_date="2019-01-15", end_date="2026-02-02", organisation_id=2
             ),
-            event(code="1022791000000101", date="2019-01-28"),  # tsh, out of range
-            event(code="365625004", date="2019-03-02"),  # rbc, out of range
-            event(code="491841000000105", date="2019-02-28"),  # hba1c
-            event(code="1000661000000107", date="2019-02-20"),  # sodium
-            event(code="270442000", date="2019-02-13"),  # asthma
-            event(code="394703002", date="2019-02-01"),  # copd
+            snomed_event(
+                code="1022791000000101", date="2019-01-28"
+            ),  # tsh, out of range
+            snomed_event(code="365625004", date="2019-03-02"),  # rbc, out of range
+            snomed_event(code="491841000000105", date="2019-02-28"),  # hba1c
+            snomed_event(code="1000661000000107", date="2019-02-20"),  # sodium
+            snomed_event(code="270442000", date="2019-02-13"),  # asthma
+            snomed_event(code="394703002", date="2019-02-01"),  # copd
         ),
         # excluded by registration date
         *patient(
@@ -137,7 +145,7 @@ def test_cohort_tpp_backend(database, setup_backend_database):
             registration(
                 start_date="2001-01-01", end_date="2002-02-02", organisation_id=1
             ),
-            event(code="365625004", date="2019-03-02"),  # rbc
+            snomed_event(code="365625004", date="2019-03-02"),  # rbc
         ),
         backend="tpp",
     )

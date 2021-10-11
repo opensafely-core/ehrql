@@ -1,6 +1,6 @@
 import pytest
 from end_to_end.utils import assert_results_equivalent
-from lib.tpp_schema import Events, Patient, RegistrationHistory
+from lib.tpp_schema import CTV3Events, Patient, RegistrationHistory
 from lib.util import mark_xfail_in_playback_mode
 
 
@@ -24,10 +24,10 @@ def run_test(
 ):
     setup_backend_database(
         Patient(Patient_ID=1),
-        Events(Patient_ID=1, ConsultationDate="2021-01-01", CTV3Code="xyz"),
+        CTV3Events(Patient_ID=1, ConsultationDate="2021-01-01", CTV3Code="xyz"),
         RegistrationHistory(Patient_ID=1),
         Patient(Patient_ID=2),
-        Events(Patient_ID=2, ConsultationDate="2021-02-02", CTV3Code="abc"),
+        CTV3Events(Patient_ID=2, ConsultationDate="2021-02-02", CTV3Code="abc"),
         RegistrationHistory(Patient_ID=2),
     )
     study = load_study(

@@ -3,15 +3,14 @@ from datetime import date
 import pytest
 from lib.databases import null_database
 from lib.mock_backend import (
-    Events,
+    CTV3Events,
     MockBackend,
-    Patients,
-    PositiveTests,
     RegistrationHistory,
-    event,
+    ctv3_event,
     patient,
+    positive_test,
 )
-from lib.util import extract, mark_xfail_in_playback_mode
+from lib.util import extract, make_codelist, mark_xfail_in_playback_mode
 
 from cohortextractor.query_language import categorise, table
 
@@ -30,11 +29,10 @@ def test_backend_tables():
 def test_run_generated_sql_get_single_column_default_population(
     database, setup_test_database
 ):
-
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        Events(PatientId=1, EventCode="Code1"),
-        Events(PatientId=2, EventCode="Code2"),
+        *patient(1, ctv3_event("Code1")),
+        # patient 2 has an event, but no RegistrationHistory entry
+        CTV3Events(PatientId=2, EventCode="Code2", System="ctv3"),
     ]
     setup_test_database(input_data)
 
@@ -55,9 +53,9 @@ def test_run_generated_sql_get_single_column_specified_population(
     database, setup_test_database
 ):
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        Events(PatientId=1, EventCode="Code1"),
-        Events(PatientId=2, EventCode="Code2"),
+        *patient(1, ctv3_event("Code1")),
+        # patient 2 has an event, but no RegistrationHistory entry
+        CTV3Events(PatientId=2, EventCode="Code2", System="ctv3"),
     ]
     setup_test_database(input_data)
 
@@ -77,12 +75,8 @@ def test_run_generated_sql_get_single_column_specified_population(
 @pytest.mark.integration
 def test_run_generated_sql_get_multiple_columns(database, setup_test_database):
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP1"),
-        Events(PatientId=1, EventCode="Code1"),
-        Events(PatientId=2, EventCode="Code2"),
-        PositiveTests(PatientId=1, PositiveResult=True),
-        PositiveTests(PatientId=2, PositiveResult=False),
+        *patient(1, ctv3_event("Code1"), positive_test(True)),
+        *patient(2, ctv3_event("Code2"), positive_test(False)),
     ]
     setup_test_database(input_data)
 
@@ -100,9 +94,8 @@ def test_run_generated_sql_get_multiple_columns(database, setup_test_database):
 @pytest.mark.integration
 def test_extract_get_single_column(database, setup_test_database):
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        Events(PatientId=1, EventCode="Code1"),
-        Events(PatientId=2, EventCode="Code2"),
+        *patient(1, ctv3_event("Code1")),
+        CTV3Events(PatientId=2, EventCode="Code2", System="ctv3"),
     ]
     setup_test_database(input_data)
 
@@ -151,13 +144,15 @@ def test_run_generated_sql_get_single_row_per_patient(
     database, setup_test_database, code_output, date_output, expected
 ):
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP1"),
-        Events(PatientId=1, EventCode="Code1", Date="2021-01-03"),
-        Events(PatientId=1, EventCode="Code1", Date="2021-02-01"),
-        Events(PatientId=1, EventCode="Code2", Date="2021-05-02"),
-        Events(PatientId=2, EventCode="Code1", Date="2021-06-05"),
-        Events(PatientId=2, EventCode="Code1", Date="2021-02-04"),
+        *patient(
+            1,
+            ctv3_event("Code1", "2021-01-03"),
+            ctv3_event("Code1", "2021-02-01"),
+            ctv3_event("Code2", "2021-05-02"),
+        ),
+        *patient(
+            2, ctv3_event("Code1", "2021-06-05"), ctv3_event("Code1", "2021-02-04")
+        ),
     ]
     setup_test_database(input_data)
 
@@ -175,31 +170,33 @@ def test_run_generated_sql_get_single_row_per_patient(
     [
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # equal
-                *patient(2, event("Code2", "2021-02-02", 20)),  # not equal
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # equal
+                *patient(2, ctv3_event("Code2", "2021-02-02", 20)),  # not equal
             ],
-            table("clinical_events").filter(code="Code1"),
+            table("clinical_events").filter(code=make_codelist("Code1")),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
             ],
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # both equal
-                *patient(2, event("Code1", "2021-01-02", 20)),  # only one equal
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # both equal
+                *patient(2, ctv3_event("Code1", "2021-01-02", 20)),  # only one equal
             ],
-            table("clinical_events").filter(code="Code1", date="2021-01-01"),
+            table("clinical_events").filter(
+                code=make_codelist("Code1"), date="2021-01-01"
+            ),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
             ],
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # before
-                *patient(2, event("Code2", "2021-01-02", 20)),  # start of range
-                *patient(3, event("Code3", "2021-01-03", 30)),  # within range
-                *patient(4, event("Code4", "2021-01-04", 40)),  # end of range
-                *patient(5, event("Code5", "2021-01-05", 50)),  # after
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # before
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # start of range
+                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # within range
+                *patient(4, ctv3_event("Code4", "2021-01-04", 40)),  # end of range
+                *patient(5, ctv3_event("Code5", "2021-01-05", 50)),  # after
             ],
             table("clinical_events").filter(
                 "date", between=["2021-01-02", "2021-01-04"]
@@ -212,9 +209,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("result", greater_than=20),
             [
@@ -223,9 +220,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("date", greater_than="2021-01-02"),
             [
@@ -234,9 +231,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter(
                 "date", greater_than_or_equals="2021-01-02"
@@ -248,9 +245,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("date", on_or_after="2021-01-02"),
             [
@@ -260,9 +257,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("date", less_than="2021-01-02"),
             [
@@ -271,9 +268,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("date", less_than_or_equals="2021-01-02"),
             [
@@ -283,9 +280,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # before
-                *patient(2, event("Code2", "2021-01-02", 20)),  # on
-                *patient(3, event("Code3", "2021-01-03", 30)),  # after
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # before
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # on
+                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # after
             ],
             table("clinical_events").filter("date", on_or_before="2021-01-02"),
             [
@@ -295,9 +292,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, event("Code3", "2021-01-03", 30)),  # greater than
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("result", less_than_or_equals=20),
             [
@@ -307,30 +304,34 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # not equal
-                *patient(2, event("Code2", "2021-01-02", 20)),  # equal
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # not equal
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
             ],
-            table("clinical_events").filter("code", not_equals="Code2"),
+            table("clinical_events").filter("code", not_equals=make_codelist("Code2")),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
             ],
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # in
-                *patient(2, event("Code2", "2021-01-02", 20)),  # not in
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # in
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # not in
             ],
-            table("clinical_events").filter("code", is_in=["Code1", "Code999"]),
+            table("clinical_events").filter(
+                "code", is_in=make_codelist("Code1", "Code999")
+            ),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
             ],
         ),
         (
             [
-                *patient(1, event("Code1", "2021-01-01", 10)),  # in
-                *patient(2, event("Code2", "2021-01-02", 20)),  # not in
+                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # in
+                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # not in
             ],
-            table("clinical_events").filter("code", not_in=["Code1", "Code999"]),
+            table("clinical_events").filter(
+                "code", not_in=make_codelist("Code1", "Code999")
+            ),
             [
                 dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=20),
             ],
@@ -338,20 +339,20 @@ def test_run_generated_sql_get_single_row_per_patient(
         (
             [
                 *patient(
-                    1, event("Code1", "2021-01-01", 10)
+                    1, ctv3_event("Code1", "2021-01-01", 10)
                 ),  # excluded by first filter
                 *patient(
-                    2, event("Code2", "2021-01-02", 20)
+                    2, ctv3_event("Code2", "2021-01-02", 20)
                 ),  # excluded by second filter
                 *patient(
-                    3, event("Code3", "2021-01-03", 30)
+                    3, ctv3_event("Code3", "2021-01-03", 30)
                 ),  # excluded by third filter
-                *patient(4, event("Code4", "2021-01-04", 40)),  # included
+                *patient(4, ctv3_event("Code4", "2021-01-04", 40)),  # included
             ],
             table("clinical_events")
             .filter("result", greater_than=15)
             .filter("date", between=["2021-01-03", "2021-06-06"])
-            .filter(code="Code4"),
+            .filter(code=make_codelist("Code4")),
             [
                 dict(patient_id=4, code="Code4", date=date(2021, 1, 4), value=40),
             ],
@@ -392,36 +393,39 @@ def test_simple_filters(database, setup_test_database, data, filtered_table, exp
 def test_filter_between_other_query_values(database, setup_test_database):
     # set up input data for 3 patients, with positive test dates and clinical event results
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP1"),
-        RegistrationHistory(PatientId=3, StpId="STP1"),
-        # Patient test results with dates
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-01-01"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-02-15"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-03-02"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-01-21"),
-        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-02-17"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-05-01"),
-        PositiveTests(PatientId=3, PositiveResult=True, TestDate="2021-01-10"),
-        PositiveTests(PatientId=3, PositiveResult=True, TestDate="2021-02-23"),
-        PositiveTests(PatientId=3, PositiveResult=True, TestDate="2021-03-01"),
-        # pt1 first=2021-01-01, last=2021-03-02; 2 values between dates, 1 outside
-        Events(PatientId=1, EventCode="Code1", Date="2021-02-01", ResultValue=10.1),
-        Events(PatientId=1, EventCode="Code1", Date="2021-04-12", ResultValue=10.2),
-        Events(
-            PatientId=1, EventCode="Code1", Date="2021-03-01", ResultValue=10.3
-        ),  # selected
-        # pt2 first=2021-01-21, last=2021-05-01, 1 between, 2 outside
-        Events(PatientId=2, EventCode="Code1", Date="2021-01-10", ResultValue=50.1),
-        Events(
-            PatientId=2, EventCode="Code1", Date="2021-02-01", ResultValue=50.2
-        ),  # selected
-        Events(PatientId=2, EventCode="Code1", Date="2021-05-02", ResultValue=50.3),
-        # pt3 first=2021-01-10, last=2021-03-01, none inside
-        Events(PatientId=3, EventCode="Code1", Date="2021-03-15", ResultValue=60.1),
-        Events(PatientId=3, EventCode="Code1", Date="2021-04-01", ResultValue=60.1),
-        # within dates, but different code
-        Events(PatientId=3, EventCode="Code2", Date="2021-02-01", ResultValue=60.1),
+        *patient(
+            1,
+            positive_test(True, "2021-01-01"),
+            positive_test(True, "2021-02-15"),
+            positive_test(True, "2021-03-02"),
+            # first=2021-01-01, last=2021-03-02; 2 values between dates, 1 outside
+            ctv3_event("Code1", "2021-02-01", system="ctv3", value=10.1),
+            ctv3_event("Code1", "2021-04-12", system="ctv3", value=10.2),
+            ctv3_event("Code1", "2021-03-01", system="ctv3", value=10.3),
+        ),
+        *patient(
+            2,
+            positive_test(True, "2021-01-21"),
+            positive_test(False, "2021-02-17"),
+            positive_test(True, "2021-05-01"),
+            # first=2021-01-21, last=2021-05-01, 1 between, 2 outside
+            ctv3_event("Code1", "2021-01-10", system="ctv3", value=50.1),
+            ctv3_event("Code1", "2021-02-01", system="ctv3", value=50.2),
+            ctv3_event("Code1", "2021-05-02", system="ctv3", value=50.3),
+        ),
+        *patient(
+            3,
+            positive_test(True, "2021-01-10"),
+            positive_test(True, "2021-02-23"),
+            positive_test(True, "2021-03-01"),
+            # first=2021-01-10, last=2021-03-01, none inside
+            ctv3_event("Code1", "2021-03-15", system="ctv3", value=60.1),
+            ctv3_event("Code1", "2021-04-01", system="ctv3", value=60.2),
+            # within dates, but different code
+            ctv3_event("Code2", "2021-02-01", system="ctv3", value=60.3),
+            # within dates, but different system
+            ctv3_event("Code2", "2021-02-01", system="snomed", value=60.3),
+        ),
     ]
     setup_test_database(input_data)
 
@@ -432,7 +436,7 @@ def test_filter_between_other_query_values(database, setup_test_database):
         last_pos = _positive_tests.latest("test_date").get("test_date")
         _events = (
             table("clinical_events")
-            .filter(code="Code1")
+            .filter("code", is_in=make_codelist("Code1"))
             .filter("date", between=[first_pos, last_pos])
             .latest()
         )
@@ -512,27 +516,33 @@ def test_date_in_range_filter(database, setup_test_database):
 def test_in_filter_on_query_values(database, setup_test_database):
     # set up input data for 2 patients, with positive test dates and clinical event results
     input_data = [
-        RegistrationHistory(PatientId=1, StpId="STP1"),
-        RegistrationHistory(PatientId=2, StpId="STP1"),
-        # Patient test results with dates
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-01-01"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-02-15"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-03-02"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-01-10"),
-        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-02-01"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-05-01"),
-        # pt1 2 results with dates matching a positive result: SELECTED
-        Events(PatientId=1, EventCode="Code1", Date="2021-01-01", ResultValue=10.1),
-        Events(PatientId=1, EventCode="Code1", Date="2021-02-15", ResultValue=10.2),
-        # pt1 1 result that doesn't match a positive result date
-        Events(PatientId=1, EventCode="Code1", Date="2021-05-01", ResultValue=10.3),
-        # pt2 1 result matches a positive result date: SELECTED
-        Events(PatientId=2, EventCode="Code1", Date="2021-01-10", ResultValue=50.1),
-        # pt2 1 matches a negative result date
-        Events(PatientId=2, EventCode="Code1", Date="2021-02-01", ResultValue=50.2),
-        # pt2 1 result matches a positive result date but a different code
-        Events(PatientId=2, EventCode="Code2", Date="2021-05-01", ResultValue=50.3),
+        *patient(
+            1,
+            positive_test(True, "2021-01-01"),
+            positive_test(True, "2021-02-15"),
+            positive_test(True, "2021-03-02"),
+            # 2 results with dates matching a positive result: SELECTED
+            ctv3_event("Code1", "2021-01-01", value=10.1),
+            ctv3_event("Code1", "2021-02-15", value=10.2),
+            # 1 result that doesn't match a positive result date
+            ctv3_event("Code1", "2021-05-01", value=10.3),
+        ),
+        *patient(
+            2,
+            positive_test(True, "2021-01-10"),
+            positive_test(False, "2021-02-01"),
+            positive_test(True, "2021-05-01"),
+            # 1 result matches a positive result date: SELECTED
+            ctv3_event("Code1", "2021-01-10", value=50.1),
+            # 1 matches a negative result date
+            ctv3_event("Code1", "2021-02-01", value=50.2),
+            # 1 result matches a positive result date but a different code
+            ctv3_event("Code2", "2021-05-01", value=50.3),
+            # 1 result matches a positive result date but a different system
+            ctv3_event("Code1", "2021-05-01", value=50.4, system="snomed"),
+        ),
     ]
+
     setup_test_database(input_data)
 
     # Cohort to extract the Code1 results that were on a positive test date
@@ -542,7 +552,7 @@ def test_in_filter_on_query_values(database, setup_test_database):
         )
         _last_code1_events_on_positive_test_dates = (
             table("clinical_events")
-            .filter(code="Code1")
+            .filter(code=make_codelist("Code1"))
             .filter("date", is_in=_positive_test_dates)
             .latest()
         )
@@ -559,29 +569,34 @@ def test_in_filter_on_query_values(database, setup_test_database):
 @pytest.mark.integration
 def test_not_in_filter_on_query_values(database, setup_test_database):
     # set up input data for 2 patients, with positive test dates and clinical event results
+
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        # Patient test results with dates
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-01-01"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-02-15"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-03-02"),
-        PositiveTests(PatientId=1, PositiveResult=True, TestDate="2021-05-01"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-01-10"),
-        PositiveTests(PatientId=2, PositiveResult=False, TestDate="2021-02-01"),
-        PositiveTests(PatientId=2, PositiveResult=True, TestDate="2021-05-01"),
-        # pt1 2 results with dates matching a positive result
-        Events(PatientId=1, EventCode="Code1", Date="2021-01-01", ResultValue=10.1),
-        Events(PatientId=1, EventCode="Code1", Date="2021-02-15", ResultValue=10.2),
-        # pt1 1 result that doesn't match a positive result date: SELECTED
-        Events(PatientId=1, EventCode="Code1", Date="2021-04-01", ResultValue=10.3),
-        # pt2 1 result matches a positive result date
-        Events(PatientId=2, EventCode="Code1", Date="2021-01-10", ResultValue=50.1),
-        # pt2 1 matches a negative result date
-        Events(PatientId=2, EventCode="Code1", Date="2021-02-01", ResultValue=50.2),
-        # pt2 1 result doesn't match any result date: SELECTED
-        Events(PatientId=2, EventCode="Code1", Date="2021-05-02", ResultValue=50.3),
+        *patient(
+            1,
+            positive_test(True, "2021-01-01"),
+            positive_test(True, "2021-02-15"),
+            positive_test(True, "2021-03-02"),
+            positive_test(True, "2021-05-01"),
+            # 2 results with dates matching a positive result
+            ctv3_event("Code1", "2021-01-01", value=10.1),
+            ctv3_event("Code1", "2021-02-15", value=10.2),
+            # 1 result that doesn't match a positive result date: SELECTED
+            ctv3_event("Code1", "2021-04-01", value=10.3),
+        ),
+        *patient(
+            2,
+            positive_test(True, "2021-01-10"),
+            positive_test(False, "2021-02-01"),
+            positive_test(True, "2021-05-01"),
+            # 1 result matches a positive result date
+            ctv3_event("Code1", "2021-01-10", value=50.1),
+            # pt2 1 matches a negative result date
+            ctv3_event("Code1", "2021-02-01", value=50.2),
+            # pt2 1 result doesn't match any result date: SELECTED
+            ctv3_event("Code1", "2021-05-02", value=50.3),
+        ),
     ]
+
     setup_test_database(input_data)
 
     # Cohort to extract the results that were NOT on a test date (positive or negative)
@@ -636,20 +651,26 @@ def test_not_in_filter_on_query_values(database, setup_test_database):
 )
 def test_aggregation(database, setup_test_database, aggregation, column, expected):
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        Events(PatientId=1, EventCode="Code1", ResultValue=10.1),
-        Events(PatientId=1, EventCode="Code1", ResultValue=10.5),
-        Events(PatientId=1, EventCode="Code2", ResultValue=30.1),
-        Events(PatientId=2, EventCode="Code1", ResultValue=50.1),
-        Events(PatientId=2, EventCode="Code2", ResultValue=60.1),
-        Events(PatientId=3, EventCode="Code2", ResultValue=70.1),
+        *patient(
+            1,
+            ctv3_event("Code1", value=10.1),
+            ctv3_event("Code1", value=10.5),
+            ctv3_event("Code2", value=30.1),
+        ),
+        *patient(
+            2,
+            ctv3_event("Code1", value=50.1),
+            ctv3_event("Code2", value=60.1),
+        ),
+        *patient(
+            3,
+            ctv3_event("Code2", value=70.1),
+        ),
     ]
     setup_test_database(input_data)
 
     class Cohort:
-        _filtered_table = table("clinical_events").filter(code="Code1")
+        _filtered_table = table("clinical_events").filter(code=make_codelist("Code1"))
         value = getattr(_filtered_table, aggregation)(column)
 
     assert extract(Cohort, MockBackend, database) == expected
@@ -657,14 +678,7 @@ def test_aggregation(database, setup_test_database, aggregation, column, expecte
 
 @pytest.mark.integration
 def test_categorise_simple_comparisons(database, setup_test_database):
-    input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        Patients(PatientId=1, Height=180),
-        Patients(PatientId=2, Height=200.5),
-        Patients(PatientId=3),
-    ]
+    input_data = [*patient(1, height=180), *patient(2, height=200.5), *patient(3)]
     setup_test_database(input_data)
 
     class Cohort:
@@ -737,14 +751,10 @@ def test_categorise_single_combined_conditions(
     database, setup_test_database, categories, default, expected
 ):
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        RegistrationHistory(PatientId=4),
-        Patients(PatientId=1, Height=180),
-        Patients(PatientId=2, Height=200.5),
-        Patients(PatientId=3),
-        Patients(PatientId=4, Height=145),
+        *patient(1, height=180),
+        *patient(2, height=200.5),
+        *patient(3),
+        *patient(4, height=145),
     ]
     setup_test_database(input_data)
 
@@ -761,15 +771,9 @@ def test_categorise_single_combined_conditions(
 def test_categorise_multiple_values(database, setup_test_database):
     """Test that categories can combine conditions that use different source values"""
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        Patients(PatientId=1, Height=200),
-        Patients(PatientId=2, Height=150),
-        Patients(PatientId=3, Height=160),
-        Events(PatientId=1, EventCode="abc"),
-        Events(PatientId=2, EventCode="xyz"),
-        Events(PatientId=3, EventCode="abc"),
+        *patient(1, ctv3_event("abc"), height=200),
+        *patient(2, ctv3_event("xyz"), height=150),
+        *patient(3, ctv3_event("abc"), height=160),
     ]
     setup_test_database(input_data)
 
@@ -793,18 +797,11 @@ def test_categorise_multiple_values(database, setup_test_database):
 @pytest.mark.integration
 def test_categorise_nested_comparisons(database, setup_test_database):
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        RegistrationHistory(PatientId=4),
-        RegistrationHistory(PatientId=5),
-        Patients(PatientId=1, Height=194),  # tall with code - matches
-        Patients(PatientId=2, Height=200.5),  # tall no code  - matches
-        Patients(PatientId=3, Height=140.5),  # short with code - matches
-        Patients(PatientId=4, Height=140.5),  # short no code
-        Events(PatientId=1, EventCode="abc"),
-        Events(PatientId=2, EventCode="xyz"),
-        Events(PatientId=3, EventCode="abc"),
+        *patient(1, ctv3_event("abc"), height=194),  # tall with code - matches
+        *patient(2, ctv3_event("xyz"), height=200.5),  # tall no code  - matches
+        *patient(3, ctv3_event("abc"), height=140.5),  # short with code - matches
+        *patient(4, height=140.5),  # short no code
+        *patient(5),
     ]
     setup_test_database(input_data)
 
@@ -837,18 +834,15 @@ def test_categorise_nested_comparisons(database, setup_test_database):
 def test_categorise_on_truthiness(database, setup_test_database):
     """Test truthiness of a Value from an exists aggregation"""
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        RegistrationHistory(PatientId=4),
-        Events(PatientId=1, EventCode="abc"),
-        Events(PatientId=2, EventCode="xyz"),
-        Events(PatientId=3, EventCode="abc"),
+        *patient(1, ctv3_event("abc")),
+        *patient(2, ctv3_event("xyz")),
+        *patient(3, ctv3_event("abc")),
+        *patient(4),
     ]
     setup_test_database(input_data)
 
     class Cohort:
-        _code = table("clinical_events").filter(code="abc").exists()
+        _code = table("clinical_events").filter(code=make_codelist("abc")).exists()
         _codes_categories = {"yes": _code}
         abc = categorise(_codes_categories, default="na")
 
@@ -865,21 +859,17 @@ def test_categorise_on_truthiness(database, setup_test_database):
 def test_categorise_on_truthiness_from_filter(database, setup_test_database):
     """Test truthiness of a Value from a filtered value"""
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        RegistrationHistory(PatientId=4),
-        Events(PatientId=1, EventCode="abc"),
-        Events(PatientId=2, EventCode="xyz"),
-        Events(PatientId=3, EventCode="abc"),
-        Events(PatientId=4, EventCode="def"),
+        *patient(1, ctv3_event("abc")),
+        *patient(2, ctv3_event("xyz")),
+        *patient(3, ctv3_event("abc")),
+        *patient(4, ctv3_event("def")),
     ]
     setup_test_database(input_data)
 
     class Cohort:
         _code = (
             table("clinical_events")
-            .filter("code", is_in=["abc", "def"])
+            .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
         )
@@ -899,26 +889,17 @@ def test_categorise_on_truthiness_from_filter(database, setup_test_database):
 def test_categorise_multiple_truthiness_values(database, setup_test_database):
     """Test truthiness of a Value from a filtered value"""
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        RegistrationHistory(PatientId=4),
-        Events(PatientId=1, EventCode="abc"),
-        Events(PatientId=2, EventCode="xyz"),
-        Events(PatientId=3, EventCode="abc"),
-        Events(PatientId=4, EventCode="def"),
-        # Patient test results with dates
-        PositiveTests(PatientId=1, PositiveResult=True),
-        PositiveTests(PatientId=2, PositiveResult=False),
-        PositiveTests(PatientId=3, PositiveResult=False),
-        PositiveTests(PatientId=4, PositiveResult=True),
+        *patient(1, ctv3_event("abc"), positive_test(True)),
+        *patient(2, ctv3_event("xyz"), positive_test(False)),
+        *patient(3, ctv3_event("abc"), positive_test(False)),
+        *patient(4, ctv3_event("def"), positive_test(True)),
     ]
     setup_test_database(input_data)
 
     class Cohort:
         _code = (
             table("clinical_events")
-            .filter("code", is_in=["abc", "def"])
+            .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
         )
@@ -938,15 +919,11 @@ def test_categorise_multiple_truthiness_values(database, setup_test_database):
 @pytest.mark.integration
 def test_categorise_invert(database, setup_test_database):
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        RegistrationHistory(PatientId=4),
+        *patient(1, height=194),
+        *patient(2, height=160.5),
+        *patient(3, height=155.5),
+        *patient(4, height=140.5),
         RegistrationHistory(PatientId=5),
-        Patients(PatientId=1, Height=194),  # tall with code - matches
-        Patients(PatientId=2, Height=160.5),  # tall no code  - matches
-        Patients(PatientId=3, Height=155.5),  # short with code - matches
-        Patients(PatientId=4, Height=140.5),  # short no code
     ]
     setup_test_database(input_data)
 
@@ -975,21 +952,17 @@ def test_categorise_invert(database, setup_test_database):
 @pytest.mark.integration
 def test_categorise_invert_truthiness_values(database, setup_test_database):
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        RegistrationHistory(PatientId=4),
-        Events(PatientId=1, EventCode="abc"),
-        Events(PatientId=2, EventCode="xyz"),
-        Events(PatientId=3, EventCode="abc"),
-        Events(PatientId=4, EventCode="def"),
+        *patient(1, ctv3_event("abc")),
+        *patient(2, ctv3_event("xyz")),
+        *patient(3, ctv3_event("abc")),
+        *patient(4, ctv3_event("def")),
     ]
     setup_test_database(input_data)
 
     class Cohort:
         _code = (
             table("clinical_events")
-            .filter("code", is_in=["abc", "def"])
+            .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
         )
@@ -1008,26 +981,17 @@ def test_categorise_invert_truthiness_values(database, setup_test_database):
 @pytest.mark.integration
 def test_categorise_invert_combined_values(database, setup_test_database):
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        RegistrationHistory(PatientId=4),
-        Events(PatientId=1, EventCode="abc"),
-        Events(PatientId=2, EventCode="xyz"),
-        Events(PatientId=3, EventCode="abc"),
-        Events(PatientId=4, EventCode="def"),
-        # Patient test results with dates
-        PositiveTests(PatientId=1, PositiveResult=True),
-        PositiveTests(PatientId=2, PositiveResult=False),
-        PositiveTests(PatientId=3, PositiveResult=False),
-        PositiveTests(PatientId=4, PositiveResult=True),
+        *patient(1, ctv3_event("abc"), positive_test(True)),
+        *patient(2, ctv3_event("xyz"), positive_test(False)),
+        *patient(3, ctv3_event("abc"), positive_test(False)),
+        *patient(4, ctv3_event("def"), positive_test(True)),
     ]
     setup_test_database(input_data)
 
     class Cohort:
         _code = (
             table("clinical_events")
-            .filter("code", is_in=["abc", "def"])
+            .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
         )
@@ -1047,21 +1011,17 @@ def test_categorise_invert_combined_values(database, setup_test_database):
 @pytest.mark.integration
 def test_categorise_double_invert(database, setup_test_database):
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        RegistrationHistory(PatientId=4),
-        Events(PatientId=1, EventCode="abc"),
-        Events(PatientId=2, EventCode="xyz"),
-        Events(PatientId=3, EventCode="abc"),
-        Events(PatientId=4, EventCode="def"),
+        *patient(1, ctv3_event("abc")),
+        *patient(2, ctv3_event("xyz")),
+        *patient(3, ctv3_event("abc")),
+        *patient(4, ctv3_event("def")),
     ]
     setup_test_database(input_data)
 
     class Cohort:
         _code = (
             table("clinical_events")
-            .filter("code", is_in=["abc", "def"])
+            .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
         )
@@ -1090,29 +1050,24 @@ def test_categorise_multiple_truthiness_categories(database, setup_test_database
     this scenario.
     """
     input_data = [
-        RegistrationHistory(PatientId=1),
-        RegistrationHistory(PatientId=2),
-        RegistrationHistory(PatientId=3),
-        RegistrationHistory(PatientId=4),
-        RegistrationHistory(PatientId=5),
-        Events(PatientId=1, EventCode="abc"),
-        Events(PatientId=2, EventCode="xyz"),
-        Events(PatientId=3, EventCode="uvw"),
-        Events(PatientId=4, EventCode="def"),
-        Events(PatientId=2, EventCode="lmn"),
+        *patient(1, ctv3_event("abc")),
+        *patient(2, ctv3_event("xyz"), ctv3_event("lmn")),
+        *patient(3, ctv3_event("uvw")),
+        *patient(4, ctv3_event("def")),
+        *patient(5),
     ]
     setup_test_database(input_data)
 
     class Cohort:
         _codes_1 = (
             table("clinical_events")
-            .filter("code", is_in=["abc", "def"])
+            .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
         )
         _codes_2 = (
             table("clinical_events")
-            .filter("code", is_in=["uvw", "xyz"])
+            .filter("code", is_in=make_codelist("uvw", "xyz"))
             .latest()
             .get("code")
         )
@@ -1132,14 +1087,8 @@ def test_categorise_multiple_truthiness_categories(database, setup_test_database
 @pytest.mark.integration
 def test_age_as_of(database, setup_test_database):
     input_data = [
-        # Patient 1
-        Patients(PatientId=1, DateOfBirth="1990-8-10"),
-        RegistrationHistory(PatientId=1),
-        Events(PatientId=1, Date="2020-10-01"),
-        # Patient 2
-        Patients(PatientId=2, DateOfBirth="2000-03-20"),
-        RegistrationHistory(PatientId=2),
-        Events(PatientId=2, Date="2018-02-01"),
+        *patient(1, ctv3_event("abc", "2020-10-01"), dob="1990-8-10"),
+        *patient(2, ctv3_event("abc", "2018-02-01"), dob="2000-03-20"),
     ]
     setup_test_database(input_data)
 
@@ -1161,8 +1110,8 @@ def test_age_as_of(database, setup_test_database):
 def test_fetching_results_using_temporary_database(database, setup_test_database):
     setup_test_database(
         [
-            *patient(1, event("abc", "2020-01-01")),
-            *patient(2, event("xyz", "2020-01-01")),
+            *patient(1, ctv3_event("abc", "2020-01-01")),
+            *patient(2, ctv3_event("xyz", "2020-01-01")),
         ]
     )
 

@@ -1,19 +1,31 @@
 import pytest
+from lib.util import make_codelist
 
+from cohortextractor.codelistlib import Codelist
 from cohortextractor.query_language import (
     FilteredTable,
     Row,
     Table,
+    ValidationError,
     ValueFromRow,
     table,
 )
 from cohortextractor.query_utils import get_column_definitions
 
 
+def test_cohort_filter_table_codelist_validation():
+    """A code filter must filter on a codelist"""
+    with pytest.raises(ValidationError):
+
+        class Cohort:
+            #  Define tables of interest, filtered to relevant values
+            abc_table = table("clinical_events").filter(code="abc")
+
+
 def test_cohort_column_definitions_simple_query():
     class Cohort:
         #  Define tables of interest, filtered to relevant values
-        _abc_table = table("clinical_events").filter(code="abc")
+        _abc_table = table("clinical_events").filter(code=make_codelist("abc"))
         # Get a single row per patient by selecting the latest event
         _abc_values = _abc_table.latest()
         # define columns in output
@@ -35,7 +47,7 @@ def test_cohort_column_definitions_chained_query():
     class Cohort:
         _abc = (
             table("clinical_events")
-            .filter(code="abc")
+            .filter(code=make_codelist("abc"))
             .filter("date", greater_than="2021-01-01")
         )
         _abc_values = _abc.latest()
@@ -63,8 +75,8 @@ def test_cohort_column_definitions_chained_query():
     assert isinstance(penultimate_filtered_table, FilteredTable)
     assert penultimate_filtered_table.operator == "__eq__"
     assert penultimate_filtered_table.column == "code"
-    assert penultimate_filtered_table.value == "abc"
-
+    assert isinstance(penultimate_filtered_table.value, Codelist)
+    assert penultimate_filtered_table.value.codes == ["abc"]
     initial_table = penultimate_filtered_table.source
     assert isinstance(initial_table, Table)
     assert initial_table.name == "clinical_events"
@@ -128,7 +140,7 @@ def test_cohort_column_definitions_multiple_field_operators():
     class Cohort:
         _filtered = (
             table("clinical_events")
-            .filter("code", greater_than=2, less_than_or_equals=6)
+            .filter("numerical_value", greater_than=2, less_than_or_equals=6)
             .latest()
         )
         output_value = _filtered.get("test_value")
@@ -143,7 +155,11 @@ def test_cohort_column_definitions_multiple_field_operators():
 
 def test_cohort_column_definitions_multiple_equals_operators():
     class Cohort:
-        _filtered = table("clinical_events").filter(code=3, positive_test=True).latest()
+        _filtered = (
+            table("clinical_events")
+            .filter(code=make_codelist(3), positive_test=True)
+            .latest()
+        )
         output_value = _filtered.get("test_value")
 
     column_definitions = get_column_definitions(Cohort)

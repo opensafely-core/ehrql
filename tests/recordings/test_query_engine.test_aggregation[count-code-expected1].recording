@@ -42,15 +42,39 @@
  ('Connection', 'rollback', (), {}, None),
  ('Cursor',
   'execute',
+  ('\n'
+   'CREATE TABLE [#codelist_0] (\n'
+   '\tcode VARCHAR(5) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_0] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': 'Code1', 'system_m0': 'ctv3'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
   ('SELECT * INTO #group_table_0 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [EventCode] AS code, [Date] AS date, [ResultValue] AS result, '
-   '[PatientId] AS patient_id \n'
+   'FROM (SELECT [EventCode] AS code, [System] AS system, [Date] AS date, '
+   '[ResultValue] AS result, [PatientId] AS patient_id \n'
    'FROM events) AS clinical_events \n'
-   'WHERE clinical_events.code = %(code_1)s GROUP BY '
+   'WHERE clinical_events.code = (SELECT [#codelist_0].code \n'
+   'FROM [#codelist_0] \n'
+   'WHERE clinical_events.system = %(system_1)s) GROUP BY '
    'clinical_events.patient_id) AS anon_1',
-   {'code_1': 'Code1'}),
+   {'system_1': 'ctv3'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),

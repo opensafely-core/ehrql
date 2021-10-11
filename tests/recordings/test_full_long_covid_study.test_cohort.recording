@@ -44,7 +44,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_0] (\n'
-   '\tcode VARCHAR(5) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(5) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -53,39 +54,72 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_0] (code) VALUES (%(code_m0)s), (%(code_m1)s), '
-   '(%(code_m2)s), (%(code_m3)s), (%(code_m4)s), (%(code_m5)s), (%(code_m6)s), '
-   '(%(code_m7)s), (%(code_m8)s), (%(code_m9)s), (%(code_m10)s), '
-   '(%(code_m11)s), (%(code_m12)s), (%(code_m13)s), (%(code_m14)s), '
-   '(%(code_m15)s), (%(code_m16)s), (%(code_m17)s), (%(code_m18)s), '
-   '(%(code_m19)s), (%(code_m20)s), (%(code_m21)s), (%(code_m22)s), '
-   '(%(code_m23)s), (%(code_m24)s), (%(code_m25)s)',
+  ('INSERT INTO [#codelist_0] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s), (%(code_m1)s, %(system_m1)s), (%(code_m2)s, '
+   '%(system_m2)s), (%(code_m3)s, %(system_m3)s), (%(code_m4)s, '
+   '%(system_m4)s), (%(code_m5)s, %(system_m5)s), (%(code_m6)s, '
+   '%(system_m6)s), (%(code_m7)s, %(system_m7)s), (%(code_m8)s, '
+   '%(system_m8)s), (%(code_m9)s, %(system_m9)s), (%(code_m10)s, '
+   '%(system_m10)s), (%(code_m11)s, %(system_m11)s), (%(code_m12)s, '
+   '%(system_m12)s), (%(code_m13)s, %(system_m13)s), (%(code_m14)s, '
+   '%(system_m14)s), (%(code_m15)s, %(system_m15)s), (%(code_m16)s, '
+   '%(system_m16)s), (%(code_m17)s, %(system_m17)s), (%(code_m18)s, '
+   '%(system_m18)s), (%(code_m19)s, %(system_m19)s), (%(code_m20)s, '
+   '%(system_m20)s), (%(code_m21)s, %(system_m21)s), (%(code_m22)s, '
+   '%(system_m22)s), (%(code_m23)s, %(system_m23)s), (%(code_m24)s, '
+   '%(system_m24)s), (%(code_m25)s, %(system_m25)s)',
    {'code_m0': 'A795.',
+    'system_m0': 'ctv3',
     'code_m1': 'A7y00',
+    'system_m1': 'ctv3',
     'code_m2': 'AyuDC',
+    'system_m2': 'ctv3',
     'code_m3': 'X73lE',
+    'system_m3': 'ctv3',
     'code_m4': 'X73lF',
+    'system_m4': 'ctv3',
     'code_m5': 'Y20fa',
+    'system_m5': 'ctv3',
     'code_m6': 'Y210b',
+    'system_m6': 'ctv3',
     'code_m7': 'Y211c',
+    'system_m7': 'ctv3',
     'code_m8': 'Y228e',
+    'system_m8': 'ctv3',
     'code_m9': 'Y229c',
+    'system_m9': 'ctv3',
     'code_m10': 'Y22a4',
+    'system_m10': 'ctv3',
     'code_m11': 'Y22a5',
+    'system_m11': 'ctv3',
     'code_m12': 'Y22aa',
+    'system_m12': 'ctv3',
     'code_m13': 'Y246c',
+    'system_m13': 'ctv3',
     'code_m14': 'XaLTE',
+    'system_m14': 'ctv3',
     'code_m15': 'Y20d1',
+    'system_m15': 'ctv3',
     'code_m16': 'Y213a',
+    'system_m16': 'ctv3',
     'code_m17': 'Y228d',
+    'system_m17': 'ctv3',
     'code_m18': 'Y23f7',
+    'system_m18': 'ctv3',
     'code_m19': 'Y240b',
+    'system_m19': 'ctv3',
     'code_m20': 'Y20fb',
+    'system_m20': 'ctv3',
     'code_m21': 'Y20fc',
+    'system_m21': 'ctv3',
     'code_m22': 'Y20fe',
+    'system_m22': 'ctv3',
     'code_m23': 'Y20ff',
+    'system_m23': 'ctv3',
     'code_m24': 'Y210a',
-    'code_m25': 'Y23fd'}),
+    'system_m24': 'ctv3',
+    'code_m25': 'Y23fd',
+    'system_m25': 'ctv3'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 26),
@@ -95,7 +129,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_1] (\n'
-   '\tcode VARCHAR(4) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(4) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -104,8 +139,12 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_1] (code) VALUES (%(code_m0)s), (%(code_m1)s)',
-   {'code_m0': 'U071', 'code_m1': 'U072'}),
+  ('INSERT INTO [#codelist_1] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s), (%(code_m1)s, %(system_m1)s)',
+   {'code_m0': 'U071',
+    'system_m0': 'icd10',
+    'code_m1': 'U072',
+    'system_m1': 'icd10'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 2),
@@ -115,7 +154,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_2] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -124,25 +164,45 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_2] (code) VALUES (%(code_m0)s), (%(code_m1)s), '
-   '(%(code_m2)s), (%(code_m3)s), (%(code_m4)s), (%(code_m5)s), (%(code_m6)s), '
-   '(%(code_m7)s), (%(code_m8)s), (%(code_m9)s), (%(code_m10)s), '
-   '(%(code_m11)s), (%(code_m12)s), (%(code_m13)s), (%(code_m14)s)',
+  ('INSERT INTO [#codelist_2] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s), (%(code_m1)s, %(system_m1)s), (%(code_m2)s, '
+   '%(system_m2)s), (%(code_m3)s, %(system_m3)s), (%(code_m4)s, '
+   '%(system_m4)s), (%(code_m5)s, %(system_m5)s), (%(code_m6)s, '
+   '%(system_m6)s), (%(code_m7)s, %(system_m7)s), (%(code_m8)s, '
+   '%(system_m8)s), (%(code_m9)s, %(system_m9)s), (%(code_m10)s, '
+   '%(system_m10)s), (%(code_m11)s, %(system_m11)s), (%(code_m12)s, '
+   '%(system_m12)s), (%(code_m13)s, %(system_m13)s), (%(code_m14)s, '
+   '%(system_m14)s)',
    {'code_m0': '1325161000000102',
+    'system_m0': 'snomed',
     'code_m1': '1325181000000106',
+    'system_m1': 'snomed',
     'code_m2': '1325021000000106',
+    'system_m2': 'snomed',
     'code_m3': '1325031000000108',
+    'system_m3': 'snomed',
     'code_m4': '1325041000000104',
+    'system_m4': 'snomed',
     'code_m5': '1325051000000101',
+    'system_m5': 'snomed',
     'code_m6': '1325061000000103',
+    'system_m6': 'snomed',
     'code_m7': '1325071000000105',
+    'system_m7': 'snomed',
     'code_m8': '1325081000000107',
+    'system_m8': 'snomed',
     'code_m9': '1325091000000109',
+    'system_m9': 'snomed',
     'code_m10': '1325101000000101',
+    'system_m10': 'snomed',
     'code_m11': '1325121000000105',
+    'system_m11': 'snomed',
     'code_m12': '1325131000000107',
+    'system_m12': 'snomed',
     'code_m13': '1325141000000103',
-    'code_m14': '1325151000000100'}),
+    'system_m13': 'snomed',
+    'code_m14': '1325151000000100',
+    'system_m14': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 15),
@@ -152,7 +212,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_3] (\n'
-   '\tcode VARCHAR(9) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(9) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -161,9 +222,14 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_3] (code) VALUES (%(code_m0)s), (%(code_m1)s), '
-   '(%(code_m2)s)',
-   {'code_m0': '266226000', 'code_m1': '272038003', 'code_m2': '51771007'}),
+  ('INSERT INTO [#codelist_3] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s), (%(code_m1)s, %(system_m1)s), (%(code_m2)s, %(system_m2)s)',
+   {'code_m0': '266226000',
+    'system_m0': 'snomed',
+    'code_m1': '272038003',
+    'system_m1': 'snomed',
+    'code_m2': '51771007',
+    'system_m2': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 3),
@@ -173,7 +239,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_4] (\n'
-   '\tcode VARCHAR(5) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(5) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -182,344 +249,682 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_4] (code) VALUES (%(code_m0)s), (%(code_m1)s), '
-   '(%(code_m2)s), (%(code_m3)s), (%(code_m4)s), (%(code_m5)s), (%(code_m6)s), '
-   '(%(code_m7)s), (%(code_m8)s), (%(code_m9)s), (%(code_m10)s), '
-   '(%(code_m11)s), (%(code_m12)s), (%(code_m13)s), (%(code_m14)s), '
-   '(%(code_m15)s), (%(code_m16)s), (%(code_m17)s), (%(code_m18)s), '
-   '(%(code_m19)s), (%(code_m20)s), (%(code_m21)s), (%(code_m22)s), '
-   '(%(code_m23)s), (%(code_m24)s), (%(code_m25)s), (%(code_m26)s), '
-   '(%(code_m27)s), (%(code_m28)s), (%(code_m29)s), (%(code_m30)s), '
-   '(%(code_m31)s), (%(code_m32)s), (%(code_m33)s), (%(code_m34)s), '
-   '(%(code_m35)s), (%(code_m36)s), (%(code_m37)s), (%(code_m38)s), '
-   '(%(code_m39)s), (%(code_m40)s), (%(code_m41)s), (%(code_m42)s), '
-   '(%(code_m43)s), (%(code_m44)s), (%(code_m45)s), (%(code_m46)s), '
-   '(%(code_m47)s), (%(code_m48)s), (%(code_m49)s), (%(code_m50)s), '
-   '(%(code_m51)s), (%(code_m52)s), (%(code_m53)s), (%(code_m54)s), '
-   '(%(code_m55)s), (%(code_m56)s), (%(code_m57)s), (%(code_m58)s), '
-   '(%(code_m59)s), (%(code_m60)s), (%(code_m61)s), (%(code_m62)s), '
-   '(%(code_m63)s), (%(code_m64)s), (%(code_m65)s), (%(code_m66)s), '
-   '(%(code_m67)s), (%(code_m68)s), (%(code_m69)s), (%(code_m70)s), '
-   '(%(code_m71)s), (%(code_m72)s), (%(code_m73)s), (%(code_m74)s), '
-   '(%(code_m75)s), (%(code_m76)s), (%(code_m77)s), (%(code_m78)s), '
-   '(%(code_m79)s), (%(code_m80)s), (%(code_m81)s), (%(code_m82)s), '
-   '(%(code_m83)s), (%(code_m84)s), (%(code_m85)s), (%(code_m86)s), '
-   '(%(code_m87)s), (%(code_m88)s), (%(code_m89)s), (%(code_m90)s), '
-   '(%(code_m91)s), (%(code_m92)s), (%(code_m93)s), (%(code_m94)s), '
-   '(%(code_m95)s), (%(code_m96)s), (%(code_m97)s), (%(code_m98)s), '
-   '(%(code_m99)s), (%(code_m100)s), (%(code_m101)s), (%(code_m102)s), '
-   '(%(code_m103)s), (%(code_m104)s), (%(code_m105)s), (%(code_m106)s), '
-   '(%(code_m107)s), (%(code_m108)s), (%(code_m109)s), (%(code_m110)s), '
-   '(%(code_m111)s), (%(code_m112)s), (%(code_m113)s), (%(code_m114)s), '
-   '(%(code_m115)s), (%(code_m116)s), (%(code_m117)s), (%(code_m118)s), '
-   '(%(code_m119)s), (%(code_m120)s), (%(code_m121)s), (%(code_m122)s), '
-   '(%(code_m123)s), (%(code_m124)s), (%(code_m125)s), (%(code_m126)s), '
-   '(%(code_m127)s), (%(code_m128)s), (%(code_m129)s), (%(code_m130)s), '
-   '(%(code_m131)s), (%(code_m132)s), (%(code_m133)s), (%(code_m134)s), '
-   '(%(code_m135)s), (%(code_m136)s), (%(code_m137)s), (%(code_m138)s), '
-   '(%(code_m139)s), (%(code_m140)s), (%(code_m141)s), (%(code_m142)s), '
-   '(%(code_m143)s), (%(code_m144)s), (%(code_m145)s), (%(code_m146)s), '
-   '(%(code_m147)s), (%(code_m148)s), (%(code_m149)s), (%(code_m150)s), '
-   '(%(code_m151)s), (%(code_m152)s), (%(code_m153)s), (%(code_m154)s), '
-   '(%(code_m155)s), (%(code_m156)s), (%(code_m157)s), (%(code_m158)s), '
-   '(%(code_m159)s), (%(code_m160)s), (%(code_m161)s), (%(code_m162)s), '
-   '(%(code_m163)s), (%(code_m164)s), (%(code_m165)s), (%(code_m166)s), '
-   '(%(code_m167)s), (%(code_m168)s), (%(code_m169)s), (%(code_m170)s), '
-   '(%(code_m171)s), (%(code_m172)s), (%(code_m173)s), (%(code_m174)s), '
-   '(%(code_m175)s), (%(code_m176)s), (%(code_m177)s), (%(code_m178)s), '
-   '(%(code_m179)s), (%(code_m180)s), (%(code_m181)s), (%(code_m182)s), '
-   '(%(code_m183)s), (%(code_m184)s), (%(code_m185)s), (%(code_m186)s), '
-   '(%(code_m187)s), (%(code_m188)s), (%(code_m189)s), (%(code_m190)s), '
-   '(%(code_m191)s), (%(code_m192)s), (%(code_m193)s), (%(code_m194)s), '
-   '(%(code_m195)s), (%(code_m196)s), (%(code_m197)s), (%(code_m198)s), '
-   '(%(code_m199)s), (%(code_m200)s), (%(code_m201)s), (%(code_m202)s), '
-   '(%(code_m203)s), (%(code_m204)s), (%(code_m205)s), (%(code_m206)s), '
-   '(%(code_m207)s), (%(code_m208)s), (%(code_m209)s), (%(code_m210)s), '
-   '(%(code_m211)s), (%(code_m212)s), (%(code_m213)s), (%(code_m214)s), '
-   '(%(code_m215)s), (%(code_m216)s), (%(code_m217)s), (%(code_m218)s), '
-   '(%(code_m219)s), (%(code_m220)s), (%(code_m221)s), (%(code_m222)s), '
-   '(%(code_m223)s), (%(code_m224)s), (%(code_m225)s), (%(code_m226)s), '
-   '(%(code_m227)s), (%(code_m228)s), (%(code_m229)s), (%(code_m230)s), '
-   '(%(code_m231)s), (%(code_m232)s), (%(code_m233)s), (%(code_m234)s), '
-   '(%(code_m235)s), (%(code_m236)s), (%(code_m237)s), (%(code_m238)s), '
-   '(%(code_m239)s), (%(code_m240)s), (%(code_m241)s), (%(code_m242)s), '
-   '(%(code_m243)s), (%(code_m244)s), (%(code_m245)s), (%(code_m246)s), '
-   '(%(code_m247)s), (%(code_m248)s), (%(code_m249)s), (%(code_m250)s), '
-   '(%(code_m251)s), (%(code_m252)s), (%(code_m253)s), (%(code_m254)s), '
-   '(%(code_m255)s), (%(code_m256)s), (%(code_m257)s), (%(code_m258)s), '
-   '(%(code_m259)s), (%(code_m260)s), (%(code_m261)s), (%(code_m262)s), '
-   '(%(code_m263)s), (%(code_m264)s), (%(code_m265)s), (%(code_m266)s), '
-   '(%(code_m267)s), (%(code_m268)s), (%(code_m269)s)',
+  ('INSERT INTO [#codelist_4] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s), (%(code_m1)s, %(system_m1)s), (%(code_m2)s, '
+   '%(system_m2)s), (%(code_m3)s, %(system_m3)s), (%(code_m4)s, '
+   '%(system_m4)s), (%(code_m5)s, %(system_m5)s), (%(code_m6)s, '
+   '%(system_m6)s), (%(code_m7)s, %(system_m7)s), (%(code_m8)s, '
+   '%(system_m8)s), (%(code_m9)s, %(system_m9)s), (%(code_m10)s, '
+   '%(system_m10)s), (%(code_m11)s, %(system_m11)s), (%(code_m12)s, '
+   '%(system_m12)s), (%(code_m13)s, %(system_m13)s), (%(code_m14)s, '
+   '%(system_m14)s), (%(code_m15)s, %(system_m15)s), (%(code_m16)s, '
+   '%(system_m16)s), (%(code_m17)s, %(system_m17)s), (%(code_m18)s, '
+   '%(system_m18)s), (%(code_m19)s, %(system_m19)s), (%(code_m20)s, '
+   '%(system_m20)s), (%(code_m21)s, %(system_m21)s), (%(code_m22)s, '
+   '%(system_m22)s), (%(code_m23)s, %(system_m23)s), (%(code_m24)s, '
+   '%(system_m24)s), (%(code_m25)s, %(system_m25)s), (%(code_m26)s, '
+   '%(system_m26)s), (%(code_m27)s, %(system_m27)s), (%(code_m28)s, '
+   '%(system_m28)s), (%(code_m29)s, %(system_m29)s), (%(code_m30)s, '
+   '%(system_m30)s), (%(code_m31)s, %(system_m31)s), (%(code_m32)s, '
+   '%(system_m32)s), (%(code_m33)s, %(system_m33)s), (%(code_m34)s, '
+   '%(system_m34)s), (%(code_m35)s, %(system_m35)s), (%(code_m36)s, '
+   '%(system_m36)s), (%(code_m37)s, %(system_m37)s), (%(code_m38)s, '
+   '%(system_m38)s), (%(code_m39)s, %(system_m39)s), (%(code_m40)s, '
+   '%(system_m40)s), (%(code_m41)s, %(system_m41)s), (%(code_m42)s, '
+   '%(system_m42)s), (%(code_m43)s, %(system_m43)s), (%(code_m44)s, '
+   '%(system_m44)s), (%(code_m45)s, %(system_m45)s), (%(code_m46)s, '
+   '%(system_m46)s), (%(code_m47)s, %(system_m47)s), (%(code_m48)s, '
+   '%(system_m48)s), (%(code_m49)s, %(system_m49)s), (%(code_m50)s, '
+   '%(system_m50)s), (%(code_m51)s, %(system_m51)s), (%(code_m52)s, '
+   '%(system_m52)s), (%(code_m53)s, %(system_m53)s), (%(code_m54)s, '
+   '%(system_m54)s), (%(code_m55)s, %(system_m55)s), (%(code_m56)s, '
+   '%(system_m56)s), (%(code_m57)s, %(system_m57)s), (%(code_m58)s, '
+   '%(system_m58)s), (%(code_m59)s, %(system_m59)s), (%(code_m60)s, '
+   '%(system_m60)s), (%(code_m61)s, %(system_m61)s), (%(code_m62)s, '
+   '%(system_m62)s), (%(code_m63)s, %(system_m63)s), (%(code_m64)s, '
+   '%(system_m64)s), (%(code_m65)s, %(system_m65)s), (%(code_m66)s, '
+   '%(system_m66)s), (%(code_m67)s, %(system_m67)s), (%(code_m68)s, '
+   '%(system_m68)s), (%(code_m69)s, %(system_m69)s), (%(code_m70)s, '
+   '%(system_m70)s), (%(code_m71)s, %(system_m71)s), (%(code_m72)s, '
+   '%(system_m72)s), (%(code_m73)s, %(system_m73)s), (%(code_m74)s, '
+   '%(system_m74)s), (%(code_m75)s, %(system_m75)s), (%(code_m76)s, '
+   '%(system_m76)s), (%(code_m77)s, %(system_m77)s), (%(code_m78)s, '
+   '%(system_m78)s), (%(code_m79)s, %(system_m79)s), (%(code_m80)s, '
+   '%(system_m80)s), (%(code_m81)s, %(system_m81)s), (%(code_m82)s, '
+   '%(system_m82)s), (%(code_m83)s, %(system_m83)s), (%(code_m84)s, '
+   '%(system_m84)s), (%(code_m85)s, %(system_m85)s), (%(code_m86)s, '
+   '%(system_m86)s), (%(code_m87)s, %(system_m87)s), (%(code_m88)s, '
+   '%(system_m88)s), (%(code_m89)s, %(system_m89)s), (%(code_m90)s, '
+   '%(system_m90)s), (%(code_m91)s, %(system_m91)s), (%(code_m92)s, '
+   '%(system_m92)s), (%(code_m93)s, %(system_m93)s), (%(code_m94)s, '
+   '%(system_m94)s), (%(code_m95)s, %(system_m95)s), (%(code_m96)s, '
+   '%(system_m96)s), (%(code_m97)s, %(system_m97)s), (%(code_m98)s, '
+   '%(system_m98)s), (%(code_m99)s, %(system_m99)s), (%(code_m100)s, '
+   '%(system_m100)s), (%(code_m101)s, %(system_m101)s), (%(code_m102)s, '
+   '%(system_m102)s), (%(code_m103)s, %(system_m103)s), (%(code_m104)s, '
+   '%(system_m104)s), (%(code_m105)s, %(system_m105)s), (%(code_m106)s, '
+   '%(system_m106)s), (%(code_m107)s, %(system_m107)s), (%(code_m108)s, '
+   '%(system_m108)s), (%(code_m109)s, %(system_m109)s), (%(code_m110)s, '
+   '%(system_m110)s), (%(code_m111)s, %(system_m111)s), (%(code_m112)s, '
+   '%(system_m112)s), (%(code_m113)s, %(system_m113)s), (%(code_m114)s, '
+   '%(system_m114)s), (%(code_m115)s, %(system_m115)s), (%(code_m116)s, '
+   '%(system_m116)s), (%(code_m117)s, %(system_m117)s), (%(code_m118)s, '
+   '%(system_m118)s), (%(code_m119)s, %(system_m119)s), (%(code_m120)s, '
+   '%(system_m120)s), (%(code_m121)s, %(system_m121)s), (%(code_m122)s, '
+   '%(system_m122)s), (%(code_m123)s, %(system_m123)s), (%(code_m124)s, '
+   '%(system_m124)s), (%(code_m125)s, %(system_m125)s), (%(code_m126)s, '
+   '%(system_m126)s), (%(code_m127)s, %(system_m127)s), (%(code_m128)s, '
+   '%(system_m128)s), (%(code_m129)s, %(system_m129)s), (%(code_m130)s, '
+   '%(system_m130)s), (%(code_m131)s, %(system_m131)s), (%(code_m132)s, '
+   '%(system_m132)s), (%(code_m133)s, %(system_m133)s), (%(code_m134)s, '
+   '%(system_m134)s), (%(code_m135)s, %(system_m135)s), (%(code_m136)s, '
+   '%(system_m136)s), (%(code_m137)s, %(system_m137)s), (%(code_m138)s, '
+   '%(system_m138)s), (%(code_m139)s, %(system_m139)s), (%(code_m140)s, '
+   '%(system_m140)s), (%(code_m141)s, %(system_m141)s), (%(code_m142)s, '
+   '%(system_m142)s), (%(code_m143)s, %(system_m143)s), (%(code_m144)s, '
+   '%(system_m144)s), (%(code_m145)s, %(system_m145)s), (%(code_m146)s, '
+   '%(system_m146)s), (%(code_m147)s, %(system_m147)s), (%(code_m148)s, '
+   '%(system_m148)s), (%(code_m149)s, %(system_m149)s), (%(code_m150)s, '
+   '%(system_m150)s), (%(code_m151)s, %(system_m151)s), (%(code_m152)s, '
+   '%(system_m152)s), (%(code_m153)s, %(system_m153)s), (%(code_m154)s, '
+   '%(system_m154)s), (%(code_m155)s, %(system_m155)s), (%(code_m156)s, '
+   '%(system_m156)s), (%(code_m157)s, %(system_m157)s), (%(code_m158)s, '
+   '%(system_m158)s), (%(code_m159)s, %(system_m159)s), (%(code_m160)s, '
+   '%(system_m160)s), (%(code_m161)s, %(system_m161)s), (%(code_m162)s, '
+   '%(system_m162)s), (%(code_m163)s, %(system_m163)s), (%(code_m164)s, '
+   '%(system_m164)s), (%(code_m165)s, %(system_m165)s), (%(code_m166)s, '
+   '%(system_m166)s), (%(code_m167)s, %(system_m167)s), (%(code_m168)s, '
+   '%(system_m168)s), (%(code_m169)s, %(system_m169)s), (%(code_m170)s, '
+   '%(system_m170)s), (%(code_m171)s, %(system_m171)s), (%(code_m172)s, '
+   '%(system_m172)s), (%(code_m173)s, %(system_m173)s), (%(code_m174)s, '
+   '%(system_m174)s), (%(code_m175)s, %(system_m175)s), (%(code_m176)s, '
+   '%(system_m176)s), (%(code_m177)s, %(system_m177)s), (%(code_m178)s, '
+   '%(system_m178)s), (%(code_m179)s, %(system_m179)s), (%(code_m180)s, '
+   '%(system_m180)s), (%(code_m181)s, %(system_m181)s), (%(code_m182)s, '
+   '%(system_m182)s), (%(code_m183)s, %(system_m183)s), (%(code_m184)s, '
+   '%(system_m184)s), (%(code_m185)s, %(system_m185)s), (%(code_m186)s, '
+   '%(system_m186)s), (%(code_m187)s, %(system_m187)s), (%(code_m188)s, '
+   '%(system_m188)s), (%(code_m189)s, %(system_m189)s), (%(code_m190)s, '
+   '%(system_m190)s), (%(code_m191)s, %(system_m191)s), (%(code_m192)s, '
+   '%(system_m192)s), (%(code_m193)s, %(system_m193)s), (%(code_m194)s, '
+   '%(system_m194)s), (%(code_m195)s, %(system_m195)s), (%(code_m196)s, '
+   '%(system_m196)s), (%(code_m197)s, %(system_m197)s), (%(code_m198)s, '
+   '%(system_m198)s), (%(code_m199)s, %(system_m199)s), (%(code_m200)s, '
+   '%(system_m200)s), (%(code_m201)s, %(system_m201)s), (%(code_m202)s, '
+   '%(system_m202)s), (%(code_m203)s, %(system_m203)s), (%(code_m204)s, '
+   '%(system_m204)s), (%(code_m205)s, %(system_m205)s), (%(code_m206)s, '
+   '%(system_m206)s), (%(code_m207)s, %(system_m207)s), (%(code_m208)s, '
+   '%(system_m208)s), (%(code_m209)s, %(system_m209)s), (%(code_m210)s, '
+   '%(system_m210)s), (%(code_m211)s, %(system_m211)s), (%(code_m212)s, '
+   '%(system_m212)s), (%(code_m213)s, %(system_m213)s), (%(code_m214)s, '
+   '%(system_m214)s), (%(code_m215)s, %(system_m215)s), (%(code_m216)s, '
+   '%(system_m216)s), (%(code_m217)s, %(system_m217)s), (%(code_m218)s, '
+   '%(system_m218)s), (%(code_m219)s, %(system_m219)s), (%(code_m220)s, '
+   '%(system_m220)s), (%(code_m221)s, %(system_m221)s), (%(code_m222)s, '
+   '%(system_m222)s), (%(code_m223)s, %(system_m223)s), (%(code_m224)s, '
+   '%(system_m224)s), (%(code_m225)s, %(system_m225)s), (%(code_m226)s, '
+   '%(system_m226)s), (%(code_m227)s, %(system_m227)s), (%(code_m228)s, '
+   '%(system_m228)s), (%(code_m229)s, %(system_m229)s), (%(code_m230)s, '
+   '%(system_m230)s), (%(code_m231)s, %(system_m231)s), (%(code_m232)s, '
+   '%(system_m232)s), (%(code_m233)s, %(system_m233)s), (%(code_m234)s, '
+   '%(system_m234)s), (%(code_m235)s, %(system_m235)s), (%(code_m236)s, '
+   '%(system_m236)s), (%(code_m237)s, %(system_m237)s), (%(code_m238)s, '
+   '%(system_m238)s), (%(code_m239)s, %(system_m239)s), (%(code_m240)s, '
+   '%(system_m240)s), (%(code_m241)s, %(system_m241)s), (%(code_m242)s, '
+   '%(system_m242)s), (%(code_m243)s, %(system_m243)s), (%(code_m244)s, '
+   '%(system_m244)s), (%(code_m245)s, %(system_m245)s), (%(code_m246)s, '
+   '%(system_m246)s), (%(code_m247)s, %(system_m247)s), (%(code_m248)s, '
+   '%(system_m248)s), (%(code_m249)s, %(system_m249)s), (%(code_m250)s, '
+   '%(system_m250)s), (%(code_m251)s, %(system_m251)s), (%(code_m252)s, '
+   '%(system_m252)s), (%(code_m253)s, %(system_m253)s), (%(code_m254)s, '
+   '%(system_m254)s), (%(code_m255)s, %(system_m255)s), (%(code_m256)s, '
+   '%(system_m256)s), (%(code_m257)s, %(system_m257)s), (%(code_m258)s, '
+   '%(system_m258)s), (%(code_m259)s, %(system_m259)s), (%(code_m260)s, '
+   '%(system_m260)s), (%(code_m261)s, %(system_m261)s), (%(code_m262)s, '
+   '%(system_m262)s), (%(code_m263)s, %(system_m263)s), (%(code_m264)s, '
+   '%(system_m264)s), (%(code_m265)s, %(system_m265)s), (%(code_m266)s, '
+   '%(system_m266)s), (%(code_m267)s, %(system_m267)s), (%(code_m268)s, '
+   '%(system_m268)s), (%(code_m269)s, %(system_m269)s)',
    {'code_m0': '134B.',
+    'system_m0': 'ctv3',
     'code_m1': 'Y9930',
+    'system_m1': 'ctv3',
     'code_m2': '9S1..',
+    'system_m2': 'ctv3',
     'code_m3': 'XaFwD',
+    'system_m3': 'ctv3',
     'code_m4': 'XaIui',
+    'system_m4': 'ctv3',
     'code_m5': 'XaJQv',
+    'system_m5': 'ctv3',
     'code_m6': 'XaQEa',
+    'system_m6': 'ctv3',
     'code_m7': 'XactH',
+    'system_m7': 'ctv3',
     'code_m8': '9SA9.',
+    'system_m8': 'ctv3',
     'code_m9': 'XaFwE',
+    'system_m9': 'ctv3',
     'code_m10': 'XaJQw',
+    'system_m10': 'ctv3',
     'code_m11': 'XaJSN',
+    'system_m11': 'ctv3',
     'code_m12': 'XaQEb',
+    'system_m12': 'ctv3',
     'code_m13': 'XactI',
+    'system_m13': 'ctv3',
     'code_m14': 'Xacuu',
+    'system_m14': 'ctv3',
     'code_m15': 'Y9932',
+    'system_m15': 'ctv3',
     'code_m16': '9SAA.',
+    'system_m16': 'ctv3',
     'code_m17': '9SAB.',
+    'system_m17': 'ctv3',
     'code_m18': '9SAC.',
+    'system_m18': 'ctv3',
     'code_m19': '9T11.',
+    'system_m19': 'ctv3',
     'code_m20': 'XE2Nz',
+    'system_m20': 'ctv3',
     'code_m21': 'XE2O0',
+    'system_m21': 'ctv3',
     'code_m22': 'XM1SF',
+    'system_m22': 'ctv3',
     'code_m23': 'XM1SG',
+    'system_m23': 'ctv3',
     'code_m24': 'XM1SH',
+    'system_m24': 'ctv3',
     'code_m25': 'XM1SI',
+    'system_m25': 'ctv3',
     'code_m26': 'XS7AU',
+    'system_m26': 'ctv3',
     'code_m27': 'XaFwF',
+    'system_m27': 'ctv3',
     'code_m28': 'XaFx2',
+    'system_m28': 'ctv3',
     'code_m29': 'XaIuh',
+    'system_m29': 'ctv3',
     'code_m30': 'XaJQx',
+    'system_m30': 'ctv3',
     'code_m31': 'XaJRC',
+    'system_m31': 'ctv3',
     'code_m32': 'XaJRD',
+    'system_m32': 'ctv3',
     'code_m33': 'XaJRE',
+    'system_m33': 'ctv3',
     'code_m34': 'XaJRF',
+    'system_m34': 'ctv3',
     'code_m35': 'XaJRG',
+    'system_m35': 'ctv3',
     'code_m36': 'XaJRg',
+    'system_m36': 'ctv3',
     'code_m37': 'XaJRh',
+    'system_m37': 'ctv3',
     'code_m38': 'XaJRi',
+    'system_m38': 'ctv3',
     'code_m39': 'XaJRj',
+    'system_m39': 'ctv3',
     'code_m40': 'XaJRk',
+    'system_m40': 'ctv3',
     'code_m41': 'XaJRl',
+    'system_m41': 'ctv3',
     'code_m42': 'XaJRm',
+    'system_m42': 'ctv3',
     'code_m43': 'XaJSB',
+    'system_m43': 'ctv3',
     'code_m44': 'XaJSC',
+    'system_m44': 'ctv3',
     'code_m45': 'XaJSD',
+    'system_m45': 'ctv3',
     'code_m46': 'XaJSE',
+    'system_m46': 'ctv3',
     'code_m47': 'XaJSF',
+    'system_m47': 'ctv3',
     'code_m48': 'XaJSG',
+    'system_m48': 'ctv3',
     'code_m49': 'XaJSH',
+    'system_m49': 'ctv3',
     'code_m50': 'XaJSI',
+    'system_m50': 'ctv3',
     'code_m51': 'XaJSJ',
+    'system_m51': 'ctv3',
     'code_m52': 'XaJSK',
+    'system_m52': 'ctv3',
     'code_m53': 'XaJSL',
+    'system_m53': 'ctv3',
     'code_m54': 'XaJSM',
+    'system_m54': 'ctv3',
     'code_m55': 'XaJSO',
+    'system_m55': 'ctv3',
     'code_m56': 'XaJSP',
+    'system_m56': 'ctv3',
     'code_m57': 'XaJSQ',
+    'system_m57': 'ctv3',
     'code_m58': 'XaR4o',
+    'system_m58': 'ctv3',
     'code_m59': 'XaR4p',
+    'system_m59': 'ctv3',
     'code_m60': 'XaR61',
+    'system_m60': 'ctv3',
     'code_m61': 'XaVw5',
+    'system_m61': 'ctv3',
     'code_m62': 'XaW8w',
+    'system_m62': 'ctv3',
     'code_m63': 'XactJ',
+    'system_m63': 'ctv3',
     'code_m64': 'XactK',
+    'system_m64': 'ctv3',
     'code_m65': 'XacuQ',
+    'system_m65': 'ctv3',
     'code_m66': 'XacuR',
+    'system_m66': 'ctv3',
     'code_m67': 'Xacus',
+    'system_m67': 'ctv3',
     'code_m68': 'Xacut',
+    'system_m68': 'ctv3',
     'code_m69': 'Xacuv',
+    'system_m69': 'ctv3',
     'code_m70': 'Xacux',
+    'system_m70': 'ctv3',
     'code_m71': 'Xacuy',
+    'system_m71': 'ctv3',
     'code_m72': 'XaedN',
+    'system_m72': 'ctv3',
     'code_m73': 'XaedQ',
+    'system_m73': 'ctv3',
     'code_m74': 'XaedS',
+    'system_m74': 'ctv3',
     'code_m75': 'XaedT',
+    'system_m75': 'ctv3',
     'code_m76': 'XaedU',
+    'system_m76': 'ctv3',
     'code_m77': 'XaedV',
+    'system_m77': 'ctv3',
     'code_m78': 'XaedW',
+    'system_m78': 'ctv3',
     'code_m79': 'Y1527',
+    'system_m79': 'ctv3',
     'code_m80': 'XaIB5',
+    'system_m80': 'ctv3',
     'code_m81': 'XaJQy',
+    'system_m81': 'ctv3',
     'code_m82': 'XactL',
+    'system_m82': 'ctv3',
     'code_m83': 'XacuS',
+    'system_m83': 'ctv3',
     'code_m84': '134L.',
+    'system_m84': 'ctv3',
     'code_m85': 'XaIB6',
+    'system_m85': 'ctv3',
     'code_m86': 'XaJQz',
+    'system_m86': 'ctv3',
     'code_m87': 'Xactd',
+    'system_m87': 'ctv3',
     'code_m88': 'XacuT',
+    'system_m88': 'ctv3',
     'code_m89': '9SB2.',
+    'system_m89': 'ctv3',
     'code_m90': 'XaJR0',
+    'system_m90': 'ctv3',
     'code_m91': 'Xacte',
+    'system_m91': 'ctv3',
     'code_m92': 'XacuU',
+    'system_m92': 'ctv3',
     'code_m93': '134J.',
+    'system_m93': 'ctv3',
     'code_m94': '9S5..',
+    'system_m94': 'ctv3',
     'code_m95': '9S5..',
+    'system_m95': 'ctv3',
     'code_m96': '9S51.',
+    'system_m96': 'ctv3',
     'code_m97': '9S51.',
+    'system_m97': 'ctv3',
     'code_m98': '9S52.',
+    'system_m98': 'ctv3',
     'code_m99': '9S52.',
+    'system_m99': 'ctv3',
     'code_m100': '9SB..',
+    'system_m100': 'ctv3',
     'code_m101': '9SB1.',
+    'system_m101': 'ctv3',
     'code_m102': '9SB3.',
+    'system_m102': 'ctv3',
     'code_m103': '9SB4.',
+    'system_m103': 'ctv3',
     'code_m104': 'XaFwG',
+    'system_m104': 'ctv3',
     'code_m105': 'XaJR1',
+    'system_m105': 'ctv3',
     'code_m106': 'XaJRH',
+    'system_m106': 'ctv3',
     'code_m107': 'XaJRI',
+    'system_m107': 'ctv3',
     'code_m108': 'XaJRJ',
+    'system_m108': 'ctv3',
     'code_m109': 'XaJRK',
+    'system_m109': 'ctv3',
     'code_m110': 'XaJRL',
+    'system_m110': 'ctv3',
     'code_m111': 'XaJRM',
+    'system_m111': 'ctv3',
     'code_m112': 'XaJRN',
+    'system_m112': 'ctv3',
     'code_m113': 'XaJRY',
+    'system_m113': 'ctv3',
     'code_m114': 'Xactf',
+    'system_m114': 'ctv3',
     'code_m115': 'Xacua',
+    'system_m115': 'ctv3',
     'code_m116': 'Xacuz',
+    'system_m116': 'ctv3',
     'code_m117': 'Y9931',
+    'system_m117': 'ctv3',
     'code_m118': '9S6..',
+    'system_m118': 'ctv3',
     'code_m119': '9SA7.',
+    'system_m119': 'ctv3',
     'code_m120': 'XaJR2',
+    'system_m120': 'ctv3',
     'code_m121': 'Xactg',
+    'system_m121': 'ctv3',
     'code_m122': 'Xacuc',
+    'system_m122': 'ctv3',
     'code_m123': 'Xacv2',
+    'system_m123': 'ctv3',
     'code_m124': '134M.',
+    'system_m124': 'ctv3',
     'code_m125': '9S7..',
+    'system_m125': 'ctv3',
     'code_m126': 'XaJR3',
+    'system_m126': 'ctv3',
     'code_m127': 'Xacth',
+    'system_m127': 'ctv3',
     'code_m128': 'Xacui',
+    'system_m128': 'ctv3',
     'code_m129': 'Xacv0',
+    'system_m129': 'ctv3',
     'code_m130': '134I.',
+    'system_m130': 'ctv3',
     'code_m131': '9S8..',
+    'system_m131': 'ctv3',
     'code_m132': 'XaJR4',
+    'system_m132': 'ctv3',
     'code_m133': 'Xacti',
+    'system_m133': 'ctv3',
     'code_m134': 'Xacuj',
+    'system_m134': 'ctv3',
     'code_m135': 'Xacv5',
+    'system_m135': 'ctv3',
     'code_m136': '9SA6.',
+    'system_m136': 'ctv3',
     'code_m137': '9SA8.',
+    'system_m137': 'ctv3',
     'code_m138': '9T1B.',
+    'system_m138': 'ctv3',
     'code_m139': '9T1E.',
+    'system_m139': 'ctv3',
     'code_m140': 'XE2Ny',
+    'system_m140': 'ctv3',
     'code_m141': 'XM1SD',
+    'system_m141': 'ctv3',
     'code_m142': 'XM1SE',
+    'system_m142': 'ctv3',
     'code_m143': 'XaFwz',
+    'system_m143': 'ctv3',
     'code_m144': 'XaFx0',
+    'system_m144': 'ctv3',
     'code_m145': 'XaJR5',
+    'system_m145': 'ctv3',
     'code_m146': 'XaJRO',
+    'system_m146': 'ctv3',
     'code_m147': 'XaJRP',
+    'system_m147': 'ctv3',
     'code_m148': 'XaJRQ',
+    'system_m148': 'ctv3',
     'code_m149': 'XaJRR',
+    'system_m149': 'ctv3',
     'code_m150': 'XaJRS',
+    'system_m150': 'ctv3',
     'code_m151': 'XaJRT',
+    'system_m151': 'ctv3',
     'code_m152': 'XaJRU',
+    'system_m152': 'ctv3',
     'code_m153': 'XaJRV',
+    'system_m153': 'ctv3',
     'code_m154': 'XaJRW',
+    'system_m154': 'ctv3',
     'code_m155': 'XaW95',
+    'system_m155': 'ctv3',
     'code_m156': 'Xactk',
+    'system_m156': 'ctv3',
     'code_m157': 'Xacul',
+    'system_m157': 'ctv3',
     'code_m158': 'XacvG',
+    'system_m158': 'ctv3',
     'code_m159': '134H.',
+    'system_m159': 'ctv3',
     'code_m160': '134K.',
+    'system_m160': 'ctv3',
     'code_m161': '9S2..',
+    'system_m161': 'ctv3',
     'code_m162': '9S42.',
+    'system_m162': 'ctv3',
     'code_m163': '9SA3.',
+    'system_m163': 'ctv3',
     'code_m164': 'XE2Nt',
+    'system_m164': 'ctv3',
     'code_m165': 'XE2Nw',
+    'system_m165': 'ctv3',
     'code_m166': 'XM1S8',
+    'system_m166': 'ctv3',
     'code_m167': 'XM1S9',
+    'system_m167': 'ctv3',
     'code_m168': 'XaBz7',
+    'system_m168': 'ctv3',
     'code_m169': 'XaJR6',
+    'system_m169': 'ctv3',
     'code_m170': 'XacvJ',
+    'system_m170': 'ctv3',
     'code_m171': '9S3..',
+    'system_m171': 'ctv3',
     'code_m172': '9SA5.',
+    'system_m172': 'ctv3',
     'code_m173': 'XM1S3',
+    'system_m173': 'ctv3',
     'code_m174': 'XaJR7',
+    'system_m174': 'ctv3',
     'code_m175': 'XaJST',
+    'system_m175': 'ctv3',
     'code_m176': 'XacvH',
+    'system_m176': 'ctv3',
     'code_m177': 'XacvI',
+    'system_m177': 'ctv3',
     'code_m178': '9S4..',
+    'system_m178': 'ctv3',
     'code_m179': '9S41.',
+    'system_m179': 'ctv3',
     'code_m180': '9S43.',
+    'system_m180': 'ctv3',
     'code_m181': '9S44.',
+    'system_m181': 'ctv3',
     'code_m182': '9S45.',
+    'system_m182': 'ctv3',
     'code_m183': '9S46.',
+    'system_m183': 'ctv3',
     'code_m184': '9S47.',
+    'system_m184': 'ctv3',
     'code_m185': '9S48.',
+    'system_m185': 'ctv3',
     'code_m186': 'XE2Nu',
+    'system_m186': 'ctv3',
     'code_m187': 'XE2Nv',
+    'system_m187': 'ctv3',
     'code_m188': 'XM1S4',
+    'system_m188': 'ctv3',
     'code_m189': 'XM1S5',
+    'system_m189': 'ctv3',
     'code_m190': 'XM1S6',
+    'system_m190': 'ctv3',
     'code_m191': 'XM1S7',
+    'system_m191': 'ctv3',
     'code_m192': 'XM1SA',
+    'system_m192': 'ctv3',
     'code_m193': 'XaBz8',
+    'system_m193': 'ctv3',
     'code_m194': 'XaFwH',
+    'system_m194': 'ctv3',
     'code_m195': 'XaFwy',
+    'system_m195': 'ctv3',
     'code_m196': 'XaJR8',
+    'system_m196': 'ctv3',
     'code_m197': 'XaJRX',
+    'system_m197': 'ctv3',
     'code_m198': 'XaJRZ',
+    'system_m198': 'ctv3',
     'code_m199': 'XaJRa',
+    'system_m199': 'ctv3',
     'code_m200': 'XaJRb',
+    'system_m200': 'ctv3',
     'code_m201': 'Xactl',
+    'system_m201': 'ctv3',
     'code_m202': 'Xactm',
+    'system_m202': 'ctv3',
     'code_m203': 'Xactn',
+    'system_m203': 'ctv3',
     'code_m204': 'Xacum',
+    'system_m204': 'ctv3',
     'code_m205': 'Xacun',
+    'system_m205': 'ctv3',
     'code_m206': 'Xacuo',
+    'system_m206': 'ctv3',
     'code_m207': 'XacvZ',
+    'system_m207': 'ctv3',
     'code_m208': 'Xacva',
+    'system_m208': 'ctv3',
     'code_m209': '9T1C.',
+    'system_m209': 'ctv3',
     'code_m210': '9T1C.',
+    'system_m210': 'ctv3',
     'code_m211': 'XaJR9',
+    'system_m211': 'ctv3',
     'code_m212': 'Xactj',
+    'system_m212': 'ctv3',
     'code_m213': 'Xacuk',
+    'system_m213': 'ctv3',
     'code_m214': 'XacvF',
+    'system_m214': 'ctv3',
     'code_m215': '134C.',
+    'system_m215': 'ctv3',
     'code_m216': '134D.',
+    'system_m216': 'ctv3',
     'code_m217': '134E.',
+    'system_m217': 'ctv3',
     'code_m218': '134F.',
+    'system_m218': 'ctv3',
     'code_m219': '134G.',
+    'system_m219': 'ctv3',
     'code_m220': 'X76Gp',
+    'system_m220': 'ctv3',
     'code_m221': '9SA..',
+    'system_m221': 'ctv3',
     'code_m222': '9SA1.',
+    'system_m222': 'ctv3',
     'code_m223': '9SA2.',
+    'system_m223': 'ctv3',
     'code_m224': '9SA4.',
+    'system_m224': 'ctv3',
     'code_m225': '9SAD.',
+    'system_m225': 'ctv3',
     'code_m226': '9T1..',
+    'system_m226': 'ctv3',
     'code_m227': '9T12.',
+    'system_m227': 'ctv3',
     'code_m228': '9T13.',
+    'system_m228': 'ctv3',
     'code_m229': '9T14.',
+    'system_m229': 'ctv3',
     'code_m230': '9T15.',
+    'system_m230': 'ctv3',
     'code_m231': '9T16.',
+    'system_m231': 'ctv3',
     'code_m232': '9T17.',
+    'system_m232': 'ctv3',
     'code_m233': '9T18.',
+    'system_m233': 'ctv3',
     'code_m234': '9T19.',
+    'system_m234': 'ctv3',
     'code_m235': '9T1A.',
+    'system_m235': 'ctv3',
     'code_m236': '9T1Y.',
+    'system_m236': 'ctv3',
     'code_m237': '9T1Z.',
+    'system_m237': 'ctv3',
     'code_m238': 'XE2Nx',
+    'system_m238': 'ctv3',
     'code_m239': 'XM1SB',
+    'system_m239': 'ctv3',
     'code_m240': 'XM1SC',
+    'system_m240': 'ctv3',
     'code_m241': 'XaE4A',
+    'system_m241': 'ctv3',
     'code_m242': 'XaFx1',
+    'system_m242': 'ctv3',
     'code_m243': 'XaJRA',
+    'system_m243': 'ctv3',
     'code_m244': 'XaJRc',
+    'system_m244': 'ctv3',
     'code_m245': 'XaJRd',
+    'system_m245': 'ctv3',
     'code_m246': 'XaJRe',
+    'system_m246': 'ctv3',
     'code_m247': 'XaJRf',
+    'system_m247': 'ctv3',
     'code_m248': 'XaJSR',
+    'system_m248': 'ctv3',
     'code_m249': 'XaJSS',
+    'system_m249': 'ctv3',
     'code_m250': 'XaJSU',
+    'system_m250': 'ctv3',
     'code_m251': 'XaJSV',
+    'system_m251': 'ctv3',
     'code_m252': 'XaJSW',
+    'system_m252': 'ctv3',
     'code_m253': 'XaJSX',
+    'system_m253': 'ctv3',
     'code_m254': 'XaJSY',
+    'system_m254': 'ctv3',
     'code_m255': 'XaJSZ',
+    'system_m255': 'ctv3',
     'code_m256': 'XaJSa',
+    'system_m256': 'ctv3',
     'code_m257': 'XaJSb',
+    'system_m257': 'ctv3',
     'code_m258': 'XaJSc',
+    'system_m258': 'ctv3',
     'code_m259': 'XaJSd',
+    'system_m259': 'ctv3',
     'code_m260': 'XaJSe',
+    'system_m260': 'ctv3',
     'code_m261': 'XaJSf',
+    'system_m261': 'ctv3',
     'code_m262': 'XaJSg',
+    'system_m262': 'ctv3',
     'code_m263': 'XaN9x',
+    'system_m263': 'ctv3',
     'code_m264': 'Xacto',
+    'system_m264': 'ctv3',
     'code_m265': 'Xactp',
+    'system_m265': 'ctv3',
     'code_m266': 'Xacup',
+    'system_m266': 'ctv3',
     'code_m267': 'Xacuq',
+    'system_m267': 'ctv3',
     'code_m268': 'Xacvb',
-    'code_m269': 'Xacvc'}),
+    'system_m268': 'ctv3',
+    'code_m269': 'Xacvc',
+    'system_m269': 'ctv3'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 270),
@@ -529,7 +934,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_5] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(5) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -538,8 +944,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_5] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325161000000102'}),
+  ('INSERT INTO [#codelist_5] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '22K..', 'system_m0': 'ctv3'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -549,7 +956,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_6] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -558,8 +966,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_6] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325181000000106'}),
+  ('INSERT INTO [#codelist_6] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325161000000102', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -569,7 +978,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_7] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -578,8 +988,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_7] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325021000000106'}),
+  ('INSERT INTO [#codelist_7] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325181000000106', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -589,7 +1000,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_8] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -598,8 +1010,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_8] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325031000000108'}),
+  ('INSERT INTO [#codelist_8] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325021000000106', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -609,7 +1022,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_9] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -618,8 +1032,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_9] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325041000000104'}),
+  ('INSERT INTO [#codelist_9] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325031000000108', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -629,7 +1044,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_10] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -638,8 +1054,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_10] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325051000000101'}),
+  ('INSERT INTO [#codelist_10] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325041000000104', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -649,7 +1066,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_11] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -658,8 +1076,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_11] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325061000000103'}),
+  ('INSERT INTO [#codelist_11] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325051000000101', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -669,7 +1088,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_12] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -678,8 +1098,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_12] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325071000000105'}),
+  ('INSERT INTO [#codelist_12] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325061000000103', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -689,7 +1110,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_13] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -698,8 +1120,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_13] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325081000000107'}),
+  ('INSERT INTO [#codelist_13] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325071000000105', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -709,7 +1132,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_14] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -718,8 +1142,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_14] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325091000000109'}),
+  ('INSERT INTO [#codelist_14] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325081000000107', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -729,7 +1154,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_15] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -738,8 +1164,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_15] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325101000000101'}),
+  ('INSERT INTO [#codelist_15] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325091000000109', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -749,7 +1176,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_16] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -758,8 +1186,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_16] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325121000000105'}),
+  ('INSERT INTO [#codelist_16] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325101000000101', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -769,7 +1198,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_17] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -778,8 +1208,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_17] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325131000000107'}),
+  ('INSERT INTO [#codelist_17] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325121000000105', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -789,7 +1220,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_18] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -798,8 +1230,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_18] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325141000000103'}),
+  ('INSERT INTO [#codelist_18] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325131000000107', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -809,7 +1242,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_19] (\n'
-   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -818,8 +1252,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_19] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '1325151000000100'}),
+  ('INSERT INTO [#codelist_19] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325141000000103', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -829,7 +1264,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_20] (\n'
-   '\tcode VARCHAR(9) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(16) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -838,8 +1274,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_20] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '266226000'}),
+  ('INSERT INTO [#codelist_20] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '1325151000000100', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -849,7 +1286,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_21] (\n'
-   '\tcode VARCHAR(9) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(9) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -858,8 +1296,9 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_21] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '272038003'}),
+  ('INSERT INTO [#codelist_21] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '266226000', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -869,7 +1308,8 @@
   'execute',
   ('\n'
    'CREATE TABLE [#codelist_22] (\n'
-   '\tcode VARCHAR(8) COLLATE Latin1_General_BIN NOT NULL\n'
+   '\tcode VARCHAR(9) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
    ')\n'
    '\n',
    {}),
@@ -878,8 +1318,31 @@
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('INSERT INTO [#codelist_22] (code) VALUES (%(code_m0)s)',
-   {'code_m0': '51771007'}),
+  ('INSERT INTO [#codelist_22] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '272038003', 'system_m0': 'snomed'}),
+  {},
+  None),
+ ('Cursor', 'rowcount', (), {}, 1),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor', 'close', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('\n'
+   'CREATE TABLE [#codelist_23] (\n'
+   '\tcode VARCHAR(8) COLLATE Latin1_General_BIN NOT NULL, \n'
+   '\tsystem VARCHAR(6) NOT NULL\n'
+   ')\n'
+   '\n',
+   {}),
+  {},
+  None),
+ ('Cursor', 'description', (), {}, None),
+ ('Cursor',
+  'execute',
+  ('INSERT INTO [#codelist_23] (code, system) VALUES (%(code_m0)s, '
+   '%(system_m0)s)',
+   {'code_m0': '51771007', 'system_m0': 'snomed'}),
   {},
   None),
  ('Cursor', 'rowcount', (), {}, 1),
@@ -965,13 +1428,20 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_0].code \n'
-   'FROM [#codelist_0])) AS anon_2 \n'
+   'FROM [#codelist_0] \n'
+   'WHERE clinical_events.system = %(system_1)s)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'row_num_1': 1}),
+   {'system_1': 'ctv3', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -995,7 +1465,7 @@
    'REVERSE(fully_split.Value)) + 1\n'
    '            )\n'
    '        )\n'
-   '     as code\n'
+   "     as code, 'icd10' as system\n"
    '            FROM APCS\n'
    '            -- Our string_split() implementation only works as long as the '
    "codelists do not contain '<', '>' or '&'\n"
@@ -1029,9 +1499,10 @@
    '     fully_split\n'
    '        ) AS hospitalizations \n'
    'WHERE hospitalizations.code IN (SELECT [#codelist_1].code \n'
-   'FROM [#codelist_1])) AS anon_2 \n'
+   'FROM [#codelist_1] \n'
+   'WHERE hospitalizations.system = %(system_1)s)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'row_num_1': 1}),
+   {'system_1': 'icd10', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1040,12 +1511,20 @@
   ('SELECT * INTO #group_table_5 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, %(param_1)s AS '
    'patient_id_exists \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_2].code \n'
-   'FROM [#codelist_2]) GROUP BY clinical_events.patient_id) AS anon_1',
-   {'param_1': 1}),
+   'FROM [#codelist_2] \n'
+   'WHERE clinical_events.system = %(system_1)s) GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'param_1': 1, 'system_1': 'snomed'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1056,13 +1535,20 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_2].code \n'
-   'FROM [#codelist_2])) AS anon_2 \n'
+   'FROM [#codelist_2] \n'
+   'WHERE clinical_events.system = %(system_1)s)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'row_num_1': 1}),
+   {'system_1': 'snomed', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1073,13 +1559,20 @@
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_2].code \n'
-   'FROM [#codelist_2])) AS anon_2 \n'
+   'FROM [#codelist_2] \n'
+   'WHERE clinical_events.system = %(system_1)s)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'row_num_1': 1}),
+   {'system_1': 'snomed', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1088,12 +1581,20 @@
   ('SELECT * INTO #group_table_8 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, %(param_1)s AS '
    'patient_id_exists \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_3].code \n'
-   'FROM [#codelist_3]) GROUP BY clinical_events.patient_id) AS anon_1',
-   {'param_1': 1}),
+   'FROM [#codelist_3] \n'
+   'WHERE clinical_events.system = %(system_1)s) GROUP BY '
+   'clinical_events.patient_id) AS anon_1',
+   {'param_1': 1, 'system_1': 'snomed'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1104,13 +1605,20 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_3].code \n'
-   'FROM [#codelist_3])) AS anon_2 \n'
+   'FROM [#codelist_3] \n'
+   'WHERE clinical_events.system = %(system_1)s)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'row_num_1': 1}),
+   {'system_1': 'snomed', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1180,13 +1688,21 @@
    'FROM (SELECT clinical_events.code AS code, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date DESC) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
    'WHERE clinical_events.code IN (SELECT [#codelist_4].code \n'
-   'FROM [#codelist_4]) AND clinical_events.date <= %(date_1)s) AS anon_2 \n'
+   'FROM [#codelist_4] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date <= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-11-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'ctv3', 'date_1': '2020-11-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1199,12 +1715,20 @@
    'clinical_events.patient_id AS patient_id, row_number() OVER (PARTITION BY '
    'clinical_events.patient_id ORDER BY clinical_events.date DESC) AS '
    '_row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code = %(code_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code = (SELECT [#codelist_5].code \n'
+   'FROM [#codelist_5] \n'
+   'WHERE clinical_events.system = %(system_1)s)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'code_1': '22K..', 'row_num_1': 1}),
+   {'system_1': 'ctv3', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1213,13 +1737,20 @@
   ('SELECT * INTO #group_table_15 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_5].code \n'
-   'FROM [#codelist_5]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_6].code \n'
+   'FROM [#codelist_6] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1230,13 +1761,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_5].code \n'
-   'FROM [#codelist_5]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_6].code \n'
+   'FROM [#codelist_6] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1245,13 +1784,20 @@
   ('SELECT * INTO #group_table_17 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_6].code \n'
-   'FROM [#codelist_6]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_7].code \n'
+   'FROM [#codelist_7] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1262,13 +1808,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_6].code \n'
-   'FROM [#codelist_6]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_7].code \n'
+   'FROM [#codelist_7] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1277,13 +1831,20 @@
   ('SELECT * INTO #group_table_19 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_7].code \n'
-   'FROM [#codelist_7]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_8].code \n'
+   'FROM [#codelist_8] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1294,13 +1855,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_7].code \n'
-   'FROM [#codelist_7]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_8].code \n'
+   'FROM [#codelist_8] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1309,13 +1878,20 @@
   ('SELECT * INTO #group_table_21 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_8].code \n'
-   'FROM [#codelist_8]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_9].code \n'
+   'FROM [#codelist_9] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1326,13 +1902,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_8].code \n'
-   'FROM [#codelist_8]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_9].code \n'
+   'FROM [#codelist_9] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1341,13 +1925,20 @@
   ('SELECT * INTO #group_table_23 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_9].code \n'
-   'FROM [#codelist_9]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_10].code \n'
+   'FROM [#codelist_10] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1358,13 +1949,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_9].code \n'
-   'FROM [#codelist_9]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_10].code \n'
+   'FROM [#codelist_10] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1373,13 +1972,20 @@
   ('SELECT * INTO #group_table_25 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_10].code \n'
-   'FROM [#codelist_10]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_11].code \n'
+   'FROM [#codelist_11] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1390,13 +1996,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_10].code \n'
-   'FROM [#codelist_10]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_11].code \n'
+   'FROM [#codelist_11] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1405,13 +2019,20 @@
   ('SELECT * INTO #group_table_27 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_11].code \n'
-   'FROM [#codelist_11]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_12].code \n'
+   'FROM [#codelist_12] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1422,13 +2043,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_11].code \n'
-   'FROM [#codelist_11]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_12].code \n'
+   'FROM [#codelist_12] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1437,13 +2066,20 @@
   ('SELECT * INTO #group_table_29 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_12].code \n'
-   'FROM [#codelist_12]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_13].code \n'
+   'FROM [#codelist_13] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1454,13 +2090,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_12].code \n'
-   'FROM [#codelist_12]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_13].code \n'
+   'FROM [#codelist_13] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1469,13 +2113,20 @@
   ('SELECT * INTO #group_table_31 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_13].code \n'
-   'FROM [#codelist_13]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_14].code \n'
+   'FROM [#codelist_14] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1486,13 +2137,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_13].code \n'
-   'FROM [#codelist_13]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_14].code \n'
+   'FROM [#codelist_14] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1501,13 +2160,20 @@
   ('SELECT * INTO #group_table_33 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_14].code \n'
-   'FROM [#codelist_14]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_15].code \n'
+   'FROM [#codelist_15] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1518,13 +2184,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_14].code \n'
-   'FROM [#codelist_14]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_15].code \n'
+   'FROM [#codelist_15] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1533,13 +2207,20 @@
   ('SELECT * INTO #group_table_35 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_15].code \n'
-   'FROM [#codelist_15]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_16].code \n'
+   'FROM [#codelist_16] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1550,13 +2231,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_15].code \n'
-   'FROM [#codelist_15]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_16].code \n'
+   'FROM [#codelist_16] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1565,13 +2254,20 @@
   ('SELECT * INTO #group_table_37 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_16].code \n'
-   'FROM [#codelist_16]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_17].code \n'
+   'FROM [#codelist_17] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1582,13 +2278,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_16].code \n'
-   'FROM [#codelist_16]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_17].code \n'
+   'FROM [#codelist_17] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1597,13 +2301,20 @@
   ('SELECT * INTO #group_table_39 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_17].code \n'
-   'FROM [#codelist_17]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_18].code \n'
+   'FROM [#codelist_18] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1614,13 +2325,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_17].code \n'
-   'FROM [#codelist_17]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_18].code \n'
+   'FROM [#codelist_18] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1629,13 +2348,20 @@
   ('SELECT * INTO #group_table_41 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_18].code \n'
-   'FROM [#codelist_18]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_19].code \n'
+   'FROM [#codelist_19] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1646,13 +2372,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_18].code \n'
-   'FROM [#codelist_18]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_19].code \n'
+   'FROM [#codelist_19] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1661,13 +2395,20 @@
   ('SELECT * INTO #group_table_43 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_19].code \n'
-   'FROM [#codelist_19]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_20].code \n'
+   'FROM [#codelist_20] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1678,13 +2419,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_19].code \n'
-   'FROM [#codelist_19]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_20].code \n'
+   'FROM [#codelist_20] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1693,13 +2442,20 @@
   ('SELECT * INTO #group_table_45 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_20].code \n'
-   'FROM [#codelist_20]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_21].code \n'
+   'FROM [#codelist_21] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1710,13 +2466,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_20].code \n'
-   'FROM [#codelist_20]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_21].code \n'
+   'FROM [#codelist_21] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1725,13 +2489,20 @@
   ('SELECT * INTO #group_table_47 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_21].code \n'
-   'FROM [#codelist_21]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_22].code \n'
+   'FROM [#codelist_22] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1742,13 +2513,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_21].code \n'
-   'FROM [#codelist_21]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_22].code \n'
+   'FROM [#codelist_22] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1757,13 +2536,20 @@
   ('SELECT * INTO #group_table_49 \n'
    'FROM (SELECT clinical_events.patient_id AS patient_id, '
    'count(clinical_events.code) AS code_count \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_22].code \n'
-   'FROM [#codelist_22]) AND clinical_events.date >= %(date_1)s GROUP BY '
-   'clinical_events.patient_id) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00'}),
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_23].code \n'
+   'FROM [#codelist_23] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s GROUP BY clinical_events.patient_id) AS anon_1',
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00'}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -1774,13 +2560,21 @@
    'FROM (SELECT clinical_events.date AS date, clinical_events.patient_id AS '
    'patient_id, row_number() OVER (PARTITION BY clinical_events.patient_id '
    'ORDER BY clinical_events.date) AS _row_num \n'
-   'FROM (SELECT [CTV3Code] AS code, [ConsultationDate] AS date, '
-   '[NumericValue] AS numeric_value, [Patient_ID] AS patient_id \n'
-   'FROM [CodedEvent]) AS clinical_events \n'
-   'WHERE clinical_events.code IN (SELECT [#codelist_22].code \n'
-   'FROM [#codelist_22]) AND clinical_events.date >= %(date_1)s) AS anon_2 \n'
+   'FROM (\n'
+   "            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as "
+   'system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent\n'
+   '            UNION ALL\n'
+   "            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' "
+   'as system, ConsultationDate AS date, NumericValue AS numeric_value FROM '
+   'CodedEvent_SNOMED\n'
+   '        ) AS clinical_events \n'
+   'WHERE clinical_events.code IN (SELECT [#codelist_23].code \n'
+   'FROM [#codelist_23] \n'
+   'WHERE clinical_events.system = %(system_1)s) AND clinical_events.date >= '
+   '%(date_1)s) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
+   {'system_1': 'snomed', 'date_1': '2020-02-01T00:00:00', 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),

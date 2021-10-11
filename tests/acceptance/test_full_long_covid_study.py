@@ -11,13 +11,14 @@ from codelists import (
 )
 from lib.tpp_schema import (
     apcs,
-    event,
+    ctv3_event,
     negative_test,
     organisation,
     patient,
     patient_address,
     positive_test,
     registration,
+    snomed_event,
 )
 from lib.util import extract
 
@@ -28,7 +29,7 @@ from cohortextractor.validate_dummy_data import validate_dummy_data
 
 pandemic_start = "2020-02-01"
 index_date = "2020-11-01"
-bmi_code = "22K.."
+bmi_code = codelist(["22K.."], system="ctv3")
 
 
 class Cohort:
@@ -171,22 +172,26 @@ def test_cohort(database, setup_backend_database):
             # excluded by being a negative result
             negative_test(specimen_date="2020-04-04"),
             # primary care covid
-            event(code="Y228e", date="2020-07-07"),  # covid diagnosis
-            event(code="Y23f7", date="2020-07-02"),  # positive covid test
-            event(code="Y20fc", date="2020-07-09"),  # covid sequelae
+            ctv3_event(code="Y228e", date="2020-07-07"),  # covid diagnosis
+            ctv3_event(code="Y23f7", date="2020-07-02"),  # positive covid test
+            ctv3_event(code="Y20fc", date="2020-07-09"),  # covid sequelae
             apcs(codes="U071", admission_date="2020-08-08"),  # covid virus identified
-            event(code="1325031000000108", date="2020-09-01"),  # long covid referral
-            event(code="1325091000000109", date="2020-09-09"),  # long covid assessment
-            event(
+            snomed_event(
+                code="1325031000000108", date="2020-09-01"
+            ),  # long covid referral
+            snomed_event(
+                code="1325091000000109", date="2020-09-09"
+            ),  # long covid assessment
+            snomed_event(
                 code="1325161000000102", date="2020-09-09"
             ),  # long covid diagnostic code
-            event(
+            snomed_event(
                 code="1325161000000102", date="2020-10-10"
             ),  # long covid diagnostic code
-            event(code="51771007", date="2020-10-01"),  # post-viral events
-            event(code="51771007", date="2020-11-01"),  # post-viral events
-            event(code="Y9930", date="2020-09-09"),  # ethnicity
-            event(code="22K..", date="2020-09-09", numeric_value=34.1),  # BMI
+            snomed_event(code="51771007", date="2020-10-01"),  # post-viral events
+            snomed_event(code="51771007", date="2020-11-01"),  # post-viral events
+            ctv3_event(code="Y9930", date="2020-09-09"),  # ethnicity
+            ctv3_event(code="22K..", date="2020-09-09", numeric_value=34.1),  # BMI
         ),
         # excluded by registration date
         *patient(

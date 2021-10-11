@@ -4,11 +4,12 @@ import pytest
 from codelists import covid_codes, covid_primary_care_code, long_covid_diagnostic_codes
 from lib.tpp_schema import (
     apcs,
-    event,
+    ctv3_event,
     negative_test,
     patient,
     positive_test,
     registration,
+    snomed_event,
 )
 from lib.util import extract
 
@@ -93,10 +94,14 @@ def test_simplified_cohort(database, setup_backend_database):
             positive_test(specimen_date="2020-06-06"),
             # excluded by being a negative result
             negative_test(specimen_date="2020-04-04"),
-            event(code="Y228e", date="2020-07-07"),  # covid diagnosis
+            ctv3_event(code="Y228e", date="2020-07-07"),  # covid diagnosis
             apcs(codes="U071", admission_date="2020-08-08"),  # covid virus identified
-            event(code="1325161000000102", date="2020-09-09"),  # post-covid syndrome
-            event(code="1325161000000102", date="2020-10-10"),  # post-covid syndrome
+            snomed_event(
+                code="1325161000000102", date="2020-09-09"
+            ),  # post-covid syndrome
+            snomed_event(
+                code="1325161000000102", date="2020-10-10"
+            ),  # post-covid syndrome
         ),
         # excluded by registration date
         *patient(

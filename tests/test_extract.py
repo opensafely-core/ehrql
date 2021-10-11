@@ -1,5 +1,5 @@
 import pytest
-from lib.mock_backend import Events, MockBackend, RegistrationHistory
+from lib.mock_backend import CTV3Events, MockBackend, RegistrationHistory
 from lib.util import extract
 
 from cohortextractor import table
@@ -9,7 +9,7 @@ from cohortextractor import table
 def test_pick_a_single_value(database, setup_test_database):
     input_data = [
         RegistrationHistory(PatientId=1),
-        Events(PatientId=1, EventCode="xyz"),
+        CTV3Events(PatientId=1, EventCode="xyz"),
     ]
     setup_test_database(input_data)
 

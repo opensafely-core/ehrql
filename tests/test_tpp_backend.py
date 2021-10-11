@@ -2,11 +2,12 @@ from datetime import date, datetime
 
 import pytest
 from lib.tpp_schema import (
-    Events,
+    CTV3Events,
     Patient,
     RegistrationHistory,
     SGSSNegativeTests,
     SGSSPositiveTests,
+    SnomedEvents,
     apcs,
     organisation,
     patient,
@@ -24,7 +25,7 @@ def test_basic_events_and_registration(database, setup_backend_database):
     setup_backend_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1),
-        Events(Patient_ID=1, CTV3Code="Code1"),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1"),
     )
 
     class Cohort:
@@ -177,7 +178,7 @@ def test_hospitalization_table_code_conversion(
     # they appear in the table.
     assert len(results) == len(codes)
     for code in codes:
-        assert (1, date(2012, 12, 12), code) in results
+        assert (1, date(2012, 12, 12), code, "icd10") in results
 
 
 def run_query(database, query):
@@ -209,7 +210,7 @@ def test_hospitalization_code_parsing_works_with_filters(
     class Cohort:
         code = (
             table("hospitalizations")
-            .filter("code", is_in=codelist(["xyz"], system="ctv3"))
+            .filter("code", is_in=codelist(["xyz"], system="icd10"))
             .first_by("patient_id")
             .get("code")
         )
@@ -225,7 +226,7 @@ def test_events_with_numeric_value(database, setup_backend_database):
     setup_backend_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1),
-        Events(Patient_ID=1, CTV3Code="Code1", NumericValue=34.7),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1", NumericValue=34.7),
     )
 
     class Cohort:
@@ -368,3 +369,60 @@ def test_index_of_multiple_deprivation_sorting(
         imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=expected)]
+
+
+@pytest.mark.integration
+def test_clinical_events_table(database, setup_backend_database):
+    setup_backend_database(
+        Patient(Patient_ID=1),
+        RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-01-01"),
+        SnomedEvents(Patient_ID=1, ConceptID="Code2", ConsultationDate="2021-02-01"),
+    )
+
+    class Cohort:
+        _events = table("clinical_events")
+        first_event_code = _events.earliest().get("code")
+        first_event_system = _events.earliest().get("system")
+        last_event_code = _events.latest().get("code")
+        last_event_system = _events.latest().get("system")
+
+    assert extract(Cohort, TPPBackend, database) == [
+        dict(
+            patient_id=1,
+            first_event_code="Code1",
+            first_event_system="ctv3",
+            last_event_code="Code2",
+            last_event_system="snomed",
+        )
+    ]
+
+
+@pytest.mark.integration
+def test_clinical_events_table_multiple_codes(database, setup_backend_database):
+    setup_backend_database(
+        Patient(Patient_ID=1),
+        RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-01-01"),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-02-01"),
+        CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-03-01"),
+        SnomedEvents(Patient_ID=1, ConceptID="Code2", ConsultationDate="2021-03-01"),
+    )
+
+    class Cohort:
+        _events = table("clinical_events")
+        _filtered_to_code = (
+            table("clinical_events")
+            .filter("code", is_in=codelist(["Code1"], "ctv3"))
+            .filter("date", on_or_after="2021-01-01")
+        )
+        count = _filtered_to_code.count("code")
+        date = _filtered_to_code.earliest().get("date")
+
+    assert extract(Cohort, TPPBackend, database) == [
+        dict(
+            patient_id=1,
+            count=3,
+            date=datetime(2021, 1, 1, 0, 0),
+        )
+    ]
