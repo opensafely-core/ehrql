@@ -43,48 +43,43 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_0 \n'
-   'FROM (SELECT anon_2.index_of_multiple_deprivation_rounded AS '
-   'index_of_multiple_deprivation_rounded, anon_2.patient_id AS patient_id \n'
-   'FROM (SELECT patient_address.index_of_multiple_deprivation_rounded AS '
-   'index_of_multiple_deprivation_rounded, patient_address.patient_id AS '
-   'patient_id, row_number() OVER (PARTITION BY patient_address.patient_id '
-   'ORDER BY patient_address.date_start DESC, patient_address.date_end DESC, '
-   'patient_address.has_postcode DESC, patient_address.patientaddress_id DESC) '
-   'AS _row_num \n'
-   'FROM (SELECT [PatientAddress_ID] AS patientaddress_id, [StartDate] AS '
-   'date_start, [EndDate] AS date_end, [IMD] AS '
-   'index_of_multiple_deprivation_rounded, [MSOACode] AS msoa_code, '
-   'has_postcode, [Patient_ID] AS patient_id \n'
-   'FROM [TRE.PatientAddresses]) AS patient_address \n'
-   'WHERE patient_address.date_start <= %(date_start_1)s AND '
-   '(patient_address.date_end >= %(date_end_1)s OR patient_address.date_end IS '
-   'NULL)) AS anon_2 \n'
-   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_start_1': '20210601', 'date_end_1': '20210601', 'row_num_1': 1}),
+   'FROM (SELECT clinical_events.patient_id AS patient_id, %(param_1)s AS '
+   'patient_id_exists \n'
+   'FROM (SELECT [EventCode] AS code, [System] AS system, [Date] AS date, '
+   '[ResultValue] AS result, [PatientId] AS patient_id \n'
+   'FROM events) AS clinical_events \n'
+   'WHERE clinical_events.result > %(result_1)s OR clinical_events.result IS '
+   'NULL GROUP BY clinical_events.patient_id) AS anon_1',
+   {'param_1': 1, 'result_1': 15}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_1 \n'
-   'FROM (SELECT practice_registrations.patient_id AS patient_id, %(param_1)s '
-   'AS patient_id_exists \n'
-   'FROM (SELECT [Organisation_ID] AS pseudo_id, [Region] AS '
-   'nuts1_region_name, [StartDate] AS date_start, [EndDate] AS date_end, '
-   '[Patient_ID] AS patient_id \n'
-   'FROM [TRE.PracticeRegistrations]) AS practice_registrations GROUP BY '
-   'practice_registrations.patient_id) AS anon_1',
-   {'param_1': 1}),
+   'FROM (SELECT anon_2.code AS code, anon_2.date AS date, anon_2.patient_id '
+   'AS patient_id, anon_2.result AS result \n'
+   'FROM (SELECT clinical_events.code AS code, clinical_events.date AS date, '
+   'clinical_events.patient_id AS patient_id, clinical_events.result AS '
+   'result, row_number() OVER (PARTITION BY clinical_events.patient_id ORDER '
+   'BY clinical_events.patient_id) AS _row_num \n'
+   'FROM (SELECT [EventCode] AS code, [System] AS system, [Date] AS date, '
+   '[ResultValue] AS result, [PatientId] AS patient_id \n'
+   'FROM events) AS clinical_events \n'
+   'WHERE clinical_events.result > %(result_1)s OR clinical_events.result IS '
+   'NULL) AS anon_2 \n'
+   'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
+   {'result_1': 15, 'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT [#group_table_1].patient_id AS patient_id, '
-   '[#group_table_0].index_of_multiple_deprivation_rounded AS imd \n'
-   'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
-   '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
-   'WHERE [#group_table_1].patient_id_exists = 1',
+  ('SELECT [#group_table_0].patient_id AS patient_id, [#group_table_1].code AS '
+   'code, [#group_table_1].date AS date, [#group_table_1].result AS value \n'
+   'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
+   '[#group_table_0].patient_id = [#group_table_1].patient_id \n'
+   'WHERE [#group_table_0].patient_id_exists = 1',
    {}),
   {},
   None),
@@ -93,8 +88,11 @@
   (),
   {},
   (('patient_id', 3, None, None, None, None, None),
-   ('imd', 3, None, None, None, None, None))),
- ('Cursor', 'fetchone', (), {}, (1, 200)),
+   ('code', 1, None, None, None, None, None),
+   ('date', 2, None, None, None, None, None),
+   ('value', 3, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (2, 'Code2', datetime.date(2021, 1, 2), None)),
+ ('Cursor', 'fetchone', (), {}, (3, 'Code3', datetime.date(2021, 1, 3), 30.0)),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]

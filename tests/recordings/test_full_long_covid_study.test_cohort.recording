@@ -1364,7 +1364,8 @@
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations \n'
    'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
-   'practice_registrations.date_end >= %(date_end_1)s GROUP BY '
+   '(practice_registrations.date_end >= %(date_end_1)s OR '
+   'practice_registrations.date_end IS NULL) GROUP BY '
    'practice_registrations.patient_id) AS anon_1',
    {'param_1': 1,
     'date_start_1': '2020-11-01T00:00:00',
@@ -1393,7 +1394,8 @@
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations \n'
    'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
-   'practice_registrations.date_end >= %(date_end_1)s) AS anon_2 \n'
+   '(practice_registrations.date_end >= %(date_end_1)s OR '
+   'practice_registrations.date_end IS NULL)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'date_start_1': '2020-11-01T00:00:00',
     'date_end_1': '2020-11-01T00:00:00',
@@ -1675,7 +1677,8 @@
    '            FROM PatientAddress\n'
    '        ) AS patient_address \n'
    'WHERE patient_address.date_start <= %(date_start_1)s AND '
-   'patient_address.date_end >= %(date_end_1)s) AS anon_2 \n'
+   '(patient_address.date_end >= %(date_end_1)s OR patient_address.date_end IS '
+   'NULL)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'date_start_1': '20201101', 'date_end_1': '20201101', 'row_num_1': 1}),
   {},

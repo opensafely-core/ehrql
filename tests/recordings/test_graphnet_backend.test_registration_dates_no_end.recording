@@ -43,23 +43,24 @@
  ('Cursor',
   'execute',
   ('SELECT * INTO #group_table_0 \n'
-   'FROM (SELECT anon_2.index_of_multiple_deprivation_rounded AS '
-   'index_of_multiple_deprivation_rounded, anon_2.patient_id AS patient_id \n'
-   'FROM (SELECT patient_address.index_of_multiple_deprivation_rounded AS '
-   'index_of_multiple_deprivation_rounded, patient_address.patient_id AS '
-   'patient_id, row_number() OVER (PARTITION BY patient_address.patient_id '
-   'ORDER BY patient_address.date_start DESC, patient_address.date_end DESC, '
-   'patient_address.has_postcode DESC, patient_address.patientaddress_id DESC) '
-   'AS _row_num \n'
-   'FROM (SELECT [PatientAddress_ID] AS patientaddress_id, [StartDate] AS '
-   'date_start, [EndDate] AS date_end, [IMD] AS '
-   'index_of_multiple_deprivation_rounded, [MSOACode] AS msoa_code, '
-   'has_postcode, [Patient_ID] AS patient_id \n'
-   'FROM [TRE.PatientAddresses]) AS patient_address \n'
-   'WHERE patient_address.date_start <= %(date_start_1)s AND '
-   'patient_address.date_end >= %(date_end_1)s) AS anon_2 \n'
+   'FROM (SELECT anon_2.date_end AS date_end, anon_2.date_start AS date_start, '
+   'anon_2.patient_id AS patient_id \n'
+   'FROM (SELECT practice_registrations.date_end AS date_end, '
+   'practice_registrations.date_start AS date_start, '
+   'practice_registrations.patient_id AS patient_id, row_number() OVER '
+   '(PARTITION BY practice_registrations.patient_id ORDER BY '
+   'practice_registrations.date_end DESC) AS _row_num \n'
+   'FROM (SELECT [Organisation_ID] AS pseudo_id, [Region] AS '
+   'nuts1_region_name, [StartDate] AS date_start, [EndDate] AS date_end, '
+   '[Patient_ID] AS patient_id \n'
+   'FROM [TRE.PracticeRegistrations]) AS practice_registrations \n'
+   'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
+   '(practice_registrations.date_end >= %(date_end_1)s OR '
+   'practice_registrations.date_end IS NULL)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
-   {'date_start_1': '20210601', 'date_end_1': '20210601', 'row_num_1': 1}),
+   {'date_start_1': '2014-01-01T00:00:00',
+    'date_end_1': '2014-01-01T00:00:00',
+    'row_num_1': 1}),
   {},
   None),
  ('Cursor', 'description', (), {}, None),
@@ -80,7 +81,8 @@
  ('Cursor',
   'execute',
   ('SELECT [#group_table_1].patient_id AS patient_id, '
-   '[#group_table_0].index_of_multiple_deprivation_rounded AS imd \n'
+   '[#group_table_0].date_start AS arrived, [#group_table_0].date_end AS '
+   '[left] \n'
    'FROM [#group_table_1] LEFT OUTER JOIN [#group_table_0] ON '
    '[#group_table_1].patient_id = [#group_table_0].patient_id \n'
    'WHERE [#group_table_1].patient_id_exists = 1',
@@ -92,8 +94,9 @@
   (),
   {},
   (('patient_id', 3, None, None, None, None, None),
-   ('imd', 3, None, None, None, None, None))),
- ('Cursor', 'fetchone', (), {}, (1, 500)),
+   ('arrived', 4, None, None, None, None, None),
+   ('left', 4, None, None, None, None, None))),
+ ('Cursor', 'fetchone', (), {}, (1, datetime.datetime(2013, 1, 1, 0, 0), None)),
  ('Cursor', 'fetchone', (), {}, None),
  ('Cursor', 'close', (), {}, None),
  ('Connection', 'rollback', (), {}, None)]

@@ -71,7 +71,8 @@
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations \n'
    'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
-   'practice_registrations.date_end >= %(date_end_1)s GROUP BY '
+   '(practice_registrations.date_end >= %(date_end_1)s OR '
+   'practice_registrations.date_end IS NULL) GROUP BY '
    'practice_registrations.patient_id) AS anon_1',
    {'param_1': 1,
     'date_start_1': '2021-01-01T00:00:00',
@@ -124,7 +125,7 @@
  ('Connection', 'commit', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO temp_tables..TempExtract_4a7ba3163980b5f8932feec48b201312 \n'
+  ('SELECT * INTO temp_tables..TempExtract_3b9edb4a090283421cccac31e464a4c7 \n'
    'FROM (SELECT [#group_table_0].patient_id AS patient_id, '
    '[#group_table_1].date AS date, [#group_table_2].code AS event \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
@@ -139,8 +140,8 @@
  ('Cursor',
   'execute',
   ('CREATE INDEX '
-   '[ix_temp_tables..TempExtract_4a7ba3163980b5f8932feec48b201312_patient_id] '
-   'ON temp_tables..TempExtract_4a7ba3163980b5f8932feec48b201312 (patient_id)',
+   '[ix_temp_tables..TempExtract_3b9edb4a090283421cccac31e464a4c7_patient_id] '
+   'ON temp_tables..TempExtract_3b9edb4a090283421cccac31e464a4c7 (patient_id)',
    {}),
   {},
   None),
@@ -149,7 +150,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 32000 * \n'
-   'FROM temp_tables..TempExtract_4a7ba3163980b5f8932feec48b201312 ORDER BY '
+   'FROM temp_tables..TempExtract_3b9edb4a090283421cccac31e464a4c7 ORDER BY '
    'patient_id',
    {}),
   {},
@@ -172,7 +173,7 @@
   'execute',
   ('\n'
    'DROP TABLE IF EXISTS '
-   'temp_tables..TempExtract_4a7ba3163980b5f8932feec48b201312',
+   'temp_tables..TempExtract_3b9edb4a090283421cccac31e464a4c7',
    {}),
   {},
   None),
@@ -252,7 +253,8 @@
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations \n'
    'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
-   'practice_registrations.date_end >= %(date_end_1)s GROUP BY '
+   '(practice_registrations.date_end >= %(date_end_1)s OR '
+   'practice_registrations.date_end IS NULL) GROUP BY '
    'practice_registrations.patient_id) AS anon_1',
    {'param_1': 1,
     'date_start_1': '2021-02-01T00:00:00',
@@ -305,7 +307,7 @@
  ('Connection', 'commit', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO temp_tables..TempExtract_f9da03c334a553defd7a63ffe9208835 \n'
+  ('SELECT * INTO temp_tables..TempExtract_e7a41b0876d6c3767367f41eec450785 \n'
    'FROM (SELECT [#group_table_0].patient_id AS patient_id, '
    '[#group_table_1].date AS date, [#group_table_2].code AS event \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
@@ -320,8 +322,8 @@
  ('Cursor',
   'execute',
   ('CREATE INDEX '
-   '[ix_temp_tables..TempExtract_f9da03c334a553defd7a63ffe9208835_patient_id] '
-   'ON temp_tables..TempExtract_f9da03c334a553defd7a63ffe9208835 (patient_id)',
+   '[ix_temp_tables..TempExtract_e7a41b0876d6c3767367f41eec450785_patient_id] '
+   'ON temp_tables..TempExtract_e7a41b0876d6c3767367f41eec450785 (patient_id)',
    {}),
   {},
   None),
@@ -330,7 +332,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 32000 * \n'
-   'FROM temp_tables..TempExtract_f9da03c334a553defd7a63ffe9208835 ORDER BY '
+   'FROM temp_tables..TempExtract_e7a41b0876d6c3767367f41eec450785 ORDER BY '
    'patient_id',
    {}),
   {},
@@ -363,7 +365,7 @@
   'execute',
   ('\n'
    'DROP TABLE IF EXISTS '
-   'temp_tables..TempExtract_f9da03c334a553defd7a63ffe9208835',
+   'temp_tables..TempExtract_e7a41b0876d6c3767367f41eec450785',
    {}),
   {},
   None),
@@ -443,7 +445,8 @@
    'RegistrationHistory.Organisation_ID = Organisation.Organisation_ID\n'
    '        ) AS practice_registrations \n'
    'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
-   'practice_registrations.date_end >= %(date_end_1)s GROUP BY '
+   '(practice_registrations.date_end >= %(date_end_1)s OR '
+   'practice_registrations.date_end IS NULL) GROUP BY '
    'practice_registrations.patient_id) AS anon_1',
    {'param_1': 1,
     'date_start_1': '2021-03-01T00:00:00',
@@ -496,7 +499,7 @@
  ('Connection', 'commit', (), {}, None),
  ('Cursor',
   'execute',
-  ('SELECT * INTO temp_tables..TempExtract_be078e81b958c306778f951cb287b9fc \n'
+  ('SELECT * INTO temp_tables..TempExtract_e1e92efeab727f8b61822746834ed77d \n'
    'FROM (SELECT [#group_table_0].patient_id AS patient_id, '
    '[#group_table_1].date AS date, [#group_table_2].code AS event \n'
    'FROM [#group_table_0] LEFT OUTER JOIN [#group_table_1] ON '
@@ -511,8 +514,8 @@
  ('Cursor',
   'execute',
   ('CREATE INDEX '
-   '[ix_temp_tables..TempExtract_be078e81b958c306778f951cb287b9fc_patient_id] '
-   'ON temp_tables..TempExtract_be078e81b958c306778f951cb287b9fc (patient_id)',
+   '[ix_temp_tables..TempExtract_e1e92efeab727f8b61822746834ed77d_patient_id] '
+   'ON temp_tables..TempExtract_e1e92efeab727f8b61822746834ed77d (patient_id)',
    {}),
   {},
   None),
@@ -521,7 +524,7 @@
  ('Cursor',
   'execute',
   ('SELECT TOP 32000 * \n'
-   'FROM temp_tables..TempExtract_be078e81b958c306778f951cb287b9fc ORDER BY '
+   'FROM temp_tables..TempExtract_e1e92efeab727f8b61822746834ed77d ORDER BY '
    'patient_id',
    {}),
   {},
@@ -554,7 +557,7 @@
   'execute',
   ('\n'
    'DROP TABLE IF EXISTS '
-   'temp_tables..TempExtract_be078e81b958c306778f951cb287b9fc',
+   'temp_tables..TempExtract_e1e92efeab727f8b61822746834ed77d',
    {}),
   {},
   None),
