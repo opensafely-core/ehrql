@@ -6,6 +6,7 @@ import docker.errors
 import pytest
 from lib import mock_backend, playback
 from lib.databases import DbDetails, make_database, wait_for_database
+from lib.databricks_schema import Base as DatabricksBase
 from lib.docker import Containers
 from lib.graphnet_schema import Base as GraphnetBase
 from lib.tpp_schema import Base as TppBase
@@ -13,7 +14,7 @@ from lib.util import iter_flatten
 from sqlalchemy.orm import sessionmaker
 
 
-BASES = {"tpp": TppBase, "graphnet": GraphnetBase}
+BASES = {"tpp": TppBase, "graphnet": GraphnetBase, "databricks": DatabricksBase}
 
 
 @pytest.fixture(scope="session")
