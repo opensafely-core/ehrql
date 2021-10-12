@@ -78,7 +78,8 @@ class MappedTable(SQLTable):
         self._columns = columns
 
     def learn_patient_join(self, source):
-        self._columns["patient_id"] = Column("integer", source)
+        if "patient_id" not in self._columns:
+            self._columns["patient_id"] = Column("integer", source)
 
     def get_query(self, type_map):
         columns = self._make_columns(type_map)
@@ -92,7 +93,8 @@ class QueryTable(SQLTable):
         self._columns = columns
 
     def learn_patient_join(self, source):
-        self._columns["patient_id"] = Column("integer")
+        if "patient_id" not in self._columns:
+            self._columns["patient_id"] = Column("integer")
 
     def get_query(self, type_map):
         columns = self._make_columns(type_map)
