@@ -9,6 +9,7 @@ from lib.databases import DbDetails, make_database, wait_for_database
 from lib.docker import Containers
 from lib.graphnet_schema import Base as GraphnetBase
 from lib.tpp_schema import Base as TppBase
+from lib.util import iter_flatten
 from sqlalchemy.orm import sessionmaker
 
 
@@ -147,7 +148,7 @@ def setup_test_database(database, recording, request):
             Session.configure(bind=engine)
             session = Session()
             # Load test data
-            for entity in input_data:
+            for entity in iter_flatten(input_data):
                 session.add(entity)
                 session.commit()
 
