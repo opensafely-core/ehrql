@@ -11,6 +11,7 @@ DEFAULT_SQLALCHEMY_TYPES = {
     "float": sqlalchemy.types.Float,
     "integer": sqlalchemy.types.Integer,
     "varchar": sqlalchemy.types.Text,
+    "code": sqlalchemy.types.Text,
 }
 
 
