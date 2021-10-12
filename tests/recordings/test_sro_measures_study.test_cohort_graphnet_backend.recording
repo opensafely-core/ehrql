@@ -712,7 +712,8 @@
    '[Patient_ID] AS patient_id \n'
    'FROM [TRE.PracticeRegistrations]) AS practice_registrations \n'
    'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
-   'practice_registrations.date_end >= %(date_end_1)s) AS anon_2 \n'
+   '(practice_registrations.date_end >= %(date_end_1)s OR '
+   'practice_registrations.date_end IS NULL)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'date_start_1': '2019-01-01T00:00:00',
     'date_end_1': '2019-01-01T00:00:00',
@@ -742,7 +743,8 @@
    '[Patient_ID] AS patient_id \n'
    'FROM [TRE.PracticeRegistrations]) AS practice_registrations \n'
    'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
-   'practice_registrations.date_end >= %(date_end_1)s AND '
+   '(practice_registrations.date_end >= %(date_end_1)s OR '
+   'practice_registrations.date_end IS NULL) AND '
    'practice_registrations.patient_id IN (SELECT [#group_table_1].patient_id \n'
    'FROM [#group_table_1] \n'
    'WHERE [#group_table_1].patient_id = practice_registrations.patient_id) '
@@ -2048,7 +2050,8 @@
    '[Patient_ID] AS patient_id \n'
    'FROM [TRE.PracticeRegistrations]) AS practice_registrations \n'
    'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
-   'practice_registrations.date_end >= %(date_end_1)s) AS anon_2 \n'
+   '(practice_registrations.date_end >= %(date_end_1)s OR '
+   'practice_registrations.date_end IS NULL)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'date_start_1': '2019-02-01T00:00:00',
     'date_end_1': '2019-02-01T00:00:00',
@@ -2078,7 +2081,8 @@
    '[Patient_ID] AS patient_id \n'
    'FROM [TRE.PracticeRegistrations]) AS practice_registrations \n'
    'WHERE practice_registrations.date_start <= %(date_start_1)s AND '
-   'practice_registrations.date_end >= %(date_end_1)s AND '
+   '(practice_registrations.date_end >= %(date_end_1)s OR '
+   'practice_registrations.date_end IS NULL) AND '
    'practice_registrations.patient_id IN (SELECT [#group_table_1].patient_id \n'
    'FROM [#group_table_1] \n'
    'WHERE [#group_table_1].patient_id = practice_registrations.patient_id) '

@@ -109,6 +109,7 @@ class Table(QueryNode):
         - between: `filter("a", between=[start_date_column, end_date_column]})`
         - others: `filter("a", less_than=b)`
         """
+        include_null = kwargs.pop("include_null", False)
         if not args:
             # No args; this is an equals filter
             assert kwargs
@@ -133,7 +134,11 @@ class Table(QueryNode):
 
         operator = _OPERATOR_MAPPING[operator]
         return FilteredTable(
-            source=self, column=args[0], operator=operator, value=value
+            source=self,
+            column=args[0],
+            operator=operator,
+            value=value,
+            include_null=include_null,
         )
 
     def earliest(self, *columns):
@@ -152,14 +157,15 @@ class Table(QueryNode):
         assert columns
         return Row(source=self, sort_columns=columns, descending=True)
 
-    def date_in_range(self, date, start_column="date_start", end_column="date_end"):
+    def date_in_range(
+        self, date, start_column="date_start", end_column="date_end", include_null=True
+    ):
         """
         A filter that returns rows for which a date falls between a start and end date (inclusive).
-        Note that this filter currently expects that a value will be present for BOTH
-        start and end columns.
+        Null end date values are included by default
         """
         return self.filter(start_column, less_than_or_equals=date).filter(
-            end_column, greater_than_or_equals=date
+            end_column, greater_than_or_equals=date, include_null=include_null
         )
 
     def exists(self, column="patient_id"):
@@ -184,7 +190,7 @@ class Table(QueryNode):
             )
 
         # Note that current addresses are recorded with an EndDate of
-        # 9999-12-31. Where address periods overlap we use the one with the
+        # 9999-12-31 (TPP) or Null (Graphnet). Where address periods overlap we use the one with the
         # most recent start date. If there are several with the same start date
         # we use the longest one (i.e. with the latest end date). We then
         # prefer addresses which have a postcode and inally we use the address ID as a
@@ -206,11 +212,12 @@ class Table(QueryNode):
 
 
 class FilteredTable(Table):
-    def __init__(self, source, column, operator, value):
+    def __init__(self, source, column, operator, value, include_null=False):
         self.source = source
         self.column = column
         self.operator = operator
         self.value = value
+        self.or_null = include_null
         self._validate()
 
     def _validate(self):

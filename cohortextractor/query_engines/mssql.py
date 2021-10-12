@@ -581,7 +581,7 @@ class MssqlQueryEngine(BaseQueryEngine):
             # include the other table in the join
             if isinstance(filter_node.value, Value):
                 query = self.include_joined_table(query, other_table)
-            # If we have a "Column" (i.e. multipe values per patient) then we
+            # If we have a "Column" (i.e. multiple values per patient) then we
             # can't directly join this with our single-value-per-patient query,
             # so we have to use a correlated subquery
             elif isinstance(filter_node.value, Column):
@@ -602,6 +602,10 @@ class MssqlQueryEngine(BaseQueryEngine):
         column = table_expr.c[column_name]
         method = getattr(column, operator_name)
         query_expr = method(value_expr)
+
+        if filter_node.or_null:
+            null_expr = column.__eq__(None)
+            query_expr = sqlalchemy.or_(query_expr, null_expr)
         return query.where(query_expr)
 
     @staticmethod

@@ -390,6 +390,48 @@ def test_simple_filters(database, setup_test_database, data, filtered_table, exp
 
 
 @pytest.mark.integration
+@pytest.mark.parametrize(
+    "filtered_table,expected",
+    [
+        (
+            table("clinical_events").filter(
+                "result", greater_than=15, include_null=True
+            ),
+            [
+                dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=None),
+                dict(patient_id=3, code="Code3", date=date(2021, 1, 3), value=30),
+            ],
+        ),
+        (
+            table("clinical_events").filter("result", greater_than=15),
+            [dict(patient_id=3, code="Code3", date=date(2021, 1, 3), value=30)],
+        ),
+    ],
+)
+def test_filter_with_nulls(database, setup_test_database, filtered_table, expected):
+    setup_test_database(
+        [
+            *patient(
+                1, ctv3_event("Code1", "2021-01-01", 10)
+            ),  # excluded by filter on value
+            *patient(
+                2, ctv3_event("Code2", "2021-01-02", None)
+            ),  # only included if include_null is True
+            *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # included
+        ]
+    )
+
+    class Cohort:
+        population = filtered_table.exists()
+        _filtered_per_patient = filtered_table.first_by("patient_id")
+        code = _filtered_per_patient.get("code")
+        date = _filtered_per_patient.get("date")
+        value = _filtered_per_patient.get("result")
+
+    assert extract(Cohort, MockBackend, database) == expected
+
+
+@pytest.mark.integration
 def test_filter_between_other_query_values(database, setup_test_database):
     # set up input data for 3 patients, with positive test dates and clinical event results
     input_data = [

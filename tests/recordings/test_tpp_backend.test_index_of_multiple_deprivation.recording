@@ -62,7 +62,8 @@
    '            FROM PatientAddress\n'
    '        ) AS patient_address \n'
    'WHERE patient_address.date_start <= %(date_start_1)s AND '
-   'patient_address.date_end >= %(date_end_1)s) AS anon_2 \n'
+   '(patient_address.date_end >= %(date_end_1)s OR patient_address.date_end IS '
+   'NULL)) AS anon_2 \n'
    'WHERE anon_2._row_num = %(row_num_1)s) AS anon_1',
    {'date_start_1': '20210601', 'date_end_1': '20210601', 'row_num_1': 1}),
   {},

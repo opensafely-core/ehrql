@@ -56,7 +56,7 @@ def test_registration_dates(database, setup_backend_database):
     ]
 
 
-@pytest.mark.xfail
+@pytest.mark.integration
 def test_registration_dates_no_end(database, setup_backend_database):
     setup_backend_database(
         Patients(Patient_ID=1),
@@ -68,7 +68,11 @@ def test_registration_dates_no_end(database, setup_backend_database):
     )
 
     class Cohort:
-        _registrations = table("practice_registrations").date_in_range("2014-01-01")
+        _registrations = (
+            table("practice_registrations")
+            .date_in_range("2014-01-01")
+            .latest("date_end")
+        )
         arrived = _registrations.get("date_start")
         left = _registrations.get("date_end")
 
@@ -311,6 +315,14 @@ def test_index_of_multiple_deprivation(database, setup_backend_database):
         (
             [
                 patient_address("2001-01-01", "9999-12-31", 300, "E02000003", True),
+                patient_address("2001-01-01", "2021-01-01", 200, "E02000002", True),
+            ],
+            300,
+        ),
+        # two addresses with same start, one with null end date, choose the null end date
+        (
+            [
+                patient_address("2001-01-01", None, 300, "E02000003", True),
                 patient_address("2001-01-01", "2021-01-01", 200, "E02000002", True),
             ],
             300,
