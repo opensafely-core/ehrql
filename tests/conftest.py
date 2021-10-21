@@ -112,7 +112,7 @@ def real_db(containers, docker_client, network, mssql_dir, request):
 
 @pytest.fixture(scope="session")
 def dummy_db():
-    yield DbDetails("", "", 0, "", 0, "", "")
+    yield DbDetails("", "mssql", "", 0, "", 0)
 
 
 @pytest.fixture

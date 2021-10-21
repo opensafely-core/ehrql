@@ -11,22 +11,29 @@ DEFAULT_MSSQL_PORT = 1433
 
 
 class DbDetails:
+
+    DRIVERS = {"mssql": "mssql+pymssql"}
+
     def __init__(
         self,
         network,
+        protocol,
         host_from_container,
         port_from_container,
         host_from_host,
         port_from_host,
-        password,
-        db_name,
+        username="",
+        password="",
+        db_name="",
     ):
         self.network = network
+        self.protocol = protocol
         self.host_from_container = host_from_container
         self.port_from_container = port_from_container
         self.host_from_host = host_from_host
         self.port_from_host = port_from_host
         self.password = password
+        self.username = username
         self.db_name = db_name
 
     def host_url(self):
@@ -37,16 +44,22 @@ class DbDetails:
 
     def engine(self, **kwargs):
         engine_url = sqlalchemy.engine.make_url(self.host_url())
-        engine_url = engine_url.set(drivername="mssql+pymssql")
+        drivername = engine_url.drivername
+        new_drivername = self.DRIVERS.get(drivername, drivername)
+        engine_url = engine_url.set(drivername=new_drivername)
         # We always want the "future" API
         return sqlalchemy.create_engine(engine_url, future=True, **kwargs)
 
     def _url(self, host, port):
-        return f"mssql://SA:{self.password}@{host}:{port}/{self.db_name}"
+        if self.username or self.password:
+            auth = f"{self.username}:{self.password}@"
+        else:
+            auth = ""
+        return f"{self.protocol}://{auth}{host}:{port}/{self.db_name}"
 
 
 def null_database():
-    return DbDetails(None, None, None, None, None, None, None)
+    return DbDetails(None, None, None, None, None, None)
 
 
 def make_database(containers, docker_client, mssql_dir, network):
@@ -99,10 +112,12 @@ def persistent_database(containers, password, docker_client, mssql_dir):
 
     return None, DbDetails(
         network=network,
+        protocol="mssql",
         host_from_container=container,
         port_from_container=DEFAULT_MSSQL_PORT,
         host_from_host="localhost",
         port_from_host=published_port,
+        username="SA",
         password=password,
         db_name="test",
     )
@@ -116,10 +131,12 @@ def ephemeral_database(containers, password, mssql_dir, network):
 
     return container, DbDetails(
         network=network,
+        protocol="mssql",
         host_from_container=container,
         port_from_container=DEFAULT_MSSQL_PORT,
         host_from_host="localhost",
         port_from_host=published_port,
+        username="SA",
         password=password,
         db_name="test",
     )
