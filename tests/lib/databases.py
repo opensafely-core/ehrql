@@ -157,3 +157,66 @@ def run_mssql(container_name, containers, mssql_dir, network, password, publishe
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
     )
+
+
+def make_spark_database(containers, network):
+    container_name = "cohort-extractor-spark"
+    # This is the default anyway, but better to be explicit
+    spark_port = 10001
+    persistent = database_mode() == "persistent"
+
+    if not (persistent and containers.is_running(container_name)):
+        containers.destroy(container_name)
+        containers.run_bg(
+            name=container_name,
+            # Nothing special about this particular version other than that
+            # it's the latest as of the time of writing
+            image="docker.io/bitnami/spark:3.1.2-debian-10-r126",
+            entrypoint="/bin/bash",
+            command=[
+                # To speak SQL to our Spark database we need to start a thing
+                # called Hive which speaks a protocol called Thrift. Command
+                # below cribbed from:
+                # https://github.com/bitnami/bitnami-docker-spark/issues/32#issuecomment-820668226
+                "/opt/bitnami/spark/bin/spark-submit",
+                "--class",
+                "org.apache.spark.sql.hive.thriftserver.HiveThriftServer2",
+                # By default Hive tries to set cookies on the client which
+                # breaks both the client libraries I've tried so we disable
+                # that here
+                "--hiveconf",
+                "hive.server2.thrift.http.cookie.auth.enabled=false",
+                # Use the HTTP (as opposed to binary) protocol
+                "--hiveconf",
+                "hive.server2.transport.mode=http",
+                "--hiveconf",
+                f"hive.server2.thrift.http.port={spark_port}",
+            ],
+            # As described below, there's a directory permissions issue when
+            # trying to run Hive using this container. It's possible to chmod
+            # the relevant directory, but given that this is a test environment
+            # it's easier just to run as root. See:
+            # https://github.com/bitnami/bitnami-docker-spark/issues/32
+            user="root",
+            # Supplying a host port of None tells Docker to choose an arbitrary
+            # free port
+            ports={spark_port: None},
+        )
+
+    host_spark_port = containers.get_mapped_port_for_host(container_name, spark_port)
+
+    # We signal whether we want the container cleaned up by whether or not we
+    # return its name -- at least, that seems to be the pattern used above
+    name_to_return = container_name if not persistent else None
+
+    return name_to_return, DbDetails(
+        network=network,
+        protocol="spark",
+        host_from_container=container_name,
+        port_from_container=spark_port,
+        host_from_host="localhost",
+        port_from_host=host_spark_port,
+        # These are abitrary but we need to supply _some_ values here
+        username="foo",
+        password="bar",
+    )
