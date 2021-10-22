@@ -148,9 +148,8 @@ def setup_test_database(database, recording, request):
             Session.configure(bind=engine)
             session = Session()
             # Load test data
-            for entity in iter_flatten(input_data):
-                session.add(entity)
-                session.commit()
+            session.bulk_save_objects(iter_flatten(input_data))
+            session.commit()
 
     return setup
 
