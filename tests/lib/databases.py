@@ -68,21 +68,26 @@ def make_database(containers, docker_client, mssql_dir, network):
         return ephemeral_database(containers, password, mssql_dir, network)
 
 
-def wait_for_database(database):
+def wait_for_database(database, timeout=10):
     engine = database.engine()
 
     start = time.time()
-    timeout = 10
     limit = start + timeout
     while True:
         try:
             with engine.connect() as connection:
                 connection.execute(sqlalchemy.text("SELECT 'hello'"))
             break
-        except sqlalchemy.exc.OperationalError as e:
+        except (
+            sqlalchemy.exc.OperationalError,
+            ConnectionRefusedError,
+            ConnectionResetError,
+            BrokenPipeError,
+        ) as e:
             if time.time() >= limit:
                 raise Exception(
-                    f"Failed to connect to mssql after {timeout} seconds"
+                    f"Failed to connect to database after {timeout} seconds: "
+                    f"{engine.url}"
                 ) from e
             time.sleep(1)
 
