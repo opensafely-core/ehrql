@@ -33,8 +33,11 @@ class Containers:
             print(str(e.stderr, "utf-8"), file=sys.stderr)
             raise
 
-    # noinspection PyMethodMayBeStatic
-    def destroy(self, container):
+    def destroy(self, name):
+        try:
+            container = self.get_container(name)
+        except docker.errors.NotFound:
+            return
         container.remove(force=True)
 
     def _run(self, **kwargs):

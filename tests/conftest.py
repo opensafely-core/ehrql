@@ -107,7 +107,7 @@ def real_db(containers, docker_client, network, mssql_dir, request):
     yield lazily_created_session_scoped_database
 
     if container is not None:
-        containers.destroy(containers.get_container(container))
+        containers.destroy(container)
 
 
 @pytest.fixture(scope="session")
