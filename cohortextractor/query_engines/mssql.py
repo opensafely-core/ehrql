@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 
 import sqlalchemy
@@ -6,6 +7,7 @@ import sqlalchemy.schema
 import sqlalchemy.types
 
 from .base_sql import BaseSQLQueryEngine
+from .mssql_lib import fetch_results_in_batches
 
 
 # MS-SQL can misinterpret ISO dates, depending on its localisation settings so
@@ -66,3 +68,32 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
         "date": MSSQLDate,
         "datetime": MSSQLDateTime,
     }
+
+    @contextlib.contextmanager
+    def execute_query(self):
+        """Execute a query against an MSSQL backend"""
+        if self.backend.temporary_database:
+            # If we've got access to a temporary database then we use this
+            # function to manage storing our results in there and downloading
+            # in batches. This gives us the illusion of having a robust
+            # connection to the database, whereas in practice in frequently
+            # errors out when attempting to download large sets of results.
+            queries = self.get_queries()
+            with fetch_results_in_batches(
+                engine=self.engine,
+                queries=queries,
+                # The double dot syntax allows us to reference tables in another database
+                temp_table_prefix=f"{self.backend.temporary_database}..TempExtract",
+                # This value was copied from the previous cohortextractor. I
+                # suspect it has no real scientific basis.
+                batch_size=32000,
+                max_retries=2,
+                sleep=0.5,
+                reconnect_on_error=True,
+            ) as results:
+                yield results
+        else:
+            # Otherwise we just execute the queries and download the results in
+            # the normal manner
+            with super().execute_query() as results:
+                yield results
