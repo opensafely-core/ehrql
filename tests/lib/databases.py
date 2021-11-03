@@ -35,11 +35,11 @@ class DbDetails:
     def container_url(self):
         return self._url(self.host_from_container, self.port_from_container)
 
-    def engine(self, echo=True, **kwargs):
+    def engine(self, **kwargs):
         engine_url = sqlalchemy.engine.make_url(self.host_url())
         engine_url = engine_url.set(drivername="mssql+pymssql")
-        # We always want the "future" API, we usually want to echo queries
-        return sqlalchemy.create_engine(engine_url, future=True, echo=echo, **kwargs)
+        # We always want the "future" API
+        return sqlalchemy.create_engine(engine_url, future=True, **kwargs)
 
     def _url(self, host, port):
         return f"mssql://SA:{self.password}@{host}:{port}/{self.db_name}"
@@ -59,7 +59,7 @@ def make_database(containers, docker_client, mssql_dir, network):
 
 
 def wait_for_database(database):
-    engine = database.engine(echo=False)
+    engine = database.engine()
 
     start = time.time()
     timeout = 10

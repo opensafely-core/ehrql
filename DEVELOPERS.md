@@ -90,3 +90,8 @@ To remove the persistent database:
 ```
 just remove-persistent-database
 ```
+
+### Displaying SQL queries
+
+Set the environment variable `LOG_SQL=1` (or anything non-empty) to get
+all SQL queries logged to the console.
