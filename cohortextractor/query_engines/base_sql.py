@@ -1,5 +1,4 @@
 import contextlib
-import datetime
 from collections import defaultdict
 
 import sqlalchemy
@@ -53,69 +52,16 @@ def get_primary_table(query):
     return get_joined_tables(query)[0]
 
 
-# MS-SQL can misinterpret ISO dates, depending on its localisation settings so
-# we need to use particular date formats which we know will be consistently
-# interpreted. We do this by defining custom SQLAlchemy types. See:
-# https://github.com/opensafely-core/cohort-extractor-v2/issues/92
-# http://msdn.microsoft.com/en-us/library/ms180878.aspx
-# https://stackoverflow.com/a/25548626/559140
-class _MSSQLDateTimeBase:
-    text_type = sqlalchemy.types.Text()
-
-    def process_bind_param(self, value, dialect):
-        """
-        Convert a Python value to a form suitable for passing as a parameter to
-        the database connector
-        """
-        if value is None:
-            return None
-        # We accept ISO formated strings as well
-        if isinstance(value, str):
-            value = self.date_type.fromisoformat(value)
-        if not isinstance(value, self.date_type):
-            raise TypeError(f"Expected {self.date_type} or str got: {value!r}")
-        return value.strftime(self.format_str)
-
-    def process_literal_param(self, value, dialect):
-        """
-        Convert a Python value into an escaped string suitable for
-        interpolating directly into an SQL string
-        """
-        # Use the above method to convert to a string first
-        value = self.process_bind_param(value, dialect)
-        # Use the Text literal processor to quote and escape that string
-        literal_processor = self.text_type.literal_processor(dialect)
-        return literal_processor(value)
-
-
-class MSSQLDate(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
-    impl = sqlalchemy.types.Date
-    cache_ok = True
-    date_type = datetime.date
-    # See https://stackoverflow.com/a/25548626/559140
-    format_str = "%Y%m%d"
-
-
-class MSSQLDateTime(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
-    impl = sqlalchemy.types.DateTime
-    cache_ok = True
-    date_type = datetime.datetime
-    # See https://stackoverflow.com/a/25548626/559140
-    format_str = "%Y-%m-%dT%H:%M:%S"
-
-
 class BaseSQLQueryEngine(BaseQueryEngine):
 
     sqlalchemy_dialect = sqlalchemy.dialects.mssql
 
-    type_map = {
-        "date": MSSQLDate,
-        "datetime": MSSQLDateTime,
-    }
+    type_map = {}
 
     def __init__(self, column_definitions, backend):
         super().__init__(column_definitions, backend)
         self._engine = None
+        self.date_type = self.type_map.get("date", sqlalchemy.types.Date)
         # If no "population" was specified in the column definitions, use a default value
         # which just selects rows that exist by patient_id from the default population
         # table (practice_registrations)
@@ -507,8 +453,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return value_expression, tuple(tables)
 
     def date_difference_in_years(self, start_date, end_date):
-        start_date = type_coerce(start_date, MSSQLDate())
-        end_date = type_coerce(end_date, MSSQLDate())
+        start_date = type_coerce(start_date, self.date_type())
+        end_date = type_coerce(end_date, self.date_type())
         # `literal_column` doesn't seem quite the right construct here, but I
         # need SQLAlchemy to generate the string "year" without quotes, and
         # this seems to do the trick
@@ -520,7 +466,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         # so we add the resulting number of years back on to the start date
         start_date_plus_year_diff = sqlalchemy.func.dateadd(
-            YEAR, year_diff, start_date, type_=MSSQLDate()
+            YEAR, year_diff, start_date, type_=self.date_type()
         )
         # and then adjust it down by one year if this takes us past our end date
         return sqlalchemy.case(
