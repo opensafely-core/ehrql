@@ -6,14 +6,13 @@ import sqlalchemy
 import sqlalchemy.exc
 from lib.util import get_mode
 
+from cohortextractor.sqlalchemy_drivers import set_driver
+
 
 DEFAULT_MSSQL_PORT = 1433
 
 
 class DbDetails:
-
-    DRIVERS = {"mssql": "mssql+pymssql"}
-
     def __init__(
         self,
         network,
@@ -44,9 +43,7 @@ class DbDetails:
 
     def engine(self, **kwargs):
         engine_url = sqlalchemy.engine.make_url(self.host_url())
-        drivername = engine_url.drivername
-        new_drivername = self.DRIVERS.get(drivername, drivername)
-        engine_url = engine_url.set(drivername=new_drivername)
+        engine_url = set_driver(engine_url)
         # We always want the "future" API
         return sqlalchemy.create_engine(engine_url, future=True, **kwargs)
 

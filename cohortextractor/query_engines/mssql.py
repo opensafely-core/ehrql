@@ -23,6 +23,7 @@ from ..query_language import (
     ValueFromFunction,
     ValueFromRow,
 )
+from ..sqlalchemy_drivers import set_driver
 from .base import BaseQueryEngine
 from .mssql_lib import fetch_results_in_batches, write_query_to_table
 
@@ -279,7 +280,7 @@ class MssqlQueryEngine(BaseQueryEngine):
     def engine(self):
         if self._engine is None:
             engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
-            engine_url = engine_url.set(drivername="mssql+pymssql")
+            engine_url = set_driver(engine_url)
             self._engine = sqlalchemy.create_engine(engine_url, future=True)
         return self._engine
 
