@@ -14,8 +14,8 @@ rand = random.Random(20211019)
 
 
 @pytest.fixture
-def setup_databricks_database(setup_backend_database):
-    return lambda *data: setup_backend_database(*data, backend="databricks")
+def setup_databricks_database(setup_spark_database):
+    return lambda *data: setup_spark_database(*data, backend="databricks")
 
 
 def patient(patient_id, date_of_birth="1980-01-01", *entities):
@@ -61,7 +61,7 @@ def admission(
 
 
 @pytest.mark.integration
-def test_basic_databricks_study_definition(database, setup_databricks_database):
+def test_basic_databricks_study_definition(spark_database, setup_databricks_database):
     setup_databricks_database(
         patient(
             10,
@@ -98,7 +98,7 @@ def test_basic_databricks_study_definition(database, setup_databricks_database):
             .exists()
         )
 
-    results = extract(Cohort, DatabricksBackend, database)
+    results = extract(Cohort, DatabricksBackend, spark_database)
     # We don't care exactly what order the patients come back in
     results.sort(key=lambda i: i.get("patient_id"))
 

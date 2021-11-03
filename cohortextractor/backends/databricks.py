@@ -1,11 +1,10 @@
 from cohortextractor.backends.base import BaseBackend, Column, MappedTable, QueryTable
-from cohortextractor.query_engines.mssql import MssqlQueryEngine
+from cohortextractor.query_engines.spark import SparkQueryEngine
 
 
 class DatabricksBackend(BaseBackend):
     backend_id = "databricks"
-    # This will have to change, obviously, but it will do to start with
-    query_engine_class = MssqlQueryEngine
+    query_engine_class = SparkQueryEngine
     patient_join_column = "patient_id"
 
     patients = QueryTable(
