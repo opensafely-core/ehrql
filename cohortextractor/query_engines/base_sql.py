@@ -65,12 +65,13 @@ def get_primary_table(query):
 
 class BaseSQLQueryEngine(BaseQueryEngine):
 
-    sqlalchemy_dialect = sqlalchemy.dialects.mssql
+    sqlalchemy_dialect = NotImplemented
 
     custom_types = {}
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+        assert cls.sqlalchemy_dialect != NotImplemented
         cls.type_map = {**DEFAULT_TYPES, **cls.custom_types}
 
     def __init__(self, column_definitions, backend):

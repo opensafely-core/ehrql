@@ -60,6 +60,8 @@ class MSSQLDateTime(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
 
 
 class MssqlQueryEngine(BaseSQLQueryEngine):
+    sqlalchemy_dialect = sqlalchemy.dialects.mssql
+
     custom_types = {
         "date": MSSQLDate,
         "datetime": MSSQLDateTime,
