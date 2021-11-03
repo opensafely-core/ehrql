@@ -1,4 +1,10 @@
+from sqlalchemy.dialects import registry
+
+
 DRIVERS = {"mssql": "mssql+pymssql"}
+
+
+registry.register("spark", "cohortextractor.query_engines.spark_lib", "SparkDialect")
 
 
 def set_driver(engine_url):
