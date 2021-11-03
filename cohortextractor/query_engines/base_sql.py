@@ -27,6 +27,17 @@ from .base import BaseQueryEngine
 from .mssql_lib import fetch_results_in_batches, write_query_to_table
 
 
+DEFAULT_TYPES = {
+    "boolean": sqlalchemy.types.Boolean,
+    "date": sqlalchemy.types.Date,
+    "datetime": sqlalchemy.types.DateTime,
+    "float": sqlalchemy.types.Float,
+    "integer": sqlalchemy.types.Integer,
+    "varchar": sqlalchemy.types.Text,
+    "code": sqlalchemy.types.Text,
+}
+
+
 def get_joined_tables(query):
     """
     Given a query object return a list of all tables referenced
@@ -56,12 +67,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     sqlalchemy_dialect = sqlalchemy.dialects.mssql
 
-    type_map = {}
+    custom_types = {}
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.type_map = {**DEFAULT_TYPES, **cls.custom_types}
 
     def __init__(self, column_definitions, backend):
         super().__init__(column_definitions, backend)
         self._engine = None
-        self.date_type = self.type_map.get("date", sqlalchemy.types.Date)
         # If no "population" was specified in the column definitions, use a default value
         # which just selects rows that exist by patient_id from the default population
         # table (practice_registrations)
@@ -294,9 +308,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_select_expression(self, base_table, columns):
         # every table must have a patient_id column; select it and the specified columns
         columns = sorted({"patient_id"}.union(columns))
-        table_expr = self.backend.get_table_expression(
-            base_table.name, type_map=self.type_map
-        )
+        table_expr = self.backend.get_table_expression(base_table.name)
         column_objs = [table_expr.c[column] for column in columns]
         query = sqlalchemy.select(column_objs).select_from(table_expr)
         return query
@@ -453,8 +465,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return value_expression, tuple(tables)
 
     def date_difference_in_years(self, start_date, end_date):
-        start_date = type_coerce(start_date, self.date_type())
-        end_date = type_coerce(end_date, self.date_type())
+        Date = self.type_map["date"]
+        start_date = type_coerce(start_date, Date())
+        end_date = type_coerce(end_date, Date())
         # `literal_column` doesn't seem quite the right construct here, but I
         # need SQLAlchemy to generate the string "year" without quotes, and
         # this seems to do the trick
@@ -466,7 +479,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         # so we add the resulting number of years back on to the start date
         start_date_plus_year_diff = sqlalchemy.func.dateadd(
-            YEAR, year_diff, start_date, type_=self.date_type()
+            YEAR, year_diff, start_date, type_=Date()
         )
         # and then adjust it down by one year if this takes us past our end date
         return sqlalchemy.case(

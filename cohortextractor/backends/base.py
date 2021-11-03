@@ -4,16 +4,6 @@ import sqlalchemy
 # Mutable global for storing registered backends
 BACKENDS = {}
 
-DEFAULT_SQLALCHEMY_TYPES = {
-    "boolean": sqlalchemy.types.Boolean,
-    "date": sqlalchemy.types.Date,
-    "datetime": sqlalchemy.types.DateTime,
-    "float": sqlalchemy.types.Float,
-    "integer": sqlalchemy.types.Integer,
-    "varchar": sqlalchemy.types.Text,
-    "code": sqlalchemy.types.Text,
-}
-
 
 def register_backend(backend_class):
     BACKENDS[backend_class.backend_id] = backend_class
@@ -39,33 +29,34 @@ class BaseBackend:
             if isinstance(value, SQLTable):
                 cls.tables.add(name)
                 value.learn_patient_join(cls.patient_join_column)
+                value.learn_type_map(cls.query_engine_class.type_map)
 
     def __init__(self, database_url, temporary_database=None):
         self.database_url = database_url
         self.temporary_database = temporary_database
 
-    def get_table_expression(self, table_name, type_map=None):
+    def get_table_expression(self, table_name):
         if table_name not in self.tables:
             raise ValueError(f"Unknown table '{table_name}'")
         table = getattr(self, table_name)
-        return table.get_query(type_map).alias(table_name)
+        return table.get_query().alias(table_name)
 
 
 class SQLTable:
     def learn_patient_join(self, source):
         raise NotImplementedError()
 
-    def _make_columns(self, type_map):
+    def learn_type_map(self, type_map):
+        self.type_map = type_map
+
+    def _make_columns(self):
         return [
-            self._make_column(name, column, type_map)
-            for name, column in self._columns.items()
+            self._make_column(name, column) for name, column in self._columns.items()
         ]
 
-    def _make_column(self, name, column, type_map):
+    def _make_column(self, name, column):
         source = column.source or name
-        type_ = type_map.get(column.type) if type_map else None
-        if type_ is None:
-            type_ = DEFAULT_SQLALCHEMY_TYPES[column.type]
+        type_ = self.type_map[column.type]
         sql_column = sqlalchemy.Column(source, type_)
         if source != name:
             sql_column = sql_column.label(name)
@@ -81,8 +72,8 @@ class MappedTable(SQLTable):
         if "patient_id" not in self._columns:
             self._columns["patient_id"] = Column("integer", source)
 
-    def get_query(self, type_map):
-        columns = self._make_columns(type_map)
+    def get_query(self):
+        columns = self._make_columns()
         query = sqlalchemy.select(columns).select_from(sqlalchemy.table(self.source))
         return query
 
@@ -96,8 +87,8 @@ class QueryTable(SQLTable):
         if "patient_id" not in self._columns:
             self._columns["patient_id"] = Column("integer")
 
-    def get_query(self, type_map):
-        columns = self._make_columns(type_map)
+    def get_query(self):
+        columns = self._make_columns()
         return sqlalchemy.text(self.query).columns(*columns)
 
 
