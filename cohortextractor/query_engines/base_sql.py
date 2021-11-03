@@ -564,8 +564,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 # Shouldn't get any other type here
                 assert False
 
-        if isinstance(filter_node.value, Codelist):
-            # Codelist queries must also match on system
+        if isinstance(filter_node.value, Codelist) and "system" in table_expr.c:
+            # Codelist queries must also match on `system` column if it's present
             system_column = table_expr.c["system"]
             value_expr = value_expr.where(system_column == filter_node.value.system)
 
