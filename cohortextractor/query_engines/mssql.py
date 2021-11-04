@@ -76,6 +76,19 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
         """
         return write_query_to_table(table, query)
 
+    def get_temp_table_name(self, table_name):
+        """
+        Return a table name based on `table_name` but suitable for use as a
+        temporary table.
+
+        It's the caller's responsibility to ensure `table_name` is unique
+        within this session; it's this function's responsibility to ensure it
+        doesn't clash with any concurrent extracts
+        """
+        # The `#` prefix makes this a session-scoped temporary table which
+        # automatically gives us the isolation we need
+        return f"#{table_name}"
+
     @contextlib.contextmanager
     def execute_query(self):
         """Execute a query against an MSSQL backend"""

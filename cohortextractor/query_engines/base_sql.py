@@ -256,9 +256,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             query = self.get_query_expression(group, output_nodes)
             self.output_group_tables_queries[group] = query
             # Create a Table object representing a temporary table into which
-            # we'll write the results of the query. (The `#` prefix makes this
-            # a session-scoped temporary table.)
-            table_name = f"#group_table_{i}"
+            # we'll write the results of the query
+            table_name = self.get_temp_table_name(f"group_table_{i}")
             columns = [
                 sqlalchemy.Column(c.name, c.type) for c in query.selected_columns
             ]
@@ -279,8 +278,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             codes = codelist.codes
             max_code_len = max(map(len, codes))
             collation = "Latin1_General_BIN"
+            table_name = self.get_temp_table_name(f"codelist_{n}")
             table = sqlalchemy.Table(
-                f"#codelist_{n}",
+                table_name,
                 sqlalchemy.MetaData(),
                 sqlalchemy.Column(
                     "code",
@@ -304,6 +304,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                     [(code, codelist.system) for code in codes_batch]
                 )
                 self.codelist_tables_queries.append(insert_query)
+
+    def get_temp_table_name(self, table_name):
+        """
+        Return a table name based on `table_name` but suitable for use as a
+        temporary table.
+
+        It's the caller's responsibility to ensure `table_name` is unique
+        within this session; it's this function's responsibility to ensure it
+        doesn't clash with any concurrent extracts
+        """
+        raise NotImplementedError()
 
     def get_select_expression(self, base_table, columns):
         # every table must have a patient_id column; select it and the specified columns
