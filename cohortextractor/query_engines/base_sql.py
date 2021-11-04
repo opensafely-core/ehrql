@@ -247,9 +247,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             self._engine = sqlalchemy.create_engine(engine_url, future=True)
         return self._engine
 
-    #
-    # MSSQL-SPECIFIC QUERIES
-    #
     def create_output_group_tables(self):
         """Queries to generate and populate interim tables for each output"""
         # For each group of "output nodes" (roughly, "nodes which we know how
