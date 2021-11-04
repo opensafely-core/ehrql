@@ -676,6 +676,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 result = cursor.execute(query)
             # We're only interested in the results from the final query
             yield result
+            self.post_execute_cleanup(cursor)
+
+    def post_execute_cleanup(self, cursor):
+        """
+        A no-op by default but subclasses can implement cleanup logic here
+        """
 
 
 def split_list_into_batches(lst, size=None):
