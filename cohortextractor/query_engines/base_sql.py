@@ -24,7 +24,6 @@ from ..query_language import (
 )
 from ..sqlalchemy_drivers import set_driver
 from .base import BaseQueryEngine
-from .mssql_lib import write_query_to_table
 
 
 DEFAULT_TYPES = {
@@ -646,11 +645,18 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # Generate each of the interim output group tables and populate them
         for group, table in self.output_group_tables.items():
             query = self.output_group_tables_queries[group]
-            queries.append(write_query_to_table(table, query))
+            queries.append(self.write_query_to_table(table, query))
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
         queries.append(self.generate_results_query())
         return queries
+
+    def write_query_to_table(self, table, query):
+        """
+        Returns a new query which, when executed, writes the results of `query`
+        into `table`
+        """
+        raise NotImplementedError()
 
     @contextlib.contextmanager
     def execute_query(self):

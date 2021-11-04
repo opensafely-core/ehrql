@@ -7,7 +7,7 @@ import sqlalchemy.schema
 import sqlalchemy.types
 
 from .base_sql import BaseSQLQueryEngine
-from .mssql_lib import fetch_results_in_batches
+from .mssql_lib import fetch_results_in_batches, write_query_to_table
 
 
 # MS-SQL can misinterpret ISO dates, depending on its localisation settings so
@@ -68,6 +68,13 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
         "date": MSSQLDate,
         "datetime": MSSQLDateTime,
     }
+
+    def write_query_to_table(self, table, query):
+        """
+        Returns a new query which, when executed, writes the results of `query`
+        into `table`
+        """
+        return write_query_to_table(table, query)
 
     @contextlib.contextmanager
     def execute_query(self):
