@@ -24,10 +24,14 @@ def generate_cohort(
     db_url,
     dummy_data_file=None,
     temporary_database=None,
+    validate_backend=None,
 ):
-    log.info(
-        f"Generating cohort for {definition_path.name} as {output_file}",
-    )
+    if validate_backend:
+        log.info(f"Validating cohort for {str(definition_path)}")
+    else:
+        log.info(
+            f"Generating cohort  as {output_file}",
+        )
     log.debug(
         "args:",
         definition_path=definition_path,
@@ -60,7 +64,17 @@ def generate_cohort(
             else cohort_class_generator()
         )
         output_file_with_date = _replace_filepath_pattern(output_file, date_suffix)
-        if dummy_data_file and not db_url:
+        if validate_backend:
+            if index_date:
+                log.info("Validating for index date", index_date=index_date)
+            backend = BACKENDS[validate_backend](
+                db_url, temporary_database=temporary_database
+            )
+            results = validate(cohort, backend)
+            log.info("Validation succeeded")
+            write_validation_output(results, output_file_with_date)
+
+        elif dummy_data_file and not db_url:
             dummy_data_file_with_date = Path(
                 str(dummy_data_file).replace("*", date_suffix)
             )
@@ -189,6 +203,17 @@ def extract(cohort_class, backend):
             yield dict(row)
 
 
+def validate(cohort_class, backend):
+    try:
+        cohort = get_column_definitions(cohort_class)
+        query_engine = backend.query_engine_class(cohort, backend)
+        return query_engine.get_queries()
+    except Exception:
+        log.error("Validation failed")
+        # raise the exception to ensure the job fails and the error and traceback are logged
+        raise
+
+
 def write_output(results, output_file):
     with output_file.open(mode="w") as f:
         writer = csv.writer(f)
@@ -201,3 +226,9 @@ def write_output(results, output_file):
             else:
                 assert fields == headers, f"Expected fields {headers}, but got {fields}"
             writer.writerow(entry.values())
+
+
+def write_validation_output(results, output_file):
+    with output_file.open(mode="w") as f:
+        for entry in results:
+            f.write(f"{str(entry)}\n")

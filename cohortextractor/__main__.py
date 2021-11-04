@@ -36,6 +36,13 @@ generate_cohort_parser.add_argument(
     help="Provide dummy data from a file to be validated and used as output",
     type=Path,
 )
+generate_cohort_parser.add_argument(
+    "--validate-backend",
+    type=str,
+    nargs="?",
+    choices=["tpp", "graphnet"],
+    help="Validate the cohort definition against the specified backend",
+)
 
 generate_measures_parser = subparsers.add_parser(
     "generate_measures", help="Generate measures from cohort data"
@@ -63,8 +70,10 @@ options = parser.parse_args()
 
 
 if options.which == "generate_cohort":
-
-    if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
+    if (
+        not (options.dummy_data_file or os.environ.get("DATABASE_URL"))
+        and not options.validate_backend
+    ):
         parser.error(
             "error: either --dummy-data-file or DATABASE_URL environment variable is required"
         )
@@ -76,6 +85,7 @@ if options.which == "generate_cohort":
         backend_id=os.environ.get("OPENSAFELY_BACKEND"),
         dummy_data_file=options.dummy_data_file,
         temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
+        validate_backend=options.validate_backend,
     )
 elif options.which == "generate_measures":
     generate_measures(
