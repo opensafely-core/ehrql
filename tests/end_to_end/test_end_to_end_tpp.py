@@ -1,7 +1,6 @@
 import pytest
 from end_to_end.utils import assert_results_equivalent
 from lib.tpp_schema import CTV3Events, Patient, RegistrationHistory
-from lib.util import mark_xfail_in_playback_mode
 
 from cohortextractor.main import validate_cohort
 
@@ -13,7 +12,6 @@ def test_extracts_data_from_sql_server_smoke_test(
     run_test(load_study, setup_backend_database, cohort_extractor_in_container)
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_extracts_data_from_sql_server_integration_test(
     load_study, setup_backend_database, cohort_extractor_in_process
@@ -60,7 +58,6 @@ def test_validate_cohort(load_study, cohort_extractor_in_process_no_database):
         assert actual_data[0].startswith("SELECT * INTO")
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_extracts_data_from_sql_server_ignores_dummy_data_file(
     load_study, setup_backend_database, cohort_extractor_in_process

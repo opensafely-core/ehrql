@@ -1,7 +1,6 @@
 import pytest
 from end_to_end.utils import assert_results_equivalent
 from lib.tpp_schema import ctv3_event, patient, registration
-from lib.util import mark_xfail_in_playback_mode
 
 
 @pytest.mark.smoke
@@ -17,7 +16,6 @@ def test_extracts_data_with_index_date_range_smoke_test(
     )
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_extracts_data_with_index_date_range_integration_test(
     load_study,
@@ -36,7 +34,6 @@ def test_extracts_data_with_index_date_range_integration_test(
     )
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 @pytest.mark.parametrize(
     "definition_file,output_file,error",

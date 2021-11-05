@@ -26,49 +26,28 @@ just fix
 
 ## Test setup
 
-The test suite include:
+The test suite includes:
 - smoke tests: tests that run the cohortextractor end to end in docker
 - integration tests: tests that require a database
 - unit tests that don't require a database
 
-In addition, the test suite can run with one of two database modes:
-- ephemeral: the test database is set up and run in a docker container just for
-  the duration of the test run
-- persistent: uses (and starts up, if it isn't already running) a persistent database
-
-and in one of two recording modes:
-- recording: uses a real database and records the SQL generated from each test (stored in tests/recordings)
-- playback: just checks generated SQL against the existing recordings
+We run the database for the integration and smoke tests in a Docker container. Each run of the tests starts the
+database if it's not already running _and then leaves it running_ at the end to speed up future runs. (Each test cleans
+out the schema to avoid pollution.)
 
 ### Running the tests:
 
 To run all tests, as they're run in CI:
 `just test`
 
-This runs all tests in recording mode and verifies that no recordings have changed.  It
-then runs all tests in playback mode.
-
-To run all tests in playback mode:
-```
-just test-all
-```
-
-To run all tests in recording mode:
-```
-just test-record  # ephemeral database
-just test-record-fast  # persistent database
-```
-
 To run just the integration tests
 ```
-just test-integration  # ephemeral database
-just test-integration-fast  # persistent database
+just test-integration
 ```
 
 To run just the smoke tests
 ```
-just test-smoke  # ephemeral database
-just test-smoke-fast`  # persistent database
+just test-smoke
 ```
 
 To run just the unit (non-smoke and non-integration) tests:
@@ -78,15 +57,15 @@ just test-unit
 
 Additional arguments can be passed to any test commands, e.g.
 ```
-just test-record tests/acceptance
+just test-integration tests/acceptance
 ```
 
 To pass multiple args, wrap in quotes, e.g.:
 ```
-just test-record '-s tests/acceptance'
+just test-integration '-s tests/acceptance'
 ```
 
-To remove the persistent database:
+To remove the persistent database container:
 ```
 just remove-persistent-database
 ```
