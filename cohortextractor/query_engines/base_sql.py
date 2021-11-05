@@ -68,6 +68,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     custom_types = {}
 
+    # No limit by default although some DBMSs may impose one
+    max_rows_per_insert = None
+
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         assert cls.sqlalchemy_dialect != NotImplemented
@@ -296,10 +299,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             self.codelist_tables[codelist] = table
             # Constuct the queries needed to create and populate this table
             self.codelist_tables_queries.append(sqlalchemy.schema.CreateTable(table))
-            # There's a limit of 999 on how many rows we can insert in one go using
-            # this method See:
-            # https://docs.microsoft.com/en-us/sql/t-sql/queries/table-value-constructor-transact-sql?view=sql-server-ver15#limitations-and-restrictions
-            for codes_batch in split_list_into_batches(codes, size=999):
+            for codes_batch in split_list_into_batches(
+                codes, size=self.max_rows_per_insert
+            ):
                 insert_query = table.insert().values(
                     [(code, codelist.system) for code in codes_batch]
                 )
@@ -679,6 +681,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             yield result
 
 
-def split_list_into_batches(lst, size):
-    for i in range(0, len(lst), size):
-        yield lst[i : i + size]
+def split_list_into_batches(lst, size=None):
+    # If no size limit specified yield the whole list in one batch
+    if size is None:
+        yield lst
+    else:
+        for i in range(0, len(lst), size):
+            yield lst[i : i + size]

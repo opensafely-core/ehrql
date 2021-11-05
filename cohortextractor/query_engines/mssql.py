@@ -69,6 +69,11 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
         "datetime": MSSQLDateTime,
     }
 
+    # MSSQL limit on number of rows that can inserted using a single,
+    # mutli-valued INSERT statement. See:
+    # https://docs.microsoft.com/en-us/sql/t-sql/queries/table-value-constructor-transact-sql?view=sql-server-ver15#limitations-and-restrictions
+    max_rows_per_insert = 999
+
     def write_query_to_table(self, table, query):
         """
         Returns a new query which, when executed, writes the results of `query`
