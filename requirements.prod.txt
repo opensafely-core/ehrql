@@ -4,6 +4,9 @@
 #
 #    pip-compile --generate-hashes --output-file=requirements.prod.txt requirements.prod.in
 #
+future==0.18.2 \
+    --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d
+    # via pyhive
 greenlet==1.1.2 \
     --hash=sha256:00e44c8afdbe5467e4f7b5851be223be68adb4272f44696ee71fe46b7036a711 \
     --hash=sha256:013d61294b6cd8fe3242932c1c5e36e5d1db2c8afb58606c5a67efce62c1f5fd \
@@ -111,6 +114,9 @@ pandas==1.3.3 \
     --hash=sha256:ed2f29b4da6f6ae7c68f4b3708d9d9e59fa89b2f9e87c2b64ce055cbd39f729e \
     --hash=sha256:f7d84f321674c2f0f31887ee6d5755c54ca1ea5e144d6d54b3bbf566dd9ea0cc
     # via -r requirements.prod.in
+pyhive==0.6.4 \
+    --hash=sha256:10577bb3393e3da3d8ba68b2cfe800edcc1fbb0bf48394fb9a2701740f79665f
+    # via -r requirements.prod.in
 pymssql==2.2.2 \
     --hash=sha256:00b5d8d0e6e99dd07677f663a42fe3b53285db02682f9ea8271dab0e30e4404f \
     --hash=sha256:03469104efd5e5469b6c1892a0393e1fb4cd3169422e88537bec1b4294c98528 \
@@ -158,7 +164,9 @@ pymssql==2.2.2 \
 python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
     --hash=sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9
-    # via pandas
+    # via
+    #   pandas
+    #   pyhive
 pytz==2021.3 \
     --hash=sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c \
     --hash=sha256:acad2d8b20a1af07d4e4c9d2e9285c5ed9104354062f275f3fcd88dcef4f1326
@@ -166,7 +174,9 @@ pytz==2021.3 \
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
-    # via python-dateutil
+    # via
+    #   python-dateutil
+    #   thrift
 sqlalchemy==1.4.25 \
     --hash=sha256:0566a6e90951590c0307c75f9176597c88ef4be2724958ca1d28e8ae05ec8822 \
     --hash=sha256:08d9396a2a38e672133266b31ed39b2b1f2b5ec712b5bff5e08033970563316a \
@@ -202,4 +212,7 @@ sqlalchemy==1.4.25 \
 structlog==21.1.0 \
     --hash=sha256:62f06fc0ee32fb8580f0715eea66cb87271eb7efb0eaf9af6b639cba8981de47 \
     --hash=sha256:d9d2d890532e8db83c6977a2a676fb1889922ff0c26ad4dc0ecac26f9fafbc57
+    # via -r requirements.prod.in
+thrift==0.15.0 \
+    --hash=sha256:87c8205a71cf8bbb111cb99b1f7495070fbc9cabb671669568854210da5b3e29
     # via -r requirements.prod.in

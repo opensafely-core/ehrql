@@ -5,14 +5,21 @@ import docker
 import docker.errors
 import pytest
 from lib import mock_backend, playback
-from lib.databases import DbDetails, make_database, wait_for_database
+from lib.databases import (
+    DbDetails,
+    make_database,
+    make_spark_database,
+    wait_for_database,
+)
+from lib.databricks_schema import Base as DatabricksBase
 from lib.docker import Containers
 from lib.graphnet_schema import Base as GraphnetBase
 from lib.tpp_schema import Base as TppBase
+from lib.util import get_mode, iter_flatten
 from sqlalchemy.orm import sessionmaker
 
 
-BASES = {"tpp": TppBase, "graphnet": GraphnetBase}
+BASES = {"tpp": TppBase, "graphnet": GraphnetBase, "databricks": DatabricksBase}
 
 
 @pytest.fixture(scope="session")
@@ -106,12 +113,12 @@ def real_db(containers, docker_client, network, mssql_dir, request):
     yield lazily_created_session_scoped_database
 
     if container is not None:
-        containers.destroy(containers.get_container(container))
+        containers.destroy(container)
 
 
 @pytest.fixture(scope="session")
 def dummy_db():
-    yield DbDetails("", "", 0, "", 0, "", "")
+    yield DbDetails("", "mssql", "", 0, "", 0)
 
 
 @pytest.fixture
@@ -147,9 +154,8 @@ def setup_test_database(database, recording, request):
             Session.configure(bind=engine)
             session = Session()
             # Load test data
-            for entity in input_data:
-                session.add(entity)
-                session.commit()
+            session.bulk_save_objects(iter_flatten(input_data))
+            session.commit()
 
     return setup
 
@@ -160,3 +166,36 @@ def setup_backend_database(setup_test_database):
         setup_test_database(data, base=BASES[backend])
 
     yield setup
+
+
+@pytest.fixture(scope="session")
+def spark_database(containers, network):
+    if get_mode("RECORDING", ["record", "playback"], "playback") == "playback":
+        pytest.skip("Spark tests do not support RECORDING=playback mode")
+    container, database = make_spark_database(containers, network)
+    wait_for_database(database, timeout=15)
+    try:
+        yield database
+    finally:
+        if container is not None:
+            containers.destroy(container)
+
+
+@pytest.fixture
+def setup_spark_database(spark_database):
+    def setup(*input_data, backend=None):
+        base = BASES[backend]
+        # Create engine
+        engine = spark_database.engine()
+        # Reset the schema
+        base.metadata.drop_all(engine)
+        base.metadata.create_all(engine)
+        # Create session
+        Session = sessionmaker()
+        Session.configure(bind=engine)
+        session = Session()
+        # Load test data
+        session.bulk_save_objects(iter_flatten(input_data))
+        session.commit()
+
+    return setup

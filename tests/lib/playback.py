@@ -273,6 +273,10 @@ class Cursor:
     def execute(self, *args, **kwargs):
         return self._wrapped.execute(*args, **kwargs)
 
+    @record
+    def executemany(self, *args, **kwargs):
+        return self._wrapped.executemany(*args, **kwargs)
+
     @property
     @record
     def description(self):

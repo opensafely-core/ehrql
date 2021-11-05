@@ -170,7 +170,7 @@ def test_hospitalization_table_code_conversion(
         )
     )
 
-    query = TPPBackend.hospitalizations.get_query(type_map=None)
+    query = TPPBackend.hospitalizations.get_query()
 
     results = list(run_query(database, query))
 

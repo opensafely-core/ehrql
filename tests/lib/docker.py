@@ -18,6 +18,18 @@ class Containers:
         except docker.errors.NotFound:
             return False
 
+    def get_mapped_port_for_host(self, name, container_port):
+        """
+        Given a port on a container return the port on the host to which it is
+        mapped
+        """
+        if isinstance(container_port, int):
+            container_port = f"{container_port}/tcp"
+        container = self.get_container(name)
+        port_config = container.attrs["NetworkSettings"]["Ports"][container_port]
+        host_port = port_config[0]["HostPort"]
+        return host_port
+
     # All available arguments documented here:
     # https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run
     def run_bg(self, name, image, **kwargs):
@@ -33,8 +45,11 @@ class Containers:
             print(str(e.stderr, "utf-8"), file=sys.stderr)
             raise
 
-    # noinspection PyMethodMayBeStatic
-    def destroy(self, container):
+    def destroy(self, name):
+        try:
+            container = self.get_container(name)
+        except docker.errors.NotFound:
+            return
         container.remove(force=True)
 
     def _run(self, **kwargs):
