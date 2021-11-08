@@ -71,7 +71,7 @@ class DatabricksBackend(BaseBackend):
                 mps.PERSON_ID AS patient_id,
                 apc.ADMIDATE AS admission_date,
                 apc.DIAG_4_01 AS primary_diagnosis,
-                apc.ADMINMETH AS admission_method,
+                apc.ADMIMETH AS admission_method,
                 apc.FAE AS episode_is_finished,
                 apc_otr.SUSSPELLID AS spell_id
             FROM

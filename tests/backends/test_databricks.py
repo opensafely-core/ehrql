@@ -52,7 +52,7 @@ def admission(
         EPIKEY=episode_id,
         ADMIDATE=date,
         DIAG_4_01=primary_diagnosis,
-        ADMINMETH=method,
+        ADMIMETH=method,
         FAE=1 if finished else 0,
     )
     mps = MPSHESApc(EPIKEY=episode_id)
