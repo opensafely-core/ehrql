@@ -35,7 +35,7 @@ class HESApc(Base):
     EPIKEY = Column(Integer, primary_key=True)
     ADMIDATE = Column(Date)
     DIAG_4_01 = Column(Text(collation="Latin1_General_BIN"))
-    ADMINMETH = Column(Integer)
+    ADMIMETH = Column(Integer)
     FAE = Column(Integer)
 
 
