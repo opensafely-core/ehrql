@@ -1,10 +1,8 @@
-import random
 import time
 
 import docker.errors
 import sqlalchemy
 import sqlalchemy.exc
-from lib.util import get_mode
 
 from cohortextractor.sqlalchemy_drivers import set_driver
 
@@ -59,13 +57,29 @@ def null_database():
     return DbDetails(None, None, None, None, None, None)
 
 
-def make_database(containers, docker_client, mssql_dir, network):
+def make_database(containers, docker_client, mssql_dir):
     password = "Your_password123!"
 
-    if database_mode() == "persistent":
-        return persistent_database(containers, password, docker_client, mssql_dir)
-    if database_mode() == "ephemeral":
-        return ephemeral_database(containers, password, mssql_dir, network)
+    container = "cohort-extractor-mssql"
+    network = "cohort-extractor-network"
+    published_port = PERSISTENT_DATABASE_PORT
+    try:
+        docker_client.networks.get(network)
+    except docker.errors.NotFound:
+        docker_client.networks.create(network)
+    if not containers.is_running(container):
+        run_mssql(container, containers, mssql_dir, network, password, published_port)
+    return DbDetails(
+        network=network,
+        protocol="mssql",
+        host_from_container=container,
+        port_from_container=DEFAULT_MSSQL_PORT,
+        host_from_host="localhost",
+        port_from_host=published_port,
+        username="SA",
+        password=password,
+        db_name="test",
+    )
 
 
 def wait_for_database(database, timeout=10):
@@ -92,56 +106,7 @@ def wait_for_database(database, timeout=10):
             time.sleep(1)
 
 
-def database_mode():
-    return get_mode("DATABASE", ["persistent", "ephemeral"], "persistent")
-
-
 PERSISTENT_DATABASE_PORT = 49152
-
-
-def persistent_database(containers, password, docker_client, mssql_dir):
-    container = "cohort-extractor-mssql"
-    network = "cohort-extractor-network"
-    published_port = PERSISTENT_DATABASE_PORT
-
-    try:
-        docker_client.networks.get(network)
-    except docker.errors.NotFound:
-        docker_client.networks.create(network)
-
-    if not containers.is_running(container):
-        run_mssql(container, containers, mssql_dir, network, password, published_port)
-
-    return None, DbDetails(
-        network=network,
-        protocol="mssql",
-        host_from_container=container,
-        port_from_container=DEFAULT_MSSQL_PORT,
-        host_from_host="localhost",
-        port_from_host=published_port,
-        username="SA",
-        password=password,
-        db_name="test",
-    )
-
-
-def ephemeral_database(containers, password, mssql_dir, network):
-    container = "mssql"
-    published_port = random.randint(PERSISTENT_DATABASE_PORT + 1, 65535)
-
-    run_mssql(container, containers, mssql_dir, network, password, published_port)
-
-    return container, DbDetails(
-        network=network,
-        protocol="mssql",
-        host_from_container=container,
-        port_from_container=DEFAULT_MSSQL_PORT,
-        host_from_host="localhost",
-        port_from_host=published_port,
-        username="SA",
-        password=password,
-        db_name="test",
-    )
 
 
 def run_mssql(container_name, containers, mssql_dir, network, password, published_port):
@@ -163,10 +128,8 @@ def make_spark_database(containers, network):
     container_name = "cohort-extractor-spark"
     # This is the default anyway, but better to be explicit
     spark_port = 10001
-    persistent = database_mode() == "persistent"
 
-    if not (persistent and containers.is_running(container_name)):
-        containers.destroy(container_name)
+    if not containers.is_running(container_name):
         containers.run_bg(
             name=container_name,
             # Nothing special about this particular version other than that
@@ -205,18 +168,14 @@ def make_spark_database(containers, network):
 
     host_spark_port = containers.get_mapped_port_for_host(container_name, spark_port)
 
-    # We signal whether we want the container cleaned up by whether or not we
-    # return its name -- at least, that seems to be the pattern used above
-    name_to_return = container_name if not persistent else None
-
-    return name_to_return, DbDetails(
+    return DbDetails(
         network=network,
         protocol="spark",
         host_from_container=container_name,
         port_from_container=spark_port,
         host_from_host="localhost",
         port_from_host=host_spark_port,
-        # These are abitrary but we need to supply _some_ values here
+        # These are arbitrary but we need to supply _some_ values here
         username="foo",
         password="bar",
     )

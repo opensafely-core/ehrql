@@ -32,7 +32,7 @@ use_parentheses = true
 [tool.pytest.ini_options]
 addopts = "--tb=native --strict-markers"
 markers = [
-    "integration: tests that use a database; run with record/playback shim",
+    "integration: tests that use a database",
     "smoke: tests that run the cohort extractor in its container against a database",
 ]
 filterwarnings = [

@@ -10,7 +10,7 @@ from lib.mock_backend import (
     patient,
     positive_test,
 )
-from lib.util import extract, make_codelist, mark_xfail_in_playback_mode
+from lib.util import extract, make_codelist
 
 from cohortextractor.query_language import categorise, table
 
@@ -1147,7 +1147,6 @@ def test_age_as_of(database, setup_test_database):
     ]
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_fetching_results_using_temporary_database(database, setup_test_database):
     setup_test_database(

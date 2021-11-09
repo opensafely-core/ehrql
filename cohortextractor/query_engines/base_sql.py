@@ -475,9 +475,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             raise ValueError(f"Unsupported function: {value}")
         value_expression = method(*argument_expressions)
 
-        # This is not required for correctness, just for consistent test
-        # recordings.
-        tables = sorted(tables, key=lambda i: i.name)
         return value_expression, tuple(tables)
 
     def date_difference_in_years(self, start_date, end_date):

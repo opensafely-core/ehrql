@@ -1,7 +1,6 @@
 import pytest
 from end_to_end.utils import assert_results_equivalent
 from lib.graphnet_schema import ClinicalEvents, Patients, PracticeRegistrations
-from lib.util import mark_xfail_in_playback_mode
 
 
 @pytest.mark.smoke
@@ -11,7 +10,6 @@ def test_extracts_data_from_sql_server_smoke_test(
     run_test(load_study, setup_backend_database, cohort_extractor_in_container)
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_extracts_data_from_sql_server_integration_test(
     load_study, setup_backend_database, cohort_extractor_in_process
@@ -55,7 +53,6 @@ def test_dummy_data(load_study, cohort_extractor_in_process_no_database):
     assert_results_equivalent(actual_results, study.expected_results())
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_extracts_data_from_sql_server_ignores_dummy_data_file(
     load_study, setup_backend_database, cohort_extractor_in_process

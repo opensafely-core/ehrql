@@ -1,7 +1,6 @@
 import contextlib
 import hashlib
 import logging
-import os
 import secrets
 import time
 
@@ -307,15 +306,7 @@ def assert_temporary_tables_writable(connection, temp_table_prefix):
     long running queries. The most surefire way to do this is to try to write
     to a test table and see what happens.
     """
-    # This is really awful: in production we want our test table to have a
-    # random suffix so there's no chance of multiple concurrent jobs
-    # interacting badly. But in test we need it to be consistent otherwise the
-    # database recordings change every time. This is the least awful way I
-    # could think of to achieve this :(
-    if "PYTEST_CURRENT_TEST" in os.environ:
-        random_suffix = "_pytest123"
-    else:
-        random_suffix = secrets.token_hex(8)
+    random_suffix = secrets.token_hex(8)
     test_table_name = f"{temp_table_prefix}_test_{random_suffix}"
     test_table = make_table_with_key(test_table_name, "id")
     test_query = sqlalchemy.select(sqlalchemy.literal(1).label("foo"))
