@@ -64,9 +64,10 @@ class SQLTable:
 
 
 class MappedTable(SQLTable):
-    def __init__(self, source, columns):
+    def __init__(self, source, columns, schema=None):
         self.source = source
         self._columns = columns
+        self._schema = schema
 
     def learn_patient_join(self, source):
         if "patient_id" not in self._columns:
@@ -74,7 +75,9 @@ class MappedTable(SQLTable):
 
     def get_query(self):
         columns = self._make_columns()
-        query = sqlalchemy.select(columns).select_from(sqlalchemy.table(self.source))
+        query = sqlalchemy.select(columns).select_from(
+            sqlalchemy.table(self.source, schema=self._schema)
+        )
         return query
 
 

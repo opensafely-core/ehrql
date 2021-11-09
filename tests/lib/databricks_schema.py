@@ -1,6 +1,6 @@
 import sqlalchemy.orm
 import sqlalchemy.types
-from sqlalchemy import Column, Integer, Text
+from sqlalchemy import DDL, Column, Integer, Text, event
 
 from cohortextractor.query_engines.spark_lib import SparkDate as Date
 
@@ -14,7 +14,8 @@ Base = sqlalchemy.orm.declarative_base()
 
 
 class PCareMeds(Base):
-    __tablename__ = "PCAREMEDS_pcaremeds"
+    __tablename__ = "pcaremeds"
+    __table_args__ = {"schema": "PCAREMEDS"}
 
     Person_ID = Column(Integer, primary_key=True)
     PatientDoB = Column(Date)
@@ -23,14 +24,16 @@ class PCareMeds(Base):
 
 
 class MPSHESApc(Base):
-    __tablename__ = "HES_AHAS_MPS_hes_apc_1920"
+    __tablename__ = "hes_apc_1920"
+    __table_args__ = {"schema": "HES_AHAS_MPS"}
 
     PERSON_ID = Column(Integer, primary_key=True)
     EPIKEY = Column(Integer, primary_key=True)
 
 
 class HESApc(Base):
-    __tablename__ = "HES_AHAS_hes_apc_1920"
+    __tablename__ = "hes_apc_1920"
+    __table_args__ = {"schema": "HES_AHAS"}
 
     EPIKEY = Column(Integer, primary_key=True)
     ADMIDATE = Column(Date)
@@ -40,7 +43,19 @@ class HESApc(Base):
 
 
 class HESApcOtr(Base):
-    __tablename__ = "HES_AHAS_hes_apc_otr_1920"
+    __tablename__ = "hes_apc_otr_1920"
+    __table_args__ = {"schema": "HES_AHAS"}
 
     EPIKEY = Column(Integer, primary_key=True)
     SUSSPELLID = Column(Integer)
+
+
+@event.listens_for(Base.metadata, "before_create")
+def receive_before_create(target, connection, **kw):
+    """Ensure all schema objects are created."""
+    for mapper in Base.registry.mappers:
+        cls = mapper.class_
+        table_args = getattr(cls, "__table_args__", {})
+        schema = table_args.get("schema")
+        if schema:
+            connection.execute(DDL(f"CREATE SCHEMA IF NOT EXISTS {schema}"))
