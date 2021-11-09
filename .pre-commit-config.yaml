@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 21.6b0
+    rev: 21.10b0
     hooks:
     - id: black
       language_version: python3.9
@@ -15,8 +15,8 @@ repos:
         "flake8-implicit-str-concat"
       ]
 
-  - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.8.0
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.0
     hooks:
     - id: isort
       language_version: python3.9
