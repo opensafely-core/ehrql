@@ -36,13 +36,6 @@ generate_cohort_parser.add_argument(
     help="Provide dummy data from a file to be validated and used as output",
     type=Path,
 )
-generate_cohort_parser.add_argument(
-    "--validate-backend",
-    type=str,
-    nargs="?",
-    choices=["tpp", "graphnet"],
-    help="Validate the cohort definition against the specified backend",
-)
 
 validate_cohort_parser = subparsers.add_parser(
     "validate_cohort",
