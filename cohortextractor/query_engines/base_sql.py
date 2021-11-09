@@ -42,7 +42,7 @@ def get_joined_tables(query):
     Given a query object return a list of all tables referenced
     """
     tables = []
-    from_exprs = list(query.froms)
+    from_exprs = list(query.get_final_froms())
     while from_exprs:
         next_expr = from_exprs.pop()
         if isinstance(next_expr, sqlalchemy.sql.selectable.Join):
@@ -614,7 +614,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         if table.name in [t.name for t in get_joined_tables(query)]:
             return query
         join = sqlalchemy.join(
-            query.froms[0],
+            query.get_final_froms()[0],
             table,
             query.selected_columns.patient_id == table.c.patient_id,
             isouter=True,
