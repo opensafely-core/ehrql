@@ -20,14 +20,15 @@ class DatabricksBackend(BaseBackend):
         SELECT
             Person_ID AS patient_id, MAX(PatientDoB) AS date_of_birth
         FROM
-            PCAREMEDS_pcaremeds
+            PCAREMEDS.pcaremeds
         GROUP BY
             Person_ID
         """,
     )
 
     prescriptions = MappedTable(
-        source="PCAREMEDS_pcaremeds",
+        source="pcaremeds",
+        schema="PCAREMEDS",
         columns=dict(
             patient_id=Column("integer", source="Person_ID"),
             prescribed_dmd_code=Column(
@@ -75,13 +76,13 @@ class DatabricksBackend(BaseBackend):
                 apc.FAE AS episode_is_finished,
                 apc_otr.SUSSPELLID AS spell_id
             FROM
-                HES_AHAS_hes_apc_{year} AS apc
+                HES_AHAS.hes_apc_{year} AS apc
             JOIN
-                HES_AHAS_MPS_hes_apc_{year} AS mps
+                HES_AHAS_MPS.hes_apc_{year} AS mps
             ON
                 apc.EPIKEY = mps.EPIKEY
             LEFT JOIN
-                HES_AHAS_hes_apc_otr_{year} AS apc_otr
+                HES_AHAS.hes_apc_otr_{year} AS apc_otr
             ON
                 apc.EPIKEY = apc_otr.EPIKEY
             """
