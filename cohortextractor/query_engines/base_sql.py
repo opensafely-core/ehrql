@@ -436,7 +436,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             tables = (table,)
         elif isinstance(value, Codelist):
             codelist_table = self.codelist_tables[value]
-            value_expr = sqlalchemy.select(codelist_table.c.code)
+            value_expr = sqlalchemy.select(codelist_table.c.code).scalar_subquery()
         elif isinstance(value, ValueFromFunction):
             value_expr, tables = self.get_expression_for_value_from_function(value)
         return value_expr, tables
