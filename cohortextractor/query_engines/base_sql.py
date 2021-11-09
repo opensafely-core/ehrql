@@ -319,7 +319,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # every table must have a patient_id column; select it and the specified columns
         columns = sorted({"patient_id"}.union(columns))
         table_expr = self.backend.get_table_expression(base_table.name)
-        column_objs = [table_expr.c[column] for column in columns]
+        try:
+            column_objs = [table_expr.c[column] for column in columns]
+        except KeyError as unknown_key:
+            raise KeyError(
+                f"Column {unknown_key} not found in table '{base_table.name}'"
+            )
+
         query = sqlalchemy.select(column_objs).select_from(table_expr)
         return query
 

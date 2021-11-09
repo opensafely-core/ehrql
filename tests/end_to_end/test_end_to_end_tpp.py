@@ -3,6 +3,8 @@ from end_to_end.utils import assert_results_equivalent
 from lib.tpp_schema import CTV3Events, Patient, RegistrationHistory
 from lib.util import mark_xfail_in_playback_mode
 
+from cohortextractor.main import validate_cohort
+
 
 @pytest.mark.smoke
 def test_extracts_data_from_sql_server_smoke_test(
@@ -45,6 +47,17 @@ def test_dummy_data(load_study, cohort_extractor_in_process_no_database):
     study = load_study("end_to_end_tests_tpp", definition_file="tpp_cohort.py")
     actual_results = cohort_extractor_in_process_no_database(study, use_dummy_data=True)
     assert_results_equivalent(actual_results, study.expected_results())
+
+
+def test_validate_cohort(load_study, cohort_extractor_in_process_no_database):
+    study = load_study("end_to_end_tests_tpp", definition_file="tpp_cohort.py")
+    actual_results = cohort_extractor_in_process_no_database(
+        study, backend="tpp", action=validate_cohort
+    )
+    # validate_cohort exceeds and outputs SQL
+    with open(actual_results) as actual_file:
+        actual_data = actual_file.readlines()
+        assert actual_data[0].startswith("SELECT * INTO")
 
 
 @mark_xfail_in_playback_mode

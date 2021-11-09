@@ -2,11 +2,11 @@ import random
 from datetime import date
 
 import pytest
+from lib.databricks_schema import HESApc, HESApcOtr, MPSHESApc, PCareMeds
+from lib.util import extract, iter_flatten
 
 from cohortextractor import codelist, table
 from cohortextractor.backends.databricks import DatabricksBackend
-from tests.lib.databricks_schema import HESApc, HESApcOtr, MPSHESApc, PCareMeds
-from tests.lib.util import extract, iter_flatten
 
 
 # Keep things deterministic
