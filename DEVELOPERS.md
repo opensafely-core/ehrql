@@ -1,8 +1,8 @@
 # Notes for developers
 
 ## System requirements
-- [Just](#install-just)
-- docker
+- [just](https://github.com/casey/just)
+- Docker
 
 ## Local development environment
 Running any of the test/check/fix `just` commands will setup a local environment and
