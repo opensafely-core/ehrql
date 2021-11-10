@@ -9,6 +9,7 @@ from pathlib import Path
 import structlog
 
 from .backends import BACKENDS
+from .definition.base import registered_cohorts
 from .measure import MeasuresManager, combine_csv_files_with_dates
 from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
@@ -38,11 +39,14 @@ def run_cohort_action(
         else:
             date_suffix = ""
 
-        cohort = (
-            cohort_class_generator(index_date)
-            if index_date
-            else cohort_class_generator()
-        )
+        if registered_cohorts:
+            (cohort,) = registered_cohorts
+        else:
+            cohort = (
+                cohort_class_generator(index_date)
+                if index_date
+                else cohort_class_generator()
+            )
         cohort_action_function(
             cohort, index_date, output_file, date_suffix, **function_kwargs
         )
