@@ -15,7 +15,7 @@ class Containers:
         try:
             container = self.get_container(name)
             return container.status == "running"
-        except docker.errors.NotFound:
+        except docker.errors.NotFound:  # pragma: no cover
             return False
 
     def get_mapped_port_for_host(self, name, container_port):
@@ -39,7 +39,7 @@ class Containers:
 
     # All available arguments documented here:
     # https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run
-    def run_bg(self, name, image, **kwargs):
+    def run_bg(self, name, image, **kwargs):  # pragma: no cover
         return self._run(name=name, image=image, detach=True, **kwargs)
 
     # All available arguments documented here:
@@ -48,7 +48,7 @@ class Containers:
         try:
             output = self._run(image=image, detach=False, stderr=True, **kwargs)
             print(str(output, "utf-8"))
-        except ContainerError as e:
+        except ContainerError as e:  # pragma: no cover
             print(str(e.stderr, "utf-8"), file=sys.stderr)
             raise
 

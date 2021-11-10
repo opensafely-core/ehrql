@@ -60,7 +60,7 @@ def make_database(containers, mssql_dir):
     container_name = "cohort-extractor-mssql"
     published_port = PERSISTENT_DATABASE_PORT
 
-    if not containers.is_running(container_name):
+    if not containers.is_running(container_name):  # pragma: no cover
         run_mssql(container_name, containers, mssql_dir, password, published_port)
 
     container_ip = containers.get_container_ip(container_name)
@@ -92,7 +92,7 @@ def wait_for_database(database, timeout=10):
             ConnectionRefusedError,
             ConnectionResetError,
             BrokenPipeError,
-        ) as e:
+        ) as e:  # pragma: no cover
             if time.time() >= limit:
                 raise Exception(
                     f"Failed to connect to database after {timeout} seconds: "
@@ -104,7 +104,9 @@ def wait_for_database(database, timeout=10):
 PERSISTENT_DATABASE_PORT = 49152
 
 
-def run_mssql(container_name, containers, mssql_dir, password, published_port):
+def run_mssql(
+    container_name, containers, mssql_dir, password, published_port
+):  # pragma: no cover
     containers.run_bg(
         name=container_name,
         image="mcr.microsoft.com/mssql/server:2017-CU25-ubuntu-16.04",
@@ -123,7 +125,7 @@ def make_spark_database(containers):
     # This is the default anyway, but better to be explicit
     spark_port = 10001
 
-    if not containers.is_running(container_name):
+    if not containers.is_running(container_name):  # pragma: no cover
         containers.run_bg(
             name=container_name,
             # Nothing special about this particular version other than that
