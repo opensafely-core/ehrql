@@ -175,7 +175,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         elif isinstance(node, (ValueFromRow, Column)):
             return node.column
         else:
-            raise TypeError(f"Unhandled type: {node}")
+            assert False, f"Unhandled type: {node}"
 
     def get_parent_nodes_from_category_definitions(
         self, definitions, parent_nodes=None
@@ -472,7 +472,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         try:
             method = class_method_map[value.__class__]
         except KeyError:
-            raise ValueError(f"Unsupported function: {value}")
+            assert False, f"Unsupported function: {value}"
         value_expression = method(*argument_expressions)
 
         return value_expression, tuple(tables)
