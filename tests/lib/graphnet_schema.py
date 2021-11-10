@@ -44,15 +44,6 @@ class ClinicalEvents(Base):
     NumericValue = Column(Float)
 
 
-def ctv3_clinical_event(code, date, numeric_value=None):
-    return ClinicalEvents(
-        Code=code,
-        CodingSystem="ctv3",
-        ConsultationDate=date,
-        NumericValue=numeric_value,
-    )
-
-
 def snomed_clinical_event(code, date, numeric_value=None):
     return ClinicalEvents(
         Code=code,
