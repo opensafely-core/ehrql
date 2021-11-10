@@ -1,5 +1,4 @@
--c requirements.prod.in
--r requirements.prod.in
+--constraint requirements.prod.txt
 
 # Additional dev requirements
 # To generate a requirements file that includes both prod and dev requirements, run:
@@ -14,5 +13,6 @@ isort
 pytest
 pytest-cov
 pytest-freezegun
+pytest-mock
 docker
 six # undeclared dependency of docker (https://github.com/docker/docker-py/issues/2842)

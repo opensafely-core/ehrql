@@ -9,6 +9,7 @@ from pathlib import Path
 import structlog
 
 from .backends import BACKENDS
+from .definition.base import cohort_registry
 from .measure import MeasuresManager, combine_csv_files_with_dates
 from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
@@ -17,63 +18,83 @@ from .validate_dummy_data import validate_dummy_data
 log = structlog.getLogger()
 
 
-def generate_cohort(
-    definition_path,
-    output_file,
-    backend_id,
-    db_url,
-    dummy_data_file=None,
-    temporary_database=None,
+def run_cohort_action(
+    cohort_action_function, definition_path, output_file, **function_kwargs
 ):
-    log.info(
-        f"Generating cohort for {definition_path.name} as {output_file}",
-    )
-    log.debug(
-        "args:",
-        definition_path=definition_path,
-        output_file=output_file,
-        backend=backend_id,
-        dummy_data_file=dummy_data_file,
-    )
+    log.info(f"Running {cohort_action_function.__name__} for {str(definition_path)}")
+    log.debug("args:", **function_kwargs)
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     module = load_module(definition_path)
 
     cohort_class_generator, index_date_range = load_cohort_generator(module)
+    if len(index_date_range) > 1 and "*" not in output_file.name:
+        # ensure we have a replaceable pattern as an output file when multiple
+        # dates ranges are to be output
+        raise ValueError(f"No output pattern found in output file {output_file}")
 
     for index_date in index_date_range:
         if index_date is not None:
             log.info(f"Setting index_date to {index_date}")
             date_suffix = index_date
-            if len(index_date_range) > 1 and "*" not in output_file.name:
-                # ensure we have a replaceable pattern as an output file when multiple
-                # dates ranges are to be output
-                raise ValueError(
-                    f"No output pattern found in output file {output_file}"
-                )
         else:
             date_suffix = ""
 
-        cohort = (
-            cohort_class_generator(index_date)
-            if index_date
-            else cohort_class_generator()
-        )
-        output_file_with_date = _replace_filepath_pattern(output_file, date_suffix)
-        if dummy_data_file and not db_url:
-            dummy_data_file_with_date = Path(
-                str(dummy_data_file).replace("*", date_suffix)
-            )
-            validate_dummy_data(
-                cohort, dummy_data_file_with_date, output_file_with_date
-            )
-            shutil.copyfile(dummy_data_file_with_date, output_file_with_date)
+        if cohort_registry.cohorts:
+            # Currently we expect at most one cohort to be registered
+            assert (
+                len(cohort_registry.cohorts) == 1
+            ), f"At most one registered cohort is allowed, found {len(cohort_registry.cohorts)}"
+            (cohort,) = cohort_registry.cohorts
         else:
-            backend = BACKENDS[backend_id](
-                db_url, temporary_database=temporary_database
+            cohort = (
+                cohort_class_generator(index_date)
+                if index_date
+                else cohort_class_generator()
             )
-            results = extract(cohort, backend)
-            write_output(results, output_file_with_date)
+        cohort_action_function(
+            cohort, index_date, output_file, date_suffix, **function_kwargs
+        )
+
+
+def generate_cohort(
+    cohort,
+    index_date,
+    output_file,
+    date_suffix,
+    backend_id,
+    db_url,
+    dummy_data_file=None,
+    temporary_database=None,
+):
+    output_file_with_date = _replace_filepath_pattern(output_file, date_suffix)
+    if index_date:
+        log.info("Generating cohort for index date", index_date=index_date)
+
+    if dummy_data_file and not db_url:
+        dummy_data_file_with_date = Path(str(dummy_data_file).replace("*", date_suffix))
+        validate_dummy_data(cohort, dummy_data_file_with_date, output_file_with_date)
+        shutil.copyfile(dummy_data_file_with_date, output_file_with_date)
+    else:
+        backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
+        results = extract(cohort, backend)
+        write_output(results, output_file_with_date)
+
+
+def validate_cohort(
+    cohort,
+    index_date,
+    output_file,
+    date_suffix,
+    backend_id,
+):
+    output_file_with_date = _replace_filepath_pattern(output_file, date_suffix)
+    if index_date:
+        log.info("Validating for index date", index_date=index_date)
+    backend = BACKENDS[backend_id](database_url=None)
+    results = validate(cohort, backend)
+    log.info("Validation succeeded")
+    write_validation_output(results, output_file_with_date)
 
 
 def generate_measures(definition_path, input_file, output_file):
@@ -189,6 +210,17 @@ def extract(cohort_class, backend):
             yield dict(row)
 
 
+def validate(cohort_class, backend):
+    try:
+        cohort = get_column_definitions(cohort_class)
+        query_engine = backend.query_engine_class(cohort, backend)
+        return query_engine.get_queries()
+    except Exception:
+        log.error("Validation failed")
+        # raise the exception to ensure the job fails and the error and traceback are logged
+        raise
+
+
 def write_output(results, output_file):
     with output_file.open(mode="w") as f:
         writer = csv.writer(f)
@@ -201,3 +233,9 @@ def write_output(results, output_file):
             else:
                 assert fields == headers, f"Expected fields {headers}, but got {fields}"
             writer.writerow(entry.values())
+
+
+def write_validation_output(results, output_file):
+    with output_file.open(mode="w") as f:
+        for entry in results:
+            f.write(f"{str(entry)}\n")

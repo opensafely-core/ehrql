@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from lib.mock_backend import Events, MockBackend, RegistrationHistory
+from lib.mock_backend import MockBackend, ctv3_event, patient
 from lib.util import extract
 
 from cohortextractor import codelist, codelist_from_csv, combine_codelists, table
@@ -23,17 +23,14 @@ def codelist_csv():
 @pytest.mark.integration
 def test_codelist_query(database, setup_test_database):
     input_data = [
-        # Patient 1
-        RegistrationHistory(PatientId=1),
-        Events(PatientId=1, EventCode="abc", Date="2021-01-01"),
-        Events(PatientId=1, EventCode="xyz", Date="2021-02-01"),
-        Events(PatientId=1, EventCode="foo", Date="2021-03-01"),
-        # Patient 2
-        RegistrationHistory(PatientId=2),
-        Events(PatientId=2, EventCode="bar", Date="2021-01-01"),
-        # Patient 3
-        RegistrationHistory(PatientId=3),
-        Events(PatientId=3, EventCode="ijk", Date="2021-01-01"),
+        *patient(
+            1,
+            ctv3_event(code="abc", date="2021-01-01"),
+            ctv3_event(code="xyz", date="2021-02-01"),
+            ctv3_event(code="foo", date="2021-03-01"),
+        ),
+        *patient(2, ctv3_event(code="bar", date="2021-01-01")),
+        *patient(3, ctv3_event(code="ijk", date="2021-01-01")),
     ]
     setup_test_database(input_data)
 
@@ -58,13 +55,68 @@ def test_codelist_query(database, setup_test_database):
     ]
 
 
+@pytest.mark.integration
+def test_codelist_equals_query(database, setup_test_database):
+    input_data = [
+        *patient(1, ctv3_event(code="abc", date="2021-01-01")),
+        *patient(2, ctv3_event(code="bar", date="2021-01-01")),
+        *patient(3, ctv3_event(code="ijk", date="2021-01-01")),
+    ]
+    setup_test_database(input_data)
+
+    # A single code codelist can be expressed as an equals query
+    test_codelist = codelist(["abc"], system="ctv3")
+
+    class Cohort:
+        code = table("clinical_events").filter(code=test_codelist).latest().get("code")
+
+    result = extract(Cohort, MockBackend, database)
+    assert result == [
+        {"patient_id": 1, "code": "abc"},
+        {"patient_id": 2, "code": None},
+        {"patient_id": 3, "code": None},
+    ]
+
+
+@pytest.mark.integration
+def test_codelist_query_selects_correct_system(database, setup_test_database):
+    input_data = [
+        *patient(
+            1,
+            ctv3_event(code="abc", date="2021-01-01"),
+            ctv3_event(code="sabc", date="2021-01-01", system="snomed"),
+        ),
+        *patient(2, ctv3_event(code="sabc", date="2021-01-01")),
+        *patient(3, ctv3_event(code="ijk", date="2021-01-01", system="snomed")),
+    ]
+    setup_test_database(input_data)
+
+    test_codelist = codelist(["sabc", "sxyz", "ijk"], system="snomed")
+
+    class Cohort:
+        code = (
+            table("clinical_events")
+            .filter("code", is_in=test_codelist)
+            .latest()
+            .get("code")
+        )
+
+    result = extract(Cohort, MockBackend, database)
+    # extracts only the snomed events, even though there are matching codes in ctv3 events
+    assert result == [
+        {"patient_id": 1, "code": "sabc"},
+        {"patient_id": 2, "code": None},
+        {"patient_id": 3, "code": "ijk"},
+    ]
+
+
 @pytest.mark.parametrize(
     "filename,code_column,expected",
     [
-        ("default_col", None, ["123A", "123B", "234C", "345D"]),
-        ("default_col", "code", ["123A", "123B", "234C", "345D"]),
-        ("custom_col", "123Codes", ["123-A", "123-B", "123-C", "123-D"]),
-        ("extra_whitespace", "code", ["W123", "W234", "W345", "W456"]),
+        ("default_col", None, ("123A", "123B", "234C", "345D")),
+        ("default_col", "code", ("123A", "123B", "234C", "345D")),
+        ("custom_col", "123Codes", ("123-A", "123-B", "123-C", "123-D")),
+        ("extra_whitespace", "code", ("W123", "W234", "W345", "W456")),
     ],
 )
 def test_codelist_from_csv(codelist_csv, filename, code_column, expected):
@@ -137,15 +189,9 @@ def test_codelist_query_with_codelist_from_csv(
     database, setup_test_database, codelist_csv
 ):
     input_data = [
-        # Patient 1
-        RegistrationHistory(PatientId=1),
-        Events(PatientId=1, EventCode="abc", Date="2021-01-01"),
-        # Patient 2
-        RegistrationHistory(PatientId=2),
-        Events(PatientId=2, EventCode="bar", Date="2021-01-01"),
-        # Patient 3
-        RegistrationHistory(PatientId=3),
-        Events(PatientId=3, EventCode="ijk", Date="2021-01-01"),
+        *patient(1, ctv3_event(code="abc", date="2021-01-01")),
+        *patient(2, ctv3_event(code="bar", date="2021-01-01")),
+        *patient(3, ctv3_event(code="ijk", date="2021-01-01")),
     ]
     setup_test_database(input_data)
 

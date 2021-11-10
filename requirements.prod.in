@@ -4,6 +4,16 @@
 # pip-compile --generate-hashes --output-file=requirements.prod.txt requirements.prod.in
 
 pandas
-pymssql
 sqlalchemy
 structlog
+
+# Database driver for MS-SQL
+pymssql
+
+# Database driver for Spark
+pyhive
+# `thrift` is required for accessing Hive via `pyhive`. We could get it
+# automatically pulled in by installing `pyhive[hive]` but this will also pull
+# in `sasl` which we don't need and which causes us installation problems
+# because it doesn't have a wheel and requires the libsasl2 headers to compile.
+thrift

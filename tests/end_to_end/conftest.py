@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from end_to_end.utils import MeasuresStudy, Study
 
-from cohortextractor.main import generate_cohort, generate_measures
+from cohortextractor.main import generate_cohort, generate_measures, run_cohort_action
 
 
 @pytest.fixture
@@ -56,7 +56,6 @@ def cohort_extractor_in_container(tmpdir, database, containers):
                 "TEMP_DATABASE_NAME": "temp_tables",
             },
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
-            network=database.network,
         )
         return output_host_dir / study.output_file_name
 
@@ -93,7 +92,6 @@ def cohort_extractor_generate_measures_in_container(tmpdir, database, containers
             image="cohort-extractor-v2:latest",
             command=command,
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
-            network=database.network,
         )
 
         return output_host_path
@@ -117,6 +115,7 @@ def _in_process_run(
     backend_id,
     db_url,
     use_dummy_data,
+    action=generate_cohort,
 ):
     for file in study.code():
         shutil.copy(file, analysis_dir)
@@ -131,21 +130,25 @@ def _in_process_run(
     else:
         dummy_data_file = None
 
-    generate_cohort(
-        definition_path=definition_path,
+    action_kwargs = dict(
         output_file=output_host_path,
+        definition_path=definition_path,
         backend_id=backend_id,
-        db_url=db_url,
-        dummy_data_file=dummy_data_file,
-        temporary_database="temp_tables",
     )
+    if action == generate_cohort:
+        action_kwargs.update(
+            db_url=db_url,
+            dummy_data_file=dummy_data_file,
+            temporary_database="temp_tables",
+        )
+    run_cohort_action(action, **action_kwargs)
 
 
 @pytest.fixture
 def cohort_extractor_in_process(tmpdir, database, containers):
     _, analysis_dir, output_host_dir = _in_process_setup(tmpdir)
 
-    def run(study, backend, use_dummy_data=False):
+    def run(study, backend, use_dummy_data=False, action=generate_cohort):
         _in_process_run(
             study=study,
             analysis_dir=analysis_dir,
@@ -153,6 +156,7 @@ def cohort_extractor_in_process(tmpdir, database, containers):
             backend_id=backend,
             db_url=database.host_url(),
             use_dummy_data=use_dummy_data,
+            action=action,
         )
 
         return output_host_dir / study.output_file_name
@@ -164,7 +168,7 @@ def cohort_extractor_in_process(tmpdir, database, containers):
 def cohort_extractor_in_process_no_database(tmpdir, containers):
     _, analysis_dir, output_host_dir = _in_process_setup(tmpdir)
 
-    def run(study, backend=None, use_dummy_data=False):
+    def run(study, backend=None, use_dummy_data=False, action=generate_cohort):
 
         _in_process_run(
             study=study,
@@ -173,6 +177,7 @@ def cohort_extractor_in_process_no_database(tmpdir, containers):
             backend_id=backend,
             db_url=None,
             use_dummy_data=use_dummy_data,
+            action=action,
         )
         return output_host_dir / study.output_file_name
 

@@ -2,7 +2,6 @@ from unittest import mock
 
 import pytest
 import sqlalchemy
-from lib.util import mark_xfail_in_playback_mode
 
 from cohortextractor.query_engines.mssql_lib import (
     ReconnectableConnection,
@@ -10,7 +9,6 @@ from cohortextractor.query_engines.mssql_lib import (
 )
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_fetch_results_in_batches_happy_path(database):
     table = sqlalchemy.table("test_table")
@@ -31,7 +29,6 @@ def test_fetch_results_in_batches_happy_path(database):
         assert _as_dicts(results) == test_data
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_fetch_results_in_batches_with_retry(database):
     table = sqlalchemy.table("test_table")
@@ -57,7 +54,6 @@ def test_fetch_results_in_batches_with_retry(database):
             assert execute.call_count == 5
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_fetch_results_in_batches_with_reconnect_and_retry(database):
     table = sqlalchemy.table("test_table")
@@ -85,7 +81,6 @@ def test_fetch_results_in_batches_with_reconnect_and_retry(database):
             assert execute.call_count == 5
 
 
-@mark_xfail_in_playback_mode
 @pytest.mark.integration
 def test_fetch_results_in_batches_caches_results(database, temp_tables):
     table = sqlalchemy.table("test_table")

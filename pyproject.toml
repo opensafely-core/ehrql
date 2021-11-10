@@ -17,6 +17,14 @@ omit = []
 [tool.coverage.report]
 # fail_under = 100
 skip_covered = true
+exclude_lines = [
+    # this is the default, but has to be included explicitly now we specify exclude_lines
+    "pragma: no cover",
+    # this indicates that the line should never be hit, so it does not make sense to test it
+    "assert False",
+    # this condition is only true when a module is run as a script
+    'if __name__ == "__main__":',
+]
 
 [tool.coverage.html]
 
@@ -32,6 +40,9 @@ use_parentheses = true
 [tool.pytest.ini_options]
 addopts = "--tb=native --strict-markers"
 markers = [
-    "integration: tests that use a database; run with record/playback shim",
+    "integration: tests that use a database",
     "smoke: tests that run the cohort extractor in its container against a database",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:past.builtins.misc:45"
 ]

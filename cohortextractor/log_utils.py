@@ -53,9 +53,9 @@ def init_logging():
                 "level": os.getenv("LOG_LEVEL", "INFO"),
             },
             "loggers": {
-                "cohortextractor.sql": {
+                "sqlalchemy.engine": {
                     "handlers": ["console"],
-                    "level": "DEBUG" if os.getenv("LOG_SQL") else "INFO",
+                    "level": "INFO" if os.getenv("LOG_SQL") else "WARN",
                     "propagate": False,
                 },
             },
