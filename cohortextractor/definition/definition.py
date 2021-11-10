@@ -1,4 +1,4 @@
-from .base import registered_cohorts
+from .base import cohort_registry
 
 
 class Cohort:
@@ -11,7 +11,7 @@ def register(cohort):
     cohort: A Cohort instance
     returns: list of tuples of variable name and compiled Value
     """
-    registered_cohorts.add(cohort)
+    cohort_registry.add(cohort)
 
 
 def pick_first_value(source_table):

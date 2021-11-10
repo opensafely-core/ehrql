@@ -1,13 +1,13 @@
 from cohortextractor.concepts import tables
 from cohortextractor.definition import Cohort, pick_first_value, register
-from cohortextractor.definition.base import registered_cohorts
+from cohortextractor.definition.base import cohort_registry
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
 
 
 def test_minimal_cohort_definition():
     # Nothing in the registry yet
-    assert not registered_cohorts
+    assert not cohort_registry.cohorts
 
     # old DSL
     class OldCohort:
@@ -22,8 +22,8 @@ def test_minimal_cohort_definition():
     )
     register(cohort)
 
-    assert cohort in registered_cohorts
-    (registered_cohort,) = registered_cohorts
+    assert cohort in cohort_registry.cohorts
+    (registered_cohort,) = cohort_registry.cohorts
     assert get_column_definitions(registered_cohort) == get_column_definitions(
         OldCohort
     )

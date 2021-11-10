@@ -1,4 +1,12 @@
-from weakref import WeakSet
+class CohortRegistry:
+    def __init__(self):
+        self.cohorts = set()
+
+    def add(self, cohort):
+        self.cohorts.add(cohort)
+
+    def reset(self):
+        self.cohorts = set()
 
 
-registered_cohorts = WeakSet()
+cohort_registry = CohortRegistry()

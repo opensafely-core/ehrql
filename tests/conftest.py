@@ -12,6 +12,8 @@ from lib.tpp_schema import Base as TppBase
 from lib.util import iter_flatten
 from sqlalchemy.orm import sessionmaker
 
+from cohortextractor.definition.base import cohort_registry
+
 
 BASES = {"tpp": TppBase, "graphnet": GraphnetBase, "databricks": DatabricksBase}
 
@@ -102,3 +104,9 @@ def setup_spark_database(spark_database):
         session.commit()
 
     return setup
+
+
+@pytest.fixture(autouse=True)
+def cleanup_register():
+    yield
+    cohort_registry.reset()

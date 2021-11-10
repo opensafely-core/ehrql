@@ -9,7 +9,7 @@ from pathlib import Path
 import structlog
 
 from .backends import BACKENDS
-from .definition.base import registered_cohorts
+from .definition.base import cohort_registry
 from .measure import MeasuresManager, combine_csv_files_with_dates
 from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
@@ -26,6 +26,7 @@ def run_cohort_action(
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     module = load_module(definition_path)
+
     cohort_class_generator, index_date_range = load_cohort_generator(module)
     if len(index_date_range) > 1 and "*" not in output_file.name:
         # ensure we have a replaceable pattern as an output file when multiple
@@ -39,8 +40,12 @@ def run_cohort_action(
         else:
             date_suffix = ""
 
-        if registered_cohorts:
-            (cohort,) = registered_cohorts
+        if cohort_registry.cohorts:
+            # Currently we expect at most one cohort to be registered
+            assert (
+                len(cohort_registry.cohorts) == 1
+            ), f"At most one registered cohort is allowed, found {len(cohort_registry.cohorts)}"
+            (cohort,) = cohort_registry.cohorts
         else:
             cohort = (
                 cohort_class_generator(index_date)
