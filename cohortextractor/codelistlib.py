@@ -7,7 +7,7 @@ from cohortextractor.query_language import Codelist
 def codelist(codes, system):
     first_code = codes[0]
     has_categories = isinstance(first_code, tuple)
-    codes = Codelist(codes, system, has_categories=has_categories)
+    codes = Codelist(tuple(codes), system, has_categories=has_categories)
     return codes
 
 
@@ -31,7 +31,7 @@ def codelist_from_csv(filename, system, column="code", category_column=None):
                     f"Codelist csv file at {filename} does not contain column '{column}'"
                 )
             codes.append(row[column].strip())
-    codes = Codelist(codes, system=system, has_categories=bool(category_column))
+    codes = Codelist(tuple(codes), system=system, has_categories=bool(category_column))
     return codes
 
 
@@ -60,4 +60,4 @@ def combine_codelists(first_codelist, *other_codelists):
             #     )
             # else:
             #     combined_dict[code] = item
-    return Codelist(combined_dict.values(), first_codelist.system)
+    return Codelist(tuple(combined_dict.values()), first_codelist.system)
