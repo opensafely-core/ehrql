@@ -19,9 +19,26 @@ def test_extracts_data_from_sql_server_integration_test(
     run_test(load_study, setup_backend_database, cohort_extractor_in_process)
 
 
-def run_test(
-    load_study, setup_backend_database, cohort_extractor, dummy_data_file=None
+@pytest.mark.integration
+def test_extracts_data_from_sql_server_integration_test_new_dsl(
+    load_study, setup_backend_database, cohort_extractor_in_process
 ):
+    run_test(
+        load_study,
+        setup_backend_database,
+        cohort_extractor_in_process,
+        definition_file="tpp_cohort_new_dsl.py",
+    )
+
+
+def run_test(
+    load_study,
+    setup_backend_database,
+    cohort_extractor,
+    definition_file=None,
+    dummy_data_file=None,
+):
+    definition_file = definition_file or "tpp_cohort.py"
     setup_backend_database(
         Patient(Patient_ID=1),
         CTV3Events(Patient_ID=1, ConsultationDate="2021-01-01", CTV3Code="xyz"),
@@ -32,7 +49,7 @@ def run_test(
     )
     study = load_study(
         "end_to_end_tests_tpp",
-        definition_file="tpp_cohort.py",
+        definition_file=definition_file,
         dummy_data_file=dummy_data_file,
     )
     actual_results = cohort_extractor(
@@ -68,5 +85,5 @@ def test_extracts_data_from_sql_server_ignores_dummy_data_file(
         load_study,
         setup_backend_database,
         cohort_extractor_in_process,
-        "invalid_dummy_data.csv",
+        dummy_data_file="invalid_dummy_data.csv",
     )
