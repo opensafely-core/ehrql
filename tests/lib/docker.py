@@ -52,12 +52,5 @@ class Containers:
             print(str(e.stderr, "utf-8"), file=sys.stderr)
             raise
 
-    def destroy(self, name):
-        try:
-            container = self.get_container(name)
-        except docker.errors.NotFound:
-            return
-        container.remove(force=True)
-
     def _run(self, **kwargs):
         return self._docker.containers.run(remove=True, **kwargs)
