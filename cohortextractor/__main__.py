@@ -5,13 +5,38 @@ from pathlib import Path
 from .main import generate_cohort, generate_measures, run_cohort_action, validate_cohort
 
 
-def existing_python_file(value):
-    path = Path(value)
-    if not path.exists():
-        raise ValueError(f"{value} does not exist")
-    if not path.suffix == ".py":
-        raise ValueError(f"{value} is not a Python file")
-    return path
+def main():
+    parser = build_parser()
+    options = parser.parse_args()
+
+    if options.which == "generate_cohort":
+        if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
+            parser.error(
+                "error: either --dummy-data-file or DATABASE_URL environment variable is required"
+            )
+
+        run_cohort_action(
+            generate_cohort,
+            definition_path=options.cohort_definition,
+            output_file=options.output,
+            db_url=os.environ.get("DATABASE_URL"),
+            backend_id=os.environ.get("OPENSAFELY_BACKEND"),
+            dummy_data_file=options.dummy_data_file,
+            temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
+        )
+    elif options.which == "validate_cohort":
+        run_cohort_action(
+            validate_cohort,
+            definition_path=options.cohort_definition,
+            output_file=options.output,
+            backend_id=options.backend,
+        )
+    elif options.which == "generate_measures":
+        generate_measures(
+            definition_path=options.cohort_definition,
+            input_file=options.input,
+            output_file=options.output,
+        )
 
 
 def build_parser():
@@ -85,38 +110,13 @@ def build_parser():
     return parser
 
 
-def main():
-    parser = build_parser()
-    options = parser.parse_args()
-
-    if options.which == "generate_cohort":
-        if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
-            parser.error(
-                "error: either --dummy-data-file or DATABASE_URL environment variable is required"
-            )
-
-        run_cohort_action(
-            generate_cohort,
-            definition_path=options.cohort_definition,
-            output_file=options.output,
-            db_url=os.environ.get("DATABASE_URL"),
-            backend_id=os.environ.get("OPENSAFELY_BACKEND"),
-            dummy_data_file=options.dummy_data_file,
-            temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
-        )
-    elif options.which == "validate_cohort":
-        run_cohort_action(
-            validate_cohort,
-            definition_path=options.cohort_definition,
-            output_file=options.output,
-            backend_id=options.backend,
-        )
-    elif options.which == "generate_measures":
-        generate_measures(
-            definition_path=options.cohort_definition,
-            input_file=options.input,
-            output_file=options.output,
-        )
+def existing_python_file(value):
+    path = Path(value)
+    if not path.exists():
+        raise ValueError(f"{value} does not exist")
+    if not path.suffix == ".py":
+        raise ValueError(f"{value} is not a Python file")
+    return path
 
 
 if __name__ == "__main__":
