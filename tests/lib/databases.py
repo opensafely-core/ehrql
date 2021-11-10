@@ -1,6 +1,5 @@
 import time
 
-import docker.errors
 import sqlalchemy
 import sqlalchemy.exc
 
@@ -13,7 +12,6 @@ DEFAULT_MSSQL_PORT = 1433
 class DbDetails:
     def __init__(
         self,
-        network,
         protocol,
         host_from_container,
         port_from_container,
@@ -23,7 +21,6 @@ class DbDetails:
         password="",
         db_name="",
     ):
-        self.network = network
         self.protocol = protocol
         self.host_from_container = host_from_container
         self.port_from_container = port_from_container
@@ -54,25 +51,23 @@ class DbDetails:
 
 
 def null_database():
-    return DbDetails(None, None, None, None, None, None)
+    return DbDetails(None, None, None, None, None)
 
 
-def make_database(containers, docker_client, mssql_dir):
+def make_database(containers, mssql_dir):
     password = "Your_password123!"
 
-    container = "cohort-extractor-mssql"
-    network = "cohort-extractor-network"
+    container_name = "cohort-extractor-mssql"
     published_port = PERSISTENT_DATABASE_PORT
-    try:
-        docker_client.networks.get(network)
-    except docker.errors.NotFound:
-        docker_client.networks.create(network)
-    if not containers.is_running(container):
-        run_mssql(container, containers, mssql_dir, network, password, published_port)
+
+    if not containers.is_running(container_name):
+        run_mssql(container_name, containers, mssql_dir, password, published_port)
+
+    container_ip = containers.get_container_ip(container_name)
+
     return DbDetails(
-        network=network,
         protocol="mssql",
-        host_from_container=container,
+        host_from_container=container_ip,
         port_from_container=DEFAULT_MSSQL_PORT,
         host_from_host="localhost",
         port_from_host=published_port,
@@ -109,14 +104,13 @@ def wait_for_database(database, timeout=10):
 PERSISTENT_DATABASE_PORT = 49152
 
 
-def run_mssql(container_name, containers, mssql_dir, network, password, published_port):
+def run_mssql(container_name, containers, mssql_dir, password, published_port):
     containers.run_bg(
         name=container_name,
         image="mcr.microsoft.com/mssql/server:2017-CU25-ubuntu-16.04",
         volumes={
             mssql_dir: {"bind": "/mssql", "mode": "ro"},
         },
-        network=network,
         ports={f"{DEFAULT_MSSQL_PORT}/TCP": published_port},
         environment={"SA_PASSWORD": password, "ACCEPT_EULA": "Y"},
         entrypoint="/mssql/entrypoint.sh",
@@ -124,7 +118,7 @@ def run_mssql(container_name, containers, mssql_dir, network, password, publishe
     )
 
 
-def make_spark_database(containers, network):
+def make_spark_database(containers):
     container_name = "cohort-extractor-spark"
     # This is the default anyway, but better to be explicit
     spark_port = 10001
@@ -169,7 +163,6 @@ def make_spark_database(containers, network):
     host_spark_port = containers.get_mapped_port_for_host(container_name, spark_port)
 
     return DbDetails(
-        network=network,
         protocol="spark",
         host_from_container=container_name,
         port_from_container=spark_port,

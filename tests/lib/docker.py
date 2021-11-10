@@ -30,6 +30,13 @@ class Containers:
         host_port = port_config[0]["HostPort"]
         return host_port
 
+    def get_container_ip(self, name):
+        """
+        Given a container name, return it IP address
+        """
+        container = self.get_container(name)
+        return container.attrs["NetworkSettings"]["IPAddress"]
+
     # All available arguments documented here:
     # https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run
     def run_bg(self, name, image, **kwargs):

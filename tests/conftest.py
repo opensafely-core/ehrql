@@ -24,14 +24,6 @@ def docker_client():
 
 
 @pytest.fixture(scope="session")
-def network(docker_client):
-    name = "test_network"
-    docker_client.networks.create(name)
-    yield name
-    docker_client.networks.get(name).remove()
-
-
-@pytest.fixture(scope="session")
 def containers(docker_client):
     yield Containers(docker_client)
 
@@ -42,11 +34,11 @@ def mssql_dir():
 
 
 @pytest.fixture(scope="session")
-def database(request, containers, docker_client, network, mssql_dir):
+def database(request, containers, mssql_dir):
     try:
         database = request.session.database
     except AttributeError:
-        database = make_database(containers, docker_client, mssql_dir)
+        database = make_database(containers, mssql_dir)
         wait_for_database(database)
         request.session.database = database
     yield database
@@ -80,8 +72,8 @@ def setup_backend_database(setup_test_database):
 
 
 @pytest.fixture(scope="session")
-def spark_database(containers, network):
-    database = make_spark_database(containers, network)
+def spark_database(containers):
+    database = make_spark_database(containers)
     wait_for_database(database, timeout=15)
     yield database
 
