@@ -1,13 +1,14 @@
 import os
-from argparse import ArgumentParser
+import sys
+from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
 from .main import generate_cohort, generate_measures, run_cohort_action, validate_cohort
 
 
-def main():
+def main(argv):
     parser = build_parser()
-    options = parser.parse_args()
+    options = parser.parse_args(argv)
 
     if options.which == "generate_cohort":
         if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
@@ -37,10 +38,17 @@ def main():
             input_file=options.input,
             output_file=options.output,
         )
+    elif options.which == "print_help":
+        parser.print_help()
+    else:
+        assert False, f"Unhandler subcommand: {options.which}"
 
 
 def build_parser():
-    parser = ArgumentParser(description="Generate cohorts in OpenSAFELY")
+    parser = ArgumentParser(
+        prog="cohortextractor", description="Generate cohorts in OpenSAFELY"
+    )
+    parser.set_defaults(which="print_help")
     subparsers = parser.add_subparsers(help="sub-command help")
 
     generate_cohort_parser = subparsers.add_parser(
@@ -113,11 +121,11 @@ def build_parser():
 def existing_python_file(value):
     path = Path(value)
     if not path.exists():
-        raise ValueError(f"{value} does not exist")
+        raise ArgumentTypeError(f"{value} does not exist")
     if not path.suffix == ".py":
-        raise ValueError(f"{value} is not a Python file")
+        raise ArgumentTypeError(f"{value} is not a Python file")
     return path
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
