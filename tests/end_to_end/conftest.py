@@ -56,7 +56,6 @@ def cohort_extractor_in_container(tmpdir, database, containers):
                 "TEMP_DATABASE_NAME": "temp_tables",
             },
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
-            network=database.network,
         )
         return output_host_dir / study.output_file_name
 
@@ -93,7 +92,6 @@ def cohort_extractor_generate_measures_in_container(tmpdir, database, containers
             image="cohort-extractor-v2:latest",
             command=command,
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
-            network=database.network,
         )
 
         return output_host_path
