@@ -1,5 +1,4 @@
--c requirements.prod.in
--r requirements.prod.in
+--constraint requirements.prod.txt
 
 # Additional dev requirements
 # To generate a requirements file that includes both prod and dev requirements, run:
