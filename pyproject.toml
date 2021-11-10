@@ -28,6 +28,12 @@ exclude_lines = [
 
 [tool.coverage.html]
 
+[tool.interrogate]
+fail-under = 26
+ignore-init-module = true
+omit-covered-files = true
+verbose = 1
+
 [tool.isort]
 force_grid_wrap = 0
 include_trailing_comma = true
