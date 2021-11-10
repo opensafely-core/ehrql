@@ -20,10 +20,12 @@ skip_covered = true
 exclude_lines = [
     # this is the default, but has to be included explicitly now we specify exclude_lines
     "pragma: no cover",
-    # this indicates that the line should never be hit, so it does not make sense to test it
+    # this indicates that the line should never be hit
     "assert False",
     # this condition is only true when a module is run as a script
     'if __name__ == "__main__":',
+    # this indicates that a method should be defined in a subclass
+    "raise NotImplementedError",
 ]
 
 [tool.coverage.html]
