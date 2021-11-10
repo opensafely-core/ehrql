@@ -113,10 +113,10 @@ def test_codelist_query_selects_correct_system(database, setup_test_database):
 @pytest.mark.parametrize(
     "filename,code_column,expected",
     [
-        ("default_col", None, ["123A", "123B", "234C", "345D"]),
-        ("default_col", "code", ["123A", "123B", "234C", "345D"]),
-        ("custom_col", "123Codes", ["123-A", "123-B", "123-C", "123-D"]),
-        ("extra_whitespace", "code", ["W123", "W234", "W345", "W456"]),
+        ("default_col", None, ("123A", "123B", "234C", "345D")),
+        ("default_col", "code", ("123A", "123B", "234C", "345D")),
+        ("custom_col", "123Codes", ("123-A", "123-B", "123-C", "123-D")),
+        ("extra_whitespace", "code", ("W123", "W234", "W345", "W456")),
     ],
 )
 def test_codelist_from_csv(codelist_csv, filename, code_column, expected):

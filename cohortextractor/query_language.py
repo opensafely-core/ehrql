@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+from typing import Any
+
+
 _OPERATOR_MAPPING = {
     "equals": "__eq__",
     "not_equals": "__ne__",
@@ -20,33 +24,30 @@ def table(name):
     return Table(name)
 
 
+# A note about dataclasses...  We will need to store instances of the classes in this
+# module in sets, which requires them to be hashable.  As such, we require instances to
+# be frozen.  This means we cannot mutate the fields of an instance once it has been
+# created.  Additionally, in order for the comparison operators on Value and its
+# subclasses to work, we need to stop dataclasses from overriding these methods on the
+# subclasses.
+
+
+@dataclass(frozen=True)
 class Comparator:
-    """A generic comparator to represent a comparison between a source object and a value"""
+    """A generic comparator to represent a comparison between a source object and a
+    value.
 
-    def __init__(
-        self,
-        connector=None,
-        negated=False,
-        lhs=None,
-        operator=None,
-        rhs=None,
-    ):
-        """
-        Construct a new Comparator.
-        The simplest comparator is created from an expression such as `foo > 3` and
-        will have a lhs ('foo'; a Value object), operator ('__gt__')
-        and a rhs (3; a simple type - str/int/float/None).
-        The lhs and rhs of a Comparator can themselves be Comparators, which are to be
-        connected with self.connector.
-        """
-        self.connector = connector
-        self.negated = negated
-        self.lhs = lhs
-        self.operator = operator
-        self.rhs = rhs
+    The simplest comparator is created from an expression such as `foo > 3` and will
+    have a lhs ('foo'; a Value object), operator ('__gt__') and a rhs (3; a simple type
+    - str/int/float/None).  The lhs and rhs of a Comparator can themselves be
+    Comparators, which are to be connected with self.connector.
+    """
 
-    def __repr__(self):
-        return f"Comparator(connector={self.connector}, negated={self.negated}, lhs={self.lhs}, operator={self.operator}, rhs={self.rhs})"
+    connector: Any = None
+    negated: bool = False
+    lhs: Any = None
+    operator: Any = None
+    rhs: Any = None
 
     def __and__(self, other):
         return self._combine(other, "and_")
@@ -55,28 +56,18 @@ class Comparator:
         return self._combine(other, "or_")
 
     def __invert__(self):
-        obj = self.copy()
-        obj.negated = not self.negated
-        return obj
-
-    def copy(self):
-        obj = type(self)(
+        return type(self)(
             connector=self.connector,
-            negated=self.negated,
+            negated=not self.negated,
             lhs=self.lhs,
             operator=self.operator,
             rhs=self.rhs,
         )
-        return obj
 
     def _combine(self, other, conn):
         if not (isinstance(other, Comparator)):
             raise TypeError(other)
-        obj = type(self)()
-        obj.connector = conn
-        obj.lhs = self
-        obj.rhs = other
-        return obj
+        return type(self)(connector=conn, lhs=self, rhs=other)
 
 
 def boolean_comparator(obj, negated=False):
@@ -88,13 +79,7 @@ class QueryNode:
     pass
 
 
-class Table(QueryNode):
-    def __init__(self, name):
-        self.name = name
-
-    def __repr__(self):
-        return f"Table(name={self.name})"
-
+class BaseTable(QueryNode):
     def get(self, column):
         return Column(source=self, column=column)
 
@@ -138,7 +123,7 @@ class Table(QueryNode):
             column=args[0],
             operator=operator,
             value=value,
-            include_null=include_null,
+            or_null=include_null,
         )
 
     def earliest(self, *columns):
@@ -180,6 +165,11 @@ class Table(QueryNode):
     def aggregate(self, function, column):
         return ValueFromAggregate(self, function, column)
 
+
+@dataclass(frozen=True)
+class Table(BaseTable):
+    name: str
+
     def imd_rounded_as_of(self, reference_date):
         """
         A convenience method to retrieve the IMD on the reference date.
@@ -211,43 +201,35 @@ class Table(QueryNode):
         )
 
 
-class FilteredTable(Table):
-    def __init__(self, source, column, operator, value, include_null=False):
-        self.source = source
-        self.column = column
-        self.operator = operator
-        self.value = value
-        self.or_null = include_null
-        self._validate()
+# @dataclass(unsafe_hash=True)
+@dataclass(frozen=True)
+class FilteredTable(BaseTable):
+    source: Any
+    column: Any
+    operator: Any
+    value: Any
+    or_null: bool = False
 
-    def _validate(self):
+    def __post_init__(self):
+        # self.or_null = self.include_null
         # validate specific columns
         if self.column == "code" and not isinstance(self.value, Codelist):
             raise ValidationError(
                 "A 'code' filter must filter on a codelist.  e.g. `.filter(code=codelist(['abc'], system='ctv3')`"
             )
 
-    def __repr__(self):
-        return f"FilteredTable(source={self.source}, column={self.column}, operator={self.operator}, value={self.value})"
 
-
+@dataclass(frozen=True)
 class Column(QueryNode):
-    def __init__(self, source, column):
-        self.source = source
-        self.column = column
-
-    def __repr__(self):
-        return f"Column(source={self.source}, column={self.column})"
+    source: Any
+    column: Any
 
 
+@dataclass(frozen=True)
 class Row(QueryNode):
-    def __init__(self, source, sort_columns, descending=False):
-        self.source = source
-        self.sort_columns = sort_columns
-        self.descending = descending
-
-    def __repr__(self):
-        return f"Row(source={self.source}, columns={self.sort_columns}, descending={self.descending})"
+    source: Any
+    sort_columns: Any
+    descending: Any
 
     def get(self, column):
         return ValueFromRow(source=self, column=column)
@@ -297,23 +279,17 @@ class Value(QueryNode):
         return id(self)
 
 
+@dataclass(frozen=True, eq=False, order=False)
 class ValueFromRow(Value):
-    def __init__(self, source, column):
-        self.source = source
-        self.column = column
-
-    def __repr__(self):
-        return f"ValueFromRow(source={self.source}, column={self.column})"
+    source: Any
+    column: Any
 
 
+@dataclass(frozen=True, eq=False, order=False)
 class ValueFromAggregate(Value):
-    def __init__(self, source, function, column):
-        self.source = source
-        self.function = function
-        self.column = column
-
-    def __repr__(self):
-        return f"ValueFromAggregate(source={self.source}, function={self.function}, column={self.column})"
+    source: Any
+    function: Any
+    column: Any
 
 
 def categorise(mapping, default):
@@ -324,27 +300,25 @@ def categorise(mapping, default):
     return ValueFromCategory(mapping, default)
 
 
+@dataclass(frozen=True, eq=False, order=False)
 class ValueFromCategory(Value):
-    def __init__(self, definitions, default):
-        self.default = default
-        self.definitions = definitions
-
-    def __repr__(self):
-        return (
-            f"ValueFromCategory(default={self.default}, definitions={self.definitions})"
-        )
+    definitions: Any
+    default: Any
 
 
+@dataclass(frozen=True)
 class Codelist(QueryNode):
-    def __init__(self, codes, system, has_categories=False):
-        if has_categories:
+    codes: tuple
+    system: str
+    has_categories: bool = False
+
+    def __post_init__(self):
+        if self.has_categories:
             raise NotImplementedError("Categorised codelists are currently unsupported")
-        self.codes = list(codes)
-        self.system = system
 
     def __repr__(self):
         if len(self.codes) > 5:
-            codes = self.codes[:5] + ["..."]
+            codes = self.codes[:5] + ("...",)
         else:
             codes = self.codes
         return f"Codelist(system={self.system}, codes={codes})"
@@ -353,9 +327,6 @@ class Codelist(QueryNode):
 class ValueFromFunction(Value):
     def __init__(self, *args):
         self.arguments = args
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(arguments={self.arguments})"
 
 
 class DateDifferenceInYears(ValueFromFunction):

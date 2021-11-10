@@ -76,7 +76,7 @@ def test_cohort_column_definitions_chained_query():
     assert penultimate_filtered_table.operator == "__eq__"
     assert penultimate_filtered_table.column == "code"
     assert isinstance(penultimate_filtered_table.value, Codelist)
-    assert penultimate_filtered_table.value.codes == ["abc"]
+    assert penultimate_filtered_table.value.codes == ("abc",)
     initial_table = penultimate_filtered_table.source
     assert isinstance(initial_table, Table)
     assert initial_table.name == "clinical_events"
