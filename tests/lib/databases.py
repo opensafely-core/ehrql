@@ -101,7 +101,7 @@ def wait_for_database(database, timeout=10):
             time.sleep(1)
 
 
-PERSISTENT_DATABASE_PORT = 49152
+PERSISTENT_DATABASE_PORT = 49151
 
 
 def run_mssql(
