@@ -1,4 +1,5 @@
 from cohortextractor.backends.base import BaseBackend, Column, MappedTable, QueryTable
+from cohortextractor.concepts import tables
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 
 
@@ -58,6 +59,7 @@ class TPPBackend(BaseBackend):
     patient_join_column = "Patient_ID"
 
     patients = MappedTable(
+        implements=tables.Patients,
         source="Patient",
         columns=dict(
             sex=Column("varchar", source="Sex"),
