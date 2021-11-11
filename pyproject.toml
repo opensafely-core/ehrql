@@ -31,7 +31,7 @@ exclude_lines = [
 [tool.coverage.html]
 
 [tool.interrogate]
-fail-under = 26
+fail-under = 0
 ignore-init-module = true
 omit-covered-files = true
 verbose = 1
