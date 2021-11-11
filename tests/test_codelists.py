@@ -146,6 +146,15 @@ def test_codelist_from_csv_with_categories(codelist_csv):
         codelist_from_csv(csv_path, system="ctv3", category_column="category")
 
 
+def test_codelist_from_csv_file_not_found(codelist_csv):
+    csv_path = codelist_csv("unknown")
+    kwargs = {"system": "ctv3", "column": "code"}
+    with pytest.raises(
+        ValueError, match=r"Codelist csv file at .+unknown.csv could not be found"
+    ):
+        codelist_from_csv(csv_path, **kwargs)
+
+
 @pytest.mark.parametrize(
     "codes,expected_codes",
     [
