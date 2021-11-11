@@ -185,7 +185,7 @@ def temp_tables(database):
     try:
         yield temp_tables
     finally:
-        temp_tables.drop_all()
+        temp_tables.drop_all()  # pragma: no cover
 
 
 class TempTables:
@@ -214,7 +214,7 @@ class TempTables:
                 row[0] for row in conn.execute(query) if row[0].startswith(self._prefix)
             )
 
-    def drop_all(self):
+    def drop_all(self):  # pragma: no cover
         tables = self.list_all()
         with self.engine.connect() as conn:
             for table in tables:
