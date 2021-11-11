@@ -481,23 +481,27 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         Date = self.type_map["date"]
         start_date = type_coerce(start_date, Date())
         end_date = type_coerce(end_date, Date())
-        # `literal_column` doesn't seem quite the right construct here, but I
-        # need SQLAlchemy to generate the string "year" without quotes, and
-        # this seems to do the trick
-        YEAR = sqlalchemy.literal_column("year")
-        # The year difference here is just the difference between the year
-        # components of the dates and takes no account of the month or day
-        year_diff = sqlalchemy.func.datediff(
-            YEAR, start_date, end_date, type_=sqlalchemy.types.Integer()
+
+        # We do the arithmetic ourselves, to be portable across dbs.
+        start_year = sqlalchemy.func.year(start_date)
+        start_month = sqlalchemy.func.month(start_date)
+        start_day = sqlalchemy.func.day(start_date)
+
+        end_year = sqlalchemy.func.year(end_date)
+        end_month = sqlalchemy.func.month(end_date)
+        end_day = sqlalchemy.func.day(end_date)
+
+        year_diff = end_year - start_year
+
+        date_diff = sqlalchemy.case(
+            (end_month > start_month, year_diff),
+            (
+                sqlalchemy.and_(end_month == start_month, end_day >= start_day),
+                year_diff,
+            ),
+            else_=year_diff - 1,
         )
-        # so we add the resulting number of years back on to the start date
-        start_date_plus_year_diff = sqlalchemy.func.dateadd(
-            YEAR, year_diff, start_date, type_=Date()
-        )
-        # and then adjust it down by one year if this takes us past our end date
-        return sqlalchemy.case(
-            (start_date_plus_year_diff > end_date, year_diff - 1), else_=year_diff
-        )
+        return type_coerce(date_diff, sqlalchemy.types.Integer())
 
     def apply_aggregates(self, query, aggregate_nodes):
         """
