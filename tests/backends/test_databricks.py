@@ -82,6 +82,7 @@ def test_basic_databricks_study_definition(spark_database, setup_databricks_data
     class Cohort:
         population = table("patients").exists()
         dob = table("patients").first_by("patient_id").get("date_of_birth")
+        age = table("patients").age_as_of("2020-01-01")
         prescribed_med = (
             table("prescriptions")
             .filter("processing_date", between=["2020-01-01", "2020-01-31"])
@@ -103,6 +104,18 @@ def test_basic_databricks_study_definition(spark_database, setup_databricks_data
     results.sort(key=lambda i: i.get("patient_id"))
 
     assert results == [
-        dict(patient_id=10, dob=date(1950, 8, 20), prescribed_med=None, admitted=True),
-        dict(patient_id=15, dob=date(1955, 7, 17), prescribed_med=True, admitted=None),
+        dict(
+            patient_id=10,
+            dob=date(1950, 8, 20),
+            age=69,
+            prescribed_med=None,
+            admitted=True,
+        ),
+        dict(
+            patient_id=15,
+            dob=date(1955, 7, 17),
+            age=64,
+            prescribed_med=True,
+            admitted=None,
+        ),
     ]
