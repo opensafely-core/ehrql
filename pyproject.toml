@@ -45,6 +45,41 @@ multi_line_output = 3
 skip_glob = [".direnv", "venv", ".venv"]
 use_parentheses = true
 
+[tool.mypy]
+files = "cohortextractor"
+plugins = [
+  "sqlmypy",
+]
+
+# Consider turning on these stricter options later.  They require a
+# significantly larger number of changes to the codebase so we have decided to
+# work towards them.
+# check_untyped_defs = true
+# disallow_untyped_calls = true
+# disallow_untyped_decorators = true
+# disallow_untyped_defs = true
+
+# https://mypy.readthedocs.io/en/stable/config_file.html#confval-disallow_incomplete_defs
+disallow_incomplete_defs = true
+
+# https://mypy.readthedocs.io/en/stable/config_file.html#confval-no_implicit_optional
+no_implicit_optional = true
+
+# https://mypy.readthedocs.io/en/stable/config_file.html#confval-warn_redundant_casts
+warn_redundant_casts = true
+
+# https://mypy.readthedocs.io/en/stable/config_file.html#confval-warn_unused_ignores
+warn_unused_ignores = true
+
+# https://mypy.readthedocs.io/en/stable/config_file.html#confval-warn_unreachable
+warn_unreachable = true
+
+# https://mypy.readthedocs.io/en/stable/config_file.html#confval-scripts_are_modules
+scripts_are_modules = true
+
+# https://mypy.readthedocs.io/en/stable/config_file.html#confval-show_error_codes
+show_error_codes = true
+
 [tool.pytest.ini_options]
 addopts = "--tb=native --strict-markers"
 markers = [
