@@ -235,6 +235,10 @@ class Row(QueryNode):
         return ValueFromRow(source=self, column=column)
 
 
+# Temporary addition to support comparison of Query Model objects in tests.
+Row.equals = Row.__eq__
+
+
 class Value(QueryNode):
     @staticmethod
     def _other_as_comparator(other):
@@ -283,6 +287,10 @@ class Value(QueryNode):
 class ValueFromRow(Value):
     source: Any
     column: Any
+
+    def equals(self, other):
+        # Temporary addition to support comparison of Query Model objects in tests.
+        return self.source.equals(other.source) and self.column == other.column
 
 
 @dataclass(frozen=True, eq=False, order=False)
