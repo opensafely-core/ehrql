@@ -9,6 +9,8 @@ export PIP := BIN + "/python -m pip"
 export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
 
 
+alias help := list
+
 # list available commands
 list:
     @just --list
@@ -84,14 +86,14 @@ upgrade env package="": _virtualenv
     test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
     $COMPILE $opts --output-file=requirements.{{ env }}.txt requirements.{{ env }}.in
 
-# runs the format (black), sort (isort) and lint (flake8) check but does not change any files
+# runs the format (black), sort (isort) and lint (flake8) checks but does not change any files
 check: devenv
     $BIN/black --check .
     $BIN/isort --check-only --diff .
     $BIN/flake8
 
 
-# fix formatting and import sort ordering
+# runs the format (black) and sort (isort) checks and fixes the files
 fix: devenv
     $BIN/black .
     $BIN/isort .

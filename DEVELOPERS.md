@@ -5,24 +5,14 @@
 - Docker
 
 ## Local development environment
+The `just` command provides a list of available recipes:
+```
+just list
+```
+
 Running any of the test/check/fix `just` commands will setup a local environment and
 install dependencies.
 
-To update dependencies:
-```
-just update dev  # update dev dependencies
-just update prod  # update prod dependencies
-```
-
-To run checks (flake8, black, isort):
-```
-just check
-```
-
-To run black and isort and apply changes:
-```
-just fix
-```
 
 ## Test setup
 
