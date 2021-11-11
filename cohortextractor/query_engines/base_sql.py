@@ -67,6 +67,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     sqlalchemy_dialect = NotImplemented
 
     custom_types = {}
+    type_map = None
 
     # No limit by default although some DBMSs may impose one
     max_rows_per_insert = None
