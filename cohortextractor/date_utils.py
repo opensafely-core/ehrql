@@ -3,6 +3,11 @@ import datetime
 
 
 def cohort_date_range(start=None, end=None, increment="month"):
+    """
+    Generate a series of datetime objects between a given start and/or end date, incrementing
+    by the specified period (month or week).  If only one of start or end date is provided,
+    both start and end date are set to the same value.
+    """
     if increment not in ["month", "week"]:
         raise ValueError(
             f"Unknown time period '{increment}': must be 'week' or 'month'"
@@ -25,6 +30,7 @@ def cohort_date_range(start=None, end=None, increment="month"):
 
 
 def _parse_date(date_str):
+    """Convert the provided date string to a datetime object"""
     if date_str == "today":
         return datetime.date.today()
     else:
@@ -35,9 +41,13 @@ def _parse_date(date_str):
 
 
 def _increment_date(date, period):
+    """Increment a datetime object by the given period"""
     if period == "week":
         return date + datetime.timedelta(days=7)
-    elif period == "month":
+    else:
+        # the entry cohort_date_range function checks that the period is only day/month, but
+        # assert it here in case the allowed periods change in future
+        assert period == "month"
         if date.month < 12:
             try:
                 return date.replace(month=date.month + 1)
@@ -50,5 +60,3 @@ def _increment_date(date, period):
                 return date.replace(day=last_day_of_month)
         else:
             return date.replace(month=1, year=date.year + 1)
-    else:
-        raise ValueError(f"Unknown time period '{period}'")

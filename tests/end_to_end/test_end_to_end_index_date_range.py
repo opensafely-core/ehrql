@@ -1,4 +1,8 @@
+import re
+
 import pytest
+
+from cohortextractor.main import validate_cohort
 
 from ..lib.tpp_schema import ctv3_event, patient, registration
 from .utils import assert_results_equivalent
@@ -32,6 +36,27 @@ def test_extracts_data_with_index_date_range_integration_test(
         setup_backend_database,
         cohort_extractor_in_process,
         expected_number_of_results=3,
+    )
+
+
+@pytest.mark.integration
+def test_cohort_function_without_index_date_range(
+    load_study,
+    setup_backend_database,
+    cohort_extractor_in_process,
+):
+    """A cohort function without an index date range can return a normal, single Cohort class"""
+    study = load_study(
+        "end_to_end_index_date_range",
+        definition_file="cohort_function_without_index_date_range.py",
+        output_file_name="cohort.csv",
+    )
+    run_index_date_range_test(
+        study,
+        setup_backend_database,
+        cohort_extractor_in_process,
+        expected_number_of_results=1,
+        match_output_pattern=False,
     )
 
 
@@ -81,6 +106,7 @@ def run_index_date_range_test(
     setup_backend_database,
     cohort_extractor,
     expected_number_of_results,
+    match_output_pattern=True,
 ):
     setup_backend_database(
         *patient(
@@ -129,7 +155,7 @@ def run_index_date_range_test(
         actual_results,
         study.expected_results(),
         expected_number_of_results,
-        match_output_pattern=True,
+        match_output_pattern=match_output_pattern,
     )
 
 
@@ -148,3 +174,24 @@ def test_dummy_data_with_index_date_range(
         expected_number_of_results=3,
         match_output_pattern=True,
     )
+
+
+def test_validate_cohort_with_index_date_range(
+    load_study, cohort_extractor_in_process_no_database
+):
+    """
+    Validating a cohort should generate a file of SQL-strings for each
+    date in the index date range
+    """
+    study = load_study("end_to_end_index_date_range", output_file_name="cohort_*.sql")
+    actual_results = cohort_extractor_in_process_no_database(
+        study, backend="tpp", action=validate_cohort
+    )
+    results_files = list(actual_results.parent.glob(actual_results.name))
+    assert len(results_files) == 3
+    for results_file in results_files:
+        assert re.match(r"cohort_\d{4}-\d{2}-\d{2}.sql", results_file.name)
+        # validate_cohort succeeds and outputs SQL
+        with open(results_file) as actual_file:
+            actual_data = actual_file.readlines()
+            assert actual_data[0].startswith("SELECT * INTO")
