@@ -181,11 +181,7 @@ def temp_tables(database):
     temp_tables = TempTables(
         engine=database.engine(), database="temp_tables", prefix="temp_"
     )
-    temp_tables.drop_all()
-    try:
-        yield temp_tables
-    finally:
-        temp_tables.drop_all()
+    yield temp_tables
 
 
 class TempTables:
@@ -213,10 +209,3 @@ class TempTables:
             return sorted(
                 row[0] for row in conn.execute(query) if row[0].startswith(self._prefix)
             )
-
-    def drop_all(self):
-        tables = self.list_all()
-        with self.engine.connect() as conn:
-            for table in tables:
-                conn.execute(sqlalchemy.text(f"DROP TABLE {self.database}..{table}"))
-            conn.commit()

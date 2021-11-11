@@ -65,8 +65,7 @@ class Comparator:
         )
 
     def _combine(self, other, conn):
-        if not (isinstance(other, Comparator)):
-            raise TypeError(other)
+        assert isinstance(other, Comparator)
         return type(self)(connector=conn, lhs=self, rhs=other)
 
 

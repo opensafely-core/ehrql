@@ -27,9 +27,6 @@ class Study:
     def dummy_data(self):
         return self._path / self.dummy_data_file
 
-    def path(self, filepath):
-        return self._path / filepath
-
 
 class MeasuresStudy(Study):
     def __init__(

@@ -148,11 +148,9 @@ def fetch_table_in_batches(
             is supplied then `connection` must be a ReconnectableConnection
             instance
     """
-    if reconnect_on_error and not hasattr(connection, "reconnect"):
-        raise ValueError(
-            "Connection must be a ReconnectableConnection if "
-            "`reconnect_on_error` is used"
-        )
+    if reconnect_on_error:
+        msg = "Connection must be a ReconnectableConnection if `reconnect_on_error` is used"
+        assert hasattr(connection, "reconnect"), msg
 
     key = sqlalchemy.Column(key_column)
     retries = 0
