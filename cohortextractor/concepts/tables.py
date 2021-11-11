@@ -7,6 +7,3 @@ class ClinicalEvents(QueryBuilder):
 
     def __init__(table_name):
         super().__init__("clinical_events")
-
-
-clinical_events = ClinicalEvents()

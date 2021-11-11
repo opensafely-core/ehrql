@@ -16,7 +16,7 @@ def test_minimal_cohort_definition():
 
     # new DSL
     cohort = Cohort()
-    events = tables.clinical_events
+    events = tables.ClinicalEvents()
     cohort.code = events.select_column(events.code).make_one_row_per_patient(
         pick_first_value
     )
@@ -38,7 +38,7 @@ def test_filter():
         )
 
     cohort = Cohort()
-    events = tables.clinical_events
+    events = tables.ClinicalEvents()
     cohort.code = (
         events.filter(events.date, greater_than="2021-01-01")
         .select_column(events.code)
