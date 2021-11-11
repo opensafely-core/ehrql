@@ -4,10 +4,11 @@ from pathlib import Path
 import numpy
 import pandas
 import pytest
-from lib.util import RecordingReporter, null_reporter
 
 import cohortextractor.measure as measure
 from cohortextractor.measure import Measure, combine_csv_files_with_dates
+
+from .lib.util import RecordingReporter, null_reporter
 
 
 def test_calculates_quotients():

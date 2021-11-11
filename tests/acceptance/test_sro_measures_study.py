@@ -2,7 +2,15 @@ import calendar
 from pathlib import Path
 
 import pytest
-from codelists import (
+
+from cohortextractor import Measure, cohort_date_range, table
+from cohortextractor.backends import GraphnetBackend, TPPBackend
+from cohortextractor.main import get_measures
+from cohortextractor.measure import MeasuresManager
+
+from ..lib import graphnet_schema, tpp_schema
+from ..lib.util import extract
+from .codelists import (
     alt_codelist,
     asthma_codelist,
     cholesterol_codelist,
@@ -15,13 +23,6 @@ from codelists import (
     systolic_bp_codelist,
     tsh_codelist,
 )
-from lib import graphnet_schema, tpp_schema
-from lib.util import extract
-
-from cohortextractor import Measure, cohort_date_range, table
-from cohortextractor.backends import GraphnetBackend, TPPBackend
-from cohortextractor.main import get_measures
-from cohortextractor.measure import MeasuresManager
 
 
 index_date_range = cohort_date_range(

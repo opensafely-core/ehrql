@@ -94,6 +94,7 @@ flake8==4.0.1 \
     # via
     #   -r requirements.dev.in
     #   flake8-builtins
+    #   flake8-no-pep420
 flake8-builtins==1.5.3 \
     --hash=sha256:09998853b2405e98e61d2ff3027c47033adbdc17f9fe44ca58443d876eb00f3b \
     --hash=sha256:7706babee43879320376861897e5d1468e396a40b8918ed7bccf70e5f90b8687
@@ -101,6 +102,10 @@ flake8-builtins==1.5.3 \
 flake8-implicit-str-concat==0.2.0 \
     --hash=sha256:a662364c0389a14f5c94a807eda3ac81ab545ba8d75aa244c022af4a7b121eec \
     --hash=sha256:ea856c22cd8dbd4ecb8d091e92784ce09a3083f1763df895693bf887d21acef5
+    # via -r requirements.dev.in
+flake8-no-pep420==1.2.0 \
+    --hash=sha256:517f85b4030ccbd1bdab5dd5e4f9871d65ca24c1550da682434b5d5024c1a0d4 \
+    --hash=sha256:dbd2cd49597513be5ad4e057256fb633314fd602f3b4b35c0dcea0439facfb7c
     # via -r requirements.dev.in
 freezegun==1.1.0 \
     --hash=sha256:177f9dd59861d871e27a484c3332f35a6e3f5d14626f2bf91be37891f18927f3 \

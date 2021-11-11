@@ -1,8 +1,11 @@
 from datetime import date
 
 import pytest
-from lib.databases import null_database
-from lib.mock_backend import (
+
+from cohortextractor.query_language import categorise, table
+
+from .lib.databases import null_database
+from .lib.mock_backend import (
     CTV3Events,
     MockBackend,
     RegistrationHistory,
@@ -10,9 +13,7 @@ from lib.mock_backend import (
     patient,
     positive_test,
 )
-from lib.util import extract, make_codelist
-
-from cohortextractor.query_language import categorise, table
+from .lib.util import extract, make_codelist
 
 
 def test_backend_tables():
