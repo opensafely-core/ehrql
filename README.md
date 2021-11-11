@@ -25,6 +25,8 @@ To run the latest version via Docker and access its full help:
 
 Please see [the additional information](DEVELOPERS.md).
 
+There is also [a glossary](GLOSSARY.md) of terms used in the codebase.
+
 # About the OpenSAFELY framework
 
 The OpenSAFELY framework is a Trusted Research Environment (TRE) for electronic
