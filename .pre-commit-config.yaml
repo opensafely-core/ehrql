@@ -21,11 +21,6 @@ repos:
     - id: isort
       language_version: python3.9
 
-  - repo: https://github.com/econchick/interrogate
-    rev: 1.4.0
-    hooks:
-    - id: interrogate
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:
