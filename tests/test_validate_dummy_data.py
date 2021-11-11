@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-from lib.csv_utils import is_csv_filename, write_rows_to_csv
 
 from cohortextractor import codelist, table
 from cohortextractor.validate_dummy_data import (
@@ -9,6 +8,8 @@ from cohortextractor.validate_dummy_data import (
     DummyDataValidationError,
     validate_dummy_data,
 )
+
+from .lib.csv_utils import is_csv_filename, write_rows_to_csv
 
 
 cl = codelist(["12345"], system="snomed")

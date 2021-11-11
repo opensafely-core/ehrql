@@ -1,6 +1,7 @@
 import pytest
-from end_to_end.utils import assert_results_equivalent
-from lib.graphnet_schema import ClinicalEvents, Patients, PracticeRegistrations
+
+from ..lib.graphnet_schema import ClinicalEvents, Patients, PracticeRegistrations
+from .utils import assert_results_equivalent
 
 
 @pytest.mark.smoke

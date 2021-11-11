@@ -1,6 +1,7 @@
 import pytest
-from end_to_end.utils import assert_results_equivalent
-from lib.tpp_schema import ctv3_event, patient, registration
+
+from ..lib.tpp_schema import ctv3_event, patient, registration
+from .utils import assert_results_equivalent
 
 
 @pytest.mark.smoke

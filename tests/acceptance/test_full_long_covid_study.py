@@ -2,14 +2,12 @@ from datetime import date, datetime
 from pathlib import Path
 
 import pytest
-from codelists import (
-    any_long_covid_code,
-    any_primary_care_code,
-    covid_codes,
-    ethnicity_codes,
-    post_viral_fatigue_codes,
-)
-from lib.tpp_schema import (
+
+from cohortextractor import categorise, codelist, table
+from cohortextractor.backends import TPPBackend
+from cohortextractor.validate_dummy_data import validate_dummy_data
+
+from ..lib.tpp_schema import (
     apcs,
     ctv3_event,
     negative_test,
@@ -20,11 +18,14 @@ from lib.tpp_schema import (
     registration,
     snomed_event,
 )
-from lib.util import extract
-
-from cohortextractor import categorise, codelist, table
-from cohortextractor.backends import TPPBackend
-from cohortextractor.validate_dummy_data import validate_dummy_data
+from ..lib.util import extract
+from .codelists import (
+    any_long_covid_code,
+    any_primary_care_code,
+    covid_codes,
+    ethnicity_codes,
+    post_viral_fatigue_codes,
+)
 
 
 pandemic_start = "2020-02-01"

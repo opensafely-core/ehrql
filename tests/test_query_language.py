@@ -1,5 +1,4 @@
 import pytest
-from lib.util import make_codelist
 
 from cohortextractor.codelistlib import Codelist
 from cohortextractor.query_language import (
@@ -11,6 +10,8 @@ from cohortextractor.query_language import (
     table,
 )
 from cohortextractor.query_utils import get_column_definitions
+
+from .lib.util import make_codelist
 
 
 def test_cohort_filter_table_codelist_validation():

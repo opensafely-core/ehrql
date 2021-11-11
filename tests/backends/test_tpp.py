@@ -1,7 +1,11 @@
 from datetime import date, datetime
 
 import pytest
-from lib.tpp_schema import (
+
+from cohortextractor import codelist, table
+from cohortextractor.backends.tpp import TPPBackend
+
+from ..lib.tpp_schema import (
     CTV3Events,
     Patient,
     RegistrationHistory,
@@ -14,10 +18,7 @@ from lib.tpp_schema import (
     patient_address,
     registration,
 )
-from lib.util import extract
-
-from cohortextractor import codelist, table
-from cohortextractor.backends.tpp import TPPBackend
+from ..lib.util import extract
 
 
 @pytest.mark.integration

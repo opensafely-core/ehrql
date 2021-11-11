@@ -2,9 +2,10 @@ import shutil
 from pathlib import Path
 
 import pytest
-from end_to_end.utils import MeasuresStudy, Study
 
 from cohortextractor.main import generate_cohort, generate_measures, run_cohort_action
+
+from .utils import MeasuresStudy, Study
 
 
 @pytest.fixture

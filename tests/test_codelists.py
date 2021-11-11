@@ -1,10 +1,11 @@
 from pathlib import Path
 
 import pytest
-from lib.mock_backend import MockBackend, ctv3_event, patient
-from lib.util import extract
 
 from cohortextractor import codelist, codelist_from_csv, combine_codelists, table
+
+from .lib.mock_backend import MockBackend, ctv3_event, patient
+from .lib.util import extract
 
 
 @pytest.fixture

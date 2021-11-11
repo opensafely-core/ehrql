@@ -1,7 +1,11 @@
 from datetime import date, datetime
 
 import pytest
-from lib.graphnet_schema import (
+
+from cohortextractor import table
+from cohortextractor.backends.graphnet import GraphnetBackend
+
+from ..lib.graphnet_schema import (
     ClinicalEvents,
     CovidTestResults,
     Patients,
@@ -11,10 +15,7 @@ from lib.graphnet_schema import (
     patient_address,
     registration,
 )
-from lib.util import extract
-
-from cohortextractor import table
-from cohortextractor.backends.graphnet import GraphnetBackend
+from ..lib.util import extract
 
 
 @pytest.mark.integration

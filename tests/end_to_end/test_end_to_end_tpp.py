@@ -1,8 +1,9 @@
 import pytest
-from end_to_end.utils import assert_results_equivalent
-from lib.tpp_schema import CTV3Events, Patient, RegistrationHistory
 
 from cohortextractor.main import validate_cohort
+
+from ..lib.tpp_schema import CTV3Events, Patient, RegistrationHistory
+from .utils import assert_results_equivalent
 
 
 @pytest.mark.smoke

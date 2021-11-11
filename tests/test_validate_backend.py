@@ -1,9 +1,10 @@
 import pytest
-from lib.mock_backend import MockBackend
 
 from cohortextractor import table
 from cohortextractor.backends import TPPBackend
 from cohortextractor.main import validate
+
+from .lib.mock_backend import MockBackend
 
 
 def test_validate_with_error():
