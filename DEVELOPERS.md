@@ -78,7 +78,7 @@ all SQL queries logged to the console.
 
 ## macOS / Bash
 
-Starting with version 4.0, Bash is licenced under GPLv3. Because of this, macOS still ships with version 3.2, which is incompatible with some scripts in this repository. We recommend using [homebrew](https://brew.sh/) to install a more recent version, and then ensure that it is on your `$PATH`.
+Starting with version 4.0, Bash is licenced under GPLv3. Because of this, macOS still ships with version 3.2, which is incompatible with some scripts in this repository. We recommend using [homebrew](https://brew.sh/) to install a more recent version, ensure that the new version is on your `$PATH`, and restart your Terminal/shell session if necessary.
 
 ```bash
 brew install bash
