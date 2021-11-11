@@ -24,6 +24,23 @@ def test_minimal_cohort_definition():
 
     assert cohort in cohort_registry.cohorts
     (registered_cohort,) = cohort_registry.cohorts
-    assert get_column_definitions(registered_cohort) == get_column_definitions(
-        OldCohort
-    )
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def assert_cohorts_equivalent(dsl_cohort, qm_cohort):
+    """Verify that a cohort defined via Query Model objects has the same columns as a
+    cohort defined via the DSL.
+
+    Since some Query Model objects override `.__eq__`, we cannot compare two objects
+    with `==`.  Instead, we compare their represenations, which, thanks to dataclasses,
+    contain all the information we need to compare for equality.
+    """
+
+    # Cohorts are equivalent if they have the same columns...
+    dsl_col_defs = get_column_definitions(dsl_cohort)
+    qm_col_defs = get_column_definitions(qm_cohort)
+    assert dsl_col_defs.keys() == qm_col_defs.keys()
+
+    # ...and if the columns are the same.
+    for k in dsl_col_defs:
+        assert repr(dsl_col_defs[k]) == repr(qm_col_defs[k])
