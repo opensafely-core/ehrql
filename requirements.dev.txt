@@ -9,6 +9,7 @@ attrs==20.3.0 \
     --hash=sha256:832aa3cde19744e49938b91fea06d69ecb9e649c93ba974535d08ad92164f700
     # via
     #   flake8-implicit-str-concat
+    #   interrogate
     #   pytest
 backports.entry-points-selectable==1.1.0 \
     --hash=sha256:988468260ec1c196dab6ae1149260e2f5472c9110334e5d51adcb77867361f6a \
@@ -33,7 +34,13 @@ charset-normalizer==2.0.6 \
 click==8.0.3 \
     --hash=sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3 \
     --hash=sha256:410e932b050f5eed773c4cda94de75971c89cdb3155a72a0831139a79e5ecb5b
-    # via black
+    # via
+    #   black
+    #   interrogate
+colorama==0.4.4 \
+    --hash=sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b \
+    --hash=sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2
+    # via interrogate
 coverage[toml]==6.0.1 \
     --hash=sha256:07efe1fbd72e67df026ad5109bcd216acbbd4a29d5208b3dab61779bae6b7b26 \
     --hash=sha256:0898d6948b31df13391cd40568de8f35fa5901bc922c5ae05cf070587cb9c666 \
@@ -111,6 +118,10 @@ iniconfig==1.1.1 \
     --hash=sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3 \
     --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32
     # via pytest
+interrogate==1.5.0 \
+    --hash=sha256:a4ccc5cbd727c74acc98dee6f5e79ef264c0bcfa66b68d4e123069b2af89091a \
+    --hash=sha256:b6f325f0aa84ac3ac6779d8708264d366102226c5af7d69058cecffcff7a6d6c
+    # via -r requirements.dev.in
 isort==5.10.0 \
     --hash=sha256:1a18ccace2ed8910bd9458b74a3ecbafd7b2f581301b0ab65cfdd4338272d76f \
     --hash=sha256:e52ff6d38012b131628cf0f26c51e7bd3a7c81592eefe3ac71411e692f1b9345
@@ -156,7 +167,9 @@ pre-commit==2.15.0 \
 py==1.10.0 \
     --hash=sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3 \
     --hash=sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a
-    # via pytest
+    # via
+    #   interrogate
+    #   pytest
 pycodestyle==2.8.0 \
     --hash=sha256:720f8b39dde8b293825e7ff02c475f3077124006db4f440dcbc9a20b76548a20 \
     --hash=sha256:eddd5847ef438ea1c7870ca7eb78a9d47ce0cdb4851a5523949f2601d0cbbe7f
@@ -281,10 +294,15 @@ six==1.16.0 \
     #   -r requirements.dev.in
     #   python-dateutil
     #   virtualenv
+tabulate==0.8.9 \
+    --hash=sha256:d7c013fe7abbc5e491394e10fa845f8f32fe54f8dc60c6622c6cf482d25d47e4 \
+    --hash=sha256:eb1d13f25760052e8931f2ef80aaf6045a6cceb47514db8beab24cded16f13a7
+    # via interrogate
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via
+    #   interrogate
     #   pre-commit
     #   pytest
 tomli==1.2.1 \

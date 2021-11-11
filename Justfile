@@ -89,6 +89,7 @@ check: devenv
     $BIN/black --check .
     $BIN/isort --check-only --diff .
     $BIN/flake8
+    $BIN/interrogate cohortextractor
 
 
 # fix formatting and import sort ordering
