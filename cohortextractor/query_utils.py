@@ -16,11 +16,11 @@ def get_cohort_variables(cohort):
     ]
 
 
-def get_column_definitions(cohort_class):
-    if isinstance(cohort_class, CohortConcept):
-        variables = get_cohort_variables(cohort_class)
+def get_column_definitions(cohort):
+    if isinstance(cohort, CohortConcept):
+        variables = get_cohort_variables(cohort)
     else:
-        variables = get_class_vars(cohort_class)
+        variables = get_class_vars(cohort)
     columns = {}
     ignored_names = ["measures", "BASE_INDEX_DATE"]
     for name, value in variables:

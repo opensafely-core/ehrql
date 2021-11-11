@@ -27,6 +27,27 @@ def test_minimal_cohort_definition():
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
+def test_filter():
+    class OldCohort:
+        # Define tables of interest, filtered to relevant values
+        code = (
+            table("clinical_events")
+            .filter("date", greater_than="2021-01-01")
+            .first_by("date")
+            .get("code")
+        )
+
+    cohort = Cohort()
+    events = tables.clinical_events
+    cohort.code = (
+        events.filter(events.date, greater_than="2021-01-01")
+        .select_column(events.code)
+        .make_one_row_per_patient(pick_first_value)
+    )
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
 def assert_cohorts_equivalent(dsl_cohort, qm_cohort):
     """Verify that a cohort defined via Query Model objects has the same columns as a
     cohort defined via the DSL.
