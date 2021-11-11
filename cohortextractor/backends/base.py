@@ -30,6 +30,11 @@ class BaseBackend:
                 cls.tables.add(name)
                 value.learn_patient_join(cls.patient_join_column)
                 value.learn_type_map(cls.query_engine_class.type_map)
+                # Validate that the table correctly implements the contract it claims
+                # to, if any
+                contract = value.implements
+                if contract:
+                    contract.validate_implementation(cls, name, value)
 
     def __init__(self, database_url, temporary_database=None):
         self.database_url = database_url
