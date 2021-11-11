@@ -1,7 +1,7 @@
 import sqlalchemy
 import sqlalchemy.orm
 
-from cohortextractor.backends.base import BaseBackend, Column, MappedTable
+from cohortextractor.backends.base import BaseBackend, Column, MappedTable, QueryTable
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 
 
@@ -34,12 +34,16 @@ class MockBackend(BaseBackend):
             result=Column("float", source="ResultValue"),
         ),
     )
-    positive_tests = MappedTable(
-        source="pos_tests",
+
+    positive_tests = QueryTable(
         columns=dict(
-            result=Column("boolean", source="PositiveResult"),
-            test_date=Column("date", source="TestDate"),
+            patient_id=Column("integer"),
+            result=Column("boolean"),
+            test_date=Column("date"),
         ),
+        query="""
+            SELECT PatientID as patient_id, PositiveResult as result, TestDate as test_date FROM all_tests
+        """,
     )
 
 
@@ -69,16 +73,17 @@ def ctv3_event(code, date=None, value=None, system="ctv3"):
     return CTV3Events(EventCode=code, Date=date, ResultValue=value, System=system)
 
 
-class PositiveTests(Base):
-    __tablename__ = "pos_tests"
+class AllTests(Base):
+    __tablename__ = "all_tests"
     Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     PatientId = sqlalchemy.Column(sqlalchemy.Integer)
     PositiveResult = sqlalchemy.Column(sqlalchemy.Boolean)
+    NegativeResult = sqlalchemy.Column(sqlalchemy.Boolean)
     TestDate = sqlalchemy.Column(sqlalchemy.Date)
 
 
 def positive_test(result, test_date=None):
-    return PositiveTests(PositiveResult=result, TestDate=test_date)
+    return AllTests(PositiveResult=result, TestDate=test_date)
 
 
 class Patients(Base):
