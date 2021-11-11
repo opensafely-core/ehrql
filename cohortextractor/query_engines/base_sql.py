@@ -674,6 +674,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @contextlib.contextmanager
     def execute_query(self):
         queries = self.get_queries()
+
+        debug = os.environ.get('DEBUG_LOG_SQL', default="0") == "1"
+        if debug:
+            print()
+            print("-" * 50, "execute_queries", "-" * 50)
+            for sql in queries:
+                print("\t", sql)
+                print()
+            print("-" * 50, "end execute_queries", "-" * 50)
+
         with self.engine.connect() as cursor:
             for query in queries:
                 result = cursor.execute(query)
