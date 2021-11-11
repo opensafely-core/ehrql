@@ -3,6 +3,7 @@
 ## System requirements
 - [just](https://github.com/casey/just)
 - Docker
+- recent version of Bash (see macOS notes)
 
 ## Local development environment
 Running any of the test/check/fix `just` commands will setup a local environment and
@@ -74,3 +75,11 @@ just remove-persistent-database
 
 Set the environment variable `LOG_SQL=1` (or anything non-empty) to get
 all SQL queries logged to the console.
+
+## macOS / Bash
+
+Starting with version 4.0, Bash is licenced under GPLv3. Because of this, macOS still ships with version 3.2, which is incompatible with some scripts in this repository. We recommend using [homebrew](https://brew.sh/) to install a more recent version, and then ensure that it is on your `$PATH`.
+
+```bash
+brew install bash
+```
