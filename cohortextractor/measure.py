@@ -281,7 +281,7 @@ def combine_csv_files_with_dates(output_filepath, measure_id):
                     reader = csv.reader(input_csvfile)
                     if next(reader) != headers:
                         raise RuntimeError(
-                            f"Files {input_files[0]} and {input_file} have different headers"
+                            f"Files {input_files[0][1]} and {input_file} have different headers"
                         )
                     for row in reader:
                         writer.writerow(row + [file_date])

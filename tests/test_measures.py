@@ -78,6 +78,35 @@ def test_groups_by_multiple_columns():
     assert result.iloc[2]["fish"] == 80
 
 
+@pytest.mark.parametrize(
+    "group_by,error",
+    [
+        ("fish", "Column 'fish' appears in both numerator and group_by"),
+        ("litres", "Column 'litres' appears in both denominator and group_by"),
+    ],
+)
+def test_cant_group_by_numerator_or_denominator(group_by, error):
+    with pytest.raises(ValueError, match=error):
+        Measure("ignored-id", numerator="fish", denominator="litres", group_by=group_by)
+
+
+def test_can_group_by_population():
+    """Grouping by the special population variable returns one row for the whole dataset"""
+    m = Measure(
+        "ignored-id", numerator="fish", denominator="population", group_by="population"
+    )
+    data = pandas.DataFrame(
+        {
+            "fish": [4, 5, 2, 2, 3, 2],
+            "litres": [2, 2, 2, 2, 3, 3],
+            "population": [1, 1, 1, 1, 1, 1],
+        }
+    )
+    result = calculate(m, data)
+    assert len(result) == 1
+    assert dict(result.iloc[0]) == {"fish": 18.0, "population": 6.0, "value": 3.0}
+
+
 def test_throws_away_unused_columns():
     m = Measure("ignored-id", numerator="fish", denominator="litres")
     data = pandas.DataFrame(
@@ -362,3 +391,19 @@ def test_csv_merging(
     with open(expected_file) as infile:
         df = pandas.read_csv(infile)
         assert df.to_dict("records") == expected_contents
+
+
+def test_csv_merging_with_mismtched_headers(tmpdir):
+    fixtures_dir = Path(__file__).parent.absolute() / "fixtures" / "csv_date_merging"
+    for file in fixtures_dir.iterdir():
+        shutil.copy(file, tmpdir)
+    output_dir = Path(tmpdir)
+    output_file = output_dir / "measure_*.csv"
+
+    assert not (output_dir / "measure_test_error.csv").exists()
+
+    with pytest.raises(
+        RuntimeError,
+        match="Files .+/measure_test_error_2021-01-01.csv and .+/measure_test_error_2021-02-01.csv have different headers",
+    ):
+        combine_csv_files_with_dates(output_file, "test_error")
