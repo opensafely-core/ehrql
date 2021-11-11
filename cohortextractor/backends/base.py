@@ -51,7 +51,7 @@ class SQLTable:
 
     def _make_columns(self):
         return [
-            self._make_column(name, column) for name, column in self._columns.items()
+            self._make_column(name, column) for name, column in self.columns.items()
         ]
 
     def _make_column(self, name, column):
@@ -64,14 +64,15 @@ class SQLTable:
 
 
 class MappedTable(SQLTable):
-    def __init__(self, source, columns, schema=None):
+    def __init__(self, source, columns, schema=None, implements=None):
         self.source = source
-        self._columns = columns
+        self.columns = columns
         self._schema = schema
+        self.implements = implements
 
     def learn_patient_join(self, source):
-        if "patient_id" not in self._columns:
-            self._columns["patient_id"] = Column("integer", source)
+        if "patient_id" not in self.columns:
+            self.columns["patient_id"] = Column("integer", source)
 
     def get_query(self):
         columns = self._make_columns()
@@ -82,13 +83,14 @@ class MappedTable(SQLTable):
 
 
 class QueryTable(SQLTable):
-    def __init__(self, query, columns):
+    def __init__(self, query, columns, implements=None):
         self.query = query
-        self._columns = columns
+        self.columns = columns
+        self.implements = implements
 
     def learn_patient_join(self, source):
-        if "patient_id" not in self._columns:
-            self._columns["patient_id"] = Column("integer")
+        if "patient_id" not in self.columns:
+            self.columns["patient_id"] = Column("integer")
 
     def get_query(self):
         columns = self._make_columns()
