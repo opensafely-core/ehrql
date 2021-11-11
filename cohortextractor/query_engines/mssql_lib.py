@@ -86,7 +86,7 @@ def fetch_results_in_batches(
             # Check this before we start running hours' worth of queries
             assert_temporary_tables_writable(connection, temp_table_prefix)
             for n, query in enumerate(preparatory_queries):
-                log.info("Running query {n}/{len(queries)}")
+                log.info(f"Running query {n}/{len(queries)}")
                 connection.execute(query)
             # Run the write to temporary table within an explicit transaction
             # so we can't end up in a state where the table exists but is
