@@ -124,15 +124,14 @@ def get_csv_validator(query_node):
         "exists": bool_validator,
         "count": int,
     }
-
-    if (
-        hasattr(query_node, "column")
-        and query_node.column in columns_to_validator_mapping
-    ):
-        return columns_to_validator_mapping[query_node.column]
     if (
         hasattr(query_node, "function")
         and query_node.function in functions_to_validator_mapping
     ):
         return functions_to_validator_mapping[query_node.function]
+    if (
+        hasattr(query_node, "column")
+        and query_node.column in columns_to_validator_mapping
+    ):
+        return columns_to_validator_mapping[query_node.column]
     return str
