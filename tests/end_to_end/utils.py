@@ -37,9 +37,7 @@ class MeasuresStudy(Study):
         output_file_name=None,
         input_pattern=None,
     ):
-        super(MeasuresStudy, self).__init__(
-            study_path, dummy_data_file, definition_file, output_file_name
-        )
+        super().__init__(study_path, dummy_data_file, definition_file, output_file_name)
         self.output_file_name = "measures_*.csv"
         self.input_pattern = input_pattern or "cohort.csv"
 
