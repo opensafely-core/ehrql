@@ -7,11 +7,11 @@ from cohortextractor import query_language
 class QueryBuilder:
     def __init__(self, table_name):
         self.table_name = table_name
-        self.filter_details = None
+        self.filter_details = []
 
     def filter(self, *args, **kwargs):  # noqa: A003
-        filtered = copy.copy(self)
-        filtered.filter_details = (args, kwargs)
+        filtered = copy.deepcopy(self)
+        filtered.filter_details.append((args, kwargs))
         return filtered
 
     def select_column(self, column_name):
@@ -39,8 +39,8 @@ class Variable:
         """Compile the query language Value"""
         table = query_language.table(self.table_name)
         if self.filter:
-            filter_args, filter_kwargs = self.filter
-            table = table.filter(*filter_args, **filter_kwargs)
+            for filter_args, filter_kwargs in self.filter:
+                table = table.filter(*filter_args, **filter_kwargs)
         patient = self.reduce_function(table)
         column = patient.get(self.column_name)
         return column
