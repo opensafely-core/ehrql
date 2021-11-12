@@ -6,9 +6,6 @@ import sqlalchemy.exc
 from cohortextractor.sqlalchemy_drivers import set_driver
 
 
-DEFAULT_MSSQL_PORT = 1433
-
-
 class DbDetails:
     def __init__(
         self,
@@ -58,19 +55,20 @@ def make_database(containers, mssql_dir):
     password = "Your_password123!"
 
     container_name = "cohort-extractor-mssql"
-    published_port = PERSISTENT_DATABASE_PORT
+    mssql_port = 1433
 
     if not containers.is_running(container_name):  # pragma: no cover
-        run_mssql(container_name, containers, mssql_dir, password, published_port)
+        run_mssql(container_name, containers, mssql_dir, password, mssql_port)
 
     container_ip = containers.get_container_ip(container_name)
+    host_mssql_port = containers.get_mapped_port_for_host(container_name, mssql_port)
 
     return DbDetails(
         protocol="mssql",
         host_from_container=container_ip,
-        port_from_container=DEFAULT_MSSQL_PORT,
+        port_from_container=mssql_port,
         host_from_host="localhost",
-        port_from_host=published_port,
+        port_from_host=host_mssql_port,
         username="SA",
         password=password,
         db_name="test",
@@ -101,11 +99,8 @@ def wait_for_database(database, timeout=10):
             time.sleep(1)
 
 
-PERSISTENT_DATABASE_PORT = 49151
-
-
 def run_mssql(
-    container_name, containers, mssql_dir, password, published_port
+    container_name, containers, mssql_dir, password, mssql_port
 ):  # pragma: no cover
     containers.run_bg(
         name=container_name,
@@ -113,8 +108,13 @@ def run_mssql(
         volumes={
             mssql_dir: {"bind": "/mssql", "mode": "ro"},
         },
-        ports={f"{DEFAULT_MSSQL_PORT}/TCP": published_port},
-        environment={"SA_PASSWORD": password, "ACCEPT_EULA": "Y"},
+        # Choose an arbitrary free port to publish the MSSQL port on
+        ports={mssql_port: None},
+        environment={
+            "SA_PASSWORD": password,
+            "ACCEPT_EULA": "Y",
+            "MSSQL_TCP_PORT": str(mssql_port),
+        },
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
     )
