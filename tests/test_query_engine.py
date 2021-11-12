@@ -390,6 +390,30 @@ def test_simple_filters(database, setup_test_database, data, filtered_table, exp
     assert extract(Cohort, MockBackend, database) == expected
 
 
+@pytest.mark.parametrize(
+    "filter_value", [[170, 180], (170, 180), {170, 180}, ("170", "180")]
+)
+def test_is_in_filter(database, setup_test_database, filter_value):
+    data = [
+        *patient(1, ctv3_event("Code1", "2021-01-01", 10), height=180),  # in
+        *patient(2, ctv3_event("Code2", "2021-01-02", 20), height=170),  # not in
+    ]
+
+    setup_test_database(data)
+
+    class Cohort:
+        _filtered_table = table("patients").filter("height", is_in=filter_value)
+        population = _filtered_table.exists()
+        _filtered = _filtered_table.first_by("patient_id")
+        height = _filtered.get("height")
+
+    expected = [
+        dict(patient_id=1, height=180),
+        dict(patient_id=2, height=170),
+    ]
+    assert extract(Cohort, MockBackend, database) == expected
+
+
 @pytest.mark.integration
 @pytest.mark.parametrize(
     "filtered_table,expected",
