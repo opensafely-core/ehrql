@@ -14,7 +14,7 @@ class Containers:
     def is_running(self, name):
         try:
             container = self.get_container(name)
-            return container.status == "running"
+            return container.status == "running"  # pragma: no cover
         except docker.errors.NotFound:  # pragma: no cover
             return False
 
