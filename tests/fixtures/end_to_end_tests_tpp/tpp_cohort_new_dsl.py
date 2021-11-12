@@ -3,7 +3,7 @@ from cohortextractor.definition import Cohort, pick_first_value, register
 
 
 cohort = Cohort()
-events = tables.clinical_events
+events = tables.ClinicalEvents()
 cohort.date = events.select_column(events.date).make_one_row_per_patient(
     pick_first_value
 )

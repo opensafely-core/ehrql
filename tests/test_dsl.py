@@ -20,10 +20,71 @@ def test_minimal_cohort_definition():
     cohort.code = events.select_column(events.code).make_one_row_per_patient(
         pick_first_value
     )
-    register(cohort)
 
+    register(cohort)
     assert cohort in cohort_registry.cohorts
-    (registered_cohort,) = cohort_registry.cohorts
-    assert get_column_definitions(registered_cohort) == get_column_definitions(
-        OldCohort
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def test_filter():
+    class OldCohort:
+        # Define tables of interest, filtered to relevant values
+        code = (
+            table("clinical_events")
+            .filter("date", greater_than="2021-01-01")
+            .first_by("date")
+            .get("code")
+        )
+
+    cohort = Cohort()
+    events = tables.clinical_events
+    cohort.code = (
+        events.filter(events.date, greater_than="2021-01-01")
+        .select_column(events.code)
+        .make_one_row_per_patient(pick_first_value)
     )
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def test_multiple_filters():
+    class OldCohort:
+        # Define tables of interest, filtered to relevant values
+        code = (
+            table("clinical_events")
+            .filter("date", greater_than="2021-01-01")
+            .filter("date", less_than="2021-10-10")
+            .first_by("date")
+            .get("code")
+        )
+
+    cohort = Cohort()
+    events = tables.clinical_events
+    cohort.code = (
+        events.filter(events.date, greater_than="2021-01-01")
+        .filter(events.date, less_than="2021-10-10")
+        .select_column(events.code)
+        .make_one_row_per_patient(pick_first_value)
+    )
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def assert_cohorts_equivalent(dsl_cohort, qm_cohort):
+    """Verify that a cohort defined via Query Model objects has the same columns as a
+    cohort defined via the DSL.
+
+    Since some Query Model objects override `.__eq__`, we cannot compare two objects
+    with `==`.  Instead, we compare their representations, which, thanks to dataclasses,
+    contain all the information we need to compare for equality.
+    """
+
+    # Cohorts are equivalent if they have the same columns...
+    dsl_col_defs = get_column_definitions(dsl_cohort)
+    qm_col_defs = get_column_definitions(qm_cohort)
+    assert dsl_col_defs.keys() == qm_col_defs.keys()
+
+    # ...and if the columns are the same.
+    for k in dsl_col_defs:
+        assert repr(dsl_col_defs[k]) == repr(qm_col_defs[k])
