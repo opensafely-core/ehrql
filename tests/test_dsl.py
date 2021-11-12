@@ -20,10 +20,10 @@ def test_minimal_cohort_definition():
     cohort.code = events.select_column(events.code).make_one_row_per_patient(
         pick_first_value
     )
-    register(cohort)
 
+    register(cohort)
     assert cohort in cohort_registry.cohorts
-    (registered_cohort,) = cohort_registry.cohorts
+
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
