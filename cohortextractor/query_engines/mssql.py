@@ -24,8 +24,8 @@ class _MSSQLDateTimeBase:
         Convert a Python value to a form suitable for passing as a parameter to
         the database connector
         """
-        if value is None:
-            return None
+        # Note that None values will be cooerced to IS/IS NOT expressions by
+        # sqlalchemy.type.TypeDecorator so we don't need to deal with them here
         # We accept ISO formated strings as well
         if isinstance(value, str):
             value = self.date_type.fromisoformat(value)
