@@ -1,10 +1,13 @@
 import contextlib
 from collections import defaultdict
+from types import ModuleType
+from typing import Union
 
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
 import sqlalchemy.types
+from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.sql.expression import type_coerce
 
 from ..query_language import (
@@ -64,7 +67,7 @@ def get_primary_table(query):
 
 class BaseSQLQueryEngine(BaseQueryEngine):
 
-    sqlalchemy_dialect = NotImplemented
+    sqlalchemy_dialect: Union[type[Dialect], ModuleType]
 
     custom_types = {}
     type_map = None
@@ -74,7 +77,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        assert cls.sqlalchemy_dialect != NotImplemented
+        assert cls.sqlalchemy_dialect is not None
         cls.type_map = {**DEFAULT_TYPES, **cls.custom_types}
 
     def __init__(self, column_definitions, backend):
