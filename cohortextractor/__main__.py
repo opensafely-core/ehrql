@@ -3,6 +3,7 @@ import sys
 from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
+from .backends import BACKENDS
 from .main import generate_cohort, generate_measures, run_cohort_action, validate_cohort
 
 
@@ -80,7 +81,7 @@ def build_parser():
     validate_cohort_parser.add_argument(
         "backend",
         type=str,
-        choices=["tpp", "graphnet"],
+        choices=BACKENDS,  # allow all registered backend subclasses
     )
     validate_cohort_parser.add_argument(
         "--cohort-definition",
