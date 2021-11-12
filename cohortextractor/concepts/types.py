@@ -10,6 +10,6 @@ class Date(BaseType):
     pass
 
 
-class Choice:
+class Choice(BaseType):
     def __init__(self, *choices):
         self.choices = choices
