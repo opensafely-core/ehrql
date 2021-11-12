@@ -123,7 +123,8 @@ connect-to-persistent-database:
     docker exec -it cohort-extractor-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
 
 # Full set of tests run by CI
-test: test-all
+test *ARGS:
+    just test-all {{ ARGS }}
 
 # run the unit tests only. Optional args are passed to pytest
 test-unit *ARGS: devenv
