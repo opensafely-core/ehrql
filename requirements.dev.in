@@ -16,5 +16,6 @@ pytest
 pytest-cov
 pytest-freezegun
 pytest-mock
+pyupgrade
 docker
 six # undeclared dependency of docker (https://github.com/docker/docker-py/issues/2842)

@@ -213,6 +213,10 @@ python-dateutil==2.8.2 \
     # via
     #   -c requirements.prod.txt
     #   freezegun
+pyupgrade==2.29.0 \
+    --hash=sha256:04938c7e8e4e8b476ae2b727306ecfaea95a83b707acbe6929864100dd6d9701 \
+    --hash=sha256:27bfbc38854a40a70767ef6cbf3bf133c5472557905f0f9fe7ba5f58975701e4
+    # via -r requirements.dev.in
 pyyaml==5.4.1 \
     --hash=sha256:08682f6b72c722394747bddaf0aa62277e02557c0fd1c42cb853016a38f8dedf \
     --hash=sha256:0f5f5786c0e09baddcd8b4b45f20a7b5d61a7e7e99846e3c799b05c7c53fa696 \
@@ -303,6 +307,10 @@ tabulate==0.8.9 \
     --hash=sha256:d7c013fe7abbc5e491394e10fa845f8f32fe54f8dc60c6622c6cf482d25d47e4 \
     --hash=sha256:eb1d13f25760052e8931f2ef80aaf6045a6cceb47514db8beab24cded16f13a7
     # via interrogate
+tokenize-rt==4.2.1 \
+    --hash=sha256:08a27fa032a81cf45e8858d0ac706004fcd523e8463415ddf1442be38e204ea8 \
+    --hash=sha256:0d4f69026fed520f8a1e0103aa36c406ef4661417f20ca643f913e33531b3b94
+    # via pyupgrade
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
