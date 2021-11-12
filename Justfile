@@ -92,6 +92,9 @@ check: devenv
     $BIN/isort --check-only --diff .
     $BIN/flake8
     $BIN/interrogate cohortextractor
+    $BIN/pyupgrade --py39-plus --keep-percent-format \
+        $(find cohortextractor -name "*.py" -type f) \
+        $(find tests -name "*.py" -type f)
 
 
 # runs the format (black) and sort (isort) checks and fixes the files
