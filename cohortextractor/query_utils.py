@@ -27,7 +27,9 @@ def get_column_definitions(cohort_class):
         if name.startswith("_") or name in ignored_names:
             continue
         if not isinstance(value, Value):
-            raise ValueError(f"Cohort variable '{name}' is not a Value")
+            raise TypeError(
+                f"Cohort variable '{name}' is not a Value (type='{type(value).__name__}')"
+            )
         columns[name] = value
     return columns
 
