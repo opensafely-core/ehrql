@@ -1,18 +1,21 @@
 """The interface between the DSL and the query language (semantic model)"""
+import copy
+
 from cohortextractor import query_language
 
 
 class QueryBuilder:
     def __init__(self, table_name):
         self.table_name = table_name
-        self._filter = None
+        self.filter_details = None
 
     def filter(self, *args, **kwargs):  # noqa: A003
-        self._filter = (args, kwargs)
-        return self
+        filtered = copy.copy(self)
+        filtered.filter_details = (args, kwargs)
+        return filtered
 
     def select_column(self, column_name):
-        return Column(self.table_name, self._filter, column_name)
+        return Column(self.table_name, self.filter_details, column_name)
 
 
 class Column:

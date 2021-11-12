@@ -16,7 +16,7 @@ def test_minimal_cohort_definition():
 
     # new DSL
     cohort = Cohort()
-    events = tables.ClinicalEvents()
+    events = tables.clinical_events
     cohort.code = events.select_column(events.code).make_one_row_per_patient(
         pick_first_value
     )
@@ -38,7 +38,7 @@ def test_filter():
         )
 
     cohort = Cohort()
-    events = tables.ClinicalEvents()
+    events = tables.clinical_events
     cohort.code = (
         events.filter(events.date, greater_than="2021-01-01")
         .select_column(events.code)
@@ -53,7 +53,7 @@ def assert_cohorts_equivalent(dsl_cohort, qm_cohort):
     cohort defined via the DSL.
 
     Since some Query Model objects override `.__eq__`, we cannot compare two objects
-    with `==`.  Instead, we compare their represenations, which, thanks to dataclasses,
+    with `==`.  Instead, we compare their representations, which, thanks to dataclasses,
     contain all the information we need to compare for equality.
     """
 

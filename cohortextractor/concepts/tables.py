@@ -5,5 +5,8 @@ class ClinicalEvents(QueryBuilder):
     code = "code"
     date = "date"
 
-    def __init__(table_name):
+    def __init__(self):
         super().__init__("clinical_events")
+
+
+clinical_events = ClinicalEvents()
