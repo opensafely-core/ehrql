@@ -69,7 +69,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     sqlalchemy_dialect: Union[type[Dialect], ModuleType]
 
-    custom_types = {}
+    custom_types: dict[str, type[sqlalchemy.types.TypeDecorator]] = {}
     type_map = None
 
     # No limit by default although some DBMSs may impose one
