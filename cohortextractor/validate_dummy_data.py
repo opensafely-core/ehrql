@@ -39,20 +39,16 @@ def validate_file_extension(output_file, dummy_data_file):
     """Raise DummyDataValidationError if dummy data file does not have expected file extension."""
     if output_file.suffixes != dummy_data_file.suffixes:
         expected_extension = "".join(output_file.suffixes)
-        msg = f"Expected dummy data file with extension {expected_extension}; got {dummy_data_file}"
+        msg = f"Expected dummy data file with extension {expected_extension}; got {dummy_data_file.name}"
         raise DummyDataValidationError(msg)
 
 
 def read_into_dataframe(path):
     """Read data from path into a Pandas DataFrame."""
-
     try:
         suffixes = ".".join([suffix.strip(".") for suffix in path.suffixes])
-        if suffixes in SUPPORTED_FILE_FORMATS:
-            return pd.read_csv(path)
-        else:
-            msg = f"Dummy data must be in one of the following formats: {', '.join(SUPPORTED_FILE_FORMATS)}"
-            raise DummyDataValidationError(msg)
+        assert suffixes in SUPPORTED_FILE_FORMATS
+        return pd.read_csv(path)
     except FileNotFoundError:
         raise DummyDataValidationError(f"Dummy data file not found: {path}")
 

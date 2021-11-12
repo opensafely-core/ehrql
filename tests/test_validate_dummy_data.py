@@ -9,7 +9,7 @@ from cohortextractor.validate_dummy_data import (
     validate_dummy_data,
 )
 
-from .lib.csv_utils import is_csv_filename, write_rows_to_csv
+from .lib.csv_utils import write_rows_to_csv
 
 
 cl = codelist(["12345"], system="snomed")
@@ -36,9 +36,7 @@ def test_validate_dummy_data_valid(file_format, tmpdir):
         ["event_count", 1, None],
     )
     dummy_data_file = Path(tmpdir) / f"dummy-data.{file_format}"
-    if is_csv_filename(dummy_data_file):
-        write_rows_to_csv(rows, dummy_data_file)
-
+    write_rows_to_csv(rows, dummy_data_file)
     validate_dummy_data(Cohort, dummy_data_file, Path(f"output.{file_format}"))
 
 
@@ -61,13 +59,23 @@ def test_validate_dummy_data_invalid_csv(filename, error_fragment):
 
 
 def test_validate_dummy_data_unknown_file_extension():
-    with pytest.raises(DummyDataValidationError):
-        validate_dummy_data(Cohort, fixtures_path / "data.txt", Path("output.csv"))
+    with pytest.raises(
+        DummyDataValidationError,
+        match="Expected dummy data file with extension .csv; got dummy-data.txt",
+    ):
+        validate_dummy_data(
+            Cohort, fixtures_path / "dummy-data.txt", Path("output.csv")
+        )
 
 
 @pytest.mark.parametrize("file_format", SUPPORTED_FILE_FORMATS)
 def test_validate_dummy_data_missing_data_file(file_format):
-    with pytest.raises(DummyDataValidationError):
+    with pytest.raises(
+        DummyDataValidationError,
+        match=f"Dummy data file not found: .+missing.{file_format}",
+    ):
         validate_dummy_data(
-            Cohort, fixtures_path / f"missing.{file_format}", Path("output.csv")
+            Cohort,
+            fixtures_path / f"missing.{file_format}",
+            Path(f"output.{file_format}"),
         )
