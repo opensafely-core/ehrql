@@ -1,7 +1,7 @@
 import pytest
 
 from cohortextractor import table
-from cohortextractor.backends import TPPBackend
+from cohortextractor.backends import DatabricksBackend, TPPBackend
 from cohortextractor.main import validate
 
 from .lib.mock_backend import MockBackend
@@ -36,6 +36,15 @@ def test_validate_for_backends(backend, column, expected_succeess):
             KeyError, match=f"Column '{column}' not found in table 'patients'"
         ):
             validate(Cohort, backend(None))
+
+
+def test_validate_databricks_backend():
+    class Cohort:
+        population = table("patients").exists()
+        value = table("patients").first_by("patient_id").get("patient_id")
+
+    results = validate(Cohort, DatabricksBackend(None))
+    assert len(results) == 3
 
 
 def test_validate_success():
