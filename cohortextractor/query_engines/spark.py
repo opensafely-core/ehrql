@@ -14,6 +14,9 @@ class CreateViewAs(Executable, ClauseElement):
         self.name = name
         self.query = query
 
+    def __str__(self):
+        return str(self.query)
+
 
 @compiles(CreateViewAs, "spark")
 def _create_table_as(element, compiler, **kw):
