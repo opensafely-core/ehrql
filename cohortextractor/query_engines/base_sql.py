@@ -1,7 +1,7 @@
 import contextlib
 from collections import defaultdict
 from types import ModuleType
-from typing import Union
+from typing import Optional, Union
 
 import sqlalchemy
 import sqlalchemy.dialects.mssql
@@ -73,7 +73,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     type_map = None
 
     # No limit by default although some DBMSs may impose one
-    max_rows_per_insert = None
+    max_rows_per_insert: Optional[int] = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
