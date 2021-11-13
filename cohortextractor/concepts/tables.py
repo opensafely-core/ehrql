@@ -15,6 +15,16 @@ class ClinicalEvents(QueryBuilder):
 clinical_events = ClinicalEvents()
 
 
+class PracticeRegistrations(QueryBuilder):
+    patient_id = "patient_id"
+
+    def __init__(table_name):
+        super().__init__("practice_registrations")
+
+
+practice_registrations = PracticeRegistrations()
+
+
 class Patients(TableContract):
     """
     The Patients table holds personal details about the patient.

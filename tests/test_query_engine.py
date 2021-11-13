@@ -13,7 +13,7 @@ from .lib.mock_backend import (
     patient,
     positive_test,
 )
-from .lib.util import extract, make_codelist
+from .lib.util import TestCohort, extract, make_codelist
 
 
 def test_backend_tables():
@@ -44,7 +44,7 @@ def test_run_generated_sql_get_single_column_default_population(
     # Note that the RegistrationHistory table is used for the default population query
     # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
     # table will be returned
-    class Cohort:
+    class Cohort(TestCohort):
         output_value = table("clinical_events").first_by("patient_id").get("code")
 
     assert extract(Cohort, MockBackend, database) == [
@@ -67,7 +67,7 @@ def test_run_generated_sql_get_single_column_specified_population(
     # Note that the RegistrationHistory table is used for the default population query
     # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
     # table will be returned
-    class Cohort:
+    class Cohort(TestCohort):
         output_value = table("clinical_events").first_by("patient_id").get("code")
         population = table("practice_registrations").exists()
 
@@ -85,7 +85,7 @@ def test_run_generated_sql_get_multiple_columns(database, setup_test_database):
     setup_test_database(input_data)
 
     # Cohort to extract all clinical events and positive tests
-    class Cohort:
+    class Cohort(TestCohort):
         output_value = table("clinical_events").first_by("patient_id").get("code")
         positive = table("positive_tests").first_by("patient_id").get("result")
 
@@ -107,7 +107,7 @@ def test_extract_get_single_column(database, setup_test_database):
     # Note that the RegistrationHistory table is used for the default population query
     # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
     # table will be returned
-    class Cohort:
+    class Cohort(TestCohort):
         output_value = table("clinical_events").first_by("patient_id").get("code")
 
     result = extract(Cohort, MockBackend, database)
@@ -115,7 +115,7 @@ def test_extract_get_single_column(database, setup_test_database):
 
 
 def test_invalid_table():
-    class Cohort:
+    class Cohort(TestCohort):
         output_value = table("unknown").first_by("patient_id").get("code")
 
     with pytest.raises(ValueError, match="Unknown table 'unknown'"):
@@ -161,7 +161,7 @@ def test_run_generated_sql_get_single_row_per_patient(
     setup_test_database(input_data)
 
     # Cohort to extract the earliest/latest event for each patient, and return code and date
-    class Cohort:
+    class Cohort(TestCohort):
         code = code_output
         date = date_output
 
@@ -383,7 +383,7 @@ def test_run_generated_sql_get_single_row_per_patient(
 def test_simple_filters(database, setup_test_database, data, filtered_table, expected):
     setup_test_database(data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         population = filtered_table.exists()
         _filtered = filtered_table.first_by("patient_id")
         code = _filtered.get("code")
@@ -449,7 +449,7 @@ def test_filter_with_nulls(database, setup_test_database, filtered_table, expect
         ]
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         population = filtered_table.exists()
         _filtered_per_patient = filtered_table.first_by("patient_id")
         code = _filtered_per_patient.get("code")
@@ -500,7 +500,7 @@ def test_filter_between_other_query_values(database, setup_test_database):
     setup_test_database(input_data)
 
     # Cohort to extract the last Code1 result between a patient's first and last positive test dates
-    class Cohort:
+    class Cohort(TestCohort):
         _positive_tests = table("positive_tests").filter(result=True)
         first_pos = _positive_tests.earliest("test_date").get("test_date")
         last_pos = _positive_tests.latest("test_date").get("test_date")
@@ -568,7 +568,7 @@ def test_date_in_range_filter(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _registrations = table("practice_registrations").date_in_range("2021-03-02")
         stp = _registrations.first_by("patient_id").get("stp")
         count = _registrations.count("patient_id")
@@ -616,7 +616,7 @@ def test_in_filter_on_query_values(database, setup_test_database):
     setup_test_database(input_data)
 
     # Cohort to extract the Code1 results that were on a positive test date
-    class Cohort:
+    class Cohort(TestCohort):
         _positive_test_dates = (
             table("positive_tests").filter(result=True).get("test_date")
         )
@@ -670,7 +670,7 @@ def test_not_in_filter_on_query_values(database, setup_test_database):
     setup_test_database(input_data)
 
     # Cohort to extract the results that were NOT on a test date (positive or negative)
-    class Cohort:
+    class Cohort(TestCohort):
         _test_dates = table("positive_tests").get("test_date")
         _last_event_not_on_test_date = (
             table("clinical_events").filter("date", not_in=_test_dates).latest()
@@ -739,7 +739,7 @@ def test_aggregation(database, setup_test_database, aggregation, column, expecte
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _filtered_table = table("clinical_events").filter(code=make_codelist("Code1"))
         value = getattr(_filtered_table, aggregation)(column)
 
@@ -751,7 +751,7 @@ def test_categorise_simple_comparisons(database, setup_test_database):
     input_data = [*patient(1, height=180), *patient(2, height=200.5), *patient(3)]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _height = table("patients").first_by("patient_id").get("height")
         _height_categories = {
             "tall": _height > 190,
@@ -828,7 +828,7 @@ def test_categorise_single_combined_conditions(
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _height = table("patients").first_by("patient_id").get("height")
         _height_categories = categories(_height)
         height_group = categorise(_height_categories, default=default)
@@ -847,7 +847,7 @@ def test_categorise_multiple_values(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _height = table("patients").first_by("patient_id").get("height")
         _code = table("clinical_events").first_by("patient_id").get("code")
         _height_with_codes_categories = {
@@ -875,7 +875,7 @@ def test_categorise_nested_comparisons(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _height = table("patients").first_by("patient_id").get("height")
         _code = table("clinical_events").first_by("patient_id").get("code")
 
@@ -911,7 +911,7 @@ def test_categorise_on_truthiness(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _code = table("clinical_events").filter(code=make_codelist("abc")).exists()
         _codes_categories = {"yes": _code}
         abc = categorise(_codes_categories, default="na")
@@ -936,7 +936,7 @@ def test_categorise_on_truthiness_from_filter(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _code = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -966,7 +966,7 @@ def test_categorise_multiple_truthiness_values(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _code = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -997,7 +997,7 @@ def test_categorise_invert(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _height = table("patients").first_by("patient_id").get("height")
         _code = table("clinical_events").first_by("patient_id").get("code")
 
@@ -1029,7 +1029,7 @@ def test_categorise_invert_truthiness_values(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _code = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -1058,7 +1058,7 @@ def test_categorise_invert_combined_values(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _code = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -1088,7 +1088,7 @@ def test_categorise_double_invert(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _code = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -1128,7 +1128,7 @@ def test_categorise_multiple_truthiness_categories(database, setup_test_database
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         _codes_1 = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -1162,7 +1162,7 @@ def test_age_as_of(database, setup_test_database):
     ]
     setup_test_database(input_data)
 
-    class Cohort:
+    class Cohort(TestCohort):
         age_in_2010 = table("patients").age_as_of("2010-06-01")
         age_at_last_event = table("patients").age_as_of(
             table("clinical_events").latest().get("date")
@@ -1184,7 +1184,7 @@ def test_fetching_results_using_temporary_database(database, setup_test_database
         ]
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         code = table("clinical_events").latest().get("code")
 
     assert extract(Cohort, MockBackend, database, temporary_database="temp_tables") == [

@@ -83,15 +83,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def __init__(self, column_definitions, backend):
         super().__init__(column_definitions, backend)
         self._engine = None
-        # If no "population" was specified in the column definitions, use a default value
-        # which just selects rows that exist by patient_id from the default population
-        # table (practice_registrations)
-        if "population" not in column_definitions:
-            column_definitions["population"] = ValueFromAggregate(
-                source=Table(name="practice_registrations"),
-                function="exists",
-                column="patient_id",
-            )
+
         # Walk the nodes and identify output groups
         all_nodes = self.get_all_query_nodes(column_definitions)
         self.output_groups = self.get_output_groups(all_nodes)
@@ -510,15 +502,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         For each aggregate node, get the query that will select it with its generated
         column label, plus the patient id column, and then group by the patient id.
-
-        e.g. For the default population exists query, it will select patient_id as a column
-        labelled patient_id_exists from the entire column of patient_id and then group
-         by patient id; i.e.
-
-        SELECT practice_registrations.patient_id, :param_1 AS patient_id_exists
-        FROM (SELECT PatientId AS patient_id FROM practice_registrations) AS practice_registrations
-        GROUP BY practice_registrations.patient_id
-
         """
         columns = [
             self.get_aggregate_column(query, aggregate_node)

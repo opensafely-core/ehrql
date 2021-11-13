@@ -15,7 +15,7 @@ from ..lib.graphnet_schema import (
     patient_address,
     registration,
 )
-from ..lib.util import extract
+from ..lib.util import TestCohort, extract
 
 
 @pytest.mark.integration
@@ -27,7 +27,7 @@ def test_basic_events_and_registration(database, setup_backend_database):
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         code = table("clinical_events").first_by("patient_id").get("code")
         system = table("clinical_events").first_by("patient_id").get("system")
 
@@ -47,7 +47,7 @@ def test_registration_dates(database, setup_backend_database):
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         _registrations = table("practice_registrations").first_by("patient_id")
         arrived = _registrations.get("date_start")
         left = _registrations.get("date_end")
@@ -68,7 +68,7 @@ def test_registration_dates_no_end(database, setup_backend_database):
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         _registrations = (
             table("practice_registrations")
             .date_in_range("2014-01-01")
@@ -97,7 +97,7 @@ def test_covid_test_positive_result(database, setup_backend_database):
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         date = (
             table("covid_test_results")
             .filter(positive_result=True)
@@ -125,7 +125,7 @@ def test_covid_test_negative_result(database, setup_backend_database):
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         date = (
             table("covid_test_results")
             .filter(positive_result=False)
@@ -148,7 +148,7 @@ def test_patients_table(database, setup_backend_database):
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         _patients = table("patients").first_by("patient_id")
         sex = _patients.get("sex")
         dob = _patients.get("date_of_birth")
@@ -173,7 +173,7 @@ def test_hospitalization_table_returns_admission_date_and_code(
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         _hospitalization = table("hospitalizations").first_by("patient_id")
         admission = _hospitalization.get("date")
         code = _hospitalization.get("code")
@@ -194,7 +194,7 @@ def test_events_with_numeric_value(database, setup_backend_database):
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         value = table("clinical_events").latest().get("numeric_value")
 
     assert extract(Cohort, GraphnetBackend, database) == [
@@ -223,7 +223,7 @@ def test_organisation(database, setup_backend_database):
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         _registrations = table("practice_registrations").last_by("patient_id")
         region = _registrations.get("nuts1_region_name")
         practice_id = _registrations.get("pseudo_id")
@@ -268,7 +268,7 @@ def test_organisation_dates(database, setup_backend_database):
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         _registrations = table("practice_registrations").date_in_range("2021-06-25")
         population = _registrations.exists()
         _registration_table = _registrations.latest("date_end")
@@ -294,7 +294,7 @@ def test_index_of_multiple_deprivation(database, setup_backend_database):
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, GraphnetBackend, database) == [dict(patient_id=1, imd=1200)]
@@ -361,7 +361,7 @@ def test_index_of_multiple_deprivation_sorting(
         backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(TestCohort):
         imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, GraphnetBackend, database) == [

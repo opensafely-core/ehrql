@@ -13,20 +13,20 @@ from cohortextractor.query_language import (
 )
 from cohortextractor.query_utils import get_column_definitions
 
-from .lib.util import make_codelist
+from .lib.util import TestCohort, make_codelist
 
 
 def test_cohort_filter_table_codelist_validation():
     """A code filter must filter on a codelist"""
     with pytest.raises(ValidationError):
 
-        class Cohort:
+        class Cohort(TestCohort):
             #  Define tables of interest, filtered to relevant values
             abc_table = table("clinical_events").filter(code="abc")
 
 
 def test_cohort_column_definitions_simple_query():
-    class Cohort:
+    class Cohort(TestCohort):
         #  Define tables of interest, filtered to relevant values
         _abc_table = table("clinical_events").filter(code=make_codelist("abc"))
         # Get a single row per patient by selecting the latest event
@@ -37,8 +37,9 @@ def test_cohort_column_definitions_simple_query():
 
     column_definitions = get_column_definitions(Cohort)
 
-    assert list(column_definitions.keys()) == ["abc_value", "date"]
-    for output_value in column_definitions.values():
+    assert list(column_definitions.keys()) == ["abc_value", "date", "population"]
+    for key in ["abc_value", "date"]:
+        output_value = column_definitions[key]
         # There are 2 outputs, each a simple get on a Row from the same FilteredTable
         assert isinstance(output_value, ValueFromRow)
         assert isinstance(output_value.source, Row)
@@ -61,7 +62,7 @@ def test_cohort_column_definitions_invalid_output_value():
 
 
 def test_cohort_column_definitions_chained_query():
-    class Cohort:
+    class Cohort(TestCohort):
         _abc = (
             table("clinical_events")
             .filter(code=make_codelist("abc"))
@@ -71,7 +72,7 @@ def test_cohort_column_definitions_chained_query():
         abc_value = _abc_values.get("test_value")
 
     column_definitions = get_column_definitions(Cohort)
-    assert list(column_definitions.keys()) == ["abc_value"]
+    assert list(column_definitions.keys()) == ["abc_value", "population"]
 
     output_value = column_definitions["abc_value"]
     # This final value is the result of a chained filter and latest query:
@@ -102,7 +103,7 @@ def test_cohort_column_definitions_chained_query():
 def test_cohort_column_definitions_between_operator():
     """A between operator is turned into a chained lt and gt"""
 
-    class Cohort:
+    class Cohort(TestCohort):
         _event_table = table("clinical_events")
         _first_date = _event_table.earliest().get("date")
         _last_date = _event_table.latest().get("date")
@@ -131,7 +132,7 @@ def test_cohort_column_definitions_between_operator():
     ],
 )
 def test_cohort_column_definitions_filter_operators(operator):
-    class Cohort:
+    class Cohort(TestCohort):
         _filtered = (
             table("clinical_events").filter("date", **{operator: "2021-01-01"}).latest()
         )
@@ -154,7 +155,7 @@ def test_cohort_column_definitions_filter_operators(operator):
 
 
 def test_cohort_column_definitions_multiple_field_operators():
-    class Cohort:
+    class Cohort(TestCohort):
         _filtered = (
             table("clinical_events")
             .filter("numerical_value", greater_than=2, less_than_or_equals=6)
@@ -171,7 +172,7 @@ def test_cohort_column_definitions_multiple_field_operators():
 
 
 def test_cohort_column_definitions_multiple_equals_operators():
-    class Cohort:
+    class Cohort(TestCohort):
         _filtered = (
             table("clinical_events")
             .filter(code=make_codelist(3), positive_test=True)

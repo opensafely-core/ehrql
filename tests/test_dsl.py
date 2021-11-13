@@ -4,18 +4,24 @@ from cohortextractor.definition.base import cohort_registry
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
 
+from .lib.util import TestCohort
+
 
 def test_minimal_cohort_definition():
     # Nothing in the registry yet
     assert not cohort_registry.cohorts
 
     # old DSL
-    class OldCohort:
+    class OldCohort(TestCohort):
         #  Define tables of interest, filtered to relevant values
         code = table("clinical_events").first_by("date").get("code")
 
     # new DSL
     cohort = Cohort()
+    registrations = tables.practice_registrations
+    cohort.population = registrations.select_column(
+        registrations.patient_id
+    ).make_one_row_per_patient(pick_first_value)
     events = tables.clinical_events
     cohort.code = events.select_column(events.code).make_one_row_per_patient(
         pick_first_value
