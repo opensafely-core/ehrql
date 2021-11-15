@@ -95,6 +95,7 @@ check: devenv
     $BIN/pyupgrade --py39-plus --keep-percent-format \
         $(find cohortextractor -name "*.py" -type f) \
         $(find tests -name "*.py" -type f)
+    $BIN/mypy
 
 
 # runs the format (black) and sort (isort) checks and fixes the files

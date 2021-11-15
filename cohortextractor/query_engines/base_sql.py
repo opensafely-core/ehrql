@@ -1,10 +1,13 @@
 import contextlib
 from collections import defaultdict
+from types import ModuleType
+from typing import Optional, Union
 
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
 import sqlalchemy.types
+from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.sql.expression import type_coerce
 
 from ..query_language import (
@@ -64,17 +67,17 @@ def get_primary_table(query):
 
 class BaseSQLQueryEngine(BaseQueryEngine):
 
-    sqlalchemy_dialect = NotImplemented
+    sqlalchemy_dialect: Union[type[Dialect], ModuleType]
 
-    custom_types = {}
+    custom_types: dict[str, type[sqlalchemy.types.TypeDecorator]] = {}
     type_map = None
 
     # No limit by default although some DBMSs may impose one
-    max_rows_per_insert = None
+    max_rows_per_insert: Optional[int] = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        assert cls.sqlalchemy_dialect != NotImplemented
+        assert cls.sqlalchemy_dialect is not None
         cls.type_map = {**DEFAULT_TYPES, **cls.custom_types}
 
     def __init__(self, column_definitions, backend):
