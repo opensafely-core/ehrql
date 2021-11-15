@@ -1,7 +1,6 @@
 import contextlib
 from collections import defaultdict
-from types import ModuleType
-from typing import Optional, Union
+from typing import Optional
 
 import sqlalchemy
 import sqlalchemy.dialects.mssql
@@ -66,7 +65,7 @@ def get_primary_table(query):
 
 class BaseSQLQueryEngine(BaseQueryEngine):
 
-    sqlalchemy_dialect: Union[type[Dialect], ModuleType]
+    sqlalchemy_dialect: type[Dialect]
 
     custom_types: dict[str, type[sqlalchemy.types.TypeDecorator]] = {}
     type_map = None
