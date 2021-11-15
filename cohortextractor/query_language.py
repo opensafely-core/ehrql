@@ -114,6 +114,9 @@ class BaseTable(QueryNode):
             # convert a between filter into its two components
             return self.filter(*args, on_or_after=value[0], on_or_before=value[1])
 
+        if operator == "is_in" and not isinstance(value, (Codelist, Column)):
+            # convert non-codelist in values to tuple
+            value = tuple(value)
         assert len(args) == len(kwargs) == 1
 
         operator = _OPERATOR_MAPPING[operator]
