@@ -2,7 +2,7 @@ import contextlib
 import datetime
 
 import sqlalchemy
-import sqlalchemy.dialects.mssql
+import sqlalchemy.dialects.mssql.pymssql
 import sqlalchemy.schema
 import sqlalchemy.types
 

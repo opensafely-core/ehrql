@@ -81,7 +81,10 @@ scripts_are_modules = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = "pyhive.sqlalchemy_hive.*"
+module = [
+  "pyhive.sqlalchemy_hive.*",
+  "sqlalchemy.dialects.mssql.pymssql"
+]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
