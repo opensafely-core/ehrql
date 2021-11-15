@@ -163,7 +163,7 @@ def test_hospitalization_table_returns_admission_date_and_code(
     database, setup_backend_database
 ):
     setup_backend_database(
-        *patient(
+        patient(
             1,
             "M",
             "1990-1-1",
@@ -208,13 +208,13 @@ def test_organisation(database, setup_backend_database):
         # Organisation not a separate table, so will just move detail to single registration record
         # organisation(1, "South"),
         # organisation(2, "North"),
-        *patient(
+        patient(
             1,
             "M",
             "1990-1-1",
             registration("2001-01-01", "2021-06-26", "A83010", "North East"),
         ),
-        *patient(
+        patient(
             2,
             "F",
             "1990-1-1",
@@ -243,7 +243,7 @@ def test_organisation_dates(database, setup_backend_database):
         # organisation(3, "West"),
         # organisation(4, "East"),
         # registered at 2 practices, select the one active on 25/6
-        *patient(
+        patient(
             1,
             "M",
             "1990-1-1",
@@ -251,7 +251,7 @@ def test_organisation_dates(database, setup_backend_database):
             registration("2021-06-27", "2026-06-26", "J26003", "South West"),
         ),
         # registered at 2 practices with overlapping dates, select the latest
-        *patient(
+        patient(
             2,
             "F",
             "1990-1-1",
@@ -259,7 +259,7 @@ def test_organisation_dates(database, setup_backend_database):
             registration("2021-01-01", "9999-12-31", "S33001", "East"),
         ),
         # registration not in range, not included
-        *patient(
+        patient(
             3,
             "F",
             "1990-1-1",
@@ -284,7 +284,7 @@ def test_organisation_dates(database, setup_backend_database):
 @pytest.mark.integration
 def test_index_of_multiple_deprivation(database, setup_backend_database):
     setup_backend_database(
-        *patient(
+        patient(
             1,
             "M",
             "1990-1-1",
@@ -351,7 +351,7 @@ def test_index_of_multiple_deprivation_sorting(
     database, setup_backend_database, patient_addresses, expected
 ):
     setup_backend_database(
-        *patient(
+        patient(
             1,
             "M",
             "1990-1-1",

@@ -109,7 +109,7 @@ def run_index_date_range_test(
     match_output_pattern=True,
 ):
     setup_backend_database(
-        *patient(
+        patient(
             1,
             "F",
             "1990-8-10",
@@ -118,7 +118,7 @@ def run_index_date_range_test(
             ),  # registered at all index dates
             ctv3_event(code="abc", date="2020-01-01"),  # covid diagnosis
         ),
-        *patient(
+        patient(
             2,
             "F",
             "1980-6-15",
@@ -127,7 +127,7 @@ def run_index_date_range_test(
             ),  # registered at index dates 2021-01-15, 21, 28, 31, 2021-02-01, 28, 2021-03-01
             ctv3_event(code="def", date="2020-02-01"),  # covid diagnosis
         ),
-        *patient(
+        patient(
             3,
             "M",
             "1990-8-10",
@@ -136,7 +136,7 @@ def run_index_date_range_test(
             ),  # registered at index date 2021-03-01 only
             ctv3_event(code="ghi", date="2020-03-01"),  # covid diagnosis
         ),
-        *patient(
+        patient(
             4,
             "M",
             "2000-8-18",
