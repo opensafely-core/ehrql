@@ -1,5 +1,5 @@
 from cohortextractor.concepts import tables
-from cohortextractor.definition import Cohort, pick_first_value, register
+from cohortextractor.definition import Cohort, count, exists, pick_first_value, register
 from cohortextractor.definition.base import cohort_registry
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
@@ -66,6 +66,34 @@ def test_multiple_filters():
         .filter(events.date, less_than="2021-10-10")
         .select_column(events.code)
         .make_one_row_per_patient(pick_first_value)
+    )
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def test_exists_aggregation():
+    class OldCohort:
+        # Define tables of interest, filtered to relevant values
+        num_events = table("clinical_events").count("code")
+
+    cohort = Cohort()
+    events = tables.clinical_events
+    cohort.num_events = events.select_column(events.code).make_one_row_per_patient(
+        count
+    )
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def test_count_aggregation():
+    class OldCohort:
+        # Define tables of interest, filtered to relevant values
+        has_events = table("clinical_events").exists("code")
+
+    cohort = Cohort()
+    events = tables.clinical_events
+    cohort.has_events = events.select_column(events.code).make_one_row_per_patient(
+        exists
     )
 
     assert_cohorts_equivalent(cohort, OldCohort)
