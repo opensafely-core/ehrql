@@ -35,7 +35,7 @@ def get_column_definitions(cohort_class):
 
 
 def get_measures(cohort_cls):
-    return next(
-        (value for name, value in get_class_vars(cohort_cls) if name == "measures"),
-        [],
-    )
+    for name, value in get_class_vars(cohort_cls):
+        if name == "measures":
+            return value
+    return []
