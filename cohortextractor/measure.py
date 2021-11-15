@@ -244,6 +244,14 @@ class MeasuresManager:
             yield measure.id, result
 
 
+def _get_csv_headers_for_first_file(input_files):
+    """Open the first csv file and return the file path and the first (headers) row"""
+    first_file = list(input_files)[0]
+    with open(first_file) as in_file:
+        reader = csv.reader(in_file)
+        return first_file, next(reader)
+
+
 def combine_csv_files_with_dates(output_filepath, measure_id):
     """
     Takes an output filepath and a measure ID, finds any matching CSV measure output
@@ -264,24 +272,27 @@ def combine_csv_files_with_dates(output_filepath, measure_id):
         file_date = _get_date_from_filename(filepath.stem, measure_id)
         if file_date:
             input_files.append((file_date, filepath))
-    input_files = sorted(input_files)
+    # Ensure the files are sorted by date so they'll be written to the combined file in the right order
+    input_files_by_date = dict(sorted(input_files))
 
-    if input_files:
+    if input_files_by_date:
         # There may be no matching date files if generate_measures was run without an
         # index date range; in this case, no combining is required.
         combined_filename = output_filepath.name.replace("*", measure_id)
-        with open(input_files[0][1]) as first_file:
-            reader = csv.reader(first_file)
-            headers = next(reader)
+        first_file, headers = _get_csv_headers_for_first_file(
+            input_files_by_date.values()
+        )
+
         with open(output_dir / combined_filename, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(headers + ["date"])
-            for file_date, input_file in input_files:
+
+            for file_date, input_file in input_files_by_date.items():
                 with open(input_file) as input_csvfile:
                     reader = csv.reader(input_csvfile)
                     if next(reader) != headers:
                         raise RuntimeError(
-                            f"Files {input_files[0]} and {input_file} have different headers"
+                            f"Files {first_file} and {input_file} have different headers"
                         )
                     for row in reader:
                         writer.writerow(row + [file_date])

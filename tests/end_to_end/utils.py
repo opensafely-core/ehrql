@@ -52,9 +52,11 @@ def assert_results_equivalent(
     match_output_pattern=False,
 ):
     if match_output_pattern:
+        assert (
+            expected_number_of_results is not None
+        ), "Provide expected number of results when matching an output pattern"
         results_files = list(actual_results.parent.glob(actual_results.name))
-        if expected_number_of_results:
-            assert len(results_files) == expected_number_of_results
+        assert len(results_files) == expected_number_of_results
         for results_file in results_files:
             name_parts = [part for part in results_file.stem.split("_", 1) if part][1:]
             name_stem = expected_results.stem.split("_")[0]

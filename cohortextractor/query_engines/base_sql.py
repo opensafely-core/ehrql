@@ -470,10 +470,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # but the simple thing will do for now.
         class_method_map = {DateDifferenceInYears: self.date_difference_in_years}
 
-        try:
-            method = class_method_map[value.__class__]
-        except KeyError:
-            assert False, f"Unsupported function: {value}"
+        assert value.__class__ in class_method_map, f"Unsupported function: {value}"
+
+        method = class_method_map[value.__class__]
         value_expression = method(*argument_expressions)
 
         return value_expression, tuple(tables)

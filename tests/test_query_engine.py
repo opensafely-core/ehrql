@@ -31,7 +31,10 @@ def test_run_generated_sql_get_single_column_default_population(
     database, setup_test_database
 ):
     input_data = [
-        *patient(1, ctv3_event("Code1")),
+        *patient(
+            1,
+            ctv3_event("Code1"),
+        ),
         # patient 2 has an event, but no RegistrationHistory entry
         CTV3Events(PatientId=2, EventCode="Code2", System="ctv3"),
     ]

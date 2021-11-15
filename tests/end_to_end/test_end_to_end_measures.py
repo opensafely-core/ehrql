@@ -36,6 +36,24 @@ def test_generate_measures_integration_test(
 
 
 @pytest.mark.integration
+def test_generate_measures_integration_test_no_measures_specified(
+    load_measures_study, cohort_extractor_generate_measures_in_process
+):
+    study = load_measures_study(
+        "end_to_end_tests_measures", definition_file="measures_not_specified_cohort.py"
+    )
+    # No measures specified in definition file; runs without error but produces no measures
+    # output files
+    expected_results_names = []
+    run_test(
+        study,
+        cohort_extractor_generate_measures_in_process,
+        0,
+        expected_results_names,
+    )
+
+
+@pytest.mark.integration
 def test_generate_measures_with_index_date_range_test(
     load_measures_study, cohort_extractor_generate_measures_in_process
 ):

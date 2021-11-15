@@ -21,10 +21,10 @@ def setup_databricks_database(setup_spark_database):
 
 def patient(patient_id, date_of_birth="1980-01-01", *entities):
     if not entities:
-        entities = [PCareMeds()]
+        entities = [prescription(date="", code="")]
     else:
         entities = list(iter_flatten(entities))
-    for entity in entities:
+    for entity in list(iter_flatten(entities)):
         if isinstance(entity, PCareMeds):
             entity.Person_ID = patient_id
             entity.PatientDoB = date_of_birth
@@ -45,10 +45,8 @@ def admission(
     finished=None,
     spell_id=None,
 ):
-    if episode_id is None:
-        episode_id = rand.randint(1, 999999999)
-    if spell_id is None:
-        spell_id = rand.randint(1, 999999999)
+    episode_id = episode_id or rand.randint(1, 999999999)
+    spell_id = spell_id or rand.randint(1, 999999999)
     apc = HESApc(
         EPIKEY=episode_id,
         ADMIDATE=date,
@@ -78,6 +76,10 @@ def test_basic_databricks_study_definition(spark_database, setup_databricks_data
             "1955-07-17",
             prescription(date="2020-01-12", code="0050"),
         ),
+        patient(
+            20,
+            "1960-08-18",
+        ),
     )
 
     class Cohort:
@@ -103,7 +105,6 @@ def test_basic_databricks_study_definition(spark_database, setup_databricks_data
     results = extract(Cohort, DatabricksBackend, spark_database)
     # We don't care exactly what order the patients come back in
     results.sort(key=lambda i: i.get("patient_id"))
-
     assert results == [
         dict(
             patient_id=10,
@@ -119,4 +120,11 @@ def test_basic_databricks_study_definition(spark_database, setup_databricks_data
             prescribed_med=True,
             admitted=None,
         ),
-    ]
+        dict(
+            patient_id=20,
+            dob=date(1960, 8, 18),
+            age=59,
+            prescribed_med=None,
+            admitted=None,
+        ),
+    ], results

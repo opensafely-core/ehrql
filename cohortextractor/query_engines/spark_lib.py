@@ -97,18 +97,10 @@ class SparkDialect(HiveHTTPDialect):
             return super()._get_table_columns(connection, table_name, schema)
         except exc.OperationalError as e:
             full_table = table_name if not schema else f"{schema}.{table_name}"
-            if "Table or view not found" in str(e):
+            if "Table or view not found" in str(e):  # pragma: no cover
                 raise exc.NoSuchTableError(full_table)
             else:
                 raise
-
-    def get_schema_names(self, connection, *args, **kwargs):
-        connection = ConnectionWrapper(connection)
-        return super().get_schema_names(connection, *args, **kwargs)
-
-    def get_table_names(self, connection, *args, **kwargs):
-        connection = ConnectionWrapper(connection)
-        return super().get_table_names(connection, *args, **kwargs)
 
 
 class ConnectionWrapper:

@@ -18,8 +18,3 @@ def write_rows_to_csv(rows, filename):
                 writer.writerow(row)
     else:
         assert False, f"Unsupported extension for CSV file: {filename}"
-
-
-def is_csv_filename(filename):
-    filename = str(filename)
-    return filename.endswith(".csv") or filename.endswith(".csv.gz")

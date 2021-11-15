@@ -57,5 +57,5 @@ def receive_before_create(target, connection, **kw):
         cls = mapper.class_
         table_args = getattr(cls, "__table_args__", {})
         schema = table_args.get("schema")
-        if schema:
+        if schema:  # pragma: no cover
             connection.execute(DDL(f"CREATE SCHEMA IF NOT EXISTS {schema}"))

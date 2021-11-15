@@ -21,6 +21,18 @@ def test_calculate_measures_no_input_file():
         list(measures_manager.calculate_measures())
 
 
+def test_calculate_measures_no_measures_variable():
+    """Running measures calculation with no measure varible doesn't error"""
+
+    class Cohort:
+        code = table("clinical_events").first_by("patient_id").get("code")
+
+    measures = get_measures(Cohort)
+    assert measures == []
+    measures_manager = MeasuresManager(measures, Path(""))
+    assert list(measures_manager.calculate_measures()) == []
+
+
 def test_calculate_measures_results():
     class Cohort:
         code = table("clinical_events").first_by("patient_id").get("code")

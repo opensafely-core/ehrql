@@ -14,7 +14,7 @@ class Containers:
     def is_running(self, name):
         try:
             container = self.get_container(name)
-            return container.status == "running"
+            return container.status == "running"  # pragma: no cover
         except docker.errors.NotFound:  # pragma: no cover
             return False
 
@@ -23,8 +23,7 @@ class Containers:
         Given a port on a container return the port on the host to which it is
         mapped
         """
-        if isinstance(container_port, int):
-            container_port = f"{container_port}/tcp"
+        container_port = f"{container_port}/tcp"
         container = self.get_container(name)
         port_config = container.attrs["NetworkSettings"]["Ports"][container_port]
         host_port = port_config[0]["HostPort"]

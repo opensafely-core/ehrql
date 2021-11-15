@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from cohortextractor.codelistlib import Codelist
@@ -42,6 +44,20 @@ def test_cohort_column_definitions_simple_query():
         assert isinstance(output_value.source, Row)
         assert isinstance(output_value.source.source, FilteredTable)
         assert output_value.source.source.operator == "__eq__"
+
+
+def test_cohort_column_definitions_invalid_output_value():
+    class Cohort:
+        #  Define tables of interest, filtered to relevant values
+        _abc_table = table("clinical_events").filter(code=make_codelist("abc"))
+        # Try to return the test_value column, which should raise an exception
+        value = _abc_table.get("test_value")
+
+    with pytest.raises(
+        TypeError,
+        match=re.escape("Cohort variable 'value' is not a Value (type='Column')"),
+    ):
+        get_column_definitions(Cohort)
 
 
 def test_cohort_column_definitions_chained_query():

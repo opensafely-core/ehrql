@@ -109,6 +109,10 @@ def generate_measures(definition_path, input_file, output_file):
         )
         input_file_with_date = _replace_filepath_pattern(input_file, index_date or "")
         measures = get_measures(cohort)
+        if not measures:
+            log.warning(
+                "No measures variable found", definition_file=definition_path.name
+            )
         for measure_id, results in calculate_measures_results(
             measures, input_file_with_date
         ):
