@@ -58,15 +58,7 @@ def test_validate_success():
     # The first 2 queries will build the temp tables to select
     # 1) the "code" variable from its base table (clinical_events)
     # 2) the patients from the practice_registrations table
-    query1 = str(results[0])
-    assert query1.startswith("SELECT * INTO #group_table_0")
-    assert "SELECT clinical_events.code AS code" in query1
-    query2 = str(results[1])
-    assert query2.startswith("SELECT * INTO #group_table_1")
-    assert "SELECT practice_registrations.patient_id AS patient_id" in query2
-
     # 3rd query selects the results from the temp tables
-    query3 = str(results[2])
-    assert query3.startswith(
-        'SELECT "#group_table_1".patient_id AS patient_id, "#group_table_0".code AS code'
-    )
+    for query in results:
+        # Jut check that the query strings look like SQL
+        assert "SELECT" in str(query)
