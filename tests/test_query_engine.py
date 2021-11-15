@@ -16,6 +16,10 @@ from .lib.mock_backend import (
 from .lib.util import OldCohortWithPopulation, extract, make_codelist
 
 
+# Mark the whole module as containing integration tests
+pytestmark = pytest.mark.integration
+
+
 def test_backend_tables():
     """Test that a backend registers its table names"""
     assert MockBackend.tables == {
@@ -26,7 +30,6 @@ def test_backend_tables():
     }
 
 
-@pytest.mark.integration
 def test_run_generated_sql_get_single_column_default_population(database):
     input_data = [
         patient(
@@ -50,7 +53,6 @@ def test_run_generated_sql_get_single_column_default_population(database):
     ]
 
 
-@pytest.mark.integration
 def test_run_generated_sql_get_single_column_specified_population(database):
     input_data = [
         patient(1, ctv3_event("Code1")),
@@ -72,7 +74,6 @@ def test_run_generated_sql_get_single_column_specified_population(database):
     ]
 
 
-@pytest.mark.integration
 def test_run_generated_sql_get_multiple_columns(database):
     input_data = [
         patient(1, ctv3_event("Code1"), positive_test(True)),
@@ -91,7 +92,6 @@ def test_run_generated_sql_get_multiple_columns(database):
     ]
 
 
-@pytest.mark.integration
 def test_extract_get_single_column(database):
     input_data = [
         patient(1, ctv3_event("Code1")),
@@ -118,7 +118,6 @@ def test_invalid_table():
         extract(Cohort, MockBackend, null_database())
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "code_output,date_output,expected",
     [
@@ -164,7 +163,6 @@ def test_run_generated_sql_get_single_row_per_patient(
     assert extract(Cohort, MockBackend, database) == expected
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "data,filtered_table,expected",
     [
@@ -413,7 +411,6 @@ def test_is_in_filter(database, filter_value):
     assert extract(Cohort, MockBackend, database) == expected
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "filtered_table,expected",
     [
@@ -455,7 +452,6 @@ def test_filter_with_nulls(database, filtered_table, expected):
     assert extract(Cohort, MockBackend, database) == expected
 
 
-@pytest.mark.integration
 def test_filter_between_other_query_values(database):
     # set up input data for 3 patients, with positive test dates and clinical event results
     input_data = [
@@ -535,7 +531,6 @@ def test_filter_between_other_query_values(database):
     ]
 
 
-@pytest.mark.integration
 def test_date_in_range_filter(database):
     input_data = [
         # (9999-12-31 is the default TPP null value)
@@ -578,7 +573,6 @@ def test_date_in_range_filter(database):
     ]
 
 
-@pytest.mark.integration
 def test_in_filter_on_query_values(database):
     # set up input data for 2 patients, with positive test dates and clinical event results
     input_data = [
@@ -632,7 +626,6 @@ def test_in_filter_on_query_values(database):
     ]
 
 
-@pytest.mark.integration
 def test_not_in_filter_on_query_values(database):
     # set up input data for 2 patients, with positive test dates and clinical event results
 
@@ -681,7 +674,6 @@ def test_not_in_filter_on_query_values(database):
     ]
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "aggregation,column,expected",
     [
@@ -742,7 +734,6 @@ def test_aggregation(database, aggregation, column, expected):
     assert extract(Cohort, MockBackend, database) == expected
 
 
-@pytest.mark.integration
 def test_categorise_simple_comparisons(database):
     input_data = [patient(1, height=180), patient(2, height=200.5), patient(3)]
     database.setup(input_data)
@@ -763,7 +754,6 @@ def test_categorise_simple_comparisons(database):
     ]
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "categories,default,expected",
     [
@@ -831,7 +821,6 @@ def test_categorise_single_combined_conditions(database, categories, default, ex
     assert result == expected
 
 
-@pytest.mark.integration
 def test_categorise_multiple_values(database):
     """Test that categories can combine conditions that use different source values"""
     input_data = [
@@ -858,7 +847,6 @@ def test_categorise_multiple_values(database):
     ]
 
 
-@pytest.mark.integration
 def test_categorise_nested_comparisons(database):
     input_data = [
         patient(1, ctv3_event("abc"), height=194),  # tall with code - matches
@@ -894,7 +882,6 @@ def test_categorise_nested_comparisons(database):
     ]
 
 
-@pytest.mark.integration
 def test_categorise_on_truthiness(database):
     """Test truthiness of a Value from an exists aggregation"""
     input_data = [
@@ -919,7 +906,6 @@ def test_categorise_on_truthiness(database):
     ]
 
 
-@pytest.mark.integration
 def test_categorise_on_truthiness_from_filter(database):
     """Test truthiness of a Value from a filtered value"""
     input_data = [
@@ -949,7 +935,6 @@ def test_categorise_on_truthiness_from_filter(database):
     ]
 
 
-@pytest.mark.integration
 def test_categorise_multiple_truthiness_values(database):
     """Test truthiness of a Value from a filtered value"""
     input_data = [
@@ -980,7 +965,6 @@ def test_categorise_multiple_truthiness_values(database):
     ]
 
 
-@pytest.mark.integration
 def test_categorise_invert(database):
     input_data = [
         patient(1, height=194),
@@ -1013,7 +997,6 @@ def test_categorise_invert(database):
     ]
 
 
-@pytest.mark.integration
 def test_categorise_invert_truthiness_values(database):
     input_data = [
         patient(1, ctv3_event("abc")),
@@ -1042,7 +1025,6 @@ def test_categorise_invert_truthiness_values(database):
     ]
 
 
-@pytest.mark.integration
 def test_categorise_invert_combined_values(database):
     input_data = [
         patient(1, ctv3_event("abc"), positive_test(True)),
@@ -1072,7 +1054,6 @@ def test_categorise_invert_combined_values(database):
     ]
 
 
-@pytest.mark.integration
 def test_categorise_double_invert(database):
     input_data = [
         patient(1, ctv3_event("abc")),
@@ -1101,7 +1082,6 @@ def test_categorise_double_invert(database):
     ]
 
 
-@pytest.mark.integration
 def test_categorise_multiple_truthiness_categories(database):
     """
     Test categorisation on multiple truthy values
@@ -1148,7 +1128,6 @@ def test_categorise_multiple_truthiness_categories(database):
     ]
 
 
-@pytest.mark.integration
 def test_age_as_of(database):
     input_data = [
         patient(1, ctv3_event("abc", "2020-10-01"), dob="1990-08-10"),
@@ -1169,7 +1148,6 @@ def test_age_as_of(database):
     ]
 
 
-@pytest.mark.integration
 def test_fetching_results_using_temporary_database(database):
     database.setup(
         [
