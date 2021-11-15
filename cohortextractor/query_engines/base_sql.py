@@ -1,7 +1,6 @@
 import contextlib
 from collections import defaultdict
-from types import ModuleType
-from typing import Optional, Union
+from typing import Optional
 
 import sqlalchemy
 import sqlalchemy.dialects.mssql
@@ -25,7 +24,6 @@ from ..query_language import (
     ValueFromFunction,
     ValueFromRow,
 )
-from ..sqlalchemy_drivers import set_driver
 from .base import BaseQueryEngine
 
 
@@ -67,7 +65,7 @@ def get_primary_table(query):
 
 class BaseSQLQueryEngine(BaseQueryEngine):
 
-    sqlalchemy_dialect: Union[type[Dialect], ModuleType]
+    sqlalchemy_dialect: type[Dialect]
 
     custom_types: dict[str, type[sqlalchemy.types.TypeDecorator]] = {}
     type_map = None
@@ -247,8 +245,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def engine(self):
         if self._engine is None:
             engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
-            engine_url = set_driver(engine_url)
+            # Hardcode the specific SQLAlchemy dialect we want to use: this is the
+            # dialect the query engine will have been written for and tested with and we
+            # don't want to allow global config changes to alter this
+            engine_url._get_entrypoint = lambda: self.sqlalchemy_dialect
             self._engine = sqlalchemy.create_engine(engine_url, future=True)
+            # The above relies on abusing SQLAlchemy internals so it's possible it will
+            # break in future -- we want to know immediately if it does
+            assert isinstance(self._engine.dialect, self.sqlalchemy_dialect)
         return self._engine
 
     def create_output_group_tables(self):

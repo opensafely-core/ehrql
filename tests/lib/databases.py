@@ -2,14 +2,20 @@ import time
 
 import sqlalchemy
 import sqlalchemy.exc
+from sqlalchemy.dialects import registry
 
-from cohortextractor.sqlalchemy_drivers import set_driver
+
+# Register our modified PyHive SQLAlchemy dialect
+registry.register(
+    "spark.pyhive.opensafely", "cohortextractor.query_engines.spark_lib", "SparkDialect"
+)
 
 
 class DbDetails:
     def __init__(
         self,
         protocol,
+        driver,
         host_from_container,
         port_from_container,
         host_from_host,
@@ -19,6 +25,7 @@ class DbDetails:
         db_name="",
     ):
         self.protocol = protocol
+        self.driver = driver
         self.host_from_container = host_from_container
         self.port_from_container = port_from_container
         self.host_from_host = host_from_host
@@ -34,21 +41,25 @@ class DbDetails:
         return self._url(self.host_from_container, self.port_from_container)
 
     def engine(self, **kwargs):
-        engine_url = sqlalchemy.engine.make_url(self.host_url())
-        engine_url = set_driver(engine_url)
+        url = self._url(self.host_from_host, self.port_from_host, include_driver=True)
+        engine_url = sqlalchemy.engine.make_url(url)
         # We always want the "future" API
         return sqlalchemy.create_engine(engine_url, future=True, **kwargs)
 
-    def _url(self, host, port):
+    def _url(self, host, port, include_driver=False):
         if self.username or self.password:
             auth = f"{self.username}:{self.password}@"
         else:
             auth = ""
-        return f"{self.protocol}://{auth}{host}:{port}/{self.db_name}"
+        if include_driver:
+            protocol = f"{self.protocol}+{self.driver}"
+        else:
+            protocol = self.protocol
+        return f"{protocol}://{auth}{host}:{port}/{self.db_name}"
 
 
 def null_database():
-    return DbDetails(None, None, None, None, None)
+    return DbDetails(None, None, None, None, None, None)
 
 
 def make_database(containers, mssql_dir):
@@ -65,6 +76,7 @@ def make_database(containers, mssql_dir):
 
     return DbDetails(
         protocol="mssql",
+        driver="pymssql",
         host_from_container=container_ip,
         port_from_container=mssql_port,
         host_from_host="localhost",
@@ -166,6 +178,7 @@ def make_spark_database(containers):
 
     return DbDetails(
         protocol="spark",
+        driver="pyhive+opensafely",
         host_from_container=container_name,
         port_from_container=spark_port,
         host_from_host="localhost",

@@ -2,7 +2,7 @@ import contextlib
 import datetime
 
 import sqlalchemy
-import sqlalchemy.dialects.mssql
+import sqlalchemy.dialects.mssql.pymssql
 import sqlalchemy.schema
 import sqlalchemy.types
 
@@ -62,7 +62,7 @@ class MSSQLDateTime(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
 
 
 class MssqlQueryEngine(BaseSQLQueryEngine):
-    sqlalchemy_dialect = sqlalchemy.dialects.mssql
+    sqlalchemy_dialect = sqlalchemy.dialects.mssql.pymssql.dialect
 
     custom_types = {
         "date": MSSQLDate,
