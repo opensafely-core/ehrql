@@ -4,7 +4,6 @@ import pytest
 
 from cohortextractor.query_language import categorise, table
 
-from .lib.databases import null_database
 from .lib.mock_backend import (
     CTV3Events,
     MockBackend,
@@ -100,12 +99,12 @@ def test_extract_get_single_column(database):
     assert list(result) == [dict(patient_id=1, output_value="Code1")]
 
 
-def test_invalid_table():
+def test_invalid_table(database):
     class Cohort(OldCohortWithPopulation):
         output_value = table("unknown").first_by("patient_id").get("code")
 
     with pytest.raises(ValueError, match="Unknown table 'unknown'"):
-        extract(Cohort, MockBackend, null_database())
+        extract(Cohort, MockBackend, database)
 
 
 @pytest.mark.parametrize(
