@@ -26,14 +26,6 @@ repos:
     hooks:
     -   id: pyupgrade
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.910
-    hooks:
-    - id: mypy
-      language_version: python3.9
-      additional_dependencies:
-       - "sqlalchemy-stubs"
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:
