@@ -35,7 +35,7 @@ def test_mssql_date_types():
 def _str(expression):
     return str(
         expression.compile(
-            dialect=mssql.MssqlQueryEngine.sqlalchemy_dialect.dialect(),
+            dialect=mssql.MssqlQueryEngine.sqlalchemy_dialect(),
             compile_kwargs={"literal_binds": True},
         )
     )
