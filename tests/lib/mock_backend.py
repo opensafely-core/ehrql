@@ -96,10 +96,8 @@ class Patients(Base):
 
 def patient(patient_id, *entities, height=None, dob=None):
     entities = list(entities)
-    if not any(isinstance(e, RegistrationHistory) for e in entities):
-        entities.append(
-            RegistrationHistory(StartDate="1900-01-01", EndDate="2999-12-31")
-        )
+    # add a default RegistrationHistory entry
+    entities.append(RegistrationHistory(StartDate="1900-01-01", EndDate="2999-12-31"))
     for entity in entities:
         entity.PatientId = patient_id
     return [Patients(PatientId=patient_id, Height=height, DateOfBirth=dob), *entities]

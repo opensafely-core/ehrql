@@ -23,7 +23,6 @@ class Containers:
         Given a port on a container return the port on the host to which it is
         mapped
         """
-        assert isinstance(container_port, int)
         container_port = f"{container_port}/tcp"
         container = self.get_container(name)
         port_config = container.attrs["NetworkSettings"]["Ports"][container_port]
