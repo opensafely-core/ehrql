@@ -32,7 +32,6 @@ def run_test(
             Patient_ID=2, ConsultationDate="2021-02-02", Code="abc", CodingSystem="CTV3"
         ),
         PracticeRegistrations(Patient_ID=2),
-        backend="graphnet",
     )
     study = load_study(
         "end_to_end_tests_graphnet",

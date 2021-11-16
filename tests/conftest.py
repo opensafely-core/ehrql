@@ -62,7 +62,7 @@ def setup_test_database(database):
 
 @pytest.fixture
 def setup_backend_database(setup_test_database):
-    def setup(*data, backend=None):
+    def setup(*data):
         setup_test_database(data)
 
     yield setup
@@ -77,7 +77,7 @@ def spark_database(containers):
 
 @pytest.fixture
 def setup_spark_database(spark_database):
-    def setup(*input_data, backend=None):
+    def setup(*input_data):
         input_data = list(iter_flatten(input_data))
         # Create engine
         engine = spark_database.engine()

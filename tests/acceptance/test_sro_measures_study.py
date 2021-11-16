@@ -154,7 +154,6 @@ def test_cohort_tpp_backend(database, setup_backend_database):
             ),
             tpp_schema.snomed_event(code="365625004", date="2019-03-02"),  # rbc
         ),
-        backend="tpp",
     )
 
     run_sro_measures_test(database, backend_cls=TPPBackend, backend="tpp")
@@ -242,7 +241,6 @@ def test_cohort_graphnet_backend(database, setup_backend_database):
             ),
             date_of_death="2010-01-01",
         ),
-        backend="graphnet",
     )
 
     run_sro_measures_test(database, backend_cls=GraphnetBackend, backend="graphnet")

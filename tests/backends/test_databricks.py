@@ -16,7 +16,7 @@ rand = random.Random(20211019)
 
 @pytest.fixture
 def setup_databricks_database(setup_spark_database):
-    return lambda *data: setup_spark_database(*data, backend="databricks")
+    return lambda *data: setup_spark_database(*data)
 
 
 def patient(patient_id, date_of_birth="1980-01-01", *entities):
