@@ -19,12 +19,11 @@ from ..lib.util import extract
 
 
 @pytest.mark.integration
-def test_basic_events_and_registration(database, setup_backend_database):
-    setup_backend_database(
+def test_basic_events_and_registration(database, setup_test_database):
+    setup_test_database(
         Patients(Patient_ID=1),
         PracticeRegistrations(Patient_ID=1),
         ClinicalEvents(Patient_ID=1, Code="Code1", CodingSystem="CTV3"),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -37,14 +36,13 @@ def test_basic_events_and_registration(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_registration_dates(database, setup_backend_database):
-    setup_backend_database(
+def test_registration_dates(database, setup_test_database):
+    setup_test_database(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2012-12-12"
         ),
         PracticeRegistrations(Patient_ID=1, StartDate="2013-01-01"),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -58,14 +56,13 @@ def test_registration_dates(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_registration_dates_no_end(database, setup_backend_database):
-    setup_backend_database(
+def test_registration_dates_no_end(database, setup_test_database):
+    setup_test_database(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2011-01-01", EndDate="2012-12-31"
         ),
         PracticeRegistrations(Patient_ID=1, StartDate="2013-01-01", EndDate=None),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -83,8 +80,8 @@ def test_registration_dates_no_end(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_covid_test_positive_result(database, setup_backend_database):
-    setup_backend_database(
+def test_covid_test_positive_result(database, setup_test_database):
+    setup_test_database(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
@@ -94,7 +91,6 @@ def test_covid_test_positive_result(database, setup_backend_database):
             SpecimenDate="2020-05-05",
             positive_result=True,
         ),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -111,8 +107,8 @@ def test_covid_test_positive_result(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_covid_test_negative_result(database, setup_backend_database):
-    setup_backend_database(
+def test_covid_test_negative_result(database, setup_test_database):
+    setup_test_database(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
@@ -122,7 +118,6 @@ def test_covid_test_negative_result(database, setup_backend_database):
             SpecimenDate="2020-05-05",
             positive_result=False,
         ),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -139,13 +134,12 @@ def test_covid_test_negative_result(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_patients_table(database, setup_backend_database):
-    setup_backend_database(
+def test_patients_table(database, setup_test_database):
+    setup_test_database(
         Patients(Patient_ID=1, Sex="F", DateOfBirth="1950-01-01"),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
         ),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -160,9 +154,9 @@ def test_patients_table(database, setup_backend_database):
 
 @pytest.mark.integration
 def test_hospitalization_table_returns_admission_date_and_code(
-    database, setup_backend_database
+    database, setup_test_database
 ):
-    setup_backend_database(
+    setup_test_database(
         patient(
             1,
             "M",
@@ -170,7 +164,6 @@ def test_hospitalization_table_returns_admission_date_and_code(
             registration("2001-01-01", "2026-06-26"),
             hospitalization(admit_date="2020-12-12", code="xyz"),
         ),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -184,14 +177,13 @@ def test_hospitalization_table_returns_admission_date_and_code(
 
 
 @pytest.mark.integration
-def test_events_with_numeric_value(database, setup_backend_database):
-    setup_backend_database(
+def test_events_with_numeric_value(database, setup_test_database):
+    setup_test_database(
         Patients(Patient_ID=1),
         PracticeRegistrations(Patient_ID=1),
         ClinicalEvents(
             Patient_ID=1, Code="Code1", CodingSystem="CTV3", NumericValue=34.7
         ),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -203,8 +195,8 @@ def test_events_with_numeric_value(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_organisation(database, setup_backend_database):
-    setup_backend_database(
+def test_organisation(database, setup_test_database):
+    setup_test_database(
         # Organisation not a separate table, so will just move detail to single registration record
         # organisation(1, "South"),
         # organisation(2, "North"),
@@ -220,7 +212,6 @@ def test_organisation(database, setup_backend_database):
             "1990-1-1",
             registration("2001-01-01", "2026-06-26", "J82031", "South West"),
         ),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -235,8 +226,8 @@ def test_organisation(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_organisation_dates(database, setup_backend_database):
-    setup_backend_database(
+def test_organisation_dates(database, setup_test_database):
+    setup_test_database(
         # Organisation not a separate table, so will just move detail to registration record
         # organisation(1, "South"),
         # organisation(2, "North"),
@@ -265,7 +256,6 @@ def test_organisation_dates(database, setup_backend_database):
             "1990-1-1",
             registration("2001-01-01", "2020-06-26", "S21021", "East"),
         ),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -282,8 +272,8 @@ def test_organisation_dates(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_index_of_multiple_deprivation(database, setup_backend_database):
-    setup_backend_database(
+def test_index_of_multiple_deprivation(database, setup_test_database):
+    setup_test_database(
         patient(
             1,
             "M",
@@ -291,7 +281,6 @@ def test_index_of_multiple_deprivation(database, setup_backend_database):
             registration("2001-01-01", "2026-06-26"),
             patient_address("2001-01-01", "2026-06-26", 1200, "E02000001", True),
         ),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -348,9 +337,9 @@ def test_index_of_multiple_deprivation(database, setup_backend_database):
     ],
 )
 def test_index_of_multiple_deprivation_sorting(
-    database, setup_backend_database, patient_addresses, expected
+    database, setup_test_database, patient_addresses, expected
 ):
-    setup_backend_database(
+    setup_test_database(
         patient(
             1,
             "M",
@@ -358,7 +347,6 @@ def test_index_of_multiple_deprivation_sorting(
             registration("2001-01-01", "2026-06-26"),
             *patient_addresses,
         ),
-        backend="graphnet",
     )
 
     class Cohort:
