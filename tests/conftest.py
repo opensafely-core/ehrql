@@ -60,14 +60,6 @@ def setup_test_database(database):
     return setup
 
 
-@pytest.fixture
-def setup_backend_database(setup_test_database):
-    def setup(*data):
-        setup_test_database(data)
-
-    yield setup
-
-
 @pytest.fixture(scope="session")
 def spark_database(containers):
     database = make_spark_database(containers)

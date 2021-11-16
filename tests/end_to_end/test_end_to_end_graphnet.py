@@ -6,22 +6,20 @@ from .utils import assert_results_equivalent
 
 @pytest.mark.smoke
 def test_extracts_data_from_sql_server_smoke_test(
-    load_study, setup_backend_database, cohort_extractor_in_container
+    load_study, setup_test_database, cohort_extractor_in_container
 ):
-    run_test(load_study, setup_backend_database, cohort_extractor_in_container)
+    run_test(load_study, setup_test_database, cohort_extractor_in_container)
 
 
 @pytest.mark.integration
 def test_extracts_data_from_sql_server_integration_test(
-    load_study, setup_backend_database, cohort_extractor_in_process
+    load_study, setup_test_database, cohort_extractor_in_process
 ):
-    run_test(load_study, setup_backend_database, cohort_extractor_in_process)
+    run_test(load_study, setup_test_database, cohort_extractor_in_process)
 
 
-def run_test(
-    load_study, setup_backend_database, cohort_extractor, dummy_data_file=None
-):
-    setup_backend_database(
+def run_test(load_study, setup_test_database, cohort_extractor, dummy_data_file=None):
+    setup_test_database(
         Patients(Patient_ID=1, DateOfBirth="1980-01-01"),
         ClinicalEvents(
             Patient_ID=1, ConsultationDate="2021-01-01", Code="xyz", CodingSystem="CTV3"
@@ -55,13 +53,13 @@ def test_dummy_data(load_study, cohort_extractor_in_process_no_database):
 
 @pytest.mark.integration
 def test_extracts_data_from_sql_server_ignores_dummy_data_file(
-    load_study, setup_backend_database, cohort_extractor_in_process
+    load_study, setup_test_database, cohort_extractor_in_process
 ):
     # A dummy data file is ignored if running in a real backend (i.e. DATABASE_URL is set)
     # This provides an invalid dummy data file, but it is ignored so no errors are raised
     run_test(
         load_study,
-        setup_backend_database,
+        setup_test_database,
         cohort_extractor_in_process,
         "invalid_dummy_data.csv",
     )

@@ -22,8 +22,8 @@ from ..lib.util import extract
 
 
 @pytest.mark.integration
-def test_basic_events_and_registration(database, setup_backend_database):
-    setup_backend_database(
+def test_basic_events_and_registration(database, setup_test_database):
+    setup_test_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1),
         CTV3Events(Patient_ID=1, CTV3Code="Code1"),
@@ -36,8 +36,8 @@ def test_basic_events_and_registration(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_registration_dates(database, setup_backend_database):
-    setup_backend_database(
+def test_registration_dates(database, setup_test_database):
+    setup_test_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2012-12-12"),
     )
@@ -53,8 +53,8 @@ def test_registration_dates(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_covid_test_positive_result(database, setup_backend_database):
-    setup_backend_database(
+def test_covid_test_positive_result(database, setup_test_database):
+    setup_test_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
         SGSSPositiveTests(
@@ -75,8 +75,8 @@ def test_covid_test_positive_result(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_covid_test_negative_result(database, setup_backend_database):
-    setup_backend_database(
+def test_covid_test_negative_result(database, setup_test_database):
+    setup_test_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
         SGSSNegativeTests(
@@ -100,8 +100,8 @@ def test_covid_test_negative_result(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_patients_table(database, setup_backend_database):
-    setup_backend_database(
+def test_patients_table(database, setup_test_database):
+    setup_test_database(
         Patient(Patient_ID=1, Sex="F", DateOfBirth="1950-01-01"),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
     )
@@ -118,9 +118,9 @@ def test_patients_table(database, setup_backend_database):
 
 @pytest.mark.integration
 def test_hospitalization_table_returns_admission_date_and_code(
-    database, setup_backend_database
+    database, setup_test_database
 ):
-    setup_backend_database(
+    setup_test_database(
         patient(
             1,
             "M",
@@ -159,9 +159,9 @@ def test_hospitalization_table_returns_admission_date_and_code(
 )
 @pytest.mark.integration
 def test_hospitalization_table_code_conversion(
-    database, setup_backend_database, raw, codes
+    database, setup_test_database, raw, codes
 ):
-    setup_backend_database(
+    setup_test_database(
         patient(
             1,
             "M",
@@ -188,10 +188,8 @@ def run_query(database, query):
 
 
 @pytest.mark.integration
-def test_hospitalization_code_parsing_works_with_filters(
-    database, setup_backend_database
-):
-    setup_backend_database(
+def test_hospitalization_code_parsing_works_with_filters(database, setup_test_database):
+    setup_test_database(
         patient(
             1,
             "X",
@@ -223,8 +221,8 @@ def test_hospitalization_code_parsing_works_with_filters(
 
 
 @pytest.mark.integration
-def test_events_with_numeric_value(database, setup_backend_database):
-    setup_backend_database(
+def test_events_with_numeric_value(database, setup_test_database):
+    setup_test_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1),
         CTV3Events(Patient_ID=1, CTV3Code="Code1", NumericValue=34.7),
@@ -237,8 +235,8 @@ def test_events_with_numeric_value(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_organisation(database, setup_backend_database):
-    setup_backend_database(
+def test_organisation(database, setup_test_database):
+    setup_test_database(
         organisation(1, "South"),
         organisation(2, "North"),
         patient(1, "M", "1990-1-1", registration("2001-01-01", "2021-06-26", 1)),
@@ -257,8 +255,8 @@ def test_organisation(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_organisation_dates(database, setup_backend_database):
-    setup_backend_database(
+def test_organisation_dates(database, setup_test_database):
+    setup_test_database(
         organisation(1, "South"),
         organisation(2, "North"),
         organisation(3, "West"),
@@ -297,8 +295,8 @@ def test_organisation_dates(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_index_of_multiple_deprivation(database, setup_backend_database):
-    setup_backend_database(
+def test_index_of_multiple_deprivation(database, setup_test_database):
+    setup_test_database(
         patient(
             1,
             "M",
@@ -354,9 +352,9 @@ def test_index_of_multiple_deprivation(database, setup_backend_database):
     ],
 )
 def test_index_of_multiple_deprivation_sorting(
-    database, setup_backend_database, patient_addresses, expected
+    database, setup_test_database, patient_addresses, expected
 ):
-    setup_backend_database(
+    setup_test_database(
         patient(
             1,
             "M",
@@ -373,8 +371,8 @@ def test_index_of_multiple_deprivation_sorting(
 
 
 @pytest.mark.integration
-def test_clinical_events_table(database, setup_backend_database):
-    setup_backend_database(
+def test_clinical_events_table(database, setup_test_database):
+    setup_test_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
         CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-01-01"),
@@ -400,8 +398,8 @@ def test_clinical_events_table(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_clinical_events_table_multiple_codes(database, setup_backend_database):
-    setup_backend_database(
+def test_clinical_events_table_multiple_codes(database, setup_test_database):
+    setup_test_database(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
         CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-01-01"),

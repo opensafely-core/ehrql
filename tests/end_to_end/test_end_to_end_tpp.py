@@ -8,25 +8,25 @@ from .utils import assert_results_equivalent
 
 @pytest.mark.smoke
 def test_extracts_data_from_sql_server_smoke_test(
-    load_study, setup_backend_database, cohort_extractor_in_container
+    load_study, setup_test_database, cohort_extractor_in_container
 ):
-    run_test(load_study, setup_backend_database, cohort_extractor_in_container)
+    run_test(load_study, setup_test_database, cohort_extractor_in_container)
 
 
 @pytest.mark.integration
 def test_extracts_data_from_sql_server_integration_test(
-    load_study, setup_backend_database, cohort_extractor_in_process
+    load_study, setup_test_database, cohort_extractor_in_process
 ):
-    run_test(load_study, setup_backend_database, cohort_extractor_in_process)
+    run_test(load_study, setup_test_database, cohort_extractor_in_process)
 
 
 @pytest.mark.integration
 def test_extracts_data_from_sql_server_integration_test_new_dsl(
-    load_study, setup_backend_database, cohort_extractor_in_process
+    load_study, setup_test_database, cohort_extractor_in_process
 ):
     run_test(
         load_study,
-        setup_backend_database,
+        setup_test_database,
         cohort_extractor_in_process,
         definition_file="tpp_cohort_new_dsl.py",
     )
@@ -34,13 +34,13 @@ def test_extracts_data_from_sql_server_integration_test_new_dsl(
 
 def run_test(
     load_study,
-    setup_backend_database,
+    setup_test_database,
     cohort_extractor,
     definition_file=None,
     dummy_data_file=None,
 ):
     definition_file = definition_file or "tpp_cohort.py"
-    setup_backend_database(
+    setup_test_database(
         Patient(Patient_ID=1),
         CTV3Events(Patient_ID=1, ConsultationDate="2021-01-01", CTV3Code="xyz"),
         RegistrationHistory(Patient_ID=1),
@@ -87,13 +87,13 @@ def test_validate_cohort(load_study, cohort_extractor_in_process_no_database):
 
 @pytest.mark.integration
 def test_extracts_data_from_sql_server_ignores_dummy_data_file(
-    load_study, setup_backend_database, cohort_extractor_in_process
+    load_study, setup_test_database, cohort_extractor_in_process
 ):
     # A dummy data file is ignored if running in a real backend (i.e. DATABASE_URL is set)
     # This provides an invalid dummy data file, but it is ignored so no errors are raised
     run_test(
         load_study,
-        setup_backend_database,
+        setup_test_database,
         cohort_extractor_in_process,
         dummy_data_file="invalid_dummy_data.csv",
     )
