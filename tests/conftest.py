@@ -40,24 +40,7 @@ def database(request, containers, mssql_dir):
 
 @pytest.fixture
 def setup_test_database(database):
-    def setup(*input_data):
-        input_data = list(iter_flatten(input_data))
-        # Create engine
-        engine = database.engine()
-        # Reset the schema
-        metadata = input_data[0].metadata
-        assert all(item.metadata is metadata for item in input_data)
-        metadata.drop_all(engine)
-        metadata.create_all(engine)
-        # Create session
-        Session = sessionmaker()
-        Session.configure(bind=engine)
-        session = Session()
-        # Load test data
-        session.bulk_save_objects(input_data)
-        session.commit()
-
-    return setup
+    return make_database_setup_function(database)
 
 
 @pytest.fixture(scope="session")
@@ -69,10 +52,14 @@ def spark_database(containers):
 
 @pytest.fixture
 def setup_spark_database(spark_database):
+    return make_database_setup_function(spark_database)
+
+
+def make_database_setup_function(database):
     def setup(*input_data):
         input_data = list(iter_flatten(input_data))
         # Create engine
-        engine = spark_database.engine()
+        engine = database.engine()
         # Reset the schema
         metadata = input_data[0].metadata
         assert all(item.metadata is metadata for item in input_data)
