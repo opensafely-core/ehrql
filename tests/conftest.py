@@ -34,7 +34,7 @@ def database(request, containers, mssql_dir):
     yield database
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def setup_test_database(database):
     return make_database_setup_function(database)
 
@@ -46,7 +46,7 @@ def spark_database(containers):
     yield database
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def setup_spark_database(spark_database):
     return make_database_setup_function(spark_database)
 
