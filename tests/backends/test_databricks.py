@@ -14,11 +14,6 @@ from ..lib.util import extract, iter_flatten
 rand = random.Random(20211019)
 
 
-@pytest.fixture
-def setup_databricks_database(setup_spark_database):
-    return lambda *data: setup_spark_database(*data)
-
-
 def patient(patient_id, date_of_birth="1980-01-01", *entities):
     if not entities:
         entities = [prescription(date="", code="")]
@@ -60,8 +55,8 @@ def admission(
 
 
 @pytest.mark.integration
-def test_basic_databricks_study_definition(spark_database, setup_databricks_database):
-    setup_databricks_database(
+def test_basic_databricks_study_definition(spark_database, setup_spark_database):
+    setup_spark_database(
         patient(
             10,
             "1950-08-20",
