@@ -20,16 +20,6 @@ from .lib.util import OldCohortWithPopulation, extract, make_codelist
 pytestmark = pytest.mark.integration
 
 
-def test_backend_tables():
-    """Test that a backend registers its table names"""
-    assert MockBackend.tables == {
-        "practice_registrations",
-        "clinical_events",
-        "patients",
-        "positive_tests",
-    }
-
-
 def test_run_generated_sql_get_single_column_default_population(database):
     input_data = [
         patient(
