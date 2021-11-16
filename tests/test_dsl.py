@@ -71,7 +71,7 @@ def test_multiple_filters():
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
-def test_exists_aggregation():
+def test_count_aggregation():
     class OldCohort:
         # Define tables of interest, filtered to relevant values
         num_events = table("clinical_events").count("code")
@@ -85,7 +85,7 @@ def test_exists_aggregation():
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
-def test_count_aggregation():
+def test_exists_aggregation():
     class OldCohort:
         # Define tables of interest, filtered to relevant values
         has_events = table("clinical_events").exists("code")
