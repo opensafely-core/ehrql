@@ -12,7 +12,9 @@ exclude = '''
 
 [tool.coverage.run]
 branch = true
-omit = []
+omit = [
+    "tests/acceptance/test_full_long_covid_study_dsl.py",
+]
 
 [tool.coverage.report]
 fail_under = 99.5
