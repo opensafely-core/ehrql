@@ -1,8 +1,12 @@
 import time
+from pathlib import Path
 
 import sqlalchemy
 import sqlalchemy.exc
 from sqlalchemy.dialects import registry
+
+
+MSSQL_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/mssql"
 
 
 # Register our modified PyHive SQLAlchemy dialect
@@ -62,14 +66,14 @@ def null_database():
     return DbDetails(None, None, None, None, None, None)
 
 
-def make_database(containers, mssql_dir):
+def make_database(containers):
     password = "Your_password123!"
 
     container_name = "cohort-extractor-mssql"
     mssql_port = 1433
 
     if not containers.is_running(container_name):  # pragma: no cover
-        run_mssql(container_name, containers, mssql_dir, password, mssql_port)
+        run_mssql(container_name, containers, password, mssql_port)
 
     container_ip = containers.get_container_ip(container_name)
     host_mssql_port = containers.get_mapped_port_for_host(container_name, mssql_port)
@@ -111,14 +115,12 @@ def wait_for_database(database, timeout=10):
             time.sleep(1)
 
 
-def run_mssql(
-    container_name, containers, mssql_dir, password, mssql_port
-):  # pragma: no cover
+def run_mssql(container_name, containers, password, mssql_port):  # pragma: no cover
     containers.run_bg(
         name=container_name,
         image="mcr.microsoft.com/mssql/server:2017-CU25-ubuntu-16.04",
         volumes={
-            mssql_dir: {"bind": "/mssql", "mode": "ro"},
+            MSSQL_SETUP_DIR: {"bind": "/mssql", "mode": "ro"},
         },
         # Choose an arbitrary free port to publish the MSSQL port on
         ports={mssql_port: None},

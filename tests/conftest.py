@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import docker
 import docker.errors
 import pytest
@@ -23,13 +21,8 @@ def containers(docker_client):
 
 
 @pytest.fixture(scope="session")
-def mssql_dir():
-    yield Path(__file__).parent.absolute() / "support/mssql"
-
-
-@pytest.fixture(scope="session")
-def database(request, containers, mssql_dir):
-    database = make_database(containers, mssql_dir)
+def database(request, containers):
+    database = make_database(containers)
     wait_for_database(database)
     yield database
 
