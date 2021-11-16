@@ -29,12 +29,8 @@ def mssql_dir():
 
 @pytest.fixture(scope="session")
 def database(request, containers, mssql_dir):
-    try:
-        database = request.session.database
-    except AttributeError:
-        database = make_database(containers, mssql_dir)
-        wait_for_database(database)
-        request.session.database = database
+    database = make_database(containers, mssql_dir)
+    wait_for_database(database)
     yield database
 
 
