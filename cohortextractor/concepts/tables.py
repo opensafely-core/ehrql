@@ -12,9 +12,6 @@ class ClinicalEvents(QueryBuilder):
         super().__init__("clinical_events")
 
 
-clinical_events = ClinicalEvents()
-
-
 class Patients(TableContract):
     """
     The Patients table holds personal details about the patient.
@@ -35,3 +32,13 @@ class Patients(TableContract):
         type=types.Choice("F", "M"),
         help="The patient's sex",
     )
+
+
+clinical_events = ClinicalEvents()
+patients = Patients()
+
+# Stubs
+hospitalizations = None
+patient_addresses = None
+registrations = None
+sgss_sars_cov_2 = None

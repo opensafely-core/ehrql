@@ -8,3 +8,9 @@ __all__ = [
     "pick_first_value",
     "register",
 ]
+
+
+# Stubs
+categorise = None
+codelist = None
+pick_last_value = None
