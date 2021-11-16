@@ -40,7 +40,7 @@ def database(request, containers, mssql_dir):
 
 @pytest.fixture
 def setup_test_database(database):
-    def setup(input_data):
+    def setup(*input_data):
         input_data = list(iter_flatten(input_data))
         # Create engine
         engine = database.engine()
