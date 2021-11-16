@@ -66,6 +66,30 @@ def null_database():
     return DbDetails(None, None, None, None, None, None)
 
 
+def wait_for_database(database, timeout=10):
+    engine = database.engine()
+
+    start = time.time()
+    limit = start + timeout
+    while True:
+        try:
+            with engine.connect() as connection:
+                connection.execute(sqlalchemy.text("SELECT 'hello'"))
+            break
+        except (
+            sqlalchemy.exc.OperationalError,
+            ConnectionRefusedError,
+            ConnectionResetError,
+            BrokenPipeError,
+        ) as e:  # pragma: no cover
+            if time.time() >= limit:
+                raise Exception(
+                    f"Failed to connect to database after {timeout} seconds: "
+                    f"{engine.url}"
+                ) from e
+            time.sleep(1)
+
+
 def make_database(containers):
     password = "Your_password123!"
 
@@ -89,30 +113,6 @@ def make_database(containers):
         password=password,
         db_name="test",
     )
-
-
-def wait_for_database(database, timeout=10):
-    engine = database.engine()
-
-    start = time.time()
-    limit = start + timeout
-    while True:
-        try:
-            with engine.connect() as connection:
-                connection.execute(sqlalchemy.text("SELECT 'hello'"))
-            break
-        except (
-            sqlalchemy.exc.OperationalError,
-            ConnectionRefusedError,
-            ConnectionResetError,
-            BrokenPipeError,
-        ) as e:  # pragma: no cover
-            if time.time() >= limit:
-                raise Exception(
-                    f"Failed to connect to database after {timeout} seconds: "
-                    f"{engine.url}"
-                ) from e
-            time.sleep(1)
 
 
 def run_mssql(container_name, containers, password, mssql_port):  # pragma: no cover
