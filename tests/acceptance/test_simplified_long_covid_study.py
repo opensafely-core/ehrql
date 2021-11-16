@@ -85,7 +85,7 @@ for code in long_covid_diagnostic_codes.codes:
 @pytest.mark.integration
 def test_simplified_cohort(database, setup_backend_database):
     setup_backend_database(
-        *patient(
+        patient(
             1,
             "F",
             "1990-8-10",
@@ -105,7 +105,7 @@ def test_simplified_cohort(database, setup_backend_database):
             ),  # post-covid syndrome
         ),
         # excluded by registration date
-        *patient(
+        patient(
             2,
             "M",
             "1990-1-1",

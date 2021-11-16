@@ -154,7 +154,7 @@ for target_codelist in [any_long_covid_code, post_viral_fatigue_codes]:
 def test_cohort(database, setup_backend_database):
     setup_backend_database(
         organisation(organisation_id=1, region="South"),
-        *patient(
+        patient(
             1,
             "F",
             "1990-8-10",
@@ -195,7 +195,7 @@ def test_cohort(database, setup_backend_database):
             ctv3_event(code="22K..", date="2020-09-09", numeric_value=34.1),  # BMI
         ),
         # excluded by registration date
-        *patient(
+        patient(
             2,
             "M",
             "1990-1-1",

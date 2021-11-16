@@ -104,7 +104,7 @@ def test_cohort_tpp_backend(database, setup_backend_database):
         tpp_schema.organisation(organisation_id=1, region="South"),
         tpp_schema.organisation(organisation_id=2, region="North"),
         # present at index date 1
-        *tpp_schema.patient(
+        tpp_schema.patient(
             1,
             "F",
             "1990-8-10",
@@ -124,7 +124,7 @@ def test_cohort_tpp_backend(database, setup_backend_database):
             ),  # alt, out of range
         ),
         # present at index date 2
-        *tpp_schema.patient(
+        tpp_schema.patient(
             2,
             "M",
             "1990-1-1",
@@ -145,7 +145,7 @@ def test_cohort_tpp_backend(database, setup_backend_database):
             tpp_schema.snomed_event(code="394703002", date="2019-02-01"),  # copd
         ),
         # excluded by registration date
-        *tpp_schema.patient(
+        tpp_schema.patient(
             3,
             "M",
             "1990-1-1",
@@ -164,7 +164,7 @@ def test_cohort_tpp_backend(database, setup_backend_database):
 def test_cohort_graphnet_backend(database, setup_backend_database):
     setup_backend_database(
         # present at index date 1
-        *graphnet_schema.patient(
+        graphnet_schema.patient(
             1,
             "F",
             "1990-8-10",
@@ -191,7 +191,7 @@ def test_cohort_graphnet_backend(database, setup_backend_database):
             ),  # alt, out of range
         ),
         # present at index date 2
-        *graphnet_schema.patient(
+        graphnet_schema.patient(
             2,
             "M",
             "1990-1-1",
@@ -221,7 +221,7 @@ def test_cohort_graphnet_backend(database, setup_backend_database):
             ),  # copd
         ),
         # excluded by registration date
-        *graphnet_schema.patient(
+        graphnet_schema.patient(
             3,
             "M",
             "1990-1-1",
@@ -233,7 +233,7 @@ def test_cohort_graphnet_backend(database, setup_backend_database):
             ),  # rbc
         ),
         # excluded by death
-        *graphnet_schema.patient(
+        graphnet_schema.patient(
             4,
             "M",
             "1990-1-1",
