@@ -41,6 +41,5 @@ class Variable:
         if self.filter:
             for filter_args, filter_kwargs in self.filter:
                 table = table.filter(*filter_args, **filter_kwargs)
-        patient = self.reduce_function(table)
-        column = patient.get(self.column_name)
+        column = self.reduce_function(table, self.column_name)
         return column
