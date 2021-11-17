@@ -7,12 +7,12 @@ from .lib.util import extract
 
 
 @pytest.mark.integration
-def test_pick_a_single_value(database, setup_test_database):
+def test_pick_a_single_value(database):
     input_data = [
         RegistrationHistory(PatientId=1),
         CTV3Events(PatientId=1, EventCode="xyz"),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         code = table("clinical_events").first_by("patient_id").get("code")

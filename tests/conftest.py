@@ -26,20 +26,10 @@ def database(request, containers):
 
 
 @pytest.fixture(scope="session")
-def setup_test_database(database):
-    return database.setup
-
-
-@pytest.fixture(scope="session")
 def spark_database(containers):
     database = make_spark_database(containers)
     wait_for_database(database, timeout=15)
     yield database
-
-
-@pytest.fixture(scope="session")
-def setup_spark_database(spark_database):
-    return spark_database.setup
 
 
 @pytest.fixture(autouse=True)

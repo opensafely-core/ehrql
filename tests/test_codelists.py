@@ -22,7 +22,7 @@ def codelist_csv():
 
 
 @pytest.mark.integration
-def test_codelist_query(database, setup_test_database):
+def test_codelist_query(database):
     input_data = [
         patient(
             1,
@@ -33,7 +33,7 @@ def test_codelist_query(database, setup_test_database):
         patient(2, ctv3_event(code="bar", date="2021-01-01")),
         patient(3, ctv3_event(code="ijk", date="2021-01-01")),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     # Insert a load of extra codes as padding to force this test to exercise
     # the "insert in multiple batches" codepath
@@ -57,13 +57,13 @@ def test_codelist_query(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_codelist_equals_query(database, setup_test_database):
+def test_codelist_equals_query(database):
     input_data = [
         patient(1, ctv3_event(code="abc", date="2021-01-01")),
         patient(2, ctv3_event(code="bar", date="2021-01-01")),
         patient(3, ctv3_event(code="ijk", date="2021-01-01")),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     # A single code codelist can be expressed as an equals query
     test_codelist = codelist(["abc"], system="ctv3")
@@ -80,7 +80,7 @@ def test_codelist_equals_query(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_codelist_query_selects_correct_system(database, setup_test_database):
+def test_codelist_query_selects_correct_system(database):
     input_data = [
         patient(
             1,
@@ -90,7 +90,7 @@ def test_codelist_query_selects_correct_system(database, setup_test_database):
         patient(2, ctv3_event(code="sabc", date="2021-01-01")),
         patient(3, ctv3_event(code="ijk", date="2021-01-01", system="snomed")),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     test_codelist = codelist(["sabc", "sxyz", "ijk"], system="snomed")
 
@@ -195,15 +195,13 @@ def test_combine_codelists_different_systems():
 
 
 @pytest.mark.integration
-def test_codelist_query_with_codelist_from_csv(
-    database, setup_test_database, codelist_csv
-):
+def test_codelist_query_with_codelist_from_csv(database, codelist_csv):
     input_data = [
         patient(1, ctv3_event(code="abc", date="2021-01-01")),
         patient(2, ctv3_event(code="bar", date="2021-01-01")),
         patient(3, ctv3_event(code="ijk", date="2021-01-01")),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     codelist_csv_path = codelist_csv("long_csv")
 
