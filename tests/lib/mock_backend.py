@@ -21,8 +21,8 @@ class MockBackend(BaseBackend):
         source="practice_registrations",
         columns=dict(
             stp=Column("varchar", source="StpId"),
-            date_start=Column("datetime", source="StartDate"),
-            date_end=Column("datetime", source="EndDate"),
+            date_start=Column("date", source="StartDate"),
+            date_end=Column("date", source="EndDate"),
         ),
     )
     clinical_events = MappedTable(
@@ -30,7 +30,7 @@ class MockBackend(BaseBackend):
         columns=dict(
             code=Column("varchar", source="EventCode"),
             system=Column("varchar", source="System"),
-            date=Column("varchar", source="Date"),
+            date=Column("date", source="Date"),
             result=Column("float", source="ResultValue"),
         ),
     )
