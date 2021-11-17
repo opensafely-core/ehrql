@@ -4,6 +4,9 @@ from pathlib import Path
 import sqlalchemy
 import sqlalchemy.exc
 from sqlalchemy.dialects import registry
+from sqlalchemy.orm import sessionmaker
+
+from .util import iter_flatten
 
 
 MSSQL_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/mssql"
@@ -60,6 +63,27 @@ class DbDetails:
         else:
             protocol = self.protocol
         return f"{protocol}://{auth}{host}:{port}/{self.db_name}"
+
+    def setup(self, *input_data):
+        """
+        Accepts SQLAlchemy ORM objects (which may be arbitrarily nested within lists and
+        tuples), creates the necessary tables and inserts them into the database
+        """
+        input_data = list(iter_flatten(input_data))
+        # Create engine
+        engine = self.engine()
+        # Reset the schema
+        metadata = input_data[0].metadata
+        assert all(item.metadata is metadata for item in input_data)
+        metadata.drop_all(engine)
+        metadata.create_all(engine)
+        # Create session
+        Session = sessionmaker()
+        Session.configure(bind=engine)
+        session = Session()
+        # Load test data
+        session.bulk_save_objects(input_data)
+        session.commit()
 
 
 def null_database():

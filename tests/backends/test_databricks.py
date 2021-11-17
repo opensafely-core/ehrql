@@ -55,8 +55,8 @@ def admission(
 
 
 @pytest.mark.integration
-def test_basic_databricks_study_definition(spark_database, setup_spark_database):
-    setup_spark_database(
+def test_basic_databricks_study_definition(spark_database):
+    spark_database.setup(
         patient(
             10,
             "1950-08-20",

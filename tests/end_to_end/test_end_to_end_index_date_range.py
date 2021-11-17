@@ -10,12 +10,12 @@ from .utils import assert_results_equivalent
 
 @pytest.mark.smoke
 def test_extracts_data_with_index_date_range_smoke_test(
-    load_study, setup_test_database, cohort_extractor_in_container
+    load_study, database, cohort_extractor_in_container
 ):
     study = load_study("end_to_end_index_date_range", output_file_name="cohort_*.csv")
     run_index_date_range_test(
         study,
-        setup_test_database,
+        database,
         cohort_extractor_in_container,
         expected_number_of_results=3,
     )
@@ -24,7 +24,7 @@ def test_extracts_data_with_index_date_range_smoke_test(
 @pytest.mark.integration
 def test_extracts_data_with_index_date_range_integration_test(
     load_study,
-    setup_test_database,
+    database,
     cohort_extractor_in_process,
 ):
     study = load_study(
@@ -33,7 +33,7 @@ def test_extracts_data_with_index_date_range_integration_test(
     )
     run_index_date_range_test(
         study,
-        setup_test_database,
+        database,
         cohort_extractor_in_process,
         expected_number_of_results=3,
     )
@@ -42,7 +42,7 @@ def test_extracts_data_with_index_date_range_integration_test(
 @pytest.mark.integration
 def test_cohort_function_without_index_date_range(
     load_study,
-    setup_test_database,
+    database,
     cohort_extractor_in_process,
 ):
     """A cohort function without an index date range can return a normal, single Cohort class"""
@@ -53,7 +53,7 @@ def test_cohort_function_without_index_date_range(
     )
     run_index_date_range_test(
         study,
-        setup_test_database,
+        database,
         cohort_extractor_in_process,
         expected_number_of_results=1,
         match_output_pattern=False,
@@ -103,12 +103,12 @@ def test_index_date_range_cohort_definition_errors(
 
 def run_index_date_range_test(
     study,
-    setup_test_database,
+    database,
     cohort_extractor,
     expected_number_of_results,
     match_output_pattern=True,
 ):
-    setup_test_database(
+    database.setup(
         patient(
             1,
             "F",

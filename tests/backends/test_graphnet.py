@@ -19,8 +19,8 @@ from ..lib.util import extract
 
 
 @pytest.mark.integration
-def test_basic_events_and_registration(database, setup_test_database):
-    setup_test_database(
+def test_basic_events_and_registration(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(Patient_ID=1),
         ClinicalEvents(Patient_ID=1, Code="Code1", CodingSystem="CTV3"),
@@ -36,8 +36,8 @@ def test_basic_events_and_registration(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_registration_dates(database, setup_test_database):
-    setup_test_database(
+def test_registration_dates(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2012-12-12"
@@ -56,8 +56,8 @@ def test_registration_dates(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_registration_dates_no_end(database, setup_test_database):
-    setup_test_database(
+def test_registration_dates_no_end(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2011-01-01", EndDate="2012-12-31"
@@ -80,8 +80,8 @@ def test_registration_dates_no_end(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_covid_test_positive_result(database, setup_test_database):
-    setup_test_database(
+def test_covid_test_positive_result(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
@@ -107,8 +107,8 @@ def test_covid_test_positive_result(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_covid_test_negative_result(database, setup_test_database):
-    setup_test_database(
+def test_covid_test_negative_result(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
@@ -134,8 +134,8 @@ def test_covid_test_negative_result(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_patients_table(database, setup_test_database):
-    setup_test_database(
+def test_patients_table(database):
+    database.setup(
         Patients(Patient_ID=1, Sex="F", DateOfBirth="1950-01-01"),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
@@ -153,10 +153,8 @@ def test_patients_table(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_hospitalization_table_returns_admission_date_and_code(
-    database, setup_test_database
-):
-    setup_test_database(
+def test_hospitalization_table_returns_admission_date_and_code(database):
+    database.setup(
         patient(
             1,
             "M",
@@ -177,8 +175,8 @@ def test_hospitalization_table_returns_admission_date_and_code(
 
 
 @pytest.mark.integration
-def test_events_with_numeric_value(database, setup_test_database):
-    setup_test_database(
+def test_events_with_numeric_value(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(Patient_ID=1),
         ClinicalEvents(
@@ -195,8 +193,8 @@ def test_events_with_numeric_value(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_organisation(database, setup_test_database):
-    setup_test_database(
+def test_organisation(database):
+    database.setup(
         # Organisation not a separate table, so will just move detail to single registration record
         # organisation(1, "South"),
         # organisation(2, "North"),
@@ -226,8 +224,8 @@ def test_organisation(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_organisation_dates(database, setup_test_database):
-    setup_test_database(
+def test_organisation_dates(database):
+    database.setup(
         # Organisation not a separate table, so will just move detail to registration record
         # organisation(1, "South"),
         # organisation(2, "North"),
@@ -272,8 +270,8 @@ def test_organisation_dates(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_index_of_multiple_deprivation(database, setup_test_database):
-    setup_test_database(
+def test_index_of_multiple_deprivation(database):
+    database.setup(
         patient(
             1,
             "M",
@@ -336,10 +334,8 @@ def test_index_of_multiple_deprivation(database, setup_test_database):
         ),
     ],
 )
-def test_index_of_multiple_deprivation_sorting(
-    database, setup_test_database, patient_addresses, expected
-):
-    setup_test_database(
+def test_index_of_multiple_deprivation_sorting(database, patient_addresses, expected):
+    database.setup(
         patient(
             1,
             "M",

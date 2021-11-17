@@ -27,9 +27,7 @@ def test_backend_tables():
 
 
 @pytest.mark.integration
-def test_run_generated_sql_get_single_column_default_population(
-    database, setup_test_database
-):
+def test_run_generated_sql_get_single_column_default_population(database):
     input_data = [
         patient(
             1,
@@ -38,7 +36,7 @@ def test_run_generated_sql_get_single_column_default_population(
         # patient 2 has an event, but no RegistrationHistory entry
         CTV3Events(PatientId=2, EventCode="Code2", System="ctv3"),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     # Cohort to extract all clinical events and return just the code column
     # Note that the RegistrationHistory table is used for the default population query
@@ -53,15 +51,13 @@ def test_run_generated_sql_get_single_column_default_population(
 
 
 @pytest.mark.integration
-def test_run_generated_sql_get_single_column_specified_population(
-    database, setup_test_database
-):
+def test_run_generated_sql_get_single_column_specified_population(database):
     input_data = [
         patient(1, ctv3_event("Code1")),
         # patient 2 has an event, but no RegistrationHistory entry
         CTV3Events(PatientId=2, EventCode="Code2", System="ctv3"),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     # Cohort to extract all clinical events and return just the code column
     # Note that the RegistrationHistory table is used for the default population query
@@ -77,12 +73,12 @@ def test_run_generated_sql_get_single_column_specified_population(
 
 
 @pytest.mark.integration
-def test_run_generated_sql_get_multiple_columns(database, setup_test_database):
+def test_run_generated_sql_get_multiple_columns(database):
     input_data = [
         patient(1, ctv3_event("Code1"), positive_test(True)),
         patient(2, ctv3_event("Code2"), positive_test(False)),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     # Cohort to extract all clinical events and positive tests
     class Cohort:
@@ -96,12 +92,12 @@ def test_run_generated_sql_get_multiple_columns(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_extract_get_single_column(database, setup_test_database):
+def test_extract_get_single_column(database):
     input_data = [
         patient(1, ctv3_event("Code1")),
         CTV3Events(PatientId=2, EventCode="Code2", System="ctv3"),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     # Cohort to extract all clinical events and return just the code column
     # Note that the RegistrationHistory table is used for the default population query
@@ -145,7 +141,7 @@ def test_invalid_table():
     ],
 )
 def test_run_generated_sql_get_single_row_per_patient(
-    database, setup_test_database, code_output, date_output, expected
+    database, code_output, date_output, expected
 ):
     input_data = [
         patient(
@@ -158,7 +154,7 @@ def test_run_generated_sql_get_single_row_per_patient(
             2, ctv3_event("Code1", "2021-06-05"), ctv3_event("Code1", "2021-02-04")
         ),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     # Cohort to extract the earliest/latest event for each patient, and return code and date
     class Cohort:
@@ -380,8 +376,8 @@ def test_run_generated_sql_get_single_row_per_patient(
         "test multiple chained filters",
     ],
 )
-def test_simple_filters(database, setup_test_database, data, filtered_table, expected):
-    setup_test_database(data)
+def test_simple_filters(database, data, filtered_table, expected):
+    database.setup(data)
 
     class Cohort:
         population = filtered_table.exists()
@@ -396,13 +392,13 @@ def test_simple_filters(database, setup_test_database, data, filtered_table, exp
 @pytest.mark.parametrize(
     "filter_value", [[170, 180], (170, 180), {170, 180}, ("170", "180")]
 )
-def test_is_in_filter(database, setup_test_database, filter_value):
+def test_is_in_filter(database, filter_value):
     data = [
         patient(1, ctv3_event("Code1", "2021-01-01", 10), height=180),  # in
         patient(2, ctv3_event("Code2", "2021-01-02", 20), height=170),  # not in
     ]
 
-    setup_test_database(data)
+    database.setup(data)
 
     class Cohort:
         _filtered_table = table("patients").filter("height", is_in=filter_value)
@@ -436,8 +432,8 @@ def test_is_in_filter(database, setup_test_database, filter_value):
         ),
     ],
 )
-def test_filter_with_nulls(database, setup_test_database, filtered_table, expected):
-    setup_test_database(
+def test_filter_with_nulls(database, filtered_table, expected):
+    database.setup(
         [
             patient(
                 1, ctv3_event("Code1", "2021-01-01", 10)
@@ -460,7 +456,7 @@ def test_filter_with_nulls(database, setup_test_database, filtered_table, expect
 
 
 @pytest.mark.integration
-def test_filter_between_other_query_values(database, setup_test_database):
+def test_filter_between_other_query_values(database):
     # set up input data for 3 patients, with positive test dates and clinical event results
     input_data = [
         patient(
@@ -497,7 +493,7 @@ def test_filter_between_other_query_values(database, setup_test_database):
             ctv3_event("Code2", "2021-02-01", system="snomed", value=60.3),
         ),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     # Cohort to extract the last Code1 result between a patient's first and last positive test dates
     class Cohort:
@@ -540,7 +536,7 @@ def test_filter_between_other_query_values(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_date_in_range_filter(database, setup_test_database):
+def test_date_in_range_filter(database):
     input_data = [
         # (9999-12-31 is the default TPP null value)
         # registraion start date before target date; no end date - included
@@ -566,7 +562,7 @@ def test_date_in_range_filter(database, setup_test_database):
             PatientId=4, StpId="STP3", StartDate="2021-01-01", EndDate="2021-03-03"
         ),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _registrations = table("practice_registrations").date_in_range("2021-03-02")
@@ -583,7 +579,7 @@ def test_date_in_range_filter(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_in_filter_on_query_values(database, setup_test_database):
+def test_in_filter_on_query_values(database):
     # set up input data for 2 patients, with positive test dates and clinical event results
     input_data = [
         patient(
@@ -613,7 +609,7 @@ def test_in_filter_on_query_values(database, setup_test_database):
         ),
     ]
 
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     # Cohort to extract the Code1 results that were on a positive test date
     class Cohort:
@@ -637,7 +633,7 @@ def test_in_filter_on_query_values(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_not_in_filter_on_query_values(database, setup_test_database):
+def test_not_in_filter_on_query_values(database):
     # set up input data for 2 patients, with positive test dates and clinical event results
 
     input_data = [
@@ -667,7 +663,7 @@ def test_not_in_filter_on_query_values(database, setup_test_database):
         ),
     ]
 
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     # Cohort to extract the results that were NOT on a test date (positive or negative)
     class Cohort:
@@ -719,7 +715,7 @@ def test_not_in_filter_on_query_values(database, setup_test_database):
     ],
     ids=[],
 )
-def test_aggregation(database, setup_test_database, aggregation, column, expected):
+def test_aggregation(database, aggregation, column, expected):
     input_data = [
         patient(
             1,
@@ -737,7 +733,7 @@ def test_aggregation(database, setup_test_database, aggregation, column, expecte
             ctv3_event("Code2", value=70.1),
         ),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _filtered_table = table("clinical_events").filter(code=make_codelist("Code1"))
@@ -747,9 +743,9 @@ def test_aggregation(database, setup_test_database, aggregation, column, expecte
 
 
 @pytest.mark.integration
-def test_categorise_simple_comparisons(database, setup_test_database):
+def test_categorise_simple_comparisons(database):
     input_data = [patient(1, height=180), patient(2, height=200.5), patient(3)]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
@@ -817,16 +813,14 @@ def test_categorise_simple_comparisons(database, setup_test_database):
         "test a not-equals condition",
     ],
 )
-def test_categorise_single_combined_conditions(
-    database, setup_test_database, categories, default, expected
-):
+def test_categorise_single_combined_conditions(database, categories, default, expected):
     input_data = [
         patient(1, height=180),
         patient(2, height=200.5),
         patient(3),
         patient(4, height=145),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
@@ -838,14 +832,14 @@ def test_categorise_single_combined_conditions(
 
 
 @pytest.mark.integration
-def test_categorise_multiple_values(database, setup_test_database):
+def test_categorise_multiple_values(database):
     """Test that categories can combine conditions that use different source values"""
     input_data = [
         patient(1, ctv3_event("abc"), height=200),
         patient(2, ctv3_event("xyz"), height=150),
         patient(3, ctv3_event("abc"), height=160),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
@@ -865,7 +859,7 @@ def test_categorise_multiple_values(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_categorise_nested_comparisons(database, setup_test_database):
+def test_categorise_nested_comparisons(database):
     input_data = [
         patient(1, ctv3_event("abc"), height=194),  # tall with code - matches
         patient(2, ctv3_event("xyz"), height=200.5),  # tall no code  - matches
@@ -873,7 +867,7 @@ def test_categorise_nested_comparisons(database, setup_test_database):
         patient(4, height=140.5),  # short no code
         patient(5),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
@@ -901,7 +895,7 @@ def test_categorise_nested_comparisons(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_categorise_on_truthiness(database, setup_test_database):
+def test_categorise_on_truthiness(database):
     """Test truthiness of a Value from an exists aggregation"""
     input_data = [
         patient(1, ctv3_event("abc")),
@@ -909,7 +903,7 @@ def test_categorise_on_truthiness(database, setup_test_database):
         patient(3, ctv3_event("abc")),
         patient(4),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _code = table("clinical_events").filter(code=make_codelist("abc")).exists()
@@ -926,7 +920,7 @@ def test_categorise_on_truthiness(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_categorise_on_truthiness_from_filter(database, setup_test_database):
+def test_categorise_on_truthiness_from_filter(database):
     """Test truthiness of a Value from a filtered value"""
     input_data = [
         patient(1, ctv3_event("abc")),
@@ -934,7 +928,7 @@ def test_categorise_on_truthiness_from_filter(database, setup_test_database):
         patient(3, ctv3_event("abc")),
         patient(4, ctv3_event("def")),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _code = (
@@ -956,7 +950,7 @@ def test_categorise_on_truthiness_from_filter(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_categorise_multiple_truthiness_values(database, setup_test_database):
+def test_categorise_multiple_truthiness_values(database):
     """Test truthiness of a Value from a filtered value"""
     input_data = [
         patient(1, ctv3_event("abc"), positive_test(True)),
@@ -964,7 +958,7 @@ def test_categorise_multiple_truthiness_values(database, setup_test_database):
         patient(3, ctv3_event("abc"), positive_test(False)),
         patient(4, ctv3_event("def"), positive_test(True)),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _code = (
@@ -987,7 +981,7 @@ def test_categorise_multiple_truthiness_values(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_categorise_invert(database, setup_test_database):
+def test_categorise_invert(database):
     input_data = [
         patient(1, height=194),
         patient(2, height=160.5),
@@ -995,7 +989,7 @@ def test_categorise_invert(database, setup_test_database):
         patient(4, height=140.5),
         RegistrationHistory(PatientId=5),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _height = table("patients").first_by("patient_id").get("height")
@@ -1020,14 +1014,14 @@ def test_categorise_invert(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_categorise_invert_truthiness_values(database, setup_test_database):
+def test_categorise_invert_truthiness_values(database):
     input_data = [
         patient(1, ctv3_event("abc")),
         patient(2, ctv3_event("xyz")),
         patient(3, ctv3_event("abc")),
         patient(4, ctv3_event("def")),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _code = (
@@ -1049,14 +1043,14 @@ def test_categorise_invert_truthiness_values(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_categorise_invert_combined_values(database, setup_test_database):
+def test_categorise_invert_combined_values(database):
     input_data = [
         patient(1, ctv3_event("abc"), positive_test(True)),
         patient(2, ctv3_event("xyz"), positive_test(False)),
         patient(3, ctv3_event("abc"), positive_test(False)),
         patient(4, ctv3_event("def"), positive_test(True)),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _code = (
@@ -1079,14 +1073,14 @@ def test_categorise_invert_combined_values(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_categorise_double_invert(database, setup_test_database):
+def test_categorise_double_invert(database):
     input_data = [
         patient(1, ctv3_event("abc")),
         patient(2, ctv3_event("xyz")),
         patient(3, ctv3_event("abc")),
         patient(4, ctv3_event("def")),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _code = (
@@ -1108,7 +1102,7 @@ def test_categorise_double_invert(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_categorise_multiple_truthiness_categories(database, setup_test_database):
+def test_categorise_multiple_truthiness_categories(database):
     """
     Test categorisation on multiple truthy values
     This tests for a previous bug in sorting the reference nodes in category definitions.
@@ -1126,7 +1120,7 @@ def test_categorise_multiple_truthiness_categories(database, setup_test_database
         patient(4, ctv3_event("def")),
         patient(5),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         _codes_1 = (
@@ -1155,12 +1149,12 @@ def test_categorise_multiple_truthiness_categories(database, setup_test_database
 
 
 @pytest.mark.integration
-def test_age_as_of(database, setup_test_database):
+def test_age_as_of(database):
     input_data = [
         patient(1, ctv3_event("abc", "2020-10-01"), dob="1990-8-10"),
         patient(2, ctv3_event("abc", "2018-02-01"), dob="2000-03-20"),
     ]
-    setup_test_database(input_data)
+    database.setup(input_data)
 
     class Cohort:
         age_in_2010 = table("patients").age_as_of("2010-06-01")
@@ -1176,8 +1170,8 @@ def test_age_as_of(database, setup_test_database):
 
 
 @pytest.mark.integration
-def test_fetching_results_using_temporary_database(database, setup_test_database):
-    setup_test_database(
+def test_fetching_results_using_temporary_database(database):
+    database.setup(
         [
             patient(1, ctv3_event("abc", "2020-01-01")),
             patient(2, ctv3_event("xyz", "2020-01-01")),

@@ -83,8 +83,8 @@ for code in long_covid_diagnostic_codes.codes:
 
 
 @pytest.mark.integration
-def test_simplified_cohort(database, setup_test_database):
-    setup_test_database(
+def test_simplified_cohort(database):
+    database.setup(
         patient(
             1,
             "F",
