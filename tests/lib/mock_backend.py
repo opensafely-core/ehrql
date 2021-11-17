@@ -47,26 +47,44 @@ class MockBackend(BaseBackend):
     )
 
 
+# Generate an integer sequence to use as default IDs. Normally you'd rely on the DBMS to
+# provide these, but we need to support DBMSs like Spark which don't have this feature.
+next_id = iter(range(1, 2 ** 63)).__next__
+
+
+# We need each NULL-able column to have an explicit default of NULL. Without this,
+# SQLAlchemy will just omit empty columns from the INSERT. That's fine for most DBMSs
+# but Spark needs every column in the table to be specified, even if it just has a NULL
+# value. Note: we have to use a callable returning `None` here because if we use `None`
+# directly SQLAlchemy interprets this is "there is no default".
+def null():
+    return None
+
+
 Base = sqlalchemy.orm.declarative_base()
 
 
 class RegistrationHistory(Base):
     __tablename__ = "practice_registrations"
-    RegistrationId = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    PatientId = sqlalchemy.Column(sqlalchemy.Integer)
-    StpId = sqlalchemy.Column(sqlalchemy.String)
-    StartDate = sqlalchemy.Column(sqlalchemy.Date)
-    EndDate = sqlalchemy.Column(sqlalchemy.Date)
+    RegistrationId = sqlalchemy.Column(
+        sqlalchemy.Integer, primary_key=True, default=next_id
+    )
+    PatientId = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    StpId = sqlalchemy.Column(sqlalchemy.String, default=null)
+    StartDate = sqlalchemy.Column(sqlalchemy.Date, default=null)
+    EndDate = sqlalchemy.Column(sqlalchemy.Date, default=null)
 
 
 class CTV3Events(Base):
     __tablename__ = "events"
-    EventId = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    PatientId = sqlalchemy.Column(sqlalchemy.Integer)
-    EventCode = sqlalchemy.Column(sqlalchemy.String(collation="Latin1_General_BIN"))
-    System = sqlalchemy.Column(sqlalchemy.String)
-    Date = sqlalchemy.Column(sqlalchemy.Date)
-    ResultValue = sqlalchemy.Column(sqlalchemy.Float)
+    EventId = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
+    PatientId = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    EventCode = sqlalchemy.Column(
+        sqlalchemy.String(collation="Latin1_General_BIN"), default=null
+    )
+    System = sqlalchemy.Column(sqlalchemy.String, default=null)
+    Date = sqlalchemy.Column(sqlalchemy.Date, default=null)
+    ResultValue = sqlalchemy.Column(sqlalchemy.Float, default=null)
 
 
 def ctv3_event(code, date=None, value=None, system="ctv3"):
@@ -75,11 +93,11 @@ def ctv3_event(code, date=None, value=None, system="ctv3"):
 
 class AllTests(Base):
     __tablename__ = "all_tests"
-    Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    PatientId = sqlalchemy.Column(sqlalchemy.Integer)
-    PositiveResult = sqlalchemy.Column(sqlalchemy.Boolean)
-    NegativeResult = sqlalchemy.Column(sqlalchemy.Boolean)
-    TestDate = sqlalchemy.Column(sqlalchemy.Date)
+    Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
+    PatientId = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    PositiveResult = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
+    NegativeResult = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
+    TestDate = sqlalchemy.Column(sqlalchemy.Date, default=null)
 
 
 def positive_test(result, test_date=None):
@@ -88,10 +106,10 @@ def positive_test(result, test_date=None):
 
 class Patients(Base):
     __tablename__ = "patients"
-    Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    PatientId = sqlalchemy.Column(sqlalchemy.Integer)
-    Height = sqlalchemy.Column(sqlalchemy.Float)
-    DateOfBirth = sqlalchemy.Column(sqlalchemy.Date)
+    Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
+    PatientId = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    Height = sqlalchemy.Column(sqlalchemy.Float, default=null)
+    DateOfBirth = sqlalchemy.Column(sqlalchemy.Date, default=null)
 
 
 def patient(patient_id, *entities, height=None, dob=None):
