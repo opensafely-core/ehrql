@@ -5,9 +5,12 @@ import pytest
 from cohortextractor.concepts import tables
 from cohortextractor.definition import Cohort, exists
 from cohortextractor.definition.base import cohort_registry
+from cohortextractor.query_engines.mssql import MssqlQueryEngine
 
 from .lib.databases import make_database, make_spark_database, wait_for_database
 from .lib.docker import Containers
+from .lib.mock_backend import backend_factory
+from .lib.util import extract
 
 
 @pytest.fixture(scope="session")
@@ -49,3 +52,22 @@ def cohort_with_population():
     ).make_one_row_per_patient(exists)
     cohort.set_population(registered)
     yield cohort
+
+
+class QueryEngineFixture:
+    def __init__(self, name, database, query_engine_class):
+        self.name = name
+        self.database = database
+        self.query_engine_class = query_engine_class
+        self.backend = backend_factory(query_engine_class)
+
+    def setup(self, *items):
+        return self.database.setup(*items)
+
+    def extract(self, cohort, **kwargs):
+        return extract(cohort, self.backend, self.database, **kwargs)
+
+
+@pytest.fixture(scope="session")
+def engine(database):
+    return QueryEngineFixture("mssql", database, MssqlQueryEngine)
