@@ -158,7 +158,7 @@ class BaseTable(QueryNode):
     def exists(self, column="patient_id"):
         return self.aggregate("exists", column)
 
-    def count(self, column):
+    def count(self, column="patient_id"):
         return self.aggregate("count", column)
 
     def sum(self, column):  # noqa: A003
