@@ -1,3 +1,7 @@
+import re
+
+import pytest
+
 from cohortextractor.concepts import tables
 from cohortextractor.definition import Cohort, count, exists, pick_first_value, register
 from cohortextractor.definition.base import cohort_registry
@@ -97,6 +101,68 @@ def test_exists_aggregation():
     )
 
     assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def test_set_population():
+    index_date = "2021-01-01"
+
+    class OldCohort:
+        population = (
+            table("practice_registrations").date_in_range(index_date).exists("date_end")
+        )
+
+    registations_table = tables.registrations
+    registered = (
+        registations_table.filter(
+            registations_table.date_start, less_than_or_equals=index_date
+        )
+        .filter(
+            registations_table.date_end,
+            greater_than_or_equals=index_date,
+            include_null=True,
+        )
+        .select_column(registations_table.date_end)
+        .make_one_row_per_patient(exists)
+    )
+
+    cohort = Cohort()
+    cohort.set_population(registered)
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def test_set_population_variable_must_be_boolean():
+    registations_table = tables.registrations
+    registered = registations_table.select_column(
+        registations_table.date_end
+    ).make_one_row_per_patient(pick_first_value)
+    cohort = Cohort()
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Population variable must return a boolean. Did you mean to use `make_one_row_per_patient(exists)`?"
+        ),
+    ):
+        cohort.set_population(registered)
+
+
+@pytest.mark.parametrize(
+    "variable_def, invalid_type",
+    [
+        (tables.clinical_events.select_column("code"), "Column"),
+        ("code", "str"),
+        (tables.clinical_events, "ClinicalEvents"),
+    ],
+)
+def test_set_variable_errors(variable_def, invalid_type):
+    cohort = Cohort()
+    with pytest.raises(
+        TypeError,
+        match=re.escape(
+            f"code must be a single value per patient (got '{invalid_type}')"
+        ),
+    ):
+        cohort.code = variable_def
 
 
 def assert_cohorts_equivalent(dsl_cohort, qm_cohort):
