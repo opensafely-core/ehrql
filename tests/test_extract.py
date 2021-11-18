@@ -2,8 +2,8 @@ import pytest
 
 from cohortextractor import table
 
-from .lib.mock_backend import CTV3Events, MockBackend, RegistrationHistory
-from .lib.util import OldCohortWithPopulation, extract
+from .lib.mock_backend import CTV3Events, RegistrationHistory
+from .lib.util import OldCohortWithPopulation
 
 
 @pytest.mark.integration

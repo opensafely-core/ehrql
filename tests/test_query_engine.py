@@ -6,13 +6,12 @@ from cohortextractor.query_language import categorise, table
 
 from .lib.mock_backend import (
     CTV3Events,
-    MockBackend,
     RegistrationHistory,
     ctv3_event,
     patient,
     positive_test,
 )
-from .lib.util import OldCohortWithPopulation, extract, make_codelist
+from .lib.util import OldCohortWithPopulation, make_codelist
 
 
 # Mark the whole module as containing integration tests
@@ -37,9 +36,7 @@ def test_run_generated_sql_get_single_column_default_population(engine):
     class Cohort(OldCohortWithPopulation):
         output_value = table("clinical_events").first_by("patient_id").get("code")
 
-    assert engine.extract(Cohort) == [
-        dict(patient_id=1, output_value="Code1")
-    ]
+    assert engine.extract(Cohort) == [dict(patient_id=1, output_value="Code1")]
 
 
 def test_run_generated_sql_get_single_column_specified_population(engine):
@@ -58,9 +55,7 @@ def test_run_generated_sql_get_single_column_specified_population(engine):
         output_value = table("clinical_events").first_by("patient_id").get("code")
         population = table("practice_registrations").exists()
 
-    assert engine.extract(Cohort) == [
-        dict(patient_id=1, output_value="Code1")
-    ]
+    assert engine.extract(Cohort) == [dict(patient_id=1, output_value="Code1")]
 
 
 def test_run_generated_sql_get_multiple_columns(engine):
