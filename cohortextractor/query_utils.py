@@ -31,6 +31,8 @@ def get_column_definitions(cohort):
                 f"Cohort variable '{name}' is not a Value (type='{type(value).__name__}')"
             )
         columns[name] = value
+    if "population" not in columns:
+        raise ValueError("A Cohort definition must define a 'population' variable")
     return columns
 
 
