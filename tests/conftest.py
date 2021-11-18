@@ -66,7 +66,11 @@ class QueryEngineFixture:
         return self.database.setup(*items)
 
     def extract(self, cohort, **kwargs):
-        return extract(cohort, self.backend, self.database, **kwargs)
+        results = extract(cohort, self.backend, self.database, **kwargs)
+        # We don't explicitly order the results and not all databases naturally return
+        # in the same order
+        results.sort(key=lambda i: i["patient_id"])
+        return results
 
 
 @pytest.fixture(scope="session", params=["mssql", "spark"])
