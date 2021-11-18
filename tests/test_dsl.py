@@ -8,18 +8,20 @@ from cohortextractor.definition.base import cohort_registry
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
 
+from .lib.util import OldCohortWithPopulation
 
-def test_minimal_cohort_definition():
+
+def test_minimal_cohort_definition(cohort_with_population):
     # Nothing in the registry yet
     assert not cohort_registry.cohorts
 
     # old DSL
-    class OldCohort:
+    class OldCohort(OldCohortWithPopulation):
         #  Define tables of interest, filtered to relevant values
         code = table("clinical_events").first_by("date").get("code")
 
     # new DSL
-    cohort = Cohort()
+    cohort = cohort_with_population
     events = tables.clinical_events
     cohort.code = events.select_column(events.code).make_one_row_per_patient(
         pick_first_value
@@ -27,12 +29,11 @@ def test_minimal_cohort_definition():
 
     register(cohort)
     assert cohort in cohort_registry.cohorts
-
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
-def test_filter():
-    class OldCohort:
+def test_filter(cohort_with_population):
+    class OldCohort(OldCohortWithPopulation):
         # Define tables of interest, filtered to relevant values
         code = (
             table("clinical_events")
@@ -41,7 +42,7 @@ def test_filter():
             .get("code")
         )
 
-    cohort = Cohort()
+    cohort = cohort_with_population
     events = tables.clinical_events
     cohort.code = (
         events.filter(events.date, greater_than="2021-01-01")
@@ -52,8 +53,8 @@ def test_filter():
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
-def test_multiple_filters():
-    class OldCohort:
+def test_multiple_filters(cohort_with_population):
+    class OldCohort(OldCohortWithPopulation):
         # Define tables of interest, filtered to relevant values
         code = (
             table("clinical_events")
@@ -63,7 +64,7 @@ def test_multiple_filters():
             .get("code")
         )
 
-    cohort = Cohort()
+    cohort = cohort_with_population
     events = tables.clinical_events
     cohort.code = (
         events.filter(events.date, greater_than="2021-01-01")
@@ -75,12 +76,12 @@ def test_multiple_filters():
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
-def test_count_aggregation():
-    class OldCohort:
+def test_count_aggregation(cohort_with_population):
+    class OldCohort(OldCohortWithPopulation):
         # Define tables of interest, filtered to relevant values
         num_events = table("clinical_events").count("code")
 
-    cohort = Cohort()
+    cohort = cohort_with_population
     events = tables.clinical_events
     cohort.num_events = events.select_column(events.code).make_one_row_per_patient(
         count
@@ -89,12 +90,12 @@ def test_count_aggregation():
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
-def test_exists_aggregation():
-    class OldCohort:
+def test_exists_aggregation(cohort_with_population):
+    class OldCohort(OldCohortWithPopulation):
         # Define tables of interest, filtered to relevant values
         has_events = table("clinical_events").exists("code")
 
-    cohort = Cohort()
+    cohort = cohort_with_population
     events = tables.clinical_events
     cohort.has_events = events.select_column(events.code).make_one_row_per_patient(
         exists
@@ -177,7 +178,7 @@ def assert_cohorts_equivalent(dsl_cohort, qm_cohort):
     # Cohorts are equivalent if they have the same columns...
     dsl_col_defs = get_column_definitions(dsl_cohort)
     qm_col_defs = get_column_definitions(qm_cohort)
-    assert dsl_col_defs.keys() == qm_col_defs.keys()
+    assert sorted(dsl_col_defs.keys()) == sorted(qm_col_defs.keys())
 
     # ...and if the columns are the same.
     for k in dsl_col_defs:

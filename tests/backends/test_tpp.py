@@ -18,7 +18,7 @@ from ..lib.tpp_schema import (
     patient_address,
     registration,
 )
-from ..lib.util import extract
+from ..lib.util import OldCohortWithPopulation, extract
 
 
 @pytest.mark.integration
@@ -29,7 +29,7 @@ def test_basic_events_and_registration(database):
         CTV3Events(Patient_ID=1, CTV3Code="Code1"),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, code="Code1")]
@@ -42,7 +42,7 @@ def test_registration_dates(database):
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2012-12-12"),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _registrations = table("practice_registrations").first_by("patient_id")
         arrived = _registrations.get("date_start")
         left = _registrations.get("date_end")
@@ -64,7 +64,7 @@ def test_covid_test_positive_result(database):
         ),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         date = (
             table("sgss_sars_cov_2").filter(positive_result=True).earliest().get("date")
         )
@@ -86,7 +86,7 @@ def test_covid_test_negative_result(database):
         ),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         date = (
             table("sgss_sars_cov_2")
             .filter(positive_result=False)
@@ -106,7 +106,7 @@ def test_patients_table(database):
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _patients = table("patients").first_by("patient_id")
         sex = _patients.get("sex")
         dob = _patients.get("date_of_birth")
@@ -128,7 +128,7 @@ def test_hospitalization_table_returns_admission_date_and_code(database):
         )
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _hospitalization = table("hospitalizations").first_by("patient_id")
         admission = _hospitalization.get("date")
         code = _hospitalization.get("code")
@@ -202,7 +202,7 @@ def test_hospitalization_code_parsing_works_with_filters(database):
         ),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = (
             table("hospitalizations")
             .filter("code", is_in=codelist(["xyz"], system="icd10"))
@@ -224,7 +224,7 @@ def test_events_with_numeric_value(database):
         CTV3Events(Patient_ID=1, CTV3Code="Code1", NumericValue=34.7),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         value = table("clinical_events").latest().get("numeric_value")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, value=34.7)]
@@ -239,7 +239,7 @@ def test_organisation(database):
         patient(2, "F", "1990-1-1", registration("2001-01-01", "2026-06-26", 2)),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _registrations = table("practice_registrations").last_by("patient_id")
         region = _registrations.get("nuts1_region_name")
         practice_id = _registrations.get("pseudo_id")
@@ -302,7 +302,7 @@ def test_index_of_multiple_deprivation(database):
         )
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=1200)]
@@ -358,7 +358,7 @@ def test_index_of_multiple_deprivation_sorting(database, patient_addresses, expe
         )
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=expected)]
@@ -373,7 +373,7 @@ def test_clinical_events_table(database):
         SnomedEvents(Patient_ID=1, ConceptID="Code2", ConsultationDate="2021-02-01"),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _events = table("clinical_events")
         first_event_code = _events.earliest().get("code")
         first_event_system = _events.earliest().get("system")
@@ -402,7 +402,7 @@ def test_clinical_events_table_multiple_codes(database):
         SnomedEvents(Patient_ID=1, ConceptID="Code2", ConsultationDate="2021-03-01"),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _events = table("clinical_events")
         _filtered_to_code = (
             table("clinical_events")

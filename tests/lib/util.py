@@ -1,5 +1,5 @@
 import cohortextractor.main
-from cohortextractor import codelist
+from cohortextractor import codelist, table
 
 
 def extract(cohort, backend, database, **backend_kwargs):
@@ -36,3 +36,9 @@ def iter_flatten(iterable, iter_classes=(list, tuple)):
             yield from iter_flatten(item, iter_classes)
         else:
             yield item
+
+
+class OldCohortWithPopulation:
+    def __init_subclass__(cls):
+        if not hasattr(cls, "population"):
+            cls.population = table("practice_registrations").exists()

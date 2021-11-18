@@ -5,10 +5,11 @@ from cohortextractor.backends import DatabricksBackend, TPPBackend
 from cohortextractor.main import validate
 
 from .lib.mock_backend import MockBackend
+from .lib.util import OldCohortWithPopulation
 
 
 def test_validate_with_error():
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("foo").first_by("patient_id").get("code")
 
     with pytest.raises(ValueError, match="Unknown table 'foo'"):
@@ -25,7 +26,7 @@ def test_validate_with_error():
     ],
 )
 def test_validate_for_backends(backend, column, expected_succeess):
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("patients").first_by("patient_id").get(column)
 
     if expected_succeess:
@@ -48,7 +49,7 @@ def test_validate_databricks_backend():
 
 
 def test_validate_success():
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
 
     results = validate(Cohort, MockBackend(None))
