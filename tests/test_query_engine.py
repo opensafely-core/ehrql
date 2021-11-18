@@ -358,7 +358,15 @@ def test_run_generated_sql_get_single_row_per_patient(
         "test multiple chained filters",
     ],
 )
-def test_simple_filters(engine, data, filtered_table, expected):
+def test_simple_filters(engine, data, filtered_table, expected, request):
+    if request.node.callspec.id in [
+        "spark-test single equals filter",
+        "spark-test multiple equals filter",
+        "spark-test not equals filter",
+        "spark-test multiple chained filters",
+    ]:
+        pytest.xfail()
+
     engine.setup(data)
 
     class Cohort:
@@ -374,7 +382,10 @@ def test_simple_filters(engine, data, filtered_table, expected):
 @pytest.mark.parametrize(
     "filter_value", [[170, 180], (170, 180), {170, 180}, ("170", "180")]
 )
-def test_is_in_filter(engine, filter_value):
+def test_is_in_filter(engine, filter_value, request):
+    if request.node.callspec.id in ["spark-filter_value3"]:
+        pytest.xfail()
+
     data = [
         patient(1, ctv3_event("Code1", "2021-01-01", 10), height=180),  # in
         patient(2, ctv3_event("Code2", "2021-01-02", 20), height=170),  # not in
@@ -516,6 +527,9 @@ def test_filter_between_other_query_values(engine):
 
 
 def test_date_in_range_filter(engine):
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         # (9999-12-31 is the default TPP null value)
         # registraion start date before target date; no end date - included
@@ -558,6 +572,9 @@ def test_date_in_range_filter(engine):
 
 
 def test_in_filter_on_query_values(engine):
+    if engine.name == "spark":
+        pytest.xfail()
+
     # set up input data for 2 patients, with positive test dates and clinical event results
     input_data = [
         patient(
@@ -692,6 +709,9 @@ def test_not_in_filter_on_query_values(engine):
     ids=[],
 )
 def test_aggregation(engine, aggregation, column, expected):
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(
             1,
@@ -719,6 +739,9 @@ def test_aggregation(engine, aggregation, column, expected):
 
 
 def test_categorise_simple_comparisons(engine):
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [patient(1, height=180), patient(2, height=200.5), patient(3)]
     engine.setup(input_data)
 
@@ -788,6 +811,9 @@ def test_categorise_simple_comparisons(engine):
     ],
 )
 def test_categorise_single_combined_conditions(engine, categories, default, expected):
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, height=180),
         patient(2, height=200.5),
@@ -807,6 +833,9 @@ def test_categorise_single_combined_conditions(engine, categories, default, expe
 
 def test_categorise_multiple_values(engine):
     """Test that categories can combine conditions that use different source values"""
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, ctv3_event("abc"), height=200),
         patient(2, ctv3_event("xyz"), height=150),
@@ -832,6 +861,9 @@ def test_categorise_multiple_values(engine):
 
 
 def test_categorise_nested_comparisons(engine):
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, ctv3_event("abc"), height=194),  # tall with code - matches
         patient(2, ctv3_event("xyz"), height=200.5),  # tall no code  - matches
@@ -868,6 +900,9 @@ def test_categorise_nested_comparisons(engine):
 
 def test_categorise_on_truthiness(engine):
     """Test truthiness of a Value from an exists aggregation"""
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, ctv3_event("abc")),
         patient(2, ctv3_event("xyz")),
@@ -892,6 +927,9 @@ def test_categorise_on_truthiness(engine):
 
 def test_categorise_on_truthiness_from_filter(engine):
     """Test truthiness of a Value from a filtered value"""
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, ctv3_event("abc")),
         patient(2, ctv3_event("xyz")),
@@ -921,6 +959,9 @@ def test_categorise_on_truthiness_from_filter(engine):
 
 def test_categorise_multiple_truthiness_values(engine):
     """Test truthiness of a Value from a filtered value"""
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, ctv3_event("abc"), positive_test(True)),
         patient(2, ctv3_event("xyz"), positive_test(False)),
@@ -950,6 +991,9 @@ def test_categorise_multiple_truthiness_values(engine):
 
 
 def test_categorise_invert(engine):
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, height=194),
         patient(2, height=160.5),
@@ -982,6 +1026,9 @@ def test_categorise_invert(engine):
 
 
 def test_categorise_invert_truthiness_values(engine):
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, ctv3_event("abc")),
         patient(2, ctv3_event("xyz")),
@@ -1010,6 +1057,9 @@ def test_categorise_invert_truthiness_values(engine):
 
 
 def test_categorise_invert_combined_values(engine):
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, ctv3_event("abc"), positive_test(True)),
         patient(2, ctv3_event("xyz"), positive_test(False)),
@@ -1039,6 +1089,9 @@ def test_categorise_invert_combined_values(engine):
 
 
 def test_categorise_double_invert(engine):
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, ctv3_event("abc")),
         patient(2, ctv3_event("xyz")),
@@ -1077,6 +1130,9 @@ def test_categorise_multiple_truthiness_categories(engine):
     ValueFromRow is a Row, which can't be sorted.  THis test checks the workaround for
     this scenario.
     """
+    if engine.name == "spark":
+        pytest.xfail()
+
     input_data = [
         patient(1, ctv3_event("abc")),
         patient(2, ctv3_event("xyz"), ctv3_event("lmn")),
