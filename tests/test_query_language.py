@@ -7,22 +7,12 @@ from cohortextractor.query_language import (
     FilteredTable,
     Row,
     Table,
-    ValidationError,
     ValueFromRow,
     table,
 )
 from cohortextractor.query_utils import get_column_definitions
 
 from .lib.util import make_codelist
-
-
-def test_cohort_filter_table_codelist_validation():
-    """A code filter must filter on a codelist"""
-    with pytest.raises(ValidationError):
-
-        class Cohort:
-            #  Define tables of interest, filtered to relevant values
-            abc_table = table("clinical_events").filter(code="abc")
 
 
 def test_cohort_column_definitions_simple_query():
