@@ -5,7 +5,7 @@ import pytest
 from cohortextractor import codelist, codelist_from_csv, combine_codelists, table
 
 from .lib.mock_backend import MockBackend, ctv3_event, patient
-from .lib.util import extract
+from .lib.util import OldCohortWithPopulation, extract
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ def test_codelist_query(database):
     extra_codes = [f"Code{n}" for n in range(1100)]
     test_codelist = codelist(["abc", "xyz", *extra_codes, "ijk"], system="ctv3")
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = (
             table("clinical_events")
             .filter("code", is_in=test_codelist)
@@ -68,7 +68,7 @@ def test_codelist_equals_query(database):
     # A single code codelist can be expressed as an equals query
     test_codelist = codelist(["abc"], system="ctv3")
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").filter(code=test_codelist).latest().get("code")
 
     result = extract(Cohort, MockBackend, database)
@@ -94,7 +94,7 @@ def test_codelist_query_selects_correct_system(database):
 
     test_codelist = codelist(["sabc", "sxyz", "ijk"], system="snomed")
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = (
             table("clinical_events")
             .filter("code", is_in=test_codelist)
@@ -205,7 +205,7 @@ def test_codelist_query_with_codelist_from_csv(database, codelist_csv):
 
     codelist_csv_path = codelist_csv("long_csv")
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _codelist = codelist_from_csv(codelist_csv_path, system="ctv3")
         code = (
             table("clinical_events")

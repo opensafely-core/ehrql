@@ -7,9 +7,11 @@ from cohortextractor import Measure, table
 from cohortextractor.main import get_measures
 from cohortextractor.measure import MeasuresManager
 
+from .lib.util import OldCohortWithPopulation
+
 
 def test_calculate_measures_no_input_file():
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
         measures = [Measure("test-id", numerator="fish", denominator="litres")]
 
@@ -24,7 +26,7 @@ def test_calculate_measures_no_input_file():
 def test_calculate_measures_no_measures_variable():
     """Running measures calculation with no measure varible doesn't error"""
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
 
     measures = get_measures(Cohort)
@@ -34,7 +36,7 @@ def test_calculate_measures_no_measures_variable():
 
 
 def test_calculate_measures_results():
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
         measures = [Measure("test-id", numerator="fish", denominator="litres")]
 
