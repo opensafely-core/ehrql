@@ -4,8 +4,8 @@ import pytest
 
 from cohortextractor import codelist, codelist_from_csv, combine_codelists, table
 
-from .lib.mock_backend import MockBackend, ctv3_event, patient
-from .lib.util import OldCohortWithPopulation, extract
+from .lib.mock_backend import ctv3_event, patient
+from .lib.util import OldCohortWithPopulation
 
 
 @pytest.fixture
