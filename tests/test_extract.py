@@ -7,17 +7,17 @@ from .lib.util import OldCohortWithPopulation, extract
 
 
 @pytest.mark.integration
-def test_pick_a_single_value(database):
+def test_pick_a_single_value(engine):
     input_data = [
         RegistrationHistory(PatientId=1),
         CTV3Events(PatientId=1, EventCode="xyz"),
     ]
-    database.setup(input_data)
+    engine.setup(input_data)
 
     class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
 
     expected = [{"patient_id": 1, "code": "xyz"}]
 
-    actual = extract(Cohort, MockBackend, database)
+    actual = engine.extract(Cohort)
     assert actual == expected
