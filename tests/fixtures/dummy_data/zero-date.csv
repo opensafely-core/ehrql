@@ -1,4 +1,4 @@
 patient_id,sex,has_event,event_date,event_count
-11,F,1,2021-10-1,1
+11,F,1,2021-10-01,1
 22,M,0,,
 33,M,,0,

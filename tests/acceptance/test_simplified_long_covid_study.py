@@ -88,7 +88,7 @@ def test_simplified_cohort(database):
         patient(
             1,
             "F",
-            "1990-8-10",
+            "1990-08-10",
             registration(start_date="2001-01-01", end_date="2026-06-26"),
             positive_test(specimen_date="2020-05-05"),
             # excluded by picking the earliest result

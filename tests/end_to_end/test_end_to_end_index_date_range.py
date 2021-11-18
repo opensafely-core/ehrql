@@ -112,7 +112,7 @@ def run_index_date_range_test(
         patient(
             1,
             "F",
-            "1990-8-10",
+            "1990-08-10",
             registration(
                 start_date="2020-01-01", end_date="2026-06-26"
             ),  # registered at all index dates
@@ -121,7 +121,7 @@ def run_index_date_range_test(
         patient(
             2,
             "F",
-            "1980-6-15",
+            "1980-06-15",
             registration(
                 start_date="2021-01-14", end_date="2021-06-26"
             ),  # registered at index dates 2021-01-15, 21, 28, 31, 2021-02-01, 28, 2021-03-01
@@ -130,7 +130,7 @@ def run_index_date_range_test(
         patient(
             3,
             "M",
-            "1990-8-10",
+            "1990-08-10",
             registration(
                 start_date="2021-03-01", end_date="2026-06-26"
             ),  # registered at index date 2021-03-01 only
@@ -139,7 +139,7 @@ def run_index_date_range_test(
         patient(
             4,
             "M",
-            "2000-8-18",
+            "2000-08-18",
             registration(
                 start_date="2021-01-15", end_date="2021-02-20"
             ),  # registered at all index dates 2021-01-15, 21, 28, 31, 2021-02-01
