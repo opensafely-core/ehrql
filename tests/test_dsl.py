@@ -1,6 +1,7 @@
 from cohortextractor.concepts import tables
-from cohortextractor.definition import Cohort, count, exists, pick_first_value, register
+from cohortextractor.definition import register
 from cohortextractor.definition.base import cohort_registry
+from cohortextractor.dsl import Cohort
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
 
@@ -17,8 +18,8 @@ def test_minimal_cohort_definition():
     # new DSL
     cohort = Cohort()
     events = tables.clinical_events
-    cohort.code = events.select_column(events.code).make_one_row_per_patient(
-        pick_first_value
+    cohort.code = (
+        events.sort_by(events.date).first_for_patient().select_column(events.code)
     )
 
     register(cohort)
@@ -41,8 +42,9 @@ def test_filter():
     events = tables.clinical_events
     cohort.code = (
         events.filter(events.date, greater_than="2021-01-01")
+        .sort_by(events.date)
+        .first_for_patient()
         .select_column(events.code)
-        .make_one_row_per_patient(pick_first_value)
     )
 
     assert_cohorts_equivalent(cohort, OldCohort)
@@ -64,8 +66,9 @@ def test_multiple_filters():
     cohort.code = (
         events.filter(events.date, greater_than="2021-01-01")
         .filter(events.date, less_than="2021-10-10")
+        .sort_by(events.date)
+        .first_for_patient()
         .select_column(events.code)
-        .make_one_row_per_patient(pick_first_value)
     )
 
     assert_cohorts_equivalent(cohort, OldCohort)
@@ -74,13 +77,13 @@ def test_multiple_filters():
 def test_count_aggregation():
     class OldCohort:
         # Define tables of interest, filtered to relevant values
-        num_events = table("clinical_events").count("code")
+        num_events = (
+            table("clinical_events").filter("code", not_equals=None).count("code")
+        )
 
     cohort = Cohort()
     events = tables.clinical_events
-    cohort.num_events = events.select_column(events.code).make_one_row_per_patient(
-        count
-    )
+    cohort.num_events = events.filter(events.code, not_equals=None).count_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 
@@ -88,13 +91,13 @@ def test_count_aggregation():
 def test_exists_aggregation():
     class OldCohort:
         # Define tables of interest, filtered to relevant values
-        has_events = table("clinical_events").exists("code")
+        has_events = (
+            table("clinical_events").filter("code", not_equals=None).exists("code")
+        )
 
     cohort = Cohort()
     events = tables.clinical_events
-    cohort.has_events = events.select_column(events.code).make_one_row_per_patient(
-        exists
-    )
+    cohort.has_events = events.filter(events.code, not_equals=None).exists_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 

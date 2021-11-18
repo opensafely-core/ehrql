@@ -1,10 +1,10 @@
-from cohortextractor.query_interface import QueryBuilder
+from cohortextractor.dsl import EventTable
 
 from . import types
 from .table_contract import Column, TableContract
 
 
-class ClinicalEvents(QueryBuilder):
+class ClinicalEvents(EventTable):
     code = "code"
     date = "date"
 

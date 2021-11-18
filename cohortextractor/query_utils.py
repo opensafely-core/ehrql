@@ -1,5 +1,5 @@
-from .definition import Cohort as CohortConcept
-from .query_interface import Variable
+from .dsl import Cohort as DSLCohort
+from .dsl import compile
 from .query_language import Value
 
 
@@ -8,19 +8,11 @@ def get_class_vars(cls):
     return [(key, value) for key, value in vars(cls).items() if key not in default_vars]
 
 
-def get_cohort_variables(cohort):
-    return [
-        (variable_name, variable.compile_to_query_language())
-        for (variable_name, variable) in vars(cohort).items()
-        if isinstance(variable, Variable)
-    ]
-
-
 def get_column_definitions(cohort):
-    if isinstance(cohort, CohortConcept):
-        variables = get_cohort_variables(cohort)
-    else:
-        variables = get_class_vars(cohort)
+    if isinstance(cohort, DSLCohort):
+        return compile(cohort)
+
+    variables = get_class_vars(cohort)
     columns = {}
     ignored_names = ["measures", "BASE_INDEX_DATE"]
     for name, value in variables:
