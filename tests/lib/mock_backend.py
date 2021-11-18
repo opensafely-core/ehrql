@@ -5,47 +5,65 @@ from cohortextractor.backends.base import BaseBackend, Column, MappedTable, Quer
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 
 
-class MockBackend(BaseBackend):
-    backend_id = "mock"
-    query_engine_class = MssqlQueryEngine
-    patient_join_column = "PatientId"
+def backend_factory(query_engine_cls):
+    """
+    Return a instance of MockBackend associated with the supplied Query Engine
 
-    patients = MappedTable(
-        source="patients",
-        columns=dict(
-            height=Column("float", source="Height"),
-            date_of_birth=Column("date", source="DateOfBirth"),
-        ),
-    )
-    practice_registrations = MappedTable(
-        source="practice_registrations",
-        columns=dict(
-            stp=Column("varchar", source="StpId"),
-            date_start=Column("date", source="StartDate"),
-            date_end=Column("date", source="EndDate"),
-        ),
-    )
-    clinical_events = MappedTable(
-        source="events",
-        columns=dict(
-            code=Column("varchar", source="EventCode"),
-            system=Column("varchar", source="System"),
-            date=Column("date", source="Date"),
-            result=Column("float", source="ResultValue"),
-        ),
-    )
+    Note: argument name can't be `query_engine_class` because Python's scoping rules
+    won't let us reference it in the class body.
+    """
 
-    positive_tests = QueryTable(
-        columns=dict(
-            patient_id=Column("integer"),
-            result=Column("boolean"),
-            test_date=Column("date"),
-        ),
-        query="""
-            SELECT PatientID as patient_id, PositiveResult as result, TestDate as test_date FROM all_tests
-        """,
-    )
+    class MockBackend(BaseBackend):
+        backend_id = f"mock_{query_engine_cls.__name__}"
+        query_engine_class = query_engine_cls
+        patient_join_column = "PatientId"
 
+        patients = MappedTable(
+            source="patients",
+            columns=dict(
+                height=Column("float", source="Height"),
+                date_of_birth=Column("date", source="DateOfBirth"),
+            ),
+        )
+        practice_registrations = MappedTable(
+            source="practice_registrations",
+            columns=dict(
+                stp=Column("varchar", source="StpId"),
+                date_start=Column("date", source="StartDate"),
+                date_end=Column("date", source="EndDate"),
+            ),
+        )
+        clinical_events = MappedTable(
+            source="events",
+            columns=dict(
+                code=Column("varchar", source="EventCode"),
+                system=Column("varchar", source="System"),
+                date=Column("date", source="Date"),
+                result=Column("float", source="ResultValue"),
+            ),
+        )
+
+        positive_tests = QueryTable(
+            columns=dict(
+                patient_id=Column("integer"),
+                result=Column("boolean"),
+                test_date=Column("date"),
+            ),
+            query="""
+                SELECT
+                  PatientID as patient_id,
+                  PositiveResult as result,
+                  TestDate as test_date
+                FROM
+                  all_tests
+            """,
+        )
+
+    return MockBackend
+
+
+# Create a default MockBackend instance for code which is still expecting this
+MockBackend = backend_factory(MssqlQueryEngine)
 
 # Generate an integer sequence to use as default IDs. Normally you'd rely on the DBMS to
 # provide these, but we need to support DBMSs like Spark which don't have this feature.
