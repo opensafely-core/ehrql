@@ -4,7 +4,13 @@ from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
 from .backends import BACKENDS
-from .main import generate_cohort, generate_measures, run_cohort_action, validate_cohort
+from .main import (
+    generate_cohort,
+    generate_measures,
+    run_cohort_action,
+    test_connection,
+    validate_cohort,
+)
 
 
 def main(argv):
@@ -38,6 +44,11 @@ def main(argv):
             definition_path=options.cohort_definition,
             input_file=options.input,
             output_file=options.output,
+        )
+    elif options.which == "test_connection":
+        test_connection(
+            backend=options.backend,
+            url=options.url,
         )
     elif options.which == "print_help":
         parser.print_help()
@@ -114,6 +125,25 @@ def build_parser():
         "--cohort-definition",
         help="The path of the file where the cohort is defined",
         type=existing_python_file,
+    )
+
+    test_connection_parser = subparsers.add_parser(
+        "test_connection", help="test the database connection configuration"
+    )
+    test_connection_parser.set_defaults(which="test_connection")
+
+    test_connection_parser.add_argument(
+        "--backend",
+        "-b",
+        help="backend type to test",
+        default=os.environ.get("BACKEND", os.environ.get("OPENSAFELY_BACKEND")),
+    )
+
+    test_connection_parser.add_argument(
+        "--url",
+        "-u",
+        help="db url",
+        default=os.environ.get("DATABASE_URL"),
     )
 
     return parser

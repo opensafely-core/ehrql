@@ -130,6 +130,16 @@ def generate_measures(definition_path, input_file, output_file):
         log.info(f"Combined measure output for all dates in {output_file}")
 
 
+def test_connection(backend, url):
+    from sqlalchemy import select
+
+    backend = BACKENDS[backend](url, temporary_database=None)
+    query_engine = backend.query_engine_class({}, backend)
+    with query_engine.engine.connect() as connection:
+        connection.execute(select(1))
+    print("SUCCESS")
+
+
 def _replace_filepath_pattern(filepath, filename_part):
     """
     Take a filepath and replace a '*' with the specified filename part

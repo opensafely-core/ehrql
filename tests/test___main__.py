@@ -122,3 +122,12 @@ def test_existing_python_file_unpythonic_file(capsys, tmp_path):
         main(argv)
     captured = capsys.readouterr()
     assert "cohort.cpp is not a Python file" in captured.err
+
+
+def test_test_connection(monkeypatch, database, capsys):
+    monkeypatch.setenv("BACKEND", "tpp")
+    monkeypatch.setenv("DATABASE_URL", database.host_url())
+    argv = ["test_connection"]
+    main(argv)
+    out, _ = capsys.readouterr()
+    assert "SUCCESS" in out
