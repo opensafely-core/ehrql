@@ -1189,6 +1189,9 @@ def test_age_as_of(engine):
 
 
 def test_fetching_results_using_temporary_database(engine):
+    if engine.name == "spark":
+        pytest.skip("Spark does not support 'fetch using temporary database'")
+
     engine.setup(
         [
             patient(1, ctv3_event("abc", "2020-01-01")),
