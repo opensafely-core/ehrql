@@ -7,9 +7,15 @@ from .backends import BACKENDS
 from .main import generate_cohort, generate_measures, run_cohort_action, validate_cohort
 
 
-def main(argv):
+def main(args=None):
     parser = build_parser()
-    options = parser.parse_args(argv)
+
+    if args is None:
+        # allow the passing in of args, for testing, but otherwise look them
+        # up.  This saves a lot of laborious mocking in tests.
+        args = sys.argv[1:]
+
+    options = parser.parse_args(args)
 
     if options.which == "generate_cohort":
         if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
@@ -129,4 +135,4 @@ def existing_python_file(value):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
