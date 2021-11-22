@@ -46,6 +46,15 @@ class MSSQLDate(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
     # See https://stackoverflow.com/a/25548626/559140
     format_str = "%Y%m%d"
 
+    def process_result_value(self, value, dialect):
+        # If the underlying database type is a DATETIME then that's what we'll get back,
+        # even if we've cast it to a DATE in our schema. So we make sure we always
+        # return the expected type here.
+        if isinstance(value, datetime.datetime):
+            return value.date()
+        else:
+            return value
+
 
 class MSSQLDateTime(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
     impl = sqlalchemy.types.DateTime
