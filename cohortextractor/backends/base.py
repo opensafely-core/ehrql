@@ -1,5 +1,7 @@
 import sqlalchemy
 
+from cohortextractor.sqlalchemy_types import TYPES_BY_NAME
+
 from ..query_engines.base_sql import BaseSQLQueryEngine
 
 
@@ -35,7 +37,6 @@ class BaseBackend:
     @classmethod
     def _init_table(cls, name, table):
         table.learn_patient_join(cls.patient_join_column)
-        table.learn_type_map(cls.query_engine_class.type_map)
         # Validate that the table correctly implements the contract it claims to, if any
         contract = table.implements
         if contract:
@@ -56,9 +57,6 @@ class SQLTable:
     def learn_patient_join(self, source):
         raise NotImplementedError()
 
-    def learn_type_map(self, type_map):
-        self.type_map = type_map
-
     def _make_columns(self):
         return [
             self._make_column(name, column) for name, column in self.columns.items()
@@ -66,7 +64,7 @@ class SQLTable:
 
     def _make_column(self, name, column):
         source = column.source or name
-        type_ = self.type_map[column.type]
+        type_ = TYPES_BY_NAME[column.type]
         sql_column = sqlalchemy.Column(source, type_)
         if source != name:
             sql_column = sql_column.label(name)

@@ -107,7 +107,7 @@ def test_cohort_tpp_backend(database):
         tpp_schema.patient(
             1,
             "F",
-            "1990-8-10",
+            "1990-08-10",
             tpp_schema.registration(
                 start_date="2001-01-01", end_date="2019-01-10", organisation_id=1
             ),
@@ -166,7 +166,7 @@ def test_cohort_graphnet_backend(database):
         graphnet_schema.patient(
             1,
             "F",
-            "1990-8-10",
+            "1990-08-10",
             graphnet_schema.registration(
                 start_date="2001-01-01",
                 end_date="2019-01-10",

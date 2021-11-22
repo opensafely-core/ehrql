@@ -1151,7 +1151,7 @@ def test_categorise_multiple_truthiness_categories(database):
 @pytest.mark.integration
 def test_age_as_of(database):
     input_data = [
-        patient(1, ctv3_event("abc", "2020-10-01"), dob="1990-8-10"),
+        patient(1, ctv3_event("abc", "2020-10-01"), dob="1990-08-10"),
         patient(2, ctv3_event("abc", "2018-02-01"), dob="2000-03-20"),
     ]
     database.setup(input_data)

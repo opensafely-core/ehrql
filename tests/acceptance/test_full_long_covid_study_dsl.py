@@ -236,7 +236,7 @@ def test_cohort(database, setup_backend_database):
         patient(
             1,
             "F",
-            "1990-8-10",
+            "1990-08-10",
             registration(
                 start_date="2001-01-01", end_date="2026-06-26", organisation_id=1
             ),
