@@ -56,4 +56,7 @@ class MSSQLDateTime(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
 
 
 class MSSQLDialect(MSDialect_pymssql):
-    pass
+    colspecs = MSDialect_pymssql.colspecs | {
+        sqlalchemy.types.Date: MSSQLDate,
+        sqlalchemy.types.DateTime: MSSQLDateTime,
+    }

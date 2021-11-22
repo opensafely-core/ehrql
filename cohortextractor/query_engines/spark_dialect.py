@@ -80,6 +80,10 @@ class SparkDialect(HiveHTTPDialect):
     type_compiler = SparkTypeCompiler
     preparer = SparkIdentifierPreparer
 
+    colspecs = HiveHTTPDialect.colspecs | {
+        sqlalchemy.types.Date: SparkDate,
+    }
+
     # All the remaining changes are only required to get the SQLAlchemy ORM
     # layer to work, which we only use for test setup
 
