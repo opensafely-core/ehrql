@@ -27,17 +27,6 @@ from ..query_language import (
 from .base import BaseQueryEngine
 
 
-DEFAULT_TYPES = {
-    "boolean": sqlalchemy.types.Boolean,
-    "date": sqlalchemy.types.Date,
-    "datetime": sqlalchemy.types.DateTime,
-    "float": sqlalchemy.types.Float,
-    "integer": sqlalchemy.types.Integer,
-    "varchar": sqlalchemy.types.Text,
-    "code": sqlalchemy.types.Text,
-}
-
-
 def get_joined_tables(query):
     """
     Given a query object return a list of all tables referenced
@@ -67,16 +56,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     sqlalchemy_dialect: type[Dialect]
 
-    custom_types: dict[str, type[sqlalchemy.types.TypeDecorator]] = {}
-    type_map = None
-
     # No limit by default although some DBMSs may impose one
     max_rows_per_insert: Optional[int] = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         assert cls.sqlalchemy_dialect is not None
-        cls.type_map = {**DEFAULT_TYPES, **cls.custom_types}
 
     def __init__(self, column_definitions, backend):
         super().__init__(column_definitions, backend)
@@ -477,9 +462,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return value_expression, tuple(tables)
 
     def date_difference_in_years(self, start_date, end_date):
-        Date = self.type_map["date"]
-        start_date = type_coerce(start_date, Date())
-        end_date = type_coerce(end_date, Date())
+        start_date = type_coerce(start_date, sqlalchemy.types.Date())
+        end_date = type_coerce(end_date, sqlalchemy.types.Date())
 
         # We do the arithmetic ourselves, to be portable across dbs.
         start_year = sqlalchemy.func.year(start_date)

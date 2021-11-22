@@ -6,7 +6,7 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import ClauseElement, Executable
 
 from .base_sql import BaseSQLQueryEngine
-from .spark_dialect import SparkDate, SparkDialect
+from .spark_dialect import SparkDialect
 
 
 class CreateViewAs(Executable, ClauseElement):
@@ -28,10 +28,6 @@ def _create_table_as(element, compiler, **kw):
 
 class SparkQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = SparkDialect
-
-    custom_types = {
-        "date": SparkDate,
-    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,17 +1,12 @@
 import contextlib
 
 from .base_sql import BaseSQLQueryEngine
-from .mssql_dialect import MSSQLDate, MSSQLDateTime, MSSQLDialect
+from .mssql_dialect import MSSQLDialect
 from .mssql_lib import fetch_results_in_batches, write_query_to_table
 
 
 class MssqlQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = MSSQLDialect
-
-    custom_types = {
-        "date": MSSQLDate,
-        "datetime": MSSQLDateTime,
-    }
 
     # MSSQL limit on number of rows that can inserted using a single,
     # mutli-valued INSERT statement. See:
