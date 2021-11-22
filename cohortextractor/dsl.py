@@ -44,94 +44,112 @@ SortedEventFrame first.
 
 from __future__ import annotations
 
-from typing import NoReturn, Union
+import functools
+from datetime import date
+from typing import Generic, NoReturn, TypeVar, Union
+
+
+class BaseTable:
+    """A base class for database tables."""
+
+
+Table = TypeVar("Table", bound=BaseTable)
+ColumnType = TypeVar("ColumnType", str, int, bool, date)
 
 
 class Cohort:
     """Represents the cohort of patients in a study."""
 
-    def set_population(self, population: PatientSeries) -> None:
+    @functools.lru_cache
+    def set_population(self, population: PatientSeries[Table, bool]) -> None:
         """Set the population variable for this cohort."""
 
-    def add_variable(self, name: str, variable: PatientSeries) -> None:
+    def add_variable(
+        self, name: str, variable: PatientSeries[Table, ColumnType]
+    ) -> None:
         """Add a variable to this cohort by name."""
 
-    def __setattr__(self, name: str, variable: PatientSeries) -> None:
+    def __setattr__(
+        self, name: str, variable: PatientSeries[Table, ColumnType]
+    ) -> None:
         return self.add_variable(name, variable)
 
 
-class EventFrame:
+class EventFrame(Generic[Table]):
     """Represents a collection of records, with multiple rows per patient.
 
     Either an EventTable, or the result of filtering an EventTable.
     """
 
-    def filter(self, filter: Expression) -> EventFrame:  # noqa: A002, A003
+    # noinspection PyShadowingBuiltins
+    def filter(
+        self, filter: Expression[Table, ColumnType, bool]
+    ) -> EventFrame[Table]:  # noqa: A002, A003
         """Return a new EventFrame with given filter."""
 
-    def sort_by(self, *columns: ColumnOrName) -> SortedEventFrame:
+    def sort_by(self, *columns: Column[Table, ColumnType]) -> SortedEventFrame[Table]:
         """Return a SortedEventFrame with given sort column."""
 
-    def count(self) -> PatientSeries:
+    def count(self) -> PatientSeries[Table, int]:
         """Return a PatientSeries with count of matching events per patient."""
 
-    def exists(self) -> PatientSeries:
+    def exists(self) -> PatientSeries[Table, bool]:
         """Return a PatientSeries indicating whether each patient has a matching event."""
 
     def __getattr__(self, name: str) -> NoReturn:
         ...
 
 
-class SortedEventFrame:
+class SortedEventFrame(Generic[Table]):
     """Represents an EventFrame that has been sorted."""
 
-    def first(self) -> PatientFrame:
+    def first(self) -> PatientFrame[Table]:
         """Return a PatientFrame with the first event for each patient."""
 
-    def last(self) -> PatientFrame:
+    def last(self) -> PatientFrame[Table]:
         """Return a PatientFrame with the last event for each patient."""
 
     def __getattr__(self, name: str) -> NoReturn:
         ...
 
 
-class PatientFrame:
+class PatientFrame(Generic[Table]):
     """Represents a collection of records, with one row per patient.
 
     Either a PatientTable, or the result of filtering a PatientTable.
     """
 
-    def filter(self, filter: Expression) -> PatientFrame:  # noqa: A002, A003
-        """Return a new PatientFrame with given filter.
+    # noinspection PyShadowingBuiltins
+    def filter(self, filter: Expression) -> PatientFrame[Table]:  # noqa: A002, A003
+        """Return a new PatientFrame with given filter."""
 
-        >>> filtered = table.filter(table.code in codes)
-        """
-
-    def select_column(self, column: ColumnOrName) -> PatientSeries:
-        """Return a PatientSeries containing given column.
-
-        >>> column = table.select_column(table.date)
-        >>> column = table.select_column("date")
-        """
+    def select_column(
+        self, column: Column[Table, ColumnType]
+    ) -> PatientSeries[Table, ColumnType]:
+        """Return a PatientSeries containing given column."""
 
     def __getattr__(self, name: str) -> NoReturn:
         ...
 
 
-class PatientSeries:
+class PatientSeries(Generic[Table, ColumnType]):
     """Represents a column indexed by patient.
 
     Can be used as a variable in a Cohort, or as an input when computing another
     variable.
     """
 
-    def __eq__(self, other: Expression) -> PatientSeries:  # type: ignore
+    def __eq__(
+        self, other: PatientSeries[Table, ColumnType]
+    ) -> Expression[Table, ColumnType, bool]:
         """Return Expression indicating whether self is equal to other."""
 
-    def __ne__(self, other: Expression) -> PatientSeries:  # type: ignore
+    def __ne__(
+        self, other: PatientSeries[Table, ColumnType]
+    ) -> Expression[Table, ColumnType, bool]:
         ...
 
-    def __add__(self, other: Expression) -> PatientSeries:
+    def __add__(self, other: Expression | int) -> PatientSeries:
         ...
 
     def __gt__(self, other: Expression) -> PatientSeries:
@@ -143,10 +161,6 @@ class PatientSeries:
         ...
 
 
-class BaseTable:
-    """A base class for database tables."""
-
-
 class EventTable(BaseTable, EventFrame):
     """A base class for database tables with multiple rows per patient."""
 
@@ -155,24 +169,31 @@ class PatientTable(BaseTable, PatientFrame):
     """A base class for database tables with one row per patient."""
 
 
-class Column(PatientSeries):
+class Column(Generic[Table, ColumnType]):
     """Represents a column in a database table."""
 
     def __init__(self, name: str) -> None:
         self.name = name
 
 
-ColumnOrName = Union[Column, str]
-Expression = Union[PatientSeries, bool, int, str]
+U = TypeVar("U")
+V = TypeVar("V")
+
+
+class Expression(Generic[Table, U, V]):
+    ...
 
 
 class Codelist:
     def __init__(self, codes: list[str]) -> None:
         self.codes = codes
 
-    def __contains__(self, code: ColumnOrName) -> Expression:
+    def __contains__(self, code: Column[Table, str]) -> Expression[Table, str, bool]:
         """Return Expression indicating whether code in this codelist."""
 
 
-def categorise(mapping: dict[str, Expression]) -> PatientSeries:
+# noinspection PyUnusedLocal
+def categorise(
+    mapping: dict[str, Expression[Table, U, bool]]
+) -> PatientSeries[Table, bool]:
     """Represents a switch statement."""
