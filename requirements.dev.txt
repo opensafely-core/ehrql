@@ -180,9 +180,9 @@ packaging==21.0 \
     --hash=sha256:7dc96269f53a4ccec5c0670940a4281106dd0bb343f47b7471f779df49c2fbe7 \
     --hash=sha256:c86254f9220d55e31cc94d69bade760f0847da8000def4dfe1c6b872fd14ff14
     # via pytest
-pandas-stubs==1.2.0.37 \
-    --hash=sha256:48218405dfdd59fc96a4ce5383a28b59ed969aa010cfa621c725a2b1c7d200a6 \
-    --hash=sha256:da75cf6aa26ba506733e7f2be340b791acccb5daa108f59a030bf5079159eecc
+pandas-stubs==1.2.0.38 \
+    --hash=sha256:9f16206e48ce7aaf499703a07e9196e40a62e3364149105fbe1f9a2f82efecf3 \
+    --hash=sha256:e8b6eb5e4985c81d12c8446e9384dba04720f50957cc6d0c5d82b958da320fe2
     # via -r requirements.dev.in
 pathspec==0.9.0 \
     --hash=sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a \
