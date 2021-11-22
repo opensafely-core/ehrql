@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 
-from cohortextractor.query_language import Codelist
+from .query_language import Codelist
 
 
 def codelist(codes, system):
