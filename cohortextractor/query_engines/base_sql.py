@@ -59,10 +59,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     # No limit by default although some DBMSs may impose one
     max_rows_per_insert: Optional[int] = None
 
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        assert cls.sqlalchemy_dialect is not None
-
     def __init__(self, column_definitions, backend):
         super().__init__(column_definitions, backend)
         self._engine = None
