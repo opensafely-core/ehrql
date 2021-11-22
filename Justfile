@@ -37,8 +37,8 @@ _virtualenv:
 requirements-prod: _virtualenv
     #!/usr/bin/env bash
     # exit if .in file is older than .txt file (-nt = 'newer than', but we negate with || to avoid error exit code)
-    test requirements.prod.in -nt requirements.prod.txt || exit 0
-    $COMPILE --output-file=requirements.prod.txt requirements.prod.in
+    test pyproject.toml -nt requirements.prod.txt || exit 0
+    $COMPILE --output-file=requirements.prod.txt pyproject.toml
 
 
 # update requirements.dev.txt if requirements.dev.in has changed
