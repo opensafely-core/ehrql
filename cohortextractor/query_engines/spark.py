@@ -20,7 +20,7 @@ class CreateViewAs(Executable, ClauseElement):
 
 @compiles(CreateViewAs, "spark")
 def _create_table_as(element, compiler, **kw):
-    return "CREATE TEMPORARY VIEW %s AS %s" % (
+    return "CREATE TEMPORARY VIEW {} AS {}".format(
         element.name,
         compiler.process(element.query),
     )
