@@ -246,9 +246,9 @@ python-dateutil==2.8.2 \
     # via
     #   -c requirements.prod.txt
     #   freezegun
-pyupgrade==2.29.0 \
-    --hash=sha256:04938c7e8e4e8b476ae2b727306ecfaea95a83b707acbe6929864100dd6d9701 \
-    --hash=sha256:27bfbc38854a40a70767ef6cbf3bf133c5472557905f0f9fe7ba5f58975701e4
+pyupgrade==2.29.1 \
+    --hash=sha256:1d3f03d14652caacd6f3d464696e103ef33578531a5c1b995be3821b14b811b7 \
+    --hash=sha256:737e02bed0de70247df5d2a0c3edba6b4529adf44f5ef588ecda4a69f14bf694
     # via -r requirements.dev.in
 pyyaml==5.4.1 \
     --hash=sha256:08682f6b72c722394747bddaf0aa62277e02557c0fd1c42cb853016a38f8dedf \
