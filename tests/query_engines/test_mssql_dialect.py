@@ -4,7 +4,7 @@ import pytest
 import sqlalchemy
 
 from cohortextractor import sqlalchemy_types
-from cohortextractor.query_engines import mssql
+from cohortextractor.query_engines.mssql_dialect import MSSQLDialect
 
 
 def test_mssql_date_types():
@@ -36,7 +36,7 @@ def test_mssql_date_types():
 def _str(expression):
     return str(
         expression.compile(
-            dialect=mssql.MssqlQueryEngine.sqlalchemy_dialect(),
+            dialect=MSSQLDialect(),
             compile_kwargs={"literal_binds": True},
         )
     )
