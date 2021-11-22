@@ -2,7 +2,7 @@ import sqlalchemy.orm
 import sqlalchemy.types
 from sqlalchemy import DDL, Column, Integer, Text, event
 
-from cohortextractor.query_engines.spark_lib import SparkDate as Date
+from cohortextractor.query_engines.spark_dialect import SparkDate as Date
 
 
 Base = sqlalchemy.orm.declarative_base()

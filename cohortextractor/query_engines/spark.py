@@ -6,7 +6,7 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import ClauseElement, Executable
 
 from .base_sql import BaseSQLQueryEngine
-from .spark_lib import SparkDate, SparkDialect
+from .spark_dialect import SparkDate, SparkDialect
 
 
 class CreateViewAs(Executable, ClauseElement):
