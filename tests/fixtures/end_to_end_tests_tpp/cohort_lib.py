@@ -1,4 +1,4 @@
-from cohortextractor import table
+from cohortextractor2 import table
 
 
 def clinical_events():

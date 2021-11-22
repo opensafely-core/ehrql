@@ -1,8 +1,8 @@
 import sqlalchemy
 import sqlalchemy.orm
 
-from cohortextractor.backends.base import BaseBackend, Column, MappedTable, QueryTable
-from cohortextractor.query_engines.mssql import MssqlQueryEngine
+from cohortextractor2.backends.base import BaseBackend, Column, MappedTable, QueryTable
+from cohortextractor2.query_engines.mssql import MssqlQueryEngine
 
 
 def backend_factory(query_engine_cls):

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from cohortextractor.main import generate_cohort, generate_measures, run_cohort_action
+from cohortextractor2.main import generate_cohort, generate_measures, run_cohort_action
 
 from .utils import MeasuresStudy, Study
 

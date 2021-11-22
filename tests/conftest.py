@@ -2,11 +2,11 @@ import docker
 import docker.errors
 import pytest
 
-from cohortextractor.concepts import tables
-from cohortextractor.definition.base import cohort_registry
-from cohortextractor.dsl import Cohort
-from cohortextractor.query_engines.mssql import MssqlQueryEngine
-from cohortextractor.query_engines.spark import SparkQueryEngine
+from cohortextractor2.concepts import tables
+from cohortextractor2.definition.base import cohort_registry
+from cohortextractor2.dsl import Cohort
+from cohortextractor2.query_engines.mssql import MssqlQueryEngine
+from cohortextractor2.query_engines.spark import SparkQueryEngine
 
 from .lib.databases import make_database, make_spark_database, wait_for_database
 from .lib.docker import Containers

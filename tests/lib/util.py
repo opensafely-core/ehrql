@@ -1,10 +1,10 @@
-import cohortextractor.main
-from cohortextractor import codelist, table
+import cohortextractor2.main
+from cohortextractor2 import codelist, table
 
 
 def extract(cohort, backend, database, **backend_kwargs):
     return list(
-        cohortextractor.main.extract(
+        cohortextractor2.main.extract(
             cohort, backend(database.host_url(), **backend_kwargs)
         )
     )

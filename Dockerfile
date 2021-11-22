@@ -19,5 +19,6 @@ WORKDIR /workspace
 # -B: don't write bytecode files
 ENTRYPOINT ["python", "-B", "-m", "cohortextractor"]
 ENV PYTHONPATH="/app"
+COPY cohortextractor2 /app/cohortextractor2
 COPY cohortextractor /app/cohortextractor
 RUN python -m compileall /app/cohortextractor

@@ -1,11 +1,11 @@
 import pytest
 
-from cohortextractor.backends.base import BaseBackend, Column, MappedTable
-from cohortextractor.concepts import types
-from cohortextractor.concepts.table_contract import BackendContractError
-from cohortextractor.concepts.table_contract import Column as ColumnContract
-from cohortextractor.concepts.table_contract import TableContract
-from cohortextractor.query_engines.base_sql import BaseSQLQueryEngine
+from cohortextractor2.backends.base import BaseBackend, Column, MappedTable
+from cohortextractor2.concepts import types
+from cohortextractor2.concepts.table_contract import BackendContractError
+from cohortextractor2.concepts.table_contract import Column as ColumnContract
+from cohortextractor2.concepts.table_contract import TableContract
+from cohortextractor2.query_engines.base_sql import BaseSQLQueryEngine
 
 
 def test_basic_validation_that_table_implements_patients_contract():

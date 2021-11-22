@@ -1,5 +1,5 @@
-from cohortextractor.backends.base import BaseBackend, Column, MappedTable
-from cohortextractor.query_engines.base_sql import BaseSQLQueryEngine
+from cohortextractor2.backends.base import BaseBackend, Column, MappedTable
+from cohortextractor2.query_engines.base_sql import BaseSQLQueryEngine
 
 
 def test_backend_tables():

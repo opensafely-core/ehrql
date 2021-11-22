@@ -91,9 +91,9 @@ check: devenv
     $BIN/black --check .
     $BIN/isort --check-only --diff .
     $BIN/flake8
-    $BIN/interrogate cohortextractor
+    $BIN/interrogate cohortextractor2
     $BIN/pyupgrade --py39-plus --keep-percent-format \
-        $(find cohortextractor -name "*.py" -type f) \
+        $(find cohortextractor2 -name "*.py" -type f) \
         $(find tests -name "*.py" -type f)
     $BIN/mypy
 
@@ -145,5 +145,5 @@ test-all *ARGS: devenv build-cohort-extractor
     set -euo pipefail
 
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
-    $BIN/python -m pytest --cov=cohortextractor --cov=tests {{ ARGS }}
+    $BIN/python -m pytest --cov=cohortextractor2 --cov=tests {{ ARGS }}
     [[ -v CI ]]  && echo "::endgroup::" || echo ""

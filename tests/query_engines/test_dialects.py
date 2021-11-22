@@ -2,7 +2,7 @@ import datetime
 
 import sqlalchemy
 
-from cohortextractor import sqlalchemy_types
+from cohortextractor2 import sqlalchemy_types
 
 
 def test_datetime_column_returns_date_if_typed_as_such(engine):

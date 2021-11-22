@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from cohortextractor.backends import TPPBackend
+from cohortextractor2.backends import TPPBackend
 
 # from cohortextractor.concepts.tables import (
 #     clinical_events,
@@ -13,8 +13,8 @@ from cohortextractor.backends import TPPBackend
 #     registrations,
 #     sgss_sars_cov_2,
 # )
-from cohortextractor.dsl import Cohort
-from cohortextractor.validate_dummy_data import validate_dummy_data
+from cohortextractor2.dsl import Cohort
+from cohortextractor2.validate_dummy_data import validate_dummy_data
 
 from ..lib.tpp_schema import (
     apcs,

@@ -1,6 +1,6 @@
 import pytest
 
-from cohortextractor.main import validate_cohort
+from cohortextractor2.main import validate_cohort
 
 from ..lib.tpp_schema import CTV3Events, Patient, RegistrationHistory
 from .utils import assert_results_equivalent
