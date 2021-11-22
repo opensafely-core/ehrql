@@ -3,6 +3,7 @@ import datetime
 import pytest
 import sqlalchemy
 
+from cohortextractor import sqlalchemy_types
 from cohortextractor.query_engines import mssql
 
 
@@ -11,8 +12,8 @@ def test_mssql_date_types():
     # inputs are SQLAlchemy expressions I don't know how to do this without
     # constructing the column objects outside of the test, which I don't really
     # want to do.
-    date_col = sqlalchemy.Column("date_col", sqlalchemy.Date())
-    datetime_col = sqlalchemy.Column("datetime_col", sqlalchemy.DateTime())
+    date_col = sqlalchemy.Column("date_col", sqlalchemy_types.Date())
+    datetime_col = sqlalchemy.Column("datetime_col", sqlalchemy_types.DateTime())
     assert _str(date_col > "2021-08-03") == "date_col > '20210803'"
     assert _str(datetime_col < "2021-03-23") == "datetime_col < '2021-03-23T00:00:00'"
     assert _str(date_col == datetime.date(2021, 5, 15)) == "date_col = '20210515'"

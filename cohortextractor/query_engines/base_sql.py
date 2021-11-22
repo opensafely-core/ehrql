@@ -5,10 +5,10 @@ from typing import Optional
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
-import sqlalchemy.types
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.sql.expression import type_coerce
 
+from .. import sqlalchemy_types
 from ..query_language import (
     Codelist,
     Column,
@@ -458,8 +458,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return value_expression, tuple(tables)
 
     def date_difference_in_years(self, start_date, end_date):
-        start_date = type_coerce(start_date, sqlalchemy.types.Date())
-        end_date = type_coerce(end_date, sqlalchemy.types.Date())
+        start_date = type_coerce(start_date, sqlalchemy_types.Date())
+        end_date = type_coerce(end_date, sqlalchemy_types.Date())
 
         # We do the arithmetic ourselves, to be portable across dbs.
         start_year = sqlalchemy.func.year(start_date)
@@ -480,7 +480,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             ),
             else_=year_diff - 1,
         )
-        return type_coerce(date_diff, sqlalchemy.types.Integer())
+        return type_coerce(date_diff, sqlalchemy_types.Integer())
 
     def apply_aggregates(self, query, aggregate_nodes):
         """
