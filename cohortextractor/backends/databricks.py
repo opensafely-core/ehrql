@@ -1,5 +1,5 @@
-from cohortextractor.backends.base import BaseBackend, Column, MappedTable, QueryTable
-from cohortextractor.query_engines.spark import SparkQueryEngine
+from ..query_engines.spark import SparkQueryEngine
+from .base import BaseBackend, Column, MappedTable, QueryTable
 
 
 class DatabricksBackend(BaseBackend):

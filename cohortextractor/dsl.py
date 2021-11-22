@@ -54,7 +54,7 @@ for end users.
 
 from __future__ import annotations
 
-from cohortextractor.query_language import BaseTable, Row, Value, ValueFromAggregate
+from .query_language import BaseTable, Row, Value, ValueFromAggregate
 
 
 class Cohort:

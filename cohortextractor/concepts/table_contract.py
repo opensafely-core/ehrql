@@ -1,6 +1,6 @@
 import dataclasses
 
-from cohortextractor.concepts.types import BaseType
+from .types import BaseType
 
 
 @dataclasses.dataclass
