@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "cohortextractor"
 description = ""
-version = "2.0.0"
+version = "not-a-package"
 readme = "README.md"
 authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
 license = {file = "LICENSE"}
