@@ -14,7 +14,7 @@ def test_datetime_column_returns_date_if_typed_as_such(engine):
         pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
         value = sqlalchemy.Column(sqlalchemy.DateTime())
 
-    engine.setup(DateValue(value="2020-10-20 08:09:10"))
+    engine.setup(DateValue(pk=1, value="2020-10-20 08:09:10"))
 
     # Create a SQLAlchemy Table representing the above, but with `value` typed as date
     # rather than datetime
