@@ -6,6 +6,8 @@ The majority of these fixes are only relevant to the ORM layer, which we only
 use for test setup and not in production. Hence I'm less bothered than I might
 otherwise be about how fragile they are.
 """
+import datetime
+
 import sqlalchemy.types
 from pyhive.sqlalchemy_hive import HiveHTTPDialect, HiveTypeCompiler
 from sqlalchemy import exc
@@ -21,12 +23,29 @@ class SparkDate(sqlalchemy.types.TypeDecorator):
         Without this we get dates returned as strings rather than
         `datetime.date` objects as we expect
         """
-        return sqlalchemy.processors.str_to_date(value)
+        # If the underlying database type is a DATETIME then that's what we'll get back,
+        # even if we've cast it to a DATE in our schema. So we make sure we always
+        # return the expected type here.
+        if isinstance(value, datetime.datetime):
+            return value.date()
+        else:
+            return sqlalchemy.processors.str_to_date(value)
 
     def bind_expression(self, bindvalue):
         """
         Spark won't accept date strings in INSERT statements unless we
         explicity cast them to dates
+        """
+        return cast(bindvalue, type_=self)
+
+
+class SparkDateTime(sqlalchemy.types.TypeDecorator):
+    impl = sqlalchemy.types.DateTime
+
+    def bind_expression(self, bindvalue):
+        """
+        Spark won't accept datetime strings in INSERT statements unless we
+        explicity cast them to datetimes
         """
         return cast(bindvalue, type_=self)
 
@@ -82,6 +101,7 @@ class SparkDialect(HiveHTTPDialect):
 
     colspecs = HiveHTTPDialect.colspecs | {
         sqlalchemy.types.Date: SparkDate,
+        sqlalchemy.types.DateTime: SparkDateTime,
     }
 
     # All the remaining changes are only required to get the SQLAlchemy ORM

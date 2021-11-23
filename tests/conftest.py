@@ -72,6 +72,11 @@ class QueryEngineFixture:
         results.sort(key=lambda i: i["patient_id"])
         return results
 
+    def sqlalchemy_engine(self, **kwargs):
+        sqlalchemy_engine = self.database.engine(**kwargs)
+        sqlalchemy_engine.dialect = self.query_engine_class.sqlalchemy_dialect()
+        return sqlalchemy_engine
+
 
 @pytest.fixture(scope="session", params=["mssql", "spark"])
 def engine(request, database, spark_database):
