@@ -379,13 +379,8 @@ def test_simple_filters(engine, data, filtered_table, expected, request):
     assert engine.extract(Cohort) == expected
 
 
-@pytest.mark.parametrize(
-    "filter_value", [[170, 180], (170, 180), {170, 180}, ("170", "180")]
-)
+@pytest.mark.parametrize("filter_value", [[170, 180], (170, 180), {170, 180}])
 def test_is_in_filter(engine, filter_value, request):
-    if request.node.callspec.id in ["spark-filter_value3"]:
-        pytest.xfail()
-
     data = [
         patient(1, ctv3_event("Code1", "2021-01-01", 10), height=180),  # in
         patient(2, ctv3_event("Code2", "2021-01-02", 20), height=170),  # not in
