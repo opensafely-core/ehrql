@@ -212,14 +212,6 @@ class FilteredTable(BaseTable):
     value: Any
     or_null: bool = False
 
-    def __post_init__(self):
-        # self.or_null = self.include_null
-        # validate specific columns
-        if self.column == "code" and not isinstance(self.value, Codelist):
-            raise ValidationError(
-                "A 'code' filter must filter on a codelist.  e.g. `.filter(code=codelist(['abc'], system='ctv3')`"
-            )
-
 
 @dataclass(frozen=True)
 class Column(QueryNode):
