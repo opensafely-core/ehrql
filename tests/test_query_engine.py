@@ -379,13 +379,8 @@ def test_simple_filters(engine, data, filtered_table, expected, request):
     assert engine.extract(Cohort) == expected
 
 
-@pytest.mark.parametrize(
-    "filter_value", [[170, 180], (170, 180), {170, 180}, ("170", "180")]
-)
+@pytest.mark.parametrize("filter_value", [[170, 180], (170, 180), {170, 180}])
 def test_is_in_filter(engine, filter_value, request):
-    if request.node.callspec.id in ["spark-filter_value3"]:
-        pytest.xfail()
-
     data = [
         patient(1, ctv3_event("Code1", "2021-01-01", 10), height=180),  # in
         patient(2, ctv3_event("Code2", "2021-01-02", 20), height=170),  # not in
@@ -527,9 +522,6 @@ def test_filter_between_other_query_values(engine):
 
 
 def test_date_in_range_filter(engine):
-    if engine.name == "spark":
-        pytest.xfail()
-
     input_data = [
         # (9999-12-31 is the default TPP null value)
         # registraion start date before target date; no end date - included
@@ -559,7 +551,7 @@ def test_date_in_range_filter(engine):
 
     class Cohort(OldCohortWithPopulation):
         _registrations = table("practice_registrations").date_in_range("2021-03-02")
-        stp = _registrations.first_by("patient_id").get("stp")
+        stp = _registrations.first_by("date_start").get("stp")
         count = _registrations.count("patient_id")
 
     result = engine.extract(Cohort)
@@ -567,7 +559,7 @@ def test_date_in_range_filter(engine):
         dict(patient_id=1, stp="STP1", count=1),
         dict(patient_id=2, stp=None, count=None),
         dict(patient_id=3, stp="STP2", count=1),
-        dict(patient_id=4, stp="STP2", count=2),
+        dict(patient_id=4, stp="STP3", count=2),
     ]
 
 
