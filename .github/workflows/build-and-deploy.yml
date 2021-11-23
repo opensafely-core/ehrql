@@ -2,7 +2,7 @@ name: Tag repo; build and publish assets
 on:
   create:
     tags: ['v*']
-  workspace_dispatch:
+  workflow_dispatch:
 
 jobs:
   build-and-publish-docker-image:
@@ -27,6 +27,5 @@ jobs:
         env:
           VERSION: ${{ steps.tags.outputs.tag }}
         run: |
-          docker tag ${{ env.image }} ${{ env.image }}:latest
           docker tag ${{ env.image }} ${{ env.image }}:$VERSION
           docker push ${{ env.image }}:$VERSION
