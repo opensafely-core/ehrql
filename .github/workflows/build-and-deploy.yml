@@ -1,4 +1,5 @@
-name: Tag repo; build and publish assets
+name: Build and publish image
+
 on:
   create:
   workflow_dispatch:
