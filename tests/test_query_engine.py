@@ -527,9 +527,6 @@ def test_filter_between_other_query_values(engine):
 
 
 def test_date_in_range_filter(engine):
-    if engine.name == "spark":
-        pytest.xfail()
-
     input_data = [
         # (9999-12-31 is the default TPP null value)
         # registraion start date before target date; no end date - included
@@ -559,7 +556,7 @@ def test_date_in_range_filter(engine):
 
     class Cohort(OldCohortWithPopulation):
         _registrations = table("practice_registrations").date_in_range("2021-03-02")
-        stp = _registrations.first_by("patient_id").get("stp")
+        stp = _registrations.first_by("date_start").get("stp")
         count = _registrations.count("patient_id")
 
     result = engine.extract(Cohort)
@@ -567,7 +564,7 @@ def test_date_in_range_filter(engine):
         dict(patient_id=1, stp="STP1", count=1),
         dict(patient_id=2, stp=None, count=None),
         dict(patient_id=3, stp="STP2", count=1),
-        dict(patient_id=4, stp="STP2", count=2),
+        dict(patient_id=4, stp="STP3", count=2),
     ]
 
 
