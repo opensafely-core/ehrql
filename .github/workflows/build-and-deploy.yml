@@ -2,7 +2,7 @@ name: Tag repo; build and publish assets
 on:
   create:
     tags: ['v*']
-  workspace_dispatch:
+  workflow_dispatch:
 
 jobs:
   build-and-publish-docker-image:
