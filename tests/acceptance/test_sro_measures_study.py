@@ -24,7 +24,6 @@ from .codelists import (
     tsh_codelist,
 )
 
-
 index_date_range = cohort_date_range(
     start="2019-01-01", end="2019-02-10", increment="month"
 )

@@ -17,7 +17,6 @@ from ..lib.tpp_schema import (
 from ..lib.util import extract
 from .codelists import covid_codes, covid_primary_care_code, long_covid_diagnostic_codes
 
-
 pandemic_start = "2020-02-01"
 registration_date = "2020-11-01"
 

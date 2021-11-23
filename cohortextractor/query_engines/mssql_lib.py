@@ -6,7 +6,6 @@ import time
 
 import sqlalchemy
 
-
 log = logging.getLogger(__name__)
 
 

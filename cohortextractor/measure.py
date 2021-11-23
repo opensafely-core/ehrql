@@ -7,7 +7,6 @@ import numpy
 import pandas
 import structlog
 
-
 # Used for reporting events to users. We may introduce a dedicated
 # mechanism for this eventually, but for now it just uses the logging
 # system.

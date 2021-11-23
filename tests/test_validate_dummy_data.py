@@ -11,7 +11,6 @@ from cohortextractor.validate_dummy_data import (
 
 from .lib.csv_utils import write_rows_to_csv
 
-
 cl = codelist(["12345"], system="snomed")
 
 fixtures_path = Path(__file__).parent / "fixtures" / "dummy_data"

@@ -2,7 +2,6 @@ import sqlalchemy.orm
 import sqlalchemy.types
 from sqlalchemy import DDL, Column, Date, Integer, Text, event
 
-
 Base = sqlalchemy.orm.declarative_base()
 
 # ** NOTE ON PRIMARY KEYS **

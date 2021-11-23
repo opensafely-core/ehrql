@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
 
-
 _OPERATOR_MAPPING = {
     "equals": "__eq__",
     "not_equals": "__ne__",

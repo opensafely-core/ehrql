@@ -4,7 +4,6 @@ from cohortextractor.sqlalchemy_types import TYPES_BY_NAME
 
 from ..query_engines.base_sql import BaseSQLQueryEngine
 
-
 # Mutable global for storing registered backends
 BACKENDS = {}
 

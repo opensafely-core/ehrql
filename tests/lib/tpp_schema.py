@@ -1,7 +1,6 @@
 import sqlalchemy.orm
 from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String
 
-
 Base = sqlalchemy.orm.declarative_base()
 
 

@@ -27,7 +27,6 @@ from .codelists import (
     post_viral_fatigue_codes,
 )
 
-
 pandemic_start = "2020-02-01"
 index_date = "2020-11-01"
 bmi_code = codelist(["22K.."], system="ctv3")
