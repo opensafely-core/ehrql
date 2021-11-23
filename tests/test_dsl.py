@@ -3,8 +3,9 @@ import re
 import pytest
 
 from cohortextractor.concepts import tables
-from cohortextractor.definition import Cohort, count, exists, pick_first_value, register
+from cohortextractor.definition import register
 from cohortextractor.definition.base import cohort_registry
+from cohortextractor.dsl import Cohort
 from cohortextractor.query_language import table
 from cohortextractor.query_utils import get_column_definitions
 
@@ -23,8 +24,8 @@ def test_minimal_cohort_definition(cohort_with_population):
     # new DSL
     cohort = cohort_with_population
     events = tables.clinical_events
-    cohort.code = events.select_column(events.code).make_one_row_per_patient(
-        pick_first_value
+    cohort.code = (
+        events.sort_by(events.date).first_for_patient().select_column(events.code)
     )
 
     register(cohort)
@@ -46,8 +47,9 @@ def test_filter(cohort_with_population):
     events = tables.clinical_events
     cohort.code = (
         events.filter(events.date, greater_than="2021-01-01")
+        .sort_by(events.date)
+        .first_for_patient()
         .select_column(events.code)
-        .make_one_row_per_patient(pick_first_value)
     )
 
     assert_cohorts_equivalent(cohort, OldCohort)
@@ -69,8 +71,9 @@ def test_multiple_filters(cohort_with_population):
     cohort.code = (
         events.filter(events.date, greater_than="2021-01-01")
         .filter(events.date, less_than="2021-10-10")
+        .sort_by(events.date)
+        .first_for_patient()
         .select_column(events.code)
-        .make_one_row_per_patient(pick_first_value)
     )
 
     assert_cohorts_equivalent(cohort, OldCohort)
@@ -79,13 +82,11 @@ def test_multiple_filters(cohort_with_population):
 def test_count_aggregation(cohort_with_population):
     class OldCohort(OldCohortWithPopulation):
         # Define tables of interest, filtered to relevant values
-        num_events = table("clinical_events").count("code")
+        num_events = table("clinical_events").filter("code", not_equals=None).count()
 
     cohort = cohort_with_population
     events = tables.clinical_events
-    cohort.num_events = events.select_column(events.code).make_one_row_per_patient(
-        count
-    )
+    cohort.num_events = events.filter(events.code, not_equals=None).count_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 
@@ -93,66 +94,43 @@ def test_count_aggregation(cohort_with_population):
 def test_exists_aggregation(cohort_with_population):
     class OldCohort(OldCohortWithPopulation):
         # Define tables of interest, filtered to relevant values
-        has_events = table("clinical_events").exists("code")
+        has_events = table("clinical_events").filter("code", not_equals=None).exists()
 
     cohort = cohort_with_population
     events = tables.clinical_events
-    cohort.has_events = events.select_column(events.code).make_one_row_per_patient(
-        exists
-    )
+    cohort.has_events = events.filter(events.code, not_equals=None).exists_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
 def test_set_population():
-    index_date = "2021-01-01"
-
     class OldCohort:
-        population = (
-            table("practice_registrations").date_in_range(index_date).exists("date_end")
-        )
-
-    registations_table = tables.registrations
-    registered = (
-        registations_table.filter(
-            registations_table.date_start, less_than_or_equals=index_date
-        )
-        .filter(
-            registations_table.date_end,
-            greater_than_or_equals=index_date,
-            include_null=True,
-        )
-        .select_column(registations_table.date_end)
-        .make_one_row_per_patient(exists)
-    )
+        population = table("practice_registrations").exists("patient_id")
 
     cohort = Cohort()
-    cohort.set_population(registered)
+    cohort.set_population(tables.registrations.exists_for_patient())
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
 def test_set_population_variable_must_be_boolean():
-    registations_table = tables.registrations
-    registered = registations_table.select_column(
-        registations_table.date_end
-    ).make_one_row_per_patient(pick_first_value)
     cohort = Cohort()
 
     with pytest.raises(
         ValueError,
-        match=re.escape(
-            "Population variable must return a boolean. Did you mean to use `make_one_row_per_patient(exists)`?"
-        ),
+        match=re.escape("Population variable must return a boolean."),
     ):
-        cohort.set_population(registered)
+        cohort.set_population(tables.registrations.count_for_patient())
 
 
 @pytest.mark.parametrize(
     "variable_def, invalid_type",
     [
-        (tables.clinical_events.select_column("code"), "Column"),
         ("code", "str"),
         (tables.clinical_events, "ClinicalEvents"),
+        (
+            tables.clinical_events.filter("date", greater_than="2021-01-01"),
+            "EventFrame",
+        ),
     ],
 )
 def test_set_variable_errors(variable_def, invalid_type):

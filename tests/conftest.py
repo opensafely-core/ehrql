@@ -3,8 +3,8 @@ import docker.errors
 import pytest
 
 from cohortextractor.concepts import tables
-from cohortextractor.definition import Cohort, exists
 from cohortextractor.definition.base import cohort_registry
+from cohortextractor.dsl import Cohort
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
 from cohortextractor.query_engines.spark import SparkQueryEngine
 
@@ -47,11 +47,7 @@ def cleanup_register():
 @pytest.fixture
 def cohort_with_population():
     cohort = Cohort()
-    registrations_table = tables.registrations
-    registered = registrations_table.select_column(
-        registrations_table.patient_id
-    ).make_one_row_per_patient(exists)
-    cohort.set_population(registered)
+    cohort.set_population(tables.registrations.exists_for_patient())
     yield cohort
 
 

@@ -1,19 +1,13 @@
 from cohortextractor.concepts import tables
-from cohortextractor.definition import Cohort, exists, pick_first_value, register
-
+from cohortextractor.definition import register
+from cohortextractor.dsl import Cohort
 
 cohort = Cohort()
-registrations = tables.registrations
-population = registrations.select_column(
-    registrations.patient_id
-).make_one_row_per_patient(exists)
-cohort.set_population(population)
+cohort.set_population(tables.registrations.exists_for_patient())
+events = tables.ClinicalEvents()
+cohort.date = events.sort_by(events.date).first_for_patient().select_column(events.date)
+cohort.event = (
+    events.sort_by(events.code).first_for_patient().select_column(events.code)
+)
 
-events = tables.clinical_events
-cohort.date = events.select_column(events.date).make_one_row_per_patient(
-    pick_first_value
-)
-cohort.event = events.select_column(events.code).make_one_row_per_patient(
-    pick_first_value
-)
 register(cohort)
