@@ -1,14 +1,16 @@
+from typing import Protocol
+
 from cohortextractor.sqlalchemy_types import TYPES_BY_NAME
 
 
-class BaseType:
+class BaseType(Protocol):
     """
     Base class for Column types defined in a Contract
     """
 
     # Subclasses must specify the backend Column types that they allow, as
     # tuples of one or more keys from cohortextractor.sqlalchemy_types.TYPES_BY_NAME
-    allowed_backend_types: tuple[TYPES_BY_NAME, ...] = NotImplemented
+    allowed_backend_types: tuple[TYPES_BY_NAME, ...]
 
 
 class PseudoPatientId(BaseType):
