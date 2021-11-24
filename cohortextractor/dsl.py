@@ -6,8 +6,8 @@ patient) and EventFrame (a collection of records with multiple records per patie
 Through filtering, sorting, aggregating, and selecting columns, we transform instances
 of PatientFrame/EventFrame into instances of PatientSeries.
 
-A PatientSeries represents a mapping between patients and values, and can be assigned to
-a Cohort.  In the future, a PatientSeries will be able to be combined with another
+A PatientSeries represents a mapping from a patient to a value, and can be assigned to a
+Cohort.  In the future, a PatientSeries will be able to be combined with another
 PatientSeries or a single value to produce a new PatientSeries.
 
 All classes except Cohort are intended to be immutable.
