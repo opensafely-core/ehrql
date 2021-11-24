@@ -59,7 +59,7 @@ def test_basic_validation_for_patients_contract_column_types():
     # Unhappy path
     with pytest.raises(
         BackendContractError,
-        match="Column date_of_birth is defined with an invalid type.\n\nAllowed types are: date",
+        match="Column date_of_birth is defined with an invalid type 'integer'.\n\nAllowed types are: date",
     ):
 
         class BadBackend(BaseBackend):

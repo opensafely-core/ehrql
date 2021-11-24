@@ -46,6 +46,6 @@ class TableContract:
                 raise BackendContractError(
                     f"\n'{backend.__name__}.{table_name}' does not correctly implement the"
                     f" contract for '{cls.__name__}'\n\n"
-                    f"Column {column} is defined with an invalid type.\n\n"
+                    f"Column {column} is defined with an invalid type '{backend_column_type}'.\n\n"
                     f"Allowed types are: {', '.join(allowed_types)}"
                 )
