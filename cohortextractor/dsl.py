@@ -84,7 +84,7 @@ class Cohort:
             raise TypeError(
                 f"{name} must be a single value per patient (got '{variable.__class__.__name__}')"
             )
-        self.__dict__[name] = variable
+        super().__setattr__(name, variable)
 
 
 class PatientFrame:
