@@ -37,11 +37,15 @@ class TableContract:
         for column in cls.columns:
             backend_column_type = backend_table.columns[column].type
             contract_column_type = cls.columns[column].type
+            allowed_types = [
+                allowed_type.name
+                for allowed_type in contract_column_type.allowed_backend_types
+            ]
 
-            if backend_column_type not in contract_column_type.allowed_backend_types:
+            if backend_column_type not in allowed_types:
                 raise BackendContractError(
                     f"\n'{backend.__name__}.{table_name}' does not correctly implement the"
                     f" contract for '{cls.__name__}'\n\n"
                     f"Column {column} is defined with an invalid type.\n\n"
-                    f"Allowed types are: {', '.join( contract_column_type.allowed_backend_types)}"
+                    f"Allowed types are: {', '.join(allowed_types)}"
                 )
