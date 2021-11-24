@@ -145,5 +145,10 @@ test-all *ARGS: devenv build-cohort-extractor
     set -euo pipefail
 
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
-    $BIN/python -m pytest --cov=cohortextractor2 --cov=tests {{ ARGS }}
+    $BIN/python -m pytest \
+        --cov=cohortextractor2 \
+        --cov=tests \
+        --cov-report=html \
+        --cov-report=term-missing:skip-covered \
+        {{ ARGS }}
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
