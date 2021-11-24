@@ -150,5 +150,6 @@ test-all *ARGS: devenv build-cohort-extractor
         --cov=tests \
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
+        tests \
         {{ ARGS }}
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
