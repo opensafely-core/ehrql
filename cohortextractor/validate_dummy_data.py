@@ -5,7 +5,6 @@ import pandas as pd
 from .query_language import ValueFromRow
 from .query_utils import get_column_definitions
 
-
 SUPPORTED_FILE_FORMATS = ["csv", "csv.gz"]
 
 

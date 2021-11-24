@@ -13,7 +13,6 @@ from .lib.mock_backend import (
 )
 from .lib.util import OldCohortWithPopulation, make_codelist
 
-
 # Mark the whole module as containing integration tests
 pytestmark = pytest.mark.integration
 

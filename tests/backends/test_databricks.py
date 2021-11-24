@@ -9,7 +9,6 @@ from cohortextractor.backends.databricks import DatabricksBackend
 from ..lib.databricks_schema import HESApc, HESApcOtr, MPSHESApc, PCareMeds
 from ..lib.util import extract, iter_flatten
 
-
 # Keep things deterministic
 rand = random.Random(20211019)
 

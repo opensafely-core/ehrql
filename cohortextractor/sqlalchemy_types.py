@@ -3,7 +3,6 @@ from enum import Enum
 import sqlalchemy.types
 from sqlalchemy.types import Boolean, Float, Integer, String, Text
 
-
 __all__ = [
     "Boolean",
     "Date",

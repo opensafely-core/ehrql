@@ -77,13 +77,8 @@ omit-covered-files = true
 verbose = 1
 
 [tool.isort]
-force_grid_wrap = 0
-include_trailing_comma = true
-line_length = 88
-lines_after_imports = 2
-multi_line_output = 3
+profile = "black"
 skip_glob = [".direnv", "venv", ".venv"]
-use_parentheses = true
 
 [tool.mypy]
 files = "cohortextractor"

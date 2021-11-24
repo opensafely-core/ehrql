@@ -11,7 +11,6 @@ from sqlalchemy import (
     Integer,
 )
 
-
 Base = sqlalchemy.orm.declarative_base()
 
 

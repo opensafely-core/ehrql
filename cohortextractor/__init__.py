@@ -4,7 +4,6 @@ from .log_utils import init_logging
 from .measure import Measure
 from .query_language import categorise, table
 
-
 init_logging()
 
 

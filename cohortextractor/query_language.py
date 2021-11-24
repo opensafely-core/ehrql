@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
 
-
 _OPERATOR_MAPPING = {
     "equals": "__eq__",
     "not_equals": "__ne__",
@@ -158,7 +157,7 @@ class BaseTable(QueryNode):
     def exists(self, column="patient_id"):
         return self.aggregate("exists", column)
 
-    def count(self, column):
+    def count(self, column="patient_id"):
         return self.aggregate("count", column)
 
     def sum(self, column):  # noqa: A003
@@ -211,14 +210,6 @@ class FilteredTable(BaseTable):
     operator: Any
     value: Any
     or_null: bool = False
-
-    def __post_init__(self):
-        # self.or_null = self.include_null
-        # validate specific columns
-        if self.column == "code" and not isinstance(self.value, Codelist):
-            raise ValidationError(
-                "A 'code' filter must filter on a codelist.  e.g. `.filter(code=codelist(['abc'], system='ctv3')`"
-            )
 
 
 @dataclass(frozen=True)
