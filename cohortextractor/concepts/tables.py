@@ -1,24 +1,25 @@
-from cohortextractor.dsl import EventTable
+from cohortextractor.dsl import EventFrame
+from cohortextractor.query_language import Table
 
 from . import types
 from .table_contract import Column, TableContract
 
 
-class ClinicalEvents(EventTable):
+class ClinicalEvents(EventFrame):
     code = "code"
     date = "date"
 
     def __init__(self):
-        super().__init__("clinical_events")
+        super().__init__(Table("clinical_events"))
 
 
-class PracticeRegistrations(EventTable):
+class PracticeRegistrations(EventFrame):
     patient_id = "patient_id"
     date_start = "date_start"
     date_end = "date_end"
 
     def __init__(self):
-        super().__init__("practice_registrations")
+        super().__init__(Table("practice_registrations"))
 
 
 class Patients(TableContract):
