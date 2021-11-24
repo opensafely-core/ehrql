@@ -82,11 +82,10 @@ def test_multiple_filters(cohort_with_population):
 def test_count_aggregation(cohort_with_population):
     class OldCohort(OldCohortWithPopulation):
         # Define tables of interest, filtered to relevant values
-        num_events = table("clinical_events").filter("code", not_equals=None).count()
+        num_events = table("clinical_events").count()
 
     cohort = cohort_with_population
-    events = tables.clinical_events
-    cohort.num_events = events.filter(events.code, not_equals=None).count_for_patient()
+    cohort.num_events = tables.clinical_events.count_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 
