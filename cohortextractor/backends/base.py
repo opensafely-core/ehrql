@@ -64,7 +64,7 @@ class SQLTable:
 
     def _make_column(self, name, column):
         source = column.source or name
-        type_ = TYPES_BY_NAME[column.type]
+        type_ = TYPES_BY_NAME[column.type].value
         sql_column = sqlalchemy.Column(source, type_)
         if source != name:
             sql_column = sql_column.label(name)

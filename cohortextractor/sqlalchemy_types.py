@@ -1,3 +1,5 @@
+from enum import Enum
+
 import sqlalchemy.types
 from sqlalchemy.types import Boolean, Float, Integer, String, Text
 
@@ -41,12 +43,15 @@ class DateTime(sqlalchemy.types.TypeDecorator):
     cache_ok = True
 
 
-TYPES_BY_NAME = {
-    "boolean": Boolean,
-    "date": Date,
-    "datetime": DateTime,
-    "float": Float,
-    "integer": Integer,
-    "varchar": Text,
-    "code": Text,
-}
+TYPES_BY_NAME = Enum(
+    "TYPES_BY_NAME",
+    {
+        "boolean": Boolean,
+        "date": Date,
+        "datetime": DateTime,
+        "float": Float,
+        "integer": Integer,
+        "varchar": Text,
+        "code": Text,
+    },
+)
