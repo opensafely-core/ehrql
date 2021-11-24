@@ -1,6 +1,6 @@
-from cohortextractor.concepts import tables
-from cohortextractor.definition import register
-from cohortextractor.dsl import Cohort
+from cohortextractor2.concepts import tables
+from cohortextractor2.definition import register
+from cohortextractor2.dsl import Cohort
 
 cohort = Cohort()
 cohort.set_population(tables.registrations.exists_for_patient())

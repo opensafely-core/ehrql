@@ -1,18 +1,17 @@
-from .codelistlib import codelist, codelist_from_csv, combine_codelists
-from .date_utils import cohort_date_range
-from .log_utils import init_logging
-from .measure import Measure
-from .query_language import categorise, table
+"""
+Shim module to avoid rename churn in studies
 
-init_logging()
+We package cohort-extractor-v2 in two ways:
 
+ * docker image
+ * pip installable artefact
 
-__all__ = [
-    "categorise",
-    "codelist",
-    "codelist_from_csv",
-    "cohort_date_range",
-    "combine_codelists",
-    "Measure",
-    "table",
-]
+This module is included in the docker package, but not the pipable artefact.
+This allows study authors trying out v2 to avoid churn in the project.yamls by
+keeping the same entrypoint for this project (`cohortextractor`).  However when
+pip installing the project we will get the `cohortextractor2` directory in
+site-packages but _not_ this shim module, avoiding any overlap with the
+original cohortextractor.
+
+"""
+from cohortextractor2 import *  # noqa: F401, F403

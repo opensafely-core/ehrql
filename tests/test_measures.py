@@ -5,8 +5,8 @@ import numpy
 import pandas
 import pytest
 
-import cohortextractor.measure as measure
-from cohortextractor.measure import Measure, combine_csv_files_with_dates
+import cohortextractor2.measure as measure
+from cohortextractor2.measure import Measure, combine_csv_files_with_dates
 
 from .lib.util import RecordingReporter, null_reporter
 

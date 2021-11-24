@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from cohortextractor.sqlalchemy_types import TYPES_BY_NAME
+from ..sqlalchemy_types import TYPES_BY_NAME
 
 
 class BaseType(Protocol):

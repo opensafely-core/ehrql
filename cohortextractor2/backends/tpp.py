@@ -1,6 +1,6 @@
-from cohortextractor.backends.base import BaseBackend, Column, MappedTable, QueryTable
-from cohortextractor.concepts import tables
-from cohortextractor.query_engines.mssql import MssqlQueryEngine
+from ..concepts import tables
+from ..query_engines.mssql import MssqlQueryEngine
+from .base import BaseBackend, Column, MappedTable, QueryTable
 
 
 def rtrim(ref, char):

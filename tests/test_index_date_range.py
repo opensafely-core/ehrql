@@ -1,6 +1,6 @@
 import pytest
 
-from cohortextractor import cohort_date_range
+from cohortextractor2 import cohort_date_range
 
 
 @pytest.mark.freeze_time("2021-02-01")

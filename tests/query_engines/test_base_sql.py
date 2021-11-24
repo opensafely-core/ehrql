@@ -1,6 +1,6 @@
 import pytest
 
-from cohortextractor.query_engines.base_sql import split_list_into_batches
+from cohortextractor2.query_engines.base_sql import split_list_into_batches
 
 
 @pytest.mark.parametrize(

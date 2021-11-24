@@ -1,6 +1,5 @@
-from cohortextractor.dsl import EventFrame
-from cohortextractor.query_language import Table
-
+from ..dsl import EventFrame
+from ..query_language import Table
 from . import types
 from .table_contract import Column, TableContract
 

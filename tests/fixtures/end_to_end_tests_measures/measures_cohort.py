@@ -1,4 +1,4 @@
-from cohortextractor import Measure, codelist, table
+from cohortextractor2 import Measure, codelist, table
 
 
 class Cohort:

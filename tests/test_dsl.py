@@ -2,12 +2,12 @@ import re
 
 import pytest
 
-from cohortextractor.concepts import tables
-from cohortextractor.definition import register
-from cohortextractor.definition.base import cohort_registry
-from cohortextractor.dsl import Cohort
-from cohortextractor.query_language import table
-from cohortextractor.query_utils import get_column_definitions
+from cohortextractor2.concepts import tables
+from cohortextractor2.definition import register
+from cohortextractor2.definition.base import cohort_registry
+from cohortextractor2.dsl import Cohort
+from cohortextractor2.query_language import table
+from cohortextractor2.query_utils import get_column_definitions
 
 from .lib.util import OldCohortWithPopulation
 

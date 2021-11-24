@@ -1,4 +1,4 @@
-from cohortextractor import codelist, table
+from cohortextractor2 import codelist, table
 
 
 class Cohort:

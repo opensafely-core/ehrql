@@ -1,5 +1,5 @@
-from cohortextractor.backends.base import BaseBackend, Column, MappedTable
-from cohortextractor.query_engines.mssql import MssqlQueryEngine
+from ..query_engines.mssql import MssqlQueryEngine
+from .base import BaseBackend, Column, MappedTable
 
 
 class GraphnetBackend(BaseBackend):

@@ -2,8 +2,8 @@ from datetime import date, datetime
 
 import pytest
 
-from cohortextractor import codelist, table
-from cohortextractor.backends.tpp import TPPBackend
+from cohortextractor2 import codelist, table
+from cohortextractor2.backends.tpp import TPPBackend
 
 from ..lib.tpp_schema import (
     CTV3Events,

@@ -1,4 +1,4 @@
-from cohortextractor import cohort_date_range, table
+from cohortextractor2 import cohort_date_range, table
 
 index_date_range = cohort_date_range(
     start="2021-01-01", end="2021-03-01", increment="month"
