@@ -143,6 +143,20 @@ def test_set_variable_errors(variable_def, invalid_type):
         cohort.code = variable_def
 
 
+def test_add_variable():
+    events = tables.clinical_events
+
+    cohort1 = Cohort()
+    cohort1.set_population(tables.registrations.exists_for_patient())
+    cohort1.add_variable("code", events.count_for_patient())
+
+    cohort2 = Cohort()
+    cohort2.set_population(tables.registrations.exists_for_patient())
+    cohort2.add_variable("code", events.count_for_patient())
+
+    assert_cohorts_equivalent(cohort1, cohort2)
+
+
 def assert_cohorts_equivalent(dsl_cohort, qm_cohort):
     """Verify that a cohort defined via Query Model objects has the same columns as a
     cohort defined via the DSL.
