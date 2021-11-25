@@ -3,17 +3,17 @@ from pathlib import Path
 
 import pytest
 
+from cohortextractor2 import codelist
 from cohortextractor2.backends import TPPBackend
-
-# from cohortextractor.concepts.tables import (
-#     clinical_events,
-#     hospitalizations,
-#     patient_addresses,
-#     patients,
-#     registrations,
-#     sgss_sars_cov_2,
-# )
-from cohortextractor2.dsl import Cohort
+from cohortextractor2.concepts.tables import (
+    clinical_events,
+    hospitalizations,
+    patient_addresses,
+    patients,
+    registrations,
+    sgss_sars_cov_2,
+)
+from cohortextractor2.dsl import Cohort, categorise
 from cohortextractor2.validate_dummy_data import validate_dummy_data
 
 from ..lib.tpp_schema import (
@@ -28,193 +28,187 @@ from ..lib.tpp_schema import (
     snomed_event,
 )
 from ..lib.util import extract
-
-# from .codelists import (
-#     any_long_covid_code,
-#     any_primary_care_code,
-#     covid_codes,
-#     ethnicity_codes,
-#     post_viral_fatigue_codes,
-# )
+from .codelists import (
+    any_long_covid_code,
+    any_primary_care_code,
+    covid_codes,
+    ethnicity_codes,
+    post_viral_fatigue_codes,
+)
 
 
 def build_cohort():
-    # pandemic_start = "2020-02-01"
-    # index_date = "2020-11-01"
-    # bmi_code = codelist(["22K.."], system="ctv3")
+    pandemic_start = "2020-02-01"
+    index_date = "2020-11-01"
+    bmi_code = codelist(["22K.."], system="ctv3")
 
-    # events = clinical_events
-    # addresses = patient_addresses
+    events = clinical_events
+    addresses = patient_addresses
 
     cohort = Cohort()
 
-    # # Population
-    # # Patients registered on 2020-11-01
-    # registered = (
-    #     registrations.filter(registrations.start_date <= index_date)
-    #     .filter(registrations.end_date >= index_date)
-    #     .select_column(registrations.end_date)
-    #     .make_one_row_per_patient(exists)
-    # )
-    # cohort.set_population(registered)
+    # Population
+    # Patients registered on 2020-11-01
+    registered = (
+        registrations.filter(registrations.start_date <= index_date)
+        .filter(
+            (registrations.end_date >= index_date)
+            | (registrations.end_date is not None)
+        )
+        .exists_for_patient()
+    )
+    cohort.set_population(registered)
 
-    # cohort.practice_id = (
-    #     registrations.sort_by("date_end")
-    #     .select_column("pseudo_id")
-    #     .make_one_row_per_patient(pick_last_value)
-    # )
+    cohort.practice_id = (
+        registrations.sort_by("date_end").last_for_patient().select_column("pseudo_id")
+    )
 
-    # # COVID infection
-    # cohort.sgss_positive = (
-    #     sgss_sars_cov_2.filter(sgss_sars_cov_2.positive_result is True)
-    #     .sort_by(sgss_sars_cov_2.date)
-    #     .select_column(sgss_sars_cov_2.date)
-    #     .make_one_row_per_patient(pick_first_value)
-    # )
+    # COVID infection
+    cohort.sgss_positive = (
+        sgss_sars_cov_2.filter(sgss_sars_cov_2.positive_result is True)
+        .sort_by(sgss_sars_cov_2.date)
+        .first_for_patient()
+        .select_column(sgss_sars_cov_2.date)
+    )
 
-    # cohort.primary_care_covid = (
-    #     events.filter(events.code in any_primary_care_code)
-    #     .sort_by(events.date)
-    #     .select_column(events.date)
-    #     .make_one_row_per_patient(pick_first_value)
-    # )
+    cohort.primary_care_covid = (
+        events.filter(events.code in any_primary_care_code)
+        .sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.date)
+    )
 
-    # cohort.hospital_covid = (
-    #     hospitalizations.filter(hospitalizations.code in covid_codes)
-    #     .sort_by(hospitalizations.date)
-    #     .select_column(hospitalizations.date)
-    #     .make_one_row_per_patient(pick_first_value)
-    # )
+    cohort.hospital_covid = (
+        hospitalizations.filter(hospitalizations.code in covid_codes)
+        .sort_by(hospitalizations.date)
+        .first_for_patient()
+        .select_column(hospitalizations.date)
+    )
 
-    # # Outcome
-    # long_covid_events = events.filter(events.code in any_long_covid_code)
+    # Outcome
+    long_covid_events = events.filter(events.code in any_long_covid_code)
 
-    # cohort.long_covid = long_covid_events.make_one_row_per_patient(exists)
+    cohort.long_covid = long_covid_events.exists_for_patient()
 
-    # cohort.first_long_covid_date = (
-    #     long_covid_events.sort_by(events.date)
-    #     .select_column(events.date)
-    #     .make_one_row_per_patient(pick_first_value)
-    # )
+    cohort.first_long_covid_date = (
+        long_covid_events.sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.date)
+    )
 
-    # cohort.first_long_covid_code = (
-    #     long_covid_events.sort_by(events.date)
-    #     .select_column(events.code)
-    #     .make_one_row_per_patient(pick_first_value)
-    # )
+    cohort.first_long_covid_code = (
+        long_covid_events.sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.code)
+    )
 
-    # cohort.first_post_viral_fatigue_date = (
-    #     events.filter(events.code in post_viral_fatigue_codes)
-    #     .sort_by(events.date)
-    #     .select_column(events.date)
-    #     .make_one_row_per_patient(pick_first_value)
-    # )
+    cohort.first_post_viral_fatigue_date = (
+        events.filter(events.code in post_viral_fatigue_codes)
+        .sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.date)
+    )
 
-    # # Demographics
-    # # Age
-    # age = (patients.select_column("age") - index_date).convert_to("years")
-    # age_categories = {
-    #     "0-17": age < 18,
-    #     "18-24": (age >= 18) & (age < 25),
-    #     "25-34": (age >= 25) & (age < 35),
-    #     "35-44": (age >= 35) & (age < 45),
-    #     "45-54": (age >= 45) & (age < 55),
-    #     "55-69": (age >= 55) & (age < 70),
-    #     "70-79": (age >= 70) & (age < 80),
-    #     "80+": age >= 80,
-    # }
-    # cohort.age_group = categorise(age_categories, default="missing")
+    # Demographics
+    # Age
+    age = (patients.select_column("age") - index_date).convert_to("years")
+    age_categories = {
+        "0-17": age < 18,
+        "18-24": (age >= 18) & (age < 25),
+        "25-34": (age >= 25) & (age < 35),
+        "35-44": (age >= 35) & (age < 45),
+        "45-54": (age >= 45) & (age < 55),
+        "55-69": (age >= 55) & (age < 70),
+        "70-79": (age >= 70) & (age < 80),
+        "80+": age >= 80,
+    }
+    cohort.age_group = categorise(age_categories, default="missing")
 
-    # # Sex
-    # cohort.sex = (
-    #     patients.sort_by("patient_id")
-    #     .select_column("sex")
-    #     .make_one_row_per_patient(pick_first_value)
-    # )
+    # Sex
+    cohort.sex = patients.sort_by("patient_id").select_column("sex")
 
-    # # Region
-    # cohort.region = (
-    #     registrations.sort_by("date_end")
-    #     .select_column("nuts1_region_name")
-    #     .make_one_row_per_patient(pick_last_value)
-    # )
+    # Region
+    cohort.region = (
+        registrations.sort_by("date_end")
+        .last_for_patient()
+        .select_column("nuts1_region_name")
+    )
 
-    # # IMD
-    # imd = (
-    #     addresses.filter(addresses.start_date <= index_date)
-    #     .filter(addresses.end_date >= index_date)
-    #     .sort_by(
-    #         addresses.date_start,
-    #         addresses.date_end,
-    #         addresses.has_postcode,
-    #         addresses.patientaddress_id,
-    #     )
-    #     .select_column(addresses.index_of_multiple_deprivation_rounded)
-    #     .make_one_row_per_patient(pick_last_value)
-    # )
-    # imd_groups = {
-    #     "1": (imd >= 1) & (imd < (32844 * 1 / 5)),
-    #     "2": (imd >= 32844 * 1 / 5) & (imd < (32844 * 2 / 5)),
-    #     "3": (imd >= 32844 * 2 / 5) & (imd < (32844 * 3 / 5)),
-    #     "4": (imd >= 32844 * 3 / 5) & (imd < (32844 * 4 / 5)),
-    #     "5": (imd >= 32844 * 4 / 5) & (imd < 32844),
-    # }
-    # cohort.imd = categorise(imd_groups, default="0")
+    # IMD
+    imd = (
+        addresses.filter(addresses.start_date <= index_date)
+        .filter(addresses.end_date >= index_date)
+        .sort_by(
+            addresses.date_start,
+            addresses.date_end,
+            addresses.has_postcode,
+            addresses.patientaddress_id,
+        )
+        .last_for_patient()
+        .select_column(addresses.index_of_multiple_deprivation_rounded)
+    )
+    imd_groups = {
+        "1": (imd >= 1) & (imd < (32844 * 1 / 5)),
+        "2": (imd >= 32844 * 1 / 5) & (imd < (32844 * 2 / 5)),
+        "3": (imd >= 32844 * 2 / 5) & (imd < (32844 * 3 / 5)),
+        "4": (imd >= 32844 * 3 / 5) & (imd < (32844 * 4 / 5)),
+        "5": (imd >= 32844 * 4 / 5) & (imd < 32844),
+    }
+    cohort.imd = categorise(imd_groups, default="0")
 
-    # # Ethnicity
-    # cohort.ethnicity = (
-    #     events.filter(events.code in ethnicity_codes)
-    #     .filter(events.date <= index_date)
-    #     .sort_by(events.date)
-    #     .select_column(events.code)
-    #     .make_one_row_per_patient(pick_last_value)
-    # )
+    # Ethnicity
+    cohort.ethnicity = (
+        events.filter(events.code in ethnicity_codes)
+        .filter(events.date <= index_date)
+        .sort_by(events.date)
+        .last_for_patient()
+        .select_column(events.code)
+    )
 
-    # # Clinical variables
-    # # Latest recorded BMI
-    # bmi = (
-    #     events.filter(events.code == bmi_code)
-    #     .sort_by(events.date)
-    #     .select_column("numeric_value")
-    #     .make_one_row_per_patient(pick_last_value)
-    # )
-    # bmi_groups = {
-    #     "Obese I (30-34.9)": (bmi >= 30) & (bmi < 35),
-    #     "Obese II (35-39.9)": (bmi >= 35) & (bmi < 40),
-    #     "Obese III (40+)": (bmi >= 40) & (bmi < 100)
-    #     # set maximum to avoid any impossibly extreme values being classified as obese
-    # }
-    # cohort.bmi = categorise(bmi_groups, default="Not obese")
+    # Clinical variables
+    # Latest recorded BMI
+    bmi = (
+        events.filter(events.code == bmi_code)
+        .sort_by(events.date)
+        .last_for_patient()
+        .select_column("numeric_value")
+    )
+    bmi_groups = {
+        "Obese I (30-34.9)": (bmi >= 30) & (bmi < 35),
+        "Obese II (35-39.9)": (bmi >= 35) & (bmi < 40),
+        "Obese III (40+)": (bmi >= 40) & (bmi < 100)
+        # set maximum to avoid any impossibly extreme values being classified as obese
+    }
+    cohort.bmi = categorise(bmi_groups, default="Not obese")
 
-    # # Previous COVID
-    # previous_covid_categories = {
-    #     "COVID positive": (
-    #         (cohort.sgss_positive | cohort.primary_care_covid) & ~cohort.hospital_covid
-    #     ),
-    #     "COVID hospitalised": cohort.hospital_covid,
-    # }
-    # cohort.previous_covid = categorise(
-    #     previous_covid_categories, default="No COVID code"
-    # )
+    # Previous COVID
+    previous_covid_categories = {
+        "COVID positive": (
+            (cohort.sgss_positive | cohort.primary_care_covid) & ~cohort.hospital_covid
+        ),
+        "COVID hospitalised": cohort.hospital_covid,
+    }
+    cohort.previous_covid = categorise(
+        previous_covid_categories, default="No COVID code"
+    )
 
-    # # Add the long covid and post viral code count variables
-    # for target_codelist in [any_long_covid_code, post_viral_fatigue_codes]:
-    #     for code in target_codelist.codes:
-    #         events_for_code = events.filter(
-    #             events.code in codelist([code], target_codelist.system)
-    #         ).filter(events.date >= pandemic_start)
+    # Add the long covid and post viral code count variables
+    for target_codelist in [any_long_covid_code, post_viral_fatigue_codes]:
+        for code in target_codelist.codes:
+            events_for_code = events.filter(
+                events.code in codelist([code], target_codelist.system)
+            ).filter(events.date >= pandemic_start)
 
-    #         cohort.add_variable(
-    #             f"{target_codelist.system}_{code}",
-    #             events_for_code.make_one_row_per_patient(count),
-    #         )
+            cohort.add_variable(
+                f"{target_codelist.system}_{code}", events_for_code.count_for_patient()
+            )
 
-    #         cohort.add_variable(
-    #             f"{target_codelist.system}_{code}_date",
-    #             events_for_code.sort_by(events.date).make_one_row_per_patient(
-    #                 pick_first_value
-    #             ),
-    #         )
+            cohort.add_variable(
+                f"{target_codelist.system}_{code}_date",
+                events_for_code.sort_by(events.date)
+                .first_for_patient()
+                .select_column(events.date),
+            )
 
     return cohort
 

@@ -54,6 +54,8 @@ for end users.
 
 from __future__ import annotations
 
+from typing import Union
+
 from .query_language import BaseTable, Row, Value, ValueFromAggregate
 
 
@@ -158,3 +160,10 @@ class PatientSeries:
 
     def __init__(self, value: Value):
         self.value = value
+
+
+Expression = Union[PatientSeries, bool, int, str]
+
+
+def categorise(mapping: dict[str, Expression]) -> PatientSeries:
+    """Represents a switch statement."""
