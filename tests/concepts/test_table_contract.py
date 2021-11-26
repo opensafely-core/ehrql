@@ -8,6 +8,8 @@ from cohortextractor2.concepts.table_contract import Column as ColumnContract
 from cohortextractor2.concepts.table_contract import TableContract
 from cohortextractor2.query_engines.base_sql import BaseSQLQueryEngine
 
+from ..lib.mock_backend import patient
+
 
 def test_basic_validation_that_table_implements_patients_contract():
     # Basic table contract
@@ -90,7 +92,16 @@ def test_basic_validation_for_patients_contract_column_types():
             )
 
 
-def test_basic_validation_for_patients_contract_column_constraints():
+def test_basic_validation_for_patients_contract_column_constraints(engine):
+    engine.setup(
+        patient(
+            1,
+            dob="1990-01-01",
+        ),
+        patient(2, dob="1991-02-01"),
+        patient(3, dob="1992-03-01", sex="X"),
+    )
+
     # Basic table contract
     class PatientsContract(TableContract):
         patient_id = ColumnContract(
@@ -121,6 +132,6 @@ def test_basic_validation_for_patients_contract_column_constraints():
             ),
         )
 
-    assert PatientsContract().validate_data(
-        GoodBackend(database_url=None), "patients", "sex"
-    )
+    backend = GoodBackend(database_url=engine.database.host_url())
+    comment = "Note: This test is expected to fail when TableContract.validate_data is implemented"
+    assert PatientsContract.validate_data(backend, "patients") is None, comment

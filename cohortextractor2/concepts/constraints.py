@@ -3,6 +3,10 @@ class BaseConstraint:
     Base class for Constraints to be enforced on Columns defined in a Contract
     """
 
+    def validate(self, database):
+        """Validate against data"""
+        raise NotImplementedError
+
 
 class ChoiceConstraint(BaseConstraint):
     """
@@ -11,6 +15,10 @@ class ChoiceConstraint(BaseConstraint):
 
     def __init__(self, *choices):
         self.choices = choices
+
+    def validate(self, backend_table, column):
+        """Validate against data"""
+        # TODO
 
 
 class DateConstraint(BaseConstraint):
@@ -26,3 +34,9 @@ class DateConstraint(BaseConstraint):
         e.g. '%Y-%m-01' ensures that each date in the backend column repesents the 1st of a month
         """
         self.match_format = match_format
+
+    def validate(self, backend_table, column):
+        """Validate against data"""
+        # TODO
+        # Compare column value (a python date object) formatted with base_format and match_format
+        # to ensure they match

@@ -40,5 +40,5 @@ def iter_flatten(iterable, iter_classes=(list, tuple)):
 
 class OldCohortWithPopulation:
     def __init_subclass__(cls):
-        if not hasattr(cls, "population"):
+        if not hasattr(cls, "population"):  # pragma: no cover
             cls.population = table("practice_registrations").exists()

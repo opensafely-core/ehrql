@@ -9,6 +9,7 @@ class Column:
 
     type: BaseType  # noqa: A003
     description: str  # noqa: A003
+    help: str  # noqa: A003
     constraints: list[BaseConstraint]  # noqa: A003
 
 
@@ -51,3 +52,11 @@ class TableContract:
                     f"Column {column} is defined with an invalid type '{backend_column_type}'.\n\n"
                     f"Allowed types are: {', '.join(allowed_types)}"
                 )
+
+    @classmethod
+    def validate_data(cls, backend, table_name):
+        """Validate backend data against any column constraints defined in the table contract"""
+        backend_table = getattr(backend, table_name)
+        for column in cls.columns:
+            for constraint in cls.columns[column].constraints:
+                constraint.validate(backend_table, column)
