@@ -21,6 +21,11 @@ from ..lib.tpp_schema import (
 from ..lib.util import OldCohortWithPopulation, extract
 
 
+def run_query(database, query):
+    with database.engine().connect() as cursor:
+        yield from cursor.execute(query)
+
+
 @pytest.mark.integration
 def test_basic_events_and_registration(database):
     database.setup(
@@ -176,11 +181,6 @@ def test_hospitalization_table_code_conversion(database, raw, codes):
     assert len(results) == len(codes)
     for code in codes:
         assert (1, date(2012, 12, 12), code, "icd10") in results
-
-
-def run_query(database, query):
-    with database.engine().connect() as cursor:
-        yield from cursor.execute(query)
 
 
 @pytest.mark.integration
@@ -418,4 +418,27 @@ def test_clinical_events_table_multiple_codes(database):
             count=3,
             date=datetime(2021, 1, 1, 0, 0),
         )
+    ]
+
+
+@pytest.mark.integration
+def test_patients_contract_table(database):
+    database.setup(
+        patient(1, "M", "1990-01-01"),
+        patient(2, "F", "1990-01-10"),
+        patient(3, "I", "1990-01-02"),
+        patient(4, None, "1990-01-03"),
+        patient(5, "X", "1990-01-04"),
+    )
+
+    query = TPPBackend.patient_demographics.get_query()
+
+    results = list(run_query(database, query))
+
+    assert results == [
+        (1, date(1990, 1, 1), "male"),
+        (2, date(1990, 1, 1), "female"),
+        (3, date(1990, 1, 1), "intersex"),
+        (4, date(1990, 1, 1), "unknown"),
+        (5, date(1990, 1, 1), "unknown"),
     ]
