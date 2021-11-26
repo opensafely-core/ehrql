@@ -1,7 +1,7 @@
 from ..dsl import EventFrame
 from ..query_language import Table
 from . import types
-from .constraints import DateConstraint
+from .constraints import DateConstraint, NotNullConstraint, UniqueConstraint
 from .table_contract import Column, TableContract
 
 
@@ -34,12 +34,13 @@ class PatientDemographics(TableContract):
             "output or operate on this column"
         ),
         help="",
+        constraints=[NotNullConstraint(), UniqueConstraint()],
     )
     date_of_birth = Column(
         type=types.Date(),
         description="Patient's year and month of birth.",
         help="The day will always be the first of the month. Must be present.",
-        constraints=[DateConstraint(match_format=["%Y-%m-01"])],
+        constraints=[NotNullConstraint(), DateConstraint(match_format=["%Y-%m-01"])],
     )
     sex = Column(
         type=types.Choice("female", "male", "intersex", "unknown"),
@@ -49,6 +50,7 @@ class PatientDemographics(TableContract):
             "including but not limited to 'rather not say' and empty/missing values). "
             "Must be present."
         ),
+        constraints=[NotNullConstraint()],
     )
 
 

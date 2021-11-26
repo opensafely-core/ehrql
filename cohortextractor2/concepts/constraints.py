@@ -21,6 +21,26 @@ class ChoiceConstraint(BaseConstraint):
         # TODO
 
 
+class NotNullConstraint(BaseConstraint):
+    """
+    Defines a constraint on a Column to ensure no null values
+    """
+
+    def validate(self, backend_table, column):
+        """Validate values exist for all rows in column"""
+        # TODO
+
+
+class UniqueConstraint(BaseConstraint):
+    """
+    Defines a constraint on a Column to ensure values are unique
+    """
+
+    def validate(self, backend_table, column):
+        """Validate no duplicated values"""
+        # TODO
+
+
 class DateConstraint(BaseConstraint):
     """
     Defines a constraint on a date Column to ensure it conforms to required date format(s)
