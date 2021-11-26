@@ -1,7 +1,7 @@
 from ..dsl import EventFrame
 from ..query_language import Table
 from . import types
-from .constraints import ChoiceConstraint, DateConstraint
+from .constraints import DateConstraint
 from .table_contract import Column, TableContract
 
 
@@ -34,7 +34,6 @@ class PatientDemographics(TableContract):
             "output or operate on this column"
         ),
         help="",
-        constraints=[],
     )
     date_of_birth = Column(
         type=types.Date(),
@@ -50,7 +49,6 @@ class PatientDemographics(TableContract):
             "including but not limited to 'rather not say' and empty/missing values). "
             "Must be present."
         ),
-        constraints=[ChoiceConstraint()],
     )
 
 
