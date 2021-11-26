@@ -41,22 +41,11 @@ class UniqueConstraint(BaseConstraint):
         # TODO
 
 
-class DateConstraint(BaseConstraint):
+class FirstOfMonthConstraint(BaseConstraint):
     """
-    Defines a constraint on a date Column to ensure it conforms to required date format(s)
+    Defines a constraint on a date Column to ensure the day is always the first of the month
     """
-
-    base_format = "%Y-%m-%d"
-
-    def __init__(self, match_format: str):
-        """
-        match_format: str.  A constraint format in the form '%Y-%m-%d' to compare with the base format.
-        e.g. '%Y-%m-01' ensures that each date in the backend column repesents the 1st of a month
-        """
-        self.match_format = match_format
 
     def validate(self, backend_table, column):
         """Validate against data"""
         # TODO
-        # Compare column value (a python date object) formatted with base_format and match_format
-        # to ensure they match
