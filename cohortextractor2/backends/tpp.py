@@ -75,7 +75,7 @@ class TPPBackend(BaseBackend):
         ),
         query="""
             SELECT  Patient_ID as patient_id,
-                datefromparts(year(DateOfBirth), month(DateOfBirth), 1) as date_of_birth,
+                DateOfBirth as date_of_birth,
                 datefromparts(year(DateOfDeath), month(DateOfDeath), 1) as date_of_death,
                 CASE
                     WHEN Sex = 'M' THEN 'male'
