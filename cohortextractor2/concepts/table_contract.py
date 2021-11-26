@@ -1,5 +1,6 @@
 import dataclasses
 
+from .constraints import BaseConstraint
 from .types import BaseType
 
 
@@ -7,7 +8,8 @@ from .types import BaseType
 class Column:
 
     type: BaseType  # noqa: A003
-    help: str  # noqa: A003
+    description: str  # noqa: A003
+    constraints: list[BaseConstraint]  # noqa: A003
 
 
 class BackendContractError(Exception):

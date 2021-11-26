@@ -11,9 +11,15 @@ from cohortextractor2.query_engines.base_sql import BaseSQLQueryEngine
 def test_basic_validation_that_table_implements_patients_contract():
     # Basic table contract
     class PatientsContract(TableContract):
-        patient_id = ColumnContract(type=types.PseudoPatientId(), help="")
-        date_of_birth = ColumnContract(type=types.Date(), help="")
-        sex = ColumnContract(type=types.Choice("F", "M"), help="")
+        patient_id = ColumnContract(
+            type=types.PseudoPatientId(), description="", constraints=[]
+        )
+        date_of_birth = ColumnContract(
+            type=types.Date(), description="", constraints=[]
+        )
+        sex = ColumnContract(
+            type=types.Choice("F", "M"), description="", constraints=[]
+        )
 
     # Unhappy path
     with pytest.raises(BackendContractError, match="Missing columns: sex"):
@@ -52,9 +58,15 @@ def test_basic_validation_that_table_implements_patients_contract():
 def test_basic_validation_for_patients_contract_column_types():
     # Basic table contract
     class PatientsContract(TableContract):
-        patient_id = ColumnContract(type=types.PseudoPatientId(), help="")
-        date_of_birth = ColumnContract(type=types.Date(), help="")
-        sex = ColumnContract(type=types.Choice("F", "M"), help="")
+        patient_id = ColumnContract(
+            type=types.PseudoPatientId(), description="", constraints=[]
+        )
+        date_of_birth = ColumnContract(
+            type=types.Date(), description="", constraints=[]
+        )
+        sex = ColumnContract(
+            type=types.Choice("F", "M"), description="", constraints=[]
+        )
 
     # Unhappy path
     with pytest.raises(
