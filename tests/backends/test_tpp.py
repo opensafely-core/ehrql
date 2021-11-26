@@ -426,7 +426,7 @@ def test_patients_contract_table(database):
     database.setup(
         patient(1, "M", "1990-01-01", date_of_death="2021-01-04"),
         patient(2, "F", "1990-01-01", date_of_death="2020-02-04"),
-        patient(3, "I", "1990-01-01"),
+        patient(3, "I", "1990-01-01", date_of_death="9999-12-31"),
         patient(4, None, "1990-01-01"),
         patient(5, "X", "1990-01-01"),
     )
