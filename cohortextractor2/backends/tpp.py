@@ -71,10 +71,12 @@ class TPPBackend(BaseBackend):
         columns=dict(
             sex=Column("varchar"),
             date_of_birth=Column("date"),
+            date_of_death=Column("date"),
         ),
         query="""
             SELECT  Patient_ID as patient_id,
                 datefromparts(year(DateOfBirth), month(DateOfBirth), 1) as date_of_birth,
+                datefromparts(year(DateOfDeath), month(DateOfDeath), 1) as date_of_death,
                 CASE
                     WHEN Sex = 'M' THEN 'male'
                     WHEN Sex = 'F' THEN 'female'

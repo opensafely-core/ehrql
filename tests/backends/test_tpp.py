@@ -424,8 +424,8 @@ def test_clinical_events_table_multiple_codes(database):
 @pytest.mark.integration
 def test_patients_contract_table(database):
     database.setup(
-        patient(1, "M", "1990-01-01"),
-        patient(2, "F", "1990-01-10"),
+        patient(1, "M", "1990-01-01", date_of_death="2021-01-04"),
+        patient(2, "F", "1990-01-10", date_of_death="2020-02-04"),
         patient(3, "I", "1990-01-02"),
         patient(4, None, "1990-01-03"),
         patient(5, "X", "1990-01-04"),
@@ -434,11 +434,10 @@ def test_patients_contract_table(database):
     query = TPPBackend.patient_demographics.get_query()
 
     results = list(run_query(database, query))
-
     assert results == [
-        (1, date(1990, 1, 1), "male"),
-        (2, date(1990, 1, 1), "female"),
-        (3, date(1990, 1, 1), "intersex"),
-        (4, date(1990, 1, 1), "unknown"),
-        (5, date(1990, 1, 1), "unknown"),
+        (1, date(1990, 1, 1), date(2021, 1, 1), "male"),
+        (2, date(1990, 1, 1), date(2020, 2, 1), "female"),
+        (3, date(1990, 1, 1), None, "intersex"),
+        (4, date(1990, 1, 1), None, "unknown"),
+        (5, date(1990, 1, 1), None, "unknown"),
     ]

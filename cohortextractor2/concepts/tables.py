@@ -38,7 +38,7 @@ class PatientDemographics(TableContract):
     )
     date_of_birth = Column(
         type=types.Date(),
-        description="Patient's year and month of birth.",
+        description="Patient's year and month of birth, provided in format YYYY-MM-01.",
         help="The day will always be the first of the month. Must be present.",
         constraints=[NotNullConstraint(), FirstOfMonthConstraint()],
     )
@@ -51,6 +51,12 @@ class PatientDemographics(TableContract):
             "Must be present."
         ),
         constraints=[NotNullConstraint()],
+    )
+    date_of_death = Column(
+        type=types.Date(),
+        description="Patient's year and month of death, provided in format YYYY-MM-01.",
+        help="The day will always be the first of the month.",
+        constraints=[FirstOfMonthConstraint()],
     )
 
 
