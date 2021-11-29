@@ -118,8 +118,8 @@ For more information about your Databricks cluster, you can use the dbx tool:
 
     just dbx
 
-    unset DATABRICKS_URL
+### Running Databricks test in Github CI
 
-5. Run the tests you want to run, e.g.
-
-    just test tests/backend/test_databricks.py
+You can manually run the tests in github by triggering the "Databricks CI"
+action.  default it will just run the `tests/backends/test_databricks.py`, but
+you can specify different arguments when you trigger it.

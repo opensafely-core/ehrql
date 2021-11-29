@@ -161,7 +161,6 @@ dbx *ARGS:
 databricks-env: devenv
     $BIN/python scripts/dbx create --wait --timeout 120
 
-
 databricks-test *ARGS: devenv databricks-env
     #!/usr/bin/env bash
     export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
