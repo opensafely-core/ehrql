@@ -73,3 +73,53 @@ Starting with version 4.0, Bash is licenced under GPLv3. Because of this, macOS 
 ```bash
 brew install bash
 ```
+
+
+## Running tests against Databricks
+
+The test suite for Databricks/Spark backend by default runs tests against
+a local spark db in a container, for reliablility and speed.
+
+Open source Spark and Databricks' Spark are very similar, and this provides
+a good enough tests for the SQL parts of a backend.
+
+However, we still need to run tests against an actual Databricks instance, as
+the way the initial connection is made is different, and potentially other
+things also. We can run the test manually, using a helper script in
+`scripts/dbx` to manage our Databricks instance.
+
+
+### Running locally against Databricks
+
+First you need to set up your Databricks auth.
+
+1. Register for a free account at https://community.cloud.databricks.com/
+
+2. Log in to the databricks CLI tool (which is installed in the venv):
+
+    databricks configure --host https://community.cloud.databricks.com
+
+3. Test it's working with: `databricks clusters list`. If that doesn't error,
+   you are set up.
+
+
+You should then be able to run tests against databricks with:
+
+    just databricks-test [tests/backends/test_databricks.py]
+
+Warning: running the full test suite takes a long time.
+
+Note: This command will ensure there is an active Databricks cluster, and then
+run the tests against it.  Cluster creation is idempotent - if a cluster is
+alread up and running, it will use that. If it has terminated (after 2 hours of
+inactivity), it will delete the old one and create a new one.
+
+For more information about your Databricks cluster, you can use the dbx tool:
+
+    just dbx
+
+    unset DATABRICKS_URL
+
+5. Run the tests you want to run, e.g.
+
+    just test tests/backend/test_databricks.py
