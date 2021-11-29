@@ -50,12 +50,28 @@ class HESApcOtr(Base):
     SUSSPELLID = Column(Integer)
 
 
+def _get_schemas(base):
+    """Get a list of all table schemas."""
+    schemas = set()
+    for mapper in base.registry.mappers:
+        table_args = getattr(mapper.class_, "__table_args__", {})
+        schema = table_args.get("schema")
+        if schema:
+            schemas.add(schema)
+    return schemas
+
+
 @event.listens_for(Base.metadata, "before_create")
 def receive_before_create(target, connection, **kw):
-    """Ensure all schema objects are created."""
-    for mapper in Base.registry.mappers:
-        cls = mapper.class_
-        table_args = getattr(cls, "__table_args__", {})
-        schema = table_args.get("schema")
-        if schema:  # pragma: no cover
-            connection.execute(DDL(f"CREATE SCHEMA IF NOT EXISTS {schema}"))
+    """Ensure all schema objects are created before tables."""
+    schemas = _get_schemas(Base)
+    for schema in schemas:
+        connection.execute(DDL(f"CREATE SCHEMA IF NOT EXISTS {schema}"))
+
+
+@event.listens_for(Base.metadata, "after_drop")
+def receive_after_drop(target, connection, **kw):
+    """Ensure all schemas are dropped after tables."""
+    schemas = _get_schemas(Base)
+    for schema in schemas:
+        connection.execute(DDL(f"DROP SCHEMA IF EXISTS {schema}"))
