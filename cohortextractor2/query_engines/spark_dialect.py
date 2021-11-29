@@ -28,6 +28,8 @@ class SparkDate(sqlalchemy.types.TypeDecorator):
         # return the expected type here.
         if isinstance(value, datetime.datetime):
             return value.date()
+        elif isinstance(value, datetime.date):
+            return value
         else:
             return sqlalchemy.processors.str_to_date(value)
 
