@@ -2,6 +2,9 @@ import sqlalchemy.orm
 import sqlalchemy.types
 from sqlalchemy import DDL, Column, Date, Integer, Text, event
 
+# generate surrogate PK ids ourselves, as spark doesn't support auto id
+next_id = iter(range(1, 2 ** 63)).__next__
+
 Base = sqlalchemy.orm.declarative_base()
 
 # ** NOTE ON PRIMARY KEYS **
@@ -14,10 +17,10 @@ class PCareMeds(Base):
     __tablename__ = "pcaremeds"
     __table_args__ = {"schema": "PCAREMEDS"}
 
-    Person_ID = Column(Integer, primary_key=True)
+    Person_ID = Column(Integer, primary_key=True, default=next_id)
     PatientDoB = Column(Date)
-    PrescribeddmdCode = Column(Text(collation="Latin1_General_BIN"), primary_key=True)
-    ProcessingPeriodDate = Column(Date, primary_key=True)
+    PrescribeddmdCode = Column(Text(collation="Latin1_General_BIN"))
+    ProcessingPeriodDate = Column(Date)
 
 
 class MPSHESApc(Base):
