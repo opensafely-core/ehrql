@@ -4,6 +4,7 @@ from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
 from .backends import BACKENDS
+from .docs import generate_docs
 from .main import (
     generate_cohort,
     generate_measures,
@@ -56,6 +57,8 @@ def main(args=None):
             backend=options.backend,
             url=options.url,
         )
+    elif options.which == "generate_docs":
+        generate_docs()
     elif options.which == "print_help":
         parser.print_help()
     else:
@@ -151,6 +154,12 @@ def build_parser():
         help="db url",
         default=os.environ.get("DATABASE_URL"),
     )
+
+    generate_docs = subparsers.add_parser(
+        "generate_docs",
+        help="Generate a JSON representation of the data needed for the public documentation of Backends and Contracts",
+    )
+    generate_docs.set_defaults(which="generate_docs")
 
     return parser
 

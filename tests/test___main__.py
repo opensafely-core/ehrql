@@ -64,6 +64,17 @@ def test_generate_cohort_without_database_url_or_dummy_data(capsys, tmp_path):
     )
 
 
+def test_generate_docs(mocker):
+    patched = mocker.patch("cohortextractor2.__main__.generate_docs")
+
+    argv = [
+        "generate_docs",
+    ]
+    main(argv)
+
+    patched.assert_called_once()
+
+
 def test_validate_cohort(mocker, tmp_path):
     # Verify that the validate_cohort subcommand can be invoked.
     patched = mocker.patch("cohortextractor2.__main__.run_cohort_action")
