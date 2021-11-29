@@ -7,10 +7,12 @@ use for test setup and not in production. Hence I'm less bothered than I might
 otherwise be about how fragile they are.
 """
 import datetime
+import re
 
+import databricks.sql
 import sqlalchemy.types
-from pyhive.sqlalchemy_hive import HiveHTTPDialect, HiveTypeCompiler
-from sqlalchemy import exc
+from pyhive.sqlalchemy_hive import HiveHTTPDialect, HiveTypeCompiler, _type_map
+from sqlalchemy import exc, types, util
 from sqlalchemy.sql.compiler import DDLCompiler, IdentifierPreparer
 from sqlalchemy.sql.expression import cast
 
@@ -28,7 +30,8 @@ class SparkDate(sqlalchemy.types.TypeDecorator):
         # return the expected type here.
         if isinstance(value, datetime.datetime):
             return value.date()
-        elif isinstance(value, datetime.date):
+        # databricks sql dbapi returns actual date
+        elif isinstance(value, datetime.date):  # pragma: no cover
             return value
         else:
             return sqlalchemy.processors.str_to_date(value)
@@ -95,6 +98,12 @@ class SparkIdentifierPreparer(IdentifierPreparer):
 
 
 class SparkDialect(HiveHTTPDialect):
+    """Customisation of the base Hive dialect.
+
+    It is customised to add support for use with sqlalchemy ORM DDL and
+    connecting connecting to a Databricks hosted Spark.
+    """
+
     name = "spark"
 
     ddl_compiler = SparkDDLCompiler
@@ -105,6 +114,39 @@ class SparkDialect(HiveHTTPDialect):
         sqlalchemy.types.Date: SparkDate,
         sqlalchemy.types.DateTime: SparkDateTime,
     }
+
+    # This function is only excercised when manuall running the tests against databricks
+    def create_connect_args(self, url):  # pragma: no cover
+        """Switch between generic phyive dbapi and databricks dbapi as needed.
+
+        We use the generic pyhive dbapi in local tests, but we use the databricks api
+        in integration tests and  production.
+
+        The only significate difference in API is the format of the connection
+        arguments, and that the databricks dbapi uses async thrift.
+        """
+
+        if "http_path" not in url.query:
+            # regular pyhive connection
+            return super().create_connect_args(url)
+
+        # databricks connection
+        #
+        # Switch to use databricks pyhive based-dbapi reather than the default
+        # This is not very clean, but its simple and it seems to work.
+        self.dbapi = databricks.sql
+
+        server_hostname = url.host
+        http_path = url.query["http_path"]
+
+        # TODO: handle access_token
+        kwargs = {
+            # secret undocumented auth
+            "_username": url.username,
+            "_password": url.password,
+        }
+
+        return (server_hostname, http_path, None), kwargs
 
     # All the remaining changes are only required to get the SQLAlchemy ORM
     # layer to work, which we only use for test setup
@@ -127,6 +169,48 @@ class SparkDialect(HiveHTTPDialect):
                 raise exc.NoSuchTableError(full_table)
             else:
                 raise
+
+    # We do not currently use this function in our code, but we might in future.
+    def get_columns(
+        self, connection, table_name, schema=None, **kw
+    ):  # pragma: no cover
+        """Get columns according to Databricks' hive or oss hive."""
+        rows = self._get_table_columns(connection, table_name, schema)
+        # Strip whitespace
+        rows = [[col.strip() if col else None for col in row] for row in rows]
+        # Filter out empty rows and comment
+        rows = [row for row in rows if row[0] and row[0] != "# col_name"]
+        result = []
+        for (col_name, col_type, _comment) in rows:
+            # Note: this next line is the only change from pyhive's verion of
+            # this function as of 2021-11-29.
+            #
+            # Handle both oss hive and Databricks' hive partition header, respectively
+            if col_name in ("# Partition Information", "# Partitioning"):
+                break
+            # Take out the more detailed type information
+            # e.g. 'map<int,int>' -> 'map'
+            #      'decimal(10,1)' -> decimal
+            col_type = re.search(r"^\w+", col_type).group(0)
+            try:
+                coltype = _type_map[col_type]
+            except KeyError:
+                util.warn(
+                    "Did not recognize type '{}' of column '{}'".format(
+                        col_type, col_name
+                    )
+                )
+                coltype = types.NullType
+
+            result.append(
+                {
+                    "name": col_name,
+                    "type": coltype,
+                    "nullable": True,
+                    "default": None,
+                }
+            )
+        return result
 
 
 class ConnectionWrapper:

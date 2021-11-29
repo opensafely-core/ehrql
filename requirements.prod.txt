@@ -4,9 +4,15 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements.prod.txt pyproject.toml
 #
+databricks-sql-connector==0.9.1 \
+    --hash=sha256:5774e3d506b352566621e7bd5d9c19a80e92d7cd3876be0fab94c52640b612cd \
+    --hash=sha256:d83b7cc55e3b34ac416df6f5466aa2b9a1142787425a58015cca6a90efbea56e
+    # via cohortextractor2 (pyproject.toml)
 future==0.18.2 \
     --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d
-    # via pyhive
+    # via
+    #   databricks-sql-connector
+    #   pyhive
 greenlet==1.1.2 \
     --hash=sha256:00e44c8afdbe5467e4f7b5851be223be68adb4272f44696ee71fe46b7036a711 \
     --hash=sha256:013d61294b6cd8fe3242932c1c5e36e5d1db2c8afb58606c5a67efce62c1f5fd \
@@ -168,6 +174,7 @@ python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
     --hash=sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9
     # via
+    #   databricks-sql-connector
     #   pandas
     #   pyhive
 pytz==2021.3 \
@@ -224,4 +231,6 @@ structlog==21.2.0 \
     # via cohortextractor2 (pyproject.toml)
 thrift==0.15.0 \
     --hash=sha256:87c8205a71cf8bbb111cb99b1f7495070fbc9cabb671669568854210da5b3e29
-    # via cohortextractor2 (pyproject.toml)
+    # via
+    #   cohortextractor2 (pyproject.toml)
+    #   databricks-sql-connector
