@@ -67,8 +67,8 @@ from .query_language import (
     Value,
     ValueFromAggregate,
     ValueFromCategory,
-    boolean_comparator,
 )
+from .query_language import boolean_comparator as not_null_comparator
 
 
 class Cohort:
@@ -192,7 +192,7 @@ class PatientSeries:
         self.value = value
 
     @staticmethod
-    def _get_other(other: Expression) -> bool | str | int | Value:
+    def _get_other(other: Expression) -> Comparator | Value:
         if isinstance(other, PatientSeries):
             return other.value
         return other
@@ -224,6 +224,9 @@ class PatientSeries:
     def __invert__(self) -> Comparator:
         return ~self.value
 
+    def __repr__(self) -> str:
+        return f"PatientSeries(value={self.value})"
+
 
 def categorise(mapping: dict[str, Expression], default: bool | None) -> PatientSeries:
     """
@@ -251,13 +254,46 @@ def categorise(mapping: dict[str, Expression], default: bool | None) -> PatientS
 
     returns: PatientSeries with a ValueFromCategory value
     """
+    _validate_category_mapping(mapping)
     mapping = {
-        key: boolean_comparator(mapped_value.value)
+        key: not_null_comparator(mapped_value.value)
         if isinstance(mapped_value, PatientSeries)
         else mapped_value
         for key, mapped_value in mapping.items()
     }
     return PatientSeries(value=ValueFromCategory(mapping, default))
+
+
+def _validate_category_mapping(mapping: dict[str, Expression]) -> None:
+    """
+    Ensure that a category mapping is valid, by checking that:
+    - there are no duplicate values
+    - all keys are the same
+    - all values are either PatientSeries or Comparator
+    """
+    seen_values = set()
+    duplicates = set()
+    for key, value in mapping.items():
+        if not isinstance(value, (Comparator, PatientSeries)):
+            raise TypeError(
+                "Category values must be either a PatientSeries, or a "
+                "comparison expression involving a PatientSeries. "
+                f"Got '{value}' ({type(value)}) for category key '{key}'"
+            )
+        if repr(value) in seen_values:
+            duplicates.add(key)
+        seen_values.add(repr(value))
+    if duplicates:
+        raise ValueError(
+            f"Duplicate category values found for key(s): {', '.join(duplicates)}"
+        )
+
+    # all keys must be the same type
+    key_types = {type(key) for key in mapping.keys()}
+    if len(key_types) > 1:
+        raise TypeError(
+            f"Multiple category key types found: {', '.join([f'{str(key)} ({type(key)})' for key in mapping.keys()])}"
+        )
 
 
 class codelist:
@@ -276,4 +312,4 @@ class CodelistFilterExpr:
     column: str
 
 
-Expression = Union[PatientSeries, CodelistFilterExpr, bool, int, str]
+Expression = Union[PatientSeries, Comparator]

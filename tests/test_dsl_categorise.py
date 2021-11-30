@@ -3,6 +3,8 @@ Categorisation in this file are tested against mock data in test_query_engine.py
 old-style DSL.  These tests check that categorisation in the new-style DSL produce the same
 query graph as the old DSL.
 """
+import re
+
 import pytest
 
 from cohortextractor2.concepts import tables
@@ -351,3 +353,46 @@ def test_categorise_double_invert(cohort_with_population):
     codes_categories = {"yes": ~~code}
     cohort.has_code = new_dsl_categorise(codes_categories, default="na")
     assert_cohorts_equivalent(cohort, OldCohort)
+
+
+@pytest.mark.parametrize(
+    "category_mapping,error,error_match",
+    [
+        (
+            {"yes": 1, "no": 2},
+            TypeError,
+            re.escape("Got '1' (<class 'int'>) for category key 'yes'"),
+        ),
+        (
+            {"yes": mock_positive_tests.exists_for_patient(), "no": 2},
+            TypeError,
+            re.escape("Got '2' (<class 'int'>) for category key 'no'"),
+        ),
+        (
+            {"positive": mock_positive_tests},
+            TypeError,
+            r"Got .*MockPositiveTestsTable.* for category key 'positive'",
+        ),
+        (
+            {
+                "yes": mock_positive_tests.exists_for_patient(),
+                "no": mock_positive_tests.exists_for_patient(),
+            },
+            ValueError,
+            re.escape("Duplicate category values found for key(s): no"),
+        ),
+        (
+            {
+                "yes": mock_positive_tests.count_for_patient() >= 1,
+                0: mock_positive_tests.count_for_patient() < 1,
+            },
+            TypeError,
+            re.escape(
+                "Multiple category key types found: yes (<class 'str'>), 0 (<class 'int'>)"
+            ),
+        ),
+    ],
+)
+def test_categorise_validation(category_mapping, error, error_match):
+    with pytest.raises(error, match=error_match):
+        new_dsl_categorise(category_mapping, default="na")
