@@ -354,25 +354,30 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def build_condition_statement(self, comparator):
         """
         Traverse a comparator's left and right hand sides in order and build the nested
-        condition statement
+        condition statement along with a tuple of the tables referenced
         """
         if comparator.connector is not None:
             assert isinstance(comparator.lhs, Comparator) and isinstance(
                 comparator.rhs, Comparator
             )
-            left_conditions = self.build_condition_statement(comparator.lhs)
-            right_conditions = self.build_condition_statement(comparator.rhs)
+            left_conditions, left_tables = self.build_condition_statement(
+                comparator.lhs
+            )
+            right_conditions, right_tables = self.build_condition_statement(
+                comparator.rhs
+            )
             connector = getattr(sqlalchemy, comparator.connector)
             condition_statement = connector(left_conditions, right_conditions)
+            tables = tuple(set(left_tables + right_tables))
         else:
-            lhs, _ = self.get_value_expression(comparator.lhs)
+            lhs, tables = self.get_value_expression(comparator.lhs)
             method = getattr(lhs, comparator.operator)
             condition_statement = method(comparator.rhs)
 
         if comparator.negated:
             condition_statement = sqlalchemy.not_(condition_statement)
 
-        return condition_statement
+        return condition_statement, tables
 
     def get_value_expression(self, value):
         """
@@ -382,25 +387,18 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         tables = ()
         value_expr = value
         if self.is_category_node(value):
-            category_definitions = value.definitions.copy()
-            all_category_referenced_nodes = (
-                self.list_parent_nodes_from_category_definitions(
-                    category_definitions.values()
-                )
-            )
-            tables = tuple(
-                self.output_group_tables[self.get_output_group(query_node)]
-                for query_node in all_category_referenced_nodes
-            )
             category_mapping = {}
-            for label, category_definition in category_definitions.items():
+            tables = set()
+            for label, category_definition in value.definitions.items():
                 # A category definition is always a single Comparator, which may contain
                 # nested Comparators
-                condition_statement = self.build_condition_statement(
+                condition_statement, condition_tables = self.build_condition_statement(
                     category_definition
                 )
                 category_mapping[label] = condition_statement
+                tables.update(condition_tables)
             value_expr = self.get_case_expression(category_mapping, value.default)
+            tables = tuple(tables)
         elif self.is_output_node(value):
             table = self.output_group_tables[self.get_output_group(value)]
             column = self.get_output_column_name(value)
