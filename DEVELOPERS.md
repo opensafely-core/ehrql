@@ -132,3 +132,19 @@ or
 You can manually run the tests in github by triggering the "Databricks CI"
 action. By default it will just run the `tests/backends/test_databricks.py`,
 but you can specify different arguments when you trigger it.
+
+
+### Trouble Shooting
+
+
+Sometimes Databricks filesystem gets left in an unclean state. You may see an error like:
+
+`"Error running query: org.apache.spark.sql.AnalysisException: Cannot create table ('default.practice_registrations'). The associated location ('dbfs:/user/hive/warehouse/practice_registrations') is not empty but it's not a Delta table`
+
+This means the Databricks filesystem needs cleaning up.
+
+To do this:
+
+    just dbx cleanup
+
+You will need to follow the instructions the command outputs to complete the cleanup process.
