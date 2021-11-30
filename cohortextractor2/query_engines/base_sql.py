@@ -15,7 +15,6 @@ from ..query_language import (
     Comparator,
     DateDifferenceInYears,
     FilteredTable,
-    QueryNode,
     Row,
     Table,
     Value,
@@ -110,26 +109,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def walk_query_dag(self, nodes):
         def recurse(nodes, seen):
             for node in nodes:
-                yield from recurse(self.get_parent_nodes(node), seen)
+                yield from recurse(node._get_referenced_nodes(), seen)
                 if node not in seen:
                     seen.add(node)
                     yield node
 
         return list(recurse(nodes, set()))
-
-    def get_parent_nodes(self, node):
-        if hasattr(node, "definitions"):
-            yield from self.list_parent_nodes_from_category_definitions(
-                node.definitions.values()
-            )
-        if hasattr(node, "source"):
-            yield node.source
-        if hasattr(node, "value") and isinstance(node.value, QueryNode):
-            yield node.value
-        if hasattr(node, "arguments"):
-            for arg in node.arguments:
-                if isinstance(arg, QueryNode):
-                    yield arg
 
     @staticmethod
     def is_output_node(node):
