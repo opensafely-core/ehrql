@@ -59,12 +59,36 @@ class TPPBackend(BaseBackend):
     patient_join_column = "Patient_ID"
 
     patients = MappedTable(
-        implements=tables.Patients,
         source="Patient",
         columns=dict(
             sex=Column("varchar", source="Sex"),
             date_of_birth=Column("date", source="DateOfBirth"),
         ),
+    )
+
+    patient_demographics = QueryTable(
+        implements=tables.PatientDemographics,
+        columns=dict(
+            sex=Column("varchar"),
+            date_of_birth=Column("date"),
+            date_of_death=Column("date"),
+        ),
+        query="""
+            SELECT  Patient_ID as patient_id,
+                DateOfBirth as date_of_birth,
+                CASE
+                    WHEN DateOfDeath = '9999-12-31' THEN NULL
+                    ELSE
+                        datefromparts(year(DateOfDeath), month(DateOfDeath), 1)
+                    END as date_of_death,
+                CASE
+                    WHEN Sex = 'M' THEN 'male'
+                    WHEN Sex = 'F' THEN 'female'
+                    WHEN Sex = 'I' THEN 'intersex'
+                    ELSE 'unknown'
+                END as sex
+            FROM Patient
+        """,
     )
 
     clinical_events = QueryTable(

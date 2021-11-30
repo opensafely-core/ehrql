@@ -23,6 +23,7 @@ def backend_factory(query_engine_cls):
             columns=dict(
                 height=Column("float", source="Height"),
                 date_of_birth=Column("date", source="DateOfBirth"),
+                sex=Column("varchar", source="Sex"),
             ),
         )
         practice_registrations = MappedTable(
@@ -128,9 +129,10 @@ class Patients(Base):
     PatientId = sqlalchemy.Column(sqlalchemy.Integer, default=null)
     Height = sqlalchemy.Column(sqlalchemy.Float, default=null)
     DateOfBirth = sqlalchemy.Column(sqlalchemy.Date, default=null)
+    Sex = sqlalchemy.Column(sqlalchemy.Text, default=null)
 
 
-def patient(patient_id, *entities, height=None, dob=None):
+def patient(patient_id, *entities, height=None, dob=None, sex="M"):
     entities = list(entities)
     # add a default RegistrationHistory entry
     entities.append(RegistrationHistory(StartDate="1900-01-01", EndDate="2999-12-31"))

@@ -1,6 +1,7 @@
 from ..dsl import EventFrame
 from ..query_language import Table
 from . import types
+from .constraints import FirstOfMonthConstraint, NotNullConstraint, UniqueConstraint
 from .table_contract import Column, TableContract
 
 
@@ -21,30 +22,46 @@ class PracticeRegistrations(EventFrame):
         super().__init__(Table("practice_registrations"))
 
 
-class Patients(TableContract):
+class PatientDemographics(TableContract):
     """
-    The Patients table holds personal details about the patient.
+    Provides demographic information about patients
     """
 
     patient_id = Column(
         type=types.PseudoPatientId(),
-        help=(
+        description=(
             "Patient's pseudonymous identifier, for linkage. You should not normally "
             "output or operate on this column"
         ),
+        help="",
+        constraints=[NotNullConstraint(), UniqueConstraint()],
     )
     date_of_birth = Column(
         type=types.Date(),
-        help="The patient's date of birth",
+        description="Patient's year and month of birth, provided in format YYYY-MM-01.",
+        help="The day will always be the first of the month. Must be present.",
+        constraints=[NotNullConstraint(), FirstOfMonthConstraint()],
     )
     sex = Column(
-        type=types.Choice("F", "M"),
-        help="The patient's sex",
+        type=types.Choice("female", "male", "intersex", "unknown"),
+        description="Patient's sex.",
+        help=(
+            "One of male, female, intersex or unknown (the last covers all other options,"
+            "including but not limited to 'rather not say' and empty/missing values). "
+            "Must be present."
+        ),
+        constraints=[NotNullConstraint()],
+    )
+    date_of_death = Column(
+        type=types.Date(),
+        description="Patient's year and month of death, provided in format YYYY-MM-01.",
+        help="The day will always be the first of the month.",
+        constraints=[FirstOfMonthConstraint()],
     )
 
 
 clinical_events = ClinicalEvents()
-patients = Patients()
+patients = PatientDemographics()
 registrations = PracticeRegistrations()
 
 # Stubs

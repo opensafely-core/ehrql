@@ -1,13 +1,18 @@
 import dataclasses
 
-from .types import BaseType
+from .constraints import BaseConstraint, ChoiceConstraint
+from .types import BaseType, Choice
 
 
 @dataclasses.dataclass
 class Column:
 
     type: BaseType  # noqa: A003
+    description: str  # noqa: A003
     help: str  # noqa: A003
+    constraints: list[BaseConstraint] = dataclasses.field(
+        default_factory=list
+    )  # noqa: A003
 
 
 class BackendContractError(Exception):
@@ -49,3 +54,18 @@ class TableContract:
                     f"Column {column} is defined with an invalid type '{backend_column_type}'.\n\n"
                     f"Allowed types are: {', '.join(allowed_types)}"
                 )
+
+    @classmethod
+    def validate_data(cls, backend, table_name):
+        """Validate backend data against any column constraints defined in the table contract"""
+        backend_table = getattr(backend, table_name)
+        for column_name in cls.columns:
+            contract_column = cls.columns[column_name]
+            constraints = contract_column.constraints
+            if isinstance(contract_column.type, Choice):
+                constraints = [
+                    ChoiceConstraint(contract_column.type.choices),
+                    *constraints,
+                ]
+            for constraint in constraints:
+                constraint.validate(backend_table, column_name)

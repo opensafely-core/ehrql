@@ -11,6 +11,8 @@ export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
 
 alias help := list
 
+test_args := "tests"
+
 # list available commands
 list:
     @just --list
@@ -124,7 +126,7 @@ connect-to-persistent-database:
     docker exec -it cohort-extractor-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
 
 # Full set of tests run by CI
-test *ARGS:
+test *ARGS=test_args:
     just test-all {{ ARGS }}
 
 # run the unit tests only. Optional args are passed to pytest
@@ -140,7 +142,7 @@ test-smoke *ARGS: devenv build-cohort-extractor
     $BIN/python -m pytest -m smoke {{ ARGS }}
 
 # run all tests including integration and smoke tests. Optional args are passed to pytest
-test-all *ARGS: devenv build-cohort-extractor
+test-all *ARGS=test_args: devenv build-cohort-extractor
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -150,6 +152,5 @@ test-all *ARGS: devenv build-cohort-extractor
         --cov=tests \
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
-        tests \
         {{ ARGS }}
     [[ -v CI ]]  && echo "::endgroup::" || echo ""

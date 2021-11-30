@@ -2,18 +2,27 @@ import pytest
 
 from cohortextractor2.backends.base import BaseBackend, Column, MappedTable
 from cohortextractor2.concepts import types
+from cohortextractor2.concepts.constraints import ChoiceConstraint
 from cohortextractor2.concepts.table_contract import BackendContractError
 from cohortextractor2.concepts.table_contract import Column as ColumnContract
 from cohortextractor2.concepts.table_contract import TableContract
 from cohortextractor2.query_engines.base_sql import BaseSQLQueryEngine
 
+from ..lib.mock_backend import patient
+
 
 def test_basic_validation_that_table_implements_patients_contract():
     # Basic table contract
     class PatientsContract(TableContract):
-        patient_id = ColumnContract(type=types.PseudoPatientId(), help="")
-        date_of_birth = ColumnContract(type=types.Date(), help="")
-        sex = ColumnContract(type=types.Choice("F", "M"), help="")
+        patient_id = ColumnContract(
+            type=types.PseudoPatientId(), description="", help="", constraints=[]
+        )
+        date_of_birth = ColumnContract(
+            type=types.Date(), description="", help="", constraints=[]
+        )
+        sex = ColumnContract(
+            type=types.Choice("F", "M"), description="", help="", constraints=[]
+        )
 
     # Unhappy path
     with pytest.raises(BackendContractError, match="Missing columns: sex"):
@@ -52,9 +61,15 @@ def test_basic_validation_that_table_implements_patients_contract():
 def test_basic_validation_for_patients_contract_column_types():
     # Basic table contract
     class PatientsContract(TableContract):
-        patient_id = ColumnContract(type=types.PseudoPatientId(), help="")
-        date_of_birth = ColumnContract(type=types.Date(), help="")
-        sex = ColumnContract(type=types.Choice("F", "M"), help="")
+        patient_id = ColumnContract(
+            type=types.PseudoPatientId(), description="", help="", constraints=[]
+        )
+        date_of_birth = ColumnContract(
+            type=types.Date(), description="", help="", constraints=[]
+        )
+        sex = ColumnContract(
+            type=types.Choice("F", "M"), description="", help="", constraints=[]
+        )
 
     # Unhappy path
     with pytest.raises(
@@ -75,3 +90,48 @@ def test_basic_validation_for_patients_contract_column_types():
                     sex=Column("varchar", source="Sex"),
                 ),
             )
+
+
+def test_basic_validation_for_patients_contract_column_constraints(engine):
+    engine.setup(
+        patient(
+            1,
+            dob="1990-01-01",
+        ),
+        patient(2, dob="1991-02-01"),
+        patient(3, dob="1992-03-01", sex="X"),
+    )
+
+    # Basic table contract
+    class PatientsContract(TableContract):
+        patient_id = ColumnContract(
+            type=types.PseudoPatientId(), description="", help="", constraints=[]
+        )
+        date_of_birth = ColumnContract(
+            type=types.Date(), description="", help="", constraints=[]
+        )
+        sex = ColumnContract(
+            type=types.Choice("F", "M"),
+            description="",
+            help="",
+            constraints=[ChoiceConstraint()],
+        )
+
+    # Happy path is all there is for now
+    class GoodBackend(BaseBackend):
+        backend_id = "good_test_backend"
+        query_engine_class = BaseSQLQueryEngine
+        patient_join_column = "patient_id"
+
+        patients = MappedTable(
+            implements=PatientsContract,
+            source="Patient",
+            columns=dict(
+                date_of_birth=Column("date", source="DateOfBirth"),
+                sex=Column("varchar", source="Sex"),
+            ),
+        )
+
+    backend = GoodBackend(database_url=engine.database.host_url())
+    comment = "Note: This test is expected to fail when TableContract.validate_data is implemented"
+    assert PatientsContract.validate_data(backend, "patients") is None, comment
