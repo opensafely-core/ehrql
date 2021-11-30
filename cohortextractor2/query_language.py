@@ -31,8 +31,12 @@ def table(name):
 # subclasses.
 
 
+class QueryNode:
+    pass
+
+
 @dataclass(frozen=True)
-class Comparator:
+class Comparator(QueryNode):
     """A generic comparator to represent a comparison between a source object and a
     value.
 
@@ -71,10 +75,6 @@ class Comparator:
 def boolean_comparator(obj, negated=False):
     """returns a comparator which represents a comparison against null values"""
     return Comparator(lhs=obj, operator="__ne__", rhs=None, negated=negated)
-
-
-class QueryNode:
-    pass
 
 
 class BaseTable(QueryNode):
