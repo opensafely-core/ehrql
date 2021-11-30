@@ -137,53 +137,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         else:
             assert False, f"Unhandled type: {node}"
 
-    def get_parent_nodes_from_category_definitions(
-        self, definitions, parent_nodes=None
-    ):
-        """
-        Get all the referenced parent nodes for category definitions.  If a category
-        definition (Comparator) has a LHS which is not itself a Comparator,
-        it will be a query node or a function-generated node
-        """
-        parent_nodes = parent_nodes or set()
-        for definition in definitions:
-            if isinstance(definition.lhs, Value):
-                # A ValueFromFunction is not itself a node that is derieved directly from a
-                # temporary table.  We look for referenced nodes in its arguments
-                definition_parent_nodes = (
-                    definition.lhs.arguments
-                    if isinstance(definition.lhs, ValueFromFunction)
-                    else [definition.lhs]
-                )
-                for node in definition_parent_nodes:
-                    if isinstance(node, Value):
-                        parent_nodes.add(node)
-            else:
-                parent_nodes = self.get_parent_nodes_from_category_definitions(
-                    [definition.lhs], parent_nodes
-                )
-
-            if isinstance(definition.rhs, Comparator):
-                parent_nodes = self.get_parent_nodes_from_category_definitions(
-                    [definition.rhs], parent_nodes
-                )
-
-        return parent_nodes
-
-    def list_parent_nodes_from_category_definitions(self, definitions):
-        # Sort the parent nodes to ensure consistent order.  We have to use a custom sort key
-        # here because parent nodes are Values with overloaded lt/gt operators.
-
-        # Note that we sort on column name first, and source as a tie-breaker in the event of
-        # two nodes with the same column name.  x.source can be a Row in the case of a truthy
-        # Comparator e.g. where a category definition looks something like {"x": code1, "y": code2}
-        # and code1/code2 are ValueFromRow.  In this case we can't use the source Row as a
-        # sort key, so we use its repr instead.
-        return sorted(
-            self.get_parent_nodes_from_category_definitions(definitions),
-            key=lambda x: (x.column, repr(x.source)),
-        )
-
     def get_node_list(self, node):
         """For a single node, get a list of it and all its parents in order"""
         node_list = []
