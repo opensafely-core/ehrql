@@ -1,3 +1,4 @@
+import os
 import time
 from pathlib import Path
 
@@ -31,6 +32,7 @@ class DbDetails:
         username="",
         password="",
         db_name="",
+        query=None,
     ):
         self.protocol = protocol
         self.driver = driver
@@ -41,6 +43,7 @@ class DbDetails:
         self.password = password
         self.username = username
         self.db_name = db_name
+        self.query = query
 
     def host_url(self):
         return self._url(self.host_from_host, self.port_from_host)
@@ -55,7 +58,8 @@ class DbDetails:
         return sqlalchemy.create_engine(engine_url, future=True, **kwargs)
 
     def _url(self, host, port, include_driver=False):
-        if self.username or self.password:
+        # only used in databricks connections
+        if self.username or self.password:  # pragma: no cover
             auth = f"{self.username}:{self.password}@"
         else:
             auth = ""
@@ -63,7 +67,11 @@ class DbDetails:
             protocol = f"{self.protocol}+{self.driver}"
         else:
             protocol = self.protocol
-        return f"{protocol}://{auth}{host}:{port}/{self.db_name}"
+        url = f"{protocol}://{auth}{host}:{port}/{self.db_name}"
+        # only used for databricks atm
+        if self.query:  # pragma: no cover
+            url += "?" + "&".join(f"{k}={v}" for k, v in self.query.items())
+        return url
 
     def setup(self, *input_data):
         """
@@ -160,6 +168,13 @@ def run_mssql(container_name, containers, password, mssql_port):  # pragma: no c
 
 
 def make_spark_database(containers):
+    if "DATABRICKS_URL" in os.environ:  # pragma: no cover
+        return make_databricks_database()
+    else:
+        return make_spark_container_database(containers)
+
+
+def make_spark_container_database(containers):
     container_name = "cohort-extractor-spark"
     # This is the default anyway, but better to be explicit
     spark_port = 10001
@@ -213,4 +228,24 @@ def make_spark_database(containers):
         # These are arbitrary but we need to supply _some_ values here
         username="foo",
         password="bar",
+    )
+
+
+# This is not used by regular units tests, only by manual invocation, hence why
+# coverage is skipped
+def make_databricks_database():  # pragma: no cover
+    url = os.environ["DATABRICKS_URL"]
+    url = sqlalchemy.engine.make_url(url)
+
+    return DbDetails(
+        protocol="spark",
+        driver="pyhive+opensafely",
+        host_from_container=url.host,
+        port_from_container=url.port or 443,
+        host_from_host=url.host,
+        port_from_host=url.port or 443,
+        username=url.username,
+        password=url.password,
+        db_name=url.database,
+        query=url.query,
     )

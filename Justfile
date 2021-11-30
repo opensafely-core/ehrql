@@ -154,3 +154,17 @@ test-all *ARGS=test_args: devenv build-cohort-extractor
         --cov-report=term-missing:skip-covered \
         {{ ARGS }}
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
+
+# run scripts/dbx
+dbx *ARGS:
+    @$BIN/python scripts/dbx {{ ARGS }}
+
+# ensure a working databricks cluster is set up
+databricks-env: devenv
+    $BIN/python scripts/dbx create --wait --timeout 120
+
+databricks-test *ARGS: devenv databricks-env
+    #!/usr/bin/env bash
+    export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
+    echo {{ ARGS }}
+    just test {{ ARGS }}

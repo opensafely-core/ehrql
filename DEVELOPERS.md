@@ -73,3 +73,62 @@ Starting with version 4.0, Bash is licenced under GPLv3. Because of this, macOS 
 ```bash
 brew install bash
 ```
+
+
+## Running tests against Databricks
+
+The test suite for Databricks/Spark backend by default runs tests against
+a local spark db in a container, for reliablility and speed.
+
+Open source Spark and Databricks' Spark are very similar, and this provides
+a good enough test basis for the SQL parts of a backend.
+
+However, we still need to run tests against an actual Databricks instance, as
+the way connections are made is different, and potentially more things down the
+line.
+
+Databricks is only only available in SaaS form, and  we use the free Community
+Edition version, but it is limited, slow, and not 100% reliable, so we
+do not run it by default, it needs to be manually run. We use some `just`
+commands and our helper script in `scripts/dbx` to manage a test Databricks
+instance to run the tests against.
+
+
+### Running locally against Databricks
+
+First you need to set up your Databricks auth.
+
+1. Register for a free account at https://community.cloud.databricks.com/
+
+2. Log in to the databricks CLI tool (which is installed in the venv):
+
+    databricks configure --host https://community.cloud.databricks.com
+
+3. Test it's working with: `databricks clusters list`. If that doesn't error,
+   you are set up.
+
+
+You should then be able to run tests against databricks with:
+
+    just databricks-test [tests/backends/test_databricks.py]
+
+Warning: running the full test suite takes a long time.
+
+Note: This command will ensure there is an active Databricks cluster, and then
+run the tests against it.  Cluster creation is idempotent - if a cluster is
+alread up and running, it will use that. If it has terminated (after 2 hours of
+inactivity), it will delete the old one and create a new one.
+
+For more information about your Databricks cluster, you can use the dbx tool:
+
+    just dbx
+
+or
+    ./scripts/dbx
+
+
+### Running Databricks test in Github CI
+
+You can manually run the tests in github by triggering the "Databricks CI"
+action. By default it will just run the `tests/backends/test_databricks.py`,
+but you can specify different arguments when you trigger it.

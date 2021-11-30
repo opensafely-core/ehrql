@@ -1,0 +1,34 @@
+---
+name: Databricks CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_args:
+        description: "Tests to run or other pytest args"
+        required: true
+        default: "tests/backend/test_databricks.py"
+
+jobs:
+  test:
+    needs: [check]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+      - uses: extractions/setup-just@v1
+      - name: Login to databricks
+        run: |
+            echo <<< EOF > ~/.databrickscfg
+            [DEFAULT]
+            host = https://community.cloud.databricks.com:443
+            username = simon.davy@thedatalab.org
+            password = ${{ secrets.DATABRICKS_PASSWORD }}
+            jobs-api-version = 2.0
+            EOF
+      - name: Run Databricks tests
+        run:
+            just databricks-test ${{ github.event.inputs.test_args }}

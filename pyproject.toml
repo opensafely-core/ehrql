@@ -26,6 +26,8 @@ dependencies = [
   # in `sasl` which we don't need and which causes us installation problems
   # because it doesn't have a wheel and requires the libsasl2 headers to compile.
   "thrift",
+  # Databricks specific connector
+  "databricks-sql-connector",
 ]
 
 [project.scripts]
@@ -118,12 +120,15 @@ show_error_codes = true
 [[tool.mypy.overrides]]
 module = [
   "pyhive.sqlalchemy_hive.*",
-  "sqlalchemy.dialects.mssql.pymssql"
+  "sqlalchemy.dialects.mssql.pymssql",
+  "databricks",
+  "databricks.sql",
 ]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 addopts = "--tb=native --strict-markers"
+testpaths = ["tests"]
 markers = [
     "integration: tests that use a database",
     "smoke: tests that run the cohort extractor in its container against a database",
