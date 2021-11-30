@@ -236,6 +236,27 @@ def status(name):
     click.echo(CLUSTERS[name])
 
 
+@cli.command()
+def cleanup():
+    run(
+        [
+            "databricks",
+            "workspace",
+            "import",
+            "-l",
+            "python",
+            "-o",
+            "scripts/dbx-cleanup.py",
+            "/cleanup",
+        ]
+    )
+    click.echo(
+        "The cleanup notebook has been uploaded to your Databricks Workspace.\n"
+        "Unfortunately, it cannot be executed remotely in Community Edition.\n"
+        "Log in to https://community.cloud.databricks.com and select Workspace -> cleanup and run it manually."
+    )
+
+
 if __name__ == "__main__":
     get_auth()
     get_clusters()
