@@ -6,6 +6,12 @@ from .table_contract import Column, TableContract
 
 
 class ClinicalEvents(EventFrame):
+    """
+    Clinical events recorded by GPs.
+
+    Ideally a record of all relevant clinical events with their code and date.
+    """
+
     code = "code"
     date = "date"
 
@@ -14,6 +20,13 @@ class ClinicalEvents(EventFrame):
 
 
 class PracticeRegistrations(EventFrame):
+    """
+    For backends with primary care data, the patient's registered practice.
+
+    Ideally a record of all relevant registrations with their start and end
+    date, or the latest registered practice.
+    """
+
     patient_id = "patient_id"
     date_start = "date_start"
     date_end = "date_end"

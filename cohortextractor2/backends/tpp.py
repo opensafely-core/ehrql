@@ -66,6 +66,8 @@ def string_split(ref, delim):
 
 
 class TPPBackend(BaseBackend):
+    """Backend for working with data in TPP."""
+
     backend_id = "tpp"
     query_engine_class = MssqlQueryEngine
     patient_join_column = "Patient_ID"
