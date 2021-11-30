@@ -17,7 +17,10 @@ class PCareMeds(Base):
     __tablename__ = "pcaremeds"
     __table_args__ = {"schema": "PCAREMEDS"}
 
-    Person_ID = Column(Integer, primary_key=True, default=next_id)
+    # fake PK to satisfy Sqlalchemy ORM
+    pk = Column(Integer, primary_key=True, default=next_id)
+
+    Person_ID = Column(Integer)
     PatientDoB = Column(Date)
     PrescribeddmdCode = Column(Text(collation="Latin1_General_BIN"))
     ProcessingPeriodDate = Column(Date)
@@ -27,15 +30,21 @@ class MPSHESApc(Base):
     __tablename__ = "hes_apc_1920"
     __table_args__ = {"schema": "HES_AHAS_MPS"}
 
-    PERSON_ID = Column(Integer, primary_key=True)
-    EPIKEY = Column(Integer, primary_key=True)
+    # fake PK to satisfy Sqlalchemy ORM
+    pk = Column(Integer, primary_key=True, default=next_id)
+
+    PERSON_ID = Column(Integer)
+    EPIKEY = Column(Integer)
 
 
 class HESApc(Base):
     __tablename__ = "hes_apc_1920"
     __table_args__ = {"schema": "HES_AHAS"}
 
-    EPIKEY = Column(Integer, primary_key=True)
+    # fake PK to satisfy Sqlalchemy ORM
+    pk = Column(Integer, primary_key=True, default=next_id)
+
+    EPIKEY = Column(Integer)
     ADMIDATE = Column(Date)
     DIAG_4_01 = Column(Text(collation="Latin1_General_BIN"))
     ADMIMETH = Column(Integer)
@@ -46,8 +55,15 @@ class HESApcOtr(Base):
     __tablename__ = "hes_apc_otr_1920"
     __table_args__ = {"schema": "HES_AHAS"}
 
-    EPIKEY = Column(Integer, primary_key=True)
+    # fake PK to satisfy Sqlalchemy ORM
+    pk = Column(Integer, primary_key=True, default=next_id)
+
+    EPIKEY = Column(Integer)
     SUSSPELLID = Column(Integer)
+
+
+# Note: this code could be make generic to add schema drop/create support to
+# any ORM Base, perhaps
 
 
 def _get_schemas(base):
