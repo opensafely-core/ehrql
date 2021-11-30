@@ -30,7 +30,7 @@ class SparkDate(sqlalchemy.types.TypeDecorator):
         # return the expected type here.
         if isinstance(value, datetime.datetime):
             return value.date()
-        # databricks sql dbapi returns actual date
+        # databricks sql DBAPI returns actual date
         elif isinstance(value, datetime.date):  # pragma: no cover
             return value
         else:
@@ -98,10 +98,19 @@ class SparkIdentifierPreparer(IdentifierPreparer):
 
 
 class SparkDialect(HiveHTTPDialect):
-    """Customisation of the base Hive dialect.
+    """Customisation of the base pyhive Sqlalchemy dialect.
 
-    It is customised to add support for use with sqlalchemy ORM DDL and
-    connecting connecting to a Databricks hosted Spark.
+    Some customisations are generic Spark SQL fixes that we want to handle
+    differently from the pyhive dialect: the date handling, basically.
+
+    Other customisations are to support using the Sqlalchemy ORM with this
+    dialect, which pyhive doesn't fully support out of the box, but we use in
+    our tests. This is the primary key DDL and Identifier changes, and the
+    exception/connection wrapping.
+
+    The last customisation is to support connecting to a Databricks hosted
+    instance of Spark, which requires using a different DBAPI and connection
+    arguments, but otherwise is the same.
     """
 
     name = "spark"
@@ -115,15 +124,16 @@ class SparkDialect(HiveHTTPDialect):
         sqlalchemy.types.DateTime: SparkDateTime,
     }
 
-    # This function is only excercised when manuall running the tests against databricks
+    # This function is only excercised when manually running the tests against databricks
     def create_connect_args(self, url):  # pragma: no cover
-        """Switch between generic phyive dbapi and databricks dbapi as needed.
+        """Switch between generic phyive DBAPI and databricks DBAPI as needed.
 
-        We use the generic pyhive dbapi in local tests, but we use the databricks api
-        in integration tests and  production.
+        We use the generic pyhive DBAPI to talke to a local spark container in
+        regular tests, but we use the Databricks api in integration tests and
+        production.
 
         The only significate difference in API is the format of the connection
-        arguments, and that the databricks dbapi uses async thrift.
+        arguments, and that the databricks DBAPI uses async thrift.
         """
 
         if "http_path" not in url.query:
@@ -132,7 +142,7 @@ class SparkDialect(HiveHTTPDialect):
 
         # databricks connection
         #
-        # Switch to use databricks pyhive based-dbapi reather than the default
+        # Switch to use databricks pyhive based-DBAPI reather than the default
         # This is not very clean, but its simple and it seems to work.
         self.dbapi = databricks.sql
 
@@ -171,6 +181,8 @@ class SparkDialect(HiveHTTPDialect):
                 raise
 
     # We do not currently use this function in our code, but we might in future.
+    # It is taken from:
+    # https://github.com/crflynn/databricks-dbapi/blob/master/databricks_dbapi/sqlalchemy_dialects/base.py#L17
     def get_columns(
         self, connection, table_name, schema=None, **kw
     ):  # pragma: no cover

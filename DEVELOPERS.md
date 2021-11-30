@@ -81,12 +81,17 @@ The test suite for Databricks/Spark backend by default runs tests against
 a local spark db in a container, for reliablility and speed.
 
 Open source Spark and Databricks' Spark are very similar, and this provides
-a good enough tests for the SQL parts of a backend.
+a good enough test basis for the SQL parts of a backend.
 
 However, we still need to run tests against an actual Databricks instance, as
-the way the initial connection is made is different, and potentially other
-things also. We can run the test manually, using a helper script in
-`scripts/dbx` to manage our Databricks instance.
+the way connections are made is different, and potentially more things down the
+line.
+
+Databricks is only only available in SaaS form, and  we use the free Community
+Edition version, but it is limited, slow, and not 100% reliable, so we
+do not run it by default, it needs to be manually run. We use some `just`
+commands and our helper script in `scripts/dbx` to manage a test Databricks
+instance to run the tests against.
 
 
 ### Running locally against Databricks
@@ -118,8 +123,12 @@ For more information about your Databricks cluster, you can use the dbx tool:
 
     just dbx
 
+or
+    ./scripts/dbx
+
+
 ### Running Databricks test in Github CI
 
 You can manually run the tests in github by triggering the "Databricks CI"
-action.  default it will just run the `tests/backends/test_databricks.py`, but
-you can specify different arguments when you trigger it.
+action. By default it will just run the `tests/backends/test_databricks.py`,
+but you can specify different arguments when you trigger it.
