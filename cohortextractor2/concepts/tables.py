@@ -23,9 +23,7 @@ class PracticeRegistrations(EventFrame):
 
 
 class PatientDemographics(TableContract):
-    """
-    Provides demographic information about patients
-    """
+    """Provides demographic information about patients."""
 
     patient_id = Column(
         type=types.PseudoPatientId(),
