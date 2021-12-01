@@ -180,9 +180,6 @@ class AggregatedEventFrame:
         return PatientSeries(self.row.get(column))
 
 
-Expression = Union[str, int, float, bool]
-
-
 class PatientSeries:
     """Represents a column indexed by patient.
 
@@ -196,39 +193,37 @@ class PatientSeries:
     def is_comparator(self) -> bool:
         return isinstance(self.value, Comparator)
 
-    def _get_comparator(
-        self, operator: str, other: Expression | PatientSeries, negated: bool = False
-    ):
-        """Convert a PatientSeries comparison into a Comparator"""
+    @staticmethod
+    def _get_other_value(
+        other: Expression,
+    ) -> int | str | float | bool | Value | Comparator:
         if isinstance(other, PatientSeries):
-            other = other.value
-        return Comparator(lhs=self.value, operator=operator, rhs=other, negated=negated)
+            return other.value
+        return other
 
-    def __gt__(self, other: Expression | PatientSeries) -> PatientSeries:
-        return PatientSeries(value=self._get_comparator("__gt__", other))
+    def __gt__(self, other: Expression) -> PatientSeries:
+        return PatientSeries(value=self.value > self._get_other_value(other))
 
-    def __ge__(self, other: Expression | PatientSeries) -> PatientSeries:
-        return PatientSeries(value=self._get_comparator("__ge__", other))
+    def __ge__(self, other: Expression) -> PatientSeries:
+        return PatientSeries(value=self.value >= self._get_other_value(other))
 
-    def __lt__(self, other: Expression | PatientSeries) -> PatientSeries:
-        return PatientSeries(value=self._get_comparator("__lt__", other))
+    def __lt__(self, other: Expression) -> PatientSeries:
+        return PatientSeries(value=self.value < self._get_other_value(other))
 
-    def __le__(self, other: Expression | PatientSeries) -> PatientSeries:
-        return PatientSeries(value=self._get_comparator("__le__", other))
+    def __le__(self, other: Expression) -> PatientSeries:
+        return PatientSeries(value=self.value <= self._get_other_value(other))
 
-    def __eq__(self, other: Expression | PatientSeries) -> PatientSeries:
-        return PatientSeries(value=self._get_comparator("__eq__", other))
+    def __eq__(self, other: Expression) -> PatientSeries:  # type: ignore[override]
+        return PatientSeries(value=self.value == self._get_other_value(other))
 
-    def __ne__(self, other: Expression | PatientSeries) -> PatientSeries:  # type: ignore[override]
-        return PatientSeries(value=self._get_comparator("__ne__", other))
+    def __ne__(self, other: Expression) -> PatientSeries:  # type: ignore[override]
+        return PatientSeries(value=self.value != self._get_other_value(other))
 
     def __and__(self, other: PatientSeries) -> PatientSeries:
-        comparator = self.value & other.value
-        return PatientSeries(value=comparator)
+        return PatientSeries(value=self.value & other.value)
 
-    def __or__(self, other: Expression | PatientSeries) -> PatientSeries:
-        comparator = self.value | other.value
-        return PatientSeries(value=comparator)
+    def __or__(self, other: PatientSeries) -> PatientSeries:
+        return PatientSeries(value=self.value | other.value)
 
     def __invert__(self) -> PatientSeries:
         if self.is_comparator():
@@ -243,7 +238,10 @@ class PatientSeries:
         return f"PatientSeries(value={self.value})"
 
 
-def not_null_patient_series(patient_series: PatientSeries):
+Expression = Union[str, int, float, bool, PatientSeries]
+
+
+def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
     comparator_value = Comparator(lhs=patient_series.value, operator="__ne__", rhs=None)
     return PatientSeries(value=comparator_value)
 
@@ -277,16 +275,16 @@ def categorise(
     returns: PatientSeries with a ValueFromCategory value
     """
     _validate_category_mapping(mapping)
-    mapping = {
+    value_mapping = {
         key: patient_series.value
         if patient_series.is_comparator()
         else not_null_patient_series(patient_series).value
         for key, patient_series in mapping.items()
     }
-    return PatientSeries(value=ValueFromCategory(mapping, default))
+    return PatientSeries(value=ValueFromCategory(value_mapping, default))
 
 
-def _validate_category_mapping(mapping: dict[str, Expression]) -> None:
+def _validate_category_mapping(mapping: dict[str, PatientSeries]) -> None:
     """
     Ensure that a category mapping is valid, by checking that:
     - there are no duplicate values

@@ -79,9 +79,30 @@ class Comparator(QueryNode):
             rhs=self.rhs,
         )
 
+    def __gt__(self, other):
+        return self._compare("__gt__", other)
+
+    def __ge__(self, other):
+        return self._compare("__ge__", other)
+
+    def __lt__(self, other):
+        return self._compare("__lt__", other)
+
+    def __le__(self, other):
+        return self._compare("__le__", other)
+
+    def __eq__(self, other):
+        return self._compare("__eq__", other)
+
+    def __ne__(self, other):
+        return self._compare("__ne__", other)
+
     def _combine(self, other, conn):
         assert isinstance(other, Comparator)
         return type(self)(connector=conn, lhs=self, rhs=other)
+
+    def _compare(self, other, operator):
+        return type(self)(operator=operator, lhs=self, rhs=other)
 
 
 def boolean_comparator(obj, negated=False):
