@@ -97,8 +97,17 @@ check: devenv
     $BIN/pyupgrade --py39-plus --keep-percent-format \
         $(find cohortextractor2 -name "*.py" -type f) \
         $(find tests -name "*.py" -type f)
+    just docstrings
     $BIN/mypy
 
+# ensure our public facing docstrings exist so we can build docs from them
+docstrings: devenv
+    $BIN/pydocstyle cohortextractor2/backends/databricks.py
+    $BIN/pydocstyle cohortextractor2/backends/graphnet.py
+    $BIN/pydocstyle cohortextractor2/backends/tpp.py
+
+    # only enforce classes are documented for the public facing docs
+    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 cohortextractor2/concepts/tables.py
 
 # runs the format (black) and sort (isort) checks and fixes the files
 fix: devenv

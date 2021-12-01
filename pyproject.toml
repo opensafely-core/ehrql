@@ -126,6 +126,20 @@ module = [
 ]
 ignore_missing_imports = true
 
+[tool.pydocstyle]
+convention = "google"
+add_select = [
+  "D213",
+]
+# base ignores for all docstrings, for module/package specific ones add them to
+#the CLI args in Justfile
+add_ignore = [
+  "D100",
+  "D104",
+  "D107",
+  "D212",
+]
+
 [tool.pytest.ini_options]
 addopts = "--tb=native --strict-markers"
 testpaths = ["tests"]

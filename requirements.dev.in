@@ -17,6 +17,7 @@ mypy
 pandas-stubs
 pip-tools
 pre-commit
+pydocstyle[toml]
 pytest
 pytest-cov
 pytest-freezegun

@@ -5,14 +5,21 @@ from .base import BaseBackend, Column, MappedTable, QueryTable
 
 def rtrim(ref, char):
     """
-    MSSQL's {L,R}TRIM() functions (unlike TRIM()) don't allow trimming of arbitrary characters, only spaces. So we've
-    implemented it here. Note that this won't work as-is for '^' or ']', but they could be supported with a bit of
-    escaping.
-        * Since we're using PATINDEX(), which only works from the front of the string, we REVERSE() the
-          string every time we refer to it and then re-REVERSE() the result once we're done.
-        * We search through the string to find the index of the first character that isn't the thing we're stripping.
-        * Then we work out the length of the string remaining from that point to the end.
-        * Finally we take a substring from the index to the end of the string.
+    Right trim arbitrary characters.
+
+    MSSQL's {L,R}TRIM() functions (unlike TRIM()) don't allow trimming of
+    arbitrary characters, only spaces. So we've implemented it here. Note that
+    this won't work as-is for '^' or ']', but they could be supported with a
+    bit of escaping.
+
+      * Since we're using PATINDEX(), which only works from the front of the
+        string, we REVERSE() the string every time we refer to it and then
+        re-REVERSE() the result once we're done.
+      * We search through the string to find the index of the first character
+        that isn't the thing we're stripping.
+      * Then we work out the length of the string remaining from that point to
+        the end.
+      * Finally we take a substring from the index to the end of the string.
 
     (LTRIM() could be implemented in the same way, but without all the reversing.)
     """
@@ -34,9 +41,14 @@ def rtrim(ref, char):
 
 def string_split(ref, delim):
     """
-    The compatibility level that TPP runs SQL Server at doesn't include the `STRING_SPLIT()` function, so we implement
-    it here ourselves. This use of SQL Server's XML-handling capabilities is truly ugly, but it allows us to implement
-    this inline so we don't need to define a function. Implementation copied from
+    Split strings on the given delimiter.
+
+    The compatibility level that TPP runs SQL Server at doesn't include the
+    `STRING_SPLIT()` function, so we implement it here ourselves. This use of
+    SQL Server's XML-handling capabilities is truly ugly, but it allows us to
+    implement this inline so we don't need to define a function.
+
+    Implementation copied from
     https://sqlperformance.com/2012/07/t-sql-queries/split-strings.
     """
     return f"""
@@ -54,6 +66,8 @@ def string_split(ref, delim):
 
 
 class TPPBackend(BaseBackend):
+    """Backend for working with data in TPP."""
+
     backend_id = "tpp"
     query_engine_class = MssqlQueryEngine
     patient_join_column = "Patient_ID"
