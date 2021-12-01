@@ -168,3 +168,7 @@ databricks-test *ARGS: devenv databricks-env
     export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
     echo {{ ARGS }}
     just test {{ ARGS }}
+
+# run the validate contract test only for all backends
+test-contracts: devenv
+    $BIN/python -m pytest tests/backends/test_base.py -k test_validate_all_backends

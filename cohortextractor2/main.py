@@ -7,11 +7,14 @@ import shutil
 import sys
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Generator
 
 import structlog
 
 from .backends import BACKENDS
+from .backends.base import BaseBackend
 from .definition.base import cohort_registry
+from .dsl import Cohort
 from .measure import MeasuresManager, combine_csv_files_with_dates
 from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
@@ -217,8 +220,19 @@ def added_to_path(directory):
         sys.path = original
 
 
-def extract(cohort_class, backend):
-    cohort = get_column_definitions(cohort_class)
+def extract(
+    cohort_definition: Cohort | type, backend: BaseBackend
+) -> Generator[dict[str, str], None, None]:
+    """
+    Extracts the cohort from the backend specified
+    Args:
+        cohort_definition: The definition of the Cohort
+        backend: The Backend that the Cohort is being extracted from
+    Returns:
+        Yields the cohort as rows
+    """
+    backend.validate_all_contracts()
+    cohort = get_column_definitions(cohort_definition)
     query_engine = backend.query_engine_class(cohort, backend)
     with query_engine.execute_query() as results:
         for row in results:
