@@ -1,6 +1,3 @@
-import importlib
-import os
-
 import pytest
 
 from cohortextractor2.backends.base import BaseBackend, Column, MappedTable
@@ -98,33 +95,14 @@ def test_validate_all_backends():
     Loops through all the backends, excluding test ones,
     and validates they meet any contract that they claim to
     """
-    backends = [cls.__name__ for cls in BaseBackend.__subclasses__()]
-
-    backend_no = 0
+    backends = [
+        backend
+        for backend in BaseBackend.__subclasses__()
+        if backend.__module__.startswith("cohortextractor2.backends.")
+    ]
 
     for backend in backends:
-
-        # location of backend class
-        folder_dir = "cohortextractor2/backends/"
-        file_of_backend_class = backend[:-7].lower()
-
-        # exclude mocked or test backends
-        path_to_folder = os.path.join(
-            os.getcwd(), folder_dir, f"{file_of_backend_class}.py"
-        )
-
-        if os.path.exists(path_to_folder):
-
-            # get the class from cohortextractor.backends
-            backend_class = getattr(
-                importlib.import_module(
-                    f"cohortextractor2.backends.{file_of_backend_class}"
-                ),
-                backend,
-            )
-
-            backend_class.validate_all_contracts()
-            backend_no += 1
+        backend.validate_all_contracts()
 
     # Checks at least 3 backends
-    assert backend_no >= 3
+    assert len(backends) >= 3
