@@ -228,7 +228,9 @@ class PatientSeries:
         return f"PatientSeries(value={self.value})"
 
 
-def categorise(mapping: dict[str, Expression], default: bool | None) -> PatientSeries:
+def categorise(
+    mapping: dict[str, Expression], default: str | None = None
+) -> PatientSeries:
     """
     Represents a switch statement.
 

@@ -320,7 +320,7 @@ class ValueFromAggregate(Value):
         return (self.source,)
 
 
-def categorise(mapping, default):
+def categorise(mapping, default=None):
     mapping = {
         key: boolean_comparator(value) if isinstance(value, Value) else value
         for key, value in mapping.items()

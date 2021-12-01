@@ -81,6 +81,12 @@ def test_categorise(cohort_with_population):
         ),
         (
             lambda height_value: {
+                "short_or_tall": (height_value < 150) | (height_value > 190)
+            },
+            None,
+        ),
+        (
+            lambda height_value: {
                 "tallish": (height_value > 175) & (height_value != 180),
                 "short": height_value <= 175,
             },
@@ -90,23 +96,26 @@ def test_categorise(cohort_with_population):
     ids=[
         "test simple and on two conditions",
         "test simple or on two conditions",
+        "test simple or with None default",
         "test a not-equals condition",
     ],
 )
 def test_categorise_single_combined_conditions(
     cohort_with_population, categories, default
 ):
+    default_kwarg = {"default": default} if default is not None else {}
+
     class OldCohort(OldCohortWithPopulation):
         _height = table("patients").first_by("patient_id").get("height")
         _height_categories = categories(_height)
-        height_group = old_dsl_categorise(_height_categories, default=default)
+        height_group = old_dsl_categorise(_height_categories, **default_kwarg)
 
     cohort = cohort_with_population
     height = (
         mock_patients.sort_by("patient_id").first_for_patient().select_column("height")
     )
     height_categories = categories(height)
-    cohort.height_group = new_dsl_categorise(height_categories, default=default)
+    cohort.height_group = new_dsl_categorise(height_categories, **default_kwarg)
     assert_cohorts_equivalent(cohort, OldCohort)
 
 

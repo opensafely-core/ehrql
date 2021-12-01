@@ -783,6 +783,18 @@ def test_categorise_simple_comparisons(engine):
         ),
         (
             lambda height_value: {
+                "short_or_tall": (height_value < 150) | (height_value > 190)
+            },
+            None,
+            [
+                dict(patient_id=1, height_group=None),
+                dict(patient_id=2, height_group="short_or_tall"),
+                dict(patient_id=3, height_group=None),
+                dict(patient_id=4, height_group="short_or_tall"),
+            ],
+        ),
+        (
+            lambda height_value: {
                 "tallish": (height_value > 175) & (height_value != 180),
                 "short": height_value <= 175,
             },
@@ -798,6 +810,7 @@ def test_categorise_simple_comparisons(engine):
     ids=[
         "test simple and on two conditions",
         "test simple or on two conditions",
+        "test simple or with None default",
         "test a not-equals condition",
     ],
 )
@@ -813,10 +826,12 @@ def test_categorise_single_combined_conditions(engine, categories, default, expe
     ]
     engine.setup(input_data)
 
+    default_kwarg = {"default": default} if default is not None else {}
+
     class Cohort(OldCohortWithPopulation):
         _height = table("patients").first_by("patient_id").get("height")
         _height_categories = categories(_height)
-        height_group = categorise(_height_categories, default=default)
+        height_group = categorise(_height_categories, **default_kwarg)
 
     result = list(engine.extract(Cohort))
     assert result == expected
