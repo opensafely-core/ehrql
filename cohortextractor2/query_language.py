@@ -31,8 +31,16 @@ def table(name):
 # subclasses.
 
 
+class QueryNode:
+    def _get_referenced_nodes(self):
+        """
+        Return a tuple of all QueryNodes to which this node holds a reference
+        """
+        raise NotImplementedError()
+
+
 @dataclass(frozen=True)
-class Comparator:
+class Comparator(QueryNode):
     """A generic comparator to represent a comparison between a source object and a
     value.
 
@@ -47,6 +55,14 @@ class Comparator:
     lhs: Any = None
     operator: Any = None
     rhs: Any = None
+
+    def _get_referenced_nodes(self):
+        nodes = ()
+        if isinstance(self.lhs, QueryNode):
+            nodes += (self.lhs,)
+        if isinstance(self.rhs, QueryNode):
+            nodes += (self.rhs,)
+        return nodes
 
     def __and__(self, other):
         return self._combine(other, "and_")
@@ -71,10 +87,6 @@ class Comparator:
 def boolean_comparator(obj, negated=False):
     """returns a comparator which represents a comparison against null values"""
     return Comparator(lhs=obj, operator="__ne__", rhs=None, negated=negated)
-
-
-class QueryNode:
-    pass
 
 
 class BaseTable(QueryNode):
@@ -171,6 +183,11 @@ class BaseTable(QueryNode):
 class Table(BaseTable):
     name: str
 
+    def _get_referenced_nodes(self):
+        # Table nodes are always root nodes in the query DAG and don't reference other
+        # nodes
+        return ()
+
     def imd_rounded_as_of(self, reference_date):
         """
         A convenience method to retrieve the IMD on the reference date.
@@ -211,11 +228,20 @@ class FilteredTable(BaseTable):
     value: Any
     or_null: bool = False
 
+    def _get_referenced_nodes(self):
+        nodes = (self.source,)
+        if isinstance(self.value, QueryNode):
+            nodes += (self.value,)
+        return nodes
+
 
 @dataclass(frozen=True)
 class Column(QueryNode):
     source: Any
     column: Any
+
+    def _get_referenced_nodes(self):
+        return (self.source,)
 
 
 @dataclass(frozen=True)
@@ -223,6 +249,9 @@ class Row(QueryNode):
     source: Any
     sort_columns: Any
     descending: Any
+
+    def _get_referenced_nodes(self):
+        return (self.source,)
 
     def get(self, column):
         return ValueFromRow(source=self, column=column)
@@ -277,12 +306,18 @@ class ValueFromRow(Value):
     source: Any
     column: Any
 
+    def _get_referenced_nodes(self):
+        return (self.source,)
+
 
 @dataclass(frozen=True, eq=False, order=False)
 class ValueFromAggregate(Value):
     source: Any
     function: Any
     column: Any
+
+    def _get_referenced_nodes(self):
+        return (self.source,)
 
 
 def categorise(mapping, default):
@@ -298,12 +333,24 @@ class ValueFromCategory(Value):
     definitions: Any
     default: Any
 
+    def _get_referenced_nodes(self):
+        nodes = ()
+        for value in self.definitions.values():
+            if isinstance(value, QueryNode):
+                nodes += (value,)
+        if isinstance(self.default, QueryNode):
+            nodes += (self.default,)
+        return nodes
+
 
 @dataclass(frozen=True)
 class Codelist(QueryNode):
     codes: tuple
     system: str
     has_categories: bool = False
+
+    def _get_referenced_nodes(self):
+        return ()
 
     def __post_init__(self):
         if self.has_categories:
@@ -320,6 +367,9 @@ class Codelist(QueryNode):
 class ValueFromFunction(Value):
     def __init__(self, *args):
         self.arguments = args
+
+    def _get_referenced_nodes(self):
+        return tuple(arg for arg in self.arguments if isinstance(arg, QueryNode))
 
 
 class DateDifferenceInYears(ValueFromFunction):

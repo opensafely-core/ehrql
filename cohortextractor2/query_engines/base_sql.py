@@ -15,7 +15,6 @@ from ..query_language import (
     Comparator,
     DateDifferenceInYears,
     FilteredTable,
-    QueryNode,
     Row,
     Table,
     Value,
@@ -110,26 +109,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def walk_query_dag(self, nodes):
         def recurse(nodes, seen):
             for node in nodes:
-                yield from recurse(self.get_parent_nodes(node), seen)
+                yield from recurse(node._get_referenced_nodes(), seen)
                 if node not in seen:
                     seen.add(node)
                     yield node
 
         return list(recurse(nodes, set()))
-
-    def get_parent_nodes(self, node):
-        if hasattr(node, "definitions"):
-            yield from self.list_parent_nodes_from_category_definitions(
-                node.definitions.values()
-            )
-        if hasattr(node, "source"):
-            yield node.source
-        if hasattr(node, "value") and isinstance(node.value, QueryNode):
-            yield node.value
-        if hasattr(node, "arguments"):
-            for arg in node.arguments:
-                if isinstance(arg, QueryNode):
-                    yield arg
 
     @staticmethod
     def is_output_node(node):
@@ -151,53 +136,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             return node.column
         else:
             assert False, f"Unhandled type: {node}"
-
-    def get_parent_nodes_from_category_definitions(
-        self, definitions, parent_nodes=None
-    ):
-        """
-        Get all the referenced parent nodes for category definitions.  If a category
-        definition (Comparator) has a LHS which is not itself a Comparator,
-        it will be a query node or a function-generated node
-        """
-        parent_nodes = parent_nodes or set()
-        for definition in definitions:
-            if isinstance(definition.lhs, Value):
-                # A ValueFromFunction is not itself a node that is derieved directly from a
-                # temporary table.  We look for referenced nodes in its arguments
-                definition_parent_nodes = (
-                    definition.lhs.arguments
-                    if isinstance(definition.lhs, ValueFromFunction)
-                    else [definition.lhs]
-                )
-                for node in definition_parent_nodes:
-                    if isinstance(node, Value):
-                        parent_nodes.add(node)
-            else:
-                parent_nodes = self.get_parent_nodes_from_category_definitions(
-                    [definition.lhs], parent_nodes
-                )
-
-            if isinstance(definition.rhs, Comparator):
-                parent_nodes = self.get_parent_nodes_from_category_definitions(
-                    [definition.rhs], parent_nodes
-                )
-
-        return parent_nodes
-
-    def list_parent_nodes_from_category_definitions(self, definitions):
-        # Sort the parent nodes to ensure consistent order.  We have to use a custom sort key
-        # here because parent nodes are Values with overloaded lt/gt operators.
-
-        # Note that we sort on column name first, and source as a tie-breaker in the event of
-        # two nodes with the same column name.  x.source can be a Row in the case of a truthy
-        # Comparator e.g. where a category definition looks something like {"x": code1, "y": code2}
-        # and code1/code2 are ValueFromRow.  In this case we can't use the source Row as a
-        # sort key, so we use its repr instead.
-        return sorted(
-            self.get_parent_nodes_from_category_definitions(definitions),
-            key=lambda x: (x.column, repr(x.source)),
-        )
 
     def get_node_list(self, node):
         """For a single node, get a list of it and all its parents in order"""
@@ -369,25 +307,30 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def build_condition_statement(self, comparator):
         """
         Traverse a comparator's left and right hand sides in order and build the nested
-        condition statement
+        condition statement along with a tuple of the tables referenced
         """
         if comparator.connector is not None:
             assert isinstance(comparator.lhs, Comparator) and isinstance(
                 comparator.rhs, Comparator
             )
-            left_conditions = self.build_condition_statement(comparator.lhs)
-            right_conditions = self.build_condition_statement(comparator.rhs)
+            left_conditions, left_tables = self.build_condition_statement(
+                comparator.lhs
+            )
+            right_conditions, right_tables = self.build_condition_statement(
+                comparator.rhs
+            )
             connector = getattr(sqlalchemy, comparator.connector)
             condition_statement = connector(left_conditions, right_conditions)
+            tables = tuple(set(left_tables + right_tables))
         else:
-            lhs, _ = self.get_value_expression(comparator.lhs)
+            lhs, tables = self.get_value_expression(comparator.lhs)
             method = getattr(lhs, comparator.operator)
             condition_statement = method(comparator.rhs)
 
         if comparator.negated:
             condition_statement = sqlalchemy.not_(condition_statement)
 
-        return condition_statement
+        return condition_statement, tables
 
     def get_value_expression(self, value):
         """
@@ -397,25 +340,18 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         tables = ()
         value_expr = value
         if self.is_category_node(value):
-            category_definitions = value.definitions.copy()
-            all_category_referenced_nodes = (
-                self.list_parent_nodes_from_category_definitions(
-                    category_definitions.values()
-                )
-            )
-            tables = tuple(
-                self.output_group_tables[self.get_output_group(query_node)]
-                for query_node in all_category_referenced_nodes
-            )
             category_mapping = {}
-            for label, category_definition in category_definitions.items():
+            tables = set()
+            for label, category_definition in value.definitions.items():
                 # A category definition is always a single Comparator, which may contain
                 # nested Comparators
-                condition_statement = self.build_condition_statement(
+                condition_statement, condition_tables = self.build_condition_statement(
                     category_definition
                 )
                 category_mapping[label] = condition_statement
+                tables.update(condition_tables)
             value_expr = self.get_case_expression(category_mapping, value.default)
+            tables = tuple(tables)
         elif self.is_output_node(value):
             table = self.output_group_tables[self.get_output_group(value)]
             column = self.get_output_column_name(value)
