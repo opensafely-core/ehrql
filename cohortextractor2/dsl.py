@@ -294,7 +294,6 @@ def _validate_category_mapping(mapping: dict[str, Expression]) -> None:
     - all values are PatientSeries
     """
     seen_values = set()
-    duplicates = set()
     for key, value in mapping.items():
         if not isinstance(value, PatientSeries):
             raise TypeError(
@@ -303,12 +302,8 @@ def _validate_category_mapping(mapping: dict[str, Expression]) -> None:
                 f"Got '{value}' ({type(value)}) for category key '{key}'"
             )
         if repr(value) in seen_values:
-            duplicates.add(key)
+            raise ValueError(f"Duplicate category values found for key '{key}'")
         seen_values.add(repr(value))
-    if duplicates:
-        raise ValueError(
-            f"Duplicate category values found for key(s): {', '.join(duplicates)}"
-        )
 
     # all keys must be the same type
     key_types = {type(key) for key in mapping.keys()}

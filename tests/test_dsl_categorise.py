@@ -388,7 +388,7 @@ def test_categorise_double_invert(cohort_with_population):
                 "no": mock_positive_tests.exists_for_patient(),
             },
             ValueError,
-            re.escape("Duplicate category values found for key(s): no"),
+            re.escape("Duplicate category values found for key 'no'"),
         ),
         (
             {
