@@ -20,6 +20,10 @@ class BaseBackend:
 
     tables = None
 
+    def __init__(self, database_url, temporary_database=None):
+        self.database_url = database_url
+        self.temporary_database = temporary_database
+
     def __init_subclass__(cls, **kwargs):
         assert cls.backend_id is not None
         assert cls.query_engine_class is not None
@@ -42,10 +46,6 @@ class BaseBackend:
             table: SQLTable Object
         """
         table.learn_patient_join(cls.patient_join_column)
-
-    def __init__(self, database_url, temporary_database=None):
-        self.database_url = database_url
-        self.temporary_database = temporary_database
 
     @classmethod
     def validate_contract(cls, name, table):
@@ -71,6 +71,15 @@ class BaseBackend:
                 cls.validate_contract(name, value)
 
     def get_table_expression(self, table_name):
+        """
+        Gets SQL expression for a table
+        Args:
+            table_name: Name of Table
+        Returns:
+            A SQL subquery
+        Raises:
+            ValueError: If unknown table passed in
+        """
         if table_name not in self.tables:
             raise ValueError(f"Unknown table '{table_name}'")
         table = getattr(self, table_name)
