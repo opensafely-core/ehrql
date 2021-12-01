@@ -40,6 +40,8 @@ def test_basic_validation_that_table_implements_patients_contract():
                 ),
             )
 
+        BadBackend.validate_contract("patients", BadBackend.patients)
+
     # Happy path
     class GoodBackend(BaseBackend):
         backend_id = "good_test_backend"
@@ -90,6 +92,8 @@ def test_basic_validation_for_patients_contract_column_types():
                     sex=Column("varchar", source="Sex"),
                 ),
             )
+
+        BadBackend.validate_contract("patients", BadBackend.patients)
 
 
 def test_basic_validation_for_patients_contract_column_constraints(engine):
