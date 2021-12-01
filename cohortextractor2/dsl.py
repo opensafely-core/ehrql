@@ -193,31 +193,28 @@ class PatientSeries:
     def is_comparator(self) -> bool:
         return isinstance(self.value, Comparator)
 
-    @staticmethod
-    def _get_other_value(
-        other: Expression,
-    ) -> int | str | float | bool | Value | Comparator:
-        if isinstance(other, PatientSeries):
-            return other.value
-        return other
-
     def __gt__(self, other: Expression) -> PatientSeries:
-        return PatientSeries(value=self.value > self._get_other_value(other))
+        return PatientSeries(value=self.value > other)
 
     def __ge__(self, other: Expression) -> PatientSeries:
-        return PatientSeries(value=self.value >= self._get_other_value(other))
+        return PatientSeries(value=self.value >= other)
 
     def __lt__(self, other: Expression) -> PatientSeries:
-        return PatientSeries(value=self.value < self._get_other_value(other))
+        return PatientSeries(value=self.value < other)
 
     def __le__(self, other: Expression) -> PatientSeries:
-        return PatientSeries(value=self.value <= self._get_other_value(other))
+        return PatientSeries(value=self.value <= other)
 
     def __eq__(self, other: Expression) -> PatientSeries:  # type: ignore[override]
-        return PatientSeries(value=self.value == self._get_other_value(other))
+        # All python objects have __eq__ and __ne__ defined, so overriding these method s
+        # involves overriding them on a superclass (`object`), which results in
+        # a typing error as it violates the violates the Liskov substitution principle
+        # https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+        # We are deliberately overloading the operators here, hence the ignore
+        return PatientSeries(value=self.value == other)
 
     def __ne__(self, other: Expression) -> PatientSeries:  # type: ignore[override]
-        return PatientSeries(value=self.value != self._get_other_value(other))
+        return PatientSeries(value=self.value != other)
 
     def __and__(self, other: PatientSeries) -> PatientSeries:
         return PatientSeries(value=self.value & other.value)
