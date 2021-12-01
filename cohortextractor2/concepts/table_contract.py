@@ -31,6 +31,14 @@ class TableContract:
 
     @classmethod
     def validate_implementation(cls, backend, table_name, table):
+        """
+        Validates that a given backend table has the necessary columns to
+        implement a specific contract
+        Args:
+            backend: Backend the contract is validated against
+            table_name: Name of the table
+            table: SQLTable
+        """
         missing_columns = set(cls.columns) - set(table.columns)
         if missing_columns:
             raise BackendContractError(

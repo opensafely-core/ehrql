@@ -15,6 +15,7 @@ def get_cohort_variables(cohort):
 
 
 def get_column_definitions(cohort):
+    # This is where we distinguish between versions of the DSL
     if isinstance(cohort, DSLCohort):
         variables = get_cohort_variables(cohort)
     else:
