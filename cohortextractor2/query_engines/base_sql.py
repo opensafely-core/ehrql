@@ -66,8 +66,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         all_nodes = self.get_all_query_nodes(column_definitions)
         self.output_groups = self.get_output_groups(all_nodes)
         self.codelists = [node for node in all_nodes if isinstance(node, Codelist)]
-        self.node_to_expression = {}
-        self.queries = []
 
     #
     # QUERY DAG METHODS AND NODE INTERACTION
@@ -164,12 +162,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             assert isinstance(self._engine.dialect, self.sqlalchemy_dialect)
         return self._engine
 
-    def create_output_group_tables(self):
+    def create_output_group_tables(self, output_groups):
         """Queries to generate and populate interim tables for each output"""
         # For each group of "output nodes" (roughly, "nodes which we know how
         # to build a single select query for"), build a SQLAlchemy query to get
         # their values.
-        for i, (group, output_nodes) in enumerate(self.output_groups.items()):
+        for i, (group, output_nodes) in enumerate(output_groups.items()):
             query = self.get_query_expression(group, output_nodes)
             # Create a Table object representing a temporary table into which
             # we'll write the results of the query
@@ -186,15 +184,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 column = self.get_output_column_name(node)
                 sqlalchemy_expr = table.c[column]
                 self.node_to_expression[node] = sqlalchemy_expr
-            self.queries.append(self.write_query_to_table(table, query))
+            yield self.write_query_to_table(table, query)
 
-    def create_codelist_tables(self):
+    def create_codelist_tables(self, codelists):
         """
         For each codelist in use, build a SQLAlchemy representation of the
         temporary table needed to store that codelist and then generate the
         queries necessary to create and populate those tables
         """
-        for n, codelist in enumerate(self.codelists):
+        for n, codelist in enumerate(codelists):
             codes = codelist.codes
             max_code_len = max(map(len, codes))
             collation = "Latin1_General_BIN"
@@ -217,14 +215,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             sqlalchemy_expr = sqlalchemy.select(table.c.code).scalar_subquery()
             self.node_to_expression[codelist] = sqlalchemy_expr
             # Constuct the queries needed to create and populate this table
-            self.queries.append(sqlalchemy.schema.CreateTable(table))
+            yield sqlalchemy.schema.CreateTable(table)
             for codes_batch in split_list_into_batches(
                 codes, size=self.max_rows_per_insert
             ):
                 insert_query = table.insert().values(
                     [(code, codelist.system) for code in codes_batch]
                 )
-                self.queries.append(insert_query)
+                yield insert_query
 
     def get_temp_table_name(self, table_name):
         """
@@ -560,14 +558,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def get_queries(self):
         """Build the list of SQL queries to execute"""
+        # Mapping of QueryNodes to SQLAlchemy expressions which we populate as part of
+        # building the queries below
+        self.node_to_expression = {}
+
+        queries = []
         # Create and populate tables containing codelists
-        self.create_codelist_tables()
+        queries.extend(self.create_codelist_tables(self.codelists))
         # Generate each of the interim output group tables and populate them
-        self.create_output_group_tables()
+        queries.extend(self.create_output_group_tables(self.output_groups))
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
-        self.queries.append(self.generate_results_query())
-        return self.queries
+        queries.append(self.generate_results_query())
+
+        return queries
 
     def write_query_to_table(self, table, query):
         """
