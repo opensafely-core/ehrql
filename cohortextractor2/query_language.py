@@ -79,23 +79,29 @@ class Comparator(QueryNode):
             rhs=self.rhs,
         )
 
+    @staticmethod
+    def _raise_comparison_error():
+        raise RuntimeError(
+            "Invalid operation; cannot perform logical operations on a Comparator"
+        )
+
     def __gt__(self, other):
-        return self._compare("__gt__", other)
+        self._raise_comparison_error()
 
     def __ge__(self, other):
-        return self._compare("__ge__", other)
+        self._raise_comparison_error()
 
     def __lt__(self, other):
-        return self._compare("__lt__", other)
+        self._raise_comparison_error()
 
     def __le__(self, other):
-        return self._compare("__le__", other)
+        self._raise_comparison_error()
 
     def __eq__(self, other):
-        return self._compare("__eq__", other)
+        self._compare(other, "__eq__")
 
     def __ne__(self, other):
-        return self._compare("__ne__", other)
+        self._compare(other, "__ne__")
 
     def _combine(self, other, conn):
         assert isinstance(other, Comparator)

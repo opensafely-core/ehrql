@@ -10,7 +10,7 @@ import pytest
 from cohortextractor2.concepts import tables
 from cohortextractor2.dsl import EventFrame
 from cohortextractor2.dsl import categorise as new_dsl_categorise
-from cohortextractor2.query_language import Table
+from cohortextractor2.query_language import Comparator, Table
 from cohortextractor2.query_language import categorise as old_dsl_categorise
 from cohortextractor2.query_language import table
 
@@ -412,3 +412,11 @@ def test_categorise_double_invert(cohort_with_population):
 def test_categorise_validation(category_mapping, error, error_match):
     with pytest.raises(error, match=error_match):
         new_dsl_categorise(category_mapping, default="na")
+
+
+def test_cannot_compare_comparators():
+    codes = tables.clinical_events.count_for_patient()
+    count_3 = codes == 3
+    assert isinstance(count_3.value, Comparator)
+    with pytest.raises(RuntimeError, match="Invalid operation"):
+        (codes == 3) > 2

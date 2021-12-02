@@ -58,7 +58,6 @@ from dataclasses import dataclass
 from typing import Union
 
 from . import codelistlib
-
 from .query_language import (
     BaseTable,
     Codelist,
@@ -317,7 +316,7 @@ def _validate_category_mapping(mapping: dict[str, PatientSeries]) -> None:
                 f"Multiple category key types found: {', '.join([f'{str(key)} ({type(key)})' for key in mapping.keys()])}"
             )
         )
-    
+
     raise_category_errors(errors)
 
 
