@@ -54,9 +54,11 @@ for end users.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Union
 
-from .query_language import BaseTable, Row, Value, ValueFromAggregate
+from . import codelistlib
+from .query_language import BaseTable, Codelist, Row, Value, ValueFromAggregate
 
 
 class Cohort:
@@ -98,9 +100,27 @@ class EventFrame:
     def __init__(self, qm_table: BaseTable):
         self.qm_table = qm_table
 
-    def filter(self, column: str, **kwargs: str) -> EventFrame:  # noqa: A003
-        """Return a new EventFrame with given filter."""
+    def filter(  # noqa: A003
+        self,
+        column_or_expr: str | CodelistFilterExpr,
+        **kwargs: str | Codelist,
+    ) -> EventFrame:
+        """Return a new EventFrame with given filter.
 
+        Note that while we are building the DSL, this method takes either an expression
+        (at the moment, just a CodelistFilterExpr is supported) or it takes arguments
+        that are passed directly to the corresponding QM filter method.
+
+        Once we fully support filtering with expressions, we can rename column_or_expr
+        to expr, and drop kwargs.
+        """
+
+        if isinstance(column_or_expr, CodelistFilterExpr):
+            assert not kwargs
+            column = column_or_expr.column
+            kwargs = {"is_in": column_or_expr.codelist}
+        else:
+            column = column_or_expr
         return EventFrame(self.qm_table.filter(column, **kwargs))
 
     def sort_by(self, *columns: str) -> SortedEventFrame:
@@ -162,8 +182,24 @@ class PatientSeries:
         self.value = value
 
 
-Expression = Union[PatientSeries, bool, int, str]
-
-
 def categorise(mapping: dict[str, Expression]) -> PatientSeries:
     """Represents a switch statement."""
+
+
+class codelist:
+    """A wrapper around Codelist, with a .contains method for use with .filter()."""
+
+    def __init__(self, codes: list[str], system: str):
+        self.codelist = codelistlib.codelist(codes, system)
+
+    def contains(self, column: str) -> CodelistFilterExpr:
+        return CodelistFilterExpr(self.codelist, column)
+
+
+@dataclass
+class CodelistFilterExpr:
+    codelist: Codelist
+    column: str
+
+
+Expression = Union[PatientSeries, CodelistFilterExpr, bool, int, str]

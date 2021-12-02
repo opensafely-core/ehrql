@@ -5,11 +5,11 @@ import pytest
 from cohortextractor2.concepts import tables
 from cohortextractor2.definition import register
 from cohortextractor2.definition.base import cohort_registry
-from cohortextractor2.dsl import Cohort
+from cohortextractor2.dsl import Cohort, codelist
 from cohortextractor2.query_language import table
 from cohortextractor2.query_utils import get_column_definitions
 
-from .lib.util import OldCohortWithPopulation
+from .lib.util import OldCohortWithPopulation, make_codelist
 
 
 def test_minimal_cohort_definition(cohort_with_population):
@@ -47,6 +47,27 @@ def test_filter(cohort_with_population):
     events = tables.clinical_events
     cohort.code = (
         events.filter(events.date, greater_than="2021-01-01")
+        .sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.code)
+    )
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def test_filter_with_codelist(cohort_with_population):
+    class OldCohort(OldCohortWithPopulation):
+        code = (
+            table("clinical_events")
+            .filter("code", is_in=make_codelist("Code1"))
+            .first_by("date")
+            .get("code")
+        )
+
+    cohort = cohort_with_population
+    events = tables.clinical_events
+    cohort.code = (
+        events.filter(codelist(["Code1"], "ctv3").contains(events.code))
         .sort_by(events.date)
         .first_for_patient()
         .select_column(events.code)
