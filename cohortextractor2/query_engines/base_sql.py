@@ -66,10 +66,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         all_nodes = self.get_all_query_nodes(column_definitions)
         self.output_groups = self.get_output_groups(all_nodes)
         self.codelists = [node for node in all_nodes if isinstance(node, Codelist)]
-        self.codelist_table_expressions = {}
-        self.codelist_tables_queries = []
-        self.output_node_expressions = {}
-        self.output_group_tables_queries = []
+        self.node_to_expression = {}
+        self.queries = []
 
     #
     # QUERY DAG METHODS AND NODE INTERACTION
@@ -187,10 +185,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             for node in output_nodes:
                 column = self.get_output_column_name(node)
                 sqlalchemy_expr = table.c[column]
-                self.output_node_expressions[node] = sqlalchemy_expr
-            self.output_group_tables_queries.append(
-                self.write_query_to_table(table, query)
-            )
+                self.node_to_expression[node] = sqlalchemy_expr
+            self.queries.append(self.write_query_to_table(table, query))
 
     def create_codelist_tables(self):
         """
@@ -219,16 +215,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             )
             # Construct a SQLAlchemy expression for the codelist
             sqlalchemy_expr = sqlalchemy.select(table.c.code).scalar_subquery()
-            self.codelist_table_expressions[codelist] = sqlalchemy_expr
+            self.node_to_expression[codelist] = sqlalchemy_expr
             # Constuct the queries needed to create and populate this table
-            self.codelist_tables_queries.append(sqlalchemy.schema.CreateTable(table))
+            self.queries.append(sqlalchemy.schema.CreateTable(table))
             for codes_batch in split_list_into_batches(
                 codes, size=self.max_rows_per_insert
             ):
                 insert_query = table.insert().values(
                     [(code, codelist.system) for code in codes_batch]
                 )
-                self.codelist_tables_queries.append(insert_query)
+                self.queries.append(insert_query)
 
     def get_temp_table_name(self, table_name):
         """
@@ -360,10 +356,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             value_expr = self.get_case_expression(category_mapping, value.default)
             tables = tuple(tables)
         elif self.is_output_node(value):
-            value_expr = self.output_node_expressions[value]
+            value_expr = self.node_to_expression[value]
             tables = (value_expr.table,)
         elif isinstance(value, Codelist):
-            value_expr = self.codelist_table_expressions[value]
+            value_expr = self.node_to_expression[value]
         elif isinstance(value, ValueFromFunction):
             value_expr, tables = self.get_expression_for_value_from_function(value)
         return value_expr, tables
@@ -564,17 +560,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def get_queries(self):
         """Build the list of SQL queries to execute"""
-        self.create_codelist_tables()
-        self.create_output_group_tables()
-        queries = []
         # Create and populate tables containing codelists
-        queries.extend(self.codelist_tables_queries)
+        self.create_codelist_tables()
         # Generate each of the interim output group tables and populate them
-        queries.extend(self.output_group_tables_queries)
+        self.create_output_group_tables()
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
-        queries.append(self.generate_results_query())
-        return queries
+        self.queries.append(self.generate_results_query())
+        return self.queries
 
     def write_query_to_table(self, table, query):
         """
