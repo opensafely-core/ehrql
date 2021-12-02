@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from .query_language import ValueFromRow
+from .query_language import ValueFromCategory, ValueFromRow
 from .query_utils import get_column_definitions
 
 SUPPORTED_FILE_FORMATS = ["csv", "csv.gz"]
@@ -102,6 +102,11 @@ def get_csv_validator(query_node):
         except ValueError:
             datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
 
+    def category_validator(value, categories):
+        category_type = type(list(categories)[0])
+        if category_type(value) not in categories:
+            raise ValueError
+
     # We don't yet track column types so we can only do some cursory validation based on
     # known column names and aggregation functions
     columns_to_validator_mapping = {
@@ -119,6 +124,11 @@ def get_csv_validator(query_node):
         "exists": bool_validator,
         "count": int,
     }
+
+    if isinstance(query_node, ValueFromCategory):
+        categories = [*query_node.definitions.keys(), query_node.default]
+        return lambda x: category_validator(x, categories)
+
     if (
         hasattr(query_node, "function")
         and query_node.function in functions_to_validator_mapping

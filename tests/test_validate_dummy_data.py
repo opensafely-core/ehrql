@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from cohortextractor2 import codelist, table
+from cohortextractor2 import categorise, codelist, table
 from cohortextractor2.validate_dummy_data import (
     SUPPORTED_FILE_FORMATS,
     DummyDataValidationError,
@@ -78,3 +78,21 @@ def test_validate_dummy_data_missing_data_file(file_format):
             fixtures_path / f"missing.{file_format}",
             Path(f"output.{file_format}"),
         )
+
+
+def test_validate_dummy_data_with_categories(tmpdir):
+    class CohortWithCategories:
+        population = table("practice_registations").exists()
+        _code = table("clinical_events").filter(code__in=cl)
+        event_code = _code.latest().get("code")
+        event_date = _code.latest().get("date")
+        _categories = {
+            1: event_date == "2021-01-01",
+        }
+        category = categorise(_categories, default=2)
+
+    dummy_data_file = fixtures_path / "dummy-data-with-categories.csv"
+    with pytest.raises(
+        DummyDataValidationError, match="Invalid value `'foo'` for category"
+    ):
+        validate_dummy_data(CohortWithCategories, dummy_data_file, Path("output.csv"))
