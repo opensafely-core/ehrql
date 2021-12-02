@@ -234,6 +234,9 @@ class PatientSeries:
     def __repr__(self) -> str:
         return f"PatientSeries(value={self.value})"
 
+    def __hash__(self) -> int:
+        return hash(repr(self.value))
+
 
 Expression = Union[str, int, float, bool, PatientSeries]
 
@@ -296,9 +299,9 @@ def _validate_category_mapping(mapping: dict[str, PatientSeries]) -> None:
                 "comparison expression involving a PatientSeries. "
                 f"Got '{value}' ({type(value)}) for category key '{key}'"
             )
-        if repr(value) in seen_values:
+        if value in seen_values:
             raise ValueError(f"Duplicate category values found for key '{key}'")
-        seen_values.add(repr(value))
+        seen_values.add(value)
 
     # all keys must be the same type
     key_types = {type(key) for key in mapping.keys()}
