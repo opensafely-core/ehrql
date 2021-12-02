@@ -5,6 +5,7 @@ from typing import Optional
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
+import sqlalchemy.sql
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.sql.expression import type_coerce
 
@@ -15,6 +16,7 @@ from ..query_language import (
     Comparator,
     DateDifferenceInYears,
     FilteredTable,
+    QueryNode,
     Row,
     Table,
     Value,
@@ -59,16 +61,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     max_rows_per_insert: Optional[int] = None
 
     # Per-instance cache for SQLAlchemy Engine
-    _engine = None
+    _engine: Optional[sqlalchemy.engine.Engine] = None
 
     def get_queries(self):
         """Build the list of SQL queries to execute"""
         # Mapping of QueryNodes to SQLAlchemy expressions which we populate as part of
         # building the queries below
-        self.node_to_expression = {}
+        self.node_to_expression: dict[QueryNode, sqlalchemy.sql.ClauseElement] = {}
 
         all_nodes = self.get_all_query_nodes(self.column_definitions)
-        queries = []
+        queries: list[sqlalchemy.sql.Executable] = []
 
         # Create and populate tables containing codelists
         codelists = [node for node in all_nodes if isinstance(node, Codelist)]
