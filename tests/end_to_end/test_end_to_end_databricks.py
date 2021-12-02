@@ -1,4 +1,4 @@
-from cohortextractor2.main import validate_cohort
+from databuilder.main import validate_cohort
 
 
 def test_validate_cohort(load_study, cohort_extractor_in_process_no_database):

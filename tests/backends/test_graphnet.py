@@ -2,8 +2,8 @@ from datetime import date, datetime
 
 import pytest
 
-from cohortextractor2 import table
-from cohortextractor2.backends.graphnet import GraphnetBackend
+from databuilder import table
+from databuilder.backends.graphnet import GraphnetBackend
 
 from ..lib.graphnet_schema import (
     ClinicalEvents,

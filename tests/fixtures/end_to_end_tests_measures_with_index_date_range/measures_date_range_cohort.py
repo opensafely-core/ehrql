@@ -1,4 +1,4 @@
-from cohortextractor2 import Measure, codelist, cohort_date_range, table
+from databuilder import Measure, codelist, cohort_date_range, table
 
 index_date_range = cohort_date_range(start="2021-01-01", end="2021-03-04")
 

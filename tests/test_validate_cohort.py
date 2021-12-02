@@ -1,8 +1,8 @@
 import pytest
 
-from cohortextractor2 import table
-from cohortextractor2.backends import DatabricksBackend, TPPBackend
-from cohortextractor2.main import validate
+from databuilder import table
+from databuilder.backends import DatabricksBackend, TPPBackend
+from databuilder.main import validate
 
 from .lib.mock_backend import MockBackend
 from .lib.util import OldCohortWithPopulation

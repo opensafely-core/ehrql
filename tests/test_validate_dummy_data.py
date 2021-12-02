@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from cohortextractor2 import categorise, codelist, table
-from cohortextractor2.validate_dummy_data import (
+from databuilder import categorise, codelist, table
+from databuilder.validate_dummy_data import (
     SUPPORTED_FILE_FORMATS,
     DummyDataValidationError,
     validate_dummy_data,

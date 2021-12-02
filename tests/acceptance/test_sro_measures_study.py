@@ -3,10 +3,10 @@ from pathlib import Path
 
 import pytest
 
-from cohortextractor2 import Measure, cohort_date_range, table
-from cohortextractor2.backends import GraphnetBackend, TPPBackend
-from cohortextractor2.main import get_measures
-from cohortextractor2.measure import MeasuresManager
+from databuilder import Measure, cohort_date_range, table
+from databuilder.backends import GraphnetBackend, TPPBackend
+from databuilder.main import get_measures
+from databuilder.measure import MeasuresManager
 
 from ..lib import graphnet_schema, tpp_schema
 from ..lib.util import extract

@@ -7,12 +7,12 @@ import re
 
 import pytest
 
-from cohortextractor2 import codelist
-from cohortextractor2.concepts import tables
-from cohortextractor2.dsl import categorise as new_dsl_categorise
-from cohortextractor2.query_language import Comparator
-from cohortextractor2.query_language import categorise as old_dsl_categorise
-from cohortextractor2.query_language import table
+from databuilder import codelist
+from databuilder.concepts import tables
+from databuilder.dsl import categorise as new_dsl_categorise
+from databuilder.query_language import Comparator
+from databuilder.query_language import categorise as old_dsl_categorise
+from databuilder.query_language import table
 
 from .lib.util import (
     OldCohortWithPopulation,

@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from cohortextractor2.query_language import categorise, table
+from databuilder.query_language import categorise, table
 
 from .lib.mock_backend import (
     CTV3Events,

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from cohortextractor2 import codelist_from_csv, combine_codelists
+from databuilder import codelist_from_csv, combine_codelists
 
 
 def load_codelist(csv_file, system, column):

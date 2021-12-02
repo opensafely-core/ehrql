@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 import sqlalchemy
 
-from cohortextractor2.query_engines.mssql_lib import (
+from databuilder.query_engines.mssql_lib import (
     ReconnectableConnection,
     fetch_results_in_batches,
 )

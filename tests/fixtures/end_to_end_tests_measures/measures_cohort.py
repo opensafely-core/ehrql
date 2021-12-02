@@ -1,4 +1,4 @@
-from cohortextractor2 import Measure, codelist, table
+from databuilder import Measure, codelist, table
 
 
 class Cohort:
