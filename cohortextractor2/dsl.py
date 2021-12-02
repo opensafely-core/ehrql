@@ -190,7 +190,7 @@ class PatientSeries:
     def __init__(self, value: Value | Comparator):
         self.value = value
 
-    def is_comparator(self) -> bool:
+    def _is_comparator(self) -> bool:
         return isinstance(self.value, Comparator)
 
     def __gt__(self, other: Expression) -> PatientSeries:
@@ -223,7 +223,7 @@ class PatientSeries:
         return PatientSeries(value=self.value | other.value)
 
     def __invert__(self) -> PatientSeries:
-        if self.is_comparator():
+        if self._is_comparator():
             comparator_value = ~self.value
         else:
             comparator_value = Comparator(
@@ -274,7 +274,7 @@ def categorise(
     _validate_category_mapping(mapping)
     value_mapping = {
         key: patient_series.value
-        if patient_series.is_comparator()
+        if patient_series._is_comparator()
         else not_null_patient_series(patient_series).value
         for key, patient_series in mapping.items()
     }
