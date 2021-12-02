@@ -58,14 +58,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     # No limit by default although some DBMSs may impose one
     max_rows_per_insert: Optional[int] = None
 
-    def __init__(self, column_definitions, backend):
-        super().__init__(column_definitions, backend)
-        self._engine = None
-
-        # Walk the nodes and identify output groups
-        all_nodes = self.get_all_query_nodes(column_definitions)
-        self.output_groups = self.get_output_groups(all_nodes)
-        self.codelists = [node for node in all_nodes if isinstance(node, Codelist)]
+    # Per-instance cache for SQLAlchemy Engine
+    _engine = None
 
     #
     # QUERY DAG METHODS AND NODE INTERACTION
@@ -562,11 +556,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # building the queries below
         self.node_to_expression = {}
 
+        all_nodes = self.get_all_query_nodes(self.column_definitions)
         queries = []
+
         # Create and populate tables containing codelists
-        queries.extend(self.create_codelist_tables(self.codelists))
+        codelists = [node for node in all_nodes if isinstance(node, Codelist)]
+        queries.extend(self.create_codelist_tables(codelists))
         # Generate each of the interim output group tables and populate them
-        queries.extend(self.create_output_group_tables(self.output_groups))
+        output_groups = self.get_output_groups(all_nodes)
+        queries.extend(self.create_output_group_tables(output_groups))
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
         queries.append(self.generate_results_query())
