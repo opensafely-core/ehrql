@@ -68,7 +68,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.codelists = [node for node in all_nodes if isinstance(node, Codelist)]
         self.codelist_tables = {}
         self.codelist_tables_queries = []
-        self.output_group_tables = {}
+        self.output_node_expressions = {}
         self.output_group_tables_queries = []
 
     #
@@ -184,7 +184,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 sqlalchemy.MetaData(),
                 *columns,
             )
-            self.output_group_tables[group] = table
+            for node in output_nodes:
+                column = self.get_output_column_name(node)
+                sqlalchemy_expr = table.c[column]
+                self.output_node_expressions[node] = sqlalchemy_expr
             self.output_group_tables_queries.append(
                 self.write_query_to_table(table, query)
             )
@@ -355,10 +358,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             value_expr = self.get_case_expression(category_mapping, value.default)
             tables = tuple(tables)
         elif self.is_output_node(value):
-            table = self.output_group_tables[self.get_output_group(value)]
-            column = self.get_output_column_name(value)
-            value_expr = table.c[column]
-            tables = (table,)
+            value_expr = self.output_node_expressions[value]
+            tables = (value_expr.table,)
         elif isinstance(value, Codelist):
             codelist_table = self.codelist_tables[value]
             value_expr = sqlalchemy.select(codelist_table.c.code).scalar_subquery()
