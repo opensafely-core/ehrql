@@ -388,7 +388,7 @@ def test_categorise_double_invert(cohort_with_population):
                 "no": mock_positive_tests.exists_for_patient(),
             },
             ValueError,
-            re.escape("Duplicate category values found for key 'no'"),
+            re.escape("Duplicate category values found for key: 'no'"),
         ),
         (
             {
@@ -399,6 +399,13 @@ def test_categorise_double_invert(cohort_with_population):
             re.escape(
                 "Multiple category key types found: yes (<class 'str'>), 0 (<class 'int'>)"
             ),
+        ),
+        (
+            {"no": mock_positive_tests.exists_for_patient(), 1: "yes", 2: "yes"},
+            # multiple errors are chained and then raised recursively, the most recent call in the
+            # traceback is the first error encountered (the first invalid value type)
+            TypeError,
+            re.escape("Got 'yes' (<class 'str'>) for category key '1'"),
         ),
     ],
 )

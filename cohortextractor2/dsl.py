@@ -238,9 +238,6 @@ class PatientSeries:
         return hash(repr(self.value))
 
 
-Expression = Union[str, int, float, bool, PatientSeries]
-
-
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
     comparator_value = Comparator(lhs=patient_series.value, operator="__ne__", rhs=None)
     return PatientSeries(value=comparator_value)
@@ -291,24 +288,48 @@ def _validate_category_mapping(mapping: dict[str, PatientSeries]) -> None:
     - all keys are the same
     - all values are PatientSeries
     """
+    errors: list[Exception] = []
+    duplicates = set()
     seen_values = set()
-    for key, value in mapping.items():
-        if not isinstance(value, PatientSeries):
-            raise TypeError(
-                "Category values must be either a PatientSeries, or a "
-                "comparison expression involving a PatientSeries. "
-                f"Got '{value}' ({type(value)}) for category key '{key}'"
+    key_types = set()
+    for key, mapping_value in mapping.items():
+        key_types.add(type(key))
+        if not isinstance(mapping_value, PatientSeries):
+            #  Although this is unreachable is the type annotation is enforced, we still want
+            # to check for it at runtime
+            errors.append(  # type: ignore[unreachable]
+                TypeError(
+                    "Category values must be either a PatientSeries, "
+                    "or a comparison expression involving a PatientSeries. "
+                    f"Got '{mapping_value}' ({type(mapping_value)}) for category key '{key}'"
+                )
             )
-        if value in seen_values:
-            raise ValueError(f"Duplicate category values found for key '{key}'")
-        seen_values.add(value)
+        if mapping_value in seen_values and key not in duplicates:
+            duplicates.add(key)
+            errors.append(
+                ValueError(f"Duplicate category values found for key: '{key}'")
+            )
+        seen_values.add(mapping_value)
 
-    # all keys must be the same type
-    key_types = {type(key) for key in mapping.keys()}
     if len(key_types) > 1:
-        raise TypeError(
-            f"Multiple category key types found: {', '.join([f'{str(key)} ({type(key)})' for key in mapping.keys()])}"
+        errors.append(
+            TypeError(
+                f"Multiple category key types found: {', '.join([f'{str(key)} ({type(key)})' for key in mapping.keys()])}"
+            )
         )
+    
+    raise_category_errors(errors)
+
+
+def raise_category_errors(errors):
+    """Recursively raise any category errors found"""
+    if not errors:
+        return
+    try:
+        next_category_error = errors.pop()
+        raise next_category_error
+    finally:
+        raise_category_errors(errors)
 
 
 class codelist:
