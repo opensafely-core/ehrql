@@ -69,7 +69,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.codelist_tables = {}
         self.codelist_tables_queries = []
         self.output_group_tables = {}
-        self.output_group_tables_queries = {}
+        self.output_group_tables_queries = []
 
     #
     # QUERY DAG METHODS AND NODE INTERACTION
@@ -173,7 +173,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # their values.
         for i, (group, output_nodes) in enumerate(self.output_groups.items()):
             query = self.get_query_expression(group, output_nodes)
-            self.output_group_tables_queries[group] = query
             # Create a Table object representing a temporary table into which
             # we'll write the results of the query
             table_name = self.get_temp_table_name(f"group_table_{i}")
@@ -186,6 +185,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 *columns,
             )
             self.output_group_tables[group] = table
+            self.output_group_tables_queries.append(
+                self.write_query_to_table(table, query)
+            )
 
     def create_codelist_tables(self):
         """
@@ -566,9 +568,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # Create and populate tables containing codelists
         queries.extend(self.codelist_tables_queries)
         # Generate each of the interim output group tables and populate them
-        for group, table in self.output_group_tables.items():
-            query = self.output_group_tables_queries[group]
-            queries.append(self.write_query_to_table(table, query))
+        queries.extend(self.output_group_tables_queries)
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
         queries.append(self.generate_results_query())
