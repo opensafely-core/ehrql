@@ -61,6 +61,42 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     # Per-instance cache for SQLAlchemy Engine
     _engine = None
 
+    def get_queries(self):
+        """Build the list of SQL queries to execute"""
+        # Mapping of QueryNodes to SQLAlchemy expressions which we populate as part of
+        # building the queries below
+        self.node_to_expression = {}
+
+        all_nodes = self.get_all_query_nodes(self.column_definitions)
+        queries = []
+
+        # Create and populate tables containing codelists
+        codelists = [node for node in all_nodes if isinstance(node, Codelist)]
+        queries.extend(self.create_codelist_tables(codelists))
+        # Generate each of the interim output group tables and populate them
+        output_groups = self.get_output_groups(all_nodes)
+        queries.extend(self.create_output_group_tables(output_groups))
+        # Add the big query that creates the base population table and its columns,
+        # selected from the output group tables
+        queries.append(self.generate_results_query())
+
+        return queries
+
+    @contextlib.contextmanager
+    def execute_query(self):
+        queries = self.get_queries()
+        with self.engine.connect() as cursor:
+            for query in queries:
+                result = cursor.execute(query)
+            # We're only interested in the results from the final query
+            yield result
+            self.post_execute_cleanup(cursor)
+
+    def post_execute_cleanup(self, cursor):
+        """
+        A no-op by default but subclasses can implement cleanup logic here
+        """
+
     #
     # QUERY DAG METHODS AND NODE INTERACTION
     #
@@ -550,48 +586,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return results_query
 
-    def get_queries(self):
-        """Build the list of SQL queries to execute"""
-        # Mapping of QueryNodes to SQLAlchemy expressions which we populate as part of
-        # building the queries below
-        self.node_to_expression = {}
-
-        all_nodes = self.get_all_query_nodes(self.column_definitions)
-        queries = []
-
-        # Create and populate tables containing codelists
-        codelists = [node for node in all_nodes if isinstance(node, Codelist)]
-        queries.extend(self.create_codelist_tables(codelists))
-        # Generate each of the interim output group tables and populate them
-        output_groups = self.get_output_groups(all_nodes)
-        queries.extend(self.create_output_group_tables(output_groups))
-        # Add the big query that creates the base population table and its columns,
-        # selected from the output group tables
-        queries.append(self.generate_results_query())
-
-        return queries
-
     def write_query_to_table(self, table, query):
         """
         Returns a new query which, when executed, writes the results of `query`
         into `table`
         """
         raise NotImplementedError()
-
-    @contextlib.contextmanager
-    def execute_query(self):
-        queries = self.get_queries()
-        with self.engine.connect() as cursor:
-            for query in queries:
-                result = cursor.execute(query)
-            # We're only interested in the results from the final query
-            yield result
-            self.post_execute_cleanup(cursor)
-
-    def post_execute_cleanup(self, cursor):
-        """
-        A no-op by default but subclasses can implement cleanup logic here
-        """
 
 
 def split_list_into_batches(lst, size=None):
