@@ -6,9 +6,7 @@ from databuilder.query_language import Table
 
 def extract(cohort, backend, database, **backend_kwargs):
     return list(
-        databuilder.main.extract(
-            cohort, backend(database.host_url(), **backend_kwargs)
-        )
+        databuilder.main.extract(cohort, backend(database.host_url(), **backend_kwargs))
     )
 
 
