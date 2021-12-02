@@ -66,7 +66,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         all_nodes = self.get_all_query_nodes(column_definitions)
         self.output_groups = self.get_output_groups(all_nodes)
         self.codelists = [node for node in all_nodes if isinstance(node, Codelist)]
-        self.codelist_tables = {}
+        self.codelist_table_expressions = {}
         self.codelist_tables_queries = []
         self.output_node_expressions = {}
         self.output_group_tables_queries = []
@@ -217,7 +217,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                     nullable=False,
                 ),
             )
-            self.codelist_tables[codelist] = table
+            # Construct a SQLAlchemy expression for the codelist
+            sqlalchemy_expr = sqlalchemy.select(table.c.code).scalar_subquery()
+            self.codelist_table_expressions[codelist] = sqlalchemy_expr
             # Constuct the queries needed to create and populate this table
             self.codelist_tables_queries.append(sqlalchemy.schema.CreateTable(table))
             for codes_batch in split_list_into_batches(
@@ -361,8 +363,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             value_expr = self.output_node_expressions[value]
             tables = (value_expr.table,)
         elif isinstance(value, Codelist):
-            codelist_table = self.codelist_tables[value]
-            value_expr = sqlalchemy.select(codelist_table.c.code).scalar_subquery()
+            value_expr = self.codelist_table_expressions[value]
         elif isinstance(value, ValueFromFunction):
             value_expr, tables = self.get_expression_for_value_from_function(value)
         return value_expr, tables
