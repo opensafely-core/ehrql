@@ -57,6 +57,9 @@ class SparkQueryEngine(BaseSQLQueryEngine):
         self._temp_table_names.add(temp_table_name)
         return temp_table_name
 
+    def get_temp_database(self):
+        return self.backend.temporary_database
+
     def post_execute_cleanup(self, cursor):
         """
         Called after results have been fetched
