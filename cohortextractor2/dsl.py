@@ -192,19 +192,19 @@ class PatientSeries:
     def _is_comparator(self) -> bool:
         return isinstance(self.value, Comparator)
 
-    def __gt__(self, other: Expression) -> PatientSeries:
+    def __gt__(self, other: ValueExpression) -> PatientSeries:
         return PatientSeries(value=self.value > other)
 
-    def __ge__(self, other: Expression) -> PatientSeries:
+    def __ge__(self, other: ValueExpression) -> PatientSeries:
         return PatientSeries(value=self.value >= other)
 
-    def __lt__(self, other: Expression) -> PatientSeries:
+    def __lt__(self, other: ValueExpression) -> PatientSeries:
         return PatientSeries(value=self.value < other)
 
-    def __le__(self, other: Expression) -> PatientSeries:
+    def __le__(self, other: ValueExpression) -> PatientSeries:
         return PatientSeries(value=self.value <= other)
 
-    def __eq__(self, other: Expression) -> PatientSeries:  # type: ignore[override]
+    def __eq__(self, other: ValueExpression) -> PatientSeries:  # type: ignore[override]
         # All python objects have __eq__ and __ne__ defined, so overriding these method s
         # involves overriding them on a superclass (`object`), which results in
         # a typing error as it violates the violates the Liskov substitution principle
@@ -212,7 +212,7 @@ class PatientSeries:
         # We are deliberately overloading the operators here, hence the ignore
         return PatientSeries(value=self.value == other)
 
-    def __ne__(self, other: Expression) -> PatientSeries:  # type: ignore[override]
+    def __ne__(self, other: ValueExpression) -> PatientSeries:  # type: ignore[override]
         return PatientSeries(value=self.value != other)
 
     def __and__(self, other: PatientSeries) -> PatientSeries:
@@ -243,7 +243,7 @@ def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
 
 
 def categorise(
-    mapping: dict[str, PatientSeries], default: str | None = None
+    mapping: dict[Expression, PatientSeries], default: Expression | None = None
 ) -> PatientSeries:
     """
     Represents a switch statement.
@@ -270,7 +270,7 @@ def categorise(
 
     returns: PatientSeries with a ValueFromCategory value
     """
-    _validate_category_mapping(mapping)
+    _validate_category_mapping(mapping, default)
     value_mapping = {
         key: patient_series.value
         if patient_series._is_comparator()
@@ -280,12 +280,15 @@ def categorise(
     return PatientSeries(value=ValueFromCategory(value_mapping, default))
 
 
-def _validate_category_mapping(mapping: dict[str, PatientSeries]) -> None:
+def _validate_category_mapping(
+    mapping: dict[Expression, PatientSeries], default: Expression | None
+) -> None:
     """
     Ensure that a category mapping is valid, by checking that:
     - there are no duplicate values
-    - all keys are the same
+    - all keys are the same type
     - all values are PatientSeries
+    - default value is None, or the same type as the keys
     """
     errors: list[Exception] = []
     duplicates = set()
@@ -316,6 +319,16 @@ def _validate_category_mapping(mapping: dict[str, PatientSeries]) -> None:
                 f"Multiple category key types found: {', '.join([f'{str(key)} ({type(key)})' for key in mapping.keys()])}"
             )
         )
+    else:
+        # If there is more than one key type, we can't tell what the default should be, so
+        # defer validation until we have a single key type to check against
+        key_type = key_types.pop()
+        if default is not None and type(default) != key_type:
+            errors.append(
+                TypeError(
+                    f"Default category must be None, or the same type as mapped categories (expected {key_type}, got {type(default)})"
+                )
+            )
 
     raise_category_errors(errors)
 
@@ -347,4 +360,5 @@ class CodelistFilterExpr:
     column: str
 
 
-Expression = Union[PatientSeries, Comparator]
+ValueExpression = Union[PatientSeries, Comparator]
+Expression = Union[str, int, float, bool]

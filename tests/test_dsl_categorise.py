@@ -414,6 +414,18 @@ def test_categorise_validation(category_mapping, error, error_match):
         new_dsl_categorise(category_mapping, default="na")
 
 
+def test_categorise_invalid_default():
+    category_mapping = {
+        "yes": mock_positive_tests.count_for_patient() >= 1,
+        "no": mock_positive_tests.count_for_patient() == 0,
+    }
+    with pytest.raises(
+        TypeError,
+        match=r"Default category.*(expected <class 'str'>, got <class 'int'>)",
+    ):
+        new_dsl_categorise(category_mapping, default=999)
+
+
 def test_cannot_compare_comparators():
     codes = tables.clinical_events.count_for_patient()
     count_3 = codes == 3
