@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from .query_language import ValueFromRow
+from .query_language import ValueFromCategory, ValueFromRow
 from .query_utils import get_column_definitions
 
 SUPPORTED_FILE_FORMATS = ["csv", "csv.gz"]
@@ -80,7 +80,9 @@ def validate_column_values(df, column_definitions):
 
             try:
                 validator(value)
-            except ValueError:
+            except (ValueError, TypeError):
+                # Catch TypeError as well, as there's a possibility that calling the validator
+                # could raise a TypeError, depending on the value passed
                 raise DummyDataValidationError(
                     f"Invalid value `{value!r}` for {col_name} in row {ix + 2}"
                 )
@@ -102,6 +104,16 @@ def get_csv_validator(query_node):
         except ValueError:
             datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
 
+    def category_validator(value, categories, default_category):
+        """Ensure that a category value is one of the expected categories, or the default"""
+        # The default must be either None, or of the same type as the categories
+        category_type = type(categories[0])
+        if value is not None:
+            value = category_type(value)
+
+        if not (value == default_category or value in categories):
+            raise ValueError
+
     # We don't yet track column types so we can only do some cursory validation based on
     # known column names and aggregation functions
     columns_to_validator_mapping = {
@@ -119,6 +131,11 @@ def get_csv_validator(query_node):
         "exists": bool_validator,
         "count": int,
     }
+
+    if isinstance(query_node, ValueFromCategory):
+        categories = list(query_node.definitions.keys())
+        return lambda x: category_validator(x, categories, query_node.default)
+
     if (
         hasattr(query_node, "function")
         and query_node.function in functions_to_validator_mapping

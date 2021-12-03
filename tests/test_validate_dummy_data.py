@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from cohortextractor2 import codelist, table
+from cohortextractor2 import categorise, codelist, table
 from cohortextractor2.validate_dummy_data import (
     SUPPORTED_FILE_FORMATS,
     DummyDataValidationError,
@@ -78,3 +78,38 @@ def test_validate_dummy_data_missing_data_file(file_format):
             fixtures_path / f"missing.{file_format}",
             Path(f"output.{file_format}"),
         )
+
+
+@pytest.mark.parametrize(
+    "default_value,first_invalid_value",
+    [
+        (999, "foo"),  # valid dummy data value
+        (None, "foo"),
+        ("missing", "missing"),  # invalid dummy data value
+    ],
+)
+def test_validate_dummy_data_with_categories(
+    tmpdir, default_value, first_invalid_value
+):
+    class CohortWithCategories:
+        population = table("practice_registations").exists()
+        _code = table("clinical_events").filter(code__in=cl)
+        event_date = _code.latest().get("date")
+        _categories = {
+            1: event_date == "2021-01-01",
+        }
+        category = categorise(_categories, default=default_value)
+
+    rows = zip(
+        ["patient_id", "11", "22", "33"],
+        ["event_date", "2021-01-01", "2021-01-01", "2021-01-01"],
+        ["category", 1, default_value, "foo"],
+    )
+
+    dummy_data_file = Path(tmpdir) / "dummy-data.csv"
+    write_rows_to_csv(rows, dummy_data_file)
+    with pytest.raises(
+        DummyDataValidationError,
+        match=f"Invalid value `'{first_invalid_value}'` for category",
+    ):
+        validate_dummy_data(CohortWithCategories, dummy_data_file, Path("output.csv"))
