@@ -80,7 +80,9 @@ def validate_column_values(df, column_definitions):
 
             try:
                 validator(value)
-            except ValueError:
+            except (ValueError, TypeError):
+                # Catch TypeError as well, as there's a possibility that calling the validator
+                # could raise a TypeError, depending on the value passed
                 raise DummyDataValidationError(
                     f"Invalid value `{value!r}` for {col_name} in row {ix + 2}"
                 )
@@ -104,14 +106,10 @@ def get_csv_validator(query_node):
 
     def category_validator(value, categories, default_category):
         """Ensure that a category value is one of the expected categories, or the default"""
-        # The default can be a different type (e.g. None, or the string "missing")
+        # The default must be either None, or of the same type as the categories
         category_type = type(categories[0])
-        try:
+        if value is not None:
             value = category_type(value)
-        except ValueError:
-            if default_category is not None:
-                default_type = type(default_category)
-                value = default_type(value)
 
         if not (value == default_category or value in categories):
             raise ValueError

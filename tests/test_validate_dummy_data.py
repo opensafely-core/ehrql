@@ -80,8 +80,17 @@ def test_validate_dummy_data_missing_data_file(file_format):
         )
 
 
-@pytest.mark.parametrize("default_value", ["missing", None])
-def test_validate_dummy_data_with_categories(tmpdir, default_value):
+@pytest.mark.parametrize(
+    "default_value,first_invalid_value",
+    [
+        (999, "foo"),  # valid dummy data value
+        (None, "foo"),
+        ("missing", "missing"),  # invalid dummy data value
+    ],
+)
+def test_validate_dummy_data_with_categories(
+    tmpdir, default_value, first_invalid_value
+):
     class CohortWithCategories:
         population = table("practice_registations").exists()
         _code = table("clinical_events").filter(code__in=cl)
@@ -100,6 +109,7 @@ def test_validate_dummy_data_with_categories(tmpdir, default_value):
     dummy_data_file = Path(tmpdir) / "dummy-data.csv"
     write_rows_to_csv(rows, dummy_data_file)
     with pytest.raises(
-        DummyDataValidationError, match="Invalid value `'foo'` for category"
+        DummyDataValidationError,
+        match=f"Invalid value `'{first_invalid_value}'` for category",
     ):
         validate_dummy_data(CohortWithCategories, dummy_data_file, Path("output.csv"))
