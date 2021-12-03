@@ -79,9 +79,36 @@ class Comparator(QueryNode):
             rhs=self.rhs,
         )
 
+    @staticmethod
+    def _raise_comparison_error():
+        raise RuntimeError(
+            "Invalid operation; cannot perform logical operations on a Comparator"
+        )
+
+    def __gt__(self, other):
+        self._raise_comparison_error()
+
+    def __ge__(self, other):
+        self._raise_comparison_error()
+
+    def __lt__(self, other):
+        self._raise_comparison_error()
+
+    def __le__(self, other):
+        self._raise_comparison_error()
+
+    def __eq__(self, other):
+        self._compare(other, "__eq__")
+
+    def __ne__(self, other):
+        self._compare(other, "__ne__")
+
     def _combine(self, other, conn):
         assert isinstance(other, Comparator)
         return type(self)(connector=conn, lhs=self, rhs=other)
+
+    def _compare(self, other, operator):
+        return type(self)(operator=operator, lhs=self, rhs=other)
 
 
 def boolean_comparator(obj, negated=False):
@@ -320,7 +347,7 @@ class ValueFromAggregate(Value):
         return (self.source,)
 
 
-def categorise(mapping, default):
+def categorise(mapping, default=None):
     mapping = {
         key: boolean_comparator(value) if isinstance(value, Value) else value
         for key, value in mapping.items()
