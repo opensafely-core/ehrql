@@ -16,6 +16,9 @@ PASSWORD = None
 COMMANDS = {}
 OUTPUT = True
 
+VENV = os.environ["VIRTUAL_ENV"]
+DATABRICKS_EXEC = f"{VENV}/bin/databricks"
+PYTHON = f"{VENV}/bin/python"
 
 # https://docs.databricks.com/dev-tools/api/latest/clusters.html#create
 CLUSTER_REQUEST = {
@@ -116,7 +119,7 @@ def _teardown(name):
 
     c = CLUSTERS[name]
     echo(f"Tearing down {c}...")
-    run(["databricks", "clusters", "permanent-delete", "--cluster-id", c.cluster_id])
+    run([DATABRICKS_EXEC, "clusters", "permanent-delete", "--cluster-id", c.cluster_id])
 
 
 def _wait(name, timeout=90):
@@ -164,7 +167,7 @@ def create(name, wait, output_url, timeout):
         OUTPUT = False
 
     c = CLUSTERS.get(name)
-    if c and c.state == "RUNNING":
+    if c and c.state in ("PENDING", "RUNNING"):
         if output_url:
             click.echo(c.url)
         else:
@@ -176,7 +179,7 @@ def create(name, wait, output_url, timeout):
     request["cluster_name"] = name
     request_json = json.dumps(request)
     run(
-        ["databricks", "clusters", "create", "--json-file", "/dev/stdin"],
+        [DATABRICKS_EXEC, "clusters", "create", "--json-file", "/dev/stdin"],
         input=request_json,
         capture_output=output_url,
     )
@@ -217,7 +220,7 @@ def test(name):
     c = CLUSTERS[name]
     run(
         [
-            "python",
+            PYTHON,
             "-m",
             "cohortextractor",
             "test_connection",
@@ -240,11 +243,11 @@ def status(name):
 def cleanup():
     run(
         [
-            "databricks",
+            DATABRICKS_EXEC,
             "workspace",
             "import",
             "-l",
-            "python",
+            PYTHON,
             "-o",
             "scripts/dbx-cleanup.py",
             "/cleanup",
