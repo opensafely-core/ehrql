@@ -33,6 +33,7 @@ class DbDetails:
         password="",
         db_name="",
         query=None,
+        temp_db=None,
     ):
         self.protocol = protocol
         self.driver = driver
@@ -44,6 +45,7 @@ class DbDetails:
         self.username = username
         self.db_name = db_name
         self.query = query
+        self.temp_db = temp_db
 
     def host_url(self):
         return self._url(self.host_from_host, self.port_from_host)
@@ -92,6 +94,10 @@ class DbDetails:
         session = Session()
         # Load test data
         session.bulk_save_objects(input_data)
+        if self.temp_db is not None:
+            session.execute(
+                sqlalchemy.text(f"CREATE DATABASE IF NOT EXISTS {self.temp_db}")
+            )
         session.commit()
 
 
@@ -228,6 +234,7 @@ def make_spark_container_database(containers):
         # These are arbitrary but we need to supply _some_ values here
         username="foo",
         password="bar",
+        temp_db="tempdb",
     )
 
 
@@ -248,4 +255,5 @@ def make_databricks_database():  # pragma: no cover
         password=url.password,
         db_name=url.database,
         query=url.query,
+        temp_db="tempdb",
     )

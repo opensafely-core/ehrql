@@ -211,6 +211,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                     sqlalchemy.types.String(6),
                     nullable=False,
                 ),
+                # If this backend has a temp db, we use it to store codelists
+                # tables. This helps with permissions management, as we can have
+                # write acces to the temp db but not the main db
+                schema=self.get_temp_database(),
             )
             self.codelist_tables[codelist] = table
             # Constuct the queries needed to create and populate this table
@@ -233,6 +237,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         doesn't clash with any concurrent extracts
         """
         raise NotImplementedError()
+
+    def get_temp_database(self):
+        """Which schema/database should we write temporary tables to."""
+        return None
 
     def get_select_expression(self, base_table, columns):
         # every table must have a patient_id column; select it and the specified columns
@@ -524,7 +532,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @staticmethod
     def include_joined_table(query, table):
-        if table.name in [t.name for t in get_joined_tables(query)]:
+        tables = get_joined_tables(query)
+        if table in tables:
             return query
         join = sqlalchemy.join(
             query.get_final_froms()[0],

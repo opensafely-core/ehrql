@@ -96,7 +96,9 @@ def test_basic_databricks_study_definition(spark_database):
             .exists()
         )
 
-    results = extract(Cohort, DatabricksBackend, spark_database)
+    results = extract(
+        Cohort, DatabricksBackend, spark_database, temporary_database="tempdb"
+    )
     # We don't care exactly what order the patients come back in
     results.sort(key=lambda i: i.get("patient_id"))
     assert results == [
