@@ -102,9 +102,18 @@ def get_csv_validator(query_node):
         except ValueError:
             datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
 
-    def category_validator(value, categories):
-        category_type = type(list(categories)[0])
-        if category_type(value) not in categories:
+    def category_validator(value, categories, default_category):
+        """Ensure that a category value is one of the expected categories, or the default"""
+        # The default can be a different type (e.g. None, or the string "missing")
+        category_type = type(categories[0])
+        try:
+            value = category_type(value)
+        except ValueError:
+            if default_category is not None:
+                default_type = type(default_category)
+                value = default_type(value)
+
+        if not (value == default_category or value in categories):
             raise ValueError
 
     # We don't yet track column types so we can only do some cursory validation based on
@@ -126,8 +135,8 @@ def get_csv_validator(query_node):
     }
 
     if isinstance(query_node, ValueFromCategory):
-        categories = [*query_node.definitions.keys(), query_node.default]
-        return lambda x: category_validator(x, categories)
+        categories = list(query_node.definitions.keys())
+        return lambda x: category_validator(x, categories, query_node.default)
 
     if (
         hasattr(query_node, "function")

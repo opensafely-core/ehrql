@@ -80,18 +80,25 @@ def test_validate_dummy_data_missing_data_file(file_format):
         )
 
 
-def test_validate_dummy_data_with_categories(tmpdir):
+@pytest.mark.parametrize("default_value", ["missing", None])
+def test_validate_dummy_data_with_categories(tmpdir, default_value):
     class CohortWithCategories:
         population = table("practice_registations").exists()
         _code = table("clinical_events").filter(code__in=cl)
-        event_code = _code.latest().get("code")
         event_date = _code.latest().get("date")
         _categories = {
             1: event_date == "2021-01-01",
         }
-        category = categorise(_categories, default=2)
+        category = categorise(_categories, default=default_value)
 
-    dummy_data_file = fixtures_path / "dummy-data-with-categories.csv"
+    rows = zip(
+        ["patient_id", "11", "22", "33"],
+        ["event_date", "2021-01-01", "2021-01-01", "2021-01-01"],
+        ["category", 1, default_value, "foo"],
+    )
+
+    dummy_data_file = Path(tmpdir) / "dummy-data.csv"
+    write_rows_to_csv(rows, dummy_data_file)
     with pytest.raises(
         DummyDataValidationError, match="Invalid value `'foo'` for category"
     ):
