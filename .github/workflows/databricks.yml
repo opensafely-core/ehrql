@@ -23,7 +23,7 @@ jobs:
         run: |
             echo <<< EOF > ~/.databrickscfg
             [DEFAULT]
-            host = https://community.cloud.databricks.com:443
+            host = https://drtl-theta.cloud.databricks.com
             username = simon.davy@thedatalab.org
             password = ${{ secrets.DATABRICKS_PASSWORD }}
             jobs-api-version = 2.0
