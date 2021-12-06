@@ -1,4 +1,4 @@
-from ..dsl import EventFrame
+from ..dsl import CodeColumn, DateColumn, EventFrame, IdColumn
 from ..query_language import Table
 from . import types
 from .constraints import FirstOfMonthConstraint, NotNullConstraint, UniqueConstraint
@@ -12,8 +12,9 @@ class ClinicalEvents(EventFrame):
     Ideally a record of all relevant clinical events with their code and date.
     """
 
-    code = "code"
-    date = "date"
+    patient_id = IdColumn("patient_id")
+    code = CodeColumn("code")
+    date = DateColumn("date")
 
     def __init__(self):
         super().__init__(Table("clinical_events"))
@@ -27,9 +28,9 @@ class PracticeRegistrations(EventFrame):
     date, or the latest registered practice.
     """
 
-    patient_id = "patient_id"
-    date_start = "date_start"
-    date_end = "date_end"
+    patient_id = IdColumn("patient_id")
+    date_start = DateColumn("date_start")
+    date_end = DateColumn("date_end")
 
     def __init__(self):
         super().__init__(Table("practice_registrations"))

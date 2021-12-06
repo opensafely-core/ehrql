@@ -46,7 +46,7 @@ def test_filter(cohort_with_population):
     cohort = cohort_with_population
     events = tables.clinical_events
     cohort.code = (
-        events.filter(events.date, greater_than="2021-01-01")
+        events.filter(events.date > "2021-01-01")
         .sort_by(events.date)
         .first_for_patient()
         .select_column(events.code)
@@ -90,8 +90,8 @@ def test_multiple_filters(cohort_with_population):
     cohort = cohort_with_population
     events = tables.clinical_events
     cohort.code = (
-        events.filter(events.date, greater_than="2021-01-01")
-        .filter(events.date, less_than="2021-10-10")
+        events.filter(events.date > "2021-01-01")
+        .filter(events.date < "2021-10-10")
         .sort_by(events.date)
         .first_for_patient()
         .select_column(events.code)
@@ -118,7 +118,9 @@ def test_exists_aggregation(cohort_with_population):
 
     cohort = cohort_with_population
     events = tables.clinical_events
-    cohort.has_events = events.filter(events.code, not_equals=None).exists_for_patient()
+    cohort.has_events = events.filter(
+        events.code != None  # noqa: E711
+    ).exists_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 
@@ -148,7 +150,7 @@ def test_set_population_variable_must_be_boolean():
         ("code", "str"),
         (tables.clinical_events, "ClinicalEvents"),
         (
-            tables.clinical_events.filter("date", greater_than="2021-01-01"),
+            tables.clinical_events.filter(tables.clinical_events.date > "2021-01-01"),
             "EventFrame",
         ),
     ],

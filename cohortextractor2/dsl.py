@@ -55,7 +55,7 @@ for end users.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Union
+from typing import TypeVar, Union, cast
 
 from . import codelistlib
 from .query_language import (
@@ -108,30 +108,11 @@ class EventFrame:
     def __init__(self, qm_table: BaseTable):
         self.qm_table = qm_table
 
-    def filter(  # noqa: A003
-        self,
-        column_or_expr: str | CodelistFilterExpr,
-        **kwargs: str | Codelist,
-    ) -> EventFrame:
-        """Return a new EventFrame with given filter.
+    def filter(self, predicate: Predicate) -> EventFrame:  # noqa: A003
+        """Return a new EventFrame with given filter."""
+        return EventFrame(predicate.apply_to(self.qm_table))
 
-        Note that while we are building the DSL, this method takes either an expression
-        (at the moment, just a CodelistFilterExpr is supported) or it takes arguments
-        that are passed directly to the corresponding QM filter method.
-
-        Once we fully support filtering with expressions, we can rename column_or_expr
-        to expr, and drop kwargs.
-        """
-
-        if isinstance(column_or_expr, CodelistFilterExpr):
-            assert not kwargs
-            column = column_or_expr.column
-            kwargs = {"is_in": column_or_expr.codelist}
-        else:
-            column = column_or_expr
-        return EventFrame(self.qm_table.filter(column, **kwargs))
-
-    def sort_by(self, *columns: str) -> SortedEventFrame:
+    def sort_by(self, *columns: Column) -> SortedEventFrame:
         """Return a SortedEventFrame with given sort column."""
 
         return SortedEventFrame(self.qm_table, *columns)
@@ -150,19 +131,26 @@ class EventFrame:
 class SortedEventFrame:
     """Represents an EventFrame that has been sorted."""
 
-    def __init__(self, qm_table: BaseTable, *sort_columns: str):
+    def __init__(self, qm_table: BaseTable, *sort_columns: Column):
         self.qm_table = qm_table
         self.sort_columns = sort_columns
 
     def first_for_patient(self) -> AggregatedEventFrame:
         """Return a AggregatedEventFrame with the first event for each patient."""
 
-        return AggregatedEventFrame(row=self.qm_table.first_by(*self.sort_columns))
+        return AggregatedEventFrame(
+            row=self.qm_table.first_by(*self._sort_column_names())
+        )
 
     def last_for_patient(self) -> AggregatedEventFrame:
         """Return a AggregatedEventFrame with the last event for each patient."""
 
-        return AggregatedEventFrame(row=self.qm_table.last_by(*self.sort_columns))
+        return AggregatedEventFrame(
+            row=self.qm_table.last_by(*self._sort_column_names())
+        )
+
+    def _sort_column_names(self):
+        return [c.name for c in self.sort_columns]
 
 
 class AggregatedEventFrame:
@@ -173,10 +161,10 @@ class AggregatedEventFrame:
         """Return a new AggregatedEventFrame with given filter."""
         # TODO
 
-    def select_column(self, column: str) -> PatientSeries:
+    def select_column(self, column: Column) -> PatientSeries:
         """Return a PatientSeries containing given column."""
 
-        return PatientSeries(self.row.get(column))
+        return PatientSeries(self.row.get(column.name))
 
 
 class PatientSeries:
@@ -237,13 +225,62 @@ class PatientSeries:
         return hash(repr(self.value))
 
 
+@dataclass
+class Column():
+    name: str
+
+
+class DateColumn(Column):
+    def __gt__(self, other: str) -> Predicate:
+        return Predicate(self, "greater_than", other)
+
+    def __lt__(self, other: str) -> Predicate:
+        return Predicate(self, "less_than", other)
+
+
+class CodeColumn(Column):
+    def __ne__(self, other: Codelist | None) -> Predicate:  # type: ignore[override]  # already defined on object
+        return Predicate(self, "not_equals", other)
+
+
+class BoolColumn(Column):
+    def __eq__(self, other: bool) -> Predicate:  # type: ignore[override]  # already defined on object
+        return Predicate(self, "equals", other)
+
+
+class IdColumn(Column):
+    ...
+
+
+class IntColumn(Column):
+    ...
+
+
+class Predicate:
+    def __init__(
+        self, column: Column, operator: str, other: str | bool | Codelist | None
+    ) -> None:
+        self._column = column
+        self._operator = operator
+        self._other = other
+
+    def apply_to(self, table: BaseTable) -> BaseTable:
+        return cast(
+            BaseTable, table.filter(self._column.name, **{self._operator: self._other})
+        )
+
+
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
     comparator_value = Comparator(lhs=patient_series.value, operator="__ne__", rhs=None)
     return PatientSeries(value=comparator_value)
 
 
+Expression = Union[str, int, float, bool]
+E = TypeVar("E", bound=Expression)
+
+
 def categorise(
-    mapping: dict[Expression, PatientSeries], default: Expression | None = None
+    mapping: dict[E, PatientSeries], default: E | None = None
 ) -> PatientSeries:
     """
     Represents a switch statement.
@@ -281,7 +318,7 @@ def categorise(
 
 
 def _validate_category_mapping(
-    mapping: dict[Expression, PatientSeries], default: Expression | None
+    mapping: dict[E, PatientSeries], default: E | None
 ) -> None:
     """
     Ensure that a category mapping is valid, by checking that:
@@ -350,15 +387,8 @@ class codelist:
     def __init__(self, codes: list[str], system: str):
         self.codelist = codelistlib.codelist(codes, system)
 
-    def contains(self, column: str) -> CodelistFilterExpr:
-        return CodelistFilterExpr(self.codelist, column)
+    def contains(self, column: Column) -> Predicate:
+        return Predicate(column, "is_in", self.codelist)
 
 
-@dataclass
-class CodelistFilterExpr:
-    codelist: Codelist
-    column: str
-
-
-ValueExpression = Union[PatientSeries, Comparator]
-Expression = Union[str, int, float, bool]
+ValueExpression = Union[PatientSeries, Comparator, str, int]
