@@ -93,7 +93,7 @@ class EventFrame:
 
     def filter(  # noqa: A003
         self,
-        column_or_expr: str | CodelistFilterExpr,
+        column_or_expr: Column | CodelistFilterExpr,
         **kwargs: str | Codelist | None | bool,
     ) -> EventFrame:
         """Return a new EventFrame with given filter.
@@ -112,9 +112,9 @@ class EventFrame:
             kwargs = {"is_in": column_or_expr.codelist}
         else:
             column = column_or_expr
-        return EventFrame(self.qm_table.filter(column, **kwargs))
+        return EventFrame(self.qm_table.filter(column.name, **kwargs))
 
-    def sort_by(self, *columns: str) -> SortedEventFrame:
+    def sort_by(self, *columns: Column) -> SortedEventFrame:
         """Return a SortedEventFrame with given sort column."""
 
         return SortedEventFrame(self.qm_table, *columns)
@@ -133,19 +133,22 @@ class EventFrame:
 class SortedEventFrame:
     """Represents an EventFrame that has been sorted."""
 
-    def __init__(self, qm_table: BaseTable, *sort_columns: str):
+    def __init__(self, qm_table: BaseTable, *sort_columns: Column):
         self.qm_table = qm_table
         self.sort_columns = sort_columns
 
     def first_for_patient(self) -> PatientFrame:
         """Return a PatientFrame with the first event for each patient."""
 
-        return PatientFrame(row=self.qm_table.first_by(*self.sort_columns))
+        return PatientFrame(row=self.qm_table.first_by(*self._sort_column_names()))
 
     def last_for_patient(self) -> PatientFrame:
         """Return a PatientFrame with the last event for each patient."""
 
-        return PatientFrame(row=self.qm_table.last_by(*self.sort_columns))
+        return PatientFrame(row=self.qm_table.last_by(*self._sort_column_names()))
+
+    def _sort_column_names(self):
+        return [c.name for c in self.sort_columns]
 
 
 class PatientFrame:
@@ -154,10 +157,10 @@ class PatientFrame:
     def __init__(self, row: Row):
         self.row = row
 
-    def select_column(self, column: str) -> PatientSeries:
+    def select_column(self, column: Column) -> PatientSeries:
         """Return a PatientSeries containing given column."""
 
-        return PatientSeries(self.row.get(column))
+        return PatientSeries(self.row.get(column.name))
 
 
 class PatientSeries:
@@ -216,6 +219,11 @@ class PatientSeries:
 
     def __hash__(self) -> int:
         return hash(repr(self.value))
+
+
+@dataclass
+class Column:
+    name: str
 
 
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
@@ -331,14 +339,14 @@ class codelist:
     def __init__(self, codes: list[str], system: str):
         self.codelist = codelistlib.codelist(codes, system)
 
-    def contains(self, column: str) -> CodelistFilterExpr:
+    def contains(self, column: Column) -> CodelistFilterExpr:
         return CodelistFilterExpr(self.codelist, column)
 
 
 @dataclass
 class CodelistFilterExpr:
     codelist: Codelist
-    column: str
+    column: Column
 
 
 ValueExpression = Union[PatientSeries, Comparator, str, int]

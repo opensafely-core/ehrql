@@ -148,7 +148,9 @@ def test_set_population_variable_must_be_boolean():
         ("code", "str"),
         (tables.clinical_events, "ClinicalEvents"),
         (
-            tables.clinical_events.filter("date", greater_than="2021-01-01"),
+            tables.clinical_events.filter(
+                tables.clinical_events.date, greater_than="2021-01-01"
+            ),
             "EventFrame",
         ),
     ],
