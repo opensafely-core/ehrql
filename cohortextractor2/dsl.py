@@ -94,7 +94,7 @@ class EventFrame:
     def filter(  # noqa: A003
         self,
         column_or_expr: str | CodelistFilterExpr,
-        **kwargs: str | Codelist,
+        **kwargs: str | Codelist | None | bool,
     ) -> EventFrame:
         """Return a new EventFrame with given filter.
 
@@ -341,5 +341,5 @@ class CodelistFilterExpr:
     column: str
 
 
-ValueExpression = Union[PatientSeries, Comparator]
+ValueExpression = Union[PatientSeries, Comparator, str, int]
 Expression = Union[str, int, float, bool]
