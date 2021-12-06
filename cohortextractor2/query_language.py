@@ -401,3 +401,19 @@ class ValueFromFunction(Value):
 
 class DateDifferenceInYears(ValueFromFunction):
     pass
+
+
+class DateDiffValue(ValueFromFunction):
+    pass
+
+
+class IntDiffValue(ValueFromFunction):
+    pass
+
+
+class IntLtValue(ValueFromFunction):
+    pass
+
+
+class PuntedValue(ValueFromFunction):
+    pass

@@ -318,8 +318,7 @@ def test_categorise_invert_truthiness_values(cohort_with_population):
         .last_for_patient()
         .select_column(events.code)
     )
-    codes_categories = {"yes": code, "no": ~code}
-    cohort.has_code = new_dsl_categorise(codes_categories, default="na")
+    cohort.has_code = new_dsl_categorise({"yes": code, "no": ~code}, default="na")
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
@@ -442,4 +441,4 @@ def test_cannot_compare_comparators():
     count_3 = codes == 3
     assert isinstance(count_3.value, Comparator)
     with pytest.raises(RuntimeError, match="Invalid operation"):
-        _ = (codes == 3) > 2
+        _ = (codes == 3) > 2  # type: ignore[operator]  # deliberate type error

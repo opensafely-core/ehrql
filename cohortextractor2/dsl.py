@@ -55,13 +55,17 @@ for end users.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TypeVar, Union, cast
+from typing import Generic, Mapping, TypeVar, Union, cast, overload
 
 from . import codelistlib
 from .query_language import (
     BaseTable,
     Codelist,
     Comparator,
+    DateDiffValue,
+    IntDiffValue,
+    IntLtValue,
+    PuntedValue,
     Row,
     Value,
     ValueFromAggregate,
@@ -112,26 +116,26 @@ class EventFrame:
         """Return a new EventFrame with given filter."""
         return EventFrame(predicate.apply_to(self.qm_table))
 
-    def sort_by(self, *columns: Column) -> SortedEventFrame:
+    def sort_by(self, *columns: Column[S]) -> SortedEventFrame:
         """Return a SortedEventFrame with given sort column."""
 
         return SortedEventFrame(self.qm_table, *columns)
 
-    def count_for_patient(self) -> PatientSeries:
+    def count_for_patient(self) -> IntSeries:
         """Return a PatientSeries with count_for_patient of matching events per patient."""
 
-        return PatientSeries(self.qm_table.count())
+        return IntSeries(self.qm_table.count())
 
-    def exists_for_patient(self) -> PatientSeries:
+    def exists_for_patient(self) -> BoolSeries:
         """Return a PatientSeries indicating whether each patient has a matching event."""
 
-        return PatientSeries(self.qm_table.exists())
+        return BoolSeries(self.qm_table.exists())
 
 
 class SortedEventFrame:
     """Represents an EventFrame that has been sorted."""
 
-    def __init__(self, qm_table: BaseTable, *sort_columns: Column):
+    def __init__(self, qm_table: BaseTable, *sort_columns: Column[S]):
         self.qm_table = qm_table
         self.sort_columns = sort_columns
 
@@ -161,10 +165,10 @@ class AggregatedEventFrame:
         """Return a new AggregatedEventFrame with given filter."""
         # TODO
 
-    def select_column(self, column: Column) -> PatientSeries:
+    def select_column(self, column: Column[S]) -> S:
         """Return a PatientSeries containing given column."""
 
-        return PatientSeries(self.row.get(column.name))
+        return column.series_type(self.row.get(column.name))
 
 
 class PatientSeries:
@@ -180,44 +184,6 @@ class PatientSeries:
     def _is_comparator(self) -> bool:
         return isinstance(self.value, Comparator)
 
-    def __gt__(self, other: ValueExpression) -> PatientSeries:
-        return PatientSeries(value=self.value > other)
-
-    def __ge__(self, other: ValueExpression) -> PatientSeries:
-        return PatientSeries(value=self.value >= other)
-
-    def __lt__(self, other: ValueExpression) -> PatientSeries:
-        return PatientSeries(value=self.value < other)
-
-    def __le__(self, other: ValueExpression) -> PatientSeries:
-        return PatientSeries(value=self.value <= other)
-
-    def __eq__(self, other: ValueExpression) -> PatientSeries:  # type: ignore[override]
-        # All python objects have __eq__ and __ne__ defined, so overriding these method s
-        # involves overriding them on a superclass (`object`), which results in
-        # a typing error as it violates the violates the Liskov substitution principle
-        # https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
-        # We are deliberately overloading the operators here, hence the ignore
-        return PatientSeries(value=self.value == other)
-
-    def __ne__(self, other: ValueExpression) -> PatientSeries:  # type: ignore[override]
-        return PatientSeries(value=self.value != other)
-
-    def __and__(self, other: PatientSeries) -> PatientSeries:
-        return PatientSeries(value=self.value & other.value)
-
-    def __or__(self, other: PatientSeries) -> PatientSeries:
-        return PatientSeries(value=self.value | other.value)
-
-    def __invert__(self) -> PatientSeries:
-        if self._is_comparator():
-            comparator_value = ~self.value
-        else:
-            comparator_value = Comparator(
-                lhs=self.value, operator="__ne__", rhs=None, negated=True
-            )
-        return PatientSeries(value=comparator_value)
-
     def __repr__(self) -> str:
         return f"PatientSeries(value={self.value})"
 
@@ -225,12 +191,132 @@ class PatientSeries:
         return hash(repr(self.value))
 
 
+class BoolSeries(PatientSeries):
+    def __eq__(self, other: ValueExpression) -> BoolSeries:  # type: ignore[override]
+        # All python objects have __eq__ and __ne__ defined, so overriding these method s
+        # involves overriding them on a superclass (`object`), which results in
+        # a typing error as it violates the violates the Liskov substitution principle
+        # https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+        # We are deliberately overloading the operators here, hence the ignore
+        return BoolSeries(value=self.value == other)
+
+    def __ne__(self, other: ValueExpression) -> BoolSeries:  # type: ignore[override]
+        return BoolSeries(value=self.value != other)
+
+    @overload
+    def __and__(self, other: BoolSeries) -> BoolSeries:
+        ...
+
+    @overload
+    def __and__(self, other: bool) -> BoolSeries:
+        ...
+
+    def __and__(self, other: BoolSeries | bool) -> BoolSeries:
+        if isinstance(other, BoolSeries):
+            return BoolSeries(value=self.value & other.value)
+        if isinstance(other, bool):
+            return BoolSeries(PuntedValue(self.value, other))
+
+    def __or__(self, other: BoolSeries) -> BoolSeries:
+        return BoolSeries(value=self.value | other.value)
+
+    def __invert__(self) -> BoolSeries:
+        if self._is_comparator():
+            comparator_value = ~self.value
+        else:
+            comparator_value = Comparator(
+                lhs=self.value, operator="__ne__", rhs=None, negated=True
+            )
+        return BoolSeries(value=comparator_value)
+
+
+class DateSeries(PatientSeries):
+    def __gt__(self, other: ValueExpression) -> BoolSeries:
+        return BoolSeries(value=self.value > other)
+
+    def __ge__(self, other: ValueExpression) -> BoolSeries:
+        return BoolSeries(value=self.value >= other)
+
+    def __lt__(self, other: ValueExpression) -> BoolSeries:
+        return BoolSeries(value=self.value < other)
+
+    def __le__(self, other: ValueExpression) -> BoolSeries:
+        return BoolSeries(value=self.value <= other)
+
+    def __eq__(self, other: ValueExpression) -> BoolSeries:  # type: ignore[override]
+        # All python objects have __eq__ and __ne__ defined, so overriding these method s
+        # involves overriding them on a superclass (`object`), which results in
+        # a typing error as it violates the violates the Liskov substitution principle
+        # https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+        # We are deliberately overloading the operators here, hence the ignore
+        return BoolSeries(value=self.value == other)
+
+    def __ne__(self, other: ValueExpression) -> BoolSeries:  # type: ignore[override]
+        return BoolSeries(value=self.value != other)
+
+    def __sub__(self, other: DateSeries) -> DateDiffSeries:
+        return DateDiffSeries(DateDiffValue(self.value, other.value))
+
+
+class DateDiffSeries(PatientSeries):
+    ...
+
+
+class CodeSeries(PatientSeries):
+    def __eq__(self, other: str) -> BoolSeries:  # type: ignore[override]
+        return BoolSeries(PuntedValue(self.value, other))
+
+    def __ne__(self, other: str | None) -> BoolSeries:  # type: ignore[override]
+        return BoolSeries(PuntedValue(self.value, other))
+
+    def __and__(self, other: BoolSeries) -> BoolSeries:
+        return BoolSeries(value=not_null_patient_series(self).value & other.value)
+
+    def __invert__(self) -> BoolSeries:
+        return BoolSeries(
+            value=(
+                Comparator(lhs=self.value, operator="__ne__", rhs=None, negated=True)
+            )
+        )
+
+
+class IdSeries(PatientSeries):
+    ...
+
+
+class IntSeries(PatientSeries):
+    def __sub__(self, other: int) -> IntSeries:
+        return IntSeries(IntDiffValue(self.value, other))
+
+    def __lt__(self, other: int) -> BoolSeries:
+        return BoolSeries(IntLtValue(self.value, other))
+
+    def __le__(self, other: int) -> BoolSeries:
+        return BoolSeries(PuntedValue(self.value, other))
+
+    def __gt__(self, other: int) -> BoolSeries:
+        return BoolSeries(PuntedValue(self.value, other))
+
+    def __ge__(self, other: int) -> BoolSeries:
+        return BoolSeries(PuntedValue(self.value, other))
+
+    def __eq__(self, other: int) -> BoolSeries:  # type: ignore[override]
+        return BoolSeries(PuntedValue(self.value, other))
+
+
+S = TypeVar("S", bound=PatientSeries)
+
+
 @dataclass
-class Column():
+class Column(Generic[S]):
     name: str
+    series_type: type[S]
 
 
-class DateColumn(Column):
+class DateColumn(Column[DateSeries]):
+    def __init__(self, name):
+        super().__init__(name, DateSeries)
+
     def __gt__(self, other: str) -> Predicate:
         return Predicate(self, "greater_than", other)
 
@@ -238,27 +324,35 @@ class DateColumn(Column):
         return Predicate(self, "less_than", other)
 
 
-class CodeColumn(Column):
+class CodeColumn(Column[CodeSeries]):
+    def __init__(self, name):
+        super().__init__(name, CodeSeries)
+
     def __ne__(self, other: Codelist | None) -> Predicate:  # type: ignore[override]  # already defined on object
         return Predicate(self, "not_equals", other)
 
 
-class BoolColumn(Column):
+class BoolColumn(Column[BoolSeries]):
+    def __init__(self, name):
+        super().__init__(name, BoolSeries)
+
     def __eq__(self, other: bool) -> Predicate:  # type: ignore[override]  # already defined on object
         return Predicate(self, "equals", other)
 
 
-class IdColumn(Column):
-    ...
+class IdColumn(Column[IdSeries]):
+    def __init__(self, name):
+        super().__init__(name, IdSeries)
 
 
-class IntColumn(Column):
-    ...
+class IntColumn(Column[IntSeries]):
+    def __init__(self, name):
+        super().__init__(name, IntSeries)
 
 
 class Predicate:
     def __init__(
-        self, column: Column, operator: str, other: str | bool | Codelist | None
+        self, column: Column[S], operator: str, other: str | bool | Codelist | None
     ) -> None:
         self._column = column
         self._operator = operator
@@ -280,7 +374,7 @@ E = TypeVar("E", bound=Expression)
 
 
 def categorise(
-    mapping: dict[E, PatientSeries], default: E | None = None
+    mapping: Mapping[E, BoolSeries | CodeSeries], default: E | None = None
 ) -> PatientSeries:
     """
     Represents a switch statement.
@@ -318,7 +412,7 @@ def categorise(
 
 
 def _validate_category_mapping(
-    mapping: dict[E, PatientSeries], default: E | None
+    mapping: Mapping[E, BoolSeries | CodeSeries], default: E | None
 ) -> None:
     """
     Ensure that a category mapping is valid, by checking that:
@@ -387,7 +481,7 @@ class codelist:
     def __init__(self, codes: list[str], system: str):
         self.codelist = codelistlib.codelist(codes, system)
 
-    def contains(self, column: Column) -> Predicate:
+    def contains(self, column: CodeColumn) -> Predicate:
         return Predicate(column, "is_in", self.codelist)
 
 

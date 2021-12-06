@@ -5,7 +5,7 @@ import pytest
 from cohortextractor2.concepts import tables
 from cohortextractor2.definition import register
 from cohortextractor2.definition.base import cohort_registry
-from cohortextractor2.dsl import Cohort, codelist
+from cohortextractor2.dsl import Cohort, DateDiffSeries, codelist
 from cohortextractor2.query_language import table
 from cohortextractor2.query_utils import get_column_definitions
 
@@ -74,6 +74,26 @@ def test_filter_with_codelist(cohort_with_population):
     )
 
     assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def test_date_diffs(cohort_with_population):
+    events = tables.clinical_events
+    date1 = (
+        events.filter(codelist(["Code1"], "ctv3").contains(events.code))
+        .sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.date)
+    )
+
+    date2 = (
+        events.filter(codelist(["Code2"], "ctv3").contains(events.code))
+        .sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.date)
+    )
+
+    date_diff = date2 - date1
+    assert isinstance(date_diff, DateDiffSeries)
 
 
 def test_multiple_filters(cohort_with_population):
