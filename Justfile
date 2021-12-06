@@ -93,7 +93,6 @@ check: devenv
     $BIN/black --check .
     $BIN/isort --check-only --diff .
     $BIN/flake8
-    $BIN/interrogate cohortextractor2
     $BIN/pyupgrade --py39-plus --keep-percent-format \
         $(find cohortextractor2 -name "*.py" -type f) \
         $(find tests -name "*.py" -type f)
