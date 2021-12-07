@@ -106,6 +106,7 @@ class EventFrame:
         to expr, and drop kwargs.
         """
 
+        column: Column
         if isinstance(column_or_expr, CodelistFilterExpr):
             assert not kwargs
             column = column_or_expr.column
@@ -226,6 +227,26 @@ class Column:
     name: str
 
 
+class IdColumn(Column):
+    ...
+
+
+class BoolColumn(Column):
+    ...
+
+
+class DateColumn(Column):
+    ...
+
+
+class CodeColumn(Column):
+    ...
+
+
+class IntColumn(Column):
+    ...
+
+
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
     comparator_value = Comparator(lhs=patient_series.value, operator="__ne__", rhs=None)
     return PatientSeries(value=comparator_value)
@@ -339,14 +360,14 @@ class codelist:
     def __init__(self, codes: list[str], system: str):
         self.codelist = codelistlib.codelist(codes, system)
 
-    def contains(self, column: Column) -> CodelistFilterExpr:
+    def contains(self, column: CodeColumn) -> CodelistFilterExpr:
         return CodelistFilterExpr(self.codelist, column)
 
 
 @dataclass
 class CodelistFilterExpr:
     codelist: Codelist
-    column: Column
+    column: CodeColumn
 
 
 ValueExpression = Union[PatientSeries, Comparator, str, int]

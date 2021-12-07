@@ -8,7 +8,7 @@ import re
 import pytest
 
 from cohortextractor2.concepts import tables
-from cohortextractor2.dsl import Column, EventFrame
+from cohortextractor2.dsl import BoolColumn, EventFrame, IdColumn, IntColumn
 from cohortextractor2.dsl import categorise as new_dsl_categorise
 from cohortextractor2.query_language import Comparator, Table
 from cohortextractor2.query_language import categorise as old_dsl_categorise
@@ -19,8 +19,8 @@ from .test_dsl import assert_cohorts_equivalent
 
 
 class MockPatientsTable(EventFrame):
-    patient_id = Column("patient_id")
-    height = Column("height")
+    patient_id = IdColumn("patient_id")
+    height = IntColumn("height")
 
     def __init__(self):
         super().__init__(Table("patients"))
@@ -30,8 +30,8 @@ mock_patients = MockPatientsTable()
 
 
 class MockPositiveTestsTable(EventFrame):
-    patient_id = Column("patient_id")
-    result = Column("result")
+    patient_id = IdColumn("patient_id")
+    result = BoolColumn("result")
 
     def __init__(self):
         super().__init__(Table("positive_tests"))
