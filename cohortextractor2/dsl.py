@@ -16,16 +16,6 @@ Methods are designed so that users can only perform actions that are semanticall
 meaningful.  This means that the order of operations is restricted.  In a terrible ASCII
 railway diagram:
 
-
-             +---+
-             |   V
-      filter |  PatientFrame
-             |   |   |
-             +---+   | select_column
-                     V
-                PatientSeries
-
-
              +---+
              |   V
       filter |  EventFrame -----------------------+
@@ -34,14 +24,13 @@ railway diagram:
                      V                            |
              SortedEventFrame                     |
                      |                            |
-        +---+        | (first/last)_for_patient   | (count/exists)_for_patient
-        |   V        V                            |
- filter |  AggregatedEventFrame                   |
-        |   |        |                            |
-        +---+        | select_column              |
+                     | (first/last)_for_patient   | (count/exists)_for_patient
+                     V                            |
+                PatientFrame                      |
+                     |                            |
+                     | select_column              |
                      V                            |
                PatientSeries <--------------------+
-
 
 To support providing helpful error messages, we can implement __getattr__ on each class.
 This will intercept any lookup of a missing attribute, so that if eg a user tries to
@@ -96,12 +85,6 @@ class Cohort:
         super().__setattr__(name, variable)
 
 
-class PatientFrame:
-    """Represents an unsorted collection of records, with one row per patient."""
-
-    # TODO
-
-
 class EventFrame:
     """Represents an unsorted collection of records, with multiple rows per patient."""
 
@@ -154,24 +137,22 @@ class SortedEventFrame:
         self.qm_table = qm_table
         self.sort_columns = sort_columns
 
-    def first_for_patient(self) -> AggregatedEventFrame:
-        """Return a AggregatedEventFrame with the first event for each patient."""
+    def first_for_patient(self) -> PatientFrame:
+        """Return a PatientFrame with the first event for each patient."""
 
-        return AggregatedEventFrame(row=self.qm_table.first_by(*self.sort_columns))
+        return PatientFrame(row=self.qm_table.first_by(*self.sort_columns))
 
-    def last_for_patient(self) -> AggregatedEventFrame:
-        """Return a AggregatedEventFrame with the last event for each patient."""
+    def last_for_patient(self) -> PatientFrame:
+        """Return a PatientFrame with the last event for each patient."""
 
-        return AggregatedEventFrame(row=self.qm_table.last_by(*self.sort_columns))
+        return PatientFrame(row=self.qm_table.last_by(*self.sort_columns))
 
 
-class AggregatedEventFrame:
+class PatientFrame:
+    """Represents an unsorted collection of records, with one row per patient."""
+
     def __init__(self, row: Row):
         self.row = row
-
-    def filter(self, column: str, **kwargs: str) -> AggregatedEventFrame:  # noqa: A003
-        """Return a new AggregatedEventFrame with given filter."""
-        # TODO
 
     def select_column(self, column: str) -> PatientSeries:
         """Return a PatientSeries containing given column."""
