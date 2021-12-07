@@ -46,7 +46,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Union
 
-from . import codelistlib
 from .query_language import (
     BaseTable,
     Codelist,
@@ -246,6 +245,9 @@ class DateColumn(Column):
 
 
 class CodeColumn(Column):
+    def is_in(self, codelist: Codelist) -> Predicate:
+        return Predicate(self, "is_in", codelist)
+
     def __ne__(self, other: None) -> Predicate:  # type: ignore[override]  # Deliberately inconsistent with object
         return Predicate(self, "not_equals", other)
 
@@ -359,16 +361,6 @@ def raise_category_errors(errors):
         raise next_category_error
     finally:
         raise_category_errors(errors)
-
-
-class codelist:
-    """A wrapper around Codelist, with a .contains method for use with .filter()."""
-
-    def __init__(self, codes: list[str], system: str):
-        self.codelist = codelistlib.codelist(codes, system)
-
-    def contains(self, column: CodeColumn) -> Predicate:
-        return Predicate(column, "is_in", self.codelist)
 
 
 ValueExpression = Union[PatientSeries, Comparator, str, int]

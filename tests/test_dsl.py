@@ -2,10 +2,11 @@ import re
 
 import pytest
 
+from cohortextractor2 import codelist
 from cohortextractor2.concepts import tables
 from cohortextractor2.definition import register
 from cohortextractor2.definition.base import cohort_registry
-from cohortextractor2.dsl import Cohort, codelist
+from cohortextractor2.dsl import Cohort
 from cohortextractor2.query_language import table
 from cohortextractor2.query_utils import get_column_definitions
 
@@ -67,7 +68,7 @@ def test_filter_with_codelist(cohort_with_population):
     cohort = cohort_with_population
     events = tables.clinical_events
     cohort.code = (
-        events.filter(codelist(["Code1"], "ctv3").contains(events.code))
+        events.filter(events.code.is_in(codelist(["Code1"], "ctv3")))
         .sort_by(events.date)
         .first_for_patient()
         .select_column(events.code)

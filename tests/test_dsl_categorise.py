@@ -7,10 +7,10 @@ import re
 
 import pytest
 
+from cohortextractor2 import codelist
 from cohortextractor2.concepts import tables
 from cohortextractor2.dsl import BoolColumn, EventFrame, IdColumn, IntColumn
 from cohortextractor2.dsl import categorise as new_dsl_categorise
-from cohortextractor2.dsl import codelist
 from cohortextractor2.query_language import Comparator, Table
 from cohortextractor2.query_language import categorise as old_dsl_categorise
 from cohortextractor2.query_language import table
@@ -212,7 +212,7 @@ def test_categorise_on_truthiness(cohort_with_population):
     cohort = cohort_with_population
     events = tables.clinical_events
     code = events.filter(
-        codelist(["abc"], "ctv3").contains(events.code)
+        events.code.is_in(codelist(["abc"], "ctv3"))
     ).exists_for_patient()
     codes_categories = {"yes": code}
     cohort.abc = new_dsl_categorise(codes_categories, default="na")
@@ -235,7 +235,7 @@ def test_categorise_on_truthiness_from_filter(cohort_with_population):
     cohort = cohort_with_population
     events = tables.clinical_events
     code = (
-        events.filter(codelist(["abc", "def"], "ctv3").contains(events.code))
+        events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
         .last_for_patient()
         .select_column(events.code)
@@ -260,7 +260,7 @@ def test_categorise_multiple_truthiness_values(cohort_with_population):
     cohort = cohort_with_population
     events = tables.clinical_events
     code = (
-        events.filter(codelist(["abc", "def"], "ctv3").contains(events.code))
+        events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
         .last_for_patient()
         .select_column(events.code)
@@ -313,7 +313,7 @@ def test_categorise_invert_truthiness_values(cohort_with_population):
     cohort = cohort_with_population
     events = tables.clinical_events
     code = (
-        events.filter(codelist(["abc", "def"], "ctv3").contains(events.code))
+        events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
         .last_for_patient()
         .select_column(events.code)
@@ -338,7 +338,7 @@ def test_categorise_invert_combined_values(cohort_with_population):
     cohort = cohort_with_population
     events = tables.clinical_events
     code = (
-        events.filter(codelist(["abc", "def"], "ctv3").contains(events.code))
+        events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
         .last_for_patient()
         .select_column(events.code)
@@ -365,7 +365,7 @@ def test_categorise_double_invert(cohort_with_population):
     cohort = cohort_with_population
     events = tables.clinical_events
     code = (
-        events.filter(codelist(["abc", "def"], "ctv3").contains(events.code))
+        events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
         .last_for_patient()
         .select_column(events.code)
