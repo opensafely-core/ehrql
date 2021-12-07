@@ -407,3 +407,7 @@ class DateDifferenceInYears(ValueFromFunction):
 
 class RoundToFirstOfMonth(ValueFromFunction):
     pass
+
+
+class RoundToFirstOfYear(ValueFromFunction):
+    pass

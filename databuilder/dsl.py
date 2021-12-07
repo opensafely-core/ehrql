@@ -53,6 +53,7 @@ from .query_language import (
     Codelist,
     Comparator,
     RoundToFirstOfMonth,
+    RoundToFirstOfYear,
     Row,
     Value,
     ValueFromAggregate,
@@ -283,6 +284,9 @@ class PatientSeries:
 
     def round_to_first_of_month(self):
         return PatientSeries(RoundToFirstOfMonth(self.value))
+
+    def round_to_first_of_year(self):
+        return PatientSeries(RoundToFirstOfYear(self.value))
 
 
 class Predicate:

@@ -1230,6 +1230,39 @@ def test_round_to_first_of_month(engine, cohort_with_population):
     ]
 
 
+def test_round_to_first_of_year(engine, cohort_with_population):
+    input_data = [
+        patient(1, ctv3_event("abc", "2020-10-10")),
+        patient(2, ctv3_event("abc", "2018-02-02")),
+        patient(3, ctv3_event("abc", "2018-01-01")),
+        patient(4, ctv3_event("abc", "2018-12-31")),
+        patient(5, ctv3_event("abc", "2020-02-29")),
+        patient(6, ctv3_event("abc", "2020-03-05")),
+        patient(7, ctv3_event("abc", "2018-03-17")),
+    ]
+    engine.setup(input_data)
+
+    cohort = cohort_with_population
+    events = tables.clinical_events
+    cohort.first_event_date = (
+        events.sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.date)
+        .round_to_first_of_year()
+    )
+
+    result = engine.extract(cohort)
+    assert result == [
+        {"patient_id": 1, "first_event_date": date(2020, 1, 1)},
+        {"patient_id": 2, "first_event_date": date(2018, 1, 1)},
+        {"patient_id": 3, "first_event_date": date(2018, 1, 1)},
+        {"patient_id": 4, "first_event_date": date(2018, 1, 1)},
+        {"patient_id": 5, "first_event_date": date(2020, 1, 1)},
+        {"patient_id": 6, "first_event_date": date(2020, 1, 1)},
+        {"patient_id": 7, "first_event_date": date(2018, 1, 1)},
+    ]
+
+
 def test_fetching_results_using_temporary_database(engine):
     if engine.name == "spark":
         pytest.skip("Spark does not support 'fetch using temporary database'")

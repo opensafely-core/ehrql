@@ -78,3 +78,13 @@ class SparkQueryEngine(BaseSQLQueryEngine):
             date,
         )
         return type_coerce(first_of_month, sqlalchemy_types.Date())
+
+    def round_to_first_of_year(self, date):
+        date = type_coerce(date, sqlalchemy_types.Date())
+
+        first_of_year = sqlalchemy.func.date_trunc(
+            "YEAR",
+            date,
+        )
+
+        return type_coerce(first_of_year, sqlalchemy_types.Date())

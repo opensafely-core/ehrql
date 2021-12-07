@@ -76,3 +76,14 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
         )
 
         return type_coerce(first_of_month, sqlalchemy_types.Date())
+
+    def round_to_first_of_year(self, date):
+        date = type_coerce(date, sqlalchemy_types.Date())
+
+        first_of_year = sqlalchemy.func.datefromparts(
+            sqlalchemy.func.year(date),
+            1,
+            1,
+        )
+
+        return type_coerce(first_of_year, sqlalchemy_types.Date())

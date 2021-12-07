@@ -18,6 +18,7 @@ from ..query_language import (
     FilteredTable,
     QueryNode,
     RoundToFirstOfMonth,
+    RoundToFirstOfYear,
     Row,
     Table,
     Value,
@@ -426,6 +427,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         class_method_map = {
             DateDifferenceInYears: self.date_difference_in_years,
             RoundToFirstOfMonth: self.round_to_first_of_month,
+            RoundToFirstOfYear: self.round_to_first_of_year,
         }
 
         assert value.__class__ in class_method_map, f"Unsupported function: {value}"
@@ -461,6 +463,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return type_coerce(date_diff, sqlalchemy_types.Integer())
 
     def round_to_first_of_month(self, date):
+        raise NotImplementedError
+
+    def round_to_first_of_year(self, date):
         raise NotImplementedError
 
     def apply_aggregates(self, query, aggregate_nodes):
