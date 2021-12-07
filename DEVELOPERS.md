@@ -87,24 +87,37 @@ However, we still need to run tests against an actual Databricks instance, as
 the way connections are made is different, and potentially more things down the
 line.
 
-Databricks is only only available in SaaS form, and  we use the free Community
-Edition version, but it is limited, slow, and not 100% reliable, so we
-do not run it by default, it needs to be manually run. We use some `just`
-commands and our helper script in `scripts/dbx` to manage a test Databricks
-instance to run the tests against.
+Databricks is only only available in SaaS form. We can use the free Community
+Edition version, but it is limited, slow, and not 100% reliable, so we do not
+run it by default, it needs to be manually run. NHSD have given some of the
+team (Simon, Seb, Dave) access to their Databricks sandbox, which is more
+reliable. The NHSD DAE team negotiated these accounts for us, so you'll need
+to go via them or other NHSD contact to get more.
+
+We use some `just` commands and our helper script in `scripts/dbx` to ensure we
+have a running Databricks cluster to run the tests against.
 
 
 ### Running locally against Databricks
 
 First you need to set up your Databricks auth.
 
-1. Register for a free account at https://community.cloud.databricks.com/
 
-2. Log in to the databricks CLI tool (which is installed in the venv):
+1. Register for a free account at https://community.cloud.databricks.com/. This
+   same account is used whether accessing the NHSD Sandbox or not.
 
-    databricks configure --host https://community.cloud.databricks.com
+2. Log in to the databricks CLI tool (which is installed in the venv) with your
+   credentials. For host, use either `https://community.cloud.databricks.com`
+   for the Community Edition, or `https://drtl-theta.cloud.databricks.com/` for
+   the NSHD sandbox.
 
-3. Test it's working with: `databricks clusters list`. If that doesn't error,
+   `databricks configure`
+
+3. If using the NHSD sandbox, you will need to setup a cluster called
+   `opensafely-test`, which you can do via the web UI via `Compute -> Create
+   Cluster`, and just use all the default options.
+
+4. Test it's working with: `databricks clusters list`. If that doesn't error,
    you are set up.
 
 
@@ -115,15 +128,18 @@ You should then be able to run tests against databricks with:
 Warning: running the full test suite takes a long time.
 
 Note: This command will ensure there is an active Databricks cluster, and then
-run the tests against it.  Cluster creation is idempotent - if a cluster is
-alread up and running, it will use that. If it has terminated (after 2 hours of
-inactivity), it will delete the old one and create a new one.
+run the tests against it. When using Community Edition, it will create a cluster if needed
+but if a cluster is alread up and running, it will use that. If it has
+terminated (after 2 hours of inactivity), it will delete the old one and create
+a new one.  When using the NSHD sandbox, it will only use manually pre-created
+cluster called `opensafely-test`.
 
 For more information about your Databricks cluster, you can use the dbx tool:
 
     just dbx
 
 or
+
     ./scripts/dbx
 
 
@@ -133,6 +149,7 @@ You can manually run the tests in github by triggering the "Databricks CI"
 action. By default it will just run the `tests/backends/test_databricks.py`,
 but you can specify different arguments when you trigger it.
 
+This CI uses simon.davy@thedatalab.org's Databricks account.
 
 ### Trouble Shooting
 
@@ -147,4 +164,6 @@ To do this:
 
     just dbx cleanup
 
-You will need to follow the instructions the command outputs to complete the cleanup process.
+If using Community Edition, you will need to follow the instructions the
+command outputs to complete the cleanup process, as we cannot fully automate it
+from the cli.
