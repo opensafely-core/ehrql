@@ -403,3 +403,7 @@ class ValueFromFunction(Value):
 
 class DateDifferenceInYears(ValueFromFunction):
     pass
+
+
+class RoundToFirstOfMonth(ValueFromFunction):
+    pass

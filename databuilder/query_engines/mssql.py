@@ -1,5 +1,9 @@
 import contextlib
 
+import sqlalchemy
+from sqlalchemy.sql.expression import type_coerce
+
+from .. import sqlalchemy_types
 from .base_sql import BaseSQLQueryEngine
 from .mssql_dialect import MSSQLDialect
 from .mssql_lib import fetch_results_in_batches, write_query_to_table
@@ -61,3 +65,14 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             # the normal manner
             with super().execute_query() as results:
                 yield results
+
+    def round_to_first_of_month(self, date):
+        date = type_coerce(date, sqlalchemy_types.Date())
+
+        first_of_month = sqlalchemy.func.datefromparts(
+            sqlalchemy.func.year(date),
+            sqlalchemy.func.month(date),
+            1,
+        )
+
+        return type_coerce(first_of_month, sqlalchemy_types.Date())

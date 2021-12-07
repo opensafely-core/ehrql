@@ -3,8 +3,9 @@ import secrets
 
 import sqlalchemy
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import ClauseElement, Executable
+from sqlalchemy.sql.expression import ClauseElement, Executable, type_coerce
 
+from .. import sqlalchemy_types
 from .base_sql import BaseSQLQueryEngine
 from .spark_dialect import SparkDialect
 
@@ -68,3 +69,12 @@ class SparkQueryEngine(BaseSQLQueryEngine):
             table = sqlalchemy.Table(table_name, sqlalchemy.MetaData())
             query = sqlalchemy.schema.DropTable(table, if_exists=True)
             cursor.execute(query)
+
+    def round_to_first_of_month(self, date):
+        date = type_coerce(date, sqlalchemy_types.Date())
+
+        first_of_month = sqlalchemy.func.date_trunc(
+            "MONTH",
+            date,
+        )
+        return type_coerce(first_of_month, sqlalchemy_types.Date())

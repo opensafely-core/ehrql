@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 
+from databuilder.concepts import tables
 from databuilder.query_language import categorise, table
 
 from .lib.mock_backend import (
@@ -1191,6 +1192,41 @@ def test_age_as_of(engine):
     assert result == [
         {"patient_id": 1, "age_in_2010": 19, "age_at_last_event": 30},
         {"patient_id": 2, "age_in_2010": 10, "age_at_last_event": 17},
+    ]
+
+
+def test_round_to_first_of_month(engine, cohort_with_population):
+    input_data = [
+        patient(1, ctv3_event("abc", "2020-10-10")),
+        patient(2, ctv3_event("abc", "2018-02-02")),
+        patient(3, ctv3_event("abc", "2018-02-01")),
+        patient(4, ctv3_event("abc", "2018-02-28")),
+        patient(5, ctv3_event("abc", "2020-02-29")),
+        patient(6, ctv3_event("abc", "2020-03-08")),
+        patient(7, ctv3_event("abc", "2018-03-08")),
+        patient(8, ctv3_event("abc", "2018-01-15")),
+    ]
+    engine.setup(input_data)
+
+    cohort = cohort_with_population
+    events = tables.clinical_events
+    cohort.first_event_date = (
+        events.sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.date)
+        .round_to_first_of_month()
+    )
+
+    result = engine.extract(cohort)
+    assert result == [
+        {"patient_id": 1, "first_event_date": date(2020, 10, 1)},
+        {"patient_id": 2, "first_event_date": date(2018, 2, 1)},
+        {"patient_id": 3, "first_event_date": date(2018, 2, 1)},
+        {"patient_id": 4, "first_event_date": date(2018, 2, 1)},
+        {"patient_id": 5, "first_event_date": date(2020, 2, 1)},
+        {"patient_id": 6, "first_event_date": date(2020, 3, 1)},
+        {"patient_id": 7, "first_event_date": date(2018, 3, 1)},
+        {"patient_id": 8, "first_event_date": date(2018, 1, 1)},
     ]
 
 
