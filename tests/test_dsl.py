@@ -119,9 +119,7 @@ def test_exists_aggregation(cohort_with_population):
 
     cohort = cohort_with_population
     events = tables.clinical_events
-    cohort.has_events = events.filter(
-        events.code != None  # noqa: E711
-    ).exists_for_patient()
+    cohort.has_events = events.filter(events.code.is_not_null()).exists_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 

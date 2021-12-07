@@ -226,6 +226,9 @@ class Predicate:
 class Column:
     name: str
 
+    def is_not_null(self):
+        return Predicate(self, "not_equals", None)
+
 
 class IdColumn(Column):
     ...
@@ -247,9 +250,6 @@ class DateColumn(Column):
 class CodeColumn(Column):
     def is_in(self, codelist: Codelist) -> Predicate:
         return Predicate(self, "is_in", codelist)
-
-    def __ne__(self, other: None) -> Predicate:  # type: ignore[override]  # Deliberately inconsistent with object
-        return Predicate(self, "not_equals", other)
 
 
 class IntColumn(Column):
