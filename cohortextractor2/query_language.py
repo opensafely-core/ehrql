@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Any
 
@@ -120,7 +122,7 @@ class BaseTable(QueryNode):
     def get(self, column):
         return Column(source=self, column=column)
 
-    def filter(self, *args, **kwargs):  # noqa: A003
+    def filter(self, *args: str, **kwargs: Any) -> BaseTable:  # noqa: A003
         """
         args: max 1 arg, a field name (str)
         kwargs:
