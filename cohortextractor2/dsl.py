@@ -46,7 +46,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Union
 
-from . import codelistlib
 from .query_language import (
     BaseTable,
     Codelist,
@@ -91,28 +90,18 @@ class EventFrame:
     def __init__(self, qm_table: BaseTable):
         self.qm_table = qm_table
 
-    def filter(  # noqa: A003
-        self,
-        column_or_expr: Column | CodelistFilterExpr,
-        **kwargs: str | Codelist | None | bool,
-    ) -> EventFrame:
-        """Return a new EventFrame with given filter.
+    def filter(self, predicate: Predicate | BoolColumn) -> EventFrame:  # noqa: A003
+        """
+        Return a new EventFrame filtered as specified.
 
-        Note that while we are building the DSL, this method takes either an expression
-        (at the moment, just a CodelistFilterExpr is supported) or it takes arguments
-        that are passed directly to the corresponding QM filter method.
-
-        Once we fully support filtering with expressions, we can rename column_or_expr
-        to expr, and drop kwargs.
+        Events to be kept are either specified by a predicate on a column value or by a boolean column which must be
+        True for the even to be retained.
         """
 
-        if isinstance(column_or_expr, CodelistFilterExpr):
-            assert not kwargs
-            column = column_or_expr.column
-            kwargs = {"is_in": column_or_expr.codelist}
-        else:
-            column = column_or_expr
-        return EventFrame(self.qm_table.filter(column.name, **kwargs))
+        if isinstance(predicate, BoolColumn):
+            predicate = predicate.is_true()
+
+        return EventFrame(predicate.apply_to(self.qm_table))
 
     def sort_by(self, *columns: Column) -> SortedEventFrame:
         """Return a SortedEventFrame with given sort column."""
@@ -221,9 +210,99 @@ class PatientSeries:
         return hash(repr(self.value))
 
 
+class Predicate:
+    def __init__(
+        self, column: Column, operator: str, other: str | bool | int | Codelist | None
+    ) -> None:
+        self._column = column
+        self._operator = operator
+        self._other = other
+
+    def apply_to(self, table: BaseTable) -> BaseTable:
+        return table.filter(self._column.name, **{self._operator: self._other})
+
+
 @dataclass
 class Column:
     name: str
+
+    def is_not_null(self):
+        return Predicate(self, "not_equals", None)
+
+
+class IdColumn(Column):
+    ...
+
+
+class BoolColumn(Column):
+    def is_true(self) -> Predicate:
+        return Predicate(self, "equals", True)
+
+    def is_false(self) -> Predicate:
+        return Predicate(self, "equals", False)
+
+    def __eq__(self, other: bool) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        if other:
+            return self.is_true()
+        else:
+            return self.is_false()
+
+    def __ne__(self, other: bool) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        if other:
+            return self.is_false()
+        else:
+            return self.is_true()
+
+
+class DateColumn(Column):
+    def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "equals", other)
+
+    def __ne__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "not_equals", other)
+
+    def __gt__(self, other: str) -> Predicate:
+        return Predicate(self, "greater_than", other)
+
+    def __ge__(self, other: str) -> Predicate:
+        return Predicate(self, "greater_than_or_equals", other)
+
+    def __lt__(self, other: str) -> Predicate:
+        return Predicate(self, "less_than", other)
+
+    def __le__(self, other: str) -> Predicate:
+        return Predicate(self, "less_than_or_equals", other)
+
+
+class CodeColumn(Column):
+    def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "equals", other)
+
+    def __ne__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "not_equals", other)
+
+    def is_in(self, codelist: Codelist) -> Predicate:
+        return Predicate(self, "is_in", codelist)
+
+
+class IntColumn(Column):
+    def __eq__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "equals", other)
+
+    def __ne__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "not_equals", other)
+
+    def __gt__(self, other: int) -> Predicate:
+        return Predicate(self, "greater_than", other)
+
+    def __ge__(self, other: int) -> Predicate:
+        return Predicate(self, "greater_than_or_equals", other)
+
+    def __lt__(self, other: int) -> Predicate:
+        return Predicate(self, "less_than", other)
+
+    def __le__(self, other: int) -> Predicate:
+        return Predicate(self, "less_than_or_equals", other)
 
 
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
@@ -331,22 +410,6 @@ def raise_category_errors(errors):
         raise next_category_error
     finally:
         raise_category_errors(errors)
-
-
-class codelist:
-    """A wrapper around Codelist, with a .contains method for use with .filter()."""
-
-    def __init__(self, codes: list[str], system: str):
-        self.codelist = codelistlib.codelist(codes, system)
-
-    def contains(self, column: Column) -> CodelistFilterExpr:
-        return CodelistFilterExpr(self.codelist, column)
-
-
-@dataclass
-class CodelistFilterExpr:
-    codelist: Codelist
-    column: Column
 
 
 ValueExpression = Union[PatientSeries, Comparator, str, int]
