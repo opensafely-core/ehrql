@@ -67,7 +67,7 @@ def main(args=None):
 
 def build_parser():
     parser = ArgumentParser(
-        prog="cohortextractor", description="Generate cohorts in OpenSAFELY"
+        prog="databuilder", description="Generate cohorts in OpenSAFELY"
     )
     parser.set_defaults(which="print_help")
     subparsers = parser.add_subparsers(help="sub-command help")

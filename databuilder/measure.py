@@ -201,7 +201,7 @@ class MeasuresManager:
         if input_data is None:
             assert (
                 self._input_file.exists()
-            ), f"Expected cohort input file {str(self._input_file)} not found. You may need to first run:\n  cohortextractor generate_cohort ..."
+            ), f"Expected cohort input file {str(self._input_file)} not found. You may need to first run:\n  databuilder generate_cohort ..."
 
         numeric_columns = set()
         group_by_columns = set()

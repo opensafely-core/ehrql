@@ -7,7 +7,7 @@ def test_no_args(capsys):
     # Verify that when databuilder is called without arguments, help text is shown.
     main([])
     captured = capsys.readouterr()
-    assert "usage: cohortextractor" in captured.out
+    assert "usage: databuilder" in captured.out
 
 
 def test_generate_cohort_with_database_url(mocker, monkeypatch, tmp_path):
