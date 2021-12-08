@@ -72,6 +72,9 @@ exclude_lines = [
 
 [tool.coverage.html]
 
+[tool.flit.module]
+name = "databuilder"
+
 [tool.interrogate]
 fail-under = 0
 ignore-init-module = true
