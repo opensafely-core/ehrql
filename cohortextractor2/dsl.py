@@ -58,10 +58,18 @@ from .query_language import (
 
 
 class Cohort:
-    """Represents the cohort of patients in a study."""
+    """
+    Represents the cohort of patients in the defined study.
+    """
 
     def set_population(self, population: PatientSeries) -> None:
-        """Set the population variable for this cohort."""
+        """
+        Sets the population that are included within the Cohort.
+
+        Args:
+            population: A boolean series indicating if any given patient
+                are included within the Cohort
+        """
 
         self.population = population
         value = population.value
@@ -72,7 +80,13 @@ class Cohort:
             )
 
     def add_variable(self, name: str, variable: PatientSeries) -> None:
-        """Add a variable to this cohort by name."""
+        """
+        Add a variable to this Cohort with a given name.
+
+        Args:
+            name: The name of the variable to add
+            variable: The PatientSeries to add as the named variable.
+        """
 
         self.__setattr__(name, variable)
 
@@ -85,55 +99,110 @@ class Cohort:
 
 
 class EventFrame:
-    """Represents an unsorted collection of records, with multiple rows per patient."""
+    """
+    An EventFrame is a representation of an unsorted collection of patient records.
+    Patients can have multiple rows within the EventFrame and operations such as
+    filter() can be run over the EventFrame to produce new Frames.
+    """
 
     def __init__(self, qm_table: BaseTable):
+        """
+        Initialise the EventFrame
+
+        Args:
+            qm_table: A Table in a given backend that this EventFrame is generated
+            from.
+        """
         self.qm_table = qm_table
 
     def filter(self, predicate: Predicate | BoolColumn) -> EventFrame:  # noqa: A003
         """
-        Return a new EventFrame filtered as specified.
+        Filters the EventFrame with a given filter, and returns a
+        new Event Frame.
 
-        Events to be kept are either specified by a predicate on a column value or by a boolean column which must be
-        True for the even to be retained.
+        Args:
+            predicate: The Definition of the filter that this EventFrame is being
+                filtered by.
+
+        Returns:
+              EventFrame: A new EventFrame that is filtered by the conditions
         """
-
         if isinstance(predicate, BoolColumn):
             predicate = predicate.is_true()
 
         return EventFrame(predicate.apply_to(self.qm_table))
 
     def sort_by(self, *columns: Column) -> SortedEventFrame:
-        """Return a SortedEventFrame with given sort column."""
+        """
+        Sorts an EventFrame by a specific column, such as a date column, and
+        returns a SortedEventFrame with a given sort column.
 
+        Args:
+            columns: Name of the column you wish to sort by
+
+        Returns:
+            SortedEventFrame with a given sort column
+        """
         return SortedEventFrame(self.qm_table, *columns)
 
     def count_for_patient(self) -> PatientSeries:
-        """Return a PatientSeries with count_for_patient of matching events per patient."""
+        """
+        Takes the information from the multiple row per patient EventFrame and counts
+        the events per patient.
 
+        Args:
+            None
+
+        Returns:
+            PatientSeries: A count of events per patient
+        """
         return PatientSeries(self.qm_table.count())
 
     def exists_for_patient(self) -> PatientSeries:
-        """Return a PatientSeries indicating whether each patient has a matching event."""
+        """
+        Takes the information from the multiple row per patient EventFrame and returns a Boolean
+        indicating if the Patient has a matching event.
 
+        Args:
+            None
+
+        Returns:
+            PatientSeries: A PatientSeries indicating whether each patient has a matching event.
+        """
         return PatientSeries(self.qm_table.exists())
 
 
 class SortedEventFrame:
-    """Represents an EventFrame that has been sorted."""
+    """
+    An SortedEventFrame is a representation of sorted collection of patient records.
+    Patients can have multiple rows within the SortedEventFrame and operations such as
+    filter() can be run over the SortedEventFrame to produce new Frames.
+    """
 
     def __init__(self, qm_table: BaseTable, *sort_columns: Column):
+        """
+        Initialise the SortedEventFrame
+
+        Args:
+            qm_table: A Table in a given backend that this SortedEventFrame is generated
+            from.
+            sort_columns: The Columns of the SortedEventFrame that it is sorted by.
+        """
         self.qm_table = qm_table
         self.sort_columns = sort_columns
 
     def first_for_patient(self) -> PatientFrame:
-        """Return a PatientFrame with the first event for each patient."""
-
+        """
+        Return a PatientFrame with the first event for each patient. Each patient
+        can have a maximum of one row in the PatientFrame.
+        """
         return PatientFrame(row=self.qm_table.first_by(*self._sort_column_names()))
 
     def last_for_patient(self) -> PatientFrame:
-        """Return a PatientFrame with the last event for each patient."""
-
+        """
+        Return a PatientFrame with the last event for each patient. Each patient
+        can have a maximum of one row in the PatientFrame.
+        """
         return PatientFrame(row=self.qm_table.last_by(*self._sort_column_names()))
 
     def _sort_column_names(self):
@@ -306,6 +375,15 @@ class IntColumn(Column):
 
 
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
+    """
+    Generates a new PatientSeries where all null values are removed.
+
+    Args:
+        patient_series: PatientSeries that may contain null values
+
+    Returns:
+        PatientSeries: A new PatientsSeries without null values
+    """
     comparator_value = Comparator(lhs=patient_series.value, operator="__ne__", rhs=None)
     return PatientSeries(value=comparator_value)
 
@@ -352,11 +430,17 @@ def _validate_category_mapping(
     mapping: dict[Expression, PatientSeries], default: Expression | None
 ) -> None:
     """
-    Ensure that a category mapping is valid, by checking that:
+    Ensure that a category mapping is valid.
+
+    It does this by checking that:
     - there are no duplicate values
     - all keys are the same type
     - all values are PatientSeries
     - default value is None, or the same type as the keys
+
+    Args:
+        mapping: A key-value pair of an Expression and the resultant PatientSeries
+        default: Default values
     """
     errors: list[Exception] = []
     duplicates = set()
@@ -402,7 +486,7 @@ def _validate_category_mapping(
 
 
 def raise_category_errors(errors):
-    """Recursively raise any category errors found"""
+    """Recursively raise any category errors found."""
     if not errors:
         return
     try:
