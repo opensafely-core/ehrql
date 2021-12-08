@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from cohortextractor2 import codelist, codelist_from_csv, combine_codelists, table
+from databuilder import codelist, codelist_from_csv, combine_codelists, table
 
 from .lib.mock_backend import ctv3_event, patient
 from .lib.util import OldCohortWithPopulation

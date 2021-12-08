@@ -3,8 +3,8 @@ import datetime
 import pytest
 import sqlalchemy
 
-from cohortextractor2 import sqlalchemy_types
-from cohortextractor2.query_engines.mssql_dialect import MSSQLDialect
+from databuilder import sqlalchemy_types
+from databuilder.query_engines.mssql_dialect import MSSQLDialect
 
 
 def test_mssql_date_types():

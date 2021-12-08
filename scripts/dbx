@@ -265,7 +265,7 @@ def test(name):
         [
             PYTHON,
             "-m",
-            "cohortextractor",
+            "databuilder",
             "test_connection",
             "-b",
             "databricks",

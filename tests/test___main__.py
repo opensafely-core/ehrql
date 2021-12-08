@@ -1,19 +1,19 @@
 import pytest
 
-from cohortextractor2.__main__ import main
+from databuilder.__main__ import main
 
 
 def test_no_args(capsys):
-    # Verify that when cohortextractor is called without arguments, help text is shown.
+    # Verify that when databuilder is called without arguments, help text is shown.
     main([])
     captured = capsys.readouterr()
-    assert "usage: cohortextractor" in captured.out
+    assert "usage: databuilder" in captured.out
 
 
 def test_generate_cohort_with_database_url(mocker, monkeypatch, tmp_path):
     # Verify that the generate_cohort subcommand can be invoked when DATABASE_URL is
     # set.
-    patched = mocker.patch("cohortextractor2.__main__.run_cohort_action")
+    patched = mocker.patch("databuilder.__main__.run_cohort_action")
     monkeypatch.setenv("DATABASE_URL", "scheme:path")
     cohort_definition_path = tmp_path / "cohort.py"
     cohort_definition_path.touch()
@@ -29,7 +29,7 @@ def test_generate_cohort_with_database_url(mocker, monkeypatch, tmp_path):
 def test_generate_cohort_with_dummy_data(mocker, tmp_path):
     # Verify that the generate_cohort subcommand can be invoked when --dummy-data-file
     # is provided.
-    patched = mocker.patch("cohortextractor2.__main__.run_cohort_action")
+    patched = mocker.patch("databuilder.__main__.run_cohort_action")
     cohort_definition_path = tmp_path / "cohort.py"
     cohort_definition_path.touch()
     dummy_data_path = tmp_path / "dummy-data.csv"
@@ -65,7 +65,7 @@ def test_generate_cohort_without_database_url_or_dummy_data(capsys, tmp_path):
 
 
 def test_generate_docs(mocker):
-    patched = mocker.patch("cohortextractor2.__main__.generate_docs")
+    patched = mocker.patch("databuilder.__main__.generate_docs")
 
     argv = [
         "generate_docs",
@@ -77,7 +77,7 @@ def test_generate_docs(mocker):
 
 def test_validate_cohort(mocker, tmp_path):
     # Verify that the validate_cohort subcommand can be invoked.
-    patched = mocker.patch("cohortextractor2.__main__.run_cohort_action")
+    patched = mocker.patch("databuilder.__main__.run_cohort_action")
     cohort_definition_path = tmp_path / "cohort.py"
     cohort_definition_path.touch()
     argv = [
@@ -92,7 +92,7 @@ def test_validate_cohort(mocker, tmp_path):
 
 def test_generate_measures(mocker, tmp_path):
     # Verify that the generate_measures subcommand can be invoked.
-    patched = mocker.patch("cohortextractor2.__main__.generate_measures")
+    patched = mocker.patch("databuilder.__main__.generate_measures")
     cohort_definition_path = tmp_path / "cohort.py"
     cohort_definition_path.touch()
     argv = [

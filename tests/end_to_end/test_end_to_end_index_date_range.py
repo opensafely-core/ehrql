@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from cohortextractor2.main import validate_cohort
+from databuilder.main import validate_cohort
 
 from ..lib.tpp_schema import ctv3_event, patient, registration
 from .utils import assert_results_equivalent

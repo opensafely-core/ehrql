@@ -1,6 +1,6 @@
 import pytest
 
-from cohortextractor2 import table
+from databuilder import table
 
 from .lib.mock_backend import CTV3Events, RegistrationHistory
 from .lib.util import OldCohortWithPopulation

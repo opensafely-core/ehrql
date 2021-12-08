@@ -1,4 +1,4 @@
-from cohortextractor2 import table
+from databuilder import table
 
 
 def clinical_events():

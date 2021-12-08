@@ -15,7 +15,7 @@ MSSQL_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/mssql"
 # Register our modified PyHive SQLAlchemy dialect
 registry.register(
     "spark.pyhive.opensafely",
-    "cohortextractor2.query_engines.spark_dialect",
+    "databuilder.query_engines.spark_dialect",
     "SparkDialect",
 )
 

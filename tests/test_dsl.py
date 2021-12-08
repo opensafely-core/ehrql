@@ -2,13 +2,13 @@ import re
 
 import pytest
 
-from cohortextractor2 import codelist
-from cohortextractor2.concepts import tables
-from cohortextractor2.definition import register
-from cohortextractor2.definition.base import cohort_registry
-from cohortextractor2.dsl import Cohort
-from cohortextractor2.query_language import table
-from cohortextractor2.query_utils import get_column_definitions
+from databuilder import codelist
+from databuilder.concepts import tables
+from databuilder.definition import register
+from databuilder.definition.base import cohort_registry
+from databuilder.dsl import Cohort
+from databuilder.query_language import table
+from databuilder.query_utils import get_column_definitions
 
 from .lib.util import OldCohortWithPopulation, make_codelist, mock_positive_tests
 

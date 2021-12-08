@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from cohortextractor2 import categorise, codelist, table
-from cohortextractor2.backends import TPPBackend
-from cohortextractor2.validate_dummy_data import validate_dummy_data
+from databuilder import categorise, codelist, table
+from databuilder.backends import TPPBackend
+from databuilder.validate_dummy_data import validate_dummy_data
 
 from ..lib.tpp_schema import (
     apcs,

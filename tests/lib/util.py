@@ -1,14 +1,12 @@
-import cohortextractor2.main
-from cohortextractor2 import codelist, table
-from cohortextractor2.dsl import BoolColumn, EventFrame, IdColumn, IntColumn
-from cohortextractor2.query_language import Table
+import databuilder.main
+from databuilder import codelist, table
+from databuilder.dsl import BoolColumn, EventFrame, IdColumn, IntColumn
+from databuilder.query_language import Table
 
 
 def extract(cohort, backend, database, **backend_kwargs):
     return list(
-        cohortextractor2.main.extract(
-            cohort, backend(database.host_url(), **backend_kwargs)
-        )
+        databuilder.main.extract(cohort, backend(database.host_url(), **backend_kwargs))
     )
 
 

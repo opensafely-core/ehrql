@@ -3,9 +3,9 @@ from pathlib import Path
 import pandas
 import pytest
 
-from cohortextractor2 import Measure, table
-from cohortextractor2.main import get_measures
-from cohortextractor2.measure import MeasuresManager
+from databuilder import Measure, table
+from databuilder.main import get_measures
+from databuilder.measure import MeasuresManager
 
 from .lib.util import OldCohortWithPopulation
 

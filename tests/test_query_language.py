@@ -2,15 +2,9 @@ import re
 
 import pytest
 
-from cohortextractor2.codelistlib import Codelist
-from cohortextractor2.query_language import (
-    FilteredTable,
-    Row,
-    Table,
-    ValueFromRow,
-    table,
-)
-from cohortextractor2.query_utils import get_column_definitions
+from databuilder.codelistlib import Codelist
+from databuilder.query_language import FilteredTable, Row, Table, ValueFromRow, table
+from databuilder.query_utils import get_column_definitions
 
 from .lib.util import OldCohortWithPopulation, make_codelist
 

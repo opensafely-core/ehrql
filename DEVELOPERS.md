@@ -18,7 +18,7 @@ install dependencies.
 ## Test setup
 
 The test suite includes:
-- smoke tests: tests that run the cohortextractor end to end in docker
+- smoke tests: tests that run the databuilder end to end in docker
 - integration tests: tests that require a database
 - unit tests that don't require a database
 

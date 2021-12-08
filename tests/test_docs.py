@@ -1,6 +1,6 @@
 import json
 
-from cohortextractor2.docs import _reformat_docstring, generate_docs
+from databuilder.docs import _reformat_docstring, generate_docs
 
 
 def test_reformat_docstring():

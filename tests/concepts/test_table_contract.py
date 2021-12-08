@@ -1,12 +1,12 @@
 import pytest
 
-from cohortextractor2.backends.base import BaseBackend, Column, MappedTable
-from cohortextractor2.concepts import types
-from cohortextractor2.concepts.constraints import ChoiceConstraint
-from cohortextractor2.concepts.table_contract import BackendContractError
-from cohortextractor2.concepts.table_contract import Column as ColumnContract
-from cohortextractor2.concepts.table_contract import TableContract
-from cohortextractor2.query_engines.base_sql import BaseSQLQueryEngine
+from databuilder.backends.base import BaseBackend, Column, MappedTable
+from databuilder.concepts import types
+from databuilder.concepts.constraints import ChoiceConstraint
+from databuilder.concepts.table_contract import BackendContractError
+from databuilder.concepts.table_contract import Column as ColumnContract
+from databuilder.concepts.table_contract import TableContract
+from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 
 from ..lib.mock_backend import patient
 

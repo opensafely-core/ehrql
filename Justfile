@@ -94,19 +94,19 @@ check: devenv
     $BIN/isort --check-only --diff .
     $BIN/flake8
     $BIN/pyupgrade --py39-plus --keep-percent-format \
-        $(find cohortextractor2 -name "*.py" -type f) \
+        $(find databuilder -name "*.py" -type f) \
         $(find tests -name "*.py" -type f)
     just docstrings
     $BIN/mypy
 
 # ensure our public facing docstrings exist so we can build docs from them
 docstrings: devenv
-    $BIN/pydocstyle cohortextractor2/backends/databricks.py
-    $BIN/pydocstyle cohortextractor2/backends/graphnet.py
-    $BIN/pydocstyle cohortextractor2/backends/tpp.py
+    $BIN/pydocstyle databuilder/backends/databricks.py
+    $BIN/pydocstyle databuilder/backends/graphnet.py
+    $BIN/pydocstyle databuilder/backends/tpp.py
 
     # only enforce classes are documented for the public facing docs
-    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 cohortextractor2/concepts/tables.py
+    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 databuilder/concepts/tables.py
 
 # runs the format (black) and sort (isort) checks and fixes the files
 fix: devenv
@@ -156,7 +156,7 @@ test-all *ARGS=test_args: devenv build-cohort-extractor
 
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
     $BIN/python -m pytest \
-        --cov=cohortextractor2 \
+        --cov=databuilder \
         --cov=tests \
         --cov-report=html \
         --cov-report=term-missing:skip-covered \

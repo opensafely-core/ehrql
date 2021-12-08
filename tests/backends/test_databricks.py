@@ -3,8 +3,8 @@ from datetime import date
 
 import pytest
 
-from cohortextractor2 import codelist, table
-from cohortextractor2.backends.databricks import DatabricksBackend
+from databuilder import codelist, table
+from databuilder.backends.databricks import DatabricksBackend
 
 from ..lib.databricks_schema import HESApc, HESApcOtr, MPSHESApc, PCareMeds
 from ..lib.util import extract, iter_flatten

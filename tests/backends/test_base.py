@@ -1,11 +1,11 @@
 import pytest
 
-from cohortextractor2.backends.base import BaseBackend, Column, MappedTable
-from cohortextractor2.concepts import types
-from cohortextractor2.concepts.table_contract import BackendContractError
-from cohortextractor2.concepts.table_contract import Column as ColumnContract
-from cohortextractor2.concepts.table_contract import TableContract
-from cohortextractor2.query_engines.base_sql import BaseSQLQueryEngine
+from databuilder.backends.base import BaseBackend, Column, MappedTable
+from databuilder.concepts import types
+from databuilder.concepts.table_contract import BackendContractError
+from databuilder.concepts.table_contract import Column as ColumnContract
+from databuilder.concepts.table_contract import TableContract
+from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 
 
 def test_backend_tables():
@@ -98,7 +98,7 @@ def test_validate_all_backends():
     backends = [
         backend
         for backend in BaseBackend.__subclasses__()
-        if backend.__module__.startswith("cohortextractor2.backends.")
+        if backend.__module__.startswith("databuilder.backends.")
     ]
 
     for backend in backends:
