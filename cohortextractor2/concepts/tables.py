@@ -1,4 +1,4 @@
-from ..dsl import CodeColumn, DateColumn, EventFrame, IdColumn
+from ..dsl import CodeColumn, DateColumn, EventFrame, IdColumn, IntColumn
 from ..query_language import Table
 from . import types
 from .constraints import FirstOfMonthConstraint, NotNullConstraint, UniqueConstraint
@@ -14,6 +14,7 @@ class ClinicalEvents(EventFrame):
 
     code = CodeColumn("code")
     date = DateColumn("date")
+    value = IntColumn("value")
 
     def __init__(self):
         super().__init__(Table("clinical_events"))

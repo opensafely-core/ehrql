@@ -212,7 +212,7 @@ class PatientSeries:
 
 class Predicate:
     def __init__(
-        self, column: Column, operator: str, other: str | bool | Codelist | None
+        self, column: Column, operator: str, other: str | bool | int | Codelist | None
     ) -> None:
         self._column = column
         self._operator = operator
@@ -238,22 +238,71 @@ class BoolColumn(Column):
     def is_true(self) -> Predicate:
         return Predicate(self, "equals", True)
 
+    def is_false(self) -> Predicate:
+        return Predicate(self, "equals", False)
+
+    def __eq__(self, other: bool) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        if other:
+            return self.is_true()
+        else:
+            return self.is_false()
+
+    def __ne__(self, other: bool) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        if other:
+            return self.is_false()
+        else:
+            return self.is_true()
+
 
 class DateColumn(Column):
+    def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "equals", other)
+
+    def __ne__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "not_equals", other)
+
     def __gt__(self, other: str) -> Predicate:
         return Predicate(self, "greater_than", other)
+
+    def __ge__(self, other: str) -> Predicate:
+        return Predicate(self, "greater_than_or_equals", other)
 
     def __lt__(self, other: str) -> Predicate:
         return Predicate(self, "less_than", other)
 
+    def __le__(self, other: str) -> Predicate:
+        return Predicate(self, "less_than_or_equals", other)
+
 
 class CodeColumn(Column):
+    def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "equals", other)
+
+    def __ne__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "not_equals", other)
+
     def is_in(self, codelist: Codelist) -> Predicate:
         return Predicate(self, "is_in", codelist)
 
 
 class IntColumn(Column):
-    ...
+    def __eq__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "equals", other)
+
+    def __ne__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+        return Predicate(self, "not_equals", other)
+
+    def __gt__(self, other: int) -> Predicate:
+        return Predicate(self, "greater_than", other)
+
+    def __ge__(self, other: int) -> Predicate:
+        return Predicate(self, "greater_than_or_equals", other)
+
+    def __lt__(self, other: int) -> Predicate:
+        return Predicate(self, "less_than", other)
+
+    def __le__(self, other: int) -> Predicate:
+        return Predicate(self, "less_than_or_equals", other)
 
 
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:

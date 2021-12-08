@@ -10,7 +10,7 @@ from cohortextractor2.dsl import Cohort
 from cohortextractor2.query_language import table
 from cohortextractor2.query_utils import get_column_definitions
 
-from .lib.util import OldCohortWithPopulation, make_codelist
+from .lib.util import OldCohortWithPopulation, make_codelist, mock_positive_tests
 
 
 def test_minimal_cohort_definition(cohort_with_population):
@@ -52,6 +52,130 @@ def test_filter(cohort_with_population):
         .first_for_patient()
         .select_column(events.code)
     )
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+@pytest.mark.parametrize(
+    "kwarg, method",
+    [
+        ("equals", "__eq__"),
+        ("not_equals", "__ne__"),
+        ("less_than", "__lt__"),
+        ("less_than_or_equals", "__le__"),
+        ("greater_than", "__gt__"),
+        ("greater_than_or_equals", "__ge__"),
+    ],
+)
+def test_date_predicates(cohort_with_population, kwarg, method):
+    events = tables.clinical_events
+
+    class OldCohort(OldCohortWithPopulation):
+        has_code = (
+            table("clinical_events").filter("date", **{kwarg: "2021-01-01"}).exists()
+        )
+
+    cohort = cohort_with_population
+    predicate = getattr(events.date, method)(
+        "2021-01-01"
+    )  # e.g. events.date >= "2021-01-01"
+    cohort.has_code = events.filter(predicate).exists_for_patient()
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+@pytest.mark.parametrize(
+    "kwarg, method",
+    [
+        ("equals", "__eq__"),
+        ("not_equals", "__ne__"),
+        ("less_than", "__lt__"),
+        ("less_than_or_equals", "__le__"),
+        ("greater_than", "__gt__"),
+        ("greater_than_or_equals", "__ge__"),
+    ],
+)
+def test_int_predicates(cohort_with_population, kwarg, method):
+    events = tables.clinical_events
+
+    class OldCohort(OldCohortWithPopulation):
+        has_code = table("clinical_events").filter("value", **{kwarg: 42}).exists()
+
+    cohort = cohort_with_population
+    predicate = getattr(events.value, method)(42)  # e.g. events.value < 42
+    cohort.has_code = events.filter(predicate).exists_for_patient()
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def test_comparison_inversion_works(cohort_with_population):
+    # Check that authors can write `42 > events.value` as well as `events.value > 42`.
+    events = tables.clinical_events
+
+    class OldCohort(OldCohortWithPopulation):
+        fish = table("clinical_events").filter("value", less_than=42).exists()
+
+    cohort = cohort_with_population
+    cohort.fish = events.filter(42 > events.value).exists_for_patient()
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+@pytest.mark.parametrize(
+    "kwarg, method",
+    [
+        ("equals", "__eq__"),
+        ("not_equals", "__ne__"),
+    ],
+)
+def test_code_predicates(cohort_with_population, kwarg, method):
+    events = tables.clinical_events
+
+    class OldCohort(OldCohortWithPopulation):
+        has_code = table("clinical_events").filter("code", **{kwarg: "abc"}).exists()
+
+    cohort = cohort_with_population
+    predicate = getattr(events.code, method)("abc")  # e.g. events.code == "abc"
+    cohort.has_code = events.filter(predicate).exists_for_patient()
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+@pytest.mark.parametrize(
+    "kwarg, old_value, method, new_value",
+    [
+        ("equals", True, "__eq__", True),
+        ("equals", False, "__eq__", False),
+        ("equals", False, "__ne__", True),
+        ("equals", True, "__ne__", False),
+    ],
+)
+def test_bool_predicates(cohort_with_population, kwarg, old_value, method, new_value):
+    # Standard Python style frowns on direct equality comparison against True/False, but we want to allow authors to
+    # write it this way if they like.
+    tests = mock_positive_tests
+
+    class OldCohort(OldCohortWithPopulation):
+        result = table("positive_tests").filter("result", **{kwarg: old_value}).exists()
+
+    cohort = cohort_with_population
+    predicate = getattr(tests.result, method)(new_value)  # e.g. events.result == True
+    cohort.result = tests.filter(predicate).exists_for_patient()
+
+    assert_cohorts_equivalent(cohort, OldCohort)
+
+
+def test_alternative_bool_predicates(cohort_with_population):
+    # We provide these because standard Python style frowns on direct equality comparison against True/False.
+    tests = mock_positive_tests
+
+    class OldCohort(OldCohortWithPopulation):
+        success = table("positive_tests").filter("result", equals=True).exists()
+        failure = table("positive_tests").filter("result", equals=False).exists()
+
+    cohort = cohort_with_population
+    cohort.success = tests.filter(tests.result.is_true()).exists_for_patient()
+    cohort.failure = tests.filter(tests.result.is_false()).exists_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 

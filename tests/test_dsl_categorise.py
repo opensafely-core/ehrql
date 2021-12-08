@@ -9,36 +9,18 @@ import pytest
 
 from cohortextractor2 import codelist
 from cohortextractor2.concepts import tables
-from cohortextractor2.dsl import BoolColumn, EventFrame, IdColumn, IntColumn
 from cohortextractor2.dsl import categorise as new_dsl_categorise
-from cohortextractor2.query_language import Comparator, Table
+from cohortextractor2.query_language import Comparator
 from cohortextractor2.query_language import categorise as old_dsl_categorise
 from cohortextractor2.query_language import table
 
-from .lib.util import OldCohortWithPopulation, make_codelist
+from .lib.util import (
+    OldCohortWithPopulation,
+    make_codelist,
+    mock_patients,
+    mock_positive_tests,
+)
 from .test_dsl import assert_cohorts_equivalent
-
-
-class MockPatientsTable(EventFrame):
-    patient_id = IdColumn("patient_id")
-    height = IntColumn("height")
-
-    def __init__(self):
-        super().__init__(Table("patients"))
-
-
-mock_patients = MockPatientsTable()
-
-
-class MockPositiveTestsTable(EventFrame):
-    patient_id = IdColumn("patient_id")
-    result = BoolColumn("result")
-
-    def __init__(self):
-        super().__init__(Table("positive_tests"))
-
-
-mock_positive_tests = MockPositiveTestsTable()
 
 
 def test_categorise(cohort_with_population):
