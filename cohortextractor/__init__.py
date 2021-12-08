@@ -1,7 +1,7 @@
 """
 Shim module to avoid rename churn in studies
 
-We package cohort-extractor-v2 in two ways:
+We package databuilder in two ways:
 
  * docker image
  * pip installable artefact

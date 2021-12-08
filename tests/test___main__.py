@@ -4,7 +4,7 @@ from databuilder.__main__ import main
 
 
 def test_no_args(capsys):
-    # Verify that when cohortextractor is called without arguments, help text is shown.
+    # Verify that when databuilder is called without arguments, help text is shown.
     main([])
     captured = capsys.readouterr()
     assert "usage: cohortextractor" in captured.out

@@ -9,7 +9,7 @@ class BaseType(Protocol):
     """
 
     # Subclasses must specify the backend Column types that they allow, as
-    # tuples of one or more keys from cohortextractor.sqlalchemy_types.TYPES_BY_NAME
+    # tuples of one or more keys from databuilder.sqlalchemy_types.TYPES_BY_NAME
     allowed_backend_types: tuple[TYPES_BY_NAME, ...]
 
 
