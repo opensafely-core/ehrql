@@ -1,6 +1,6 @@
 import contextlib
 from collections import defaultdict
-from typing import Optional
+from typing import Optional, Union
 
 import sqlalchemy
 import sqlalchemy.dialects.mssql
@@ -10,6 +10,7 @@ from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.sql.expression import type_coerce
 
 from .. import sqlalchemy_types
+from ..functools_utils import singledispatchmethod_with_unions
 from ..query_language import (
     Codelist,
     Column,
@@ -400,42 +401,67 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return condition_statement, tables
 
+    @singledispatchmethod_with_unions
     def get_value_expression(self, value):
         """
-        Given a single value output node, select it from its interim table(s)
-        Return the expression to select it, and the table(s) to select it from
+        Given a "value" from the Query Model, convert it to a pair of:
+
+            (SQLAlchemy-expression, tuple-of-SQLAlchemy-tables)
+
+        `value` can be anything that can be represented in our Query Model e.g. a table, a
+        table with some filters applied, a codelist, a column from a table, and so on.
+        It could also be simple static value like a date or an integer. Whatever it is,
+        we need to return its appropriate SQLAlchemy representation.
+
+        The tuple of tables is required so that if we want to make use of this value in
+        a query, we always know what tables we have to join to. It's in theory possible
+        to dig this information out of the SQLAlchemy object by walking through its
+        children, but for now we do this by manually tracking the tables involved.
+
+        Most of the interesting logic happens when `value` is a subclass of QueryNode
+        i.e. not just a plain old integer or date or whatever. These are handled in the
+        methods below which dispatch on the type of node.
         """
-        tables = ()
-        value_expr = value
-        if self.is_category_node(value):
-            category_mapping = {}
-            tables = set()
-            for label, category_definition in value.definitions.items():
-                # A category definition is always a single Comparator, which may contain
-                # nested Comparators
-                condition_statement, condition_tables = self.build_condition_statement(
-                    category_definition
-                )
-                category_mapping[label] = condition_statement
-                tables.update(condition_tables)
-            value_expr = self.get_case_expression(category_mapping, value.default)
-            tables = tuple(tables)
-        elif self.is_output_node(value):
-            value_expr = self.node_to_expression[value]
-            tables = (value_expr.table,)
-        elif isinstance(value, Codelist):
-            value_expr = self.node_to_expression[value]
-        elif isinstance(value, ValueFromFunction):
-            value_expr, tables = self.get_expression_for_value_from_function(value)
+        # This method is the fallback for types not explicitly handled below, which
+        # means "plain value" types like integers and dates which we just return
+        # unchanged because SQLAlchemy knows how to handle them. Ideally, we'd have a
+        # fat union type covering all of these and an explicit method to handle them
+        # (leaving the fallback to just raise a TypeError). But given that we handle not
+        # only numbers, strings, dates etc but also list and tuples of these values it
+        # gets messy quite fast so for now we just make sure that whatever we've been
+        # passed *isn't* a QueryNode.
+        assert not isinstance(value, QueryNode)
+        return value, ()
+
+    @get_value_expression.register
+    def get_expression_for_category_node(self, value: ValueFromCategory):
+        category_mapping = {}
+        tables = set()
+        for label, category_definition in value.definitions.items():
+            # A category definition is always a single Comparator, which may contain
+            # nested Comparators
+            condition_statement, condition_tables = self.build_condition_statement(
+                category_definition
+            )
+            category_mapping[label] = condition_statement
+            tables.update(condition_tables)
+        value_expr = self.get_case_expression(category_mapping, value.default)
+        tables = tuple(tables)
         return value_expr, tables
 
-    def get_case_expression(self, mapping, default):
-        return sqlalchemy.case(
-            [(expression, label) for label, expression in mapping.items()],
-            else_=default,
-        )
+    @get_value_expression.register
+    def get_expression_for_output_node(
+        self, node: Union[ValueFromRow, ValueFromAggregate, Column]
+    ):
+        value_expr = self.node_to_expression[node]
+        return value_expr, (value_expr.table,)
 
-    def get_expression_for_value_from_function(self, value):
+    @get_value_expression.register
+    def get_expression_for_codelist(self, codelist: Codelist):
+        return self.node_to_expression[codelist], ()
+
+    @get_value_expression.register
+    def get_expression_for_value_from_function(self, value: ValueFromFunction):
         argument_expressions = []
         tables = set()
         for arg in value.arguments:
@@ -492,6 +518,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def round_to_first_of_year(self, date):
         raise NotImplementedError
+
+    def get_case_expression(self, mapping, default):
+        return sqlalchemy.case(
+            [(expression, label) for label, expression in mapping.items()],
+            else_=default,
+        )
 
     def apply_aggregates(self, query, aggregate_nodes):
         """
