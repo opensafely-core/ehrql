@@ -33,9 +33,7 @@ def test_validate_for_backends(backend, column, expected_succeess):
         results = validate(Cohort, backend(None))
         assert len(results) == 3
     else:
-        with pytest.raises(
-            KeyError, match=f"Column '{column}' not found in table 'patients'"
-        ):
+        with pytest.raises(KeyError, match=f"'{column}'"):
             validate(Cohort, backend(None))
 
 

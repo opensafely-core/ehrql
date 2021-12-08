@@ -302,19 +302,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """Which schema/database should we write temporary tables to."""
         return None
 
-    def get_select_expression(self, base_table, columns):
-        # every table must have a patient_id column; select it and the specified columns
-        columns = sorted({"patient_id"}.union(columns))
+    def get_select_expression(self, base_table):
         table_expr = self.backend.get_table_expression(base_table.name)
-        try:
-            column_objs = [table_expr.c[column] for column in columns]
-        except KeyError as unknown_key:
-            raise KeyError(
-                f"Column {unknown_key} not found in table '{base_table.name}'"
-            )
-
-        query = sqlalchemy.select(column_objs).select_from(table_expr)
-        return query
+        return table_expr.select()
 
     def get_query_expression(self, group, output_nodes):
         """
@@ -341,9 +331,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         filters = node_list
         assert all(isinstance(filter_node, FilteredTable) for filter_node in filters)
 
-        # Get all the required columns from the base table
-        selected_columns = {node.column for node in output_nodes}
-        query = self.get_select_expression(base_table, selected_columns)
+        # Start by selecting everything from the base table
+        query = self.get_select_expression(base_table)
         # Apply all filter operations
         for filter_node in filters:
             query = self.apply_filter(query, filter_node)
