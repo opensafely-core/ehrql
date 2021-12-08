@@ -64,10 +64,11 @@ class Cohort:
 
     def set_population(self, population: PatientSeries) -> None:
         """
-        This sets the population that are included within the Cohort
+        Sets the population that are included within the Cohort.
 
         Args:
-            population: Patients who are included within the Cohort
+            population: A boolean series indicating if any given patient
+                are included within the Cohort
         """
 
         self.population = population
@@ -83,8 +84,8 @@ class Cohort:
         Add a variable to this Cohort with a given name.
 
         Args:
-            name: The name of the variable being added
-            variable: The PatientSeries being added as the named variable.
+            name: The name of the variable to add
+            variable: The PatientSeries to add as the named variable.
         """
 
         self.__setattr__(name, variable)
@@ -146,7 +147,7 @@ class EventFrame:
 
     def count_for_patient(self) -> PatientSeries:
         """
-        Take the information from the multiple row per patient EventFrame and counts
+        Takes the information from the multiple row per patient EventFrame and counts
         the events per patient.
 
         Args:
@@ -159,32 +160,49 @@ class EventFrame:
 
     def exists_for_patient(self) -> PatientSeries:
         """
-        Take the information from the multiple row per patient EventFrame and counts
-        the events per patient.
+        Takes the information from the multiple row per patient EventFrame and returns a Boolean
+        indicating if the Patient has a matching event.
 
         Args:
             None
 
         Returns:
-            PatientSeries: A PatientSeries indicating whether each patient has a matching event."""
+            PatientSeries: A PatientSeries indicating whether each patient has a matching event.
+        """
         return PatientSeries(self.qm_table.exists())
 
 
 class SortedEventFrame:
-    """Represents an EventFrame that has been sorted."""
+    """
+    An SortedEventFrame is a representation of sorted collection of patient records.
+    Patients can have multiple rows within the SortedEventFrame and operations such as
+    filter() can be run over the SortedEventFrame to produce new Frames.
+    """
 
     def __init__(self, qm_table: BaseTable, *sort_columns: Column):
+        """
+        Initialise the SortedEventFrame
+
+        Args:
+            qm_table: A Table in a given backend that this SortedEventFrame is generated
+            from.
+            sort_columns: The Columns of the SortedEventFrame that it is sorted by.
+        """
         self.qm_table = qm_table
         self.sort_columns = sort_columns
 
     def first_for_patient(self) -> PatientFrame:
-        """Return a PatientFrame with the first event for each patient."""
-
+        """
+        Return a PatientFrame with the first event for each patient. Each patient
+        can have a maximum of one row in the PatientFrame.
+        """
         return PatientFrame(row=self.qm_table.first_by(*self._sort_column_names()))
 
     def last_for_patient(self) -> PatientFrame:
-        """Return a PatientFrame with the last event for each patient."""
-
+        """
+        Return a PatientFrame with the last event for each patient. Each patient
+        can have a maximum of one row in the PatientFrame.
+        """
         return PatientFrame(row=self.qm_table.last_by(*self._sort_column_names()))
 
     def _sort_column_names(self):
@@ -358,10 +376,10 @@ class IntColumn(Column):
 
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
     """
-    Removes all null values from a PatientSeries.
+    Generates a new PatientSeries where all null values are removed.
 
     Args:
-        patient_series: PatientSeries being checked for null values
+        patient_series: PatientSeries that may contain null values
 
     Returns:
         PatientSeries: A new PatientsSeries without null values
