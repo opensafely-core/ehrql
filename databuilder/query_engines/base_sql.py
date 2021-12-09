@@ -76,6 +76,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     # Force subclasses to define this
     temp_table_prefix: str = MissingString("'temp_table_prefix' is undefined")
 
+    temp_table_count: int = 0
+
     def get_queries(self):
         """Build the list of SQL queries to execute"""
         # Mapping of QueryNodes to SQLAlchemy expressions which we populate as part of
@@ -212,11 +214,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # For each group of "output nodes" (roughly, "nodes which we know how
         # to build a single select query for"), build a SQLAlchemy query to get
         # their values.
-        for i, (group, output_nodes) in enumerate(output_groups.items()):
+        for group, output_nodes in output_groups.items():
             query = self.get_query_expression(group, output_nodes)
             # Create a Table object representing a temporary table into which
             # we'll write the results of the query
-            table_name = self.get_temp_table_name(f"group_table_{i}")
+            table_name = self.get_temp_table_name("group_table")
             columns = [
                 sqlalchemy.Column(c.name, c.type) for c in query.selected_columns
             ]
@@ -237,11 +239,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         temporary table needed to store that codelist and then generate the
         queries necessary to create and populate those tables
         """
-        for n, codelist in enumerate(codelists):
+        for codelist in codelists:
             codes = codelist.codes
             max_code_len = max(map(len, codes))
             collation = "Latin1_General_BIN"
-            table_name = self.get_temp_table_name(f"codelist_{n}")
+            table_name = self.get_temp_table_name("codelist")
             table = sqlalchemy.Table(
                 table_name,
                 sqlalchemy.MetaData(),
@@ -273,16 +275,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 )
                 yield insert_query
 
-    def get_temp_table_name(self, table_name):
+    def get_temp_table_name(self, name_hint):
         """
-        Return a table name based on `table_name` but suitable for use as a
-        temporary table.
+        Return a table name based on `name_hint` suitable for use as a temporary table.
 
-        It's the caller's responsibility to ensure `table_name` is unique
-        within this session; it's this function's responsibility to ensure it
-        doesn't clash with any concurrent extracts
+        `name_hint` is arbitrary and is only present to make the resulting SQL slightly
+        more comprehensible when debugging.
         """
-        return f"{self.temp_table_prefix}{table_name}"
+        self.temp_table_count += 1
+        return f"{self.temp_table_prefix}{name_hint}_{self.temp_table_count}"
 
     def get_temp_database(self):
         """Which schema/database should we write temporary tables to."""
