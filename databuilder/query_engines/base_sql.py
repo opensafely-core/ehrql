@@ -483,27 +483,30 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         column_name = filter_node.column
         operator_name = filter_node.operator
-        # Does this filter require another table? i.e. is the filter value itself an
-        # Output node, which has a source that we may need to include here
         value_expr, other_tables = self.get_value_expression(filter_node.value)
-        if other_tables:
-            assert len(other_tables) == 1
-            other_table = other_tables[0]
+
+        # If the filter value itself potentially drawn from another table?
+        if isinstance(filter_node.value, (Value, Column)):
             # If we have a "Value" (i.e. a single value per patient) then we
-            # include the other table in the join
+            # include the other tables in the join
             if isinstance(filter_node.value, Value):
-                query = self.include_joined_table(query, other_table)
+                for other_table in other_tables:
+                    query = self.include_joined_table(query, other_table)
             # If we have a "Column" (i.e. multiple values per patient) then we
             # can't directly join this with our single-value-per-patient query,
             # so we have to use a correlated subquery
             elif isinstance(filter_node.value, Column):
+                # I actually think this check is wrong and we'll eventually need to
+                # support e.g. a column which is a boolean expression over multiple
+                # source columns. But I'll leave it in place for now.
+                assert len(other_tables) == 1
+                other_table = other_tables[0]
                 value_expr = (
                     sqlalchemy.select(value_expr)
                     .select_from(other_table)
                     .where(other_table.c.patient_id == table_expr.c.patient_id)
                 )
             else:
-                # Shouldn't get any other type here
                 assert False
 
         if isinstance(filter_node.value, Codelist) and "system" in table_expr.c:
