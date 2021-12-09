@@ -30,7 +30,9 @@ railway diagram:
                      |                            |
                      | select_column              |
                      V                            |
-               PatientSeries <--------------------+
+          +--> PatientSeries <--------------------+
+  round_X |          |
+          +----------+
 
 To support providing helpful error messages, we can implement __getattr__ on each class.
 This will intercept any lookup of a missing attribute, so that if eg a user tries to
@@ -50,6 +52,8 @@ from .query_language import (
     BaseTable,
     Codelist,
     Comparator,
+    RoundToFirstOfMonth,
+    RoundToFirstOfYear,
     Row,
     Value,
     ValueFromAggregate,
@@ -277,6 +281,12 @@ class PatientSeries:
 
     def __hash__(self) -> int:
         return hash(repr(self.value))
+
+    def round_to_first_of_month(self):
+        return PatientSeries(RoundToFirstOfMonth(self.value))
+
+    def round_to_first_of_year(self):
+        return PatientSeries(RoundToFirstOfYear(self.value))
 
 
 class Predicate:
