@@ -440,15 +440,72 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return value_expr, tables
 
     @get_value_expression.register
+    def get_expression_for_base_table(self, node: Table):
+        table = self.backend.get_table_expression(node.name)
+        return table.select(), ()
+
+    @get_value_expression.register
+    def get_expression_for_filtered_table(self, node: FilteredTable):
+        query, _ = self.get_value_expression(node.source)
+        return self.apply_filter(query, node), ()
+
+    @get_value_expression.register
+    def get_expression_for_row_selector(self, node: Row):
+        query, _ = self.get_value_expression(node.source)
+        query = self.apply_row_selector(
+            query,
+            sort_columns=node.sort_columns,
+            descending=node.descending,
+        )
+        table = self.reify_query(query)
+        return table, ()
+
+    @get_value_expression.register
+    def get_expression_for_row_from_aggregate(self, node: RowFromAggregate):
+        query, _ = self.get_value_expression(node.source)
+        query = self.apply_aggregates(query, [node])
+        table = self.reify_query(query)
+        return table, ()
+
+    def reify_query(self, query):
+        """
+        Take a SQLAlchemy query and return something table-like which contains the
+        results of this query.
+
+        At present, we do this via creating a temporary table and writing the results of
+        the query to that table. But this is an implementation detail, chosen for its
+        performance characteristics. It's possible to replace the below with either of:
+
+            return query.cte()
+            return query.subquery()
+
+        and the tests will still pass.
+        """
+        columns = [sqlalchemy.Column(c.name, c.type) for c in query.selected_columns]
+        table_name = self.get_temp_table_name("group_table")
+        table = sqlalchemy.Table(
+            table_name,
+            sqlalchemy.MetaData(),
+            *columns,
+        )
+        populate_table_query = self.write_query_to_table(table, query)
+        self.temp_tables[table] = [populate_table_query]
+        return table
+
+    @get_value_expression.register
     def get_expression_for_output_node(
         self, node: Union[ValueFromRow, ValueFromAggregate, Column]
     ):
-        value_expr = self.node_to_expression[node]
-        return value_expr, (value_expr.table,)
+        table, _ = self.get_value_expression(node.source)
+        column = table.c[node.column]
+        return column, (table,)
 
     @get_value_expression.register
     def get_expression_for_codelist(self, codelist: Codelist):
-        return self.node_to_expression[codelist], ()
+        table, queries = self.create_codelist_table(codelist)
+        self.temp_tables[table] = queries
+        expression = sqlalchemy.select(table.c.code).scalar_subquery()
+        return expression, ()
 
     @get_value_expression.register
     def get_expression_for_value_from_function(self, value: ValueFromFunction):
