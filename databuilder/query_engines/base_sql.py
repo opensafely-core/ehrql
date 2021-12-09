@@ -28,47 +28,12 @@ from ..query_language import (
     ValueFromFunction,
     ValueFromRow,
 )
+from ..sqlalchemy_utils import (
+    get_primary_table,
+    get_referenced_tables,
+    include_joined_table,
+)
 from .base import BaseQueryEngine
-
-
-def get_joined_tables(query):
-    """
-    Given a query object return a list of all tables referenced
-    """
-    tables = []
-    from_exprs = list(query.get_final_froms())
-    while from_exprs:
-        next_expr = from_exprs.pop()
-        if isinstance(next_expr, sqlalchemy.sql.selectable.Join):
-            from_exprs.extend([next_expr.left, next_expr.right])
-        else:
-            tables.append(next_expr)
-    # The above algorithm produces tables in right to left order, but it makes
-    # more sense to return them as left to right
-    tables.reverse()
-    return tables
-
-
-def get_primary_table(query):
-    """
-    Return the left-most table referenced in the query
-    """
-    return get_joined_tables(query)[0]
-
-
-def get_referenced_tables(clause):
-    """
-    Given an aribtrary SQLAlchemy clause determine what tables it references
-    """
-    if isinstance(clause, sqlalchemy.Table):
-        return (clause,)
-    if hasattr(clause, "table"):
-        return (clause.table,)
-    else:
-        tables = set()
-        for child in clause.get_children():
-            tables.update(get_referenced_tables(child))
-        return tuple(tables)
 
 
 class MissingString(str):
@@ -118,7 +83,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             column = self.get_value_expression(output_node)
             # Then generate the query to join on it
             for table in get_referenced_tables(column):
-                results_query = self.include_joined_table(results_query, table)
+                results_query = include_joined_table(results_query, table, "patient_id")
 
             # Add this column to the final selected results
             results_query = results_query.add_columns(column.label(column_name))
@@ -482,7 +447,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # include the other tables in the join
             if isinstance(filter_node.value, Value):
                 for other_table in other_tables:
-                    query = self.include_joined_table(query, other_table)
+                    query = include_joined_table(query, other_table, "patient_id")
             # If we have a "Column" (i.e. multiple values per patient) then we
             # can't directly join this with our single-value-per-patient query,
             # so we have to use a correlated subquery
@@ -544,19 +509,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         query = sqlalchemy.select([subquery.c[column] for column in column_names])
         query = query.select_from(subquery).where(subquery.c._row_num == 1)
         return query
-
-    @staticmethod
-    def include_joined_table(query, table):
-        tables = get_joined_tables(query)
-        if table in tables:
-            return query
-        join = sqlalchemy.join(
-            query.get_final_froms()[0],
-            table,
-            query.selected_columns.patient_id == table.c.patient_id,
-            isouter=True,
-        )
-        return query.select_from(join)
 
     def write_query_to_table(self, table, query):
         """
