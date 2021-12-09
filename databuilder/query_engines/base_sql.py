@@ -120,8 +120,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def post_execute_cleanup(self, cursor):
         """
-        A no-op by default but subclasses can implement cleanup logic here
+        Called after results have been fetched
         """
+        for table in self.temp_tables.keys():
+            self.drop_temp_table(cursor, table)
+
+    def drop_temp_table(self, cursor, table):
+        """
+        Drop the specified temporary table
+        """
+        query = sqlalchemy.schema.DropTable(table, if_exists=True)
+        cursor.execute(query)
 
     #
     # QUERY DAG METHODS AND NODE INTERACTION

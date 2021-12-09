@@ -49,14 +49,6 @@ class SparkQueryEngine(BaseSQLQueryEngine):
     def get_temp_database(self):
         return self.backend.temporary_database
 
-    def post_execute_cleanup(self, cursor):
-        """
-        Called after results have been fetched
-        """
-        for table in self.temp_tables.keys():
-            query = sqlalchemy.schema.DropTable(table, if_exists=True)
-            cursor.execute(query)
-
     def round_to_first_of_month(self, date):
         date = type_coerce(date, sqlalchemy_types.Date())
 

@@ -57,6 +57,12 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             with super().execute_query() as results:
                 yield results
 
+    def drop_temp_table(self, cursor, table):
+        # The `#` prefix is an MSSQL-ism which automatically makes the tables
+        # session-scoped temporary tables which therefore don't require cleanup
+        if not table.name.startswith("#"):
+            super().cleanup_temp_table(cursor, table)  # pragma: no cover
+
     def round_to_first_of_month(self, date):
         date = type_coerce(date, sqlalchemy_types.Date())
 
