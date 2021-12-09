@@ -38,7 +38,6 @@ class SparkQueryEngine(BaseSQLQueryEngine):
             today=datetime.date.today().strftime("%Y%m%d"),
             random=secrets.token_hex(6),
         )
-        self._temp_table_names = set()
 
     def write_query_to_table(self, table, query):
         """
@@ -47,15 +46,6 @@ class SparkQueryEngine(BaseSQLQueryEngine):
         """
         return CreateViewAs(table.name, query)
 
-    def get_temp_table_name(self, table_name):
-        """
-        Wrap the `get_temp_table_name` method so we can track which tables are created
-        and clean them up later
-        """
-        temp_table_name = super().get_temp_table_name(table_name)
-        self._temp_table_names.add(temp_table_name)
-        return temp_table_name
-
     def get_temp_database(self):
         return self.backend.temporary_database
 
@@ -63,8 +53,7 @@ class SparkQueryEngine(BaseSQLQueryEngine):
         """
         Called after results have been fetched
         """
-        for table_name in self._temp_table_names:
-            table = sqlalchemy.Table(table_name, sqlalchemy.MetaData())
+        for table in self.temp_tables.keys():
             query = sqlalchemy.schema.DropTable(table, if_exists=True)
             cursor.execute(query)
 
