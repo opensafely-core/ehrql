@@ -21,6 +21,7 @@ from ..query_language import (
     RoundToFirstOfMonth,
     RoundToFirstOfYear,
     Row,
+    RowFromAggregate,
     Table,
     Value,
     ValueFromAggregate,
@@ -192,9 +193,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @staticmethod
     def get_output_column_name(node):
-        if isinstance(node, ValueFromAggregate):
-            return f"{node.column}_{node.function}"
-        elif isinstance(node, (ValueFromRow, Column)):
+        if isinstance(node, (ValueFromAggregate, ValueFromRow, Column)):
             return node.column
         else:
             assert False, f"Unhandled type: {node}"
@@ -333,10 +332,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         # If there's an operation applied to reduce the results to a single row
         # per patient, then that will be the final element of the list
-        row_selector = None
-        if issubclass(output_type, ValueFromRow):
-            row_selector = node_list.pop()
-            assert isinstance(row_selector, Row)
+        row_reducer = None
+        if issubclass(output_type, (ValueFromRow, ValueFromAggregate)):
+            row_reducer = node_list.pop()
+            assert isinstance(row_reducer, (Row, RowFromAggregate))
 
         # All remaining nodes should be filter operations
         filters = node_list
@@ -349,16 +348,18 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         for filter_node in filters:
             query = self.apply_filter(query, filter_node)
 
-        # Apply the row selector to select the single row per patient
-        if row_selector is not None:
-            query = self.apply_row_selector(
-                query,
-                sort_columns=row_selector.sort_columns,
-                descending=row_selector.descending,
-            )
-
-        if issubclass(output_type, ValueFromAggregate):
-            query = self.apply_aggregates(query, output_nodes)
+        # Apply the a reducer to get down to a single row per patient ...
+        if row_reducer is not None:
+            # ...either by ordering the results and selecting a single row ...
+            if isinstance(row_reducer, Row):
+                query = self.apply_row_selector(
+                    query,
+                    sort_columns=row_reducer.sort_columns,
+                    descending=row_reducer.descending,
+                )
+            # ... or by aggregating values over the rows.
+            elif isinstance(row_reducer, RowFromAggregate):
+                query = self.apply_aggregates(query, [row_reducer])
 
         return query
 
@@ -545,15 +546,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         Aggregate column names are a combination of column and aggregate function,
         e.g. "patient_id_exists"
         """
-        output_column = self.get_output_column_name(aggregate_node)
+        output_column = aggregate_node.output_column
         if aggregate_node.function == "exists":
             return sqlalchemy.literal(True).label(output_column)
         else:
             # The aggregate node function is a string corresponding to an available
             # sqlalchemy function (e.g. "exists", "count")
             function = getattr(sqlalchemy.func, aggregate_node.function)
-            source_column = aggregate_node.column
-            return function(query.selected_columns[source_column]).label(output_column)
+            source_column = query.selected_columns[aggregate_node.input_column]
+            return function(source_column).label(output_column)
 
     def apply_filter(self, query, filter_node):
         # Get the base table

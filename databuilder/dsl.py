@@ -78,7 +78,9 @@ class Cohort:
         self.population = population
         value = population.value
 
-        if not (isinstance(value, ValueFromAggregate) and value.function == "exists"):
+        if not (
+            isinstance(value, ValueFromAggregate) and value.source.function == "exists"
+        ):
             raise ValueError(
                 "Population variable must return a boolean. Did you mean to use `exists_for_patient()`?"
             )
