@@ -56,6 +56,21 @@ def get_primary_table(query):
     return get_joined_tables(query)[0]
 
 
+def get_referenced_tables(clause):
+    """
+    Given an aribtrary SQLAlchemy clause determine what tables it references
+    """
+    if isinstance(clause, sqlalchemy.Table):
+        return (clause,)
+    if hasattr(clause, "table"):
+        return (clause.table,)
+    else:
+        tables = set()
+        for child in clause.get_children():
+            tables.update(get_referenced_tables(child))
+        return tuple(tables)
+
+
 class MissingString(str):
     def __init__(self, message):
         self.message = message
@@ -100,9 +115,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # For each output column, generate the query that selects it from its interim table(s)
             # For most outputs there will just be a single interim table.  Category outputs
             # may require more than one.
-            column, tables = self.get_value_expression(output_node)
+            column = self.get_value_expression(output_node)
             # Then generate the query to join on it
-            for table in tables:
+            for table in get_referenced_tables(column):
                 results_query = self.include_joined_table(results_query, table)
 
             # Add this column to the final selected results
@@ -209,7 +224,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def get_population_table_query(self, population):
         """Build the query that selects the patient population we're interested in"""
-        is_included, tables = self.get_value_expression(population)
+        is_included = self.get_value_expression(population)
+        tables = get_referenced_tables(is_included)
         assert len(tables) == 1
         population_table = tables[0]
         return (
@@ -227,24 +243,19 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             assert isinstance(comparator.lhs, Comparator) and isinstance(
                 comparator.rhs, Comparator
             )
-            left_conditions, left_tables = self.build_condition_statement(
-                comparator.lhs
-            )
-            right_conditions, right_tables = self.build_condition_statement(
-                comparator.rhs
-            )
+            left_conditions = self.build_condition_statement(comparator.lhs)
+            right_conditions = self.build_condition_statement(comparator.rhs)
             connector = getattr(sqlalchemy, comparator.connector)
             condition_statement = connector(left_conditions, right_conditions)
-            tables = tuple(set(left_tables + right_tables))
         else:
-            lhs, tables = self.get_value_expression(comparator.lhs)
+            lhs = self.get_value_expression(comparator.lhs)
             method = getattr(lhs, comparator.operator)
             condition_statement = method(comparator.rhs)
 
         if comparator.negated:
             condition_statement = sqlalchemy.not_(condition_statement)
 
-        return condition_statement, tables
+        return condition_statement
 
     def get_value_expression(self, value):
         """
@@ -269,19 +280,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @singledispatchmethod_with_unions
     def get_value_expression_no_cache(self, value):
         """
-        Given a "value" from the Query Model, convert it to a pair of:
-
-            (SQLAlchemy-expression, tuple-of-SQLAlchemy-tables)
+        Given a "value" from the Query Model, convert it to a SQLAlchemy expression, or
+        at least something usable by SQLAlchemy.
 
         `value` can be anything that can be represented in our Query Model e.g. a table, a
         table with some filters applied, a codelist, a column from a table, and so on.
         It could also be simple static value like a date or an integer. Whatever it is,
         we need to return its appropriate SQLAlchemy representation.
-
-        The tuple of tables is required so that if we want to make use of this value in
-        a query, we always know what tables we have to join to. It's in theory possible
-        to dig this information out of the SQLAlchemy object by walking through its
-        children, but for now we do this by manually tracking the tables involved.
 
         Most of the interesting logic happens when `value` is a subclass of QueryNode
         i.e. not just a plain old integer or date or whatever. These are handled in the
@@ -296,51 +301,43 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # gets messy quite fast so for now we just make sure that whatever we've been
         # passed *isn't* a QueryNode.
         assert not isinstance(value, QueryNode)
-        return value, ()
+        return value
 
     @get_value_expression_no_cache.register
     def get_expression_for_category_node(self, value: ValueFromCategory):
         category_mapping = {}
-        tables = set()
         for label, category_definition in value.definitions.items():
             # A category definition is always a single Comparator, which may contain
             # nested Comparators
-            condition_statement, condition_tables = self.build_condition_statement(
-                category_definition
-            )
+            condition_statement = self.build_condition_statement(category_definition)
             category_mapping[label] = condition_statement
-            tables.update(condition_tables)
-        value_expr = self.get_case_expression(category_mapping, value.default)
-        tables = tuple(tables)
-        return value_expr, tables
+        return self.get_case_expression(category_mapping, value.default)
 
     @get_value_expression_no_cache.register
     def get_expression_for_base_table(self, node: Table):
         table = self.backend.get_table_expression(node.name)
-        return table.select(), ()
+        return table.select()
 
     @get_value_expression_no_cache.register
     def get_expression_for_filtered_table(self, node: FilteredTable):
-        query, _ = self.get_value_expression(node.source)
-        return self.apply_filter(query, node), ()
+        query = self.get_value_expression(node.source)
+        return self.apply_filter(query, node)
 
     @get_value_expression_no_cache.register
     def get_expression_for_row_selector(self, node: Row):
-        query, _ = self.get_value_expression(node.source)
+        query = self.get_value_expression(node.source)
         query = self.apply_row_selector(
             query,
             sort_columns=node.sort_columns,
             descending=node.descending,
         )
-        table = self.reify_query(query)
-        return table, ()
+        return self.reify_query(query)
 
     @get_value_expression_no_cache.register
     def get_expression_for_row_from_aggregate(self, node: RowFromAggregate):
-        query, _ = self.get_value_expression(node.source)
+        query = self.get_value_expression(node.source)
         query = self.apply_aggregates(query, [node])
-        table = self.reify_query(query)
-        return table, ()
+        return self.reify_query(query)
 
     def reify_query(self, query):
         """
@@ -371,26 +368,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_expression_for_output_node(
         self, node: Union[ValueFromRow, ValueFromAggregate, Column]
     ):
-        table, _ = self.get_value_expression(node.source)
-        column = table.c[node.column]
-        return column, (table,)
+        table = self.get_value_expression(node.source)
+        return table.c[node.column]
 
     @get_value_expression_no_cache.register
     def get_expression_for_codelist(self, codelist: Codelist):
         table, queries = self.create_codelist_table(codelist)
         self.temp_tables[table] = queries
-        expression = sqlalchemy.select(table.c.code).scalar_subquery()
-        return expression, ()
+        return sqlalchemy.select(table.c.code).scalar_subquery()
 
     @get_value_expression_no_cache.register
     def get_expression_for_value_from_function(self, value: ValueFromFunction):
-        argument_expressions = []
-        tables = set()
-        for arg in value.arguments:
-            arg_expr, arg_tables = self.get_value_expression(arg)
-            argument_expressions.append(arg_expr)
-            tables.update(arg_tables)
-
         # TODO: I'd quite like to build this map by decorating the methods e.g.
         #
         #   @handler_for(DateDifferenceInYears)
@@ -406,9 +394,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert value.__class__ in class_method_map, f"Unsupported function: {value}"
 
         method = class_method_map[value.__class__]
-        value_expression = method(*argument_expressions)
-
-        return value_expression, tuple(tables)
+        argument_expressions = [
+            self.get_value_expression(arg) for arg in value.arguments
+        ]
+        return method(*argument_expressions)
 
     def date_difference_in_years(self, start_date, end_date):
         start_date = type_coerce(start_date, sqlalchemy_types.Date())
@@ -483,10 +472,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         column_name = filter_node.column
         operator_name = filter_node.operator
-        value_expr, other_tables = self.get_value_expression(filter_node.value)
+        value_expr = self.get_value_expression(filter_node.value)
 
         # If the filter value itself potentially drawn from another table?
         if isinstance(filter_node.value, (Value, Column)):
+            # Find the tables to which it refers
+            other_tables = get_referenced_tables(value_expr)
             # If we have a "Value" (i.e. a single value per patient) then we
             # include the other tables in the join
             if isinstance(filter_node.value, Value):
