@@ -32,11 +32,13 @@ class SparkQueryEngine(BaseSQLQueryEngine):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._temp_table_names = set()
-        self._temp_table_prefix = "tmp_{today}_{random}_".format(
+        # Create a unique prefix for temporary tables. Including the date makes it
+        # easier to clean this up by hand later if we have to.
+        self.temp_table_prefix = "tmp_{today}_{random}_".format(
             today=datetime.date.today().strftime("%Y%m%d"),
             random=secrets.token_hex(6),
         )
+        self._temp_table_names = set()
 
     def write_query_to_table(self, table, query):
         """
@@ -47,14 +49,10 @@ class SparkQueryEngine(BaseSQLQueryEngine):
 
     def get_temp_table_name(self, table_name):
         """
-        Return a table name based on `table_name` but suitable for use as a
-        temporary table.
-
-        It's the caller's responsibility to ensure `table_name` is unique
-        within this session; it's this function's responsibility to ensure it
-        doesn't clash with any concurrent extracts
+        Wrap the `get_temp_table_name` method so we can track which tables are created
+        and clean them up later
         """
-        temp_table_name = f"{self._temp_table_prefix}{table_name}"
+        temp_table_name = super().get_temp_table_name(table_name)
         self._temp_table_names.add(temp_table_name)
         return temp_table_name
 

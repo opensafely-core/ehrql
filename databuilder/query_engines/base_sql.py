@@ -55,6 +55,14 @@ def get_primary_table(query):
     return get_joined_tables(query)[0]
 
 
+class MissingString(str):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        raise NotImplementedError(self.message)
+
+
 class BaseSQLQueryEngine(BaseQueryEngine):
 
     sqlalchemy_dialect: type[Dialect]
@@ -64,6 +72,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     # Per-instance cache for SQLAlchemy Engine
     _engine: Optional[sqlalchemy.engine.Engine] = None
+
+    # Force subclasses to define this
+    temp_table_prefix: str = MissingString("'temp_table_prefix' is undefined")
 
     def get_queries(self):
         """Build the list of SQL queries to execute"""
@@ -271,7 +282,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         within this session; it's this function's responsibility to ensure it
         doesn't clash with any concurrent extracts
         """
-        raise NotImplementedError()
+        return f"{self.temp_table_prefix}{table_name}"
 
     def get_temp_database(self):
         """Which schema/database should we write temporary tables to."""
