@@ -85,6 +85,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # object to the list of queries needed to create and populate it. This will get
         # populated inside the calls to `get_value_expression` below.
         self.temp_tables: dict[sqlalchemy.Table, list[sqlalchemy.sql.Executable]] = {}
+        # Reset the cache. See the docstring on `get_value_expression` for more details
+        self.value_expression_cache: dict[QueryNode, sqlalchemy.sql.ClauseElement] = {}
 
         # `population` is a special-cased boolean column, it doesn't appear
         # itself in the output but it determines what rows are included
@@ -244,8 +246,28 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return condition_statement, tables
 
-    @singledispatchmethod_with_unions
     def get_value_expression(self, value):
+        """
+        Caching wrapper around `get_value_expression_no_cache()` below
+
+        This is a peformance enhancement, not for the Python code, but rather for the
+        SQL we generate. It ensures that we don't get needlessly complex (though
+        correct) SQL by generating duplicated temporary tables or table clauses.
+        """
+        # Plain values don't require cached responses and as they may be mutable types
+        # like lists we can't easily cache them in any case. It's only QueryNodes that
+        # we want to cache.
+        if not isinstance(value, QueryNode):
+            return self.get_value_expression_no_cache(value)
+        elif value in self.value_expression_cache:
+            return self.value_expression_cache[value]
+        else:
+            result = self.get_value_expression_no_cache(value)
+            self.value_expression_cache[value] = result
+            return result
+
+    @singledispatchmethod_with_unions
+    def get_value_expression_no_cache(self, value):
         """
         Given a "value" from the Query Model, convert it to a pair of:
 
@@ -276,7 +298,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert not isinstance(value, QueryNode)
         return value, ()
 
-    @get_value_expression.register
+    @get_value_expression_no_cache.register
     def get_expression_for_category_node(self, value: ValueFromCategory):
         category_mapping = {}
         tables = set()
@@ -292,17 +314,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         tables = tuple(tables)
         return value_expr, tables
 
-    @get_value_expression.register
+    @get_value_expression_no_cache.register
     def get_expression_for_base_table(self, node: Table):
         table = self.backend.get_table_expression(node.name)
         return table.select(), ()
 
-    @get_value_expression.register
+    @get_value_expression_no_cache.register
     def get_expression_for_filtered_table(self, node: FilteredTable):
         query, _ = self.get_value_expression(node.source)
         return self.apply_filter(query, node), ()
 
-    @get_value_expression.register
+    @get_value_expression_no_cache.register
     def get_expression_for_row_selector(self, node: Row):
         query, _ = self.get_value_expression(node.source)
         query = self.apply_row_selector(
@@ -313,7 +335,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         table = self.reify_query(query)
         return table, ()
 
-    @get_value_expression.register
+    @get_value_expression_no_cache.register
     def get_expression_for_row_from_aggregate(self, node: RowFromAggregate):
         query, _ = self.get_value_expression(node.source)
         query = self.apply_aggregates(query, [node])
@@ -345,7 +367,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.temp_tables[table] = [populate_table_query]
         return table
 
-    @get_value_expression.register
+    @get_value_expression_no_cache.register
     def get_expression_for_output_node(
         self, node: Union[ValueFromRow, ValueFromAggregate, Column]
     ):
@@ -353,14 +375,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         column = table.c[node.column]
         return column, (table,)
 
-    @get_value_expression.register
+    @get_value_expression_no_cache.register
     def get_expression_for_codelist(self, codelist: Codelist):
         table, queries = self.create_codelist_table(codelist)
         self.temp_tables[table] = queries
         expression = sqlalchemy.select(table.c.code).scalar_subquery()
         return expression, ()
 
-    @get_value_expression.register
+    @get_value_expression_no_cache.register
     def get_expression_for_value_from_function(self, value: ValueFromFunction):
         argument_expressions = []
         tables = set()
