@@ -17,25 +17,16 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
     # https://docs.microsoft.com/en-us/sql/t-sql/queries/table-value-constructor-transact-sql?view=sql-server-ver15#limitations-and-restrictions
     max_rows_per_insert = 999
 
+    # The `#` prefix is an MSSQL-ism which automatically makes the tables session-scoped
+    # temporary tables
+    temp_table_prefix = "#"
+
     def write_query_to_table(self, table, query):
         """
         Returns a new query which, when executed, writes the results of `query`
         into `table`
         """
         return write_query_to_table(table, query)
-
-    def get_temp_table_name(self, table_name):
-        """
-        Return a table name based on `table_name` but suitable for use as a
-        temporary table.
-
-        It's the caller's responsibility to ensure `table_name` is unique
-        within this session; it's this function's responsibility to ensure it
-        doesn't clash with any concurrent extracts
-        """
-        # The `#` prefix makes this a session-scoped temporary table which
-        # automatically gives us the isolation we need
-        return f"#{table_name}"
 
     @contextlib.contextmanager
     def execute_query(self):
@@ -65,6 +56,12 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             # the normal manner
             with super().execute_query() as results:
                 yield results
+
+    def drop_temp_table(self, cursor, table):
+        # The `#` prefix is an MSSQL-ism which automatically makes the tables
+        # session-scoped temporary tables which therefore don't require cleanup
+        if not table.name.startswith("#"):
+            super().cleanup_temp_table(cursor, table)  # pragma: no cover
 
     def round_to_first_of_month(self, date):
         date = type_coerce(date, sqlalchemy_types.Date())

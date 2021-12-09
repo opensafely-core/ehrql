@@ -32,8 +32,9 @@ class SparkQueryEngine(BaseSQLQueryEngine):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._temp_table_names = set()
-        self._temp_table_prefix = "tmp_{today}_{random}_".format(
+        # Create a unique prefix for temporary tables. Including the date makes it
+        # easier to clean this up by hand later if we have to.
+        self.temp_table_prefix = "tmp_{today}_{random}_".format(
             today=datetime.date.today().strftime("%Y%m%d"),
             random=secrets.token_hex(6),
         )
@@ -45,30 +46,8 @@ class SparkQueryEngine(BaseSQLQueryEngine):
         """
         return CreateViewAs(table.name, query)
 
-    def get_temp_table_name(self, table_name):
-        """
-        Return a table name based on `table_name` but suitable for use as a
-        temporary table.
-
-        It's the caller's responsibility to ensure `table_name` is unique
-        within this session; it's this function's responsibility to ensure it
-        doesn't clash with any concurrent extracts
-        """
-        temp_table_name = f"{self._temp_table_prefix}{table_name}"
-        self._temp_table_names.add(temp_table_name)
-        return temp_table_name
-
     def get_temp_database(self):
         return self.backend.temporary_database
-
-    def post_execute_cleanup(self, cursor):
-        """
-        Called after results have been fetched
-        """
-        for table_name in self._temp_table_names:
-            table = sqlalchemy.Table(table_name, sqlalchemy.MetaData())
-            query = sqlalchemy.schema.DropTable(table, if_exists=True)
-            cursor.execute(query)
 
     def round_to_first_of_month(self, date):
         date = type_coerce(date, sqlalchemy_types.Date())
