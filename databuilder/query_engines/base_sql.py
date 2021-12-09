@@ -89,10 +89,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         # Create and populate tables containing codelists
         codelists = [node for node in all_nodes if isinstance(node, Codelist)]
-        queries.extend(self.create_codelist_tables(codelists))
+        for codelist in codelists:
+            queries.extend(self.create_codelist_table(codelist))
         # Generate each of the interim output group tables and populate them
         output_groups = self.get_output_groups(all_nodes)
-        queries.extend(self.create_output_group_tables(output_groups))
+        for group_type, group_members in output_groups.items():
+            queries.extend(self.create_output_group_table(group_type, group_members))
         # Add the big query that creates the base population table and its columns,
         # selected from the output group tables
         queries.append(self.generate_results_query())
@@ -209,71 +211,64 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             assert isinstance(self._engine.dialect, self.sqlalchemy_dialect)
         return self._engine
 
-    def create_output_group_tables(self, output_groups):
+    def create_output_group_table(self, group, output_nodes):
         """Queries to generate and populate interim tables for each output"""
-        # For each group of "output nodes" (roughly, "nodes which we know how
-        # to build a single select query for"), build a SQLAlchemy query to get
-        # their values.
-        for group, output_nodes in output_groups.items():
-            query = self.get_query_expression(group, output_nodes)
-            # Create a Table object representing a temporary table into which
-            # we'll write the results of the query
-            table_name = self.get_temp_table_name("group_table")
-            columns = [
-                sqlalchemy.Column(c.name, c.type) for c in query.selected_columns
-            ]
-            table = sqlalchemy.Table(
-                table_name,
-                sqlalchemy.MetaData(),
-                *columns,
-            )
-            for node in output_nodes:
-                column = self.get_output_column_name(node)
-                sqlalchemy_expr = table.c[column]
-                self.node_to_expression[node] = sqlalchemy_expr
-            yield self.write_query_to_table(table, query)
+        query = self.get_query_expression(group, output_nodes)
+        # Create a Table object representing a temporary table into which
+        # we'll write the results of the query
+        table_name = self.get_temp_table_name("group_table")
+        columns = [sqlalchemy.Column(c.name, c.type) for c in query.selected_columns]
+        table = sqlalchemy.Table(
+            table_name,
+            sqlalchemy.MetaData(),
+            *columns,
+        )
+        for node in output_nodes:
+            column = self.get_output_column_name(node)
+            sqlalchemy_expr = table.c[column]
+            self.node_to_expression[node] = sqlalchemy_expr
+        yield self.write_query_to_table(table, query)
 
-    def create_codelist_tables(self, codelists):
+    def create_codelist_table(self, codelist):
         """
-        For each codelist in use, build a SQLAlchemy representation of the
-        temporary table needed to store that codelist and then generate the
-        queries necessary to create and populate those tables
+        Given a codelist, build a SQLAlchemy representation of the temporary table
+        needed to store that codelist and then generate the queries necessary to create
+        and populate that tables
         """
-        for codelist in codelists:
-            codes = codelist.codes
-            max_code_len = max(map(len, codes))
-            collation = "Latin1_General_BIN"
-            table_name = self.get_temp_table_name("codelist")
-            table = sqlalchemy.Table(
-                table_name,
-                sqlalchemy.MetaData(),
-                sqlalchemy.Column(
-                    "code",
-                    sqlalchemy.types.String(max_code_len, collation=collation),
-                    nullable=False,
-                ),
-                sqlalchemy.Column(
-                    "system",
-                    sqlalchemy.types.String(6),
-                    nullable=False,
-                ),
-                # If this backend has a temp db, we use it to store codelists
-                # tables. This helps with permissions management, as we can have
-                # write acces to the temp db but not the main db
-                schema=self.get_temp_database(),
+        codes = codelist.codes
+        max_code_len = max(map(len, codes))
+        collation = "Latin1_General_BIN"
+        table_name = self.get_temp_table_name("codelist")
+        table = sqlalchemy.Table(
+            table_name,
+            sqlalchemy.MetaData(),
+            sqlalchemy.Column(
+                "code",
+                sqlalchemy.types.String(max_code_len, collation=collation),
+                nullable=False,
+            ),
+            sqlalchemy.Column(
+                "system",
+                sqlalchemy.types.String(6),
+                nullable=False,
+            ),
+            # If this backend has a temp db, we use it to store codelists
+            # tables. This helps with permissions management, as we can have
+            # write acces to the temp db but not the main db
+            schema=self.get_temp_database(),
+        )
+        # Construct a SQLAlchemy expression for the codelist
+        sqlalchemy_expr = sqlalchemy.select(table.c.code).scalar_subquery()
+        self.node_to_expression[codelist] = sqlalchemy_expr
+        # Constuct the queries needed to create and populate this table
+        yield sqlalchemy.schema.CreateTable(table)
+        for codes_batch in split_list_into_batches(
+            codes, size=self.max_rows_per_insert
+        ):
+            insert_query = table.insert().values(
+                [(code, codelist.system) for code in codes_batch]
             )
-            # Construct a SQLAlchemy expression for the codelist
-            sqlalchemy_expr = sqlalchemy.select(table.c.code).scalar_subquery()
-            self.node_to_expression[codelist] = sqlalchemy_expr
-            # Constuct the queries needed to create and populate this table
-            yield sqlalchemy.schema.CreateTable(table)
-            for codes_batch in split_list_into_batches(
-                codes, size=self.max_rows_per_insert
-            ):
-                insert_query = table.insert().values(
-                    [(code, codelist.system) for code in codes_batch]
-                )
-                yield insert_query
+            yield insert_query
 
     def get_temp_table_name(self, name_hint):
         """
