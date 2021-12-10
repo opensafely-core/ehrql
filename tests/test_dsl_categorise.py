@@ -422,6 +422,9 @@ def test_categorise_invalid_default():
 def test_cannot_compare_comparators():
     codes = tables.clinical_events.count_for_patient()
     count_3 = codes == 3
+
     assert isinstance(count_3.value, Comparator)
-    with pytest.raises(RuntimeError, match="Invalid operation"):
+
+    error_msg = "'>' not supported between instances of 'BoolSeries' and 'int'"
+    with pytest.raises(TypeError, match=error_msg):
         (codes == 3) > 2

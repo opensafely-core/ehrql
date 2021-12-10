@@ -131,3 +131,45 @@ def test_dsl_date_comparisons(cohort_with_population, engine):
         {"patient_id": 3, "date_group": "in_2020"},
         {"patient_id": 4, "date_group": "after_2020"},
     ]
+
+
+def test_dsl_int_comparisons(cohort_with_population, engine):
+    """
+    Exercise comparison (and some boolean) operators in the DSL
+
+    We want to ensure the IntSeries comparison and boolean operators work
+    as expected for int values.  We're using the DSL's categorise function
+    here to let us make boolean values against which to match the IntSeries
+    values.
+    """
+    input_data = [
+        patient(1, height=7),
+        patient(2, height=21),
+        patient(3, height=28),
+        patient(4, height=35),
+    ]
+    engine.setup(input_data)
+
+    patients = MockPatients()
+    height = patients.select_column(patients.height)
+
+    twenty_to_twenty_four = (height >= 20) & (height <= 24)
+    twenty_five_to_twenty_nine = (height >= 25) & (height <= 29)
+    in_20s = twenty_to_twenty_four | twenty_five_to_twenty_nine
+    height_categories = {
+        "before_20s": height < 20,
+        "in_20s": in_20s,
+        "after_20s": height > 29,
+    }
+
+    data_definition = cohort_with_population
+    data_definition.height_group = dsl_categorise(height_categories, default="unknown")
+
+    result = engine.extract(data_definition)
+
+    assert result == [
+        {"patient_id": 1, "height_group": "before_20s"},
+        {"patient_id": 2, "height_group": "in_20s"},
+        {"patient_id": 3, "height_group": "in_20s"},
+        {"patient_id": 4, "height_group": "after_20s"},
+    ]

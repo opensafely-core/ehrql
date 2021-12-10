@@ -46,7 +46,7 @@ for end users.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Generic, TypeVar, Union, overload
+from typing import Generic, TypeVar, overload
 
 from .query_language import (
     BaseTable,
@@ -151,7 +151,7 @@ class EventFrame:
         """
         return SortedEventFrame(self.qm_table, *columns)
 
-    def count_for_patient(self) -> PatientSeries:
+    def count_for_patient(self) -> IntSeries:
         """
         Takes the information from the multiple row per patient EventFrame and counts
         the events per patient.
@@ -160,11 +160,11 @@ class EventFrame:
             None
 
         Returns:
-            PatientSeries: A count of events per patient
+            IntSeries: A count of events per patient
         """
-        return PatientSeries(self.qm_table.count())
+        return IntSeries(self.qm_table.count())
 
-    def exists_for_patient(self) -> PatientSeries:
+    def exists_for_patient(self) -> BoolSeries:
         """
         Takes the information from the multiple row per patient EventFrame and returns a Boolean
         indicating if the Patient has a matching event.
@@ -173,9 +173,9 @@ class EventFrame:
             None
 
         Returns:
-            PatientSeries: A PatientSeries indicating whether each patient has a matching event.
+            BoolSeries: A BoolSeries indicating whether each patient has a matching event.
         """
-        return PatientSeries(self.qm_table.exists())
+        return BoolSeries(self.qm_table.exists())
 
 
 class SortedEventFrame:
@@ -248,46 +248,25 @@ class PatientSeries:
     """
 
     def __init__(self, value: Value | Comparator):
-        """
-        Initialise the PatientSeries
-
-        Args:
-            value: A Value or a Comparator. A Value contains a value such as numeric value,
-                and a Comparator compares the value to a ValueExpression and returns a Boolean.
-        """
         self.value = value
 
     def _is_comparator(self) -> bool:
         return isinstance(self.value, Comparator)
 
-    def __gt__(self, other: ValueExpression) -> PatientSeries:
-        return PatientSeries(value=self.value > other)
-
-    def __ge__(self, other: ValueExpression) -> PatientSeries:
-        return PatientSeries(value=self.value >= other)
-
-    def __lt__(self, other: ValueExpression) -> PatientSeries:
-        return PatientSeries(value=self.value < other)
-
-    def __le__(self, other: ValueExpression) -> PatientSeries:
-        return PatientSeries(value=self.value <= other)
-
-    def __eq__(self, other: ValueExpression) -> PatientSeries:  # type: ignore[override]
-        # All python objects have __eq__ and __ne__ defined, so overriding these method s
+    def __eq__(self, other: PatientSeries | Comparator | str | int) -> BoolSeries:  # type: ignore[override]
+        # All python objects have __eq__ and __ne__ defined, so overriding these methods
         # involves overriding them on a superclass (`object`), which results in
         # a typing error as it violates the violates the Liskov substitution principle
         # https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
         # We are deliberately overloading the operators here, hence the ignore
-        return PatientSeries(value=self.value == other)
+        other_value = other.value if isinstance(other, PatientSeries) else other
+        return BoolSeries(value=self.value == other_value)
 
-    def __ne__(self, other: ValueExpression) -> PatientSeries:  # type: ignore[override]
-        return PatientSeries(value=self.value != other)
+    def __ne__(self, other: PatientSeries | Comparator | str | int) -> BoolSeries:  # type: ignore[override]
+        return BoolSeries(value=self.value != other)
 
-    def __and__(self, other: PatientSeries) -> PatientSeries:
-        return PatientSeries(value=self.value & other.value)
-
-    def __or__(self, other: PatientSeries) -> PatientSeries:
-        return PatientSeries(value=self.value | other.value)
+    def __hash__(self) -> int:
+        return hash(repr(self.value))
 
     def __invert__(self) -> PatientSeries:
         if self._is_comparator():
@@ -301,9 +280,6 @@ class PatientSeries:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"
 
-    def __hash__(self) -> int:
-        return hash(repr(self.value))
-
     def round_to_first_of_month(self):
         return PatientSeries(RoundToFirstOfMonth(self.value))
 
@@ -312,15 +288,45 @@ class PatientSeries:
 
 
 class BoolSeries(PatientSeries):
-    pass
+    def __and__(self, other: BoolSeries) -> BoolSeries:
+        return BoolSeries(value=self.value & other.value)
+
+    def __or__(self, other: BoolSeries) -> BoolSeries:
+        return BoolSeries(value=self.value | other.value)
 
 
 class CodeSeries(PatientSeries):
-    pass
+    def __and__(self, other: CodeSeries) -> BoolSeries:
+        return BoolSeries(value=self.value & other.value)
+
+    def __invert__(self) -> BoolSeries:
+        return BoolSeries(
+            value=(
+                Comparator(lhs=self.value, operator="__ne__", rhs=None, negated=True)
+            )
+        )
 
 
 class DateSeries(PatientSeries):
-    pass
+    def __gt__(self, other: DateSeries | str) -> BoolSeries:
+        other_value = other.value if isinstance(other, DateSeries) else other
+        return BoolSeries(value=self.value > other_value)
+
+    def __ge__(self, other: DateSeries | str) -> BoolSeries:
+        other_value = other.value if isinstance(other, DateSeries) else other
+        return BoolSeries(value=self.value >= other_value)
+
+    def __lt__(self, other: DateSeries | str) -> BoolSeries:
+        other_value = other.value if isinstance(other, DateSeries) else other
+        return BoolSeries(value=self.value < other_value)
+
+    def __le__(self, other: DateSeries | str) -> BoolSeries:
+        other_value = other.value if isinstance(other, DateSeries) else other
+        return BoolSeries(value=self.value <= other_value)
+
+    def __ne__(self, other: DateSeries | str) -> BoolSeries:  # type: ignore[override]
+        other_value = other.value if isinstance(other, DateSeries) else other
+        return BoolSeries(value=self.value != other_value)
 
 
 class IdSeries(PatientSeries):
@@ -328,7 +334,25 @@ class IdSeries(PatientSeries):
 
 
 class IntSeries(PatientSeries):
-    pass
+    def __gt__(self, other: IntSeries | int) -> BoolSeries:
+        other_value = other.value if isinstance(other, IntSeries) else other
+        return BoolSeries(value=self.value > other_value)
+
+    def __ge__(self, other: IntSeries | int) -> BoolSeries:
+        other_value = other.value if isinstance(other, IntSeries) else other
+        return BoolSeries(value=self.value >= other_value)
+
+    def __lt__(self, other: IntSeries | int) -> BoolSeries:
+        other_value = other.value if isinstance(other, IntSeries) else other
+        return BoolSeries(value=self.value < other_value)
+
+    def __le__(self, other: IntSeries | int) -> BoolSeries:
+        other_value = other.value if isinstance(other, IntSeries) else other
+        return BoolSeries(value=self.value <= other_value)
+
+    def __ne__(self, other: IntSeries | int) -> BoolSeries:  # type: ignore[override]
+        other_value = other.value if isinstance(other, IntSeries) else other
+        return BoolSeries(value=self.value != other_value)
 
 
 S = TypeVar("S", bound=PatientSeries)
@@ -579,6 +603,3 @@ def raise_category_errors(errors):
         raise next_category_error
     finally:
         raise_category_errors(errors)
-
-
-ValueExpression = Union[PatientSeries, Comparator, str, int]
