@@ -59,7 +59,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     # Force subclasses to define this
     temp_table_prefix: str = MissingString("'temp_table_prefix' is undefined")
 
+    # Use a simple counter to generate unique (per session) temporary table names
     temp_table_count: int = 0
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # See docstring on `get_sql_element` for details on this
+        self.sql_element_cache: dict[QueryNode, ClauseElement] = {}
 
     def get_queries(self) -> tuple[list[Executable], Executable, list[Executable]]:
         """
@@ -69,31 +75,41 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
             list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
         """
-        # Reset the cache. See the docstring on `get_sql_element` for more details
-        self.sql_element_cache: dict[QueryNode, ClauseElement] = {}
+        # Convert each column definition to SQL
+        column_queries = {
+            column: self.get_sql_element(definition)
+            for column, definition in self.column_definitions.items()
+        }
 
         # `population` is a special-cased boolean column, it doesn't appear
         # itself in the output but it determines what rows are included
-        # Build the base results table from the population table
-        column_definitions = self.column_definitions.copy()
-        population = column_definitions.pop("population")
-        results_query = self.get_population_table_query(population)
+        population_query = column_queries.pop("population")
 
-        # Build big JOIN query which selects the results
-        for column_name, output_node in column_definitions.items():
-            # For each output column, generate the query that selects it from its interim table(s)
-            # For most outputs there will just be a single interim table.  Category outputs
-            # may require more than one.
-            column = self.get_sql_element(output_node)
-            # Then generate the query to join on it
-            tables = get_referenced_tables(column)
-            results_query = include_joined_tables(results_query, tables, "patient_id")
+        # TODO: Why do we require just a single table here for the population?
+        tables = get_referenced_tables(population_query)
+        assert len(tables) == 1
+        population_table = tables[0]
 
-            # Add this column to the final selected results
-            results_query = results_query.add_columns(column.label(column_name))
+        # Start the query by selecting the "patint_id" column from all rows where the
+        # "population" condition evaluates true
+        results_query = (
+            sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
+            .select_from(population_table)
+            .where(population_query == True)  # noqa: E712
+        )
 
-        # Get all the queries needed to populate the various temporary tables used by
-        # the query and then clean them up afterwards
+        # For each column to be included in the output ...
+        for column_name, column_query in column_queries.items():
+            # Ensure the results_query JOINs on all the tables it needs to be able to
+            # include this column in the output
+            results_query = include_joined_tables(
+                results_query, get_referenced_tables(column_query), "patient_id"
+            )
+            # Add this column to the final selected results using the supplied name
+            results_query = results_query.add_columns(column_query.label(column_name))
+
+        # Get all the setup queries needed to populate the various temporary tables used
+        # by the results_query, and the queries needed to clean them up afterwards
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
 
         return setup_queries, results_query, cleanup_queries
@@ -191,18 +207,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_temp_database(self):
         """Which schema/database should we write temporary tables to."""
         return None
-
-    def get_population_table_query(self, population):
-        """Build the query that selects the patient population we're interested in"""
-        is_included = self.get_sql_element(population)
-        tables = get_referenced_tables(is_included)
-        assert len(tables) == 1
-        population_table = tables[0]
-        return (
-            sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
-            .select_from(population_table)
-            .where(is_included == True)  # noqa: E712
-        )
 
     def build_condition_statement(self, comparator):
         """
