@@ -29,8 +29,10 @@ from ..query_language import (
     ValueFromRow,
 )
 from ..sqlalchemy_utils import (
+    TemporaryTable,
     get_primary_table,
     get_referenced_tables,
+    get_setup_and_cleanup_queries,
     include_joined_tables,
 )
 from .base import BaseQueryEngine
@@ -61,10 +63,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def get_queries(self):
         """Build the list of SQL queries to execute"""
-        # Record all the temporary tables we need to create as a mapping from Table
-        # object to the list of queries needed to create and populate it. This will get
-        # populated inside the calls to `get_sql_element` below.
-        self.temp_tables: dict[sqlalchemy.Table, list[Executable]] = {}
         # Reset the cache. See the docstring on `get_sql_element` for more details
         self.sql_element_cache: dict[QueryNode, ClauseElement] = {}
 
@@ -88,10 +86,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # Add this column to the final selected results
             results_query = results_query.add_columns(column.label(column_name))
 
-        # Get all the queries needed to populate the various temporary tables we need
-        temp_table_queries = sum(self.temp_tables.values(), start=[])
+        # Get all the queries needed to populate the various temporary tables used by
+        # the query and then clean them up afterwards
+        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
 
-        return temp_table_queries + [results_query]
+        self.cleanup_queries = cleanup_queries
+        return setup_queries + [results_query]
 
     @contextlib.contextmanager
     def execute_query(self):
@@ -107,15 +107,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         Called after results have been fetched
         """
-        for table in self.temp_tables.keys():
-            self.drop_temp_table(cursor, table)
-
-    def drop_temp_table(self, cursor, table):
-        """
-        Drop the specified temporary table
-        """
-        query = sqlalchemy.schema.DropTable(table, if_exists=True)
-        cursor.execute(query)
+        for query in self.cleanup_queries:
+            cursor.execute(query)
 
     #
     # DATABASE CONNECTION
@@ -144,7 +137,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         max_code_len = max(map(len, codes))
         collation = "Latin1_General_BIN"
         table_name = self.get_temp_table_name("codelist")
-        table = sqlalchemy.Table(
+        table = TemporaryTable(
             table_name,
             sqlalchemy.MetaData(),
             sqlalchemy.Column(
@@ -162,16 +155,28 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # write acces to the temp db but not the main db
             schema=self.get_temp_database(),
         )
+
         # Constuct the queries needed to create and populate this table
-        queries = [sqlalchemy.schema.CreateTable(table)]
+        create_query = sqlalchemy.schema.CreateTable(table)
+        insert_queries = []
         for codes_batch in split_list_into_batches(
             codes, size=self.max_rows_per_insert
         ):
             insert_query = table.insert().values(
                 [(code, codelist.system) for code in codes_batch]
             )
-            queries.append(insert_query)
-        return table, queries
+            insert_queries.append(insert_query)
+
+        # Construct the queries needed to clean it up
+        cleanup_queries = (
+            [sqlalchemy.schema.DropTable(table, if_exists=True)]
+            if self.temp_table_needs_dropping(create_query)
+            else []
+        )
+
+        table.setup_queries = [create_query] + insert_queries
+        table.cleanup_queries = cleanup_queries
+        return table
 
     def get_temp_table_name(self, name_hint):
         """
@@ -243,7 +248,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         Given a QueryNode object from the Query Model return the SQLAlchemy
         ClauseElement which represents it.
 
-        This uses single dispatch to handle each type of QueryNode via the appopriate
+        This uses single dispatch to handle each type of QueryNode via the appropriate
         method below.
         """
         raise TypeError(f"Unhandled query node type: {node!r}")
@@ -311,13 +316,19 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         columns = [sqlalchemy.Column(c.name, c.type) for c in query.selected_columns]
         table_name = self.get_temp_table_name("group_table")
-        table = sqlalchemy.Table(
+        table = TemporaryTable(
             table_name,
             sqlalchemy.MetaData(),
             *columns,
         )
-        populate_table_query = self.write_query_to_table(table, query)
-        self.temp_tables[table] = [populate_table_query]
+        create_query = self.query_to_create_temp_table_from_select_query(table, query)
+        cleanup_queries = (
+            [sqlalchemy.schema.DropTable(table, if_exists=True)]
+            if self.temp_table_needs_dropping(create_query)
+            else []
+        )
+        table.setup_queries = [create_query]
+        table.cleanup_queries = cleanup_queries
         return table
 
     @get_sql_element_no_cache.register
@@ -329,8 +340,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql_element_no_cache.register
     def get_element_from_codelist(self, codelist: Codelist):
-        table, queries = self.create_codelist_table(codelist)
-        self.temp_tables[table] = queries
+        table = self.create_codelist_table(codelist)
         return sqlalchemy.select(table.c.code).scalar_subquery()
 
     @get_sql_element_no_cache.register
@@ -500,10 +510,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         query = query.select_from(subquery).where(subquery.c._row_num == 1)
         return query
 
-    def write_query_to_table(self, table, query):
+    def query_to_create_temp_table_from_select_query(
+        self, table: TemporaryTable, select_query: Executable
+    ) -> Executable:
         """
-        Returns a new query which, when executed, writes the results of `query`
-        into `table`
+        Return a query to create `table` and populate it with the results of
+        `select_query`
+        """
+        raise NotImplementedError()
+
+    def temp_table_needs_dropping(self, create_table_query: Executable) -> bool:
+        """
+        Given the query used to create a temporary table, return whether the table needs
+        to be explicitly dropped or whether the database will discard it automatically
+        when the session terminates
         """
         raise NotImplementedError()
 
