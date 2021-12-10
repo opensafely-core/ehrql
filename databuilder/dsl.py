@@ -46,7 +46,7 @@ for end users.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TypeVar, Union, overload
+from typing import Generic, TypeVar, Union, overload
 
 from .query_language import (
     BaseTable,
@@ -138,7 +138,7 @@ class EventFrame:
 
         return EventFrame(predicate.apply_to(self.qm_table))
 
-    def sort_by(self, *columns: Column) -> SortedEventFrame:
+    def sort_by(self, *columns: Column[S]) -> SortedEventFrame:
         """
         Sorts an EventFrame by a specific column, such as a date column, and
         returns a SortedEventFrame with a given sort column.
@@ -185,7 +185,7 @@ class SortedEventFrame:
     filter() can be run over the SortedEventFrame to produce new Frames.
     """
 
-    def __init__(self, qm_table: BaseTable, *sort_columns: Column):
+    def __init__(self, qm_table: BaseTable, *sort_columns: Column[S]):
         """
         Initialise the SortedEventFrame
 
@@ -229,7 +229,7 @@ class PatientFrame:
         """
         self.row = row
 
-    def select_column(self, column: Column) -> PatientSeries:
+    def select_column(self, column: Column[S]) -> PatientSeries:
         """
         Return a PatientSeries containing given column.
 
@@ -311,9 +311,35 @@ class PatientSeries:
         return PatientSeries(RoundToFirstOfYear(self.value))
 
 
+class BoolSeries(PatientSeries):
+    pass
+
+
+class CodeSeries(PatientSeries):
+    pass
+
+
+class DateSeries(PatientSeries):
+    pass
+
+
+class IdSeries(PatientSeries):
+    pass
+
+
+class IntSeries(PatientSeries):
+    pass
+
+
+S = TypeVar("S", bound=PatientSeries)
+
+
 class Predicate:
     def __init__(
-        self, column: Column, operator: str, other: str | bool | int | Codelist | None
+        self,
+        column: Column[S],
+        operator: str,
+        other: str | bool | int | Codelist | None,
     ) -> None:
         self._column = column
         self._operator = operator
@@ -324,18 +350,18 @@ class Predicate:
 
 
 @dataclass
-class Column:
+class Column(Generic[S]):
     name: str
 
     def is_not_null(self):
         return Predicate(self, "not_equals", None)
 
 
-class IdColumn(Column):
+class IdColumn(Column[IdSeries]):
     ...
 
 
-class BoolColumn(Column):
+class BoolColumn(Column[BoolSeries]):
     def is_true(self) -> Predicate:
         return Predicate(self, "equals", True)
 
@@ -355,7 +381,7 @@ class BoolColumn(Column):
             return self.is_true()
 
 
-class DateColumn(Column):
+class DateColumn(Column[DateSeries]):
     def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "equals", other)
 
@@ -375,7 +401,7 @@ class DateColumn(Column):
         return Predicate(self, "less_than_or_equals", other)
 
 
-class CodeColumn(Column):
+class CodeColumn(Column[CodeSeries]):
     def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "equals", other)
 
@@ -386,7 +412,7 @@ class CodeColumn(Column):
         return Predicate(self, "is_in", codelist)
 
 
-class IntColumn(Column):
+class IntColumn(Column[IntSeries]):
     def __eq__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "equals", other)
 
