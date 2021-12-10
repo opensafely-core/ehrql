@@ -229,14 +229,14 @@ class PatientFrame:
         """
         self.row = row
 
-    def select_column(self, column: Column[S]) -> PatientSeries:
+    def select_column(self, column: Column[S]) -> S:
         """
         Return a PatientSeries containing given column.
 
         Args:
             column: The Column of interest of which you want to retrieve the value.
         """
-        return PatientSeries(self.row.get(column.name))
+        return column.series_type(self.row.get(column.name))
 
 
 class PatientSeries:
@@ -352,16 +352,21 @@ class Predicate:
 @dataclass
 class Column(Generic[S]):
     name: str
+    series_type: type[S]
 
     def is_not_null(self):
         return Predicate(self, "not_equals", None)
 
 
 class IdColumn(Column[IdSeries]):
-    ...
+    def __init__(self, name):
+        return super().__init__(name, IdSeries)
 
 
 class BoolColumn(Column[BoolSeries]):
+    def __init__(self, name):
+        return super().__init__(name, BoolSeries)
+
     def is_true(self) -> Predicate:
         return Predicate(self, "equals", True)
 
@@ -382,6 +387,9 @@ class BoolColumn(Column[BoolSeries]):
 
 
 class DateColumn(Column[DateSeries]):
+    def __init__(self, name):
+        return super().__init__(name, DateSeries)
+
     def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "equals", other)
 
@@ -402,6 +410,9 @@ class DateColumn(Column[DateSeries]):
 
 
 class CodeColumn(Column[CodeSeries]):
+    def __init__(self, name):
+        return super().__init__(name, CodeSeries)
+
     def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "equals", other)
 
@@ -413,6 +424,9 @@ class CodeColumn(Column[CodeSeries]):
 
 
 class IntColumn(Column[IntSeries]):
+    def __init__(self, name):
+        return super().__init__(name, IntSeries)
+
     def __eq__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "equals", other)
 
