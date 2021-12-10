@@ -1,12 +1,12 @@
 import sqlalchemy
 
 
-def get_joined_tables(query):
+def get_joined_tables(select_query):
     """
     Given a SELECT query object return a list of all tables referenced
     """
     tables = []
-    from_exprs = list(query.get_final_froms())
+    from_exprs = list(select_query.get_final_froms())
     while from_exprs:
         next_expr = from_exprs.pop()
         if isinstance(next_expr, sqlalchemy.sql.selectable.Join):
@@ -19,30 +19,31 @@ def get_joined_tables(query):
     return tables
 
 
-def get_primary_table(query):
+def get_primary_table(select_query):
     """
     Return the left-most table referenced in the SELECT query
     """
-    return get_joined_tables(query)[0]
+    return get_joined_tables(select_query)[0]
 
 
-def include_joined_tables(query, tables, join_column):
+def include_joined_tables(select_query, tables, join_column):
     """
-    Ensure that each table in `tables` is included in the join conditions for `query`
+    Ensure that each table in `tables` is included in the join conditions for
+    `select_query`
     """
-    current_tables = get_joined_tables(query)
+    current_tables = get_joined_tables(select_query)
     for table in tables:
         if table in current_tables:
             continue
         join = sqlalchemy.join(
-            query.get_final_froms()[0],
+            select_query.get_final_froms()[0],
             table,
-            query.selected_columns[join_column] == table.c[join_column],
+            select_query.selected_columns[join_column] == table.c[join_column],
             isouter=True,
         )
-        query = query.select_from(join)
+        select_query = select_query.select_from(join)
         current_tables.append(table)
-    return query
+    return select_query
 
 
 def get_referenced_tables(clause):
