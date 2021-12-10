@@ -6,8 +6,14 @@ from databuilder import codelist
 from databuilder.concepts import tables
 from databuilder.definition import register
 from databuilder.definition.base import cohort_registry
-from databuilder.dsl import BoolSeries, Cohort, PatientSeries
-from databuilder.query_language import Comparator, Value, table
+from databuilder.dsl import BoolSeries, Cohort, DateSeries, PatientSeries
+from databuilder.query_language import (
+    Comparator,
+    RoundToFirstOfMonth,
+    RoundToFirstOfYear,
+    Value,
+    table,
+)
 from databuilder.query_utils import get_column_definitions
 
 from .lib.util import OldCohortWithPopulation, make_codelist, mock_positive_tests
@@ -468,6 +474,22 @@ def test_dateseries_ne(date_series):
 
     output = series1 != series2
     assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_dateseries_round_to_first_month(date_series):
+    series = date_series().round_to_first_of_month()
+
+    expected = DateSeries(value=RoundToFirstOfMonth())
+
+    assert repr(series) == repr(expected)
+
+
+def test_dateseries_round_to_first_of_year(date_series):
+    series = date_series().round_to_first_of_year()
+
+    expected = DateSeries(value=RoundToFirstOfYear())
+
+    assert repr(series) == repr(expected)
 
 
 def test_intseries_gt(int_series):

@@ -280,12 +280,6 @@ class PatientSeries:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"
 
-    def round_to_first_of_month(self):
-        return PatientSeries(RoundToFirstOfMonth(self.value))
-
-    def round_to_first_of_year(self):
-        return PatientSeries(RoundToFirstOfYear(self.value))
-
 
 class BoolSeries(PatientSeries):
     def __and__(self, other: BoolSeries) -> BoolSeries:
@@ -327,6 +321,12 @@ class DateSeries(PatientSeries):
     def __ne__(self, other: DateSeries | str) -> BoolSeries:  # type: ignore[override]
         other_value = other.value if isinstance(other, DateSeries) else other
         return BoolSeries(value=self.value != other_value)
+
+    def round_to_first_of_month(self) -> DateSeries:
+        return DateSeries(RoundToFirstOfMonth(self.value))
+
+    def round_to_first_of_year(self) -> DateSeries:
+        return DateSeries(RoundToFirstOfYear(self.value))
 
 
 class IdSeries(PatientSeries):
