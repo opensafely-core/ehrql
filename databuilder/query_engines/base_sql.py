@@ -270,7 +270,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return self.get_case_expression(category_mapping, value.default)
 
     @get_sql_element_no_cache.register
-    def get_element_from_base_table(self, node: Table):
+    def get_element_from_table(self, node: Table):
         table = self.backend.get_table_expression(node.name)
         return table.select()
 
@@ -280,7 +280,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return self.apply_filter(query, node)
 
     @get_sql_element_no_cache.register
-    def get_element_from_row_selector(self, node: Row):
+    def get_element_from_row(self, node: Row):
         query = self.get_sql_element(node.source)
         query = self.apply_row_selector(
             query,
