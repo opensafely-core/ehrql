@@ -63,10 +63,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """Build the list of SQL queries to execute"""
         # Record all the temporary tables we need to create as a mapping from Table
         # object to the list of queries needed to create and populate it. This will get
-        # populated inside the calls to `get_value_expression` below.
+        # populated inside the calls to `get_sql_element` below.
         self.temp_tables: dict[sqlalchemy.Table, list[sqlalchemy.sql.Executable]] = {}
-        # Reset the cache. See the docstring on `get_value_expression` for more details
-        self.value_expression_cache: dict[QueryNode, sqlalchemy.sql.ClauseElement] = {}
+        # Reset the cache. See the docstring on `get_sql_element` for more details
+        self.sql_element_cache: dict[QueryNode, sqlalchemy.sql.ClauseElement] = {}
 
         # `population` is a special-cased boolean column, it doesn't appear
         # itself in the output but it determines what rows are included
@@ -80,7 +80,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # For each output column, generate the query that selects it from its interim table(s)
             # For most outputs there will just be a single interim table.  Category outputs
             # may require more than one.
-            column = self.get_value_expression(output_node)
+            column = self.get_sql_element(output_node)
             # Then generate the query to join on it
             tables = get_referenced_tables(column)
             results_query = include_joined_tables(results_query, tables, "patient_id")
@@ -189,7 +189,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def get_population_table_query(self, population):
         """Build the query that selects the patient population we're interested in"""
-        is_included = self.get_value_expression(population)
+        is_included = self.get_sql_element(population)
         tables = get_referenced_tables(is_included)
         assert len(tables) == 1
         population_table = tables[0]
@@ -213,7 +213,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             connector = getattr(sqlalchemy, comparator.connector)
             condition_statement = connector(left_conditions, right_conditions)
         else:
-            lhs = self.get_value_expression(comparator.lhs)
+            lhs = self.get_sql_element(comparator.lhs)
             method = getattr(lhs, comparator.operator)
             condition_statement = method(comparator.rhs)
 
@@ -222,9 +222,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return condition_statement
 
-    def get_value_expression(self, value):
+    def get_sql_element(self, value):
         """
-        Caching wrapper around `get_value_expression_no_cache()` below
+        Caching wrapper around `get_sql_element_no_cache()` below
 
         This is a peformance enhancement, not for the Python code, but rather for the
         SQL we generate. It ensures that we don't get needlessly complex (though
@@ -234,16 +234,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # like lists we can't easily cache them in any case. It's only QueryNodes that
         # we want to cache.
         if not isinstance(value, QueryNode):
-            return self.get_value_expression_no_cache(value)
-        elif value in self.value_expression_cache:
-            return self.value_expression_cache[value]
+            return self.get_sql_element_no_cache(value)
+        elif value in self.sql_element_cache:
+            return self.sql_element_cache[value]
         else:
-            result = self.get_value_expression_no_cache(value)
-            self.value_expression_cache[value] = result
+            result = self.get_sql_element_no_cache(value)
+            self.sql_element_cache[value] = result
             return result
 
     @singledispatchmethod_with_unions
-    def get_value_expression_no_cache(self, value):
+    def get_sql_element_no_cache(self, value):
         """
         Given a "value" from the Query Model, convert it to a SQLAlchemy expression, or
         at least something usable by SQLAlchemy.
@@ -268,8 +268,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert not isinstance(value, QueryNode)
         return value
 
-    @get_value_expression_no_cache.register
-    def get_expression_for_category_node(self, value: ValueFromCategory):
+    @get_sql_element_no_cache.register
+    def get_element_from_category_node(self, value: ValueFromCategory):
         category_mapping = {}
         for label, category_definition in value.definitions.items():
             # A category definition is always a single Comparator, which may contain
@@ -278,19 +278,19 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             category_mapping[label] = condition_statement
         return self.get_case_expression(category_mapping, value.default)
 
-    @get_value_expression_no_cache.register
-    def get_expression_for_base_table(self, node: Table):
+    @get_sql_element_no_cache.register
+    def get_element_from_base_table(self, node: Table):
         table = self.backend.get_table_expression(node.name)
         return table.select()
 
-    @get_value_expression_no_cache.register
-    def get_expression_for_filtered_table(self, node: FilteredTable):
-        query = self.get_value_expression(node.source)
+    @get_sql_element_no_cache.register
+    def get_element_from_filtered_table(self, node: FilteredTable):
+        query = self.get_sql_element(node.source)
         return self.apply_filter(query, node)
 
-    @get_value_expression_no_cache.register
-    def get_expression_for_row_selector(self, node: Row):
-        query = self.get_value_expression(node.source)
+    @get_sql_element_no_cache.register
+    def get_element_from_row_selector(self, node: Row):
+        query = self.get_sql_element(node.source)
         query = self.apply_row_selector(
             query,
             sort_columns=node.sort_columns,
@@ -298,9 +298,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         return self.reify_query(query)
 
-    @get_value_expression_no_cache.register
-    def get_expression_for_row_from_aggregate(self, node: RowFromAggregate):
-        query = self.get_value_expression(node.source)
+    @get_sql_element_no_cache.register
+    def get_element_from_row_from_aggregate(self, node: RowFromAggregate):
+        query = self.get_sql_element(node.source)
         query = self.apply_aggregates(query, [node])
         return self.reify_query(query)
 
@@ -329,21 +329,21 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.temp_tables[table] = [populate_table_query]
         return table
 
-    @get_value_expression_no_cache.register
-    def get_expression_for_output_node(
+    @get_sql_element_no_cache.register
+    def get_element_from_output_node(
         self, node: Union[ValueFromRow, ValueFromAggregate, Column]
     ):
-        table = self.get_value_expression(node.source)
+        table = self.get_sql_element(node.source)
         return table.c[node.column]
 
-    @get_value_expression_no_cache.register
-    def get_expression_for_codelist(self, codelist: Codelist):
+    @get_sql_element_no_cache.register
+    def get_element_from_codelist(self, codelist: Codelist):
         table, queries = self.create_codelist_table(codelist)
         self.temp_tables[table] = queries
         return sqlalchemy.select(table.c.code).scalar_subquery()
 
-    @get_value_expression_no_cache.register
-    def get_expression_for_value_from_function(self, value: ValueFromFunction):
+    @get_sql_element_no_cache.register
+    def get_element_from_value_from_function(self, value: ValueFromFunction):
         # TODO: I'd quite like to build this map by decorating the methods e.g.
         #
         #   @handler_for(DateDifferenceInYears)
@@ -359,9 +359,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert value.__class__ in class_method_map, f"Unsupported function: {value}"
 
         method = class_method_map[value.__class__]
-        argument_expressions = [
-            self.get_value_expression(arg) for arg in value.arguments
-        ]
+        argument_expressions = [self.get_sql_element(arg) for arg in value.arguments]
         return method(*argument_expressions)
 
     def date_difference_in_years(self, start_date, end_date):
@@ -437,7 +435,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         column_name = filter_node.column
         operator_name = filter_node.operator
-        value_expr = self.get_value_expression(filter_node.value)
+        value_expr = self.get_sql_element(filter_node.value)
 
         # If the filter value itself potentially drawn from another table?
         if isinstance(filter_node.value, (Value, Column)):
