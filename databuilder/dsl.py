@@ -299,7 +299,7 @@ class PatientSeries:
         return PatientSeries(value=comparator_value)
 
     def __repr__(self) -> str:
-        return f"PatientSeries(value={self.value})"
+        return f"{self.__class__.__name__}(value={self.value})"
 
     def __hash__(self) -> int:
         return hash(repr(self.value))
