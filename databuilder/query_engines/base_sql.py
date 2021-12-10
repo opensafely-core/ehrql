@@ -4,8 +4,8 @@ from typing import Optional, Union
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
-import sqlalchemy.sql
 from sqlalchemy.engine.interfaces import Dialect
+from sqlalchemy.sql import ClauseElement, Executable
 from sqlalchemy.sql.expression import type_coerce
 
 from .. import sqlalchemy_types
@@ -64,9 +64,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # Record all the temporary tables we need to create as a mapping from Table
         # object to the list of queries needed to create and populate it. This will get
         # populated inside the calls to `get_sql_element` below.
-        self.temp_tables: dict[sqlalchemy.Table, list[sqlalchemy.sql.Executable]] = {}
+        self.temp_tables: dict[sqlalchemy.Table, list[Executable]] = {}
         # Reset the cache. See the docstring on `get_sql_element` for more details
-        self.sql_element_cache: dict[QueryNode, sqlalchemy.sql.ClauseElement] = {}
+        self.sql_element_cache: dict[QueryNode, ClauseElement] = {}
 
         # `population` is a special-cased boolean column, it doesn't appear
         # itself in the output but it determines what rows are included
@@ -213,7 +213,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             connector = getattr(sqlalchemy, comparator.connector)
             condition_statement = connector(left_conditions, right_conditions)
         else:
-            lhs = self.get_sql_element(comparator.lhs)
+            lhs = self.get_sql_element_or_value(comparator.lhs)
             method = getattr(lhs, comparator.operator)
             condition_statement = method(comparator.rhs)
 
@@ -222,7 +222,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return condition_statement
 
-    def get_sql_element(self, value):
+    def get_sql_element(self, node: QueryNode) -> ClauseElement:
         """
         Caching wrapper around `get_sql_element_no_cache()` below
 
@@ -230,43 +230,34 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         SQL we generate. It ensures that we don't get needlessly complex (though
         correct) SQL by generating duplicated temporary tables or table clauses.
         """
-        # Plain values don't require cached responses and as they may be mutable types
-        # like lists we can't easily cache them in any case. It's only QueryNodes that
-        # we want to cache.
-        if not isinstance(value, QueryNode):
-            return self.get_sql_element_no_cache(value)
-        elif value in self.sql_element_cache:
-            return self.sql_element_cache[value]
+        if node in self.sql_element_cache:
+            return self.sql_element_cache[node]
         else:
-            result = self.get_sql_element_no_cache(value)
-            self.sql_element_cache[value] = result
-            return result
+            element = self.get_sql_element_no_cache(node)
+            self.sql_element_cache[node] = element
+            return element
 
     @singledispatchmethod_with_unions
-    def get_sql_element_no_cache(self, value):
+    def get_sql_element_no_cache(self, node: QueryNode) -> ClauseElement:
         """
-        Given a "value" from the Query Model, convert it to a SQLAlchemy expression, or
-        at least something usable by SQLAlchemy.
+        Given a QueryNode object from the Query Model return the SQLAlchemy
+        ClauseElement which represents it.
 
-        `value` can be anything that can be represented in our Query Model e.g. a table, a
-        table with some filters applied, a codelist, a column from a table, and so on.
-        It could also be simple static value like a date or an integer. Whatever it is,
-        we need to return its appropriate SQLAlchemy representation.
-
-        Most of the interesting logic happens when `value` is a subclass of QueryNode
-        i.e. not just a plain old integer or date or whatever. These are handled in the
-        methods below which dispatch on the type of node.
+        This uses single dispatch to handle each type of QueryNode via the appopriate
+        method below.
         """
-        # This method is the fallback for types not explicitly handled below, which
-        # means "plain value" types like integers and dates which we just return
-        # unchanged because SQLAlchemy knows how to handle them. Ideally, we'd have a
-        # fat union type covering all of these and an explicit method to handle them
-        # (leaving the fallback to just raise a TypeError). But given that we handle not
-        # only numbers, strings, dates etc but also list and tuples of these values it
-        # gets messy quite fast so for now we just make sure that whatever we've been
-        # passed *isn't* a QueryNode.
-        assert not isinstance(value, QueryNode)
-        return value
+        raise TypeError(f"Unhandled query node type: {node!r}")
+
+    def get_sql_element_or_value(self, value):
+        """
+        Certain places in our Query Model support values which can either be QueryNodes
+        themselves (which require resolving to SQL) or plain static values (booleans,
+        integers, dates, list of dates etc) which we can return unchanged to SQLAlchemy.
+        """
+        if isinstance(value, QueryNode):
+            return self.get_sql_element(value)
+        else:
+            return value
 
     @get_sql_element_no_cache.register
     def get_element_from_category_node(self, value: ValueFromCategory):
@@ -359,7 +350,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert value.__class__ in class_method_map, f"Unsupported function: {value}"
 
         method = class_method_map[value.__class__]
-        argument_expressions = [self.get_sql_element(arg) for arg in value.arguments]
+        argument_expressions = [
+            self.get_sql_element_or_value(arg) for arg in value.arguments
+        ]
         return method(*argument_expressions)
 
     def date_difference_in_years(self, start_date, end_date):
@@ -435,7 +428,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         column_name = filter_node.column
         operator_name = filter_node.operator
-        value_expr = self.get_sql_element(filter_node.value)
+        value_expr = self.get_sql_element_or_value(filter_node.value)
 
         # If the filter value itself potentially drawn from another table?
         if isinstance(filter_node.value, (Value, Column)):
