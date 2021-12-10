@@ -7,7 +7,7 @@
 databricks-sql-connector==0.9.1 \
     --hash=sha256:5774e3d506b352566621e7bd5d9c19a80e92d7cd3876be0fab94c52640b612cd \
     --hash=sha256:d83b7cc55e3b34ac416df6f5466aa2b9a1142787425a58015cca6a90efbea56e
-    # via databuilder (pyproject.toml)
+    # via opensafely-databuilder (pyproject.toml)
 future==0.18.2 \
     --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d
     # via
@@ -122,10 +122,10 @@ pandas==1.3.4 \
     --hash=sha256:eaca36a80acaacb8183930e2e5ad7f71539a66805d6204ea88736570b2876a7b \
     --hash=sha256:f567e972dce3bbc3a8076e0b675273b4a9e8576ac629149cf8286ee13c259ae5 \
     --hash=sha256:fe48e4925455c964db914b958f6e7032d285848b7538a5e1b19aeb26ffaea3ec
-    # via databuilder (pyproject.toml)
+    # via opensafely-databuilder (pyproject.toml)
 pyhive==0.6.4 \
     --hash=sha256:10577bb3393e3da3d8ba68b2cfe800edcc1fbb0bf48394fb9a2701740f79665f
-    # via databuilder (pyproject.toml)
+    # via opensafely-databuilder (pyproject.toml)
 pymssql==2.2.2 \
     --hash=sha256:00b5d8d0e6e99dd07677f663a42fe3b53285db02682f9ea8271dab0e30e4404f \
     --hash=sha256:03469104efd5e5469b6c1892a0393e1fb4cd3169422e88537bec1b4294c98528 \
@@ -169,7 +169,7 @@ pymssql==2.2.2 \
     --hash=sha256:cab9ecb7cec689177955728d116788be27fc65b9d4001ba8e6d8c6e5a5ddf677 \
     --hash=sha256:db3b31b1e73a856aa5a5181ff9f2b0c595611f5661aaeffee7c12a4a57b62fc8 \
     --hash=sha256:f7eedf5b8bd55115a2cab130068b4dccb526fbe8c7bab54468ec31feeb6513d3
-    # via databuilder (pyproject.toml)
+    # via opensafely-databuilder (pyproject.toml)
 python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
     --hash=sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9
@@ -224,13 +224,13 @@ sqlalchemy==1.4.27 \
     --hash=sha256:ec1c908fa721f2c5684900cc8ff75555b1a5a2ae4f5a5694eb0e37a5263cea44 \
     --hash=sha256:fa52534076394af7315306a8701b726a6521b591d95e8f4e5121c82f94790e8d \
     --hash=sha256:fd421a14edf73cfe01e8f51ed8966294ee3b3db8da921cacc88e497fd6e977af
-    # via databuilder (pyproject.toml)
+    # via opensafely-databuilder (pyproject.toml)
 structlog==21.2.0 \
     --hash=sha256:63a7111a32e5b615671536bb745692ea02cebfea2b39dcb7d2617eed19437cfe \
     --hash=sha256:7ac42b565e1295712313f91edbcb64e0840a9037d888c8954f11fa6c43270e99
-    # via databuilder (pyproject.toml)
+    # via opensafely-databuilder (pyproject.toml)
 thrift==0.15.0 \
     --hash=sha256:87c8205a71cf8bbb111cb99b1f7495070fbc9cabb671669568854210da5b3e29
     # via
-    #   databuilder (pyproject.toml)
     #   databricks-sql-connector
+    #   opensafely-databuilder (pyproject.toml)
