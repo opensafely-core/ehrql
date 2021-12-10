@@ -55,10 +55,13 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             # in batches. This gives us the illusion of having a robust
             # connection to the database, whereas in practice in frequently
             # errors out when attempting to download large sets of results.
-            queries = self.get_queries()
+            setup_queries, results_query, cleanup_queries = self.get_queries()
+            # We're not expecting to have any cleanup to do here because we should be
+            # using session-scoped temporary tables
+            assert not cleanup_queries
             with fetch_results_in_batches(
                 engine=self.engine,
-                queries=queries,
+                queries=setup_queries + [results_query],
                 # The double dot syntax allows us to reference tables in another database
                 temp_table_prefix=f"{self.backend.temporary_database}..TempExtract",
                 # This value was copied from the previous cohortextractor. I

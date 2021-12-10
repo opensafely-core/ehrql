@@ -61,8 +61,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     temp_table_count: int = 0
 
-    def get_queries(self):
-        """Build the list of SQL queries to execute"""
+    def get_queries(self) -> tuple[list[Executable], Executable, list[Executable]]:
+        """
+        Build the list of SQL queries to execute
+
+        This is returned as a triple:
+
+            list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
+        """
         # Reset the cache. See the docstring on `get_sql_element` for more details
         self.sql_element_cache: dict[QueryNode, ClauseElement] = {}
 
@@ -90,25 +96,19 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # the query and then clean them up afterwards
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
 
-        self.cleanup_queries = cleanup_queries
-        return setup_queries + [results_query]
+        return setup_queries, results_query, cleanup_queries
 
     @contextlib.contextmanager
     def execute_query(self):
-        queries = self.get_queries()
+        setup_queries, results_query, cleanup_queries = self.get_queries()
         with self.engine.connect() as cursor:
-            for query in queries:
-                result = cursor.execute(query)
-            # We're only interested in the results from the final query
-            yield result
-            self.post_execute_cleanup(cursor)
+            for query in setup_queries:
+                cursor.execute(query)
 
-    def post_execute_cleanup(self, cursor):
-        """
-        Called after results have been fetched
-        """
-        for query in self.cleanup_queries:
-            cursor.execute(query)
+            yield cursor.execute(results_query)
+
+            for query in cleanup_queries:
+                cursor.execute(query)
 
     #
     # DATABASE CONNECTION

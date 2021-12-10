@@ -243,7 +243,8 @@ def validate(cohort_class, backend):
     try:
         cohort = get_column_definitions(cohort_class)
         query_engine = backend.query_engine_class(cohort, backend)
-        return query_engine.get_queries()
+        setup_queries, results_query, cleanup_queries = query_engine.get_queries()
+        return setup_queries + [results_query] + cleanup_queries
     except Exception:
         log.error("Validation failed")
         # raise the exception to ensure the job fails and the error and traceback are logged
