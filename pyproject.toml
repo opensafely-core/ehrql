@@ -68,6 +68,8 @@ exclude_lines = [
     'if __name__ == "__main__":',
     # this indicates that a method should be defined in a subclass
     "raise NotImplementedError",
+    # excludes the body of the overload-decorated function which will never be executed
+    "@overload",
 ]
 
 [tool.coverage.html]
