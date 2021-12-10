@@ -46,7 +46,7 @@ for end users.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Union
+from typing import TypeVar, Union, overload
 
 from .query_language import (
     BaseTable,
@@ -398,9 +398,20 @@ def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
     return PatientSeries(value=comparator_value)
 
 
-def categorise(
-    mapping: dict[Expression, PatientSeries], default: Expression | None = None
-) -> PatientSeries:
+T = TypeVar("T", str, int)
+
+
+@overload
+def categorise(mapping: dict[str, PatientSeries], default: str | None) -> PatientSeries:
+    ...
+
+
+@overload
+def categorise(mapping: dict[int, PatientSeries], default: int | None) -> PatientSeries:
+    ...
+
+
+def categorise(mapping, default=None):
     """
     Represents a switch statement.
 
@@ -436,8 +447,10 @@ def categorise(
     return PatientSeries(value=ValueFromCategory(value_mapping, default))
 
 
+# Typed as object because the alternative is another overloaded function here which is unnecessary ceremony for this
+# internal function.
 def _validate_category_mapping(
-    mapping: dict[Expression, PatientSeries], default: Expression | None
+    mapping: dict[object, PatientSeries], default: object
 ) -> None:
     """
     Ensure that a category mapping is valid.
@@ -507,4 +520,3 @@ def raise_category_errors(errors):
 
 
 ValueExpression = Union[PatientSeries, Comparator, str, int]
-Expression = Union[str, int, float, bool]

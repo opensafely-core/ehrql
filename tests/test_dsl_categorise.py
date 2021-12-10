@@ -416,7 +416,7 @@ def test_categorise_invalid_default():
         TypeError,
         match=r"Default category.*(expected <class 'str'>, got <class 'int'>)",
     ):
-        new_dsl_categorise(category_mapping, default=999)
+        new_dsl_categorise(category_mapping, default=999)  # type: ignore[arg-type]  # deliberate error
 
 
 def test_cannot_compare_comparators():
