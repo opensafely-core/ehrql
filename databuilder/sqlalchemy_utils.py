@@ -26,20 +26,23 @@ def get_primary_table(query):
     return get_joined_tables(query)[0]
 
 
-def include_joined_table(query, table, join_column):
+def include_joined_tables(query, tables, join_column):
     """
-    Ensure that `table` is included in the join conditions for `query`
+    Ensure that each table in `tables` is included in the join conditions for `query`
     """
-    tables = get_joined_tables(query)
-    if table in tables:
-        return query
-    join = sqlalchemy.join(
-        query.get_final_froms()[0],
-        table,
-        query.selected_columns[join_column] == table.c[join_column],
-        isouter=True,
-    )
-    return query.select_from(join)
+    current_tables = get_joined_tables(query)
+    for table in tables:
+        if table in current_tables:
+            continue
+        join = sqlalchemy.join(
+            query.get_final_froms()[0],
+            table,
+            query.selected_columns[join_column] == table.c[join_column],
+            isouter=True,
+        )
+        query = query.select_from(join)
+        current_tables.append(table)
+    return query
 
 
 def get_referenced_tables(clause):

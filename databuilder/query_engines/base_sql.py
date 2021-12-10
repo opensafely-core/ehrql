@@ -31,7 +31,7 @@ from ..query_language import (
 from ..sqlalchemy_utils import (
     get_primary_table,
     get_referenced_tables,
-    include_joined_table,
+    include_joined_tables,
 )
 from .base import BaseQueryEngine
 
@@ -82,8 +82,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # may require more than one.
             column = self.get_value_expression(output_node)
             # Then generate the query to join on it
-            for table in get_referenced_tables(column):
-                results_query = include_joined_table(results_query, table, "patient_id")
+            tables = get_referenced_tables(column)
+            results_query = include_joined_tables(results_query, tables, "patient_id")
 
             # Add this column to the final selected results
             results_query = results_query.add_columns(column.label(column_name))
@@ -446,8 +446,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # If we have a "Value" (i.e. a single value per patient) then we
             # include the other tables in the join
             if isinstance(filter_node.value, Value):
-                for other_table in other_tables:
-                    query = include_joined_table(query, other_table, "patient_id")
+                query = include_joined_tables(query, other_tables, "patient_id")
             # If we have a "Column" (i.e. multiple values per patient) then we
             # can't directly join this with our single-value-per-patient query,
             # so we have to use a correlated subquery
