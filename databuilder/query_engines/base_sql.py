@@ -147,7 +147,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         Given a codelist, build a SQLAlchemy representation of the temporary table
         needed to store that codelist and then generate the queries necessary to create
-        and populate that tables
+        and populate that table
         """
         codes = codelist.codes
         max_code_len = max(map(len, codes))
@@ -344,8 +344,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql_element_no_cache.register
     def get_element_from_codelist(self, codelist: Codelist):
-        table = self.create_codelist_table(codelist)
-        return sqlalchemy.select(table.c.code).scalar_subquery()
+        return self.create_codelist_table(codelist)
 
     @get_sql_element_no_cache.register
     def get_element_from_value_from_function(self, value: ValueFromFunction):
@@ -469,10 +468,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             else:
                 assert False
 
-        if isinstance(filter_node.value, Codelist) and "system" in table_expr.c:
-            # Codelist queries must also match on `system` column if it's present
-            system_column = table_expr.c["system"]
-            value_expr = value_expr.where(system_column == filter_node.value.system)
+        if isinstance(filter_node.value, Codelist):
+            value_expr = sqlalchemy.select(value_expr.c.code).scalar_subquery()
+            if "system" in table_expr.c:
+                # Codelist queries must also match on `system` column if it's present
+                system_column = table_expr.c["system"]
+                value_expr = value_expr.where(system_column == filter_node.value.system)
 
         column = table_expr.c[column_name]
         method = getattr(column, operator_name)
