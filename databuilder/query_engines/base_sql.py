@@ -301,8 +301,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql_element_no_cache.register
     def get_element_from_row(self, node: Row):
         query = self.get_sql_element(node.source)
-        query = self.apply_row_selector(
+        query = self.select_first_row_per_partition(
             query,
+            partition_column="patient_id",
             sort_columns=node.sort_columns,
             descending=node.descending,
         )
@@ -446,10 +447,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             return function(source_column).label(output_column)
 
     @staticmethod
-    def apply_row_selector(query, sort_columns, descending):
+    def select_first_row_per_partition(
+        query, partition_column, sort_columns, descending
+    ):
         """
-        Generate query to apply a row selector by sorting by sort_columns in
-        specified direction, and then selecting the first row
+        Given a SQLAlchemy SELECT query, partition it by the specified column, sort
+        within each partition by `sort_columns` and then return a query containing just
+        the first row for each partition.
         """
         # Get the base table - the first in the FROM clauses
         table_expr = get_primary_table(query)
@@ -466,7 +470,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # Number rows sequentially over the order by columns for each patient id
         row_num = (
             sqlalchemy.func.row_number()
-            .over(order_by=order_columns, partition_by=table_expr.c.patient_id)
+            .over(order_by=order_columns, partition_by=table_expr.c[partition_column])
             .label("_row_num")
         )
         # Add the _row_num column and select just the first row
