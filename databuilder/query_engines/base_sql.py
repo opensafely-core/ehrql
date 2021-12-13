@@ -252,11 +252,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         for label, category_definition in value.definitions.items():
             # A category definition is always a single Comparator, which may contain
             # nested Comparators
-            condition_statement = self.build_condition_statement(category_definition)
+            condition_statement = self.get_sql_element(category_definition)
             category_mapping[label] = condition_statement
         return self.get_case_expression(category_mapping, value.default)
 
-    def build_condition_statement(self, comparator):
+    @get_sql_element_no_cache.register
+    def get_element_from_comparator_node(self, comparator: Comparator):
         """
         Traverse a comparator's left and right hand sides in order and build the nested
         condition statement along with a tuple of the tables referenced
@@ -265,8 +266,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             assert isinstance(comparator.lhs, Comparator) and isinstance(
                 comparator.rhs, Comparator
             )
-            left_conditions = self.build_condition_statement(comparator.lhs)
-            right_conditions = self.build_condition_statement(comparator.rhs)
+            left_conditions = self.get_sql_element(comparator.lhs)
+            right_conditions = self.get_sql_element(comparator.rhs)
             connector = getattr(sqlalchemy, comparator.connector)
             condition_statement = connector(left_conditions, right_conditions)
         else:
