@@ -248,37 +248,40 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql_element_no_cache.register
     def get_element_from_category_node(self, value: ValueFromCategory):
-        category_mapping = {}
-        for label, category_definition in value.definitions.items():
-            # A category definition is always a single Comparator, which may contain
-            # nested Comparators
-            condition_statement = self.get_sql_element(category_definition)
-            category_mapping[label] = condition_statement
-        return self.get_case_expression(category_mapping, value.default)
+        # TODO: I think that both `label` and `default` should get passed through
+        # `get_sql_element_or_value` as there's no reason in principle these couldn't be
+        # dynamic values
+        return sqlalchemy.case(
+            [
+                (self.get_sql_element(condition), label)
+                for label, condition in value.definitions.items()
+            ],
+            else_=value.default,
+        )
 
     @get_sql_element_no_cache.register
     def get_element_from_comparator_node(self, comparator: Comparator):
-        """
-        Traverse a comparator's left and right hand sides in order and build the nested
-        condition statement along with a tuple of the tables referenced
-        """
+        # TODO: I think we can simplify things here, in particular the distinction
+        # between `operator` and `connector` and the handling of negatation. But that
+        # involves changing the Query Model which is a task for another day
+        operator = comparator.operator
         if comparator.connector is not None:
-            assert isinstance(comparator.lhs, Comparator) and isinstance(
-                comparator.rhs, Comparator
-            )
-            left_conditions = self.get_sql_element(comparator.lhs)
-            right_conditions = self.get_sql_element(comparator.rhs)
-            connector = getattr(sqlalchemy, comparator.connector)
-            condition_statement = connector(left_conditions, right_conditions)
-        else:
-            lhs = self.get_sql_element_or_value(comparator.lhs)
-            method = getattr(lhs, comparator.operator)
-            condition_statement = method(comparator.rhs)
+            assert operator is None
+            if comparator.connector == "and_":
+                operator = "__and__"
+            elif comparator.connector == "or_":
+                operator = "__or__"
+            else:
+                assert False
 
+        lhs = self.get_sql_element_or_value(comparator.lhs)
+        rhs = self.get_sql_element_or_value(comparator.rhs)
+
+        condition_expression = getattr(lhs, operator)(rhs)
         if comparator.negated:
-            condition_statement = sqlalchemy.not_(condition_statement)
+            condition_expression = sqlalchemy.not_(condition_expression)
 
-        return condition_statement
+        return condition_expression
 
     @get_sql_element_no_cache.register
     def get_element_from_table(self, node: Table):
@@ -411,12 +414,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def round_to_first_of_year(self, date):
         raise NotImplementedError
-
-    def get_case_expression(self, mapping, default):
-        return sqlalchemy.case(
-            [(expression, label) for label, expression in mapping.items()],
-            else_=default,
-        )
 
     def apply_aggregates(self, query, aggregate_nodes):
         """
