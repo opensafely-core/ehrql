@@ -209,29 +209,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """Which schema/database should we write temporary tables to."""
         return None
 
-    def build_condition_statement(self, comparator):
-        """
-        Traverse a comparator's left and right hand sides in order and build the nested
-        condition statement along with a tuple of the tables referenced
-        """
-        if comparator.connector is not None:
-            assert isinstance(comparator.lhs, Comparator) and isinstance(
-                comparator.rhs, Comparator
-            )
-            left_conditions = self.build_condition_statement(comparator.lhs)
-            right_conditions = self.build_condition_statement(comparator.rhs)
-            connector = getattr(sqlalchemy, comparator.connector)
-            condition_statement = connector(left_conditions, right_conditions)
-        else:
-            lhs = self.get_sql_element_or_value(comparator.lhs)
-            method = getattr(lhs, comparator.operator)
-            condition_statement = method(comparator.rhs)
-
-        if comparator.negated:
-            condition_statement = sqlalchemy.not_(condition_statement)
-
-        return condition_statement
-
     def get_sql_element(self, node: QueryNode) -> ClauseElement:
         """
         Caching wrapper around `get_sql_element_no_cache()` below
@@ -278,6 +255,29 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             condition_statement = self.build_condition_statement(category_definition)
             category_mapping[label] = condition_statement
         return self.get_case_expression(category_mapping, value.default)
+
+    def build_condition_statement(self, comparator):
+        """
+        Traverse a comparator's left and right hand sides in order and build the nested
+        condition statement along with a tuple of the tables referenced
+        """
+        if comparator.connector is not None:
+            assert isinstance(comparator.lhs, Comparator) and isinstance(
+                comparator.rhs, Comparator
+            )
+            left_conditions = self.build_condition_statement(comparator.lhs)
+            right_conditions = self.build_condition_statement(comparator.rhs)
+            connector = getattr(sqlalchemy, comparator.connector)
+            condition_statement = connector(left_conditions, right_conditions)
+        else:
+            lhs = self.get_sql_element_or_value(comparator.lhs)
+            method = getattr(lhs, comparator.operator)
+            condition_statement = method(comparator.rhs)
+
+        if comparator.negated:
+            condition_statement = sqlalchemy.not_(condition_statement)
+
+        return condition_statement
 
     @get_sql_element_no_cache.register
     def get_element_from_table(self, node: Table):
