@@ -128,37 +128,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             for query in cleanup_queries:
                 cursor.execute(query)
 
-    #
-    # DATABASE CONNECTION
-    #
-    @property
-    def engine(self):
-        if self._engine is None:
-            engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
-            # Hardcode the specific SQLAlchemy dialect we want to use: this is the
-            # dialect the query engine will have been written for and tested with and we
-            # don't want to allow global config changes to alter this
-            engine_url._get_entrypoint = lambda: self.sqlalchemy_dialect
-            self._engine = sqlalchemy.create_engine(engine_url, future=True)
-            # The above relies on abusing SQLAlchemy internals so it's possible it will
-            # break in future -- we want to know immediately if it does
-            assert isinstance(self._engine.dialect, self.sqlalchemy_dialect)
-        return self._engine
-
-    def get_temp_table_name(self, name_hint):
-        """
-        Return a table name based on `name_hint` suitable for use as a temporary table.
-
-        `name_hint` is arbitrary and is only present to make the resulting SQL slightly
-        more comprehensible when debugging.
-        """
-        self.temp_table_count += 1
-        return f"{self.temp_table_prefix}{name_hint}_{self.temp_table_count}"
-
-    def get_temp_database(self):
-        """Which schema/database should we write temporary tables to."""
-        return None
-
     def get_sql_element(self, node: QueryNode) -> ClauseElement:
         """
         Caching wrapper around `get_sql_element_no_cache()` below
@@ -195,43 +164,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             return self.get_sql_element(value)
         else:
             return value
-
-    @get_sql_element_no_cache.register
-    def get_element_from_category_node(self, value: ValueFromCategory):
-        # TODO: I think that both `label` and `default` should get passed through
-        # `get_sql_element_or_value` as there's no reason in principle these couldn't be
-        # dynamic values
-        return sqlalchemy.case(
-            [
-                (self.get_sql_element(condition), label)
-                for label, condition in value.definitions.items()
-            ],
-            else_=value.default,
-        )
-
-    @get_sql_element_no_cache.register
-    def get_element_from_comparator_node(self, comparator: Comparator):
-        # TODO: I think we can simplify things here, in particular the distinction
-        # between `operator` and `connector` and the handling of negatation. But that
-        # involves changing the Query Model which is a task for another day
-        operator = comparator.operator
-        if comparator.connector is not None:
-            assert operator is None
-            if comparator.connector == "and_":
-                operator = "__and__"
-            elif comparator.connector == "or_":
-                operator = "__or__"
-            else:
-                assert False
-
-        lhs = self.get_sql_element_or_value(comparator.lhs)
-        rhs = self.get_sql_element_or_value(comparator.rhs)
-
-        condition_expression = getattr(lhs, operator)(rhs)
-        if comparator.negated:
-            condition_expression = sqlalchemy.not_(condition_expression)
-
-        return condition_expression
 
     @get_sql_element_no_cache.register
     def get_element_from_table(self, node: Table):
@@ -276,43 +208,49 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         return self.reify_query(query)
 
-    def reify_query(self, query):
-        """
-        Take a SQLAlchemy query and return something table-like which contains the
-        results of this query.
-
-        At present, we do this via creating a temporary table and writing the results of
-        the query to that table. But this is an implementation detail, chosen for its
-        performance characteristics. It's possible to replace the below with either of:
-
-            return query.cte()
-            return query.subquery()
-
-        and the tests will still pass.
-        """
-        columns = [sqlalchemy.Column(c.name, c.type) for c in query.selected_columns]
-        table_name = self.get_temp_table_name("group_table")
-        table = TemporaryTable(
-            table_name,
-            sqlalchemy.MetaData(),
-            *columns,
-        )
-        create_query = self.query_to_create_temp_table_from_select_query(table, query)
-        cleanup_queries = (
-            [sqlalchemy.schema.DropTable(table, if_exists=True)]
-            if self.temp_table_needs_dropping(create_query)
-            else []
-        )
-        table.setup_queries = [create_query]
-        table.cleanup_queries = cleanup_queries
-        return table
-
     @get_sql_element_no_cache.register
     def get_element_from_output_node(
         self, node: Union[ValueFromRow, ValueFromAggregate, Column]
     ):
         table = self.get_sql_element(node.source)
         return table.c[node.column]
+
+    @get_sql_element_no_cache.register
+    def get_element_from_category_node(self, value: ValueFromCategory):
+        # TODO: I think that both `label` and `default` should get passed through
+        # `get_sql_element_or_value` as there's no reason in principle these couldn't be
+        # dynamic values
+        return sqlalchemy.case(
+            [
+                (self.get_sql_element(condition), label)
+                for label, condition in value.definitions.items()
+            ],
+            else_=value.default,
+        )
+
+    @get_sql_element_no_cache.register
+    def get_element_from_comparator_node(self, comparator: Comparator):
+        # TODO: I think we can simplify things here, in particular the distinction
+        # between `operator` and `connector` and the handling of negatation. But that
+        # involves changing the Query Model which is a task for another day
+        operator = comparator.operator
+        if comparator.connector is not None:
+            assert operator is None
+            if comparator.connector == "and_":
+                operator = "__and__"
+            elif comparator.connector == "or_":
+                operator = "__or__"
+            else:
+                assert False
+
+        lhs = self.get_sql_element_or_value(comparator.lhs)
+        rhs = self.get_sql_element_or_value(comparator.rhs)
+
+        condition_expression = getattr(lhs, operator)(rhs)
+        if comparator.negated:
+            condition_expression = sqlalchemy.not_(condition_expression)
+
+        return condition_expression
 
     @get_sql_element_no_cache.register
     def get_element_from_codelist(self, codelist: Codelist):
@@ -363,6 +301,37 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
         table.setup_queries = [create_query] + insert_queries
+        table.cleanup_queries = cleanup_queries
+        return table
+
+    def reify_query(self, query):
+        """
+        Take a SQLAlchemy query and return something table-like which contains the
+        results of this query.
+
+        At present, we do this via creating a temporary table and writing the results of
+        the query to that table. But this is an implementation detail, chosen for its
+        performance characteristics. It's possible to replace the below with either of:
+
+            return query.cte()
+            return query.subquery()
+
+        and the tests will still pass.
+        """
+        columns = [sqlalchemy.Column(c.name, c.type) for c in query.selected_columns]
+        table_name = self.get_temp_table_name("group_table")
+        table = TemporaryTable(
+            table_name,
+            sqlalchemy.MetaData(),
+            *columns,
+        )
+        create_query = self.query_to_create_temp_table_from_select_query(table, query)
+        cleanup_queries = (
+            [sqlalchemy.schema.DropTable(table, if_exists=True)]
+            if self.temp_table_needs_dropping(create_query)
+            else []
+        )
+        table.setup_queries = [create_query]
         table.cleanup_queries = cleanup_queries
         return table
 
@@ -435,6 +404,37 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         when the session terminates
         """
         raise NotImplementedError()
+
+    #
+    # DATABASE CONNECTION
+    #
+    @property
+    def engine(self):
+        if self._engine is None:
+            engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
+            # Hardcode the specific SQLAlchemy dialect we want to use: this is the
+            # dialect the query engine will have been written for and tested with and we
+            # don't want to allow global config changes to alter this
+            engine_url._get_entrypoint = lambda: self.sqlalchemy_dialect
+            self._engine = sqlalchemy.create_engine(engine_url, future=True)
+            # The above relies on abusing SQLAlchemy internals so it's possible it will
+            # break in future -- we want to know immediately if it does
+            assert isinstance(self._engine.dialect, self.sqlalchemy_dialect)
+        return self._engine
+
+    def get_temp_table_name(self, name_hint):
+        """
+        Return a table name based on `name_hint` suitable for use as a temporary table.
+
+        `name_hint` is arbitrary and is only present to make the resulting SQL slightly
+        more comprehensible when debugging.
+        """
+        self.temp_table_count += 1
+        return f"{self.temp_table_prefix}{name_hint}_{self.temp_table_count}"
+
+    def get_temp_database(self):
+        """Which schema/database should we write temporary tables to."""
+        return None
 
 
 def apply_filter(query, column, operator, value, value_query_node, or_null=False):
