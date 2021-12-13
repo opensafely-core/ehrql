@@ -34,6 +34,7 @@ from ..sqlalchemy_utils import (
     get_referenced_tables,
     get_setup_and_cleanup_queries,
     include_joined_tables,
+    select_first_row_per_partition,
 )
 from .base import BaseQueryEngine
 
@@ -301,7 +302,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql_element_no_cache.register
     def get_element_from_row(self, node: Row):
         query = self.get_sql_element(node.source)
-        query = self.select_first_row_per_partition(
+        query = select_first_row_per_partition(
             query,
             partition_column="patient_id",
             sort_columns=node.sort_columns,
@@ -445,40 +446,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             function = getattr(sqlalchemy.func, aggregate_node.function)
             source_column = query.selected_columns[aggregate_node.input_column]
             return function(source_column).label(output_column)
-
-    @staticmethod
-    def select_first_row_per_partition(
-        query, partition_column, sort_columns, descending
-    ):
-        """
-        Given a SQLAlchemy SELECT query, partition it by the specified column, sort
-        within each partition by `sort_columns` and then return a query containing just
-        the first row for each partition.
-        """
-        # Get the base table - the first in the FROM clauses
-        table_expr = get_primary_table(query)
-
-        # Find all the selected column names
-        column_names = [column.name for column in query.selected_columns]
-
-        # Query to select the columns that we need to sort on
-        order_columns = [table_expr.c[column] for column in sort_columns]
-        # change ordering to descending on all order columns if necessary
-        if descending:
-            order_columns = [c.desc() for c in order_columns]
-
-        # Number rows sequentially over the order by columns for each patient id
-        row_num = (
-            sqlalchemy.func.row_number()
-            .over(order_by=order_columns, partition_by=table_expr.c[partition_column])
-            .label("_row_num")
-        )
-        # Add the _row_num column and select just the first row
-        query = query.add_columns(row_num)
-        subquery = query.alias()
-        query = sqlalchemy.select([subquery.c[column] for column in column_names])
-        query = query.select_from(subquery).where(subquery.c._row_num == 1)
-        return query
 
     def query_to_create_temp_table_from_select_query(
         self, table: TemporaryTable, select_query: Executable
