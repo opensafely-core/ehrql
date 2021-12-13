@@ -286,7 +286,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql_element_no_cache.register
     def get_element_from_filtered_table(self, node: FilteredTable):
         query = self.get_sql_element(node.source)
-        return self.apply_filter(query, node)
+        filter_value = self.get_sql_element_or_value(node.value)
+        return self.apply_filter(
+            query,
+            column=node.column,
+            operator=node.operator,
+            value=filter_value,
+            # Ideally we wouldn't be passing these through, but we need to until we can
+            # rewrite the `apply_filter` function
+            value_query_node=node.value,
+            or_null=node.or_null,
+        )
 
     @get_sql_element_no_cache.register
     def get_element_from_row(self, node: Row):
@@ -435,54 +445,53 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             source_column = query.selected_columns[aggregate_node.input_column]
             return function(source_column).label(output_column)
 
-    def apply_filter(self, query, filter_node):
+    @staticmethod
+    def apply_filter(query, column, operator, value, value_query_node, or_null=False):
+        # TODO: This function needs work
+
         # Get the base table
         table_expr = get_primary_table(query)
 
-        column_name = filter_node.column
-        operator_name = filter_node.operator
-        value_expr = self.get_sql_element_or_value(filter_node.value)
-
-        # If the filter value itself potentially drawn from another table?
-        if isinstance(filter_node.value, (Value, Column)):
+        # Is the filter value itself potentially drawn from another table?
+        if isinstance(value_query_node, (Value, Column)):
             # Find the tables to which it refers
-            other_tables = get_referenced_tables(value_expr)
+            other_tables = get_referenced_tables(value)
             # If we have a "Value" (i.e. a single value per patient) then we
             # include the other tables in the join
-            if isinstance(filter_node.value, Value):
+            if isinstance(value_query_node, Value):
                 query = include_joined_tables(query, other_tables, "patient_id")
             # If we have a "Column" (i.e. multiple values per patient) then we
             # can't directly join this with our single-value-per-patient query,
             # so we have to use a correlated subquery
-            elif isinstance(filter_node.value, Column):
+            elif isinstance(value_query_node, Column):
                 # I actually think this check is wrong and we'll eventually need to
                 # support e.g. a column which is a boolean expression over multiple
                 # source columns. But I'll leave it in place for now.
                 assert len(other_tables) == 1
                 other_table = other_tables[0]
-                value_expr = (
-                    sqlalchemy.select(value_expr)
+                value = (
+                    sqlalchemy.select(value)
                     .select_from(other_table)
                     .where(other_table.c.patient_id == table_expr.c.patient_id)
                 )
             else:
                 assert False
 
-        if isinstance(filter_node.value, Codelist):
-            value_expr = sqlalchemy.select(value_expr.c.code).scalar_subquery()
+        if isinstance(value_query_node, Codelist):
+            value = sqlalchemy.select(value.c.code).scalar_subquery()
             if "system" in table_expr.c:
                 # Codelist queries must also match on `system` column if it's present
                 system_column = table_expr.c["system"]
-                value_expr = value_expr.where(system_column == filter_node.value.system)
+                value = value.where(system_column == value_query_node.system)
 
-        column = table_expr.c[column_name]
-        method = getattr(column, operator_name)
-        query_expr = method(value_expr)
+        column_expr = table_expr.c[column]
+        method = getattr(column_expr, operator)
+        filter_expr = method(value)
 
-        if filter_node.or_null:
-            null_expr = column.__eq__(None)
-            query_expr = sqlalchemy.or_(query_expr, null_expr)
-        return query.where(query_expr)
+        if or_null:
+            null_expr = column_expr.__eq__(None)
+            filter_expr = sqlalchemy.or_(filter_expr, null_expr)
+        return query.where(filter_expr)
 
     @staticmethod
     def apply_row_selector(query, sort_columns, descending):
