@@ -1,4 +1,8 @@
 import contextlib
+import copy
+import dataclasses
+import typing
+from collections import defaultdict
 from typing import Optional, Union
 
 import sqlalchemy
@@ -39,6 +43,20 @@ from ..sqlalchemy_utils import (
 )
 from .base import BaseQueryEngine
 
+# These are nodes which select a single column from a query (regardless of whether that
+# results in a single value per patient or in multiple values per patient)
+ColumnSelectorNode = Union[ValueFromRow, ValueFromAggregate, Column]
+
+
+# This is an internal class that is injected into the DAG by the QueryEngine, but that
+# does not form part of the public Query Model
+@dataclasses.dataclass(frozen=True)
+class ReifyQuery(QueryNode):
+    source: QueryNode
+
+    def _get_referenced_nodes(self):
+        return (self.source,)
+
 
 class MissingString(str):
     def __init__(self, message):
@@ -77,10 +95,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
             list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
         """
+        column_definitions = apply_optimisations(self.column_definitions)
+
         # Convert each column definition to SQL
         column_queries = {
             column: self.get_sql_element(definition)
-            for column, definition in self.column_definitions.items()
+            for column, definition in column_definitions.items()
         }
 
         # `population` is a special-cased boolean column, it doesn't appear
@@ -188,30 +208,60 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql_element_no_cache.register
     def get_element_from_row(self, node: Row):
         query = self.get_sql_element(node.source)
-        query = select_first_row_per_partition(
+        return select_first_row_per_partition(
             query,
             partition_column="patient_id",
             sort_columns=node.sort_columns,
             descending=node.descending,
         )
-        return self.reify_query(query)
 
     @get_sql_element_no_cache.register
     def get_element_from_row_from_aggregate(self, node: RowFromAggregate):
         query = self.get_sql_element(node.source)
-        query = group_and_aggregate(
+        return group_and_aggregate(
             query,
             group_by_column="patient_id",
             input_column=node.input_column,
             function_name=node.function,
             output_column=node.output_column,
         )
-        return self.reify_query(query)
 
     @get_sql_element_no_cache.register
-    def get_element_from_output_node(
-        self, node: Union[ValueFromRow, ValueFromAggregate, Column]
-    ):
+    def get_element_from_reify_query(self, node: ReifyQuery):
+        """
+        Take a query and return something table-like which contains the results of this
+        query.
+
+        At present, we do this via creating a temporary table and writing the results of
+        the query to that table. But this is an implementation detail, chosen for its
+        performance characteristics. It's possible to replace the below with either of:
+
+            return query.cte()
+            return query.subquery()
+
+        and the tests will still pass (other than those which assert specific things
+        about the generated SQL)
+        """
+        query = self.get_sql_element(node.source)
+        columns = [sqlalchemy.Column(c.name, c.type) for c in query.selected_columns]
+        table_name = self.get_temp_table_name("group_table")
+        table = TemporaryTable(
+            table_name,
+            sqlalchemy.MetaData(),
+            *columns,
+        )
+        create_query = self.query_to_create_temp_table_from_select_query(table, query)
+        cleanup_queries = (
+            [sqlalchemy.schema.DropTable(table, if_exists=True)]
+            if self.temp_table_needs_dropping(create_query)
+            else []
+        )
+        table.setup_queries = [create_query]
+        table.cleanup_queries = cleanup_queries
+        return table
+
+    @get_sql_element_no_cache.register
+    def get_element_from_column_selector(self, node: ColumnSelectorNode):
         table = self.get_sql_element(node.source)
         return table.c[node.column]
 
@@ -301,37 +351,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
         table.setup_queries = [create_query] + insert_queries
-        table.cleanup_queries = cleanup_queries
-        return table
-
-    def reify_query(self, query):
-        """
-        Take a SQLAlchemy query and return something table-like which contains the
-        results of this query.
-
-        At present, we do this via creating a temporary table and writing the results of
-        the query to that table. But this is an implementation detail, chosen for its
-        performance characteristics. It's possible to replace the below with either of:
-
-            return query.cte()
-            return query.subquery()
-
-        and the tests will still pass.
-        """
-        columns = [sqlalchemy.Column(c.name, c.type) for c in query.selected_columns]
-        table_name = self.get_temp_table_name("group_table")
-        table = TemporaryTable(
-            table_name,
-            sqlalchemy.MetaData(),
-            *columns,
-        )
-        create_query = self.query_to_create_temp_table_from_select_query(table, query)
-        cleanup_queries = (
-            [sqlalchemy.schema.DropTable(table, if_exists=True)]
-            if self.temp_table_needs_dropping(create_query)
-            else []
-        )
-        table.setup_queries = [create_query]
         table.cleanup_queries = cleanup_queries
         return table
 
@@ -483,6 +502,57 @@ def apply_filter(query, column, operator, value, value_query_node, or_null=False
         null_expr = column_expr.__eq__(None)
         filter_expr = sqlalchemy.or_(filter_expr, null_expr)
     return query.where(filter_expr)
+
+
+def apply_optimisations(column_definitions):
+    """
+    Apply various transformations to the supplied query DAG which make it easier to
+    generate better performing SQL
+    """
+    # It's algorithmically easier to apply these transformations by modifying the graph
+    # in place, so we copy it first
+    column_definitions = copy.deepcopy(column_definitions)
+
+    reify_query_before_selecting_column(column_definitions)
+
+    return column_definitions
+
+
+def reify_query_before_selecting_column(column_definitions):
+    """
+    We sometimes need to be able to take a SQLAlchemy query and treat it as something
+    table-like from which we can select columns (a process we describe as
+    "reification"). In fact, SQLAlchemy will do this implictly for us: we can just
+    select columns from a query and it will automatically create a subquery for us.
+    However this triggers a warning not to rely on this behaviour. And in any case, we
+    want to control exactly how and when queries are reified. So here we walk the query
+    graph, find all the places where we select columns and inject an operation to
+    explicitly reify the query before doing so.
+    """
+    # Find all ColumnSelectorNodes and group them by the source node they reference
+    selector_types = typing.get_args(ColumnSelectorNode)
+    nodes_by_source = defaultdict(list)
+    for node in get_all_nodes(column_definitions):
+        if isinstance(node, selector_types):
+            nodes_by_source[node.source].append(node)
+    # Inject a ReifyQuery node between the ColumnSelectorNodes and their source
+    for source, child_nodes in nodes_by_source.items():
+        new_source = ReifyQuery(source)
+        for node in child_nodes:
+            # These are frozen instances, so we can't set the attribute directly
+            object.__setattr__(node, "source", new_source)
+
+
+def get_all_nodes(column_definitions):
+    return list(recurse_over_nodes(column_definitions.values(), set()))
+
+
+def recurse_over_nodes(nodes, seen):
+    for node in nodes:
+        yield from recurse_over_nodes(node._get_referenced_nodes(), seen)
+        if node not in seen:
+            seen.add(node)
+            yield node
 
 
 def split_list_into_batches(lst, size=None):
