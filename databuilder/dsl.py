@@ -214,25 +214,45 @@ class SortedEventFrame:
 
 
 class PatientFrame:
-    """Represents an unsorted collection of records, with one row per patient."""
+    """
+    Represents an unsorted collection of records, with one row per patient.
+    """
 
     def __init__(self, row: Row):
+        """
+        Initialise the PatientFrame
+
+        Args:
+            row: A Row which represents a single patient's data
+        """
         self.row = row
 
     def select_column(self, column: Column) -> PatientSeries:
-        """Return a PatientSeries containing given column."""
+        """
+        Return a PatientSeries containing given column.
 
+        Args:
+            column: The Column of interest of which you want to retrieve the value.
+        """
         return PatientSeries(self.row.get(column.name))
 
 
 class PatientSeries:
-    """Represents a column indexed by patient.
+    """
+    Represents a column indexed by patient.
 
     Can be used as a variable in a Cohort, or as an input when computing another
     variable.
     """
 
     def __init__(self, value: Value | Comparator):
+        """
+        Initialise the PatientSeries
+
+        Args:
+            value: A Value or a Comparator. A Value contains a value such as numeric value,
+                and a Comparator compares the value to a ValueExpression and returns a Boolean.
+        """
         self.value = value
 
     def _is_comparator(self) -> bool:
