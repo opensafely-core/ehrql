@@ -287,7 +287,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_element_from_filtered_table(self, node: FilteredTable):
         query = self.get_sql_element(node.source)
         filter_value = self.get_sql_element_or_value(node.value)
-        return self.apply_filter(
+        return apply_filter(
             query,
             column=node.column,
             operator=node.operator,
@@ -446,54 +446,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             return function(source_column).label(output_column)
 
     @staticmethod
-    def apply_filter(query, column, operator, value, value_query_node, or_null=False):
-        # TODO: This function needs work
-
-        # Get the base table
-        table_expr = get_primary_table(query)
-
-        # Is the filter value itself potentially drawn from another table?
-        if isinstance(value_query_node, (Value, Column)):
-            # Find the tables to which it refers
-            other_tables = get_referenced_tables(value)
-            # If we have a "Value" (i.e. a single value per patient) then we
-            # include the other tables in the join
-            if isinstance(value_query_node, Value):
-                query = include_joined_tables(query, other_tables, "patient_id")
-            # If we have a "Column" (i.e. multiple values per patient) then we
-            # can't directly join this with our single-value-per-patient query,
-            # so we have to use a correlated subquery
-            elif isinstance(value_query_node, Column):
-                # I actually think this check is wrong and we'll eventually need to
-                # support e.g. a column which is a boolean expression over multiple
-                # source columns. But I'll leave it in place for now.
-                assert len(other_tables) == 1
-                other_table = other_tables[0]
-                value = (
-                    sqlalchemy.select(value)
-                    .select_from(other_table)
-                    .where(other_table.c.patient_id == table_expr.c.patient_id)
-                )
-            else:
-                assert False
-
-        if isinstance(value_query_node, Codelist):
-            value = sqlalchemy.select(value.c.code).scalar_subquery()
-            if "system" in table_expr.c:
-                # Codelist queries must also match on `system` column if it's present
-                system_column = table_expr.c["system"]
-                value = value.where(system_column == value_query_node.system)
-
-        column_expr = table_expr.c[column]
-        method = getattr(column_expr, operator)
-        filter_expr = method(value)
-
-        if or_null:
-            null_expr = column_expr.__eq__(None)
-            filter_expr = sqlalchemy.or_(filter_expr, null_expr)
-        return query.where(filter_expr)
-
-    @staticmethod
     def apply_row_selector(query, sort_columns, descending):
         """
         Generate query to apply a row selector by sorting by sort_columns in
@@ -540,6 +492,54 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         when the session terminates
         """
         raise NotImplementedError()
+
+
+def apply_filter(query, column, operator, value, value_query_node, or_null=False):
+    # TODO: This function needs work
+
+    # Get the base table
+    table_expr = get_primary_table(query)
+
+    # Is the filter value itself potentially drawn from another table?
+    if isinstance(value_query_node, (Value, Column)):
+        # Find the tables to which it refers
+        other_tables = get_referenced_tables(value)
+        # If we have a "Value" (i.e. a single value per patient) then we
+        # include the other tables in the join
+        if isinstance(value_query_node, Value):
+            query = include_joined_tables(query, other_tables, "patient_id")
+        # If we have a "Column" (i.e. multiple values per patient) then we
+        # can't directly join this with our single-value-per-patient query,
+        # so we have to use a correlated subquery
+        elif isinstance(value_query_node, Column):
+            # I actually think this check is wrong and we'll eventually need to
+            # support e.g. a column which is a boolean expression over multiple
+            # source columns. But I'll leave it in place for now.
+            assert len(other_tables) == 1
+            other_table = other_tables[0]
+            value = (
+                sqlalchemy.select(value)
+                .select_from(other_table)
+                .where(other_table.c.patient_id == table_expr.c.patient_id)
+            )
+        else:
+            assert False
+
+    if isinstance(value_query_node, Codelist):
+        value = sqlalchemy.select(value.c.code).scalar_subquery()
+        if "system" in table_expr.c:
+            # Codelist queries must also match on `system` column if it's present
+            system_column = table_expr.c["system"]
+            value = value.where(system_column == value_query_node.system)
+
+    column_expr = table_expr.c[column]
+    method = getattr(column_expr, operator)
+    filter_expr = method(value)
+
+    if or_null:
+        null_expr = column_expr.__eq__(None)
+        filter_expr = sqlalchemy.or_(filter_expr, null_expr)
+    return query.where(filter_expr)
 
 
 def split_list_into_batches(lst, size=None):
