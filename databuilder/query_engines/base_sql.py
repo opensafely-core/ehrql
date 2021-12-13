@@ -145,57 +145,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             assert isinstance(self._engine.dialect, self.sqlalchemy_dialect)
         return self._engine
 
-    def create_codelist_table(self, codelist):
-        """
-        Given a codelist, build a SQLAlchemy representation of the temporary table
-        needed to store that codelist and then generate the queries necessary to create
-        and populate that table
-        """
-        codes = codelist.codes
-        max_code_len = max(map(len, codes))
-        collation = "Latin1_General_BIN"
-        table_name = self.get_temp_table_name("codelist")
-        table = TemporaryTable(
-            table_name,
-            sqlalchemy.MetaData(),
-            sqlalchemy.Column(
-                "code",
-                sqlalchemy.types.String(max_code_len, collation=collation),
-                nullable=False,
-            ),
-            sqlalchemy.Column(
-                "system",
-                sqlalchemy.types.String(6),
-                nullable=False,
-            ),
-            # If this backend has a temp db, we use it to store codelists
-            # tables. This helps with permissions management, as we can have
-            # write acces to the temp db but not the main db
-            schema=self.get_temp_database(),
-        )
-
-        # Constuct the queries needed to create and populate this table
-        create_query = sqlalchemy.schema.CreateTable(table)
-        insert_queries = []
-        for codes_batch in split_list_into_batches(
-            codes, size=self.max_rows_per_insert
-        ):
-            insert_query = table.insert().values(
-                [(code, codelist.system) for code in codes_batch]
-            )
-            insert_queries.append(insert_query)
-
-        # Construct the queries needed to clean it up
-        cleanup_queries = (
-            [sqlalchemy.schema.DropTable(table, if_exists=True)]
-            if self.temp_table_needs_dropping(create_query)
-            else []
-        )
-
-        table.setup_queries = [create_query] + insert_queries
-        table.cleanup_queries = cleanup_queries
-        return table
-
     def get_temp_table_name(self, name_hint):
         """
         Return a table name based on `name_hint` suitable for use as a temporary table.
@@ -367,7 +316,55 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql_element_no_cache.register
     def get_element_from_codelist(self, codelist: Codelist):
-        return self.create_codelist_table(codelist)
+        """
+        Given a codelist, build a SQLAlchemy representation of the temporary table
+        needed to store that codelist and then generate the queries necessary to create
+        and populate that table
+        """
+        codes = codelist.codes
+        max_code_len = max(map(len, codes))
+        collation = "Latin1_General_BIN"
+        table_name = self.get_temp_table_name("codelist")
+        table = TemporaryTable(
+            table_name,
+            sqlalchemy.MetaData(),
+            sqlalchemy.Column(
+                "code",
+                sqlalchemy.types.String(max_code_len, collation=collation),
+                nullable=False,
+            ),
+            sqlalchemy.Column(
+                "system",
+                sqlalchemy.types.String(6),
+                nullable=False,
+            ),
+            # If this backend has a temp db, we use it to store codelists
+            # tables. This helps with permissions management, as we can have
+            # write acces to the temp db but not the main db
+            schema=self.get_temp_database(),
+        )
+
+        # Constuct the queries needed to create and populate this table
+        create_query = sqlalchemy.schema.CreateTable(table)
+        insert_queries = []
+        for codes_batch in split_list_into_batches(
+            codes, size=self.max_rows_per_insert
+        ):
+            insert_query = table.insert().values(
+                [(code, codelist.system) for code in codes_batch]
+            )
+            insert_queries.append(insert_query)
+
+        # Construct the queries needed to clean it up
+        cleanup_queries = (
+            [sqlalchemy.schema.DropTable(table, if_exists=True)]
+            if self.temp_table_needs_dropping(create_query)
+            else []
+        )
+
+        table.setup_queries = [create_query] + insert_queries
+        table.cleanup_queries = cleanup_queries
+        return table
 
     @get_sql_element_no_cache.register
     def get_element_from_value_from_function(self, value: ValueFromFunction):
