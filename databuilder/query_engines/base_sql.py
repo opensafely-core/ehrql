@@ -33,6 +33,7 @@ from ..sqlalchemy_utils import (
     get_primary_table,
     get_referenced_tables,
     get_setup_and_cleanup_queries,
+    group_and_aggregate,
     include_joined_tables,
     select_first_row_per_partition,
 )
@@ -317,21 +318,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql_element_no_cache.register
     def get_element_from_row_from_aggregate(self, node: RowFromAggregate):
         query = self.get_sql_element(node.source)
-
-        if node.function == "exists":
-            aggregate_value = sqlalchemy.literal(True)
-        else:
-            function = getattr(sqlalchemy.func, node.function)
-            source_column = query.selected_columns[node.input_column]
-            aggregate_value = function(source_column)
-
-        query = query.with_only_columns(
-            [
-                query.selected_columns.patient_id,
-                aggregate_value.label(node.output_column),
-            ]
+        query = group_and_aggregate(
+            query,
+            group_by_column="patient_id",
+            input_column=node.input_column,
+            function_name=node.function,
+            output_column=node.output_column,
         )
-        query = query.group_by(query.selected_columns.patient_id)
         return self.reify_query(query)
 
     def reify_query(self, query):

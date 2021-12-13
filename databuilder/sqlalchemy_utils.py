@@ -33,6 +33,25 @@ def select_first_row_per_partition(query, partition_column, sort_columns, descen
     return query
 
 
+def group_and_aggregate(
+    query, group_by_column, input_column, function_name, output_column
+):
+    if function_name == "exists":
+        aggregate_value = sqlalchemy.literal(True)
+    else:
+        function = getattr(sqlalchemy.func, function_name)
+        source_column = query.selected_columns[input_column]
+        aggregate_value = function(source_column)
+
+    query = query.with_only_columns(
+        [
+            query.selected_columns[group_by_column],
+            aggregate_value.label(output_column),
+        ]
+    )
+    return query.group_by(query.selected_columns[group_by_column])
+
+
 def get_joined_tables(select_query):
     """
     Given a SELECT query object return a list of all tables referenced
