@@ -317,7 +317,21 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql_element_no_cache.register
     def get_element_from_row_from_aggregate(self, node: RowFromAggregate):
         query = self.get_sql_element(node.source)
-        query = self.apply_aggregates(query, [node])
+
+        if node.function == "exists":
+            aggregate_value = sqlalchemy.literal(True)
+        else:
+            function = getattr(sqlalchemy.func, node.function)
+            source_column = query.selected_columns[node.input_column]
+            aggregate_value = function(source_column)
+
+        query = query.with_only_columns(
+            [
+                query.selected_columns.patient_id,
+                aggregate_value.label(node.output_column),
+            ]
+        )
+        query = query.group_by(query.selected_columns.patient_id)
         return self.reify_query(query)
 
     def reify_query(self, query):
@@ -414,36 +428,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def round_to_first_of_year(self, date):
         raise NotImplementedError
-
-    def apply_aggregates(self, query, aggregate_nodes):
-        """
-        For each aggregate node, get the query that will select it with its generated
-        column label, plus the patient id column, and then group by the patient id.
-        """
-        columns = [
-            self.get_aggregate_column(query, aggregate_node)
-            for aggregate_node in aggregate_nodes
-        ]
-        query = query.with_only_columns([query.selected_columns.patient_id] + columns)
-        query = query.group_by(query.selected_columns.patient_id)
-
-        return query
-
-    def get_aggregate_column(self, query, aggregate_node):
-        """
-        For an aggregate node, build the column to hold its value
-        Aggregate column names are a combination of column and aggregate function,
-        e.g. "patient_id_exists"
-        """
-        output_column = aggregate_node.output_column
-        if aggregate_node.function == "exists":
-            return sqlalchemy.literal(True).label(output_column)
-        else:
-            # The aggregate node function is a string corresponding to an available
-            # sqlalchemy function (e.g. "exists", "count")
-            function = getattr(sqlalchemy.func, aggregate_node.function)
-            source_column = query.selected_columns[aggregate_node.input_column]
-            return function(source_column).label(output_column)
 
     def query_to_create_temp_table_from_select_query(
         self, table: TemporaryTable, select_query: Executable
