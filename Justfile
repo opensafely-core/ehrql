@@ -124,14 +124,14 @@ build-databuilder:
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
-# tear down the persistent cohort-extractor-mssql docker container and network
+# tear down the persistent databuilder-mssql docker container and network
 remove-persistent-database:
-    docker rm --force cohort-extractor-mssql
-    docker network rm cohort-extractor-network
+    docker rm --force databuilder-mssql
+    docker network rm databuilder-network
 
 # open an interactive SQL Server shell running against the persistent database
 connect-to-persistent-database:
-    docker exec -it cohort-extractor-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
+    docker exec -it databuilder-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
 
 # Full set of tests run by CI
 test *ARGS=test_args:
