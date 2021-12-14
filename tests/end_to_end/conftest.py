@@ -49,7 +49,7 @@ def cohort_extractor_in_container(tmpdir, database, containers):
             command += ["--dummy-data-file", str(dummy_data_file)]
 
         containers.run_fg(
-            image="cohort-extractor-v2:latest",
+            image="databuilder:latest",
             command=command,
             environment={
                 "DATABASE_URL": database.container_url(),
@@ -90,7 +90,7 @@ def cohort_extractor_generate_measures_in_container(tmpdir, database, containers
         ]
 
         containers.run_fg(
-            image="cohort-extractor-v2:latest",
+            image="databuilder:latest",
             command=command,
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
         )

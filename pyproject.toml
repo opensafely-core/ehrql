@@ -36,7 +36,7 @@ databuilder = "databuilder.__main__:main"
 [project.urls]
 Home = "https://opensafely.org"
 Documentation = "https://docs.opensafely.org"
-Source = "https://github.com/opensafely-core/cohort-extractor-v2"
+Source = "https://github.com/opensafely-core/databuilder"
 
 [tool.black]
 exclude = '''

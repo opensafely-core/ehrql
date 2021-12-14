@@ -7,7 +7,7 @@ from sqlalchemy.dialects.mssql.pymssql import MSDialect_pymssql
 # MS-SQL can misinterpret ISO dates, depending on its localisation settings so
 # we need to use particular date formats which we know will be consistently
 # interpreted. We do this by defining custom SQLAlchemy types. See:
-# https://github.com/opensafely-core/cohort-extractor-v2/issues/92
+# https://github.com/opensafely-core/databuilder/issues/92
 # http://msdn.microsoft.com/en-us/library/ms180878.aspx
 # https://stackoverflow.com/a/25548626/559140
 class _MSSQLDateTimeBase:

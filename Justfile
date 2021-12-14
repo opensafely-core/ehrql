@@ -114,24 +114,24 @@ fix: devenv
     $BIN/isort .
 
 
-# build the cohort-extractor docker image
-build-cohort-extractor:
+# build the databuilder docker image
+build-databuilder:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    [[ -v CI ]] && echo "::group::Build cohort-extractor (click to view)" || echo "Build cohort-extractor"
-    docker build . -t cohort-extractor-v2
+    [[ -v CI ]] && echo "::group::Build databuilder (click to view)" || echo "Build databuilder"
+    docker build . -t databuilder
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
-# tear down the persistent cohort-extractor-mssql docker container and network
+# tear down the persistent databuilder-mssql docker container and network
 remove-persistent-database:
-    docker rm --force cohort-extractor-mssql
-    docker network rm cohort-extractor-network
+    docker rm --force databuilder-mssql
+    docker network rm databuilder-network
 
 # open an interactive SQL Server shell running against the persistent database
 connect-to-persistent-database:
-    docker exec -it cohort-extractor-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
+    docker exec -it databuilder-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
 
 # Full set of tests run by CI
 test *ARGS=test_args:
@@ -146,11 +146,11 @@ test-integration *ARGS: devenv
     $BIN/python -m pytest -m integration {{ ARGS }}
 
 # run the smoke tests only. Optional args are passed to pytest
-test-smoke *ARGS: devenv build-cohort-extractor
+test-smoke *ARGS: devenv build-databuilder
     $BIN/python -m pytest -m smoke {{ ARGS }}
 
 # run all tests including integration and smoke tests. Optional args are passed to pytest
-test-all *ARGS=test_args: devenv build-cohort-extractor
+test-all *ARGS=test_args: devenv build-databuilder
     #!/usr/bin/env bash
     set -euo pipefail
 
