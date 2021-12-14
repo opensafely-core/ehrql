@@ -53,6 +53,7 @@ ColumnSelectorNode = Union[ValueFromRow, ValueFromAggregate, Column]
 @dataclasses.dataclass(frozen=True)
 class ReifyQuery(QueryNode):
     source: QueryNode
+    columns: tuple[str]
 
     def _get_referenced_nodes(self):
         return (self.source,)
@@ -243,13 +244,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         about the generated SQL)
         """
         query = self.get_sql_element(node.source)
-        columns = [sqlalchemy.Column(c.name, c.type) for c in query.selected_columns]
+        # Select just the specified columns. This is a performance optimisation to avoid
+        # reifying more data than we need.
+        column_names = {"patient_id"} | set(node.columns)
+        columns = [query.selected_columns[name] for name in column_names]
+        query = query.with_only_columns(columns)
+
+        table_columns = [sqlalchemy.Column(c.name, c.type) for c in columns]
         table_name = self.get_temp_table_name("group_table")
         table = TemporaryTable(
             table_name,
             sqlalchemy.MetaData(),
-            *columns,
+            *table_columns,
         )
+
         create_query = self.query_to_create_temp_table_from_select_query(table, query)
         cleanup_queries = (
             [sqlalchemy.schema.DropTable(table, if_exists=True)]
@@ -537,7 +545,10 @@ def reify_query_before_selecting_column(column_definitions):
             nodes_by_source[node.source].append(node)
     # Inject a ReifyQuery node between the ColumnSelectorNodes and their source
     for source, child_nodes in nodes_by_source.items():
-        new_source = ReifyQuery(source)
+        # As an optimisation to avoid reifying more data than we need, we determine what
+        # columns we're selecting and pass these to the reification method
+        columns = {node.column for node in child_nodes}
+        new_source = ReifyQuery(source, tuple(columns))
         for node in child_nodes:
             # These are frozen instances, so we can't set the attribute directly
             object.__setattr__(node, "source", new_source)
