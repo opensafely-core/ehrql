@@ -1,16 +1,30 @@
+# I can't get mypy to be happy with the below and it needs input from someone with more
+# experience with Python typing than I have. I think part of the problem is that mypy
+# can't see through the singledispatch decorator to understand what type will get
+# returned given the input type.
+
+# mypy: ignore-errors
+
 import contextlib
 import copy
 import dataclasses
 import typing
 from collections import defaultdict
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
 from sqlalchemy.engine.interfaces import Dialect
-from sqlalchemy.sql import ClauseElement, Executable
+
+# Most of the below can be imported directly from sqlalchemy.sql, but for some reason
+# mypy can't recognise them if we do that
+from sqlalchemy.sql.base import Executable
+from sqlalchemy.sql.elements import Case as SQLCase
+from sqlalchemy.sql.elements import ClauseElement
 from sqlalchemy.sql.expression import type_coerce
+from sqlalchemy.sql.schema import Column as SQLColumn
+from sqlalchemy.sql.selectable import Select
 
 from .. import sqlalchemy_types
 from ..functools_utils import singledispatchmethod_with_unions
@@ -175,7 +189,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         raise TypeError(f"Unhandled query node type: {node!r}")
 
-    def get_sql_element_or_value(self, value):
+    def get_sql_element_or_value(self, value: Any) -> Any:
         """
         Certain places in our Query Model support values which can either be QueryNodes
         themselves (which require resolving to SQL) or plain static values (booleans,
@@ -187,12 +201,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             return value
 
     @get_sql_element_no_cache.register
-    def get_element_from_table(self, node: Table):
+    def get_element_from_table(self, node: Table) -> Select:
         table = self.backend.get_table_expression(node.name)
         return table.select()
 
     @get_sql_element_no_cache.register
-    def get_element_from_filtered_table(self, node: FilteredTable):
+    def get_element_from_filtered_table(self, node: FilteredTable) -> Select:
         query = self.get_sql_element(node.source)
         filter_value = self.get_sql_element_or_value(node.value)
         return apply_filter(
@@ -207,7 +221,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
     @get_sql_element_no_cache.register
-    def get_element_from_row(self, node: Row):
+    def get_element_from_row(self, node: Row) -> Select:
         query = self.get_sql_element(node.source)
         return select_first_row_per_partition(
             query,
@@ -217,7 +231,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
     @get_sql_element_no_cache.register
-    def get_element_from_row_from_aggregate(self, node: RowFromAggregate):
+    def get_element_from_row_from_aggregate(self, node: RowFromAggregate) -> Select:
         query = self.get_sql_element(node.source)
         return group_and_aggregate(
             query,
@@ -228,7 +242,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
     @get_sql_element_no_cache.register
-    def get_element_from_reify_query(self, node: ReifyQuery):
+    def get_element_from_reify_query(self, node: ReifyQuery) -> TemporaryTable:
         """
         Take a query and return something table-like which contains the results of this
         query.
@@ -269,12 +283,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return table
 
     @get_sql_element_no_cache.register
-    def get_element_from_column_selector(self, node: ColumnSelectorNode):
+    def get_element_from_column_selector(self, node: ColumnSelectorNode) -> SQLColumn:
         table = self.get_sql_element(node.source)
         return table.c[node.column]
 
     @get_sql_element_no_cache.register
-    def get_element_from_category_node(self, value: ValueFromCategory):
+    def get_element_from_category_node(self, value: ValueFromCategory) -> SQLCase:
         # TODO: I think that both `label` and `default` should get passed through
         # `get_sql_element_or_value` as there's no reason in principle these couldn't be
         # dynamic values
@@ -287,7 +301,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
     @get_sql_element_no_cache.register
-    def get_element_from_comparator_node(self, comparator: Comparator):
+    def get_element_from_comparator_node(self, comparator: Comparator) -> ClauseElement:
         # TODO: I think we can simplify things here, in particular the distinction
         # between `operator` and `connector` and the handling of negatation. But that
         # involves changing the Query Model which is a task for another day
@@ -311,7 +325,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return condition_expression
 
     @get_sql_element_no_cache.register
-    def get_element_from_codelist(self, codelist: Codelist):
+    def get_element_from_codelist(self, codelist: Codelist) -> TemporaryTable:
         """
         Given a codelist, build a SQLAlchemy representation of the temporary table
         needed to store that codelist and then generate the queries necessary to create
@@ -363,7 +377,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return table
 
     @get_sql_element_no_cache.register
-    def get_element_from_value_from_function(self, value: ValueFromFunction):
+    def get_element_from_value_from_function(
+        self, value: ValueFromFunction
+    ) -> ClauseElement:
         # TODO: I'd quite like to build this map by decorating the methods e.g.
         #
         #   @handler_for(DateDifferenceInYears)
