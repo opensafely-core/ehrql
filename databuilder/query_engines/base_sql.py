@@ -1,3 +1,37 @@
+"""
+This module provides most of the logic for transforming an abstract representation of a
+data query (what we call the Query Model) into SQL and executing it against a database.
+Most, but not all: in order to run against a real database it's necessary to subclass
+BaseSQLQueryEngine and provide some database-specific attributes and methods.
+
+The primary entry point is `BaseSQLQueryEngine.get_queries()`.
+
+The job of this code is to transform one graph structure (the Query Model, consisting of
+QueryNode instances) into another (a SQLAlchemy query, consisting of ClauseElement
+instances). For each type of QueryNode there is a method which knows how to transform
+nodes of that type into SQLAlchemy ClauseElements. As nodes may reference other nodes,
+transforming node A to SQL may require transforming nodes B and C to SQL first. So the
+implementation relies heavily on recursion to do its job.
+
+The methods for handling specific QueryNode types are brought together using the
+"singledispatch" decorator into a single method which takes an arbitrary QueryNode and
+returns the appropriate SQL for it. Calling this method on the root nodes in the Query
+Model will force the code to recurse its way over the entire Query Model and generate
+the full SQL required.
+
+Before converting the Query Model graph we have the opportunity to modify it in order to
+make it easier to work with, or to generate more efficient SQL. This is handled by the
+`apply_optimisations` function.
+
+Also worth noting is the TemporaryTable class. This subclasses the standard SQLAlchemy
+Table to add a pair of extra attributes: a list of setup queries needed to create and
+populate the table, and a list of cleanup queries needed to get rid of it. This means we
+don't need a separate out-of-band mechanism to track and manage temporary tables. The
+function `get_setup_and_cleanup_queries` takes care of finding all the TemporaryTables
+embedded in a query and returning their setup and cleanup queries in the appropriate
+order.
+"""
+
 # I can't get mypy to be happy with the below and it needs input from someone with more
 # experience with Python typing than I have. I think part of the problem is that mypy
 # can't see through the singledispatch decorator to understand what type will get
@@ -110,6 +144,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
             list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
         """
+        # Modify the Query Model graph to make it easier to work with, or to generate
+        # more efficient SQL
         column_definitions = apply_optimisations(self.column_definitions)
 
         # Convert each column definition to SQL
@@ -122,7 +158,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # itself in the output but it determines what rows are included
         population_query = column_queries.pop("population")
 
-        # TODO: Why do we require just a single table here for the population?
+        # TODO: Not sure why we require just a single table here for the population. I
+        # think this could be lifted as long as we did a FULl OUTER JOIN between all the
+        # tables.
         tables = get_referenced_tables(population_query)
         assert len(tables) == 1
         population_table = tables[0]
@@ -140,7 +178,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # Ensure the results_query JOINs on all the tables it needs to be able to
             # include this column in the output
             results_query = include_joined_tables(
-                results_query, get_referenced_tables(column_query), "patient_id"
+                results_query,
+                get_referenced_tables(column_query),
+                join_column="patient_id",
             )
             # Add this column to the final selected results using the supplied name
             results_query = results_query.add_columns(column_query.label(column_name))
@@ -165,11 +205,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def get_sql_element(self, node: QueryNode) -> ClauseElement:
         """
-        Caching wrapper around `get_sql_element_no_cache()` below
+        Caching wrapper around `get_sql_element_no_cache()` below, which is the
+        entrypoint method for converting QueryNodes to SQL ClauseElements
 
-        This is a peformance enhancement, not for the Python code, but rather for the
-        SQL we generate. It ensures that we don't get needlessly complex (though
-        correct) SQL by generating duplicated temporary tables or table clauses.
+        The caching is a peformance enhancement, not for the Python code, but rather for
+        the SQL we generate. It ensures that we don't get needlessly complex (though
+        correct) SQL by generating duplicated temporary tables or table-like clauses.
         """
         if node in self.sql_element_cache:
             return self.sql_element_cache[node]
@@ -187,6 +228,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         This uses single dispatch to handle each type of QueryNode via the appropriate
         method below.
         """
+        # Fallback for unhandled types
         raise TypeError(f"Unhandled query node type: {node!r}")
 
     def get_sql_element_or_value(self, value: Any) -> Any:
@@ -266,11 +308,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         table_columns = [sqlalchemy.Column(c.name, c.type) for c in columns]
         table_name = self.get_temp_table_name("group_table")
-        table = TemporaryTable(
-            table_name,
-            sqlalchemy.MetaData(),
-            *table_columns,
-        )
+        table = TemporaryTable(table_name, sqlalchemy.MetaData(), *table_columns)
 
         create_query = self.query_to_create_temp_table_from_select_query(table, query)
         cleanup_queries = (
@@ -288,16 +326,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return table.c[node.column]
 
     @get_sql_element_no_cache.register
-    def get_element_from_category_node(self, value: ValueFromCategory) -> SQLCase:
+    def get_element_from_category_node(self, node: ValueFromCategory) -> SQLCase:
         # TODO: I think that both `label` and `default` should get passed through
         # `get_sql_element_or_value` as there's no reason in principle these couldn't be
         # dynamic values
         return sqlalchemy.case(
             [
                 (self.get_sql_element(condition), label)
-                for label, condition in value.definitions.items()
+                for label, condition in node.definitions.items()
             ],
-            else_=value.default,
+            else_=node.default,
         )
 
     @get_sql_element_no_cache.register
@@ -385,7 +423,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         #   @handler_for(DateDifferenceInYears)
         #   def my_handle_fun(...)
         #
-        # but the simple thing will do for now.
+        # but the simple thing will do for now. Note we can't use `singledispatchmethod`
+        # for this because it doesn't play nicely with subclassing.
         class_method_map = {
             DateDifferenceInYears: self.date_difference_in_years,
             RoundToFirstOfMonth: self.round_to_first_of_month,
@@ -481,6 +520,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
 
 def apply_filter(query, column, operator, value, value_query_node, or_null=False):
+    """
+    Applies a WHERE condition to the supplied query, specifically:
+
+        WHERE <column> <operator> <value>
+
+    The extra arguments are needed to handle extra complexity in this function which we
+    haven't yet had time to refactor away.
+    """
     # TODO: This function needs work
 
     # Get the base table
@@ -498,9 +545,9 @@ def apply_filter(query, column, operator, value, value_query_node, or_null=False
         # can't directly join this with our single-value-per-patient query,
         # so we have to use a correlated subquery
         elif isinstance(value_query_node, Column):
-            # I actually think this check is wrong and we'll eventually need to
-            # support e.g. a column which is a boolean expression over multiple
-            # source columns. But I'll leave it in place for now.
+            # TODO: I actually think this check is wrong and we'll eventually need to
+            # support e.g. a column which is a boolean expression over multiple source
+            # columns. But I'll leave it in place for now.
             assert len(other_tables) == 1
             other_table = other_tables[0]
             value = (

@@ -36,6 +36,11 @@ def select_first_row_per_partition(query, partition_column, sort_columns, descen
 def group_and_aggregate(
     query, group_by_column, input_column, function_name, output_column
 ):
+    """
+    Given a SQLAlchemy SELECT query, apply the aggregation specified by `function_name`
+    to `input_colum`, grouping by `group_by_column` and labelling the result as
+    `output_column`
+    """
     if function_name == "exists":
         aggregate_value = sqlalchemy.literal(True)
     else:
