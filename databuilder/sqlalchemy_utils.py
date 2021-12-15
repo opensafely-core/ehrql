@@ -172,10 +172,8 @@ def get_setup_and_cleanup_queries(clause):
             table_levels[table] = level
             # Add all of the table's setup and cleanup queries to the stack to be checked
             clauses.extend(
-                [
-                    (query, level + 1, seen | {table})
-                    for query in table.setup_queries + table.cleanup_queries
-                ]
+                (query, level + 1, seen | {table})
+                for query in table.setup_queries + table.cleanup_queries
             )
 
     # Sort tables in reverse order by level
@@ -185,16 +183,12 @@ def get_setup_and_cleanup_queries(clause):
         reverse=True,
     )
 
-    setup_queries = []
-    cleanup_queries = []
-    for table in tables:
-        setup_queries.extend(table.setup_queries)
-        # We add cleanup queries to the *start* of the list rather than the end so that
-        # we cleanup tables in reverse order to that which we created them in. This
-        # means that if there are any database-level dependencies between the tables
-        # (e.g. if one is a materialized view over another) then we don't risk errors by
-        # trying to delete objects which still have dependents.
-        cleanup_queries[:0] = table.cleanup_queries
+    setup_queries = flatten_lists(t.setup_queries for t in tables)
+    # Concatenate cleanup queries into one list, but in reverse order to that which we
+    # created them in. This means that if there are any database-level dependencies
+    # between the tables (e.g. if one is a materialized view over another) then we don't
+    # risk errors by trying to delete objects which still have dependents.
+    cleanup_queries = flatten_lists(t.cleanup_queries for t in reversed(tables))
 
     return setup_queries, cleanup_queries
 
@@ -208,3 +202,7 @@ def get_temporary_tables(clause):
         for table in get_referenced_tables(clause)
         if isinstance(table, TemporaryTable)
     ]
+
+
+def flatten_lists(iterable_of_lists):
+    return sum(iterable_of_lists, start=[])
