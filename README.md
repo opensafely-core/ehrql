@@ -1,4 +1,4 @@
-# OpenSAFELY cohort extractor V2
+# OpenSAFELY Data Builder
 
 This tool supports the authoring of OpenSAFELY-compliant research, by:
 
@@ -6,6 +6,10 @@ This tool supports the authoring of OpenSAFELY-compliant research, by:
   analytic models.
 * Providing the mechanism by which cohorts are extracted from live
 database backends within the OpenSAFELY framework.
+
+:warning: Data Builder is still under development, but is
+eventually intended to be a replacement for the [OpenSAFELY Cohort
+Extractor](https://github.com/opensafely-core/cohort-extractor).
 
 It is designed to be run within an OpenSAFELY-compliant research
 repository, via Docker.  You can find a [template repository here](https://github.com/opensafely/research-template)
