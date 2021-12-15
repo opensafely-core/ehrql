@@ -19,7 +19,6 @@ pytestmark = pytest.mark.integration
 
 
 def test_query_engine_caches_sql_engine(engine):
-    # This test exists to get branch coverage up
     empty_cohort = {}
     query_engine = engine.query_engine_class(
         empty_cohort, engine.backend(database_url="foo://localhost")

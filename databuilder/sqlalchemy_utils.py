@@ -59,7 +59,7 @@ def group_and_aggregate(
 
 def get_joined_tables(select_query):
     """
-    Given a SELECT query object return a list of all tables referenced
+    Given a SELECT query object return a list of all tables in its FROM clause
     """
     tables = []
     from_exprs = list(select_query.get_final_froms())
@@ -170,7 +170,7 @@ def get_setup_and_cleanup_queries(clause):
             # We may end up setting this multiple times, but if so we'll set the highest
             # level last, which is what we want
             table_levels[table] = level
-            # Add all of the tables setup and cleanup queries to the stack to be checked
+            # Add all of the table's setup and cleanup queries to the stack to be checked
             clauses.extend(
                 [
                     (query, level + 1, seen | {table})
@@ -189,8 +189,11 @@ def get_setup_and_cleanup_queries(clause):
     cleanup_queries = []
     for table in tables:
         setup_queries.extend(table.setup_queries)
-        # Add cleanup queries to the start of the list so they end up in mirror image
-        # order to the setup queries
+        # We add cleanup queries to the *start* of the list rather than the end so that
+        # we cleanup tables in reverse order to that which we created them in. This
+        # means that if there are any database-level dependencies between the tables
+        # (e.g. if one is a materialized view over another) then we don't risk errors by
+        # trying to delete objects which still have dependents.
         cleanup_queries[:0] = table.cleanup_queries
 
     return setup_queries, cleanup_queries

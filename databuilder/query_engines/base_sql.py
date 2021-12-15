@@ -99,7 +99,7 @@ ColumnSelectorNode = Union[ValueFromRow, ValueFromAggregate, Column]
 # This is an internal class that is injected into the DAG by the QueryEngine, but that
 # does not form part of the public Query Model
 @dataclasses.dataclass(frozen=True)
-class ReifyQuery(QueryNode):
+class ReifiedQuery(QueryNode):
     source: QueryNode
     columns: tuple[str]
 
@@ -159,7 +159,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         population_query = column_queries.pop("population")
 
         # TODO: Not sure why we require just a single table here for the population. I
-        # think this could be lifted as long as we did a FULl OUTER JOIN between all the
+        # think this could be lifted as long as we did a FULL OUTER JOIN between all the
         # tables.
         tables = get_referenced_tables(population_query)
         assert len(tables) == 1
@@ -212,6 +212,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         the SQL we generate. It ensures that we don't get needlessly complex (though
         correct) SQL by generating duplicated temporary tables or table-like clauses.
         """
+        # Note: we can't just use the `functools.cache` decorator here because it
+        # doesn't play nicely with the `singledispatchmethod` decorator
         if node in self.sql_element_cache:
             return self.sql_element_cache[node]
         else:
@@ -284,7 +286,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
     @get_sql_element_no_cache.register
-    def get_element_from_reify_query(self, node: ReifyQuery) -> TemporaryTable:
+    def get_element_from_reified_query(self, node: ReifiedQuery) -> TemporaryTable:
         """
         Take a query and return something table-like which contains the results of this
         query.
@@ -528,7 +530,9 @@ def apply_filter(query, column, operator, value, value_query_node, or_null=False
     The extra arguments are needed to handle extra complexity in this function which we
     haven't yet had time to refactor away.
     """
-    # TODO: This function needs work
+    # TODO: This function needs work. Once we've ironed out some of the complexities
+    # here it should be possible to have a function which doesn't know anyting about
+    # QueryNodes and can therefore be moved to `sqlalchemy_utils`
 
     # Get the base table
     table_expr = get_primary_table(query)
@@ -595,10 +599,10 @@ def reify_query_before_selecting_column(column_definitions):
     table-like from which we can select columns (a process we describe as
     "reification"). In fact, SQLAlchemy will do this implictly for us: we can just
     select columns from a query and it will automatically create a subquery for us.
-    However this triggers a warning not to rely on this behaviour. And in any case, we
-    want to control exactly how and when queries are reified. So here we walk the query
-    graph, find all the places where we select columns and inject an operation to
-    explicitly reify the query before doing so.
+    However this triggers a warning not to rely on this behaviour. And in any case we
+    don't want to use subqueries, we want to use our own TemporaryTable class. So here
+    we walk the query graph, find all the places where we select columns and inject an
+    operation to explicitly reify the query before doing so.
     """
     # Find all ColumnSelectorNodes and group them by the source node they reference
     selector_types = typing.get_args(ColumnSelectorNode)
@@ -611,7 +615,7 @@ def reify_query_before_selecting_column(column_definitions):
         # As an optimisation to avoid reifying more data than we need, we determine what
         # columns we're selecting and pass these to the reification method
         columns = {node.column for node in child_nodes}
-        new_source = ReifyQuery(source, tuple(columns))
+        new_source = ReifiedQuery(source, tuple(columns))
         for node in child_nodes:
             # These are frozen instances, so we can't set the attribute directly
             object.__setattr__(node, "source", new_source)
