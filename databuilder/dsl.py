@@ -52,6 +52,7 @@ from .query_model import (
     BaseTable,
     Codelist,
     Comparator,
+    DateDifference,
     RoundToFirstOfMonth,
     RoundToFirstOfYear,
     Row,
@@ -327,6 +328,22 @@ class DateSeries(PatientSeries):
 
     def round_to_first_of_year(self) -> DateSeries:
         return DateSeries(RoundToFirstOfYear(self.value))
+
+    def __sub__(self, other: str | DateSeries) -> DateDeltaSeries:
+        if isinstance(other, DateSeries):
+            other = other.value
+        return DateDeltaSeries(DateDifference(other, self.value))
+
+    def __rsub__(self, other: str | DateSeries) -> DateDeltaSeries:
+        if isinstance(other, DateSeries):
+            other = other.value
+        return DateDeltaSeries(DateDifference(self.value, other))
+
+
+class DateDeltaSeries(PatientSeries):
+    def convert_to_years(self):
+        start_date, end_date = self.value.arguments[:2]
+        return IntSeries(DateDifference(start_date, end_date, units="years"))
 
 
 class IdSeries(PatientSeries):

@@ -420,6 +420,11 @@ class ValueFromFunction(Value):
         return tuple(arg for arg in self.arguments if isinstance(arg, QueryNode))
 
 
+class DateDifference(ValueFromFunction):
+    def __init__(self, start, end, units="years"):
+        super().__init__(start, end, units)
+
+
 class DateDifferenceInYears(ValueFromFunction):
     pass
 
