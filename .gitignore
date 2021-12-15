@@ -88,6 +88,8 @@ $RECYCLE.BIN/
 __pycache__
 .python-version
 *.pyc
+.mypy_cache/
+.pytest_cache/
 
 # Coverage
 .coverage
