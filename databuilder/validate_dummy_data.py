@@ -137,10 +137,10 @@ def get_csv_validator(query_node):
         return lambda x: category_validator(x, categories, query_node.default)
 
     if (
-        hasattr(query_node, "function")
-        and query_node.function in functions_to_validator_mapping
+        hasattr(query_node.source, "function")
+        and query_node.source.function in functions_to_validator_mapping
     ):
-        return functions_to_validator_mapping[query_node.function]
+        return functions_to_validator_mapping[query_node.source.function]
     if (
         hasattr(query_node, "column")
         and query_node.column in columns_to_validator_mapping

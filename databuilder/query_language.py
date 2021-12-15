@@ -205,7 +205,9 @@ class BaseTable(QueryNode):
         return self.aggregate("sum", column)
 
     def aggregate(self, function, column):
-        return ValueFromAggregate(self, function, column)
+        output_column = f"{column}_{function}"
+        row = RowFromAggregate(self, function, column, output_column)
+        return ValueFromAggregate(row, output_column)
 
 
 @dataclass(frozen=True)
@@ -286,6 +288,17 @@ class Row(QueryNode):
         return ValueFromRow(source=self, column=column)
 
 
+@dataclass(frozen=True)
+class RowFromAggregate(QueryNode):
+    source: QueryNode
+    function: Any
+    input_column: Any
+    output_column: Any
+
+    def _get_referenced_nodes(self):
+        return (self.source,)
+
+
 class Value(QueryNode):
     @staticmethod
     def _other_as_comparator(other):
@@ -341,8 +354,7 @@ class ValueFromRow(Value):
 
 @dataclass(frozen=True, eq=False, order=False)
 class ValueFromAggregate(Value):
-    source: Any
-    function: Any
+    source: RowFromAggregate
     column: Any
 
     def _get_referenced_nodes(self):

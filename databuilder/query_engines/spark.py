@@ -18,6 +18,9 @@ class CreateViewAs(Executable, ClauseElement):
     def __str__(self):
         return str(self.query)
 
+    def get_children(self):
+        return (self.query,)
+
 
 @compiles(CreateViewAs, "spark")
 def _create_table_as(element, compiler, **kw):
@@ -39,12 +42,19 @@ class SparkQueryEngine(BaseSQLQueryEngine):
             random=secrets.token_hex(6),
         )
 
-    def write_query_to_table(self, table, query):
+    def query_to_create_temp_table_from_select_query(self, table, select_query):
         """
-        Returns a new query which, when executed, writes the results of `query`
-        into `table`
+        Return a query to create `table` and populate it with the results of
+        `select_query`
         """
-        return CreateViewAs(table.name, query)
+        return CreateViewAs(table.name, select_query)
+
+    def temp_table_needs_dropping(self, create_table_query):
+        # The views we create are temporary and don't require dropping
+        if isinstance(create_table_query, CreateViewAs):
+            return False
+        # Anything else is a regular table which does require dropping
+        return True
 
     def get_temp_database(self):
         return self.backend.temporary_database

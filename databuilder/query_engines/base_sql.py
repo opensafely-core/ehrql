@@ -1,15 +1,68 @@
+"""
+This module provides most of the logic for transforming an abstract representation of a
+data query (what we call the Query Model) into SQL and executing it against a database.
+Most, but not all: in order to run against a real database it's necessary to subclass
+BaseSQLQueryEngine and provide some database-specific attributes and methods.
+
+The primary entry point is `BaseSQLQueryEngine.get_queries()`.
+
+The job of this code is to transform one graph structure (the Query Model, consisting of
+QueryNode instances) into another (a SQLAlchemy query, consisting of ClauseElement
+instances). For each type of QueryNode there is a method which knows how to transform
+nodes of that type into SQLAlchemy ClauseElements. As nodes may reference other nodes,
+transforming node A to SQL may require transforming nodes B and C to SQL first. So the
+implementation relies heavily on recursion to do its job.
+
+The methods for handling specific QueryNode types are brought together using the
+"singledispatch" decorator into a single method which takes an arbitrary QueryNode and
+returns the appropriate SQL for it. Calling this method on the root nodes in the Query
+Model will force the code to recurse its way over the entire Query Model and generate
+the full SQL required.
+
+Before converting the Query Model graph we have the opportunity to modify it in order to
+make it easier to work with, or to generate more efficient SQL. This is handled by the
+`apply_optimisations` function.
+
+Also worth noting is the TemporaryTable class. This subclasses the standard SQLAlchemy
+Table to add a pair of extra attributes: a list of setup queries needed to create and
+populate the table, and a list of cleanup queries needed to get rid of it. This means we
+don't need a separate out-of-band mechanism to track and manage temporary tables. The
+function `get_setup_and_cleanup_queries` takes care of finding all the TemporaryTables
+embedded in a query and returning their setup and cleanup queries in the appropriate
+order.
+"""
+
+# I can't get mypy to be happy with the below and it needs input from someone with more
+# experience with Python typing than I have. I think part of the problem is that mypy
+# can't see through the singledispatch decorator to understand what type will get
+# returned given the input type.
+
+# mypy: ignore-errors
+
 import contextlib
+import copy
+import dataclasses
+import typing
 from collections import defaultdict
-from typing import Optional
+from functools import cached_property
+from typing import Any, Optional, Union
 
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
-import sqlalchemy.sql
 from sqlalchemy.engine.interfaces import Dialect
+
+# Most of the below can be imported directly from sqlalchemy.sql, but for some reason
+# mypy can't recognise them if we do that
+from sqlalchemy.sql.base import Executable
+from sqlalchemy.sql.elements import Case as SQLCase
+from sqlalchemy.sql.elements import ClauseElement
 from sqlalchemy.sql.expression import type_coerce
+from sqlalchemy.sql.schema import Column as SQLColumn
+from sqlalchemy.sql.selectable import Select
 
 from .. import sqlalchemy_types
+from ..functools_utils import singledispatchmethod_with_unions
 from ..query_language import (
     Codelist,
     Column,
@@ -20,6 +73,7 @@ from ..query_language import (
     RoundToFirstOfMonth,
     RoundToFirstOfYear,
     Row,
+    RowFromAggregate,
     Table,
     Value,
     ValueFromAggregate,
@@ -27,32 +81,31 @@ from ..query_language import (
     ValueFromFunction,
     ValueFromRow,
 )
+from ..sqlalchemy_utils import (
+    TemporaryTable,
+    get_primary_table,
+    get_referenced_tables,
+    get_setup_and_cleanup_queries,
+    group_and_aggregate,
+    include_joined_tables,
+    select_first_row_per_partition,
+)
 from .base import BaseQueryEngine
 
-
-def get_joined_tables(query):
-    """
-    Given a query object return a list of all tables referenced
-    """
-    tables = []
-    from_exprs = list(query.get_final_froms())
-    while from_exprs:
-        next_expr = from_exprs.pop()
-        if isinstance(next_expr, sqlalchemy.sql.selectable.Join):
-            from_exprs.extend([next_expr.left, next_expr.right])
-        else:
-            tables.append(next_expr)
-    # The above algorithm produces tables in right to left order, but it makes
-    # more sense to return them as left to right
-    tables.reverse()
-    return tables
+# These are nodes which select a single column from a query (regardless of whether that
+# results in a single value per patient or in multiple values per patient)
+ColumnSelectorNode = Union[ValueFromRow, ValueFromAggregate, Column]
 
 
-def get_primary_table(query):
-    """
-    Return the left-most table referenced in the query
-    """
-    return get_joined_tables(query)[0]
+# This is an internal class that is injected into the DAG by the QueryEngine, but that
+# does not form part of the public Query Model
+@dataclasses.dataclass(frozen=True)
+class ReifiedQuery(QueryNode):
+    source: QueryNode
+    columns: tuple[str]
+
+    def _get_referenced_nodes(self):
+        return (self.source,)
 
 
 class MissingString(str):
@@ -76,187 +129,254 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     # Force subclasses to define this
     temp_table_prefix: str = MissingString("'temp_table_prefix' is undefined")
 
+    # Use a simple counter to generate unique (per session) temporary table names
     temp_table_count: int = 0
 
-    def get_queries(self):
-        """Build the list of SQL queries to execute"""
-        # Mapping of QueryNodes to SQLAlchemy expressions which we populate as part of
-        # building the queries below
-        self.node_to_expression: dict[QueryNode, sqlalchemy.sql.ClauseElement] = {}
-        # Record all the temporary tables we need to create as a mapping from Table
-        # object to the list of queries needed to create and populate it
-        self.temp_tables: dict[sqlalchemy.Table, list[sqlalchemy.sql.Executable]] = {}
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # See docstring on `get_sql_element` for details on this
+        self.sql_element_cache: dict[QueryNode, ClauseElement] = {}
 
-        all_nodes = self.get_all_query_nodes(self.column_definitions)
+    def get_queries(self) -> tuple[list[Executable], Executable, list[Executable]]:
+        """
+        Build the list of SQL queries to execute
 
-        # Create and populate tables containing codelists
-        codelists = [node for node in all_nodes if isinstance(node, Codelist)]
-        for codelist in codelists:
-            table, queries = self.create_codelist_table(codelist)
-            self.temp_tables[table] = queries
+        This is returned as a triple:
 
-        # Generate each of the interim output group tables and populate them
-        output_groups = self.get_output_groups(all_nodes)
-        for group_type, group_members in output_groups.items():
-            table, queries = self.create_output_group_table(group_type, group_members)
-            self.temp_tables[table] = queries
+            list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
+        """
+        # Modify the Query Model graph to make it easier to work with, or to generate
+        # more efficient SQL
+        column_definitions = apply_optimisations(self.column_definitions)
 
-        # Generate the big query that creates the base population table and its columns,
-        # selected from the output group tables
-        results_query = self.generate_results_query()
+        # Convert each column definition to SQL
+        column_queries = {
+            column: self.get_sql_element(definition)
+            for column, definition in column_definitions.items()
+        }
 
-        temp_table_queries = sum(self.temp_tables.values(), start=[])
-        return temp_table_queries + [results_query]
+        # `population` is a special-cased boolean column, it doesn't appear
+        # itself in the output but it determines what rows are included
+        population_query = column_queries.pop("population")
+
+        # TODO: Not sure why we require just a single table here for the population. I
+        # think this could be lifted as long as we did a FULL OUTER JOIN between all the
+        # tables.
+        tables = get_referenced_tables(population_query)
+        assert len(tables) == 1
+        population_table = tables[0]
+
+        # Start the query by selecting the "patint_id" column from all rows where the
+        # "population" condition evaluates true
+        results_query = (
+            sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
+            .select_from(population_table)
+            .where(population_query == True)  # noqa: E712
+        )
+
+        # For each column to be included in the output ...
+        for column_name, column_query in column_queries.items():
+            # Ensure the results_query JOINs on all the tables it needs to be able to
+            # include this column in the output
+            results_query = include_joined_tables(
+                results_query,
+                get_referenced_tables(column_query),
+                join_column="patient_id",
+            )
+            # Add this column to the final selected results using the supplied name
+            results_query = results_query.add_columns(column_query.label(column_name))
+
+        # Get all the setup queries needed to populate the various temporary tables used
+        # by the results_query, and the queries needed to clean them up afterwards
+        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
+
+        return setup_queries, results_query, cleanup_queries
 
     @contextlib.contextmanager
     def execute_query(self):
-        queries = self.get_queries()
+        setup_queries, results_query, cleanup_queries = self.get_queries()
         with self.engine.connect() as cursor:
-            for query in queries:
-                result = cursor.execute(query)
-            # We're only interested in the results from the final query
-            yield result
-            self.post_execute_cleanup(cursor)
+            for query in setup_queries:
+                cursor.execute(query)
 
-    def post_execute_cleanup(self, cursor):
+            yield cursor.execute(results_query)
+
+            for query in cleanup_queries:
+                cursor.execute(query)
+
+    def get_sql_element(self, node: QueryNode) -> ClauseElement:
         """
-        Called after results have been fetched
+        Caching wrapper around `get_sql_element_no_cache()` below, which is the
+        entrypoint method for converting QueryNodes to SQL ClauseElements
+
+        The caching is a peformance enhancement, not for the Python code, but rather for
+        the SQL we generate. It ensures that we don't get needlessly complex (though
+        correct) SQL by generating duplicated temporary tables or table-like clauses.
         """
-        for table in self.temp_tables.keys():
-            self.drop_temp_table(cursor, table)
-
-    def drop_temp_table(self, cursor, table):
-        """
-        Drop the specified temporary table
-        """
-        query = sqlalchemy.schema.DropTable(table, if_exists=True)
-        cursor.execute(query)
-
-    #
-    # QUERY DAG METHODS AND NODE INTERACTION
-    #
-    def get_output_groups(self, all_nodes):
-        """
-        Walk over all nodes in the query DAG looking for output nodes (leaf nodes which
-        represent a value or a column of values) and group them together by "type" and
-        "source" (source being the parent node from which they are derived). Each such
-        group of outputs can be generated by a single query so we want them grouped together.
-        """
-        output_groups = defaultdict(list)
-        for node in all_nodes:
-            if self.is_output_node(node):
-                output_groups[self.get_output_group(node)].append(node)
-        return output_groups
-
-    def get_all_query_nodes(self, column_definitions):
-        """
-        Return a list of all QueryNodes used in the supplied column_definitions
-        in topological order (i.e. a node will never be referenced before it
-        appears). We need this so that we construct temporary tables in the
-        right order and never try to reference a table which we haven't yet
-        populated.
-        """
-        # Given the way the query DAG is currently constructed we can use a
-        # simple trick to get the nodes in topological order. We exploit the
-        # fact that the Python-based DSL will naturally enforce a topological
-        # order on the leaf nodes (you can't reference variables before you've
-        # defined them). Then for each leaf node we traverse depth-first,
-        # returning parents before their children. Further down the line we
-        # might need to this "properly" (maybe using the networkx library?) but
-        # this will do us for now.
-        leaf_nodes = column_definitions.values()
-        return self.walk_query_dag(leaf_nodes)
-
-    def walk_query_dag(self, nodes):
-        def recurse(nodes, seen):
-            for node in nodes:
-                yield from recurse(node._get_referenced_nodes(), seen)
-                if node not in seen:
-                    seen.add(node)
-                    yield node
-
-        return list(recurse(nodes, set()))
-
-    @staticmethod
-    def is_output_node(node):
-        return isinstance(node, (ValueFromRow, ValueFromAggregate, Column))
-
-    @staticmethod
-    def is_category_node(node):
-        return isinstance(node, ValueFromCategory)
-
-    def get_output_group(self, node):
-        assert self.is_output_node(node)
-        return type(node), node.source
-
-    @staticmethod
-    def get_output_column_name(node):
-        if isinstance(node, ValueFromAggregate):
-            return f"{node.column}_{node.function}"
-        elif isinstance(node, (ValueFromRow, Column)):
-            return node.column
+        # Note: we can't just use the `functools.cache` decorator here because it
+        # doesn't play nicely with the `singledispatchmethod` decorator
+        if node in self.sql_element_cache:
+            return self.sql_element_cache[node]
         else:
-            assert False, f"Unhandled type: {node}"
+            element = self.get_sql_element_no_cache(node)
+            self.sql_element_cache[node] = element
+            return element
 
-    def get_node_list(self, node):
-        """For a single node, get a list of it and all its parents in order"""
-        node_list = []
-        while True:
-            node_list.append(node)
-            if type(node) is Table:
-                break
-            else:
-                node = node.source
-        node_list.reverse()
-        return node_list
+    @singledispatchmethod_with_unions
+    def get_sql_element_no_cache(self, node: QueryNode) -> ClauseElement:
+        """
+        Given a QueryNode object from the Query Model return the SQLAlchemy
+        ClauseElement which represents it.
 
-    #
-    # DATABASE CONNECTION
-    #
-    @property
-    def engine(self):
-        if self._engine is None:
-            engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
-            # Hardcode the specific SQLAlchemy dialect we want to use: this is the
-            # dialect the query engine will have been written for and tested with and we
-            # don't want to allow global config changes to alter this
-            engine_url._get_entrypoint = lambda: self.sqlalchemy_dialect
-            self._engine = sqlalchemy.create_engine(engine_url, future=True)
-            # The above relies on abusing SQLAlchemy internals so it's possible it will
-            # break in future -- we want to know immediately if it does
-            assert isinstance(self._engine.dialect, self.sqlalchemy_dialect)
-        return self._engine
+        This uses single dispatch to handle each type of QueryNode via the appropriate
+        method below.
+        """
+        # Fallback for unhandled types
+        raise TypeError(f"Unhandled query node type: {node!r}")
 
-    def create_output_group_table(self, group, output_nodes):
-        """Queries to generate and populate interim tables for each output"""
-        query = self.get_query_expression(group, output_nodes)
-        # Create a Table object representing a temporary table into which
-        # we'll write the results of the query
-        table_name = self.get_temp_table_name("group_table")
-        columns = [sqlalchemy.Column(c.name, c.type) for c in query.selected_columns]
-        table = sqlalchemy.Table(
-            table_name,
-            sqlalchemy.MetaData(),
-            *columns,
+    def get_sql_element_or_value(self, value: Any) -> Any:
+        """
+        Certain places in our Query Model support values which can either be QueryNodes
+        themselves (which require resolving to SQL) or plain static values (booleans,
+        integers, dates, list of dates etc) which we can return unchanged to SQLAlchemy.
+        """
+        if isinstance(value, QueryNode):
+            return self.get_sql_element(value)
+        else:
+            return value
+
+    @get_sql_element_no_cache.register
+    def get_element_from_table(self, node: Table) -> Select:
+        table = self.backend.get_table_expression(node.name)
+        return table.select()
+
+    @get_sql_element_no_cache.register
+    def get_element_from_filtered_table(self, node: FilteredTable) -> Select:
+        query = self.get_sql_element(node.source)
+        filter_value = self.get_sql_element_or_value(node.value)
+        return apply_filter(
+            query,
+            column=node.column,
+            operator=node.operator,
+            value=filter_value,
+            # Ideally we wouldn't be passing these through, but we need to until we can
+            # rewrite the `apply_filter` function
+            value_query_node=node.value,
+            or_null=node.or_null,
         )
-        for node in output_nodes:
-            column = self.get_output_column_name(node)
-            sqlalchemy_expr = table.c[column]
-            self.node_to_expression[node] = sqlalchemy_expr
-        populate_table_query = self.write_query_to_table(table, query)
-        return table, [populate_table_query]
 
-    def create_codelist_table(self, codelist):
+    @get_sql_element_no_cache.register
+    def get_element_from_row(self, node: Row) -> Select:
+        query = self.get_sql_element(node.source)
+        return select_first_row_per_partition(
+            query,
+            partition_column="patient_id",
+            sort_columns=node.sort_columns,
+            descending=node.descending,
+        )
+
+    @get_sql_element_no_cache.register
+    def get_element_from_row_from_aggregate(self, node: RowFromAggregate) -> Select:
+        query = self.get_sql_element(node.source)
+        return group_and_aggregate(
+            query,
+            group_by_column="patient_id",
+            input_column=node.input_column,
+            function_name=node.function,
+            output_column=node.output_column,
+        )
+
+    @get_sql_element_no_cache.register
+    def get_element_from_reified_query(self, node: ReifiedQuery) -> TemporaryTable:
+        """
+        Take a query and return something table-like which contains the results of this
+        query.
+
+        At present, we do this via creating a temporary table and writing the results of
+        the query to that table. But this is an implementation detail, chosen for its
+        performance characteristics. It's possible to replace the below with either of:
+
+            return query.cte()
+            return query.subquery()
+
+        and the tests will still pass (other than those which assert specific things
+        about the generated SQL)
+        """
+        query = self.get_sql_element(node.source)
+        # Select just the specified columns. This is a performance optimisation to avoid
+        # reifying more data than we need.
+        column_names = {"patient_id"} | set(node.columns)
+        columns = [query.selected_columns[name] for name in column_names]
+        query = query.with_only_columns(columns)
+
+        table_columns = [sqlalchemy.Column(c.name, c.type) for c in columns]
+        table_name = self.get_temp_table_name("group_table")
+        table = TemporaryTable(table_name, sqlalchemy.MetaData(), *table_columns)
+
+        create_query = self.query_to_create_temp_table_from_select_query(table, query)
+        cleanup_queries = (
+            [sqlalchemy.schema.DropTable(table, if_exists=True)]
+            if self.temp_table_needs_dropping(create_query)
+            else []
+        )
+        table.setup_queries = [create_query]
+        table.cleanup_queries = cleanup_queries
+        return table
+
+    @get_sql_element_no_cache.register
+    def get_element_from_column_selector(self, node: ColumnSelectorNode) -> SQLColumn:
+        table = self.get_sql_element(node.source)
+        return table.c[node.column]
+
+    @get_sql_element_no_cache.register
+    def get_element_from_category_node(self, node: ValueFromCategory) -> SQLCase:
+        # TODO: I think that both `label` and `default` should get passed through
+        # `get_sql_element_or_value` as there's no reason in principle these couldn't be
+        # dynamic values
+        return sqlalchemy.case(
+            [
+                (self.get_sql_element(condition), label)
+                for label, condition in node.definitions.items()
+            ],
+            else_=node.default,
+        )
+
+    @get_sql_element_no_cache.register
+    def get_element_from_comparator_node(self, comparator: Comparator) -> ClauseElement:
+        # TODO: I think we can simplify things here, in particular the distinction
+        # between `operator` and `connector` and the handling of negatation. But that
+        # involves changing the Query Model which is a task for another day
+        operator = comparator.operator
+        if comparator.connector is not None:
+            assert operator is None
+            if comparator.connector == "and_":
+                operator = "__and__"
+            elif comparator.connector == "or_":
+                operator = "__or__"
+            else:
+                assert False
+
+        lhs = self.get_sql_element_or_value(comparator.lhs)
+        rhs = self.get_sql_element_or_value(comparator.rhs)
+
+        condition_expression = getattr(lhs, operator)(rhs)
+        if comparator.negated:
+            condition_expression = sqlalchemy.not_(condition_expression)
+
+        return condition_expression
+
+    @get_sql_element_no_cache.register
+    def get_element_from_codelist(self, codelist: Codelist) -> TemporaryTable:
         """
         Given a codelist, build a SQLAlchemy representation of the temporary table
         needed to store that codelist and then generate the queries necessary to create
-        and populate that tables
+        and populate that table
         """
         codes = codelist.codes
         max_code_len = max(map(len, codes))
         collation = "Latin1_General_BIN"
         table_name = self.get_temp_table_name("codelist")
-        table = sqlalchemy.Table(
+        table = TemporaryTable(
             table_name,
             sqlalchemy.MetaData(),
             sqlalchemy.Column(
@@ -274,181 +394,40 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # write acces to the temp db but not the main db
             schema=self.get_temp_database(),
         )
-        # Construct a SQLAlchemy expression for the codelist
-        sqlalchemy_expr = sqlalchemy.select(table.c.code).scalar_subquery()
-        self.node_to_expression[codelist] = sqlalchemy_expr
+
         # Constuct the queries needed to create and populate this table
-        queries = [sqlalchemy.schema.CreateTable(table)]
+        create_query = sqlalchemy.schema.CreateTable(table)
+        insert_queries = []
         for codes_batch in split_list_into_batches(
             codes, size=self.max_rows_per_insert
         ):
             insert_query = table.insert().values(
                 [(code, codelist.system) for code in codes_batch]
             )
-            queries.append(insert_query)
-        return table, queries
+            insert_queries.append(insert_query)
 
-    def get_temp_table_name(self, name_hint):
-        """
-        Return a table name based on `name_hint` suitable for use as a temporary table.
-
-        `name_hint` is arbitrary and is only present to make the resulting SQL slightly
-        more comprehensible when debugging.
-        """
-        self.temp_table_count += 1
-        return f"{self.temp_table_prefix}{name_hint}_{self.temp_table_count}"
-
-    def get_temp_database(self):
-        """Which schema/database should we write temporary tables to."""
-        return None
-
-    def get_select_expression(self, base_table, columns):
-        # every table must have a patient_id column; select it and the specified columns
-        columns = sorted({"patient_id"}.union(columns))
-        table_expr = self.backend.get_table_expression(base_table.name)
-        try:
-            column_objs = [table_expr.c[column] for column in columns]
-        except KeyError as unknown_key:
-            raise KeyError(
-                f"Column {unknown_key} not found in table '{base_table.name}'"
-            )
-
-        query = sqlalchemy.select(column_objs).select_from(table_expr)
-        return query
-
-    def get_query_expression(self, group, output_nodes):
-        """
-        From a group of output nodes that represent the route to a single output value,
-        generate the query that will return the value from its source table(s)
-        """
-        output_type, query_node = group
-
-        # Queries (currently) always have a linear structure so we can
-        # decompose them into a list
-        node_list = self.get_node_list(query_node)
-        # The start of the list should always be an unfiltered Table
-        base_table = node_list.pop(0)
-        assert isinstance(base_table, Table)
-
-        # If there's an operation applied to reduce the results to a single row
-        # per patient, then that will be the final element of the list
-        row_selector = None
-        if issubclass(output_type, ValueFromRow):
-            row_selector = node_list.pop()
-            assert isinstance(row_selector, Row)
-
-        # All remaining nodes should be filter operations
-        filters = node_list
-        assert all(isinstance(filter_node, FilteredTable) for filter_node in filters)
-
-        # Get all the required columns from the base table
-        selected_columns = {node.column for node in output_nodes}
-        query = self.get_select_expression(base_table, selected_columns)
-        # Apply all filter operations
-        for filter_node in filters:
-            query = self.apply_filter(query, filter_node)
-
-        # Apply the row selector to select the single row per patient
-        if row_selector is not None:
-            query = self.apply_row_selector(
-                query,
-                sort_columns=row_selector.sort_columns,
-                descending=row_selector.descending,
-            )
-
-        if issubclass(output_type, ValueFromAggregate):
-            query = self.apply_aggregates(query, output_nodes)
-
-        return query
-
-    def get_population_table_query(self, population):
-        """Build the query that selects the patient population we're interested in"""
-        is_included, tables = self.get_value_expression(population)
-        assert len(tables) == 1
-        population_table = tables[0]
-        return (
-            sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
-            .select_from(population_table)
-            .where(is_included == True)  # noqa: E712
+        # Construct the queries needed to clean it up
+        cleanup_queries = (
+            [sqlalchemy.schema.DropTable(table, if_exists=True)]
+            if self.temp_table_needs_dropping(create_query)
+            else []
         )
 
-    def build_condition_statement(self, comparator):
-        """
-        Traverse a comparator's left and right hand sides in order and build the nested
-        condition statement along with a tuple of the tables referenced
-        """
-        if comparator.connector is not None:
-            assert isinstance(comparator.lhs, Comparator) and isinstance(
-                comparator.rhs, Comparator
-            )
-            left_conditions, left_tables = self.build_condition_statement(
-                comparator.lhs
-            )
-            right_conditions, right_tables = self.build_condition_statement(
-                comparator.rhs
-            )
-            connector = getattr(sqlalchemy, comparator.connector)
-            condition_statement = connector(left_conditions, right_conditions)
-            tables = tuple(set(left_tables + right_tables))
-        else:
-            lhs, tables = self.get_value_expression(comparator.lhs)
-            method = getattr(lhs, comparator.operator)
-            condition_statement = method(comparator.rhs)
+        table.setup_queries = [create_query] + insert_queries
+        table.cleanup_queries = cleanup_queries
+        return table
 
-        if comparator.negated:
-            condition_statement = sqlalchemy.not_(condition_statement)
-
-        return condition_statement, tables
-
-    def get_value_expression(self, value):
-        """
-        Given a single value output node, select it from its interim table(s)
-        Return the expression to select it, and the table(s) to select it from
-        """
-        tables = ()
-        value_expr = value
-        if self.is_category_node(value):
-            category_mapping = {}
-            tables = set()
-            for label, category_definition in value.definitions.items():
-                # A category definition is always a single Comparator, which may contain
-                # nested Comparators
-                condition_statement, condition_tables = self.build_condition_statement(
-                    category_definition
-                )
-                category_mapping[label] = condition_statement
-                tables.update(condition_tables)
-            value_expr = self.get_case_expression(category_mapping, value.default)
-            tables = tuple(tables)
-        elif self.is_output_node(value):
-            value_expr = self.node_to_expression[value]
-            tables = (value_expr.table,)
-        elif isinstance(value, Codelist):
-            value_expr = self.node_to_expression[value]
-        elif isinstance(value, ValueFromFunction):
-            value_expr, tables = self.get_expression_for_value_from_function(value)
-        return value_expr, tables
-
-    def get_case_expression(self, mapping, default):
-        return sqlalchemy.case(
-            [(expression, label) for label, expression in mapping.items()],
-            else_=default,
-        )
-
-    def get_expression_for_value_from_function(self, value):
-        argument_expressions = []
-        tables = set()
-        for arg in value.arguments:
-            arg_expr, arg_tables = self.get_value_expression(arg)
-            argument_expressions.append(arg_expr)
-            tables.update(arg_tables)
-
+    @get_sql_element_no_cache.register
+    def get_element_from_value_from_function(
+        self, value: ValueFromFunction
+    ) -> ClauseElement:
         # TODO: I'd quite like to build this map by decorating the methods e.g.
         #
         #   @handler_for(DateDifferenceInYears)
         #   def my_handle_fun(...)
         #
-        # but the simple thing will do for now.
+        # but the simple thing will do for now. Note we can't use `singledispatchmethod`
+        # for this because it doesn't play nicely with subclassing.
         class_method_map = {
             DateDifferenceInYears: self.date_difference_in_years,
             RoundToFirstOfMonth: self.round_to_first_of_month,
@@ -458,9 +437,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert value.__class__ in class_method_map, f"Unsupported function: {value}"
 
         method = class_method_map[value.__class__]
-        value_expression = method(*argument_expressions)
-
-        return value_expression, tuple(tables)
+        argument_expressions = [
+            self.get_sql_element_or_value(arg) for arg in value.arguments
+        ]
+        return method(*argument_expressions)
 
     def date_difference_in_years(self, start_date, end_date):
         start_date = type_coerce(start_date, sqlalchemy_types.Date())
@@ -493,153 +473,164 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def round_to_first_of_year(self, date):
         raise NotImplementedError
 
-    def apply_aggregates(self, query, aggregate_nodes):
+    def query_to_create_temp_table_from_select_query(
+        self, table: TemporaryTable, select_query: Executable
+    ) -> Executable:
         """
-        For each aggregate node, get the query that will select it with its generated
-        column label, plus the patient id column, and then group by the patient id.
-        """
-        columns = [
-            self.get_aggregate_column(query, aggregate_node)
-            for aggregate_node in aggregate_nodes
-        ]
-        query = query.with_only_columns([query.selected_columns.patient_id] + columns)
-        query = query.group_by(query.selected_columns.patient_id)
-
-        return query
-
-    def get_aggregate_column(self, query, aggregate_node):
-        """
-        For an aggregate node, build the column to hold its value
-        Aggregate column names are a combination of column and aggregate function,
-        e.g. "patient_id_exists"
-        """
-        output_column = self.get_output_column_name(aggregate_node)
-        if aggregate_node.function == "exists":
-            return sqlalchemy.literal(True).label(output_column)
-        else:
-            # The aggregate node function is a string corresponding to an available
-            # sqlalchemy function (e.g. "exists", "count")
-            function = getattr(sqlalchemy.func, aggregate_node.function)
-            source_column = aggregate_node.column
-            return function(query.selected_columns[source_column]).label(output_column)
-
-    def apply_filter(self, query, filter_node):
-        # Get the base table
-        table_expr = get_primary_table(query)
-
-        column_name = filter_node.column
-        operator_name = filter_node.operator
-        # Does this filter require another table? i.e. is the filter value itself an
-        # Output node, which has a source that we may need to include here
-        value_expr, other_tables = self.get_value_expression(filter_node.value)
-        if other_tables:
-            assert len(other_tables) == 1
-            other_table = other_tables[0]
-            # If we have a "Value" (i.e. a single value per patient) then we
-            # include the other table in the join
-            if isinstance(filter_node.value, Value):
-                query = self.include_joined_table(query, other_table)
-            # If we have a "Column" (i.e. multiple values per patient) then we
-            # can't directly join this with our single-value-per-patient query,
-            # so we have to use a correlated subquery
-            elif isinstance(filter_node.value, Column):
-                value_expr = (
-                    sqlalchemy.select(value_expr)
-                    .select_from(other_table)
-                    .where(other_table.c.patient_id == table_expr.c.patient_id)
-                )
-            else:
-                # Shouldn't get any other type here
-                assert False
-
-        if isinstance(filter_node.value, Codelist) and "system" in table_expr.c:
-            # Codelist queries must also match on `system` column if it's present
-            system_column = table_expr.c["system"]
-            value_expr = value_expr.where(system_column == filter_node.value.system)
-
-        column = table_expr.c[column_name]
-        method = getattr(column, operator_name)
-        query_expr = method(value_expr)
-
-        if filter_node.or_null:
-            null_expr = column.__eq__(None)
-            query_expr = sqlalchemy.or_(query_expr, null_expr)
-        return query.where(query_expr)
-
-    @staticmethod
-    def apply_row_selector(query, sort_columns, descending):
-        """
-        Generate query to apply a row selector by sorting by sort_columns in
-        specified direction, and then selecting the first row
-        """
-        # Get the base table - the first in the FROM clauses
-        table_expr = get_primary_table(query)
-
-        # Find all the selected column names
-        column_names = [column.name for column in query.selected_columns]
-
-        # Query to select the columns that we need to sort on
-        order_columns = [table_expr.c[column] for column in sort_columns]
-        # change ordering to descending on all order columns if necessary
-        if descending:
-            order_columns = [c.desc() for c in order_columns]
-
-        # Number rows sequentially over the order by columns for each patient id
-        row_num = (
-            sqlalchemy.func.row_number()
-            .over(order_by=order_columns, partition_by=table_expr.c.patient_id)
-            .label("_row_num")
-        )
-        # Add the _row_num column and select just the first row
-        query = query.add_columns(row_num)
-        subquery = query.alias()
-        query = sqlalchemy.select([subquery.c[column] for column in column_names])
-        query = query.select_from(subquery).where(subquery.c._row_num == 1)
-        return query
-
-    @staticmethod
-    def include_joined_table(query, table):
-        tables = get_joined_tables(query)
-        if table in tables:
-            return query
-        join = sqlalchemy.join(
-            query.get_final_froms()[0],
-            table,
-            query.selected_columns.patient_id == table.c.patient_id,
-            isouter=True,
-        )
-        return query.select_from(join)
-
-    def generate_results_query(self):
-        """Query to generate the final single results table"""
-        # `population` is a special-cased boolean column, it doesn't appear
-        # itself in the output but it determines what rows are included
-        # Build the base results table from the population table
-        column_definitions = self.column_definitions.copy()
-        population = column_definitions.pop("population")
-        results_query = self.get_population_table_query(population)
-
-        # Build big JOIN query which selects the results
-        for column_name, output_node in column_definitions.items():
-            # For each output column, generate the query that selects it from its interim table(s)
-            # For most outputs there will just be a single interim table.  Category outputs
-            # may require more than one.
-            column, tables = self.get_value_expression(output_node)
-            # Then generate the query to join on it
-            for table in tables:
-                results_query = self.include_joined_table(results_query, table)
-
-            # Add this column to the final selected results
-            results_query = results_query.add_columns(column.label(column_name))
-
-        return results_query
-
-    def write_query_to_table(self, table, query):
-        """
-        Returns a new query which, when executed, writes the results of `query`
-        into `table`
+        Return a query to create `table` and populate it with the results of
+        `select_query`
         """
         raise NotImplementedError()
+
+    def temp_table_needs_dropping(self, create_table_query: Executable) -> bool:
+        """
+        Given the query used to create a temporary table, return whether the table needs
+        to be explicitly dropped or whether the database will discard it automatically
+        when the session terminates
+        """
+        raise NotImplementedError()
+
+    #
+    # DATABASE CONNECTION
+    #
+    @cached_property
+    def engine(self):
+        engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
+        # Hardcode the specific SQLAlchemy dialect we want to use: this is the
+        # dialect the query engine will have been written for and tested with and we
+        # don't want to allow global config changes to alter this
+        engine_url._get_entrypoint = lambda: self.sqlalchemy_dialect
+        engine = sqlalchemy.create_engine(engine_url, future=True)
+        # The above relies on abusing SQLAlchemy internals so it's possible it will
+        # break in future -- we want to know immediately if it does
+        assert isinstance(engine.dialect, self.sqlalchemy_dialect)
+        return engine
+
+    def get_temp_table_name(self, name_hint):
+        """
+        Return a table name based on `name_hint` suitable for use as a temporary table.
+
+        `name_hint` is arbitrary and is only present to make the resulting SQL slightly
+        more comprehensible when debugging.
+        """
+        self.temp_table_count += 1
+        return f"{self.temp_table_prefix}{name_hint}_{self.temp_table_count}"
+
+    def get_temp_database(self):
+        """Which schema/database should we write temporary tables to."""
+        return None
+
+
+def apply_filter(query, column, operator, value, value_query_node, or_null=False):
+    """
+    Applies a WHERE condition to the supplied query, specifically:
+
+        WHERE <column> <operator> <value>
+
+    The extra arguments are needed to handle extra complexity in this function which we
+    haven't yet had time to refactor away.
+    """
+    # TODO: This function needs work. Once we've ironed out some of the complexities
+    # here it should be possible to have a function which doesn't know anyting about
+    # QueryNodes and can therefore be moved to `sqlalchemy_utils`
+
+    # Get the base table
+    table_expr = get_primary_table(query)
+
+    # Is the filter value itself potentially drawn from another table?
+    if isinstance(value_query_node, (Value, Column)):
+        # Find the tables to which it refers
+        other_tables = get_referenced_tables(value)
+        # If we have a "Value" (i.e. a single value per patient) then we
+        # include the other tables in the join
+        if isinstance(value_query_node, Value):
+            query = include_joined_tables(query, other_tables, "patient_id")
+        # If we have a "Column" (i.e. multiple values per patient) then we
+        # can't directly join this with our single-value-per-patient query,
+        # so we have to use a correlated subquery
+        elif isinstance(value_query_node, Column):
+            # TODO: I actually think this check is wrong and we'll eventually need to
+            # support e.g. a column which is a boolean expression over multiple source
+            # columns. But I'll leave it in place for now.
+            assert len(other_tables) == 1
+            other_table = other_tables[0]
+            value = (
+                sqlalchemy.select(value)
+                .select_from(other_table)
+                .where(other_table.c.patient_id == table_expr.c.patient_id)
+            )
+        else:
+            assert False
+
+    if isinstance(value_query_node, Codelist):
+        value = sqlalchemy.select(value.c.code).scalar_subquery()
+        if "system" in table_expr.c:
+            # Codelist queries must also match on `system` column if it's present
+            system_column = table_expr.c["system"]
+            value = value.where(system_column == value_query_node.system)
+
+    column_expr = table_expr.c[column]
+    method = getattr(column_expr, operator)
+    filter_expr = method(value)
+
+    if or_null:
+        null_expr = column_expr.__eq__(None)
+        filter_expr = sqlalchemy.or_(filter_expr, null_expr)
+    return query.where(filter_expr)
+
+
+def apply_optimisations(column_definitions):
+    """
+    Apply various transformations to the supplied query DAG which make it easier to
+    generate better performing SQL
+    """
+    # It's algorithmically easier to apply these transformations by modifying the graph
+    # in place, so we copy it first
+    column_definitions = copy.deepcopy(column_definitions)
+
+    reify_query_before_selecting_column(column_definitions)
+
+    return column_definitions
+
+
+def reify_query_before_selecting_column(column_definitions):
+    """
+    We sometimes need to be able to take a SQLAlchemy query and treat it as something
+    table-like from which we can select columns (a process we describe as
+    "reification"). In fact, SQLAlchemy will do this implictly for us: we can just
+    select columns from a query and it will automatically create a subquery for us.
+    However this triggers a warning not to rely on this behaviour. And in any case we
+    don't want to use subqueries, we want to use our own TemporaryTable class. So here
+    we walk the query graph, find all the places where we select columns and inject an
+    operation to explicitly reify the query before doing so.
+    """
+    # Find all ColumnSelectorNodes and group them by the source node they reference
+    selector_types = typing.get_args(ColumnSelectorNode)
+    nodes_by_source = defaultdict(list)
+    for node in get_all_nodes(column_definitions):
+        if isinstance(node, selector_types):
+            nodes_by_source[node.source].append(node)
+    # Inject a ReifyQuery node between the ColumnSelectorNodes and their source
+    for source, child_nodes in nodes_by_source.items():
+        # As an optimisation to avoid reifying more data than we need, we determine what
+        # columns we're selecting and pass these to the reification method
+        columns = {node.column for node in child_nodes}
+        new_source = ReifiedQuery(source, tuple(columns))
+        for node in child_nodes:
+            # These are frozen instances, so we can't set the attribute directly
+            object.__setattr__(node, "source", new_source)
+
+
+def get_all_nodes(column_definitions):
+    return list(recurse_over_nodes(column_definitions.values(), set()))
+
+
+def recurse_over_nodes(nodes, seen):
+    for node in nodes:
+        yield from recurse_over_nodes(node._get_referenced_nodes(), seen)
+        if node not in seen:
+            seen.add(node)
+            yield node
 
 
 def split_list_into_batches(lst, size=None):

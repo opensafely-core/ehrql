@@ -1,6 +1,7 @@
 import contextlib
 
 import sqlalchemy
+import sqlalchemy.sql.ddl
 from sqlalchemy.sql.expression import type_coerce
 
 from .. import sqlalchemy_types
@@ -21,12 +22,29 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
     # temporary tables
     temp_table_prefix = "#"
 
-    def write_query_to_table(self, table, query):
+    def query_to_create_temp_table_from_select_query(self, table, select_query):
         """
-        Returns a new query which, when executed, writes the results of `query`
-        into `table`
+        Return a query to create `table` and populate it with the results of
+        `select_query`
         """
-        return write_query_to_table(table, query)
+        return write_query_to_table(table, select_query)
+
+    def temp_table_needs_dropping(self, create_table_query):
+        """
+        We're expecting to only ever create tables with the special "#" prefix which
+        marks them as session-scoped temporary tables which don't require cleanup. This
+        method just asserts that this expectation is met.
+        """
+        if isinstance(create_table_query, sqlalchemy.sql.Select):
+            into_clause = create_table_query.selected_columns[0].name
+            assert into_clause.startswith("* INTO #")
+        elif isinstance(create_table_query, sqlalchemy.sql.ddl.CreateTable):
+            table_name = create_table_query.element.name
+            assert table_name.startswith("#")
+        else:
+            assert False
+
+        return False
 
     @contextlib.contextmanager
     def execute_query(self):
@@ -37,10 +55,13 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             # in batches. This gives us the illusion of having a robust
             # connection to the database, whereas in practice in frequently
             # errors out when attempting to download large sets of results.
-            queries = self.get_queries()
+            setup_queries, results_query, cleanup_queries = self.get_queries()
+            # We're not expecting to have any cleanup to do here because we should be
+            # using session-scoped temporary tables
+            assert not cleanup_queries
             with fetch_results_in_batches(
                 engine=self.engine,
-                queries=queries,
+                queries=setup_queries + [results_query],
                 # The double dot syntax allows us to reference tables in another database
                 temp_table_prefix=f"{self.backend.temporary_database}..TempExtract",
                 # This value was copied from the previous cohortextractor. I
@@ -56,12 +77,6 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             # the normal manner
             with super().execute_query() as results:
                 yield results
-
-    def drop_temp_table(self, cursor, table):
-        # The `#` prefix is an MSSQL-ism which automatically makes the tables
-        # session-scoped temporary tables which therefore don't require cleanup
-        if not table.name.startswith("#"):
-            super().cleanup_temp_table(cursor, table)  # pragma: no cover
 
     def round_to_first_of_month(self, date):
         date = type_coerce(date, sqlalchemy_types.Date())

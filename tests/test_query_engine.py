@@ -18,6 +18,17 @@ from .lib.util import OldCohortWithPopulation, make_codelist
 pytestmark = pytest.mark.integration
 
 
+def test_query_engine_caches_sql_engine(engine):
+    empty_cohort = {}
+    query_engine = engine.query_engine_class(
+        empty_cohort, engine.backend(database_url="foo://localhost")
+    )
+    # Check that the property caches the results and gives us the same object each time
+    sql_engine_1 = query_engine.engine
+    sql_engine_2 = query_engine.engine
+    assert sql_engine_1 is sql_engine_2
+
+
 def test_run_generated_sql_get_single_column_default_population(engine):
     input_data = [
         patient(
