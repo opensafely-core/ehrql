@@ -46,6 +46,7 @@ for end users.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Generic, TypeVar, overload
 
 from .query_model import (
@@ -302,7 +303,24 @@ class CodeSeries(PatientSeries):
         )
 
 
+def _validate_datestring(datestring):
+    try:
+        datetime.strptime(datestring, "%Y-%m-%d")
+    except (ValueError, TypeError):
+        raise ValueError(
+            f"{datestring} is not a valid date; date must in YYYY-MM-DD format"
+        )
+
+
 class DateSeries(PatientSeries):
+    @staticmethod
+    def _get_other_for_arithmetic(other):
+        if isinstance(other, DateSeries):
+            other = other.value
+        else:
+            _validate_datestring(other)
+        return other
+
     def __gt__(self, other: DateSeries | str) -> BoolSeries:
         other_value = other.value if isinstance(other, DateSeries) else other
         return BoolSeries(value=self.value > other_value)
@@ -330,13 +348,11 @@ class DateSeries(PatientSeries):
         return DateSeries(RoundToFirstOfYear(self.value))
 
     def __sub__(self, other: str | DateSeries) -> DateDeltaSeries:
-        if isinstance(other, DateSeries):
-            other = other.value
+        other = self._get_other_for_arithmetic(other)
         return DateDeltaSeries(DateDifference(other, self.value))
 
     def __rsub__(self, other: str | DateSeries) -> DateDeltaSeries:
-        if isinstance(other, DateSeries):
-            other = other.value
+        other = self._get_other_for_arithmetic(other)
         return DateDeltaSeries(DateDifference(self.value, other))
 
 
