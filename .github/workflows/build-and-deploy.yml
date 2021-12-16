@@ -20,6 +20,11 @@ jobs:
           PATCH="${GITHUB_REF#refs/*/}"
           MAJOR="${PATCH%%.*}"
           MINOR="${PATCH%.*}"
+
+          echo "MAJOR=$MAJOR"
+          echo "MINOR=$MINOR"
+          echo "PATCH=$PATCH"
+
           docker build . --file Dockerfile \
             --tag ${{ env.image }}:$MAJOR --tag ${{ env.ce_image }}:$MAJOR \
             --tag ${{ env.image }}:$MINOR --tag ${{ env.ce_image }}:$MINOR \
