@@ -34,6 +34,11 @@ jobs:
         if: ${{ steps.previoustagcommit.outputs.tag_describe != steps.previoustagref.outputs.tag }}
         run: /bin/false
 
+      # 'Get Previous tag' should only get version tags, but let's verify that
+      - name: Fail if not a version tag
+        if: ${{ startsWith(steps.previoustagref.outputs.tag, 'v') }}
+        run: /bin/false
+
       # This relies on the tag having a version of the form vX.Y.Z
       - name: Build image
         run: |
