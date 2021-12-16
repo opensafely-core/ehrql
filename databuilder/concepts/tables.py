@@ -1,4 +1,4 @@
-from ..dsl import CodeColumn, DateColumn, EventFrame, IdColumn, IntColumn
+from ..dsl import CodeColumn, DateColumn, EventFrame, IdColumn, IntColumn, PatientFrame
 from ..query_language import Table
 from . import types
 from .constraints import FirstOfMonthConstraint, NotNullConstraint, UniqueConstraint
@@ -18,6 +18,16 @@ class ClinicalEvents(EventFrame):
 
     def __init__(self):
         super().__init__(Table("clinical_events"))
+
+
+class Patients(PatientFrame):
+    """Provides demographic information about patients."""
+
+    patient_id = IdColumn("patient_id")
+    date_of_birth = DateColumn("date_of_birth")
+
+    def __init__(self):
+        super().__init__(Table("patients"))
 
 
 class PracticeRegistrations(EventFrame):
@@ -73,7 +83,8 @@ class PatientDemographics(TableContract):
 
 
 clinical_events = ClinicalEvents()
-patients = PatientDemographics()
+patient_demographics = PatientDemographics()
+patients = Patients()
 registrations = PracticeRegistrations()
 
 # Stubs
