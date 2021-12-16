@@ -9,23 +9,31 @@ jobs:
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     env:
-      image: ghcr.io/opensafely-core/cohortextractor-v2
+      image: ghcr.io/opensafely-core/databuilder
+      ce_image: ghcr.io/opensafely-core/cohortextractor-v2
     steps:
       - uses: actions/checkout@v2
 
-      - name: Get current git tag
-        id: tags
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
-
+      # This relies on the tag having a version of the form vX.Y.Z
       - name: Build image
-        run: docker build . --file Dockerfile --tag ${{ env.image }}:latest
+        run: |
+          PATCH="${GITHUB_REF#refs/*/}"
+          MAJOR="${PATCH%%.*}"
+          MINOR="${PATCH%.*}"
+
+          echo "MAJOR=$MAJOR"
+          echo "MINOR=$MINOR"
+          echo "PATCH=$PATCH"
+
+          docker build . --file Dockerfile \
+            --tag ${{ env.image }}:$MAJOR --tag ${{ env.ce_image }}:$MAJOR \
+            --tag ${{ env.image }}:$MINOR --tag ${{ env.ce_image }}:$MINOR \
+            --tag ${{ env.image }}:$PATCH --tag ${{ env.ce_image }}:$PATCH
 
       - name: Log into GitHub Container Registry
         run: docker login https://ghcr.io -u ${{ github.actor }} --password ${{ secrets.DOCKER_RW_TOKEN }}
 
-      - name: Push image to GitHub Container Registry
-        env:
-          VERSION: ${{ steps.tags.outputs.tag }}
+      - name: Push images to GitHub Container Registry
         run: |
-          docker tag ${{ env.image }} ${{ env.image }}:$VERSION
-          docker push ${{ env.image }}:$VERSION
+          docker push --all-tags ${{ env.image }}
+          docker push --all-tags ${{ env.ce_image }}
