@@ -32,6 +32,30 @@ def test_comparator_logical_comparisons_not_handled_directly():
         Comparator() <= Comparator()
 
 
+def test_comparator_eq():
+    output = Comparator() == Comparator()
+
+    expected = Comparator(
+        operator="__eq__",
+        lhs=Comparator(),
+        rhs=Comparator(),
+    )
+
+    assert repr(output) == repr(expected)
+
+
+def test_comparator_ne():
+    output = Comparator() != Comparator()
+
+    expected = Comparator(
+        operator="__ne__",
+        lhs=Comparator(),
+        rhs=Comparator(),
+    )
+
+    assert repr(output) == repr(expected)
+
+
 def test_cohort_column_definitions_simple_query():
     class Cohort(OldCohortWithPopulation):
         #  Define tables of interest, filtered to relevant values
