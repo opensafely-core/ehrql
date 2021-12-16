@@ -3,10 +3,33 @@ import re
 import pytest
 
 from databuilder.codelistlib import Codelist
-from databuilder.query_language import FilteredTable, Row, Table, ValueFromRow, table
+from databuilder.query_language import (
+    Comparator,
+    FilteredTable,
+    Row,
+    Table,
+    ValueFromRow,
+    table,
+)
 from databuilder.query_utils import get_column_definitions
 
 from .lib.util import OldCohortWithPopulation, make_codelist
+
+
+def test_comparator_logical_comparisons_not_handled_directly():
+    msg = "Invalid operation; cannot perform logical operations on a Comparator"
+
+    with pytest.raises(RuntimeError, match=msg):
+        Comparator() > Comparator()
+
+    with pytest.raises(RuntimeError, match=msg):
+        Comparator() >= Comparator()
+
+    with pytest.raises(RuntimeError, match=msg):
+        Comparator() < Comparator()
+
+    with pytest.raises(RuntimeError, match=msg):
+        Comparator() <= Comparator()
 
 
 def test_cohort_column_definitions_simple_query():
