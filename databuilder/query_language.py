@@ -100,10 +100,10 @@ class Comparator(QueryNode):
         self._raise_comparison_error()
 
     def __eq__(self, other):
-        self._compare(other, "__eq__")
+        return self._compare(other, "__eq__")
 
     def __ne__(self, other):
-        self._compare(other, "__ne__")
+        return self._compare(other, "__ne__")
 
     def _combine(self, other, conn):
         assert isinstance(other, Comparator)

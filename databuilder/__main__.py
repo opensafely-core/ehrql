@@ -20,7 +20,7 @@ def main(args=None):
     if args is None:
         # allow the passing in of args, for testing, but otherwise look them
         # up.  This saves a lot of laborious mocking in tests.
-        args = sys.argv[1:]
+        args = sys.argv[1:]  # pragma: no cover
 
     options = parser.parse_args(args)
 
