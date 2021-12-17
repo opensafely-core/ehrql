@@ -682,8 +682,10 @@ def test_not_in_filter_on_query_values(engine):
             "sum",
             "result",
             [
-                dict(patient_id=1, value=20.6),
-                dict(patient_id=2, value=50.1),
+                # Due to the usual floating point shennanigans we don't always get
+                # _exactly_ the result we're expecting here, depending on the database
+                dict(patient_id=1, value=pytest.approx(20.6)),
+                dict(patient_id=2, value=pytest.approx(50.1)),
                 dict(patient_id=3, value=None),
             ],
         ),
