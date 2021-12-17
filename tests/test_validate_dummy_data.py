@@ -19,7 +19,7 @@ fixtures_path = Path(__file__).parent / "fixtures" / "dummy_data"
 class Cohort:
     population = table("practice_registations").exists()
     sex = table("patients").latest().get("sex")
-    _code = table("clinical_events").filter(code__in=cl)
+    _code = table("clinical_events").filter("code", is_in=cl)
     has_event = _code.exists()
     event_date = _code.latest().get("date")
     event_count = _code.count("code")
@@ -93,7 +93,7 @@ def test_validate_dummy_data_with_categories(
 ):
     class CohortWithCategories:
         population = table("practice_registations").exists()
-        _code = table("clinical_events").filter(code__in=cl)
+        _code = table("clinical_events").filter("code", is_in=cl)
         event_date = _code.latest().get("date")
         _categories = {
             1: event_date == "2021-01-01",

@@ -154,6 +154,14 @@ class BaseTable(QueryNode):
             # convert a between filter into its two components
             return self.filter(*args, on_or_after=value[0], on_or_before=value[1])
 
+        if operator in ("equals", "not_equals") and isinstance(
+            value, (Codelist, Column)
+        ):
+            raise TypeError(
+                f"You can only use '{operator}' to filter a column by a single value.\n"
+                f"To filter using a {value.__class__.__name__}, use 'is_in/not_in'."
+            )
+
         if operator == "is_in" and not isinstance(value, (Codelist, Column)):
             # convert non-codelist in values to tuple
             value = tuple(value)

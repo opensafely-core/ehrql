@@ -118,7 +118,10 @@ class Cohort:
     # Clinical variables
     # Latest recorded BMI
     _bmi_value = (
-        table("clinical_events").filter(code=bmi_code).latest().get("numeric_value")
+        table("clinical_events")
+        .filter("code", is_in=bmi_code)
+        .latest()
+        .get("numeric_value")
     )
     _bmi_groups = {
         "Obese I (30-34.9)": (_bmi_value >= 30) & (_bmi_value < 35),

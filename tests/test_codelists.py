@@ -58,9 +58,6 @@ def test_codelist_query(engine):
 
 @pytest.mark.integration
 def test_codelist_equals_query(engine):
-    if engine.name == "spark":
-        pytest.xfail()
-
     input_data = [
         patient(1, ctv3_event(code="abc", date="2021-01-01")),
         patient(2, ctv3_event(code="bar", date="2021-01-01")),
@@ -72,7 +69,12 @@ def test_codelist_equals_query(engine):
     test_codelist = codelist(["abc"], system="ctv3")
 
     class Cohort(OldCohortWithPopulation):
-        code = table("clinical_events").filter(code=test_codelist).latest().get("code")
+        code = (
+            table("clinical_events")
+            .filter("code", is_in=test_codelist)
+            .latest()
+            .get("code")
+        )
 
     result = engine.extract(Cohort)
     assert result == [
