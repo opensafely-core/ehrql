@@ -3,6 +3,7 @@ from datetime import date
 import pytest
 
 from databuilder.concepts import tables
+from databuilder.dsl import categorise as dsl_categorise
 from databuilder.query_language import categorise, table
 
 from .lib.mock_backend import (
@@ -1291,4 +1292,88 @@ def test_fetching_results_using_temporary_database(engine):
     assert engine.extract(Cohort, temporary_database="temp_tables") == [
         dict(patient_id=1, code="abc"),
         dict(patient_id=2, code="xyz"),
+    ]
+
+
+def test_dsl_code_comparisons(cohort_with_population, engine):
+    if engine.name == "spark":
+        pytest.xfail()
+
+    input_data = [
+        patient(1, ctv3_event("abc")),
+        patient(2, ctv3_event("abc")),
+        patient(3, ctv3_event("def")),
+    ]
+    engine.setup(input_data)
+
+    events = tables.clinical_events
+    first_code = (
+        events.sort_by(events.code).first_for_patient().select_column(events.code)
+    )
+
+    date_categories = {
+        "abc": first_code == "abc",
+        "not_abc": first_code != "abc",
+    }
+
+    data_definition = cohort_with_population
+    data_definition.code_group = dsl_categorise(date_categories, default="unknown")
+
+    result = engine.extract(data_definition)
+
+    assert result == [
+        {"patient_id": 1, "code_group": "abc"},
+        {"patient_id": 2, "code_group": "abc"},
+        {"patient_id": 3, "code_group": "not_abc"},
+    ]
+
+
+def test_dsl_date_comparisons(cohort_with_population, engine):
+    """
+    Exercise comparison (and some boolean) operators in the DSL
+
+    We want to ensure the PatientSeries comparison and boolean operators work
+    as expected for date values.  We're using the DSL's categorise function
+    here to let us make boolean values against which to match the PatientSeries
+    values.
+    """
+    if engine.name == "spark":
+        pytest.xfail()
+
+    input_data = [
+        patient(1, ctv3_event("abc", "2019-12-31")),
+        patient(2, ctv3_event("abc", "2020-02-29")),
+        patient(3, ctv3_event("abc", "2020-10-01")),
+        patient(4, ctv3_event("abc", "2021-04-07")),
+    ]
+    engine.setup(input_data)
+
+    events = tables.clinical_events
+    first_code_date = (
+        events.sort_by(events.date).first_for_patient().select_column(events.date)
+    )
+
+    first_half_2020 = (first_code_date >= "2020-01-01") & (
+        first_code_date <= "2020-06-30"
+    )
+    second_half_2020 = (first_code_date >= "2020-07-01") & (
+        first_code_date <= "2020-12-31"
+    )
+    in_2020 = first_half_2020 | second_half_2020
+    date_categories = {
+        "before_2020": first_code_date < "2020-01-01",
+        "in_2020": in_2020,
+        "after_2020": first_code_date > "2020-12-31",
+    }
+
+    data_definition = cohort_with_population
+    data_definition.date_group = dsl_categorise(date_categories, default="unknown")
+
+    result = engine.extract(data_definition)
+
+    assert result == [
+        {"patient_id": 1, "date_group": "before_2020"},
+        {"patient_id": 2, "date_group": "in_2020"},
+        {"patient_id": 3, "date_group": "in_2020"},
+        {"patient_id": 4, "date_group": "after_2020"},
     ]
