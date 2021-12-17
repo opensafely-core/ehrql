@@ -124,13 +124,13 @@ build-databuilder:
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
-# tear down the persistent databuilder-mssql docker container and network
-remove-persistent-database:
+# tear down the persistent docker containers we create to run tests again
+remove-database-containers:
     docker rm --force databuilder-mssql
-    docker network rm databuilder-network
+    docker rm --force databuilder-spark
 
-# open an interactive SQL Server shell running against the persistent database
-connect-to-persistent-database:
+# open an interactive SQL Server shell running against MSSQL
+connect-to-mssql:
     docker exec -it databuilder-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
 
 # Full set of tests run by CI
