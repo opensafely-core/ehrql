@@ -132,7 +132,7 @@ def wait_for_database(database, timeout=10):
 def make_database(containers):
     password = "Your_password123!"
 
-    container_name = "cohort-extractor-mssql"
+    container_name = "databuilder-mssql"
     mssql_port = 1433
 
     if not containers.is_running(container_name):  # pragma: no cover
@@ -181,7 +181,7 @@ def make_spark_database(containers):
 
 
 def make_spark_container_database(containers):
-    container_name = "cohort-extractor-spark"
+    container_name = "databuilder-spark"
     # This is the default anyway, but better to be explicit
     spark_port = 10001
 
