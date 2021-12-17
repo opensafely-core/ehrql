@@ -3,10 +3,12 @@ from datetime import date
 import pytest
 
 from databuilder.concepts import tables
+from databuilder.dsl import categorise as new_dsl_categorise
 from databuilder.query_language import categorise, table
 
 from .lib.mock_backend import (
     CTV3Events,
+    MockPatients,
     RegistrationHistory,
     ctv3_event,
     patient,
@@ -757,6 +759,31 @@ def test_categorise_simple_comparisons(engine):
         height_group = categorise(_height_categories, default="missing")
 
     result = engine.extract(Cohort)
+    assert result == [
+        dict(patient_id=1, height_group="short"),
+        dict(patient_id=2, height_group="tall"),
+        dict(patient_id=3, height_group="missing"),
+    ]
+
+
+def test_categorise_simple_comparisons_new_dsl(engine, cohort_with_population):
+    if engine.name == "spark":
+        pytest.xfail()
+
+    input_data = [patient(1, height=180), patient(2, height=200.5), patient(3)]
+    engine.setup(input_data)
+
+    patients = MockPatients()
+    height = patients.select_column(patients.height)
+    height_categories = {
+        "tall": height > 190,
+        "short": height <= 190,
+    }
+    height_group = new_dsl_categorise(height_categories, default="missing")
+    cohort = cohort_with_population
+    cohort.height_group = height_group
+
+    result = engine.extract(cohort)
     assert result == [
         dict(patient_id=1, height_group="short"),
         dict(patient_id=2, height_group="tall"),
