@@ -53,11 +53,19 @@ class DbDetails:
     def container_url(self):
         return self._url(self.host_from_container, self.port_from_container)
 
-    def engine(self, **kwargs):
+    def engine(self, dialect=None, **kwargs):
         url = self._url(self.host_from_host, self.port_from_host, include_driver=True)
         engine_url = sqlalchemy.engine.make_url(url)
+        # Allow specifiying the desired dialect
+        if dialect is not None:
+            engine_url._get_entrypoint = lambda: dialect
         # We always want the "future" API
-        return sqlalchemy.create_engine(engine_url, future=True, **kwargs)
+        engine = sqlalchemy.create_engine(engine_url, future=True, **kwargs)
+        # The above relies on abusing SQLAlchemy internals so it's possible it will
+        # break in future -- we want to know immediately if it does
+        if dialect is not None:
+            assert isinstance(engine.dialect, dialect)
+        return engine
 
     def _url(self, host, port, include_driver=False):
         # only used in databricks connections

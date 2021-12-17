@@ -69,9 +69,9 @@ class QueryEngineFixture:
         return results
 
     def sqlalchemy_engine(self, **kwargs):
-        sqlalchemy_engine = self.database.engine(**kwargs)
-        sqlalchemy_engine.dialect = self.query_engine_class.sqlalchemy_dialect()
-        return sqlalchemy_engine
+        return self.database.engine(
+            dialect=self.query_engine_class.sqlalchemy_dialect, **kwargs
+        )
 
 
 @pytest.fixture(scope="session", params=["mssql", "spark"])

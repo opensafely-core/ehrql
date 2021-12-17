@@ -12,7 +12,7 @@ import re
 import databricks.sql
 import sqlalchemy.types
 from pyhive.sqlalchemy_hive import HiveHTTPDialect, HiveTypeCompiler, _type_map
-from sqlalchemy import exc, types, util
+from sqlalchemy import String, exc, types, util
 from sqlalchemy.sql.compiler import DDLCompiler, IdentifierPreparer
 from sqlalchemy.sql.expression import cast
 
@@ -118,6 +118,14 @@ class SparkDialect(HiveHTTPDialect):
     ddl_compiler = SparkDDLCompiler
     type_compiler = SparkTypeCompiler
     preparer = SparkIdentifierPreparer
+
+    # PyHive has `True` below which doesn't do what they think it does. I considered
+    # submitting a fix, but this is all going away in newer versions of SQLAlchemy so I
+    # don't think it's worth it. See:
+    # https://github.com/sqlalchemy/sqlalchemy/commit/bd2a6e9b161251606b64d299faec583d
+    # (Note once again mypy and SQLAlchemy don't play nicely so we have to ignore the
+    # error here.)
+    returns_unicode_strings = String.RETURNS_UNICODE  # type: ignore[attr-defined]
 
     colspecs = HiveHTTPDialect.colspecs | {
         sqlalchemy.types.Date: SparkDate,
