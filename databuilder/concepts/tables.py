@@ -27,7 +27,7 @@ class Patients(PatientFrame):
     date_of_birth = DateColumn("date_of_birth")
 
     def __init__(self):
-        super().__init__(Table("patients"))
+        super().__init__(Table("patients").first_by("patient_id"))
 
 
 class PracticeRegistrations(EventFrame):
