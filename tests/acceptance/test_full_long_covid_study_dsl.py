@@ -217,9 +217,9 @@ def build_cohort():
 # in pyproject.toml
 @pytest.mark.xfail
 @pytest.mark.integration
-def test_cohort(database, setup_backend_database):
+def test_cohort(database):
     cohort = build_cohort()
-    setup_backend_database(
+    database.setup(
         organisation(organisation_id=1, region="South"),
         patient(
             1,
