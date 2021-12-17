@@ -37,7 +37,6 @@ order.
 # can't see through the singledispatch decorator to understand what type will get
 # returned given the input type.
 
-# mypy: ignore-errors
 
 import contextlib
 import copy
@@ -45,21 +44,15 @@ import dataclasses
 import typing
 from collections import defaultdict
 from functools import cached_property
-from typing import Any, Optional, Union
+from typing import Any, Callable, Optional, Union, overload
 
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
+from sqlalchemy import type_coerce
 from sqlalchemy.engine.interfaces import Dialect
-
-# Most of the below can be imported directly from sqlalchemy.sql, but for some reason
-# mypy can't recognise them if we do that
-from sqlalchemy.sql.base import Executable
-from sqlalchemy.sql.elements import Case as SQLCase
-from sqlalchemy.sql.elements import ClauseElement
-from sqlalchemy.sql.expression import type_coerce
-from sqlalchemy.sql.schema import Column as SQLColumn
-from sqlalchemy.sql.selectable import Select
+from sqlalchemy.sql import ClauseElement, ColumnElement, Executable, Select
+from sqlalchemy.sql.elements import Case
 
 from .. import sqlalchemy_types
 from ..functools_utils import singledispatchmethod_with_unions
@@ -74,6 +67,7 @@ from ..query_model import (
     RoundToFirstOfYear,
     Row,
     RowFromAggregate,
+    SelectedNode,
     Table,
     Value,
     ValueFromAggregate,
@@ -101,7 +95,7 @@ ColumnSelectorNode = Union[ValueFromRow, ValueFromAggregate, Column]
 # does not form part of the public Query Model
 @dataclasses.dataclass(frozen=True)
 class ReifiedQuery(QueryNode):
-    source: QueryNode
+    source: SelectedNode
     columns: tuple[str]
 
     def _get_referenced_nodes(self):
@@ -204,7 +198,43 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             for query in cleanup_queries:
                 cursor.execute(query)
 
-    def get_sql_element(self, node: QueryNode) -> ClauseElement:
+    @overload
+    def get_sql_element(self, node: FilteredTable) -> Select:
+        ...
+
+    @overload
+    def get_sql_element(self, node: Row) -> Select:
+        ...
+
+    @overload
+    def get_sql_element(self, node: RowFromAggregate) -> Select:
+        ...
+
+    @overload
+    def get_sql_element(self, node: ReifiedQuery) -> TemporaryTable:
+        ...
+
+    @overload
+    def get_sql_element(self, node: ColumnSelectorNode) -> ColumnElement:
+        ...
+
+    @overload
+    def get_sql_element(self, node: ValueFromCategory) -> Case:
+        ...
+
+    @overload
+    def get_sql_element(self, comparator: Comparator) -> ClauseElement:
+        ...
+
+    @overload
+    def get_sql_element(self, codelist: Codelist) -> TemporaryTable:
+        ...
+
+    @overload
+    def get_sql_element(self, value: ValueFromFunction) -> ClauseElement:
+        ...
+
+    def get_sql_element(self, node):
         """
         Caching wrapper around `get_sql_element_no_cache()` below, which is the
         entrypoint method for converting QueryNodes to SQL ClauseElements
@@ -240,7 +270,46 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         themselves (which require resolving to SQL) or plain static values (booleans,
         integers, dates, list of dates etc) which we can return unchanged to SQLAlchemy.
         """
-        if isinstance(value, QueryNode):
+        types_accepted_by_get_sql_element_statically = {
+            FilteredTable,
+            Row,
+            RowFromAggregate,
+            ReifiedQuery,
+            ColumnSelectorNode,
+            ValueFromCategory,
+            Comparator,
+            Codelist,
+            ValueFromFunction,
+        }
+
+        types_accepted_by_get_sql_element_dynamically = set()
+
+        register_method = BaseSQLQueryEngine.get_sql_element_no_cache.register
+        # mypy thinks this is just a Callable, not a bound method
+        singledispatchmethod_obj = register_method.__self__  # type: ignore[attr-defined]
+        for function in singledispatchmethod_obj.dispatcher.registry.values():
+            signature = function.__annotations__
+            arg_keys = list(signature.keys())
+            arg_keys.remove("return")
+            assert (
+                len(arg_keys) == 1
+            ), "Expect instances of get_sql_element_no_cache() to have only one argument"
+            arg_type = signature[arg_keys[0]]
+            types_accepted_by_get_sql_element_dynamically.add(arg_type)
+
+        if (
+            not types_accepted_by_get_sql_element_dynamically
+            == types_accepted_by_get_sql_element_statically
+        ):
+            print(
+                f"Missing from dynamic: {types_accepted_by_get_sql_element_statically - types_accepted_by_get_sql_element_dynamically}"
+            )
+            print(
+                f"Missing from static: {types_accepted_by_get_sql_element_dynamically - types_accepted_by_get_sql_element_statically}"
+            )
+            # assert False
+
+        if type(value) in types_accepted_by_get_sql_element_statically:
             return self.get_sql_element(value)
         else:
             return value
@@ -324,12 +393,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return table
 
     @get_sql_element_no_cache.register
-    def get_element_from_column_selector(self, node: ColumnSelectorNode) -> SQLColumn:
+    def get_element_from_column_selector(
+        self, node: ColumnSelectorNode
+    ) -> ColumnElement:
         table = self.get_sql_element(node.source)
         return table.c[node.column]
 
     @get_sql_element_no_cache.register
-    def get_element_from_category_node(self, node: ValueFromCategory) -> SQLCase:
+    def get_element_from_category_node(self, node: ValueFromCategory) -> Case:
         # TODO: I think that both `label` and `default` should get passed through
         # `get_sql_element_or_value` as there's no reason in principle these couldn't be
         # dynamic values
@@ -413,7 +484,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             else []
         )
 
-        table.setup_queries = [create_query] + insert_queries
+        table.setup_queries = [create_query, *insert_queries]
         table.cleanup_queries = cleanup_queries
         return table
 
@@ -428,7 +499,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         #
         # but the simple thing will do for now. Note we can't use `singledispatchmethod`
         # for this because it doesn't play nicely with subclassing.
-        class_method_map = {
+        class_method_map: dict[
+            type[ValueFromFunction],
+            Union[Callable[[Any], ClauseElement], Callable[[Any, Any], ClauseElement]],
+        ] = {
             DateDifference: self.date_difference,
             RoundToFirstOfMonth: self.round_to_first_of_month,
             RoundToFirstOfYear: self.round_to_first_of_year,
@@ -442,7 +516,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         ]
         return method(*argument_expressions)
 
-    def date_difference(self, start_date, end_date, units):
+    def date_difference(self, start_date: Any, end_date: Any, units: str) -> ClauseElement:
         start_date = type_coerce(start_date, sqlalchemy_types.Date())
         end_date = type_coerce(end_date, sqlalchemy_types.Date())
 
@@ -467,7 +541,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         start_year, start_month, start_day = self._date_to_parts(start)
         end_year, end_month, end_day = self._date_to_parts(end)
         year_diff = end_year - start_year
-        date_diff = sqlalchemy.case(
+        date_diff: ColumnElement = sqlalchemy.case(
             (end_month > start_month, year_diff),
             (
                 sqlalchemy.and_(end_month == start_month, end_day >= start_day),
@@ -505,10 +579,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         return sqlalchemy.func.floor(self._convert_date_diff_to_days(start, end) / 7)
 
-    def round_to_first_of_month(self, date):
+    def round_to_first_of_month(self, date: Any) -> ClauseElement:
         raise NotImplementedError
 
-    def round_to_first_of_year(self, date):
+    def round_to_first_of_year(self, date: Any) -> ClauseElement:
         raise NotImplementedError
 
     def query_to_create_temp_table_from_select_query(

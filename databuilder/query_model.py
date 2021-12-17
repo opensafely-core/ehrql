@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Union
 
 _OPERATOR_MAPPING = {
     "equals": "__eq__",
@@ -301,7 +301,7 @@ class Row(QueryNode):
 
 @dataclass(frozen=True)
 class RowFromAggregate(QueryNode):
-    source: QueryNode
+    source: SelectedNode
     function: Any
     input_column: Any
     output_column: Any
@@ -433,3 +433,6 @@ class RoundToFirstOfMonth(ValueFromFunction):
 
 class RoundToFirstOfYear(ValueFromFunction):
     pass
+
+
+SelectedNode = Union[FilteredTable, RowFromAggregate, Row]

@@ -1,3 +1,4 @@
+from collections import Sequence
 from collections.abc import Iterable
 
 import sqlalchemy
@@ -150,8 +151,8 @@ class TemporaryTable(Table):
     with the queries that use them and they no longer need to be manged out-of-band.
     """
 
-    setup_queries: list[Executable]
-    cleanup_queries: list[Executable]
+    setup_queries: Sequence[Executable]
+    cleanup_queries: Sequence[Executable]
 
 
 def get_setup_and_cleanup_queries(

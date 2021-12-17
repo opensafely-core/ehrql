@@ -3,7 +3,8 @@ import secrets
 
 import sqlalchemy
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import ClauseElement, Executable, type_coerce
+from sqlalchemy.sql.base import Executable
+from sqlalchemy.sql.expression import ClauseElement, type_coerce
 
 from .. import sqlalchemy_types
 from .base_sql import BaseSQLQueryEngine
