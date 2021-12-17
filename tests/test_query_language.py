@@ -16,6 +16,23 @@ from databuilder.query_utils import get_column_definitions
 from .lib.util import OldCohortWithPopulation, make_codelist
 
 
+def test_cannot_use_equals_with_codelist_or_columns():
+    test_codelist = make_codelist("abc")
+    all_codes = table("clinical_events").get("codes")
+
+    msg_eq = "You can only use 'equals' to filter a column by a single value"
+    with pytest.raises(TypeError, match=msg_eq):
+        table("clinical_events").filter(code=test_codelist)
+    with pytest.raises(TypeError, match=msg_eq):
+        table("clinical_events").filter(code=all_codes)
+
+    msg_ne = "You can only use 'not_equals' to filter a column by a single value"
+    with pytest.raises(TypeError, match=msg_ne):
+        table("clinical_events").filter("code", not_equals=test_codelist)
+    with pytest.raises(TypeError, match=msg_ne):
+        table("clinical_events").filter("code", not_equals=all_codes)
+
+
 def test_comparator_logical_comparisons_not_handled_directly():
     msg = "Invalid operation; cannot perform logical operations on a Comparator"
 
