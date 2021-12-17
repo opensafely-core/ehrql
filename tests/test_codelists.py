@@ -72,7 +72,12 @@ def test_codelist_equals_query(engine):
     test_codelist = codelist(["abc"], system="ctv3")
 
     class Cohort(OldCohortWithPopulation):
-        code = table("clinical_events").filter(code=test_codelist).latest().get("code")
+        code = (
+            table("clinical_events")
+            .filter("code", is_in=test_codelist)
+            .latest()
+            .get("code")
+        )
 
     result = engine.extract(Cohort)
     assert result == [

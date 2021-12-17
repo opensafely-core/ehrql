@@ -76,7 +76,7 @@ def test_comparator_ne():
 def test_cohort_column_definitions_simple_query():
     class Cohort(OldCohortWithPopulation):
         #  Define tables of interest, filtered to relevant values
-        _abc_table = table("clinical_events").filter(code=make_codelist("abc"))
+        _abc_table = table("clinical_events").filter("code", is_in=make_codelist("abc"))
         # Get a single row per patient by selecting the latest event
         _abc_values = _abc_table.latest()
         # define columns in output
@@ -94,13 +94,13 @@ def test_cohort_column_definitions_simple_query():
         assert isinstance(output_value, ValueFromRow)
         assert isinstance(output_value.source, Row)
         assert isinstance(output_value.source.source, FilteredTable)
-        assert output_value.source.source.operator == "__eq__"
+        assert output_value.source.source.operator == "in_"
 
 
 def test_cohort_column_definitions_invalid_output_value():
     class Cohort(OldCohortWithPopulation):
         #  Define tables of interest, filtered to relevant values
-        _abc_table = table("clinical_events").filter(code=make_codelist("abc"))
+        _abc_table = table("clinical_events").filter("code", is_in=make_codelist("abc"))
         # Try to return the test_value column, which should raise an exception
         value = _abc_table.get("test_value")
 
@@ -115,7 +115,7 @@ def test_cohort_column_definitions_chained_query():
     class Cohort(OldCohortWithPopulation):
         _abc = (
             table("clinical_events")
-            .filter(code=make_codelist("abc"))
+            .filter("code", is_in=make_codelist("abc"))
             .filter("date", greater_than="2021-01-01")
         )
         _abc_values = _abc.latest()
@@ -126,7 +126,7 @@ def test_cohort_column_definitions_chained_query():
 
     output_value = column_definitions["abc_value"]
     # This final value is the result of a chained filter and latest query:
-    # table("clinical_events").filter(code="abc").filter("date",greater_than="2021-01-01").latest()
+    # table("clinical_events").filter("code", is_in="abc").filter("date",greater_than="2021-01-01").latest()
 
     assert isinstance(output_value, ValueFromRow)
     row = output_value.source
@@ -141,7 +141,7 @@ def test_cohort_column_definitions_chained_query():
 
     penultimate_filtered_table = last_filtered_table.source
     assert isinstance(penultimate_filtered_table, FilteredTable)
-    assert penultimate_filtered_table.operator == "__eq__"
+    assert penultimate_filtered_table.operator == "in_"
     assert penultimate_filtered_table.column == "code"
     assert isinstance(penultimate_filtered_table.value, Codelist)
     assert penultimate_filtered_table.value.codes == ("abc",)
@@ -225,7 +225,8 @@ def test_cohort_column_definitions_multiple_equals_operators():
     class Cohort(OldCohortWithPopulation):
         _filtered = (
             table("clinical_events")
-            .filter(code=make_codelist(3), positive_test=True)
+            .filter("code", is_in=make_codelist(3))
+            .filter(positive_test=True)
             .latest()
         )
         output_value = _filtered.get("test_value")
@@ -236,5 +237,5 @@ def test_cohort_column_definitions_multiple_equals_operators():
     assert last_filtered_table.operator == "__eq__"
     assert last_filtered_table.column == "positive_test"
     penultimate_filtered_table = last_filtered_table.source
-    assert penultimate_filtered_table.operator == "__eq__"
+    assert penultimate_filtered_table.operator == "in_"
     assert penultimate_filtered_table.column == "code"
