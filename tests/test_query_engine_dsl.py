@@ -9,9 +9,6 @@ pytestmark = pytest.mark.integration
 
 
 def test_categorise_simple_comparisons(engine, cohort_with_population):
-    if engine.name == "spark":
-        pytest.xfail()
-
     input_data = [patient(1, height=180), patient(2, height=200.5), patient(3)]
     engine.setup(input_data)
 

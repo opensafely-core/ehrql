@@ -359,15 +359,7 @@ def test_run_generated_sql_get_single_row_per_patient(
         "test multiple chained filters",
     ],
 )
-def test_simple_filters(engine, data, filtered_table, expected, request):
-    if request.node.callspec.id in [
-        "spark-test single equals filter",
-        "spark-test multiple equals filter",
-        "spark-test not equals filter",
-        "spark-test multiple chained filters",
-    ]:
-        pytest.xfail()
-
+def test_simple_filters(engine, data, filtered_table, expected):
     engine.setup(data)
 
     class Cohort:
@@ -565,9 +557,6 @@ def test_date_in_range_filter(engine):
 
 
 def test_in_filter_on_query_values(engine):
-    if engine.name == "spark":
-        pytest.xfail()
-
     # set up input data for 2 patients, with positive test dates and clinical event results
     input_data = [
         patient(
@@ -702,9 +691,6 @@ def test_not_in_filter_on_query_values(engine):
     ids=[],
 )
 def test_aggregation(engine, aggregation, column, expected):
-    if engine.name == "spark":
-        pytest.xfail()
-
     input_data = [
         patient(
             1,
@@ -898,9 +884,6 @@ def test_categorise_nested_comparisons(engine):
 
 def test_categorise_on_truthiness(engine):
     """Test truthiness of a Value from an exists aggregation"""
-    if engine.name == "spark":
-        pytest.xfail()
-
     input_data = [
         patient(1, ctv3_event("abc")),
         patient(2, ctv3_event("xyz")),
@@ -1256,9 +1239,6 @@ def test_fetching_results_using_temporary_database(engine):
 
 
 def test_dsl_code_comparisons(cohort_with_population, engine):
-    if engine.name == "spark":
-        pytest.xfail()
-
     input_data = [
         patient(1, ctv3_event("abc")),
         patient(2, ctv3_event("abc")),
@@ -1297,9 +1277,6 @@ def test_dsl_date_comparisons(cohort_with_population, engine):
     here to let us make boolean values against which to match the PatientSeries
     values.
     """
-    if engine.name == "spark":
-        pytest.xfail()
-
     input_data = [
         patient(1, ctv3_event("abc", "2019-12-31")),
         patient(2, ctv3_event("abc", "2020-02-29")),
