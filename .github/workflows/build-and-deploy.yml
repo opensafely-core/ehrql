@@ -3,11 +3,11 @@ name: Build and publish image
 on:
   create:
   workflow_dispatch:
-  # Nb: workflow_run only triggers on the default branch
-  # https://docs.github.com/en/actions/learn-github-actions/events-that-trigger-workflows#workflow_run
   workflow_run:
     workflows:
       - CI
+    branches:
+      - main
     status:
       - completed
 
