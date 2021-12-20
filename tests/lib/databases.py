@@ -109,10 +109,6 @@ class DbDetails:
         session.commit()
 
 
-def null_database():
-    return DbDetails(None, None, None, None, None, None)
-
-
 def wait_for_database(database, timeout=10):
     engine = database.engine()
 
