@@ -313,6 +313,19 @@ def test_population_required():
     get_column_definitions(data_definition)
 
 
+def test_patient_series_repr():
+    registrations = tables.registrations
+    series = (
+        registrations.sort_by(registrations.date_end)
+        .first_for_patient()
+        .select_column(registrations.date_start)
+    )
+    assert (
+        repr(series)
+        == "PatientSeries(value=ValueFromRow(source=Row(source=Table(name='practice_registrations'), sort_columns=('date_end',), descending=False), column='date_start'))"
+    )
+
+
 def assert_cohorts_equivalent(dsl_cohort, qm_cohort):
     """Verify that a cohort defined via Query Model objects has the same columns as a
     cohort defined via the DSL.
