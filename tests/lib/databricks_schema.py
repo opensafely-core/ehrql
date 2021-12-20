@@ -72,7 +72,8 @@ def _get_schemas(base):
     for mapper in base.registry.mappers:
         table_args = getattr(mapper.class_, "__table_args__", {})
         schema = table_args.get("schema")
-        if schema:
+        # currently all test tables are set up with an explicit schema
+        if schema:  # pragma: no cover
             schemas.add(schema)
     return schemas
 

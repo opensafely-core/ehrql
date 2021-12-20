@@ -60,8 +60,8 @@ class Comparator(QueryNode):
 
     def _get_referenced_nodes(self):
         nodes = ()
-        if isinstance(self.lhs, QueryNode):
-            nodes += (self.lhs,)
+        assert isinstance(self.lhs, QueryNode)
+        nodes += (self.lhs,)
         if isinstance(self.rhs, QueryNode):
             nodes += (self.rhs,)
         return nodes
@@ -379,16 +379,14 @@ def categorise(mapping, default=None):
 
 @dataclass(frozen=True, eq=False, order=False)
 class ValueFromCategory(Value):
-    definitions: Any
-    default: Any
+    definitions: dict
+    default: str | int | float | None
 
     def _get_referenced_nodes(self):
         nodes = ()
         for value in self.definitions.values():
-            if isinstance(value, QueryNode):
-                nodes += (value,)
-        if isinstance(self.default, QueryNode):
-            nodes += (self.default,)
+            assert isinstance(value, QueryNode)
+            nodes += (value,)
         return nodes
 
 

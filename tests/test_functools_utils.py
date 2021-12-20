@@ -1,5 +1,7 @@
 from typing import Union
 
+import pytest
+
 from databuilder.functools_utils import singledispatchmethod_with_unions
 
 
@@ -30,3 +32,6 @@ def test_singledispatchmethod_with_unions():
     assert test_obj.method(A()) == "a_or_b"
     assert test_obj.method(B()) == "a_or_b"
     assert test_obj.method(C()) == "c"
+    # can only call the decorated method with an expected type
+    with pytest.raises(TypeError):
+        test_obj.method(1)

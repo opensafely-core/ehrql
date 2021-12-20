@@ -3,6 +3,8 @@ from pathlib import Path
 import pytest
 
 from databuilder import categorise, codelist, table
+from databuilder.concepts import tables
+from databuilder.dsl import categorise as new_dsl_categorise
 from databuilder.validate_dummy_data import (
     SUPPORTED_FILE_FORMATS,
     DummyDataValidationError,
@@ -101,9 +103,9 @@ def test_validate_dummy_data_with_categories(
         category = categorise(_categories, default=default_value)
 
     rows = zip(
-        ["patient_id", "11", "22", "33"],
-        ["event_date", "2021-01-01", "2021-01-01", "2021-01-01"],
-        ["category", 1, default_value, "foo"],
+        ["patient_id", "11", "22", "33", "44"],
+        ["event_date", "2021-01-01", "2021-01-01", "2021-01-01", "2021-01-01"],
+        ["category", None, 1, default_value, "foo"],
     )
 
     dummy_data_file = Path(tmpdir) / "dummy-data.csv"
@@ -113,3 +115,56 @@ def test_validate_dummy_data_with_categories(
         match=f"Invalid value `'{first_invalid_value}'` for category",
     ):
         validate_dummy_data(CohortWithCategories, dummy_data_file, Path("output.csv"))
+
+
+def test_valid_dummy_data_with_categories_dsl(tmpdir, cohort_with_population):
+    data_definition = cohort_with_population
+    events = tables.clinical_events
+    event_date = (
+        events.sort_by(events.date).last_for_patient().select_column(events.date)
+    )
+    categories = {1: event_date == "2021-01-01"}
+    data_definition.event_date = event_date
+    data_definition.category = new_dsl_categorise(categories, default=-9)
+
+    rows = zip(
+        ["patient_id", "11", "22", "33"],
+        ["event_date", "2021-01-01", "2021-01-01", "2021-01-01"],
+        ["category", None, 1, -9],
+    )
+
+    dummy_data_file = Path(tmpdir) / "dummy-data.csv"
+    write_rows_to_csv(rows, dummy_data_file)
+    assert (
+        validate_dummy_data(data_definition, dummy_data_file, Path("output.csv"))
+        is None
+    )
+
+
+def test_validate_categories_values_must_be_valid_category(
+    tmpdir, cohort_with_population
+):
+    data_definition = cohort_with_population
+    events = tables.clinical_events
+    event_date = (
+        events.sort_by(events.date).last_for_patient().select_column(events.date)
+    )
+    categories = {"has event": event_date == "2021-01-01"}
+    data_definition.event_date = event_date
+    data_definition.category = new_dsl_categorise(categories, default="missing")
+
+    rows = zip(
+        ["patient_id", "11", "22", "33", "44"],
+        ["event_date", "2021-01-01", "2021-01-01", None, None],
+        ["category", None, "has event", "missing", "no event"],
+    )
+
+    dummy_data_file = Path(tmpdir) / "dummy-data.csv"
+    write_rows_to_csv(rows, dummy_data_file)
+
+    # All category values are valid type; only defined categories or the default are allowed
+    with pytest.raises(
+        DummyDataValidationError,
+        match="Invalid value `'no event'` for category",
+    ):
+        validate_dummy_data(data_definition, dummy_data_file, Path("output.csv"))
