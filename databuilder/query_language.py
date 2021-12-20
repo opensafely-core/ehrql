@@ -385,8 +385,8 @@ class ValueFromCategory(Value):
     def _get_referenced_nodes(self):
         nodes = ()
         for value in self.definitions.values():
-            if isinstance(value, QueryNode):
-                nodes += (value,)
+            assert isinstance(value, QueryNode)
+            nodes += (value,)
         return nodes
 
 
