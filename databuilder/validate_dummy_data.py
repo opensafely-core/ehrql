@@ -108,9 +108,8 @@ def get_csv_validator(query_node):
         """Ensure that a category value is one of the expected categories, or the default"""
         # The default must be either None, or of the same type as the categories
         category_type = type(categories[0])
-        if value is not None:
-            value = category_type(value)
-
+        # None values are skipped in validate_column_values() above, so no need to check for None here
+        value = category_type(value)
         if not (value == default_category or value in categories):
             raise ValueError
 
