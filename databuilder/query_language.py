@@ -60,8 +60,8 @@ class Comparator(QueryNode):
 
     def _get_referenced_nodes(self):
         nodes = ()
-        if isinstance(self.lhs, QueryNode):
-            nodes += (self.lhs,)
+        assert isinstance(self.lhs, QueryNode)
+        nodes += (self.lhs,)
         if isinstance(self.rhs, QueryNode):
             nodes += (self.rhs,)
         return nodes
