@@ -6,8 +6,14 @@ from databuilder import codelist
 from databuilder.concepts import tables
 from databuilder.definition import register
 from databuilder.definition.base import cohort_registry
-from databuilder.dsl import Cohort
-from databuilder.query_language import table
+from databuilder.dsl import BoolSeries, Cohort, DateSeries, PatientSeries
+from databuilder.query_language import (
+    Comparator,
+    RoundToFirstOfMonth,
+    RoundToFirstOfYear,
+    Value,
+    table,
+)
 from databuilder.query_utils import get_column_definitions
 
 from .lib.util import OldCohortWithPopulation, make_codelist, mock_positive_tests
@@ -322,7 +328,7 @@ def test_patient_series_repr():
     )
     assert (
         repr(series)
-        == "PatientSeries(value=ValueFromRow(source=Row(source=Table(name='practice_registrations'), sort_columns=('date_end',), descending=False), column='date_start'))"
+        == "DateSeries(value=ValueFromRow(source=Row(source=Table(name='practice_registrations'), sort_columns=('date_end',), descending=False), column='date_start'))"
     )
 
 
@@ -343,3 +349,238 @@ def assert_cohorts_equivalent(dsl_cohort, qm_cohort):
     # ...and if the columns are the same.
     for k in dsl_col_defs:
         assert repr(dsl_col_defs[k]) == repr(qm_col_defs[k])
+
+
+def test_boolseries_and(bool_series):
+    series1 = bool_series()
+    series2 = bool_series()
+
+    expected = Comparator(
+        connector="and_",
+        lhs=Comparator(lhs=series1.value, operator="__ne__"),
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 & series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_boolseries_or(bool_series):
+    series1 = bool_series()
+    series2 = bool_series()
+
+    expected = Comparator(
+        connector="or_",
+        lhs=Comparator(lhs=series1.value, operator="__ne__"),
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 | series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_codeseries_and(code_series):
+    series1 = code_series()
+    series2 = code_series()
+
+    expected = Comparator(
+        connector="and_",
+        lhs=Comparator(lhs=series1.value, operator="__ne__"),
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 & series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_codeseries_invert(code_series):
+    series = code_series()
+
+    expected = Comparator(
+        negated=True,
+        operator="__ne__",
+        lhs=series.value,
+    )
+
+    output = ~series
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_dateseries_gt(date_series):
+    series1 = date_series()
+    series2 = date_series()
+
+    expected = Comparator(
+        operator="__gt__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 > series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_dateseries_ge(date_series):
+    series1 = date_series()
+    series2 = date_series()
+
+    expected = Comparator(
+        operator="__ge__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 >= series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_dateseries_lt(date_series):
+    series1 = date_series()
+    series2 = date_series()
+
+    expected = Comparator(
+        operator="__lt__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 < series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_dateseries_le(date_series):
+    series1 = date_series()
+    series2 = date_series()
+
+    expected = Comparator(
+        operator="__le__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 <= series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_dateseries_ne(date_series):
+    series1 = date_series()
+    series2 = date_series()
+
+    expected = Comparator(
+        operator="__ne__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 != series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_dateseries_round_to_first_month(date_series):
+    series = date_series().round_to_first_of_month()
+
+    expected = DateSeries(value=RoundToFirstOfMonth())
+
+    assert repr(series) == repr(expected)
+
+
+def test_dateseries_round_to_first_of_year(date_series):
+    series = date_series().round_to_first_of_year()
+
+    expected = DateSeries(value=RoundToFirstOfYear())
+
+    assert repr(series) == repr(expected)
+
+
+def test_intseries_gt(int_series):
+    series1 = int_series()
+    series2 = int_series()
+
+    expected = Comparator(
+        operator="__gt__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 > series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_intseries_ge(int_series):
+    series1 = int_series()
+    series2 = int_series()
+
+    expected = Comparator(
+        operator="__ge__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 >= series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_intseries_lt(int_series):
+    series1 = int_series()
+    series2 = int_series()
+
+    expected = Comparator(
+        operator="__lt__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 < series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_intseries_le(int_series):
+    series1 = int_series()
+    series2 = int_series()
+
+    expected = Comparator(
+        operator="__le__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 <= series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_intseries_ne(int_series):
+    series1 = int_series()
+    series2 = int_series()
+
+    expected = Comparator(
+        operator="__ne__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 != series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_patientseries_eq(patient_series):
+    series1 = patient_series()
+    series2 = patient_series()
+
+    expected = Comparator(
+        operator="__eq__",
+        lhs=series1.value,
+        rhs=Comparator(lhs=series2.value, operator="__ne__"),
+    )
+
+    output = series1 == series2
+    assert repr(output) == repr(BoolSeries(value=expected))
+
+
+def test_patientseries_invert():
+    series = ~PatientSeries(value=Comparator())
+    assert isinstance(series.value, Comparator)
+    assert repr(series) == repr(PatientSeries(value=series.value))
+
+    series = ~PatientSeries(value=Value())
+    assert isinstance(series.value, Comparator)
+    assert repr(series) == repr(PatientSeries(value=series.value))

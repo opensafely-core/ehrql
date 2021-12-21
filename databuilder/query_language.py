@@ -33,6 +33,7 @@ def table(name):
 # subclasses.
 
 
+@dataclass(frozen=True)
 class QueryNode:
     def _get_referenced_nodes(self):
         """

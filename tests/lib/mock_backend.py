@@ -3,7 +3,7 @@ import sqlalchemy.orm
 
 from databuilder.backends.base import BaseBackend, Column, MappedTable, QueryTable
 from databuilder.dsl import Column as DSLColumn
-from databuilder.dsl import DateColumn, IdColumn, IntColumn, PatientFrame
+from databuilder.dsl import DateColumn, IdColumn, IntColumn, PatientFrame, PatientSeries
 from databuilder.query_engines.mssql import MssqlQueryEngine
 from databuilder.query_language import Table
 
@@ -152,7 +152,7 @@ class MockPatients(PatientFrame):
     patient_id = IdColumn("patient_id")
     height = IntColumn("height")
     date_of_birth = DateColumn("date_of_birth")
-    sex = DSLColumn("sex")
+    sex = DSLColumn("sex", PatientSeries)
 
     def __init__(self):
         super().__init__(Table("patients").first_by("patient_id"))
