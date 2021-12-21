@@ -1,11 +1,11 @@
 import pytest
 
 from databuilder.backends.base import BaseBackend, Column, MappedTable
-from databuilder.concepts import types
-from databuilder.concepts.constraints import ChoiceConstraint
-from databuilder.concepts.table_contract import BackendContractError
-from databuilder.concepts.table_contract import Column as ColumnContract
-from databuilder.concepts.table_contract import TableContract
+from databuilder.contracts import types
+from databuilder.contracts.base import BackendContractError
+from databuilder.contracts.base import Column as ColumnContract
+from databuilder.contracts.base import TableContract
+from databuilder.contracts.constraints import ChoiceConstraint
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 
 from ..lib.mock_backend import patient

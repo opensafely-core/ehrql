@@ -1,4 +1,4 @@
-from ..concepts import tables
+from ..contracts import tables
 from ..query_engines.mssql import MssqlQueryEngine
 from .base import BaseBackend, Column, MappedTable, QueryTable
 
