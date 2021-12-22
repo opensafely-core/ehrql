@@ -83,6 +83,13 @@ class BaseBackend:
         table = self.tables[table_name]
         return table.get_query().alias(table_name)
 
+    def get_table_implementing(self, contract):
+        """Return table implementing given contract."""
+
+        tables = [t for t in self.tables.values() if t.implements == contract]
+        assert len(tables) == 1
+        return tables[0]
+
 
 class SQLTable:
     def learn_patient_join(self, source):
