@@ -355,6 +355,10 @@ class DateDeltaSeries(PatientSeries):
         start_date, end_date = self.value.arguments[:2]
         return IntSeries(DateDifference(start_date, end_date, units="years"))
 
+    def convert_to_months(self):
+        start_date, end_date = self.value.arguments[:2]
+        return IntSeries(DateDifference(start_date, end_date, units="months"))
+
 
 class IdSeries(PatientSeries):
     pass
