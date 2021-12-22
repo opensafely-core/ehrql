@@ -1,5 +1,5 @@
 from .dsl import Cohort as DSLCohort
-from .query_language import Value
+from .query_model import Value
 
 
 def get_class_vars(cls):

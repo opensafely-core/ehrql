@@ -5,7 +5,7 @@ from databuilder.backends.base import BaseBackend, Column, MappedTable, QueryTab
 from databuilder.dsl import Column as DSLColumn
 from databuilder.dsl import DateColumn, IdColumn, IntColumn, PatientFrame, PatientSeries
 from databuilder.query_engines.mssql import MssqlQueryEngine
-from databuilder.query_language import Table
+from databuilder.query_model import Table
 
 
 def backend_factory(query_engine_cls):

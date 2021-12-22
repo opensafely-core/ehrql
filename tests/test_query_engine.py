@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 
 from databuilder.concepts import tables
-from databuilder.query_language import categorise, table
+from databuilder.query_model import categorise, table
 
 from .lib.mock_backend import (
     CTV3Events,

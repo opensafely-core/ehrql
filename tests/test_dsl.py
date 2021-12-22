@@ -7,7 +7,7 @@ from databuilder.concepts import tables
 from databuilder.definition import register
 from databuilder.definition.base import cohort_registry
 from databuilder.dsl import BoolSeries, Cohort, DateSeries, PatientSeries
-from databuilder.query_language import (
+from databuilder.query_model import (
     Comparator,
     RoundToFirstOfMonth,
     RoundToFirstOfYear,

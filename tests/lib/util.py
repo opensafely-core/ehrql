@@ -1,7 +1,7 @@
 import databuilder.main
 from databuilder import codelist, table
 from databuilder.dsl import BoolColumn, EventFrame, IdColumn, IntColumn
-from databuilder.query_language import Table
+from databuilder.query_model import Table
 
 
 def extract(cohort, backend, database, **backend_kwargs):

@@ -10,9 +10,9 @@ import pytest
 from databuilder import codelist
 from databuilder.concepts import tables
 from databuilder.dsl import categorise as new_dsl_categorise
-from databuilder.query_language import Comparator
-from databuilder.query_language import categorise as old_dsl_categorise
-from databuilder.query_language import table
+from databuilder.query_model import Comparator
+from databuilder.query_model import categorise as old_dsl_categorise
+from databuilder.query_model import table
 
 from .lib.util import (
     OldCohortWithPopulation,
