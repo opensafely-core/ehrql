@@ -31,7 +31,7 @@ def test_backend_tables():
             ),
         )
 
-    assert BasicBackend.tables == {
+    assert set(BasicBackend.tables) == {
         "patients",
         "clinical_events",
     }

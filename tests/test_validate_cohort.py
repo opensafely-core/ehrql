@@ -8,14 +8,6 @@ from .lib.mock_backend import MockBackend
 from .lib.util import OldCohortWithPopulation
 
 
-def test_validate_with_error():
-    class Cohort(OldCohortWithPopulation):
-        code = table("foo").first_by("patient_id").get("code")
-
-    with pytest.raises(ValueError, match="Unknown table 'foo'"):
-        validate(Cohort, MockBackend(None))
-
-
 @pytest.mark.parametrize(
     "backend, column, expected_succeess",
     [
