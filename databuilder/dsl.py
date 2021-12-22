@@ -46,12 +46,14 @@ for end users.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Generic, TypeVar, overload
 
 from .query_model import (
     BaseTable,
     Codelist,
     Comparator,
+    DateDifference,
     RoundToFirstOfMonth,
     RoundToFirstOfYear,
     Row,
@@ -301,32 +303,57 @@ class CodeSeries(PatientSeries):
         )
 
 
+def _validate_datestring(datestring):
+    try:
+        datetime.strptime(datestring, "%Y-%m-%d")
+    except (ValueError, TypeError):
+        raise ValueError(
+            f"{datestring} is not a valid date; date must in YYYY-MM-DD format"
+        )
+    return datestring
+
+
 class DateSeries(PatientSeries):
+    @staticmethod
+    def _get_other_value(other):
+        return (
+            other.value
+            if isinstance(other, DateSeries)
+            else _validate_datestring(other)
+        )
+
     def __gt__(self, other: DateSeries | str) -> BoolSeries:
-        other_value = other.value if isinstance(other, DateSeries) else other
-        return BoolSeries(value=self.value > other_value)
+        return BoolSeries(value=self.value > self._get_other_value(other))
 
     def __ge__(self, other: DateSeries | str) -> BoolSeries:
-        other_value = other.value if isinstance(other, DateSeries) else other
-        return BoolSeries(value=self.value >= other_value)
+        return BoolSeries(value=self.value >= self._get_other_value(other))
 
     def __lt__(self, other: DateSeries | str) -> BoolSeries:
-        other_value = other.value if isinstance(other, DateSeries) else other
-        return BoolSeries(value=self.value < other_value)
+        return BoolSeries(value=self.value < self._get_other_value(other))
 
     def __le__(self, other: DateSeries | str) -> BoolSeries:
-        other_value = other.value if isinstance(other, DateSeries) else other
-        return BoolSeries(value=self.value <= other_value)
+        return BoolSeries(value=self.value <= self._get_other_value(other))
 
     def __ne__(self, other: DateSeries | str) -> BoolSeries:  # type: ignore[override]
-        other_value = other.value if isinstance(other, DateSeries) else other
-        return BoolSeries(value=self.value != other_value)
+        return BoolSeries(value=self.value != self._get_other_value(other))
 
     def round_to_first_of_month(self) -> DateSeries:
         return DateSeries(RoundToFirstOfMonth(self.value))
 
     def round_to_first_of_year(self) -> DateSeries:
         return DateSeries(RoundToFirstOfYear(self.value))
+
+    def __sub__(self, other: str | DateSeries) -> DateDeltaSeries:
+        return DateDeltaSeries(DateDifference(self._get_other_value(other), self.value))
+
+    def __rsub__(self, other: str | DateSeries) -> DateDeltaSeries:
+        return DateDeltaSeries(DateDifference(self.value, self._get_other_value(other)))
+
+
+class DateDeltaSeries(PatientSeries):
+    def convert_to_years(self):
+        start_date, end_date = self.value.arguments[:2]
+        return IntSeries(DateDifference(start_date, end_date, units="years"))
 
 
 class IdSeries(PatientSeries):

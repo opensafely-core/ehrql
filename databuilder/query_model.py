@@ -254,8 +254,10 @@ class Table(BaseTable):
             raise NotImplementedError(
                 "This method is only available on the patients table"
             )
-        return DateDifferenceInYears(
-            self.first_by("patient_id").get("date_of_birth"), reference_date
+        return DateDifference(
+            self.first_by("patient_id").get("date_of_birth"),
+            reference_date,
+            units="years",
         )
 
 
@@ -420,8 +422,9 @@ class ValueFromFunction(Value):
         return tuple(arg for arg in self.arguments if isinstance(arg, QueryNode))
 
 
-class DateDifferenceInYears(ValueFromFunction):
-    pass
+class DateDifference(ValueFromFunction):
+    def __init__(self, start, end, units="years"):
+        super().__init__(start, end, units)
 
 
 class RoundToFirstOfMonth(ValueFromFunction):

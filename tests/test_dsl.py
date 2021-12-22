@@ -6,12 +6,20 @@ from databuilder import codelist
 from databuilder.concepts import tables
 from databuilder.definition import register
 from databuilder.definition.base import cohort_registry
-from databuilder.dsl import BoolSeries, Cohort, DateSeries, PatientSeries
+from databuilder.dsl import (
+    BoolSeries,
+    Cohort,
+    DateDeltaSeries,
+    DateSeries,
+    PatientSeries,
+)
 from databuilder.query_model import (
     Comparator,
+    DateDifference,
     RoundToFirstOfMonth,
     RoundToFirstOfYear,
     Value,
+    ValueFromRow,
     table,
 )
 from databuilder.query_utils import get_column_definitions
@@ -492,6 +500,52 @@ def test_dateseries_round_to_first_of_year(date_series):
     assert repr(series) == repr(expected)
 
 
+def test_dateseries_sub():
+    series1 = DateSeries(ValueFromRow(source=None, column="date"))
+    series2 = DateSeries(ValueFromRow(source=None, column="start_date"))
+    output = series1 - series2
+
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDifference)
+    start_date_for_operation, end_date_for_operation, units = output.value.arguments
+
+    # the right hand side of the subtraction is the start date, passed in first in the DateDifference args
+    assert start_date_for_operation.column == series2.value.column
+    assert end_date_for_operation.column == series1.value.column
+    assert units == "years"
+
+
+def test_dateseries_rsub():
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    output = "2021-12-01" - series
+
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDifference)
+
+    start_date_for_operation, end_date_for_operation, units = output.value.arguments
+    # the right hand side of the subtraction is the start date, passed in first in the DateDifference args
+
+    assert start_date_for_operation.column == series.value.column
+    assert end_date_for_operation == "2021-12-01"
+    assert units == "years"
+
+
+@pytest.mark.parametrize(
+    "left,right",
+    [
+        (DateSeries(ValueFromRow(source=None, column="date")), 2021),
+        ("2021-02-31", DateSeries(ValueFromRow(source=None, column="date"))),
+        (DateSeries(ValueFromRow(source=None, column="date")), "1-2-1999"),
+        (DateSeries(ValueFromRow(source=None, column="date")), "Foo"),
+    ],
+)
+def test_dateseries_sub_with_invalid_datestrings(left, right):
+    with pytest.raises(
+        ValueError, match=".+ is not a valid date; date must in YYYY-MM-DD format"
+    ):
+        left - right
+
+
 def test_intseries_gt(int_series):
     series1 = int_series()
     series2 = int_series()
@@ -584,3 +638,14 @@ def test_patientseries_invert():
     series = ~PatientSeries(value=Value())
     assert isinstance(series.value, Comparator)
     assert repr(series) == repr(PatientSeries(value=series.value))
+
+
+def test_datedeltaseries_convert_to_years(cohort_with_population):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    deltaseries = DateDeltaSeries(
+        value=DateDifference(series, "2021-12-01", units="months")
+    )
+    assert deltaseries.value.arguments == (series, "2021-12-01", "months")
+
+    year_deltaseries = deltaseries.convert_to_years()
+    assert year_deltaseries.value.arguments == (series, "2021-12-01", "years")

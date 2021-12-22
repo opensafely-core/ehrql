@@ -173,3 +173,85 @@ def test_dsl_int_comparisons(cohort_with_population, engine):
         {"patient_id": 3, "height_group": "in_20s"},
         {"patient_id": 4, "height_group": "after_20s"},
     ]
+
+
+def test_date_arithmetic_subtract_date_series_from_datestring(
+    engine, cohort_with_population
+):
+    input_data = [
+        patient(1, dob="1990-08-10"),
+        patient(2, dob="2000-03-20"),
+    ]
+    engine.setup(input_data)
+
+    patients = tables.patients
+    data_definition = cohort_with_population
+    index_date = "2010-06-01"
+    dob = patients.select_column(patients.date_of_birth)  # DateSeries
+
+    age = index_date - dob
+    data_definition.age_in_2010 = age.convert_to_years()
+    result = engine.extract(data_definition)
+    assert result == [
+        {"patient_id": 1, "age_in_2010": 19},
+        {"patient_id": 2, "age_in_2010": 10},
+    ]
+
+
+def test_date_arithmetic_subtract_datestring_from_date_series(
+    engine, cohort_with_population
+):
+    input_data = [
+        patient(1, dob="1990-08-10"),
+        patient(2, dob="2000-03-20"),
+    ]
+    engine.setup(input_data)
+
+    patients = tables.patients
+    data_definition = cohort_with_population
+    reference_date = "1980-06-01"
+    dob = patients.select_column(patients.date_of_birth)  # DateSeries
+
+    # we can calculate date diffs both ways round
+    time_since = dob - reference_date
+    data_definition.time_since = time_since.convert_to_years()
+    result = engine.extract(data_definition)
+    assert result == [
+        {"patient_id": 1, "time_since": 10},
+        {"patient_id": 2, "time_since": 19},
+    ]
+
+
+def test_date_arithmetic_subtract_dateseries(engine, cohort_with_population):
+    input_data = [
+        patient(1, ctv3_event("abc", "2020-10-01"), ctv3_event("abc", "2010-06-01")),
+        patient(2, ctv3_event("abc", "2018-02-01"), ctv3_event("abc", "2010-10-01")),
+        patient(3, ctv3_event("abc", "2018-02-01")),
+        patient(4, ctv3_event("def", "2018-02-01")),
+    ]
+    engine.setup(input_data)
+
+    data_definition = cohort_with_population
+    events = tables.clinical_events
+    first_event_date = (
+        events.filter(events.code.is_in(["abc"]))
+        .sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.date)
+    )
+    last_event_date = (
+        events.filter(events.code.is_in(["abc"]))
+        .sort_by(events.date)
+        .last_for_patient()
+        .select_column(events.date)
+    )
+    time_between_events = last_event_date - first_event_date
+    data_definition.time_between_events = time_between_events.convert_to_years()
+
+    result = engine.extract(data_definition)
+    assert result == [
+        {"patient_id": 1, "time_between_events": 10},
+        {"patient_id": 2, "time_between_events": 7},
+        {"patient_id": 3, "time_between_events": 0},
+        {"patient_id": 4, "time_between_events": None},
+    ]

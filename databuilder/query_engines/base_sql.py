@@ -67,7 +67,7 @@ from ..query_model import (
     Codelist,
     Column,
     Comparator,
-    DateDifferenceInYears,
+    DateDifference,
     FilteredTable,
     QueryNode,
     RoundToFirstOfMonth,
@@ -429,7 +429,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # but the simple thing will do for now. Note we can't use `singledispatchmethod`
         # for this because it doesn't play nicely with subclassing.
         class_method_map = {
-            DateDifferenceInYears: self.date_difference_in_years,
+            DateDifference: self.date_difference,
             RoundToFirstOfMonth: self.round_to_first_of_month,
             RoundToFirstOfYear: self.round_to_first_of_year,
         }
@@ -442,21 +442,29 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         ]
         return method(*argument_expressions)
 
-    def date_difference_in_years(self, start_date, end_date):
+    def date_difference(self, start_date, end_date, units):
         start_date = type_coerce(start_date, sqlalchemy_types.Date())
         end_date = type_coerce(end_date, sqlalchemy_types.Date())
 
         # We do the arithmetic ourselves, to be portable across dbs.
-        start_year = sqlalchemy.func.year(start_date)
-        start_month = sqlalchemy.func.month(start_date)
-        start_day = sqlalchemy.func.day(start_date)
+        start = (
+            sqlalchemy.func.year(start_date),
+            sqlalchemy.func.month(start_date),
+            sqlalchemy.func.day(start_date),
+        )
+        end = (
+            sqlalchemy.func.year(end_date),
+            sqlalchemy.func.month(end_date),
+            sqlalchemy.func.day(end_date),
+        )
 
-        end_year = sqlalchemy.func.year(end_date)
-        end_month = sqlalchemy.func.month(end_date)
-        end_day = sqlalchemy.func.day(end_date)
+        unit_conversions = {"years": self._convert_date_diff_to_years}
+        return unit_conversions[units](start, end)
 
+    def _convert_date_diff_to_years(self, start, end):
+        start_year, start_month, start_day = start
+        end_year, end_month, end_day = end
         year_diff = end_year - start_year
-
         date_diff = sqlalchemy.case(
             (end_month > start_month, year_diff),
             (
