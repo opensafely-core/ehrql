@@ -63,7 +63,7 @@ from sqlalchemy.sql.selectable import Select
 
 from .. import sqlalchemy_types
 from ..functools_utils import singledispatchmethod_with_unions
-from ..query_language import (
+from ..query_model import (
     Codelist,
     Column,
     Comparator,

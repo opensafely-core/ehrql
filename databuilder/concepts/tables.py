@@ -1,5 +1,5 @@
 from ..dsl import CodeColumn, DateColumn, EventFrame, IdColumn, IntColumn, PatientFrame
-from ..query_language import Table
+from ..query_model import Table
 
 
 class ClinicalEvents(EventFrame):

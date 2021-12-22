@@ -48,7 +48,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Generic, TypeVar, overload
 
-from .query_language import (
+from .query_model import (
     BaseTable,
     Codelist,
     Comparator,
