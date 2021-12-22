@@ -32,11 +32,11 @@ class BaseBackend:
         # Register each Backend by its id so we can identify it from an environment variable
         register_backend(cls)
         # Make sure each Backend knows what its tables are
-        cls.tables = set()
+        cls.tables = {}
         for name, value in vars(cls).items():
             if isinstance(value, SQLTable):
                 cls._init_table(value)
-                cls.tables.add(name)
+                cls.tables[name] = value
 
     @classmethod
     def _init_table(cls, table: SQLTable) -> None:
@@ -80,10 +80,15 @@ class BaseBackend:
         Raises:
             ValueError: If unknown table passed in
         """
-        if table_name not in self.tables:
-            raise ValueError(f"Unknown table '{table_name}'")
-        table = getattr(self, table_name)
+        table = self.tables[table_name]
         return table.get_query().alias(table_name)
+
+    def get_table_implementing(self, contract):
+        """Return table implementing given contract."""
+
+        tables = [t for t in self.tables.values() if t.implements == contract]
+        assert len(tables) == 1
+        return tables[0]
 
 
 class SQLTable:

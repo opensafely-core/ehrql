@@ -31,7 +31,7 @@ def test_backend_tables():
             ),
         )
 
-    assert BasicBackend.tables == {
+    assert set(BasicBackend.tables) == {
         "patients",
         "clinical_events",
     }
@@ -106,3 +106,31 @@ def test_validate_all_backends():
 
     # Checks at least 3 backends
     assert len(backends) >= 3
+
+
+def test_get_table_implementing():
+    class Backend(BaseBackend):
+        backend_id = "test_backend"
+        query_engine_class = BaseSQLQueryEngine
+        patient_join_column = "patient_id"
+
+        patients = MappedTable(
+            implements=PatientsContract,
+            source="Patient",
+            columns=dict(
+                date_of_birth=Column("date", source="DateOfBirth"),
+                sex=Column("varchar", source="Sex"),
+            ),
+        )
+
+        events = MappedTable(
+            source="Event",
+            columns=dict(
+                date=Column("date", source="Date"),
+                code=Column("varchar", source="Code"),
+            ),
+        )
+
+    backend = Backend(database_url="test")
+    table = backend.get_table_implementing(PatientsContract)
+    assert table.source == "Patient"

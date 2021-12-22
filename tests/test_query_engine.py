@@ -105,14 +105,6 @@ def test_extract_get_single_column(engine):
     assert list(result) == [dict(patient_id=1, output_value="Code1")]
 
 
-def test_invalid_table(engine):
-    class Cohort(OldCohortWithPopulation):
-        output_value = table("unknown").first_by("patient_id").get("code")
-
-    with pytest.raises(ValueError, match="Unknown table 'unknown'"):
-        engine.extract(Cohort)
-
-
 @pytest.mark.parametrize(
     "code_output,date_output,expected",
     [
