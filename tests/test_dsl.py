@@ -649,3 +649,13 @@ def test_datedeltaseries_convert_to_years(cohort_with_population):
 
     year_deltaseries = deltaseries.convert_to_years()
     assert year_deltaseries.value.arguments == (series, "2021-12-01", "years")
+
+
+def test_datedeltaseries_convert_to_months(cohort_with_population):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    # years is the default
+    deltaseries = DateDeltaSeries(value=DateDifference(series, "2021-12-01"))
+    assert deltaseries.value.arguments == (series, "2021-12-01", "years")
+
+    month_deltaseries = deltaseries.convert_to_months()
+    assert month_deltaseries.value.arguments == (series, "2021-12-01", "months")

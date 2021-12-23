@@ -255,3 +255,51 @@ def test_date_arithmetic_subtract_dateseries(engine, cohort_with_population):
         {"patient_id": 3, "time_between_events": 0},
         {"patient_id": 4, "time_between_events": None},
     ]
+
+
+def test_date_arithmetic_conversions(engine, cohort_with_population):
+    input_data = [
+        # all dobs are subtracted from 2021-09-01, rounded down
+        # 21 yrs, 0 months; 252 months; end month == start, end day == start
+        patient(1, dob="2000-09-02"),
+        # 21 yrs, 0 months; 252 months; end month == start, end day > start
+        patient(2, dob="2000-09-01"),
+        # 20 yrs, 11 months; 251 months; end month == start, end day < start
+        patient(3, dob="2000-09-10"),
+        # 31 yrs, 1 months; 373 months; end month > start, end_day == start
+        patient(4, dob="1990-08-02"),
+        # 31 yrs, 1 months; 373 months; end month > start, end day > start
+        patient(5, dob="1990-08-01"),
+        # 31 yrs, 0 months; 372 months; end month > start, end day < start
+        patient(6, dob="1990-08-10"),
+        #  9 yrs, 11 months; 119 months; end month < start, end day > start
+        patient(7, dob="2011-10-01"),
+        #  9 yrs, 11 months; 119 months; end month < start, end day == start
+        patient(8, dob="2011-10-02"),
+        #  9 yrs, 10 months; 118 months; end month < start, end day < start
+        patient(9, dob="2011-10-15"),
+    ]
+    engine.setup(input_data)
+
+    patients = tables.patients
+    data_definition = cohort_with_population
+    current_date = "2021-09-02"
+    dob = patients.select_column(patients.date_of_birth)  # DateSeries
+    age = current_date - dob
+
+    data_definition.age_in_years = age.convert_to_years()
+    data_definition.age_in_months = age.convert_to_months()
+
+    result = engine.extract(data_definition)
+
+    assert result == [
+        {"patient_id": 1, "age_in_years": 21, "age_in_months": 252},
+        {"patient_id": 2, "age_in_years": 21, "age_in_months": 252},
+        {"patient_id": 3, "age_in_years": 20, "age_in_months": 251},
+        {"patient_id": 4, "age_in_years": 31, "age_in_months": 373},
+        {"patient_id": 5, "age_in_years": 31, "age_in_months": 373},
+        {"patient_id": 6, "age_in_years": 31, "age_in_months": 372},
+        {"patient_id": 7, "age_in_years": 9, "age_in_months": 119},
+        {"patient_id": 8, "age_in_years": 9, "age_in_months": 119},
+        {"patient_id": 9, "age_in_years": 9, "age_in_months": 118},
+    ]

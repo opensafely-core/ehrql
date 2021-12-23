@@ -458,7 +458,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             sqlalchemy.func.day(end_date),
         )
 
-        unit_conversions = {"years": self._convert_date_diff_to_years}
+        unit_conversions = {
+            "years": self._convert_date_diff_to_years,
+            "months": self._convert_date_diff_to_months,
+        }
         return unit_conversions[units](start, end)
 
     def _convert_date_diff_to_years(self, start, end):
@@ -472,6 +475,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 year_diff,
             ),
             else_=year_diff - 1,
+        )
+        return type_coerce(date_diff, sqlalchemy_types.Integer())
+
+    def _convert_date_diff_to_months(self, start, end):
+        start_year, start_month, start_day = start
+        end_year, end_month, end_day = end
+        year_diff = end_year - start_year
+
+        date_diff = sqlalchemy.case(
+            (
+                sqlalchemy.and_(end_day >= start_day),
+                year_diff * 12 + (end_month - start_month),
+            ),
+            else_=year_diff * 12 + (end_month - start_month - 1),
         )
         return type_coerce(date_diff, sqlalchemy_types.Integer())
 
