@@ -365,3 +365,29 @@ def test_date_arithmetic_convert_to_days(
         {"patient_id": patient_id, "age_in_days": patient_data["age"]}
         for patient_id, patient_data in age_data.items()
     ]
+
+
+def test_date_arithmetic_convert_to_weeks(engine, cohort_with_population):
+    input_data = [
+        # all dobs are subtracted from 2021-03-01, rounded down
+        patient(1, dob="2021-02-26"),  # 5 days
+        patient(2, dob="2021-02-16"),  # exactly 2 weeks
+        patient(3, dob="2021-02-03"),  # 3 weeks, 6 days
+    ]
+    engine.setup(input_data)
+
+    patients = tables.patients
+    data_definition = cohort_with_population
+    current_date = "2021-03-02"
+    dob = patients.select_column(patients.date_of_birth)  # DateSeries
+    age = current_date - dob
+
+    data_definition.age_in_weeks = age.convert_to_weeks()
+
+    result = engine.extract(data_definition)
+
+    assert result == [
+        {"patient_id": 1, "age_in_weeks": 0},
+        {"patient_id": 2, "age_in_weeks": 2},
+        {"patient_id": 3, "age_in_weeks": 3},
+    ]

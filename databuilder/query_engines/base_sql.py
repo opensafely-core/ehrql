@@ -462,6 +462,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             "years": self._convert_date_diff_to_years,
             "months": self._convert_date_diff_to_months,
             "days": self._convert_date_diff_to_days,
+            "weeks": self._convert_date_diff_to_weeks,
         }
         return unit_conversions[units](start, end)
 
@@ -520,6 +521,21 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         end_year, end_month, end_day = end
         date_diff = self._julian_days(end_year, end_month, end_day) - self._julian_days(
             start_year, start_month, start_day
+        )
+        return type_coerce(date_diff, sqlalchemy_types.Integer())
+
+    def _convert_date_diff_to_weeks(self, start, end):
+        """
+        Calculate weeks diff by converting both dates to julian days and subtracting
+        """
+        start_year, start_month, start_day = start
+        end_year, end_month, end_day = end
+        date_diff = sqlalchemy.func.floor(
+            (
+                self._julian_days(end_year, end_month, end_day)
+                - self._julian_days(start_year, start_month, start_day)
+            )
+            / 7
         )
         return type_coerce(date_diff, sqlalchemy_types.Integer())
 

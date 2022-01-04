@@ -363,6 +363,10 @@ class DateDeltaSeries(PatientSeries):
         start_date, end_date = self.value.arguments[:2]
         return IntSeries(DateDifference(start_date, end_date, units="days"))
 
+    def convert_to_weeks(self):
+        start_date, end_date = self.value.arguments[:2]
+        return IntSeries(DateDifference(start_date, end_date, units="weeks"))
+
 
 class IdSeries(PatientSeries):
     pass
