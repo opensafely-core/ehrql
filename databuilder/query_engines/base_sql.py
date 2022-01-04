@@ -461,6 +461,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         unit_conversions = {
             "years": self._convert_date_diff_to_years,
             "months": self._convert_date_diff_to_months,
+            "days": self._convert_date_diff_to_days,
         }
         return unit_conversions[units](start, end)
 
@@ -489,6 +490,36 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 year_diff * 12 + (end_month - start_month),
             ),
             else_=year_diff * 12 + (end_month - start_month - 1),
+        )
+        return type_coerce(date_diff, sqlalchemy_types.Integer())
+
+    @staticmethod
+    def _julian_days(year, month, day):
+        """
+        convert to julian days (days since 1 January 4713 BCE) in the Gregorian calendar
+        see https://www.tondering.dk/claus/cal/julperiod.php
+        """
+        a = sqlalchemy.func.floor((14 - month) / 12)
+        y = year + 4800 - a
+        m = month + 12 * a - 3
+        return (
+            day
+            + sqlalchemy.func.floor((153 * m + 2) / 5)
+            + 365 * y
+            + sqlalchemy.func.floor(y / 4)
+            - sqlalchemy.func.floor(y / 100)
+            + sqlalchemy.func.floor(y / 400)
+            - 32045
+        )
+
+    def _convert_date_diff_to_days(self, start, end):
+        """
+        Calculate days diff by converting both dates to julian days and subtracting
+        """
+        start_year, start_month, start_day = start
+        end_year, end_month, end_day = end
+        date_diff = self._julian_days(end_year, end_month, end_day) - self._julian_days(
+            start_year, start_month, start_day
         )
         return type_coerce(date_diff, sqlalchemy_types.Integer())
 
