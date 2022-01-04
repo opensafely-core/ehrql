@@ -446,29 +446,26 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         start_date = type_coerce(start_date, sqlalchemy_types.Date())
         end_date = type_coerce(end_date, sqlalchemy_types.Date())
 
-        # We do the arithmetic ourselves, to be portable across dbs.
-        start = (
-            sqlalchemy.func.year(start_date),
-            sqlalchemy.func.month(start_date),
-            sqlalchemy.func.day(start_date),
-        )
-        end = (
-            sqlalchemy.func.year(end_date),
-            sqlalchemy.func.month(end_date),
-            sqlalchemy.func.day(end_date),
-        )
-
         unit_conversions = {
             "years": self._convert_date_diff_to_years,
             "months": self._convert_date_diff_to_months,
             "days": self._convert_date_diff_to_days,
             "weeks": self._convert_date_diff_to_weeks,
         }
-        return unit_conversions[units](start, end)
+        return unit_conversions[units](start_date, end_date)
+
+    @staticmethod
+    def _date_to_parts(date):
+        return (
+            sqlalchemy.func.year(date),
+            sqlalchemy.func.month(date),
+            sqlalchemy.func.day(date),
+        )
 
     def _convert_date_diff_to_years(self, start, end):
-        start_year, start_month, start_day = start
-        end_year, end_month, end_day = end
+        # We do the arithmetic ourselves, to be portable across dbs.
+        start_year, start_month, start_day = self._date_to_parts(start)
+        end_year, end_month, end_day = self._date_to_parts(end)
         year_diff = end_year - start_year
         date_diff = sqlalchemy.case(
             (end_month > start_month, year_diff),
@@ -481,8 +478,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return type_coerce(date_diff, sqlalchemy_types.Integer())
 
     def _convert_date_diff_to_months(self, start, end):
-        start_year, start_month, start_day = start
-        end_year, end_month, end_day = end
+        start_year, start_month, start_day = self._date_to_parts(start)
+        end_year, end_month, end_day = self._date_to_parts(end)
         year_diff = end_year - start_year
 
         date_diff = sqlalchemy.case(
@@ -494,50 +491,19 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         return type_coerce(date_diff, sqlalchemy_types.Integer())
 
-    @staticmethod
-    def _julian_days(year, month, day):
-        """
-        convert to julian days (days since 1 January 4713 BCE) in the Gregorian calendar
-        see https://www.tondering.dk/claus/cal/julperiod.php
-        """
-        a = sqlalchemy.func.floor((14 - month) / 12)
-        y = year + 4800 - a
-        m = month + 12 * a - 3
-        return (
-            day
-            + sqlalchemy.func.floor((153 * m + 2) / 5)
-            + 365 * y
-            + sqlalchemy.func.floor(y / 4)
-            - sqlalchemy.func.floor(y / 100)
-            + sqlalchemy.func.floor(y / 400)
-            - 32045
-        )
-
     def _convert_date_diff_to_days(self, start, end):
         """
-        Calculate days diff by converting both dates to julian days and subtracting
+        Calculate difference between dates in days
         """
-        start_year, start_month, start_day = start
-        end_year, end_month, end_day = end
-        date_diff = self._julian_days(end_year, end_month, end_day) - self._julian_days(
-            start_year, start_month, start_day
-        )
-        return type_coerce(date_diff, sqlalchemy_types.Integer())
+        raise NotImplementedError()
 
     def _convert_date_diff_to_weeks(self, start, end):
         """
-        Calculate weeks diff by converting both dates to julian days and subtracting
+        Calculate difference in weeks
+        Datediff calculates weeks by boundaries crossed.  Since we want the duration in total
+        number of whole weeks, use the days calculation to calculate weeks also.
         """
-        start_year, start_month, start_day = start
-        end_year, end_month, end_day = end
-        date_diff = sqlalchemy.func.floor(
-            (
-                self._julian_days(end_year, end_month, end_day)
-                - self._julian_days(start_year, start_month, start_day)
-            )
-            / 7
-        )
-        return type_coerce(date_diff, sqlalchemy_types.Integer())
+        return sqlalchemy.func.floor(self._convert_date_diff_to_days(start, end) / 7)
 
     def round_to_first_of_month(self, date):
         raise NotImplementedError

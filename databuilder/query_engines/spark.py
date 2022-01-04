@@ -59,6 +59,20 @@ class SparkQueryEngine(BaseSQLQueryEngine):
     def get_temp_database(self):
         return self.backend.temporary_database
 
+    def _convert_date_diff_to_days(self, start, end):
+        """
+        Calculate difference in days
+        The sparkSQL datediff function only calculate diff in days, and take the
+        parameters in the order (end, start)
+        """
+        return sqlalchemy.func.datediff(end, start)
+
+    def _convert_date_diff_to_weeks(self, start, end):
+        """
+        Calculate difference in weeks
+        """
+        return sqlalchemy.func.floor(self._convert_date_diff_to_days(start, end) / 7)
+
     def round_to_first_of_month(self, date):
         date = type_coerce(date, sqlalchemy_types.Date())
 
