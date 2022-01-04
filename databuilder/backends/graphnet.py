@@ -25,6 +25,7 @@ class GraphnetBackend(BaseBackend):
             system=Column("varchar", source="CodingSystem"),
             date=Column("datetime", source="ConsultationDate"),
             numeric_value=Column("float", source="NumericValue"),
+            care_setting=Column("varchar", source="CareSetting"),
         ),
     )
 
