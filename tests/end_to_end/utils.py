@@ -27,9 +27,6 @@ class Study:
     def dummy_data(self):
         return self._path / self.dummy_data_file
 
-    def path(self, filepath):
-        return self._path / filepath
-
 
 class MeasuresStudy(Study):
     def __init__(
@@ -40,9 +37,7 @@ class MeasuresStudy(Study):
         output_file_name=None,
         input_pattern=None,
     ):
-        super(MeasuresStudy, self).__init__(
-            study_path, dummy_data_file, definition_file, output_file_name
-        )
+        super().__init__(study_path, dummy_data_file, definition_file, output_file_name)
         self.output_file_name = "measures_*.csv"
         self.input_pattern = input_pattern or "cohort.csv"
 
@@ -57,9 +52,11 @@ def assert_results_equivalent(
     match_output_pattern=False,
 ):
     if match_output_pattern:
+        assert (
+            expected_number_of_results is not None
+        ), "Provide expected number of results when matching an output pattern"
         results_files = list(actual_results.parent.glob(actual_results.name))
-        if expected_number_of_results:
-            assert len(results_files) == expected_number_of_results
+        assert len(results_files) == expected_number_of_results
         for results_file in results_files:
             name_parts = [part for part in results_file.stem.split("_", 1) if part][1:]
             name_stem = expected_results.stem.split("_")[0]

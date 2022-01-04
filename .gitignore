@@ -99,3 +99,6 @@ htmlcov
 # Virtual environments
 .venv/
 venv/
+
+# Docs
+backend_docs.json

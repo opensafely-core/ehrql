@@ -1,21 +1,18 @@
-from pathlib import Path
-
 import docker
 import docker.errors
 import pytest
-from lib import mock_backend
-from lib.databases import make_database, make_spark_database, wait_for_database
-from lib.databricks_schema import Base as DatabricksBase
-from lib.docker import Containers
-from lib.graphnet_schema import Base as GraphnetBase
-from lib.tpp_schema import Base as TppBase
-from lib.util import iter_flatten
-from sqlalchemy.orm import sessionmaker
 
-from cohortextractor.definition.base import cohort_registry
+from databuilder.concepts import tables
+from databuilder.concepts.tables import clinical_events
+from databuilder.definition.base import cohort_registry
+from databuilder.dsl import Cohort
+from databuilder.query_engines.mssql import MssqlQueryEngine
+from databuilder.query_engines.spark import SparkQueryEngine
 
-
-BASES = {"tpp": TppBase, "graphnet": GraphnetBase, "databricks": DatabricksBase}
+from .lib.databases import make_database, make_spark_database, wait_for_database
+from .lib.docker import Containers
+from .lib.mock_backend import MockPatients, backend_factory
+from .lib.util import extract
 
 
 @pytest.fixture(scope="session")
@@ -29,46 +26,10 @@ def containers(docker_client):
 
 
 @pytest.fixture(scope="session")
-def mssql_dir():
-    yield Path(__file__).parent.absolute() / "support/mssql"
-
-
-@pytest.fixture(scope="session")
-def database(request, containers, mssql_dir):
-    try:
-        database = request.session.database
-    except AttributeError:
-        database = make_database(containers, mssql_dir)
-        wait_for_database(database)
-        request.session.database = database
+def database(request, containers):
+    database = make_database(containers)
+    wait_for_database(database)
     yield database
-
-
-@pytest.fixture
-def setup_test_database(database):
-    def setup(input_data, base=mock_backend.Base):
-        # Create engine
-        engine = database.engine()
-        # Reset the schema
-        base.metadata.drop_all(engine)
-        base.metadata.create_all(engine)
-        # Create session
-        Session = sessionmaker()
-        Session.configure(bind=engine)
-        session = Session()
-        # Load test data
-        session.bulk_save_objects(iter_flatten(input_data))
-        session.commit()
-
-    return setup
-
-
-@pytest.fixture
-def setup_backend_database(setup_test_database):
-    def setup(*data, backend="tpp"):
-        setup_test_database(data, base=BASES[backend])
-
-    yield setup
 
 
 @pytest.fixture(scope="session")
@@ -78,27 +39,86 @@ def spark_database(containers):
     yield database
 
 
-@pytest.fixture
-def setup_spark_database(spark_database):
-    def setup(*input_data, backend=None):
-        base = BASES[backend]
-        # Create engine
-        engine = spark_database.engine()
-        # Reset the schema
-        base.metadata.drop_all(engine)
-        base.metadata.create_all(engine)
-        # Create session
-        Session = sessionmaker()
-        Session.configure(bind=engine)
-        session = Session()
-        # Load test data
-        session.bulk_save_objects(iter_flatten(input_data))
-        session.commit()
-
-    return setup
-
-
 @pytest.fixture(autouse=True)
 def cleanup_register():
     yield
     cohort_registry.reset()
+
+
+@pytest.fixture
+def cohort_with_population():
+    cohort = Cohort()
+    cohort.set_population(tables.registrations.exists_for_patient())
+    yield cohort
+
+
+class QueryEngineFixture:
+    def __init__(self, name, database, query_engine_class):
+        self.name = name
+        self.database = database
+        self.query_engine_class = query_engine_class
+        self.backend = backend_factory(query_engine_class)
+
+    def setup(self, *items):
+        return self.database.setup(*items)
+
+    def extract(self, cohort, **kwargs):
+        results = extract(cohort, self.backend, self.database, **kwargs)
+        # We don't explicitly order the results and not all databases naturally return
+        # in the same order
+        results.sort(key=lambda i: i["patient_id"])
+        return results
+
+    def sqlalchemy_engine(self, **kwargs):
+        return self.database.engine(
+            dialect=self.query_engine_class.sqlalchemy_dialect, **kwargs
+        )
+
+
+@pytest.fixture(scope="session", params=["mssql", "spark"])
+def engine(request, database, spark_database):
+    name = request.param
+    if name == "mssql":
+        return QueryEngineFixture(name, database, MssqlQueryEngine)
+    elif name == "spark":
+        return QueryEngineFixture(name, spark_database, SparkQueryEngine)
+    else:
+        assert False
+
+
+@pytest.fixture
+def bool_series():
+    return lambda: clinical_events.exists_for_patient()
+
+
+@pytest.fixture
+def code_series():
+    return (
+        lambda: clinical_events.sort_by(clinical_events.code)
+        .first_for_patient()
+        .select_column(clinical_events.code)
+    )
+
+
+@pytest.fixture
+def date_series():
+    return (
+        lambda: clinical_events.sort_by(clinical_events.date)
+        .first_for_patient()
+        .select_column(clinical_events.date)
+    )
+
+
+@pytest.fixture
+def int_series():
+    return (
+        lambda: clinical_events.sort_by(clinical_events.value)
+        .first_for_patient()
+        .select_column(clinical_events.value)
+    )
+
+
+@pytest.fixture
+def patient_series():
+    patients = MockPatients()
+    return lambda: patients.select_column(patients.sex)

@@ -1,7 +1,6 @@
 import sqlalchemy.orm
 from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String
 
-
 Base = sqlalchemy.orm.declarative_base()
 
 
@@ -10,12 +9,18 @@ class Patient(Base):
     Patient_ID = Column(Integer, primary_key=True)
     Sex = Column(String())
     DateOfBirth = Column(Date)
+    DateOfDeath = Column(Date)
 
 
-def patient(patient_id, sex, dob, *entities):
+def patient(patient_id, sex, dob, *entities, date_of_death=None):
     for entity in entities:
         entity.Patient_ID = patient_id
-    return [Patient(Patient_ID=patient_id, Sex=sex, DateOfBirth=dob), *entities]
+    return [
+        Patient(
+            Patient_ID=patient_id, Sex=sex, DateOfBirth=dob, DateOfDeath=date_of_death
+        ),
+        *entities,
+    ]
 
 
 class Organisation(Base):

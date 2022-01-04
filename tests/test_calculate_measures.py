@@ -3,13 +3,15 @@ from pathlib import Path
 import pandas
 import pytest
 
-from cohortextractor import Measure, table
-from cohortextractor.main import get_measures
-from cohortextractor.measure import MeasuresManager
+from databuilder import Measure, table
+from databuilder.main import get_measures
+from databuilder.measure import MeasuresManager
+
+from .lib.util import OldCohortWithPopulation
 
 
 def test_calculate_measures_no_input_file():
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
         measures = [Measure("test-id", numerator="fish", denominator="litres")]
 
@@ -21,8 +23,20 @@ def test_calculate_measures_no_input_file():
         list(measures_manager.calculate_measures())
 
 
+def test_calculate_measures_no_measures_variable():
+    """Running measures calculation with no measure varible doesn't error"""
+
+    class Cohort(OldCohortWithPopulation):
+        code = table("clinical_events").first_by("patient_id").get("code")
+
+    measures = get_measures(Cohort)
+    assert measures == []
+    measures_manager = MeasuresManager(measures, Path(""))
+    assert list(measures_manager.calculate_measures()) == []
+
+
 def test_calculate_measures_results():
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
         measures = [Measure("test-id", numerator="fish", denominator="litres")]
 

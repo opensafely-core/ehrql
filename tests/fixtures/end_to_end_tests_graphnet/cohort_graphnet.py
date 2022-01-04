@@ -1,4 +1,4 @@
-from cohortextractor import table
+from databuilder import table
 
 
 class Cohort:

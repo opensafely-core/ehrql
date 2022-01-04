@@ -2,14 +2,12 @@ from datetime import date, datetime
 from pathlib import Path
 
 import pytest
-from codelists import (
-    any_long_covid_code,
-    any_primary_care_code,
-    covid_codes,
-    ethnicity_codes,
-    post_viral_fatigue_codes,
-)
-from lib.tpp_schema import (
+
+from databuilder import categorise, codelist, table
+from databuilder.backends import TPPBackend
+from databuilder.validate_dummy_data import validate_dummy_data
+
+from ..lib.tpp_schema import (
     apcs,
     ctv3_event,
     negative_test,
@@ -20,12 +18,14 @@ from lib.tpp_schema import (
     registration,
     snomed_event,
 )
-from lib.util import extract
-
-from cohortextractor import categorise, codelist, table
-from cohortextractor.backends import TPPBackend
-from cohortextractor.validate_dummy_data import validate_dummy_data
-
+from ..lib.util import extract
+from .codelists import (
+    any_long_covid_code,
+    any_primary_care_code,
+    covid_codes,
+    ethnicity_codes,
+    post_viral_fatigue_codes,
+)
 
 pandemic_start = "2020-02-01"
 index_date = "2020-11-01"
@@ -118,7 +118,10 @@ class Cohort:
     # Clinical variables
     # Latest recorded BMI
     _bmi_value = (
-        table("clinical_events").filter(code=bmi_code).latest().get("numeric_value")
+        table("clinical_events")
+        .filter("code", is_in=bmi_code)
+        .latest()
+        .get("numeric_value")
     )
     _bmi_groups = {
         "Obese I (30-34.9)": (_bmi_value >= 30) & (_bmi_value < 35),
@@ -150,13 +153,13 @@ for target_codelist in [any_long_covid_code, post_viral_fatigue_codes]:
 
 
 @pytest.mark.integration
-def test_cohort(database, setup_backend_database):
-    setup_backend_database(
+def test_cohort(database):
+    database.setup(
         organisation(organisation_id=1, region="South"),
-        *patient(
+        patient(
             1,
             "F",
-            "1990-8-10",
+            "1990-08-10",
             registration(
                 start_date="2001-01-01", end_date="2026-06-26", organisation_id=1
             ),
@@ -194,7 +197,7 @@ def test_cohort(database, setup_backend_database):
             ctv3_event(code="22K..", date="2020-09-09", numeric_value=34.1),  # BMI
         ),
         # excluded by registration date
-        *patient(
+        patient(
             2,
             "M",
             "1990-1-1",

@@ -17,9 +17,4 @@ def write_rows_to_csv(rows, filename):
             for row in rows:
                 writer.writerow(row)
     else:
-        raise RuntimeError(f"Unsupported extension for CSV file: {filename}")
-
-
-def is_csv_filename(filename):
-    filename = str(filename)
-    return filename.endswith(".csv") or filename.endswith(".csv.gz")
+        assert False, f"Unsupported extension for CSV file: {filename}"

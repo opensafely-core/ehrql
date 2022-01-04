@@ -9,6 +9,10 @@ export PIP := BIN + "/python -m pip"
 export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
 
 
+alias help := list
+
+test_args := "tests"
+
 # list available commands
 list:
     @just --list
@@ -35,8 +39,8 @@ _virtualenv:
 requirements-prod: _virtualenv
     #!/usr/bin/env bash
     # exit if .in file is older than .txt file (-nt = 'newer than', but we negate with || to avoid error exit code)
-    test requirements.prod.in -nt requirements.prod.txt || exit 0
-    $COMPILE --output-file=requirements.prod.txt requirements.prod.in
+    test pyproject.toml -nt requirements.prod.txt || exit 0
+    $COMPILE --output-file=requirements.prod.txt pyproject.toml
 
 
 # update requirements.dev.txt if requirements.dev.in has changed
@@ -84,40 +88,54 @@ upgrade env package="": _virtualenv
     test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
     $COMPILE $opts --output-file=requirements.{{ env }}.txt requirements.{{ env }}.in
 
-# runs the format (black), sort (isort) and lint (flake8) check but does not change any files
+# runs the format (black), sort (isort) and lint (flake8) checks but does not change any files
 check: devenv
     $BIN/black --check .
     $BIN/isort --check-only --diff .
     $BIN/flake8
+    $BIN/pyupgrade --py39-plus --keep-percent-format \
+        $(find databuilder -name "*.py" -type f) \
+        $(find tests -name "*.py" -type f)
+    just docstrings
+    $BIN/mypy
 
+# ensure our public facing docstrings exist so we can build docs from them
+docstrings: devenv
+    $BIN/pydocstyle databuilder/backends/databricks.py
+    $BIN/pydocstyle databuilder/backends/graphnet.py
+    $BIN/pydocstyle databuilder/backends/tpp.py
 
-# fix formatting and import sort ordering
+    # only enforce classes are documented for the public facing docs
+    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 databuilder/concepts/tables.py
+
+# runs the format (black) and sort (isort) checks and fixes the files
 fix: devenv
     $BIN/black .
     $BIN/isort .
 
 
-# build the cohort-extractor docker image
-build-cohort-extractor:
+# build the databuilder docker image
+build-databuilder:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    [[ -v CI ]] && echo "::group::Build cohort-extractor (click to view)" || echo "Build cohort-extractor"
-    docker build . -t cohort-extractor-v2
+    [[ -v CI ]] && echo "::group::Build databuilder (click to view)" || echo "Build databuilder"
+    docker build . -t databuilder
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
-# tear down the persistent cohort-extractor-mssql docker container and network
-remove-persistent-database:
-    docker rm --force cohort-extractor-mssql
-    docker network rm cohort-extractor-network
+# tear down the persistent docker containers we create to run tests again
+remove-database-containers:
+    docker rm --force databuilder-mssql
+    docker rm --force databuilder-spark
 
-# open an interactive SQL Server shell running against the persistent database
-connect-to-persistent-database:
-    docker exec -it cohort-extractor-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
+# open an interactive SQL Server shell running against MSSQL
+connect-to-mssql:
+    docker exec -it databuilder-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
 
 # Full set of tests run by CI
-test: test-all
+test *ARGS=test_args:
+    just test-all {{ ARGS }}
 
 # run the unit tests only. Optional args are passed to pytest
 test-unit *ARGS: devenv
@@ -128,14 +146,36 @@ test-integration *ARGS: devenv
     $BIN/python -m pytest -m integration {{ ARGS }}
 
 # run the smoke tests only. Optional args are passed to pytest
-test-smoke *ARGS: devenv build-cohort-extractor
+test-smoke *ARGS: devenv build-databuilder
     $BIN/python -m pytest -m smoke {{ ARGS }}
 
 # run all tests including integration and smoke tests. Optional args are passed to pytest
-test-all *ARGS: devenv build-cohort-extractor
+test-all *ARGS=test_args: devenv build-databuilder
     #!/usr/bin/env bash
     set -euo pipefail
 
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
-    $BIN/python -m pytest --cov=cohortextractor --cov=tests {{ ARGS }}
+    $BIN/python -m pytest \
+        --cov=databuilder \
+        --cov=tests \
+        --cov-report=html \
+        --cov-report=term-missing:skip-covered \
+        {{ ARGS }}
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
+
+# run scripts/dbx
+dbx *ARGS:
+    @$BIN/python scripts/dbx {{ ARGS }}
+
+# ensure a working databricks cluster is set up
+databricks-env: devenv
+    $BIN/python scripts/dbx create --wait --timeout 120
+
+databricks-test *ARGS: devenv databricks-env
+    #!/usr/bin/env bash
+    export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
+    just test {{ ARGS }}
+
+# run the validate contract test only for all backends
+test-contracts: devenv
+    $BIN/python -m pytest tests/backends/test_base.py -k test_validate_all_backends

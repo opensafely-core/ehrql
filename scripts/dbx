@@ -1,0 +1,317 @@
+#!/usr/bin/env python3
+import configparser
+import json
+import os
+import subprocess
+import sys
+import time
+
+import click
+import requests
+
+PROFILE = os.environ.get("DATABRICKS_PROFILE", "DEFAULT")
+CLUSTERS = None
+ORGID = None
+USERNAME = None
+PASSWORD = None
+HOST = None
+COMMANDS = {}
+OUTPUT = True
+
+VENV = os.environ["VIRTUAL_ENV"]
+DATABRICKS_EXEC = f"{VENV}/bin/databricks"
+PYTHON = f"{VENV}/bin/python"
+
+# https://docs.databricks.com/dev-tools/api/latest/clusters.html#create
+# Create a cluster in Community Edition.
+CLUSTER_REQUEST = {
+    "cluster_name": "opensafely-test",
+    "spark_version": "7.3.x-scala2.12",
+    "spark_conf": {
+        # This was added to try work around a problem with deleting tables, we may not need it any more
+        "spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation": "true",
+    },
+    "aws_attributes": {
+        "zone_id": "auto",
+        "first_on_demand": 0,
+        "availability": "ON_DEMAND",
+        "spot_bid_price_percent": 100,
+    },
+    "node_type_id": "dev-tier-node",
+    "driver_node_type_id": "dev-tier-node",
+    "spark_env_vars": {
+        "PYSPARK_PYTHON": "/databricks/python3/bin/python3",
+    },
+    "autotermination_minutes": 120,
+    "enable_elastic_disk": False,
+    "disk_spec": {
+        "disk_count": 0,
+    },
+    "enable_local_disk_encryption": False,
+    "instance_source": {
+        "node_type_id": "dev-tier-node",
+    },
+    "driver_instance_source": {
+        "node_type_id": "dev-tier-node",
+    },
+    "num_workers": 0,
+}
+
+
+def run(cmd, check=True, text=True, **kwargs):
+    echo(" ".join(cmd).replace(PASSWORD, "*****"))
+    return subprocess.run(cmd, check=check, text=text, **kwargs)
+
+
+def databricks(cmd, *args, **kwargs):
+    cmd = [DATABRICKS_EXEC, "--profile", PROFILE] + cmd
+    return run(cmd, *args, **kwargs)
+
+
+def is_community_edition():
+    return "community.cloud.databricks.com" in HOST
+
+
+def echo(*args, **kwargs):
+    if OUTPUT:
+        click.echo(*args, **kwargs)
+
+
+class Cluster:
+    def __init__(self, data):
+        self.data = data
+
+    @property
+    def cluster_id(self):
+        return self.data["cluster_id"]
+
+    @property
+    def state(self):
+        return self.data["state"]
+
+    @property
+    def url(self):
+        host_with_creds = HOST.replace("https://", f"https://{USERNAME}:{PASSWORD}@")
+        return f"{host_with_creds}/default?http_path=sql/protocolv1/o/{ORGID}/{self.cluster_id}"
+
+    def __str__(self):
+        return f"{self.cluster_id}: {self.state}"
+
+
+def get_auth():
+    global USERNAME, PASSWORD, HOST
+    path = os.path.expanduser("~/.databrickscfg")
+    if not os.path.exists(path):
+        sys.exit("databricks cli has not been configured. Run:\ndatabricks configure")
+    parser = configparser.ConfigParser()
+    parser.read(path)
+    profile = parser[PROFILE]
+    USERNAME = profile["username"]
+    PASSWORD = profile["password"]
+    HOST = profile["host"]
+
+
+def get_clusters():
+    # we hit the API directly here, as we need access to the headers.
+    global CLUSTERS, ORGID
+
+    resp = requests.get(
+        f"{HOST}/api/2.0/clusters/list",
+        auth=(USERNAME, PASSWORD),
+    )
+    resp.raise_for_status()
+
+    CLUSTERS = {c["cluster_name"]: Cluster(c) for c in resp.json().get("clusters", {})}
+    ORGID = resp.headers["X-Databricks-Org-Id"]
+
+
+def _teardown(name):
+    if name not in CLUSTERS:
+        return
+
+    c = CLUSTERS[name]
+    echo(f"Tearing down {c}...")
+    databricks(["clusters", "permanent-delete", "--cluster-id", c.cluster_id])
+
+
+def _wait(name, timeout=90):
+    echo(CLUSTERS[name])
+    start = time.time()
+    while CLUSTERS[name].state == "PENDING":
+        if time.time() - start > timeout:
+            sys.exit(f"timed out after {timeout}s waiting for cluster {name}")
+        time.sleep(10)
+        get_clusters()
+        echo(CLUSTERS[name])
+
+
+@click.group()
+def cli():
+    """Command for managing databricks cluster.
+
+    If ssing Databricks Community Edition, it will teardown/create a cluster for you.
+    If using the full SaaS, it will simply ensure it is running.
+
+    The default cluster name is 'opensafely-test', but can be overridden with
+    --name option or the DATABRICKS_CLUSTER env var.
+
+    By default, it uses the DEFAULT profile of your databricks cli config, but
+    this can be altered with the DATABRICKS_PROFILE env var.
+    """
+    pass
+
+
+# common option for many commands
+name_option = click.option("--name", default="opensafely-test", help="name of cluster")
+
+
+@cli.command()
+@name_option
+def teardown(name):
+    """Teardown current cluster."""
+    if is_community_edition():
+        _teardown(name)
+    else:
+        click.echo("Cowardly refusing to terminate non-community edition cluster.")
+        sys.exit(1)
+
+
+@cli.command()
+@name_option
+@click.option(
+    "--wait/--no-wait",
+    default=False,
+    help="wait for cluster to be available before exiting",
+)
+@click.option("--timeout", default=90, help="timeout to wait if --wait is passed")
+@click.option(
+    "--output-url/--no-output-url", default=False, help="only output the connection url"
+)
+def create(name, wait, output_url, timeout):
+    """Create a new cluster."""
+    global OUTPUT
+
+    if output_url:
+        OUTPUT = False
+
+    c = CLUSTERS.get(name)
+
+    # it exists
+    if c and c.state in ("PENDING", "RUNNING"):
+        if output_url:
+            click.echo(c.url)
+        else:
+            echo(c)
+        return
+
+    if is_community_edition():
+        # with community edition, it is best to destroy/create a new cluster,
+        # as restarting clusters does not seem to work well.
+        _teardown(name)
+        request = CLUSTER_REQUEST.copy()
+        request["cluster_name"] = name
+        request_json = json.dumps(request)
+        databricks(
+            ["clusters", "create", "--json-file", "/dev/stdin"],
+            input=request_json,
+            capture_output=output_url,
+        )
+    elif c:
+        # cluster exists, but is not running
+        databricks(["clusters", "start", "--cluster-id", c.cluster_id])
+    else:
+        click.echo(
+            "No {name} cluster found, and refusing to create one as not using Community Edition.\n"
+            "You will need to create one called 'opensafely-test' via the web UI."
+        )
+        sys.exit(1)
+
+    get_clusters()
+
+    if wait:
+        _wait(name, timeout)
+
+    if output_url:
+        click.echo(CLUSTERS[name].url)
+    else:
+        echo(CLUSTERS[name])
+
+
+@cli.command()
+@name_option
+def wait(name):
+    """Wait until cluster is available."""
+    _wait(name)
+
+
+@cli.command()
+@name_option
+def url(name):
+    """Print connection string."""
+    c = CLUSTERS.get(name)
+    if c:
+        click.echo(c.url)
+    else:
+        click.echo(f"No cluster named {name}")
+
+
+@cli.command()
+@name_option
+def test(name):
+    """Test cluster up and working."""
+    _wait(name)
+    c = CLUSTERS[name]
+    run(
+        [
+            PYTHON,
+            "-m",
+            "databuilder",
+            "test_connection",
+            "-b",
+            "databricks",
+            "-u",
+            c.url,
+        ]
+    )
+
+
+@cli.command()
+@name_option
+def status(name):
+    """Print cluster status."""
+    if name in CLUSTERS:
+        click.echo(CLUSTERS[name])
+    else:
+        click.echo(f"Cluster {name} not found")
+
+
+@cli.command()
+def cleanup():
+    """Remove all data on the cluster."""
+    if is_community_edition():
+        databricks(
+            [
+                "workspace",
+                "import",
+                "-l",
+                "python",
+                "-o",
+                "scripts/dbx-cleanup.py",
+                "/cleanup",
+            ]
+        )
+        click.echo(
+            "The cleanup notebook has been uploaded to your Databricks Workspace.\n"
+            "Unfortunately, it cannot be executed remotely in Community Edition.\n"
+            "Log in to https://community.cloud.databricks.com and select Workspace -> cleanup and run it manually."
+        )
+    else:
+        ps = databricks(["fs", "ls", "dbfs:/user/hive/warehouse/"], capture_output=True)
+        for db in ps.stdout.split():
+            databricks(["fs", "rm", "-r", f"dbfs:/user/hive/warehouse/{db}"])
+
+
+if __name__ == "__main__":
+    get_auth()
+    get_clusters()
+    cli()

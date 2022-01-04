@@ -14,8 +14,8 @@ class Containers:
     def is_running(self, name):
         try:
             container = self.get_container(name)
-            return container.status == "running"
-        except docker.errors.NotFound:
+            return container.status == "running"  # pragma: no cover
+        except docker.errors.NotFound:  # pragma: no cover
             return False
 
     def get_mapped_port_for_host(self, name, container_port):
@@ -23,8 +23,7 @@ class Containers:
         Given a port on a container return the port on the host to which it is
         mapped
         """
-        if isinstance(container_port, int):
-            container_port = f"{container_port}/tcp"
+        container_port = f"{container_port}/tcp"
         container = self.get_container(name)
         port_config = container.attrs["NetworkSettings"]["Ports"][container_port]
         host_port = port_config[0]["HostPort"]
@@ -39,7 +38,7 @@ class Containers:
 
     # All available arguments documented here:
     # https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run
-    def run_bg(self, name, image, **kwargs):
+    def run_bg(self, name, image, **kwargs):  # pragma: no cover
         return self._run(name=name, image=image, detach=True, **kwargs)
 
     # All available arguments documented here:
@@ -48,16 +47,9 @@ class Containers:
         try:
             output = self._run(image=image, detach=False, stderr=True, **kwargs)
             print(str(output, "utf-8"))
-        except ContainerError as e:
+        except ContainerError as e:  # pragma: no cover
             print(str(e.stderr, "utf-8"), file=sys.stderr)
             raise
-
-    def destroy(self, name):
-        try:
-            container = self.get_container(name)
-        except docker.errors.NotFound:
-            return
-        container.remove(force=True)
 
     def _run(self, **kwargs):
         return self._docker.containers.run(remove=True, **kwargs)

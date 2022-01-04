@@ -1,7 +1,11 @@
 from datetime import date, datetime
 
 import pytest
-from lib.graphnet_schema import (
+
+from databuilder import table
+from databuilder.backends.graphnet import GraphnetBackend
+
+from ..lib.graphnet_schema import (
     ClinicalEvents,
     CovidTestResults,
     Patients,
@@ -11,22 +15,18 @@ from lib.graphnet_schema import (
     patient_address,
     registration,
 )
-from lib.util import extract
-
-from cohortextractor import table
-from cohortextractor.backends.graphnet import GraphnetBackend
+from ..lib.util import OldCohortWithPopulation, extract
 
 
 @pytest.mark.integration
-def test_basic_events_and_registration(database, setup_backend_database):
-    setup_backend_database(
+def test_basic_events_and_registration(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(Patient_ID=1),
         ClinicalEvents(Patient_ID=1, Code="Code1", CodingSystem="CTV3"),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
         system = table("clinical_events").first_by("patient_id").get("system")
 
@@ -36,17 +36,16 @@ def test_basic_events_and_registration(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_registration_dates(database, setup_backend_database):
-    setup_backend_database(
+def test_registration_dates(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2012-12-12"
         ),
         PracticeRegistrations(Patient_ID=1, StartDate="2013-01-01"),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _registrations = table("practice_registrations").first_by("patient_id")
         arrived = _registrations.get("date_start")
         left = _registrations.get("date_end")
@@ -57,17 +56,16 @@ def test_registration_dates(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_registration_dates_no_end(database, setup_backend_database):
-    setup_backend_database(
+def test_registration_dates_no_end(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2011-01-01", EndDate="2012-12-31"
         ),
         PracticeRegistrations(Patient_ID=1, StartDate="2013-01-01", EndDate=None),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _registrations = (
             table("practice_registrations")
             .date_in_range("2014-01-01")
@@ -82,8 +80,8 @@ def test_registration_dates_no_end(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_covid_test_positive_result(database, setup_backend_database):
-    setup_backend_database(
+def test_covid_test_positive_result(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
@@ -93,10 +91,9 @@ def test_covid_test_positive_result(database, setup_backend_database):
             SpecimenDate="2020-05-05",
             positive_result=True,
         ),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         date = (
             table("covid_test_results")
             .filter(positive_result=True)
@@ -110,8 +107,8 @@ def test_covid_test_positive_result(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_covid_test_negative_result(database, setup_backend_database):
-    setup_backend_database(
+def test_covid_test_negative_result(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
@@ -121,10 +118,9 @@ def test_covid_test_negative_result(database, setup_backend_database):
             SpecimenDate="2020-05-05",
             positive_result=False,
         ),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         date = (
             table("covid_test_results")
             .filter(positive_result=False)
@@ -138,16 +134,15 @@ def test_covid_test_negative_result(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_patients_table(database, setup_backend_database):
-    setup_backend_database(
+def test_patients_table(database):
+    database.setup(
         Patients(Patient_ID=1, Sex="F", DateOfBirth="1950-01-01"),
         PracticeRegistrations(
             Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"
         ),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _patients = table("patients").first_by("patient_id")
         sex = _patients.get("sex")
         dob = _patients.get("date_of_birth")
@@ -158,21 +153,18 @@ def test_patients_table(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_hospitalization_table_returns_admission_date_and_code(
-    database, setup_backend_database
-):
-    setup_backend_database(
-        *patient(
+def test_hospitalization_table_returns_admission_date_and_code(database):
+    database.setup(
+        patient(
             1,
             "M",
             "1990-1-1",
             registration("2001-01-01", "2026-06-26"),
             hospitalization(admit_date="2020-12-12", code="xyz"),
         ),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _hospitalization = table("hospitalizations").first_by("patient_id")
         admission = _hospitalization.get("date")
         code = _hospitalization.get("code")
@@ -183,17 +175,16 @@ def test_hospitalization_table_returns_admission_date_and_code(
 
 
 @pytest.mark.integration
-def test_events_with_numeric_value(database, setup_backend_database):
-    setup_backend_database(
+def test_events_with_numeric_value(database):
+    database.setup(
         Patients(Patient_ID=1),
         PracticeRegistrations(Patient_ID=1),
         ClinicalEvents(
             Patient_ID=1, Code="Code1", CodingSystem="CTV3", NumericValue=34.7
         ),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         value = table("clinical_events").latest().get("numeric_value")
 
     assert extract(Cohort, GraphnetBackend, database) == [
@@ -202,27 +193,26 @@ def test_events_with_numeric_value(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_organisation(database, setup_backend_database):
-    setup_backend_database(
+def test_organisation(database):
+    database.setup(
         # Organisation not a separate table, so will just move detail to single registration record
         # organisation(1, "South"),
         # organisation(2, "North"),
-        *patient(
+        patient(
             1,
             "M",
             "1990-1-1",
             registration("2001-01-01", "2021-06-26", "A83010", "North East"),
         ),
-        *patient(
+        patient(
             2,
             "F",
             "1990-1-1",
             registration("2001-01-01", "2026-06-26", "J82031", "South West"),
         ),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _registrations = table("practice_registrations").last_by("patient_id")
         region = _registrations.get("nuts1_region_name")
         practice_id = _registrations.get("pseudo_id")
@@ -234,15 +224,15 @@ def test_organisation(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_organisation_dates(database, setup_backend_database):
-    setup_backend_database(
+def test_organisation_dates(database):
+    database.setup(
         # Organisation not a separate table, so will just move detail to registration record
         # organisation(1, "South"),
         # organisation(2, "North"),
         # organisation(3, "West"),
         # organisation(4, "East"),
         # registered at 2 practices, select the one active on 25/6
-        *patient(
+        patient(
             1,
             "M",
             "1990-1-1",
@@ -250,7 +240,7 @@ def test_organisation_dates(database, setup_backend_database):
             registration("2021-06-27", "2026-06-26", "J26003", "South West"),
         ),
         # registered at 2 practices with overlapping dates, select the latest
-        *patient(
+        patient(
             2,
             "F",
             "1990-1-1",
@@ -258,13 +248,12 @@ def test_organisation_dates(database, setup_backend_database):
             registration("2021-01-01", "9999-12-31", "S33001", "East"),
         ),
         # registration not in range, not included
-        *patient(
+        patient(
             3,
             "F",
             "1990-1-1",
             registration("2001-01-01", "2020-06-26", "S21021", "East"),
         ),
-        backend="graphnet",
     )
 
     class Cohort:
@@ -281,19 +270,18 @@ def test_organisation_dates(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_index_of_multiple_deprivation(database, setup_backend_database):
-    setup_backend_database(
-        *patient(
+def test_index_of_multiple_deprivation(database):
+    database.setup(
+        patient(
             1,
             "M",
             "1990-1-1",
             registration("2001-01-01", "2026-06-26"),
             patient_address("2001-01-01", "2026-06-26", 1200, "E02000001", True),
         ),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, GraphnetBackend, database) == [dict(patient_id=1, imd=1200)]
@@ -346,21 +334,18 @@ def test_index_of_multiple_deprivation(database, setup_backend_database):
         ),
     ],
 )
-def test_index_of_multiple_deprivation_sorting(
-    database, setup_backend_database, patient_addresses, expected
-):
-    setup_backend_database(
-        *patient(
+def test_index_of_multiple_deprivation_sorting(database, patient_addresses, expected):
+    database.setup(
+        patient(
             1,
             "M",
             "1990-1-1",
             registration("2001-01-01", "2026-06-26"),
             *patient_addresses,
         ),
-        backend="graphnet",
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, GraphnetBackend, database) == [

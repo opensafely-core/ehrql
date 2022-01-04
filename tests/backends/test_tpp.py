@@ -1,7 +1,11 @@
 from datetime import date, datetime
 
 import pytest
-from lib.tpp_schema import (
+
+from databuilder import codelist, table
+from databuilder.backends.tpp import TPPBackend
+
+from ..lib.tpp_schema import (
     CTV3Events,
     Patient,
     RegistrationHistory,
@@ -14,34 +18,36 @@ from lib.tpp_schema import (
     patient_address,
     registration,
 )
-from lib.util import extract
+from ..lib.util import OldCohortWithPopulation, extract
 
-from cohortextractor import codelist, table
-from cohortextractor.backends.tpp import TPPBackend
+
+def run_query(database, query):
+    with database.engine().connect() as cursor:
+        yield from cursor.execute(query)
 
 
 @pytest.mark.integration
-def test_basic_events_and_registration(database, setup_backend_database):
-    setup_backend_database(
+def test_basic_events_and_registration(database):
+    database.setup(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1),
         CTV3Events(Patient_ID=1, CTV3Code="Code1"),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, code="Code1")]
 
 
 @pytest.mark.integration
-def test_registration_dates(database, setup_backend_database):
-    setup_backend_database(
+def test_registration_dates(database):
+    database.setup(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2012-12-12"),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _registrations = table("practice_registrations").first_by("patient_id")
         arrived = _registrations.get("date_start")
         left = _registrations.get("date_end")
@@ -52,8 +58,8 @@ def test_registration_dates(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_covid_test_positive_result(database, setup_backend_database):
-    setup_backend_database(
+def test_covid_test_positive_result(database):
+    database.setup(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
         SGSSPositiveTests(
@@ -63,7 +69,7 @@ def test_covid_test_positive_result(database, setup_backend_database):
         ),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         date = (
             table("sgss_sars_cov_2").filter(positive_result=True).earliest().get("date")
         )
@@ -74,8 +80,8 @@ def test_covid_test_positive_result(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_covid_test_negative_result(database, setup_backend_database):
-    setup_backend_database(
+def test_covid_test_negative_result(database):
+    database.setup(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
         SGSSNegativeTests(
@@ -85,7 +91,7 @@ def test_covid_test_negative_result(database, setup_backend_database):
         ),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         date = (
             table("sgss_sars_cov_2")
             .filter(positive_result=False)
@@ -99,13 +105,13 @@ def test_covid_test_negative_result(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_patients_table(database, setup_backend_database):
-    setup_backend_database(
+def test_patients_table(database):
+    database.setup(
         Patient(Patient_ID=1, Sex="F", DateOfBirth="1950-01-01"),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _patients = table("patients").first_by("patient_id")
         sex = _patients.get("sex")
         dob = _patients.get("date_of_birth")
@@ -116,11 +122,9 @@ def test_patients_table(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_hospitalization_table_returns_admission_date_and_code(
-    database, setup_backend_database
-):
-    setup_backend_database(
-        *patient(
+def test_hospitalization_table_returns_admission_date_and_code(database):
+    database.setup(
+        patient(
             1,
             "M",
             "1990-1-1",
@@ -129,7 +133,7 @@ def test_hospitalization_table_returns_admission_date_and_code(
         )
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _hospitalization = table("hospitalizations").first_by("patient_id")
         admission = _hospitalization.get("date")
         code = _hospitalization.get("code")
@@ -157,11 +161,9 @@ def test_hospitalization_table_returns_admission_date_and_code(
     ],
 )
 @pytest.mark.integration
-def test_hospitalization_table_code_conversion(
-    database, setup_backend_database, raw, codes
-):
-    setup_backend_database(
-        *patient(
+def test_hospitalization_table_code_conversion(database, raw, codes):
+    database.setup(
+        patient(
             1,
             "M",
             "1990-1-1",
@@ -181,24 +183,17 @@ def test_hospitalization_table_code_conversion(
         assert (1, date(2012, 12, 12), code, "icd10") in results
 
 
-def run_query(database, query):
-    with database.engine().connect() as cursor:
-        yield from cursor.execute(query)
-
-
 @pytest.mark.integration
-def test_hospitalization_code_parsing_works_with_filters(
-    database, setup_backend_database
-):
-    setup_backend_database(
-        *patient(
+def test_hospitalization_code_parsing_works_with_filters(database):
+    database.setup(
+        patient(
             1,
             "X",
             "1990-1-1",
             registration("2001-01-01", "2026-06-26"),
             apcs(codes="abc"),
         ),
-        *patient(
+        patient(
             2,
             "X",
             "1990-1-1",
@@ -207,7 +202,7 @@ def test_hospitalization_code_parsing_works_with_filters(
         ),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = (
             table("hospitalizations")
             .filter("code", is_in=codelist(["xyz"], system="icd10"))
@@ -222,29 +217,29 @@ def test_hospitalization_code_parsing_works_with_filters(
 
 
 @pytest.mark.integration
-def test_events_with_numeric_value(database, setup_backend_database):
-    setup_backend_database(
+def test_events_with_numeric_value(database):
+    database.setup(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1),
         CTV3Events(Patient_ID=1, CTV3Code="Code1", NumericValue=34.7),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         value = table("clinical_events").latest().get("numeric_value")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, value=34.7)]
 
 
 @pytest.mark.integration
-def test_organisation(database, setup_backend_database):
-    setup_backend_database(
+def test_organisation(database):
+    database.setup(
         organisation(1, "South"),
         organisation(2, "North"),
-        *patient(1, "M", "1990-1-1", registration("2001-01-01", "2021-06-26", 1)),
-        *patient(2, "F", "1990-1-1", registration("2001-01-01", "2026-06-26", 2)),
+        patient(1, "M", "1990-1-1", registration("2001-01-01", "2021-06-26", 1)),
+        patient(2, "F", "1990-1-1", registration("2001-01-01", "2026-06-26", 2)),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _registrations = table("practice_registrations").last_by("patient_id")
         region = _registrations.get("nuts1_region_name")
         practice_id = _registrations.get("pseudo_id")
@@ -256,14 +251,14 @@ def test_organisation(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_organisation_dates(database, setup_backend_database):
-    setup_backend_database(
+def test_organisation_dates(database):
+    database.setup(
         organisation(1, "South"),
         organisation(2, "North"),
         organisation(3, "West"),
         organisation(4, "East"),
         # registered at 2 practices, select the one active on 25/6
-        *patient(
+        patient(
             1,
             "M",
             "1990-1-1",
@@ -271,7 +266,7 @@ def test_organisation_dates(database, setup_backend_database):
             registration("2021-06-27", "2026-06-26", 2),
         ),
         # registered at 2 practices with overlapping dates, select the latest
-        *patient(
+        patient(
             2,
             "F",
             "1990-1-1",
@@ -279,7 +274,7 @@ def test_organisation_dates(database, setup_backend_database):
             registration("2021-01-01", "9999-12-31", 3),
         ),
         # registration not in range, not included
-        *patient(3, "F", "1990-1-1", registration("2001-01-01", "2020-06-26", 2)),
+        patient(3, "F", "1990-1-1", registration("2001-01-01", "2020-06-26", 2)),
     )
 
     class Cohort:
@@ -296,9 +291,9 @@ def test_organisation_dates(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_index_of_multiple_deprivation(database, setup_backend_database):
-    setup_backend_database(
-        *patient(
+def test_index_of_multiple_deprivation(database):
+    database.setup(
+        patient(
             1,
             "M",
             "1990-1-1",
@@ -307,7 +302,7 @@ def test_index_of_multiple_deprivation(database, setup_backend_database):
         )
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=1200)]
@@ -352,11 +347,9 @@ def test_index_of_multiple_deprivation(database, setup_backend_database):
         ),
     ],
 )
-def test_index_of_multiple_deprivation_sorting(
-    database, setup_backend_database, patient_addresses, expected
-):
-    setup_backend_database(
-        *patient(
+def test_index_of_multiple_deprivation_sorting(database, patient_addresses, expected):
+    database.setup(
+        patient(
             1,
             "M",
             "1990-1-1",
@@ -365,22 +358,22 @@ def test_index_of_multiple_deprivation_sorting(
         )
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         imd = table("patient_address").imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=expected)]
 
 
 @pytest.mark.integration
-def test_clinical_events_table(database, setup_backend_database):
-    setup_backend_database(
+def test_clinical_events_table(database):
+    database.setup(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
         CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-01-01"),
         SnomedEvents(Patient_ID=1, ConceptID="Code2", ConsultationDate="2021-02-01"),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _events = table("clinical_events")
         first_event_code = _events.earliest().get("code")
         first_event_system = _events.earliest().get("system")
@@ -399,8 +392,8 @@ def test_clinical_events_table(database, setup_backend_database):
 
 
 @pytest.mark.integration
-def test_clinical_events_table_multiple_codes(database, setup_backend_database):
-    setup_backend_database(
+def test_clinical_events_table_multiple_codes(database):
+    database.setup(
         Patient(Patient_ID=1),
         RegistrationHistory(Patient_ID=1, StartDate="2001-01-01", EndDate="2026-06-26"),
         CTV3Events(Patient_ID=1, CTV3Code="Code1", ConsultationDate="2021-01-01"),
@@ -409,7 +402,7 @@ def test_clinical_events_table_multiple_codes(database, setup_backend_database):
         SnomedEvents(Patient_ID=1, ConceptID="Code2", ConsultationDate="2021-03-01"),
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _events = table("clinical_events")
         _filtered_to_code = (
             table("clinical_events")
@@ -425,4 +418,26 @@ def test_clinical_events_table_multiple_codes(database, setup_backend_database):
             count=3,
             date=datetime(2021, 1, 1, 0, 0),
         )
+    ]
+
+
+@pytest.mark.integration
+def test_patients_contract_table(database):
+    database.setup(
+        patient(1, "M", "1990-01-01", date_of_death="2021-01-04"),
+        patient(2, "F", "1990-01-01", date_of_death="2020-02-04"),
+        patient(3, "I", "1990-01-01", date_of_death="9999-12-31"),
+        patient(4, None, "1990-01-01"),
+        patient(5, "X", "1990-01-01"),
+    )
+
+    query = TPPBackend.patient_demographics.get_query()
+
+    results = list(run_query(database, query))
+    assert results == [
+        (1, date(1990, 1, 1), date(2021, 1, 1), "male"),
+        (2, date(1990, 1, 1), date(2020, 2, 1), "female"),
+        (3, date(1990, 1, 1), None, "intersex"),
+        (4, date(1990, 1, 1), None, "unknown"),
+        (5, date(1990, 1, 1), None, "unknown"),
     ]

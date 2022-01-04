@@ -1,5 +1,4 @@
-from cohortextractor import Measure, codelist, cohort_date_range, table
-
+from databuilder import Measure, codelist, cohort_date_range, table
 
 index_date_range = cohort_date_range(start="2021-01-01", end="2021-03-04")
 
@@ -11,7 +10,7 @@ def cohort(index_date):
         population = _registrations.exists()
         practice = _registrations.first_by("patient_id").get("pseudo_id")
         has_event = _clinical_events.filter(
-            code=codelist(["abc"], system="ctv3")
+            "code", is_in=codelist(["abc"], system="ctv3")
         ).first_by("patient_id")
 
         measures = [

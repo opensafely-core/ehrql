@@ -1,6 +1,6 @@
 import pytest
 
-from cohortextractor import cohort_date_range
+from databuilder import cohort_date_range
 
 
 @pytest.mark.freeze_time("2021-02-01")
@@ -26,6 +26,10 @@ from cohortextractor import cohort_date_range
             ],
         ),
         (("2021-01-31", "2021-03-01", "month"), ["2021-01-31", "2021-02-28"]),
+        (
+            ("2021-12-15", "2022-03-01", "month"),
+            ["2021-12-15", "2022-01-15", "2022-02-15"],
+        ),
         (("2021-01-01",), ["2021-01-01"]),
     ],
     ids=[
@@ -34,6 +38,7 @@ from cohortextractor import cohort_date_range
         "test date range end today",
         "test date range by week",
         "test date range corrects out of range dates to last day of month",
+        "test date range corrects out of range month to first month of next year",
         "test single date",
     ],
 )
@@ -59,11 +64,17 @@ def test_extracts_data_with_index_date_range_integration_test(args, expected):
             ValueError,
             "Invalid date range: end cannot be earlier than start",
         ),
+        (
+            (None, None, "week"),
+            ValueError,
+            "At least one of start or end is required",
+        ),
     ],
     ids=[
         "test invalid date",
         "test unknown increment",
         "test end date before start date",
+        "test no start or end date",
     ],
 )
 def test_index_date_range_errors(args, error, error_message):

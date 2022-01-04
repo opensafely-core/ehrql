@@ -1,63 +1,62 @@
 from datetime import date
 
 import pytest
-from lib.databases import null_database
-from lib.mock_backend import (
+
+from databuilder.concepts import tables
+from databuilder.query_model import categorise, table
+
+from .lib.mock_backend import (
     CTV3Events,
-    MockBackend,
     RegistrationHistory,
     ctv3_event,
     patient,
     positive_test,
 )
-from lib.util import extract, make_codelist
+from .lib.util import OldCohortWithPopulation, make_codelist
 
-from cohortextractor.query_language import categorise, table
-
-
-def test_backend_tables():
-    """Test that a backend registers its table names"""
-    assert MockBackend.tables == {
-        "practice_registrations",
-        "clinical_events",
-        "patients",
-        "positive_tests",
-    }
+# Mark the whole module as containing integration tests
+pytestmark = pytest.mark.integration
 
 
-@pytest.mark.integration
-def test_run_generated_sql_get_single_column_default_population(
-    database, setup_test_database
-):
+def test_query_engine_caches_sql_engine(engine):
+    empty_cohort = {}
+    query_engine = engine.query_engine_class(
+        empty_cohort, engine.backend(database_url="foo://localhost")
+    )
+    # Check that the property caches the results and gives us the same object each time
+    sql_engine_1 = query_engine.engine
+    sql_engine_2 = query_engine.engine
+    assert sql_engine_1 is sql_engine_2
+
+
+def test_run_generated_sql_get_single_column_default_population(engine):
     input_data = [
-        *patient(1, ctv3_event("Code1")),
+        patient(
+            1,
+            ctv3_event("Code1"),
+        ),
         # patient 2 has an event, but no RegistrationHistory entry
         CTV3Events(PatientId=2, EventCode="Code2", System="ctv3"),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
     # Cohort to extract all clinical events and return just the code column
     # Note that the RegistrationHistory table is used for the default population query
     # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
     # table will be returned
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         output_value = table("clinical_events").first_by("patient_id").get("code")
 
-    assert extract(Cohort, MockBackend, database) == [
-        dict(patient_id=1, output_value="Code1")
-    ]
+    assert engine.extract(Cohort) == [dict(patient_id=1, output_value="Code1")]
 
 
-@pytest.mark.integration
-def test_run_generated_sql_get_single_column_specified_population(
-    database, setup_test_database
-):
+def test_run_generated_sql_get_single_column_specified_population(engine):
     input_data = [
-        *patient(1, ctv3_event("Code1")),
+        patient(1, ctv3_event("Code1")),
         # patient 2 has an event, but no RegistrationHistory entry
         CTV3Events(PatientId=2, EventCode="Code2", System="ctv3"),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
     # Cohort to extract all clinical events and return just the code column
     # Note that the RegistrationHistory table is used for the default population query
@@ -67,58 +66,45 @@ def test_run_generated_sql_get_single_column_specified_population(
         output_value = table("clinical_events").first_by("patient_id").get("code")
         population = table("practice_registrations").exists()
 
-    assert extract(Cohort, MockBackend, database) == [
-        dict(patient_id=1, output_value="Code1")
-    ]
+    assert engine.extract(Cohort) == [dict(patient_id=1, output_value="Code1")]
 
 
-@pytest.mark.integration
-def test_run_generated_sql_get_multiple_columns(database, setup_test_database):
+def test_run_generated_sql_get_multiple_columns(engine):
     input_data = [
-        *patient(1, ctv3_event("Code1"), positive_test(True)),
-        *patient(2, ctv3_event("Code2"), positive_test(False)),
+        patient(1, ctv3_event("Code1"), positive_test(True)),
+        patient(2, ctv3_event("Code2"), positive_test(False)),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
     # Cohort to extract all clinical events and positive tests
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         output_value = table("clinical_events").first_by("patient_id").get("code")
         positive = table("positive_tests").first_by("patient_id").get("result")
 
-    assert extract(Cohort, MockBackend, database) == [
+    assert engine.extract(Cohort) == [
         dict(patient_id=1, output_value="Code1", positive=True),
         dict(patient_id=2, output_value="Code2", positive=False),
     ]
 
 
-@pytest.mark.integration
-def test_extract_get_single_column(database, setup_test_database):
+def test_extract_get_single_column(engine):
     input_data = [
-        *patient(1, ctv3_event("Code1")),
+        patient(1, ctv3_event("Code1")),
         CTV3Events(PatientId=2, EventCode="Code2", System="ctv3"),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
     # Cohort to extract all clinical events and return just the code column
     # Note that the RegistrationHistory table is used for the default population query
     # It will join the two tables on patient_id and only rows that exist in the RegistrationHistory
     # table will be returned
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         output_value = table("clinical_events").first_by("patient_id").get("code")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert list(result) == [dict(patient_id=1, output_value="Code1")]
 
 
-def test_invalid_table():
-    class Cohort:
-        output_value = table("unknown").first_by("patient_id").get("code")
-
-    with pytest.raises(ValueError, match="Unknown table 'unknown'"):
-        extract(Cohort, MockBackend, null_database())
-
-
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "code_output,date_output,expected",
     [
@@ -141,62 +127,61 @@ def test_invalid_table():
     ],
 )
 def test_run_generated_sql_get_single_row_per_patient(
-    database, setup_test_database, code_output, date_output, expected
+    engine, code_output, date_output, expected
 ):
     input_data = [
-        *patient(
+        patient(
             1,
             ctv3_event("Code1", "2021-01-03"),
             ctv3_event("Code1", "2021-02-01"),
             ctv3_event("Code2", "2021-05-02"),
         ),
-        *patient(
+        patient(
             2, ctv3_event("Code1", "2021-06-05"), ctv3_event("Code1", "2021-02-04")
         ),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
     # Cohort to extract the earliest/latest event for each patient, and return code and date
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = code_output
         date = date_output
 
-    assert extract(Cohort, MockBackend, database) == expected
+    assert engine.extract(Cohort) == expected
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "data,filtered_table,expected",
     [
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # equal
-                *patient(2, ctv3_event("Code2", "2021-02-02", 20)),  # not equal
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # equal
+                patient(2, ctv3_event("Code2", "2021-02-02", 20)),  # not equal
             ],
-            table("clinical_events").filter(code=make_codelist("Code1")),
+            table("clinical_events").filter("code", is_in=make_codelist("Code1")),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
             ],
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # both equal
-                *patient(2, ctv3_event("Code1", "2021-01-02", 20)),  # only one equal
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # both equal
+                patient(2, ctv3_event("Code1", "2021-01-02", 20)),  # only one equal
             ],
-            table("clinical_events").filter(
-                code=make_codelist("Code1"), date="2021-01-01"
-            ),
+            table("clinical_events")
+            .filter("code", is_in=make_codelist("Code1"))
+            .filter(date="2021-01-01"),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
             ],
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # before
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # start of range
-                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # within range
-                *patient(4, ctv3_event("Code4", "2021-01-04", 40)),  # end of range
-                *patient(5, ctv3_event("Code5", "2021-01-05", 50)),  # after
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # before
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # start of range
+                patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # within range
+                patient(4, ctv3_event("Code4", "2021-01-04", 40)),  # end of range
+                patient(5, ctv3_event("Code5", "2021-01-05", 50)),  # after
             ],
             table("clinical_events").filter(
                 "date", between=["2021-01-02", "2021-01-04"]
@@ -209,9 +194,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("result", greater_than=20),
             [
@@ -220,9 +205,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("date", greater_than="2021-01-02"),
             [
@@ -231,9 +216,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter(
                 "date", greater_than_or_equals="2021-01-02"
@@ -245,9 +230,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("date", on_or_after="2021-01-02"),
             [
@@ -257,9 +242,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("date", less_than="2021-01-02"),
             [
@@ -268,9 +253,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("date", less_than_or_equals="2021-01-02"),
             [
@@ -280,9 +265,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # before
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # on
-                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # after
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # before
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # on
+                patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # after
             ],
             table("clinical_events").filter("date", on_or_before="2021-01-02"),
             [
@@ -292,9 +277,9 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
-                *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # less than
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
+                patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
             table("clinical_events").filter("result", less_than_or_equals=20),
             [
@@ -304,18 +289,8 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # not equal
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
-            ],
-            table("clinical_events").filter("code", not_equals=make_codelist("Code2")),
-            [
-                dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
-            ],
-        ),
-        (
-            [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # in
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # not in
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # in
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # not in
             ],
             table("clinical_events").filter(
                 "code", is_in=make_codelist("Code1", "Code999")
@@ -326,8 +301,8 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # in
-                *patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # not in
+                patient(1, ctv3_event("Code1", "2021-01-01", 10)),  # in
+                patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # not in
             ],
             table("clinical_events").filter(
                 "code", not_in=make_codelist("Code1", "Code999")
@@ -338,21 +313,21 @@ def test_run_generated_sql_get_single_row_per_patient(
         ),
         (
             [
-                *patient(
+                patient(
                     1, ctv3_event("Code1", "2021-01-01", 10)
                 ),  # excluded by first filter
-                *patient(
+                patient(
                     2, ctv3_event("Code2", "2021-01-02", 20)
                 ),  # excluded by second filter
-                *patient(
+                patient(
                     3, ctv3_event("Code3", "2021-01-03", 30)
                 ),  # excluded by third filter
-                *patient(4, ctv3_event("Code4", "2021-01-04", 40)),  # included
+                patient(4, ctv3_event("Code4", "2021-01-04", 40)),  # included
             ],
             table("clinical_events")
             .filter("result", greater_than=15)
             .filter("date", between=["2021-01-03", "2021-06-06"])
-            .filter(code=make_codelist("Code4")),
+            .filter("code", is_in=make_codelist("Code4")),
             [
                 dict(patient_id=4, code="Code4", date=date(2021, 1, 4), value=40),
             ],
@@ -370,14 +345,13 @@ def test_run_generated_sql_get_single_row_per_patient(
         "test less than or equals filter on date data",
         "test on or before filter (alias for lte)",
         "test less than or equals filter on numeric data",
-        "test not equals filter",
         "test in filter",
         "test not in filter",
         "test multiple chained filters",
     ],
 )
-def test_simple_filters(database, setup_test_database, data, filtered_table, expected):
-    setup_test_database(data)
+def test_simple_filters(engine, data, filtered_table, expected):
+    engine.setup(data)
 
     class Cohort:
         population = filtered_table.exists()
@@ -386,10 +360,31 @@ def test_simple_filters(database, setup_test_database, data, filtered_table, exp
         date = _filtered.get("date")
         value = _filtered.get("result")
 
-    assert extract(Cohort, MockBackend, database) == expected
+    assert engine.extract(Cohort) == expected
 
 
-@pytest.mark.integration
+@pytest.mark.parametrize("filter_value", [[170, 180], (170, 180), {170, 180}])
+def test_is_in_filter(engine, filter_value, request):
+    data = [
+        patient(1, ctv3_event("Code1", "2021-01-01", 10), height=180),  # in
+        patient(2, ctv3_event("Code2", "2021-01-02", 20), height=170),  # not in
+    ]
+
+    engine.setup(data)
+
+    class Cohort:
+        _filtered_table = table("patients").filter("height", is_in=filter_value)
+        population = _filtered_table.exists()
+        _filtered = _filtered_table.first_by("patient_id")
+        height = _filtered.get("height")
+
+    expected = [
+        dict(patient_id=1, height=180),
+        dict(patient_id=2, height=170),
+    ]
+    assert engine.extract(Cohort) == expected
+
+
 @pytest.mark.parametrize(
     "filtered_table,expected",
     [
@@ -408,16 +403,16 @@ def test_simple_filters(database, setup_test_database, data, filtered_table, exp
         ),
     ],
 )
-def test_filter_with_nulls(database, setup_test_database, filtered_table, expected):
-    setup_test_database(
+def test_filter_with_nulls(engine, filtered_table, expected):
+    engine.setup(
         [
-            *patient(
+            patient(
                 1, ctv3_event("Code1", "2021-01-01", 10)
             ),  # excluded by filter on value
-            *patient(
+            patient(
                 2, ctv3_event("Code2", "2021-01-02", None)
             ),  # only included if include_null is True
-            *patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # included
+            patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # included
         ]
     )
 
@@ -428,14 +423,13 @@ def test_filter_with_nulls(database, setup_test_database, filtered_table, expect
         date = _filtered_per_patient.get("date")
         value = _filtered_per_patient.get("result")
 
-    assert extract(Cohort, MockBackend, database) == expected
+    assert engine.extract(Cohort) == expected
 
 
-@pytest.mark.integration
-def test_filter_between_other_query_values(database, setup_test_database):
+def test_filter_between_other_query_values(engine):
     # set up input data for 3 patients, with positive test dates and clinical event results
     input_data = [
-        *patient(
+        patient(
             1,
             positive_test(True, "2021-01-01"),
             positive_test(True, "2021-02-15"),
@@ -445,7 +439,7 @@ def test_filter_between_other_query_values(database, setup_test_database):
             ctv3_event("Code1", "2021-04-12", system="ctv3", value=10.2),
             ctv3_event("Code1", "2021-03-01", system="ctv3", value=10.3),
         ),
-        *patient(
+        patient(
             2,
             positive_test(True, "2021-01-21"),
             positive_test(False, "2021-02-17"),
@@ -455,7 +449,7 @@ def test_filter_between_other_query_values(database, setup_test_database):
             ctv3_event("Code1", "2021-02-01", system="ctv3", value=50.2),
             ctv3_event("Code1", "2021-05-02", system="ctv3", value=50.3),
         ),
-        *patient(
+        patient(
             3,
             positive_test(True, "2021-01-10"),
             positive_test(True, "2021-02-23"),
@@ -469,10 +463,10 @@ def test_filter_between_other_query_values(database, setup_test_database):
             ctv3_event("Code2", "2021-02-01", system="snomed", value=60.3),
         ),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
     # Cohort to extract the last Code1 result between a patient's first and last positive test dates
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _positive_tests = table("positive_tests").filter(result=True)
         first_pos = _positive_tests.earliest("test_date").get("test_date")
         last_pos = _positive_tests.latest("test_date").get("test_date")
@@ -485,7 +479,7 @@ def test_filter_between_other_query_values(database, setup_test_database):
         date = _events.get("date")
         value = _events.get("result")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(
             patient_id=1,
@@ -511,8 +505,7 @@ def test_filter_between_other_query_values(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_date_in_range_filter(database, setup_test_database):
+def test_date_in_range_filter(engine):
     input_data = [
         # (9999-12-31 is the default TPP null value)
         # registraion start date before target date; no end date - included
@@ -538,27 +531,26 @@ def test_date_in_range_filter(database, setup_test_database):
             PatientId=4, StpId="STP3", StartDate="2021-01-01", EndDate="2021-03-03"
         ),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _registrations = table("practice_registrations").date_in_range("2021-03-02")
-        stp = _registrations.first_by("patient_id").get("stp")
+        stp = _registrations.first_by("date_start").get("stp")
         count = _registrations.count("patient_id")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, stp="STP1", count=1),
         dict(patient_id=2, stp=None, count=None),
         dict(patient_id=3, stp="STP2", count=1),
-        dict(patient_id=4, stp="STP2", count=2),
+        dict(patient_id=4, stp="STP3", count=2),
     ]
 
 
-@pytest.mark.integration
-def test_in_filter_on_query_values(database, setup_test_database):
+def test_in_filter_on_query_values(engine):
     # set up input data for 2 patients, with positive test dates and clinical event results
     input_data = [
-        *patient(
+        patient(
             1,
             positive_test(True, "2021-01-01"),
             positive_test(True, "2021-02-15"),
@@ -569,7 +561,7 @@ def test_in_filter_on_query_values(database, setup_test_database):
             # 1 result that doesn't match a positive result date
             ctv3_event("Code1", "2021-05-01", value=10.3),
         ),
-        *patient(
+        patient(
             2,
             positive_test(True, "2021-01-10"),
             positive_test(False, "2021-02-01"),
@@ -585,35 +577,34 @@ def test_in_filter_on_query_values(database, setup_test_database):
         ),
     ]
 
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
     # Cohort to extract the Code1 results that were on a positive test date
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _positive_test_dates = (
             table("positive_tests").filter(result=True).get("test_date")
         )
         _last_code1_events_on_positive_test_dates = (
             table("clinical_events")
-            .filter(code=make_codelist("Code1"))
+            .filter("code", is_in=make_codelist("Code1"))
             .filter("date", is_in=_positive_test_dates)
             .latest()
         )
         date = _last_code1_events_on_positive_test_dates.get("date")
         value = _last_code1_events_on_positive_test_dates.get("result")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, date=date(2021, 2, 15), value=10.2),
         dict(patient_id=2, date=date(2021, 1, 10), value=50.1),
     ]
 
 
-@pytest.mark.integration
-def test_not_in_filter_on_query_values(database, setup_test_database):
+def test_not_in_filter_on_query_values(engine):
     # set up input data for 2 patients, with positive test dates and clinical event results
 
     input_data = [
-        *patient(
+        patient(
             1,
             positive_test(True, "2021-01-01"),
             positive_test(True, "2021-02-15"),
@@ -625,7 +616,7 @@ def test_not_in_filter_on_query_values(database, setup_test_database):
             # 1 result that doesn't match a positive result date: SELECTED
             ctv3_event("Code1", "2021-04-01", value=10.3),
         ),
-        *patient(
+        patient(
             2,
             positive_test(True, "2021-01-10"),
             positive_test(False, "2021-02-01"),
@@ -639,10 +630,10 @@ def test_not_in_filter_on_query_values(database, setup_test_database):
         ),
     ]
 
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
     # Cohort to extract the results that were NOT on a test date (positive or negative)
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _test_dates = table("positive_tests").get("test_date")
         _last_event_not_on_test_date = (
             table("clinical_events").filter("date", not_in=_test_dates).latest()
@@ -650,14 +641,13 @@ def test_not_in_filter_on_query_values(database, setup_test_database):
         date = _last_event_not_on_test_date.get("date")
         value = _last_event_not_on_test_date.get("result")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, date=date(2021, 4, 1), value=10.3),
         dict(patient_id=2, date=date(2021, 5, 2), value=50.3),
     ]
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "aggregation,column,expected",
     [
@@ -683,47 +673,50 @@ def test_not_in_filter_on_query_values(database, setup_test_database):
             "sum",
             "result",
             [
-                dict(patient_id=1, value=20.6),
-                dict(patient_id=2, value=50.1),
+                # Due to the usual floating point shennanigans we don't always get
+                # _exactly_ the result we're expecting here, depending on the database
+                dict(patient_id=1, value=pytest.approx(20.6)),
+                dict(patient_id=2, value=pytest.approx(50.1)),
                 dict(patient_id=3, value=None),
             ],
         ),
     ],
     ids=[],
 )
-def test_aggregation(database, setup_test_database, aggregation, column, expected):
+def test_aggregation(engine, aggregation, column, expected):
     input_data = [
-        *patient(
+        patient(
             1,
             ctv3_event("Code1", value=10.1),
             ctv3_event("Code1", value=10.5),
             ctv3_event("Code2", value=30.1),
         ),
-        *patient(
+        patient(
             2,
             ctv3_event("Code1", value=50.1),
             ctv3_event("Code2", value=60.1),
         ),
-        *patient(
+        patient(
             3,
             ctv3_event("Code2", value=70.1),
         ),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
-        _filtered_table = table("clinical_events").filter(code=make_codelist("Code1"))
+    class Cohort(OldCohortWithPopulation):
+        _filtered_table = table("clinical_events").filter(
+            "code", is_in=make_codelist("Code1")
+        )
         value = getattr(_filtered_table, aggregation)(column)
 
-    assert extract(Cohort, MockBackend, database) == expected
+    assert engine.extract(Cohort) == expected
 
 
-@pytest.mark.integration
-def test_categorise_simple_comparisons(database, setup_test_database):
-    input_data = [*patient(1, height=180), *patient(2, height=200.5), *patient(3)]
-    setup_test_database(input_data)
+def test_categorise_simple_comparisons(engine):
+    input_data = [patient(1, height=180), patient(2, height=200.5), patient(3)]
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _height = table("patients").first_by("patient_id").get("height")
         _height_categories = {
             "tall": _height > 190,
@@ -731,7 +724,7 @@ def test_categorise_simple_comparisons(database, setup_test_database):
         }
         height_group = categorise(_height_categories, default="missing")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, height_group="short"),
         dict(patient_id=2, height_group="tall"),
@@ -739,7 +732,6 @@ def test_categorise_simple_comparisons(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "categories,default,expected",
     [
@@ -771,6 +763,18 @@ def test_categorise_simple_comparisons(database, setup_test_database):
         ),
         (
             lambda height_value: {
+                "short_or_tall": (height_value < 150) | (height_value > 190)
+            },
+            None,
+            [
+                dict(patient_id=1, height_group=None),
+                dict(patient_id=2, height_group="short_or_tall"),
+                dict(patient_id=3, height_group=None),
+                dict(patient_id=4, height_group="short_or_tall"),
+            ],
+        ),
+        (
+            lambda height_value: {
                 "tallish": (height_value > 175) & (height_value != 180),
                 "short": height_value <= 175,
             },
@@ -786,40 +790,40 @@ def test_categorise_simple_comparisons(database, setup_test_database):
     ids=[
         "test simple and on two conditions",
         "test simple or on two conditions",
+        "test simple or with None default",
         "test a not-equals condition",
     ],
 )
-def test_categorise_single_combined_conditions(
-    database, setup_test_database, categories, default, expected
-):
+def test_categorise_single_combined_conditions(engine, categories, default, expected):
     input_data = [
-        *patient(1, height=180),
-        *patient(2, height=200.5),
-        *patient(3),
-        *patient(4, height=145),
+        patient(1, height=180),
+        patient(2, height=200.5),
+        patient(3),
+        patient(4, height=145),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    default_kwarg = {"default": default} if default is not None else {}
+
+    class Cohort(OldCohortWithPopulation):
         _height = table("patients").first_by("patient_id").get("height")
         _height_categories = categories(_height)
-        height_group = categorise(_height_categories, default=default)
+        height_group = categorise(_height_categories, **default_kwarg)
 
-    result = list(extract(Cohort, MockBackend, database))
+    result = list(engine.extract(Cohort))
     assert result == expected
 
 
-@pytest.mark.integration
-def test_categorise_multiple_values(database, setup_test_database):
+def test_categorise_multiple_values(engine):
     """Test that categories can combine conditions that use different source values"""
     input_data = [
-        *patient(1, ctv3_event("abc"), height=200),
-        *patient(2, ctv3_event("xyz"), height=150),
-        *patient(3, ctv3_event("abc"), height=160),
+        patient(1, ctv3_event("abc"), height=200),
+        patient(2, ctv3_event("xyz"), height=150),
+        patient(3, ctv3_event("abc"), height=160),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _height = table("patients").first_by("patient_id").get("height")
         _code = table("clinical_events").first_by("patient_id").get("code")
         _height_with_codes_categories = {
@@ -828,7 +832,7 @@ def test_categorise_multiple_values(database, setup_test_database):
         }
         height_group = categorise(_height_with_codes_categories, default="missing")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, height_group="tall"),
         dict(patient_id=2, height_group="missing"),
@@ -836,18 +840,17 @@ def test_categorise_multiple_values(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_categorise_nested_comparisons(database, setup_test_database):
+def test_categorise_nested_comparisons(engine):
     input_data = [
-        *patient(1, ctv3_event("abc"), height=194),  # tall with code - matches
-        *patient(2, ctv3_event("xyz"), height=200.5),  # tall no code  - matches
-        *patient(3, ctv3_event("abc"), height=140.5),  # short with code - matches
-        *patient(4, height=140.5),  # short no code
-        *patient(5),
+        patient(1, ctv3_event("abc"), height=194),  # tall with code - matches
+        patient(2, ctv3_event("xyz"), height=200.5),  # tall no code  - matches
+        patient(3, ctv3_event("abc"), height=140.5),  # short with code - matches
+        patient(4, height=140.5),  # short no code
+        patient(5),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _height = table("patients").first_by("patient_id").get("height")
         _code = table("clinical_events").first_by("patient_id").get("code")
 
@@ -861,7 +864,7 @@ def test_categorise_nested_comparisons(database, setup_test_database):
         height_group = categorise(_height_with_codes_categories, default="na")
         height_group1 = categorise(_codes_with_height_categories, default="na")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
 
     assert result == [
         dict(patient_id=1, height_group="tall_or_code", height_group1="code_or_tall"),
@@ -872,23 +875,24 @@ def test_categorise_nested_comparisons(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_categorise_on_truthiness(database, setup_test_database):
+def test_categorise_on_truthiness(engine):
     """Test truthiness of a Value from an exists aggregation"""
     input_data = [
-        *patient(1, ctv3_event("abc")),
-        *patient(2, ctv3_event("xyz")),
-        *patient(3, ctv3_event("abc")),
-        *patient(4),
+        patient(1, ctv3_event("abc")),
+        patient(2, ctv3_event("xyz")),
+        patient(3, ctv3_event("abc")),
+        patient(4),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
-        _code = table("clinical_events").filter(code=make_codelist("abc")).exists()
+    class Cohort(OldCohortWithPopulation):
+        _code = (
+            table("clinical_events").filter("code", is_in=make_codelist("abc")).exists()
+        )
         _codes_categories = {"yes": _code}
         abc = categorise(_codes_categories, default="na")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, abc="yes"),
         dict(patient_id=2, abc="na"),
@@ -897,18 +901,17 @@ def test_categorise_on_truthiness(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_categorise_on_truthiness_from_filter(database, setup_test_database):
+def test_categorise_on_truthiness_from_filter(engine):
     """Test truthiness of a Value from a filtered value"""
     input_data = [
-        *patient(1, ctv3_event("abc")),
-        *patient(2, ctv3_event("xyz")),
-        *patient(3, ctv3_event("abc")),
-        *patient(4, ctv3_event("def")),
+        patient(1, ctv3_event("abc")),
+        patient(2, ctv3_event("xyz")),
+        patient(3, ctv3_event("abc")),
+        patient(4, ctv3_event("def")),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _code = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -918,7 +921,7 @@ def test_categorise_on_truthiness_from_filter(database, setup_test_database):
         _codes_categories = {"yes": _code}
         has_code = categorise(_codes_categories, default="na")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, has_code="yes"),
         dict(patient_id=2, has_code="na"),
@@ -927,18 +930,17 @@ def test_categorise_on_truthiness_from_filter(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_categorise_multiple_truthiness_values(database, setup_test_database):
+def test_categorise_multiple_truthiness_values(engine):
     """Test truthiness of a Value from a filtered value"""
     input_data = [
-        *patient(1, ctv3_event("abc"), positive_test(True)),
-        *patient(2, ctv3_event("xyz"), positive_test(False)),
-        *patient(3, ctv3_event("abc"), positive_test(False)),
-        *patient(4, ctv3_event("def"), positive_test(True)),
+        patient(1, ctv3_event("abc"), positive_test(True)),
+        patient(2, ctv3_event("xyz"), positive_test(False)),
+        patient(3, ctv3_event("abc"), positive_test(False)),
+        patient(4, ctv3_event("def"), positive_test(True)),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _code = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -949,7 +951,7 @@ def test_categorise_multiple_truthiness_values(database, setup_test_database):
         _codes_categories = {"yes": _code & _has_positive_test}
         has_positive_code = categorise(_codes_categories, default="na")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, has_positive_code="yes"),
         dict(patient_id=2, has_positive_code="na"),
@@ -958,18 +960,17 @@ def test_categorise_multiple_truthiness_values(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_categorise_invert(database, setup_test_database):
+def test_categorise_invert(engine):
     input_data = [
-        *patient(1, height=194),
-        *patient(2, height=160.5),
-        *patient(3, height=155.5),
-        *patient(4, height=140.5),
+        patient(1, height=194),
+        patient(2, height=160.5),
+        patient(3, height=155.5),
+        patient(4, height=140.5),
         RegistrationHistory(PatientId=5),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _height = table("patients").first_by("patient_id").get("height")
         _code = table("clinical_events").first_by("patient_id").get("code")
 
@@ -980,7 +981,7 @@ def test_categorise_invert(database, setup_test_database):
         }
         height_group = categorise(_height_inverted, default="na")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
 
     assert result == [
         dict(patient_id=1, height_group="tall"),
@@ -991,17 +992,16 @@ def test_categorise_invert(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_categorise_invert_truthiness_values(database, setup_test_database):
+def test_categorise_invert_truthiness_values(engine):
     input_data = [
-        *patient(1, ctv3_event("abc")),
-        *patient(2, ctv3_event("xyz")),
-        *patient(3, ctv3_event("abc")),
-        *patient(4, ctv3_event("def")),
+        patient(1, ctv3_event("abc")),
+        patient(2, ctv3_event("xyz")),
+        patient(3, ctv3_event("abc")),
+        patient(4, ctv3_event("def")),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _code = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -1011,7 +1011,7 @@ def test_categorise_invert_truthiness_values(database, setup_test_database):
         _codes_categories = {"yes": _code, "no": ~_code}
         has_code = categorise(_codes_categories, default="na")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, has_code="yes"),
         dict(patient_id=2, has_code="no"),
@@ -1020,17 +1020,16 @@ def test_categorise_invert_truthiness_values(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_categorise_invert_combined_values(database, setup_test_database):
+def test_categorise_invert_combined_values(engine):
     input_data = [
-        *patient(1, ctv3_event("abc"), positive_test(True)),
-        *patient(2, ctv3_event("xyz"), positive_test(False)),
-        *patient(3, ctv3_event("abc"), positive_test(False)),
-        *patient(4, ctv3_event("def"), positive_test(True)),
+        patient(1, ctv3_event("abc"), positive_test(True)),
+        patient(2, ctv3_event("xyz"), positive_test(False)),
+        patient(3, ctv3_event("abc"), positive_test(False)),
+        patient(4, ctv3_event("def"), positive_test(True)),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _code = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -1041,7 +1040,7 @@ def test_categorise_invert_combined_values(database, setup_test_database):
         _codes_categories = {"neg_or_no_code": ~(_code & _has_positive_test)}
         result_group = categorise(_codes_categories, default="pos")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, result_group="pos"),
         dict(patient_id=2, result_group="neg_or_no_code"),
@@ -1050,17 +1049,16 @@ def test_categorise_invert_combined_values(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_categorise_double_invert(database, setup_test_database):
+def test_categorise_double_invert(engine):
     input_data = [
-        *patient(1, ctv3_event("abc")),
-        *patient(2, ctv3_event("xyz")),
-        *patient(3, ctv3_event("abc")),
-        *patient(4, ctv3_event("def")),
+        patient(1, ctv3_event("abc")),
+        patient(2, ctv3_event("xyz")),
+        patient(3, ctv3_event("abc")),
+        patient(4, ctv3_event("def")),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _code = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -1070,7 +1068,7 @@ def test_categorise_double_invert(database, setup_test_database):
         _codes_categories = {"yes": ~~_code}
         has_code = categorise(_codes_categories, default="na")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, has_code="yes"),
         dict(patient_id=2, has_code="na"),
@@ -1079,8 +1077,7 @@ def test_categorise_double_invert(database, setup_test_database):
     ]
 
 
-@pytest.mark.integration
-def test_categorise_multiple_truthiness_categories(database, setup_test_database):
+def test_categorise_multiple_truthiness_categories(engine):
     """
     Test categorisation on multiple truthy values
     This tests for a previous bug in sorting the reference nodes in category definitions.
@@ -1092,15 +1089,15 @@ def test_categorise_multiple_truthiness_categories(database, setup_test_database
     this scenario.
     """
     input_data = [
-        *patient(1, ctv3_event("abc")),
-        *patient(2, ctv3_event("xyz"), ctv3_event("lmn")),
-        *patient(3, ctv3_event("uvw")),
-        *patient(4, ctv3_event("def")),
-        *patient(5),
+        patient(1, ctv3_event("abc")),
+        patient(2, ctv3_event("xyz"), ctv3_event("lmn")),
+        patient(3, ctv3_event("uvw")),
+        patient(4, ctv3_event("def")),
+        patient(5),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         _codes_1 = (
             table("clinical_events")
             .filter("code", is_in=make_codelist("abc", "def"))
@@ -1116,7 +1113,7 @@ def test_categorise_multiple_truthiness_categories(database, setup_test_database
         _codes_categories = {"1": _codes_1, "2": _codes_2}
         has_positive_code = categorise(_codes_categories, default="na")
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, has_positive_code="1"),
         dict(patient_id=2, has_positive_code="2"),
@@ -1126,40 +1123,109 @@ def test_categorise_multiple_truthiness_categories(database, setup_test_database
     ]
 
 
-@pytest.mark.integration
-def test_age_as_of(database, setup_test_database):
+def test_age_as_of(engine):
     input_data = [
-        *patient(1, ctv3_event("abc", "2020-10-01"), dob="1990-8-10"),
-        *patient(2, ctv3_event("abc", "2018-02-01"), dob="2000-03-20"),
+        patient(1, ctv3_event("abc", "2020-10-01"), dob="1990-08-10"),
+        patient(2, ctv3_event("abc", "2018-02-01"), dob="2000-03-20"),
     ]
-    setup_test_database(input_data)
+    engine.setup(input_data)
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         age_in_2010 = table("patients").age_as_of("2010-06-01")
         age_at_last_event = table("patients").age_as_of(
             table("clinical_events").latest().get("date")
         )
 
-    result = extract(Cohort, MockBackend, database)
+    result = engine.extract(Cohort)
     assert result == [
         {"patient_id": 1, "age_in_2010": 19, "age_at_last_event": 30},
         {"patient_id": 2, "age_in_2010": 10, "age_at_last_event": 17},
     ]
 
 
-@pytest.mark.integration
-def test_fetching_results_using_temporary_database(database, setup_test_database):
-    setup_test_database(
+def test_round_to_first_of_month(engine, cohort_with_population):
+    input_data = [
+        patient(1, ctv3_event("abc", "2020-10-10")),
+        patient(2, ctv3_event("abc", "2018-02-02")),
+        patient(3, ctv3_event("abc", "2018-02-01")),
+        patient(4, ctv3_event("abc", "2018-02-28")),
+        patient(5, ctv3_event("abc", "2020-02-29")),
+        patient(6, ctv3_event("abc", "2020-03-08")),
+        patient(7, ctv3_event("abc", "2018-03-08")),
+        patient(8, ctv3_event("abc", "2018-01-15")),
+    ]
+    engine.setup(input_data)
+
+    cohort = cohort_with_population
+    events = tables.clinical_events
+    cohort.first_event_date = (
+        events.sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.date)
+        .round_to_first_of_month()
+    )
+
+    result = engine.extract(cohort)
+    assert result == [
+        {"patient_id": 1, "first_event_date": date(2020, 10, 1)},
+        {"patient_id": 2, "first_event_date": date(2018, 2, 1)},
+        {"patient_id": 3, "first_event_date": date(2018, 2, 1)},
+        {"patient_id": 4, "first_event_date": date(2018, 2, 1)},
+        {"patient_id": 5, "first_event_date": date(2020, 2, 1)},
+        {"patient_id": 6, "first_event_date": date(2020, 3, 1)},
+        {"patient_id": 7, "first_event_date": date(2018, 3, 1)},
+        {"patient_id": 8, "first_event_date": date(2018, 1, 1)},
+    ]
+
+
+def test_round_to_first_of_year(engine, cohort_with_population):
+    input_data = [
+        patient(1, ctv3_event("abc", "2020-10-10")),
+        patient(2, ctv3_event("abc", "2018-02-02")),
+        patient(3, ctv3_event("abc", "2018-01-01")),
+        patient(4, ctv3_event("abc", "2018-12-31")),
+        patient(5, ctv3_event("abc", "2020-02-29")),
+        patient(6, ctv3_event("abc", "2020-03-05")),
+        patient(7, ctv3_event("abc", "2018-03-17")),
+    ]
+    engine.setup(input_data)
+
+    cohort = cohort_with_population
+    events = tables.clinical_events
+    cohort.first_event_date = (
+        events.sort_by(events.date)
+        .first_for_patient()
+        .select_column(events.date)
+        .round_to_first_of_year()
+    )
+
+    result = engine.extract(cohort)
+    assert result == [
+        {"patient_id": 1, "first_event_date": date(2020, 1, 1)},
+        {"patient_id": 2, "first_event_date": date(2018, 1, 1)},
+        {"patient_id": 3, "first_event_date": date(2018, 1, 1)},
+        {"patient_id": 4, "first_event_date": date(2018, 1, 1)},
+        {"patient_id": 5, "first_event_date": date(2020, 1, 1)},
+        {"patient_id": 6, "first_event_date": date(2020, 1, 1)},
+        {"patient_id": 7, "first_event_date": date(2018, 1, 1)},
+    ]
+
+
+def test_fetching_results_using_temporary_database(engine):
+    if engine.name == "spark":
+        pytest.skip("Spark does not support 'fetch using temporary database'")
+
+    engine.setup(
         [
-            *patient(1, ctv3_event("abc", "2020-01-01")),
-            *patient(2, ctv3_event("xyz", "2020-01-01")),
+            patient(1, ctv3_event("abc", "2020-01-01")),
+            patient(2, ctv3_event("xyz", "2020-01-01")),
         ]
     )
 
-    class Cohort:
+    class Cohort(OldCohortWithPopulation):
         code = table("clinical_events").latest().get("code")
 
-    assert extract(Cohort, MockBackend, database, temporary_database="temp_tables") == [
+    assert engine.extract(Cohort, temporary_database="temp_tables") == [
         dict(patient_id=1, code="abc"),
         dict(patient_id=2, code="xyz"),
     ]
