@@ -1,10 +1,12 @@
 import datetime
 
+import pytest
 import sqlalchemy
 
 from databuilder import sqlalchemy_types
 
 
+@pytest.mark.integration
 def test_datetime_column_returns_date_if_typed_as_such(engine):
     """
     Sometimes we have a datetime column in the underlying database that we want to
@@ -49,6 +51,7 @@ def test_datetime_column_returns_date_if_typed_as_such(engine):
     )
 
 
+@pytest.mark.integration
 def test_case_statement(engine):
     """
     Test a basic CASE statement returning a string value. This exposed a bug in the

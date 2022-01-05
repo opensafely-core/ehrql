@@ -96,6 +96,7 @@ def test_basic_validation_for_patients_contract_column_types():
         BadBackend.validate_contract("patients", BadBackend.patients)
 
 
+@pytest.mark.integration
 def test_basic_validation_for_patients_contract_column_constraints(engine):
     engine.setup(
         patient(
