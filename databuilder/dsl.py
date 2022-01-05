@@ -1,7 +1,7 @@
 """This module provides classes for building a cohort using the DSL.
 
-Database tables are modeled by PatientFrame (a collection of records with one record per
-patient) and EventFrame (a collection of records with multiple records per patient).
+Database tables are modelled by PatientFrame (a collection of records with one record
+per patient) and EventFrame (a collection of records with multiple records per patient).
 
 Through filtering, sorting, aggregating, and selecting columns, we transform instances
 of PatientFrame/EventFrame into instances of PatientSeries.

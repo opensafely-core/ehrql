@@ -78,7 +78,7 @@ brew install bash
 ## Running tests against Databricks
 
 The test suite for Databricks/Spark backend by default runs tests against
-a local spark db in a container, for reliablility and speed.
+a local spark db in a container, for reliability and speed.
 
 Open source Spark and Databricks' Spark are very similar, and this provides
 a good enough test basis for the SQL parts of a backend.
