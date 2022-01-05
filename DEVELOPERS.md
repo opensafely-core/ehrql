@@ -18,11 +18,11 @@ install dependencies.
 ## Test setup
 
 The test suite includes:
-- smoke tests: tests that run the databuilder end to end in docker
-- integration tests: tests that require a database
-- unit tests that don't require a database
+- integration tests: tests that use Docker (mostly to run a database, but also in some cases to test the data builder's
+  own Docker image)
+- unit tests: tests that don't require Docker (and therefore don't query an actual database)
 
-We run the database for the integration and smoke tests in a Docker container. Each run of the tests starts the
+We run the database for the integration tests in a Docker container. Each run of the tests starts the
 database if it's not already running _and then leaves it running_ at the end to speed up future runs. (Each test cleans
 out the schema to avoid pollution.)
 
@@ -36,12 +36,7 @@ To run just the integration tests
 just test-integration
 ```
 
-To run just the smoke tests
-```
-just test-smoke
-```
-
-To run just the unit (non-smoke and non-integration) tests:
+To run just the unit (non-integration) tests:
 ```
 just test-unit
 ```
@@ -56,7 +51,7 @@ To pass multiple args, wrap in quotes, e.g.:
 just test-integration '-s tests/acceptance'
 ```
 
-To remove the persistent database container:
+To remove the persistent database containers:
 ```
 just remove-persistent-database
 ```

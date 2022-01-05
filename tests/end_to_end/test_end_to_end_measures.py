@@ -3,8 +3,8 @@ import pytest
 from .utils import assert_results_equivalent
 
 
-@pytest.mark.smoke
-def test_generate_measures_smoke_test(
+@pytest.mark.integration
+def test_generate_measures_container_test(
     load_measures_study, cohort_extractor_generate_measures_in_container
 ):
     study = load_measures_study(

@@ -4,8 +4,8 @@ from ..lib.graphnet_schema import ClinicalEvents, Patients, PracticeRegistration
 from .utils import assert_results_equivalent
 
 
-@pytest.mark.smoke
-def test_extracts_data_from_sql_server_smoke_test(
+@pytest.mark.integration
+def test_extracts_data_from_sql_server_container_test(
     load_study, database, cohort_extractor_in_container
 ):
     run_test(load_study, database, cohort_extractor_in_container)

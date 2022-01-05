@@ -6,8 +6,8 @@ from ..lib.tpp_schema import CTV3Events, Patient, RegistrationHistory
 from .utils import assert_results_equivalent
 
 
-@pytest.mark.smoke
-def test_extracts_data_from_sql_server_smoke_test(
+@pytest.mark.integration
+def test_extracts_data_from_sql_server_container_test(
     load_study, database, cohort_extractor_in_container
 ):
     run_test(load_study, database, cohort_extractor_in_container)
@@ -65,8 +65,8 @@ def test_dummy_data(load_study, cohort_extractor_in_process_no_database):
     assert_results_equivalent(actual_results, study.expected_results())
 
 
-@pytest.mark.smoke
-def test_dummy_data_smoke_test(load_study, cohort_extractor_in_container):
+@pytest.mark.integration
+def test_dummy_data_container_test(load_study, cohort_extractor_in_container):
     study = load_study("end_to_end_tests_tpp", definition_file="tpp_cohort.py")
     actual_results = cohort_extractor_in_container(
         study, backend="tpp", use_dummy_data=True
