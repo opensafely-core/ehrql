@@ -216,7 +216,6 @@ def build_cohort():
 # when this xfail is removed, the file should be removed from coverage's omitted files
 # in pyproject.toml
 @pytest.mark.xfail
-@pytest.mark.integration
 def test_cohort(database):
     cohort = build_cohort()
     database.setup(

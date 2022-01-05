@@ -26,7 +26,6 @@ def run_query(database, query):
         yield from cursor.execute(query)
 
 
-@pytest.mark.integration
 def test_basic_events_and_registration(database):
     database.setup(
         Patient(Patient_ID=1),
@@ -40,7 +39,6 @@ def test_basic_events_and_registration(database):
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, code="Code1")]
 
 
-@pytest.mark.integration
 def test_registration_dates(database):
     database.setup(
         Patient(Patient_ID=1),
@@ -57,7 +55,6 @@ def test_registration_dates(database):
     ]
 
 
-@pytest.mark.integration
 def test_covid_test_positive_result(database):
     database.setup(
         Patient(Patient_ID=1),
@@ -79,7 +76,6 @@ def test_covid_test_positive_result(database):
     ]
 
 
-@pytest.mark.integration
 def test_covid_test_negative_result(database):
     database.setup(
         Patient(Patient_ID=1),
@@ -104,7 +100,6 @@ def test_covid_test_negative_result(database):
     ]
 
 
-@pytest.mark.integration
 def test_patients_table(database):
     database.setup(
         Patient(Patient_ID=1, Sex="F", DateOfBirth="1950-01-01"),
@@ -121,7 +116,6 @@ def test_patients_table(database):
     ]
 
 
-@pytest.mark.integration
 def test_hospitalization_table_returns_admission_date_and_code(database):
     database.setup(
         patient(
@@ -160,7 +154,6 @@ def test_hospitalization_table_returns_admission_date_and_code(database):
         "strips just trailing xs",
     ],
 )
-@pytest.mark.integration
 def test_hospitalization_table_code_conversion(database, raw, codes):
     database.setup(
         patient(
@@ -183,7 +176,6 @@ def test_hospitalization_table_code_conversion(database, raw, codes):
         assert (1, date(2012, 12, 12), code, "icd10") in results
 
 
-@pytest.mark.integration
 def test_hospitalization_code_parsing_works_with_filters(database):
     database.setup(
         patient(
@@ -216,7 +208,6 @@ def test_hospitalization_code_parsing_works_with_filters(database):
     ]
 
 
-@pytest.mark.integration
 def test_events_with_numeric_value(database):
     database.setup(
         Patient(Patient_ID=1),
@@ -230,7 +221,6 @@ def test_events_with_numeric_value(database):
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, value=34.7)]
 
 
-@pytest.mark.integration
 def test_organisation(database):
     database.setup(
         organisation(1, "South"),
@@ -250,7 +240,6 @@ def test_organisation(database):
     ]
 
 
-@pytest.mark.integration
 def test_organisation_dates(database):
     database.setup(
         organisation(1, "South"),
@@ -290,7 +279,6 @@ def test_organisation_dates(database):
     ]
 
 
-@pytest.mark.integration
 def test_index_of_multiple_deprivation(database):
     database.setup(
         patient(
@@ -308,7 +296,6 @@ def test_index_of_multiple_deprivation(database):
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=1200)]
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "patient_addresses,expected",
     [
@@ -364,7 +351,6 @@ def test_index_of_multiple_deprivation_sorting(database, patient_addresses, expe
     assert extract(Cohort, TPPBackend, database) == [dict(patient_id=1, imd=expected)]
 
 
-@pytest.mark.integration
 def test_clinical_events_table(database):
     database.setup(
         Patient(Patient_ID=1),
@@ -391,7 +377,6 @@ def test_clinical_events_table(database):
     ]
 
 
-@pytest.mark.integration
 def test_clinical_events_table_multiple_codes(database):
     database.setup(
         Patient(Patient_ID=1),
@@ -421,7 +406,6 @@ def test_clinical_events_table_multiple_codes(database):
     ]
 
 
-@pytest.mark.integration
 def test_patients_contract_table(database):
     database.setup(
         patient(1, "M", "1990-01-01", date_of_death="2021-01-04"),

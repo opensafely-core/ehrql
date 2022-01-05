@@ -9,7 +9,6 @@ from databuilder.query_engines.mssql_lib import (
 )
 
 
-@pytest.mark.integration
 def test_fetch_results_in_batches_happy_path(database):
     table = sqlalchemy.table("test_table")
     test_data = _make_test_data(rows=12)
@@ -29,7 +28,6 @@ def test_fetch_results_in_batches_happy_path(database):
         assert _as_dicts(results) == test_data
 
 
-@pytest.mark.integration
 def test_fetch_results_in_batches_with_retry(database):
     table = sqlalchemy.table("test_table")
     test_data = _make_test_data(rows=12)
@@ -54,7 +52,6 @@ def test_fetch_results_in_batches_with_retry(database):
             assert execute.call_count == 5
 
 
-@pytest.mark.integration
 def test_fetch_results_in_batches_with_reconnect_and_retry(database):
     table = sqlalchemy.table("test_table")
     test_data = _make_test_data(rows=12)
@@ -81,7 +78,6 @@ def test_fetch_results_in_batches_with_reconnect_and_retry(database):
             assert execute.call_count == 5
 
 
-@pytest.mark.integration
 def test_fetch_results_in_batches_caches_results(database, temp_tables):
     table = sqlalchemy.table("test_table")
     test_data = _make_test_data(rows=12)

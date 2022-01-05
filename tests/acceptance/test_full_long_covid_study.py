@@ -1,8 +1,6 @@
 from datetime import date, datetime
 from pathlib import Path
 
-import pytest
-
 from databuilder import categorise, codelist, table
 from databuilder.backends import TPPBackend
 from databuilder.validate_dummy_data import validate_dummy_data
@@ -152,7 +150,6 @@ for target_codelist in [any_long_covid_code, post_viral_fatigue_codes]:
         setattr(Cohort, f"{target_codelist.system}_{code}_date", date_variable_def)
 
 
-@pytest.mark.integration
 def test_cohort(database):
     database.setup(
         organisation(organisation_id=1, region="South"),

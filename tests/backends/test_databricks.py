@@ -1,8 +1,6 @@
 import random
 from datetime import date
 
-import pytest
-
 from databuilder import codelist, table
 from databuilder.backends.databricks import DatabricksBackend
 
@@ -53,7 +51,6 @@ def admission(
     return [apc, mps, otr]
 
 
-@pytest.mark.integration
 def test_basic_databricks_study_definition(spark_database):
     spark_database.setup(
         patient(

@@ -21,7 +21,6 @@ def codelist_csv():
     return csv_path
 
 
-@pytest.mark.integration
 def test_codelist_query(engine):
     input_data = [
         patient(
@@ -56,7 +55,6 @@ def test_codelist_query(engine):
     ]
 
 
-@pytest.mark.integration
 def test_codelist_equals_query(engine):
     input_data = [
         patient(1, ctv3_event(code="abc", date="2021-01-01")),
@@ -84,7 +82,6 @@ def test_codelist_equals_query(engine):
     ]
 
 
-@pytest.mark.integration
 def test_codelist_query_selects_correct_system(engine):
     input_data = [
         patient(
@@ -199,7 +196,6 @@ def test_combine_codelists_different_systems():
         combine_codelists(codelist1, codelist2)
 
 
-@pytest.mark.integration
 def test_codelist_query_with_codelist_from_csv(engine, codelist_csv):
     input_data = [
         patient(1, ctv3_event(code="abc", date="2021-01-01")),

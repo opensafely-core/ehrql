@@ -1,17 +1,13 @@
-import pytest
-
 from ..lib.graphnet_schema import ClinicalEvents, Patients, PracticeRegistrations
 from .utils import assert_results_equivalent
 
 
-@pytest.mark.integration
 def test_extracts_data_from_sql_server_container_test(
     load_study, database, cohort_extractor_in_container
 ):
     run_test(load_study, database, cohort_extractor_in_container)
 
 
-@pytest.mark.integration
 def test_extracts_data_from_sql_server_integration_test(
     load_study, database, cohort_extractor_in_process
 ):
@@ -51,7 +47,6 @@ def test_dummy_data(load_study, cohort_extractor_in_process_no_database):
     assert_results_equivalent(actual_results, study.expected_results())
 
 
-@pytest.mark.integration
 def test_extracts_data_from_sql_server_ignores_dummy_data_file(
     load_study, database, cohort_extractor_in_process
 ):

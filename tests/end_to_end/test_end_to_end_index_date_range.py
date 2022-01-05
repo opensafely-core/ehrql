@@ -8,7 +8,6 @@ from ..lib.tpp_schema import ctv3_event, patient, registration
 from .utils import assert_results_equivalent
 
 
-@pytest.mark.integration
 def test_extracts_data_with_index_date_range_container_test(
     load_study, database, cohort_extractor_in_container
 ):
@@ -21,7 +20,6 @@ def test_extracts_data_with_index_date_range_container_test(
     )
 
 
-@pytest.mark.integration
 def test_extracts_data_with_index_date_range_integration_test(
     load_study,
     database,
@@ -39,7 +37,6 @@ def test_extracts_data_with_index_date_range_integration_test(
     )
 
 
-@pytest.mark.integration
 def test_cohort_function_without_index_date_range(
     load_study,
     database,
