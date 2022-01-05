@@ -13,16 +13,8 @@ class BaseType(Protocol):
     allowed_backend_types: tuple[TYPES_BY_NAME, ...]
 
 
-class PseudoPatientId(BaseType):
-    """A type representing a pseudonymised patient ID"""
-
-    allowed_backend_types = (TYPES_BY_NAME.integer, TYPES_BY_NAME.varchar)
-
-
-class Date(BaseType):
-    """A type representing a date"""
-
-    allowed_backend_types = (TYPES_BY_NAME.date,)
+class Boolean(BaseType):
+    allowed_backend_types = (TYPES_BY_NAME.boolean,)
 
 
 class Choice(BaseType):
@@ -34,3 +26,31 @@ class Choice(BaseType):
 
     def __init__(self, *choices):
         self.choices = choices
+
+
+class Code(BaseType):
+    allowed_backend_types = (TYPES_BY_NAME.code,)
+
+
+class Date(BaseType):
+    """A type representing a date"""
+
+    allowed_backend_types = (TYPES_BY_NAME.date, TYPES_BY_NAME.datetime)
+
+
+class Float(BaseType):
+    allowed_backend_types = (TYPES_BY_NAME.float,)
+
+
+class Integer(BaseType):
+    allowed_backend_types = (TYPES_BY_NAME.integer,)
+
+
+class PseudoPatientId(BaseType):
+    """A type representing a pseudonymised patient ID"""
+
+    allowed_backend_types = (TYPES_BY_NAME.integer, TYPES_BY_NAME.varchar)
+
+
+class String(BaseType):
+    allowed_backend_types = (TYPES_BY_NAME.varchar,)

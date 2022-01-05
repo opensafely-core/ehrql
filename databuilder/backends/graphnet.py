@@ -1,3 +1,4 @@
+from ..contracts import tables
 from ..query_engines.mssql import MssqlQueryEngine
 from .base import BaseBackend, Column, MappedTable
 
@@ -10,6 +11,7 @@ class GraphnetBackend(BaseBackend):
     patient_join_column = "Patient_ID"
 
     patients = MappedTable(
+        implements=tables.PatientDemographics,
         source="TRE.Patients",
         columns=dict(
             sex=Column("varchar", source="Sex"),
@@ -19,6 +21,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     clinical_events = MappedTable(
+        implements=tables.WIP_ClinicalEvents,
         source="TRE.ClinicalEvents",
         columns=dict(
             code=Column("varchar", source="Code"),
@@ -29,6 +32,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     practice_registrations = MappedTable(
+        implements=tables.WIP_PracticeRegistrations,
         source="TRE.PracticeRegistrations",
         columns=dict(
             pseudo_id=Column("integer", source="Organisation_ID"),
@@ -39,6 +43,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     covid_test_results = MappedTable(
+        implements=tables.WIP_TestResults,
         source="TRE.CovidTestResults",
         columns=dict(
             date=Column("date", source="SpecimenDate"),
@@ -47,6 +52,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     hospitalizations = MappedTable(
+        implements=tables.WIP_HospitalizationsWithoutSystem,
         source="TRE.Hospitalisations",
         columns=dict(
             date=Column("date", source="AdmitDate"),
@@ -55,6 +61,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     patient_address = MappedTable(
+        implements=tables.WIP_PatientAddress,
         source="TRE.PatientAddresses",
         columns=dict(
             patientaddress_id=Column("integer", source="PatientAddress_ID"),
