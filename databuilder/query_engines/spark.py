@@ -67,12 +67,6 @@ class SparkQueryEngine(BaseSQLQueryEngine):
         """
         return sqlalchemy.func.datediff(end, start)
 
-    def _convert_date_diff_to_weeks(self, start, end):
-        """
-        Calculate difference in weeks
-        """
-        return sqlalchemy.func.floor(self._convert_date_diff_to_days(start, end) / 7)
-
     def round_to_first_of_month(self, date):
         date = type_coerce(date, sqlalchemy_types.Date())
 
