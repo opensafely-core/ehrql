@@ -146,7 +146,7 @@ def _in_process_run(
 
 
 @pytest.fixture
-def cohort_extractor_in_process(tmpdir, database, containers):
+def cohort_extractor_in_process(tmpdir, database):
     _, analysis_dir, output_host_dir = _in_process_setup(tmpdir)
 
     def run(study, backend, use_dummy_data=False, action=generate_cohort):
@@ -166,7 +166,7 @@ def cohort_extractor_in_process(tmpdir, database, containers):
 
 
 @pytest.fixture
-def cohort_extractor_in_process_no_database(tmpdir, containers):
+def cohort_extractor_in_process_no_database(tmpdir):
     _, analysis_dir, output_host_dir = _in_process_setup(tmpdir)
 
     def run(study, backend=None, use_dummy_data=False, action=generate_cohort):
@@ -186,7 +186,7 @@ def cohort_extractor_in_process_no_database(tmpdir, containers):
 
 
 @pytest.fixture
-def cohort_extractor_generate_measures_in_process(tmpdir, containers):
+def cohort_extractor_generate_measures_in_process(tmpdir):
     workspace, analysis_dir, output_host_dir = _in_process_setup(tmpdir)
     inputs_dir = workspace / "inputs"
     inputs_dir.mkdir()

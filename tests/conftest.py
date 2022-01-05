@@ -26,7 +26,7 @@ def containers(docker_client):
 
 
 @pytest.fixture(scope="session")
-def database(request, containers):
+def database(containers):
     database = make_database(containers)
     wait_for_database(database)
     yield database
