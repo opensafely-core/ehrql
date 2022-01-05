@@ -11,6 +11,7 @@ from databuilder.dsl import (
     Cohort,
     DateDeltaSeries,
     DateSeries,
+    IntSeries,
     PatientSeries,
 )
 from databuilder.query_model import (
@@ -659,3 +660,57 @@ def test_datedeltaseries_convert_to_months(cohort_with_population):
 
     month_deltaseries = deltaseries.convert_to_months()
     assert month_deltaseries.value.arguments == (series, "2021-12-01", "months")
+
+
+def test_datedeltaseries_convert_to_days(cohort_with_population):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    # years is the default
+    deltaseries = DateDeltaSeries(value=DateDifference(series, "2021-12-01"))
+    assert deltaseries.value.arguments == (series, "2021-12-01", "years")
+
+    days_deltaseries = deltaseries.convert_to_days()
+    assert days_deltaseries.value.arguments == (series, "2021-12-01", "days")
+
+
+def test_datedeltaseries_convert_to_weeks(cohort_with_population):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    # years is the default
+    deltaseries = DateDeltaSeries(value=DateDifference(series, "2021-12-01"))
+    assert deltaseries.value.arguments == (series, "2021-12-01", "years")
+
+    weeks_deltaseries = deltaseries.convert_to_weeks()
+    assert weeks_deltaseries.value.arguments == (series, "2021-12-01", "weeks")
+
+
+@pytest.mark.parametrize(
+    "delta_value,error",
+    [
+        (
+            (
+                DateSeries(ValueFromRow(source=None, column="date")) - "2021-10-01"
+            ).convert_to_weeks(),
+            "Can't add weeks",
+        ),
+        (
+            (
+                DateSeries(ValueFromRow(source=None, column="date")) - "2021-10-01"
+            ).convert_to_months(),
+            "Can't add months",
+        ),
+        (
+            (
+                DateSeries(ValueFromRow(source=None, column="date")) - "2021-10-01"
+            ).convert_to_years(),
+            "Can't add years",
+        ),
+        (
+            IntSeries(ValueFromRow(source=None, column="numeric_value")),
+            "Can't add IntSeries with value <ValueFromRow>",
+        ),
+        ("foo", "Can't add <str>"),
+    ],
+)
+def test_dateseries_add_validation(cohort_with_population, delta_value, error):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    with pytest.raises(ValueError, match=error):
+        series + delta_value

@@ -67,6 +67,7 @@ from ..query_model import (
     Codelist,
     Column,
     Comparator,
+    DateAddition,
     DateDifference,
     FilteredTable,
     QueryNode,
@@ -430,6 +431,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # for this because it doesn't play nicely with subclassing.
         class_method_map = {
             DateDifference: self.date_difference,
+            DateAddition: self.date_add,
             RoundToFirstOfMonth: self.round_to_first_of_month,
             RoundToFirstOfYear: self.round_to_first_of_year,
         }
@@ -504,6 +506,21 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         number of whole weeks, use the days calculation to calculate weeks also.
         """
         return sqlalchemy.func.floor(self._convert_date_diff_to_days(start, end) / 7)
+
+    def _get_number_of_days_for_query(self, number_of_days):
+        if not isinstance(number_of_days, int):
+            number_of_days = self.get_element_from_value_from_function(
+                number_of_days.value
+            )
+        return number_of_days
+
+    def date_add(self, start_date, number_of_days):
+        """
+        Add a number of days to a date.
+        delta: a DateDeltaSeries or an integer representing a numer of days
+
+        """
+        raise NotImplementedError()
 
     def round_to_first_of_month(self, date):
         raise NotImplementedError

@@ -425,6 +425,11 @@ class ValueFromFunction(Value):
 class DateDifference(ValueFromFunction):
     def __init__(self, start, end, units="years"):
         super().__init__(start, end, units)
+        self.units = units
+
+
+class DateAddition(ValueFromFunction):
+    pass
 
 
 class RoundToFirstOfMonth(ValueFromFunction):

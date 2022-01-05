@@ -53,6 +53,7 @@ from .query_model import (
     BaseTable,
     Codelist,
     Comparator,
+    DateAddition,
     DateDifference,
     RoundToFirstOfMonth,
     RoundToFirstOfYear,
@@ -315,7 +316,7 @@ def _validate_datestring(datestring):
 
 class DateSeries(PatientSeries):
     @staticmethod
-    def _get_other_value(other):
+    def _get_other_date_value(other):
         return (
             other.value
             if isinstance(other, DateSeries)
@@ -323,19 +324,19 @@ class DateSeries(PatientSeries):
         )
 
     def __gt__(self, other: DateSeries | str) -> BoolSeries:
-        return BoolSeries(value=self.value > self._get_other_value(other))
+        return BoolSeries(value=self.value > self._get_other_date_value(other))
 
     def __ge__(self, other: DateSeries | str) -> BoolSeries:
-        return BoolSeries(value=self.value >= self._get_other_value(other))
+        return BoolSeries(value=self.value >= self._get_other_date_value(other))
 
     def __lt__(self, other: DateSeries | str) -> BoolSeries:
-        return BoolSeries(value=self.value < self._get_other_value(other))
+        return BoolSeries(value=self.value < self._get_other_date_value(other))
 
     def __le__(self, other: DateSeries | str) -> BoolSeries:
-        return BoolSeries(value=self.value <= self._get_other_value(other))
+        return BoolSeries(value=self.value <= self._get_other_date_value(other))
 
     def __ne__(self, other: DateSeries | str) -> BoolSeries:  # type: ignore[override]
-        return BoolSeries(value=self.value != self._get_other_value(other))
+        return BoolSeries(value=self.value != self._get_other_date_value(other))
 
     def round_to_first_of_month(self) -> DateSeries:
         return DateSeries(RoundToFirstOfMonth(self.value))
@@ -343,11 +344,44 @@ class DateSeries(PatientSeries):
     def round_to_first_of_year(self) -> DateSeries:
         return DateSeries(RoundToFirstOfYear(self.value))
 
+    def _get_other_datedelta_value(self, delta_value, operation):
+        """Ensure we have either a simple int, or an IntSeries representing a date difference in days"""
+        if isinstance(delta_value, DateDeltaSeries):
+            return delta_value.convert_to_days()
+        elif isinstance(delta_value, IntSeries):
+            if not isinstance(delta_value.value, DateDifference):
+                raise ValueError(
+                    f"Can't {operation} IntSeries with value <{delta_value.value.__class__.__name__}> to a DateSeries."
+                )
+            if delta_value.value.units != "days":
+                raise ValueError(
+                    f"Can't {operation} {delta_value.value.units} to a DateSeries.  Use this DataDeltaSeries prior to conversion, or convert to days instead."
+                )
+            else:
+                return delta_value
+        elif isinstance(delta_value, int):
+            return delta_value
+        else:
+            raise ValueError(
+                f"Can't {operation} <{delta_value.__class__.__name__}> to a DateSeries."
+            )
+
     def __sub__(self, other: str | DateSeries) -> DateDeltaSeries:
-        return DateDeltaSeries(DateDifference(self._get_other_value(other), self.value))
+        return DateDeltaSeries(
+            DateDifference(self._get_other_date_value(other), self.value)
+        )
 
     def __rsub__(self, other: str | DateSeries) -> DateDeltaSeries:
-        return DateDeltaSeries(DateDifference(self.value, self._get_other_value(other)))
+        return DateDeltaSeries(
+            DateDifference(self.value, self._get_other_date_value(other))
+        )
+
+    def __add__(self, other: DateDeltaSeries | IntSeries | int) -> DateSeries:
+        other_value = self._get_other_datedelta_value(other, "add")
+        return DateSeries(DateAddition(self.value, other_value))
+
+    def __radd__(self, other: DateDeltaSeries | IntSeries | int) -> DateSeries:
+        return self + other
 
 
 class DateDeltaSeries(PatientSeries):
