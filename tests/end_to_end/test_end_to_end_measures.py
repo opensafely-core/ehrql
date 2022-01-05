@@ -19,7 +19,6 @@ def test_generate_measures_smoke_test(
     )
 
 
-@pytest.mark.integration
 def test_generate_measures_integration_test(
     load_measures_study, cohort_extractor_generate_measures_in_process
 ):
@@ -35,7 +34,6 @@ def test_generate_measures_integration_test(
     )
 
 
-@pytest.mark.integration
 def test_generate_measures_integration_test_no_measures_specified(
     load_measures_study, cohort_extractor_generate_measures_in_process
 ):
@@ -53,7 +51,6 @@ def test_generate_measures_integration_test_no_measures_specified(
     )
 
 
-@pytest.mark.integration
 def test_generate_measures_with_index_date_range_test(
     load_measures_study, cohort_extractor_generate_measures_in_process
 ):

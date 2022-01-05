@@ -60,7 +60,6 @@ def test_cohort_function_without_index_date_range(
     )
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "definition_file,output_file,error",
     [
