@@ -303,3 +303,91 @@ def test_date_arithmetic_conversions(engine, cohort_with_population):
         {"patient_id": 8, "age_in_years": 9, "age_in_months": 119},
         {"patient_id": 9, "age_in_years": 9, "age_in_months": 118},
     ]
+
+
+@pytest.mark.parametrize(
+    "current_date,age_data",
+    [
+        (
+            "2021-09-02",
+            {
+                1: dict(dob="2021-09-01", age=1),  # 1 day
+                2: dict(dob="2021-01-15", age=230),
+                # 16 in Jan, 28 in Feb, 31 Mar/May/Jul/Aug, 30 Apr/Jun, 2 in Sep; start month <2
+                3: dict(
+                    dob="2019-09-02", age=731
+                ),  # one leap year and one non-leap year
+            },
+        ),
+        (
+            "2020-01-10",
+            {
+                1: dict(dob="2020-01-01", age=9),
+                2: dict(dob="2019-12-20", age=21),  # across year boundary
+                3: dict(
+                    dob="1999-01-10", age=7670
+                ),  # 16 non leap yrs, 5 leap yrs (2000/4/8/12/16)
+            },
+        ),
+        (
+            "1922-02-01",
+            {
+                1: dict(dob="1921-02-01", age=365),  # 1 yr, start month == 2
+                2: dict(
+                    dob="1921-08-20", age=165
+                ),  # 11 days Aug, 30 Sep/Nov, 31 Oct/Dec/Jan, 1 Feb
+                3: dict(
+                    dob="1899-01-31", age=8401
+                ),  # 18 non leap, 5 leap yrs (1904/8/12/16/20) + 1 day; (1900 != leap)
+            },
+        ),
+    ],
+)
+def test_date_arithmetic_convert_to_days(
+    engine, cohort_with_population, current_date, age_data
+):
+    input_data = [
+        # all dobs are subtracted from current_date, rounded down
+        patient(patient_id, dob=patient_data["dob"])
+        for patient_id, patient_data in age_data.items()
+    ]
+    engine.setup(input_data)
+
+    patients = tables.patients
+    data_definition = cohort_with_population
+    dob = patients.select_column(patients.date_of_birth)  # DateSeries
+    age = current_date - dob
+
+    data_definition.age_in_days = age.convert_to_days()
+
+    result = engine.extract(data_definition)
+    assert result == [
+        {"patient_id": patient_id, "age_in_days": patient_data["age"]}
+        for patient_id, patient_data in age_data.items()
+    ]
+
+
+def test_date_arithmetic_convert_to_weeks(engine, cohort_with_population):
+    input_data = [
+        # all dobs are subtracted from 2021-03-02, rounded down
+        patient(1, dob="2021-02-26"),  # 5 days
+        patient(2, dob="2021-02-16"),  # exactly 2 weeks
+        patient(3, dob="2021-02-03"),  # 3 weeks, 6 days
+    ]
+    engine.setup(input_data)
+
+    patients = tables.patients
+    data_definition = cohort_with_population
+    current_date = "2021-03-02"
+    dob = patients.select_column(patients.date_of_birth)  # DateSeries
+    age = current_date - dob
+
+    data_definition.age_in_weeks = age.convert_to_weeks()
+
+    result = engine.extract(data_definition)
+
+    assert result == [
+        {"patient_id": 1, "age_in_weeks": 0},
+        {"patient_id": 2, "age_in_weeks": 2},
+        {"patient_id": 3, "age_in_weeks": 3},
+    ]

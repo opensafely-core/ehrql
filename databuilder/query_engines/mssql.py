@@ -78,6 +78,12 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             with super().execute_query() as results:
                 yield results
 
+    def _convert_date_diff_to_days(self, start, end):
+        """
+        Calculate difference in days
+        """
+        return sqlalchemy.func.datediff(sqlalchemy.text("day"), start, end)
+
     def round_to_first_of_month(self, date):
         date = type_coerce(date, sqlalchemy_types.Date())
 

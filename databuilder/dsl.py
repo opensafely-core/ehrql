@@ -351,13 +351,21 @@ class DateSeries(PatientSeries):
 
 
 class DateDeltaSeries(PatientSeries):
-    def convert_to_years(self):
+    def _convert(self, units):
         start_date, end_date = self.value.arguments[:2]
-        return IntSeries(DateDifference(start_date, end_date, units="years"))
+        return IntSeries(DateDifference(start_date, end_date, units=units))
+
+    def convert_to_years(self):
+        return self._convert("years")
 
     def convert_to_months(self):
-        start_date, end_date = self.value.arguments[:2]
-        return IntSeries(DateDifference(start_date, end_date, units="months"))
+        return self._convert("months")
+
+    def convert_to_days(self):
+        return self._convert("days")
+
+    def convert_to_weeks(self):
+        return self._convert("weeks")
 
 
 class IdSeries(PatientSeries):
