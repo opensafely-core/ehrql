@@ -145,6 +145,10 @@ test-unit *ARGS: devenv
 test-integration *ARGS: devenv
     $BIN/python -m pytest -m integration {{ ARGS }}
 
+# run the integration tests only, excluding spark tests which are slow. Optional args are passed to pytest
+test-integration-no-spark *ARGS: devenv
+    $BIN/python -m pytest -m "integration and not spark" {{ ARGS }}
+
 # run all tests including integration tests. Optional args are passed to pytest
 test-all *ARGS=test_args: devenv build-databuilder
     #!/usr/bin/env bash
