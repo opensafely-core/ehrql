@@ -309,7 +309,7 @@ def test_date_arithmetic_conversions(engine, cohort_with_population):
     "current_date,age_data",
     [
         (
-            "2021-09-02",  # end month > 2
+            "2021-09-02",
             {
                 1: dict(dob="2021-09-01", age=1),  # 1 day
                 2: dict(dob="2021-01-15", age=230),
@@ -320,7 +320,7 @@ def test_date_arithmetic_conversions(engine, cohort_with_population):
             },
         ),
         (
-            "2020-01-10",  # end month < 2
+            "2020-01-10",
             {
                 1: dict(dob="2020-01-01", age=9),
                 2: dict(dob="2019-12-20", age=21),  # across year boundary
@@ -330,7 +330,7 @@ def test_date_arithmetic_conversions(engine, cohort_with_population):
             },
         ),
         (
-            "1922-02-01",  # end month == 2
+            "1922-02-01",
             {
                 1: dict(dob="1921-02-01", age=365),  # 1 yr, start month == 2
                 2: dict(
@@ -369,7 +369,7 @@ def test_date_arithmetic_convert_to_days(
 
 def test_date_arithmetic_convert_to_weeks(engine, cohort_with_population):
     input_data = [
-        # all dobs are subtracted from 2021-03-01, rounded down
+        # all dobs are subtracted from 2021-03-02, rounded down
         patient(1, dob="2021-02-26"),  # 5 days
         patient(2, dob="2021-02-16"),  # exactly 2 weeks
         patient(3, dob="2021-02-03"),  # 3 weeks, 6 days
