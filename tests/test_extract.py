@@ -1,12 +1,9 @@
-import pytest
-
 from databuilder import table
 
 from .lib.mock_backend import CTV3Events, RegistrationHistory
 from .lib.util import OldCohortWithPopulation
 
 
-@pytest.mark.integration
 def test_pick_a_single_value(engine):
     input_data = [
         RegistrationHistory(PatientId=1),

@@ -18,7 +18,6 @@ from ..lib.graphnet_schema import (
 from ..lib.util import OldCohortWithPopulation, extract
 
 
-@pytest.mark.integration
 def test_basic_events_and_registration(database):
     database.setup(
         Patients(Patient_ID=1),
@@ -35,7 +34,6 @@ def test_basic_events_and_registration(database):
     ]
 
 
-@pytest.mark.integration
 def test_registration_dates(database):
     database.setup(
         Patients(Patient_ID=1),
@@ -55,7 +53,6 @@ def test_registration_dates(database):
     ]
 
 
-@pytest.mark.integration
 def test_registration_dates_no_end(database):
     database.setup(
         Patients(Patient_ID=1),
@@ -79,7 +76,6 @@ def test_registration_dates_no_end(database):
     ]
 
 
-@pytest.mark.integration
 def test_covid_test_positive_result(database):
     database.setup(
         Patients(Patient_ID=1),
@@ -106,7 +102,6 @@ def test_covid_test_positive_result(database):
     ]
 
 
-@pytest.mark.integration
 def test_covid_test_negative_result(database):
     database.setup(
         Patients(Patient_ID=1),
@@ -133,7 +128,6 @@ def test_covid_test_negative_result(database):
     ]
 
 
-@pytest.mark.integration
 def test_patients_table(database):
     database.setup(
         Patients(Patient_ID=1, Sex="F", DateOfBirth="1950-01-01"),
@@ -152,7 +146,6 @@ def test_patients_table(database):
     ]
 
 
-@pytest.mark.integration
 def test_hospitalization_table_returns_admission_date_and_code(database):
     database.setup(
         patient(
@@ -174,7 +167,6 @@ def test_hospitalization_table_returns_admission_date_and_code(database):
     ]
 
 
-@pytest.mark.integration
 def test_events_with_numeric_value(database):
     database.setup(
         Patients(Patient_ID=1),
@@ -192,7 +184,6 @@ def test_events_with_numeric_value(database):
     ]
 
 
-@pytest.mark.integration
 def test_organisation(database):
     database.setup(
         # Organisation not a separate table, so will just move detail to single registration record
@@ -223,7 +214,6 @@ def test_organisation(database):
     ]
 
 
-@pytest.mark.integration
 def test_organisation_dates(database):
     database.setup(
         # Organisation not a separate table, so will just move detail to registration record
@@ -269,7 +259,6 @@ def test_organisation_dates(database):
     ]
 
 
-@pytest.mark.integration
 def test_index_of_multiple_deprivation(database):
     database.setup(
         patient(
@@ -287,7 +276,6 @@ def test_index_of_multiple_deprivation(database):
     assert extract(Cohort, GraphnetBackend, database) == [dict(patient_id=1, imd=1200)]
 
 
-@pytest.mark.integration
 @pytest.mark.parametrize(
     "patient_addresses,expected",
     [

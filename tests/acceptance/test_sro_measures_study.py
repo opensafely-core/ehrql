@@ -1,8 +1,6 @@
 import calendar
 from pathlib import Path
 
-import pytest
-
 from databuilder import Measure, cohort_date_range, table
 from databuilder.backends import GraphnetBackend, TPPBackend
 from databuilder.main import get_measures
@@ -97,7 +95,6 @@ def cohort(index_date, backend):
     return Cohort
 
 
-@pytest.mark.integration
 def test_cohort_tpp_backend(database):
     database.setup(
         tpp_schema.organisation(organisation_id=1, region="South"),
@@ -158,7 +155,6 @@ def test_cohort_tpp_backend(database):
     run_sro_measures_test(database, backend_cls=TPPBackend, backend="tpp")
 
 
-@pytest.mark.integration
 def test_cohort_graphnet_backend(database):
     database.setup(
         # present at index date 1

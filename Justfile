@@ -139,17 +139,17 @@ test *ARGS=test_args:
 
 # run the unit tests only. Optional args are passed to pytest
 test-unit *ARGS: devenv
-    $BIN/python -m pytest -m "not integration and not smoke" {{ ARGS }}
+    $BIN/python -m pytest -m "not integration" {{ ARGS }}
 
 # run the integration tests only. Optional args are passed to pytest
 test-integration *ARGS: devenv
     $BIN/python -m pytest -m integration {{ ARGS }}
 
-# run the smoke tests only. Optional args are passed to pytest
-test-smoke *ARGS: devenv build-databuilder
-    $BIN/python -m pytest -m smoke {{ ARGS }}
+# run the integration tests only, excluding spark tests which are slow. Optional args are passed to pytest
+test-integration-no-spark *ARGS: devenv
+    $BIN/python -m pytest -m "integration and not spark" {{ ARGS }}
 
-# run all tests including integration and smoke tests. Optional args are passed to pytest
+# run all tests including integration tests. Optional args are passed to pytest
 test-all *ARGS=test_args: devenv build-databuilder
     #!/usr/bin/env bash
     set -euo pipefail
