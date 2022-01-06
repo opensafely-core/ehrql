@@ -69,6 +69,7 @@ from ..query_model import (
     Comparator,
     DateAddition,
     DateDifference,
+    DateSubtraction,
     FilteredTable,
     QueryNode,
     RoundToFirstOfMonth,
@@ -432,6 +433,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         class_method_map = {
             DateDifference: self.date_difference,
             DateAddition: self.date_add,
+            DateSubtraction: self.date_subtract,
             RoundToFirstOfMonth: self.round_to_first_of_month,
             RoundToFirstOfYear: self.round_to_first_of_year,
         }
@@ -517,8 +519,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def date_add(self, start_date, number_of_days):
         """
         Add a number of days to a date.
-        delta: a DateDeltaSeries or an integer representing a numer of days
+        number_of_days: an IntSeries with a DateDifference value in days or an integer representing a numer of days
+        """
+        raise NotImplementedError()
 
+    def date_subtract(self, start_date, number_of_days):
+        """
+        Add a number of days to a date.
+        number_of_days: an IntSeries with a DateDifference value in days or an integer representing a numer of days
         """
         raise NotImplementedError()
 

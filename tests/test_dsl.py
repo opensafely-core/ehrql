@@ -534,7 +534,7 @@ def test_dateseries_rsub():
 @pytest.mark.parametrize(
     "left,right",
     [
-        (DateSeries(ValueFromRow(source=None, column="date")), 2021),
+        (DateSeries(ValueFromRow(source=None, column="date")), "2021"),
         ("2021-02-31", DateSeries(ValueFromRow(source=None, column="date"))),
         (DateSeries(ValueFromRow(source=None, column="date")), "1-2-1999"),
         (DateSeries(ValueFromRow(source=None, column="date")), "Foo"),
@@ -545,6 +545,19 @@ def test_dateseries_sub_with_invalid_datestrings(left, right):
         ValueError, match=".+ is not a valid date; date must in YYYY-MM-DD format"
     ):
         left - right
+
+
+@pytest.mark.parametrize(
+    "other_value,exception,error_match",
+    [
+        (10, TypeError, "Can't subtract DateSeries from int"),
+        ("Foo", ValueError, "Foo is not a valid date"),
+    ],
+)
+def test_dateseries_rsub_errors(other_value, exception, error_match):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    with pytest.raises(exception, match=error_match):
+        other_value - series
 
 
 def test_intseries_gt(int_series):

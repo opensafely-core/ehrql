@@ -88,13 +88,24 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
         """
         Add a number of days to a date, using the `dateadd` function
         """
-        if not isinstance(number_of_days, int):
-            number_of_days = self.get_element_from_value_from_function(
-                number_of_days.value
-            )
+        number_of_days = self._get_number_of_days_for_query(number_of_days)
         start_date = type_coerce(start_date, sqlalchemy_types.Date())
-        return sqlalchemy.func.dateadd(
-            sqlalchemy.text("day"), number_of_days, start_date
+        return type_coerce(
+            sqlalchemy.func.dateadd(sqlalchemy.text("day"), number_of_days, start_date),
+            sqlalchemy_types.Date(),
+        )
+
+    def date_subtract(self, start_date, number_of_days):
+        """
+        Subtract a number of days from a date, using the `dateadd` function
+        """
+        number_of_days = self._get_number_of_days_for_query(number_of_days)
+        start_date = type_coerce(start_date, sqlalchemy_types.Date())
+        return type_coerce(
+            sqlalchemy.func.dateadd(
+                sqlalchemy.text("day"), number_of_days * -1, start_date
+            ),
+            sqlalchemy_types.Date(),
         )
 
     def round_to_first_of_month(self, date):

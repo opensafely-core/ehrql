@@ -55,6 +55,7 @@ from .query_model import (
     Comparator,
     DateAddition,
     DateDifference,
+    DateSubtraction,
     RoundToFirstOfMonth,
     RoundToFirstOfYear,
     Row,
@@ -366,12 +367,23 @@ class DateSeries(PatientSeries):
                 f"Can't {operation} <{delta_value.__class__.__name__}> to a DateSeries."
             )
 
-    def __sub__(self, other: str | DateSeries) -> DateDeltaSeries:
+    def __sub__(
+        self, other: str | DateSeries | DateDeltaSeries | IntSeries | int
+    ) -> DateDeltaSeries | DateSeries:
+        if isinstance(other, (DateDeltaSeries, IntSeries, int)):
+            other_value = self._get_other_datedelta_value(other, "subtract")
+            return DateSeries(DateSubtraction(self.value, other_value))
         return DateDeltaSeries(
             DateDifference(self._get_other_date_value(other), self.value)
         )
 
     def __rsub__(self, other: str | DateSeries) -> DateDeltaSeries:
+        if not isinstance(other, (str, DateSeries)):
+            # consistent with python datetime/timedelta, we cannot subtract a DateSeries from
+            # DateDeltaSeries or integer
+            raise TypeError(
+                f"Can't subtract DateSeries from {other.__class__.__name__}"
+            )
         return DateDeltaSeries(
             DateDifference(self.value, self._get_other_date_value(other))
         )
@@ -400,6 +412,12 @@ class DateDeltaSeries(PatientSeries):
 
     def convert_to_weeks(self):
         return self._convert("weeks")
+
+    def __rsub__(self, other: str) -> DateDeltaSeries:
+        datestring = _validate_datestring(other)
+        # This allows subtraction of a DateDeltaSeries from a date string
+        # e.g. 2020-10-01
+        return DateDeltaSeries(DateSubtraction(datestring, self.convert_to_days()))
 
 
 class IdSeries(PatientSeries):

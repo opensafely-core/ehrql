@@ -432,6 +432,10 @@ class DateAddition(ValueFromFunction):
     pass
 
 
+class DateSubtraction(ValueFromFunction):
+    pass
+
+
 class RoundToFirstOfMonth(ValueFromFunction):
     pass
 
