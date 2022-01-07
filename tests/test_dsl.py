@@ -701,26 +701,14 @@ def test_datedeltaseries_convert_to_weeks(cohort_with_population):
         (
             (
                 DateSeries(ValueFromRow(source=None, column="date")) - "2021-10-01"
-            ).convert_to_weeks(),
-            "Can't add weeks",
-        ),
-        (
-            (
-                DateSeries(ValueFromRow(source=None, column="date")) - "2021-10-01"
-            ).convert_to_months(),
-            "Can't add months",
-        ),
-        (
-            (
-                DateSeries(ValueFromRow(source=None, column="date")) - "2021-10-01"
-            ).convert_to_years(),
-            "Can't add years",
+            ).convert_to_days(),
+            re.escape("Can only add integer or DateDeltaSeries (got <IntSeries>)"),
         ),
         (
             IntSeries(ValueFromRow(source=None, column="numeric_value")),
-            "Can't add IntSeries with value <ValueFromRow>",
+            re.escape("Can only add integer or DateDeltaSeries (got <IntSeries>)"),
         ),
-        ("foo", "Can't add <str>"),
+        ("foo", re.escape("Can only add integer or DateDeltaSeries (got <str>)")),
     ],
 )
 def test_dateseries_add_validation(cohort_with_population, delta_value, error):

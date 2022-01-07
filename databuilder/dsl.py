@@ -349,28 +349,17 @@ class DateSeries(PatientSeries):
         """Ensure we have either a simple int, or an IntSeries representing a date difference in days"""
         if isinstance(delta_value, DateDeltaSeries):
             return delta_value.convert_to_days()
-        elif isinstance(delta_value, IntSeries):
-            if not isinstance(delta_value.value, DateDifference):
-                raise ValueError(
-                    f"Can't {operation} IntSeries with value <{delta_value.value.__class__.__name__}> to a DateSeries."
-                )
-            if delta_value.value.units != "days":
-                raise ValueError(
-                    f"Can't {operation} {delta_value.value.units} to a DateSeries.  Use this DataDeltaSeries prior to conversion, or convert to days instead."
-                )
-            else:
-                return delta_value
         elif isinstance(delta_value, int):
             return delta_value
         else:
             raise ValueError(
-                f"Can't {operation} <{delta_value.__class__.__name__}> to a DateSeries."
+                f"Can only {operation} integer or DateDeltaSeries (got <{delta_value.__class__.__name__}>)"
             )
 
     def __sub__(
         self, other: str | DateSeries | DateDeltaSeries | IntSeries | int
     ) -> DateDeltaSeries | DateSeries:
-        if isinstance(other, (DateDeltaSeries, IntSeries, int)):
+        if isinstance(other, (DateDeltaSeries, int)):
             other_value = self._get_other_datedelta_value(other, "subtract")
             return DateSeries(DateSubtraction(self.value, other_value))
         return DateDeltaSeries(
@@ -378,21 +367,24 @@ class DateSeries(PatientSeries):
         )
 
     def __rsub__(self, other: str | DateSeries) -> DateDeltaSeries:
-        if not isinstance(other, (str, DateSeries)):
-            # consistent with python datetime/timedelta, we cannot subtract a DateSeries from
-            # DateDeltaSeries or integer
+        # consistent with python datetime/timedelta, we cannot subtract a DateSeries from
+        # anything other than a date or another DateSeries
+        try:
+            return DateDeltaSeries(
+                DateDifference(self.value, self._get_other_date_value(other))
+            )
+        except ValueError:
+            if isinstance(other, str):
+                raise
             raise TypeError(
                 f"Can't subtract DateSeries from {other.__class__.__name__}"
             )
-        return DateDeltaSeries(
-            DateDifference(self.value, self._get_other_date_value(other))
-        )
 
-    def __add__(self, other: DateDeltaSeries | IntSeries | int) -> DateSeries:
+    def __add__(self, other: DateDeltaSeries | int) -> DateSeries:
         other_value = self._get_other_datedelta_value(other, "add")
         return DateSeries(DateAddition(self.value, other_value))
 
-    def __radd__(self, other: DateDeltaSeries | IntSeries | int) -> DateSeries:
+    def __radd__(self, other: DateDeltaSeries | int) -> DateSeries:
         return self + other
 
 
