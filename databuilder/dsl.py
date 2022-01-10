@@ -350,7 +350,9 @@ class DateSeries(PatientSeries):
     @staticmethod
     def _get_other_datedelta_value(delta_value, operation):
         """Ensure we have either a simple int, or an IntSeries representing a date difference in days"""
-        if isinstance(delta_value, DateDeltaSeries):
+        if isinstance(delta_value, DateDeltaSeries) and isinstance(
+            delta_value.value, DateDifference
+        ):
             return delta_value.convert_to_days()
         elif isinstance(delta_value, int):
             return delta_value
@@ -386,10 +388,6 @@ class DateSeries(PatientSeries):
     def __add__(self, other: DateDeltaSeries | int) -> DateSeries:
         other_value = self._get_other_datedelta_value(other, "add")
         return DateSeries(DateAddition(self.value, other_value))
-
-    def __radd__(self, other: DateDeltaSeries | int) -> DateSeries:
-        other_value = self._get_other_datedelta_value(other, "add")
-        return DateSeries(DateAddition(other_value, self.value))
 
 
 class DateDeltaSeries(PatientSeries):

@@ -418,42 +418,6 @@ def test_date_arithmetic_add_datedeltaseries(engine, cohort_with_population):
     ]
 
 
-def test_date_arithmetic_radd(engine, cohort_with_population):
-    input_data = [
-        patient(1, dob="1990-08-10"),
-        patient(2, dob="1987-09-10"),
-    ]
-    engine.setup(input_data)
-
-    patients = tables.patients
-    data_definition = cohort_with_population
-
-    reference_date = "1990-09-10"
-    dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
-
-    age = reference_date - dob
-    data_definition.age_in_days = age.convert_to_days()
-    # we can add a dateseries to a datedelta, as well as vice versa
-    data_definition.dob_plus_age = age + dob
-    data_definition.dob_plus_10 = 10 + dob
-
-    result = engine.extract(data_definition)
-    assert result == [
-        {
-            "patient_id": 1,
-            "age_in_days": 31,
-            "dob_plus_age": date(1990, 9, 10),
-            "dob_plus_10": date(1990, 8, 20),
-        },
-        {
-            "patient_id": 2,
-            "age_in_days": 1096,
-            "dob_plus_age": date(1990, 9, 10),
-            "dob_plus_10": date(1987, 9, 20),
-        },
-    ]
-
-
 def test_date_arithmetic_subtract_datedelta(engine, cohort_with_population):
     input_data = [
         patient(1, dob="1990-08-10"),
