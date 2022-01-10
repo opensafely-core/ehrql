@@ -405,11 +405,11 @@ class DateDeltaSeries(PatientSeries):
     def convert_to_weeks(self):
         return self._convert("weeks")
 
-    def __rsub__(self, other: str) -> DateDeltaSeries:
+    def __rsub__(self, other: str) -> DateSeries:
         datestring = _validate_datestring(other)
         # This allows subtraction of a DateDeltaSeries from a date string
         # e.g. 2020-10-01
-        return DateDeltaSeries(DateSubtraction(datestring, self.convert_to_days()))
+        return DateSeries(DateSubtraction(datestring, self.convert_to_days()))
 
 
 class IdSeries(PatientSeries):
