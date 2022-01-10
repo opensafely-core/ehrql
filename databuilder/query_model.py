@@ -432,6 +432,10 @@ class DateAddition(ValueFromFunction):
     pass
 
 
+class DateDeltaAddition(ValueFromFunction):
+    pass
+
+
 class DateSubtraction(ValueFromFunction):
     pass
 

@@ -17,6 +17,7 @@ from databuilder.dsl import (
 from databuilder.query_model import (
     Comparator,
     DateAddition,
+    DateDeltaAddition,
     DateDifference,
     DateSubtraction,
     RoundToFirstOfMonth,
@@ -825,3 +826,47 @@ def test_datedeltaseries_rsub_datestring():
     assert isinstance(delta_arg, IntSeries)
     assert isinstance(delta_arg.value, DateDifference)
     assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+
+
+def test_add_datedeltaseries_together():
+    datedelta1 = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    datedelta2 = DateDeltaSeries(DateDifference("2021-01-01", "2021-02-01"))
+    output = datedelta1 + datedelta2
+
+    # Adding DateDeltaSeries together returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaAddition)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta1_arg, IntSeries)
+    assert isinstance(delta2_arg, IntSeries)
+    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg.value.arguments == ("2021-01-01", "2021-02-01", "days")
+
+
+def test_add_datedeltaseries_and_integer():
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = datedelta + 20
+
+    # Adding DateDeltaSeries and integer returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaAddition)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta1_arg, IntSeries)
+    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg == 20
+
+
+def test_radd_datedeltaseries_and_integer():
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = 20 + datedelta
+
+    # Adding DateDeltaSeries and integer returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaAddition)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta1_arg, IntSeries)
+    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg == 20

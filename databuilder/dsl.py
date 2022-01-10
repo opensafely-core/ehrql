@@ -54,6 +54,7 @@ from .query_model import (
     Codelist,
     Comparator,
     DateAddition,
+    DateDeltaAddition,
     DateDifference,
     DateSubtraction,
     RoundToFirstOfMonth,
@@ -345,7 +346,8 @@ class DateSeries(PatientSeries):
     def round_to_first_of_year(self) -> DateSeries:
         return DateSeries(RoundToFirstOfYear(self.value))
 
-    def _get_other_datedelta_value(self, delta_value, operation):
+    @staticmethod
+    def _get_other_datedelta_value(delta_value, operation):
         """Ensure we have either a simple int, or an IntSeries representing a date difference in days"""
         if isinstance(delta_value, DateDeltaSeries):
             return delta_value.convert_to_days()
@@ -390,6 +392,8 @@ class DateSeries(PatientSeries):
 
 class DateDeltaSeries(PatientSeries):
     def _convert(self, units):
+        if not isinstance(self.value, DateDifference):
+            raise ValueError("Can only convert differences between dates")
         start_date, end_date = self.value.arguments[:2]
         return IntSeries(DateDifference(start_date, end_date, units=units))
 
@@ -404,6 +408,30 @@ class DateDeltaSeries(PatientSeries):
 
     def convert_to_weeks(self):
         return self._convert("weeks")
+
+    @staticmethod
+    def _delta_in_days(datedelta):
+        """
+        Convert a DateSeltaSeries representing the difference between two dates to an
+        IntSeries representing days.
+        """
+        if isinstance(datedelta, DateDeltaSeries) and isinstance(
+            datedelta.value, DateDifference
+        ):
+            return datedelta.convert_to_days()
+        return datedelta
+
+    def __add__(self, other: DateDeltaSeries | int) -> DateDeltaSeries:
+        # Adding a DateSeries to a DateDeltaSeries should use DateSeries.__add__ to
+        # return a new DateSeries
+        if isinstance(other, DateSeries):
+            return other + self
+        return DateDeltaSeries(
+            DateDeltaAddition(self._delta_in_days(self), self._delta_in_days(other))
+        )
+
+    def __radd__(self, other: DateDeltaSeries | int) -> DateDeltaSeries:
+        return self + other
 
     def __rsub__(self, other: str) -> DateSeries:
         datestring = _validate_datestring(other)
