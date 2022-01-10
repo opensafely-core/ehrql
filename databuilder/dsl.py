@@ -55,6 +55,7 @@ from .query_model import (
     Comparator,
     DateAddition,
     DateDeltaAddition,
+    DateDeltaSubtraction,
     DateDifference,
     DateSubtraction,
     RoundToFirstOfMonth,
@@ -361,12 +362,12 @@ class DateSeries(PatientSeries):
     def __sub__(
         self, other: str | DateSeries | DateDeltaSeries | IntSeries | int
     ) -> DateDeltaSeries | DateSeries:
-        if isinstance(other, (DateDeltaSeries, int)):
-            other_value = self._get_other_datedelta_value(other, "subtract")
-            return DateSeries(DateSubtraction(self.value, other_value))
-        return DateDeltaSeries(
-            DateDifference(self._get_other_date_value(other), self.value)
-        )
+        if isinstance(other, (str, DateSeries)):
+            return DateDeltaSeries(
+                DateDifference(self._get_other_date_value(other), self.value)
+            )
+        other_value = self._get_other_datedelta_value(other, "subtract")
+        return DateSeries(DateSubtraction(self.value, other_value))
 
     def __rsub__(self, other: str | DateSeries) -> DateDeltaSeries:
         # consistent with python datetime/timedelta, we cannot subtract a DateSeries from
@@ -433,11 +434,20 @@ class DateDeltaSeries(PatientSeries):
     def __radd__(self, other: DateDeltaSeries | int) -> DateDeltaSeries:
         return self + other
 
-    def __rsub__(self, other: str) -> DateSeries:
-        datestring = _validate_datestring(other)
-        # This allows subtraction of a DateDeltaSeries from a date string
-        # e.g. 2020-10-01
-        return DateSeries(DateSubtraction(datestring, self.convert_to_days()))
+    def __sub__(self, other: DateDeltaSeries | int) -> DateDeltaSeries:
+        return DateDeltaSeries(
+            DateDeltaSubtraction(self._delta_in_days(self), self._delta_in_days(other))
+        )
+
+    def __rsub__(self, other: str | DateDeltaSeries | int) -> DateSeries:
+        if isinstance(other, str):
+            datestring = _validate_datestring(other)
+            # This allows subtraction of a DateDeltaSeries from a date string
+            # e.g. 2020-10-01
+            return DateSeries(DateSubtraction(datestring, self.convert_to_days()))
+        return DateDeltaSeries(
+            DateDeltaSubtraction(self._delta_in_days(other), self._delta_in_days(self))
+        )
 
 
 class IdSeries(PatientSeries):

@@ -18,6 +18,7 @@ from databuilder.query_model import (
     Comparator,
     DateAddition,
     DateDeltaAddition,
+    DateDeltaSubtraction,
     DateDifference,
     DateSubtraction,
     RoundToFirstOfMonth,
@@ -776,10 +777,32 @@ def test_dateseries_radd_integer():
         ("foo", re.escape("Can only add integer or DateDeltaSeries (got <str>)")),
     ],
 )
-def test_dateseries_add_validation(cohort_with_population, delta_value, error):
+def test_dateseries_add_validation(delta_value, error):
     series = DateSeries(ValueFromRow(source=None, column="date"))
     with pytest.raises(ValueError, match=error):
         series + delta_value
+
+
+@pytest.mark.parametrize(
+    "delta_value,error",
+    [
+        (
+            (
+                DateSeries(ValueFromRow(source=None, column="date")) - "2021-10-01"
+            ).convert_to_days(),
+            re.escape("Can only subtract integer or DateDeltaSeries (got <IntSeries>)"),
+        ),
+        (
+            IntSeries(ValueFromRow(source=None, column="numeric_value")),
+            re.escape("Can only subtract integer or DateDeltaSeries (got <IntSeries>)"),
+        ),
+        ("foo", "foo is not a valid date; date must in YYYY-MM-DD format"),
+    ],
+)
+def test_dateseries_subtract_validation(delta_value, error):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    with pytest.raises(ValueError, match=error):
+        series - delta_value
 
 
 def test_dateseries_sub_datedelta():
@@ -870,3 +893,47 @@ def test_radd_datedeltaseries_and_integer():
     assert isinstance(delta1_arg, IntSeries)
     assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
     assert delta2_arg == 20
+
+
+def test_datedeltaseries_sub():
+    datedelta1 = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    datedelta2 = DateDeltaSeries(DateDifference("2021-01-01", "2021-02-01"))
+    output = datedelta1 - datedelta2
+
+    # Subtracting one DateDeltaSeries from another returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaSubtraction)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta1_arg, IntSeries)
+    assert isinstance(delta2_arg, IntSeries)
+    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg.value.arguments == ("2021-01-01", "2021-02-01", "days")
+
+
+def test_datedeltaseries_sub_integer():
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = datedelta - 10
+
+    # Subtracting an integer from DateDeltaSeries returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaSubtraction)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta1_arg, IntSeries)
+    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg == 10
+
+
+def test_datedeltaseries_rsub():
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = 10 - datedelta
+
+    # Subtracting an integer from DateDeltaSeries returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaSubtraction)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta2_arg, IntSeries)
+    assert delta1_arg == 10
+    assert delta2_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")

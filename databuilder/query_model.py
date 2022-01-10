@@ -440,6 +440,10 @@ class DateSubtraction(ValueFromFunction):
     pass
 
 
+class DateDeltaSubtraction(ValueFromFunction):
+    pass
+
+
 class RoundToFirstOfMonth(ValueFromFunction):
     pass
 

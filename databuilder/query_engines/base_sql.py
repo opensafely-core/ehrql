@@ -69,6 +69,7 @@ from ..query_model import (
     Comparator,
     DateAddition,
     DateDeltaAddition,
+    DateDeltaSubtraction,
     DateDifference,
     DateSubtraction,
     FilteredTable,
@@ -436,6 +437,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             DateAddition: self.date_add,
             DateSubtraction: self.date_subtract,
             DateDeltaAddition: self.date_delta_add,
+            DateDeltaSubtraction: self.date_delta_subtract,
             RoundToFirstOfMonth: self.round_to_first_of_month,
             RoundToFirstOfYear: self.round_to_first_of_year,
         }
@@ -536,6 +538,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         delta1 = self._get_number_of_days_for_query(delta1)
         delta2 = self._get_number_of_days_for_query(delta2)
         return type_coerce((delta1 + delta2), sqlalchemy_types.Integer())
+
+    def date_delta_subtract(self, delta1, delta2):
+        delta1 = self._get_number_of_days_for_query(delta1)
+        delta2 = self._get_number_of_days_for_query(delta2)
+        return type_coerce((delta1 - delta2), sqlalchemy_types.Integer())
 
     def round_to_first_of_month(self, date):
         raise NotImplementedError
