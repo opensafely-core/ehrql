@@ -42,6 +42,7 @@ class ClinicalEvents(Base):
     CodingSystem = Column(NVARCHAR(32))
     ConsultationDate = Column(DateTime)
     NumericValue = Column(Float)
+    CareSetting = Column(NVARCHAR(9))
 
 
 def ctv3_clinical_event(code, date, numeric_value=None):
