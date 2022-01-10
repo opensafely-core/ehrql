@@ -755,10 +755,10 @@ def test_dateseries_radd_integer():
     # Adding an integer to a DateSeries returns another DateSeries
     assert isinstance(output, DateSeries)
     assert isinstance(output.value, DateAddition)
-    series_arg, delta_arg = output.value.arguments
+    delta_arg, series_arg = output.value.arguments
 
-    assert series_arg.column == series.value.column
     assert delta_arg == 10
+    assert series_arg.column == series.value.column
 
 
 @pytest.mark.parametrize(

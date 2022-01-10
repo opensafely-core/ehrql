@@ -388,7 +388,8 @@ class DateSeries(PatientSeries):
         return DateSeries(DateAddition(self.value, other_value))
 
     def __radd__(self, other: DateDeltaSeries | int) -> DateSeries:
-        return self + other
+        other_value = self._get_other_datedelta_value(other, "add")
+        return DateSeries(DateAddition(other_value, self.value))
 
 
 class DateDeltaSeries(PatientSeries):
@@ -422,7 +423,9 @@ class DateDeltaSeries(PatientSeries):
             return datedelta.convert_to_days()
         return datedelta
 
-    def __add__(self, other: DateDeltaSeries | int) -> DateDeltaSeries:
+    def __add__(
+        self, other: DateDeltaSeries | DateSeries | int
+    ) -> DateDeltaSeries | DateSeries:
         # Adding a DateSeries to a DateDeltaSeries should use DateSeries.__add__ to
         # return a new DateSeries
         if isinstance(other, DateSeries):
@@ -431,7 +434,7 @@ class DateDeltaSeries(PatientSeries):
             DateDeltaAddition(self._delta_in_days(self), self._delta_in_days(other))
         )
 
-    def __radd__(self, other: DateDeltaSeries | int) -> DateDeltaSeries:
+    def __radd__(self, other: DateSeries | int) -> DateDeltaSeries | DateSeries:
         return self + other
 
     def __sub__(self, other: DateDeltaSeries | int) -> DateDeltaSeries:
@@ -439,7 +442,9 @@ class DateDeltaSeries(PatientSeries):
             DateDeltaSubtraction(self._delta_in_days(self), self._delta_in_days(other))
         )
 
-    def __rsub__(self, other: str | DateDeltaSeries | int) -> DateSeries:
+    def __rsub__(
+        self, other: str | DateDeltaSeries | int
+    ) -> DateSeries | DateDeltaSeries:
         if isinstance(other, str):
             datestring = _validate_datestring(other)
             # This allows subtraction of a DateDeltaSeries from a date string
