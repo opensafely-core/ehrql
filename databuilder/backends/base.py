@@ -80,8 +80,13 @@ class BaseBackend:
         Raises:
             ValueError: If unknown table passed in
         """
-        table = self.tables[table_name]
-        return table.get_query().alias(table_name)
+        if isinstance(table_name, str):
+            table = self.tables[table_name]
+            alias = table_name
+        else:
+            table = self.get_table_implementing(table_name)
+            alias = table_name.__name__.lower()
+        return table.get_query().alias(alias)
 
     def get_table_implementing(self, contract):
         """Return table implementing given contract."""
