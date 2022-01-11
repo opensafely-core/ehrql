@@ -11,11 +11,16 @@ from databuilder.dsl import (
     Cohort,
     DateDeltaSeries,
     DateSeries,
+    IntSeries,
     PatientSeries,
 )
 from databuilder.query_model import (
     Comparator,
+    DateAddition,
+    DateDeltaAddition,
+    DateDeltaSubtraction,
     DateDifference,
+    DateSubtraction,
     RoundToFirstOfMonth,
     RoundToFirstOfYear,
     Value,
@@ -533,7 +538,7 @@ def test_dateseries_rsub():
 @pytest.mark.parametrize(
     "left,right",
     [
-        (DateSeries(ValueFromRow(source=None, column="date")), 2021),
+        (DateSeries(ValueFromRow(source=None, column="date")), "2021"),
         ("2021-02-31", DateSeries(ValueFromRow(source=None, column="date"))),
         (DateSeries(ValueFromRow(source=None, column="date")), "1-2-1999"),
         (DateSeries(ValueFromRow(source=None, column="date")), "Foo"),
@@ -544,6 +549,19 @@ def test_dateseries_sub_with_invalid_datestrings(left, right):
         ValueError, match=".+ is not a valid date; date must in YYYY-MM-DD format"
     ):
         left - right
+
+
+@pytest.mark.parametrize(
+    "other_value,exception,error_match",
+    [
+        (10, TypeError, "Can't subtract DateSeries from int"),
+        ("Foo", ValueError, "Foo is not a valid date"),
+    ],
+)
+def test_dateseries_rsub_errors(other_value, exception, error_match):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    with pytest.raises(exception, match=error_match):
+        other_value - series
 
 
 def test_intseries_gt(int_series):
@@ -659,3 +677,279 @@ def test_datedeltaseries_convert_to_months(cohort_with_population):
 
     month_deltaseries = deltaseries.convert_to_months()
     assert month_deltaseries.value.arguments == (series, "2021-12-01", "months")
+
+
+def test_datedeltaseries_convert_to_days(cohort_with_population):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    # years is the default
+    deltaseries = DateDeltaSeries(value=DateDifference(series, "2021-12-01"))
+    assert deltaseries.value.arguments == (series, "2021-12-01", "years")
+
+    days_deltaseries = deltaseries.convert_to_days()
+    assert days_deltaseries.value.arguments == (series, "2021-12-01", "days")
+
+
+def test_datedeltaseries_convert_to_weeks(cohort_with_population):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    # years is the default
+    deltaseries = DateDeltaSeries(value=DateDifference(series, "2021-12-01"))
+    assert deltaseries.value.arguments == (series, "2021-12-01", "years")
+
+    weeks_deltaseries = deltaseries.convert_to_weeks()
+    assert weeks_deltaseries.value.arguments == (series, "2021-12-01", "weeks")
+
+
+def test_dateseries_add_datedelta():
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = series + datedelta
+
+    # Adding a DateDeltaSeries to a DateSeries returns another DateSeries
+    assert isinstance(output, DateSeries)
+    assert isinstance(output.value, DateAddition)
+    series_arg, delta_arg = output.value.arguments
+
+    # first arg in the addition is the date column
+    # second arg is the DateDeltaSeries converted to an IntSeries in days
+    assert series_arg.column == series.value.column
+    assert isinstance(delta_arg, IntSeries)
+    assert isinstance(delta_arg.value, DateDifference)
+    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+
+
+def test_dateseries_add_integer():
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    output = series + 10
+
+    # Adding an integer to a DateSeries returns another DateSeries
+    assert isinstance(output, DateSeries)
+    assert isinstance(output.value, DateAddition)
+    series_arg, delta_arg = output.value.arguments
+
+    assert series_arg.column == series.value.column
+    assert delta_arg == 10
+
+
+def test_datedelta_add_dateseries():
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = datedelta + series
+
+    # Adding a DateDeltaSeries to a DateSeries returns another DateSeries
+    assert isinstance(output, DateSeries)
+    assert isinstance(output.value, DateAddition)
+    series_arg, delta_arg = output.value.arguments
+
+    # first arg in the addition is the date column
+    # second arg is the DateDeltaSeries converted to an IntSeries in days
+    assert series_arg.column == series.value.column
+    assert isinstance(delta_arg, IntSeries)
+    assert isinstance(delta_arg.value, DateDifference)
+    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+
+
+def test_dateseries_radd_integer():
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    output = 10 + series
+
+    # Adding an integer to a DateSeries returns another DateSeries
+    assert isinstance(output, DateSeries)
+    assert isinstance(output.value, DateAddition)
+    series_arg, delta_arg = output.value.arguments
+
+    assert series_arg.column == series.value.column
+    assert delta_arg == 10
+
+
+@pytest.mark.parametrize(
+    "delta_value,error",
+    [
+        (
+            (
+                DateSeries(ValueFromRow(source=None, column="date")) - "2021-10-01"
+            ).convert_to_days(),
+            re.escape("Can only add integer or DateDeltaSeries (got <IntSeries>)"),
+        ),
+        (
+            IntSeries(ValueFromRow(source=None, column="numeric_value")),
+            re.escape("Can only add integer or DateDeltaSeries (got <IntSeries>)"),
+        ),
+        ("foo", re.escape("Can only add integer or DateDeltaSeries (got <str>)")),
+    ],
+)
+def test_dateseries_add_validation(delta_value, error):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    with pytest.raises(ValueError, match=error):
+        series + delta_value
+
+
+@pytest.mark.parametrize(
+    "delta_value,error",
+    [
+        (
+            (
+                DateSeries(ValueFromRow(source=None, column="date")) - "2021-10-01"
+            ).convert_to_days(),
+            re.escape("Can only subtract integer or DateDeltaSeries (got <IntSeries>)"),
+        ),
+        (
+            IntSeries(ValueFromRow(source=None, column="numeric_value")),
+            re.escape("Can only subtract integer or DateDeltaSeries (got <IntSeries>)"),
+        ),
+        ("foo", "foo is not a valid date; date must in YYYY-MM-DD format"),
+    ],
+)
+def test_dateseries_subtract_validation(delta_value, error):
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    with pytest.raises(ValueError, match=error):
+        series - delta_value
+
+
+def test_dateseries_sub_datedelta():
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = series - datedelta
+
+    # Adding a DateDeltaSeries to a DateSeries returns another DateSeries
+    assert isinstance(output, DateSeries)
+    assert isinstance(output.value, DateSubtraction)
+    series_arg, delta_arg = output.value.arguments
+
+    # first arg in the addition is the date column
+    # second arg is the DateDeltaSeries converted to an IntSeries in days
+    assert series_arg.column == series.value.column
+    assert isinstance(delta_arg, IntSeries)
+    assert isinstance(delta_arg.value, DateDifference)
+    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+
+
+def test_dateseries_sub_integer():
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    output = series - 10
+
+    # Adding an integer to a DateSeries returns another DateSeries
+    assert isinstance(output, DateSeries)
+    assert isinstance(output.value, DateSubtraction)
+    series_arg, delta_arg = output.value.arguments
+
+    assert series_arg.column == series.value.column
+    assert delta_arg == 10
+
+
+def test_datedeltaseries_rsub_datestring():
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = "2021-12-10" - datedelta
+
+    # Adding an integer to a DateSeries returns another DateSeries
+    assert isinstance(output, DateSeries)
+    assert isinstance(output.value, DateSubtraction)
+    series_arg, delta_arg = output.value.arguments
+
+    assert series_arg == "2021-12-10"
+    assert isinstance(delta_arg, IntSeries)
+    assert isinstance(delta_arg.value, DateDifference)
+    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+
+
+def test_add_datedeltaseries_together():
+    datedelta1 = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    datedelta2 = DateDeltaSeries(DateDifference("2021-01-01", "2021-02-01"))
+    output = datedelta1 + datedelta2
+
+    # Adding DateDeltaSeries together returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaAddition)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta1_arg, IntSeries)
+    assert isinstance(delta2_arg, IntSeries)
+    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg.value.arguments == ("2021-01-01", "2021-02-01", "days")
+
+
+def test_add_datedeltaseries_and_integer():
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = datedelta + 20
+
+    # Adding DateDeltaSeries and integer returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaAddition)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta1_arg, IntSeries)
+    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg == 20
+
+
+def test_add_datedeltaseries_and_dateseries():
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = datedelta + series
+
+    # Adding DateDeltaSeries and DateSeries returns a DateSeries
+    assert isinstance(output, DateSeries)
+    assert isinstance(output.value, DateAddition)
+    series_arg, delta_arg = output.value.arguments
+
+    assert series_arg.column == series.value.column
+    assert isinstance(delta_arg, IntSeries)
+    assert isinstance(delta_arg.value, DateDifference)
+    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+
+
+def test_radd_datedeltaseries_and_integer():
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = 20 + datedelta
+
+    # Adding DateDeltaSeries and integer returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaAddition)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta1_arg, IntSeries)
+    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg == 20
+
+
+def test_datedeltaseries_sub():
+    datedelta1 = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    datedelta2 = DateDeltaSeries(DateDifference("2021-01-01", "2021-02-01"))
+    output = datedelta1 - datedelta2
+
+    # Subtracting one DateDeltaSeries from another returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaSubtraction)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta1_arg, IntSeries)
+    assert isinstance(delta2_arg, IntSeries)
+    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg.value.arguments == ("2021-01-01", "2021-02-01", "days")
+
+
+def test_datedeltaseries_sub_integer():
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = datedelta - 10
+
+    # Subtracting an integer from DateDeltaSeries returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaSubtraction)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta1_arg, IntSeries)
+    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg == 10
+
+
+def test_datedeltaseries_rsub():
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = 10 - datedelta
+
+    # Subtracting an integer from DateDeltaSeries returns another DateDeltaSeries
+    assert isinstance(output, DateDeltaSeries)
+    assert isinstance(output.value, DateDeltaSubtraction)
+    delta1_arg, delta2_arg = output.value.arguments
+
+    assert isinstance(delta2_arg, IntSeries)
+    assert delta1_arg == 10
+    assert delta2_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")

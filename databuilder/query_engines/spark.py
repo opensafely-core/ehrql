@@ -67,6 +67,29 @@ class SparkQueryEngine(BaseSQLQueryEngine):
         """
         return sqlalchemy.func.datediff(end, start)
 
+    def date_add(self, start_date, number_of_days):
+        """
+        Add a number of days to a date, using the `dateadd` function
+        The sparkSQL date_add function only allows adding days
+        """
+        number_of_days = self._get_number_of_days_for_query(number_of_days)
+        start_date = type_coerce(start_date, sqlalchemy_types.Date())
+        return type_coerce(
+            sqlalchemy.func.date_add(start_date, number_of_days),
+            sqlalchemy_types.Date(),
+        )
+
+    def date_subtract(self, start_date, number_of_days):
+        """
+        Subtract a number of days from a date, using the `date_add` function
+        """
+        number_of_days = self._get_number_of_days_for_query(number_of_days)
+        start_date = type_coerce(start_date, sqlalchemy_types.Date())
+        return type_coerce(
+            sqlalchemy.func.date_add(start_date, number_of_days * -1),
+            sqlalchemy_types.Date(),
+        )
+
     def round_to_first_of_month(self, date):
         date = type_coerce(date, sqlalchemy_types.Date())
 

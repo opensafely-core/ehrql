@@ -84,24 +84,38 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
         """
         return sqlalchemy.func.datediff(sqlalchemy.text("day"), start, end)
 
-    def round_to_first_of_month(self, date):
-        date = type_coerce(date, sqlalchemy_types.Date())
-
-        first_of_month = sqlalchemy.func.datefromparts(
-            sqlalchemy.func.year(date),
-            sqlalchemy.func.month(date),
-            1,
+    def date_add(self, start_date, number_of_days):
+        """
+        Add a number of days to a date, using the `dateadd` function
+        """
+        number_of_days = self._get_number_of_days_for_query(number_of_days)
+        start_date = type_coerce(start_date, sqlalchemy_types.Date())
+        return type_coerce(
+            sqlalchemy.func.dateadd(sqlalchemy.text("day"), number_of_days, start_date),
+            sqlalchemy_types.Date(),
         )
 
+    def date_subtract(self, start_date, number_of_days):
+        """
+        Subtract a number of days from a date, using the `dateadd` function
+        """
+        number_of_days = self._get_number_of_days_for_query(number_of_days)
+        start_date = type_coerce(start_date, sqlalchemy_types.Date())
+        return type_coerce(
+            sqlalchemy.func.dateadd(
+                sqlalchemy.text("day"), number_of_days * -1, start_date
+            ),
+            sqlalchemy_types.Date(),
+        )
+
+    def round_to_first_of_month(self, date):
+        date = type_coerce(date, sqlalchemy_types.Date())
+        first_of_month = sqlalchemy.func.datefromparts(
+            sqlalchemy.func.year(date), sqlalchemy.func.month(date), 1
+        )
         return type_coerce(first_of_month, sqlalchemy_types.Date())
 
     def round_to_first_of_year(self, date):
         date = type_coerce(date, sqlalchemy_types.Date())
-
-        first_of_year = sqlalchemy.func.datefromparts(
-            sqlalchemy.func.year(date),
-            1,
-            1,
-        )
-
+        first_of_year = sqlalchemy.func.datefromparts(sqlalchemy.func.year(date), 1, 1)
         return type_coerce(first_of_year, sqlalchemy_types.Date())
