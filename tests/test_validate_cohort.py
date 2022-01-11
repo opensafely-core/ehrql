@@ -1,46 +1,16 @@
 import pytest
 
-from databuilder import table
-from databuilder.backends import DatabricksBackend, TPPBackend
 from databuilder.main import validate
+from databuilder.query_model import Table
 
+from .lib.contracts import Events
 from .lib.mock_backend import MockBackend
 from .lib.util import OldCohortWithPopulation
 
 
-@pytest.mark.parametrize(
-    "backend, column, expected_succeess",
-    [
-        (MockBackend, "date_of_birth", True),
-        (MockBackend, "height", True),  # column exists in the mock backend only
-        # (TPPBackend, "date_of_birth", True),  TODO
-        (TPPBackend, "height", False),
-    ],
-)
-def test_validate_for_backends(backend, column, expected_succeess):
-    class Cohort(OldCohortWithPopulation):
-        code = table("patients").first_by("patient_id").get(column)
-
-    if expected_succeess:
-        results = validate(Cohort, backend(None))
-        assert len(results) == 3
-    else:
-        with pytest.raises(KeyError, match=f"'{column}'"):
-            validate(Cohort, backend(None))
-
-
-def test_validate_databricks_backend():
-    class Cohort:
-        population = table("patients").exists()
-        value = table("patients").first_by("patient_id").get("patient_id")
-
-    results = validate(Cohort, DatabricksBackend(None))
-    assert len(results) == 3
-
-
 def test_validate_success():
     class Cohort(OldCohortWithPopulation):
-        code = table("clinical_events").first_by("patient_id").get("code")
+        code = Table(Events).first_by("patient_id").get("code")
 
     results = validate(Cohort, MockBackend(None))
 
@@ -53,3 +23,11 @@ def test_validate_success():
     for query in results:
         # Jut check that the query strings look like SQL
         assert "SELECT" in str(query)
+
+
+def test_validate_failure():
+    class Cohort(OldCohortWithPopulation):
+        code = Table(Events).first_by("patient_id").get("toad")
+
+    with pytest.raises(KeyError, match="'toad'"):
+        validate(Cohort, MockBackend(None))
