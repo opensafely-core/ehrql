@@ -106,7 +106,7 @@ docstrings: devenv
     $BIN/pydocstyle databuilder/backends/tpp.py
 
     # only enforce classes are documented for the public facing docs
-    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 databuilder/concepts/tables.py
+    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 databuilder/contracts/tables.py
 
 # runs the format (black) and sort (isort) checks and fixes the files
 fix: devenv

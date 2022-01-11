@@ -45,6 +45,12 @@ class PatientDemographics(TableContract):
 
 
 class WIP_ClinicalEvents(TableContract):
+    """
+    Clinical events recorded by GPs.
+
+    Ideally a record of all relevant clinical events with their code and date.
+    """
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -78,6 +84,8 @@ class WIP_ClinicalEvents(TableContract):
 
 
 class WIP_HospitalAdmissions(TableContract):
+    """TODO."""
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -117,6 +125,8 @@ class WIP_HospitalAdmissions(TableContract):
 
 
 class WIP_Hospitalizations(TableContract):
+    """TODO."""
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -138,6 +148,8 @@ class WIP_Hospitalizations(TableContract):
 
 
 class WIP_HospitalizationsWithoutSystem(TableContract):
+    """TODO."""
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -153,6 +165,8 @@ class WIP_HospitalizationsWithoutSystem(TableContract):
 
 
 class WIP_PatientAddress(TableContract):
+    """TODO."""
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -192,6 +206,13 @@ class WIP_PatientAddress(TableContract):
 
 
 class WIP_PracticeRegistrations(TableContract):
+    """
+    For backends with primary care data, the patient's registered practice.
+
+    Ideally a record of all relevant registrations with their start and end
+    date, or the latest registered practice.
+    """
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -225,6 +246,8 @@ class WIP_PracticeRegistrations(TableContract):
 
 
 class WIP_Prescriptions(TableContract):
+    """TODO."""
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -246,6 +269,8 @@ class WIP_Prescriptions(TableContract):
 
 
 class WIP_TestResults(TableContract):
+    """TODO."""
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -267,6 +292,8 @@ class WIP_TestResults(TableContract):
 
 
 class WIP_SimplePatientDemographics(TableContract):
+    """TODO."""
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
