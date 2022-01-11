@@ -5,15 +5,13 @@ import pytest
 
 from databuilder import codelist
 from databuilder.backends import TPPBackend
-from databuilder.concepts.tables import (
-    clinical_events,
-    hospitalizations,
-    patient_addresses,
-    patients,
-    registrations,
-    sgss_sars_cov_2,
-)
 from databuilder.dsl import Cohort, categorise
+from databuilder.frames import clinical_events as events
+from databuilder.frames import hospitalizations
+from databuilder.frames import patient_addresses as addresses
+from databuilder.frames import patients
+from databuilder.frames import practice_registrations as registrations
+from databuilder.frames import sgss_sars_cov_2
 from databuilder.validate_dummy_data import validate_dummy_data
 
 from ..lib.tpp_schema import (
@@ -41,9 +39,6 @@ def build_cohort():
     pandemic_start = "2020-02-01"
     index_date = "2020-11-01"
     bmi_code = codelist(["22K.."], system="ctv3")
-
-    events = clinical_events
-    addresses = patient_addresses
 
     cohort = Cohort()
 
