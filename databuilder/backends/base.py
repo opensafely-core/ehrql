@@ -87,7 +87,9 @@ class BaseBackend:
         """Return table implementing given contract."""
 
         tables = [t for t in self.tables.values() if t.implements == contract]
-        assert len(tables) == 1
+        assert (
+            len(tables) == 1
+        ), f"{contract} is implemented by {len(tables)} tables in {self}"
         return tables[0]
 
 
