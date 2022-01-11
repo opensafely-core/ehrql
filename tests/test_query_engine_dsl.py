@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 import pytest
 
@@ -396,15 +396,18 @@ def test_date_arithmetic_convert_to_weeks(engine, cohort_with_population):
 
 
 def test_date_arithmetic_add_datedeltaseries(engine, cohort_with_population):
+    patient1_dob = date(1990, 8, 10)
+    patient2_dob = date(1987, 9, 10)
+    reference_date_obj = date(1990, 9, 10)
     input_data = [
-        patient(1, dob="1990-08-10"),
-        patient(2, dob="1987-09-10"),
+        patient(1, dob=str(patient1_dob)),
+        patient(2, dob=str(patient2_dob)),
     ]
     engine.setup(input_data)
 
     patients = tables.patients
     data_definition = cohort_with_population
-    reference_date = "1990-09-10"
+    reference_date = str(reference_date_obj)
     dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
 
     age = reference_date - dob  # -> DateDeltaSeries
@@ -412,22 +415,33 @@ def test_date_arithmetic_add_datedeltaseries(engine, cohort_with_population):
     data_definition.dob_plus_age = dob + age
 
     result = engine.extract(data_definition)
+
+    def _age(dob_obj):
+        return reference_date_obj - dob_obj
+
     assert result == [
-        {"patient_id": 1, "age_in_days": 31, "dob_plus_age": date(1990, 9, 10)},
-        {"patient_id": 2, "age_in_days": 1096, "dob_plus_age": date(1990, 9, 10)},
+        {
+            "patient_id": patient_id,
+            "age_in_days": _age(patient_dob).days,
+            "dob_plus_age": patient_dob + _age(patient_dob),
+        }
+        for patient_id, patient_dob in [(1, patient1_dob), (2, patient2_dob)]
     ]
 
 
 def test_date_arithmetic_subtract_datedelta(engine, cohort_with_population):
+    patient1_dob = date(1990, 8, 10)
+    patient2_dob = date(1987, 9, 10)
+    reference_date_obj = date(1990, 9, 10)
     input_data = [
-        patient(1, dob="1990-08-10"),
-        patient(2, dob="1987-09-10"),
+        patient(1, dob=str(patient1_dob)),
+        patient(2, dob=str(patient2_dob)),
     ]
     engine.setup(input_data)
 
     patients = tables.patients
     data_definition = cohort_with_population
-    reference_date = "1990-09-10"
+    reference_date = str(reference_date_obj)
     dob = patients.select_column(patients.date_of_birth)  # DateSeries
 
     age = reference_date - dob
@@ -437,39 +451,41 @@ def test_date_arithmetic_subtract_datedelta(engine, cohort_with_population):
     data_definition.ref_minus_age = reference_date - age
 
     result = engine.extract(data_definition)
+
+    def _age(dob_obj):
+        return reference_date_obj - dob_obj
+
     assert result == [
         {
-            "patient_id": 1,
-            "age_in_days": 31,
-            "dob_minus_age": date(1990, 7, 10),
-            "dob_minus_10": date(1990, 7, 31),
-            "ref_minus_age": date(1990, 8, 10),
-        },
-        {
-            "patient_id": 2,
-            "age_in_days": 1096,
-            "dob_minus_age": date(1984, 9, 9),
-            "dob_minus_10": date(1987, 8, 31),
-            "ref_minus_age": date(1987, 9, 10),
-        },
+            "patient_id": patient_id,
+            "age_in_days": _age(patient_dob).days,
+            "dob_minus_age": patient_dob - _age(patient_dob),
+            "dob_minus_10": patient_dob - timedelta(days=10),
+            "ref_minus_age": reference_date_obj - _age(patient_dob),
+        }
+        for patient_id, patient_dob in [(1, patient1_dob), (2, patient2_dob)]
     ]
 
 
 def test_date_arithmetic_add_datedeltaseries_together(engine, cohort_with_population):
+    patient1_dob = date(1990, 8, 10)
+    patient2_dob = date(1987, 9, 10)
+    reference_date_obj_1990 = date(1990, 9, 10)
+    reference_date_obj_2000 = date(2000, 9, 10)
     input_data = [
-        patient(1, dob="1990-08-10"),
-        patient(2, dob="1987-09-10"),
+        patient(1, dob=str(patient1_dob)),
+        patient(2, dob=str(patient2_dob)),
     ]
     engine.setup(input_data)
 
     patients = tables.patients
     data_definition = cohort_with_population
-    reference_date = "1990-09-10"
-    reference_date1 = "2000-09-10"
+    reference_date_1990 = str(reference_date_obj_1990)
+    reference_date_2000 = str(reference_date_obj_2000)
     dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
 
-    age_in_1990 = reference_date - dob  # -> DateDeltaSeries
-    age_in_2000 = reference_date1 - dob  # -> DateDeltaSeries
+    age_in_1990 = reference_date_1990 - dob  # -> DateDeltaSeries
+    age_in_2000 = reference_date_2000 - dob  # -> DateDeltaSeries
 
     data_definition.age_in_days_1990 = age_in_1990.convert_to_days()
     data_definition.age_in_days_2000 = age_in_2000.convert_to_days()
@@ -477,34 +493,39 @@ def test_date_arithmetic_add_datedeltaseries_together(engine, cohort_with_popula
     data_definition.combined_age = age_in_1990 + age_in_2000
 
     result = engine.extract(data_definition)
+
+    def _days_age_on(dob_obj, reference_date_obj):
+        return (reference_date_obj - dob_obj).days
+
     assert result == [
         {
-            "patient_id": 1,
-            "age_in_days_1990": 31,
-            "age_in_days_2000": 3684,
-            "combined_age": 31 + 3684,
-        },
-        {
-            "patient_id": 2,
-            "age_in_days_1990": 1096,
-            "age_in_days_2000": 4749,
-            "combined_age": 1096 + 4749,
-        },
+            "patient_id": patient_id,
+            "age_in_days_1990": _days_age_on(patient_dob, reference_date_obj_1990),
+            "age_in_days_2000": _days_age_on(patient_dob, reference_date_obj_2000),
+            "combined_age": (
+                _days_age_on(patient_dob, reference_date_obj_1990)
+                + _days_age_on(patient_dob, reference_date_obj_2000)
+            ),
+        }
+        for patient_id, patient_dob in [(1, patient1_dob), (2, patient2_dob)]
     ]
 
 
 def test_date_arithmetic_add_datedeltaseries_and_integer(
     engine, cohort_with_population
 ):
+    patient1_dob = date(1990, 8, 10)
+    patient2_dob = date(1987, 9, 10)
+    reference_date_obj = date(1990, 9, 10)
     input_data = [
-        patient(1, dob="1990-08-10"),
-        patient(2, dob="1987-09-10"),
+        patient(1, dob=str(patient1_dob)),
+        patient(2, dob=str(patient2_dob)),
     ]
     engine.setup(input_data)
 
     patients = tables.patients
     data_definition = cohort_with_population
-    reference_date = "1990-09-10"
+    reference_date = str(reference_date_obj)
     dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
 
     age = reference_date - dob  # -> DateDeltaSeries
@@ -514,36 +535,38 @@ def test_date_arithmetic_add_datedeltaseries_and_integer(
     data_definition.ten_plus_age = 10 + age
 
     result = engine.extract(data_definition)
+
+    def _days_age(dob_obj):
+        return (reference_date_obj - dob_obj).days
+
     assert result == [
         {
-            "patient_id": 1,
-            "age_in_days": 31,
-            "age_plus_10": 41,
-            "ten_plus_age": 41,
-        },
-        {
-            "patient_id": 2,
-            "age_in_days": 1096,
-            "age_plus_10": 1106,
-            "ten_plus_age": 1106,
-        },
+            "patient_id": patient_id,
+            "age_in_days": _days_age(patient_dob),
+            "age_plus_10": _days_age(patient_dob) + 10,
+            "ten_plus_age": 10 + _days_age(patient_dob),
+        }
+        for patient_id, patient_dob in [(1, patient1_dob), (2, patient2_dob)]
     ]
 
 
 def test_date_arithmetic_add_multiple(engine, cohort_with_population):
+    patient_dob = date(1990, 8, 10)
+    reference_date_obj_1990 = date(1990, 9, 10)
+    reference_date_obj_1991 = date(1991, 9, 10)
     input_data = [
-        patient(1, dob="1990-08-10"),
+        patient(1, dob=str(patient_dob)),
     ]
     engine.setup(input_data)
 
     patients = tables.patients
     data_definition = cohort_with_population
-    reference_date = "1990-09-10"
-    reference_date1 = "1991-09-10"
+    reference_date_1990 = str(reference_date_obj_1990)
+    reference_date_1991 = str(reference_date_obj_1991)
     dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
 
-    age_in_1990 = reference_date - dob  # -> DateDeltaSeries
-    age_in_1991 = reference_date1 - dob  # -> DateDeltaSeries
+    age_in_1990 = reference_date_1990 - dob  # -> DateDeltaSeries
+    age_in_1991 = reference_date_1991 - dob  # -> DateDeltaSeries
 
     data_definition.age_in_days_1990 = age_in_1990.convert_to_days()
     data_definition.age_in_days_1991 = age_in_1991.convert_to_days()
@@ -552,32 +575,41 @@ def test_date_arithmetic_add_multiple(engine, cohort_with_population):
     data_definition.dob_plus = dob + age_in_1990 + age_in_1991 + 10
 
     result = engine.extract(data_definition)
+
+    timedelta_age_1990 = (reference_date_obj_1990 - patient_dob).days
+    timedelta_age_1991 = (reference_date_obj_1991 - patient_dob).days
     assert result == [
         {
             "patient_id": 1,
-            "age_in_days_1990": 31,
-            "age_in_days_1991": 396,
-            "combined_age_plus_10": 437,
-            "dob_plus": date(1991, 10, 21),
+            "age_in_days_1990": timedelta_age_1990,
+            "age_in_days_1991": timedelta_age_1991,
+            "combined_age_plus_10": timedelta_age_1990 + timedelta_age_1991 + 10,
+            "dob_plus": patient_dob
+            + timedelta(days=timedelta_age_1990 + timedelta_age_1991 + 10),
         }
     ]
 
 
 def test_date_arithmetic_subtract_two_datedeltaseries(engine, cohort_with_population):
+    patient1_dob = date(1990, 8, 10)
+    patient2_dob = date(1987, 9, 10)
+    reference_date_obj_1990 = date(1990, 9, 10)
+    reference_date_obj_2000 = date(2000, 9, 10)
     input_data = [
-        patient(1, dob="1990-08-10"),
-        patient(2, dob="1987-09-10"),
+        patient(1, dob=str(patient1_dob)),
+        patient(2, dob=str(patient2_dob)),
     ]
+
     engine.setup(input_data)
 
     patients = tables.patients
     data_definition = cohort_with_population
-    reference_date = "1990-09-10"
-    reference_date1 = "2000-09-10"
+    reference_date_1990 = str(reference_date_obj_1990)
+    reference_date_2000 = str(reference_date_obj_2000)
     dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
 
-    age_in_1990 = reference_date - dob  # -> DateDeltaSeries
-    age_in_2000 = reference_date1 - dob  # -> DateDeltaSeries
+    age_in_1990 = reference_date_1990 - dob  # -> DateDeltaSeries
+    age_in_2000 = reference_date_2000 - dob  # -> DateDeltaSeries
 
     data_definition.age_in_days_1990 = age_in_1990.convert_to_days()
     data_definition.age_in_days_2000 = age_in_2000.convert_to_days()
@@ -585,34 +617,37 @@ def test_date_arithmetic_subtract_two_datedeltaseries(engine, cohort_with_popula
     data_definition.age_diff = age_in_2000 - age_in_1990
 
     result = engine.extract(data_definition)
+
+    def _days_age_on(dob_obj, reference_date_obj):
+        return (reference_date_obj - dob_obj).days
+
     assert result == [
         {
-            "patient_id": 1,
-            "age_in_days_1990": 31,
-            "age_in_days_2000": 3684,
-            "age_diff": 3684 - 31,
-        },
-        {
-            "patient_id": 2,
-            "age_in_days_1990": 1096,
-            "age_in_days_2000": 4749,
-            "age_diff": 4749 - 1096,
-        },
+            "patient_id": patient_id,
+            "age_in_days_1990": _days_age_on(patient_dob, reference_date_obj_1990),
+            "age_in_days_2000": _days_age_on(patient_dob, reference_date_obj_2000),
+            "age_diff": _days_age_on(patient_dob, reference_date_obj_2000)
+            - _days_age_on(patient_dob, reference_date_obj_1990),
+        }
+        for patient_id, patient_dob in [(1, patient1_dob), (2, patient2_dob)]
     ]
 
 
 def test_date_arithmetic_subtract_datedeltaseries_and_integer(
     engine, cohort_with_population
 ):
+    patient1_dob = date(1990, 8, 10)
+    patient2_dob = date(1987, 9, 10)
+    reference_date_obj = date(1990, 9, 10)
     input_data = [
-        patient(1, dob="1990-08-10"),
-        patient(2, dob="1987-09-10"),
+        patient(1, dob=str(patient1_dob)),
+        patient(2, dob=str(patient2_dob)),
     ]
     engine.setup(input_data)
 
     patients = tables.patients
     data_definition = cohort_with_population
-    reference_date = "1990-09-10"
+    reference_date = str(reference_date_obj)
     dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
 
     age = reference_date - dob  # -> DateDeltaSeries
@@ -621,36 +656,36 @@ def test_date_arithmetic_subtract_datedeltaseries_and_integer(
     data_definition.two_thousand_minus_age = 2000 - age
 
     result = engine.extract(data_definition)
+
+    def _days_age(dob_obj):
+        return (reference_date_obj - dob_obj).days
+
     assert result == [
         {
-            "patient_id": 1,
-            "age_in_days": 31,
-            "age_minus_10": 21,
-            "two_thousand_minus_age": 1969,
-        },
-        {
-            "patient_id": 2,
-            "age_in_days": 1096,
-            "age_minus_10": 1086,
-            "two_thousand_minus_age": 904,
-        },
+            "patient_id": patient_id,
+            "age_in_days": _days_age(patient_dob),
+            "age_minus_10": _days_age(patient_dob) - 10,
+            "two_thousand_minus_age": 2000 - _days_age(patient_dob),
+        }
+        for patient_id, patient_dob in [(1, patient1_dob), (2, patient2_dob)]
     ]
 
 
 def test_date_arithmetic_add_and_subtract(engine, cohort_with_population):
-    input_data = [
-        patient(1, dob="1990-08-10"),
-    ]
+    patient_dob = date(1990, 8, 10)
+    reference_date_obj_1990 = date(1990, 9, 10)
+    reference_date_obj_1991 = date(2000, 9, 10)
+    input_data = [patient(1, dob=str(patient_dob))]
     engine.setup(input_data)
 
     patients = tables.patients
     data_definition = cohort_with_population
-    reference_date = "1990-09-10"
-    reference_date1 = "1991-09-10"
+    reference_date_1990 = str(reference_date_obj_1990)
+    reference_date_1991 = str(reference_date_obj_1991)
     dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
 
-    age_in_1990 = reference_date - dob  # -> DateDeltaSeries
-    age_in_1991 = reference_date1 - dob  # -> DateDeltaSeries
+    age_in_1990 = reference_date_1990 - dob  # -> DateDeltaSeries
+    age_in_1991 = reference_date_1991 - dob  # -> DateDeltaSeries
 
     data_definition.age_in_days_1990 = age_in_1990.convert_to_days()
     data_definition.age_in_days_1991 = age_in_1991.convert_to_days()
@@ -659,12 +694,17 @@ def test_date_arithmetic_add_and_subtract(engine, cohort_with_population):
     data_definition.dob_plus_age_diff_plus_10 = dob + age_in_1991 - age_in_1990 + 10
 
     result = engine.extract(data_definition)
+
+    timedelta_age_1990 = (reference_date_obj_1990 - patient_dob).days
+    timedelta_age_1991 = (reference_date_obj_1991 - patient_dob).days
+
     assert result == [
         {
             "patient_id": 1,
-            "age_in_days_1990": 31,
-            "age_in_days_1991": 396,
-            "age_diff_plus_10": 375,
-            "dob_plus_age_diff_plus_10": date(1991, 8, 20),
+            "age_in_days_1990": timedelta_age_1990,
+            "age_in_days_1991": timedelta_age_1991,
+            "age_diff_plus_10": timedelta_age_1991 - timedelta_age_1990 + 10,
+            "dob_plus_age_diff_plus_10": patient_dob
+            + timedelta(days=timedelta_age_1991 - timedelta_age_1990 + 10),
         }
     ]
