@@ -84,7 +84,8 @@ class TableContract:
         contract."""
 
         cols = {
-            name: column.type.dsl_column(name) for name, column in cls.columns.items()
+            name: column.type.get_dsl_column()(name)
+            for name, column in cls.columns.items()
         }
         qm_table = QMTable(cls)
 

@@ -303,6 +303,10 @@ class CodeSeries(PatientSeries):
         )
 
 
+class StrSeries(PatientSeries):
+    pass
+
+
 def _validate_datestring(datestring):
     try:
         datetime.strptime(datestring, "%Y-%m-%d")
@@ -373,9 +377,7 @@ class IdSeries(PatientSeries):
 
 
 class IntSeries(PatientSeries):
-    def __gt__(self, other: IntSeries | int) -> BoolSeries:
-        other_value = other.value if isinstance(other, IntSeries) else other
-        return BoolSeries(value=self.value > other_value)
+    # TODO: add other comparison operators
 
     def __ge__(self, other: IntSeries | int) -> BoolSeries:
         other_value = other.value if isinstance(other, IntSeries) else other
@@ -385,12 +387,26 @@ class IntSeries(PatientSeries):
         other_value = other.value if isinstance(other, IntSeries) else other
         return BoolSeries(value=self.value < other_value)
 
-    def __le__(self, other: IntSeries | int) -> BoolSeries:
-        other_value = other.value if isinstance(other, IntSeries) else other
+
+class FloatSeries(PatientSeries):
+    def __gt__(self, other: FloatSeries | float) -> BoolSeries:
+        other_value = other.value if isinstance(other, FloatSeries) else other
+        return BoolSeries(value=self.value > other_value)
+
+    def __ge__(self, other: FloatSeries | float) -> BoolSeries:
+        other_value = other.value if isinstance(other, FloatSeries) else other
+        return BoolSeries(value=self.value >= other_value)
+
+    def __lt__(self, other: FloatSeries | float) -> BoolSeries:
+        other_value = other.value if isinstance(other, FloatSeries) else other
+        return BoolSeries(value=self.value < other_value)
+
+    def __le__(self, other: FloatSeries | float) -> BoolSeries:
+        other_value = other.value if isinstance(other, FloatSeries) else other
         return BoolSeries(value=self.value <= other_value)
 
-    def __ne__(self, other: IntSeries | int) -> BoolSeries:  # type: ignore[override]
-        other_value = other.value if isinstance(other, IntSeries) else other
+    def __ne__(self, other: FloatSeries | float) -> BoolSeries:  # type: ignore[override]
+        other_value = other.value if isinstance(other, FloatSeries) else other
         return BoolSeries(value=self.value != other_value)
 
 
@@ -402,7 +418,7 @@ class Predicate:
         self,
         column: Column[S],
         operator: str,
-        other: str | bool | int | Codelist | None,
+        other: str | bool | int | float | Codelist | None,
     ) -> None:
         self._column = column
         self._operator = operator
@@ -486,26 +502,40 @@ class CodeColumn(Column[CodeSeries]):
         return Predicate(self, "is_in", codelist)
 
 
+class StrColumn(Column[StrSeries]):
+    def __init__(self, name):
+        return super().__init__(name, StrSeries)
+
+    # TODO add comparison operators
+
+
 class IntColumn(Column[IntSeries]):
     def __init__(self, name):
         return super().__init__(name, IntSeries)
 
-    def __eq__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+    # TODO add comparison operators
+
+
+class FloatColumn(Column[FloatSeries]):
+    def __init__(self, name):
+        return super().__init__(name, FloatSeries)
+
+    def __eq__(self, other: float) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "equals", other)
 
-    def __ne__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+    def __ne__(self, other: float) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "not_equals", other)
 
-    def __gt__(self, other: int) -> Predicate:
+    def __gt__(self, other: float) -> Predicate:
         return Predicate(self, "greater_than", other)
 
-    def __ge__(self, other: int) -> Predicate:
+    def __ge__(self, other: float) -> Predicate:
         return Predicate(self, "greater_than_or_equals", other)
 
-    def __lt__(self, other: int) -> Predicate:
+    def __lt__(self, other: float) -> Predicate:
         return Predicate(self, "less_than", other)
 
-    def __le__(self, other: int) -> Predicate:
+    def __le__(self, other: float) -> Predicate:
         return Predicate(self, "less_than_or_equals", other)
 
 

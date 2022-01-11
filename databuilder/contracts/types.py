@@ -13,6 +13,9 @@ class BaseType(Protocol):
     # tuples of one or more keys from databuilder.sqlalchemy_types.TYPES_BY_NAME
     allowed_backend_types: tuple[TYPES_BY_NAME, ...]
 
+    def get_dsl_column(self):
+        return self.dsl_column
+
 
 class Boolean(BaseType):
     allowed_backend_types = (TYPES_BY_NAME.boolean,)
@@ -25,10 +28,15 @@ class Choice(BaseType):
     """
 
     allowed_backend_types = (TYPES_BY_NAME.integer, TYPES_BY_NAME.varchar)
-    dsl_column = None  # TODO
 
     def __init__(self, *choices):
         self.choices = choices
+
+    def get_dsl_column(self):
+        if isinstance(self.choices[0], int):
+            return Integer.dsl_column
+        elif isinstance(self.choices[0], str):
+            return String.dsl_column
 
 
 class Code(BaseType):
@@ -45,7 +53,7 @@ class Date(BaseType):
 
 class Float(BaseType):
     allowed_backend_types = (TYPES_BY_NAME.float,)
-    dsl_column = None  # TODO
+    dsl_column = dsl.FloatColumn
 
 
 class Integer(BaseType):
@@ -62,4 +70,4 @@ class PseudoPatientId(BaseType):
 
 class String(BaseType):
     allowed_backend_types = (TYPES_BY_NAME.varchar,)
-    dsl_column = None  # TODO
+    dsl_column = dsl.StrColumn
