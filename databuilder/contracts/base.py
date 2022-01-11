@@ -1,6 +1,8 @@
 import dataclasses
 
-from .constraints import BaseConstraint, ChoiceConstraint
+from ..dsl import EventFrame, PatientFrame
+from ..query_model import Table as QMTable
+from .constraints import BaseConstraint, ChoiceConstraint, UniqueConstraint
 from .types import BaseType, Choice
 
 
@@ -8,8 +10,8 @@ from .types import BaseType, Choice
 class Column:
 
     type: BaseType  # noqa: A003
-    description: str
-    help: str  # noqa: A003
+    description: str = ""
+    help: str = ""  # noqa: A003
     constraints: list[BaseConstraint] = dataclasses.field(default_factory=list)
 
 
@@ -75,3 +77,23 @@ class TableContract:
                 ]
             for constraint in constraints:
                 constraint.validate(backend_table, column_name)
+
+    @classmethod
+    def build_dsl_frame(cls):
+        """Build a PatientFrame or EventFrame for querying tables that implement this
+        contract."""
+
+        cols = {
+            name: column.type.dsl_column(name) for name, column in cls.columns.items()
+        }
+        qm_table = QMTable(cls)
+
+        if any(isinstance(c, UniqueConstraint) for c in cls.patient_id.constraints):
+            frame_cls = type(cls.__name__, (PatientFrame,), cols)
+            # TODO: revisit this!  For now, PatientFrame is instantiated with a
+            # query_model.Row.  As things stand, this will generate SQL with an
+            # unnecessary PARTITION OVER, which may carry a performance penalty.
+            return frame_cls(qm_table.first_by("patient_id"))
+        else:
+            frame_cls = type(cls.__name__, (EventFrame,), cols)
+            return frame_cls(qm_table)
