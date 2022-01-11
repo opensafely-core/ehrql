@@ -232,10 +232,6 @@ class Table(BaseTable):
         """
         A convenience method to retrieve the IMD on the reference date.
         """
-        if self.name != "patient_address":
-            raise NotImplementedError(
-                "This method is only available on the patient_address table"
-            )
 
         # Note that current addresses are recorded with an EndDate of
         # 9999-12-31 (TPP) or Null (Graphnet). Where address periods overlap we use the one with the
@@ -250,10 +246,6 @@ class Table(BaseTable):
         )
 
     def age_as_of(self, reference_date):
-        if self.name != "patients":
-            raise NotImplementedError(
-                "This method is only available on the patients table"
-            )
         return DateDifference(
             self.first_by("patient_id").get("date_of_birth"),
             reference_date,
