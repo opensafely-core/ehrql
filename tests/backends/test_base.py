@@ -8,6 +8,26 @@ from databuilder.contracts.base import TableContract
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 
 
+class PatientsContract(TableContract):
+    """
+    A test contract that backends can be validated against
+    """
+
+    patient_id = ColumnContract(type=types.PseudoPatientId())
+    date_of_birth = ColumnContract(type=types.Date())
+    sex = ColumnContract(type=types.Choice("F", "M"))
+
+
+class EventsContract(TableContract):
+    """
+    A test contract that backends can be validated against
+    """
+
+    patient_id = ColumnContract(type=types.PseudoPatientId())
+    code = ColumnContract(type=types.Code())
+    date = ColumnContract(type=types.Date())
+
+
 def test_backend_tables():
     """Test that a backend registers its table names"""
 
@@ -17,13 +37,16 @@ def test_backend_tables():
         patient_join_column = "patient_id"
 
         patients = MappedTable(
+            implements=PatientsContract,
             source="Patient",
             columns=dict(
                 date_of_birth=Column("date", source="DateOfBirth"),
+                sex=Column("varchar", source="Sex"),
             ),
         )
 
         clinical_events = MappedTable(
+            implements=EventsContract,
             source="coded_events",
             columns=dict(
                 code=Column("code", source="EventCode"),
@@ -35,16 +58,6 @@ def test_backend_tables():
         "patients",
         "clinical_events",
     }
-
-
-class PatientsContract(TableContract):
-    """
-    A test contract that backends can be validates against
-    """
-
-    patient_id = ColumnContract(type=types.PseudoPatientId(), help="", description="")
-    date_of_birth = ColumnContract(type=types.Date(), help="", description="")
-    sex = ColumnContract(type=types.Choice("F", "M"), help="", description="")
 
 
 def test_bad_backend_with_validate_contract():
@@ -124,6 +137,7 @@ def test_get_table_implementing():
         )
 
         events = MappedTable(
+            implements=EventsContract,
             source="Event",
             columns=dict(
                 date=Column("date", source="Date"),
