@@ -1,5 +1,6 @@
-from databuilder import table
+from databuilder.query_model import Table
 
+from .lib.contracts import Events
 from .lib.mock_backend import CTV3Events, RegistrationHistory
 from .lib.util import OldCohortWithPopulation
 
@@ -12,7 +13,7 @@ def test_pick_a_single_value(engine):
     engine.setup(input_data)
 
     class Cohort(OldCohortWithPopulation):
-        code = table("clinical_events").first_by("patient_id").get("code")
+        code = Table(Events).first_by("patient_id").get("code")
 
     expected = [{"patient_id": 1, "code": "xyz"}]
 

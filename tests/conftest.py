@@ -2,8 +2,6 @@ import docker
 import docker.errors
 import pytest
 
-from databuilder.concepts import tables
-from databuilder.concepts.tables import clinical_events
 from databuilder.definition.base import cohort_registry
 from databuilder.dsl import Cohort
 from databuilder.query_engines.mssql import MssqlQueryEngine
@@ -11,7 +9,8 @@ from databuilder.query_engines.spark import SparkQueryEngine
 
 from .lib.databases import make_database, make_spark_database, wait_for_database
 from .lib.docker import Containers
-from .lib.mock_backend import MockPatients, backend_factory
+from .lib.frames import events, patients, registrations
+from .lib.mock_backend import backend_factory
 from .lib.util import extract
 
 
@@ -62,7 +61,7 @@ def cleanup_register():
 @pytest.fixture
 def cohort_with_population():
     cohort = Cohort()
-    cohort.set_population(tables.registrations.exists_for_patient())
+    cohort.set_population(registrations.exists_for_patient())
     yield cohort
 
 
@@ -104,37 +103,36 @@ def engine(request, database, spark_database):
 
 @pytest.fixture
 def bool_series():
-    return lambda: clinical_events.exists_for_patient()
+    return lambda: events.exists_for_patient()
 
 
 @pytest.fixture
 def code_series():
     return (
-        lambda: clinical_events.sort_by(clinical_events.code)
+        lambda: events.sort_by(events.code)
         .first_for_patient()
-        .select_column(clinical_events.code)
+        .select_column(events.code)
     )
 
 
 @pytest.fixture
 def date_series():
     return (
-        lambda: clinical_events.sort_by(clinical_events.date)
+        lambda: events.sort_by(events.date)
         .first_for_patient()
-        .select_column(clinical_events.date)
+        .select_column(events.date)
     )
 
 
 @pytest.fixture
 def int_series():
     return (
-        lambda: clinical_events.sort_by(clinical_events.value)
+        lambda: events.sort_by(events.value)
         .first_for_patient()
-        .select_column(clinical_events.value)
+        .select_column(events.value)
     )
 
 
 @pytest.fixture
 def patient_series():
-    patients = MockPatients()
     return lambda: patients.select_column(patients.sex)

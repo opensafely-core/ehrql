@@ -1,8 +1,14 @@
 import random
 from datetime import date
 
-from databuilder import codelist, table
+from databuilder import codelist
 from databuilder.backends.databricks import DatabricksBackend
+from databuilder.contracts.tables import (
+    WIP_HospitalAdmissions,
+    WIP_Prescriptions,
+    WIP_SimplePatientDemographics,
+)
+from databuilder.query_model import Table
 
 from ..lib.databricks_schema import HESApc, HESApcOtr, MPSHESApc, PCareMeds
 from ..lib.util import extract, iter_flatten
@@ -74,11 +80,15 @@ def test_basic_databricks_study_definition(spark_database):
     )
 
     class Cohort:
-        population = table("patients").exists()
-        dob = table("patients").first_by("patient_id").get("date_of_birth")
-        age = table("patients").age_as_of("2020-01-01")
+        population = Table(WIP_SimplePatientDemographics).exists()
+        dob = (
+            Table(WIP_SimplePatientDemographics)
+            .first_by("patient_id")
+            .get("date_of_birth")
+        )
+        age = Table(WIP_SimplePatientDemographics).age_as_of("2020-01-01")
         prescribed_med = (
-            table("prescriptions")
+            Table(WIP_Prescriptions)
             .filter("processing_date", between=["2020-01-01", "2020-01-31"])
             .filter(
                 "prescribed_dmd_code", is_in=codelist(["0010", "0050"], system="dmd")
@@ -86,7 +96,7 @@ def test_basic_databricks_study_definition(spark_database):
             .exists()
         )
         admitted = (
-            table("hospital_admissions")
+            Table(WIP_HospitalAdmissions)
             .filter("admission_date", between=["2020-01-01", "2020-01-31"])
             .filter(primary_diagnosis="N05", episode_is_finished=True)
             .filter("admission_method", between=[20, 29])

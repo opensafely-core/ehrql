@@ -2,8 +2,16 @@ from datetime import date, datetime
 
 import pytest
 
-from databuilder import table
 from databuilder.backends.graphnet import GraphnetBackend
+from databuilder.contracts.tables import (
+    PatientDemographics,
+    WIP_ClinicalEvents,
+    WIP_HospitalizationsWithoutSystem,
+    WIP_PatientAddress,
+    WIP_PracticeRegistrations,
+    WIP_TestResults,
+)
+from databuilder.query_model import Table
 
 from ..lib.graphnet_schema import (
     ClinicalEvents,
@@ -15,7 +23,7 @@ from ..lib.graphnet_schema import (
     patient_address,
     registration,
 )
-from ..lib.util import OldCohortWithPopulation, extract
+from ..lib.util import extract
 
 
 def test_basic_events_and_registration(database):
@@ -25,9 +33,10 @@ def test_basic_events_and_registration(database):
         ClinicalEvents(Patient_ID=1, Code="Code1", CodingSystem="CTV3"),
     )
 
-    class Cohort(OldCohortWithPopulation):
-        code = table("clinical_events").first_by("patient_id").get("code")
-        system = table("clinical_events").first_by("patient_id").get("system")
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
+        code = Table(WIP_ClinicalEvents).first_by("patient_id").get("code")
+        system = Table(WIP_ClinicalEvents).first_by("patient_id").get("system")
 
     assert extract(Cohort, GraphnetBackend, database) == [
         dict(patient_id=1, code="Code1", system="CTV3")
@@ -43,8 +52,9 @@ def test_registration_dates(database):
         PracticeRegistrations(Patient_ID=1, StartDate="2013-01-01"),
     )
 
-    class Cohort(OldCohortWithPopulation):
-        _registrations = table("practice_registrations").first_by("patient_id")
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
+        _registrations = Table(WIP_PracticeRegistrations).first_by("patient_id")
         arrived = _registrations.get("date_start")
         left = _registrations.get("date_end")
 
@@ -62,9 +72,10 @@ def test_registration_dates_no_end(database):
         PracticeRegistrations(Patient_ID=1, StartDate="2013-01-01", EndDate=None),
     )
 
-    class Cohort(OldCohortWithPopulation):
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
         _registrations = (
-            table("practice_registrations")
+            Table(WIP_PracticeRegistrations)
             .date_in_range("2014-01-01")
             .latest("date_end")
         )
@@ -89,12 +100,10 @@ def test_covid_test_positive_result(database):
         ),
     )
 
-    class Cohort(OldCohortWithPopulation):
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
         date = (
-            table("covid_test_results")
-            .filter(positive_result=True)
-            .earliest()
-            .get("date")
+            Table(WIP_TestResults).filter(positive_result=True).earliest().get("date")
         )
 
     assert extract(Cohort, GraphnetBackend, database) == [
@@ -115,12 +124,10 @@ def test_covid_test_negative_result(database):
         ),
     )
 
-    class Cohort(OldCohortWithPopulation):
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
         date = (
-            table("covid_test_results")
-            .filter(positive_result=False)
-            .earliest()
-            .get("date")
+            Table(WIP_TestResults).filter(positive_result=False).earliest().get("date")
         )
 
     assert extract(Cohort, GraphnetBackend, database) == [
@@ -136,8 +143,9 @@ def test_patients_table(database):
         ),
     )
 
-    class Cohort(OldCohortWithPopulation):
-        _patients = table("patients").first_by("patient_id")
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
+        _patients = Table(PatientDemographics).first_by("patient_id")
         sex = _patients.get("sex")
         dob = _patients.get("date_of_birth")
 
@@ -157,8 +165,11 @@ def test_hospitalization_table_returns_admission_date_and_code(database):
         ),
     )
 
-    class Cohort(OldCohortWithPopulation):
-        _hospitalization = table("hospitalizations").first_by("patient_id")
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
+        _hospitalization = Table(WIP_HospitalizationsWithoutSystem).first_by(
+            "patient_id"
+        )
         admission = _hospitalization.get("date")
         code = _hospitalization.get("code")
 
@@ -176,8 +187,9 @@ def test_events_with_numeric_value(database):
         ),
     )
 
-    class Cohort(OldCohortWithPopulation):
-        value = table("clinical_events").latest().get("numeric_value")
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
+        value = Table(WIP_ClinicalEvents).latest().get("numeric_value")
 
     assert extract(Cohort, GraphnetBackend, database) == [
         dict(patient_id=1, value=34.7)
@@ -203,8 +215,9 @@ def test_organisation(database):
         ),
     )
 
-    class Cohort(OldCohortWithPopulation):
-        _registrations = table("practice_registrations").last_by("patient_id")
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
+        _registrations = Table(WIP_PracticeRegistrations).last_by("patient_id")
         region = _registrations.get("nuts1_region_name")
         practice_id = _registrations.get("pseudo_id")
 
@@ -247,7 +260,7 @@ def test_organisation_dates(database):
     )
 
     class Cohort:
-        _registrations = table("practice_registrations").date_in_range("2021-06-25")
+        _registrations = Table(WIP_PracticeRegistrations).date_in_range("2021-06-25")
         population = _registrations.exists()
         _registration_table = _registrations.latest("date_end")
         region = _registration_table.get("nuts1_region_name")
@@ -270,8 +283,9 @@ def test_index_of_multiple_deprivation(database):
         ),
     )
 
-    class Cohort(OldCohortWithPopulation):
-        imd = table("patient_address").imd_rounded_as_of("2021-06-01")
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
+        imd = Table(WIP_PatientAddress).imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, GraphnetBackend, database) == [dict(patient_id=1, imd=1200)]
 
@@ -333,8 +347,9 @@ def test_index_of_multiple_deprivation_sorting(database, patient_addresses, expe
         ),
     )
 
-    class Cohort(OldCohortWithPopulation):
-        imd = table("patient_address").imd_rounded_as_of("2021-06-01")
+    class Cohort:
+        population = Table(WIP_PracticeRegistrations).exists()
+        imd = Table(WIP_PatientAddress).imd_rounded_as_of("2021-06-01")
 
     assert extract(Cohort, GraphnetBackend, database) == [
         dict(patient_id=1, imd=expected)

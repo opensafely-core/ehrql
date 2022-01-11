@@ -50,7 +50,7 @@ class Events(TableContract):
     date = Column(
         type=types.Date(),
     )
-    result = Column(
+    value = Column(
         type=types.Float(),
     )
 

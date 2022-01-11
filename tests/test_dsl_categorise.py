@@ -8,25 +8,20 @@ import re
 import pytest
 
 from databuilder import codelist
-from databuilder.concepts import tables
 from databuilder.dsl import categorise as new_dsl_categorise
-from databuilder.query_model import Comparator
+from databuilder.query_model import Comparator, Table
 from databuilder.query_model import categorise as old_dsl_categorise
-from databuilder.query_model import table
 
-from .lib.util import (
-    OldCohortWithPopulation,
-    make_codelist,
-    mock_patients,
-    mock_positive_tests,
-)
+from .lib.contracts import Events, Patients, Tests
+from .lib.frames import events, patients, tests
+from .lib.util import OldCohortWithPopulation, make_codelist
 from .test_dsl import assert_cohorts_equivalent
 
 
 def test_categorise(cohort_with_population):
     class OldCohort(OldCohortWithPopulation):
         # Define tables of interest, filtered to relevant values
-        _first_code_date = table("clinical_events").first_by("date").get("date")
+        _first_code_date = Table(Events).first_by("date").get("date")
         _date_categories = {
             "before_2021": _first_code_date < "2021-01-01",
             "after_2021": _first_code_date >= "2021-01-01",
@@ -34,7 +29,6 @@ def test_categorise(cohort_with_population):
         date_group = old_dsl_categorise(_date_categories, default="unknown")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     first_code_date = (
         events.sort_by(events.date).first_for_patient().select_column(events.date)
     )
@@ -91,16 +85,12 @@ def test_categorise_single_combined_conditions(
     default_kwarg = {"default": default} if default is not None else {}
 
     class OldCohort(OldCohortWithPopulation):
-        _height = table("patients").first_by("patient_id").get("height")
+        _height = Table(Patients).first_by("patient_id").get("height")
         _height_categories = categories(_height)
         height_group = old_dsl_categorise(_height_categories, **default_kwarg)
 
     cohort = cohort_with_population
-    height = (
-        mock_patients.sort_by(mock_patients.patient_id)
-        .first_for_patient()
-        .select_column(mock_patients.height)
-    )
+    height = patients.select_column(patients.height)
     height_categories = categories(height)
     cohort.height_group = new_dsl_categorise(height_categories, **default_kwarg)
     assert_cohorts_equivalent(cohort, OldCohort)
@@ -110,8 +100,8 @@ def test_categorise_multiple_values(cohort_with_population):
     """Test that categories can combine conditions that use different source values"""
 
     class OldCohort(OldCohortWithPopulation):
-        _height = table("patients").first_by("patient_id").get("height")
-        _code = table("clinical_events").first_by("date").get("code")
+        _height = Table(Patients).first_by("patient_id").get("height")
+        _code = Table(Events).first_by("date").get("code")
         _height_with_codes_categories = {
             "short": (_height < 190) & (_code == "abc"),
             "tall": (_height > 190) & (_code == "abc"),
@@ -121,16 +111,8 @@ def test_categorise_multiple_values(cohort_with_population):
         )
 
     cohort = cohort_with_population
-    height = (
-        mock_patients.sort_by(mock_patients.patient_id)
-        .first_for_patient()
-        .select_column(mock_patients.height)
-    )
-    code = (
-        tables.clinical_events.sort_by(tables.clinical_events.date)
-        .first_for_patient()
-        .select_column(tables.clinical_events.code)
-    )
+    height = patients.select_column(patients.height)
+    code = events.sort_by(events.date).first_for_patient().select_column(events.code)
     height_with_codes_categories = {
         "short": (height < 190) & (code == "abc"),
         "tall": (height > 190) & (code == "abc"),
@@ -143,8 +125,8 @@ def test_categorise_multiple_values(cohort_with_population):
 
 def test_categorise_nested_comparisons(cohort_with_population):
     class OldCohort(OldCohortWithPopulation):
-        _height = table("patients").first_by("patient_id").get("height")
-        _code = table("clinical_events").first_by("date").get("code")
+        _height = Table(Patients).first_by("patient_id").get("height")
+        _code = Table(Events).first_by("date").get("code")
 
         # make sure the parentheses precedence is followed; these two expressions are equivalent
         _height_with_codes_categories = {
@@ -157,16 +139,8 @@ def test_categorise_nested_comparisons(cohort_with_population):
         height_group1 = old_dsl_categorise(_codes_with_height_categories, default="na")
 
     cohort = cohort_with_population
-    height = (
-        mock_patients.sort_by(mock_patients.patient_id)
-        .first_for_patient()
-        .select_column(mock_patients.height)
-    )
-    code = (
-        tables.clinical_events.sort_by(tables.clinical_events.date)
-        .first_for_patient()
-        .select_column(tables.clinical_events.code)
-    )
+    height = patients.select_column(patients.height)
+    code = events.sort_by(events.date).first_for_patient().select_column(events.code)
     height_with_codes_categories = {
         "tall_or_code": (height > 190) | ((height < 150) & (code == "abc")),
     }
@@ -185,14 +159,11 @@ def test_categorise_on_truthiness(cohort_with_population):
     """Test truthiness of a Value from an exists aggregation"""
 
     class OldCohort(OldCohortWithPopulation):
-        _code = (
-            table("clinical_events").filter("code", is_in=make_codelist("abc")).exists()
-        )
+        _code = Table(Events).filter("code", is_in=make_codelist("abc")).exists()
         _codes_categories = {"yes": _code}
         abc = old_dsl_categorise(_codes_categories, default="na")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = events.filter(
         events.code.is_in(codelist(["abc"], "ctv3"))
     ).exists_for_patient()
@@ -206,7 +177,7 @@ def test_categorise_on_truthiness_from_filter(cohort_with_population):
 
     class OldCohort(OldCohortWithPopulation):
         _code = (
-            table("clinical_events")
+            Table(Events)
             .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
@@ -215,7 +186,6 @@ def test_categorise_on_truthiness_from_filter(cohort_with_population):
         has_code = old_dsl_categorise(_codes_categories, default="na")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = (
         events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
@@ -230,26 +200,23 @@ def test_categorise_on_truthiness_from_filter(cohort_with_population):
 def test_categorise_multiple_truthiness_values(cohort_with_population):
     class OldCohort(OldCohortWithPopulation):
         _code = (
-            table("clinical_events")
+            Table(Events)
             .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
         )
-        _has_positive_test = table("positive_tests").filter(result=True).exists()
+        _has_positive_test = Table(Tests).filter(result=True).exists()
         _codes_categories = {"yes": _code & _has_positive_test}
         has_positive_code = old_dsl_categorise(_codes_categories, default="na")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = (
         events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
         .last_for_patient()
         .select_column(events.code)
     )
-    has_positive_test = mock_positive_tests.filter(
-        mock_positive_tests.result
-    ).exists_for_patient()
+    has_positive_test = tests.filter(tests.result).exists_for_patient()
     codes_categories = {"yes": code & has_positive_test}
     cohort.has_positive_code = new_dsl_categorise(codes_categories, default="na")
     assert_cohorts_equivalent(cohort, OldCohort)
@@ -257,8 +224,8 @@ def test_categorise_multiple_truthiness_values(cohort_with_population):
 
 def test_categorise_invert(cohort_with_population):
     class OldCohort(OldCohortWithPopulation):
-        _height = table("patients").first_by("patient_id").get("height")
-        _code = table("clinical_events").first_by("patient_id").get("code")
+        _height = Table(Patients).first_by("patient_id").get("height")
+        _code = Table(Events).first_by("patient_id").get("code")
 
         # make sure the parentheses precedence is followed; these two expressions are equivalent
         _height_inverted = {
@@ -268,11 +235,7 @@ def test_categorise_invert(cohort_with_population):
         height_group = old_dsl_categorise(_height_inverted, default="na")
 
     cohort = cohort_with_population
-    height = (
-        mock_patients.sort_by(mock_patients.patient_id)
-        .first_for_patient()
-        .select_column(mock_patients.height)
-    )
+    height = patients.select_column(patients.height)
     height_inverted = {
         "tall": height > 190,
         "not_tall": ~(height > 190),
@@ -284,7 +247,7 @@ def test_categorise_invert(cohort_with_population):
 def test_categorise_invert_truthiness_values(cohort_with_population):
     class OldCohort(OldCohortWithPopulation):
         _code = (
-            table("clinical_events")
+            Table(Events)
             .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
@@ -293,7 +256,6 @@ def test_categorise_invert_truthiness_values(cohort_with_population):
         has_code = old_dsl_categorise(_codes_categories, default="na")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = (
         events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
@@ -308,26 +270,23 @@ def test_categorise_invert_truthiness_values(cohort_with_population):
 def test_categorise_invert_combined_values(cohort_with_population):
     class OldCohort(OldCohortWithPopulation):
         _code = (
-            table("clinical_events")
+            Table(Events)
             .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
         )
-        _has_positive_test = table("positive_tests").filter(result=True).exists()
+        _has_positive_test = Table(Tests).filter(result=True).exists()
         _codes_categories = {"neg_or_no_code": ~(_code & _has_positive_test)}
         result_group = old_dsl_categorise(_codes_categories, default="pos")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = (
         events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
         .last_for_patient()
         .select_column(events.code)
     )
-    has_positive_test = mock_positive_tests.filter(
-        mock_positive_tests.result
-    ).exists_for_patient()
+    has_positive_test = tests.filter(tests.result).exists_for_patient()
     codes_categories = {"neg_or_no_code": ~(code & has_positive_test)}
     cohort.result_group = new_dsl_categorise(codes_categories, default="pos")
     assert_cohorts_equivalent(cohort, OldCohort)
@@ -336,7 +295,7 @@ def test_categorise_invert_combined_values(cohort_with_population):
 def test_categorise_double_invert(cohort_with_population):
     class OldCohort(OldCohortWithPopulation):
         _code = (
-            table("clinical_events")
+            Table(Events)
             .filter("code", is_in=make_codelist("abc", "def"))
             .latest()
             .get("code")
@@ -345,7 +304,6 @@ def test_categorise_double_invert(cohort_with_population):
         has_code = old_dsl_categorise(_codes_categories, default="na")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = (
         events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
@@ -366,27 +324,27 @@ def test_categorise_double_invert(cohort_with_population):
             re.escape("Got '1' (<class 'int'>) for category key 'yes'"),
         ),
         (
-            {"yes": mock_positive_tests.exists_for_patient(), "no": 2},
+            {"yes": tests.exists_for_patient(), "no": 2},
             TypeError,
             re.escape("Got '2' (<class 'int'>) for category key 'no'"),
         ),
         (
-            {"positive": mock_positive_tests},
+            {"positive": tests},
             TypeError,
-            r"Got .*MockPositiveTestsTable.* for category key 'positive'",
+            r"Got .*contracts.base.Tests.* for category key 'positive'",
         ),
         (
             {
-                "yes": mock_positive_tests.exists_for_patient(),
-                "no": mock_positive_tests.exists_for_patient(),
+                "yes": tests.exists_for_patient(),
+                "no": tests.exists_for_patient(),
             },
             ValueError,
             re.escape("Duplicate category values found for key: 'no'"),
         ),
         (
             {
-                "yes": mock_positive_tests.count_for_patient() >= 1,
-                0: mock_positive_tests.count_for_patient() < 1,
+                "yes": tests.count_for_patient() >= 1,
+                0: tests.count_for_patient() < 1,
             },
             TypeError,
             re.escape(
@@ -394,7 +352,7 @@ def test_categorise_double_invert(cohort_with_population):
             ),
         ),
         (
-            {"no": mock_positive_tests.exists_for_patient(), 1: "yes", 2: "yes"},
+            {"no": tests.exists_for_patient(), 1: "yes", 2: "yes"},
             # multiple errors are chained and then raised recursively, the most recent call in the
             # traceback is the first error encountered (the first invalid value type)
             TypeError,
@@ -409,8 +367,8 @@ def test_categorise_validation(category_mapping, error, error_match):
 
 def test_categorise_invalid_default():
     category_mapping = {
-        "yes": mock_positive_tests.count_for_patient() >= 1,
-        "no": mock_positive_tests.count_for_patient() == 0,
+        "yes": tests.count_for_patient() >= 1,
+        "no": tests.count_for_patient() == 0,
     }
     with pytest.raises(
         TypeError,
@@ -420,7 +378,7 @@ def test_categorise_invalid_default():
 
 
 def test_cannot_compare_comparators():
-    codes = tables.clinical_events.count_for_patient()
+    codes = events.count_for_patient()
     count_3 = codes == 3
 
     assert isinstance(count_3.value, Comparator)

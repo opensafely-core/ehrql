@@ -3,34 +3,28 @@ import re
 import pytest
 
 from databuilder.codelistlib import Codelist
-from databuilder.query_model import (
-    Comparator,
-    FilteredTable,
-    Row,
-    Table,
-    ValueFromRow,
-    table,
-)
+from databuilder.query_model import Comparator, FilteredTable, Row, Table, ValueFromRow
 from databuilder.query_utils import get_column_definitions
 
+from .lib.contracts import Events
 from .lib.util import OldCohortWithPopulation, make_codelist
 
 
 def test_cannot_use_equals_with_codelist_or_columns():
     test_codelist = make_codelist("abc")
-    all_codes = table("clinical_events").get("codes")
+    all_codes = Table(Events).get("codes")
 
     msg_eq = "You can only use 'equals' to filter a column by a single value"
     with pytest.raises(TypeError, match=msg_eq):
-        table("clinical_events").filter(code=test_codelist)
+        Table(Events).filter(code=test_codelist)
     with pytest.raises(TypeError, match=msg_eq):
-        table("clinical_events").filter(code=all_codes)
+        Table(Events).filter(code=all_codes)
 
     msg_ne = "You can only use 'not_equals' to filter a column by a single value"
     with pytest.raises(TypeError, match=msg_ne):
-        table("clinical_events").filter("code", not_equals=test_codelist)
+        Table(Events).filter("code", not_equals=test_codelist)
     with pytest.raises(TypeError, match=msg_ne):
-        table("clinical_events").filter("code", not_equals=all_codes)
+        Table(Events).filter("code", not_equals=all_codes)
 
 
 def test_comparator_logical_comparisons_not_handled_directly():
@@ -76,7 +70,7 @@ def test_comparator_ne():
 def test_cohort_column_definitions_simple_query():
     class Cohort(OldCohortWithPopulation):
         #  Define tables of interest, filtered to relevant values
-        _abc_table = table("clinical_events").filter("code", is_in=make_codelist("abc"))
+        _abc_table = Table(Events).filter("code", is_in=make_codelist("abc"))
         # Get a single row per patient by selecting the latest event
         _abc_values = _abc_table.latest()
         # define columns in output
@@ -100,7 +94,7 @@ def test_cohort_column_definitions_simple_query():
 def test_cohort_column_definitions_invalid_output_value():
     class Cohort(OldCohortWithPopulation):
         #  Define tables of interest, filtered to relevant values
-        _abc_table = table("clinical_events").filter("code", is_in=make_codelist("abc"))
+        _abc_table = Table(Events).filter("code", is_in=make_codelist("abc"))
         # Try to return the test_value column, which should raise an exception
         value = _abc_table.get("test_value")
 
@@ -114,7 +108,7 @@ def test_cohort_column_definitions_invalid_output_value():
 def test_cohort_column_definitions_chained_query():
     class Cohort(OldCohortWithPopulation):
         _abc = (
-            table("clinical_events")
+            Table(Events)
             .filter("code", is_in=make_codelist("abc"))
             .filter("date", greater_than="2021-01-01")
         )
@@ -126,7 +120,7 @@ def test_cohort_column_definitions_chained_query():
 
     output_value = column_definitions["abc_value"]
     # This final value is the result of a chained filter and latest query:
-    # table("clinical_events").filter("code", is_in="abc").filter("date",greater_than="2021-01-01").latest()
+    # Table(Events).filter("code", is_in="abc").filter("date",greater_than="2021-01-01").latest()
 
     assert isinstance(output_value, ValueFromRow)
     row = output_value.source
@@ -147,14 +141,14 @@ def test_cohort_column_definitions_chained_query():
     assert penultimate_filtered_table.value.codes == ("abc",)
     initial_table = penultimate_filtered_table.source
     assert isinstance(initial_table, Table)
-    assert initial_table.name == "clinical_events"
+    assert initial_table.name == Events
 
 
 def test_cohort_column_definitions_between_operator():
     """A between operator is turned into a chained lt and gt"""
 
     class Cohort(OldCohortWithPopulation):
-        _event_table = table("clinical_events")
+        _event_table = Table(Events)
         _first_date = _event_table.earliest().get("date")
         _last_date = _event_table.latest().get("date")
         _date_between = _event_table.filter(
@@ -183,9 +177,7 @@ def test_cohort_column_definitions_between_operator():
 )
 def test_cohort_column_definitions_filter_operators(operator):
     class Cohort(OldCohortWithPopulation):
-        _filtered = (
-            table("clinical_events").filter("date", **{operator: "2021-01-01"}).latest()
-        )
+        _filtered = Table(Events).filter("date", **{operator: "2021-01-01"}).latest()
         output_value = _filtered.get("test_value")
 
     column_definitions = get_column_definitions(Cohort)
@@ -207,7 +199,7 @@ def test_cohort_column_definitions_filter_operators(operator):
 def test_cohort_column_definitions_multiple_field_operators():
     class Cohort(OldCohortWithPopulation):
         _filtered = (
-            table("clinical_events")
+            Table(Events)
             .filter("numerical_value", greater_than=2, less_than_or_equals=6)
             .latest()
         )
@@ -224,7 +216,7 @@ def test_cohort_column_definitions_multiple_field_operators():
 def test_cohort_column_definitions_multiple_equals_operators():
     class Cohort(OldCohortWithPopulation):
         _filtered = (
-            table("clinical_events")
+            Table(Events)
             .filter("code", is_in=make_codelist(3))
             .filter(positive_test=True)
             .latest()

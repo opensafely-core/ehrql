@@ -1,7 +1,8 @@
 import databuilder.main
-from databuilder import codelist, table
-from databuilder.dsl import BoolColumn, EventFrame, IdColumn, IntColumn
+from databuilder import codelist
 from databuilder.query_model import Table
+
+from .contracts import Registrations
 
 
 def extract(cohort, backend, database, **backend_kwargs):
@@ -41,26 +42,4 @@ def iter_flatten(iterable, iter_classes=(list, tuple)):
 class OldCohortWithPopulation:
     def __init_subclass__(cls):
         if not hasattr(cls, "population"):  # pragma: no cover
-            cls.population = table("practice_registrations").exists()
-
-
-class MockPatientsTable(EventFrame):
-    patient_id = IdColumn("patient_id")
-    height = IntColumn("height")
-
-    def __init__(self):
-        super().__init__(Table("patients"))
-
-
-mock_patients = MockPatientsTable()
-
-
-class MockPositiveTestsTable(EventFrame):
-    patient_id = IdColumn("patient_id")
-    result = BoolColumn("result")
-
-    def __init__(self):
-        super().__init__(Table("positive_tests"))
-
-
-mock_positive_tests = MockPositiveTestsTable()
+            cls.population = Table(Registrations).exists()

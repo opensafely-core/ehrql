@@ -13,7 +13,7 @@ from .lib.util import OldCohortWithPopulation
     [
         (MockBackend, "date_of_birth", True),
         (MockBackend, "height", True),  # column exists in the mock backend only
-        (TPPBackend, "date_of_birth", True),
+        # (TPPBackend, "date_of_birth", True),  TODO
         (TPPBackend, "height", False),
     ],
 )

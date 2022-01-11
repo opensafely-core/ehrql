@@ -2,8 +2,10 @@ from pathlib import Path
 
 import pytest
 
-from databuilder import codelist, codelist_from_csv, combine_codelists, table
+from databuilder import codelist, codelist_from_csv, combine_codelists
+from databuilder.query_model import Table
 
+from .lib.contracts import Events
 from .lib.mock_backend import ctv3_event, patient
 from .lib.util import OldCohortWithPopulation
 
@@ -40,12 +42,7 @@ def test_codelist_query(engine):
     test_codelist = codelist(["abc", "xyz", *extra_codes, "ijk"], system="ctv3")
 
     class Cohort(OldCohortWithPopulation):
-        code = (
-            table("clinical_events")
-            .filter("code", is_in=test_codelist)
-            .latest()
-            .get("code")
-        )
+        code = Table(Events).filter("code", is_in=test_codelist).latest().get("code")
 
     result = engine.extract(Cohort)
     assert result == [
@@ -67,12 +64,7 @@ def test_codelist_equals_query(engine):
     test_codelist = codelist(["abc"], system="ctv3")
 
     class Cohort(OldCohortWithPopulation):
-        code = (
-            table("clinical_events")
-            .filter("code", is_in=test_codelist)
-            .latest()
-            .get("code")
-        )
+        code = Table(Events).filter("code", is_in=test_codelist).latest().get("code")
 
     result = engine.extract(Cohort)
     assert result == [
@@ -97,12 +89,7 @@ def test_codelist_query_selects_correct_system(engine):
     test_codelist = codelist(["sabc", "sxyz", "ijk"], system="snomed")
 
     class Cohort(OldCohortWithPopulation):
-        code = (
-            table("clinical_events")
-            .filter("code", is_in=test_codelist)
-            .latest()
-            .get("code")
-        )
+        code = Table(Events).filter("code", is_in=test_codelist).latest().get("code")
 
     result = engine.extract(Cohort)
     # extracts only the snomed events, even though there are matching codes in ctv3 events
@@ -208,12 +195,7 @@ def test_codelist_query_with_codelist_from_csv(engine, codelist_csv):
 
     class Cohort(OldCohortWithPopulation):
         _codelist = codelist_from_csv(codelist_csv_path, system="ctv3")
-        code = (
-            table("clinical_events")
-            .filter("code", is_in=_codelist)
-            .latest()
-            .get("code")
-        )
+        code = Table(Events).filter("code", is_in=_codelist).latest().get("code")
 
     result = engine.extract(Cohort)
     assert result == [

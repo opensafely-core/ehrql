@@ -1,10 +1,16 @@
 import calendar
 from pathlib import Path
 
-from databuilder import Measure, cohort_date_range, table
+from databuilder import Measure, cohort_date_range
 from databuilder.backends import GraphnetBackend, TPPBackend
+from databuilder.contracts.tables import (
+    PatientDemographics,
+    WIP_ClinicalEvents,
+    WIP_PracticeRegistrations,
+)
 from databuilder.main import get_measures
 from databuilder.measure import MeasuresManager
+from databuilder.query_model import Table
 
 from ..lib import graphnet_schema, tpp_schema
 from ..lib.util import extract
@@ -48,14 +54,16 @@ def cohort(index_date, backend):
 
     class Cohort:
         # Population
-        _registrations = table("practice_registrations").date_in_range(index_date)
+        _registrations = Table(WIP_PracticeRegistrations).date_in_range(index_date)
         # There can be more than one registration per patient, get the latest one
         _latest_registrations = _registrations.latest("date_end")
         practice = _latest_registrations.get("pseudo_id")
 
         # TPP backend does not currently support deaths/death from any cause
         if backend == "graphnet":
-            _not_dead = table("patients").filter(date_of_death=None).get("patient_id")
+            _not_dead = (
+                Table(PatientDemographics).filter(date_of_death=None).get("patient_id")
+            )
             population = _registrations.filter("patient_id", is_in=_not_dead).exists()
         else:
             population = _registrations.exists()
@@ -65,7 +73,7 @@ def cohort(index_date, backend):
 
     for measure_name, target_codelist in measures_codelists.items():
         filtered_to_codelist = (
-            table("clinical_events")
+            Table(WIP_ClinicalEvents)
             .filter("code", is_in=target_codelist)
             .filter("date", between=[index_date, end_of_index_month])
         )

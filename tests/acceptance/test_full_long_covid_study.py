@@ -1,8 +1,17 @@
 from datetime import date, datetime
 from pathlib import Path
 
-from databuilder import categorise, codelist, table
+from databuilder import categorise, codelist
 from databuilder.backends import TPPBackend
+from databuilder.contracts.tables import (
+    WIP_ClinicalEvents,
+    WIP_Hospitalizations,
+    WIP_PatientAddress,
+    WIP_PracticeRegistrations,
+    WIP_SimplePatientDemographics,
+    WIP_TestResults,
+)
+from databuilder.query_model import Table
 from databuilder.validate_dummy_data import validate_dummy_data
 
 from ..lib.tpp_schema import (
@@ -34,39 +43,39 @@ class Cohort:
 
     # Population
     # Patients registered on 2020-11-01
-    _registrations = table("practice_registrations").date_in_range(index_date)
+    _registrations = Table(WIP_PracticeRegistrations).date_in_range(index_date)
     _current_registrations = _registrations.latest("date_end")
     population = _registrations.exists()
     practice_id = _current_registrations.get("pseudo_id")
 
     # COVID infection
     sgss_positive = (
-        table("sgss_sars_cov_2").filter(positive_result=True).earliest().get("date")
+        Table(WIP_TestResults).filter(positive_result=True).earliest().get("date")
     )
 
     primary_care_covid = (
-        table("clinical_events")
+        Table(WIP_ClinicalEvents)
         .filter("code", is_in=any_primary_care_code)
         .earliest()
         .get("date")
     )
 
     hospital_covid = (
-        table("hospitalizations")
+        Table(WIP_Hospitalizations)
         .filter("code", is_in=covid_codes)
         .earliest()
         .get("date")
     )
 
     # Outcome
-    _long_covid_table = table("clinical_events").filter(
+    _long_covid_table = Table(WIP_ClinicalEvents).filter(
         "code", is_in=any_long_covid_code
     )
     long_covid = _long_covid_table.exists()
     first_long_covid_date = _long_covid_table.earliest().get("date")
     first_long_covid_code = _long_covid_table.earliest().get("code")
 
-    _post_viral_fatigue_table = table("clinical_events").filter(
+    _post_viral_fatigue_table = Table(WIP_ClinicalEvents).filter(
         "code", is_in=post_viral_fatigue_codes
     )
     post_viral_fatigue = _post_viral_fatigue_table.exists()
@@ -74,7 +83,7 @@ class Cohort:
 
     # Demographics
     # Age
-    _age = table("patients").age_as_of(index_date)
+    _age = Table(WIP_SimplePatientDemographics).age_as_of(index_date)
     _age_categories = {
         "0-17": _age < 18,
         "18-24": (_age >= 18) & (_age < 25),
@@ -88,13 +97,13 @@ class Cohort:
     age_group = categorise(_age_categories, default="missing")
 
     # Sex
-    sex = table("patients").first_by("patient_id").get("sex")
+    sex = Table(WIP_SimplePatientDemographics).first_by("patient_id").get("sex")
 
     # Region
     region = _current_registrations.get("nuts1_region_name")
 
     # IMD
-    _imd_value = table("patient_address").imd_rounded_as_of(index_date)
+    _imd_value = Table(WIP_PatientAddress).imd_rounded_as_of(index_date)
     _imd_groups = {
         "1": (_imd_value >= 1) & (_imd_value < (32844 * 1 / 5)),
         "2": (_imd_value >= 32844 * 1 / 5) & (_imd_value < (32844 * 2 / 5)),
@@ -106,7 +115,7 @@ class Cohort:
 
     # Ethnicity
     ethnicity = (
-        table("clinical_events")
+        Table(WIP_ClinicalEvents)
         .filter("code", is_in=ethnicity_codes)
         .filter("date", on_or_before=index_date)
         .latest()
@@ -116,7 +125,7 @@ class Cohort:
     # Clinical variables
     # Latest recorded BMI
     _bmi_value = (
-        table("clinical_events")
+        Table(WIP_ClinicalEvents)
         .filter("code", is_in=bmi_code)
         .latest()
         .get("numeric_value")
@@ -140,7 +149,7 @@ class Cohort:
 for target_codelist in [any_long_covid_code, post_viral_fatigue_codes]:
     for code in target_codelist.codes:
         filtered_to_code = (
-            table("clinical_events")
+            Table(WIP_ClinicalEvents)
             .filter("code", is_in=codelist([code], target_codelist.system))
             .filter("date", on_or_after=pandemic_start)
         )

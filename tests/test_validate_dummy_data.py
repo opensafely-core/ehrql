@@ -2,16 +2,18 @@ from pathlib import Path
 
 import pytest
 
-from databuilder import categorise, codelist, table
-from databuilder.concepts import tables
+from databuilder import categorise, codelist
 from databuilder.dsl import categorise as new_dsl_categorise
+from databuilder.query_model import Table
 from databuilder.validate_dummy_data import (
     SUPPORTED_FILE_FORMATS,
     DummyDataValidationError,
     validate_dummy_data,
 )
 
+from .lib.contracts import Events, Patients, Registrations
 from .lib.csv_utils import write_rows_to_csv
+from .lib.frames import events
 
 cl = codelist(["12345"], system="snomed")
 
@@ -19,9 +21,9 @@ fixtures_path = Path(__file__).parent / "fixtures" / "dummy_data"
 
 
 class Cohort:
-    population = table("practice_registations").exists()
-    sex = table("patients").latest().get("sex")
-    _code = table("clinical_events").filter("code", is_in=cl)
+    population = Table(Registrations).exists()
+    sex = Table(Patients).latest().get("sex")
+    _code = Table(Events).filter("code", is_in=cl)
     has_event = _code.exists()
     event_date = _code.latest().get("date")
     event_count = _code.count("code")
@@ -94,8 +96,8 @@ def test_validate_dummy_data_with_categories(
     tmpdir, default_value, first_invalid_value
 ):
     class CohortWithCategories:
-        population = table("practice_registations").exists()
-        _code = table("clinical_events").filter("code", is_in=cl)
+        population = Table(Registrations).exists()
+        _code = Table(Events).filter("code", is_in=cl)
         event_date = _code.latest().get("date")
         _categories = {
             1: event_date == "2021-01-01",
@@ -119,7 +121,6 @@ def test_validate_dummy_data_with_categories(
 
 def test_valid_dummy_data_with_categories_dsl(tmpdir, cohort_with_population):
     data_definition = cohort_with_population
-    events = tables.clinical_events
     event_date = (
         events.sort_by(events.date).last_for_patient().select_column(events.date)
     )
@@ -145,7 +146,6 @@ def test_validate_categories_values_must_be_valid_category(
     tmpdir, cohort_with_population
 ):
     data_definition = cohort_with_population
-    events = tables.clinical_events
     event_date = (
         events.sort_by(events.date).last_for_patient().select_column(events.date)
     )

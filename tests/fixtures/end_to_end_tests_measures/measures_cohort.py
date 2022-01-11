@@ -1,9 +1,15 @@
-from databuilder import Measure, codelist, table
+from databuilder import Measure, codelist
+from databuilder.contracts.base import TableContract
+from databuilder.query_model import Table
+
+
+class DummyContract(TableContract):
+    pass
 
 
 class Cohort:
-    _clinical_events = table("clinical_events")
-    _registrations = table("practice_registrations")
+    _clinical_events = Table(DummyContract)
+    _registrations = Table(DummyContract)
     population = _registrations.exists()
     practice = _registrations.first_by("patient_id").get("pseudo_id")
     has_event = _clinical_events.filter(

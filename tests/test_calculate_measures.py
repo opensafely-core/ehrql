@@ -3,16 +3,18 @@ from pathlib import Path
 import pandas
 import pytest
 
-from databuilder import Measure, table
+from databuilder import Measure
 from databuilder.main import get_measures
 from databuilder.measure import MeasuresManager
+from databuilder.query_model import Table
 
+from .lib.contracts import Events
 from .lib.util import OldCohortWithPopulation
 
 
 def test_calculate_measures_no_input_file():
     class Cohort(OldCohortWithPopulation):
-        code = table("clinical_events").first_by("patient_id").get("code")
+        code = Table(Events).first_by("patient_id").get("code")
         measures = [Measure("test-id", numerator="fish", denominator="litres")]
 
     measures = get_measures(Cohort)
@@ -27,7 +29,7 @@ def test_calculate_measures_no_measures_variable():
     """Running measures calculation with no measure varible doesn't error"""
 
     class Cohort(OldCohortWithPopulation):
-        code = table("clinical_events").first_by("patient_id").get("code")
+        code = Table(Events).first_by("patient_id").get("code")
 
     measures = get_measures(Cohort)
     assert measures == []
@@ -37,7 +39,7 @@ def test_calculate_measures_no_measures_variable():
 
 def test_calculate_measures_results():
     class Cohort(OldCohortWithPopulation):
-        code = table("clinical_events").first_by("patient_id").get("code")
+        code = Table(Events).first_by("patient_id").get("code")
         measures = [Measure("test-id", numerator="fish", denominator="litres")]
 
     data = pandas.DataFrame(
