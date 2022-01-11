@@ -748,6 +748,19 @@ def test_datedelta_add_dateseries():
     assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
 
 
+def test_dateseries_radd_integer():
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    output = 10 + series
+
+    # Adding an integer to a DateSeries returns another DateSeries
+    assert isinstance(output, DateSeries)
+    assert isinstance(output.value, DateAddition)
+    series_arg, delta_arg = output.value.arguments
+
+    assert series_arg.column == series.value.column
+    assert delta_arg == 10
+
+
 @pytest.mark.parametrize(
     "delta_value,error",
     [
@@ -866,6 +879,22 @@ def test_add_datedeltaseries_and_integer():
     assert isinstance(delta1_arg, IntSeries)
     assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
     assert delta2_arg == 20
+
+
+def test_add_datedeltaseries_and_dateseries():
+    series = DateSeries(ValueFromRow(source=None, column="date"))
+    datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))
+    output = datedelta + series
+
+    # Adding DateDeltaSeries and DateSeries returns a DateSeries
+    assert isinstance(output, DateSeries)
+    assert isinstance(output.value, DateAddition)
+    series_arg, delta_arg = output.value.arguments
+
+    assert series_arg.column == series.value.column
+    assert isinstance(delta_arg, IntSeries)
+    assert isinstance(delta_arg.value, DateDifference)
+    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
 
 
 def test_radd_datedeltaseries_and_integer():

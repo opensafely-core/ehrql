@@ -510,6 +510,8 @@ def test_date_arithmetic_add_datedeltaseries_and_integer(
     age = reference_date - dob  # -> DateDeltaSeries
     data_definition.age_in_days = age.convert_to_days()
     data_definition.age_plus_10 = age + 10
+    # We can add a datedeltaseries to an int as well
+    data_definition.ten_plus_age = 10 + age
 
     result = engine.extract(data_definition)
     assert result == [
@@ -517,11 +519,13 @@ def test_date_arithmetic_add_datedeltaseries_and_integer(
             "patient_id": 1,
             "age_in_days": 31,
             "age_plus_10": 41,
+            "ten_plus_age": 41,
         },
         {
             "patient_id": 2,
             "age_in_days": 1096,
             "age_plus_10": 1106,
+            "ten_plus_age": 1106,
         },
     ]
 

@@ -389,6 +389,10 @@ class DateSeries(PatientSeries):
         other_value = self._get_other_datedelta_value(other, "add")
         return DateSeries(DateAddition(self.value, other_value))
 
+    def __radd__(self, other: int) -> DateSeries:
+        # Note that other cannot be a DateDeltaSeries, as this is handled by DateDeltaSeries.__add__
+        return self + other
+
 
 class DateDeltaSeries(PatientSeries):
     def _convert(self, units):
@@ -432,7 +436,8 @@ class DateDeltaSeries(PatientSeries):
             DateDeltaAddition(self._delta_in_days(self), self._delta_in_days(other))
         )
 
-    def __radd__(self, other: DateSeries | int) -> DateDeltaSeries | DateSeries:
+    def __radd__(self, other: int) -> DateDeltaSeries | DateSeries:
+        # Note that other cannot be a DateSeries, as this is handled by DateSeries.__add__
         return self + other
 
     def __sub__(self, other: DateDeltaSeries | int) -> DateDeltaSeries:
@@ -443,6 +448,7 @@ class DateDeltaSeries(PatientSeries):
     def __rsub__(
         self, other: str | DateDeltaSeries | int
     ) -> DateSeries | DateDeltaSeries:
+        # Note that other cannot be a DateSeries, as this is handled by DateSeries.__sub__
         if isinstance(other, str):
             datestring = _validate_datestring(other)
             # This allows subtraction of a DateDeltaSeries from a date string
