@@ -70,22 +70,11 @@ class BaseBackend:
             if isinstance(value, SQLTable):
                 cls.validate_contract(name, value)
 
-    def get_table_expression(self, table_name):
-        """
-        Gets SQL expression for a table
-        Args:
-            table_name: Name of Table
-        Returns:
-            A SQL subquery
-        Raises:
-            ValueError: If unknown table passed in
-        """
-        if isinstance(table_name, str):
-            table = self.tables[table_name]
-            alias = table_name
-        else:
-            table = self.get_table_implementing(table_name)
-            alias = table_name.__name__.lower()
+    def get_table_expression(self, contract):
+        """Return SQLAlchemy expression for querying contract in this backend."""
+
+        table = self.get_table_implementing(contract)
+        alias = contract.__name__.lower()
         return table.get_query().alias(alias)
 
     def get_table_implementing(self, contract):

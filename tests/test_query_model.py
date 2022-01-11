@@ -141,7 +141,7 @@ def test_cohort_column_definitions_chained_query():
     assert penultimate_filtered_table.value.codes == ("abc",)
     initial_table = penultimate_filtered_table.source
     assert isinstance(initial_table, Table)
-    assert initial_table.name == Events
+    assert initial_table.contract == Events
 
 
 def test_cohort_column_definitions_between_operator():

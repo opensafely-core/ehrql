@@ -247,7 +247,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql_element_no_cache.register
     def get_element_from_table(self, node: Table) -> Select:
-        table = self.backend.get_table_expression(node.name)
+        table = self.backend.get_table_expression(node.contract)
         return table.select()
 
     @get_sql_element_no_cache.register

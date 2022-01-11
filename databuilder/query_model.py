@@ -221,7 +221,7 @@ class BaseTable(QueryNode):
 
 @dataclass(frozen=True)
 class Table(BaseTable):
-    name: str
+    contract: None  # Because of circular imports, I can't put the correct type here
 
     def _get_referenced_nodes(self):
         # Table nodes are always root nodes in the query DAG and don't reference other
