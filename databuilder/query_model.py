@@ -21,10 +21,6 @@ class ValidationError(Exception):
     ...
 
 
-def table(name):
-    return Table(name)
-
-
 # A note about dataclasses...  We will need to store instances of the classes in this
 # module in sets, which requires them to be hashable.  As such, we require instances to
 # be frozen.  This means we cannot mutate the fields of an instance once it has been
