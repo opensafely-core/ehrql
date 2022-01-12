@@ -19,6 +19,9 @@ jobs:
       ce_image: ghcr.io/opensafely-core/cohortextractor-v2
     steps:
       - uses: actions/checkout@v2
+        with:
+          # Required to get previous tags
+          fetch-depth: 0
 
       - name: 'Get Previous tag'
         id: previoustagref
