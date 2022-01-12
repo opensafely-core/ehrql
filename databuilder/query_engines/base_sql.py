@@ -203,6 +203,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         ...
 
     @overload
+    def get_sql_element(self, node: Table) -> Select:
+        ...
+
+    @overload
     def get_sql_element(self, node: Row) -> Select:
         ...
 
@@ -272,6 +276,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         types_accepted_by_get_sql_element_statically = {
             FilteredTable,
+            Table,
             Row,
             RowFromAggregate,
             ReifiedQuery,
@@ -280,6 +285,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             Comparator,
             Codelist,
             ValueFromFunction,
+            # This is the parent type. It should never actually be found, but that error is handled elsewhere.
+            QueryNode,
         }
 
         types_accepted_by_get_sql_element_dynamically = set()
@@ -307,7 +314,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             print(
                 f"Missing from static: {types_accepted_by_get_sql_element_dynamically - types_accepted_by_get_sql_element_statically}"
             )
-            # assert False
+            assert False
 
         if type(value) in types_accepted_by_get_sql_element_statically:
             return self.get_sql_element(value)
@@ -516,7 +523,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         ]
         return method(*argument_expressions)
 
-    def date_difference(self, start_date: Any, end_date: Any, units: str) -> ClauseElement:
+    def date_difference(
+        self, start_date: Any, end_date: Any, units: str
+    ) -> ClauseElement:
         start_date = type_coerce(start_date, sqlalchemy_types.Date())
         end_date = type_coerce(end_date, sqlalchemy_types.Date())
 
