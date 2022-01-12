@@ -33,9 +33,10 @@ jobs:
         # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
         run: echo ::set-output name=tag_describe::`git describe --tags`
 
-      - name: Fail if not tagged commit
+      - name: Set flag to short circuit workflow if not a tagged commit
+        id: taggedcommit
         if: ${{ steps.previoustagcommit.outputs.tag_describe != steps.previoustagref.outputs.tag }}
-        run: /bin/false
+        run: echo ::set-output name=tag::`y`
 
       # 'Get Previous tag' should only get version tags, but let's verify that
       - name: Fail if previous tag is not a version tag (i.e. it does not start with a v)
@@ -44,6 +45,7 @@ jobs:
 
       # This relies on the tag having a version of the form vX.Y.Z
       - name: Build image
+        if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
         run: |
           PATCH="${{ steps.previoustagref.outputs.tag }}"
           MAJOR="${PATCH%%.*}"
@@ -59,9 +61,11 @@ jobs:
             --tag ${{ env.image }}:$PATCH --tag ${{ env.ce_image }}:$PATCH
 
       - name: Log into GitHub Container Registry
+        if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
         run: docker login https://ghcr.io -u ${{ github.actor }} --password ${{ secrets.DOCKER_RW_TOKEN }}
 
       - name: Push images to GitHub Container Registry
+        if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
         run: |
           docker push --all-tags ${{ env.image }}
           docker push --all-tags ${{ env.ce_image }}
