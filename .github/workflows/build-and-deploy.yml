@@ -36,7 +36,7 @@ jobs:
       - name: Set flag to short circuit workflow if not a tagged commit
         id: taggedcommit
         if: ${{ steps.previoustagcommit.outputs.tag_describe != steps.previoustagref.outputs.tag }}
-        run: echo ::set-output name=tag::`y`
+        run: echo ::set-output name=tag::'y'
 
       # 'Get Previous tag' should only get version tags, but let's verify that
       - name: Fail if previous tag is not a version tag (i.e. it does not start with a v)
