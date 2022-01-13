@@ -48,7 +48,7 @@ class BaseBackend:
         table.learn_patient_join(cls.patient_join_column)
 
     @classmethod
-    def validate_all_contracts(cls) -> None:
+    def validate_contracts(cls) -> None:
         """
         Loops through all the tables in a backend and validates that
         each one meets any contract that it claims to implement

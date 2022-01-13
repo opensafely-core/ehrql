@@ -67,7 +67,7 @@ def test_bad_backend_with_validate_contract():
     bad_backend = BadBackend(database_url="test")
 
     with pytest.raises(BackendContractError, match="Missing columns: sex"):
-        bad_backend.validate_all_contracts()
+        bad_backend.validate_contracts()
 
 
 def test_good_backend_with_validate_contract():
@@ -87,7 +87,7 @@ def test_good_backend_with_validate_contract():
         )
 
     good_backend = GoodBackend(database_url="test")
-    good_backend.validate_all_contracts()
+    good_backend.validate_contracts()
 
 
 def test_validate_all_backends():
@@ -102,7 +102,7 @@ def test_validate_all_backends():
     ]
 
     for backend in backends:
-        backend.validate_all_contracts()
+        backend.validate_contracts()
 
     # Checks at least 3 backends
     assert len(backends) >= 3
