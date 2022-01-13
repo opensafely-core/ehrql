@@ -13,13 +13,8 @@ from databuilder.query_model import Comparator
 from databuilder.query_model import categorise as old_dsl_categorise
 from databuilder.query_model import table
 
-from .lib.frames import events
-from .lib.util import (
-    OldCohortWithPopulation,
-    make_codelist,
-    mock_patients,
-    mock_positive_tests,
-)
+from .lib.frames import events, patients, positive_tests
+from .lib.util import OldCohortWithPopulation, make_codelist
 from .test_dsl import assert_cohorts_equivalent
 
 
@@ -95,11 +90,7 @@ def test_categorise_single_combined_conditions(
         height_group = old_dsl_categorise(_height_categories, **default_kwarg)
 
     cohort = cohort_with_population
-    height = (
-        mock_patients.sort_by(mock_patients.patient_id)
-        .first_for_patient()
-        .select_column(mock_patients.height)
-    )
+    height = patients.select_column(patients.height)
     height_categories = categories(height)
     cohort.height_group = new_dsl_categorise(height_categories, **default_kwarg)
     assert_cohorts_equivalent(cohort, OldCohort)
@@ -120,11 +111,7 @@ def test_categorise_multiple_values(cohort_with_population):
         )
 
     cohort = cohort_with_population
-    height = (
-        mock_patients.sort_by(mock_patients.patient_id)
-        .first_for_patient()
-        .select_column(mock_patients.height)
-    )
+    height = patients.select_column(patients.height)
     code = events.sort_by(events.date).first_for_patient().select_column(events.code)
     height_with_codes_categories = {
         "short": (height < 190) & (code == "abc"),
@@ -152,11 +139,7 @@ def test_categorise_nested_comparisons(cohort_with_population):
         height_group1 = old_dsl_categorise(_codes_with_height_categories, default="na")
 
     cohort = cohort_with_population
-    height = (
-        mock_patients.sort_by(mock_patients.patient_id)
-        .first_for_patient()
-        .select_column(mock_patients.height)
-    )
+    height = patients.select_column(patients.height)
     code = events.sort_by(events.date).first_for_patient().select_column(events.code)
     height_with_codes_categories = {
         "tall_or_code": (height > 190) | ((height < 150) & (code == "abc")),
@@ -235,8 +218,8 @@ def test_categorise_multiple_truthiness_values(cohort_with_population):
         .last_for_patient()
         .select_column(events.code)
     )
-    has_positive_test = mock_positive_tests.filter(
-        mock_positive_tests.result
+    has_positive_test = positive_tests.filter(
+        positive_tests.result
     ).exists_for_patient()
     codes_categories = {"yes": code & has_positive_test}
     cohort.has_positive_code = new_dsl_categorise(codes_categories, default="na")
@@ -256,11 +239,7 @@ def test_categorise_invert(cohort_with_population):
         height_group = old_dsl_categorise(_height_inverted, default="na")
 
     cohort = cohort_with_population
-    height = (
-        mock_patients.sort_by(mock_patients.patient_id)
-        .first_for_patient()
-        .select_column(mock_patients.height)
-    )
+    height = patients.select_column(patients.height)
     height_inverted = {
         "tall": height > 190,
         "not_tall": ~(height > 190),
@@ -311,8 +290,8 @@ def test_categorise_invert_combined_values(cohort_with_population):
         .last_for_patient()
         .select_column(events.code)
     )
-    has_positive_test = mock_positive_tests.filter(
-        mock_positive_tests.result
+    has_positive_test = positive_tests.filter(
+        positive_tests.result
     ).exists_for_patient()
     codes_categories = {"neg_or_no_code": ~(code & has_positive_test)}
     cohort.result_group = new_dsl_categorise(codes_categories, default="pos")
@@ -351,27 +330,27 @@ def test_categorise_double_invert(cohort_with_population):
             re.escape("Got '1' (<class 'int'>) for category key 'yes'"),
         ),
         (
-            {"yes": mock_positive_tests.exists_for_patient(), "no": 2},
+            {"yes": positive_tests.exists_for_patient(), "no": 2},
             TypeError,
             re.escape("Got '2' (<class 'int'>) for category key 'no'"),
         ),
         (
-            {"positive": mock_positive_tests},
+            {"positive": positive_tests},
             TypeError,
-            r"Got .*MockPositiveTestsTable.* for category key 'positive'",
+            r"Got .*lib\.frames\.Tests.* for category key 'positive'",
         ),
         (
             {
-                "yes": mock_positive_tests.exists_for_patient(),
-                "no": mock_positive_tests.exists_for_patient(),
+                "yes": positive_tests.exists_for_patient(),
+                "no": positive_tests.exists_for_patient(),
             },
             ValueError,
             re.escape("Duplicate category values found for key: 'no'"),
         ),
         (
             {
-                "yes": mock_positive_tests.count_for_patient() >= 1,
-                0: mock_positive_tests.count_for_patient() < 1,
+                "yes": positive_tests.count_for_patient() >= 1,
+                0: positive_tests.count_for_patient() < 1,
             },
             TypeError,
             re.escape(
@@ -379,7 +358,7 @@ def test_categorise_double_invert(cohort_with_population):
             ),
         ),
         (
-            {"no": mock_positive_tests.exists_for_patient(), 1: "yes", 2: "yes"},
+            {"no": positive_tests.exists_for_patient(), 1: "yes", 2: "yes"},
             # multiple errors are chained and then raised recursively, the most recent call in the
             # traceback is the first error encountered (the first invalid value type)
             TypeError,
@@ -394,8 +373,8 @@ def test_categorise_validation(category_mapping, error, error_match):
 
 def test_categorise_invalid_default():
     category_mapping = {
-        "yes": mock_positive_tests.count_for_patient() >= 1,
-        "no": mock_positive_tests.count_for_patient() == 0,
+        "yes": positive_tests.count_for_patient() >= 1,
+        "no": positive_tests.count_for_patient() == 0,
     }
     with pytest.raises(
         TypeError,

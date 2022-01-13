@@ -6,7 +6,7 @@ from databuilder.dsl import categorise
 from databuilder.dsl import categorise as dsl_categorise
 
 from .lib.frames import events, patients
-from .lib.mock_backend import MockPatients, ctv3_event, patient
+from .lib.mock_backend import ctv3_event, patient
 
 # Mark the whole module as containing integration tests
 pytestmark = pytest.mark.integration
@@ -16,7 +16,6 @@ def test_categorise_simple_comparisons(engine, cohort_with_population):
     input_data = [patient(1, height=180), patient(2, height=200.5), patient(3)]
     engine.setup(input_data)
 
-    patients = MockPatients()
     height = patients.select_column(patients.height)
     height_categories = {
         "tall": height > 190,
@@ -39,7 +38,6 @@ def test_comparator_order(engine, cohort_with_population):
     input_data = [patient(1, height=180), patient(2, height=200.5), patient(3)]
     engine.setup(input_data)
 
-    patients = MockPatients()
     height = patients.select_column(patients.height)
     height_categories = {
         "tall": 190 < height,
@@ -150,7 +148,6 @@ def test_dsl_int_comparisons(cohort_with_population, engine):
     ]
     engine.setup(input_data)
 
-    patients = MockPatients()
     height = patients.select_column(patients.height)
 
     twenty_to_twenty_four = (height >= 20) & (height <= 24)

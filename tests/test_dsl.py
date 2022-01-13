@@ -28,8 +28,8 @@ from databuilder.query_model import (
 )
 from databuilder.query_utils import get_column_definitions
 
-from .lib.frames import events, registrations
-from .lib.util import OldCohortWithPopulation, make_codelist, mock_positive_tests
+from .lib.frames import events, positive_tests, registrations
+from .lib.util import OldCohortWithPopulation, make_codelist
 
 
 def test_minimal_cohort_definition(cohort_with_population):
@@ -162,29 +162,31 @@ def test_code_predicates(cohort_with_population, kwarg, method):
 def test_bool_predicates(cohort_with_population, kwarg, old_value, method, new_value):
     # Standard Python style frowns on direct equality comparison against True/False, but we want to allow authors to
     # write it this way if they like.
-    tests = mock_positive_tests
-
     class OldCohort(OldCohortWithPopulation):
         result = table("positive_tests").filter("result", **{kwarg: old_value}).exists()
 
     cohort = cohort_with_population
-    predicate = getattr(tests.result, method)(new_value)  # e.g. events.result == True
-    cohort.result = tests.filter(predicate).exists_for_patient()
+    predicate = getattr(positive_tests.result, method)(
+        new_value
+    )  # e.g. events.result == True
+    cohort.result = positive_tests.filter(predicate).exists_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
 def test_alternative_bool_predicates(cohort_with_population):
     # We provide these because standard Python style frowns on direct equality comparison against True/False.
-    tests = mock_positive_tests
-
     class OldCohort(OldCohortWithPopulation):
         success = table("positive_tests").filter("result", equals=True).exists()
         failure = table("positive_tests").filter("result", equals=False).exists()
 
     cohort = cohort_with_population
-    cohort.success = tests.filter(tests.result.is_true()).exists_for_patient()
-    cohort.failure = tests.filter(tests.result.is_false()).exists_for_patient()
+    cohort.success = positive_tests.filter(
+        positive_tests.result.is_true()
+    ).exists_for_patient()
+    cohort.failure = positive_tests.filter(
+        positive_tests.result.is_false()
+    ).exists_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 

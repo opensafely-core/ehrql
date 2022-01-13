@@ -9,8 +9,8 @@ from databuilder.query_engines.spark import SparkQueryEngine
 
 from .lib.databases import make_database, make_spark_database, wait_for_database
 from .lib.docker import Containers
-from .lib.frames import events, registrations
-from .lib.mock_backend import MockPatients, backend_factory
+from .lib.frames import events, patients, registrations
+from .lib.mock_backend import backend_factory
 from .lib.util import extract
 
 
@@ -135,5 +135,4 @@ def int_series():
 
 @pytest.fixture
 def patient_series():
-    patients = MockPatients()
     return lambda: patients.select_column(patients.sex)
