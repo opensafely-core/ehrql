@@ -8,8 +8,8 @@ from .types import BaseType, Choice
 class Column:
 
     type: BaseType  # noqa: A003
-    description: str
-    help: str  # noqa: A003
+    description: str = ""
+    help: str = ""  # noqa: A003
     constraints: list[BaseConstraint] = dataclasses.field(default_factory=list)
 
 
@@ -28,7 +28,7 @@ class TableContract:
                 cls.columns[key] = value
 
     @classmethod
-    def validate_implementation(cls, backend, table_name, table):
+    def validate_implementation(cls, backend, table_name):
         """
         Validates that a given backend table has the necessary columns to
         implement a specific contract
@@ -37,16 +37,27 @@ class TableContract:
             table_name: Name of the table
             table: SQLTable
         """
-        missing_columns = set(cls.columns) - set(table.columns)
-        if missing_columns:
-            raise BackendContractError(
+
+        def _raise_backend_contract_error(msg):
+            msg = (
                 f"\n'{backend.__name__}.{table_name}' does not correctly implement the"
                 f" contract for '{cls.__name__}'\n\n"
+            ) + msg
+            raise BackendContractError(msg)
+
+        table = getattr(backend, table_name)
+
+        if table_name != cls._name:
+            _raise_backend_contract_error(f"Attribute should be called '{cls._name}'")
+
+        missing_columns = set(cls.columns) - set(table.columns)
+        if missing_columns:
+            _raise_backend_contract_error(
                 f"Missing columns: {', '.join(missing_columns)}"
             )
-        backend_table = getattr(backend, table_name)
+
         for column in cls.columns:
-            backend_column_type = backend_table.columns[column].type
+            backend_column_type = table.columns[column].type
             contract_column_type = cls.columns[column].type
             allowed_types = [
                 allowed_type.name
@@ -54,9 +65,7 @@ class TableContract:
             ]
 
             if backend_column_type not in allowed_types:
-                raise BackendContractError(
-                    f"\n'{backend.__name__}.{table_name}' does not correctly implement the"
-                    f" contract for '{cls.__name__}'\n\n"
+                _raise_backend_contract_error(
                     f"Column {column} is defined with an invalid type '{backend_column_type}'.\n\n"
                     f"Allowed types are: {', '.join(allowed_types)}"
                 )
@@ -75,3 +84,21 @@ class TableContract:
                 ]
             for constraint in constraints:
                 constraint.validate(backend_table, column_name)
+
+    @classmethod
+    def validate_frame(cls, frame_cls):
+        """Validate that a frame is defined with the correct attributes.
+
+        This uses asserts rather than raising other exceptions, since any invalid frames
+        must be identified and fixed by the development team.
+
+        Note that we could use similar logic to generate a frame from a contract.
+        However, doing so would mean that we wouldn't be able to typecheck code
+        written with the DSL.
+        """
+
+        contract_column_names = set(cls.columns)
+        frame_column_names = {k for k in vars(frame_cls) if k[0] != "_"}
+        assert contract_column_names == frame_column_names
+        for col_name, column in cls.columns.items():
+            assert isinstance(getattr(frame_cls, col_name), column.type.dsl_column)

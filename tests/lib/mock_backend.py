@@ -2,10 +2,9 @@ import sqlalchemy
 import sqlalchemy.orm
 
 from databuilder.backends.base import BaseBackend, Column, MappedTable, QueryTable
-from databuilder.dsl import Column as DSLColumn
-from databuilder.dsl import DateColumn, IdColumn, IntColumn, PatientFrame, PatientSeries
 from databuilder.query_engines.mssql import MssqlQueryEngine
-from databuilder.query_model import Table
+
+from . import contracts
 
 
 def backend_factory(query_engine_cls):
@@ -22,14 +21,16 @@ def backend_factory(query_engine_cls):
         patient_join_column = "PatientId"
 
         patients = MappedTable(
+            implements=contracts.Patients,
             source="patients",
             columns=dict(
-                height=Column("float", source="Height"),
+                height=Column("integer", source="Height"),
                 date_of_birth=Column("date", source="DateOfBirth"),
                 sex=Column("varchar", source="Sex"),
             ),
         )
         practice_registrations = MappedTable(
+            implements=contracts.Registrations,
             source="practice_registrations",
             columns=dict(
                 stp=Column("varchar", source="StpId"),
@@ -38,16 +39,17 @@ def backend_factory(query_engine_cls):
             ),
         )
         clinical_events = MappedTable(
+            implements=contracts.Events,
             source="events",
             columns=dict(
                 code=Column("varchar", source="EventCode"),
                 system=Column("varchar", source="System"),
                 date=Column("date", source="Date"),
-                result=Column("float", source="ResultValue"),
+                value=Column("integer", source="ResultValue"),
             ),
         )
-
         positive_tests = QueryTable(
+            implements=contracts.Tests,
             columns=dict(
                 patient_id=Column("integer"),
                 result=Column("boolean"),
@@ -142,17 +144,3 @@ def patient(patient_id, *entities, height=None, dob=None, sex="M"):
     for entity in entities:
         entity.PatientId = patient_id
     return [Patients(PatientId=patient_id, Height=height, DateOfBirth=dob), *entities]
-
-
-class MockPatients(PatientFrame):
-    """
-    A PatientFrame instance that can be used with mock backends
-    """
-
-    patient_id = IdColumn("patient_id")
-    height = IntColumn("height")
-    date_of_birth = DateColumn("date_of_birth")
-    sex = DSLColumn("sex", PatientSeries)
-
-    def __init__(self):
-        super().__init__(Table("patients").first_by("patient_id"))

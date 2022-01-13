@@ -2,8 +2,8 @@ import json
 import operator
 
 from .backends.base import BaseBackend
-from .concepts.tables import ClinicalEvents, PracticeRegistrations
-from .contracts.tables import PatientDemographics
+from .contracts import contracts
+from .contracts.base import TableContract
 
 
 def _build_backends():
@@ -20,15 +20,13 @@ def _build_backends():
 
 def _build_contracts():
     """Build a dict representation for each Contract"""
-    # TODO: investigate using TableContract.__subclasses__() to build this list
-    # dynamically
-    contracts = [
-        ClinicalEvents,
-        PatientDemographics,
-        PracticeRegistrations,
-    ]
 
-    for contract in contracts:
+    for v in vars(contracts).values():
+        if not (
+            isinstance(v, type) and v != TableContract and issubclass(v, TableContract)
+        ):
+            continue
+        contract = v
         docstring = _reformat_docstring(contract.__doc__)
         dotted_path = f"{contract.__module__}.{contract.__qualname__}"
 

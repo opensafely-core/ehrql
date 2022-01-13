@@ -137,7 +137,7 @@ def test_patients_table(database):
     )
 
     class Cohort(OldCohortWithPopulation):
-        _patients = table("patients").first_by("patient_id")
+        _patients = table("patient_demographics").first_by("patient_id")
         sex = _patients.get("sex")
         dob = _patients.get("date_of_birth")
 
@@ -158,7 +158,9 @@ def test_hospitalization_table_returns_admission_date_and_code(database):
     )
 
     class Cohort(OldCohortWithPopulation):
-        _hospitalization = table("hospitalizations").first_by("patient_id")
+        _hospitalization = table("hospitalizations_without_system").first_by(
+            "patient_id"
+        )
         admission = _hospitalization.get("date")
         code = _hospitalization.get("code")
 

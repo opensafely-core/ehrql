@@ -61,6 +61,7 @@ from .query_model import (
     RoundToFirstOfMonth,
     RoundToFirstOfYear,
     Row,
+    Table,
     Value,
     ValueFromAggregate,
     ValueFromCategory,
@@ -184,6 +185,13 @@ class EventFrame:
         return BoolSeries(self.qm_table.exists())
 
 
+class EventTable(EventFrame):
+    def __init__(self, contract):
+        contract.validate_frame(type(self))
+        qm_table = Table(contract._name)
+        return super().__init__(qm_table)
+
+
 class SortedEventFrame:
     """
     An SortedEventFrame is a representation of sorted collection of patient records.
@@ -243,6 +251,16 @@ class PatientFrame:
             column: The Column of interest of which you want to retrieve the value.
         """
         return column.series_type(self.row.get(column.name))
+
+
+class PatientTable(PatientFrame):
+    def __init__(self, contract):
+        contract.validate_frame(type(self))
+        qm_table = Table(contract._name)
+        # TODO: revisit this!  As things stand, this will generate SQL with an
+        # unnecessary PARTITION OVER, which may carry a performance penalty.
+        row = qm_table.first_by("patient_id")
+        return super().__init__(row)
 
 
 class PatientSeries:
@@ -485,6 +503,14 @@ class IntSeries(PatientSeries):
         return BoolSeries(value=self.value != other_value)
 
 
+class FloatSeries(PatientSeries):
+    pass
+
+
+class StrSeries(PatientSeries):
+    pass
+
+
 S = TypeVar("S", bound=PatientSeries)
 
 
@@ -598,6 +624,16 @@ class IntColumn(Column[IntSeries]):
 
     def __le__(self, other: int) -> Predicate:
         return Predicate(self, "less_than_or_equals", other)
+
+
+class FloatColumn(Column[FloatSeries]):
+    def __init__(self, name):
+        return super().__init__(name, FloatSeries)
+
+
+class StrColumn(Column[StrSeries]):
+    def __init__(self, name):
+        return super().__init__(name, StrSeries)
 
 
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:

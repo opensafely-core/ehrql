@@ -17,8 +17,7 @@ class BaseBackend:
     backend_id: str
     query_engine_class: type[BaseSQLQueryEngine]
     patient_join_column: str
-
-    tables = None
+    tables: dict
 
     def __init__(self, database_url, temporary_database=None):
         self.database_url = database_url
@@ -48,27 +47,14 @@ class BaseBackend:
         table.learn_patient_join(cls.patient_join_column)
 
     @classmethod
-    def validate_contract(cls, name, table):
-        """
-        Validates that the table correctly implements the contract it
-        claims to, if any
-        Args:
-            name: Name of table
-            table: SQLTable Subclass
-        """
-        contract = table.implements
-        if contract:
-            contract.validate_implementation(cls, name, table)
-
-    @classmethod
-    def validate_all_contracts(cls) -> None:
+    def validate_contracts(cls) -> None:
         """
         Loops through all the tables in a backend and validates that
         each one meets any contract that it claims to implement
         """
-        for name, value in vars(cls).items():
-            if isinstance(value, SQLTable):
-                cls.validate_contract(name, value)
+        for name, table in cls.tables.items():
+            contract = table.implements
+            contract.validate_implementation(cls, name)
 
     def get_table_expression(self, table_name):
         """
@@ -82,13 +68,6 @@ class BaseBackend:
         """
         table = self.tables[table_name]
         return table.get_query().alias(table_name)
-
-    def get_table_implementing(self, contract):
-        """Return table implementing given contract."""
-
-        tables = [t for t in self.tables.values() if t.implements == contract]
-        assert len(tables) == 1
-        return tables[0]
 
 
 class SQLTable:
@@ -110,11 +89,11 @@ class SQLTable:
 
 
 class MappedTable(SQLTable):
-    def __init__(self, source, columns, schema=None, implements=None):
+    def __init__(self, source, columns, implements, schema=None):
         self.source = source
         self.columns = columns
-        self._schema = schema
         self.implements = implements
+        self._schema = schema
 
     def learn_patient_join(self, source):
         if "patient_id" not in self.columns:
@@ -129,7 +108,7 @@ class MappedTable(SQLTable):
 
 
 class QueryTable(SQLTable):
-    def __init__(self, query, columns, implements=None):
+    def __init__(self, query, columns, implements):
         self.query = query
         self.columns = columns
         self.implements = implements

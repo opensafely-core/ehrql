@@ -2,7 +2,6 @@ from datetime import date
 
 import pytest
 
-from databuilder.concepts import tables
 from databuilder.query_model import categorise, table
 
 from .lib.mock_backend import (
@@ -12,6 +11,7 @@ from .lib.mock_backend import (
     patient,
     positive_test,
 )
+from .lib.tables import events
 from .lib.util import OldCohortWithPopulation, make_codelist
 
 # Mark the whole module as containing integration tests
@@ -198,7 +198,7 @@ def test_run_generated_sql_get_single_row_per_patient(
                 patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
                 patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
-            table("clinical_events").filter("result", greater_than=20),
+            table("clinical_events").filter("value", greater_than=20),
             [
                 dict(patient_id=3, code="Code3", date=date(2021, 1, 3), value=30),
             ],
@@ -281,7 +281,7 @@ def test_run_generated_sql_get_single_row_per_patient(
                 patient(2, ctv3_event("Code2", "2021-01-02", 20)),  # equal
                 patient(3, ctv3_event("Code3", "2021-01-03", 30)),  # greater than
             ],
-            table("clinical_events").filter("result", less_than_or_equals=20),
+            table("clinical_events").filter("value", less_than_or_equals=20),
             [
                 dict(patient_id=1, code="Code1", date=date(2021, 1, 1), value=10),
                 dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=20),
@@ -325,7 +325,7 @@ def test_run_generated_sql_get_single_row_per_patient(
                 patient(4, ctv3_event("Code4", "2021-01-04", 40)),  # included
             ],
             table("clinical_events")
-            .filter("result", greater_than=15)
+            .filter("value", greater_than=15)
             .filter("date", between=["2021-01-03", "2021-06-06"])
             .filter("code", is_in=make_codelist("Code4")),
             [
@@ -358,7 +358,7 @@ def test_simple_filters(engine, data, filtered_table, expected):
         _filtered = filtered_table.first_by("patient_id")
         code = _filtered.get("code")
         date = _filtered.get("date")
-        value = _filtered.get("result")
+        value = _filtered.get("value")
 
     assert engine.extract(Cohort) == expected
 
@@ -390,7 +390,7 @@ def test_is_in_filter(engine, filter_value, request):
     [
         (
             table("clinical_events").filter(
-                "result", greater_than=15, include_null=True
+                "value", greater_than=15, include_null=True
             ),
             [
                 dict(patient_id=2, code="Code2", date=date(2021, 1, 2), value=None),
@@ -398,7 +398,7 @@ def test_is_in_filter(engine, filter_value, request):
             ],
         ),
         (
-            table("clinical_events").filter("result", greater_than=15),
+            table("clinical_events").filter("value", greater_than=15),
             [dict(patient_id=3, code="Code3", date=date(2021, 1, 3), value=30)],
         ),
     ],
@@ -421,7 +421,7 @@ def test_filter_with_nulls(engine, filtered_table, expected):
         _filtered_per_patient = filtered_table.first_by("patient_id")
         code = _filtered_per_patient.get("code")
         date = _filtered_per_patient.get("date")
-        value = _filtered_per_patient.get("result")
+        value = _filtered_per_patient.get("value")
 
     assert engine.extract(Cohort) == expected
 
@@ -477,7 +477,7 @@ def test_filter_between_other_query_values(engine):
             .latest()
         )
         date = _events.get("date")
-        value = _events.get("result")
+        value = _events.get("value")
 
     result = engine.extract(Cohort)
     assert result == [
@@ -591,7 +591,7 @@ def test_in_filter_on_query_values(engine):
             .latest()
         )
         date = _last_code1_events_on_positive_test_dates.get("date")
-        value = _last_code1_events_on_positive_test_dates.get("result")
+        value = _last_code1_events_on_positive_test_dates.get("value")
 
     result = engine.extract(Cohort)
     assert result == [
@@ -639,7 +639,7 @@ def test_not_in_filter_on_query_values(engine):
             table("clinical_events").filter("date", not_in=_test_dates).latest()
         )
         date = _last_event_not_on_test_date.get("date")
-        value = _last_event_not_on_test_date.get("result")
+        value = _last_event_not_on_test_date.get("value")
 
     result = engine.extract(Cohort)
     assert result == [
@@ -671,7 +671,7 @@ def test_not_in_filter_on_query_values(engine):
         ),
         (
             "sum",
-            "result",
+            "value",
             [
                 # Due to the usual floating point shennanigans we don't always get
                 # _exactly_ the result we're expecting here, depending on the database
@@ -1157,7 +1157,6 @@ def test_round_to_first_of_month(engine, cohort_with_population):
     engine.setup(input_data)
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     cohort.first_event_date = (
         events.sort_by(events.date)
         .first_for_patient()
@@ -1191,7 +1190,6 @@ def test_round_to_first_of_year(engine, cohort_with_population):
     engine.setup(input_data)
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     cohort.first_event_date = (
         events.sort_by(events.date)
         .first_for_patient()

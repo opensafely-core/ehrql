@@ -231,7 +231,7 @@ def extract(
     Returns:
         Yields the cohort as rows
     """
-    backend.validate_all_contracts()
+    backend.validate_contracts()
     cohort = get_column_definitions(cohort_definition)
     query_engine = backend.query_engine_class(cohort, backend)
     with query_engine.execute_query() as results:

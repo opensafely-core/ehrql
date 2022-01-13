@@ -2,11 +2,11 @@ from datetime import date, timedelta
 
 import pytest
 
-from databuilder.concepts import tables
 from databuilder.dsl import categorise
 from databuilder.dsl import categorise as dsl_categorise
 
-from .lib.mock_backend import MockPatients, ctv3_event, patient
+from .lib.mock_backend import ctv3_event, patient
+from .lib.tables import events, patients
 
 # Mark the whole module as containing integration tests
 pytestmark = pytest.mark.integration
@@ -16,7 +16,6 @@ def test_categorise_simple_comparisons(engine, cohort_with_population):
     input_data = [patient(1, height=180), patient(2, height=200.5), patient(3)]
     engine.setup(input_data)
 
-    patients = MockPatients()
     height = patients.select_column(patients.height)
     height_categories = {
         "tall": height > 190,
@@ -39,7 +38,6 @@ def test_comparator_order(engine, cohort_with_population):
     input_data = [patient(1, height=180), patient(2, height=200.5), patient(3)]
     engine.setup(input_data)
 
-    patients = MockPatients()
     height = patients.select_column(patients.height)
     height_categories = {
         "tall": 190 < height,
@@ -65,7 +63,6 @@ def test_dsl_code_comparisons(cohort_with_population, engine):
     ]
     engine.setup(input_data)
 
-    events = tables.clinical_events
     first_code = (
         events.sort_by(events.code).first_for_patient().select_column(events.code)
     )
@@ -104,7 +101,6 @@ def test_dsl_date_comparisons(cohort_with_population, engine):
     ]
     engine.setup(input_data)
 
-    events = tables.clinical_events
     first_code_date = (
         events.sort_by(events.date).first_for_patient().select_column(events.date)
     )
@@ -152,7 +148,6 @@ def test_dsl_int_comparisons(cohort_with_population, engine):
     ]
     engine.setup(input_data)
 
-    patients = MockPatients()
     height = patients.select_column(patients.height)
 
     twenty_to_twenty_four = (height >= 20) & (height <= 24)
@@ -186,7 +181,6 @@ def test_date_arithmetic_subtract_date_series_from_datestring(
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     index_date = "2010-06-01"
     dob = patients.select_column(patients.date_of_birth)  # DateSeries
@@ -209,7 +203,6 @@ def test_date_arithmetic_subtract_datestring_from_date_series(
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     reference_date = "1980-06-01"
     dob = patients.select_column(patients.date_of_birth)  # DateSeries
@@ -234,7 +227,6 @@ def test_date_arithmetic_subtract_dateseries(engine, cohort_with_population):
     engine.setup(input_data)
 
     data_definition = cohort_with_population
-    events = tables.clinical_events
     first_event_date = (
         events.filter(events.code.is_in(["abc"]))
         .sort_by(events.date)
@@ -283,7 +275,6 @@ def test_date_arithmetic_conversions(engine, cohort_with_population):
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     current_date = "2021-09-02"
     dob = patients.select_column(patients.date_of_birth)  # DateSeries
@@ -355,7 +346,6 @@ def test_date_arithmetic_convert_to_days(
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     dob = patients.select_column(patients.date_of_birth)  # DateSeries
     age = current_date - dob
@@ -378,7 +368,6 @@ def test_date_arithmetic_convert_to_weeks(engine, cohort_with_population):
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     current_date = "2021-03-02"
     dob = patients.select_column(patients.date_of_birth)  # DateSeries
@@ -405,7 +394,6 @@ def test_date_arithmetic_add_datedeltaseries(engine, cohort_with_population):
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     reference_date = str(reference_date_obj)
     dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
@@ -439,7 +427,6 @@ def test_date_arithmetic_subtract_datedelta(engine, cohort_with_population):
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     reference_date = str(reference_date_obj)
     dob = patients.select_column(patients.date_of_birth)  # DateSeries
@@ -478,7 +465,6 @@ def test_date_arithmetic_add_datedeltaseries_together(engine, cohort_with_popula
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     reference_date_1990 = str(reference_date_obj_1990)
     reference_date_2000 = str(reference_date_obj_2000)
@@ -523,7 +509,6 @@ def test_date_arithmetic_add_datedeltaseries_and_integer(
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     reference_date = str(reference_date_obj)
     dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
@@ -559,7 +544,6 @@ def test_date_arithmetic_add_multiple(engine, cohort_with_population):
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     reference_date_1990 = str(reference_date_obj_1990)
     reference_date_1991 = str(reference_date_obj_1991)
@@ -602,7 +586,6 @@ def test_date_arithmetic_subtract_two_datedeltaseries(engine, cohort_with_popula
 
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     reference_date_1990 = str(reference_date_obj_1990)
     reference_date_2000 = str(reference_date_obj_2000)
@@ -645,7 +628,6 @@ def test_date_arithmetic_subtract_datedeltaseries_and_integer(
     ]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     reference_date = str(reference_date_obj)
     dob = patients.select_column(patients.date_of_birth)  # -> DateSeries
@@ -678,7 +660,6 @@ def test_date_arithmetic_add_and_subtract(engine, cohort_with_population):
     input_data = [patient(1, dob=str(patient_dob))]
     engine.setup(input_data)
 
-    patients = tables.patients
     data_definition = cohort_with_population
     reference_date_1990 = str(reference_date_obj_1990)
     reference_date_1991 = str(reference_date_obj_1991)

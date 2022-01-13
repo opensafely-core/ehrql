@@ -5,15 +5,15 @@ import pytest
 
 from databuilder import codelist
 from databuilder.backends import TPPBackend
-from databuilder.concepts.tables import (
+from databuilder.dsl import Cohort, categorise
+from databuilder.tables import (
     clinical_events,
+    covid_test_results,
     hospitalizations,
     patient_addresses,
     patients,
-    registrations,
-    sgss_sars_cov_2,
+    practice_registrations,
 )
-from databuilder.dsl import Cohort, categorise
 from databuilder.validate_dummy_data import validate_dummy_data
 
 from ..lib.tpp_schema import (
@@ -50,25 +50,27 @@ def build_cohort():
     # Population
     # Patients registered on 2020-11-01
     registered = (
-        registrations.filter(registrations.start_date <= index_date)
+        practice_registrations.filter(practice_registrations.start_date <= index_date)
         .filter(
-            (registrations.end_date >= index_date)
-            | (registrations.end_date is not None)
+            (practice_registrations.end_date >= index_date)
+            | (practice_registrations.end_date is not None)
         )
         .exists_for_patient()
     )
     cohort.set_population(registered)
 
     cohort.practice_id = (
-        registrations.sort_by("date_end").last_for_patient().select_column("pseudo_id")
+        practice_registrations.sort_by("date_end")
+        .last_for_patient()
+        .select_column("pseudo_id")
     )
 
     # COVID infection
     cohort.sgss_positive = (
-        sgss_sars_cov_2.filter(sgss_sars_cov_2.positive_result is True)
-        .sort_by(sgss_sars_cov_2.date)
+        covid_test_results.filter(covid_test_results.positive_result is True)
+        .sort_by(covid_test_results.date)
         .first_for_patient()
-        .select_column(sgss_sars_cov_2.date)
+        .select_column(covid_test_results.date)
     )
 
     cohort.primary_care_covid = (
@@ -129,7 +131,7 @@ def build_cohort():
 
     # Region
     cohort.region = (
-        registrations.sort_by("date_end")
+        practice_registrations.sort_by("date_end")
         .last_for_patient()
         .select_column("nuts1_region_name")
     )

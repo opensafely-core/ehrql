@@ -55,7 +55,11 @@ def cohort(index_date, backend):
 
         # TPP backend does not currently support deaths/death from any cause
         if backend == "graphnet":
-            _not_dead = table("patients").filter(date_of_death=None).get("patient_id")
+            _not_dead = (
+                table("patient_demographics")
+                .filter(date_of_death=None)
+                .get("patient_id")
+            )
             population = _registrations.filter("patient_id", is_in=_not_dead).exists()
         else:
             population = _registrations.exists()

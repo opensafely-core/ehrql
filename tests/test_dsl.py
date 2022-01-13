@@ -3,7 +3,6 @@ import re
 import pytest
 
 from databuilder import codelist
-from databuilder.concepts import tables
 from databuilder.definition import register
 from databuilder.definition.base import cohort_registry
 from databuilder.dsl import (
@@ -29,7 +28,8 @@ from databuilder.query_model import (
 )
 from databuilder.query_utils import get_column_definitions
 
-from .lib.util import OldCohortWithPopulation, make_codelist, mock_positive_tests
+from .lib.tables import events, positive_tests, registrations
+from .lib.util import OldCohortWithPopulation, make_codelist
 
 
 def test_minimal_cohort_definition(cohort_with_population):
@@ -43,7 +43,6 @@ def test_minimal_cohort_definition(cohort_with_population):
 
     # new DSL
     cohort = cohort_with_population
-    events = tables.clinical_events
     cohort.code = (
         events.sort_by(events.date).first_for_patient().select_column(events.code)
     )
@@ -64,7 +63,6 @@ def test_filter(cohort_with_population):
         )
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     cohort.code = (
         events.filter(events.date > "2021-01-01")
         .sort_by(events.date)
@@ -87,8 +85,6 @@ def test_filter(cohort_with_population):
     ],
 )
 def test_date_predicates(cohort_with_population, kwarg, method):
-    events = tables.clinical_events
-
     class OldCohort(OldCohortWithPopulation):
         has_code = (
             table("clinical_events").filter("date", **{kwarg: "2021-01-01"}).exists()
@@ -115,8 +111,6 @@ def test_date_predicates(cohort_with_population, kwarg, method):
     ],
 )
 def test_int_predicates(cohort_with_population, kwarg, method):
-    events = tables.clinical_events
-
     class OldCohort(OldCohortWithPopulation):
         has_code = table("clinical_events").filter("value", **{kwarg: 42}).exists()
 
@@ -129,8 +123,6 @@ def test_int_predicates(cohort_with_population, kwarg, method):
 
 def test_comparison_inversion_works(cohort_with_population):
     # Check that authors can write `42 > events.value` as well as `events.value > 42`.
-    events = tables.clinical_events
-
     class OldCohort(OldCohortWithPopulation):
         fish = table("clinical_events").filter("value", less_than=42).exists()
 
@@ -148,8 +140,6 @@ def test_comparison_inversion_works(cohort_with_population):
     ],
 )
 def test_code_predicates(cohort_with_population, kwarg, method):
-    events = tables.clinical_events
-
     class OldCohort(OldCohortWithPopulation):
         has_code = table("clinical_events").filter("code", **{kwarg: "abc"}).exists()
 
@@ -172,29 +162,31 @@ def test_code_predicates(cohort_with_population, kwarg, method):
 def test_bool_predicates(cohort_with_population, kwarg, old_value, method, new_value):
     # Standard Python style frowns on direct equality comparison against True/False, but we want to allow authors to
     # write it this way if they like.
-    tests = mock_positive_tests
-
     class OldCohort(OldCohortWithPopulation):
         result = table("positive_tests").filter("result", **{kwarg: old_value}).exists()
 
     cohort = cohort_with_population
-    predicate = getattr(tests.result, method)(new_value)  # e.g. events.result == True
-    cohort.result = tests.filter(predicate).exists_for_patient()
+    predicate = getattr(positive_tests.result, method)(
+        new_value
+    )  # e.g. events.result == True
+    cohort.result = positive_tests.filter(predicate).exists_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
 def test_alternative_bool_predicates(cohort_with_population):
     # We provide these because standard Python style frowns on direct equality comparison against True/False.
-    tests = mock_positive_tests
-
     class OldCohort(OldCohortWithPopulation):
         success = table("positive_tests").filter("result", equals=True).exists()
         failure = table("positive_tests").filter("result", equals=False).exists()
 
     cohort = cohort_with_population
-    cohort.success = tests.filter(tests.result.is_true()).exists_for_patient()
-    cohort.failure = tests.filter(tests.result.is_false()).exists_for_patient()
+    cohort.success = positive_tests.filter(
+        positive_tests.result.is_true()
+    ).exists_for_patient()
+    cohort.failure = positive_tests.filter(
+        positive_tests.result.is_false()
+    ).exists_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 
@@ -209,7 +201,6 @@ def test_filter_with_codelist(cohort_with_population):
         )
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     cohort.code = (
         events.filter(events.code.is_in(codelist(["Code1"], "ctv3")))
         .sort_by(events.date)
@@ -232,7 +223,6 @@ def test_multiple_filters(cohort_with_population):
         )
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     cohort.code = (
         events.filter(events.date > "2021-01-01")
         .filter(events.date < "2021-10-10")
@@ -250,7 +240,7 @@ def test_count_aggregation(cohort_with_population):
         num_events = table("clinical_events").count()
 
     cohort = cohort_with_population
-    cohort.num_events = tables.clinical_events.count_for_patient()
+    cohort.num_events = events.count_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
 
@@ -261,7 +251,6 @@ def test_exists_aggregation(cohort_with_population):
         has_events = table("clinical_events").filter("code", not_equals=None).exists()
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     cohort.has_events = events.filter(events.code.is_not_null()).exists_for_patient()
 
     assert_cohorts_equivalent(cohort, OldCohort)
@@ -272,7 +261,7 @@ def test_set_population():
         population = table("practice_registrations").exists("patient_id")
 
     cohort = Cohort()
-    cohort.set_population(tables.registrations.exists_for_patient())
+    cohort.set_population(registrations.exists_for_patient())
     assert_cohorts_equivalent(cohort, OldCohort)
 
 
@@ -283,16 +272,16 @@ def test_set_population_variable_must_be_boolean():
         ValueError,
         match=re.escape("Population variable must return a boolean."),
     ):
-        cohort.set_population(tables.registrations.count_for_patient())
+        cohort.set_population(registrations.count_for_patient())
 
 
 @pytest.mark.parametrize(
     "variable_def, invalid_type",
     [
         ("code", "str"),
-        (tables.clinical_events, "ClinicalEvents"),
+        (events, "Events"),
         (
-            tables.clinical_events.filter(tables.clinical_events.date > "2021-01-01"),
+            events.filter(events.date > "2021-01-01"),
             "EventFrame",
         ),
     ],
@@ -309,14 +298,12 @@ def test_set_variable_errors(variable_def, invalid_type):
 
 
 def test_add_variable():
-    events = tables.clinical_events
-
     cohort1 = Cohort()
-    cohort1.set_population(tables.registrations.exists_for_patient())
+    cohort1.set_population(registrations.exists_for_patient())
     cohort1.add_variable("code", events.count_for_patient())
 
     cohort2 = Cohort()
-    cohort2.set_population(tables.registrations.exists_for_patient())
+    cohort2.set_population(registrations.exists_for_patient())
     cohort2.add_variable("code", events.count_for_patient())
 
     assert_cohorts_equivalent(cohort1, cohort2)
@@ -328,12 +315,11 @@ def test_population_required():
     with pytest.raises(ValueError, match="must define a 'population' variable"):
         get_column_definitions(data_definition)
 
-    data_definition.set_population(tables.registrations.exists_for_patient())
+    data_definition.set_population(registrations.exists_for_patient())
     get_column_definitions(data_definition)
 
 
 def test_patient_series_repr():
-    registrations = tables.registrations
     series = (
         registrations.sort_by(registrations.date_end)
         .first_for_patient()

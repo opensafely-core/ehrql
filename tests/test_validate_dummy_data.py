@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 
 from databuilder import categorise, codelist, table
-from databuilder.concepts import tables
 from databuilder.dsl import categorise as new_dsl_categorise
 from databuilder.validate_dummy_data import (
     SUPPORTED_FILE_FORMATS,
@@ -12,6 +11,7 @@ from databuilder.validate_dummy_data import (
 )
 
 from .lib.csv_utils import write_rows_to_csv
+from .lib.tables import events
 
 cl = codelist(["12345"], system="snomed")
 
@@ -119,7 +119,6 @@ def test_validate_dummy_data_with_categories(
 
 def test_valid_dummy_data_with_categories_dsl(tmpdir, cohort_with_population):
     data_definition = cohort_with_population
-    events = tables.clinical_events
     event_date = (
         events.sort_by(events.date).last_for_patient().select_column(events.date)
     )
@@ -145,7 +144,6 @@ def test_validate_categories_values_must_be_valid_category(
     tmpdir, cohort_with_population
 ):
     data_definition = cohort_with_population
-    events = tables.clinical_events
     event_date = (
         events.sort_by(events.date).last_for_patient().select_column(events.date)
     )
