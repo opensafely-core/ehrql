@@ -59,7 +59,9 @@ def test_basic_validation_that_table_implements_patients_contract():
             ),
         )
 
-    assert GoodBackend("db://")
+    PatientsContract.validate_implementation(
+        GoodBackend, "patients", GoodBackend.patients
+    )
 
 
 def test_basic_validation_for_patients_contract_column_types():
