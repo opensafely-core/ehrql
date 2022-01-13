@@ -11,7 +11,7 @@ from databuilder.validate_dummy_data import (
 )
 
 from .lib.csv_utils import write_rows_to_csv
-from .lib.frames import events
+from .lib.tables import events
 
 cl = codelist(["12345"], system="snomed")
 

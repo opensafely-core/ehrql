@@ -5,8 +5,8 @@ import pytest
 from databuilder.dsl import categorise
 from databuilder.dsl import categorise as dsl_categorise
 
-from .lib.frames import events, patients
 from .lib.mock_backend import ctv3_event, patient
+from .lib.tables import events, patients
 
 # Mark the whole module as containing integration tests
 pytestmark = pytest.mark.integration

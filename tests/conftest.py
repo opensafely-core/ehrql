@@ -9,8 +9,8 @@ from databuilder.query_engines.spark import SparkQueryEngine
 
 from .lib.databases import make_database, make_spark_database, wait_for_database
 from .lib.docker import Containers
-from .lib.frames import events, patients, registrations
 from .lib.mock_backend import backend_factory
+from .lib.tables import events, patients, registrations
 from .lib.util import extract
 
 

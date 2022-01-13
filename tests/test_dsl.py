@@ -28,7 +28,7 @@ from databuilder.query_model import (
 )
 from databuilder.query_utils import get_column_definitions
 
-from .lib.frames import events, positive_tests, registrations
+from .lib.tables import events, positive_tests, registrations
 from .lib.util import OldCohortWithPopulation, make_codelist
 
 

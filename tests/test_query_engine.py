@@ -4,7 +4,6 @@ import pytest
 
 from databuilder.query_model import categorise, table
 
-from .lib.frames import events
 from .lib.mock_backend import (
     CTV3Events,
     RegistrationHistory,
@@ -12,6 +11,7 @@ from .lib.mock_backend import (
     patient,
     positive_test,
 )
+from .lib.tables import events
 from .lib.util import OldCohortWithPopulation, make_codelist
 
 # Mark the whole module as containing integration tests

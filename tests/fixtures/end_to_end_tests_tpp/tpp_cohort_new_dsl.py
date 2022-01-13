@@ -1,7 +1,7 @@
 from databuilder.definition import register
 from databuilder.dsl import Cohort
-from databuilder.frames import clinical_events as events
-from databuilder.frames import practice_registrations as registrations
+from databuilder.tables import clinical_events as events
+from databuilder.tables import practice_registrations as registrations
 
 cohort = Cohort()
 cohort.set_population(registrations.exists_for_patient())

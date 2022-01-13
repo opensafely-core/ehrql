@@ -6,7 +6,7 @@ import pytest
 from databuilder import codelist
 from databuilder.backends import TPPBackend
 from databuilder.dsl import Cohort, categorise
-from databuilder.frames import (
+from databuilder.tables import (
     clinical_events,
     covid_test_results,
     hospitalizations,

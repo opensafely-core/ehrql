@@ -13,7 +13,7 @@ from databuilder.query_model import Comparator
 from databuilder.query_model import categorise as old_dsl_categorise
 from databuilder.query_model import table
 
-from .lib.frames import events, patients, positive_tests
+from .lib.tables import events, patients, positive_tests
 from .lib.util import OldCohortWithPopulation, make_codelist
 from .test_dsl import assert_cohorts_equivalent
 
@@ -337,7 +337,7 @@ def test_categorise_double_invert(cohort_with_population):
         (
             {"positive": positive_tests},
             TypeError,
-            r"Got .*lib\.frames\.Tests.* for category key 'positive'",
+            r"Got .*lib\.tables\.Tests.* for category key 'positive'",
         ),
         (
             {
