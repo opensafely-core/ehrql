@@ -27,7 +27,7 @@ def backend_factory(query_engine_cls):
             implements=contracts.Patients,
             source="patients",
             columns=dict(
-                height=Column("float", source="Height"),
+                height=Column("integer", source="Height"),
                 date_of_birth=Column("date", source="DateOfBirth"),
                 sex=Column("varchar", source="Sex"),
             ),
@@ -48,7 +48,7 @@ def backend_factory(query_engine_cls):
                 code=Column("varchar", source="EventCode"),
                 system=Column("varchar", source="System"),
                 date=Column("date", source="Date"),
-                result=Column("float", source="ResultValue"),
+                value=Column("integer", source="ResultValue"),
             ),
         )
         positive_tests = QueryTable(

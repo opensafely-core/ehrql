@@ -83,7 +83,7 @@ class WIP_PatientAddress(EventFrame):
     has_postcode = BoolColumn("has_postcode")
 
 
-patient_address = WIP_PatientAddress.from_contract(contracts.WIP_PatientAddress)
+patient_addresses = WIP_PatientAddress.from_contract(contracts.WIP_PatientAddress)
 
 
 class WIP_PracticeRegistrations(EventFrame):

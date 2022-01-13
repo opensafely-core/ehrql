@@ -8,12 +8,12 @@ import re
 import pytest
 
 from databuilder import codelist
-from databuilder.concepts import tables
 from databuilder.dsl import categorise as new_dsl_categorise
 from databuilder.query_model import Comparator
 from databuilder.query_model import categorise as old_dsl_categorise
 from databuilder.query_model import table
 
+from .lib.frames import events
 from .lib.util import (
     OldCohortWithPopulation,
     make_codelist,
@@ -34,7 +34,6 @@ def test_categorise(cohort_with_population):
         date_group = old_dsl_categorise(_date_categories, default="unknown")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     first_code_date = (
         events.sort_by(events.date).first_for_patient().select_column(events.date)
     )
@@ -126,11 +125,7 @@ def test_categorise_multiple_values(cohort_with_population):
         .first_for_patient()
         .select_column(mock_patients.height)
     )
-    code = (
-        tables.clinical_events.sort_by(tables.clinical_events.date)
-        .first_for_patient()
-        .select_column(tables.clinical_events.code)
-    )
+    code = events.sort_by(events.date).first_for_patient().select_column(events.code)
     height_with_codes_categories = {
         "short": (height < 190) & (code == "abc"),
         "tall": (height > 190) & (code == "abc"),
@@ -162,11 +157,7 @@ def test_categorise_nested_comparisons(cohort_with_population):
         .first_for_patient()
         .select_column(mock_patients.height)
     )
-    code = (
-        tables.clinical_events.sort_by(tables.clinical_events.date)
-        .first_for_patient()
-        .select_column(tables.clinical_events.code)
-    )
+    code = events.sort_by(events.date).first_for_patient().select_column(events.code)
     height_with_codes_categories = {
         "tall_or_code": (height > 190) | ((height < 150) & (code == "abc")),
     }
@@ -192,7 +183,6 @@ def test_categorise_on_truthiness(cohort_with_population):
         abc = old_dsl_categorise(_codes_categories, default="na")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = events.filter(
         events.code.is_in(codelist(["abc"], "ctv3"))
     ).exists_for_patient()
@@ -215,7 +205,6 @@ def test_categorise_on_truthiness_from_filter(cohort_with_population):
         has_code = old_dsl_categorise(_codes_categories, default="na")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = (
         events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
@@ -240,7 +229,6 @@ def test_categorise_multiple_truthiness_values(cohort_with_population):
         has_positive_code = old_dsl_categorise(_codes_categories, default="na")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = (
         events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
@@ -293,7 +281,6 @@ def test_categorise_invert_truthiness_values(cohort_with_population):
         has_code = old_dsl_categorise(_codes_categories, default="na")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = (
         events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
@@ -318,7 +305,6 @@ def test_categorise_invert_combined_values(cohort_with_population):
         result_group = old_dsl_categorise(_codes_categories, default="pos")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = (
         events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
@@ -345,7 +331,6 @@ def test_categorise_double_invert(cohort_with_population):
         has_code = old_dsl_categorise(_codes_categories, default="na")
 
     cohort = cohort_with_population
-    events = tables.clinical_events
     code = (
         events.filter(events.code.is_in(codelist(["abc", "def"], "ctv3")))
         .sort_by(events.date)
@@ -420,7 +405,7 @@ def test_categorise_invalid_default():
 
 
 def test_cannot_compare_comparators():
-    codes = tables.clinical_events.count_for_patient()
+    codes = events.count_for_patient()
     count_3 = codes == 3
 
     assert isinstance(count_3.value, Comparator)

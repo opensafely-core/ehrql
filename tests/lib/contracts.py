@@ -15,7 +15,7 @@ class Patients(TableContract):
         constraints=[NotNullConstraint(), UniqueConstraint()],
     )
     height = Column(
-        type=types.Float(),
+        type=types.Integer(),
     )
     date_of_birth = Column(
         type=types.Date(),
@@ -56,8 +56,8 @@ class Events(TableContract):
     date = Column(
         type=types.Date(),
     )
-    result = Column(
-        type=types.Float(),
+    value = Column(
+        type=types.Integer(),
     )
 
 
