@@ -30,6 +30,5 @@ def test_generate_docs():
     output = {b["name"] for b in data["backends"]}
     assert expected <= output
 
-    assert data["contracts"][0]["name"] == "ClinicalEvents"
-    assert data["contracts"][1]["name"] == "PatientDemographics"
-    assert data["contracts"][2]["name"] == "PracticeRegistrations"
+    names = {contract["name"] for contract in data["contracts"]}
+    assert "PatientDemographics" in names

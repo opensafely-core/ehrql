@@ -47,6 +47,8 @@ class PatientDemographics(TableContract):
 
 
 class WIP_ClinicalEvents(TableContract):
+    """TODO."""
+
     _name = "clinical_events"
 
     patient_id = Column(
@@ -82,6 +84,8 @@ class WIP_ClinicalEvents(TableContract):
 
 
 class WIP_HospitalAdmissions(TableContract):
+    """TODO."""
+
     _name = "hospital_admissions"
 
     patient_id = Column(
@@ -123,6 +127,8 @@ class WIP_HospitalAdmissions(TableContract):
 
 
 class WIP_Hospitalizations(TableContract):
+    """TODO."""
+
     _name = "hospitalizations"
 
     patient_id = Column(
@@ -146,6 +152,8 @@ class WIP_Hospitalizations(TableContract):
 
 
 class WIP_HospitalizationsWithoutSystem(TableContract):
+    """TODO."""
+
     _name = "hospitalizations_"
 
     patient_id = Column(
@@ -163,6 +171,8 @@ class WIP_HospitalizationsWithoutSystem(TableContract):
 
 
 class WIP_PatientAddress(TableContract):
+    """TODO."""
+
     _name = "patient_address"
 
     patient_id = Column(
@@ -204,6 +214,8 @@ class WIP_PatientAddress(TableContract):
 
 
 class WIP_PracticeRegistrations(TableContract):
+    """TODO."""
+
     _name = "practice_registrations"
 
     patient_id = Column(
@@ -239,6 +251,8 @@ class WIP_PracticeRegistrations(TableContract):
 
 
 class WIP_Prescriptions(TableContract):
+    """TODO."""
+
     _name = "prescriptions"
 
     patient_id = Column(
@@ -262,6 +276,8 @@ class WIP_Prescriptions(TableContract):
 
 
 class WIP_CovidTestResults(TableContract):
+    """TODO."""
+
     _name = "covid_test_results"
 
     patient_id = Column(
@@ -285,6 +301,8 @@ class WIP_CovidTestResults(TableContract):
 
 
 class WIP_SimplePatientDemographics(TableContract):
+    """TODO."""
+
     _name = "patients"
 
     patient_id = Column(
