@@ -61,6 +61,7 @@ from .query_model import (
     RoundToFirstOfMonth,
     RoundToFirstOfYear,
     Row,
+    Table,
     Value,
     ValueFromAggregate,
     ValueFromCategory,
@@ -126,6 +127,11 @@ class EventFrame:
             from.
         """
         self.qm_table = qm_table
+
+    @classmethod
+    def from_contract(cls, contract):
+        qm_table = Table(contract._name)
+        return cls(qm_table)
 
     def filter(self, predicate: Predicate | BoolColumn) -> EventFrame:  # noqa: A003
         """
@@ -234,6 +240,13 @@ class PatientFrame:
             row: A Row which represents a single patient's data
         """
         self.row = row
+
+    @classmethod
+    def from_contract(cls, contract):
+        qm_table = Table(contract._name)
+        # TODO: revisit this!  As things stand, this will generate SQL with an
+        # unnecessary PARTITION OVER, which may carry a performance penalty.
+        return cls(qm_table.first_by("patient_id"))
 
     def select_column(self, column: Column[S]) -> S:
         """
@@ -485,6 +498,14 @@ class IntSeries(PatientSeries):
         return BoolSeries(value=self.value != other_value)
 
 
+class FloatSeries(PatientSeries):
+    pass
+
+
+class StrSeries(PatientSeries):
+    pass
+
+
 S = TypeVar("S", bound=PatientSeries)
 
 
@@ -598,6 +619,16 @@ class IntColumn(Column[IntSeries]):
 
     def __le__(self, other: int) -> Predicate:
         return Predicate(self, "less_than_or_equals", other)
+
+
+class FloatColumn(Column[FloatSeries]):
+    def __init__(self, name):
+        return super().__init__(name, FloatSeries)
+
+
+class StrColumn(Column[StrSeries]):
+    def __init__(self, name):
+        return super().__init__(name, StrSeries)
 
 
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
