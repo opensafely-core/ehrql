@@ -44,9 +44,9 @@ class TableContract:
                 f" contract for '{cls.__name__}'\n\n"
                 f"Missing columns: {', '.join(missing_columns)}"
             )
-        backend_table = getattr(backend, table_name)
+
         for column in cls.columns:
-            backend_column_type = backend_table.columns[column].type
+            backend_column_type = table.columns[column].type
             contract_column_type = cls.columns[column].type
             allowed_types = [
                 allowed_type.name
