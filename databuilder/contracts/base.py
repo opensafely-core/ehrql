@@ -45,6 +45,9 @@ class TableContract:
             ) + msg
             raise BackendContractError(msg)
 
+        if table_name != cls._name:
+            _raise_backend_contract_error(f"Attribute should be called '{cls._name}'")
+
         missing_columns = set(cls.columns) - set(table.columns)
         if missing_columns:
             _raise_backend_contract_error(

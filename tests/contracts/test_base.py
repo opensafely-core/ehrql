@@ -12,6 +12,8 @@ from ..lib.mock_backend import patient
 
 
 class PatientsContract(TableContract):
+    _name = "patients"
+
     patient_id = ColumnContract(
         type=types.PseudoPatientId(), description="", help="", constraints=[]
     )
@@ -41,6 +43,28 @@ def test_validate_implementation_success():
     PatientsContract.validate_implementation(
         GoodBackend, "patients", GoodBackend.patients
     )
+
+
+def test_validate_implementation_failure_misnamed_table():
+    class BadBackend(BaseBackend):
+        backend_id = "bad_test_backend"
+        query_engine_class = BaseSQLQueryEngine
+        patient_join_column = "patient_id"
+
+        patience = MappedTable(
+            implements=PatientsContract,
+            source="Patient",
+            columns=dict(
+                date_of_birth=Column("date", source="DateOfBirth"),
+            ),
+        )
+
+    with pytest.raises(
+        BackendContractError, match="Attribute should be called 'patients'"
+    ):
+        PatientsContract.validate_implementation(
+            BadBackend, "patience", BadBackend.patience
+        )
 
 
 def test_validate_implementation_failure_missing_column():
