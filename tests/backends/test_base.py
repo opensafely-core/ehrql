@@ -1,8 +1,5 @@
-import pytest
-
 from databuilder.backends.base import BaseBackend, Column, MappedTable
 from databuilder.contracts import types
-from databuilder.contracts.base import BackendContractError
 from databuilder.contracts.base import Column as ColumnContract
 from databuilder.contracts.base import TableContract
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
@@ -45,49 +42,6 @@ class PatientsContract(TableContract):
     patient_id = ColumnContract(type=types.PseudoPatientId(), help="", description="")
     date_of_birth = ColumnContract(type=types.Date(), help="", description="")
     sex = ColumnContract(type=types.Choice("F", "M"), help="", description="")
-
-
-def test_bad_backend_with_validate_contract():
-
-    # Create a Backend which will fail to implement a contract
-    class BadBackend(BaseBackend):
-
-        backend_id = "bad_test_backend"
-        query_engine_class = BaseSQLQueryEngine
-        patient_join_column = "patient_id"
-
-        patients = MappedTable(
-            implements=PatientsContract,
-            source="Patient",
-            columns=dict(
-                date_of_birth=Column("date", source="DateOfBirth"),
-            ),
-        )
-
-    bad_backend = BadBackend(database_url="test")
-
-    with pytest.raises(BackendContractError, match="Missing columns: sex"):
-        bad_backend.validate_contracts()
-
-
-def test_good_backend_with_validate_contract():
-    # Create a Backend which will implement a contract
-    class GoodBackend(BaseBackend):
-        backend_id = "good_test_backend"
-        query_engine_class = BaseSQLQueryEngine
-        patient_join_column = "patient_id"
-
-        patients = MappedTable(
-            implements=PatientsContract,
-            source="Patient",
-            columns=dict(
-                date_of_birth=Column("date", source="DateOfBirth"),
-                sex=Column("varchar", source="Sex"),
-            ),
-        )
-
-    good_backend = GoodBackend(database_url="test")
-    good_backend.validate_contracts()
 
 
 def test_validate_all_backends():
