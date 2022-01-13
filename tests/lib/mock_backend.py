@@ -7,6 +7,8 @@ from databuilder.dsl import DateColumn, IdColumn, IntColumn, PatientFrame, Patie
 from databuilder.query_engines.mssql import MssqlQueryEngine
 from databuilder.query_model import Table
 
+from . import contracts
+
 
 def backend_factory(query_engine_cls):
     """
@@ -22,6 +24,7 @@ def backend_factory(query_engine_cls):
         patient_join_column = "PatientId"
 
         patients = MappedTable(
+            implements=contracts.Patients,
             source="patients",
             columns=dict(
                 height=Column("float", source="Height"),
@@ -30,6 +33,7 @@ def backend_factory(query_engine_cls):
             ),
         )
         practice_registrations = MappedTable(
+            implements=contracts.Registrations,
             source="practice_registrations",
             columns=dict(
                 stp=Column("varchar", source="StpId"),
@@ -38,6 +42,7 @@ def backend_factory(query_engine_cls):
             ),
         )
         clinical_events = MappedTable(
+            implements=contracts.Events,
             source="events",
             columns=dict(
                 code=Column("varchar", source="EventCode"),
@@ -46,8 +51,8 @@ def backend_factory(query_engine_cls):
                 result=Column("float", source="ResultValue"),
             ),
         )
-
         positive_tests = QueryTable(
+            implements=contracts.Tests,
             columns=dict(
                 patient_id=Column("integer"),
                 result=Column("boolean"),
