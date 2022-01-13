@@ -8,8 +8,8 @@ from .types import BaseType, Choice
 class Column:
 
     type: BaseType  # noqa: A003
-    description: str
-    help: str  # noqa: A003
+    description: str = ""
+    help: str = ""  # noqa: A003
     constraints: list[BaseConstraint] = dataclasses.field(default_factory=list)
 
 

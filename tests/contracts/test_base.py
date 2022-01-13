@@ -14,15 +14,9 @@ from ..lib.mock_backend import patient
 class PatientsContract(TableContract):
     _name = "patients"
 
-    patient_id = ColumnContract(
-        type=types.PseudoPatientId(), description="", help="", constraints=[]
-    )
-    date_of_birth = ColumnContract(
-        type=types.Date(), description="", help="", constraints=[]
-    )
-    sex = ColumnContract(
-        type=types.Choice("F", "M"), description="", help="", constraints=[]
-    )
+    patient_id = ColumnContract(type=types.PseudoPatientId())
+    date_of_birth = ColumnContract(type=types.Date())
+    sex = ColumnContract(type=types.Choice("F", "M"))
 
 
 def test_validate_implementation_success():
@@ -115,16 +109,10 @@ def test_basic_validation_for_patients_contract_column_constraints(engine):
 
     # Basic table contract
     class PatientsContract(TableContract):
-        patient_id = ColumnContract(
-            type=types.PseudoPatientId(), description="", help="", constraints=[]
-        )
-        date_of_birth = ColumnContract(
-            type=types.Date(), description="", help="", constraints=[]
-        )
+        patient_id = ColumnContract(type=types.PseudoPatientId())
+        date_of_birth = ColumnContract(type=types.Date())
         sex = ColumnContract(
             type=types.Choice("F", "M"),
-            description="",
-            help="",
             constraints=[ChoiceConstraint()],
         )
 

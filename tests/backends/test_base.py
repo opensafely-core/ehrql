@@ -39,9 +39,9 @@ class PatientsContract(TableContract):
     A test contract that backends can be validates against
     """
 
-    patient_id = ColumnContract(type=types.PseudoPatientId(), help="", description="")
-    date_of_birth = ColumnContract(type=types.Date(), help="", description="")
-    sex = ColumnContract(type=types.Choice("F", "M"), help="", description="")
+    patient_id = ColumnContract(type=types.PseudoPatientId())
+    date_of_birth = ColumnContract(type=types.Date())
+    sex = ColumnContract(type=types.Choice("F", "M"))
 
 
 def test_validate_all_backends():
