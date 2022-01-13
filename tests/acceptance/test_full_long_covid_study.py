@@ -41,7 +41,7 @@ class Cohort:
 
     # COVID infection
     sgss_positive = (
-        table("sgss_sars_cov_2").filter(positive_result=True).earliest().get("date")
+        table("covid_test_results").filter(positive_result=True).earliest().get("date")
     )
 
     primary_care_covid = (

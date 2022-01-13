@@ -7,11 +7,11 @@ from databuilder import codelist
 from databuilder.backends import TPPBackend
 from databuilder.concepts.tables import (
     clinical_events,
+    covid_test_results,
     hospitalizations,
     patient_addresses,
     patients,
     registrations,
-    sgss_sars_cov_2,
 )
 from databuilder.dsl import Cohort, categorise
 from databuilder.validate_dummy_data import validate_dummy_data
@@ -65,10 +65,10 @@ def build_cohort():
 
     # COVID infection
     cohort.sgss_positive = (
-        sgss_sars_cov_2.filter(sgss_sars_cov_2.positive_result is True)
-        .sort_by(sgss_sars_cov_2.date)
+        covid_test_results.filter(covid_test_results.positive_result is True)
+        .sort_by(covid_test_results.date)
         .first_for_patient()
-        .select_column(sgss_sars_cov_2.date)
+        .select_column(covid_test_results.date)
     )
 
     cohort.primary_care_covid = (

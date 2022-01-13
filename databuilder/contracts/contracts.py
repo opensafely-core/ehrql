@@ -6,6 +6,8 @@ from .constraints import FirstOfMonthConstraint, NotNullConstraint, UniqueConstr
 class PatientDemographics(TableContract):
     """Provides demographic information about patients."""
 
+    _name = "patient_demographics"
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description=(
@@ -45,6 +47,8 @@ class PatientDemographics(TableContract):
 
 
 class WIP_ClinicalEvents(TableContract):
+    _name = "clinical_events"
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -78,6 +82,8 @@ class WIP_ClinicalEvents(TableContract):
 
 
 class WIP_HospitalAdmissions(TableContract):
+    _name = "hospital_admissions"
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -117,6 +123,8 @@ class WIP_HospitalAdmissions(TableContract):
 
 
 class WIP_Hospitalizations(TableContract):
+    _name = "hospitalizations"
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -138,6 +146,8 @@ class WIP_Hospitalizations(TableContract):
 
 
 class WIP_HospitalizationsWithoutSystem(TableContract):
+    _name = "hospitalizations_"
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -153,6 +163,8 @@ class WIP_HospitalizationsWithoutSystem(TableContract):
 
 
 class WIP_PatientAddress(TableContract):
+    _name = "patient_address"
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -192,6 +204,8 @@ class WIP_PatientAddress(TableContract):
 
 
 class WIP_PracticeRegistrations(TableContract):
+    _name = "practice_registrations"
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -225,6 +239,8 @@ class WIP_PracticeRegistrations(TableContract):
 
 
 class WIP_Prescriptions(TableContract):
+    _name = "prescriptions"
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -245,7 +261,9 @@ class WIP_Prescriptions(TableContract):
     )
 
 
-class WIP_TestResults(TableContract):
+class WIP_CovidTestResults(TableContract):
+    _name = "covid_test_results"
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",
@@ -267,6 +285,8 @@ class WIP_TestResults(TableContract):
 
 
 class WIP_SimplePatientDemographics(TableContract):
+    _name = "patients"
+
     patient_id = Column(
         type=types.PseudoPatientId(),
         description="",

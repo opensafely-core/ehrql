@@ -50,4 +50,4 @@ registrations = PracticeRegistrations()
 # Stubs
 hospitalizations = None
 patient_addresses = None
-sgss_sars_cov_2 = None
+covid_test_results = None

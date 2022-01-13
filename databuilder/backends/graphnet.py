@@ -10,7 +10,7 @@ class GraphnetBackend(BaseBackend):
     query_engine_class = MssqlQueryEngine
     patient_join_column = "Patient_ID"
 
-    patients = MappedTable(
+    patient_demographics = MappedTable(
         implements=contracts.PatientDemographics,
         source="TRE.Patients",
         columns=dict(
@@ -43,7 +43,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     covid_test_results = MappedTable(
-        implements=contracts.WIP_TestResults,
+        implements=contracts.WIP_CovidTestResults,
         source="TRE.CovidTestResults",
         columns=dict(
             date=Column("date", source="SpecimenDate"),
@@ -51,7 +51,7 @@ class GraphnetBackend(BaseBackend):
         ),
     )
 
-    hospitalizations = MappedTable(
+    hospitalizations_ = MappedTable(
         implements=contracts.WIP_HospitalizationsWithoutSystem,
         source="TRE.Hospitalisations",
         columns=dict(

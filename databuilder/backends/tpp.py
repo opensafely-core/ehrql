@@ -140,8 +140,8 @@ class TPPBackend(BaseBackend):
         """,
     )
 
-    sgss_sars_cov_2 = QueryTable(
-        implements=contracts.WIP_TestResults,
+    covid_test_results = QueryTable(
+        implements=contracts.WIP_CovidTestResults,
         columns=dict(
             date=Column("date"),
             positive_result=Column("boolean"),

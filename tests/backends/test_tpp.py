@@ -68,7 +68,10 @@ def test_covid_test_positive_result(database):
 
     class Cohort(OldCohortWithPopulation):
         date = (
-            table("sgss_sars_cov_2").filter(positive_result=True).earliest().get("date")
+            table("covid_test_results")
+            .filter(positive_result=True)
+            .earliest()
+            .get("date")
         )
 
     assert extract(Cohort, TPPBackend, database) == [
@@ -89,7 +92,7 @@ def test_covid_test_negative_result(database):
 
     class Cohort(OldCohortWithPopulation):
         date = (
-            table("sgss_sars_cov_2")
+            table("covid_test_results")
             .filter(positive_result=False)
             .earliest()
             .get("date")
