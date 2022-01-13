@@ -17,8 +17,7 @@ class BaseBackend:
     backend_id: str
     query_engine_class: type[BaseSQLQueryEngine]
     patient_join_column: str
-
-    tables = None
+    tables: dict
 
     def __init__(self, database_url, temporary_database=None):
         self.database_url = database_url
