@@ -65,7 +65,7 @@ class WIP_HospitalizationsWithoutSystem(EventTable):
     code = CodeColumn("code")
 
 
-hospitalizations_ = WIP_HospitalizationsWithoutSystem(
+hospitalizations_without_system = WIP_HospitalizationsWithoutSystem(
     contracts.WIP_HospitalizationsWithoutSystem
 )
 

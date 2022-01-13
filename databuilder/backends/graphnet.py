@@ -51,7 +51,7 @@ class GraphnetBackend(BaseBackend):
         ),
     )
 
-    hospitalizations_ = MappedTable(
+    hospitalizations_without_system = MappedTable(
         implements=contracts.WIP_HospitalizationsWithoutSystem,
         source="TRE.Hospitalisations",
         columns=dict(

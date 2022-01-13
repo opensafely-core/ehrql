@@ -154,7 +154,7 @@ class WIP_Hospitalizations(TableContract):
 class WIP_HospitalizationsWithoutSystem(TableContract):
     """TODO."""
 
-    _name = "hospitalizations_"
+    _name = "hospitalizations_without_system"
 
     patient_id = Column(
         type=types.PseudoPatientId(),
