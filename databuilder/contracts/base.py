@@ -37,11 +37,17 @@ class TableContract:
             table_name: Name of the table
             table: SQLTable
         """
-        missing_columns = set(cls.columns) - set(table.columns)
-        if missing_columns:
-            raise BackendContractError(
+
+        def _raise_backend_contract_error(msg):
+            msg = (
                 f"\n'{backend.__name__}.{table_name}' does not correctly implement the"
                 f" contract for '{cls.__name__}'\n\n"
+            ) + msg
+            raise BackendContractError(msg)
+
+        missing_columns = set(cls.columns) - set(table.columns)
+        if missing_columns:
+            _raise_backend_contract_error(
                 f"Missing columns: {', '.join(missing_columns)}"
             )
 
@@ -54,9 +60,7 @@ class TableContract:
             ]
 
             if backend_column_type not in allowed_types:
-                raise BackendContractError(
-                    f"\n'{backend.__name__}.{table_name}' does not correctly implement the"
-                    f" contract for '{cls.__name__}'\n\n"
+                _raise_backend_contract_error(
                     f"Column {column} is defined with an invalid type '{backend_column_type}'.\n\n"
                     f"Allowed types are: {', '.join(allowed_types)}"
                 )
