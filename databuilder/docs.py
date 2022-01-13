@@ -3,7 +3,7 @@ import operator
 
 from .backends.base import BaseBackend
 from .concepts.tables import ClinicalEvents, PracticeRegistrations
-from .contracts.tables import PatientDemographics
+from .contracts.contracts import PatientDemographics
 
 
 def _build_backends():
