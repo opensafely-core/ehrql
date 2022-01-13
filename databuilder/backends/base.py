@@ -66,9 +66,8 @@ class BaseBackend:
         Loops through all the tables in a backend and validates that
         each one meets any contract that it claims to implement
         """
-        for name, value in vars(cls).items():
-            if isinstance(value, SQLTable):
-                cls.validate_contract(name, value)
+        for name, table in cls.tables.items():
+            cls.validate_contract(name, table)
 
     def get_table_expression(self, table_name):
         """
