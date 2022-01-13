@@ -130,6 +130,7 @@ class EventFrame:
 
     @classmethod
     def from_contract(cls, contract):
+        contract.validate_frame(cls)
         qm_table = Table(contract._name)
         return cls(qm_table)
 
@@ -243,6 +244,7 @@ class PatientFrame:
 
     @classmethod
     def from_contract(cls, contract):
+        contract.validate_frame(cls)
         qm_table = Table(contract._name)
         # TODO: revisit this!  As things stand, this will generate SQL with an
         # unnecessary PARTITION OVER, which may carry a performance penalty.

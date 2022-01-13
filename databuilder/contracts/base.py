@@ -84,3 +84,21 @@ class TableContract:
                 ]
             for constraint in constraints:
                 constraint.validate(backend_table, column_name)
+
+    @classmethod
+    def validate_frame(cls, frame_cls):
+        """Validate that a frame is defined with the correct attributes.
+
+        This uses asserts rather than raising other exceptions, since any invalid frames
+        must be identified and fixed by the development team.
+
+        Note that we could use similar logic to generate a frame from a contract.
+        However, doing so would mean that we wouldn't be able to typecheck code
+        written with the DSL.
+        """
+
+        contract_column_names = set(cls.columns)
+        frame_column_names = {k for k in vars(frame_cls) if k[0] != "_"}
+        assert contract_column_names == frame_column_names
+        for col_name, column in cls.columns.items():
+            assert isinstance(getattr(frame_cls, col_name), column.type.dsl_column)
