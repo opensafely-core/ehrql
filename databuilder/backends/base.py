@@ -56,7 +56,7 @@ class BaseBackend:
         for name, table in cls.tables.items():
             contract = table.implements
             if contract:
-                contract.validate_implementation(cls, name, table)
+                contract.validate_implementation(cls, name)
 
     def get_table_expression(self, table_name):
         """

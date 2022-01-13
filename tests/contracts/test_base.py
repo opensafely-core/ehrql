@@ -40,9 +40,7 @@ def test_validate_implementation_success():
             ),
         )
 
-    PatientsContract.validate_implementation(
-        GoodBackend, "patients", GoodBackend.patients
-    )
+    PatientsContract.validate_implementation(GoodBackend, "patients")
 
 
 def test_validate_implementation_failure_misnamed_table():
@@ -62,9 +60,7 @@ def test_validate_implementation_failure_misnamed_table():
     with pytest.raises(
         BackendContractError, match="Attribute should be called 'patients'"
     ):
-        PatientsContract.validate_implementation(
-            BadBackend, "patience", BadBackend.patience
-        )
+        PatientsContract.validate_implementation(BadBackend, "patience")
 
 
 def test_validate_implementation_failure_missing_column():
@@ -82,9 +78,7 @@ def test_validate_implementation_failure_missing_column():
         )
 
     with pytest.raises(BackendContractError, match="Missing columns: sex"):
-        PatientsContract.validate_implementation(
-            BadBackend, "patients", BadBackend.patients
-        )
+        PatientsContract.validate_implementation(BadBackend, "patients")
 
 
 def test_validate_implementation_failure_invalid_type():
@@ -106,9 +100,7 @@ def test_validate_implementation_failure_invalid_type():
         BackendContractError,
         match="Column date_of_birth is defined with an invalid type 'integer'.\n\nAllowed types are: date",
     ):
-        PatientsContract.validate_implementation(
-            BadBackend, "patients", BadBackend.patients
-        )
+        PatientsContract.validate_implementation(BadBackend, "patients")
 
 
 def test_basic_validation_for_patients_contract_column_constraints(engine):

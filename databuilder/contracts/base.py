@@ -28,7 +28,7 @@ class TableContract:
                 cls.columns[key] = value
 
     @classmethod
-    def validate_implementation(cls, backend, table_name, table):
+    def validate_implementation(cls, backend, table_name):
         """
         Validates that a given backend table has the necessary columns to
         implement a specific contract
@@ -44,6 +44,8 @@ class TableContract:
                 f" contract for '{cls.__name__}'\n\n"
             ) + msg
             raise BackendContractError(msg)
+
+        table = getattr(backend, table_name)
 
         if table_name != cls._name:
             _raise_backend_contract_error(f"Attribute should be called '{cls._name}'")
