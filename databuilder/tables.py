@@ -3,23 +3,23 @@ from .dsl import (
     BoolColumn,
     CodeColumn,
     DateColumn,
-    EventFrame,
+    EventTable,
     FloatColumn,
     IdColumn,
     IntColumn,
-    PatientFrame,
+    PatientTable,
     StrColumn,
 )
 
 
-class PatientDemographics(PatientFrame):
+class PatientDemographics(PatientTable):
     patient_id = IdColumn("patient_id")
     date_of_birth = DateColumn("date_of_birth")
     sex = StrColumn("sex")
     date_of_death = DateColumn("date_of_death")
 
 
-patient_demographics = PatientDemographics.from_contract(contracts.PatientDemographics)
+patient_demographics = PatientDemographics(contracts.PatientDemographics)
 
 
 ###
@@ -28,7 +28,7 @@ patient_demographics = PatientDemographics.from_contract(contracts.PatientDemogr
 ###
 
 
-class WIP_ClinicalEvents(EventFrame):
+class WIP_ClinicalEvents(EventTable):
     patient_id = IdColumn("patient_id")
     code = CodeColumn("code")
     system = StrColumn("system")
@@ -36,10 +36,10 @@ class WIP_ClinicalEvents(EventFrame):
     numeric_value = FloatColumn("numeric_value")
 
 
-clinical_events = WIP_ClinicalEvents.from_contract(contracts.WIP_ClinicalEvents)
+clinical_events = WIP_ClinicalEvents(contracts.WIP_ClinicalEvents)
 
 
-class WIP_HospitalAdmissions(EventFrame):
+class WIP_HospitalAdmissions(EventTable):
     patient_id = IdColumn("patient_id")
     admission_date = DateColumn("admission_date")
     primary_diagnosis = CodeColumn("primary_diagnosis")
@@ -48,31 +48,29 @@ class WIP_HospitalAdmissions(EventFrame):
     spell_id = IntColumn("spell_id")
 
 
-hospital_admissions = WIP_HospitalAdmissions.from_contract(
-    contracts.WIP_HospitalAdmissions
-)
+hospital_admissions = WIP_HospitalAdmissions(contracts.WIP_HospitalAdmissions)
 
 
-class WIP_Hospitalizations(EventFrame):
+class WIP_Hospitalizations(EventTable):
     patient_id = IdColumn("patient_id")
     code = CodeColumn("code")
     system = StrColumn("system")
 
 
-hospitalizations = WIP_Hospitalizations.from_contract(contracts.WIP_Hospitalizations)
+hospitalizations = WIP_Hospitalizations(contracts.WIP_Hospitalizations)
 
 
-class WIP_HospitalizationsWithoutSystem(EventFrame):
+class WIP_HospitalizationsWithoutSystem(EventTable):
     patient_id = IdColumn("patient_id")
     code = CodeColumn("code")
 
 
-hospitalizations_ = WIP_HospitalizationsWithoutSystem.from_contract(
+hospitalizations_ = WIP_HospitalizationsWithoutSystem(
     contracts.WIP_HospitalizationsWithoutSystem
 )
 
 
-class WIP_PatientAddress(EventFrame):
+class WIP_PatientAddress(EventTable):
     patient_id = IdColumn("patient_id")
     patientaddress_id = IntColumn("patientaddress_id")
     date_start = DateColumn("date_start")
@@ -83,10 +81,10 @@ class WIP_PatientAddress(EventFrame):
     has_postcode = BoolColumn("has_postcode")
 
 
-patient_addresses = WIP_PatientAddress.from_contract(contracts.WIP_PatientAddress)
+patient_addresses = WIP_PatientAddress(contracts.WIP_PatientAddress)
 
 
-class WIP_PracticeRegistrations(EventFrame):
+class WIP_PracticeRegistrations(EventTable):
     patient_id = IdColumn("patient_id")
     pseudo_id = IntColumn("pseudo_id")
     nuts1_region_name = StrColumn("nuts1_region_name")
@@ -94,34 +92,30 @@ class WIP_PracticeRegistrations(EventFrame):
     date_end = DateColumn("date_end")
 
 
-practice_registrations = WIP_PracticeRegistrations.from_contract(
-    contracts.WIP_PracticeRegistrations
-)
+practice_registrations = WIP_PracticeRegistrations(contracts.WIP_PracticeRegistrations)
 
 
-class WIP_Prescriptions(EventFrame):
+class WIP_Prescriptions(EventTable):
     patient_id = IdColumn("patient_id")
     prescribed_dmd_code = CodeColumn("prescribed_dmd_code")
     processing_date = DateColumn("processing_date")
 
 
-prescriptions = WIP_Prescriptions.from_contract(contracts.WIP_Prescriptions)
+prescriptions = WIP_Prescriptions(contracts.WIP_Prescriptions)
 
 
-class WIP_CovidTestResults(EventFrame):
+class WIP_CovidTestResults(EventTable):
     patient_id = IdColumn("patient_id")
     date = DateColumn("date")
     positive_result = BoolColumn("positive_result")
 
 
-covid_test_results = WIP_CovidTestResults.from_contract(contracts.WIP_CovidTestResults)
+covid_test_results = WIP_CovidTestResults(contracts.WIP_CovidTestResults)
 
 
-class WIP_SimplePatientDemographics(PatientFrame):
+class WIP_SimplePatientDemographics(PatientTable):
     patient_id = IdColumn("patient_id")
     date_of_birth = DateColumn("date_of_birth")
 
 
-patients = WIP_SimplePatientDemographics.from_contract(
-    contracts.WIP_SimplePatientDemographics
-)
+patients = WIP_SimplePatientDemographics(contracts.WIP_SimplePatientDemographics)

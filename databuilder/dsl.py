@@ -128,12 +128,6 @@ class EventFrame:
         """
         self.qm_table = qm_table
 
-    @classmethod
-    def from_contract(cls, contract):
-        contract.validate_frame(cls)
-        qm_table = Table(contract._name)
-        return cls(qm_table)
-
     def filter(self, predicate: Predicate | BoolColumn) -> EventFrame:  # noqa: A003
         """
         Filters the EventFrame with a given filter, and returns a
@@ -191,6 +185,13 @@ class EventFrame:
         return BoolSeries(self.qm_table.exists())
 
 
+class EventTable(EventFrame):
+    def __init__(self, contract):
+        contract.validate_frame(type(self))
+        qm_table = Table(contract._name)
+        return super().__init__(qm_table)
+
+
 class SortedEventFrame:
     """
     An SortedEventFrame is a representation of sorted collection of patient records.
@@ -242,14 +243,6 @@ class PatientFrame:
         """
         self.row = row
 
-    @classmethod
-    def from_contract(cls, contract):
-        contract.validate_frame(cls)
-        qm_table = Table(contract._name)
-        # TODO: revisit this!  As things stand, this will generate SQL with an
-        # unnecessary PARTITION OVER, which may carry a performance penalty.
-        return cls(qm_table.first_by("patient_id"))
-
     def select_column(self, column: Column[S]) -> S:
         """
         Return a PatientSeries containing given column.
@@ -258,6 +251,16 @@ class PatientFrame:
             column: The Column of interest of which you want to retrieve the value.
         """
         return column.series_type(self.row.get(column.name))
+
+
+class PatientTable(PatientFrame):
+    def __init__(self, contract):
+        contract.validate_frame(type(self))
+        qm_table = Table(contract._name)
+        # TODO: revisit this!  As things stand, this will generate SQL with an
+        # unnecessary PARTITION OVER, which may carry a performance penalty.
+        row = qm_table.first_by("patient_id")
+        return super().__init__(row)
 
 
 class PatientSeries:
