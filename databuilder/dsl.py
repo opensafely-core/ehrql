@@ -189,7 +189,7 @@ class EventTable(EventFrame):
     def __init__(self, contract):
         contract.validate_frame(type(self))
         qm_table = Table(contract._name)
-        return super().__init__(qm_table)
+        super().__init__(qm_table)
 
 
 class SortedEventFrame:
@@ -260,7 +260,7 @@ class PatientTable(PatientFrame):
         # TODO: revisit this!  As things stand, this will generate SQL with an
         # unnecessary PARTITION OVER, which may carry a performance penalty.
         row = qm_table.first_by("patient_id")
-        return super().__init__(row)
+        super().__init__(row)
 
 
 class PatientSeries:
@@ -540,12 +540,12 @@ class Column(Generic[S]):
 
 class IdColumn(Column[IdSeries]):
     def __init__(self, name):
-        return super().__init__(name, IdSeries)
+        super().__init__(name, IdSeries)
 
 
 class BoolColumn(Column[BoolSeries]):
     def __init__(self, name):
-        return super().__init__(name, BoolSeries)
+        super().__init__(name, BoolSeries)
 
     def is_true(self) -> Predicate:
         return Predicate(self, "equals", True)
@@ -568,7 +568,7 @@ class BoolColumn(Column[BoolSeries]):
 
 class DateColumn(Column[DateSeries]):
     def __init__(self, name):
-        return super().__init__(name, DateSeries)
+        super().__init__(name, DateSeries)
 
     def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "equals", other)
@@ -591,7 +591,7 @@ class DateColumn(Column[DateSeries]):
 
 class CodeColumn(Column[CodeSeries]):
     def __init__(self, name):
-        return super().__init__(name, CodeSeries)
+        super().__init__(name, CodeSeries)
 
     def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "equals", other)
@@ -605,7 +605,7 @@ class CodeColumn(Column[CodeSeries]):
 
 class IntColumn(Column[IntSeries]):
     def __init__(self, name):
-        return super().__init__(name, IntSeries)
+        super().__init__(name, IntSeries)
 
     def __eq__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         return Predicate(self, "equals", other)
@@ -628,12 +628,12 @@ class IntColumn(Column[IntSeries]):
 
 class FloatColumn(Column[FloatSeries]):
     def __init__(self, name):
-        return super().__init__(name, FloatSeries)
+        super().__init__(name, FloatSeries)
 
 
 class StrColumn(Column[StrSeries]):
     def __init__(self, name):
-        return super().__init__(name, StrSeries)
+        super().__init__(name, StrSeries)
 
 
 def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
