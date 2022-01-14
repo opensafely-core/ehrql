@@ -137,6 +137,12 @@ class WIP_Hospitalizations(TableContract):
         help="",
         constraints=[],
     )
+    date = Column(
+        type=types.Date(),
+        description="",
+        help="",
+        constraints=[],
+    )
     code = Column(
         type=types.Code(),
         description="",

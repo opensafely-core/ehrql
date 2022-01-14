@@ -53,7 +53,7 @@ exclude = '''
 [tool.coverage.run]
 branch = true
 omit = [
-    "tests/acceptance/test_full_long_covid_study_dsl.py",
+    "tests/acceptance/test_long_covid_dsl.py",
 ]
 
 [tool.coverage.report]
@@ -152,5 +152,6 @@ markers = [
     "integration: tests that use a database",
 ]
 filterwarnings = [
-    "ignore::DeprecationWarning:past.builtins.misc:45"
+    "ignore::DeprecationWarning:past.builtins.misc:45",
+    "ignore::DeprecationWarning:pytest_subtests:143",  # https://github.com/pytest-dev/pytest-subtests/issues/38
 ]
