@@ -38,7 +38,7 @@ jobs:
         run: /bin/false
 
       # 'Get Previous tag' should only get version tags, but let's verify that
-      - name: Fail if not a version tag
+      - name: Fail if previous tag is not a version tag (i.e. it does not start with a v)
         if: ${{ ! startsWith(steps.previoustagref.outputs.tag, 'v') }}
         run: /bin/false
 
