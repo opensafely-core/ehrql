@@ -149,7 +149,8 @@ add_ignore = [
 addopts = "--tb=native --strict-markers"
 testpaths = ["tests"]
 markers = [
-    "integration: tests that use a database",
+    "integration: tests that use a container (mostly databases)",
+    "spark: tests that use a Spark database (and therefore tend to be very slow)",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:past.builtins.misc:45",
