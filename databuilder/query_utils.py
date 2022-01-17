@@ -1,5 +1,6 @@
 from .dsl import Cohort as DSLCohort
 from .query_model_convert_to_new import convert as convert_to_new
+from .query_model_convert_to_old import convert as convert_to_old
 from .query_model_old import Value
 
 
@@ -33,11 +34,12 @@ def get_column_definitions(cohort):
         columns[name] = value
     if "population" not in columns:
         raise ValueError("A Cohort definition must define a 'population' variable")
-    converted = convert_to_new(columns)
-    import pprint
-
-    pprint.pprint(converted)
-    return columns
+    # Check that our Query Model conversion functions round-trip successfully. (We can't
+    # use equality because that's overloaded in the old query model so we instead
+    # compare the reprs.)
+    round_tripped = convert_to_old(convert_to_new(columns))
+    assert repr(columns) == repr(round_tripped)
+    return round_tripped
 
 
 def get_measures(cohort_cls):
