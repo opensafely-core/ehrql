@@ -1,4 +1,5 @@
 from .dsl import Cohort as DSLCohort
+from .query_model_convert_to_new import convert as convert_to_new
 from .query_model_old import Value
 
 
@@ -32,6 +33,10 @@ def get_column_definitions(cohort):
         columns[name] = value
     if "population" not in columns:
         raise ValueError("A Cohort definition must define a 'population' variable")
+    converted = convert_to_new(columns)
+    import pprint
+
+    pprint.pprint(converted)
     return columns
 
 
