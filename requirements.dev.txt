@@ -175,6 +175,10 @@ mypy-extensions==0.4.3 \
     # via
     #   black
     #   mypy
+mypy-json-report==0.1.2 \
+    --hash=sha256:934e05d7eff382fbd0b95dfcae107bfd11333989a7ff761ad387cada1a2009b6 \
+    --hash=sha256:9459c175bccf436c4c44478bcb6bfe6c1979cc38394ed184c40b18ee92039d88
+    # via -r requirements.dev.in
 nodeenv==1.6.0 \
     --hash=sha256:3ef13ff90291ba2a4a7a4ff9a979b63ffdd00a464dbe04acf0ea6471517a4c2b \
     --hash=sha256:621e6b7076565ddcacd2db0294c0381e01fd28945ab36bcf00f41c5daf63bef7

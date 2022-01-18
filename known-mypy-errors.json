@@ -1,0 +1,273 @@
+{
+  "databuilder/__init__.py": {
+    "Call to untyped function \"init_logging\" in typed context  [no-untyped-call]": 1
+  },
+  "databuilder/__main__.py": {
+    "Call to untyped function \"build_parser\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"generate_docs\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"generate_measures\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"main\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"run_cohort_action\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"test_connection\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a return type annotation  [no-untyped-def]": 1,
+    "Function is missing a type annotation  [no-untyped-def]": 2
+  },
+  "databuilder/backends/base.py": {
+    "\"SQLTable\" has no attribute \"columns\"  [attr-defined]": 1,
+    "Call to untyped function \"Column\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"_make_column\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_make_columns\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"learn_patient_join\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"register_backend\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a return type annotation  [no-untyped-def]": 3,
+    "Function is missing a type annotation  [no-untyped-def]": 11,
+    "Incompatible types in assignment (expression has type \"Label[Optional[str]]\", variable has type \"Column[Optional[str]]\")  [assignment]": 1,
+    "Missing type parameters for generic type \"dict\"  [type-arg]": 1,
+    "Unexpected keyword argument \"schema\" for \"TableClause\"  [call-arg]": 1
+  },
+  "databuilder/backends/databricks.py": {
+    "Call to untyped function \"Column\" in typed context  [no-untyped-call]": 9,
+    "Call to untyped function \"MappedTable\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"QueryTable\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"__init_subclass__\" in typed context  [no-untyped-call]": 1
+  },
+  "databuilder/backends/graphnet.py": {
+    "Call to untyped function \"Column\" in typed context  [no-untyped-call]": 21,
+    "Call to untyped function \"MappedTable\" in typed context  [no-untyped-call]": 6,
+    "Call to untyped function \"__init_subclass__\" in typed context  [no-untyped-call]": 1
+  },
+  "databuilder/backends/tpp.py": {
+    "Call to untyped function \"Column\" in typed context  [no-untyped-call]": 23,
+    "Call to untyped function \"MappedTable\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"QueryTable\" in typed context  [no-untyped-call]": 6,
+    "Call to untyped function \"__init_subclass__\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"rtrim\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"string_split\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a type annotation  [no-untyped-def]": 2
+  },
+  "databuilder/codelistlib.py": {
+    "Function is missing a type annotation  [no-untyped-def]": 3,
+    "Incompatible types in assignment (expression has type \"Codelist\", variable has type \"List[str]\")  [assignment]": 1
+  },
+  "databuilder/contracts/base.py": {
+    "\"Type[TableContract]\" has no attribute \"_name\"  [attr-defined]": 2,
+    "Call to untyped function \"ChoiceConstraint\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_raise_backend_contract_error\" in typed context  [no-untyped-call]": 3,
+    "Function is missing a type annotation  [no-untyped-def]": 5,
+    "Need type annotation for \"columns\" (hint: \"columns: Dict[<type>, <type>] = ...\")  [var-annotated]": 1
+  },
+  "databuilder/contracts/constraints.py": {
+    "Function is missing a type annotation  [no-untyped-def]": 6
+  },
+  "databuilder/contracts/contracts.py": {
+    "Call to untyped function \"Choice\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"__init_subclass__\" in typed context  [no-untyped-call]": 10
+  },
+  "databuilder/contracts/types.py": {
+    "Function is missing a type annotation  [no-untyped-def]": 1
+  },
+  "databuilder/date_utils.py": {
+    "Call to untyped function \"_increment_date\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_parse_date\" in typed context  [no-untyped-call]": 2,
+    "Function is missing a type annotation  [no-untyped-def]": 3
+  },
+  "databuilder/definition/base.py": {
+    "Call to untyped function \"CohortRegistry\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a return type annotation  [no-untyped-def]": 2,
+    "Function is missing a type annotation  [no-untyped-def]": 1
+  },
+  "databuilder/definition/definition.py": {
+    "Call to untyped function \"add\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a type annotation  [no-untyped-def]": 1
+  },
+  "databuilder/docs.py": {
+    "Call to untyped function \"_build_backends\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_build_contracts\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_reformat_docstring\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a return type annotation  [no-untyped-def]": 3,
+    "Function is missing a type annotation  [no-untyped-def]": 1
+  },
+  "databuilder/dsl.py": {
+    "Call to untyped function \"DateAddition\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"DateDeltaAddition\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"DateDeltaSubtraction\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"DateDifference\" in typed context  [no-untyped-call]": 3,
+    "Call to untyped function \"DateSubtraction\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"RoundToFirstOfMonth\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"RoundToFirstOfYear\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_convert\" in typed context  [no-untyped-call]": 4,
+    "Call to untyped function \"_delta_in_days\" of \"DateDeltaSeries\" in typed context  [no-untyped-call]": 3,
+    "Call to untyped function \"_get_other_date_value\" of \"DateSeries\" in typed context  [no-untyped-call]": 7,
+    "Call to untyped function \"_get_other_datedelta_value\" of \"DateSeries\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"_sort_column_names\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"_validate_datestring\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"convert_to_days\" in typed context  [no-untyped-call]": 3,
+    "Call to untyped function \"count\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"exists\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"first_by\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"get\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"last_by\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"raise_category_errors\" in typed context  [no-untyped-call]": 2,
+    "Function is missing a return type annotation  [no-untyped-def]": 6,
+    "Function is missing a type annotation  [no-untyped-def]": 16
+  },
+  "databuilder/functools_utils.py": {
+    "Function is missing a type annotation  [no-untyped-def]": 1,
+    "Missing type parameters for generic type \"singledispatchmethod\"  [type-arg]": 1
+  },
+  "databuilder/log_utils.py": {
+    "Function is missing a return type annotation  [no-untyped-def]": 1
+  },
+  "databuilder/main.py": {
+    "Argument 1 to \"Select\" has incompatible type \"int\"; expected \"Optional[Iterable[Union[ColumnElement[Any], FromClause, int]]]\"  [arg-type]": 1,
+    "Call to untyped function \"_replace_filepath_pattern\" in typed context  [no-untyped-call]": 4,
+    "Call to untyped function \"calculate_measures\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"calculate_measures_results\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"combine_csv_files_with_dates\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"get_column_definitions\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"get_measures\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"load_cohort_classes\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"load_cohort_functions\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"load_cohort_generator\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"load_module\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"validate\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"validate_dummy_data\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"write_output\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"write_validation_output\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a type annotation  [no-untyped-def]": 15,
+    "Statement is unreachable  [unreachable]": 1
+  },
+  "databuilder/measure.py": {
+    "Call to untyped function \"_calculate_results\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_drop_duplicates\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_get_csv_headers_for_first_file\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_get_date_from_filename\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_group_rows\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_load_patient_dataframe\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_select_columns\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_suppress_column\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"_suppress_small_numbers\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a return type annotation  [no-untyped-def]": 2,
+    "Function is missing a type annotation  [no-untyped-def]": 12,
+    "Incompatible types in assignment (expression has type \"DataFrame\", variable has type \"None\")  [assignment]": 1,
+    "Incompatible types in assignment (expression has type \"Union[List[Any], Tuple[Any, ...]]\", variable has type \"List[Any]\")  [assignment]": 1,
+    "Missing type parameters for generic type \"list\"  [type-arg]": 1,
+    "No overload variant of \"read_csv\" matches argument types \"Path\", \"Dict[Any, str]\", \"List[Any]\", \"bool\"  [call-overload]": 1,
+    "Statement is unreachable  [unreachable]": 1
+  },
+  "databuilder/query_engines/base.py": {
+    "Function is missing a return type annotation  [no-untyped-def]": 1,
+    "Function is missing a type annotation  [no-untyped-def]": 1
+  },
+  "databuilder/query_engines/mssql.py": {
+    "\"Select\" has no attribute \"selected_columns\"  [attr-defined]": 1,
+    "Call to untyped function \"_get_number_of_days_for_query\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"write_query_to_table\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a return type annotation  [no-untyped-def]": 1,
+    "Function is missing a type annotation  [no-untyped-def]": 7
+  },
+  "databuilder/query_engines/mssql_dialect.py": {
+    "\"_MSSQLDateTimeBase\" has no attribute \"date_type\"; maybe \"text_type\"?  [attr-defined]": 3,
+    "\"_MSSQLDateTimeBase\" has no attribute \"format_str\"  [attr-defined]": 1,
+    "Call to untyped function \"process_bind_param\" in typed context  [no-untyped-call]": 1,
+    "Class cannot subclass \"MSDialect_pymssql\" (has type \"Any\")  [misc]": 1,
+    "Function is missing a type annotation  [no-untyped-def]": 3,
+    "Missing type parameters for generic type \"TypeDecorator\"  [type-arg]": 2
+  },
+  "databuilder/query_engines/mssql_lib.py": {
+    "Argument 1 to \"Select\" has incompatible type \"ColumnClause[TypeEngine[Any]]\"; expected \"Optional[Iterable[Union[ColumnElement[Any], FromClause, int]]]\"  [arg-type]": 1,
+    "Argument 1 to \"Select\" has incompatible type \"int\"; expected \"Optional[Iterable[Union[ColumnElement[Any], FromClause, int]]]\"  [arg-type]": 1,
+    "Argument 1 to \"Select\" has incompatible type \"str\"; expected \"Optional[Iterable[Union[ColumnElement[Any], FromClause, int]]]\"  [arg-type]": 1,
+    "Call to untyped function \"ReconnectableConnection\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"assert_temporary_tables_writable\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"create_index_for_table\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"fetch_table_in_batches\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"get_query_hash\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"get_query_hash_components\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"make_table_with_key\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"table_exists\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"write_query_to_table\" in typed context  [no-untyped-call]": 2,
+    "Function is missing a return type annotation  [no-untyped-def]": 3,
+    "Function is missing a type annotation  [no-untyped-def]": 15,
+    "Need type annotation for \"into_table\"  [var-annotated]": 1,
+    "Statement is unreachable  [unreachable]": 2,
+    "Unexpected keyword argument \"if_exists\" for \"DropTable\"  [call-arg]": 1
+  },
+  "databuilder/query_engines/spark.py": {
+    "Call to untyped function \"CreateViewAs\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"__init__\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_get_number_of_days_for_query\" in typed context  [no-untyped-call]": 2,
+    "Function is missing a return type annotation  [no-untyped-def]": 2,
+    "Function is missing a type annotation  [no-untyped-def]": 11
+  },
+  "databuilder/query_engines/spark_dialect.py": {
+    "Call to untyped function \"ConnectionWrapper\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_get_table_columns\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"warn\" in typed context  [no-untyped-call]": 1,
+    "Class cannot subclass \"HiveHTTPDialect\" (has type \"Any\")  [misc]": 1,
+    "Class cannot subclass \"HiveTypeCompiler\" (has type \"Any\")  [misc]": 1,
+    "Function is missing a type annotation  [no-untyped-def]": 11,
+    "Item \"None\" of \"Optional[Match[Any]]\" has no attribute \"group\"  [union-attr]": 1,
+    "Missing type parameters for generic type \"TypeDecorator\"  [type-arg]": 2,
+    "Module has no attribute \"NullType\"  [attr-defined]": 1,
+    "Module has no attribute \"str_to_date\"  [attr-defined]": 1
+  },
+  "databuilder/query_model.py": {
+    "Call to untyped function \"DateDifference\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"__init__\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"_combine\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"_compare\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"_get_comparator\" in typed context  [no-untyped-call]": 6,
+    "Call to untyped function \"_other_as_comparator\" of \"Value\" in typed context  [no-untyped-call]": 3,
+    "Call to untyped function \"_raise_comparison_error\" of \"Comparator\" in typed context  [no-untyped-call]": 4,
+    "Call to untyped function \"aggregate\" in typed context  [no-untyped-call]": 3,
+    "Call to untyped function \"boolean_comparator\" in typed context  [no-untyped-call]": 5,
+    "Call to untyped function \"date_in_range\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"first_by\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"last_by\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a return type annotation  [no-untyped-def]": 15,
+    "Function is missing a type annotation  [no-untyped-def]": 41,
+    "Incompatible types in assignment (expression has type \"Tuple[Any, QueryNode]\", variable has type \"Tuple[Any]\")  [assignment]": 1,
+    "Incompatible types in assignment (expression has type \"Tuple[QueryNode]\", variable has type \"Tuple[]\")  [assignment]": 3,
+    "Missing type parameters for generic type \"dict\"  [type-arg]": 1,
+    "Missing type parameters for generic type \"tuple\"  [type-arg]": 1
+  },
+  "databuilder/query_utils.py": {
+    "Call to untyped function \"get_class_vars\" in typed context  [no-untyped-call]": 2,
+    "Call to untyped function \"get_cohort_variables\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a return type annotation  [no-untyped-def]": 1,
+    "Function is missing a type annotation  [no-untyped-def]": 3
+  },
+  "databuilder/sqlalchemy_types.py": {
+    "Missing type parameters for generic type \"TypeDecorator\"  [type-arg]": 2
+  },
+  "databuilder/tables.py": {
+    "Call to untyped function \"BoolColumn\" in typed context  [no-untyped-call]": 3,
+    "Call to untyped function \"CodeColumn\" in typed context  [no-untyped-call]": 5,
+    "Call to untyped function \"DateColumn\" in typed context  [no-untyped-call]": 12,
+    "Call to untyped function \"FloatColumn\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"IdColumn\" in typed context  [no-untyped-call]": 10,
+    "Call to untyped function \"IntColumn\" in typed context  [no-untyped-call]": 5,
+    "Call to untyped function \"PatientDemographics\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"StrColumn\" in typed context  [no-untyped-call]": 4,
+    "Call to untyped function \"WIP_ClinicalEvents\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"WIP_CovidTestResults\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"WIP_HospitalAdmissions\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"WIP_Hospitalizations\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"WIP_HospitalizationsWithoutSystem\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"WIP_PatientAddress\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"WIP_PracticeRegistrations\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"WIP_Prescriptions\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"WIP_SimplePatientDemographics\" in typed context  [no-untyped-call]": 1
+  },
+  "databuilder/validate_dummy_data.py": {
+    "Call to untyped function \"category_validator\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"get_column_definitions\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"get_csv_validator\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"read_into_dataframe\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"validate_column_values\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"validate_expected_columns\" in typed context  [no-untyped-call]": 1,
+    "Call to untyped function \"validate_file_extension\" in typed context  [no-untyped-call]": 1,
+    "Function is missing a type annotation  [no-untyped-def]": 9
+  }
+}

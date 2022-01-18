@@ -99,6 +99,10 @@ check: devenv
     just docstrings
     $BIN/mypy
 
+# run mypy in strict mode and save failures
+check-strict-typing: devenv
+    $BIN/mypy --strict | $BIN/mypy-json-report > known-mypy-errors.json
+
 # ensure our public facing docstrings exist so we can build docs from them
 docstrings: devenv
     $BIN/pydocstyle databuilder/backends/databricks.py

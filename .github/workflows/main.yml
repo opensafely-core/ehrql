@@ -20,6 +20,22 @@ jobs:
       - name: Check formatting, linting and import sorting
         run: ./scripts/do check
 
+  check-strict-typing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+      - uses: extractions/setup-just@v1
+      - name: Run mypy --strict
+        run: |
+          just check-strict-typing
+
+          # fail the step if known-mypy-errors.json has changed
+          git diff --exit-code known-mypy-errors.json
+
   test:
     needs: [check]
     runs-on: ubuntu-latest
