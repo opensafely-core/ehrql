@@ -287,7 +287,8 @@ class PatientSeries:
         return BoolSeries(value=self.value == other_value)
 
     def __ne__(self, other: PatientSeries | Comparator | str | int) -> BoolSeries:  # type: ignore[override]
-        return BoolSeries(value=self.value != other)
+        other_value = other.value if isinstance(other, PatientSeries) else other
+        return BoolSeries(value=self.value != other_value)
 
     def __hash__(self) -> int:
         return hash(repr(self.value))
@@ -371,7 +372,7 @@ class DateSeries(PatientSeries):
         if isinstance(delta_value, DateDeltaSeries) and isinstance(
             delta_value.value, DateDifference
         ):
-            return delta_value.convert_to_days()
+            return delta_value.convert_to_days().value
         elif isinstance(delta_value, int):
             return delta_value
         else:
@@ -437,10 +438,11 @@ class DateDeltaSeries(PatientSeries):
         Convert a DateSeltaSeries representing the difference between two dates to an
         IntSeries representing days.
         """
-        if isinstance(datedelta, DateDeltaSeries) and isinstance(
-            datedelta.value, DateDifference
-        ):
-            return datedelta.convert_to_days()
+        if isinstance(datedelta, DateDeltaSeries):
+            if isinstance(datedelta.value, DateDifference):
+                return datedelta.convert_to_days().value
+            else:
+                return datedelta.value
         return datedelta
 
     def __add__(
@@ -471,7 +473,7 @@ class DateDeltaSeries(PatientSeries):
             datestring = _validate_datestring(other)
             # This allows subtraction of a DateDeltaSeries from a date string
             # e.g. 2020-10-01
-            return DateSeries(DateSubtraction(datestring, self.convert_to_days()))
+            return DateSeries(DateSubtraction(datestring, self.convert_to_days().value))
         return DateDeltaSeries(
             DateDeltaSubtraction(self._delta_in_days(other), self._delta_in_days(self))
         )

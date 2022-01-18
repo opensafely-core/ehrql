@@ -537,35 +537,22 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         return sqlalchemy.func.floor(self._convert_date_diff_to_days(start, end) / 7)
 
-    def _get_number_of_days_for_query(self, number_of_days):
-        if not isinstance(number_of_days, int):
-            number_of_days = self.get_element_from_value_from_function(
-                number_of_days.value
-            )
-        return number_of_days
-
     def date_add(self, start_date, number_of_days):
         """
         Add a number of days to a date.
-        number_of_days: an IntSeries with a DateDifference value in days or an integer representing a numer of days
         """
         raise NotImplementedError()
 
     def date_subtract(self, start_date, number_of_days):
         """
         Add a number of days to a date.
-        number_of_days: an IntSeries with a DateDifference value in days or an integer representing a numer of days
         """
         raise NotImplementedError()
 
     def date_delta_add(self, delta1, delta2):
-        delta1 = self._get_number_of_days_for_query(delta1)
-        delta2 = self._get_number_of_days_for_query(delta2)
         return type_coerce((delta1 + delta2), sqlalchemy_types.Integer())
 
     def date_delta_subtract(self, delta1, delta2):
-        delta1 = self._get_number_of_days_for_query(delta1)
-        delta2 = self._get_number_of_days_for_query(delta2)
         return type_coerce((delta1 - delta2), sqlalchemy_types.Integer())
 
     def round_to_first_of_month(self, date):
