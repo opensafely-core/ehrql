@@ -68,11 +68,9 @@ class DbDetails:
         return engine
 
     def _url(self, host, port, include_driver=False):
-        # only used in databricks connections
-        if self.username or self.password:  # pragma: no cover
-            auth = f"{self.username}:{self.password}@"
-        else:
-            auth = ""
+        assert self.username and self.password
+        auth = f"{self.username}:{self.password}@"
+
         if include_driver:
             protocol = f"{self.protocol}+{self.driver}"
         else:
