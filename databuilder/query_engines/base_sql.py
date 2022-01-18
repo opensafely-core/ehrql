@@ -116,7 +116,7 @@ class ReifiedQuery(QueryNode):
     columns: tuple[str]
 
     def _get_referenced_nodes(self):
-        return (self.source,)
+        return (self.source,)  # pragma: no cover
 
 
 class MissingString(str):
