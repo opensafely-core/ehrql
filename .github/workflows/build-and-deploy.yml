@@ -45,7 +45,7 @@ jobs:
       # This relies on the tag having a version of the form vX.Y.Z
       - name: Build image
         run: |
-          PATCH="${GITHUB_REF#refs/*/}"
+          PATCH="${{ steps.previoustagref.outputs.tag }}"
           MAJOR="${PATCH%%.*}"
           MINOR="${PATCH%.*}"
 
