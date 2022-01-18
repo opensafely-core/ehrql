@@ -53,6 +53,7 @@ hospital_admissions = WIP_HospitalAdmissions(contracts.WIP_HospitalAdmissions)
 
 class WIP_Hospitalizations(EventTable):
     patient_id = IdColumn("patient_id")
+    date = DateColumn("date")
     code = CodeColumn("code")
     system = StrColumn("system")
 
