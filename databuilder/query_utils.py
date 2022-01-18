@@ -1,7 +1,6 @@
 from .dsl import Cohort as DSLCohort
 from .query_model_convert_to_new import convert as convert_to_new
-from .query_model_convert_to_old import convert as convert_to_old
-from .query_model_old import Value
+from .query_model_old import QueryNode as OldQueryNode
 
 
 def get_class_vars(cls):
@@ -27,19 +26,15 @@ def get_column_definitions(cohort):
     for name, value in variables:
         if name.startswith("_") or name in ignored_names:
             continue
-        if not isinstance(value, Value):
-            raise TypeError(
-                f"Cohort variable '{name}' is not a Value (type='{type(value).__name__}')"
-            )
         columns[name] = value
     if "population" not in columns:
         raise ValueError("A Cohort definition must define a 'population' variable")
-    # Check that our Query Model conversion functions round-trip successfully. (We can't
-    # use equality because that's overloaded in the old query model so we instead
-    # compare the reprs.)
-    round_tripped = convert_to_old(convert_to_new(columns))
-    assert repr(columns) == repr(round_tripped)
-    return round_tripped
+    # Temporary migration code: if we've been given an instance of the old Query Model
+    # then convert it to the new one
+    first_definition = list(columns.values())[0]
+    if isinstance(first_definition, OldQueryNode):
+        columns = convert_to_new(columns)
+    return columns
 
 
 def get_measures(cohort_cls):

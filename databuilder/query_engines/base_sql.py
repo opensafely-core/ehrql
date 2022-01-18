@@ -42,7 +42,6 @@ order.
 import contextlib
 import copy
 import dataclasses
-import datetime
 import typing
 from collections import defaultdict
 from functools import cached_property
@@ -64,6 +63,8 @@ from sqlalchemy.sql.selectable import Select
 
 from .. import sqlalchemy_types
 from ..functools_utils import singledispatchmethod_with_unions
+from ..query_model import Scalar, StaticValue
+from ..query_model_convert_to_old import convert as convert_to_old
 from ..query_model_old import (
     Codelist,
     Column,
@@ -100,10 +101,6 @@ from .base import BaseQueryEngine
 # These are nodes which select a single column from a query (regardless of whether that
 # results in a single value per patient or in multiple values per patient)
 ColumnSelectorNode = Union[ValueFromRow, ValueFromAggregate, Column]
-
-# These are the basic types we accept as arguments in the Query Model
-Scalar = Union[None, bool, int, float, str, datetime.datetime, datetime.date]
-StaticValue = Union[Scalar, tuple[Scalar], list[Scalar]]
 
 SCALAR_TYPES = typing.get_args(Scalar)
 
@@ -156,9 +153,18 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
             list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
         """
+        # Convert the supplied column definitions into the old Query Model classes. This
+        # is a temporary (hopefully _very_ temporary) state of affairs which allows to
+        # fix the new Query Model without having to first rewrite the Query Engine.
+        column_definitions = convert_to_old(self.column_definitions)
+        for column, definition in column_definitions.items():
+            assert isinstance(
+                definition, Value
+            ), f"'{column}' is not a value ({type(definition)})"
+
         # Modify the Query Model graph to make it easier to work with, or to generate
         # more efficient SQL
-        column_definitions = apply_optimisations(self.column_definitions)
+        column_definitions = apply_optimisations(column_definitions)
 
         # Convert each column definition to SQL
         column_queries = {
