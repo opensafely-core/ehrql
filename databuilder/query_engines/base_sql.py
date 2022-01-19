@@ -42,6 +42,7 @@ order.
 import contextlib
 import copy
 import dataclasses
+import datetime
 import typing
 from collections import defaultdict
 from functools import cached_property
@@ -99,6 +100,12 @@ from .base import BaseQueryEngine
 # These are nodes which select a single column from a query (regardless of whether that
 # results in a single value per patient or in multiple values per patient)
 ColumnSelectorNode = Union[ValueFromRow, ValueFromAggregate, Column]
+
+# These are the basic types we accept as arguments in the Query Model
+Scalar = Union[None, bool, int, float, str, datetime.datetime, datetime.date]
+StaticValue = Union[Scalar, tuple[Scalar], list[Scalar]]
+
+SCALAR_TYPES = typing.get_args(Scalar)
 
 
 # This is an internal class that is injected into the DAG by the QueryEngine, but that
@@ -208,6 +215,34 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             for query in cleanup_queries:
                 cursor.execute(query)
 
+    @singledispatchmethod_with_unions
+    def get_sql_element_or_value(self, value: Any) -> Any:
+        """
+        Certain places in our Query Model support values which can either be QueryNodes
+        themselves or plain static values (booleans, integers, dates, list of dates
+        etc). Note that the type signature really ought to be:
+
+            Union[QueryNode, StaticValue] -> Union[ClauseElement, StaticValue]
+
+        But the singledispatch decorator can't handle the StaticValue type properly (see
+        `get_static_value` below).
+        """
+        # Fallback for unhandled types
+        assert False, f"Unhandled type {value!r}"
+
+    @get_sql_element_or_value.register
+    def get_static_value(self, value: Union[Scalar, tuple, list]) -> StaticValue:
+        # This is a fudge: the type of `value` above really ought to be StaticValue but
+        # the singledispatch decorator can't handle the parameterized tuple and list
+        # types. So instead we accept all tuples and lists and enforce the types of
+        # their elements at runtime. See: https://bugs.python.org/issue46191
+        if isinstance(value, (tuple, list)) and any(
+            not isinstance(v, SCALAR_TYPES) for v in value
+        ):
+            assert False, f"Unhandled type {value!r}"
+        return value
+
+    @get_sql_element_or_value.register
     def get_sql_element(self, node: QueryNode) -> ClauseElement:
         """
         Caching wrapper around `get_sql_element_no_cache()` below, which is the
@@ -236,18 +271,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         method below.
         """
         # Fallback for unhandled types
-        raise TypeError(f"Unhandled query node type: {node!r}")
-
-    def get_sql_element_or_value(self, value: Any) -> Any:
-        """
-        Certain places in our Query Model support values which can either be QueryNodes
-        themselves (which require resolving to SQL) or plain static values (booleans,
-        integers, dates, list of dates etc) which we can return unchanged to SQLAlchemy.
-        """
-        if isinstance(value, QueryNode):
-            return self.get_sql_element(value)
-        else:
-            return value
+        assert False, f"Unhandled query node type: {node!r}"
 
     @get_sql_element_no_cache.register
     def get_element_from_table(self, node: Table) -> Select:
@@ -513,35 +537,22 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         return sqlalchemy.func.floor(self._convert_date_diff_to_days(start, end) / 7)
 
-    def _get_number_of_days_for_query(self, number_of_days):
-        if not isinstance(number_of_days, int):
-            number_of_days = self.get_element_from_value_from_function(
-                number_of_days.value
-            )
-        return number_of_days
-
     def date_add(self, start_date, number_of_days):
         """
         Add a number of days to a date.
-        number_of_days: an IntSeries with a DateDifference value in days or an integer representing a numer of days
         """
         raise NotImplementedError()
 
     def date_subtract(self, start_date, number_of_days):
         """
         Add a number of days to a date.
-        number_of_days: an IntSeries with a DateDifference value in days or an integer representing a numer of days
         """
         raise NotImplementedError()
 
     def date_delta_add(self, delta1, delta2):
-        delta1 = self._get_number_of_days_for_query(delta1)
-        delta2 = self._get_number_of_days_for_query(delta2)
         return type_coerce((delta1 + delta2), sqlalchemy_types.Integer())
 
     def date_delta_subtract(self, delta1, delta2):
-        delta1 = self._get_number_of_days_for_query(delta1)
-        delta2 = self._get_number_of_days_for_query(delta2)
         return type_coerce((delta1 - delta2), sqlalchemy_types.Integer())
 
     def round_to_first_of_month(self, date):

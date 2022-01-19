@@ -696,11 +696,10 @@ def test_dateseries_add_datedelta():
     series_arg, delta_arg = output.value.arguments
 
     # first arg in the addition is the date column
-    # second arg is the DateDeltaSeries converted to an IntSeries in days
+    # second arg is the DateDeltaSeries converted to an DateDifference in days
     assert series_arg.column == series.value.column
-    assert isinstance(delta_arg, IntSeries)
-    assert isinstance(delta_arg.value, DateDifference)
-    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert isinstance(delta_arg, DateDifference)
+    assert delta_arg.arguments == ("2021-10-01", "2021-11-01", "days")
 
 
 def test_dateseries_add_integer():
@@ -727,11 +726,10 @@ def test_datedelta_add_dateseries():
     series_arg, delta_arg = output.value.arguments
 
     # first arg in the addition is the date column
-    # second arg is the DateDeltaSeries converted to an IntSeries in days
+    # second arg is the DateDeltaSeries converted to an DateDifference in days
     assert series_arg.column == series.value.column
-    assert isinstance(delta_arg, IntSeries)
-    assert isinstance(delta_arg.value, DateDifference)
-    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert isinstance(delta_arg, DateDifference)
+    assert delta_arg.arguments == ("2021-10-01", "2021-11-01", "days")
 
 
 def test_dateseries_radd_integer():
@@ -802,11 +800,10 @@ def test_dateseries_sub_datedelta():
     series_arg, delta_arg = output.value.arguments
 
     # first arg in the addition is the date column
-    # second arg is the DateDeltaSeries converted to an IntSeries in days
+    # second arg is the DateDeltaSeries converted to a DateDifference in days
     assert series_arg.column == series.value.column
-    assert isinstance(delta_arg, IntSeries)
-    assert isinstance(delta_arg.value, DateDifference)
-    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert isinstance(delta_arg, DateDifference)
+    assert delta_arg.arguments == ("2021-10-01", "2021-11-01", "days")
 
 
 def test_dateseries_sub_integer():
@@ -832,9 +829,8 @@ def test_datedeltaseries_rsub_datestring():
     series_arg, delta_arg = output.value.arguments
 
     assert series_arg == "2021-12-10"
-    assert isinstance(delta_arg, IntSeries)
-    assert isinstance(delta_arg.value, DateDifference)
-    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert isinstance(delta_arg, DateDifference)
+    assert delta_arg.arguments == ("2021-10-01", "2021-11-01", "days")
 
 
 def test_add_datedeltaseries_together():
@@ -847,10 +843,10 @@ def test_add_datedeltaseries_together():
     assert isinstance(output.value, DateDeltaAddition)
     delta1_arg, delta2_arg = output.value.arguments
 
-    assert isinstance(delta1_arg, IntSeries)
-    assert isinstance(delta2_arg, IntSeries)
-    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
-    assert delta2_arg.value.arguments == ("2021-01-01", "2021-02-01", "days")
+    assert isinstance(delta1_arg, DateDifference)
+    assert isinstance(delta2_arg, DateDifference)
+    assert delta1_arg.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg.arguments == ("2021-01-01", "2021-02-01", "days")
 
 
 def test_add_datedeltaseries_and_integer():
@@ -862,8 +858,8 @@ def test_add_datedeltaseries_and_integer():
     assert isinstance(output.value, DateDeltaAddition)
     delta1_arg, delta2_arg = output.value.arguments
 
-    assert isinstance(delta1_arg, IntSeries)
-    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert isinstance(delta1_arg, DateDifference)
+    assert delta1_arg.arguments == ("2021-10-01", "2021-11-01", "days")
     assert delta2_arg == 20
 
 
@@ -878,9 +874,8 @@ def test_add_datedeltaseries_and_dateseries():
     series_arg, delta_arg = output.value.arguments
 
     assert series_arg.column == series.value.column
-    assert isinstance(delta_arg, IntSeries)
-    assert isinstance(delta_arg.value, DateDifference)
-    assert delta_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert isinstance(delta_arg, DateDifference)
+    assert delta_arg.arguments == ("2021-10-01", "2021-11-01", "days")
 
 
 def test_radd_datedeltaseries_and_integer():
@@ -892,8 +887,8 @@ def test_radd_datedeltaseries_and_integer():
     assert isinstance(output.value, DateDeltaAddition)
     delta1_arg, delta2_arg = output.value.arguments
 
-    assert isinstance(delta1_arg, IntSeries)
-    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert isinstance(delta1_arg, DateDifference)
+    assert delta1_arg.arguments == ("2021-10-01", "2021-11-01", "days")
     assert delta2_arg == 20
 
 
@@ -907,10 +902,10 @@ def test_datedeltaseries_sub():
     assert isinstance(output.value, DateDeltaSubtraction)
     delta1_arg, delta2_arg = output.value.arguments
 
-    assert isinstance(delta1_arg, IntSeries)
-    assert isinstance(delta2_arg, IntSeries)
-    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
-    assert delta2_arg.value.arguments == ("2021-01-01", "2021-02-01", "days")
+    assert isinstance(delta1_arg, DateDifference)
+    assert isinstance(delta2_arg, DateDifference)
+    assert delta1_arg.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg.arguments == ("2021-01-01", "2021-02-01", "days")
 
 
 def test_datedeltaseries_sub_integer():
@@ -922,8 +917,8 @@ def test_datedeltaseries_sub_integer():
     assert isinstance(output.value, DateDeltaSubtraction)
     delta1_arg, delta2_arg = output.value.arguments
 
-    assert isinstance(delta1_arg, IntSeries)
-    assert delta1_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert isinstance(delta1_arg, DateDifference)
+    assert delta1_arg.arguments == ("2021-10-01", "2021-11-01", "days")
     assert delta2_arg == 10
 
 
@@ -936,6 +931,6 @@ def test_datedeltaseries_rsub():
     assert isinstance(output.value, DateDeltaSubtraction)
     delta1_arg, delta2_arg = output.value.arguments
 
-    assert isinstance(delta2_arg, IntSeries)
+    assert isinstance(delta2_arg, DateDifference)
     assert delta1_arg == 10
-    assert delta2_arg.value.arguments == ("2021-10-01", "2021-11-01", "days")
+    assert delta2_arg.arguments == ("2021-10-01", "2021-11-01", "days")
