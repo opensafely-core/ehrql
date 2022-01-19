@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pandas as pd
 
+from .query_model_convert_to_old import convert as convert_to_old
 from .query_model_old import ValueFromCategory, ValueFromRow
 from .query_utils import get_column_definitions
 
@@ -23,6 +24,9 @@ def validate_dummy_data(cohort_class, dummy_data_file, output_file):
     df = read_into_dataframe(dummy_data_file)
 
     column_definitions = get_column_definitions(cohort_class)
+    # Temporary code to postpone rewritting the validation module: we convert to the old
+    # Query Model which the code was written against
+    column_definitions = convert_to_old(column_definitions)
 
     # Ignore the population definition, since it is not used as a column in the output
     column_definitions.pop("population", None)
