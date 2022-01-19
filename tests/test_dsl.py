@@ -31,6 +31,8 @@ from databuilder.query_utils import get_column_definitions
 from .lib.tables import events, positive_tests, registrations
 from .lib.util import OldCohortWithPopulation, make_codelist
 
+pytestmark = pytest.mark.xfail()
+
 
 def test_minimal_cohort_definition(cohort_with_population):
     # Nothing in the registry yet
