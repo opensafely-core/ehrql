@@ -245,6 +245,6 @@ class ConnectionWrapper:
         self.connection = connection
 
     def execute(self, arg, **kwargs):
-        if isinstance(arg, str):
+        if isinstance(arg, str):  # pragma: no cover
             arg = sqlalchemy.text(arg)
         return self.connection.execute(arg, **kwargs)
