@@ -18,7 +18,7 @@ jobs:
           python-version: "3.9"
       - uses: extractions/setup-just@v1
       - name: Check formatting, linting and import sorting
-        run: ./scripts/do check
+        run: just check
 
   test:
     needs: [check]
@@ -33,7 +33,7 @@ jobs:
       - name: Run tests
         env:
           CI: 1
-        run: ./scripts/do test
+        run: just test
 
   lint-dockerfile:
     runs-on: ubuntu-latest
