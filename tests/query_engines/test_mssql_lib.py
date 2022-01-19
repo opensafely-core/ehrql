@@ -222,3 +222,9 @@ def test_reconnectableconnection_exit_with_no_connection():
     conn = ReconnectableConnection(None)
     conn._conn = None
     assert conn.__exit__() is None
+
+
+def test_reconnectableconnection_reconnect_with_no_connection():
+    with ReconnectableConnection(None) as conn:
+        conn.reconnect()
+        conn.reconnect()
