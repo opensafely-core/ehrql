@@ -216,3 +216,9 @@ class TempTables:
             for table in tables:
                 conn.execute(sqlalchemy.text(f"DROP TABLE {self.database}..{table}"))
             conn.commit()
+
+
+def test_reconnectableconnection_exit_with_no_connection():
+    conn = ReconnectableConnection(None)
+    conn._conn = None
+    assert conn.__exit__() is None
