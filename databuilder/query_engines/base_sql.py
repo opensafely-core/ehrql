@@ -116,7 +116,7 @@ class ReifiedQuery(QueryNode):
     columns: tuple[str]
 
     def _get_referenced_nodes(self):
-        return (self.source,)
+        return (self.source,)  # pragma: no cover
 
 
 class MissingString(str):
@@ -238,7 +238,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # their elements at runtime. See: https://bugs.python.org/issue46191
         if isinstance(value, (tuple, list)) and any(
             not isinstance(v, SCALAR_TYPES) for v in value
-        ):
+        ):  # pragma: no cover
             assert False, f"Unhandled type {value!r}"
         return value
 

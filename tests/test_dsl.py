@@ -685,6 +685,13 @@ def test_datedeltaseries_convert_to_weeks(cohort_with_population):
     assert weeks_deltaseries.value.arguments == (series, "2021-12-01", "weeks")
 
 
+def test_datedeltaseries_convert_with_incorrect_type():
+    with pytest.raises(
+        ValueError, match="^Can only convert differences between dates$"
+    ):
+        DateDeltaSeries(value="test").convert_to_years()
+
+
 def test_dateseries_add_datedelta():
     series = DateSeries(ValueFromRow(source=None, column="date"))
     datedelta = DateDeltaSeries(DateDifference("2021-10-01", "2021-11-01"))

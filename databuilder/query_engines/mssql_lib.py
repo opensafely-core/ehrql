@@ -294,7 +294,7 @@ def table_exists(connection, table):
         if "Invalid object name" in str(e):
             return False
         else:
-            raise
+            raise  # pragma: no cover
 
 
 def assert_temporary_tables_writable(connection, temp_table_prefix):
