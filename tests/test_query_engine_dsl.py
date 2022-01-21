@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 import pytest
 
+from databuilder import codelist
 from databuilder.dsl import categorise
 from databuilder.dsl import categorise as dsl_categorise
 
@@ -226,15 +227,17 @@ def test_date_arithmetic_subtract_dateseries(engine, cohort_with_population):
     ]
     engine.setup(input_data)
 
+    codes = codelist(["abc"], "ctv3")
+
     data_definition = cohort_with_population
     first_event_date = (
-        events.filter(events.code.is_in(["abc"]))
+        events.filter(events.code.is_in(codes))
         .sort_by(events.date)
         .first_for_patient()
         .select_column(events.date)
     )
     last_event_date = (
-        events.filter(events.code.is_in(["abc"]))
+        events.filter(events.code.is_in(codes))
         .sort_by(events.date)
         .last_for_patient()
         .select_column(events.date)
