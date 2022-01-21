@@ -49,22 +49,20 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Generic, TypeVar, overload
 
-from .query_model_old import (
-    BaseTable,
+from .query_model import (
+    DEFAULT_JOIN_COLUMN,
+    Aggregate,
+    AggregationFunction,
+    ApplyFunction,
+    Categorise,
     Codelist,
-    Comparator,
-    DateAddition,
-    DateDeltaAddition,
-    DateDeltaSubtraction,
-    DateDifference,
-    DateSubtraction,
-    RoundToFirstOfMonth,
-    RoundToFirstOfYear,
-    Row,
-    Table,
-    Value,
-    ValueFromAggregate,
-    ValueFromCategory,
+    ColumnValue,
+    Filter,
+    Function,
+    SelectColumn,
+    SelectTable,
+    SortAndSelectFirst,
+    TableValue,
 )
 
 
@@ -86,7 +84,8 @@ class Cohort:
         value = population.value
 
         if not (
-            isinstance(value, ValueFromAggregate) and value.source.function == "exists"
+            isinstance(value, Aggregate)
+            and value.function == AggregationFunction.EXISTS
         ):
             raise ValueError(
                 "Population variable must return a boolean. Did you mean to use `exists_for_patient()`?"
@@ -118,7 +117,7 @@ class EventFrame:
     filter() can be run over the EventFrame to produce new Frames.
     """
 
-    def __init__(self, qm_table: BaseTable):
+    def __init__(self, qm_table: TableValue):
         """
         Initialise the EventFrame
 
@@ -169,7 +168,9 @@ class EventFrame:
         Returns:
             IntSeries: A count of events per patient
         """
-        return IntSeries(self.qm_table.count())
+        return IntSeries(
+            self._apply_aggregation(self.qm_table, AggregationFunction.COUNT)
+        )
 
     def exists_for_patient(self) -> BoolSeries:
         """
@@ -182,13 +183,22 @@ class EventFrame:
         Returns:
             BoolSeries: A BoolSeries indicating whether each patient has a matching event.
         """
-        return BoolSeries(self.qm_table.exists())
+        return BoolSeries(
+            self._apply_aggregation(self.qm_table, AggregationFunction.EXISTS)
+        )
+
+    @staticmethod
+    def _apply_aggregation(qm_table, function):
+        return Aggregate(
+            function,
+            (SelectColumn(qm_table, DEFAULT_JOIN_COLUMN),),
+        )
 
 
 class EventTable(EventFrame):
     def __init__(self, contract):
         contract.validate_frame(type(self))
-        qm_table = Table(contract._name)
+        qm_table = SelectTable(contract._name)
         super().__init__(qm_table)
 
 
@@ -199,7 +209,7 @@ class SortedEventFrame:
     filter() can be run over the SortedEventFrame to produce new Frames.
     """
 
-    def __init__(self, qm_table: BaseTable, *sort_columns: Column[S]):
+    def __init__(self, qm_table: TableValue, *sort_columns: Column[S]):
         """
         Initialise the SortedEventFrame
 
@@ -216,17 +226,22 @@ class SortedEventFrame:
         Return a PatientFrame with the first event for each patient. Each patient
         can have a maximum of one row in the PatientFrame.
         """
-        return PatientFrame(row=self.qm_table.first_by(*self._sort_column_names()))
+        return self._sort_and_select(descending=False)
 
     def last_for_patient(self) -> PatientFrame:
         """
         Return a PatientFrame with the last event for each patient. Each patient
         can have a maximum of one row in the PatientFrame.
         """
-        return PatientFrame(row=self.qm_table.last_by(*self._sort_column_names()))
+        return self._sort_and_select(descending=True)
 
-    def _sort_column_names(self):
-        return [c.name for c in self.sort_columns]
+    def _sort_and_select(self, descending):
+        sort_columns = tuple(
+            SelectColumn(self.qm_table, c.name) for c in self.sort_columns
+        )
+        return PatientFrame(
+            row=SortAndSelectFirst(self.qm_table, sort_columns, descending=descending)
+        )
 
 
 class PatientFrame:
@@ -234,7 +249,7 @@ class PatientFrame:
     Represents an unsorted collection of records, with one row per patient.
     """
 
-    def __init__(self, row: Row):
+    def __init__(self, row: SortAndSelectFirst):
         """
         Initialise the PatientFrame
 
@@ -250,16 +265,18 @@ class PatientFrame:
         Args:
             column: The Column of interest of which you want to retrieve the value.
         """
-        return column.series_type(self.row.get(column.name))
+        return column.series_type(SelectColumn(self.row, column.name))
 
 
 class PatientTable(PatientFrame):
     def __init__(self, contract):
         contract.validate_frame(type(self))
-        qm_table = Table(contract._name)
+        qm_table = SelectTable(contract._name)
         # TODO: revisit this!  As things stand, this will generate SQL with an
         # unnecessary PARTITION OVER, which may carry a performance penalty.
-        row = qm_table.first_by("patient_id")
+        row = SortAndSelectFirst(
+            qm_table, (SelectColumn(qm_table, DEFAULT_JOIN_COLUMN),)
+        )
         super().__init__(row)
 
 
@@ -271,36 +288,27 @@ class PatientSeries:
     variable.
     """
 
-    def __init__(self, value: Value | Comparator):
+    def __init__(self, value: ColumnValue):
         self.value = value
 
-    def _is_comparator(self) -> bool:
-        return isinstance(self.value, Comparator)
-
-    def __eq__(self, other: PatientSeries | Comparator | str | int) -> BoolSeries:  # type: ignore[override]
+    def __eq__(self, other: PatientSeries | str | int) -> BoolSeries:  # type: ignore[override]
         # All python objects have __eq__ and __ne__ defined, so overriding these methods
         # involves overriding them on a superclass (`object`), which results in
         # a typing error as it violates the violates the Liskov substitution principle
         # https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
         # We are deliberately overloading the operators here, hence the ignore
         other_value = other.value if isinstance(other, PatientSeries) else other
-        return BoolSeries(value=self.value == other_value)
+        return BoolSeries(value=ApplyFunction(Function.EQ, (self.value, other_value)))
 
-    def __ne__(self, other: PatientSeries | Comparator | str | int) -> BoolSeries:  # type: ignore[override]
+    def __ne__(self, other: PatientSeries | str | int) -> BoolSeries:  # type: ignore[override]
         other_value = other.value if isinstance(other, PatientSeries) else other
-        return BoolSeries(value=self.value != other_value)
+        return BoolSeries(value=ApplyFunction(Function.NE, (self.value, other_value)))
 
     def __hash__(self) -> int:
         return hash(repr(self.value))
 
     def __invert__(self) -> PatientSeries:
-        if self._is_comparator():
-            comparator_value = ~self.value
-        else:
-            comparator_value = Comparator(
-                lhs=self.value, operator="__ne__", rhs=None, negated=True
-            )
-        return PatientSeries(value=comparator_value)
+        return PatientSeries(value=ApplyFunction(Function.NOT, (self.value,)))
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value={self.value})"
@@ -308,22 +316,18 @@ class PatientSeries:
 
 class BoolSeries(PatientSeries):
     def __and__(self, other: BoolSeries) -> BoolSeries:
-        return BoolSeries(value=self.value & other.value)
+        return BoolSeries(value=ApplyFunction(Function.AND, (self.value, other.value)))
 
     def __or__(self, other: BoolSeries) -> BoolSeries:
-        return BoolSeries(value=self.value | other.value)
+        return BoolSeries(value=ApplyFunction(Function.OR, (self.value, other.value)))
 
 
 class CodeSeries(PatientSeries):
     def __and__(self, other: CodeSeries) -> BoolSeries:
-        return BoolSeries(value=self.value & other.value)
+        return BoolSeries(value=ApplyFunction(Function.AND, (self.value, other.value)))
 
     def __invert__(self) -> BoolSeries:
-        return BoolSeries(
-            value=(
-                Comparator(lhs=self.value, operator="__ne__", rhs=None, negated=True)
-            )
-        )
+        return BoolSeries(value=ApplyFunction(Function.NOT, (self.value,)))
 
 
 def _validate_datestring(datestring):
@@ -336,6 +340,12 @@ def _validate_datestring(datestring):
     return datestring
 
 
+def is_function(value, function):
+    if not isinstance(value, ApplyFunction):
+        return False
+    return value.function == function
+
+
 class DateSeries(PatientSeries):
     @staticmethod
     def _get_other_date_value(other):
@@ -345,32 +355,39 @@ class DateSeries(PatientSeries):
             else _validate_datestring(other)
         )
 
+    def _apply_fn(self, fn, other):
+        return BoolSeries(
+            value=ApplyFunction(fn, (self.value, self._get_other_date_value(other)))
+        )
+
     def __gt__(self, other: DateSeries | str) -> BoolSeries:
-        return BoolSeries(value=self.value > self._get_other_date_value(other))
+        return self._apply_fn(Function.GT, other)
 
     def __ge__(self, other: DateSeries | str) -> BoolSeries:
-        return BoolSeries(value=self.value >= self._get_other_date_value(other))
+        return self._apply_fn(Function.GE, other)
 
     def __lt__(self, other: DateSeries | str) -> BoolSeries:
-        return BoolSeries(value=self.value < self._get_other_date_value(other))
+        return self._apply_fn(Function.LT, other)
 
     def __le__(self, other: DateSeries | str) -> BoolSeries:
-        return BoolSeries(value=self.value <= self._get_other_date_value(other))
+        return self._apply_fn(Function.LE, other)
 
     def __ne__(self, other: DateSeries | str) -> BoolSeries:  # type: ignore[override]
-        return BoolSeries(value=self.value != self._get_other_date_value(other))
+        return self._apply_fn(Function.NE, other)
 
     def round_to_first_of_month(self) -> DateSeries:
-        return DateSeries(RoundToFirstOfMonth(self.value))
+        return DateSeries(
+            ApplyFunction(Function.ROUND_TO_FIRST_OF_MONTH, (self.value,))
+        )
 
     def round_to_first_of_year(self) -> DateSeries:
-        return DateSeries(RoundToFirstOfYear(self.value))
+        return DateSeries(ApplyFunction(Function.ROUND_TO_FIRST_OF_YEAR, (self.value,)))
 
     @staticmethod
     def _get_other_datedelta_value(delta_value, operation):
         """Ensure we have either a simple int, or an IntSeries representing a date difference in days"""
-        if isinstance(delta_value, DateDeltaSeries) and isinstance(
-            delta_value.value, DateDifference
+        if isinstance(delta_value, DateDeltaSeries) and is_function(
+            delta_value.value, Function.DATE_DIFFERENCE
         ):
             return delta_value.convert_to_days().value
         elif isinstance(delta_value, int):
@@ -385,17 +402,25 @@ class DateSeries(PatientSeries):
     ) -> DateDeltaSeries | DateSeries:
         if isinstance(other, (str, DateSeries)):
             return DateDeltaSeries(
-                DateDifference(self._get_other_date_value(other), self.value)
+                ApplyFunction(
+                    Function.DATE_DIFFERENCE,
+                    (self._get_other_date_value(other), self.value),
+                )
             )
         other_value = self._get_other_datedelta_value(other, "subtract")
-        return DateSeries(DateSubtraction(self.value, other_value))
+        return DateSeries(
+            ApplyFunction(Function.DATE_SUBTRACT, (self.value, other_value))
+        )
 
     def __rsub__(self, other: str | DateSeries) -> DateDeltaSeries:
         # consistent with python datetime/timedelta, we cannot subtract a DateSeries from
         # anything other than a date or another DateSeries
         try:
             return DateDeltaSeries(
-                DateDifference(self.value, self._get_other_date_value(other))
+                ApplyFunction(
+                    Function.DATE_DIFFERENCE,
+                    (self.value, self._get_other_date_value(other)),
+                )
             )
         except ValueError:
             if isinstance(other, str):
@@ -406,7 +431,7 @@ class DateSeries(PatientSeries):
 
     def __add__(self, other: DateDeltaSeries | int) -> DateSeries:
         other_value = self._get_other_datedelta_value(other, "add")
-        return DateSeries(DateAddition(self.value, other_value))
+        return DateSeries(ApplyFunction(Function.DATE_ADD, (self.value, other_value)))
 
     def __radd__(self, other: int) -> DateSeries:
         # Note that other cannot be a DateDeltaSeries, as this is handled by DateDeltaSeries.__add__
@@ -415,10 +440,12 @@ class DateSeries(PatientSeries):
 
 class DateDeltaSeries(PatientSeries):
     def _convert(self, units):
-        if not isinstance(self.value, DateDifference):
+        if not is_function(self.value, Function.DATE_DIFFERENCE):
             raise ValueError("Can only convert differences between dates")
         start_date, end_date = self.value.arguments[:2]
-        return IntSeries(DateDifference(start_date, end_date, units=units))
+        return IntSeries(
+            ApplyFunction(Function.DATE_DIFFERENCE, (start_date, end_date, units))
+        )
 
     def convert_to_years(self):
         return self._convert("years")
@@ -439,7 +466,7 @@ class DateDeltaSeries(PatientSeries):
         IntSeries representing days.
         """
         if isinstance(datedelta, DateDeltaSeries):
-            if isinstance(datedelta.value, DateDifference):
+            if is_function(datedelta.value, Function.DATE_DIFFERENCE):
                 return datedelta.convert_to_days().value
             else:
                 return datedelta.value
@@ -453,7 +480,10 @@ class DateDeltaSeries(PatientSeries):
         if isinstance(other, DateSeries):
             return other + self
         return DateDeltaSeries(
-            DateDeltaAddition(self._delta_in_days(self), self._delta_in_days(other))
+            ApplyFunction(
+                Function.DATE_DELTA_ADD,
+                (self._delta_in_days(self), self._delta_in_days(other)),
+            )
         )
 
     def __radd__(self, other: int) -> DateDeltaSeries | DateSeries:
@@ -462,7 +492,10 @@ class DateDeltaSeries(PatientSeries):
 
     def __sub__(self, other: DateDeltaSeries | int) -> DateDeltaSeries:
         return DateDeltaSeries(
-            DateDeltaSubtraction(self._delta_in_days(self), self._delta_in_days(other))
+            ApplyFunction(
+                Function.DATE_DELTA_SUBTRACT,
+                (self._delta_in_days(self), self._delta_in_days(other)),
+            )
         )
 
     def __rsub__(
@@ -473,9 +506,17 @@ class DateDeltaSeries(PatientSeries):
             datestring = _validate_datestring(other)
             # This allows subtraction of a DateDeltaSeries from a date string
             # e.g. 2020-10-01
-            return DateSeries(DateSubtraction(datestring, self.convert_to_days().value))
+            return DateSeries(
+                ApplyFunction(
+                    Function.DATE_SUBTRACT,
+                    (datestring, self.convert_to_days().value),
+                )
+            )
         return DateDeltaSeries(
-            DateDeltaSubtraction(self._delta_in_days(other), self._delta_in_days(self))
+            ApplyFunction(
+                Function.DATE_DELTA_SUBTRACT,
+                (self._delta_in_days(other), self._delta_in_days(self)),
+            )
         )
 
 
@@ -484,25 +525,24 @@ class IdSeries(PatientSeries):
 
 
 class IntSeries(PatientSeries):
-    def __gt__(self, other: IntSeries | int) -> BoolSeries:
+    def _apply_fn(self, fn, other):
         other_value = other.value if isinstance(other, IntSeries) else other
-        return BoolSeries(value=self.value > other_value)
+        return BoolSeries(value=ApplyFunction(fn, (self.value, other_value)))
+
+    def __gt__(self, other: IntSeries | int) -> BoolSeries:
+        return self._apply_fn(Function.GT, other)
 
     def __ge__(self, other: IntSeries | int) -> BoolSeries:
-        other_value = other.value if isinstance(other, IntSeries) else other
-        return BoolSeries(value=self.value >= other_value)
+        return self._apply_fn(Function.GE, other)
 
     def __lt__(self, other: IntSeries | int) -> BoolSeries:
-        other_value = other.value if isinstance(other, IntSeries) else other
-        return BoolSeries(value=self.value < other_value)
+        return self._apply_fn(Function.LT, other)
 
     def __le__(self, other: IntSeries | int) -> BoolSeries:
-        other_value = other.value if isinstance(other, IntSeries) else other
-        return BoolSeries(value=self.value <= other_value)
+        return self._apply_fn(Function.LE, other)
 
     def __ne__(self, other: IntSeries | int) -> BoolSeries:  # type: ignore[override]
-        other_value = other.value if isinstance(other, IntSeries) else other
-        return BoolSeries(value=self.value != other_value)
+        return self._apply_fn(Function.NE, other)
 
 
 class FloatSeries(PatientSeries):
@@ -520,15 +560,17 @@ class Predicate:
     def __init__(
         self,
         column: Column[S],
-        operator: str,
+        operator: Function,
         other: str | bool | int | Codelist | None,
     ) -> None:
         self._column = column
         self._operator = operator
         self._other = other
 
-    def apply_to(self, table: BaseTable) -> BaseTable:
-        return table.filter(self._column.name, **{self._operator: self._other})
+    def apply_to(self, table: TableValue) -> TableValue:
+        column = SelectColumn(table, self._column.name)
+        condition = ApplyFunction(self._operator, (column, self._other))
+        return Filter(table, condition)
 
 
 @dataclass
@@ -537,7 +579,7 @@ class Column(Generic[S]):
     series_type: type[S]
 
     def is_not_null(self):
-        return Predicate(self, "not_equals", None)
+        return Predicate(self, Function.NE, None)
 
 
 class IdColumn(Column[IdSeries]):
@@ -550,10 +592,10 @@ class BoolColumn(Column[BoolSeries]):
         super().__init__(name, BoolSeries)
 
     def is_true(self) -> Predicate:
-        return Predicate(self, "equals", True)
+        return Predicate(self, Function.EQ, True)
 
     def is_false(self) -> Predicate:
-        return Predicate(self, "equals", False)
+        return Predicate(self, Function.EQ, False)
 
     def __eq__(self, other: bool) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
         if other:
@@ -573,22 +615,22 @@ class DateColumn(Column[DateSeries]):
         super().__init__(name, DateSeries)
 
     def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
-        return Predicate(self, "equals", other)
+        return Predicate(self, Function.EQ, other)
 
     def __ne__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
-        return Predicate(self, "not_equals", other)
+        return Predicate(self, Function.NE, other)
 
     def __gt__(self, other: str) -> Predicate:
-        return Predicate(self, "greater_than", other)
+        return Predicate(self, Function.GT, other)
 
     def __ge__(self, other: str) -> Predicate:
-        return Predicate(self, "greater_than_or_equals", other)
+        return Predicate(self, Function.GE, other)
 
     def __lt__(self, other: str) -> Predicate:
-        return Predicate(self, "less_than", other)
+        return Predicate(self, Function.LT, other)
 
     def __le__(self, other: str) -> Predicate:
-        return Predicate(self, "less_than_or_equals", other)
+        return Predicate(self, Function.LE, other)
 
 
 class CodeColumn(Column[CodeSeries]):
@@ -596,13 +638,15 @@ class CodeColumn(Column[CodeSeries]):
         super().__init__(name, CodeSeries)
 
     def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
-        return Predicate(self, "equals", other)
+        return Predicate(self, Function.EQ, other)
 
     def __ne__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
-        return Predicate(self, "not_equals", other)
+        return Predicate(self, Function.NE, other)
 
     def is_in(self, codelist: Codelist) -> Predicate:
-        return Predicate(self, "is_in", codelist)
+        if isinstance(codelist, list):
+            codelist = tuple(codelist)
+        return Predicate(self, Function.IN, codelist)
 
 
 class IntColumn(Column[IntSeries]):
@@ -610,22 +654,22 @@ class IntColumn(Column[IntSeries]):
         super().__init__(name, IntSeries)
 
     def __eq__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
-        return Predicate(self, "equals", other)
+        return Predicate(self, Function.EQ, other)
 
     def __ne__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
-        return Predicate(self, "not_equals", other)
+        return Predicate(self, Function.NE, other)
 
     def __gt__(self, other: int) -> Predicate:
-        return Predicate(self, "greater_than", other)
+        return Predicate(self, Function.GT, other)
 
     def __ge__(self, other: int) -> Predicate:
-        return Predicate(self, "greater_than_or_equals", other)
+        return Predicate(self, Function.GE, other)
 
     def __lt__(self, other: int) -> Predicate:
-        return Predicate(self, "less_than", other)
+        return Predicate(self, Function.LT, other)
 
     def __le__(self, other: int) -> Predicate:
-        return Predicate(self, "less_than_or_equals", other)
+        return Predicate(self, Function.LE, other)
 
 
 class FloatColumn(Column[FloatSeries]):
@@ -648,8 +692,8 @@ def not_null_patient_series(patient_series: PatientSeries) -> PatientSeries:
     Returns:
         PatientSeries: A new PatientsSeries without null values
     """
-    comparator_value = Comparator(lhs=patient_series.value, operator="__ne__", rhs=None)
-    return PatientSeries(value=comparator_value)
+    is_not_null = ApplyFunction(Function.NE, (patient_series.value, None))
+    return PatientSeries(value=is_not_null)
 
 
 T = TypeVar("T", str, int)
@@ -694,11 +738,11 @@ def categorise(mapping, default=None):
     _validate_category_mapping(mapping, default)
     value_mapping = {
         key: patient_series.value
-        if patient_series._is_comparator()
+        if isinstance(patient_series, BoolSeries)
         else not_null_patient_series(patient_series).value
         for key, patient_series in mapping.items()
     }
-    return PatientSeries(value=ValueFromCategory(value_mapping, default))
+    return PatientSeries(value=Categorise(value_mapping, default))
 
 
 # Typed as object because the alternative is another overloaded function here which is unnecessary ceremony for this
