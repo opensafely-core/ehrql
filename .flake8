@@ -8,3 +8,4 @@ max-line-length = 88
 per-file-ignores =
     scripts/dbx:INP001
     scripts/dbx-cleanup.py:INP001,F821
+    scripts/parse_coverage_output.py:INP001
