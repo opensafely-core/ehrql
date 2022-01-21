@@ -53,6 +53,7 @@ exclude = '''
 [tool.coverage.run]
 branch = true
 omit = [
+    "tests/acceptance/conftest.py",
     "tests/acceptance/test_long_covid_dsl.py",
 ]
 

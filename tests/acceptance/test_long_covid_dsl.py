@@ -1,11 +1,7 @@
-from contextlib import contextmanager
 from datetime import date, datetime
 
-import pytest
-
 from databuilder import codelist
-from databuilder.backends import TPPBackend
-from databuilder.dsl import Cohort, categorise
+from databuilder.dsl import categorise
 from databuilder.tables import (
     clinical_events,
     covid_test_results,
@@ -25,7 +21,6 @@ from tests.lib.tpp_schema import (
     registration,
     snomed_event,
 )
-from tests.lib.util import extract
 
 from .codelists import (
     any_long_covid_code,
@@ -36,46 +31,11 @@ from .codelists import (
 )
 
 
-@pytest.fixture(scope="module")
-def populated_database(database):
-    setup_data(database)
-    yield database
-
-
-@pytest.fixture
-def cohort(populated_database):
-    class AssertingCohort(Cohort):
-        def assert_results(self, **results):
-            dataset = extract(self, TPPBackend, populated_database)
-            assert len(dataset) == 1
-            row = dataset[0]
-            for variable, expected_value in results.items():
-                assert row[variable] == expected_value
-
-    yield AssertingCohort()
-
-
-@pytest.fixture
-def subtest(subtests):
-    @contextmanager
-    def helper(name, missing_feature=""):
-        with subtests.test(msg=name):
-            try:
-                yield
-            except Exception:
-                if missing_feature:
-                    pytest.xfail(f"DSL feature '{missing_feature}' not implemented")
-                raise
-            assert (
-                not missing_feature
-            ), f"Unexpected success, maybe feature '{missing_feature}' has been implemented"
-
-    yield helper
-
-
 # TODO: This test is excluded from code coverage because there are so many lines skipped due to missing features. Once
 # all the features are implemented it should be reinstated.
-def test_long_covid_study(cohort, subtest):
+def test_long_covid_study(cohort, subtest, database):
+    setup_data(database)
+
     pandemic_start = "2020-02-01"
     index_date = "2020-11-01"
     bmi_code = codelist(["22K.."], system="ctv3")
