@@ -64,7 +64,7 @@ class ColumnValue(QueryNode):
 
 # These are the basic types we accept as arguments in the Query Model
 Scalar = Union[None, bool, int, float, str, datetime.datetime, datetime.date]
-StaticValue = Union[Scalar, tuple[Scalar], list[Scalar]]
+StaticValue = Union[Scalar, tuple[Scalar]]
 
 Argument = Union[ColumnValue, StaticValue]
 

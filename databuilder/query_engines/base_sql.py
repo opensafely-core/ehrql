@@ -237,12 +237,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert False, f"Unhandled type {value!r}"
 
     @get_sql_element_or_value.register
-    def get_static_value(self, value: Union[Scalar, tuple, list]) -> StaticValue:
+    def get_static_value(self, value: Union[Scalar, tuple]) -> StaticValue:
         # This is a fudge: the type of `value` above really ought to be StaticValue but
-        # the singledispatch decorator can't handle the parameterized tuple and list
-        # types. So instead we accept all tuples and lists and enforce the types of
-        # their elements at runtime. See: https://bugs.python.org/issue46191
-        if isinstance(value, (tuple, list)) and any(
+        # the singledispatch decorator can't handle the parameterized tuple type. So
+        # instead we accept all tuples and enforce the types of their elements at
+        # runtime. See: https://bugs.python.org/issue46191
+        if isinstance(value, tuple) and any(
             not isinstance(v, SCALAR_TYPES) for v in value
         ):  # pragma: no cover
             assert False, f"Unhandled type {value!r}"
