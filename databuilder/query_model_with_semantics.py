@@ -55,6 +55,10 @@ def root(_: BoundNode) -> BoundNode:
 def dimension(_: BoundNode) -> Dimension:
     raise NotImplementedError
 
+@singledispatch
+def sorted(_: Frame) -> bool:
+    raise NotImplementedError
+
 # Every composition represented by the graph has a simple type with respect to frames and series, for both inputs and
 # outputs, so we can represent frames and series as classes although they are really only needed to enforce
 # invariants at construction time.
@@ -92,6 +96,10 @@ def _(node: Table) -> BoundNode:
 @dimension.register
 def _(node: Table) -> Dimension:
     return node.dimension
+
+@sorted.register
+def _(_: Table) -> bool:
+    return False
 
 # --------------------
 # All the remaining nodes types are bound nodes that compose frames and series in various ways. The types of those
@@ -155,6 +163,10 @@ def _(node: Filter) -> BoundNode:
 def _(_: Filter) -> Dimension:
     return Dimension.EVENT
 
+@sorted.register
+def _(node: Filter) -> bool:
+    return sorted(node.frame)
+
 @dataclass
 class Sort(Frame):
     target: Series
@@ -174,6 +186,10 @@ def _(node: Sort) -> BoundNode:
 def _(_: Sort) -> Dimension:
     return Dimension.EVENT
 
+@sorted.register
+def _(_: Sort) -> bool:
+    return True
+
 class Position(Enum):
     FIRST = "first"
     LAST = "last"
@@ -185,7 +201,7 @@ class Pick(Frame):
 
     def __post_init__(self) -> None:
         assert dimension(self.frame) == Dimension.EVENT
-        # TODO: precondition: frame must be sorted
+        assert sorted(self.frame)
 
 @root.register
 def _(node: Pick) -> BoundNode:
@@ -194,6 +210,10 @@ def _(node: Pick) -> BoundNode:
 @dimension.register
 def _(_: Pick) -> Dimension:
     return Dimension.PATIENT
+
+@sorted.register
+def _(_: Pick) -> bool:
+    return False
 
 @dataclass
 class Join(Frame):
@@ -214,6 +234,10 @@ def _(node: Join) -> Dimension:
     if dimensions == {Dimension.EVENT}:
         return Dimension.HIGHER
     assert False
+
+@sorted.register
+def _(_: Join) -> bool:
+    return False
 
 @dataclass
 class Select(Series):
