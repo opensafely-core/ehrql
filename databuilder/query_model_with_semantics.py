@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from enum import Enum
+from functools import singledispatch
 from typing import Union
+
 
 # --------------------
 # First a few value types identifying the operations and literal types in the model.
@@ -41,20 +43,20 @@ class Dimension(Enum):
     PATIENT = "patient"
     HIGHER = "higher"  # TODO: undefined what happens when you combine event frames
 
-# Used to track the origin of frames and series to enforce the constraint that we only combine columns from the same
-# table.
-Root = Union["Table", "Join"]
-
-# Every node that depends on values calculated from the database has this type. The fields on this type do not need
-# to be serialized, they are just required to maintain invariants during construction and could be calculated for any
-# well-formed graph.
-@dataclass
+# Every node that depends on values calculated from the database has this type.
 class BoundNode(Node):
-    root: Root  # each bound node knows which table it originated from
-    dimension: Dimension  # and whether it represents patient- or event-level data
+    ...
+
+@singledispatch
+def root(_: BoundNode) -> BoundNode:
+    raise NotImplementedError
+
+@singledispatch
+def dimension(_: BoundNode) -> Dimension:
+    raise NotImplementedError
 
 # Every composition represented by the graph has a simple type with respect to frames and series, for both inputs and
-# outputs, so we can represent frames and series as classes although they too are really only needed to enforce
+# outputs, so we can represent frames and series as classes although they are really only needed to enforce
 # invariants at construction time.
 class Frame(BoundNode):
     ...
@@ -80,12 +82,16 @@ class PartialBinaryFunction(Node):
 # --------------------
 @dataclass
 class Table(Frame):
-    root: Root = field(compare=False)
     name: str
+    dimension: Dimension
 
-    def __init__(self, name: str, dimension: Dimension):
-        super().__init__(self, dimension)
-        self.name = name
+@root.register
+def _(node: Table) -> BoundNode:
+    return node
+
+@dimension.register
+def _(node: Table) -> Dimension:
+    return node.dimension
 
 # --------------------
 # All the remaining nodes types are bound nodes that compose frames and series in various ways. The types of those
@@ -135,32 +141,38 @@ class Filter(Frame):
     predicate: Series
     frame: Frame
 
-    def __init__(self, predicate: Series, frame: Frame):
-        super().__init__(frame.root, Dimension.EVENT)
-
-        assert predicate.root == frame.root
-        assert predicate.dimension == Dimension.EVENT
-        assert frame.dimension == Dimension.EVENT
+    def __post_init__(self) -> None:
+        assert root(self.predicate) == root(self.frame)
+        assert dimension(self.predicate) == Dimension.EVENT
+        assert dimension(self.frame) == Dimension.EVENT
         # TODO: precondition: predicate must be boolean
 
-        self.predicate = predicate
-        self.frame = frame
+@root.register
+def _(node: Filter) -> BoundNode:
+    return root(node.frame)
+
+@dimension.register
+def _(_: Filter) -> Dimension:
+    return Dimension.EVENT
 
 @dataclass
 class Sort(Frame):
     target: Series
     frame: Frame
 
-    def __init__(self, target: Series, frame: Frame):
-        super().__init__(frame.root, Dimension.EVENT)
-
-        assert target.root == frame.root
-        assert target.dimension == Dimension.EVENT
-        assert frame.dimension == Dimension.EVENT
+    def __post_init__(self) -> None:
+        assert root(self.target) == root(self.frame)
+        assert dimension(self.target) == Dimension.EVENT
+        assert dimension(self.frame) == Dimension.EVENT
         # TODO: precondition: property must have an orderable type
 
-        self.target = target
-        self.frame = frame
+@root.register
+def _(node: Sort) -> BoundNode:
+    return root(node.frame)
+
+@dimension.register
+def _(_: Sort) -> Dimension:
+    return Dimension.EVENT
 
 class Position(Enum):
     FIRST = "first"
@@ -171,47 +183,50 @@ class Pick(Frame):
     position: Position
     frame: Frame
 
-    def __init__(self, position: Position, frame: Frame):
-        super().__init__(frame.root, Dimension.PATIENT)
-
-        assert frame.dimension == Dimension.EVENT
+    def __post_init__(self) -> None:
+        assert dimension(self.frame) == Dimension.EVENT
         # TODO: precondition: frame must be sorted
 
-        self.position = position
-        self.frame = frame
+@root.register
+def _(node: Pick) -> BoundNode:
+    return root(node.frame)
+
+@dimension.register
+def _(_: Pick) -> Dimension:
+    return Dimension.PATIENT
 
 @dataclass
 class Join(Frame):
-    root: Root = field(compare=False)
     left: Frame
     right: Frame
 
-    def __init__(self, left: Frame, right: Frame):
-        dimensions = {left.dimension, right.dimension}
-        if dimensions == {Dimension.PATIENT}:
-            dimension = Dimension.PATIENT
-        elif dimensions == {Dimension.PATIENT, Dimension.EVENT}:
-            dimension = Dimension.EVENT
-        elif dimensions == {Dimension.EVENT}:
-            dimension = Dimension.HIGHER
-        else:
-            assert False
+@root.register
+def _(node: Join) -> BoundNode:
+    return node
 
-        super().__init__(self, dimension)
-
-        self.left = left
-        self.right = right
+@dimension.register
+def _(node: Join) -> Dimension:
+    dimensions = {dimension(node.left), dimension(node.right)}
+    if dimensions == {Dimension.PATIENT}:
+        return Dimension.PATIENT
+    if dimensions == {Dimension.PATIENT, Dimension.EVENT}:
+        return Dimension.EVENT
+    if dimensions == {Dimension.EVENT}:
+        return Dimension.HIGHER
+    assert False
 
 @dataclass
 class Select(Series):
     column: Column
     frame: Frame
 
-    def __init__(self, column: Column, frame: Frame):
-        super().__init__(frame.root, frame.dimension)
+@root.register
+def _(node: Select) -> BoundNode:
+    return root(node.frame)
 
-        self.column = column
-        self.frame = frame
+@dimension.register
+def _(node: Select) -> Dimension:
+    return dimension(node.frame)
 
 class Aggregation(Enum):
     EXISTS = "exists"
@@ -223,16 +238,18 @@ class Aggregate(Series):
     series: Series
     frame: Frame
 
-    def __init__(self, aggregation: Aggregation, series: Series, frame: Frame):
-        super().__init__(frame.root, Dimension.PATIENT)
+    def __post_init__(self) -> None:
+        assert root(self.series) == root(self.frame)
+        assert dimension(self.series) == Dimension.EVENT
+        assert dimension(self.frame) == Dimension.EVENT
 
-        assert series.root == frame.root
-        assert series.dimension == Dimension.EVENT
-        assert frame.dimension == Dimension.EVENT
+@root.register
+def _(node: Aggregate) -> BoundNode:
+    return root(node.frame)
 
-        self.aggregation = aggregation
-        self.series = series
-        self.frame = frame
+@dimension.register
+def _(_: Aggregate) -> Dimension:
+    return Dimension.PATIENT
 
 @dataclass
 class Combine(Series):
@@ -240,15 +257,17 @@ class Combine(Series):
     left: Series
     right: Series
 
-    def __init__(self, operation: BinaryFunction, left: Series, right: Series):
-        super().__init__(left.root, left.dimension)
+    def __post_init__(self) -> None:
+        assert dimension(self.left) == dimension(self.right)
+        assert root(self.left) == root(self.right)
 
-        assert left.dimension == right.dimension
-        assert left.root == right.root
+@root.register
+def _(node: Combine) -> BoundNode:
+    return root(node.left)
 
-        self.operation = operation
-        self.left = left
-        self.right = right
+@dimension.register
+def _(node: Combine) -> Dimension:
+    return dimension(node.left)
 
 Mapping = Union[UnaryFunction, PartialBinaryFunction]
 
@@ -257,28 +276,29 @@ class Map(Series):
     mapping: Mapping
     series: Series
 
-    def __init__(self, mapping: Mapping, series: Series):
-        super().__init__(series.root, series.dimension)
-        self.mapping = mapping
-        self.series = series
+@root.register
+def _(node: Map) -> BoundNode:
+    return root(node.series)
+
+@dimension.register
+def _(node: Map) -> Dimension:
+    return dimension(node.series)
 
 # --------------------
-# This is a construction helper that checks that we've reduced all variables to patient series. Need not be serialized.
+# Skeleton class that just ensures that the variables we define below are all patient series.
 # --------------------
-@dataclass
-class Var:
-    series: Series
-
-    def __init__(self, series: Series):
-        assert series.dimension == Dimension.PATIENT
-        self.series = series
+class DataDefinition:
+    @staticmethod
+    def add_variable(series: Series) -> None:
+        assert dimension(series) == Dimension.PATIENT
 
 # --------------------
 # And finally some examples, with the corresponding DSL definitions.
 # --------------------
+dd = DataDefinition()
 
 # cohort.v1 = tables.bar.select_column("foo") == 42
-v1 = Var(
+dd.add_variable(
     Map(
         PartialBinaryFunction(
             BinaryFunction.EQ,
@@ -286,13 +306,13 @@ v1 = Var(
         Select(Column("foo"), Table("bar", Dimension.PATIENT))))
 
 # cohort.v2 = tables.bar.select_column("foo").is_not_null()
-v2 = Var(
+dd.add_variable(
     Map(
         UnaryFunction.NOT_NULL,
         Select(Column("foo"), Table("bar", Dimension.PATIENT))))
 
 # cohort.v3 = tables.bar.select_column("foo") == tables.bar.select_column("fumble")
-v3 = Var(
+dd.add_variable(
     Combine(
         BinaryFunction.EQ,
         Select(Column("foo"), Table("bar", Dimension.PATIENT)),
@@ -301,17 +321,18 @@ v3 = Var(
 # cohort.v4 = tables.boo.filter(tables.boo.foible != "boink")
 #                       .sort_by(tables.boo.zam).first_for_patient()
 #                       .select_column(tables.boo.foo)
-v4 = Var(Select(
-    Column("foo"),
-    Pick(
-        Position.FIRST,
-        Sort(
-            Select(Column("zam"), Table("boo", Dimension.EVENT)),
-            Filter(
-                Map(
-                    PartialBinaryFunction(BinaryFunction.NE, "boink"),
-                    Select(Column("foible"), Table("boo", Dimension.EVENT))),
-                Table("boo", Dimension.EVENT))))))
+dd.add_variable(
+    Select(
+        Column("foo"),
+        Pick(
+            Position.FIRST,
+            Sort(
+                Select(Column("zam"), Table("boo", Dimension.EVENT)),
+                Filter(
+                    Map(
+                        PartialBinaryFunction(BinaryFunction.NE, "boink"),
+                        Select(Column("foible"), Table("boo", Dimension.EVENT))),
+                    Table("boo", Dimension.EVENT))))))
 
 # last_covid_diagnosis = tables.events.filter(tables.events.code.is_in(covid_codelist))
 #                                     .sort_by(tables.events.date).last_by_patient()
@@ -320,31 +341,32 @@ v4 = Var(Select(
 #
 # I've written this out as a "denormalized" tree, but a graph could have reuse instead of duplication -- as long as
 # our serialization format can handle it.
-v5 = Var(Combine(
-    BinaryFunction.EQ,
-    Select(
-        Column("l.date_of_death"),
-        Join(
-            Table("patients", Dimension.PATIENT),
-            Pick(
-                Position.LAST,
-                Sort(
-                    Select(Column("date"), Table("events", Dimension.EVENT)),
-                    Filter(
-                        Map(
-                            PartialBinaryFunction(BinaryFunction.IN, CodeList({"a", "b"})),
-                            Select(Column("code"), Table("events", Dimension.EVENT))),
-                        Table("events", Dimension.EVENT)))))),
-    Select(
-        Column("r.date"),
-        Join(
-            Table("patients", Dimension.PATIENT),
-            Pick(
-                Position.LAST,
-                Sort(
-                    Select(Column("date"), Table("events", Dimension.EVENT)),
-                    Filter(
-                        Map(
-                            PartialBinaryFunction(BinaryFunction.IN, CodeList({"a", "b"})),
-                            Select(Column("code"), Table("events", Dimension.EVENT))),
-                        Table("events", Dimension.EVENT))))))))
+dd.add_variable(
+    Combine(
+        BinaryFunction.EQ,
+        Select(
+            Column("l.date_of_death"),
+            Join(
+                Table("patients", Dimension.PATIENT),
+                Pick(
+                    Position.LAST,
+                    Sort(
+                        Select(Column("date"), Table("events", Dimension.EVENT)),
+                        Filter(
+                            Map(
+                                PartialBinaryFunction(BinaryFunction.IN, CodeList({"a", "b"})),
+                                Select(Column("code"), Table("events", Dimension.EVENT))),
+                            Table("events", Dimension.EVENT)))))),
+        Select(
+            Column("r.date"),
+            Join(
+                Table("patients", Dimension.PATIENT),
+                Pick(
+                    Position.LAST,
+                    Sort(
+                        Select(Column("date"), Table("events", Dimension.EVENT)),
+                        Filter(
+                            Map(
+                                PartialBinaryFunction(BinaryFunction.IN, CodeList({"a", "b"})),
+                                Select(Column("code"), Table("events", Dimension.EVENT))),
+                            Table("events", Dimension.EVENT))))))))
