@@ -154,5 +154,4 @@ markers = [
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:past.builtins.misc:45",
-    "ignore::DeprecationWarning:pytest_subtests:143",  # https://github.com/pytest-dev/pytest-subtests/issues/38
 ]
