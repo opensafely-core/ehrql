@@ -209,9 +209,9 @@ pluggy==1.0.0 \
     --hash=sha256:4224373bacce55f955a878bf9cfa763c1e360858e330072059e10bad68531159 \
     --hash=sha256:74134bbf457f031a36d68416e1509f34bd5ccc019f0bcc952c7b909d06b37bd3
     # via pytest
-pre-commit==2.16.0 \
-    --hash=sha256:758d1dc9b62c2ed8881585c254976d66eae0889919ab9b859064fc2fe3c7743e \
-    --hash=sha256:fe9897cac830aa7164dbd02a4e7b90cae49630451ce88464bca73db486ba9f65
+pre-commit==2.17.0 \
+    --hash=sha256:725fa7459782d7bec5ead072810e47351de01709be838c2ce1726b9591dad616 \
+    --hash=sha256:c1a8040ff15ad3d648c70cc3e55b93e4d2d5b687320955505587fd79bbaed06a
     # via -r requirements.dev.in
 py==1.10.0 \
     --hash=sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3 \
