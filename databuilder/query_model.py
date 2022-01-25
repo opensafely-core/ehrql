@@ -11,6 +11,9 @@ class AggregationFunction(Enum):
     COUNT = "count"
     SUM = "sum"
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}.{self.name}"
+
 
 class Function(Enum):
     EQ = "eq"
@@ -37,11 +40,22 @@ class Function(Enum):
     DATE_DELTA_ADD = "date_delta_add"
     DATE_DELTA_SUBTRACT = "date_delta_subtract"
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}.{self.name}"
+
 
 # Singleton to represent the default join column (currently "patient_id"). By not
 # allowing this to be referenced using a string we avoid inadvertently hardcoding this
 # into our codebase
-DEFAULT_JOIN_COLUMN = object()
+class Singleton:
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return self.name
+
+
+DEFAULT_JOIN_COLUMN = Singleton("DEFAULT_JOIN_COLUMN")
 
 
 class QueryNode:
