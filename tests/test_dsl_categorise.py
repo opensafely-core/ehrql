@@ -9,9 +9,9 @@ import pytest
 
 from databuilder import codelist
 from databuilder.dsl import categorise as new_dsl_categorise
-from databuilder.query_model import Comparator
-from databuilder.query_model import categorise as old_dsl_categorise
-from databuilder.query_model import table
+from databuilder.query_model_old import Comparator
+from databuilder.query_model_old import categorise as old_dsl_categorise
+from databuilder.query_model_old import table
 
 from .lib.tables import events, patients, positive_tests
 from .lib.util import OldCohortWithPopulation, make_codelist
