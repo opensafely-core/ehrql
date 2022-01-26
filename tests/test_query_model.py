@@ -3,7 +3,7 @@ import re
 import pytest
 
 from databuilder.codelistlib import Codelist
-from databuilder.query_model import (
+from databuilder.query_model_old import (
     Comparator,
     FilteredTable,
     Row,

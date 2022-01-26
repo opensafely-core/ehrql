@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pandas as pd
 
-from .query_model import ValueFromCategory, ValueFromRow
+from .query_model_old import ValueFromCategory, ValueFromRow
 from .query_utils import get_column_definitions
 
 SUPPORTED_FILE_FORMATS = ["csv", "csv.gz"]

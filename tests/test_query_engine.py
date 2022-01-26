@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from databuilder.query_model import categorise, table
+from databuilder.query_model_old import categorise, table
 
 from .lib.mock_backend import (
     CTV3Events,
