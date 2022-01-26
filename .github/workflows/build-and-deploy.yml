@@ -33,7 +33,7 @@ jobs:
         # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
         run: echo ::set-output name=tag_describe::`git describe --tags`
 
-      - name: Verify if we are on a tagged commit, allows us to short-circuit this workflow
+      - name: Verify whether we are on a tagged commit, allows us to short-circuit this workflow
         id: taggedcommit
         if: ${{ steps.previoustagcommit.outputs.tag_describe == steps.previoustagref.outputs.tag }}
         run: echo ::set-output name=tag::'y'
