@@ -33,9 +33,9 @@ jobs:
         # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
         run: echo ::set-output name=tag_describe::`git describe --tags`
 
-      - name: Set flag to short circuit workflow if not a tagged commit
+      - name: Verify if we are on a tagged commit, allows us to short-circuit this workflow
         id: taggedcommit
-        if: ${{ steps.previoustagcommit.outputs.tag_describe != steps.previoustagref.outputs.tag }}
+        if: ${{ steps.previoustagcommit.outputs.tag_describe == steps.previoustagref.outputs.tag }}
         run: echo ::set-output name=tag::'y'
 
       # 'Get Previous tag' should only get version tags, but let's verify that
