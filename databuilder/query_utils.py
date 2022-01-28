@@ -1,3 +1,5 @@
+from tests.lib.query_model_convert_to_new import convert as convert_to_new
+
 from .dsl import Cohort as DSLCohort
 from .query_model_old import Value
 
@@ -12,6 +14,9 @@ def get_cohort_variables(cohort):
         (variable_name, variable.value)
         for (variable_name, variable) in vars(cohort).items()
     ]
+
+
+# example_file = open("qm_examples.py", "w")
 
 
 def get_column_definitions(cohort):
@@ -32,6 +37,12 @@ def get_column_definitions(cohort):
         columns[name] = value
     if "population" not in columns:
         raise ValueError("A Cohort definition must define a 'population' variable")
+    converted = convert_to_new(columns)
+    print(converted)
+    # import os
+    # example_file.write(f"# {os.environ['PYTEST_CURRENT_TEST']}\n#\n")
+    # example_file.write(repr(converted))
+    # example_file.write("\n\n\n\n")
     return columns
 
 
