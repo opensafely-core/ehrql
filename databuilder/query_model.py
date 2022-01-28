@@ -227,6 +227,8 @@ class Function:
         ...
 
     # Dates
+    # TODO: Our date handling needs thinking through. Possibly we need an explicit
+    # datedelta type. Consider the below functions provisional.
     class RoundToFirstOfMonth(UnaryFunction):
         ...
 
