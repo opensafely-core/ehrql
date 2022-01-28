@@ -57,10 +57,16 @@ class Codelist:
 
 # BASIC TYPES
 #
-# The Query Model consists of operations on tables and columns. Central to the Query
-# Model design is that these tables and columns have an additional, non-standard,
-# property which we call their "dimension": do they contain at most one row per patient,
-# or might they contain many rows?
+# The Query Model consists of operations on "frames" and "series". A frame is a table-like
+# thing that has rows and columns, and a series is a column-like thing that contains a
+# sequence of values. Frames can be created from SQL tables, and then various filtering,
+# transformation and sorting operations can be applied to produce new frames. Likewise,
+# a series can be created from a SQL column and then transformed and combined with
+# others to produce new series.
+#
+# Central to the Query Model design is that these frames and series have an additional
+# property called their "dimension": do they contain at most one row per patient, or
+# might they contain many rows?
 
 
 class Node:
@@ -75,31 +81,31 @@ class Node:
         validate_node(self)
 
 
-class Table(Node):
+class Frame(Node):
     ...
 
 
-class Column(Node):
+class Series(Node):
     ...
 
 
-class OneRowPerPatientTable(Table):
+class OneRowPerPatientFrame(Frame):
     ...
 
 
-class ManyRowsPerPatientTable(Table):
+class ManyRowsPerPatientFrame(Frame):
     ...
 
 
-class OneRowPerPatientColumn(Column):
+class OneRowPerPatientSeries(Series):
     ...
 
 
-class ManyRowsPerPatientColumn(Column):
+class ManyRowsPerPatientSeries(Series):
     ...
 
 
-class SortedTable(ManyRowsPerPatientTable):
+class SortedFrame(ManyRowsPerPatientFrame):
     ...
 
 
@@ -109,41 +115,41 @@ class SortedTable(ManyRowsPerPatientTable):
 # types above.
 
 
-class SelectTable(ManyRowsPerPatientTable):
+class SelectTable(ManyRowsPerPatientFrame):
     name: str
 
 
-class SelectPatientTable(OneRowPerPatientTable):
+class SelectPatientTable(OneRowPerPatientFrame):
     name: str
 
 
-class SelectColumn(Column):
+class SelectColumn(Series):
     name: str
-    source: Table
+    source: Frame
 
 
-class Filter(ManyRowsPerPatientTable):
-    source: ManyRowsPerPatientTable
-    condition: Column
+class Filter(ManyRowsPerPatientFrame):
+    source: ManyRowsPerPatientFrame
+    condition: Series
 
 
-class Sort(SortedTable):
-    source: ManyRowsPerPatientTable
-    sort_by: Column
+class Sort(SortedFrame):
+    source: ManyRowsPerPatientFrame
+    sort_by: Series
 
 
-class PickOneRowPerPatient(OneRowPerPatientTable):
+class PickOneRowPerPatient(OneRowPerPatientFrame):
     position: Position
-    source: SortedTable
+    source: SortedFrame
 
 
-# An aggregation is any operation which accepts many-rows-per-patient columns and
-# returns a one-row-per-patient column. The below is a base class which we use to remove
+# An aggregation is any operation which accepts many-rows-per-patient series and
+# returns a one-row-per-patient series. The below is a base class which we use to remove
 # duplication in our aggregation definitions as they currently all accept just a single
-# column. But an aggregation does not need to subclass this, just so long as it has the
+# series. But an aggregation does not need to subclass this, just so long as it has the
 # right signature.
-class Aggregation(OneRowPerPatientColumn):
-    column: Column
+class Aggregation(OneRowPerPatientSeries):
+    source: Series
 
 
 # All available aggregations (using a class as a namespace)
@@ -172,18 +178,18 @@ class AggregateByPatient:
         ...
 
 
-# A function is any operation which takes columns and values and returns a column. The
-# dimension of the column it returns will be the highest dimension of its inputs i.e. if
+# A function is any operation which takes series and values and returns a series. The
+# dimension of the series it returns will be the highest dimension of its inputs i.e. if
 # any of its inputs has many-rows-per-patient then its output will too. The below base
 # classs are used to remove duplication in our function definitions. But a function does
 # not need to subclass one of these, just so long as it has the right signature.
-class UnaryFunction(Column):
-    source: Column
+class UnaryFunction(Series):
+    source: Series
 
 
-class BinaryFunction(Column):
-    lhs: Union[Column, Value]
-    rhs: Union[Column, Value]
+class BinaryFunction(Series):
+    lhs: Union[Series, Value]
+    rhs: Union[Series, Value]
 
 
 # All available functions (using a class as a namespace)
@@ -242,24 +248,24 @@ class Function:
     class DateSubtract(BinaryFunction):
         ...
 
-    class DateDifference(Column):
-        start: Union[Column, datetime.date]
-        end: Union[Column, datetime.date]
+    class DateDifference(Series):
+        start: Union[Series, datetime.date]
+        end: Union[Series, datetime.date]
         units: str
 
     # Containment is a special case: its right-hand side must be something vector-like i.e.
-    # something containing multiple values. To build a column whose values are vectors,
+    # something containing multiple values. To build a series whose values are vectors,
     # use the `CombineAsSet` aggregation.
-    class In(Column):
-        lhs: Column
-        rhs: Union[Column, tuple[Value], Codelist]
+    class In(Series):
+        lhs: Series
+        rhs: Union[Series, tuple[Value], Codelist]
 
     class NotIn(In):
         ...
 
 
-class Categorise(Column):
-    categories: dict[Value, Column]
+class Categorise(Series):
+    categories: dict[Value, Series]
     default: Value
 
     def __hash__(self):
@@ -270,19 +276,19 @@ class Categorise(Column):
 
 # We don't currently support this in the DSL or the Query Engine but we include it for
 # completeness
-class Join(ManyRowsPerPatientTable):
-    lhs: Table
-    rhs: Table
+class Join(ManyRowsPerPatientFrame):
+    lhs: Frame
+    rhs: Frame
 
 
 # VALIDATION
 #
-# The main thing we need to validate here is the "domain constraint". Columns and tables
+# The main thing we need to validate here is the "domain constraint". Frames and series
 # which are in one-row-per-patient form can be combined arbitrarily because we can JOIN
 # using the patient_id and be sure that we're not creating new rows. But for operations
 # involving many-rows-per-patient inputs we need to ensure that they are all drawn from
-# the same table. (We call this the "domain" for set theoretic reasons which the margin
-# of this comment are too small to contain.)
+# the same underlying table. (We call this the "domain" for set theoretic reasons which
+# the margin of this comment are too small to contain.)
 
 PATIENT_DOMAIN = object()
 
@@ -295,14 +301,14 @@ def validate_node(node):
     # TODO: Runtime type validation (i.e. only acceptable types are passed in), possibly
     # using something like pydantic.
 
-    # TODO: Validation of the "inner" types i.e. a column may contain date values and we
+    # TODO: Validation of the "inner" types i.e. a series may contain date values and we
     # want to make it an error if you try to compare these to an int. And there are
-    # several places (e.g. a Filter condition) where we require suppied columns to have
+    # several places (e.g. a Filter condition) where we require suppied series to have
     # boolean type. We'll need the DSL to get these types from the schema and pass them
     # in somehow.
 
     # The one exception to the "common domain" rule is the Join operation which takes
-    # tables from two different domains and produces a new domain
+    # frames from two different domains and produces a new domain
     if not isinstance(node, Join):
         validate_children_have_common_domain(node)
 
@@ -333,8 +339,8 @@ def get_domain_roots(node):
 
 
 # And these operations are guaranteed to produce output in the patient domain.
-@get_domains.register(OneRowPerPatientTable)
-@get_domains.register(OneRowPerPatientColumn)
+@get_domains.register(OneRowPerPatientFrame)
+@get_domains.register(OneRowPerPatientSeries)
 def get_domains_for_one_row_per_patient_operations(node):
     return {PATIENT_DOMAIN}
 
