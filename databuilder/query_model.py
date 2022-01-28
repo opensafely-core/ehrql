@@ -251,9 +251,6 @@ class Function:
         lhs: Series
         rhs: Union[Series, tuple[Value]]
 
-    class NotIn(In):
-        ...
-
 
 class Categorise(Series):
     categories: dict[Value, Series]
