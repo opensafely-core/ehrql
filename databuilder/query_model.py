@@ -16,16 +16,25 @@ __all__ = [
     "AggregateByPatient",
     "Function",
     "Categorise",
+    "Code",
     "DomainMismatchError",
 ]
 
 
 #
-# UTILITY CLASSES
+# VALUE TYPES
 #
 
+
+@dataclasses.dataclass(frozen=True)
+class Code:
+    "A code is a string tagged with the coding system it's drawn from"
+    value: str
+    system: str
+
+
 # Static value types
-Value = Union[None, bool, int, float, str, datetime.datetime, datetime.date]
+Value = Union[None, bool, int, float, str, datetime.datetime, datetime.date, Code]
 
 
 class Position(Enum):
@@ -37,25 +46,7 @@ class Position(Enum):
         return f"{self.__class__.__name__}.{self.name}"
 
 
-@dataclasses.dataclass(frozen=True)
-class Codelist:
-    codes: tuple
-    system: str
-    has_categories: bool = False
-
-    def __post_init__(self):
-        if self.has_categories:
-            raise NotImplementedError("Categorised codelists are currently unsupported")
-
-    def __repr__(self):
-        if len(self.codes) > 5:
-            codes = self.codes[:5] + ("...",)
-        else:
-            codes = self.codes
-        return f"Codelist(system={self.system}, codes={codes})"
-
-
-# BASIC TYPES
+# BASIC QUERY MODEL TYPES
 #
 # The Query Model consists of operations on "frames" and "series". A frame is a table-like
 # thing that has rows and columns, and a series is a column-like thing that contains a
@@ -258,7 +249,7 @@ class Function:
     # use the `CombineAsSet` aggregation.
     class In(Series):
         lhs: Series
-        rhs: Union[Series, tuple[Value], Codelist]
+        rhs: Union[Series, tuple[Value]]
 
     class NotIn(In):
         ...
