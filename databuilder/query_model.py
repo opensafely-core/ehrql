@@ -115,8 +115,8 @@ class SelectPatientTable(OneRowPerPatientFrame):
 
 
 class SelectColumn(Series):
-    name: str
     source: Frame
+    name: str
 
 
 class Filter(ManyRowsPerPatientFrame):
@@ -130,8 +130,8 @@ class Sort(SortedFrame):
 
 
 class PickOneRowPerPatient(OneRowPerPatientFrame):
-    position: Position
     source: SortedFrame
+    position: Position
 
 
 # An aggregation is any operation which accepts many-rows-per-patient series and
