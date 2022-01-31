@@ -3,7 +3,7 @@ import sqlalchemy.types
 from sqlalchemy import DDL, Column, Date, Integer, Text, event
 
 # generate surrogate PK ids ourselves, as spark doesn't support auto id
-next_id = iter(range(1, 2 ** 63)).__next__
+next_id = iter(range(1, 2**63)).__next__
 
 Base = sqlalchemy.orm.declarative_base()
 
