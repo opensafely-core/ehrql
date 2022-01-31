@@ -407,10 +407,10 @@ class Codelist(QueryNode):
             raise NotImplementedError("Categorised codelists are currently unsupported")
 
     def __repr__(self):
-        if len(self.codes) > 5:
-            codes = self.codes[:5] + ("...",)
-        else:
-            codes = self.codes
+        # Temporarily disable truncation, remove duplicates and sort the codes first.
+        # This gives us consistent reprs even when the codelist is round-tripped via a
+        # set.
+        codes = tuple(sorted(set(self.codes)))
         return f"Codelist(system={self.system}, codes={codes})"
 
 
