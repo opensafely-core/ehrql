@@ -204,9 +204,9 @@ packaging==21.0 \
     --hash=sha256:7dc96269f53a4ccec5c0670940a4281106dd0bb343f47b7471f779df49c2fbe7 \
     --hash=sha256:c86254f9220d55e31cc94d69bade760f0847da8000def4dfe1c6b872fd14ff14
     # via pytest
-pandas-stubs==1.2.0.43 \
-    --hash=sha256:0c47c213ab92a8608376eee00efd207e7f7af0a7b44342a6dbaf61a6b21bcc0d \
-    --hash=sha256:75c153b06b87bdb663908d1dc382abeb898e0e777c165cbb620df839a609370e
+pandas-stubs==1.2.0.45 \
+    --hash=sha256:5cc87a2d75d946170f2f13980989e38ce586495edda617514a3bfeb1c4f6b52b \
+    --hash=sha256:aca98f86ebafa0b393f3652feaedd768ad7149dbee6a9d55f0074673f1971e21
     # via -r requirements.dev.in
 pathspec==0.9.0 \
     --hash=sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a \
