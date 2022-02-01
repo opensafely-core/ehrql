@@ -1,0 +1,24 @@
+code,term
+I850,Oesophageal varices with bleeding
+K226,Gastro-oesophageal laceration-haemorrhage syndrome
+K228,Other specified diseases of oesophagus
+K250,Gastric ulcer : Acute with haemorrhage
+K252,Gastric ulcer : Acute with both haemorrhage and perforation
+K254,Gastric ulcer : Chronic or unspecified with haemorrhage
+K256,Gastric ulcer : Chronic or unspecified with both haemorrhage and perforation
+K260,Duodenal ulcer : Acute with haemorrhage
+K262,Duodenal ulcer : Acute with both haemorrhage and perforation
+K264,Duodenal ulcer : Chronic or unspecified with haemorrhage
+K266,Duodenal ulcer : Chronic or unspecified with both haemorrhage and perforation
+K270,"Peptic ulcer, site unspecified : Acute with haemorrhage"
+K272,"Peptic ulcer, site unspecified : Acute with both haemorrhage and perforation"
+K274,"Peptic ulcer, site unspecified : Chronic or unspecified with haemorrhage"
+K276,"Peptic ulcer, site unspecified : Chronic or unspecified with both haemorrhage and perforation"
+K280,Gastrojejunal ulcer : Acute with haemorrhage
+K282,Gastrojejunal ulcer : Acute with both haemorrhage and perforation
+K284,Gastrojejunal ulcer : Chronic or unspecified with haemorrhage
+K286,Gastrojejunal ulcer : Chronic or unspecified with both haemorrhage and perforation
+K290,Acute haemorrhagic gastritis
+K920,Haematemesis
+K921,Melaena
+K922,"Gastrointestinal haemorrhage, unspecified"
