@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from databuilder import codelist_from_csv, combine_codelists
+from databuilder import codelist, codelist_from_csv, combine_codelists
 
 
 def load_codelist(csv_file, system, column):
@@ -163,3 +163,26 @@ medication_review_2 = load_codelist(
 )
 
 medication_review_codelist = combine_codelists(medication_review_1, medication_review_2)
+
+oral_nsaid_codelist = load_codelist(
+    "pincer-nsaid-23edd06e.csv",
+    "snomed",
+    "id",
+)
+
+ppi_codelist = load_codelist(
+    "pincer-ppi-3cfd43a3.csv",
+    "snomed",
+    "id",
+)
+
+gib_admissions_codelist = load_codelist(
+    "nhsbsa-adm-gastro-intestinal-bleed-5d4b7131.csv",
+    "icd10",
+    "code",
+)
+
+placeholder_admissions_codelist = codelist(
+    ["K226", "K226", "K226", "K252", "K254", "K256", "K260", "K262", "K264", "K266"],
+    system="icd10",
+)
