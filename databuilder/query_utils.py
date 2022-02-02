@@ -1,5 +1,4 @@
 from .dsl import Cohort as DSLCohort
-from .query_model_old import Value
 
 
 def get_class_vars(cls):
@@ -25,10 +24,6 @@ def get_column_definitions(cohort):
     for name, value in variables:
         if name.startswith("_") or name in ignored_names:
             continue
-        if not isinstance(value, Value):
-            raise TypeError(
-                f"Cohort variable '{name}' is not a Value (type='{type(value).__name__}')"
-            )
         columns[name] = value
     if "population" not in columns:
         raise ValueError("A Cohort definition must define a 'population' variable")
