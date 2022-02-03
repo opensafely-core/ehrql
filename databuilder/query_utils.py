@@ -1,7 +1,4 @@
-from tests.lib.query_model_convert_to_new import convert as convert_to_new
-
 from .dsl import Cohort as DSLCohort
-from .query_engines.query_model_convert_to_old import convert as convert_to_old
 from .query_model_old import Value
 
 
@@ -35,20 +32,6 @@ def get_column_definitions(cohort):
         columns[name] = value
     if "population" not in columns:
         raise ValueError("A Cohort definition must define a 'population' variable")
-    converted = convert_to_new(columns)
-    round_tripped = convert_to_old(converted)
-    # The old query model uses equality overloading, so we compare the reprs rather than
-    # checking equality directly
-    if repr(columns) != repr(round_tripped):
-        import difflib
-
-        import black
-
-        c_repr = black.format_str(repr(columns), mode=black.Mode()).splitlines()
-        r_repr = black.format_str(repr(round_tripped), mode=black.Mode()).splitlines()
-        print("\n".join(c_repr))
-        print("\n".join(difflib.unified_diff(c_repr, r_repr)))
-        assert False
     return columns
 
 

@@ -221,3 +221,16 @@ def test_codelist_query_with_codelist_from_csv(engine, codelist_csv):
         {"patient_id": 2, "code": None},
         {"patient_id": 3, "code": None},
     ]
+
+
+def test_codelist_repr():
+    codes = [ch for ch in "abcdefghijklmnopqrstuvwxyz"]
+    codelist1 = codelist(codes[:5], system="ctv3")
+    assert repr(codelist1) == "Codelist(system=ctv3, codes=('a', 'b', 'c', 'd', 'e'))"
+
+    codelist2 = codelist(codes[:6], system="ctv3")
+    codelist3 = codelist(codes, system="ctv3")
+    for cl in [codelist2, codelist3]:
+        assert (
+            repr(cl) == "Codelist(system=ctv3, codes=('a', 'b', 'c', 'd', 'e', '...'))"
+        )

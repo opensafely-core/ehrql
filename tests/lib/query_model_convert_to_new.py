@@ -1,6 +1,9 @@
 """
 Temporary migration code which takes a data definition created using the old Query Model
 and ouputs the equivalent using the new Query Model.
+
+Lines excluded from test coverage were exercised when we previously checked we could
+convert the entire old test suite but are covered no longer.
 """
 from functools import cache, singledispatch
 
@@ -75,7 +78,7 @@ def convert_filtered_table(node: old.FilteredTable):
         value = new.AggregateByPatient.CombineAsSet(convert_node(node.value))
     else:
         value = convert_value(node.value)
-    if node.operator == "__eq__" and node.value is None:
+    if node.operator == "__eq__" and node.value is None:  # pragma: no cover
         condition = new.Function.IsNull(column)
     else:
         condition = operator(column, value)
@@ -136,7 +139,7 @@ def convert_comparator(node: old.Comparator):
         Function = OPERATOR_MAP[node.connector]
     else:
         Function = OPERATOR_MAP[node.operator]
-    if node.operator == "__eq__" and node.rhs is None:
+    if node.operator == "__eq__" and node.rhs is None:  # pragma: no cover
         result = new.Function.IsNull(convert_value(node.lhs))
     else:
         lhs = convert_value(node.lhs)
