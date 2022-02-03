@@ -160,7 +160,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # Temporary migration code: we accept definitions using both the old and new
         # Query Models and interpret the new model by converting it to the old model
         # first. Very soon (after the relevant bits of code have been deleted) we can
-        # stop accepting the old model. And then we can refactor the Query Eninge to
+        # stop accepting the old model. And then we can refactor the Query Engine to
         # work with the new model directly and discard the translation layer.
         column_definitions = self.column_definitions
         if isinstance(list(column_definitions.values())[0], query_model.Node):
