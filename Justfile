@@ -179,3 +179,14 @@ databricks-test *ARGS: devenv databricks-env
 # run the validate contract test only for all backends
 test-contracts: devenv
     $BIN/python -m pytest tests/backends/test_base.py -k test_validate_all_backends
+
+story-dependencies: devenv
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if [[ -z "${SHORTCUT_TOKEN:-}" ]]; then
+        echo >&2 "You must provide SHORTCUT_TOKEN as an env var."
+        exit 1
+    fi
+
+    SHORTCUT_EPIC="Working baseline" $BIN/python scripts/story-dependencies | dot -Tpng >story-dependencies.png
