@@ -62,9 +62,9 @@ from sqlalchemy.sql.expression import type_coerce
 from sqlalchemy.sql.schema import Column as SQLColumn
 from sqlalchemy.sql.selectable import Select
 
-from .. import sqlalchemy_types
+from .. import query_model, sqlalchemy_types
 from ..functools_utils import singledispatchmethod_with_unions
-from ..query_model import (
+from ..query_model_old import (
     Codelist,
     Column,
     Comparator,
@@ -96,6 +96,7 @@ from ..sqlalchemy_utils import (
     select_first_row_per_partition,
 )
 from .base import BaseQueryEngine
+from .query_model_convert_to_old import convert as convert_to_old
 
 # These are nodes which select a single column from a query (regardless of whether that
 # results in a single value per patient or in multiple values per patient)
@@ -156,9 +157,18 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
             list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
         """
+        # Temporary migration code: we accept definitions using both the old and new
+        # Query Models and interpret the new model by converting it to the old model
+        # first. Very soon (after the relevant bits of code have been deleted) we can
+        # stop accepting the old model. And then we can refactor the Query Engine to
+        # work with the new model directly and discard the translation layer.
+        column_definitions = self.column_definitions
+        if isinstance(list(column_definitions.values())[0], query_model.Node):
+            column_definitions = convert_to_old(column_definitions)
+
         # Modify the Query Model graph to make it easier to work with, or to generate
         # more efficient SQL
-        column_definitions = apply_optimisations(self.column_definitions)
+        column_definitions = apply_optimisations(column_definitions)
 
         # Convert each column definition to SQL
         column_queries = {
@@ -509,7 +519,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         return type_coerce(date_diff, sqlalchemy_types.Integer())
 
-    def _convert_date_diff_to_months(self, start, end):
+    def _convert_date_diff_to_months(
+        self, start, end
+    ):  # pragma: no cover (re-implement when the QL is in)
         start_year, start_month, start_day = self._date_to_parts(start)
         end_year, end_month, end_day = self._date_to_parts(end)
         year_diff = end_year - start_year
@@ -529,7 +541,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         raise NotImplementedError()
 
-    def _convert_date_diff_to_weeks(self, start, end):
+    def _convert_date_diff_to_weeks(
+        self, start, end
+    ):  # pragma: no cover (re-implement when the QL is in)
         """
         Calculate difference in weeks
         Datediff calculates weeks by boundaries crossed.  Since we want the duration in total
@@ -549,10 +563,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         raise NotImplementedError()
 
-    def date_delta_add(self, delta1, delta2):
+    def date_delta_add(
+        self, delta1, delta2
+    ):  # pragma: no cover (re-implement when the QL is in)
         return type_coerce((delta1 + delta2), sqlalchemy_types.Integer())
 
-    def date_delta_subtract(self, delta1, delta2):
+    def date_delta_subtract(
+        self, delta1, delta2
+    ):  # pragma: no cover (re-implement when the QL is in)
         return type_coerce((delta1 - delta2), sqlalchemy_types.Integer())
 
     def round_to_first_of_month(self, date):

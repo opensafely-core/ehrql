@@ -12,7 +12,6 @@ license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
 requires-python = ">=3.9"
 dependencies = [
-  "pip==21.3.1",
   "pandas",
   "sqlalchemy",
   "structlog",
@@ -54,6 +53,7 @@ exclude = '''
 [tool.coverage.run]
 branch = true
 omit = [
+    "databuilder/dsl.py",
     "tests/acceptance/conftest.py",
     "tests/acceptance/test_long_covid_dsl.py",
     "tests/acceptance/test_med_safety_dsl.py",
@@ -140,8 +140,8 @@ convention = "google"
 add_select = [
   "D213",
 ]
-# base ignores for all docstrings, for module/package specific ones add them to
-#the CLI args in Justfile
+# Base ignores for all docstrings, for module/package specific ones add them to
+# the CLI args in Justfile
 add_ignore = [
   "D100",
   "D104",
@@ -158,4 +158,7 @@ markers = [
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:past.builtins.misc:45",
+    "ignore::DeprecationWarning:pytest_freezegun:17",
+    "ignore::DeprecationWarning:docker.utils.utils:52",
+    "ignore::DeprecationWarning:docker.utils.utils:53",
 ]

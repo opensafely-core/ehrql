@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       image: ghcr.io/opensafely-core/databuilder
-      ce_image: ghcr.io/opensafely-core/cohortextractor-v2
     steps:
       - uses: actions/checkout@v2
         with:
@@ -27,7 +26,7 @@ jobs:
         id: previoustagref
         uses: "WyriHaximus/github-action-get-previous-tag@8a0e045f02c0a3a04e1452df58b90fc7e555e950"
 
-      - name:
+      - name: Previous commit
         id: previoustagcommit
         # if we are on a tag, should look like `v0.6.0`
         # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
@@ -56,9 +55,9 @@ jobs:
           echo "PATCH=$PATCH"
 
           docker build . --file Dockerfile \
-            --tag ${{ env.image }}:$MAJOR --tag ${{ env.ce_image }}:$MAJOR \
-            --tag ${{ env.image }}:$MINOR --tag ${{ env.ce_image }}:$MINOR \
-            --tag ${{ env.image }}:$PATCH --tag ${{ env.ce_image }}:$PATCH
+            --tag ${{ env.image }}:$MAJOR \
+            --tag ${{ env.image }}:$MINOR \
+            --tag ${{ env.image }}:$PATCH
 
       - name: Log into GitHub Container Registry
         if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
@@ -68,4 +67,3 @@ jobs:
         if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
         run: |
           docker push --all-tags ${{ env.image }}
-          docker push --all-tags ${{ env.ce_image }}

@@ -17,8 +17,7 @@ RUN mkdir /workspace
 WORKDIR /workspace
 
 # -B: don't write bytecode files
-ENTRYPOINT ["python", "-B", "-m", "cohortextractor"]
+ENTRYPOINT ["python", "-B", "-m", "databuilder"]
 ENV PYTHONPATH="/app"
 COPY databuilder /app/databuilder
-COPY cohortextractor /app/cohortextractor
-RUN python -m compileall /app/cohortextractor
+RUN python -m compileall /app/databuilder

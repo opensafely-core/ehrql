@@ -1,7 +1,7 @@
 from .base import cohort_registry
 
 
-def register(cohort):
+def register(cohort):  # pragma: no cover (re-implement when the QL is in)
     """
     Compile a cohort's variables
     cohort: A Cohort instance

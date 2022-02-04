@@ -1,4 +1,4 @@
-class CohortRegistry:
+class CohortRegistry:  # pragma: no cover (re-implement when the QL is in)
     def __init__(self):
         self.cohorts = set()
 

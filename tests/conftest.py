@@ -3,14 +3,12 @@ import docker.errors
 import pytest
 
 from databuilder.definition.base import cohort_registry
-from databuilder.dsl import Cohort
 from databuilder.query_engines.mssql import MssqlQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
 
 from .lib.databases import make_database, make_spark_database, wait_for_database
 from .lib.docker import Containers
 from .lib.mock_backend import backend_factory
-from .lib.tables import events, patients, registrations
 from .lib.util import extract
 
 
@@ -58,13 +56,6 @@ def cleanup_register():
     cohort_registry.reset()
 
 
-@pytest.fixture
-def cohort_with_population():
-    cohort = Cohort()
-    cohort.set_population(registrations.exists_for_patient())
-    yield cohort
-
-
 class QueryEngineFixture:
     def __init__(self, name, database, query_engine_class):
         self.name = name
@@ -99,40 +90,3 @@ def engine(request, database, spark_database):
         return QueryEngineFixture(name, spark_database, SparkQueryEngine)
     else:
         assert False
-
-
-@pytest.fixture
-def bool_series():
-    return lambda: events.exists_for_patient()
-
-
-@pytest.fixture
-def code_series():
-    return (
-        lambda: events.sort_by(events.code)
-        .first_for_patient()
-        .select_column(events.code)
-    )
-
-
-@pytest.fixture
-def date_series():
-    return (
-        lambda: events.sort_by(events.date)
-        .first_for_patient()
-        .select_column(events.date)
-    )
-
-
-@pytest.fixture
-def int_series():
-    return (
-        lambda: events.sort_by(events.value)
-        .first_for_patient()
-        .select_column(events.value)
-    )
-
-
-@pytest.fixture
-def patient_series():
-    return lambda: patients.select_column(patients.sex)
