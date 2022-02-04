@@ -140,8 +140,8 @@ convention = "google"
 add_select = [
   "D213",
 ]
-# base ignores for all docstrings, for module/package specific ones add them to
-#the CLI args in Justfile
+# Base ignores for all docstrings, for module/package specific ones add them to
+# the CLI args in Justfile
 add_ignore = [
   "D100",
   "D104",
@@ -158,4 +158,7 @@ markers = [
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:past.builtins.misc:45",
+    "ignore::DeprecationWarning:pytest_freezegun:17",
+    "ignore::DeprecationWarning:docker.utils.utils:52",
+    "ignore::DeprecationWarning:docker.utils.utils:53",
 ]
