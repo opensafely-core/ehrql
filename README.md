@@ -22,7 +22,7 @@ as described in the [documentation](https://docs.opensafely.org/getting-started/
 If running it directly, it should be run from within the research repository.
 To run the latest version via Docker and access its full help:
 
-    docker run --rm ghcr.io/opensafely-core/cohortextractor-v2 --help
+    docker run --rm ghcr.io/opensafely-core/databuilder --help
 
 
 # For developers
