@@ -26,7 +26,7 @@ jobs:
         id: previoustagref
         uses: "WyriHaximus/github-action-get-previous-tag@8a0e045f02c0a3a04e1452df58b90fc7e555e950"
 
-      - name:
+      - name: Previous commit
         id: previoustagcommit
         # if we are on a tag, should look like `v0.6.0`
         # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
