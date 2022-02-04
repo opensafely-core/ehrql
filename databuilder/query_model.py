@@ -194,7 +194,7 @@ class AggregateByPatient:
     class Sum(OneRowPerPatientSeries[Numeric]):
         source: Series[Numeric]
 
-    # This is unusual aggregation in that while it collapses multiple values per patient
+    # This is an unusual aggregation in that while it collapses multiple values per patient
     # down to a single value per patient (as all aggregations must) the value it
     # produces is a set-like object containing all of its input values. This enables
     # them to be used as arguments to the In/NotIn fuctions which require something
@@ -211,7 +211,7 @@ class ComparisonFunction(Series[bool]):
 
 # A function is any operation which takes series and values and returns a series. The
 # dimension of the series it returns will be the highest dimension of its inputs i.e. if
-# any of its inputs has many-rows-per-patient then its output will too.  Bellow are all
+# any of its inputs has many-rows-per-patient then its output will too.  Below are all
 # available functions (using a class as a namespace).
 class Function:
 
