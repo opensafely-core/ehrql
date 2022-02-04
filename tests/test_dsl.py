@@ -13,7 +13,7 @@ from databuilder.dsl import (
     IntSeries,
     PatientSeries,
 )
-from databuilder.query_model import (
+from databuilder.query_model_old import (
     Comparator,
     DateAddition,
     DateDeltaAddition,

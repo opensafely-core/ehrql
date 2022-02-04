@@ -1,452 +1,388 @@
-from __future__ import annotations
+import dataclasses
+from datetime import date
+from enum import Enum
+from functools import singledispatch
+from typing import Any, Mapping, TypeVar
 
-from dataclasses import dataclass
-from typing import Any
-
-_OPERATOR_MAPPING = {
-    "equals": "__eq__",
-    "not_equals": "__ne__",
-    "less_than": "__lt__",
-    "less_than_or_equals": "__le__",
-    "greater_than": "__gt__",
-    "greater_than_or_equals": "__ge__",
-    "on_or_before": "__le__",
-    "on_or_after": "__ge__",
-    "is_in": "in_",
-    "not_in": "not_in",
-}
+# mypy: ignore-errors
 
 
-class ValidationError(Exception):
+# The below classes are the public API surface of the query model
+__all__ = [
+    "SelectTable",
+    "SelectPatientTable",
+    "SelectColumn",
+    "Filter",
+    "Sort",
+    "PickOneRowPerPatient",
+    "Position",
+    "AggregateByPatient",
+    "Function",
+    "Categorise",
+    "Code",
+    "DomainMismatchError",
+]
+
+
+#
+# VALUE TYPES
+#
+
+
+# TypeVars so we can enforce that e.g. comparison functions take two values of the same
+# type without specifying what that type has to be
+T = TypeVar("T")
+Numeric = TypeVar("Numeric", int, float)
+
+
+@dataclasses.dataclass(frozen=True)
+class Code:
+    "A code is a string tagged with the coding system it's drawn from"
+    value: str
+    system: str
+
+
+class Position(Enum):
+    FIRST = "first"
+    LAST = "last"
+
+    def __repr__(self):  # pragma: no cover
+        # Gives us `self == eval(repr(self))` as for dataclasses
+        return f"{self.__class__.__name__}.{self.name}"
+
+
+# Operations which create Frames from tables take an optional schema parameter. A schema
+# is a mapping from colum names to types which allows us to check that only columns
+# which exist are being accessed and that all operations use valid types. The default
+# schema assumes that all referenced columns exist and gives them the type Any. This
+# obviously limits the validation we can do but it does not eliminate it. For instance,
+# we can tell when an operation which can only return a bool is used as an argument to
+# one which only accepts an int.
+class DefaultSchema:
+    def __init__(self, name):
+        self.name = name
+
+    def __getitem__(self, column_name):  # pragma: no cover
+        return Any
+
+    def __repr__(self):  # pragma: no cover
+        # Gives us `self == eval(repr(self))` as for dataclasses
+        return self.name
+
+
+DEFAULT_SCHEMA = DefaultSchema("DEFAULT_SCHEMA")
+
+
+# BASIC QUERY MODEL TYPES
+#
+# The Query Model consists of operations on "frames" and "series". A frame is a table-like
+# thing that has rows and columns, and a series is a column-like thing that contains a
+# sequence of values. Frames can be created from SQL tables, and then various filtering,
+# transformation and sorting operations can be applied to produce new frames. Likewise,
+# a series can be created from a SQL column and then transformed and combined with
+# others to produce new series.
+#
+# Central to the Query Model design is that these frames and series have an additional
+# property called their "dimension": do they contain at most one row per patient, or
+# might they contain many rows?
+
+
+class Node:
+    "Abstract base class for all objects in the Query Model"
+
+    def __init_subclass__(cls, **kwargs):
+        # All nodes in the query model are frozen dataclasses
+        dataclasses.dataclass(cls, frozen=True)
+
+    def __post_init__(self):
+        # validate the things which have to be checked dynamically
+        validate_node(self)
+
+
+class Frame(Node):
     ...
 
 
-def table(name):
-    return Table(name)
+class Series(Node):
+    def __class_getitem__(cls, type_):
+        # Series have an "inner" type denoting the type of value they contain e.g
+        # `Series[int]`. This is the method which makes that syntax work. At the moment
+        # we don't do anything with this type, we just return the original class
+        # unmodified. Later we will handle this properly and validate the types.
+        return cls
 
 
-# A note about dataclasses...  We will need to store instances of the classes in this
-# module in sets, which requires them to be hashable.  As such, we require instances to
-# be frozen.  This means we cannot mutate the fields of an instance once it has been
-# created.  Additionally, in order for the comparison operators on Value and its
-# subclasses to work, we need to stop dataclasses from overriding these methods on the
-# subclasses.
+class OneRowPerPatientFrame(Frame):
+    ...
 
 
-@dataclass(frozen=True)
-class QueryNode:
-    def _get_referenced_nodes(self):
-        """
-        Return a tuple of all QueryNodes to which this node holds a reference
-        """
-        raise NotImplementedError()
+class ManyRowsPerPatientFrame(Frame):
+    ...
 
 
-@dataclass(frozen=True)
-class Comparator(QueryNode):
-    """A generic comparator to represent a comparison between a source object and a
-    value.
-
-    The simplest comparator is created from an expression such as `foo > 3` and will
-    have a lhs ('foo'; a Value object), operator ('__gt__') and a rhs (3; a simple type
-    - str/int/float/None).  The lhs and rhs of a Comparator can themselves be
-    Comparators, which are to be connected with self.connector.
-    """
-
-    connector: Any = None
-    negated: bool = False
-    lhs: Any = None
-    operator: Any = None
-    rhs: Any = None
-
-    def _get_referenced_nodes(self):
-        nodes = ()
-        assert isinstance(self.lhs, QueryNode)
-        nodes += (self.lhs,)
-        if isinstance(self.rhs, QueryNode):
-            nodes += (self.rhs,)
-        return nodes
-
-    def __and__(self, other):
-        return self._combine(other, "and_")
-
-    def __or__(self, other):
-        return self._combine(other, "or_")
-
-    def __invert__(self):
-        return type(self)(
-            connector=self.connector,
-            negated=not self.negated,
-            lhs=self.lhs,
-            operator=self.operator,
-            rhs=self.rhs,
-        )
-
-    @staticmethod
-    def _raise_comparison_error():
-        raise RuntimeError(
-            "Invalid operation; cannot perform logical operations on a Comparator"
-        )
-
-    def __gt__(self, other):
-        self._raise_comparison_error()
-
-    def __ge__(self, other):
-        self._raise_comparison_error()
-
-    def __lt__(self, other):
-        self._raise_comparison_error()
-
-    def __le__(self, other):
-        self._raise_comparison_error()
-
-    def __eq__(self, other):
-        return self._compare(other, "__eq__")
-
-    def __ne__(self, other):
-        return self._compare(other, "__ne__")
-
-    def _combine(self, other, conn):
-        assert isinstance(other, Comparator)
-        return type(self)(connector=conn, lhs=self, rhs=other)
-
-    def _compare(self, other, operator):
-        return type(self)(operator=operator, lhs=self, rhs=other)
+class OneRowPerPatientSeries(Series):
+    ...
 
 
-def boolean_comparator(obj, negated=False):
-    """returns a comparator which represents a comparison against null values"""
-    return Comparator(lhs=obj, operator="__ne__", rhs=None, negated=negated)
+class ManyRowsPerPatientSeries(Series):
+    ...
 
 
-class BaseTable(QueryNode):
-    def get(self, column):
-        return Column(source=self, column=column)
-
-    def filter(self, *args: str, **kwargs: Any) -> BaseTable:  # noqa: A003
-        """
-        args: max 1 arg, a field name (str)
-        kwargs:
-           - either one or more "equals" filters, or
-           - k=v pairs of operator=filter conditions to be applied to a single field (the arg)
-        Filter formats:
-        - equals: `filter(a=b, c=d)` (allows multiple in one query)
-        - between: `filter("a", between=[start_date_column, end_date_column]})`
-        - others: `filter("a", less_than=b)`
-        """
-        include_null = kwargs.pop("include_null", False)
-        if not args:
-            # No args; this is an equals filter
-            assert kwargs
-            node = self
-            # apply each of the equals filters, converted into a field arg and single equals kwarg
-            for field, value in kwargs.items():
-                node = node.filter(field, equals=value)
-            return node
-        elif len(kwargs) > 1:
-            # filters on a specific field, apply each filter in turn
-            node = self
-            for operator, value in kwargs.items():
-                node = node.filter(*args, **{operator: value})
-            return node
-
-        operator, value = list(kwargs.items())[0]
-        if operator == "between":
-            # convert a between filter into its two components
-            return self.filter(*args, on_or_after=value[0], on_or_before=value[1])
-
-        if operator in ("equals", "not_equals") and isinstance(
-            value, (Codelist, Column)
-        ):
-            raise TypeError(
-                f"You can only use '{operator}' to filter a column by a single value.\n"
-                f"To filter using a {value.__class__.__name__}, use 'is_in/not_in'."
-            )
-
-        if operator == "is_in" and not isinstance(value, (Codelist, Column)):
-            # convert non-codelist in values to tuple
-            value = tuple(value)
-        assert len(args) == len(kwargs) == 1
-
-        operator = _OPERATOR_MAPPING[operator]
-        return FilteredTable(
-            source=self,
-            column=args[0],
-            operator=operator,
-            value=value,
-            or_null=include_null,
-        )
-
-    def earliest(self, *columns):
-        columns = columns or ("date",)
-        return self.first_by(*columns)
-
-    def latest(self, *columns):
-        columns = columns or ("date",)
-        return self.last_by(*columns)
-
-    def first_by(self, *columns):
-        assert columns
-        return Row(source=self, sort_columns=columns, descending=False)
-
-    def last_by(self, *columns):
-        assert columns
-        return Row(source=self, sort_columns=columns, descending=True)
-
-    def date_in_range(
-        self, date, start_column="date_start", end_column="date_end", include_null=True
-    ):
-        """
-        A filter that returns rows for which a date falls between a start and end date (inclusive).
-        Null end date values are included by default
-        """
-        return self.filter(start_column, less_than_or_equals=date).filter(
-            end_column, greater_than_or_equals=date, include_null=include_null
-        )
-
-    def exists(self, column="patient_id"):
-        return self.aggregate("exists", column)
-
-    def count(self, column="patient_id"):
-        return self.aggregate("count", column)
-
-    def sum(self, column):  # noqa: A003
-        return self.aggregate("sum", column)
-
-    def aggregate(self, function, column):
-        output_column = f"{column}_{function}"
-        row = RowFromAggregate(self, function, column, output_column)
-        return ValueFromAggregate(row, output_column)
+class SortedFrame(ManyRowsPerPatientFrame):
+    ...
 
 
-@dataclass(frozen=True)
-class Table(BaseTable):
+# OPERATIONS
+#
+# Operations indicate the kind of thing they return by subclassing one of the basic
+# types above.
+
+
+# `Value` wraps a single static value in a one-row-per-patient series which just has
+# that value for every patient. This simplifies the signature of all other operations
+# which no longer need to care about static values.
+class Value(OneRowPerPatientSeries[T]):
+    value: T
+
+
+class SelectTable(ManyRowsPerPatientFrame):
+    name: str
+    schema: Mapping[str, Any] = DEFAULT_SCHEMA
+
+
+class SelectPatientTable(OneRowPerPatientFrame):
+    name: str
+    schema: Mapping[str, Any] = DEFAULT_SCHEMA
+
+
+class SelectColumn(Series):
+    source: Frame
     name: str
 
-    def _get_referenced_nodes(self):
-        # Table nodes are always root nodes in the query DAG and don't reference other
-        # nodes
-        return ()
 
-    def imd_rounded_as_of(self, reference_date):
-        """
-        A convenience method to retrieve the IMD on the reference date.
-        """
-        if self.name != "patient_address":
-            raise NotImplementedError(
-                "This method is only available on the patient_address table"
-            )
-
-        # Note that current addresses are recorded with an EndDate of
-        # 9999-12-31 (TPP) or Null (Graphnet). Where address periods overlap we use the one with the
-        # most recent start date. If there are several with the same start date
-        # we use the longest one (i.e. with the latest end date). We then
-        # prefer addresses which have a postcode and inally we use the address ID as a
-        # tie-breaker.
-        return (
-            self.date_in_range(reference_date)
-            .last_by("date_start", "date_end", "has_postcode", "patientaddress_id")
-            .get("index_of_multiple_deprivation_rounded")
-        )
-
-    def age_as_of(self, reference_date):
-        if self.name != "patients":
-            raise NotImplementedError(
-                "This method is only available on the patients table"
-            )
-        return DateDifference(
-            self.first_by("patient_id").get("date_of_birth"),
-            reference_date,
-            units="years",
-        )
+class Filter(ManyRowsPerPatientFrame):
+    source: ManyRowsPerPatientFrame
+    condition: Series[bool]
 
 
-# @dataclass(unsafe_hash=True)
-@dataclass(frozen=True)
-class FilteredTable(BaseTable):
-    source: Any
-    column: Any
-    operator: Any
-    value: Any
-    or_null: bool = False
-
-    def _get_referenced_nodes(self):
-        nodes = (self.source,)
-        if isinstance(self.value, QueryNode):
-            nodes += (self.value,)
-        return nodes
+class Sort(SortedFrame):
+    source: ManyRowsPerPatientFrame
+    sort_by: Series[Any]
 
 
-@dataclass(frozen=True)
-class Column(QueryNode):
-    source: Any
-    column: Any
-
-    def _get_referenced_nodes(self):
-        return (self.source,)
+class PickOneRowPerPatient(OneRowPerPatientFrame):
+    source: SortedFrame
+    position: Position
 
 
-@dataclass(frozen=True)
-class Row(QueryNode):
-    source: Any
-    sort_columns: Any
-    descending: Any
+# An aggregation is any operation which accepts many-rows-per-patient series and returns
+# a one-row-per-patient series. Below are all available aggregations (using a class as a
+# namespace).
+class AggregateByPatient:
+    class Exists(OneRowPerPatientSeries[bool]):
+        source: Series[Any]
 
-    def _get_referenced_nodes(self):
-        return (self.source,)
+    class Min(OneRowPerPatientSeries[T]):
+        source: Series[T]
 
-    def get(self, column):
-        return ValueFromRow(source=self, column=column)
+    class Max(OneRowPerPatientSeries[T]):
+        source: Series[T]
+
+    class Count(OneRowPerPatientSeries[int]):
+        source: Series[Any]
+
+    class Sum(OneRowPerPatientSeries[Numeric]):
+        source: Series[Numeric]
+
+    # This is an unusual aggregation in that while it collapses multiple values per patient
+    # down to a single value per patient (as all aggregations must) the value it
+    # produces is a set-like object containing all of its input values. This enables
+    # them to be used as arguments to the In/NotIn fuctions which require something
+    # set-like as their RHS argument.
+    class CombineAsSet(OneRowPerPatientSeries[set[T]]):
+        source: Series[T]
 
 
-@dataclass(frozen=True)
-class RowFromAggregate(QueryNode):
-    source: QueryNode
-    function: Any
-    input_column: Any
-    output_column: Any
-
-    def _get_referenced_nodes(self):
-        return (self.source,)
+# Remove some duplication from the definition of the comparison functions
+class ComparisonFunction(Series[bool]):
+    lhs: Series[T]
+    rhs: Series[T]
 
 
-class Value(QueryNode):
-    @staticmethod
-    def _other_as_comparator(other):
-        if isinstance(other, Value):
-            other = boolean_comparator(other)
-        return other
+# A function is any operation which takes series and values and returns a series. The
+# dimension of the series it returns will be the highest dimension of its inputs i.e. if
+# any of its inputs has many-rows-per-patient then its output will too.  Below are all
+# available functions (using a class as a namespace).
+class Function:
 
-    def _get_comparator(self, operator, other):
-        other = self._other_as_comparator(other)
-        return Comparator(lhs=self, operator=operator, rhs=other)
+    # Comparison
+    class EQ(ComparisonFunction):
+        ...
 
-    def __gt__(self, other):
-        return self._get_comparator("__gt__", other)
+    class NE(ComparisonFunction):
+        ...
 
-    def __ge__(self, other):
-        return self._get_comparator("__ge__", other)
+    class LT(ComparisonFunction):
+        ...
 
-    def __lt__(self, other):
-        return self._get_comparator("__lt__", other)
+    class LE(ComparisonFunction):
+        ...
 
-    def __le__(self, other):
-        return self._get_comparator("__le__", other)
+    class GT(ComparisonFunction):
+        ...
 
-    def __eq__(self, other):
-        return self._get_comparator("__eq__", other)
+    class GE(ComparisonFunction):
+        ...
 
-    def __ne__(self, other):
-        return self._get_comparator("__ne__", other)
+    # Boolean
+    class And(Series[bool]):
+        lhs: Series[bool]
+        rhs: Series[bool]
 
-    def __and__(self, other):
-        other = self._other_as_comparator(other)
-        return boolean_comparator(self) & other
+    class Or(Series[bool]):
+        lhs: Series[bool]
+        rhs: Series[bool]
 
-    def __or__(self, other):
-        other = self._other_as_comparator(other)
-        return boolean_comparator(self) | other
+    class Not(Series[bool]):
+        source: Series[bool]
 
-    def __invert__(self):
-        return boolean_comparator(self, negated=True)
+    # Null handling
+    class IsNull(Series[bool]):
+        source: Series[Any]
+
+    # Arithmetic
+    class Add(Series[Numeric]):
+        lhs: Series[Numeric]
+        rhs: Series[Numeric]
+
+    class Subtract(Series[Numeric]):
+        lhs: Series[Numeric]
+        rhs: Series[Numeric]
+
+    # Dates
+    # TODO: Our date handling needs thinking through. Possibly we need an explicit
+    # datedelta type. Consider the below functions provisional.
+    class RoundToFirstOfMonth(Series[date]):
+        source: Series[date]
+
+    class RoundToFirstOfYear(Series[date]):
+        source: Series[date]
+
+    class DateAdd(Series[date]):
+        lhs: Series[date]
+        rhs: Series[int]
+
+    class DateSubtract(Series[date]):
+        lhs: Series[date]
+        rhs: Series[int]
+
+    class DateDifference(Series[int]):
+        start: Series[date]
+        end: Series[date]
+        units: Series[str]
+
+    # Containment is a special case: its right-hand side must be something vector-like i.e.
+    # something containing multiple values. To build a series whose values are vectors,
+    # use the `CombineAsSet` aggregation.
+    class In(Series[bool]):
+        lhs: Series[T]
+        rhs: Series[set[T]]
+
+
+class Categorise(Series[T]):
+    categories: dict[Series[T], Series[bool]]
+    default: Series[T]
 
     def __hash__(self):
-        return id(self)
+        # `categories` is a dict and so not hashable by default, but we treat it as
+        # immutable once created so we're fine to make it hashable
+        return hash((tuple(self.categories.items()), self.default))
 
 
-@dataclass(frozen=True, eq=False, order=False)
-class ValueFromRow(Value):
-    source: Any
-    column: Any
-
-    def _get_referenced_nodes(self):
-        return (self.source,)
+# We don't currently support this in the DSL or the Query Engine but we include it for
+# completeness
+class Join(ManyRowsPerPatientFrame):
+    lhs: Frame
+    rhs: Frame
 
 
-@dataclass(frozen=True, eq=False, order=False)
-class ValueFromAggregate(Value):
-    source: RowFromAggregate
-    column: Any
+# VALIDATION
+#
+# The main thing we need to validate here is the "domain constraint". Frames and series
+# which are in one-row-per-patient form can be combined arbitrarily because we can JOIN
+# using the patient_id and be sure that we're not creating new rows. But for operations
+# involving many-rows-per-patient inputs we need to ensure that they are all drawn from
+# the same underlying table. (We call this the "domain" for set theoretic reasons which
+# the margin of this comment are too small to contain.)
 
-    def _get_referenced_nodes(self):
-        return (self.source,)
-
-
-def categorise(mapping, default=None):
-    mapping = {
-        key: boolean_comparator(value) if isinstance(value, Value) else value
-        for key, value in mapping.items()
-    }
-    return ValueFromCategory(mapping, default)
+PATIENT_DOMAIN = object()
 
 
-@dataclass(frozen=True, eq=False, order=False)
-class ValueFromCategory(Value):
-    definitions: dict
-    default: str | int | float | None
-
-    def _get_referenced_nodes(self):
-        nodes = ()
-        for value in self.definitions.values():
-            assert isinstance(value, QueryNode)
-            nodes += (value,)
-        return nodes
+class DomainMismatchError(Exception):
+    ...
 
 
-@dataclass(frozen=True)
-class Codelist(QueryNode):
-    codes: tuple
-    system: str
-    has_categories: bool = False
+def validate_node(node):
+    # TODO: Runtime type validation (i.e. only acceptable types are passed in), possibly
+    # using something like pydantic.
 
-    def _get_referenced_nodes(self):
-        return ()
+    # TODO: Validation of the "inner" types i.e. a series may contain date values and we
+    # want to make it an error if you try to compare these to an int. And there are
+    # several places (e.g. a Filter condition) where we require suppied series to have
+    # boolean type. We'll need the DSL to get these types from the schema and pass them
+    # in somehow.
 
-    def __post_init__(self):
-        if self.has_categories:
-            raise NotImplementedError("Categorised codelists are currently unsupported")
-
-    def __repr__(self):
-        if len(self.codes) > 5:
-            codes = self.codes[:5] + ("...",)
-        else:
-            codes = self.codes
-        return f"Codelist(system={self.system}, codes={codes})"
+    # The one exception to the "common domain" rule is the Join operation which takes
+    # frames from two different domains and produces a new domain. (This is no-cover-ed
+    # because we're not using the Join operation yet.)
+    if not isinstance(node, Join):  # pragma: no cover
+        validate_children_have_common_domain(node)
 
 
-class ValueFromFunction(Value):
-    def __init__(self, *args):
-        self.arguments = args
-
-    def _get_referenced_nodes(self):
-        return tuple(arg for arg in self.arguments if isinstance(arg, QueryNode))
-
-
-class DateDifference(ValueFromFunction):
-    def __init__(self, start, end, units="years"):
-        super().__init__(start, end, units)
-        self.units = units
+def validate_children_have_common_domain(node):
+    domains = get_domains(node)
+    non_patient_domains = domains - {PATIENT_DOMAIN}
+    if len(non_patient_domains) > 1:
+        raise DomainMismatchError(
+            f"Attempt to combine multiple domains:\n{non_patient_domains}"
+            f"\nIn node:\n{node}"
+        )
 
 
-class DateAddition(ValueFromFunction):
-    pass
+# For most operations, their domain is the just the domains of all their children.
+@singledispatch
+def get_domains(node):
+    return set().union(
+        *[get_domains(child_node) for child_node in get_child_nodes(node)]
+    )
 
 
-class DateDeltaAddition(ValueFromFunction):
-    pass
+# But these operations create new domains.
+@get_domains.register(SelectTable)
+@get_domains.register(Join)
+def get_domain_roots(node):
+    return {node}
 
 
-class DateSubtraction(ValueFromFunction):
-    pass
+# And these operations are guaranteed to produce output in the patient domain.
+@get_domains.register(OneRowPerPatientFrame)
+@get_domains.register(OneRowPerPatientSeries)
+def get_domains_for_one_row_per_patient_operations(node):
+    return {PATIENT_DOMAIN}
 
 
-class DateDeltaSubtraction(ValueFromFunction):
-    pass
+# Quick and lazy way of getting child nodes using dataclass introspection
+@singledispatch
+def get_child_nodes(node):
+    return [
+        value
+        for value in [getattr(node, field.name) for field in dataclasses.fields(node)]
+        if isinstance(value, Node)
+    ]
 
 
-class RoundToFirstOfMonth(ValueFromFunction):
-    pass
-
-
-class RoundToFirstOfYear(ValueFromFunction):
-    pass
+# The above bit of dynamic cheekiness doesn't work for Categorise whose children are
+# nested inside a dict object
+@get_child_nodes.register(Categorise)
+def get_child_nodes_for_categorise(node):
+    return node.categories.values()

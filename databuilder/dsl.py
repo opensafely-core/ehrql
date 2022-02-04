@@ -49,7 +49,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Generic, TypeVar, overload
 
-from .query_model import (
+from .query_model_old import (
     BaseTable,
     Codelist,
     Comparator,
