@@ -115,7 +115,7 @@ def test_patients_table(database):
         dob = _patients.get("date_of_birth")
 
     assert extract(Cohort, TPPBackend, database) == [
-        dict(patient_id=1, sex="F", dob=date(1950, 1, 1))
+        dict(patient_id=1, sex="female", dob=date(1950, 1, 1))
     ]
 
 
@@ -418,7 +418,7 @@ def test_patients_contract_table(database):
         patient(5, "X", "1990-01-01"),
     )
 
-    query = TPPBackend.patient_demographics.get_query()
+    query = TPPBackend.patients.get_query()
 
     results = list(run_query(database, query))
     assert results == [
