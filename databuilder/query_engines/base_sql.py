@@ -519,7 +519,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         return type_coerce(date_diff, sqlalchemy_types.Integer())
 
-    def _convert_date_diff_to_months(self, start, end):
+    def _convert_date_diff_to_months(
+        self, start, end
+    ):  # pragma: no cover (re-implement when the QL is in)
         start_year, start_month, start_day = self._date_to_parts(start)
         end_year, end_month, end_day = self._date_to_parts(end)
         year_diff = end_year - start_year
@@ -539,7 +541,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         raise NotImplementedError()
 
-    def _convert_date_diff_to_weeks(self, start, end):
+    def _convert_date_diff_to_weeks(
+        self, start, end
+    ):  # pragma: no cover (re-implement when the QL is in)
         """
         Calculate difference in weeks
         Datediff calculates weeks by boundaries crossed.  Since we want the duration in total
@@ -559,10 +563,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         raise NotImplementedError()
 
-    def date_delta_add(self, delta1, delta2):
+    def date_delta_add(
+        self, delta1, delta2
+    ):  # pragma: no cover (re-implement when the QL is in)
         return type_coerce((delta1 + delta2), sqlalchemy_types.Integer())
 
-    def date_delta_subtract(self, delta1, delta2):
+    def date_delta_subtract(
+        self, delta1, delta2
+    ):  # pragma: no cover (re-implement when the QL is in)
         return type_coerce((delta1 - delta2), sqlalchemy_types.Integer())
 
     def round_to_first_of_month(self, date):

@@ -78,13 +78,17 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             with super().execute_query() as results:
                 yield results
 
-    def _convert_date_diff_to_days(self, start, end):
+    def _convert_date_diff_to_days(
+        self, start, end
+    ):  # pragma: no cover (re-implement when the QL is in)
         """
         Calculate difference in days
         """
         return sqlalchemy.func.datediff(sqlalchemy.text("day"), start, end)
 
-    def date_add(self, start_date, number_of_days):
+    def date_add(
+        self, start_date, number_of_days
+    ):  # pragma: no cover (re-implement when the QL is in)
         """
         Add a number of days to a date, using the `dateadd` function
         """
@@ -94,7 +98,9 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             sqlalchemy_types.Date(),
         )
 
-    def date_subtract(self, start_date, number_of_days):
+    def date_subtract(
+        self, start_date, number_of_days
+    ):  # pragma: no cover (re-implement when the QL is in)
         """
         Subtract a number of days from a date, using the `dateadd` function
         """
@@ -106,14 +112,18 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             sqlalchemy_types.Date(),
         )
 
-    def round_to_first_of_month(self, date):
+    def round_to_first_of_month(
+        self, date
+    ):  # pragma: no cover (re-implement when the QL is in)
         date = type_coerce(date, sqlalchemy_types.Date())
         first_of_month = sqlalchemy.func.datefromparts(
             sqlalchemy.func.year(date), sqlalchemy.func.month(date), 1
         )
         return type_coerce(first_of_month, sqlalchemy_types.Date())
 
-    def round_to_first_of_year(self, date):
+    def round_to_first_of_year(
+        self, date
+    ):  # pragma: no cover (re-implement when the QL is in)
         date = type_coerce(date, sqlalchemy_types.Date())
         first_of_year = sqlalchemy.func.datefromparts(sqlalchemy.func.year(date), 1, 1)
         return type_coerce(first_of_year, sqlalchemy_types.Date())
