@@ -141,8 +141,8 @@ convention = "google"
 add_select = [
   "D213",
 ]
-# base ignores for all docstrings, for module/package specific ones add them to
-#the CLI args in Justfile
+# Base ignores for all docstrings, for module/package specific ones add them to
+# the CLI args in Justfile
 add_ignore = [
   "D100",
   "D104",
