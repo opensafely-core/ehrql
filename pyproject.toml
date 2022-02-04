@@ -159,4 +159,7 @@ markers = [
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:past.builtins.misc:45",
+    "ignore::DeprecationWarning:pytest_freezegun:17",
+    "ignore::DeprecationWarning:docker.utils.utils:52",
+    "ignore::DeprecationWarning:docker.utils.utils:53",
 ]
