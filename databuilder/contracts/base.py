@@ -1,16 +1,37 @@
 import dataclasses
 
-from .constraints import BaseConstraint, ChoiceConstraint
+from . import types
+from .constraints import (
+    BaseConstraint,
+    ChoiceConstraint,
+    NotNullConstraint,
+    UniqueConstraint,
+)
 from .types import BaseType, Choice
 
 
 @dataclasses.dataclass
 class Column:
-
     type: BaseType  # noqa: A003
     description: str = ""
-    help: str = ""  # noqa: A003
+    notes_for_implementors: str = ""
+    implementation_notes_to_add_to_description: str = ""
     constraints: list[BaseConstraint] = dataclasses.field(default_factory=list)
+    required: bool = True
+
+    # TODO: remove when all old contracts have gone away
+    help: str = ""  # noqa: A003
+
+
+# many contracts need this column so lets just define it once.
+PatientIDColumn = Column(
+    type=types.PseudoPatientId(),
+    description=(
+        "Patient's pseudonymous identifier, for linkage."
+        "This will not normally be output, or operated on by researchers."
+    ),
+    constraints=[NotNullConstraint(), UniqueConstraint()],
+)
 
 
 class BackendContractError(Exception):
