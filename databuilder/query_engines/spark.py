@@ -59,7 +59,9 @@ class SparkQueryEngine(BaseSQLQueryEngine):
     def get_temp_database(self):
         return self.backend.temporary_database
 
-    def _convert_date_diff_to_days(self, start, end):
+    def _convert_date_diff_to_days(
+        self, start, end
+    ):  # pragma: no cover (re-implement when the QL is in)
         """
         Calculate difference in days
         The sparkSQL datediff function only calculate diff in days, and take the
@@ -67,7 +69,9 @@ class SparkQueryEngine(BaseSQLQueryEngine):
         """
         return sqlalchemy.func.datediff(end, start)
 
-    def date_add(self, start_date, number_of_days):
+    def date_add(
+        self, start_date, number_of_days
+    ):  # pragma: no cover (re-implement when the QL is in)
         """
         Add a number of days to a date, using the `dateadd` function
         The sparkSQL date_add function only allows adding days
@@ -78,7 +82,9 @@ class SparkQueryEngine(BaseSQLQueryEngine):
             sqlalchemy_types.Date(),
         )
 
-    def date_subtract(self, start_date, number_of_days):
+    def date_subtract(
+        self, start_date, number_of_days
+    ):  # pragma: no cover (re-implement when the QL is in)
         """
         Subtract a number of days from a date, using the `date_add` function
         """
@@ -88,7 +94,9 @@ class SparkQueryEngine(BaseSQLQueryEngine):
             sqlalchemy_types.Date(),
         )
 
-    def round_to_first_of_month(self, date):
+    def round_to_first_of_month(
+        self, date
+    ):  # pragma: no cover (re-implement when the QL is in)
         date = type_coerce(date, sqlalchemy_types.Date())
 
         first_of_month = sqlalchemy.func.date_trunc(
@@ -97,7 +105,9 @@ class SparkQueryEngine(BaseSQLQueryEngine):
         )
         return type_coerce(first_of_month, sqlalchemy_types.Date())
 
-    def round_to_first_of_year(self, date):
+    def round_to_first_of_year(
+        self, date
+    ):  # pragma: no cover (re-implement when the QL is in)
         date = type_coerce(date, sqlalchemy_types.Date())
 
         first_of_year = sqlalchemy.func.date_trunc(

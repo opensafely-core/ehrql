@@ -44,7 +44,7 @@ def run_cohort_action(
         else:
             date_suffix = ""
 
-        if cohort_registry.cohorts:
+        if cohort_registry.cohorts:  # pragma: no cover (re-implement when the QL is in)
             # Currently we expect at most one cohort to be registered
             assert (
                 len(cohort_registry.cohorts) == 1

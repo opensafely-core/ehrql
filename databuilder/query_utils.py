@@ -6,7 +6,7 @@ def get_class_vars(cls):
     return [(key, value) for key, value in vars(cls).items() if key not in default_vars]
 
 
-def get_cohort_variables(cohort):
+def get_cohort_variables(cohort):  # pragma: no cover (re-implement when the QL is in)
     return [
         (variable_name, variable.value)
         for (variable_name, variable) in vars(cohort).items()
@@ -15,7 +15,9 @@ def get_cohort_variables(cohort):
 
 def get_column_definitions(cohort):
     # This is where we distinguish between versions of the DSL
-    if isinstance(cohort, DSLCohort):
+    if isinstance(
+        cohort, DSLCohort
+    ):  # pragma: no cover (re-implement when the QL is in)
         variables = get_cohort_variables(cohort)
     else:
         variables = get_class_vars(cohort)
@@ -25,7 +27,7 @@ def get_column_definitions(cohort):
         if name.startswith("_") or name in ignored_names:
             continue
         columns[name] = value
-    if "population" not in columns:
+    if "population" not in columns:  # pragma: no cover (re-implement when the QL is in)
         raise ValueError("A Cohort definition must define a 'population' variable")
     return columns
 

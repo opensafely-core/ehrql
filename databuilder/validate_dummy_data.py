@@ -104,7 +104,9 @@ def get_csv_validator(query_node):
         except ValueError:
             datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
 
-    def category_validator(value, categories, default_category):
+    def category_validator(
+        value, categories, default_category
+    ):  # pragma: no cover (re-implement when the QL is in)
         """Ensure that a category value is one of the expected categories, or the default"""
         # The default must be either None, or of the same type as the categories
         category_type = type(categories[0])

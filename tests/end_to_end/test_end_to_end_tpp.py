@@ -16,17 +16,6 @@ def test_extracts_data_from_sql_server_integration_test(
     run_test(load_study, database, cohort_extractor_in_process)
 
 
-def test_extracts_data_from_sql_server_integration_test_new_dsl(
-    load_study, database, cohort_extractor_in_process
-):
-    run_test(
-        load_study,
-        database,
-        cohort_extractor_in_process,
-        definition_file="tpp_cohort_new_dsl.py",
-    )
-
-
 def run_test(
     load_study,
     database,
