@@ -189,4 +189,4 @@ story-dependencies: devenv
         exit 1
     fi
 
-    SHORTCUT_EPIC="Working baseline" $BIN/python scripts/story-dependencies | dot -Tpng >story-dependencies.png
+    SHORTCUT_EPIC="Walking skeleton" $BIN/python scripts/story-dependencies | dot -Tpng >story-dependencies.png
