@@ -256,9 +256,9 @@ pyparsing==3.0.7 \
     --hash=sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea \
     --hash=sha256:a6c06a88f252e6c322f65faf8f418b16213b51bdfaece0524c1c1bc30c63c484
     # via packaging
-pytest==6.2.5 \
-    --hash=sha256:131b36680866a76e6781d13f101efb86cf674ebb9762eb70d3082b6f29889e89 \
-    --hash=sha256:7310f8d27bc79ced999e760ca304d69f6ba6c6649c0b60fb0e04a4a77cacc134
+pytest==7.0.0 \
+    --hash=sha256:42901e6bd4bd4a0e533358a86e848427a49005a3256f657c5c8f8dd35ef137a9 \
+    --hash=sha256:dad48ffda394e5ad9aa3b7d7ddf339ed502e5e365b1350e0af65f4a602344b11
     # via
     #   -r requirements.dev.in
     #   pytest-cov
@@ -366,7 +366,6 @@ toml==0.10.2 \
     #   interrogate
     #   pre-commit
     #   pydocstyle
-    #   pytest
 tomli==2.0.0 \
     --hash=sha256:b5bde28da1fed24b9bd1d4d2b8cba62300bfb4ec9a6187a957e8ddb9434c5224 \
     --hash=sha256:c292c34f58502a1eb2bbb9f5bbc9a5ebc37bee10ffb8c2d6bbdfa8eb13cc14e1
@@ -375,11 +374,11 @@ tomli==2.0.0 \
     #   coverage
     #   mypy
     #   pep517
+    #   pytest
 typing-extensions==4.0.1 \
     --hash=sha256:4ca091dea149f945ec56afb48dae714f21e8692ef22a395223bcd328961b6a0e \
     --hash=sha256:7f001e5ac290a0c0401508864c7ec868be4e701886d5b573a9528ed3973d9d3b
     # via
-    #   black
     #   mypy
     #   sqlalchemy-stubs
 urllib3==1.26.8 \
@@ -403,9 +402,7 @@ wheel==0.37.1 \
 pip==21.3.1 \
     --hash=sha256:deaf32dcd9ab821e359cd8330786bcd077604b5c5730c0b096eda46f95c24a2d \
     --hash=sha256:fd11ba3d0fdb4c07fbc5ecbba0b1b719809420f25038f8ee3cd913d3faa3033a
-    # via
-    #   -c requirements.prod.txt
-    #   pip-tools
+    # via pip-tools
 setuptools==60.7.0 \
     --hash=sha256:b83cf328a4f6a987c95610e76b29a30778db05174eef71f771776c48f8f25d1b \
     --hash=sha256:f6871e8aba174d1e22f576c7a471d8460e226b8424b0f2e929a13330b8b83118
