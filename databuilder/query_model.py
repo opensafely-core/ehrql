@@ -387,4 +387,4 @@ def get_input_nodes(node):
 # nested inside a dict object
 @get_input_nodes.register(Categorise)
 def get_input_nodes_for_categorise(node):
-    return node.categories.values()
+    return [*node.categories.keys(), *node.categories.values(), node.default]
