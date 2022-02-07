@@ -37,6 +37,11 @@ def test_queries_have_expected_types(queries):
     assert isinstance(queries.first_vaccination, OneRowPerPatientFrame)
 
 
+def test_queries_are_hashable(queries):
+    for query in vars(queries).values():
+        assert hash(query) is not None
+
+
 def test_mixing_domains_throws_error():
     events = SelectTable("events")
     vaccinations = SelectTable("vaccinations")
