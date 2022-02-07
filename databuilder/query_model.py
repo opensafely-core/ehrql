@@ -2,7 +2,7 @@ import dataclasses
 from datetime import date
 from enum import Enum
 from functools import singledispatch
-from typing import Any, Mapping, TypeVar
+from typing import Any, Optional, TypeVar
 
 # mypy: ignore-errors
 
@@ -19,6 +19,7 @@ __all__ = [
     "AggregateByPatient",
     "Function",
     "Categorise",
+    "TableSchema",
     "Code",
     "DomainMismatchError",
 ]
@@ -51,26 +52,20 @@ class Position(Enum):
         return f"{self.__class__.__name__}.{self.name}"
 
 
-# Operations which create Frames from tables take an optional schema parameter. A schema
-# is a mapping from colum names to types which allows us to check that only columns
-# which exist are being accessed and that all operations use valid types. The default
-# schema assumes that all referenced columns exist and gives them the type Any. This
-# obviously limits the validation we can do but it does not eliminate it. For instance,
-# we can tell when an operation which can only return a bool is used as an argument to
-# one which only accepts an int.
-class DefaultSchema:
-    def __init__(self, name):
+class TableSchema:
+    "Defines a mapping of column names to types"
+
+    def __init__(self, name, **columns):
+        # `name` can be arbitrary here, but supplying a bound name for the schema in
+        # local scope will give a correctly executable repr
         self.name = name
+        self.columns = columns
 
-    def __getitem__(self, column_name):  # pragma: no cover
-        return Any
+    def __getitem__(self, column):  # pragma: no cover
+        return self.columns[column]
 
-    def __repr__(self):  # pragma: no cover
-        # Gives us `self == eval(repr(self))` as for dataclasses
+    def __repr__(self):
         return self.name
-
-
-DEFAULT_SCHEMA = DefaultSchema("DEFAULT_SCHEMA")
 
 
 # BASIC QUERY MODEL TYPES
@@ -147,12 +142,16 @@ class Value(OneRowPerPatientSeries[T]):
 
 class SelectTable(ManyRowsPerPatientFrame):
     name: str
-    schema: Mapping[str, Any] = DEFAULT_SCHEMA
+    # A schema is a mapping from available colum names to types which allows us to check
+    # that operations only use columns which actually exist and are of the correct type.
+    # It's optional because we don't *need* it to construct a query, but we're obviously
+    # more limited in the validation we can do without it.
+    schema: Optional[TableSchema] = None
 
 
 class SelectPatientTable(OneRowPerPatientFrame):
     name: str
-    schema: Mapping[str, Any] = DEFAULT_SCHEMA
+    schema: Optional[TableSchema] = None
 
 
 class SelectColumn(Series):
