@@ -1,40 +1,74 @@
+import datetime
 from types import SimpleNamespace
 
 import pytest
 
 from databuilder.query_model import (
     AggregateByPatient,
+    Categorise,
     DomainMismatchError,
     Filter,
+    Frame,
     Function,
-    OneRowPerPatientFrame,
-    OneRowPerPatientSeries,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
     SelectTable,
+    Series,
     Sort,
+    TableSchema,
     Value,
+)
+
+EVENTS_SCHEMA = TableSchema(
+    "EVENTS_SCHEMA", patient_id=int, date=datetime.date, code=str
 )
 
 
 @pytest.fixture
 def queries():
     q = SimpleNamespace()
-    events = SelectTable("events")
+    events = SelectTable("events", EVENTS_SCHEMA)
     code = SelectColumn(events, "code")
     date = SelectColumn(events, "date")
     vaccinations = Filter(events, Function.EQ(code, Value("abc123")))
-    q.has_vaccination = AggregateByPatient.Exists(
+    anaphylaxis_events = Filter(
+        events, Function.In(code, Value(frozenset({"def456", "xyz789"})))
+    )
+
+    q.vaccination_count = AggregateByPatient.Count(
         SelectColumn(vaccinations, "patient_id")
     )
     q.first_vaccination = PickOneRowPerPatient(Sort(vaccinations, date), Position.FIRST)
+    q.vaccination_status = Categorise(
+        {
+            Value("partial"): Function.EQ(q.vaccination_count, Value(1)),
+            Value("full"): Function.EQ(q.vaccination_count, Value(2)),
+            Value("boosted"): Function.GE(q.vaccination_count, Value(3)),
+        },
+        default=Value("unvaccinated"),
+    )
+
+    q.vaccination_days = SelectColumn(vaccinations, "date")
+    q.vaccination_days_set = AggregateByPatient.CombineAsSet(q.vaccination_days)
+    q.anaphylaxis_co_occurance = Filter(
+        anaphylaxis_events, Function.In(date, q.vaccination_days_set)
+    )
+    q.had_anaphylaxis = AggregateByPatient.Exists(
+        SelectColumn(q.anaphylaxis_co_occurance, "patient_id")
+    )
+
     return q
 
 
 def test_queries_have_expected_types(queries):
-    assert isinstance(queries.has_vaccination, OneRowPerPatientSeries)
-    assert isinstance(queries.first_vaccination, OneRowPerPatientFrame)
+    assert isinstance(queries.vaccination_count, Series)
+    assert isinstance(queries.first_vaccination, Frame)
+    assert isinstance(queries.vaccination_status, Series)
+    assert isinstance(queries.vaccination_days, Series)
+    assert isinstance(queries.vaccination_days_set, Series)
+    assert isinstance(queries.anaphylaxis_co_occurance, Frame)
+    assert isinstance(queries.had_anaphylaxis, Series)
 
 
 def test_queries_are_hashable(queries):
