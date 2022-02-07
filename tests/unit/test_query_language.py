@@ -1,7 +1,7 @@
 import datetime
 
 from databuilder.dsl import IdColumn
-from databuilder.query_language import Column, Dataset, DateColumn, PatientTable
+from databuilder.query_language import Dataset, DateColumn, PatientTable
 
 # This table definition is here as a convenience.
 # TODO: instantiate tables with a contract, and import tables from tests.lib.tables
@@ -9,15 +9,7 @@ from databuilder.query_model import Function, SelectColumn, SelectPatientTable, 
 
 
 class Patients(PatientTable):
-    def __init__(self):
-        super().__init__("patients")
-
-        for name in dir(self):
-            if not hasattr(Patients, name):
-                continue
-            attr = getattr(Patients, name)
-            if isinstance(attr, Column):
-                attr.table = self
+    name = "patients"
 
     patient_id = IdColumn("patient_id")
     date_of_birth = DateColumn("date_of_birth")

@@ -35,17 +35,15 @@ class Dataset:
                 yield name, attr
 
 
-class TableMeta(type):
-    def __setattr__(cls, name, value):
-        if isinstance(value, Column):
-            value.table = cls
-        return super().__setattr__(name, value)
+class Table:
+    def __init__(self):
+        for key in dir(self):
+            field = getattr(self, key)
+            if isinstance(field, Column):
+                field.table = self
 
 
-class PatientTable(metaclass=TableMeta):
-    def __init__(self, name: str):
-        self.name = name
-
+class PatientTable(Table):
     def compile(self):  # noqa A003
         return SelectPatientTable(name=self.name)
 
