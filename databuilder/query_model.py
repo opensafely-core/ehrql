@@ -339,10 +339,10 @@ def validate_node(node):
     # the same underlying table. (We call this the "domain" for set theoretic reasons which
     # the margin of this comment are too small to contain.) Note that when we add a Join
     # operation that will be the one explicit exception to this rule.
-    validate_children_have_common_domain(node)
+    validate_inputs_have_common_domain(node)
 
 
-def validate_children_have_common_domain(node):
+def validate_inputs_have_common_domain(node):
     domains = get_domains(node)
     non_patient_domains = domains - {PATIENT_DOMAIN}
     if len(non_patient_domains) > 1:
@@ -352,30 +352,30 @@ def validate_children_have_common_domain(node):
         )
 
 
-# For most operations, their domain is the just the domains of all their children.
+# For most operations, their domain is the just the domains of all their inputs
 @singledispatch
 def get_domains(node):
     return set().union(
-        *[get_domains(child_node) for child_node in get_child_nodes(node)]
+        *[get_domains(input_node) for input_node in get_input_nodes(node)]
     )
 
 
-# But these operations create new domains.
+# But these operations create new domains
 @get_domains.register(SelectTable)
 def get_domain_roots(node):
     return {node}
 
 
-# And these operations are guaranteed to produce output in the patient domain.
+# And these operations are guaranteed to produce output in the patient domain
 @get_domains.register(OneRowPerPatientFrame)
 @get_domains.register(OneRowPerPatientSeries)
 def get_domains_for_one_row_per_patient_operations(node):
     return {PATIENT_DOMAIN}
 
 
-# Quick and lazy way of getting child nodes using dataclass introspection
+# Quick and lazy way of getting input nodes using dataclass introspection
 @singledispatch
-def get_child_nodes(node):
+def get_input_nodes(node):
     return [
         value
         for value in [getattr(node, field.name) for field in dataclasses.fields(node)]
@@ -383,8 +383,8 @@ def get_child_nodes(node):
     ]
 
 
-# The above bit of dynamic cheekiness doesn't work for Categorise whose children are
+# The above bit of dynamic cheekiness doesn't work for Categorise whose inputs are
 # nested inside a dict object
-@get_child_nodes.register(Categorise)
-def get_child_nodes_for_categorise(node):
+@get_input_nodes.register(Categorise)
+def get_input_nodes_for_categorise(node):
     return node.categories.values()
