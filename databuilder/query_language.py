@@ -21,7 +21,7 @@ class Dataset:
         self.population = population
 
     def __setattr__(self, name: str, value: object) -> None:
-        if isinstance(value, Series):
+        if isinstance(value, Series) or isinstance(value, Column):
             # TODO: add check that series is patient series not event series
             self.variables[name] = value
         else:
@@ -35,12 +35,10 @@ class Table:
     def __init__(self, qm_node):
         self.qm_node = qm_node
 
-    def __getattribute__(self, item):
-        attr = super().__getattribute__(item)
-        if isinstance(attr, Column):
-            return attr.series_on(self)
-        else:
-            return attr
+        for key in dir(self):
+            field = getattr(self, key)
+            if isinstance(field, Column):
+                field.table = self
 
 
 class PatientTable(Table):
@@ -48,18 +46,9 @@ class PatientTable(Table):
         super().__init__(SelectPatientTable(name=self.__name__))
 
 
-class Column:
-    def __init__(self, name: str, series_type):
-        self.name = name
-        self.series_type = series_type
-
-    def series_on(self, table):
-        return self.series_type(SelectColumn(name=self.name, source=table.qm_node))
-
-
-class DateColumn(Column):
-    def __init__(self, name):
-        super().__init__(name, DateSeries)
+class DateOperations:
+    def __le__(self, other):
+        return BoolSeries(Function.LE(lhs=self.qm_node, rhs=Value(other)))
 
 
 class Series:
@@ -75,6 +64,20 @@ class BoolSeries(Series):
     pass
 
 
-class DateSeries(Series):
-    def __le__(self, other):
-        return BoolSeries(Function.LE(lhs=self.qm_node, rhs=Value(other)))
+class DateSeries(Series, DateOperations):
+    pass
+
+
+class Column:
+    def __init__(self, name: str, series_type):
+        self.name = name
+        self.series_type = series_type
+
+    @property
+    def qm_node(self):
+        return SelectColumn(name=self.name, source=self.table.qm_node)
+
+
+class DateColumn(Column, DateOperations):
+    def __init__(self, name):
+        super().__init__(name, DateSeries)
