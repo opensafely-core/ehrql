@@ -2,10 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from databuilder import codelist, codelist_from_csv, combine_codelists, table
-
-from .lib.mock_backend import ctv3_event, patient
-from .lib.util import OldCohortWithPopulation
+from databuilder import codelist, codelist_from_csv, combine_codelists
 
 
 @pytest.fixture
@@ -19,98 +16,6 @@ def codelist_csv():
         )
 
     return csv_path
-
-
-def test_codelist_query(engine):
-    input_data = [
-        patient(
-            1,
-            ctv3_event(code="abc", date="2021-01-01"),
-            ctv3_event(code="xyz", date="2021-02-01"),
-            ctv3_event(code="foo", date="2021-03-01"),
-        ),
-        patient(2, ctv3_event(code="bar", date="2021-01-01")),
-        patient(3, ctv3_event(code="ijk", date="2021-01-01")),
-    ]
-    engine.setup(input_data)
-
-    # Insert a load of extra codes as padding to force this test to exercise
-    # the "insert in multiple batches" codepath
-    extra_codes = [f"Code{n}" for n in range(1100)]
-    test_codelist = codelist(["abc", "xyz", *extra_codes, "ijk"], system="ctv3")
-
-    class Cohort(OldCohortWithPopulation):
-        code = (
-            table("clinical_events")
-            .filter("code", is_in=test_codelist)
-            .latest()
-            .get("code")
-        )
-
-    result = engine.extract(Cohort)
-    assert result == [
-        {"patient_id": 1, "code": "xyz"},
-        {"patient_id": 2, "code": None},
-        {"patient_id": 3, "code": "ijk"},
-    ]
-
-
-def test_codelist_equals_query(engine):
-    input_data = [
-        patient(1, ctv3_event(code="abc", date="2021-01-01")),
-        patient(2, ctv3_event(code="bar", date="2021-01-01")),
-        patient(3, ctv3_event(code="ijk", date="2021-01-01")),
-    ]
-    engine.setup(input_data)
-
-    # A single code codelist can be expressed as an equals query
-    test_codelist = codelist(["abc"], system="ctv3")
-
-    class Cohort(OldCohortWithPopulation):
-        code = (
-            table("clinical_events")
-            .filter("code", is_in=test_codelist)
-            .latest()
-            .get("code")
-        )
-
-    result = engine.extract(Cohort)
-    assert result == [
-        {"patient_id": 1, "code": "abc"},
-        {"patient_id": 2, "code": None},
-        {"patient_id": 3, "code": None},
-    ]
-
-
-def test_codelist_query_selects_correct_system(engine):
-    input_data = [
-        patient(
-            1,
-            ctv3_event(code="abc", date="2021-01-01"),
-            ctv3_event(code="sabc", date="2021-01-01", system="snomed"),
-        ),
-        patient(2, ctv3_event(code="sabc", date="2021-01-01")),
-        patient(3, ctv3_event(code="ijk", date="2021-01-01", system="snomed")),
-    ]
-    engine.setup(input_data)
-
-    test_codelist = codelist(["sabc", "sxyz", "ijk"], system="snomed")
-
-    class Cohort(OldCohortWithPopulation):
-        code = (
-            table("clinical_events")
-            .filter("code", is_in=test_codelist)
-            .latest()
-            .get("code")
-        )
-
-    result = engine.extract(Cohort)
-    # extracts only the snomed events, even though there are matching codes in ctv3 events
-    assert result == [
-        {"patient_id": 1, "code": "sabc"},
-        {"patient_id": 2, "code": None},
-        {"patient_id": 3, "code": "ijk"},
-    ]
 
 
 @pytest.mark.parametrize(
@@ -194,33 +99,6 @@ def test_combine_codelists_different_systems():
         match="Cannot combine codelists from different systems: 'ctv3' and 'ctv2'",
     ):
         combine_codelists(codelist1, codelist2)
-
-
-def test_codelist_query_with_codelist_from_csv(engine, codelist_csv):
-    input_data = [
-        patient(1, ctv3_event(code="abc", date="2021-01-01")),
-        patient(2, ctv3_event(code="bar", date="2021-01-01")),
-        patient(3, ctv3_event(code="ijk", date="2021-01-01")),
-    ]
-    engine.setup(input_data)
-
-    codelist_csv_path = codelist_csv("long_csv")
-
-    class Cohort(OldCohortWithPopulation):
-        _codelist = codelist_from_csv(codelist_csv_path, system="ctv3")
-        code = (
-            table("clinical_events")
-            .filter("code", is_in=_codelist)
-            .latest()
-            .get("code")
-        )
-
-    result = engine.extract(Cohort)
-    assert result == [
-        {"patient_id": 1, "code": "abc"},
-        {"patient_id": 2, "code": None},
-        {"patient_id": 3, "code": None},
-    ]
 
 
 def test_codelist_repr():

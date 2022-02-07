@@ -672,7 +672,9 @@ def apply_filter(query, column, operator, value, value_query_node, or_null=False
 
     if isinstance(value_query_node, Codelist):
         value = sqlalchemy.select(value.c.code).scalar_subquery()
-        if "system" in table_expr.c:
+        # FIXME: check this condition is still valid once the new DSL is in,
+        # and remove the no cover
+        if "system" in table_expr.c:  # pragma: no cover
             # Codelist queries must also match on `system` column if it's present
             system_column = table_expr.c["system"]
             value = value.where(system_column == value_query_node.system)

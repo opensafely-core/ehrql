@@ -15,7 +15,9 @@ class CreateViewAs(Executable, ClauseElement):
         self.name = name
         self.query = query
 
-    def __str__(self):
+    def __str__(
+        self,
+    ):  # pragma: no cover (Re-implement when testing with new QL)
         return str(self.query)
 
     def get_children(self):

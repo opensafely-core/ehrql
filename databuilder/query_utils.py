@@ -24,7 +24,9 @@ def get_column_definitions(cohort):
     columns = {}
     ignored_names = ["measures", "BASE_INDEX_DATE"]
     for name, value in variables:
-        if name.startswith("_") or name in ignored_names:
+        if (
+            name.startswith("_") or name in ignored_names
+        ):  # pragma: no cover (Re-implement when testing with new QL)
             continue
         columns[name] = value
     if "population" not in columns:  # pragma: no cover (re-implement when the QL is in)

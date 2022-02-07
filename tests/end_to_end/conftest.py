@@ -26,7 +26,9 @@ def _in_container_setup(tmpdir):
 
 
 @pytest.fixture
-def cohort_extractor_in_container(tmpdir, database, containers):
+def cohort_extractor_in_container(
+    tmpdir, database, containers
+):  # pragma: no cover (Re-implement when testing with new QL)
     workspace, analysis_dir = _in_container_setup(tmpdir)
     output_rel_dir = Path("outputs")
     output_host_dir = workspace / output_rel_dir
@@ -135,18 +137,17 @@ def _in_process_run(
         output_file=output_host_path,
         definition_path=definition_path,
         backend_id=backend_id,
+        db_url=db_url,
+        dummy_data_file=dummy_data_file,
+        temporary_database="temp_tables",
     )
-    if action == generate_cohort:
-        action_kwargs.update(
-            db_url=db_url,
-            dummy_data_file=dummy_data_file,
-            temporary_database="temp_tables",
-        )
     run_cohort_action(action, **action_kwargs)
 
 
 @pytest.fixture
-def cohort_extractor_in_process(tmpdir, database):
+def cohort_extractor_in_process(
+    tmpdir, database
+):  # pragma: no cover (Re-implement when testing with new QL)
     _, analysis_dir, output_host_dir = _in_process_setup(tmpdir)
 
     def run(study, backend, use_dummy_data=False, action=generate_cohort):
