@@ -10,42 +10,42 @@ This contains just enough of erhQL to be able to extract the following dataset:
 
 from __future__ import annotations
 
-from . import query_model as qm
-from .query_model import SelectColumn, SelectPatientTable
+from .query_model import Function, SelectColumn, SelectPatientTable, Value
 
 
 class Dataset:
+    def __init__(self):
+        self.variables = {}
+
     def set_population(self, population: BoolSeries) -> None:
         self.population = population
 
-    def __setattr__(self, name: str, series: Series) -> None:
-        # TODO: add check that series is patient series not event series
-        super().__setattr__(name, series)
+    def __setattr__(self, name: str, value: object) -> None:
+        if isinstance(value, Series):
+            # TODO: add check that series is patient series not event series
+            self.variables[name] = value
+        else:
+            super().__setattr__(name, value)
 
     def compile(self) -> dict[str, qm.Node]:  # noqa A003
-        variables = {}
-        for name, definition in self._variables():
-            variables[name] = definition.compile()
-        return {}
-
-    def _variables(self):
-        for name in dir(self):
-            attr = getattr(self, name)
-            if isinstance(attr, Series) or isinstance(attr, Column):
-                yield name, attr
+        return {name: variable.qm_node for name, variable in self.variables.items()}
 
 
 class Table:
-    def __init__(self):
-        for key in dir(self):
-            field = getattr(self, key)
-            if isinstance(field, Column):
-                field.table = self
+    def __init__(self, qm_node):
+        self.qm_node = qm_node
+
+    def __getattribute__(self, item):
+        attr = super().__getattribute__(item)
+        if isinstance(attr, Column):
+            return attr.series_on(self)
+        else:
+            return attr
 
 
 class PatientTable(Table):
-    def compile(self):  # noqa A003
-        return SelectPatientTable(name=self.name)
+    def __init__(self):
+        super().__init__(SelectPatientTable(name=self.__name__))
 
 
 class Column:
@@ -53,10 +53,8 @@ class Column:
         self.name = name
         self.series_type = series_type
 
-    def compile(self):  # noqa A003
-        return self.series_type(
-            SelectColumn(name=self.name, source=self.table.compile())
-        ).compile()
+    def series_on(self, table):
+        return self.series_type(SelectColumn(name=self.name, source=table.qm_node))
 
 
 class DateColumn(Column):
@@ -65,11 +63,8 @@ class DateColumn(Column):
 
 
 class Series:
-    def __init__(self, qm_node: qm.Node):
+    def __init__(self, qm_node):
         self.qm_node = qm_node
-
-    def compile(self):  # noqa A003
-        return self.qm_node
 
 
 class IdSeries(Series):
@@ -80,15 +75,6 @@ class BoolSeries(Series):
     pass
 
 
-class IntSeries(Series):
-    def __lte__(self, other: int | IntSeries) -> BoolSeries:
-        return BoolSeries(qm_node=...)
-
-
 class DateSeries(Series):
-    @property
-    def year(self) -> IntSeries:
-        return IntSeries(qm_node=...)
-
     def __le__(self, other):
-        return BoolSeries()
+        return BoolSeries(Function.LE(lhs=self.qm_node, rhs=Value(other)))

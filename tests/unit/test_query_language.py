@@ -9,7 +9,7 @@ from databuilder.query_model import Function, SelectColumn, SelectPatientTable, 
 
 
 class Patients(PatientTable):
-    name = "patients"
+    __name__ = "patients"
 
     patient_id = IdColumn("patient_id")
     date_of_birth = DateColumn("date_of_birth")
@@ -30,21 +30,23 @@ def test_simple_dataset() -> None:
         "year_of_birth": SelectColumn(
             name="date_of_birth", source=SelectPatientTable("patients")
         ),
-        "population": ...,
+        "population": Function.LE(
+            lhs=SelectColumn(
+                name="date_of_birth", source=SelectPatientTable("patients")
+            ),
+            rhs=Value(datetime.date(2000, 1, 1)),
+        ),
     }
 
 
 def test_get_column_from_patient_table():
-    # SELECT date_of_birth FROM patients
-    assert patients.date_of_birth.compile() == SelectColumn(
+    assert patients.date_of_birth.qm_node == SelectColumn(
         name="date_of_birth", source=SelectPatientTable("patients")
     )
 
 
 def test_date_comparison():
-    assert (
-        patients.date_of_birth <= datetime.date(2000, 1, 1)
-    ).compile() == Function.LE(
+    assert (patients.date_of_birth <= datetime.date(2000, 1, 1)).qm_node == Function.LE(
         lhs=SelectColumn(name="date_of_birth", source=SelectPatientTable("patients")),
         rhs=Value(datetime.date(2000, 1, 1)),
     )
