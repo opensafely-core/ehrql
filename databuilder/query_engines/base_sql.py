@@ -165,6 +165,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         column_definitions = self.column_definitions
         if isinstance(list(column_definitions.values())[0], query_model.Node):
             column_definitions = convert_to_old(column_definitions)
+        else:  # disallow old QM objects from being used
+            assert False
 
         # Modify the Query Model graph to make it easier to work with, or to generate
         # more efficient SQL
