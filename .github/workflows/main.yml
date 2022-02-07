@@ -21,7 +21,6 @@ jobs:
         run: just check
 
   test:
-    needs: [check]
     runs-on: ubuntu-latest
 
     steps:
@@ -53,7 +52,7 @@ jobs:
     # BREAKING CHANGE in footer -> major release
     #
     # anything else (docs, refactor, etc) does not create a release
-    needs: [test]
+    needs: [check, test]
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.new_version }}
