@@ -47,7 +47,7 @@ class Position(Enum):
     FIRST = "first"
     LAST = "last"
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self):
         # Gives us `self == eval(repr(self))` as for dataclasses
         return f"{self.__class__.__name__}.{self.name}"
 

@@ -42,6 +42,14 @@ def test_queries_are_hashable(queries):
         assert hash(query) is not None
 
 
+# We don't _have_ to maintain this property, but it's quite a convenient one to have and
+# if we're going to break it then let's at least do so deliberately
+def test_query_reprs_round_trip(queries):
+    # This relies on all public query model names being imported into local scope
+    for query in vars(queries).values():
+        assert eval(repr(query)) == query
+
+
 def test_mixing_domains_throws_error():
     events = SelectTable("events")
     vaccinations = SelectTable("vaccinations")
