@@ -302,21 +302,19 @@ class Categorise(Series[T]):
         return hash((tuple(self.categories.items()), self.default))
 
 
-# We don't currently support this in the DSL or the Query Engine but we include it for
-# completeness
-class Join(ManyRowsPerPatientFrame):
-    lhs: Frame
-    rhs: Frame
+# TODO: We don't currently support Join in the DSL or the Query Engine but this is the
+# signature it will have when we do. Also note that the Join operation is the one
+# exception to the "common domain constraint" explained below as it's the one operation
+# which is explicitly designed to take inputs from two different domains and produce a
+# single, new domain as output.
+#
+# class Join(ManyRowsPerPatientFrame):
+#     lhs: Frame
+#     rhs: Frame
 
 
 # VALIDATION
 #
-# The main thing we need to validate here is the "domain constraint". Frames and series
-# which are in one-row-per-patient form can be combined arbitrarily because we can JOIN
-# using the patient_id and be sure that we're not creating new rows. But for operations
-# involving many-rows-per-patient inputs we need to ensure that they are all drawn from
-# the same underlying table. (We call this the "domain" for set theoretic reasons which
-# the margin of this comment are too small to contain.)
 
 PATIENT_DOMAIN = object()
 
@@ -335,11 +333,14 @@ def validate_node(node):
     # boolean type. We'll need the DSL to get these types from the schema and pass them
     # in somehow.
 
-    # The one exception to the "common domain" rule is the Join operation which takes
-    # frames from two different domains and produces a new domain. (This is no-cover-ed
-    # because we're not using the Join operation yet.)
-    if not isinstance(node, Join):  # pragma: no cover
-        validate_children_have_common_domain(node)
+    # The main thing we need to validate here is the "domain constraint". Frames and series
+    # which are in one-row-per-patient form can be combined arbitrarily because we can JOIN
+    # using the patient_id and be sure that we're not creating new rows. But for operations
+    # involving many-rows-per-patient inputs we need to ensure that they are all drawn from
+    # the same underlying table. (We call this the "domain" for set theoretic reasons which
+    # the margin of this comment are too small to contain.) Note that when we add a Join
+    # operation that will be the one explicit exception to this rule.
+    validate_children_have_common_domain(node)
 
 
 def validate_children_have_common_domain(node):
@@ -362,7 +363,6 @@ def get_domains(node):
 
 # But these operations create new domains.
 @get_domains.register(SelectTable)
-@get_domains.register(Join)
 def get_domain_roots(node):
     return {node}
 
