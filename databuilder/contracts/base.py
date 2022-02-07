@@ -19,9 +19,6 @@ class Column:
     constraints: list[BaseConstraint] = dataclasses.field(default_factory=list)
     required: bool = True
 
-    # TODO: remove when all old contracts have gone away
-    help: str = ""  # noqa: A003
-
 
 # many contracts need this column so lets just define it once.
 PatientIDColumn = Column(
