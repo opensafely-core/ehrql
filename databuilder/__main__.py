@@ -24,7 +24,7 @@ def main(args=None):
 
     options = parser.parse_args(args)
 
-    if options.which == "generate_cohort":
+    if options.which == "generate_dataset":
         if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
             parser.error(
                 "error: either --dummy-data-file or DATABASE_URL environment variable is required"
@@ -72,21 +72,21 @@ def build_parser():
     parser.set_defaults(which="print_help")
     subparsers = parser.add_subparsers(help="sub-command help")
 
-    generate_cohort_parser = subparsers.add_parser(
-        "generate_cohort", help="Generate a dataset"
+    generate_dataset_parser = subparsers.add_parser(
+        "generate_dataset", help="Generate a dataset"
     )
-    generate_cohort_parser.set_defaults(which="generate_cohort")
-    generate_cohort_parser.add_argument(
+    generate_dataset_parser.set_defaults(which="generate_dataset")
+    generate_dataset_parser.add_argument(
         "--cohort-definition",
         help="The path of the file where the cohort is defined",
         type=existing_python_file,
     )
-    generate_cohort_parser.add_argument(
+    generate_dataset_parser.add_argument(
         "--output",
         help="Path and filename (or pattern) of the file(s) where the output will be written",
         type=Path,
     )
-    generate_cohort_parser.add_argument(
+    generate_dataset_parser.add_argument(
         "--dummy-data-file",
         help="Provide dummy data from a file to be validated and used as output",
         type=Path,

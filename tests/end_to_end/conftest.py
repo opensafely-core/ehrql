@@ -37,7 +37,7 @@ def cohort_extractor_in_container(tmpdir, database, containers):
         definition_path = Path("analysis") / study.definition().name
 
         command = [
-            "generate_cohort",
+            "generate_dataset",
             "--cohort-definition",
             str(definition_path),
             "--output",

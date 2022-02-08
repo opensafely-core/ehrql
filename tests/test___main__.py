@@ -10,15 +10,15 @@ def test_no_args(capsys):
     assert "usage: databuilder" in captured.out
 
 
-def test_generate_cohort_with_database_url(mocker, monkeypatch, tmp_path):
-    # Verify that the generate_cohort subcommand can be invoked when DATABASE_URL is
-    # set.
+def test_generate_dataset_with_database_url(mocker, monkeypatch, tmp_path):
+    # Verify that the generate_dataset subcommand can be invoked when
+    # DATABASE_URL is set.
     patched = mocker.patch("databuilder.__main__.run_cohort_action")
     monkeypatch.setenv("DATABASE_URL", "scheme:path")
     cohort_definition_path = tmp_path / "cohort.py"
     cohort_definition_path.touch()
     argv = [
-        "generate_cohort",
+        "generate_dataset",
         "--cohort-definition",
         str(cohort_definition_path),
     ]
@@ -26,16 +26,16 @@ def test_generate_cohort_with_database_url(mocker, monkeypatch, tmp_path):
     patched.assert_called_once()
 
 
-def test_generate_cohort_with_dummy_data(mocker, tmp_path):
-    # Verify that the generate_cohort subcommand can be invoked when --dummy-data-file
-    # is provided.
+def test_generate_dataset_with_dummy_data(mocker, tmp_path):
+    # Verify that the generate_dataset subcommand can be invoked when
+    # --dummy-data-file is provided.
     patched = mocker.patch("databuilder.__main__.run_cohort_action")
     cohort_definition_path = tmp_path / "cohort.py"
     cohort_definition_path.touch()
     dummy_data_path = tmp_path / "dummy-data.csv"
     dummy_data_path.touch()
     argv = [
-        "generate_cohort",
+        "generate_dataset",
         "--cohort-definition",
         str(cohort_definition_path),
         "--dummy-data-file",
@@ -45,13 +45,14 @@ def test_generate_cohort_with_dummy_data(mocker, tmp_path):
     patched.assert_called_once()
 
 
-def test_generate_cohort_without_database_url_or_dummy_data(capsys, tmp_path):
-    # Verify that a helpful message is shown when the generate_cohort subcommand is
-    # invoked but DATABASE_URL is not set and --dummy-data-file is not provided.
+def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
+    # Verify that a helpful message is shown when the generate_dataset
+    # subcommand is invoked but DATABASE_URL is not set and --dummy-data-file
+    # is not provided.
     cohort_definition_path = tmp_path / "cohort.py"
     cohort_definition_path.touch()
     argv = [
-        "generate_cohort",
+        "generate_dataset",
         "--cohort-definition",
         str(cohort_definition_path),
     ]
@@ -109,7 +110,7 @@ def test_existing_python_file_missing_file(capsys, tmp_path):
     # file that should exist but doesn't.
     cohort_definition_path = tmp_path / "cohort.py"
     argv = [
-        "generate_cohort",
+        "generate_dataset",
         "--cohort-definition",
         str(cohort_definition_path),
     ]
@@ -125,7 +126,7 @@ def test_existing_python_file_unpythonic_file(capsys, tmp_path):
     cohort_definition_path = tmp_path / "cohort.cpp"
     cohort_definition_path.touch()
     argv = [
-        "generate_cohort",
+        "generate_dataset",
         "--cohort-definition",
         str(cohort_definition_path),
     ]
