@@ -19,7 +19,7 @@ def test_generate_dataset_with_database_url(mocker, monkeypatch, tmp_path):
     cohort_definition_path.touch()
     argv = [
         "generate_dataset",
-        "--cohort-definition",
+        "--dataset-definition",
         str(cohort_definition_path),
     ]
     main(argv)
@@ -36,7 +36,7 @@ def test_generate_dataset_with_dummy_data(mocker, tmp_path):
     dummy_data_path.touch()
     argv = [
         "generate_dataset",
-        "--cohort-definition",
+        "--dataset-definition",
         str(cohort_definition_path),
         "--dummy-data-file",
         str(dummy_data_path),
@@ -53,7 +53,7 @@ def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
     cohort_definition_path.touch()
     argv = [
         "generate_dataset",
-        "--cohort-definition",
+        "--dataset-definition",
         str(cohort_definition_path),
     ]
     with pytest.raises(SystemExit):
@@ -111,7 +111,7 @@ def test_existing_python_file_missing_file(capsys, tmp_path):
     cohort_definition_path = tmp_path / "cohort.py"
     argv = [
         "generate_dataset",
-        "--cohort-definition",
+        "--dataset-definition",
         str(cohort_definition_path),
     ]
     with pytest.raises(SystemExit):
@@ -127,7 +127,7 @@ def test_existing_python_file_unpythonic_file(capsys, tmp_path):
     cohort_definition_path.touch()
     argv = [
         "generate_dataset",
-        "--cohort-definition",
+        "--dataset-definition",
         str(cohort_definition_path),
     ]
     with pytest.raises(SystemExit):

@@ -32,8 +32,8 @@ def main(args=None):
 
         run_cohort_action(
             generate_cohort,
-            definition_path=options.cohort_definition,
-            output_file=options.output,
+            definition_path=options.dataset_definition,
+            output_file=options.dataset,
             db_url=os.environ.get("DATABASE_URL"),
             backend_id=os.environ.get("OPENSAFELY_BACKEND"),
             dummy_data_file=options.dummy_data_file,
@@ -77,13 +77,13 @@ def build_parser():
     )
     generate_dataset_parser.set_defaults(which="generate_dataset")
     generate_dataset_parser.add_argument(
-        "--cohort-definition",
-        help="The path of the file where the cohort is defined",
+        "--dataset-definition",
+        help="The path of the file where the dataset is defined",
         type=existing_python_file,
     )
     generate_dataset_parser.add_argument(
-        "--output",
-        help="Path and filename (or pattern) of the file(s) where the output will be written",
+        "--dataset",
+        help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
     )
     generate_dataset_parser.add_argument(

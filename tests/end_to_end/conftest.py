@@ -38,9 +38,9 @@ def cohort_extractor_in_container(tmpdir, database, containers):
 
         command = [
             "generate_dataset",
-            "--cohort-definition",
+            "--dataset-definition",
             str(definition_path),
-            "--output",
+            "--dataset",
             str(output_rel_dir / study.output_file_name),
         ]
         if use_dummy_data:
