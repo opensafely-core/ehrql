@@ -42,8 +42,8 @@ def main(args=None):
     elif options.which == "validate_dataset_definition":
         run_cohort_action(
             validate_cohort,
-            definition_path=options.cohort_definition,
-            output_file=options.output,
+            definition_path=options.dataset_definition,
+            output_file=options.dataset,
             backend_id=options.backend,
         )
     elif options.which == "generate_measures":
@@ -104,13 +104,13 @@ def build_parser():
         choices=BACKENDS,  # allow all registered backend subclasses
     )
     validate_dataset_definition_parser.add_argument(
-        "--cohort-definition",
-        help="The path of the file where the cohort is defined",
+        "--dataset-definition",
+        help="The path of the file where the dataset is defined",
         type=existing_python_file,
     )
     validate_dataset_definition_parser.add_argument(
-        "--output",
-        help="Path and filename (or pattern) of the file(s) where the output will be written",
+        "--dataset",
+        help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
     )
 

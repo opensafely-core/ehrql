@@ -83,7 +83,7 @@ def test_validate_dataset_definition(mocker, tmp_path):
     cohort_definition_path.touch()
     argv = [
         "validate_dataset_definition",
-        "--cohort-definition",
+        "--dataset-definition",
         str(cohort_definition_path),
         "tpp",
     ]
