@@ -76,13 +76,13 @@ def test_generate_docs(mocker):
     patched.assert_called_once()
 
 
-def test_validate_cohort(mocker, tmp_path):
-    # Verify that the validate_cohort subcommand can be invoked.
+def test_validate_dataset_definition(mocker, tmp_path):
+    # Verify that the validate_dataset_definition subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.run_cohort_action")
     cohort_definition_path = tmp_path / "cohort.py"
     cohort_definition_path.touch()
     argv = [
-        "validate_cohort",
+        "validate_dataset_definition",
         "--cohort-definition",
         str(cohort_definition_path),
         "tpp",

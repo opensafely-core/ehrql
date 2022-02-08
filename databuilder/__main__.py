@@ -39,7 +39,7 @@ def main(args=None):
             dummy_data_file=options.dummy_data_file,
             temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
         )
-    elif options.which == "validate_cohort":
+    elif options.which == "validate_dataset_definition":
         run_cohort_action(
             validate_cohort,
             definition_path=options.cohort_definition,
@@ -92,23 +92,23 @@ def build_parser():
         type=Path,
     )
 
-    validate_cohort_parser = subparsers.add_parser(
-        "validate_cohort",
+    validate_dataset_definition_parser = subparsers.add_parser(
+        "validate_dataset_definition",
         help="Validate the dataset definition against the specified backend",
     )
-    validate_cohort_parser.set_defaults(which="validate_cohort")
+    validate_dataset_definition_parser.set_defaults(which="validate_dataset_definition")
 
-    validate_cohort_parser.add_argument(
+    validate_dataset_definition_parser.add_argument(
         "backend",
         type=str,
         choices=BACKENDS,  # allow all registered backend subclasses
     )
-    validate_cohort_parser.add_argument(
+    validate_dataset_definition_parser.add_argument(
         "--cohort-definition",
         help="The path of the file where the cohort is defined",
         type=existing_python_file,
     )
-    validate_cohort_parser.add_argument(
+    validate_dataset_definition_parser.add_argument(
         "--output",
         help="Path and filename (or pattern) of the file(s) where the output will be written",
         type=Path,
