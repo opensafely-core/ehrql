@@ -79,7 +79,7 @@ def generate_cohort(
         dummy_data_file_with_date = Path(str(dummy_data_file).replace("*", date_suffix))
         validate_dummy_data(cohort, dummy_data_file_with_date, output_file_with_date)
         shutil.copyfile(dummy_data_file_with_date, output_file_with_date)
-    else:
+    else:  # pragma: no cover (Re-implement when testing with new QL)
         backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
         results = extract(cohort, backend)
         write_output(results, output_file_with_date)
@@ -91,7 +91,7 @@ def validate_cohort(
     output_file,
     date_suffix,
     backend_id,
-):
+):  # pragma: no cover (Re-implement when testing with new QL)
     output_file_with_date = _replace_filepath_pattern(output_file, date_suffix)
     if index_date:
         log.info("Validating for index date", index_date=index_date)
@@ -192,7 +192,7 @@ def load_cohort_generator(definition_module):
 
     cohort_function = cohort_functions[0]
     index_date_range = getattr(definition_module, "index_date_range", None)
-    if index_date_range:
+    if index_date_range:  # pragma: no cover (Re-implement when testing with new QL)
         if list(inspect.signature(cohort_function).parameters.keys()) != ["index_date"]:
             raise ValueError(
                 "A study definition with index_date_range must pass a single index_date argument to the 'cohort' function"
@@ -239,7 +239,9 @@ def extract(
             yield dict(row)
 
 
-def validate(cohort_class, backend):
+def validate(
+    cohort_class, backend
+):  # pragma: no cover (Re-implement when testing with new QL)
     try:
         cohort = get_column_definitions(cohort_class)
         query_engine = backend.query_engine_class(cohort, backend)
@@ -251,7 +253,9 @@ def validate(cohort_class, backend):
         raise
 
 
-def write_output(results, output_file):
+def write_output(
+    results, output_file
+):  # pragma: no cover (Re-implement when testing with new QL)
     with output_file.open(mode="w") as f:
         writer = csv.writer(f)
         headers = None
@@ -265,7 +269,9 @@ def write_output(results, output_file):
             writer.writerow(entry.values())
 
 
-def write_validation_output(results, output_file):
+def write_validation_output(
+    results, output_file
+):  # pragma: no cover (Re-implement when testing with new QL)
     with output_file.open(mode="w") as f:
         for entry in results:
             f.write(f"{str(entry)}\n")

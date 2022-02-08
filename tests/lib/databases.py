@@ -50,9 +50,6 @@ class DbDetails:
     def host_url(self):
         return self._url(self.host_from_host, self.port_from_host)
 
-    def container_url(self):
-        return self._url(self.host_from_container, self.port_from_container)
-
     def engine(self, dialect=None, **kwargs):
         url = self._url(self.host_from_host, self.port_from_host, include_driver=True)
         engine_url = sqlalchemy.engine.make_url(url)

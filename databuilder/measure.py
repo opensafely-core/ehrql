@@ -159,7 +159,9 @@ class Measure:
         reporter(f"Additional suppression in column {column} in measure {self.id}")
 
     def _calculate_results(self, data):
-        if self.numerator in data:
+        if (
+            self.numerator in data
+        ):  # pragma: no cover (Re-implement when testing with new QL)
             data["value"] = data[self.numerator] / data[self.denominator]
 
 
@@ -198,7 +200,9 @@ class MeasuresManager:
         Optionally, input data can be provided as a list of dicts, as would be read from
         the input CSV file.
         """
-        if input_data is None:
+        if (
+            input_data is None
+        ):  # pragma: no cover (Re-implement when testing with new QL)
             assert (
                 self._input_file.exists()
             ), f"Expected cohort input file {str(self._input_file)} not found. You may need to first run:\n  databuilder generate_cohort ..."
@@ -216,7 +220,7 @@ class MeasuresManager:
         for col in numeric_columns:
             dtype[col] = "float64"
 
-        if input_data:
+        if input_data:  # pragma: no cover (Re-implement when testing with new QL)
             df = pandas.DataFrame.from_records(
                 input_data,
                 columns=list(dtype.keys()),
