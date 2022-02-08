@@ -48,9 +48,9 @@ def main(args=None):
         )
     elif options.which == "generate_measures":
         generate_measures(
-            definition_path=options.cohort_definition,
+            definition_path=options.dataset_definition,
             input_file=options.input,
-            output_file=options.output,
+            output_file=options.dataset,
         )
     elif options.which == "test_connection":
         test_connection(
@@ -126,13 +126,13 @@ def build_parser():
         type=Path,
     )
     generate_measures_parser.add_argument(
-        "--output",
-        help="Path and filename (or pattern) of the file(s) where the output will be written",
+        "--dataset",
+        help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
     )
     generate_measures_parser.add_argument(
-        "--cohort-definition",
-        help="The path of the file where the cohort is defined",
+        "--dataset-definition",
+        help="The path of the file where the dataset is defined",
         type=existing_python_file,
     )
 

@@ -98,7 +98,7 @@ def test_generate_measures(mocker, tmp_path):
     cohort_definition_path.touch()
     argv = [
         "generate_measures",
-        "--cohort-definition",
+        "--dataset-definition",
         str(cohort_definition_path),
     ]
     main(argv)

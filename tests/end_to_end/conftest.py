@@ -81,11 +81,11 @@ def cohort_extractor_generate_measures_in_container(tmpdir, database, containers
 
         command = [
             "generate_measures",
-            "--cohort-definition",
+            "--dataset-definition",
             str(definition_path),
             "--input",
             str(input_path),
-            "--output",
+            "--dataset",
             str(output_rel_path),
         ]
 
