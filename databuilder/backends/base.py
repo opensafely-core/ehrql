@@ -108,10 +108,11 @@ class MappedTable(SQLTable):
 
 
 class QueryTable(SQLTable):
-    def __init__(self, query, columns, implements):
+    def __init__(self, query, columns, implements, implementation_notes=None):
         self.query = query
         self.columns = columns
         self.implements = implements
+        self.implementation_notes = implementation_notes or {}
 
     def learn_patient_join(self, source):
         if "patient_id" not in self.columns:

@@ -1,6 +1,7 @@
-from ..contracts import contracts
+from ..contracts import contracts as old_contracts
+from ..contracts import universal
 from ..query_engines.mssql import MssqlQueryEngine
-from .base import BaseBackend, Column, MappedTable, QueryTable
+from .base import BaseBackend, Column, QueryTable
 
 
 def rtrim(ref, char):
@@ -72,24 +73,18 @@ class TPPBackend(BaseBackend):
     query_engine_class = MssqlQueryEngine
     patient_join_column = "Patient_ID"
 
-    patients = MappedTable(
-        implements=contracts.WIP_SimplePatientDemographics,
-        source="Patient",
-        columns=dict(
-            sex=Column("varchar", source="Sex"),
-            date_of_birth=Column("date", source="DateOfBirth"),
-        ),
-    )
-
-    patient_demographics = QueryTable(
-        implements=contracts.PatientDemographics,
+    patients = QueryTable(
+        implements=universal.Patients,
         columns=dict(
             sex=Column("varchar"),
             date_of_birth=Column("date"),
             date_of_death=Column("date"),
         ),
+        implementation_notes=dict(
+            sex="Sex assigned at birth.",
+        ),
         query="""
-            SELECT  Patient_ID as patient_id,
+            SELECT Patient_ID as patient_id,
                 DateOfBirth as date_of_birth,
                 CASE
                     WHEN DateOfDeath = '9999-12-31' THEN NULL
@@ -107,7 +102,7 @@ class TPPBackend(BaseBackend):
     )
 
     clinical_events = QueryTable(
-        implements=contracts.WIP_ClinicalEvents,
+        implements=old_contracts.WIP_ClinicalEvents,
         columns=dict(
             code=Column("varchar"),
             system=Column("varchar"),
@@ -122,7 +117,7 @@ class TPPBackend(BaseBackend):
     )
 
     practice_registrations = QueryTable(
-        implements=contracts.WIP_PracticeRegistrations,
+        implements=old_contracts.WIP_PracticeRegistrations,
         columns=dict(
             pseudo_id=Column("integer"),
             nuts1_region_name=Column("varchar"),
@@ -141,7 +136,7 @@ class TPPBackend(BaseBackend):
     )
 
     covid_test_results = QueryTable(
-        implements=contracts.WIP_CovidTestResults,
+        implements=old_contracts.WIP_CovidTestResults,
         columns=dict(
             date=Column("date"),
             positive_result=Column("boolean"),
@@ -154,7 +149,7 @@ class TPPBackend(BaseBackend):
     )
 
     hospitalizations = QueryTable(
-        implements=contracts.WIP_Hospitalizations,
+        implements=old_contracts.WIP_Hospitalizations,
         columns=dict(
             date=Column("date"),
             code=Column("varchar"),
@@ -171,7 +166,7 @@ class TPPBackend(BaseBackend):
     )
 
     patient_address = QueryTable(
-        implements=contracts.WIP_PatientAddress,
+        implements=old_contracts.WIP_PatientAddress,
         columns=dict(
             patientaddress_id=Column("integer"),
             date_start=Column("date"),

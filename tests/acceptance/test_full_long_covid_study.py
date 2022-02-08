@@ -205,7 +205,7 @@ def test_cohort(database):
     assert extract(Cohort, TPPBackend, database) == [
         dict(
             patient_id=1,
-            sex="F",
+            sex="female",
             age_group="25-34",
             practice_id=1,
             region="South",
