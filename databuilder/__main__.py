@@ -73,7 +73,7 @@ def build_parser():
     subparsers = parser.add_subparsers(help="sub-command help")
 
     generate_cohort_parser = subparsers.add_parser(
-        "generate_cohort", help="Generate cohort"
+        "generate_cohort", help="Generate a dataset"
     )
     generate_cohort_parser.set_defaults(which="generate_cohort")
     generate_cohort_parser.add_argument(
@@ -94,7 +94,7 @@ def build_parser():
 
     validate_cohort_parser = subparsers.add_parser(
         "validate_cohort",
-        help="Validate the cohort definition against the specified backend",
+        help="Validate the dataset definition against the specified backend",
     )
     validate_cohort_parser.set_defaults(which="validate_cohort")
 
@@ -115,7 +115,7 @@ def build_parser():
     )
 
     generate_measures_parser = subparsers.add_parser(
-        "generate_measures", help="Generate measures from cohort data"
+        "generate_measures", help="Generate measures from a dataset"
     )
     generate_measures_parser.set_defaults(which="generate_measures")
 
