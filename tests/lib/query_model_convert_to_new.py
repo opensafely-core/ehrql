@@ -1,6 +1,6 @@
 """
-Temporary migration code which takes a data definition created using the old Query Model
-and ouputs the equivalent using the new Query Model.
+Temporary migration code which takes a dataset definition created using the old Query Model
+and outputs the equivalent using the new Query Model.
 
 Lines excluded from test coverage were exercised when we previously checked we could
 convert the entire old test suite but are covered no longer.
