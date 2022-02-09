@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Set
 from types import SimpleNamespace
 
 import pytest
@@ -18,6 +19,8 @@ from databuilder.query_model import (
     Sort,
     TableSchema,
     Value,
+    get_series_type,
+    has_one_row_per_patient,
 )
 
 EVENTS_SCHEMA = TableSchema(
@@ -71,6 +74,24 @@ def test_queries_have_expected_types(queries):
     assert isinstance(queries.had_anaphylaxis, Series)
 
 
+def test_queries_have_expected_dimension(queries):
+    assert has_one_row_per_patient(queries.vaccination_count)
+    assert has_one_row_per_patient(queries.first_vaccination)
+    assert has_one_row_per_patient(queries.vaccination_status)
+    assert not has_one_row_per_patient(queries.vaccination_days)
+    assert has_one_row_per_patient(queries.vaccination_days_set)
+    assert not has_one_row_per_patient(queries.anaphylaxis_co_occurance)
+    assert has_one_row_per_patient(queries.had_anaphylaxis)
+
+
+def test_series_contain_expected_types(queries):
+    assert get_series_type(queries.vaccination_count) == int
+    assert get_series_type(queries.vaccination_status) == str
+    assert get_series_type(queries.vaccination_days) == datetime.date
+    assert get_series_type(queries.vaccination_days_set) == Set[datetime.date]
+    assert get_series_type(queries.had_anaphylaxis) == bool
+
+
 def test_queries_are_hashable(queries):
     for query in vars(queries).values():
         assert hash(query) is not None
@@ -90,3 +111,29 @@ def test_mixing_domains_throws_error():
     vaccine_code = SelectColumn(vaccinations, "code")
     with pytest.raises(DomainMismatchError):
         Filter(events, Function.EQ(vaccine_code, Value("abc123")))
+
+
+def test_cannot_pick_row_from_unsorted_table():
+    events = SelectTable("events")
+    with pytest.raises(TypeError):
+        PickOneRowPerPatient(events, Position.FIRST)
+
+
+def test_cannot_pass_argument_without_wrapping_in_value():
+    events = SelectTable("events")
+    date = SelectColumn(events, "date")
+    with pytest.raises(TypeError):
+        Function.EQ(date, datetime.date(2020, 1, 1))
+
+
+def test_cannot_compare_date_and_int():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    date = SelectColumn(events, "date")
+    with pytest.raises(TypeError):
+        Function.EQ(date, Value(2000))
+
+
+def test_can_compare_date_and_int_if_no_schema():
+    events = SelectTable("events")
+    date = SelectColumn(events, "date")
+    assert Function.EQ(date, Value(2000))
