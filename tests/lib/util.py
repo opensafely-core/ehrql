@@ -1,5 +1,5 @@
 import databuilder.main
-from databuilder import codelist, table
+from databuilder import table
 
 
 def extract(cohort, backend, database, **backend_kwargs):
@@ -18,10 +18,6 @@ class RecordingReporter:
 
 def null_reporter(msg):
     pass
-
-
-def make_codelist(*codes, system="ctv3"):
-    return codelist(codes, system=system)
 
 
 def iter_flatten(iterable, iter_classes=(list, tuple)):
