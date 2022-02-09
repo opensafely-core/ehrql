@@ -41,11 +41,7 @@ def table(name):
 
 @dataclass(frozen=True)
 class QueryNode:
-    def _get_referenced_nodes(self):
-        """
-        Return a tuple of all QueryNodes to which this node holds a reference
-        """
-        raise NotImplementedError()
+    pass
 
 
 @dataclass(frozen=True)
@@ -65,14 +61,6 @@ class Comparator(QueryNode):
     operator: Any = None
     rhs: Any = None
 
-    def _get_referenced_nodes(self):
-        nodes = ()
-        assert isinstance(self.lhs, QueryNode)
-        nodes += (self.lhs,)
-        if isinstance(self.rhs, QueryNode):
-            nodes += (self.rhs,)
-        return nodes
-
     def __and__(self, other):
         return self._combine(other, "and_")
 
@@ -88,28 +76,10 @@ class Comparator(QueryNode):
             rhs=self.rhs,
         )
 
-    @staticmethod
-    def _raise_comparison_error():
-        raise RuntimeError(
-            "Invalid operation; cannot perform logical operations on a Comparator"
-        )
-
-    def __gt__(self, other):
-        self._raise_comparison_error()
-
-    def __ge__(self, other):
-        self._raise_comparison_error()
-
-    def __lt__(self, other):
-        self._raise_comparison_error()
-
-    def __le__(self, other):
-        self._raise_comparison_error()
-
     def __eq__(self, other):
         return self._compare(other, "__eq__")
 
-    def __ne__(self, other):
+    def __ne__(self, other):  # pragma: no cover
         return self._compare(other, "__ne__")
 
     def _combine(self, other, conn):
@@ -163,7 +133,7 @@ class BaseTable(QueryNode):
 
         if operator in ("equals", "not_equals") and isinstance(
             value, (Codelist, Column)
-        ):
+        ):  # pragma: no cover
             raise TypeError(
                 f"You can only use '{operator}' to filter a column by a single value.\n"
                 f"To filter using a {value.__class__.__name__}, use 'is_in/not_in'."
@@ -229,32 +199,6 @@ class BaseTable(QueryNode):
 class Table(BaseTable):
     name: str
 
-    def _get_referenced_nodes(self):
-        # Table nodes are always root nodes in the query DAG and don't reference other
-        # nodes
-        return ()
-
-    def imd_rounded_as_of(self, reference_date):
-        """
-        A convenience method to retrieve the IMD on the reference date.
-        """
-        if self.name != "patient_address":
-            raise NotImplementedError(
-                "This method is only available on the patient_address table"
-            )
-
-        # Note that current addresses are recorded with an EndDate of
-        # 9999-12-31 (TPP) or Null (Graphnet). Where address periods overlap we use the one with the
-        # most recent start date. If there are several with the same start date
-        # we use the longest one (i.e. with the latest end date). We then
-        # prefer addresses which have a postcode and inally we use the address ID as a
-        # tie-breaker.
-        return (
-            self.date_in_range(reference_date)
-            .last_by("date_start", "date_end", "has_postcode", "patientaddress_id")
-            .get("index_of_multiple_deprivation_rounded")
-        )
-
     def age_as_of(self, reference_date):
         if self.name != "patients":
             raise NotImplementedError(
@@ -276,20 +220,11 @@ class FilteredTable(BaseTable):
     value: Any
     or_null: bool = False
 
-    def _get_referenced_nodes(self):
-        nodes = (self.source,)
-        if isinstance(self.value, QueryNode):
-            nodes += (self.value,)
-        return nodes
-
 
 @dataclass(frozen=True)
 class Column(QueryNode):
     source: Any
     column: Any
-
-    def _get_referenced_nodes(self):
-        return (self.source,)
 
 
 @dataclass(frozen=True)
@@ -297,9 +232,6 @@ class Row(QueryNode):
     source: Any
     sort_columns: Any
     descending: Any
-
-    def _get_referenced_nodes(self):
-        return (self.source,)
 
     def get(self, column):
         return ValueFromRow(source=self, column=column)
@@ -311,9 +243,6 @@ class RowFromAggregate(QueryNode):
     function: Any
     input_column: Any
     output_column: Any
-
-    def _get_referenced_nodes(self):
-        return (self.source,)
 
 
 class Value(QueryNode):
@@ -330,7 +259,7 @@ class Value(QueryNode):
     def __gt__(self, other):
         return self._get_comparator("__gt__", other)
 
-    def __ge__(self, other):
+    def __ge__(self, other):  # pragma: no cover
         return self._get_comparator("__ge__", other)
 
     def __lt__(self, other):
@@ -349,7 +278,7 @@ class Value(QueryNode):
         other = self._other_as_comparator(other)
         return boolean_comparator(self) & other
 
-    def __or__(self, other):
+    def __or__(self, other):  # pragma: no cover
         other = self._other_as_comparator(other)
         return boolean_comparator(self) | other
 
@@ -365,17 +294,11 @@ class ValueFromRow(Value):
     source: Any
     column: Any
 
-    def _get_referenced_nodes(self):
-        return (self.source,)
-
 
 @dataclass(frozen=True, eq=False, order=False)
 class ValueFromAggregate(Value):
     source: RowFromAggregate
     column: Any
-
-    def _get_referenced_nodes(self):
-        return (self.source,)
 
 
 def categorise(mapping, default=None):
@@ -391,13 +314,6 @@ class ValueFromCategory(Value):
     definitions: dict
     default: str | int | float | None
 
-    def _get_referenced_nodes(self):
-        nodes = ()
-        for value in self.definitions.values():
-            assert isinstance(value, QueryNode)
-            nodes += (value,)
-        return nodes
-
 
 @dataclass(frozen=True)
 class Codelist(QueryNode):
@@ -405,14 +321,11 @@ class Codelist(QueryNode):
     system: str
     has_categories: bool = False
 
-    def _get_referenced_nodes(self):
-        return ()
-
     def __post_init__(self):
         if self.has_categories:
             raise NotImplementedError("Categorised codelists are currently unsupported")
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         if len(self.codes) > 5:
             codes = self.codes[:5] + ("...",)
         else:
@@ -423,9 +336,6 @@ class Codelist(QueryNode):
 class ValueFromFunction(Value):
     def __init__(self, *args):
         self.arguments = args
-
-    def _get_referenced_nodes(self):
-        return tuple(arg for arg in self.arguments if isinstance(arg, QueryNode))
 
 
 class DateDifference(ValueFromFunction):
