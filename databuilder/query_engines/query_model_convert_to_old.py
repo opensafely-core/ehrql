@@ -74,10 +74,11 @@ def convert_node(node):
 
 def convert_value_node(node: new.Value):
     value = node.value
-    if isinstance(value, frozenset) and any(
-        isinstance(v, new.Code) for v in value
-    ):  # pragma: no cover
-        return convert_codelist(value)
+    if isinstance(value, frozenset):
+        if any(isinstance(v, new.Code) for v in value):
+            return convert_codelist(value)
+        else:
+            return tuple(value)
     else:
         return value
 
@@ -105,16 +106,24 @@ def convert_filter(node: new.Filter):
         or_null = True
 
     if isinstance(condition, new.Function.IsNull):  # pragma: no cover
-        condition = new.Function.EQ(condition.source, new.Value(None))
-
-    if isinstance(condition, new.Function.Not):
-        assert isinstance(condition.source, new.Function.In)
-        condition = condition.source
-        operator = "not_in"
+        lhs = condition.source
+        rhs = new.Value(None)
+        condition = "__eq__"
+    elif isinstance(condition, new.Function.Not):
+        if isinstance(condition.source, new.Function.IsNull):  # pragma: no cover
+            lhs = condition.source
+            rhs = new.Value(None)
+            operator = "__ne__"
+        else:
+            assert isinstance(condition.source, new.Function.In)
+            lhs = condition.source.lhs
+            rhs = condition.source.rhs
+            operator = "not_in"
     else:
+        lhs = condition.lhs
+        rhs = condition.rhs
         operator = OPERATOR_MAP[condition.__class__]
 
-    lhs, rhs = condition.lhs, condition.rhs
     assert isinstance(lhs, new.SelectColumn)
     assert lhs.source == node.source
     column = column_name(lhs.name)
@@ -169,7 +178,10 @@ for type_ in AGGREGATE_MAP.keys():
 
 @convert_node.register
 def convert_categorise(node: new.Categorise):
-    definitions = {key: convert_node(value) for key, value in node.categories.items()}
+    definitions = {
+        convert_value(key): convert_node(value)
+        for key, value in node.categories.items()
+    }
     return old.ValueFromCategory(definitions, convert_value(node.default))
 
 
@@ -208,6 +220,10 @@ for type_ in OPERATOR_MAP.keys():
 
 @convert_node.register
 def convert_not(node: new.Function.Not):
+    if hasattr(node, "source") and isinstance(node.source, new.Function.IsNull):
+        return old.Comparator(
+            operator="__ne__", lhs=convert_value(node.source.source), rhs=None
+        )
     source = convert_node(node.source)
     assert isinstance(source, old.Comparator)
     assert not source.negated

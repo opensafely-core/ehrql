@@ -5,10 +5,14 @@ and ouputs the equivalent using the new Query Model.
 Lines excluded from test coverage were exercised when we previously checked we could
 convert the entire old test suite but are covered no longer.
 """
+import datetime
+import re
 from functools import cache, singledispatch
 
 from databuilder import query_model as new
 from databuilder import query_model_old as old
+
+DATE_RE = re.compile(r"^\d\d\d\d-\d\d-\d\d$")
 
 OPERATOR_MAP = {
     "__eq__": new.Function.EQ,
@@ -55,6 +59,10 @@ def convert_value(value):
     if isinstance(value, old.QueryNode):
         return convert_node(value)
     else:
+        if isinstance(value, tuple):
+            value = frozenset(value)
+        if isinstance(value, str) and DATE_RE.match(value):
+            value = datetime.date.fromisoformat(value)
         return new.Value(value)
 
 
@@ -80,6 +88,8 @@ def convert_filtered_table(node: old.FilteredTable):
         value = convert_value(node.value)
     if node.operator == "__eq__" and node.value is None:  # pragma: no cover
         condition = new.Function.IsNull(column)
+    elif node.operator == "__ne__" and node.value is None:  # pragma: no cover
+        condition = new.Function.Not(new.Function.IsNull(column))
     else:
         condition = operator(column, value)
     if node.or_null:
@@ -123,7 +133,10 @@ def convert_value_from_aggregate(node: old.ValueFromAggregate):
 
 @convert_node.register
 def convert_value_from_category(node: old.ValueFromCategory):
-    definitions = {key: convert_node(value) for key, value in node.definitions.items()}
+    definitions = {
+        convert_value(key): convert_node(value)
+        for key, value in node.definitions.items()
+    }
     return new.Categorise(definitions, convert_value(node.default))
 
 
@@ -141,6 +154,8 @@ def convert_comparator(node: old.Comparator):
         Function = OPERATOR_MAP[node.operator]
     if node.operator == "__eq__" and node.rhs is None:  # pragma: no cover
         result = new.Function.IsNull(convert_value(node.lhs))
+    if node.operator == "__ne__" and node.rhs is None:
+        result = new.Function.Not(new.Function.IsNull(convert_value(node.lhs)))
     else:
         lhs = convert_value(node.lhs)
         rhs = convert_value(node.rhs)
