@@ -1,6 +1,6 @@
 """
 Temporary migration code which takes a dataset definition created using the new Query Model
-and ouputs the equivalent using the old Query Model. This exists so we can start
+and outputs the equivalent using the old Query Model. This exists so we can start
 developing other parts of the system using the new Query Model without first having to
 rewrite the Query Engine. The intention is to refactor the Query Engine to accept
 structures that look more and more like the new Query Model. Eventually they will just
