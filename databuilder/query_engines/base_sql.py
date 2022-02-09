@@ -64,7 +64,18 @@ from sqlalchemy.sql.selectable import Select
 
 from .. import query_model, sqlalchemy_types
 from ..functools_utils import singledispatchmethod_with_unions
-from ..query_model_old import (
+from ..sqlalchemy_utils import (
+    TemporaryTable,
+    get_primary_table,
+    get_referenced_tables,
+    get_setup_and_cleanup_queries,
+    group_and_aggregate,
+    include_joined_tables,
+    select_first_row_per_partition,
+)
+from .base import BaseQueryEngine
+from .query_model_convert_to_old import convert as convert_to_old
+from .query_model_old import (
     Codelist,
     Column,
     Comparator,
@@ -86,17 +97,6 @@ from ..query_model_old import (
     ValueFromFunction,
     ValueFromRow,
 )
-from ..sqlalchemy_utils import (
-    TemporaryTable,
-    get_primary_table,
-    get_referenced_tables,
-    get_setup_and_cleanup_queries,
-    group_and_aggregate,
-    include_joined_tables,
-    select_first_row_per_partition,
-)
-from .base import BaseQueryEngine
-from .query_model_convert_to_old import convert as convert_to_old
 
 # These are nodes which select a single column from a query (regardless of whether that
 # results in a single value per patient or in multiple values per patient)

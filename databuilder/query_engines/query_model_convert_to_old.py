@@ -13,7 +13,7 @@ import dataclasses
 from functools import cache, singledispatch
 
 from .. import query_model as new
-from .. import query_model_old as old
+from . import query_model_old as old
 
 # mypy: ignore-errors
 

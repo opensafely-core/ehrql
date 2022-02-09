@@ -47,7 +47,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .query_model_old import BaseTable, Codelist, Comparator, Value, ValueFromAggregate
+from .query_engines.query_model_old import (
+    BaseTable,
+    Codelist,
+    Comparator,
+    Value,
+    ValueFromAggregate,
+)
 
 
 class Cohort:
