@@ -1,4 +1,5 @@
 import dataclasses
+from collections.abc import Mapping, Set
 from datetime import date
 from enum import Enum
 from functools import singledispatch
@@ -198,7 +199,7 @@ class AggregateByPatient:
     # produces is a set-like object containing all of its input values. This enables
     # them to be used as arguments to the In/NotIn fuctions which require something
     # set-like as their RHS argument.
-    class CombineAsSet(OneRowPerPatientSeries[set[T]]):
+    class CombineAsSet(OneRowPerPatientSeries[Set[T]]):
         source: Series[T]
 
 
@@ -288,11 +289,11 @@ class Function:
     # use the `CombineAsSet` aggregation.
     class In(Series[bool]):
         lhs: Series[T]
-        rhs: Series[set[T]]
+        rhs: Series[Set[T]]
 
 
 class Categorise(Series[T]):
-    categories: dict[Series[T], Series[bool]]
+    categories: Mapping[Series[T], Series[bool]]
     default: Series[T]
 
     def __hash__(self):
