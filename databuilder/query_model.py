@@ -294,7 +294,7 @@ class Function:
 
 class Categorise(Series[T]):
     categories: Mapping[Series[T], Series[bool]]
-    default: Series[T]
+    default: Series[Optional[T]]
 
     def __hash__(self):
         # `categories` is a dict and so not hashable by default, but we treat it as
