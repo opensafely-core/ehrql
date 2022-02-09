@@ -31,10 +31,6 @@ class Dataset:
         return {name: variable.qm_node for name, variable in self.variables.items()}
 
 
-class PatientTable:
-    pass
-
-
 class Series:
     def __init__(self, qm_node):
         self.qm_node = qm_node
