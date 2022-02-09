@@ -24,7 +24,7 @@ def main(args=None):
 
     options = parser.parse_args(args)
 
-    if options.which == "generate_cohort":
+    if options.which == "generate_dataset":
         if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
             parser.error(
                 "error: either --dummy-data-file or DATABASE_URL environment variable is required"
@@ -32,25 +32,25 @@ def main(args=None):
 
         run_cohort_action(
             generate_cohort,
-            definition_path=options.cohort_definition,
-            output_file=options.output,
+            definition_path=options.dataset_definition,
+            output_file=options.dataset,
             db_url=os.environ.get("DATABASE_URL"),
             backend_id=os.environ.get("OPENSAFELY_BACKEND"),
             dummy_data_file=options.dummy_data_file,
             temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
         )
-    elif options.which == "validate_cohort":
+    elif options.which == "validate_dataset_definition":
         run_cohort_action(
             validate_cohort,
-            definition_path=options.cohort_definition,
-            output_file=options.output,
+            definition_path=options.dataset_definition,
+            output_file=options.dataset,
             backend_id=options.backend,
         )
     elif options.which == "generate_measures":
         generate_measures(
-            definition_path=options.cohort_definition,
+            definition_path=options.dataset_definition,
             input_file=options.input,
-            output_file=options.output,
+            output_file=options.dataset,
         )
     elif options.which == "test_connection":
         test_connection(
@@ -72,50 +72,50 @@ def build_parser():
     parser.set_defaults(which="print_help")
     subparsers = parser.add_subparsers(help="sub-command help")
 
-    generate_cohort_parser = subparsers.add_parser(
-        "generate_cohort", help="Generate cohort"
+    generate_dataset_parser = subparsers.add_parser(
+        "generate_dataset", help="Generate a dataset"
     )
-    generate_cohort_parser.set_defaults(which="generate_cohort")
-    generate_cohort_parser.add_argument(
-        "--cohort-definition",
-        help="The path of the file where the cohort is defined",
+    generate_dataset_parser.set_defaults(which="generate_dataset")
+    generate_dataset_parser.add_argument(
+        "--dataset-definition",
+        help="The path of the file where the dataset is defined",
         type=existing_python_file,
     )
-    generate_cohort_parser.add_argument(
-        "--output",
-        help="Path and filename (or pattern) of the file(s) where the output will be written",
+    generate_dataset_parser.add_argument(
+        "--dataset",
+        help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
     )
-    generate_cohort_parser.add_argument(
+    generate_dataset_parser.add_argument(
         "--dummy-data-file",
         help="Provide dummy data from a file to be validated and used as output",
         type=Path,
     )
 
-    validate_cohort_parser = subparsers.add_parser(
-        "validate_cohort",
-        help="Validate the cohort definition against the specified backend",
+    validate_dataset_definition_parser = subparsers.add_parser(
+        "validate_dataset_definition",
+        help="Validate the dataset definition against the specified backend",
     )
-    validate_cohort_parser.set_defaults(which="validate_cohort")
+    validate_dataset_definition_parser.set_defaults(which="validate_dataset_definition")
 
-    validate_cohort_parser.add_argument(
+    validate_dataset_definition_parser.add_argument(
         "backend",
         type=str,
         choices=BACKENDS,  # allow all registered backend subclasses
     )
-    validate_cohort_parser.add_argument(
-        "--cohort-definition",
-        help="The path of the file where the cohort is defined",
+    validate_dataset_definition_parser.add_argument(
+        "--dataset-definition",
+        help="The path of the file where the dataset is defined",
         type=existing_python_file,
     )
-    validate_cohort_parser.add_argument(
-        "--output",
-        help="Path and filename (or pattern) of the file(s) where the output will be written",
+    validate_dataset_definition_parser.add_argument(
+        "--dataset",
+        help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
     )
 
     generate_measures_parser = subparsers.add_parser(
-        "generate_measures", help="Generate measures from cohort data"
+        "generate_measures", help="Generate measures from a dataset"
     )
     generate_measures_parser.set_defaults(which="generate_measures")
 
@@ -126,13 +126,13 @@ def build_parser():
         type=Path,
     )
     generate_measures_parser.add_argument(
-        "--output",
-        help="Path and filename (or pattern) of the file(s) where the output will be written",
+        "--dataset",
+        help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
     )
     generate_measures_parser.add_argument(
-        "--cohort-definition",
-        help="The path of the file where the cohort is defined",
+        "--dataset-definition",
+        help="The path of the file where the dataset is defined",
         type=existing_python_file,
     )
 

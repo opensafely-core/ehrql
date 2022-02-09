@@ -39,10 +39,10 @@ def cohort_extractor_in_container(
         definition_path = Path("analysis") / study.definition().name
 
         command = [
-            "generate_cohort",
-            "--cohort-definition",
+            "generate_dataset",
+            "--dataset-definition",
             str(definition_path),
-            "--output",
+            "--dataset",
             str(output_rel_dir / study.output_file_name),
         ]
         if use_dummy_data:
@@ -83,11 +83,11 @@ def cohort_extractor_generate_measures_in_container(tmpdir, database, containers
 
         command = [
             "generate_measures",
-            "--cohort-definition",
+            "--dataset-definition",
             str(definition_path),
             "--input",
             str(input_path),
-            "--output",
+            "--dataset",
             str(output_rel_path),
         ]
 
