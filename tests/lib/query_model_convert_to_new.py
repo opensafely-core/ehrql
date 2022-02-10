@@ -137,7 +137,11 @@ def convert_value_from_category(node: old.ValueFromCategory):
         convert_value(key): convert_node(value)
         for key, value in node.definitions.items()
     }
-    return new.Categorise(definitions, convert_value(node.default))
+    if node.default is not None:
+        default = convert_value(node.default)
+    else:
+        default = None
+    return new.Categorise(definitions, default)
 
 
 @convert_node.register

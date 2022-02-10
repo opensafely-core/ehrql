@@ -301,7 +301,7 @@ class Function:
 
 class Categorise(Series[T]):
     categories: Mapping[Series[T], Series[bool]]
-    default: Series[Optional[T]]
+    default: Optional[Series[T]]
 
     def __hash__(self):
         # `categories` is a dict and so not hashable by default, but we treat it as
@@ -546,4 +546,7 @@ def get_input_nodes(node):
 # nested inside a dict object
 @get_input_nodes.register(Categorise)
 def get_input_nodes_for_categorise(node):
-    return [*node.categories.keys(), *node.categories.values(), node.default]
+    inputs = [*node.categories.keys(), *node.categories.values()]
+    if node.default is not None:
+        inputs.append(node.default)
+    return inputs
