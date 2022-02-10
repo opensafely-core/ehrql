@@ -17,9 +17,10 @@ def get_typevars(typespec):
         return set().union(*[get_typevars(arg) for arg in typing.get_args(typespec)])
 
 
-def type_matches(type_, spec, typevar_context):
+def type_matches(spec, target_spec, typevar_context):
     """
-    Checks that the type given by `type_` matches the specification given by `spec`
+    Checks that the type specification given by `spec` matches the specification given
+    by `target_spec`
 
     For example:
 
@@ -27,9 +28,9 @@ def type_matches(type_, spec, typevar_context):
 
     Because `str` matches `Any` and `FileNotFoundError` is a subclass of `OSError`.
 
-    The specification may contain TypeVars. The first match for each variable will bind
-    its value, recording it in the `typevar_context` dict. Subsequent uses of the
-    variable will fail to match if they don't have the same type. By sharing the
+    The target specification may contain TypeVars. The first match for each variable
+    will bind its value, recording it in the `typevar_context` dict. Subsequent uses of
+    the variable will fail to match if they don't have the same type. By sharing the
     `typevar_context` dict across different calls to this function you can enforce
     consistent interpretation of the TypeVar.
 
@@ -39,57 +40,66 @@ def type_matches(type_, spec, typevar_context):
         type_matches(dict[int, int], dict[T, T], {})
         type_matches(dict[str, str], dict[T, T], {})
 
-    But these will fail:
+    But this fails:
+
+        type_matches(dict[int, str], dict[T, T], {})
+
+    And so does the second example here:
 
         ctx = {}
-        type_matches(dict[int, bool], dict[T, T], ctx)
+        type_matches(dict[int, int], dict[T, T], ctx)
         type_matches(dict[str, str], dict[T, T], ctx)
 
-    The first because the value of T is internally inconsistent; the second because
-    although it is internally consistent it is inconsistent with the previous example
-    whose context it shares.
+    Because although it's internally consistent it is inconsistent with the previous
+    example whose context it shares.
     """
-    # If `spec` is a type variable
-    if isinstance(spec, typing.TypeVar):
+    # If `target_spec` is a type variable
+    if isinstance(target_spec, typing.TypeVar):
         # Check the type constraints are met, if any
-        if spec.__constraints__:
+        if target_spec.__constraints__:
             if not any(
-                type_matches(type_, subspec, typevar_context)
-                for subspec in spec.__constraints__
+                type_matches(spec, constraint, typevar_context)
+                for constraint in target_spec.__constraints__
             ):
                 return False
         # If we've already assigned a value for this variable (and it wasn't the Any
         # type) then check it matches
-        if spec in typevar_context and typevar_context[spec] != typing.Any:
-            if typevar_context[spec] != type_:
+        if (
+            target_spec in typevar_context
+            and typevar_context[target_spec] != typing.Any
+        ):
+            if typevar_context[target_spec] != spec:
                 return False
         # Otherwise record this value as the value of the TypeVar
         else:
-            typevar_context[spec] = type_
+            typevar_context[target_spec] = spec
         return True
 
     # `Any` is the easy case: it just matches everything
-    if type_ is typing.Any or spec is typing.Any:
+    if spec is typing.Any or target_spec is typing.Any:
         return True
 
-    spec_origin = typing.get_origin(spec)
-    spec_args = typing.get_args(spec)
+    target_spec_origin = typing.get_origin(target_spec)
 
-    # If there's no origin type that means `spec` is an ordinary class
-    if spec_origin is None:
-        return type_ is not None and issubclass(type_, spec)
-    elif spec_origin is typing.Union:
+    # If there's no origin type that means `target_spec` is an ordinary class
+    if target_spec_origin is None:
+        return spec is not None and issubclass(spec, target_spec)
+    elif target_spec_origin is typing.Union:
         # For union types we just need to match one of the arguments
-        return any(type_matches(type_, arg, typevar_context) for arg in spec_args)
+        return any(
+            type_matches(spec, arg, typevar_context)
+            for arg in typing.get_args(target_spec)
+        )
     else:
-        # Otherwise we get origin and args for `type_` and check that each element
+        # Otherwise we get origin and args for `spec` and check that each element
         # matches
-        type_origin = typing.get_origin(type_)
-        if not type_matches(type_origin, spec_origin, typevar_context):
+        spec_origin = typing.get_origin(spec)
+        if not type_matches(spec_origin, target_spec_origin, typevar_context):
             return False
-        type_args = typing.get_args(type_)
-        for type_arg, spec_arg in zip(type_args, spec_args):
-            if not type_matches(type_arg, spec_arg, typevar_context):
+        target_spec_args = typing.get_args(target_spec)
+        spec_args = typing.get_args(spec)
+        for spec_arg, target_spec_arg in zip(spec_args, target_spec_args):
+            if not type_matches(spec_arg, target_spec_arg, typevar_context):
                 return False
         return True
 
@@ -109,12 +119,19 @@ def get_typespec(value):
     Additionally, through the magic of singledispatch, it can be taught to destructure
     other container types it doesn't yet know about.
     """
-    return type(value)
+    type_ = type(value)
+    assert not hasattr(type_, "__class_getitem__"), (
+        f"{type_} takes type arguments and so should register its own `get_typespec`"
+        f" implementation"
+    )
+    return type_
 
 
 @get_typespec.register(Set)
 def get_typespec_for_set(value):
     member_types = {get_typespec(i) for i in value}
+    # We enforce this constraint because it works for our current use case and is
+    # simple. In theory we could find the common base class here and use that.
     if len(member_types) > 1:
         raise TypeError(f"Sets must be of homogeneous type: {value!r}")
     elif member_types:
@@ -129,6 +146,8 @@ def get_typespec_for_set(value):
 def get_typespec_for_mapping(value):
     key_types = {get_typespec(i) for i in value.keys()}
     value_types = {get_typespec(i) for i in value.values()}
+    # We enforce these constraints because they work for our current use case and are
+    # simple. In theory we could find the common base class here and use that.
     if len(key_types) > 1:
         raise TypeError(f"Mappings must be of homogeneous key type: {value!r}")
     elif len(value_types) > 1:

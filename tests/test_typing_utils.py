@@ -31,6 +31,12 @@ def test_get_typespec_errors():
         get_typespec({1: "one", 2: 2.0})
 
 
+def test_get_typespec_errors_on_unhandled_container_type():
+    with pytest.raises(AssertionError):
+        # We haven't taught it how to destructure lists so this should error
+        get_typespec([1, 2, 3])
+
+
 def test_type_matches():
     assert type_matches(list[str], list[Union[int, str]], {})
     assert type_matches(dict[str, FileNotFoundError], dict[Any, OSError], {})

@@ -11,7 +11,7 @@ from .typing_utils import get_typespec, get_typevars, type_matches
 # mypy: ignore-errors
 
 
-# The below classes and methods are the public API surface of the query model
+# The below classes and functions are the public API surface of the query model
 __all__ = [
     "SelectTable",
     "SelectPatientTable",
@@ -150,7 +150,7 @@ class Value(OneRowPerPatientSeries[T]):
 
 class SelectTable(ManyRowsPerPatientFrame):
     name: str
-    # A schema is a mapping from available colum names to types which allows us to check
+    # A schema is a mapping from available column names to types which allows us to check
     # that operations only use columns which actually exist and are of the correct type.
     # It's optional because we don't *need* it to construct a query, but we're obviously
     # more limited in the validation we can do without it.
@@ -354,15 +354,15 @@ def validate_node(node):
     # JOIN using the patient_id and be sure that we're not creating new rows. But for
     # operations involving many-rows-per-patient inputs we need to ensure that they are
     # all drawn from the same underlying table. (We call this the "domain" for set
-    # theoretic reasons which the margin of this comment are too small to contain.) Note
-    # that when we add a Join operation that will be the one explicit exception to this
-    # rule.
+    # theoretic reasons which the margins of this comment are too small to contain.)
+    # Note that when we add a Join operation that will be the one explicit exception to
+    # this rule.
     validate_inputs_have_common_domain(node)
 
 
 def validate_types(node):
     # Within the context of this node, any TypeVars evaluated must take consistent
-    # values so we created a single context object to share between all fields
+    # values so we create a single context object to share between all fields
     typevar_context = {}
     for field in dataclasses.fields(node):
         value = getattr(node, field.name)
@@ -377,12 +377,18 @@ def validate_types(node):
         typespec = get_typespec(value)
         target_typespec = field.type
         if not type_matches(typespec, target_typespec, typevar_context):
-            # TODO: Raise more helpful errors here. In particular the error you get from
-            # inconsistent use of type variables is not very obvious. Ideally, we raise
-            # exceptions with more structured information so that DSL layers can catch
-            # them and translate them into something more meaningful in their context.
+            # Try to make errors a bit more helpful by resolving TypeVars if we can.
+            # This means that if validation fails because e.g. `T` has been bound to
+            # `int` by one argument and you're trying to supply `str` in the other,
+            # you'll get an error saying "requires Series[int]" rather than the less
+            # helpful "requires Series[T]"
+            if len(typevar_context) == 1:
+                typevar_value = list(typevar_context.values())[0]
+                resolved_typespec = target_typespec[typevar_value]
+            else:
+                resolved_typespec = target_typespec
             raise TypeError(
-                f"{node.__class__.__name__}.{field.name} requires '{target_typespec}'"
+                f"{node.__class__.__name__}.{field.name} requires '{resolved_typespec}'"
                 f" but got '{typespec}'"
                 f"\nIn node:\n{node}"
             )
@@ -409,19 +415,24 @@ def get_typespec_for_series(series):
     """
     inner_type = get_inner_type(series)
     typevars = get_typevars(inner_type)
-    # The easy case is when the series type specification doesn't contain any TypeVars.
+    # The easy case is when the series type specification doesn't contain any TypeVars
+    # so it's just something like `Series[int]` or `Series[str]`
     if not typevars:
         # In this case there's no resolving to be done and the resolved type just *is*
-        # the type we started with
+        # the type we started with (which in the examples above would be `int` or `str`)
         resolved_type = inner_type
     # If the specification does contain TypeVars then we need to resolve these against
-    # the types used in the inputs and substitute these resolved values back in
+    # the types used in the inputs and substitute these resolved values back in. So if
+    # we have `Series[T]` or `Series[Set[T]]` we need to check its inputs to see what T
+    # refers to.
     else:
         # We assume just one TypeVar; we could probably make this work with multiple if
         # we needed to, but I can't see why we ever would
         assert len(typevars) == 1
         typevar = list(typevars)[0]
-        # Get the value implied by the input types
+        # Get the value implied by the input types. Note that if the inputs' signatures
+        # themselves contain TypeVars then this will end up recursing until it hits a
+        # concrete type.
         typevar_value = resolve_typevar_from_inputs(series, typevar)
         if inner_type is typevar:
             # If what we started with was a plain TypeVar (not nested inside any more
@@ -446,10 +457,14 @@ def get_inner_type(series):
     # hierachy. Instead we access it via the `__orig_bases__` attribute. We want the
     # first such generic and, having found it, we want to extract its arguments using
     # `get_args` and take what we know to be the one and only argument.
-    return typing.get_args(series.__orig_bases__[0])[0]
+    inner_type = typing.get_args(series.__orig_bases__[0])[0]
+    # It's fine to _accept_ Series[Any] as a type, but there's no reason we should be
+    # returning it
+    assert inner_type is not Any, "Operations should never return Series[Any]"
+    return inner_type
 
 
-def resolve_typevar_from_inputs(node, typevar):
+def resolve_typevar_from_inputs(series, typevar):
     # Walk over all the inputs to an operation, matching their actual type against their
     # specified field type; this is not with the intention of validating those types but
     # rather of resolving the values of any type variables included. As soon as we
@@ -473,9 +488,12 @@ def resolve_typevar_from_inputs(node, typevar):
     # As soon as we've resolved the value of T we return it. (Ensuring T is consistent
     # over all the inputs is a separate validation problem handled elsewhere.)
     typevar_context = {}
-    for field in dataclasses.fields(node):
-        value = getattr(node, field.name)
+    for field in dataclasses.fields(series):
+        value = getattr(series, field.name)
         typespec = get_typespec(value)
+        # We're abusing a side-effect of the validation function here which is to
+        # populate the `typevar_context` dict and ignoring the actual validation return
+        # value.
         type_matches(typespec, field.type, typevar_context)
         # We happen to always hit this on the first pass, hence the "no cover"
         if typevar in typevar_context:  # pragma: no cover
@@ -484,7 +502,7 @@ def resolve_typevar_from_inputs(node, typevar):
         # If we get here then we've mucked up our Query Model classes somehow: we've
         # included a TypeVar in an operation signature which doesn't itself appear in
         # the signatures for any of its inputs.
-        assert False, f"Could not match TypeVar {typevar} in {node}"
+        assert False, f"Could not match TypeVar {typevar} in {series}"
 
 
 @get_typespec.register(SelectColumn)
