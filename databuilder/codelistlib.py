@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 
-from .query_model_old import Codelist
+from .query_engines.query_model_old import Codelist
 
 
 def codelist(codes, system):

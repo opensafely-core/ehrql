@@ -2,20 +2,28 @@ from datetime import date
 
 import pytest
 
-from databuilder.query_model_old import categorise, table
-
-from .lib.mock_backend import (
+from ..lib.mock_backend import (
     CTV3Events,
     RegistrationHistory,
     ctv3_event,
     patient,
     positive_test,
 )
-from .lib.query_model_convert_to_new import convert as convert_to_new
-from .lib.util import OldCohortWithPopulation, make_codelist
+from .query_model_convert_to_new import convert as convert_to_new
+from .query_model_old import Codelist, categorise, table
 
 # Mark the whole module as containing integration tests
 pytestmark = pytest.mark.integration
+
+
+def make_codelist(*codes, system="ctv3"):
+    return Codelist(codes, system=system)
+
+
+class OldCohortWithPopulation:
+    def __init_subclass__(cls):
+        if not hasattr(cls, "population"):  # pragma: no cover
+            cls.population = table("practice_registrations").exists()
 
 
 def convert(cohort_using_old_query_model):

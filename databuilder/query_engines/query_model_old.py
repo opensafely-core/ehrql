@@ -73,7 +73,7 @@ class Comparator(QueryNode):
     def __or__(self, other):
         return self._combine(other, "or_")
 
-    def __invert__(self):
+    def __invert__(self):  # pragma: no cover
         return type(self)(
             connector=self.connector,
             negated=not self.negated,
@@ -83,34 +83,34 @@ class Comparator(QueryNode):
         )
 
     @staticmethod
-    def _raise_comparison_error():
+    def _raise_comparison_error():  # pragma: no cover
         raise RuntimeError(
             "Invalid operation; cannot perform logical operations on a Comparator"
         )
 
-    def __gt__(self, other):
+    def __gt__(self, other):  # pragma: no cover
         self._raise_comparison_error()
 
-    def __ge__(self, other):
+    def __ge__(self, other):  # pragma: no cover
         self._raise_comparison_error()
 
-    def __lt__(self, other):
+    def __lt__(self, other):  # pragma: no cover
         self._raise_comparison_error()
 
-    def __le__(self, other):
+    def __le__(self, other):  # pragma: no cover
         self._raise_comparison_error()
 
-    def __eq__(self, other):
+    def __eq__(self, other):  # pragma: no cover
         return self._compare(other, "__eq__")
 
-    def __ne__(self, other):
+    def __ne__(self, other):  # pragma: no cover
         return self._compare(other, "__ne__")
 
     def _combine(self, other, conn):
         assert isinstance(other, Comparator)
         return type(self)(connector=conn, lhs=self, rhs=other)
 
-    def _compare(self, other, operator):
+    def _compare(self, other, operator):  # pragma: no cover
         return type(self)(operator=operator, lhs=self, rhs=other)
 
 
@@ -120,7 +120,7 @@ def boolean_comparator(obj, negated=False):
 
 
 class BaseTable(QueryNode):
-    def get(self, column):
+    def get(self, column):  # pragma: no cover
         return Column(source=self, column=column)
 
     def filter(self, *args: str, **kwargs: Any) -> BaseTable:  # noqa: A003
@@ -143,7 +143,7 @@ class BaseTable(QueryNode):
             for field, value in kwargs.items():
                 node = node.filter(field, equals=value)
             return node
-        elif len(kwargs) > 1:
+        elif len(kwargs) > 1:  # pragma: no cover
             # filters on a specific field, apply each filter in turn
             node = self
             for operator, value in kwargs.items():
@@ -151,19 +151,21 @@ class BaseTable(QueryNode):
             return node
 
         operator, value = list(kwargs.items())[0]
-        if operator == "between":
+        if operator == "between":  # pragma: no cover
             # convert a between filter into its two components
             return self.filter(*args, on_or_after=value[0], on_or_before=value[1])
 
         if operator in ("equals", "not_equals") and isinstance(
             value, (Codelist, Column)
-        ):
+        ):  # pragma: no cover
             raise TypeError(
                 f"You can only use '{operator}' to filter a column by a single value.\n"
                 f"To filter using a {value.__class__.__name__}, use 'is_in/not_in'."
             )
 
-        if operator == "is_in" and not isinstance(value, (Codelist, Column)):
+        if operator == "is_in" and not isinstance(
+            value, (Codelist, Column)
+        ):  # pragma: no cover
             # convert non-codelist in values to tuple
             value = tuple(value)
         assert len(args) == len(kwargs) == 1
@@ -210,7 +212,7 @@ class BaseTable(QueryNode):
     def count(self, column="patient_id"):
         return self.aggregate("count", column)
 
-    def sum(self, column):  # noqa: A003
+    def sum(self, column):  # noqa: A003    pragma: no cover
         return self.aggregate("sum", column)
 
     def aggregate(self, function, column):
@@ -321,7 +323,7 @@ class Value(QueryNode):
         other = self._other_as_comparator(other)
         return Comparator(lhs=self, operator=operator, rhs=other)
 
-    def __gt__(self, other):
+    def __gt__(self, other):  # pragma: no cover
         return self._get_comparator("__gt__", other)
 
     def __ge__(self, other):
@@ -330,16 +332,16 @@ class Value(QueryNode):
     def __lt__(self, other):
         return self._get_comparator("__lt__", other)
 
-    def __le__(self, other):
+    def __le__(self, other):  # pragma: no cover
         return self._get_comparator("__le__", other)
 
     def __eq__(self, other):
         return self._get_comparator("__eq__", other)
 
-    def __ne__(self, other):
+    def __ne__(self, other):  # pragma: no cover
         return self._get_comparator("__ne__", other)
 
-    def __and__(self, other):
+    def __and__(self, other):  # pragma: no cover
         other = self._other_as_comparator(other)
         return boolean_comparator(self) & other
 
