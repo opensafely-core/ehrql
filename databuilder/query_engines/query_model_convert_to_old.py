@@ -40,6 +40,7 @@ FUNCTION_CLASS_MAP = {
     new.Function.Add: old.DateDeltaAddition,
     new.Function.DateSubtract: old.DateSubtraction,
     new.Function.Subtract: old.DateDeltaSubtraction,
+    new.Function.YearFromDate: old.YearFromDate,
 }
 
 AGGREGATE_MAP = {

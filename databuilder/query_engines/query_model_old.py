@@ -452,3 +452,7 @@ class RoundToFirstOfMonth(ValueFromFunction):
 
 class RoundToFirstOfYear(ValueFromFunction):
     pass
+
+
+class YearFromDate(ValueFromFunction):
+    pass

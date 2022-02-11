@@ -96,6 +96,7 @@ from .query_model_old import (
     ValueFromCategory,
     ValueFromFunction,
     ValueFromRow,
+    YearFromDate,
 )
 
 # These are nodes which select a single column from a query (regardless of whether that
@@ -476,6 +477,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             DateDeltaSubtraction: self.date_delta_subtract,
             RoundToFirstOfMonth: self.round_to_first_of_month,
             RoundToFirstOfYear: self.round_to_first_of_year,
+            YearFromDate: self.year_from_date,
         }
 
         assert value.__class__ in class_method_map, f"Unsupported function: {value}"
@@ -580,6 +582,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def round_to_first_of_year(self, date):
         raise NotImplementedError
+
+    def year_from_date(self, date):
+        date = type_coerce(date, sqlalchemy_types.Date())
+        return sqlalchemy.func.year(date, type_=sqlalchemy_types.Integer())
 
     def query_to_create_temp_table_from_select_query(
         self, table: TemporaryTable, select_query: Executable
