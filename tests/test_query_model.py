@@ -1,6 +1,7 @@
 import datetime
 from collections.abc import Set
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
@@ -105,12 +106,33 @@ def test_query_reprs_round_trip(queries):
         assert eval(repr(query)) == query
 
 
-def test_mixing_domains_throws_error():
+def test_filtering_one_frame_by_a_condition_derived_from_another_throws_error():
     events = SelectTable("events")
     vaccinations = SelectTable("vaccinations")
     vaccine_code = SelectColumn(vaccinations, "code")
+    filter_condition = Function.EQ(vaccine_code, Value("abc123"))
     with pytest.raises(DomainMismatchError):
-        Filter(events, Function.EQ(vaccine_code, Value("abc123")))
+        Filter(events, filter_condition)
+
+
+def test_combining_non_patient_level_series_from_different_frames_throws_error():
+    events = SelectTable("events")
+    vaccinations = SelectTable("vaccinations")
+    event_date = SelectColumn(events, "date")
+    vaccination_date = SelectColumn(vaccinations, "date")
+    with pytest.raises(DomainMismatchError):
+        Function.EQ(event_date, vaccination_date)
+
+
+def test_combining_a_patient_level_series_from_a_different_frame_is_ok():
+    events = SelectTable("events")
+    vaccinations = SelectTable("vaccinations")
+    event_date = SelectColumn(events, "date")
+    vaccination_date = SelectColumn(vaccinations, "date")
+    # This makes a one-row-per-patient series which can be combined arbitrarily with
+    # other series
+    first_event_date = AggregateByPatient.Min(event_date)
+    assert Function.EQ(first_event_date, vaccination_date)
 
 
 def test_cannot_pick_row_from_unsorted_table():
@@ -133,7 +155,32 @@ def test_cannot_compare_date_and_int():
         Function.EQ(date, Value(2000))
 
 
-def test_can_compare_date_and_int_if_no_schema():
+def test_can_compare_columns_of_unknown_type():
+    # Without the schema the Query Model doesn't know that the "date" column contains a
+    # date, so it assumes the user knows what they're doing
     events = SelectTable("events")
     date = SelectColumn(events, "date")
+    assert get_series_type(date) == Any
     assert Function.EQ(date, Value(2000))
+
+
+def test_infer_types_where_possible_even_without_schema():
+    events = SelectTable("events")
+    date = SelectColumn(events, "date")
+    event_count = AggregateByPatient.Count(date)
+    # Even though we don't know what type "date" is we know that Count always returns an
+    # int
+    assert get_series_type(event_count) == int
+    # And therefore it should be an error to compare it to a string
+    with pytest.raises(TypeError):
+        Function.EQ(event_count, Value("some_string"))
+
+
+def test_cannot_define_operation_returning_any_type(queries):
+    # It's legitimate to have operations which accept Any, but it's never valid as a
+    # return type
+    class BadOperation(Series[Any]):
+        source: Series[Any]
+
+    with pytest.raises(AssertionError, match=r"never return Series\[Any\]"):
+        get_series_type(BadOperation(queries.vaccination_count))
