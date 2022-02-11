@@ -1,13 +1,17 @@
 import dataclasses
+import typing
+from collections.abc import Mapping, Set
 from datetime import date
 from enum import Enum
-from functools import singledispatch
-from typing import Any, Mapping, TypeVar
+from functools import cache, singledispatch
+from typing import Any, GenericAlias, Optional, TypeVar
+
+from .typing_utils import get_typespec, get_typevars, type_matches
 
 # mypy: ignore-errors
 
 
-# The below classes are the public API surface of the query model
+# The below classes and functions are the public API surface of the query model
 __all__ = [
     "SelectTable",
     "SelectPatientTable",
@@ -19,8 +23,11 @@ __all__ = [
     "AggregateByPatient",
     "Function",
     "Categorise",
+    "TableSchema",
     "Code",
     "DomainMismatchError",
+    "has_one_row_per_patient",
+    "get_series_type",
 ]
 
 
@@ -46,31 +53,25 @@ class Position(Enum):
     FIRST = "first"
     LAST = "last"
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self):
         # Gives us `self == eval(repr(self))` as for dataclasses
         return f"{self.__class__.__name__}.{self.name}"
 
 
-# Operations which create Frames from tables take an optional schema parameter. A schema
-# is a mapping from colum names to types which allows us to check that only columns
-# which exist are being accessed and that all operations use valid types. The default
-# schema assumes that all referenced columns exist and gives them the type Any. This
-# obviously limits the validation we can do but it does not eliminate it. For instance,
-# we can tell when an operation which can only return a bool is used as an argument to
-# one which only accepts an int.
-class DefaultSchema:
-    def __init__(self, name):
+class TableSchema:
+    "Defines a mapping of column names to types"
+
+    def __init__(self, name, **columns):
+        # `name` can be arbitrary here, but supplying a bound name for the schema in
+        # local scope will give a correctly executable repr
         self.name = name
+        self.columns = columns
 
-    def __getitem__(self, column_name):  # pragma: no cover
-        return Any
+    def __getitem__(self, column):  # pragma: no cover
+        return self.columns[column]
 
-    def __repr__(self):  # pragma: no cover
-        # Gives us `self == eval(repr(self))` as for dataclasses
+    def __repr__(self):
         return self.name
-
-
-DEFAULT_SCHEMA = DefaultSchema("DEFAULT_SCHEMA")
 
 
 # BASIC QUERY MODEL TYPES
@@ -104,12 +105,14 @@ class Frame(Node):
 
 
 class Series(Node):
+    # Series have an "inner" type denoting the type of value they contain e.g
+    # `Series[int]`. The below method generates generic aliases for these types when
+    # they are referenced. We cache them so that multiple references always return the
+    # same type object.
+    @classmethod
+    @cache
     def __class_getitem__(cls, type_):
-        # Series have an "inner" type denoting the type of value they contain e.g
-        # `Series[int]`. This is the method which makes that syntax work. At the moment
-        # we don't do anything with this type, we just return the original class
-        # unmodified. Later we will handle this properly and validate the types.
-        return cls
+        return GenericAlias(cls, (type_,))
 
 
 class OneRowPerPatientFrame(Frame):
@@ -147,12 +150,16 @@ class Value(OneRowPerPatientSeries[T]):
 
 class SelectTable(ManyRowsPerPatientFrame):
     name: str
-    schema: Mapping[str, Any] = DEFAULT_SCHEMA
+    # A schema is a mapping from available column names to types which allows us to check
+    # that operations only use columns which actually exist and are of the correct type.
+    # It's optional because we don't *need* it to construct a query, but we're obviously
+    # more limited in the validation we can do without it.
+    schema: Optional[TableSchema] = None
 
 
 class SelectPatientTable(OneRowPerPatientFrame):
     name: str
-    schema: Mapping[str, Any] = DEFAULT_SCHEMA
+    schema: Optional[TableSchema] = None
 
 
 class SelectColumn(Series):
@@ -199,7 +206,7 @@ class AggregateByPatient:
     # produces is a set-like object containing all of its input values. This enables
     # them to be used as arguments to the In/NotIn fuctions which require something
     # set-like as their RHS argument.
-    class CombineAsSet(OneRowPerPatientSeries[set[T]]):
+    class CombineAsSet(OneRowPerPatientSeries[Set[T]]):
         source: Series[T]
 
 
@@ -289,12 +296,12 @@ class Function:
     # use the `CombineAsSet` aggregation.
     class In(Series[bool]):
         lhs: Series[T]
-        rhs: Series[set[T]]
+        rhs: Series[Set[T]]
 
 
 class Categorise(Series[T]):
-    categories: dict[Series[T], Series[bool]]
-    default: Series[T]
+    categories: Mapping[Series[T], Series[bool]]
+    default: Optional[Series[T]]
 
     def __hash__(self):
         # `categories` is a dict and so not hashable by default, but we treat it as
@@ -302,21 +309,35 @@ class Categorise(Series[T]):
         return hash((tuple(self.categories.items()), self.default))
 
 
-# We don't currently support this in the DSL or the Query Engine but we include it for
-# completeness
-class Join(ManyRowsPerPatientFrame):
-    lhs: Frame
-    rhs: Frame
+# TODO: We don't currently support Join in the DSL or the Query Engine but this is the
+# signature it will have when we do. Also note that the Join operation is the one
+# exception to the "common domain constraint" explained below as it's the one operation
+# which is explicitly designed to take inputs from two different domains and produce a
+# single, new domain as output.
+#
+# class Join(ManyRowsPerPatientFrame):
+#     lhs: Frame
+#     rhs: Frame
+
+
+# PUBLIC HELPER FUNCTIONS
+#
+
+
+def has_one_row_per_patient(node):
+    "Return whether a Frame or Series has at most one row per patient"
+    return get_domains(node) == {PATIENT_DOMAIN}
+
+
+def get_series_type(series):
+    "Return the type contained within a Series"
+    assert isinstance(series, Series)
+    typespec = get_typespec(series)
+    return typing.get_args(typespec)[0]
 
 
 # VALIDATION
 #
-# The main thing we need to validate here is the "domain constraint". Frames and series
-# which are in one-row-per-patient form can be combined arbitrarily because we can JOIN
-# using the patient_id and be sure that we're not creating new rows. But for operations
-# involving many-rows-per-patient inputs we need to ensure that they are all drawn from
-# the same underlying table. (We call this the "domain" for set theoretic reasons which
-# the margin of this comment are too small to contain.)
 
 PATIENT_DOMAIN = object()
 
@@ -326,23 +347,54 @@ class DomainMismatchError(Exception):
 
 
 def validate_node(node):
-    # TODO: Runtime type validation (i.e. only acceptable types are passed in), possibly
-    # using something like pydantic.
-
-    # TODO: Validation of the "inner" types i.e. a series may contain date values and we
-    # want to make it an error if you try to compare these to an int. And there are
-    # several places (e.g. a Filter condition) where we require suppied series to have
-    # boolean type. We'll need the DSL to get these types from the schema and pass them
-    # in somehow.
-
-    # The one exception to the "common domain" rule is the Join operation which takes
-    # frames from two different domains and produces a new domain. (This is no-cover-ed
-    # because we're not using the Join operation yet.)
-    if not isinstance(node, Join):  # pragma: no cover
-        validate_children_have_common_domain(node)
+    # Check that the types supplied match the types specified
+    validate_types(node)
+    # As well as types we need to validate the "domain constraint". Frames and series
+    # which are in one-row-per-patient form can be combined arbitrarily because we can
+    # JOIN using the patient_id and be sure that we're not creating new rows. But for
+    # operations involving many-rows-per-patient inputs we need to ensure that they are
+    # all drawn from the same underlying table. (We call this the "domain" for set
+    # theoretic reasons which the margins of this comment are too small to contain.)
+    # Note that when we add a Join operation that will be the one explicit exception to
+    # this rule.
+    validate_inputs_have_common_domain(node)
 
 
-def validate_children_have_common_domain(node):
+def validate_types(node):
+    # Within the context of this node, any TypeVars evaluated must take consistent
+    # values so we create a single context object to share between all fields
+    typevar_context = {}
+    for field in dataclasses.fields(node):
+        value = getattr(node, field.name)
+        # This might look a bit backward: instead of checking whether the value is of
+        # the expected type, we convert the value to a type specification and check that
+        # it matches the required specification. We do this because although Series
+        # objects are parameterized with the type of thing they represent (e.g.
+        # Series[int]) they don't actually contain any instances of these values (there
+        # are no ints sitting around to be checked). So the standard, "isinstance()",
+        # approach to type checking doesn't work. There may well be a more elegant
+        # alternative approach here, but this works for now.
+        typespec = get_typespec(value)
+        target_typespec = field.type
+        if not type_matches(typespec, target_typespec, typevar_context):
+            # Try to make errors a bit more helpful by resolving TypeVars if we can.
+            # This means that if validation fails because e.g. `T` has been bound to
+            # `int` by one argument and you're trying to supply `str` in the other,
+            # you'll get an error saying "requires Series[int]" rather than the less
+            # helpful "requires Series[T]"
+            if len(typevar_context) == 1:
+                typevar_value = list(typevar_context.values())[0]
+                resolved_typespec = target_typespec[typevar_value]
+            else:
+                resolved_typespec = target_typespec
+            raise TypeError(
+                f"{node.__class__.__name__}.{field.name} requires '{resolved_typespec}'"
+                f" but got '{typespec}'"
+                f"\nIn node:\n{node}"
+            )
+
+
+def validate_inputs_have_common_domain(node):
     domains = get_domains(node)
     non_patient_domains = domains - {PATIENT_DOMAIN}
     if len(non_patient_domains) > 1:
@@ -352,31 +404,155 @@ def validate_children_have_common_domain(node):
         )
 
 
-# For most operations, their domain is the just the domains of all their children.
+# See the `get_typespec` function in `typing_utils.py` for a description of what this
+# function does in general. Here we're teaching it how to destructure a Series object to
+# work out what kind of thing it contains.
+@get_typespec.register(Series)
+def get_typespec_for_series(series):
+    """
+    Given a Series object, work out what type of thing it contains so we can return a
+    type like `Series[int]` or `Series[bool]`
+    """
+    inner_type = get_inner_type(series)
+    typevars = get_typevars(inner_type)
+    # The easy case is when the series type specification doesn't contain any TypeVars
+    # so it's just something like `Series[int]` or `Series[str]`
+    if not typevars:
+        # In this case there's no resolving to be done and the resolved type just *is*
+        # the type we started with (which in the examples above would be `int` or `str`)
+        resolved_type = inner_type
+    # If the specification does contain TypeVars then we need to resolve these against
+    # the types used in the inputs and substitute these resolved values back in. So if
+    # we have `Series[T]` or `Series[Set[T]]` we need to check its inputs to see what T
+    # refers to.
+    else:
+        # We assume just one TypeVar; we could probably make this work with multiple if
+        # we needed to, but I can't see why we ever would
+        assert len(typevars) == 1
+        typevar = list(typevars)[0]
+        # Get the value implied by the input types. Note that if the inputs' signatures
+        # themselves contain TypeVars then this will end up recursing until it hits a
+        # concrete type.
+        typevar_value = resolve_typevar_from_inputs(series, typevar)
+        if inner_type is typevar:
+            # If what we started with was a plain TypeVar (not nested inside any more
+            # complex structure) then our resolved value is just the value of the
+            # TypeVar
+            resolved_type = typevar_value
+        else:
+            # Otherwise we have to parameterize the type using the value of the TypeVar
+            resolved_type = inner_type[typevar_value]
+    return Series[resolved_type]
+
+
+def get_inner_type(series):
+    # A bit of typing magic: given an instance of a class like `Count`
+    #
+    #     class Count(Series[int]):
+    #         ...
+    #
+    # we want to get back the `int` bit, and below is the incantation to do so.
+    #
+    # Here `Series[int]` is a generic alias and so doesn't appear in the normal class
+    # hierachy. Instead we access it via the `__orig_bases__` attribute. We want the
+    # first such generic and, having found it, we want to extract its arguments using
+    # `get_args` and take what we know to be the one and only argument.
+    inner_type = typing.get_args(series.__orig_bases__[0])[0]
+    # It's fine to _accept_ Series[Any] as a type, but there's no reason we should be
+    # returning it
+    assert inner_type is not Any, "Operations should never return Series[Any]"
+    return inner_type
+
+
+def resolve_typevar_from_inputs(series, typevar):
+    # Walk over all the inputs to an operation, matching their actual type against their
+    # specified field type; this is not with the intention of validating those types but
+    # rather of resolving the values of any type variables included. As soon as we
+    # resolve the typevar we're after, we return it.
+    #
+    # For example, suppose we have an operation like this:
+    #
+    #   class Add(Series[T]):
+    #       lhs: Series[T]
+    #       rhs: Series[T]
+    #
+    # To determine what type of Series this operation returns we need to determine the
+    # value of T. If we have an instance of `Add` constructed like this:
+    #
+    #     add = Add(some_int_series, another_int_series)
+    #
+    # We can walk over its attributes and match their types against the types in the
+    # signature. So `add.lhs` has type `Series[int]` which matches `Series[T]` and in
+    # the process tells us that `T == int` by setting `T` in the `typevar_context`
+    #
+    # As soon as we've resolved the value of T we return it. (Ensuring T is consistent
+    # over all the inputs is a separate validation problem handled elsewhere.)
+    typevar_context = {}
+    for field in dataclasses.fields(series):
+        value = getattr(series, field.name)
+        typespec = get_typespec(value)
+        # We're abusing a side-effect of the validation function here which is to
+        # populate the `typevar_context` dict and ignoring the actual validation return
+        # value.
+        type_matches(typespec, field.type, typevar_context)
+        # We happen to always hit this on the first pass, hence the "no cover"
+        if typevar in typevar_context:  # pragma: no cover
+            return typevar_context[typevar]
+    else:
+        # If we get here then we've mucked up our Query Model classes somehow: we've
+        # included a TypeVar in an operation signature which doesn't itself appear in
+        # the signatures for any of its inputs.
+        assert False, f"Could not match TypeVar {typevar} in {series}"
+
+
+@get_typespec.register(SelectColumn)
+def get_typespec_for_select_column(column):
+    # Find the table from which this SelectColumn operation draws
+    root = get_root_frame(column.source)
+    # If it has a schema then that gives us the type of the resulting Series
+    if root.schema:
+        type_ = root.schema[column.name]
+    # Otherwise use the default type Any
+    else:
+        type_ = Any
+    return Series[type_]
+
+
+@singledispatch
+def get_root_frame(frame):
+    return get_root_frame(frame.source)
+
+
+@get_root_frame.register(SelectTable)
+@get_root_frame.register(SelectPatientTable)
+def get_root_frame_for_table(frame):
+    return frame
+
+
+# For most operations, their domain is the just the domains of all their inputs
 @singledispatch
 def get_domains(node):
     return set().union(
-        *[get_domains(child_node) for child_node in get_child_nodes(node)]
+        *[get_domains(input_node) for input_node in get_input_nodes(node)]
     )
 
 
-# But these operations create new domains.
+# But these operations create new domains
 @get_domains.register(SelectTable)
-@get_domains.register(Join)
 def get_domain_roots(node):
     return {node}
 
 
-# And these operations are guaranteed to produce output in the patient domain.
+# And these operations are guaranteed to produce output in the patient domain
 @get_domains.register(OneRowPerPatientFrame)
 @get_domains.register(OneRowPerPatientSeries)
 def get_domains_for_one_row_per_patient_operations(node):
     return {PATIENT_DOMAIN}
 
 
-# Quick and lazy way of getting child nodes using dataclass introspection
+# Quick and lazy way of getting input nodes using dataclass introspection
 @singledispatch
-def get_child_nodes(node):
+def get_input_nodes(node):
     return [
         value
         for value in [getattr(node, field.name) for field in dataclasses.fields(node)]
@@ -384,8 +560,11 @@ def get_child_nodes(node):
     ]
 
 
-# The above bit of dynamic cheekiness doesn't work for Categorise whose children are
+# The above bit of dynamic cheekiness doesn't work for Categorise whose inputs are
 # nested inside a dict object
-@get_child_nodes.register(Categorise)
-def get_child_nodes_for_categorise(node):
-    return node.categories.values()
+@get_input_nodes.register(Categorise)
+def get_input_nodes_for_categorise(node):
+    inputs = [*node.categories.keys(), *node.categories.values()]
+    if node.default is not None:
+        inputs.append(node.default)
+    return inputs
