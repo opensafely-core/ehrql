@@ -40,9 +40,7 @@ def queries():
         events, Function.In(code, Value(frozenset({"def456", "xyz789"})))
     )
 
-    q.vaccination_count = AggregateByPatient.Count(
-        SelectColumn(vaccinations, "patient_id")
-    )
+    q.vaccination_count = AggregateByPatient.Count(vaccinations)
     q.first_vaccination = PickOneRowPerPatient(Sort(vaccinations, date), Position.FIRST)
     q.vaccination_status = Categorise(
         {
@@ -58,9 +56,7 @@ def queries():
     q.anaphylaxis_co_occurance = Filter(
         anaphylaxis_events, Function.In(date, q.vaccination_days_set)
     )
-    q.had_anaphylaxis = AggregateByPatient.Exists(
-        SelectColumn(q.anaphylaxis_co_occurance, "patient_id")
-    )
+    q.had_anaphylaxis = AggregateByPatient.Exists(q.anaphylaxis_co_occurance)
 
     return q
 
@@ -166,10 +162,8 @@ def test_can_compare_columns_of_unknown_type():
 
 def test_infer_types_where_possible_even_without_schema():
     events = SelectTable("events")
-    date = SelectColumn(events, "date")
-    event_count = AggregateByPatient.Count(date)
-    # Even though we don't know what type "date" is we know that Count always returns an
-    # int
+    event_count = AggregateByPatient.Count(events)
+    # Even though we've got no schema we know that Count always returns an int
     assert get_series_type(event_count) == int
     # And therefore it should be an error to compare it to a string
     with pytest.raises(TypeError):

@@ -182,21 +182,21 @@ class PickOneRowPerPatient(OneRowPerPatientFrame):
     position: Position
 
 
-# An aggregation is any operation which accepts many-rows-per-patient series and returns
-# a one-row-per-patient series. Below are all available aggregations (using a class as a
-# namespace).
+# An aggregation is any operation which accepts many-rows-per-patient inputs (either
+# series or frames) and returns a one-row-per-patient series. Below are all available
+# aggregations (using a class as a namespace).
 class AggregateByPatient:
     class Exists(OneRowPerPatientSeries[bool]):
-        source: Series[Any]
+        source: ManyRowsPerPatientFrame
+
+    class Count(OneRowPerPatientSeries[int]):
+        source: ManyRowsPerPatientFrame
 
     class Min(OneRowPerPatientSeries[T]):
         source: Series[T]
 
     class Max(OneRowPerPatientSeries[T]):
         source: Series[T]
-
-    class Count(OneRowPerPatientSeries[int]):
-        source: Series[Any]
 
     class Sum(OneRowPerPatientSeries[Numeric]):
         source: Series[Numeric]

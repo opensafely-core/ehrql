@@ -165,9 +165,13 @@ def convert_combine_as_set(node: new.AggregateByPatient.CombineAsSet):
 
 def convert_aggregation(node):
     function = AGGREGATE_MAP[node.__class__]
-    assert isinstance(node.source, new.SelectColumn)
-    source_table = convert_node(node.source.source)
-    input_column = column_name(node.source.name)
+    if isinstance(node.source, new.Frame):
+        source = new.SelectColumn(node.source, "patient_id")
+    else:
+        source = node.source
+        assert isinstance(source, new.SelectColumn)
+    source_table = convert_node(source.source)
+    input_column = column_name(source.name)
     output_column = f"{input_column}_{function}"
     row = old.RowFromAggregate(source_table, function, input_column, output_column)
     return old.ValueFromAggregate(row, output_column)
