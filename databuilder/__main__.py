@@ -58,7 +58,7 @@ def main(args=None):
             url=options.url,
         )
     elif options.which == "generate_docs":
-        generate_docs()
+        generate_docs(location=options.location)
     elif options.which == "print_help":
         parser.print_help()
     else:
@@ -160,6 +160,11 @@ def build_parser():
         help="Generate a JSON representation of the data needed for the public documentation of Backends and Contracts",
     )
     generate_docs.set_defaults(which="generate_docs")
+    generate_docs.add_argument(
+        "--location",
+        type=Path,
+        help="Optional location to write documentation data to.  Uses current working directory otherwise.",
+    )
 
     return parser
 

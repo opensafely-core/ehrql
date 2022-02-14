@@ -46,13 +46,17 @@ def _reformat_docstring(d):
     return [line.strip() for line in docstring.split("\n")]
 
 
-def generate_docs():
+def generate_docs(location=None):
     data = {
         "backends": list(_build_backends()),
         "contracts": list(_build_contracts()),
     }
 
-    with open("public_docs.json", "w") as f:
+    path = "public_docs.json"  # default to cwd
+    if location is not None:
+        path = location / path
+
+    with open(path, "w") as f:
         json.dump(data, f, indent=2)
 
     print("Generated data for documentation")
