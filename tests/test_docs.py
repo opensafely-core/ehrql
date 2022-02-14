@@ -23,7 +23,7 @@ def test_reformat_docstring():
 def test_generate_docs():
     generate_docs()
 
-    with open("backend_docs.json") as f:
+    with open("public_docs.json") as f:
         data = json.load(f)
 
     expected = {"DatabricksBackend", "GraphnetBackend", "TPPBackend"}

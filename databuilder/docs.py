@@ -48,11 +48,11 @@ def _reformat_docstring(d):
 
 def generate_docs():
     data = {
-        "contracts": list(_build_contracts()),
         "backends": list(_build_backends()),
+        "contracts": list(_build_contracts()),
     }
 
-    with open("backend_docs.json", "w") as f:
+    with open("public_docs.json", "w") as f:
         json.dump(data, f, indent=2)
 
-    print("Generated data for backends")
+    print("Generated data for documentation")
