@@ -158,16 +158,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
             list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
         """
-        # Temporary migration code: we accept definitions using both the old and new
-        # Query Models and interpret the new model by converting it to the old model
-        # first. Very soon (after the relevant bits of code have been deleted) we can
-        # stop accepting the old model. And then we can refactor the Query Engine to
-        # work with the new model directly and discard the translation layer.
         column_definitions = self.column_definitions
-        if isinstance(list(column_definitions.values())[0], query_model.Node):
-            column_definitions = convert_to_old(column_definitions)
-        else:  # disallow old QM objects from being used
-            assert False
+
+        # Check that we are being passed the new-style query model and convert it to
+        # the old, which we use internally for now.
+        assert isinstance(list(column_definitions.values())[0], query_model.Node)
+        column_definitions = convert_to_old(column_definitions)
 
         # Modify the Query Model graph to make it easier to work with, or to generate
         # more efficient SQL
