@@ -4,7 +4,8 @@ from collections.abc import Mapping, Set
 from datetime import date
 from enum import Enum
 from functools import cache, singledispatch
-from typing import Any, GenericAlias, Optional, TypeVar
+from types import GenericAlias
+from typing import Any, Optional, TypeVar
 
 from .typing_utils import get_typespec, get_typevars, type_matches
 
