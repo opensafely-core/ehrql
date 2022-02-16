@@ -1,7 +1,10 @@
+import random
+
 import sqlalchemy.orm
 from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String
 
 Base = sqlalchemy.orm.declarative_base()
+rand = random.Random(12345)
 
 
 class Patient(Base):
@@ -12,14 +15,19 @@ class Patient(Base):
     DateOfDeath = Column(Date)
 
 
-def patient(patient_id, sex, dob, *entities, date_of_death=None):
-    for entity in entities:
+def patient(patient_id=None, sex=None, dob=None, date_of_death=None, related=None):
+    if not patient_id:
+        patient_id = rand.randint(1, 10**6)
+    if not related:
+        related = []
+
+    for entity in related:
         entity.Patient_ID = patient_id
     return [
         Patient(
             Patient_ID=patient_id, Sex=sex, DateOfBirth=dob, DateOfDeath=date_of_death
         ),
-        *entities,
+        *related,
     ]
 
 
