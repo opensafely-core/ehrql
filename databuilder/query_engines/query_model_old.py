@@ -67,10 +67,10 @@ class Comparator(QueryNode):
             nodes += (self.rhs,)
         return nodes
 
-    def __and__(self, other):
+    def __and__(self, other):  # pragma: no cover
         return self._combine(other, "and_")
 
-    def __or__(self, other):
+    def __or__(self, other):  # pragma: no cover
         return self._combine(other, "or_")
 
     def __invert__(self):  # pragma: no cover
@@ -106,7 +106,7 @@ class Comparator(QueryNode):
     def __ne__(self, other):  # pragma: no cover
         return self._compare(other, "__ne__")
 
-    def _combine(self, other, conn):
+    def _combine(self, other, conn):  # pragma: no cover
         assert isinstance(other, Comparator)
         return type(self)(connector=conn, lhs=self, rhs=other)
 
@@ -114,7 +114,7 @@ class Comparator(QueryNode):
         return type(self)(operator=operator, lhs=self, rhs=other)
 
 
-def boolean_comparator(obj, negated=False):
+def boolean_comparator(obj, negated=False):  # pragma: no cover
     """returns a comparator which represents a comparison against null values"""
     return Comparator(lhs=obj, operator="__ne__", rhs=None, negated=negated)
 
@@ -135,7 +135,7 @@ class BaseTable(QueryNode):
         - others: `filter("a", less_than=b)`
         """
         include_null = kwargs.pop("include_null", False)
-        if not args:
+        if not args:  # pragma: no cover
             # No args; this is an equals filter
             assert kwargs
             node = self
@@ -179,7 +179,7 @@ class BaseTable(QueryNode):
             or_null=include_null,
         )
 
-    def earliest(self, *columns):
+    def earliest(self, *columns):  # pragma: no cover
         columns = columns or ("date",)
         return self.first_by(*columns)
 
@@ -230,7 +230,7 @@ class Table(BaseTable):
         # nodes
         return ()
 
-    def imd_rounded_as_of(self, reference_date):
+    def imd_rounded_as_of(self, reference_date):  # pragma: no cover
         """
         A convenience method to retrieve the IMD on the reference date.
         """
@@ -251,7 +251,7 @@ class Table(BaseTable):
             .get("index_of_multiple_deprivation_rounded")
         )
 
-    def age_as_of(self, reference_date):
+    def age_as_of(self, reference_date):  # pragma: no cover
         if self.name != "patients":
             raise NotImplementedError(
                 "This method is only available on the patients table"
@@ -316,7 +316,7 @@ class Value(QueryNode):
     @staticmethod
     def _other_as_comparator(other):
         if isinstance(other, Value):
-            other = boolean_comparator(other)
+            other = boolean_comparator(other)  # pragma: no cover
         return other
 
     def _get_comparator(self, operator, other):
@@ -326,10 +326,10 @@ class Value(QueryNode):
     def __gt__(self, other):  # pragma: no cover
         return self._get_comparator("__gt__", other)
 
-    def __ge__(self, other):
+    def __ge__(self, other):  # pragma: no cover
         return self._get_comparator("__ge__", other)
 
-    def __lt__(self, other):
+    def __lt__(self, other):  # pragma: no cover
         return self._get_comparator("__lt__", other)
 
     def __le__(self, other):  # pragma: no cover
@@ -345,11 +345,11 @@ class Value(QueryNode):
         other = self._other_as_comparator(other)
         return boolean_comparator(self) & other
 
-    def __or__(self, other):
+    def __or__(self, other):  # pragma: no cover
         other = self._other_as_comparator(other)
         return boolean_comparator(self) | other
 
-    def __invert__(self):
+    def __invert__(self):  # pragma: no cover
         return boolean_comparator(self, negated=True)
 
     def __hash__(self):
