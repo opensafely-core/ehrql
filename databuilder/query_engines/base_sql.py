@@ -181,12 +181,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert len(tables) == 1
         population_table = tables[0]
 
-        # Start the query by selecting the "patint_id" column from all rows where the
+        # Start the query by selecting the "patient_id" column from all rows where the
         # "population" condition evaluates true
         results_query = (
             sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
             .select_from(population_table)
-            .where(population_query == True)  # noqa: E712
+            .where(population_query)
         )
 
         # For each column to be included in the output ...
