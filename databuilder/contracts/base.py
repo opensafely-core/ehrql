@@ -102,3 +102,19 @@ class TableContract:
                 ]
             for constraint in constraints:
                 constraint.validate(backend_table, column_name)
+
+    @classmethod
+    def validate_table(cls, table_cls):
+        """Validate that a table is defined with the correct attributes.
+        This uses asserts rather than raising other exceptions, since any invalid tables
+        must be identified and fixed by the development team.
+        Note that we could use similar logic to generate a table from a contract.
+        However, doing so would mean that we wouldn't be able to typecheck dataset definitions.
+        """
+        contract_column_names = set(cls.columns)
+        table_column_names = {k for k in vars(table_cls) if k[0] != "_"}
+        assert contract_column_names == table_column_names
+        for col_name, column in cls.columns.items():
+            assert isinstance(
+                getattr(table_cls, col_name), column.type.series
+            ), f"{col_name} doesn't match {column}"

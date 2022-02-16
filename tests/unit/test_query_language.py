@@ -2,11 +2,14 @@ from databuilder.query_language import Dataset, DateSeries, IdSeries
 from databuilder.query_model import Function, SelectColumn, SelectPatientTable, Value
 
 
-# TODO: Instantiate tables with contracts and import them from tests.lib.tables
+# TODO: import tables from tests.lib.tables
 class Table:
     def __init_subclass__(cls, select=None, *args, **kwargs):
         super().__init_subclass__(*args, **kwargs)
         cls._select = select
+        # We allow tables to be defined without contracts to simplify testing.
+        if hasattr(cls, "__contract__"):
+            cls.__contract__.validate_table(cls)
 
     @classmethod
     def select(cls):

@@ -53,3 +53,7 @@ class DateSeries(Series):
     @property
     def year(self):
         return IntSeries(Function.YearFromDate(source=self.qm_node))
+
+
+class StrSeries(Series):
+    pass
