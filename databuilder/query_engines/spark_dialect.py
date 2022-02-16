@@ -125,7 +125,7 @@ class SparkDialect(HiveHTTPDialect):
     # https://github.com/sqlalchemy/sqlalchemy/commit/bd2a6e9b161251606b64d299faec583d
     # (Note once again mypy and SQLAlchemy don't play nicely so we have to ignore the
     # error here.)
-    returns_unicode_strings = String.RETURNS_UNICODE  # type: ignore[attr-defined]
+    returns_unicode_strings = String.RETURNS_UNICODE
 
     colspecs = HiveHTTPDialect.colspecs | {
         sqlalchemy.types.Date: SparkDate,

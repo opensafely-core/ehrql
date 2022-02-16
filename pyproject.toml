@@ -94,7 +94,7 @@ skip_glob = [".direnv", "venv", ".venv"]
 [tool.mypy]
 files = "databuilder"
 plugins = [
-  "sqlmypy",
+  "sqlalchemy.ext.mypy.plugin",
 ]
 
 # Consider turning on these stricter options later.  They require a

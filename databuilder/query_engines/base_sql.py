@@ -51,16 +51,11 @@ from typing import Any, Optional, Union
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
+from sqlalchemy import type_coerce
 from sqlalchemy.engine.interfaces import Dialect
-
-# Most of the below can be imported directly from sqlalchemy.sql, but for some reason
-# mypy can't recognise them if we do that
-from sqlalchemy.sql.base import Executable
+from sqlalchemy.sql import ClauseElement, Executable, Select
 from sqlalchemy.sql.elements import Case as SQLCase
-from sqlalchemy.sql.elements import ClauseElement
-from sqlalchemy.sql.expression import type_coerce
 from sqlalchemy.sql.schema import Column as SQLColumn
-from sqlalchemy.sql.selectable import Select
 
 from .. import query_model, sqlalchemy_types
 from ..functools_utils import singledispatchmethod_with_unions
