@@ -50,6 +50,9 @@ AGGREGATE_MAP = {
 }
 
 
+AGGREGATIONS_ON_FRAMES = {new.AggregateByPatient.Exists, new.AggregateByPatient.Count}
+
+
 def convert(old_cohort):
     new_cohort = {column: convert_node(node) for column, node in old_cohort.items()}
     convert_node.cache_clear()
@@ -127,9 +130,10 @@ def convert_value_from_aggregate(node: old.ValueFromAggregate):
     old_aggregate = node.source
     assert isinstance(old_aggregate, old.RowFromAggregate)
     source = convert_node(old_aggregate.source)
-    column = select_column(source, old_aggregate.input_column)
     Aggregation = AGGREGATE_MAP[old_aggregate.function]
-    return Aggregation(column)
+    if Aggregation not in AGGREGATIONS_ON_FRAMES:
+        source = select_column(source, old_aggregate.input_column)
+    return Aggregation(source)
 
 
 @convert_node.register

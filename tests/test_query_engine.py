@@ -3,6 +3,7 @@ from databuilder.query_model import (
     Function,
     SelectColumn,
     SelectPatientTable,
+    SelectTable,
 )
 
 from .lib.mock_backend import patient
@@ -19,9 +20,10 @@ def test_year_from_date(engine):
     )
 
     patients = SelectPatientTable("patients")
+    registrations = SelectTable("practice_registrations")
 
     class DatasetDefinition:
-        population = AggregateByPatient.Exists(SelectColumn(patients, "patient_id"))
+        population = AggregateByPatient.Exists(registrations)
         year_of_birth = Function.YearFromDate(SelectColumn(patients, "date_of_birth"))
 
     assert engine.extract(DatasetDefinition) == [
