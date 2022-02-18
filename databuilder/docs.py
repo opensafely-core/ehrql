@@ -1,9 +1,10 @@
+import inspect
 import json
 import operator
 
 from .backends.base import BaseBackend
 from .contracts import contracts
-from .contracts.base import TableContract
+from .contracts.base import Column, TableContract
 
 
 def _build_backends():
@@ -18,15 +19,28 @@ def _build_backends():
         }
 
 
+def _build_column(name, instance):
+    return {
+        "name": name,
+        "description": instance.description,
+        "type": instance.type.__class__.__name__,
+        "constraints": [c.description for c in instance.constraints],
+    }
+
+
 def _build_contracts():
     """Build a dict representation for each Contract"""
 
-    for v in vars(contracts).values():
-        if not (
-            isinstance(v, type) and v != TableContract and issubclass(v, TableContract)
-        ):
-            continue
-        contract = v
+    # get all classes from the contracts module
+    contract_classes = inspect.getmembers(contracts, inspect.isclass)
+
+    # make sure we only use subclasses of TableContract
+    contract_classes = [c for _, c in contract_classes if issubclass(c, TableContract)]
+
+    for contract in contract_classes:
+        columns = {k: v for k, v in vars(contract).items() if isinstance(v, Column)}
+        columns = [_build_column(name, instance) for name, instance in columns.items()]
+
         docstring = _reformat_docstring(contract.__doc__)
         dotted_path = f"{contract.__module__}.{contract.__qualname__}"
 
@@ -34,7 +48,7 @@ def _build_contracts():
             "name": contract.__name__,
             "dotted_path": dotted_path,
             "docstring": docstring,
-            "columns": [],
+            "columns": columns,
             "contract_support": [],
         }
 
