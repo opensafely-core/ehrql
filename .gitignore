@@ -101,7 +101,7 @@ htmlcov
 venv/
 
 # Docs
-backend_docs.json
+public_docs.json
 
 # Planning artifacts
 story-dependencies.png
