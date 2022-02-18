@@ -1,5 +1,16 @@
-from databuilder.query_language import Dataset, DateSeries, IdSeries
-from databuilder.query_model import Function, SelectColumn, SelectPatientTable, Value
+from datetime import date
+
+import pytest
+
+from databuilder.query_language import Dataset, DateSeries, IdSeries, IntSeries
+from databuilder.query_model import (
+    Function,
+    SelectColumn,
+    SelectPatientTable,
+    SelectTable,
+    TableSchema,
+    Value,
+)
 from databuilder.tables import Column, PatientTable
 
 
@@ -33,3 +44,50 @@ def test_dataset() -> None:
             rhs=Value(2000),
         ),
     }
+
+
+# The problem: We'd like to test that operations on query language (QL) elements return
+# the correct query model (QM) elements. We like tests that emphasise what is being
+# tested, and de-emphasise the scaffolding. We dislike test code that looks like
+# production code.
+
+# We'd like Series objects with specific "inner" types. How these Series objects are
+# instantiated isn't important.
+qm_table = SelectTable(
+    name="table",
+    schema=TableSchema("schema", int_column=int, date_column=date),
+)
+qm_int_series = SelectColumn(source=qm_table, name="int_column")
+qm_date_series = SelectColumn(source=qm_table, name="date_column")
+
+
+def assert_produces(ql_element, qm_element):
+    assert ql_element.qm_node == qm_element
+
+
+class TestIntSeries:
+    def test_le_value(self):
+        assert_produces(
+            IntSeries(qm_int_series) <= 2000,
+            Function.LE(qm_int_series, Value(2000)),
+        )
+
+    def test_le_value_reverse(self):
+        assert_produces(
+            2000 >= IntSeries(qm_int_series),
+            Function.LE(qm_int_series, Value(2000)),
+        )
+
+    @pytest.mark.xfail(reason="LE comparison with IntSeries not supported")
+    def test_le_intseries(self):
+        assert_produces(
+            IntSeries(qm_int_series) <= IntSeries(qm_int_series),
+            Function.LE(qm_int_series, qm_int_series),
+        )
+
+
+class TestDateSeries:
+    def test_year(self):
+        assert_produces(
+            DateSeries(qm_date_series).year, Function.YearFromDate(qm_date_series)
+        )
