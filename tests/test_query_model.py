@@ -134,14 +134,14 @@ def test_combining_a_patient_level_series_from_a_different_frame_is_ok():
 def test_cannot_pick_row_from_unsorted_table():
     events = SelectTable("events")
     with pytest.raises(TypeError):
-        PickOneRowPerPatient(events, Position.FIRST)
+        PickOneRowPerPatient(events, Position.FIRST)  # type: ignore
 
 
 def test_cannot_pass_argument_without_wrapping_in_value():
     events = SelectTable("events")
     date = SelectColumn(events, "date")
     with pytest.raises(TypeError):
-        Function.EQ(date, datetime.date(2020, 1, 1))
+        Function.EQ(date, datetime.date(2020, 1, 1))  # type: ignore
 
 
 def test_cannot_compare_date_and_int():

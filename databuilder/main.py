@@ -16,6 +16,7 @@ from .backends.base import BaseBackend
 from .definition.base import cohort_registry
 from .dsl import Cohort
 from .measure import MeasuresManager, combine_csv_files_with_dates
+from .query_language import Dataset
 from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
 
@@ -221,7 +222,7 @@ def added_to_path(directory):
 
 
 def extract(
-    cohort_definition: Cohort | type, backend: BaseBackend
+    cohort_definition: Cohort | Dataset | type, backend: BaseBackend
 ) -> Generator[dict[str, str], None, None]:
     """
     Extracts the cohort from the backend specified

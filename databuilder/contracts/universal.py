@@ -2,6 +2,8 @@ from . import types
 from .base import Column, PatientIDColumn, TableContract
 from .constraints import FirstOfMonthConstraint, NotNullConstraint
 
+__all__ = ["Patients"]
+
 
 class Patients(TableContract):
     _name = "patients"

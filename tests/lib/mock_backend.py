@@ -1,4 +1,3 @@
-import sqlalchemy
 import sqlalchemy.orm
 
 from databuilder.backends.base import BaseBackend, Column, MappedTable, QueryTable
@@ -27,6 +26,8 @@ def backend_factory(query_engine_cls):
                 height=Column("integer", source="Height"),
                 date_of_birth=Column("date", source="DateOfBirth"),
                 sex=Column("varchar", source="Sex"),
+                some_bool=Column("boolean", source="SomeBool"),
+                some_int=Column("integer", source="SomeInt"),
             ),
         )
         practice_registrations = MappedTable(
@@ -135,12 +136,25 @@ class Patients(Base):
     Height = sqlalchemy.Column(sqlalchemy.Float, default=null)
     DateOfBirth = sqlalchemy.Column(sqlalchemy.Date, default=null)
     Sex = sqlalchemy.Column(sqlalchemy.Text, default=null)
+    SomeBool = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
+    SomeInt = sqlalchemy.Column(sqlalchemy.Integer, default=null)
 
 
-def patient(patient_id, *entities, height=None, dob=None, sex="M"):
+def patient(
+    patient_id, *entities, height=None, dob=None, sex="M", some_bool=False, some_int=0
+):
     entities = list(entities)
     # add a default RegistrationHistory entry
     entities.append(RegistrationHistory(StartDate="1900-01-01", EndDate="2999-12-31"))
     for entity in entities:
         entity.PatientId = patient_id
-    return [Patients(PatientId=patient_id, Height=height, DateOfBirth=dob), *entities]
+    return [
+        Patients(
+            PatientId=patient_id,
+            Height=height,
+            DateOfBirth=dob,
+            SomeBool=some_bool,
+            SomeInt=some_int,
+        ),
+        *entities,
+    ]

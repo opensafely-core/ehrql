@@ -26,4 +26,4 @@ pytest-mock
 pytest-subtests
 pyupgrade
 six # undeclared dependency of docker (https://github.com/docker/docker-py/issues/2842)
-sqlalchemy-stubs
+sqlalchemy[mypy]

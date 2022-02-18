@@ -2,8 +2,9 @@ import datetime
 import secrets
 
 import sqlalchemy
+from sqlalchemy import type_coerce
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import ClauseElement, Executable, type_coerce
+from sqlalchemy.sql import ClauseElement, Executable
 
 from .. import sqlalchemy_types
 from .base_sql import BaseSQLQueryEngine

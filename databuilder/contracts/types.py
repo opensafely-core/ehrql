@@ -1,6 +1,7 @@
 from typing import Protocol
 
 from .. import dsl
+from ..query_language import DateSeries, IdSeries, StrSeries
 from ..sqlalchemy_types import TYPES_BY_NAME
 
 
@@ -26,6 +27,7 @@ class Choice(BaseType):
 
     allowed_backend_types = (TYPES_BY_NAME.integer, TYPES_BY_NAME.varchar)
     dsl_column = dsl.StrColumn
+    series = StrSeries
 
     def __init__(self, *choices):
         self.choices = choices
@@ -41,6 +43,7 @@ class Date(BaseType):
 
     allowed_backend_types = (TYPES_BY_NAME.date, TYPES_BY_NAME.datetime)
     dsl_column = dsl.DateColumn
+    series = DateSeries
 
 
 class Float(BaseType):
@@ -58,6 +61,7 @@ class PseudoPatientId(BaseType):
 
     allowed_backend_types = (TYPES_BY_NAME.integer, TYPES_BY_NAME.varchar)
     dsl_column = dsl.IdColumn
+    series = IdSeries
 
 
 class String(BaseType):

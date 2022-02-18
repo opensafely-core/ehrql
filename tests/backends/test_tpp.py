@@ -4,7 +4,7 @@ import pytest
 
 from databuilder.backends.tpp import TPPBackend
 
-from ..lib.tpp_schema import apcs, patient, registration
+from ..lib.tpp_schema import apcs, patient
 
 
 def run_query(database, query):
@@ -32,11 +32,7 @@ def run_query(database, query):
 def test_hospitalization_table_code_conversion(database, raw, codes):
     database.setup(
         patient(
-            1,
-            "M",
-            "1990-1-1",
-            registration("2001-01-01", "2026-06-26"),
-            apcs(codes=raw),
+            related=[apcs(codes=raw)],
         )
     )
 
@@ -47,8 +43,7 @@ def test_hospitalization_table_code_conversion(database, raw, codes):
     # Because of the way that we split the raw codes, the order in which they are returned is not the same as the order
     # they appear in the table.
     assert len(results) == len(codes)
-    for code in codes:
-        assert (1, date(2012, 12, 12), code, "icd10") in results
+    assert {r[2] for r in results} == set(codes)
 
 
 def test_patients_contract_table(database):

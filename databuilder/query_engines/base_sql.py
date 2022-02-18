@@ -51,16 +51,11 @@ from typing import Any, Optional, Union
 import sqlalchemy
 import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
+from sqlalchemy import type_coerce
 from sqlalchemy.engine.interfaces import Dialect
-
-# Most of the below can be imported directly from sqlalchemy.sql, but for some reason
-# mypy can't recognise them if we do that
-from sqlalchemy.sql.base import Executable
+from sqlalchemy.sql import ClauseElement, Executable, Select
 from sqlalchemy.sql.elements import Case as SQLCase
-from sqlalchemy.sql.elements import ClauseElement
-from sqlalchemy.sql.expression import type_coerce
 from sqlalchemy.sql.schema import Column as SQLColumn
-from sqlalchemy.sql.selectable import Select
 
 from .. import query_model, sqlalchemy_types
 from ..functools_utils import singledispatchmethod_with_unions
@@ -158,16 +153,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
             list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
         """
-        # Temporary migration code: we accept definitions using both the old and new
-        # Query Models and interpret the new model by converting it to the old model
-        # first. Very soon (after the relevant bits of code have been deleted) we can
-        # stop accepting the old model. And then we can refactor the Query Engine to
-        # work with the new model directly and discard the translation layer.
         column_definitions = self.column_definitions
-        if isinstance(list(column_definitions.values())[0], query_model.Node):
-            column_definitions = convert_to_old(column_definitions)
-        else:  # disallow old QM objects from being used
-            assert False
+
+        # Check that we are being passed the new-style query model and convert it to
+        # the old, which we use internally for now.
+        assert isinstance(list(column_definitions.values())[0], query_model.Node)
+        column_definitions = convert_to_old(column_definitions)
 
         # Modify the Query Model graph to make it easier to work with, or to generate
         # more efficient SQL
@@ -190,12 +181,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert len(tables) == 1
         population_table = tables[0]
 
-        # Start the query by selecting the "patint_id" column from all rows where the
+        # Start the query by selecting the "patient_id" column from all rows where the
         # "population" condition evaluates true
         results_query = (
             sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
             .select_from(population_table)
-            .where(population_query == True)  # noqa: E712
+            .where(population_query)
         )
 
         # For each column to be included in the output ...

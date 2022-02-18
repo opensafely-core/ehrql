@@ -48,8 +48,15 @@ class IntSeries(Series):
     def __le__(self, other):
         return BoolSeries(Function.LE(lhs=self.qm_node, rhs=Value(other)))
 
+    def __ge__(self, other):
+        return BoolSeries(Function.GE(lhs=self.qm_node, rhs=Value(other)))
+
 
 class DateSeries(Series):
     @property
     def year(self):
         return IntSeries(Function.YearFromDate(source=self.qm_node))
+
+
+class StrSeries(Series):
+    pass
