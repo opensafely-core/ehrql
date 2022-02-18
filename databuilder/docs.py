@@ -1,9 +1,8 @@
-import inspect
 import json
 import operator
 
 from .backends.base import BaseBackend
-from .contracts import contracts
+from .contracts import contracts, universal  # noqa: F401
 from .contracts.base import Column, TableContract
 
 
@@ -31,13 +30,7 @@ def _build_column(name, instance):
 def _build_contracts():
     """Build a dict representation for each Contract"""
 
-    # get all classes from the contracts module
-    contract_classes = inspect.getmembers(contracts, inspect.isclass)
-
-    # make sure we only use subclasses of TableContract
-    contract_classes = [c for _, c in contract_classes if issubclass(c, TableContract)]
-
-    for contract in contract_classes:
+    for contract in TableContract.__subclasses__():
         columns = {k: v for k, v in vars(contract).items() if isinstance(v, Column)}
         columns = [_build_column(name, instance) for name, instance in columns.items()]
 
