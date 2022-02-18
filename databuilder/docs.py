@@ -58,8 +58,8 @@ def _reformat_docstring(d):
 
 def generate_docs(location=None):
     data = {
-        "backends": list(_build_backends()),
-        "contracts": list(_build_contracts()),
+        "backends": sorted(_build_backends(), key=operator.itemgetter("name")),
+        "contracts": sorted(_build_contracts(), key=operator.itemgetter("dotted_path")),
     }
 
     path = "public_docs.json"  # default to cwd
