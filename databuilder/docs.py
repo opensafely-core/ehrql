@@ -1,9 +1,8 @@
-import inspect
 import json
 import operator
 
 from .backends.base import BaseBackend
-from .contracts import contracts
+from .contracts import contracts, universal  # noqa: F401
 from .contracts.base import Column, TableContract
 
 
@@ -31,21 +30,22 @@ def _build_column(name, instance):
 def _build_contracts():
     """Build a dict representation for each Contract"""
 
-    # get all classes from the contracts module
-    contract_classes = inspect.getmembers(contracts, inspect.isclass)
-
-    # make sure we only use subclasses of TableContract
-    contract_classes = [c for _, c in contract_classes if issubclass(c, TableContract)]
-
-    for contract in contract_classes:
+    for contract in TableContract.__subclasses__():
         columns = {k: v for k, v in vars(contract).items() if isinstance(v, Column)}
         columns = [_build_column(name, instance) for name, instance in columns.items()]
 
         docstring = _reformat_docstring(contract.__doc__)
         dotted_path = f"{contract.__module__}.{contract.__qualname__}"
 
+        # get the contract's hierarchy without the contracts path prefix
+        hierarchy = contract.__module__.removeprefix("databuilder.contracts.")
+
+        # split up on dots and let the docs plugin handle rendering
+        hierarchy = hierarchy.split(".")
+
         yield {
             "name": contract.__name__,
+            "hierarchy": hierarchy,
             "dotted_path": dotted_path,
             "docstring": docstring,
             "columns": columns,
@@ -65,8 +65,8 @@ def _reformat_docstring(d):
 
 def generate_docs(location=None):
     data = {
-        "backends": list(_build_backends()),
-        "contracts": list(_build_contracts()),
+        "backends": sorted(_build_backends(), key=operator.itemgetter("name")),
+        "contracts": sorted(_build_contracts(), key=operator.itemgetter("dotted_path")),
     }
 
     path = "public_docs.json"  # default to cwd
