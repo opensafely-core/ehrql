@@ -43,7 +43,7 @@ def build_graph(stories):
     graph = networkx.DiGraph()
     story_map = {}
 
-    stories = filter(lambda s: not s.archived, stories)
+    stories = list(filter(lambda s: not s.archived, stories))
 
     for story in stories:
         graph.add_node(story.id)
