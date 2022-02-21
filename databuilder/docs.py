@@ -37,8 +37,15 @@ def _build_contracts():
         docstring = _reformat_docstring(contract.__doc__)
         dotted_path = f"{contract.__module__}.{contract.__qualname__}"
 
+        # get the contract's hierarchy without the contracts path prefix
+        hierarchy = contract.__module__.removeprefix("databuilder.contracts.")
+
+        # split up on dots and let the docs plugin handle rendering
+        hierarchy = hierarchy.split(".")
+
         yield {
             "name": contract.__name__,
+            "hierarchy": hierarchy,
             "dotted_path": dotted_path,
             "docstring": docstring,
             "columns": columns,
