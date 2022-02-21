@@ -263,9 +263,9 @@ packaging==21.3 \
     --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
     --hash=sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522
     # via pytest
-pandas-stubs==1.2.0.47 \
-    --hash=sha256:54df4b9d344f2bbb5b65646a77d420b6f0250d2bb6742e5b04e65006acc60e8a \
-    --hash=sha256:78801efb504abe75c2cf73cb3469b97003080e80fb03aa2a406ca4928f3fd887
+pandas-stubs==1.2.0.48 \
+    --hash=sha256:53cf78af9671acd6731941b852904d15ae4cf534e8d4f3ce1d5bd5a4e52057c5 \
+    --hash=sha256:a2555093f7e58f8b6cd0b8d73222ca03b8154e6787336957c16a4a4e9447a71f
     # via -r requirements.dev.in
 pathspec==0.9.0 \
     --hash=sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a \
@@ -478,7 +478,6 @@ typing-extensions==4.0.1 \
     --hash=sha256:4ca091dea149f945ec56afb48dae714f21e8692ef22a395223bcd328961b6a0e \
     --hash=sha256:7f001e5ac290a0c0401508864c7ec868be4e701886d5b573a9528ed3973d9d3b
     # via
-    #   black
     #   mypy
     #   sqlalchemy2-stubs
 urllib3==1.26.8 \
