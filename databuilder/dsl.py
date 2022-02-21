@@ -50,10 +50,6 @@ from .query_engines.query_model_old import Comparator, ValueFromAggregate
 
 
 class Dataset:
-    """
-    Represents the dataset of patients in the defined study.
-    """
-
     def set_population(self, population):
         """
         Sets the population that are included within the Dataset.
