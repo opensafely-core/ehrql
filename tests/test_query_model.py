@@ -109,9 +109,16 @@ def test_query_reprs_round_trip(queries):
 # TEST DOMAIN VALIDATION
 #
 
+# The simple, happy case: combining series derived directly from the same frame
+def test_combining_series_from_same_frame_is_ok():
+    events = SelectTable("events")
+    value_1 = SelectColumn(events, "value_1")
+    value_2 = SelectColumn(events, "value_2")
+    assert Function.GT(value_1, value_2)
 
-# You can combine one-row-per-patient series arbitrarily because we know we can
-# always join by patient_id
+
+# We can also combine with a one-row-per-patient series derived from a different frame
+# because we know we can always join by patient_id
 def test_combining_a_patient_level_series_from_a_different_frame_is_ok():
     events = SelectTable("events")
     vaccinations = SelectTable("vaccinations")
@@ -123,8 +130,18 @@ def test_combining_a_patient_level_series_from_a_different_frame_is_ok():
     assert Function.EQ(first_event_date, vaccination_date)
 
 
-# The most basic example of a domain violation: you can't filter a Frame using a
-# predicate (boolean Series) derived from a different Frame
+# But we can't combine many-rows-per-patient series derived from different frames
+def test_combining_non_patient_level_series_from_different_frames_throws_error():
+    events = SelectTable("events")
+    vaccinations = SelectTable("vaccinations")
+    event_date = SelectColumn(events, "date")
+    vaccination_date = SelectColumn(vaccinations, "date")
+    with pytest.raises(DomainMismatchError):
+        Function.EQ(event_date, vaccination_date)
+
+
+# And in particular, we can't filter a Frame using a predicate (boolean Series) derived
+# from a different Frame
 def test_filtering_one_frame_by_a_condition_derived_from_another_throws_error():
     events = SelectTable("events")
     vaccinations = SelectTable("vaccinations")
@@ -134,15 +151,53 @@ def test_filtering_one_frame_by_a_condition_derived_from_another_throws_error():
         Filter(events, filter_condition)
 
 
-# And more generally, you can't combine many-rows-per-patient series derived from
-# different frames in any sort of operation
-def test_combining_non_patient_level_series_from_different_frames_throws_error():
-    events = SelectTable("events")
-    vaccinations = SelectTable("vaccinations")
-    event_date = SelectColumn(events, "date")
-    vaccination_date = SelectColumn(vaccinations, "date")
+# We also can't combine results derived from the same source table if they've been
+# through divergent filter operations. Although such operations aren't *complete*
+# nonsense, there's never a good reason to do this and so instances of this are almost
+# certainly a result of user confusion or error and we want to reject them immediately.
+def test_combining_results_of_different_filter_operations_throws_an_error():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    foo_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("foo")))
+    bar_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("bar")))
     with pytest.raises(DomainMismatchError):
-        Function.EQ(event_date, vaccination_date)
+        Function.EQ(SelectColumn(foo_events, "date"), SelectColumn(bar_events, "date"))
+
+
+# And in particular we can't filter a frame using a predicate derived from a different
+# filter operation. Again, this isn't complete nonsense but it's not the best way to
+# express the query and is most probably the result of confusion.
+def test_filtering_frame_using_result_derived_from_another_filter_throws_error():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    older_events = Filter(
+        events,
+        Function.LT(SelectColumn(events, "date"), Value(datetime.date(2022, 1, 1))),
+    )
+    recent_events = Filter(
+        events,
+        Function.GE(SelectColumn(events, "date"), Value(datetime.date(2022, 1, 1))),
+    )
+    is_recent_foo_event = Function.EQ(SelectColumn(recent_events, "code"), Value("foo"))
+    with pytest.raises(DomainMismatchError):
+        Filter(older_events, is_recent_foo_event)
+
+
+# However, it's fine to filter a Frame using a predicate derived from a direct ancenstor
+# of that Frame. This is important because it allows us to provide a "fluent" interface to
+# the Query Model. Without this, every time you wanted to filter a Frame you'd need a
+# reference to that Frame to use in the filter condition. And that would make it
+# impossible to use chained constructions like:
+#
+#     table.filter(...).filter(...).filter(...)
+#
+def test_filtering_frame_using_condition_derived_from_parent_frame_is_ok():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    foo_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("foo")))
+    recent_foo_events = Filter(
+        foo_events,
+        # Note that we're filtering `foo_events` using a condition derived from `events`
+        Function.GE(SelectColumn(events, "date"), Value(datetime.date(2022, 1, 1))),
+    )
+    assert recent_foo_events
 
 
 # TEST TYPE VALIDATION
