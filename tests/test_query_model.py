@@ -29,6 +29,10 @@ EVENTS_SCHEMA = TableSchema(
 )
 
 
+# TEST BASIC QUERY MODEL PROPERTIES
+#
+
+
 @pytest.fixture
 def queries():
     q = SimpleNamespace()
@@ -102,24 +106,12 @@ def test_query_reprs_round_trip(queries):
         assert eval(repr(query)) == query
 
 
-def test_filtering_one_frame_by_a_condition_derived_from_another_throws_error():
-    events = SelectTable("events")
-    vaccinations = SelectTable("vaccinations")
-    vaccine_code = SelectColumn(vaccinations, "code")
-    filter_condition = Function.EQ(vaccine_code, Value("abc123"))
-    with pytest.raises(DomainMismatchError):
-        Filter(events, filter_condition)
+# TEST DOMAIN VALIDATION
+#
 
 
-def test_combining_non_patient_level_series_from_different_frames_throws_error():
-    events = SelectTable("events")
-    vaccinations = SelectTable("vaccinations")
-    event_date = SelectColumn(events, "date")
-    vaccination_date = SelectColumn(vaccinations, "date")
-    with pytest.raises(DomainMismatchError):
-        Function.EQ(event_date, vaccination_date)
-
-
+# You can combine one-row-per-patient series arbitrarily because we know we can
+# always join by patient_id
 def test_combining_a_patient_level_series_from_a_different_frame_is_ok():
     events = SelectTable("events")
     vaccinations = SelectTable("vaccinations")
@@ -129,6 +121,32 @@ def test_combining_a_patient_level_series_from_a_different_frame_is_ok():
     # other series
     first_event_date = AggregateByPatient.Min(event_date)
     assert Function.EQ(first_event_date, vaccination_date)
+
+
+# The most basic example of a domain violation: you can't filter a Frame using a
+# predicate (boolean Series) derived from a different Frame
+def test_filtering_one_frame_by_a_condition_derived_from_another_throws_error():
+    events = SelectTable("events")
+    vaccinations = SelectTable("vaccinations")
+    vaccine_code = SelectColumn(vaccinations, "code")
+    filter_condition = Function.EQ(vaccine_code, Value("abc123"))
+    with pytest.raises(DomainMismatchError):
+        Filter(events, filter_condition)
+
+
+# And more generally, you can't combine many-rows-per-patient series derived from
+# different frames in any sort of operation
+def test_combining_non_patient_level_series_from_different_frames_throws_error():
+    events = SelectTable("events")
+    vaccinations = SelectTable("vaccinations")
+    event_date = SelectColumn(events, "date")
+    vaccination_date = SelectColumn(vaccinations, "date")
+    with pytest.raises(DomainMismatchError):
+        Function.EQ(event_date, vaccination_date)
+
+
+# TEST TYPE VALIDATION
+#
 
 
 def test_cannot_pick_row_from_unsorted_table():
@@ -171,8 +189,9 @@ def test_infer_types_where_possible_even_without_schema():
 
 
 def test_cannot_define_operation_returning_any_type(queries):
-    # It's legitimate to have operations which accept Any, but it's never valid as a
-    # return type
+    # This is a guard against future programmer error. It's legitimate to have
+    # operations which accept Any, but it's never valid as a return type and it should
+    # trigger an assertion if we ever try to define and use such an operation.
     class BadOperation(Series[Any]):
         source: Series[Any]
 

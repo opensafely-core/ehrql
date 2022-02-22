@@ -342,12 +342,6 @@ def get_series_type(series):
 # VALIDATION
 #
 
-PATIENT_DOMAIN = object()
-
-
-class DomainMismatchError(Exception):
-    ...
-
 
 def validate_node(node):
     # Check that the types supplied match the types specified
@@ -361,6 +355,72 @@ def validate_node(node):
     # Note that when we add a Join operation that will be the one explicit exception to
     # this rule.
     validate_inputs_have_common_domain(node)
+
+
+# DOMAIN VALIDATION
+#
+
+
+class DomainMismatchError(Exception):
+    ...
+
+
+PATIENT_DOMAIN = object()
+
+
+def validate_inputs_have_common_domain(node):
+    domains = get_domains(node)
+    non_patient_domains = domains - {PATIENT_DOMAIN}
+    if len(non_patient_domains) > 1:
+        raise DomainMismatchError(
+            f"Attempt to combine multiple domains:\n{non_patient_domains}"
+            f"\nIn node:\n{node}"
+        )
+
+
+# For most operations, their domain is the just the domains of all their inputs
+@singledispatch
+def get_domains(node):
+    return set().union(
+        *[get_domains(input_node) for input_node in get_input_nodes(node)]
+    )
+
+
+# But these operations create new domains
+@get_domains.register(SelectTable)
+def get_domain_roots(node):
+    return {node}
+
+
+# And these operations are guaranteed to produce output in the patient domain
+@get_domains.register(OneRowPerPatientFrame)
+@get_domains.register(OneRowPerPatientSeries)
+def get_domains_for_one_row_per_patient_operations(node):
+    return {PATIENT_DOMAIN}
+
+
+# Quick and lazy way of getting input nodes using dataclass introspection
+@singledispatch
+def get_input_nodes(node):
+    return [
+        value
+        for value in [getattr(node, field.name) for field in dataclasses.fields(node)]
+        if isinstance(value, Node)
+    ]
+
+
+# The above bit of dynamic cheekiness doesn't work for Categorise whose inputs are
+# nested inside a dict object
+@get_input_nodes.register(Categorise)
+def get_input_nodes_for_categorise(node):
+    inputs = [*node.categories.keys(), *node.categories.values()]
+    if node.default is not None:
+        inputs.append(node.default)
+    return inputs
+
+
+# TYPE VALIDATION
+#
 
 
 def validate_types(node):
@@ -395,16 +455,6 @@ def validate_types(node):
                 f" but got '{typespec}'"
                 f"\nIn node:\n{node}"
             )
-
-
-def validate_inputs_have_common_domain(node):
-    domains = get_domains(node)
-    non_patient_domains = domains - {PATIENT_DOMAIN}
-    if len(non_patient_domains) > 1:
-        raise DomainMismatchError(
-            f"Attempt to combine multiple domains:\n{non_patient_domains}"
-            f"\nIn node:\n{node}"
-        )
 
 
 # See the `get_typespec` function in `typing_utils.py` for a description of what this
@@ -530,44 +580,3 @@ def get_root_frame(frame):
 @get_root_frame.register(SelectPatientTable)
 def get_root_frame_for_table(frame):
     return frame
-
-
-# For most operations, their domain is the just the domains of all their inputs
-@singledispatch
-def get_domains(node):
-    return set().union(
-        *[get_domains(input_node) for input_node in get_input_nodes(node)]
-    )
-
-
-# But these operations create new domains
-@get_domains.register(SelectTable)
-def get_domain_roots(node):
-    return {node}
-
-
-# And these operations are guaranteed to produce output in the patient domain
-@get_domains.register(OneRowPerPatientFrame)
-@get_domains.register(OneRowPerPatientSeries)
-def get_domains_for_one_row_per_patient_operations(node):
-    return {PATIENT_DOMAIN}
-
-
-# Quick and lazy way of getting input nodes using dataclass introspection
-@singledispatch
-def get_input_nodes(node):
-    return [
-        value
-        for value in [getattr(node, field.name) for field in dataclasses.fields(node)]
-        if isinstance(value, Node)
-    ]
-
-
-# The above bit of dynamic cheekiness doesn't work for Categorise whose inputs are
-# nested inside a dict object
-@get_input_nodes.register(Categorise)
-def get_input_nodes_for_categorise(node):
-    inputs = [*node.categories.keys(), *node.categories.values()]
-    if node.default is not None:
-        inputs.append(node.default)
-    return inputs
