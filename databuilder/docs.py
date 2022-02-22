@@ -10,11 +10,16 @@ def _build_backends():
     backends = sorted(BaseBackend.__subclasses__(), key=operator.attrgetter("__name__"))
 
     for backend in backends:
+        # get the full name for all implemented contracts the backend implements
         tables = [getattr(backend, name) for name in backend.tables]
-        tables = [table.implements.__name__ for table in tables if table.implements]
+        contract_classes = [table.implements for table in tables if table.implements]
+        contract_names = [
+            "/".join([*_build_hierarchy(c), c.__name__]) for c in contract_classes
+        ]
+
         yield {
             "name": backend.__name__,
-            "tables": tables,
+            "contracts": contract_names,
         }
 
 
@@ -37,11 +42,7 @@ def _build_contracts():
         docstring = _reformat_docstring(contract.__doc__)
         dotted_path = f"{contract.__module__}.{contract.__qualname__}"
 
-        # get the contract's hierarchy without the contracts path prefix
-        hierarchy = contract.__module__.removeprefix("databuilder.contracts.")
-
-        # split up on dots and let the docs plugin handle rendering
-        hierarchy = hierarchy.split(".")
+        hierarchy = _build_hierarchy(contract)
 
         yield {
             "name": contract.__name__,
@@ -51,6 +52,14 @@ def _build_contracts():
             "columns": columns,
             "contract_support": [],
         }
+
+
+def _build_hierarchy(contract):
+    # get the contract's hierarchy without the contracts path prefix
+    hierarchy = contract.__module__.removeprefix("databuilder.contracts.")
+
+    # split up on dots and let the docs plugin handle rendering
+    return hierarchy.split(".")
 
 
 def _reformat_docstring(d):
@@ -75,5 +84,6 @@ def generate_docs(location=None):
 
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
+        f.write("\n")
 
     print("Generated data for documentation")
