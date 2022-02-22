@@ -75,5 +75,6 @@ def generate_docs(location=None):
 
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
+        f.write("\n")
 
     print("Generated data for documentation")
