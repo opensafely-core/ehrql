@@ -8,6 +8,8 @@ This contains just enough of ehrQL to be able to extract the following dataset:
 """
 from __future__ import annotations
 
+import dataclasses
+
 from .query_model import Function, Node, Value
 
 
@@ -31,9 +33,9 @@ class Dataset:
         return {name: variable.qm_node for name, variable in self.variables.items()}
 
 
+@dataclasses.dataclass(frozen=True)
 class Series:
-    def __init__(self, qm_node):
-        self.qm_node = qm_node
+    qm_node: Node
 
 
 class IdSeries(Series):
