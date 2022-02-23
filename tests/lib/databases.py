@@ -224,12 +224,13 @@ def make_spark_container_database(containers):
             ports={spark_port: None},
         )
 
+    container_ip = containers.get_container_ip(container_name)
     host_spark_port = containers.get_mapped_port_for_host(container_name, spark_port)
 
     return DbDetails(
         protocol="spark",
         driver="pyhive+opensafely",
-        host_from_container=container_name,
+        host_from_container=container_ip,
         port_from_container=spark_port,
         host_from_host="localhost",
         port_from_host=host_spark_port,
