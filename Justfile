@@ -149,6 +149,10 @@ test-integration *ARGS: devenv build-databuilder
 test-integration-no-spark *ARGS: devenv build-databuilder
     $BIN/python -m pytest -m "integration and not spark" {{ ARGS }}
 
+# run the run-databuilder-in-docker tests only
+test-docker *ARGS: devenv build-databuilder
+    $BIN/python -m pytest tests/docker  {{ ARGS }}
+
 # run all tests including integration tests. Optional args are passed to pytest
 test-all *ARGS=test_args: devenv build-databuilder
     #!/usr/bin/env bash

@@ -1,5 +1,6 @@
-import docker
-import docker.errors
+import sys
+
+from docker.errors import ContainerError, NotFound
 
 
 class Containers:
@@ -13,7 +14,7 @@ class Containers:
         try:
             container = self.get_container(name)
             return container.status == "running"  # pragma: no cover
-        except docker.errors.NotFound:  # pragma: no cover
+        except NotFound:  # pragma: no cover
             return False
 
     def get_mapped_port_for_host(self, name, container_port):
@@ -41,15 +42,12 @@ class Containers:
 
     # All available arguments documented here:
     # https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run
-    # Temporarily uncommenting rather than marking as "no cover" because a subsequent PR uses this and I
-    # don't want us to forget to remove the pragma.
-    # def run_fg(self, image, **kwargs):
-    #     try:
-    #         output = self._run(image=image, detach=False, stderr=True, **kwargs)
-    #         print(str(output, "utf-8"))
-    #     except ContainerError as e:  # pragma: no cover
-    #         print(str(e.stderr, "utf-8"), file=sys.stderr)
-    #         raise
+    def run_fg(self, image, **kwargs):
+        try:
+            return self._run(image=image, detach=False, stderr=True, **kwargs)
+        except ContainerError as e:  # pragma: no cover
+            print(str(e.stderr, "utf-8"), file=sys.stderr)
+            raise
 
     def _run(self, **kwargs):  # pragma: no cover
         return self._docker.containers.run(remove=True, **kwargs)

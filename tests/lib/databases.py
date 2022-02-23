@@ -47,6 +47,9 @@ class DbDetails:
         self.query = query
         self.temp_db = temp_db
 
+    def container_url(self):
+        return self._url(self.host_from_container, self.port_from_container)
+
     def host_url(self):
         return self._url(self.host_from_host, self.port_from_host)
 
