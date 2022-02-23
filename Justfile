@@ -142,11 +142,11 @@ test-unit *ARGS: devenv
     $BIN/python -m pytest -m "not integration" {{ ARGS }}
 
 # run the integration tests only. Optional args are passed to pytest
-test-integration *ARGS: devenv build-databuilder
+test-integration *ARGS: devenv
     $BIN/python -m pytest -m integration {{ ARGS }}
 
 # run the integration tests only, excluding spark tests which are slow. Optional args are passed to pytest
-test-integration-no-spark *ARGS: devenv build-databuilder
+test-integration-no-spark *ARGS: devenv
     $BIN/python -m pytest -m "integration and not spark" {{ ARGS }}
 
 # run the run-databuilder-in-docker tests only
