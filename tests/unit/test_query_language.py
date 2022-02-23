@@ -60,7 +60,7 @@ def test_dataset():
 # instantiated isn't important.
 qm_table = SelectTable(
     name="table",
-    schema=TableSchema("schema", int_column=int, date_column=date),
+    schema=TableSchema(int_column=int, date_column=date),
 )
 qm_int_series = SelectColumn(source=qm_table, name="int_column")
 qm_date_series = SelectColumn(source=qm_table, name="date_column")

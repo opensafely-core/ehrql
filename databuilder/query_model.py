@@ -58,20 +58,22 @@ class Position(Enum):
         return f"{self.__class__.__name__}.{self.name}"
 
 
-class TableSchema:
+class TableSchema(dict):
     "Defines a mapping of column names to types"
 
-    def __init__(self, name, **columns):
-        # `name` can be arbitrary here, but supplying a bound name for the schema in
-        # local scope will give a correctly executable repr
-        self.name = name
-        self.columns = columns
-
-    def __getitem__(self, column):
-        return self.columns[column]
+    def __hash__(self):
+        # These need to be hashable if they're to be used as attributes on frozen
+        # dataclasses. We treat them as immutable once created, so this is fine.
+        return hash(tuple(self.items()))
 
     def __repr__(self):
-        return self.name
+        # Gives us `self == eval(repr(self))` as for dataclasses
+        kwargs = []
+        for name, type_ in self.items():
+            module = type_.__module__
+            prefix = f"{module}." if module != "builtins" else ""
+            kwargs.append(f"{name}={prefix}{type_.__name__}")
+        return f"{self.__class__.__name__}({', '.join(kwargs)})"
 
 
 # BASIC QUERY MODEL TYPES
@@ -154,12 +156,12 @@ class SelectTable(ManyRowsPerPatientFrame):
     # that operations only use columns which actually exist and are of the correct type.
     # It's optional because we don't *need* it to construct a query, but we're obviously
     # more limited in the validation we can do without it.
-    schema: Optional[TableSchema] = None
+    schema: Optional[Mapping[str, type]] = None
 
 
 class SelectPatientTable(OneRowPerPatientFrame):
     name: str
-    schema: Optional[TableSchema] = None
+    schema: Optional[Mapping[str, type]] = None
 
 
 class SelectColumn(Series):
