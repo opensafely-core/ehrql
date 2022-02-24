@@ -161,6 +161,7 @@ test-all *ARGS=test_args: devenv build-databuilder
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
         {{ ARGS }}
+    $BIN/python -m doctest tests/lib/in_memory/database.py
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
 
 # run scripts/dbx

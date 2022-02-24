@@ -1,5 +1,5 @@
+from . import query_language as ql
 from .dsl import Cohort as DSLCohort
-from .query_language import Dataset
 
 
 def get_class_vars(cls):
@@ -15,13 +15,14 @@ def get_cohort_variables(cohort):  # pragma: no cover (re-implement when the QL 
 
 
 def get_column_definitions(cohort):
+    if isinstance(cohort, ql.Dataset):
+        return ql.compile(cohort)
+
     # This is where we distinguish between versions of the DSL
     if isinstance(
         cohort, DSLCohort
     ):  # pragma: no cover (re-implement when the QL is in)
         variables = get_cohort_variables(cohort)
-    elif isinstance(cohort, Dataset):
-        variables = [(name, query.qm_node) for name, query in cohort.variables.items()]
     else:
         variables = get_class_vars(cohort)
     columns = {}

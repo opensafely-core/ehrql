@@ -8,6 +8,7 @@ from databuilder.query_engines.spark import SparkQueryEngine
 
 from .lib.databases import make_database, make_spark_database, wait_for_database
 from .lib.docker import Containers
+from .lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from .lib.mock_backend import backend_factory
 from .lib.util import extract
 
@@ -90,3 +91,8 @@ def engine(request, database, spark_database):
         return QueryEngineFixture(name, spark_database, SparkQueryEngine)
     else:
         assert False
+
+
+@pytest.fixture
+def in_memory_engine():
+    return QueryEngineFixture("in_memory", InMemoryDatabase(), InMemoryQueryEngine)

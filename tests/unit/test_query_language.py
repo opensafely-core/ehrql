@@ -2,7 +2,14 @@ from datetime import date
 
 import pytest
 
-from databuilder.query_language import Dataset, DateSeries, IdSeries, IntSeries
+from databuilder.query_language import compile  # noqa A003
+from databuilder.query_language import (
+    Dataset,
+    DateSeries,
+    IdSeries,
+    IntSeries,
+    build_patient_table,
+)
 from databuilder.query_model import (
     Function,
     SelectColumn,
@@ -11,16 +18,14 @@ from databuilder.query_model import (
     TableSchema,
     Value,
 )
-from databuilder.tables import Column, PatientTable
 
-
-# TODO: import tables from tests.lib.tables
-class Patients(PatientTable):
-    patient_id = Column(IdSeries)
-    date_of_birth = Column(DateSeries)
-
-
-patients = Patients()
+patients = build_patient_table(
+    "patients",
+    {
+        "patient_id": IdSeries,
+        "date_of_birth": DateSeries,
+    },
+)
 
 
 def test_dataset() -> None:
@@ -29,7 +34,7 @@ def test_dataset() -> None:
     dataset.set_population(year_of_birth <= 2000)
     dataset.year_of_birth = year_of_birth
 
-    assert dataset.compile() == {
+    assert compile(dataset) == {
         "year_of_birth": Function.YearFromDate(
             source=SelectColumn(
                 name="date_of_birth", source=SelectPatientTable("patients")
