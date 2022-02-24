@@ -112,9 +112,9 @@ class TableContract:
         However, doing so would mean that we wouldn't be able to typecheck dataset definitions.
         """
         contract_column_names = set(cls.columns)
-        table_column_names = {k for k in vars(table_cls) if k[0] != "_"}
+        table_column_names = set(table_cls.name_to_series_cls)
         assert contract_column_names == table_column_names
         for col_name, column in cls.columns.items():
-            assert isinstance(
-                getattr(table_cls, col_name), column.type.series
+            assert (
+                column.type.series == table_cls.name_to_series_cls[col_name]
             ), f"{col_name} doesn't match {column}"

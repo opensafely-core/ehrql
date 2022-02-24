@@ -261,6 +261,9 @@ class Function:
         source: Series[Any]
 
     # Arithmetic
+    class Negate(Series[Numeric]):
+        source: Series[Numeric]
+
     class Add(Series[Numeric]):
         lhs: Series[Numeric]
         rhs: Series[Numeric]
