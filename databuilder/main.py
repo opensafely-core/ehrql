@@ -13,7 +13,6 @@ import structlog
 
 from .backends import BACKENDS
 from .backends.base import BaseBackend
-from .definition.base import cohort_registry
 from .dsl import Cohort
 from .measure import MeasuresManager, combine_csv_files_with_dates
 from .query_language import Dataset
@@ -31,35 +30,8 @@ def run_cohort_action(
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     module = load_module(definition_path)
-
-    cohort_class_generator, index_date_range = load_cohort_generator(module)
-    if len(index_date_range) > 1 and "*" not in output_file.name:
-        # ensure we have a replaceable pattern as an output file when multiple
-        # dates ranges are to be output
-        raise ValueError(f"No output pattern found in output file {output_file}")
-
-    for index_date in index_date_range:
-        if index_date is not None:
-            log.info(f"Setting index_date to {index_date}")
-            date_suffix = index_date
-        else:
-            date_suffix = ""
-
-        if cohort_registry.cohorts:  # pragma: no cover (re-implement when the QL is in)
-            # Currently we expect at most one cohort to be registered
-            assert (
-                len(cohort_registry.cohorts) == 1
-            ), f"At most one registered cohort is allowed, found {len(cohort_registry.cohorts)}"
-            (cohort,) = cohort_registry.cohorts
-        else:
-            cohort = (
-                cohort_class_generator(index_date)
-                if index_date
-                else cohort_class_generator()
-            )
-        cohort_action_function(
-            cohort, index_date, output_file, date_suffix, **function_kwargs
-        )
+    dataset = load_dataset(module)
+    cohort_action_function(dataset, "", output_file, "", **function_kwargs)
 
 
 def generate_cohort(
@@ -172,6 +144,19 @@ def load_cohort_functions(definition_module):
         for name, obj in inspect.getmembers(definition_module)
         if inspect.isfunction(obj) and obj.__name__ == "cohort"
     ]
+
+
+def load_dataset(definition_module):
+    datasets = [
+        obj
+        for name, obj in inspect.getmembers(definition_module)
+        if isinstance(obj, Dataset)
+    ]
+    if len(datasets) != 1:
+        raise ValueError(
+            "A dataset definition must contain one and only one 'Dataset' class"
+        )
+    return datasets[0]
 
 
 def load_cohort_generator(definition_module):
