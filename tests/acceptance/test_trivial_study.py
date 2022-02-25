@@ -1,8 +1,5 @@
-import csv
 from datetime import datetime
-from pathlib import Path
 
-from databuilder.__main__ import main
 from tests.lib.tpp_schema import patient
 
 dataset_definition = """
@@ -18,28 +15,11 @@ register(dataset)
 """
 
 
-def test_generate_dataset(database, tmpdir, monkeypatch):
+def test_generate_dataset(study, database):
     database.setup(patient(dob=datetime(1943, 5, 5)))
 
-    workspace = Path(tmpdir.mkdir("workspace"))
-    definition_path = workspace / "dataset.py"
-    definition_path.write_text(dataset_definition)
-    dataset_path = workspace / "dataset.csv"
+    study.setup_from_string(dataset_definition)
+    results = study.run(database, "tpp")
 
-    monkeypatch.setenv("DATABASE_URL", database.host_url())
-    monkeypatch.setenv("OPENSAFELY_BACKEND", "tpp")
-
-    main(
-        [
-            "generate_dataset",
-            "--dataset-definition",
-            str(definition_path),
-            "--dataset",
-            str(dataset_path),
-        ]
-    )
-
-    with open(dataset_path) as f:
-        results = list(csv.DictReader(f))
-        assert len(results) == 1
-        assert results[0]["year"] == "1943"
+    assert len(results) == 1
+    assert results[0]["year"] == "1943"

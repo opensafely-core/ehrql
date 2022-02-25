@@ -9,8 +9,10 @@ def test_generate_dataset(study, database):
         patient(dob=datetime(2010, 5, 5)),
     )
 
-    study.setup(repo="opensafely/test-age-distribution")
-    results = study.run("analysis/dataset_definition.py", database, "tpp")
+    study.setup_from_repo(
+        "opensafely/test-age-distribution", "analysis/dataset_definition.py"
+    )
+    results = study.run(database, "tpp")
 
     assert len(results) == 1
     assert results[0]["year_of_birth"] == "2010"

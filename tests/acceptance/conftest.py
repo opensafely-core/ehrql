@@ -1,6 +1,5 @@
 import csv
 import subprocess
-from pathlib import Path
 
 import pytest
 
@@ -8,31 +7,33 @@ from databuilder.__main__ import main
 
 
 class Study:
-    def __init__(self, tmpdir, monkeypatch):
-        self.tmpdir = tmpdir
-        self.monkeypatch = monkeypatch
+    def __init__(self, tmp_path, monkeypatch):
+        self._workspace = tmp_path
+        self._monkeypatch = monkeypatch
 
-    def setup(self, repo):
-        self.workspace = Path(self.tmpdir.mkdir("workspace"))
-
+    def setup_from_repo(self, repo, definition_path):
         repo_url = f"https://github.com/{repo}.git"
         subprocess.check_call(
             ["git", "clone", repo_url, "."],
-            cwd=self.workspace,
+            cwd=self._workspace,
         )
+        self._definition_path = self._workspace / definition_path
 
-    def run(self, definition_path, database, backend):
-        definition_path = self.workspace / definition_path
-        dataset_path = self.workspace / "dataset.csv"
+    def setup_from_string(self, definition):
+        self._definition_path = self._workspace / "dataset.py"
+        self._definition_path.write_text(definition)
 
-        self.monkeypatch.setenv("DATABASE_URL", database.host_url())
-        self.monkeypatch.setenv("OPENSAFELY_BACKEND", backend)
+    def run(self, database, backend):
+        dataset_path = self._workspace / "dataset.csv"
+
+        self._monkeypatch.setenv("DATABASE_URL", database.host_url())
+        self._monkeypatch.setenv("OPENSAFELY_BACKEND", backend)
 
         main(
             [
                 "generate_dataset",
                 "--dataset-definition",
-                str(definition_path),
+                str(self._definition_path),
                 "--dataset",
                 str(dataset_path),
             ]
@@ -43,5 +44,5 @@ class Study:
 
 
 @pytest.fixture
-def study(tmpdir, monkeypatch):
-    return Study(tmpdir, monkeypatch)
+def study(tmp_path, monkeypatch):
+    return Study(tmp_path, monkeypatch)
