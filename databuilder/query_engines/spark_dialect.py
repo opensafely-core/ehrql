@@ -123,8 +123,6 @@ class SparkDialect(HiveHTTPDialect):
     # submitting a fix, but this is all going away in newer versions of SQLAlchemy so I
     # don't think it's worth it. See:
     # https://github.com/sqlalchemy/sqlalchemy/commit/bd2a6e9b161251606b64d299faec583d
-    # (Note once again mypy and SQLAlchemy don't play nicely so we have to ignore the
-    # error here.)
     returns_unicode_strings = String.RETURNS_UNICODE
 
     colspecs = HiveHTTPDialect.colspecs | {

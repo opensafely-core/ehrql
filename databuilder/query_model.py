@@ -9,9 +9,6 @@ from typing import Any, Optional, TypeVar
 
 from .typing_utils import get_typespec, get_typevars, type_matches
 
-# mypy: ignore-errors
-
-
 # The below classes and functions are the public API surface of the query model
 __all__ = [
     "Node",

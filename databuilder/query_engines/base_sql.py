@@ -32,13 +32,6 @@ embedded in a query and returning their setup and cleanup queries in the appropr
 order.
 """
 
-# I can't get mypy to be happy with the below and it needs input from someone with more
-# experience with Python typing than I have. I think part of the problem is that mypy
-# can't see through the singledispatch decorator to understand what type will get
-# returned given the input type.
-
-# mypy: ignore-errors
-
 import contextlib
 import copy
 import dataclasses
@@ -53,9 +46,7 @@ import sqlalchemy.dialects.mssql
 import sqlalchemy.schema
 from sqlalchemy import type_coerce
 from sqlalchemy.engine.interfaces import Dialect
-from sqlalchemy.sql import ClauseElement, Executable, Select
-from sqlalchemy.sql.elements import Case as SQLCase
-from sqlalchemy.sql.schema import Column as SQLColumn
+from sqlalchemy.sql import ClauseElement
 
 from .. import query_model, sqlalchemy_types
 from ..functools_utils import singledispatchmethod_with_unions
@@ -145,7 +136,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # See docstring on `get_sql_element` for details on this
         self.sql_element_cache: dict[QueryNode, ClauseElement] = {}
 
-    def get_queries(self) -> tuple[list[Executable], Executable, list[Executable]]:
+    def get_queries(self):
         """
         Build the list of SQL queries to execute
 
@@ -220,7 +211,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 cursor.execute(query)
 
     @singledispatchmethod_with_unions
-    def get_sql_element_or_value(self, value: Any) -> Any:
+    def get_sql_element_or_value(self, value: Any):
         """
         Certain places in our Query Model support values which can either be QueryNodes
         themselves or plain static values (booleans, integers, dates, list of dates
@@ -235,7 +226,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert False, f"Unhandled type {value!r}"
 
     @get_sql_element_or_value.register
-    def get_static_value(self, value: Union[Scalar, tuple, list]) -> StaticValue:
+    def get_static_value(self, value: Union[Scalar, tuple, list]):
         # This is a fudge: the type of `value` above really ought to be StaticValue but
         # the singledispatch decorator can't handle the parameterized tuple and list
         # types. So instead we accept all tuples and lists and enforce the types of
@@ -247,7 +238,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return value
 
     @get_sql_element_or_value.register
-    def get_sql_element(self, node: QueryNode) -> ClauseElement:
+    def get_sql_element(self, node: QueryNode):
         """
         Caching wrapper around `get_sql_element_no_cache()` below, which is the
         entrypoint method for converting QueryNodes to SQL ClauseElements
@@ -266,7 +257,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             return element
 
     @singledispatchmethod_with_unions
-    def get_sql_element_no_cache(self, node: QueryNode) -> ClauseElement:
+    def get_sql_element_no_cache(self, node: QueryNode):
         """
         Given a QueryNode object from the Query Model return the SQLAlchemy
         ClauseElement which represents it.
@@ -278,12 +269,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert False, f"Unhandled query node type: {node!r}"
 
     @get_sql_element_no_cache.register
-    def get_element_from_table(self, node: Table) -> Select:
+    def get_element_from_table(self, node: Table):
         table = self.backend.get_table_expression(node.name)
         return table.select()
 
     @get_sql_element_no_cache.register
-    def get_element_from_filtered_table(self, node: FilteredTable) -> Select:
+    def get_element_from_filtered_table(self, node: FilteredTable):
         query = self.get_sql_element(node.source)
         filter_value = self.get_sql_element_or_value(node.value)
         return apply_filter(
@@ -298,7 +289,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
     @get_sql_element_no_cache.register
-    def get_element_from_row(self, node: Row) -> Select:
+    def get_element_from_row(self, node: Row):
         query = self.get_sql_element(node.source)
         return select_first_row_per_partition(
             query,
@@ -308,7 +299,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
     @get_sql_element_no_cache.register
-    def get_element_from_row_from_aggregate(self, node: RowFromAggregate) -> Select:
+    def get_element_from_row_from_aggregate(self, node: RowFromAggregate):
         query = self.get_sql_element(node.source)
         return group_and_aggregate(
             query,
@@ -319,7 +310,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
     @get_sql_element_no_cache.register
-    def get_element_from_reified_query(self, node: ReifiedQuery) -> TemporaryTable:
+    def get_element_from_reified_query(self, node: ReifiedQuery):
         """
         Take a query and return something table-like which contains the results of this
         query.
@@ -356,12 +347,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return table
 
     @get_sql_element_no_cache.register
-    def get_element_from_column_selector(self, node: ColumnSelectorNode) -> SQLColumn:
+    def get_element_from_column_selector(self, node: ColumnSelectorNode):
         table = self.get_sql_element(node.source)
         return table.c[node.column]
 
     @get_sql_element_no_cache.register
-    def get_element_from_category_node(self, node: ValueFromCategory) -> SQLCase:
+    def get_element_from_category_node(self, node: ValueFromCategory):
         # TODO: I think that both `label` and `default` should get passed through
         # `get_sql_element_or_value` as there's no reason in principle these couldn't be
         # dynamic values
@@ -374,7 +365,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
 
     @get_sql_element_no_cache.register
-    def get_element_from_comparator_node(self, comparator: Comparator) -> ClauseElement:
+    def get_element_from_comparator_node(self, comparator: Comparator):
         # TODO: I think we can simplify things here, in particular the distinction
         # between `operator` and `connector` and the handling of negatation. But that
         # involves changing the Query Model which is a task for another day
@@ -398,7 +389,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return condition_expression
 
     @get_sql_element_no_cache.register
-    def get_element_from_codelist(self, codelist: Codelist) -> TemporaryTable:
+    def get_element_from_codelist(self, codelist: Codelist):
         """
         Given a codelist, build a SQLAlchemy representation of the temporary table
         needed to store that codelist and then generate the queries necessary to create
@@ -450,9 +441,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return table
 
     @get_sql_element_no_cache.register
-    def get_element_from_value_from_function(
-        self, value: ValueFromFunction
-    ) -> ClauseElement:
+    def get_element_from_value_from_function(self, value: ValueFromFunction):
         # TODO: I'd quite like to build this map by decorating the methods e.g.
         #
         #   @handler_for(DateDifferenceInYears)
@@ -579,15 +568,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return sqlalchemy.func.year(date, type_=sqlalchemy_types.Integer())
 
     def query_to_create_temp_table_from_select_query(
-        self, table: TemporaryTable, select_query: Executable
-    ) -> Executable:
+        self, table: TemporaryTable, select_query
+    ):
         """
         Return a query to create `table` and populate it with the results of
         `select_query`
         """
         raise NotImplementedError()
 
-    def temp_table_needs_dropping(self, create_table_query: Executable) -> bool:
+    def temp_table_needs_dropping(self, create_table_query):
         """
         Given the query used to create a temporary table, return whether the table needs
         to be explicitly dropped or whether the database will discard it automatically

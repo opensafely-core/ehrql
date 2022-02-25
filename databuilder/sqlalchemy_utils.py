@@ -1,24 +1,9 @@
-from collections.abc import Iterable
-
 import sqlalchemy
 from sqlalchemy import Table
 from sqlalchemy.sql.base import Executable
-from sqlalchemy.sql.elements import ClauseElement
-from sqlalchemy.sql.selectable import Select
-
-# I've tried adding types below but mypy isn't happy. Mostly it complains about `Select`
-# not having methods that `Select` definitly does have. So I'm starting to think that
-# mypy just doesn't understand SQLAlchemy at the moment.
-
-# mypy: ignore-errors
 
 
-def select_first_row_per_partition(
-    query: Select,
-    partition_column: str,
-    sort_columns: Iterable[str],
-    descending: bool,
-) -> Select:
+def select_first_row_per_partition(query, partition_column, sort_columns, descending):
     """
     Given a SQLAlchemy SELECT query, partition it by the specified column, sort
     within each partition by `sort_columns` and then return a query containing just
@@ -51,12 +36,8 @@ def select_first_row_per_partition(
 
 
 def group_and_aggregate(
-    query: Select,
-    group_by_column: str,
-    input_column: str,
-    function_name: str,
-    output_column: str,
-) -> Select:
+    query, group_by_column, input_column, function_name, output_column
+):
     """
     Given a SQLAlchemy SELECT query, apply the aggregation specified by `function_name`
     to `input_colum`, grouping by `group_by_column` and labelling the result as
@@ -78,7 +59,7 @@ def group_and_aggregate(
     return query.group_by(query.selected_columns[group_by_column])
 
 
-def get_joined_tables(select_query: Select) -> list[Table]:
+def get_joined_tables(select_query):
     """
     Given a SELECT query object return a list of all tables in its FROM clause
     """
@@ -96,16 +77,14 @@ def get_joined_tables(select_query: Select) -> list[Table]:
     return tables
 
 
-def get_primary_table(select_query: Select) -> Table:
+def get_primary_table(select_query):
     """
     Return the left-most table referenced in the SELECT query
     """
     return get_joined_tables(select_query)[0]
 
 
-def include_joined_tables(
-    select_query: Select, tables: Iterable[Table], join_column: str
-) -> Select:
+def include_joined_tables(select_query, tables, join_column):
     """
     Ensure that each table in `tables` is included in the join conditions for
     `select_query`
@@ -125,7 +104,7 @@ def include_joined_tables(
     return select_query
 
 
-def get_referenced_tables(clause: ClauseElement) -> tuple[Table]:
+def get_referenced_tables(clause):
     """
     Given an arbitrary SQLAlchemy clause determine what tables it references
     """
@@ -154,9 +133,7 @@ class TemporaryTable(Table):
     cleanup_queries: list[Executable]
 
 
-def get_setup_and_cleanup_queries(
-    clause: ClauseElement,
-) -> tuple[list[Executable], list[Executable]]:
+def get_setup_and_cleanup_queries(clause):
     """
     Given a SQLAlchemy ClauseElement find all TemporaryTables embeded in it and return a
     pair of:
@@ -218,7 +195,7 @@ def get_setup_and_cleanup_queries(
     return setup_queries, cleanup_queries
 
 
-def get_temporary_tables(clause: ClauseElement) -> list[TemporaryTable]:
+def get_temporary_tables(clause):
     """
     Return any TemporaryTable objects referenced by `clause`
     """
@@ -229,5 +206,5 @@ def get_temporary_tables(clause: ClauseElement) -> list[TemporaryTable]:
     ]
 
 
-def flatten_lists(iterable_of_lists: Iterable[list]) -> list:
+def flatten_lists(iterable_of_lists):
     return sum(iterable_of_lists, start=[])

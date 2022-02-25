@@ -15,8 +15,6 @@ from functools import cache, singledispatch
 from .. import query_model as new
 from . import query_model_old as old
 
-# mypy: ignore-errors
-
 OPERATOR_MAP = {
     new.Function.EQ: "__eq__",
     new.Function.NE: "__ne__",
