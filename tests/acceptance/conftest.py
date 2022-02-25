@@ -66,7 +66,7 @@ class Study:
         self._definition_path.write_text(definition)
 
     def run(self, database, backend):
-        dataset_path = self._workspace / "dataset.csv"
+        self._dataset_path = self._workspace / "dataset.csv"
 
         self._monkeypatch.setenv("DATABASE_URL", database.host_url())
         self._monkeypatch.setenv("OPENSAFELY_BACKEND", backend)
@@ -77,11 +77,12 @@ class Study:
                 "--dataset-definition",
                 str(self._definition_path),
                 "--dataset",
-                str(dataset_path),
+                str(self._dataset_path),
             ]
         )
 
-        with open(dataset_path) as f:
+    def results(self):
+        with open(self._dataset_path) as f:
             return list(csv.DictReader(f))
 
 

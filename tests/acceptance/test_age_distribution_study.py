@@ -12,7 +12,8 @@ def test_generate_dataset(study, database):
     study.setup_from_repo(
         "opensafely/test-age-distribution", "analysis/dataset_definition.py"
     )
-    results = study.run(database, "tpp")
+    study.run(database, "tpp")
+    results = study.results()
 
     assert len(results) == 1
     assert results[0]["year_of_birth"] == "2010"
