@@ -12,21 +12,22 @@ class DummyDataValidationError(Exception):
     pass
 
 
-def validate_dummy_data(dataset_class, dummy_data_file, output_file):
+def validate_dummy_data(dataset_class, dummy_data_file, dataset_file):
     """Validate that dummy data provided by user matches expected structure and format.
 
     Raises DummyDataValidationError if dummy data is not valid.
     """
 
-    validate_file_extension(output_file, dummy_data_file)
+    validate_file_extension(dataset_file, dummy_data_file)
 
     df = read_into_dataframe(dummy_data_file)
 
     column_definitions = get_column_definitions(dataset_class)
 
-    # Ignore the population definition, since it is not used as a column in the output
+    # Ignore the population definition, since it is not used as a column in the
+    # dataset
     column_definitions.pop("population", None)
-    # Add in the patient_id, which is always included as a column in the output
+    # Add in the patient_id, which is always included as a column in the dataset
     column_definitions["patient_id"] = ValueFromRow(source=None, column="patient_id")
 
     validate_expected_columns(df, column_definitions)
@@ -34,10 +35,10 @@ def validate_dummy_data(dataset_class, dummy_data_file, output_file):
     validate_column_values(df, column_definitions)
 
 
-def validate_file_extension(output_file, dummy_data_file):
+def validate_file_extension(dataset_file, dummy_data_file):
     """Raise DummyDataValidationError if dummy data file does not have expected file extension."""
-    if output_file.suffixes != dummy_data_file.suffixes:
-        expected_extension = "".join(output_file.suffixes)
+    if dataset_file.suffixes != dummy_data_file.suffixes:
+        expected_extension = "".join(dataset_file.suffixes)
         msg = f"Expected dummy data file with extension {expected_extension}; got {dummy_data_file.name}"
         raise DummyDataValidationError(msg)
 
