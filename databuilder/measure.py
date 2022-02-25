@@ -193,16 +193,16 @@ class MeasuresManager:
             return self._patient_dataframe
         return self._load_patient_dataframe()
 
-    def _load_patient_dataframe(self, input_data=None):
+    def _load_patient_dataframe(
+        self, input_data=None
+    ):  # pragma: no cover (Re-implement when testing with new QL)
         """
         Given a file name and a list of measures, load the file into a Pandas
         dataframe with types as appropriate for the supplied measures
         Optionally, input data can be provided as a list of dicts, as would be read from
         the input CSV file.
         """
-        if (
-            input_data is None
-        ):  # pragma: no cover (Re-implement when testing with new QL)
+        if input_data is None:
             assert (
                 self._input_file.exists()
             ), f"Expected cohort input file {str(self._input_file)} not found. You may need to first run:\n  databuilder generate_cohort ..."
@@ -220,7 +220,7 @@ class MeasuresManager:
         for col in numeric_columns:
             dtype[col] = "float64"
 
-        if input_data:  # pragma: no cover (Re-implement when testing with new QL)
+        if input_data:
             df = pandas.DataFrame.from_records(
                 input_data,
                 columns=list(dtype.keys()),

@@ -195,17 +195,6 @@ class BaseTable(QueryNode):
         assert columns
         return Row(source=self, sort_columns=columns, descending=True)
 
-    def date_in_range(
-        self, date, start_column="date_start", end_column="date_end", include_null=True
-    ):
-        """
-        A filter that returns rows for which a date falls between a start and end date (inclusive).
-        Null end date values are included by default
-        """
-        return self.filter(start_column, less_than_or_equals=date).filter(
-            end_column, greater_than_or_equals=date, include_null=include_null
-        )
-
     def exists(self, column="patient_id"):
         return self.aggregate("exists", column)
 

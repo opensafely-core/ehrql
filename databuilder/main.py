@@ -32,34 +32,10 @@ def run_cohort_action(
     output_file.parent.mkdir(parents=True, exist_ok=True)
     module = load_module(definition_path)
 
-    cohort_class_generator, index_date_range = load_cohort_generator(module)
-    if len(index_date_range) > 1 and "*" not in output_file.name:
-        # ensure we have a replaceable pattern as an output file when multiple
-        # dates ranges are to be output
-        raise ValueError(f"No output pattern found in output file {output_file}")
-
-    for index_date in index_date_range:
-        if index_date is not None:
-            log.info(f"Setting index_date to {index_date}")
-            date_suffix = index_date
-        else:
-            date_suffix = ""
-
-        if cohort_registry.cohorts:  # pragma: no cover (re-implement when the QL is in)
-            # Currently we expect at most one cohort to be registered
-            assert (
-                len(cohort_registry.cohorts) == 1
-            ), f"At most one registered cohort is allowed, found {len(cohort_registry.cohorts)}"
-            (cohort,) = cohort_registry.cohorts
-        else:
-            cohort = (
-                cohort_class_generator(index_date)
-                if index_date
-                else cohort_class_generator()
-            )
-        cohort_action_function(
-            cohort, index_date, output_file, date_suffix, **function_kwargs
-        )
+    load_cohort_generator(module)
+    assert len(cohort_registry.cohorts) == 1
+    cohort = list(cohort_registry.cohorts)[0]
+    cohort_action_function(cohort, None, output_file, "", **function_kwargs)
 
 
 def generate_cohort(
@@ -73,10 +49,10 @@ def generate_cohort(
     temporary_database=None,
 ):
     output_file_with_date = _replace_filepath_pattern(output_file, date_suffix)
-    if index_date:
-        log.info("Generating cohort for index date", index_date=index_date)
 
-    if dummy_data_file and not db_url:
+    if (
+        dummy_data_file and not db_url
+    ):  # pragma: no cover (dummy data not currently tested)
         dummy_data_file_with_date = Path(str(dummy_data_file).replace("*", date_suffix))
         validate_dummy_data(cohort, dummy_data_file_with_date, output_file_with_date)
         shutil.copyfile(dummy_data_file_with_date, output_file_with_date)
@@ -102,7 +78,9 @@ def validate_cohort(
     write_validation_output(results, output_file_with_date)
 
 
-def generate_measures(definition_path, input_file, output_file):
+def generate_measures(
+    definition_path, input_file, output_file
+):  # pragma: no cover (measure not currently working)
     definition_module = load_module(definition_path)
     cohort_generator, index_date_range = load_cohort_generator(definition_module)
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -153,7 +131,9 @@ def _replace_filepath_pattern(filepath, filename_part):
     return Path(str(filepath).replace("*", filename_part))
 
 
-def calculate_measures_results(measures, input_file):
+def calculate_measures_results(
+    measures, input_file
+):  # pragma: no cover (measure not currently working)
     measures_manager = MeasuresManager(measures, input_file)
     yield from measures_manager.calculate_measures()
 
@@ -166,39 +146,13 @@ def load_cohort_classes(definition_module):
     ]
 
 
-def load_cohort_functions(definition_module):
-    return [
-        obj
-        for name, obj in inspect.getmembers(definition_module)
-        if inspect.isfunction(obj) and obj.__name__ == "cohort"
-    ]
-
-
 def load_cohort_generator(definition_module):
     """
     Load the cohort definition module and identify the Cohort class or cohort generator
     function.
     Return a function that returns a Cohort class, and the index date range, if applicable.
     """
-    cohort_classes = load_cohort_classes(definition_module)
-    cohort_functions = load_cohort_functions(definition_module)
-
-    if (len(cohort_classes) + len(cohort_functions)) != 1:
-        raise ValueError(
-            "A study definition must contain one and only one 'cohort' function or 'Cohort' class"
-        )
-
-    if cohort_classes:
-        return lambda: cohort_classes[0], [None]
-
-    cohort_function = cohort_functions[0]
-    index_date_range = getattr(definition_module, "index_date_range", None)
-    if index_date_range:  # pragma: no cover (Re-implement when testing with new QL)
-        if list(inspect.signature(cohort_function).parameters.keys()) != ["index_date"]:
-            raise ValueError(
-                "A study definition with index_date_range must pass a single index_date argument to the 'cohort' function"
-            )
-    return cohort_function, index_date_range or [None]
+    load_cohort_classes(definition_module)
 
 
 def load_module(definition_path):

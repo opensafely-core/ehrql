@@ -1,7 +1,5 @@
-import sys
-
 import docker
-from docker.errors import ContainerError
+import docker.errors
 
 
 class Containers:
@@ -43,13 +41,15 @@ class Containers:
 
     # All available arguments documented here:
     # https://docker-py.readthedocs.io/en/stable/containers.html#docker.models.containers.ContainerCollection.run
-    def run_fg(self, image, **kwargs):
-        try:
-            output = self._run(image=image, detach=False, stderr=True, **kwargs)
-            print(str(output, "utf-8"))
-        except ContainerError as e:  # pragma: no cover
-            print(str(e.stderr, "utf-8"), file=sys.stderr)
-            raise
+    # Temporarily uncommenting rather than marking as "no cover" because a subsequent PR uses this and I
+    # don't want us to forget to remove the pragma.
+    # def run_fg(self, image, **kwargs):
+    #     try:
+    #         output = self._run(image=image, detach=False, stderr=True, **kwargs)
+    #         print(str(output, "utf-8"))
+    #     except ContainerError as e:  # pragma: no cover
+    #         print(str(e.stderr, "utf-8"), file=sys.stderr)
+    #         raise
 
-    def _run(self, **kwargs):
+    def _run(self, **kwargs):  # pragma: no cover
         return self._docker.containers.run(remove=True, **kwargs)
