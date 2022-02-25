@@ -2,10 +2,10 @@
 
 This tool supports the authoring of OpenSAFELY-compliant research, by:
 
-* Allowing developers to provide dummy data via a CSV file. They can then use this as input data when developing
-  analytic models.
+* Allowing developers to provide dummy data via a CSV file. They can then use this as
+  input data when developing analytic models.
 * Providing the mechanism by which cohorts are extracted from live
-database backends within the OpenSAFELY framework.
+  database backends within the OpenSAFELY framework.
 
 :warning: Data Builder is still under development, but is
 eventually intended to be a replacement for the [OpenSAFELY Cohort
