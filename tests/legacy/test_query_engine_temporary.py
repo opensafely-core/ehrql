@@ -8,7 +8,7 @@ from databuilder.query_model import (
     Value,
 )
 
-from .lib.mock_backend import Patients, RegistrationHistory, patient
+from ..lib.mock_backend import Patients, RegistrationHistory, patient
 
 # TODO
 # IMPORTANT NOTE!!
