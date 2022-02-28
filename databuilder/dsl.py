@@ -43,17 +43,10 @@ This docstring, and the function docstrings in this module are not currently int
 for end users.
 """
 
-from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .query_engines.query_model_old import (
-    BaseTable,
-    Codelist,
-    Comparator,
-    Value,
-    ValueFromAggregate,
-)
+from .query_engines.query_model_old import Comparator, ValueFromAggregate
 
 
 class Cohort:
@@ -61,7 +54,7 @@ class Cohort:
     Represents the cohort of patients in the defined study.
     """
 
-    def set_population(self, population: PatientSeries) -> None:
+    def set_population(self, population):
         """
         Sets the population that are included within the Cohort.
 
@@ -80,7 +73,7 @@ class Cohort:
                 "Population variable must return a boolean. Did you mean to use `exists_for_patient()`?"
             )
 
-    def add_variable(self, name: str, variable: PatientSeries) -> None:
+    def add_variable(self, name, variable):
         """
         Add a variable to this Cohort with a given name.
 
@@ -91,7 +84,7 @@ class Cohort:
 
         self.__setattr__(name, variable)
 
-    def __setattr__(self, name: str, variable: PatientSeries) -> None:
+    def __setattr__(self, name, variable):
         if not isinstance(variable, PatientSeries):
             raise TypeError(
                 f"{name} must be a single value per patient (got '{variable.__class__.__name__}')"
@@ -107,29 +100,24 @@ class PatientSeries:
     variable.
     """
 
-    def __init__(self, value: Value | Comparator):
+    def __init__(self, value):
         self.value = value
 
-    def _is_comparator(self) -> bool:
+    def _is_comparator(self):
         return isinstance(self.value, Comparator)
 
-    def __eq__(self, other: PatientSeries | Comparator | str | int) -> PatientSeries:  # type: ignore[override]
-        # All python objects have __eq__ and __ne__ defined, so overriding these methods
-        # involves overriding them on a superclass (`object`), which results in
-        # a typing error as it violates the violates the Liskov substitution principle
-        # https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
-        # We are deliberately overloading the operators here, hence the ignore
+    def __eq__(self, other):
         other_value = other.value if isinstance(other, PatientSeries) else other
         return PatientSeries(value=self.value == other_value)
 
-    def __ne__(self, other: PatientSeries | Comparator | str | int) -> PatientSeries:  # type: ignore[override]
+    def __ne__(self, other):
         other_value = other.value if isinstance(other, PatientSeries) else other
         return PatientSeries(value=self.value != other_value)
 
-    def __hash__(self) -> int:
+    def __hash__(self):
         return hash(repr(self.value))
 
-    def __invert__(self) -> PatientSeries:
+    def __invert__(self):
         if self._is_comparator():
             comparator_value = ~self.value
         else:
@@ -138,22 +126,17 @@ class PatientSeries:
             )
         return PatientSeries(value=comparator_value)
 
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f"{self.__class__.__name__}(value={self.value})"
 
 
 class Predicate:
-    def __init__(
-        self,
-        column: Column,
-        operator: str,
-        other: str | bool | int | Codelist | None,
-    ) -> None:
+    def __init__(self, column, operator, other):
         self._column = column
         self._operator = operator
         self._other = other
 
-    def apply_to(self, table: BaseTable) -> BaseTable:
+    def apply_to(self, table):
         return table.filter(self._column.name, **{self._operator: self._other})
 
 
@@ -175,19 +158,19 @@ class BoolColumn(Column):
     def __init__(self, name):
         super().__init__(name, PatientSeries)
 
-    def is_true(self) -> Predicate:
+    def is_true(self):
         return Predicate(self, "equals", True)
 
-    def is_false(self) -> Predicate:
+    def is_false(self):
         return Predicate(self, "equals", False)
 
-    def __eq__(self, other: bool) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+    def __eq__(self, other: bool):
         if other:
             return self.is_true()
         else:
             return self.is_false()
 
-    def __ne__(self, other: bool) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+    def __ne__(self, other: bool):
         if other:
             return self.is_false()
         else:
@@ -198,22 +181,22 @@ class DateColumn(Column):
     def __init__(self, name):
         super().__init__(name, PatientSeries)
 
-    def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+    def __eq__(self, other):
         return Predicate(self, "equals", other)
 
-    def __ne__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+    def __ne__(self, other):
         return Predicate(self, "not_equals", other)
 
-    def __gt__(self, other: str) -> Predicate:
+    def __gt__(self, other):
         return Predicate(self, "greater_than", other)
 
-    def __ge__(self, other: str) -> Predicate:
+    def __ge__(self, other):
         return Predicate(self, "greater_than_or_equals", other)
 
-    def __lt__(self, other: str) -> Predicate:
+    def __lt__(self, other):
         return Predicate(self, "less_than", other)
 
-    def __le__(self, other: str) -> Predicate:
+    def __le__(self, other):
         return Predicate(self, "less_than_or_equals", other)
 
 
@@ -221,13 +204,13 @@ class CodeColumn(Column):
     def __init__(self, name):
         super().__init__(name, PatientSeries)
 
-    def __eq__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+    def __eq__(self, other):
         return Predicate(self, "equals", other)
 
-    def __ne__(self, other: str) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+    def __ne__(self, other):
         return Predicate(self, "not_equals", other)
 
-    def is_in(self, codelist: Codelist) -> Predicate:
+    def is_in(self, codelist):
         return Predicate(self, "is_in", codelist)
 
 
@@ -235,22 +218,22 @@ class IntColumn(Column):
     def __init__(self, name):
         super().__init__(name, PatientSeries)
 
-    def __eq__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+    def __eq__(self, other):
         return Predicate(self, "equals", other)
 
-    def __ne__(self, other: int) -> Predicate:  # type: ignore[override]  # deliberately inconsistent with object
+    def __ne__(self, other):
         return Predicate(self, "not_equals", other)
 
-    def __gt__(self, other: int) -> Predicate:
+    def __gt__(self, other):
         return Predicate(self, "greater_than", other)
 
-    def __ge__(self, other: int) -> Predicate:
+    def __ge__(self, other):
         return Predicate(self, "greater_than_or_equals", other)
 
-    def __lt__(self, other: int) -> Predicate:
+    def __lt__(self, other):
         return Predicate(self, "less_than", other)
 
-    def __le__(self, other: int) -> Predicate:
+    def __le__(self, other):
         return Predicate(self, "less_than_or_equals", other)
 
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import dataclasses
 
 from . import query_model as qm

@@ -1,8 +1,5 @@
-from __future__ import annotations
-
 import sqlalchemy
 
-from ..query_engines.base_sql import BaseSQLQueryEngine
 from ..sqlalchemy_types import TYPES_BY_NAME
 
 # Mutable global for storing registered backends
@@ -14,10 +11,10 @@ def register_backend(backend_class):
 
 
 class BaseBackend:
-    backend_id: str
-    query_engine_class: type[BaseSQLQueryEngine]
-    patient_join_column: str
-    tables: dict
+    backend_id = None
+    query_engine_class = None
+    patient_join_column = None
+    tables = None
 
     def __init__(self, database_url, temporary_database=None):
         self.database_url = database_url
@@ -38,7 +35,7 @@ class BaseBackend:
                 cls.tables[name] = value
 
     @classmethod
-    def _init_table(cls, table: SQLTable) -> None:
+    def _init_table(cls, table):
         """
         Initialises the table
         Args:
@@ -47,7 +44,7 @@ class BaseBackend:
         table.learn_patient_join(cls.patient_join_column)
 
     @classmethod
-    def validate_contracts(cls) -> None:
+    def validate_contracts(cls):
         """
         Loops through all the tables in a backend and validates that
         each one meets any contract that it claims to implement

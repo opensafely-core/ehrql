@@ -92,50 +92,6 @@ verbose = 1
 profile = "black"
 skip_glob = [".direnv", "venv", ".venv"]
 
-[tool.mypy]
-files = "databuilder"
-plugins = [
-  "sqlalchemy.ext.mypy.plugin",
-]
-
-# Consider turning on these stricter options later.  They require a
-# significantly larger number of changes to the codebase so we have decided to
-# work towards them.
-# check_untyped_defs = true
-# disallow_untyped_calls = true
-# disallow_untyped_decorators = true
-# disallow_untyped_defs = true
-
-# https://mypy.readthedocs.io/en/stable/config_file.html#confval-disallow_incomplete_defs
-disallow_incomplete_defs = true
-
-# https://mypy.readthedocs.io/en/stable/config_file.html#confval-no_implicit_optional
-no_implicit_optional = true
-
-# https://mypy.readthedocs.io/en/stable/config_file.html#confval-warn_redundant_casts
-warn_redundant_casts = true
-
-# https://mypy.readthedocs.io/en/stable/config_file.html#confval-warn_unused_ignores
-warn_unused_ignores = true
-
-# https://mypy.readthedocs.io/en/stable/config_file.html#confval-warn_unreachable
-warn_unreachable = true
-
-# https://mypy.readthedocs.io/en/stable/config_file.html#confval-scripts_are_modules
-scripts_are_modules = true
-
-# https://mypy.readthedocs.io/en/stable/config_file.html#confval-show_error_codes
-show_error_codes = true
-
-[[tool.mypy.overrides]]
-module = [
-  "pyhive.sqlalchemy_hive.*",
-  "sqlalchemy.dialects.mssql.pymssql",
-  "databricks",
-  "databricks.sql",
-]
-ignore_missing_imports = true
-
 [tool.pydocstyle]
 convention = "google"
 add_select = [

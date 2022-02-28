@@ -13,7 +13,6 @@ flake8-implicit-str-concat
 flake8-no-pep420
 interrogate
 isort
-mypy
 networkx
 pandas-stubs
 pip-tools
@@ -26,4 +25,3 @@ pytest-mock
 pytest-subtests
 pyupgrade
 six # undeclared dependency of docker (https://github.com/docker/docker-py/issues/2842)
-sqlalchemy[mypy]

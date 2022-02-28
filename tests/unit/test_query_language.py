@@ -28,7 +28,7 @@ patients = build_patient_table(
 )
 
 
-def test_dataset() -> None:
+def test_dataset():
     year_of_birth = patients.date_of_birth.year
     dataset = Dataset()
     dataset.set_population(year_of_birth <= 2000)

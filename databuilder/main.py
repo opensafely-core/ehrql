@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import csv
 import importlib.util
 import inspect
@@ -7,16 +5,12 @@ import shutil
 import sys
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator
 
 import structlog
 
 from .backends import BACKENDS
-from .backends.base import BaseBackend
 from .definition.base import cohort_registry
-from .dsl import Cohort
 from .measure import MeasuresManager, combine_csv_files_with_dates
-from .query_language import Dataset
 from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
 
@@ -175,9 +169,7 @@ def added_to_path(directory):
         sys.path = original
 
 
-def extract(
-    cohort_definition: Cohort | Dataset | type, backend: BaseBackend
-) -> Generator[dict[str, str], None, None]:
+def extract(cohort_definition, backend):
     """
     Extracts the cohort from the backend specified
     Args:

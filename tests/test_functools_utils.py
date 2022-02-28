@@ -21,7 +21,7 @@ def test_singledispatchmethod_with_unions():
             raise TypeError(value)
 
         @method.register
-        def method_a_or_b(self, value: Union[A, B]) -> str:
+        def method_a_or_b(self, value: Union[A, B]):
             return "a_or_b"
 
         @method.register(C)

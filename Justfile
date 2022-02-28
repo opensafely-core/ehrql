@@ -97,7 +97,6 @@ check: devenv
         $(find databuilder -name "*.py" -type f) \
         $(find tests -name "*.py" -type f)
     just docstrings
-    $BIN/mypy
 
 # ensure our public facing docstrings exist so we can build docs from them
 docstrings: devenv
