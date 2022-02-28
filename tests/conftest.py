@@ -10,6 +10,7 @@ from .lib.databases import make_database, make_spark_database, wait_for_database
 from .lib.docker import Containers
 from .lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from .lib.mock_backend import backend_factory
+from .lib.study import Study
 from .lib.util import extract
 
 
@@ -96,3 +97,8 @@ def engine(request, database, spark_database):
 @pytest.fixture
 def in_memory_engine():
     return QueryEngineFixture("in_memory", InMemoryDatabase(), InMemoryQueryEngine)
+
+
+@pytest.fixture
+def study(tmp_path, monkeypatch):
+    return Study(tmp_path, monkeypatch)

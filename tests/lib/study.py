@@ -5,8 +5,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.request import urlretrieve
 
-import pytest
-
 from databuilder.__main__ import main
 
 
@@ -15,7 +13,9 @@ class Cache:
 
     def get(self, url):
         path = self._cache_path(url)
-        if not path.exists() or self._is_expired(path):
+        if not path.exists() or self._is_expired(
+            path
+        ):  # pragma: no cover (varies between runs)
             urlretrieve(url, path)
         return path
 
@@ -26,13 +26,13 @@ class Cache:
     def _cache_dir():
         p = Path(__file__)
         assert p.parent.match(
-            "*/tests/acceptance"
+            "*/tests/lib"
         ), "Directory structure has changed, this code needs updating"
         cache = p.parent.parent.parent / "cache"
         cache.mkdir(exist_ok=True)
         return cache
 
-    def _is_expired(self, p):
+    def _is_expired(self, p):  # pragma: no cover (not called if file missing)
         return p.stat().st_mtime < (datetime.now() - self._cache_expiry).timestamp()
 
 
@@ -84,8 +84,3 @@ class Study:
     def results(self):
         with open(self._dataset_path) as f:
             return list(csv.DictReader(f))
-
-
-@pytest.fixture
-def study(tmp_path, monkeypatch):
-    return Study(tmp_path, monkeypatch)
