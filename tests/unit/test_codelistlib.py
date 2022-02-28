@@ -9,7 +9,7 @@ from databuilder import codelist, codelist_from_csv, combine_codelists
 def codelist_csv():
     def csv_path(codelist_name):
         return (
-            Path(__file__).parent.absolute()
+            Path(__file__).parent.parent.absolute()
             / "fixtures"
             / "codelist_csvs"
             / f"{codelist_name}.csv"
