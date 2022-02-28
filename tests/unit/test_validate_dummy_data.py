@@ -9,11 +9,11 @@ from databuilder.validate_dummy_data import (
     validate_dummy_data,
 )
 
-from .lib.csv_utils import write_rows_to_csv
+from ..lib.csv_utils import write_rows_to_csv
 
 cl = codelist(["12345"], system="snomed")
 
-fixtures_path = Path(__file__).parent / "fixtures" / "dummy_data"
+fixtures_path = Path(__file__).parent.parent / "fixtures" / "dummy_data"
 
 
 class Cohort:
