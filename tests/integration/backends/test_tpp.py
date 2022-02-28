@@ -3,8 +3,7 @@ from datetime import date
 import pytest
 
 from databuilder.backends.tpp import TPPBackend
-
-from ..lib.tpp_schema import apcs, patient
+from tests.lib.tpp_schema import apcs, patient
 
 
 def run_query(database, query):

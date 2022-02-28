@@ -181,8 +181,8 @@ databricks-test *ARGS: devenv databricks-env
     just test {{ ARGS }}
 
 # run the validate contract test only for all backends
-test-contracts: devenv
-    $BIN/python -m pytest tests/backends/test_base.py -k test_validate_all_backends
+test-validate-backends: devenv
+    $BIN/python -m pytest tests/backend_validation/test_validate_backends.py
 
 story-dependencies: devenv
     #!/usr/bin/env bash
