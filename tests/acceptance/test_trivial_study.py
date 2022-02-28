@@ -1,24 +1,13 @@
 from datetime import datetime
 
+from tests.lib.fixtures import get_year_of_birth
 from tests.lib.tpp_schema import patient
-
-dataset_definition = """
-from databuilder.query_language import Dataset
-from databuilder.tables import patients
-from databuilder.definition import register
-
-dataset = Dataset()
-year = patients.date_of_birth.year
-dataset.set_population(year >= 1900)
-dataset.year = year
-register(dataset)
-"""
 
 
 def test_generate_dataset(study, database):
     database.setup(patient(dob=datetime(1943, 5, 5)))
 
-    study.setup_from_string(dataset_definition)
+    study.setup_from_string(get_year_of_birth)
     study.run(database, "tpp")
     results = study.results()
 
