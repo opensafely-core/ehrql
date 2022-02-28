@@ -100,5 +100,5 @@ def in_memory_engine():
 
 
 @pytest.fixture
-def study(tmp_path, monkeypatch):
-    return Study(tmp_path, monkeypatch)
+def study(tmp_path, monkeypatch, containers):
+    return Study(tmp_path, monkeypatch, containers)

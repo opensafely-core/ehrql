@@ -52,9 +52,10 @@ def fetch_repo(repo, root):
 
 
 class Study:
-    def __init__(self, root, monkeypatch):
+    def __init__(self, root, monkeypatch, containers):
         self._root = root
         self._monkeypatch = monkeypatch
+        self._containers = containers
 
     def setup_from_repo(self, repo, definition_path):
         self._workspace = fetch_repo(repo, self._root)
@@ -71,15 +72,36 @@ class Study:
         self._monkeypatch.setenv("DATABASE_URL", database.host_url())
         self._monkeypatch.setenv("OPENSAFELY_BACKEND", backend)
 
-        main(
-            [
-                "generate_dataset",
-                "--dataset-definition",
-                str(self._definition_path),
-                "--dataset",
-                str(self._dataset_path),
-            ]
+        main(self._command(self._definition_path, self._dataset_path))
+
+    def run_in_docker(self, database, backend):
+        self._dataset_path = self._workspace / "dataset.csv"
+        definition_in_container = Path(
+            "/workspace"
+        ) / self._definition_path.relative_to(self._workspace)
+        dataset_in_container = Path("/workspace") / self._dataset_path.relative_to(
+            self._workspace
         )
+        environment = {
+            "DATABASE_URL": database.container_url(),
+            "OPENSAFELY_BACKEND": backend,
+        }
+        self._containers.run_fg(
+            image="databuilder:latest",
+            command=self._command(definition_in_container, dataset_in_container),
+            environment=environment,
+            volumes={self._workspace: {"bind": "/workspace", "mode": "rw"}},
+        )
+
+    @staticmethod
+    def _command(definition, dataset):
+        return [
+            "generate_dataset",
+            "--dataset-definition",
+            str(definition),
+            "--dataset",
+            str(dataset),
+        ]
 
     def results(self):
         with open(self._dataset_path) as f:
