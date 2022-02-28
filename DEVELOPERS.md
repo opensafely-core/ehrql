@@ -180,3 +180,12 @@ You can easily recreate the output locally by removing/commenting out the `pragm
 
 The ideal path for fixing an error is to remove some `pragma: no cover` comments.
 However, it's not clear how stable this process is yet and it's fairly low priority so feel free to update the `no-cover.txt` and move on.
+
+
+### Static Type Checking
+We previously used [mypy](https://mypy.readthedocs.io/en/stable/) and type annotations to perform correctness checking of the code base.
+However, we made the decision to remove this stack after finding it was not a good fit for large parts of the code base.
+
+Some type annotations remain for use with the `singledispatchmethod_with_unions` decorator which uses the type information to route to the correct method.
+
+Dataclasses have also retained their annotations to avoid initialising all fields with None.
