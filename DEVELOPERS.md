@@ -1,7 +1,7 @@
 # Notes for developers
 
 ## System requirements
-- [just](https://github.com/casey/just)
+- [`just`](https://github.com/casey/just)
 - Docker
 - recent version of Bash (see macOS notes)
 
@@ -11,47 +11,109 @@ The `just` command provides a list of available recipes:
 just list
 ```
 
-Running any of the test/check/fix `just` commands will setup a local environment and
-install dependencies.
+Running any of the `just` commands that need it will set up a local environment and install dependencies.
 
+## Testing
 
-## Test setup
+### Test categories
 
-The test suite includes:
-- integration tests: tests that use Docker (mostly to run a database, but also in some cases to test the data builder's
-  own Docker image)
-- unit tests: tests that don't require Docker (and therefore don't query an actual database)
+Tests are divided into the following categories.
 
-We run the database for the integration tests in a Docker container. Each run of the tests starts the
-database if it's not already running _and then leaves it running_ at the end to speed up future runs. (Each test cleans
-out the schema to avoid pollution.)
+<dl>
+   <dt>unit</dt><dd>fast tests of small code units</dd>
+   <dt>spec</dt><dd>tests generated from the ehrQL spec</dd>
+   <dt>acceptance</dt><dd>tests which check compatibility with real studies</dd>
+   <dt>integration</dt><dd>tests of detailed code logic that require a database</dd>
+   <dt>backend validation</dt><dd>tests which check that the backends correctly implement their contracts</dd>
+   <dt>docker</dt><dd>tests of the Data Builder docker image</dd>
+   <dt>legacy</dt><dd>old tests currently required to provide test coverage for the execution engines</dd>
+</dl>
 
-### Running the tests:
+Each category lives in its own directory (for example `tests/unit`) and has its own `just` command to run it (for
+example `just test-unit`).
 
-To run all tests, as they're run in CI:
-`just test`
+### Running tests
 
-To run just the integration tests
+To run all tests, as they're run in CI (with code coverage):
 ```
-just test-integration
+just test-all
 ```
 
-To run just the unit (non-integration) tests:
+To run just one category of tests:
+```
+just test-<category>
+```
+
+For example:
 ```
 just test-unit
 ```
 
-Additional arguments can be passed to any test commands, e.g.
+Additional arguments can be passed to any test commands, for example:
 ```
-just test-integration tests/acceptance
-```
-
-To pass multiple args, wrap in quotes, e.g.:
-```
-just test-integration '-s tests/acceptance'
+just test-unit --verbose --durations=10
 ```
 
-To remove the persistent database containers:
+For maximum flexibility, the `test` command can be used to run individual test files or tests, or to do other clever
+things with `pytest`. It just delegates to `pytest`. For example:
+```
+just test tests/integration/backends/test_tpp.py
+```
+
+Since we have many tests that are parameterized across multiple databases and the Spark database tests are very slow,
+test commands which run such parameterized tests have a variant that skips the Spark tests. These are much faster and
+should be used unless you're specifically working on Spark. For example:
+```
+just test-integration-no-spark
+```
+
+### Writing tests
+
+Please think carefully about how to test code that you are adding or changing. We think that test maintainability is a
+big risk for this system, so we're trying to be very deliberate about the kind of tests that we write. You should
+follow these guidelines and raise it with the rest of the team for discussion if you think that they are problematic.
+
+* _Major features in ehrQL or the Data Builder_ more widely should be motivated by a study used in an **acceptance**
+  test. The number of such studies should be kept small in order that they don't be come a maintenance burden. The
+  studies we use for the acceptance tests will need to be chosen carefully as representative of how we expect Data
+  Builder to be used; they may be real studies or synthetic ones as appropriate.
+* All _erhQL features_ should be covered by **spec** tests.
+* Complex _query language logic_ that is not fully covered by the spec tests should be covered by **unit** tests. To
+  avoid duplication, you should not write unit tests for logic that is adequately covered by the spec tests.
+* The main _functionality of query engines_ will naturally be covered by **spec** tests, which are run against all the
+  query engines.
+* Complex _query engine logic_ that is not fully covered by the spec tests should be covered by **unit** or
+  **integration** tests as appropriate. To avoid duplication, you should not write such tests for logic that is
+  adequately covered by the spec tests.
+* Functionality of the _Docker image_ and how it invokes Data Builder are covered by a small set of **docker** tests.
+* The adherence of _backends to contracts_ that they implement is automatically validated by **backend validation**
+  tests.
+* Where _backend tables_ do not map directly to the contracts that they implement, it may be helpful to write
+  **integration** tests.
+* All other _supporting logic_ should be covered by **unit** tests. Please avoid the temptation to cover this using
+  integration or docker tests that run the Data Builder end-to-end.
+* Do not write **legacy** tests. :-)
+
+### Codebase structure
+
+The files for test categories that target individual modules (for example **unit** and **integration** tests) are
+organized into roughly the same directory structure as the `databuilder` package itself.
+
+Generally a module `databuilder.foo` will have a corresponding test file like `tests/unit/test_foo.py`.
+However we do not stick slavishly to this: where appropriate we may collapse tests for submodules like
+`databuilder.foo.{bar,bam}` into a single test file like `tests/unit/test_foo.py`, or break tests for a module like
+`databuilder.foo` into multiple test files like `tests/unit/foo/test_{one,another}_aspect.py`
+
+Test categories that run against the Data Builder as a whole or against multiple components (for example **spec** and
+**acceptance** tests) have their own internal structure.
+
+### Test databases
+
+For tests that need to run against a database, we run the database in a Docker container. Each run of the tests starts
+the database if it's not already running _and then leaves it running_ at the end to speed up future runs. (Each test
+cleans out the schema to avoid pollution.)
+
+There is a `just` command to remove the database containers:
 ```
 just remove-persistent-database
 ```
@@ -69,7 +131,6 @@ Starting with version 4.0, Bash is licenced under GPLv3. Because of this, macOS 
 brew install bash
 ```
 
-
 ## Running tests against Databricks
 
 The test suite for Databricks/Spark backend by default runs tests against
@@ -82,7 +143,7 @@ However, we still need to run tests against an actual Databricks instance, as
 the way connections are made is different, and potentially more things down the
 line.
 
-Databricks is only only available in SaaS form. We can use the free Community
+Databricks is only available in SaaS form. We can use the free Community
 Edition version, but it is limited, slow, and not 100% reliable, so we do not
 run it by default, it needs to be manually run. NHSD have given some of the
 team (Simon, Seb, Dave) access to their Databricks sandbox, which is more
@@ -91,7 +152,6 @@ to go via them or other NHSD contact to get more.
 
 We use some `just` commands and our helper script in `scripts/dbx` to ensure we
 have a running Databricks cluster to run the tests against.
-
 
 ### Running locally against Databricks
 
@@ -104,7 +164,7 @@ First you need to set up your Databricks auth.
 2. Log in to the databricks CLI tool (which is installed in the venv) with your
    credentials. For host, use either `https://community.cloud.databricks.com`
    for the Community Edition, or `https://drtl-theta.cloud.databricks.com/` for
-   the NSHD sandbox.
+   the NHSD sandbox.
 
    `databricks configure`
 
@@ -124,9 +184,9 @@ Warning: running the full test suite takes a long time.
 
 Note: This command will ensure there is an active Databricks cluster, and then
 run the tests against it. When using Community Edition, it will create a cluster if needed
-but if a cluster is alread up and running, it will use that. If it has
+but if a cluster is already up and running, it will use that. If it has
 terminated (after 2 hours of inactivity), it will delete the old one and create
-a new one.  When using the NSHD sandbox, it will only use manually pre-created
+a new one.  When using the NHSD sandbox, it will only use manually pre-created
 cluster called `opensafely-test`.
 
 For more information about your Databricks cluster, you can use the dbx tool:
