@@ -107,6 +107,16 @@ However we do not stick slavishly to this: where appropriate we may collapse tes
 Test categories that run against the Data Builder as a whole or against multiple components (for example **spec** and
 **acceptance** tests) have their own internal structure.
 
+### Code coverage
+
+Our approach to code coverage is to fail the build with less than 100% coverage, but be reasonably liberal about
+allowing lines to be marked as not requiring coverage. If you make a change that results in a newly un-covered line,
+you should make a good attempt to test it and expect to have to justify any omissions to PR reviewers; but for
+genuinely hard or impossible to hit cases it's okay to mark them as `no cover`.
+
+Any `no cover` pragmas should include a note explaining why the code can't be hit. Common cases are configured in
+`pyproject.toml` with their own explanations.
+
 ### Test databases
 
 For tests that need to run against a database, we run the database in a Docker container. Each run of the tests starts
