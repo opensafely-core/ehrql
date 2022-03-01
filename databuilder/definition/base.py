@@ -1,12 +1,12 @@
-class CohortRegistry:  # pragma: no cover (re-implement when the QL is in)
+class DatasetRegistry:  # pragma: no cover (re-implement when the QL is in)
     def __init__(self):
-        self.cohorts = set()
+        self.datasets = set()
 
-    def add(self, cohort):
-        self.cohorts.add(cohort)
+    def add(self, dataset):
+        self.datasets.add(dataset)
 
     def reset(self):
-        self.cohorts = set()
+        self.datasets = set()
 
 
-cohort_registry = CohortRegistry()
+dataset_registry = DatasetRegistry()

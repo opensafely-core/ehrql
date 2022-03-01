@@ -1,10 +1,10 @@
-from .base import cohort_registry
+from .base import dataset_registry
 
 
-def register(cohort):  # pragma: no cover (re-implement when the QL is in)
+def register(dataset):  # pragma: no cover (re-implement when the QL is in)
     """
-    Compile a cohort's variables
-    cohort: A Cohort instance
+    Compile a dataset's variables
+    dataset: A Dataset instance
     returns: list of tuples of variable name and compiled Value
     """
-    cohort_registry.add(cohort)
+    dataset_registry.add(dataset)

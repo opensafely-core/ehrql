@@ -2,9 +2,11 @@ import databuilder.main
 from databuilder import table
 
 
-def extract(cohort, backend, database, **backend_kwargs):
+def extract(dataset, backend, database, **backend_kwargs):
     return list(
-        databuilder.main.extract(cohort, backend(database.host_url(), **backend_kwargs))
+        databuilder.main.extract(
+            dataset, backend(database.host_url(), **backend_kwargs)
+        )
     )
 
 
@@ -32,7 +34,7 @@ def iter_flatten(iterable, iter_classes=(list, tuple)):
             yield item
 
 
-class OldCohortWithPopulation:
+class OldDatasetWithPopulation:
     def __init_subclass__(cls):
         if not hasattr(cls, "population"):  # pragma: no cover
             cls.population = table("practice_registrations").exists()

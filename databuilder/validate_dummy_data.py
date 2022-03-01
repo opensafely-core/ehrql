@@ -12,7 +12,7 @@ class DummyDataValidationError(Exception):
     pass
 
 
-def validate_dummy_data(cohort_class, dummy_data_file, output_file):
+def validate_dummy_data(dataset_class, dummy_data_file, output_file):
     """Validate that dummy data provided by user matches expected structure and format.
 
     Raises DummyDataValidationError if dummy data is not valid.
@@ -22,7 +22,7 @@ def validate_dummy_data(cohort_class, dummy_data_file, output_file):
 
     df = read_into_dataframe(dummy_data_file)
 
-    column_definitions = get_column_definitions(cohort_class)
+    column_definitions = get_column_definitions(dataset_class)
 
     # Ignore the population definition, since it is not used as a column in the output
     column_definitions.pop("population", None)

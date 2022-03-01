@@ -50,10 +50,10 @@ AGGREGATE_MAP = {
 }
 
 
-def convert(new_cohort):
-    old_cohort = {column: convert_node(node) for column, node in new_cohort.items()}
+def convert(new_dataset):
+    old_dataset = {column: convert_node(node) for column, node in new_dataset.items()}
     convert_node.cache_clear()
-    return old_cohort
+    return old_dataset
 
 
 def convert_value(value):

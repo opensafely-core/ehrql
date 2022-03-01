@@ -1,6 +1,6 @@
 import pytest
 
-from databuilder.definition.base import cohort_registry
+from databuilder.definition.base import dataset_registry
 from databuilder.query_engines.mssql import MssqlQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
 
@@ -34,7 +34,7 @@ def spark_database(containers):
 @pytest.fixture(autouse=True)
 def cleanup_register():
     yield
-    cohort_registry.reset()
+    dataset_registry.reset()
 
 
 class QueryEngineFixture:
@@ -47,8 +47,8 @@ class QueryEngineFixture:
     def setup(self, *items):
         return self.database.setup(*items)
 
-    def extract(self, cohort, **kwargs):
-        results = extract(cohort, self.backend, self.database, **kwargs)
+    def extract(self, dataset, **kwargs):
+        results = extract(dataset, self.backend, self.database, **kwargs)
         # We don't explicitly order the results and not all databases naturally return
         # in the same order
         results.sort(key=lambda i: i["patient_id"])

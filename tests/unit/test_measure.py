@@ -9,20 +9,20 @@ import databuilder.measure as measure
 from databuilder import Measure, table
 from databuilder.main import get_measures
 from databuilder.measure import MeasuresManager, combine_csv_files_with_dates
-from tests.lib.util import OldCohortWithPopulation
+from tests.lib.util import OldDatasetWithPopulation
 
 from ..lib.util import RecordingReporter, null_reporter
 
 
 def test_calculate_measures_no_input_file():
-    class Cohort(OldCohortWithPopulation):
+    class Dataset(OldDatasetWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
         measures = [Measure("test-id", numerator="fish", denominator="litres")]
 
-    measures = get_measures(Cohort)
+    measures = get_measures(Dataset)
     measures_manager = MeasuresManager(measures, Path("foo"))
     with pytest.raises(
-        AssertionError, match="Expected cohort input file foo not found"
+        AssertionError, match="Expected dataset input file foo not found"
     ):
         list(measures_manager.calculate_measures())
 
@@ -30,17 +30,17 @@ def test_calculate_measures_no_input_file():
 def test_calculate_measures_no_measures_variable():
     """Running measures calculation with no measure varible doesn't error"""
 
-    class Cohort(OldCohortWithPopulation):
+    class Dataset(OldDatasetWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
 
-    measures = get_measures(Cohort)
+    measures = get_measures(Dataset)
     assert measures == []
     measures_manager = MeasuresManager(measures, Path(""))
     assert list(measures_manager.calculate_measures()) == []
 
 
 def test_calculate_measures_results():
-    class Cohort(OldCohortWithPopulation):
+    class Dataset(OldDatasetWithPopulation):
         code = table("clinical_events").first_by("patient_id").get("code")
         measures = [Measure("test-id", numerator="fish", denominator="litres")]
 
@@ -49,7 +49,7 @@ def test_calculate_measures_results():
         index=["small bowl", "large bowl", "pond"],
     )
 
-    measures = get_measures(Cohort)
+    measures = get_measures(Dataset)
     measures_manager = MeasuresManager(measures, Path(""))
     measures_manager._patient_dataframe = data
     actual = list(measures_manager.calculate_measures())

@@ -1,6 +1,6 @@
 import pytest
 
-from databuilder import cohort_date_range
+from databuilder import dataset_date_range
 
 
 @pytest.mark.freeze_time("2021-02-01")
@@ -43,7 +43,7 @@ from databuilder import cohort_date_range
     ],
 )
 def test_extracts_data_with_index_date_range_integration_test(args, expected):
-    assert cohort_date_range(*args) == expected
+    assert dataset_date_range(*args) == expected
 
 
 @pytest.mark.parametrize(
@@ -79,4 +79,4 @@ def test_extracts_data_with_index_date_range_integration_test(args, expected):
 )
 def test_index_date_range_errors(args, error, error_message):
     with pytest.raises(error, match=error_message):
-        cohort_date_range(*args)
+        dataset_date_range(*args)

@@ -1,4 +1,4 @@
-"""This module provides classes for building a cohort using the DSL.
+"""This module provides classes for building a dataset using the DSL.
 
 Database tables are modelled by PatientFrame (a collection of records with one record
 per patient) and EventFrame (a collection of records with multiple records per patient).
@@ -7,10 +7,10 @@ Through filtering, sorting, aggregating, and selecting columns, we transform ins
 of PatientFrame/EventFrame into instances of PatientSeries.
 
 A PatientSeries represents a mapping from a patient to a value, and can be assigned to a
-Cohort.  In the future, a PatientSeries will be able to be combined with another
+Dataset.  In the future, a PatientSeries will be able to be combined with another
 PatientSeries or a single value to produce a new PatientSeries.
 
-All classes except Cohort are intended to be immutable.
+All classes except Dataset are intended to be immutable.
 
 Methods are designed so that users can only perform actions that are semantically
 meaningful.  This means that the order of operations is restricted.  In a terrible ASCII
@@ -49,18 +49,18 @@ from dataclasses import dataclass
 from .query_engines.query_model_old import Comparator, ValueFromAggregate
 
 
-class Cohort:
+class Dataset:
     """
-    Represents the cohort of patients in the defined study.
+    Represents the dataset of patients in the defined study.
     """
 
     def set_population(self, population):
         """
-        Sets the population that are included within the Cohort.
+        Sets the population that are included within the Dataset.
 
         Args:
             population: A boolean series indicating if any given patient
-                are included within the Cohort
+                are included within the Dataset
         """
 
         self.population = population
@@ -75,7 +75,7 @@ class Cohort:
 
     def add_variable(self, name, variable):
         """
-        Add a variable to this Cohort with a given name.
+        Add a variable to this Dataset with a given name.
 
         Args:
             name: The name of the variable to add
@@ -96,7 +96,7 @@ class PatientSeries:
     """
     Represents a column indexed by patient.
 
-    Can be used as a variable in a Cohort, or as an input when computing another
+    Can be used as a variable in a Dataset, or as an input when computing another
     variable.
     """
 

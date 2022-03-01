@@ -6,11 +6,11 @@ from pathlib import Path
 from .backends import BACKENDS
 from .docs import generate_docs
 from .main import (
-    generate_cohort,
+    generate_dataset,
     generate_measures,
-    run_cohort_action,
+    run_dataset_action,
     test_connection,
-    validate_cohort,
+    validate_dataset,
 )
 
 
@@ -30,8 +30,8 @@ def main(args=None):
                 "error: either --dummy-data-file or DATABASE_URL environment variable is required"
             )
 
-        run_cohort_action(
-            generate_cohort,
+        run_dataset_action(
+            generate_dataset,
             definition_path=options.dataset_definition,
             output_file=options.dataset,
             db_url=os.environ.get("DATABASE_URL"),
@@ -40,8 +40,8 @@ def main(args=None):
             temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
         )
     elif options.which == "validate_dataset_definition":
-        run_cohort_action(
-            validate_cohort,
+        run_dataset_action(
+            validate_dataset,
             definition_path=options.dataset_definition,
             output_file=options.dataset,
             backend_id=options.backend,
@@ -67,7 +67,7 @@ def main(args=None):
 
 def build_parser():
     parser = ArgumentParser(
-        prog="databuilder", description="Generate cohorts in OpenSAFELY"
+        prog="databuilder", description="Generate datasets in OpenSAFELY"
     )
     parser.set_defaults(which="print_help")
     subparsers = parser.add_subparsers(help="sub-command help")
