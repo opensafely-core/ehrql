@@ -11,8 +11,6 @@ export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
 
 alias help := list
 
-test_args := "tests"
-
 # list available commands
 list:
     @just --list
@@ -132,28 +130,61 @@ remove-database-containers:
 connect-to-mssql:
     docker exec -it databuilder-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
 
-# Full set of tests run by CI
-test *ARGS=test_args:
-    just test-all {{ ARGS }}
+###################################################################
+# Testing targets
+###################################################################
 
-# run the unit tests only. Optional args are passed to pytest
-test-unit *ARGS: devenv
-    $BIN/python -m pytest -m "not integration" {{ ARGS }}
+# Run all or some pytest tests. Optional args are passed to pytest, including the path of tests to run.
+test *ARGS="tests": devenv
+    $BIN/python -m pytest {{ ARGS }}
 
-# run the integration tests only. Optional args are passed to pytest
-test-integration *ARGS: devenv
-    $BIN/python -m pytest -m integration {{ ARGS }}
+# Run all or some pytest tests, excluding spark tests which are slow. Optional args are passed to pytest, including the path of tests to run.
+test-no-spark *ARGS="tests": devenv
+    $BIN/python -m pytest -m "not spark" {{ ARGS }}
 
-# run the integration tests only, excluding spark tests which are slow. Optional args are passed to pytest
-test-integration-no-spark *ARGS: devenv
-    $BIN/python -m pytest -m "integration and not spark" {{ ARGS }}
+# Run the acceptance tests only. Optional args are passed to pytest.
+test-acceptance *ARGS: devenv
+    $BIN/python -m pytest tests/acceptance {{ ARGS }}
 
-# run the run-databuilder-in-docker tests only
+# Run the backend validation tests only. Optional args are passed to pytest.
+test-backend-validation *ARGS: devenv
+    $BIN/python -m pytest tests/backend_validation {{ ARGS }}
+
+# Run the databuilder-in-docker tests only. Optional args are passed to pytest.
 test-docker *ARGS: devenv build-databuilder
-    $BIN/python -m pytest tests/docker  {{ ARGS }}
+    $BIN/python -m pytest tests/docker {{ ARGS }}
 
-# run all tests including integration tests. Optional args are passed to pytest
-test-all *ARGS=test_args: devenv build-databuilder
+# Run the integration tests only. Optional args are passed to pytest.
+test-integration *ARGS: devenv
+    $BIN/python -m pytest tests/integration {{ ARGS }}
+
+# Run the integration tests only, excluding spark tests which are slow. Optional args are passed to pytest.
+test-integration-no-spark *ARGS: devenv
+    $BIN/python -m pytest tests/integration -m "not spark" {{ ARGS }}
+
+# Run the legacy tests only. Optional args are passed to pytest.
+test-legacy *ARGS: devenv
+    $BIN/python -m pytest tests/legacy {{ ARGS }}
+
+# Run the legacy tests only, excluding spark tests which are slow. Optional args are passed to pytest.
+test-legacy-no-spark *ARGS: devenv
+    $BIN/python -m pytest tests/legacy -m "not spark" {{ ARGS }}
+
+# Run the spec tests only. Optional args are passed to pytest.
+test-spec *ARGS: devenv
+    $BIN/python -m pytest tests/spec {{ ARGS }}
+
+# Run the spec tests only, excluding spark tests which are slow. Optional args are passed to pytest.
+test-spec-no-spark *ARGS: devenv
+    $BIN/python -m pytest tests/spec -m "not spark" {{ ARGS }}
+
+# Run the unit tests only. Optional args are passed to pytest.
+test-unit *ARGS: devenv
+    $BIN/python -m pytest tests/unit {{ ARGS }}
+    $BIN/python -m doctest tests/lib/in_memory/database.py
+
+# Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
+test-all *ARGS: devenv build-databuilder
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -163,6 +194,7 @@ test-all *ARGS=test_args: devenv build-databuilder
         --cov=tests \
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
+        tests
         {{ ARGS }}
     $BIN/python -m doctest tests/lib/in_memory/database.py
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
@@ -179,10 +211,6 @@ databricks-test *ARGS: devenv databricks-env
     #!/usr/bin/env bash
     export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
     just test {{ ARGS }}
-
-# run the validate contract test only for all backends
-test-validate-backends: devenv
-    $BIN/python -m pytest tests/backend_validation/test_validate_backends.py
 
 story-dependencies: devenv
     #!/usr/bin/env bash

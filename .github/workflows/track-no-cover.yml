@@ -26,7 +26,7 @@ jobs:
           # stop ignoring no cover lines
           sed -i.bak 's/"pragma: no cover",/# "pragma: no cover",/' pyproject.toml
 
-          just test | tee test-output.txt || true
+          just test-all | tee test-output.txt || true
 
           # extract missing lines per file fom coverage report in the tests output
           # python script: get the files table from coverage
