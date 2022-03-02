@@ -12,7 +12,7 @@ from .backends import BACKENDS
 from .definition.base import dataset_registry
 from .measure import MeasuresManager, combine_csv_files_with_dates
 from .query_utils import get_column_definitions, get_measures
-from .validate_dummy_data import validate_dummy_data
+from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
 log = structlog.getLogger()
 
@@ -44,11 +44,10 @@ def generate_dataset(
 ):
     dataset_file_with_date = _replace_filepath_pattern(dataset_file, date_suffix)
 
-    if (
-        dummy_data_file and not db_url
-    ):  # pragma: no cover (dummy data not currently tested)
+    if dummy_data_file and not db_url:
         dummy_data_file_with_date = Path(str(dummy_data_file).replace("*", date_suffix))
-        validate_dummy_data(dataset, dummy_data_file_with_date, dataset_file_with_date)
+        validate_file_types_match(dummy_data_file_with_date, dataset_file_with_date)
+        validate_dummy_data_file(dataset, dummy_data_file_with_date)
         shutil.copyfile(dummy_data_file_with_date, dataset_file_with_date)
     else:
         backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
