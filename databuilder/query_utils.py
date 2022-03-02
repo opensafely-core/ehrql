@@ -1,5 +1,5 @@
 from . import query_language as ql
-from .dsl import Cohort as DSLCohort
+from .dsl import Dataset as DSLDataset
 
 
 def get_class_vars(cls):
@@ -7,24 +7,24 @@ def get_class_vars(cls):
     return [(key, value) for key, value in vars(cls).items() if key not in default_vars]
 
 
-def get_cohort_variables(cohort):  # pragma: no cover (re-implement when the QL is in)
+def get_dataset_variables(dataset):  # pragma: no cover (re-implement when the QL is in)
     return [
         (variable_name, variable.value)
-        for (variable_name, variable) in vars(cohort).items()
+        for (variable_name, variable) in vars(dataset).items()
     ]
 
 
-def get_column_definitions(cohort):
-    if isinstance(cohort, ql.Dataset):
-        return ql.compile(cohort)
+def get_column_definitions(dataset):
+    if isinstance(dataset, ql.Dataset):
+        return ql.compile(dataset)
 
     # This is where we distinguish between versions of the DSL
     if isinstance(
-        cohort, DSLCohort
+        dataset, DSLDataset
     ):  # pragma: no cover (re-implement when the QL is in)
-        variables = get_cohort_variables(cohort)
+        variables = get_dataset_variables(dataset)
     else:
-        variables = get_class_vars(cohort)
+        variables = get_class_vars(dataset)
     columns = {}
     ignored_names = ["measures", "BASE_INDEX_DATE"]
     for name, value in variables:
@@ -34,12 +34,12 @@ def get_column_definitions(cohort):
             continue
         columns[name] = value
     if "population" not in columns:  # pragma: no cover (re-implement when the QL is in)
-        raise ValueError("A Cohort definition must define a 'population' variable")
+        raise ValueError("A Dataset definition must define a 'population' variable")
     return columns
 
 
-def get_measures(cohort_cls):
-    for name, value in get_class_vars(cohort_cls):
+def get_measures(dataset_cls):
+    for name, value in get_class_vars(dataset_cls):
         if name == "measures":
             return value
     return []

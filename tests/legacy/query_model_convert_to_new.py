@@ -53,10 +53,10 @@ AGGREGATE_MAP = {
 AGGREGATIONS_ON_FRAMES = {new.AggregateByPatient.Exists, new.AggregateByPatient.Count}
 
 
-def convert(old_cohort):
-    new_cohort = {column: convert_node(node) for column, node in old_cohort.items()}
+def convert(old_dataset):
+    new_dataset = {column: convert_node(node) for column, node in old_dataset.items()}
     convert_node.cache_clear()
-    return new_cohort
+    return new_dataset
 
 
 def convert_value(value):

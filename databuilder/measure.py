@@ -10,7 +10,7 @@ import structlog
 # Used for reporting events to users. We may introduce a dedicated
 # mechanism for this eventually, but for now it just uses the logging
 # system.
-reporter = structlog.get_logger("cohortextactor.reporter")
+reporter = structlog.get_logger("databuilder.reporter")
 
 
 SMALL_NUMBER_THRESHOLD = 5
@@ -41,7 +41,7 @@ class Measure:
                 For boolean columns the value of the denominator will be the
                 number of patients with the value "true". Using the
                 "population" denominator will give you the total number of
-                patients in the cohort.
+                patients in the dataset.
             numerator: A column name from the study definition. This must be
                 numeric or boolean. For boolean columns the value of the numerator
                 will be the number of patients with the value "true".
@@ -180,7 +180,7 @@ class MeasuresManager:
     def __init__(self, measures: list, input_file: Path):
         """
         :param measures: list of Measure instances
-        :param input_file: Path to generated cohort input file
+        :param input_file: Path to generated dataset input file
         :param patient_dataframe: Optional pre-loaded patient dataframe
         """
         self.measures = measures
@@ -205,7 +205,7 @@ class MeasuresManager:
         if input_data is None:
             assert (
                 self._input_file.exists()
-            ), f"Expected cohort input file {str(self._input_file)} not found. You may need to first run:\n  databuilder generate_cohort ..."
+            ), f"Expected dataset input file {str(self._input_file)} not found. You may need to first run:\n  databuilder generate_dataset ..."
 
         numeric_columns = set()
         group_by_columns = set()

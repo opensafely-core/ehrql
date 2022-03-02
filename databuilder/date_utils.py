@@ -2,7 +2,7 @@ import calendar
 import datetime
 
 
-def cohort_date_range(start=None, end=None, increment="month"):
+def dataset_date_range(start=None, end=None, increment="month"):
     """
     Generate a series of datetime objects between a given start and/or end date, incrementing
     by the specified period (month or week).  If only one of start or end date is provided,
@@ -45,7 +45,7 @@ def _increment_date(date, period):
     if period == "week":
         return date + datetime.timedelta(days=7)
     else:
-        # the entry cohort_date_range function checks that the period is only day/month, but
+        # the entry dataset_date_range function checks that the period is only day/month, but
         # assert it here in case the allowed periods change in future
         assert period == "month"
         if date.month < 12:

@@ -9,7 +9,7 @@ from pathlib import Path
 import structlog
 
 from .backends import BACKENDS
-from .definition.base import cohort_registry
+from .definition.base import dataset_registry
 from .measure import MeasuresManager, combine_csv_files_with_dates
 from .query_utils import get_column_definitions, get_measures
 from .validate_dummy_data import validate_dummy_data
@@ -17,23 +17,23 @@ from .validate_dummy_data import validate_dummy_data
 log = structlog.getLogger()
 
 
-def run_cohort_action(
-    cohort_action_function, definition_path, output_file, **function_kwargs
+def run_dataset_action(
+    dataset_action_function, definition_path, output_file, **function_kwargs
 ):
-    log.info(f"Running {cohort_action_function.__name__} for {str(definition_path)}")
+    log.info(f"Running {dataset_action_function.__name__} for {str(definition_path)}")
     log.debug("args:", **function_kwargs)
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     module = load_module(definition_path)
 
-    load_cohort_generator(module)
-    assert len(cohort_registry.cohorts) == 1
-    cohort = list(cohort_registry.cohorts)[0]
-    cohort_action_function(cohort, None, output_file, "", **function_kwargs)
+    load_dataset_generator(module)
+    assert len(dataset_registry.datasets) == 1
+    dataset = list(dataset_registry.datasets)[0]
+    dataset_action_function(dataset, None, output_file, "", **function_kwargs)
 
 
-def generate_cohort(
-    cohort,
+def generate_dataset(
+    dataset,
     index_date,
     output_file,
     date_suffix,
@@ -48,16 +48,16 @@ def generate_cohort(
         dummy_data_file and not db_url
     ):  # pragma: no cover (dummy data not currently tested)
         dummy_data_file_with_date = Path(str(dummy_data_file).replace("*", date_suffix))
-        validate_dummy_data(cohort, dummy_data_file_with_date, output_file_with_date)
+        validate_dummy_data(dataset, dummy_data_file_with_date, output_file_with_date)
         shutil.copyfile(dummy_data_file_with_date, output_file_with_date)
     else:  # pragma: no cover (Re-implement when testing with new QL)
         backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
-        results = extract(cohort, backend)
+        results = extract(dataset, backend)
         write_output(results, output_file_with_date)
 
 
-def validate_cohort(
-    cohort,
+def validate_dataset(
+    dataset,
     index_date,
     output_file,
     date_suffix,
@@ -67,7 +67,7 @@ def validate_cohort(
     if index_date:
         log.info("Validating for index date", index_date=index_date)
     backend = BACKENDS[backend_id](database_url=None)
-    results = validate(cohort, backend)
+    results = validate(dataset, backend)
     log.info("Validation succeeded")
     write_validation_output(results, output_file_with_date)
 
@@ -76,16 +76,16 @@ def generate_measures(
     definition_path, input_file, output_file
 ):  # pragma: no cover (measure not currently working)
     definition_module = load_module(definition_path)
-    cohort_generator, index_date_range = load_cohort_generator(definition_module)
+    dataset_generator, index_date_range = load_dataset_generator(definition_module)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
     measures = []
     for index_date in index_date_range:
-        cohort = (
-            cohort_generator() if index_date is None else cohort_generator(index_date)
+        dataset = (
+            dataset_generator() if index_date is None else dataset_generator(index_date)
         )
         input_file_with_date = _replace_filepath_pattern(input_file, index_date or "")
-        measures = get_measures(cohort)
+        measures = get_measures(dataset)
         if not measures:
             log.warning(
                 "No measures variable found", definition_file=definition_path.name
@@ -101,7 +101,7 @@ def generate_measures(
             log.info("Created measure output", output=output_file)
 
     # Combine any date-stamped files into one additional single file per measure
-    # Use the measures from the latest cohort, since we only care about their ids here
+    # Use the measures from the latest dataset, since we only care about their ids here
     for measure in measures:
         combine_csv_files_with_dates(output_file, measure.id)
         log.info(f"Combined measure output for all dates in {output_file}")
@@ -132,21 +132,21 @@ def calculate_measures_results(
     yield from measures_manager.calculate_measures()
 
 
-def load_cohort_classes(definition_module):
+def load_dataset_classes(definition_module):
     return [
         obj
         for name, obj in inspect.getmembers(definition_module)
-        if inspect.isclass(obj) and obj.__name__ == "Cohort"
+        if inspect.isclass(obj) and obj.__name__ == "Dataset"
     ]
 
 
-def load_cohort_generator(definition_module):
+def load_dataset_generator(definition_module):
     """
-    Load the cohort definition module and identify the Cohort class or cohort generator
+    Load the dataset definition module and identify the Dataset class or dataset generator
     function.
-    Return a function that returns a Cohort class, and the index date range, if applicable.
+    Return a function that returns a Dataset class, and the index date range, if applicable.
     """
-    load_cohort_classes(definition_module)
+    load_dataset_classes(definition_module)
 
 
 def load_module(definition_path):
@@ -169,29 +169,29 @@ def added_to_path(directory):
         sys.path = original
 
 
-def extract(cohort_definition, backend):
+def extract(dataset_definition, backend):
     """
-    Extracts the cohort from the backend specified
+    Extracts the dataset from the backend specified
     Args:
-        cohort_definition: The definition of the Cohort
-        backend: The Backend that the Cohort is being extracted from
+        dataset_definition: The definition of the Dataset
+        backend: The Backend that the Dataset is being extracted from
     Returns:
-        Yields the cohort as rows
+        Yields the dataset as rows
     """
     backend.validate_contracts()
-    cohort = get_column_definitions(cohort_definition)
-    query_engine = backend.query_engine_class(cohort, backend)
+    dataset = get_column_definitions(dataset_definition)
+    query_engine = backend.query_engine_class(dataset, backend)
     with query_engine.execute_query() as results:
         for row in results:
             yield dict(row)
 
 
 def validate(
-    cohort_class, backend
+    dataset_class, backend
 ):  # pragma: no cover (Re-implement when testing with new QL)
     try:
-        cohort = get_column_definitions(cohort_class)
-        query_engine = backend.query_engine_class(cohort, backend)
+        dataset = get_column_definitions(dataset_class)
+        query_engine = backend.query_engine_class(dataset, backend)
         setup_queries, results_query, cleanup_queries = query_engine.get_queries()
         return setup_queries + [results_query] + cleanup_queries
     except Exception:
