@@ -153,17 +153,21 @@ def load_dataset_generator(definition_module):
 
 
 def load_module(definition_path):
-    # Add the directory containing the definition to the path so that the definition can import library modules from
-    # that directory
-    definition_dir = definition_path.parent
-    module_name = definition_path.stem
-    with added_to_path(str(definition_dir)):
-        module = importlib.import_module(module_name)
-        return module
+    # Taken from the official recipe for importing a module from a file path:
+    # https://docs.python.org/3.9/library/importlib.html#importing-a-source-file-directly
+
+    # The name we give the module is arbitrary
+    spec = importlib.util.spec_from_file_location("dataset", definition_path)
+    module = importlib.util.module_from_spec(spec)
+    # Temporarily add the directory containing the definition to the path so that the
+    # definition can import library modules from that directory
+    with add_to_sys_path(str(definition_path.parent)):
+        spec.loader.exec_module(module)
+    return module
 
 
 @contextmanager
-def added_to_path(directory):
+def add_to_sys_path(directory):
     original = sys.path.copy()
     sys.path.append(directory)
     try:
