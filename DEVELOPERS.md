@@ -22,7 +22,7 @@ Tests are divided into the following categories.
 <dl>
    <dt>unit</dt><dd>fast tests of small code units</dd>
    <dt>spec</dt><dd>tests generated from the ehrQL spec</dd>
-   <dt>acceptance</dt><dd>tests which check compatibility with real studies</dd>
+   <dt>acceptance</dt><dd>tests which demonstrate how Data Builder is used and check compatibility with real studies</dd>
    <dt>integration</dt><dd>tests of detailed code logic that require a database</dd>
    <dt>backend validation</dt><dd>tests which check that the backends correctly implement their contracts</dd>
    <dt>docker</dt><dd>tests of the Data Builder docker image</dd>
@@ -82,11 +82,15 @@ You should follow these guidelines and raise it with the rest of the team for di
 * The main _functionality of query engines_ will naturally be covered by **spec** tests, which are run against all the query engines.
 * Complex _query engine logic_ that is not fully covered by the spec tests should be covered by **unit** or **integration** tests as appropriate.
   To avoid duplication, you should not write such tests for logic that is adequately covered by the spec tests.
+* Basic operation of Data Builder as a _CLI tool_ is exercised by one trivial embedded **acceptance** test.
 * Functionality of the _Docker image_ and how it invokes Data Builder are covered by a small set of **docker** tests.
 * The adherence of _backends to contracts_ that they implement is automatically validated by **backend validation** tests.
 * Where _backend tables_ do not map directly to the contracts that they implement, it may be helpful to write **integration** tests.
-* All other _supporting logic_ should be covered by **unit** tests. Please avoid the temptation to cover this using integration or docker tests that run the Data Builder end-to-end.
+* All other _supporting logic_ should be covered by **unit** tests. Please avoid the temptation to cover this using acceptance, integration or docker tests that run the Data Builder end-to-end.
 * Do not write **legacy** tests. :-)
+
+Contrary to practice in some quarters we allow disk access by **unit** tests because it doesn't seem to cause any significant slow-down in those tests at the moment.
+We'll keep this under review.
 
 ### Codebase structure
 
