@@ -1,5 +1,4 @@
 from . import query_language as ql
-from .dsl import Dataset as DSLDataset
 
 
 def get_class_vars(cls):
@@ -18,13 +17,7 @@ def get_column_definitions(dataset):
     if isinstance(dataset, ql.Dataset):
         return ql.compile(dataset)
 
-    # This is where we distinguish between versions of the DSL
-    if isinstance(
-        dataset, DSLDataset
-    ):  # pragma: no cover (re-implement when the QL is in)
-        variables = get_dataset_variables(dataset)
-    else:
-        variables = get_class_vars(dataset)
+    variables = get_class_vars(dataset)
     columns = {}
     ignored_names = ["measures", "BASE_INDEX_DATE"]
     for name, value in variables:
