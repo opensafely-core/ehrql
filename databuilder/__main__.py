@@ -33,7 +33,7 @@ def main(args=None):
         run_dataset_action(
             generate_dataset,
             definition_path=options.dataset_definition,
-            output_file=options.dataset,
+            dataset_file=options.dataset,
             db_url=os.environ.get("DATABASE_URL"),
             backend_id=os.environ.get("OPENSAFELY_BACKEND"),
             dummy_data_file=options.dummy_data_file,
@@ -43,14 +43,14 @@ def main(args=None):
         run_dataset_action(
             validate_dataset,
             definition_path=options.dataset_definition,
-            output_file=options.dataset,
+            dataset_file=options.dataset,
             backend_id=options.backend,
         )
     elif options.which == "generate_measures":
         generate_measures(
             definition_path=options.dataset_definition,
             input_file=options.input,
-            output_file=options.dataset,
+            dataset_file=options.dataset,
         )
     elif options.which == "test_connection":
         test_connection(
@@ -88,7 +88,7 @@ def build_parser():
     )
     generate_dataset_parser.add_argument(
         "--dummy-data-file",
-        help="Provide dummy data from a file to be validated and used as output",
+        help="Provide dummy data from a file to be validated and used as the dataset",
         type=Path,
     )
 

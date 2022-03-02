@@ -36,7 +36,7 @@ def test_validate_dummy_data_valid(file_format, tmpdir):
     )
     dummy_data_file = Path(tmpdir) / f"dummy-data.{file_format}"
     write_rows_to_csv(rows, dummy_data_file)
-    validate_dummy_data(Cohort, dummy_data_file, Path(f"output.{file_format}"))
+    validate_dummy_data(Cohort, dummy_data_file, Path(f"dataset.{file_format}"))
 
 
 @pytest.mark.parametrize(
@@ -53,7 +53,7 @@ def test_validate_dummy_data_valid(file_format, tmpdir):
 def test_validate_dummy_data_invalid_csv(filename, error_fragment):
     with pytest.raises(DummyDataValidationError, match=error_fragment):
         validate_dummy_data(
-            Cohort, fixtures_path / f"{filename}.csv", Path("output.csv")
+            Cohort, fixtures_path / f"{filename}.csv", Path("dataset.csv")
         )
 
 
@@ -63,7 +63,7 @@ def test_validate_dummy_data_unknown_file_extension():
         match="Expected dummy data file with extension .csv; got dummy-data.txt",
     ):
         validate_dummy_data(
-            Cohort, fixtures_path / "dummy-data.txt", Path("output.csv")
+            Cohort, fixtures_path / "dummy-data.txt", Path("dataset.csv")
         )
 
 
@@ -76,7 +76,7 @@ def test_validate_dummy_data_missing_data_file(file_format):
         validate_dummy_data(
             Cohort,
             fixtures_path / f"missing.{file_format}",
-            Path(f"output.{file_format}"),
+            Path(f"dataset.{file_format}"),
         )
 
 
@@ -112,4 +112,4 @@ def test_validate_dummy_data_with_categories(
         DummyDataValidationError,
         match=f"Invalid value `'{first_invalid_value}'` for category",
     ):
-        validate_dummy_data(CohortWithCategories, dummy_data_file, Path("output.csv"))
+        validate_dummy_data(CohortWithCategories, dummy_data_file, Path("dataset.csv"))
