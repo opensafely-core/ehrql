@@ -52,9 +52,6 @@ exclude = '''
 
 [tool.coverage.run]
 branch = true
-omit = [
-    "databuilder/dsl.py",
-]
 
 [tool.coverage.report]
 fail_under = 100
