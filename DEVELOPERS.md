@@ -22,7 +22,7 @@ Tests are divided into the following categories.
 <dl>
    <dt>unit</dt><dd>fast tests of small code units</dd>
    <dt>spec</dt><dd>tests generated from the ehrQL spec</dd>
-   <dt>acceptance</dt><dd>tests which check compatibility with real studies</dd>
+   <dt>acceptance</dt><dd>tests which demonstrate how Data Builder is used and check compatibility with real studies</dd>
    <dt>integration</dt><dd>tests of detailed code logic that require a database</dd>
    <dt>backend validation</dt><dd>tests which check that the backends correctly implement their contracts</dd>
    <dt>docker</dt><dd>tests of the Data Builder docker image</dd>
@@ -54,74 +54,68 @@ Additional arguments can be passed to any test commands, for example:
 just test-unit --verbose --durations=10
 ```
 
-For maximum flexibility, the `test` command can be used to run individual test files or tests, or to do other clever
-things with `pytest`. It just delegates to `pytest`. For example:
+For maximum flexibility, the `test` command can be used to run individual test files or tests, or to do other clever things with `pytest`. It just delegates to `pytest`.
+For example:
 ```
 just test tests/integration/backends/test_tpp.py
 ```
 
-Since we have many tests that are parameterized across multiple databases and the Spark database tests are very slow,
-test commands which run such parameterized tests have a variant that skips the Spark tests. These are much faster and
-should be used unless you're specifically working on Spark. For example:
+Since we have many tests that are parameterized across multiple databases and the Spark database tests are very slow, test commands which run such parameterized tests have a variant that skips the Spark tests.
+These are much faster and should be used unless you're specifically working on Spark.
+For example:
 ```
 just test-integration-no-spark
 ```
 
 ### Writing tests
 
-Please think carefully about how to test code that you are adding or changing. We think that test maintainability is a
-big risk for this system, so we're trying to be very deliberate about the kind of tests that we write. You should
-follow these guidelines and raise it with the rest of the team for discussion if you think that they are problematic.
+Please think carefully about how to test code that you are adding or changing.
+We think that test maintainability is a big risk for this system, so we're trying to be very deliberate about the kind of tests that we write.
+You should follow these guidelines and raise it with the rest of the team for discussion if you think that they are problematic.
 
-* _Major features in ehrQL or the Data Builder_ more widely should be motivated by a study used in an **acceptance**
-  test. The number of such studies should be kept small in order that they don't be come a maintenance burden. The
-  studies we use for the acceptance tests will need to be chosen carefully as representative of how we expect Data
-  Builder to be used; they may be real studies or synthetic ones as appropriate.
+* _Major features in ehrQL or the Data Builder_ more widely should be motivated by a study used in an **acceptance** test.
+  The number of such studies should be kept small in order that they don't be come a maintenance burden.
+  The studies we use for the acceptance tests will need to be chosen carefully as representative of how we expect Data Builder to be used; they may be real studies or synthetic ones as appropriate.
 * All _erhQL features_ should be covered by **spec** tests.
-* Complex _query language logic_ that is not fully covered by the spec tests should be covered by **unit** tests. To
-  avoid duplication, you should not write unit tests for logic that is adequately covered by the spec tests.
-* The main _functionality of query engines_ will naturally be covered by **spec** tests, which are run against all the
-  query engines.
-* Complex _query engine logic_ that is not fully covered by the spec tests should be covered by **unit** or
-  **integration** tests as appropriate. To avoid duplication, you should not write such tests for logic that is
-  adequately covered by the spec tests.
+* Complex _query language logic_ that is not fully covered by the spec tests should be covered by **unit** tests.
+  To avoid duplication, you should not write unit tests for logic that is adequately covered by the spec tests.
+* The main _functionality of query engines_ will naturally be covered by **spec** tests, which are run against all the query engines.
+* Complex _query engine logic_ that is not fully covered by the spec tests should be covered by **unit** or **integration** tests as appropriate.
+  To avoid duplication, you should not write such tests for logic that is adequately covered by the spec tests.
+* Basic operation of Data Builder as a _CLI tool_ is exercised by one trivial embedded **acceptance** test.
 * Functionality of the _Docker image_ and how it invokes Data Builder are covered by a small set of **docker** tests.
-* The adherence of _backends to contracts_ that they implement is automatically validated by **backend validation**
-  tests.
-* Where _backend tables_ do not map directly to the contracts that they implement, it may be helpful to write
-  **integration** tests.
-* All other _supporting logic_ should be covered by **unit** tests. Please avoid the temptation to cover this using
-  integration or docker tests that run the Data Builder end-to-end.
+* The adherence of _backends to contracts_ that they implement is automatically validated by **backend validation** tests.
+* Where _backend tables_ do not map directly to the contracts that they implement, it may be helpful to write **integration** tests.
+* All other _supporting logic_ should be covered by **unit** tests. Please avoid the temptation to cover this using acceptance, integration or docker tests that run the Data Builder end-to-end.
 * Do not write **legacy** tests. :-)
+
+Contrary to practice in some quarters we allow disk access by **unit** tests because it doesn't seem to cause any significant slow-down in those tests at the moment.
+We'll keep this under review.
 
 ### Codebase structure
 
-The files for test categories that target individual modules (for example **unit** and **integration** tests) are
-organized into roughly the same directory structure as the `databuilder` package itself.
+The files for test categories that target individual modules (for example **unit** and **integration** tests) are organized into roughly the same directory structure as the `databuilder` package itself.
 
 Generally a module `databuilder.foo` will have a corresponding test file like `tests/unit/test_foo.py`.
-However we do not stick slavishly to this: where appropriate we may collapse tests for submodules like
-`databuilder.foo.{bar,bam}` into a single test file like `tests/unit/test_foo.py`, or break tests for a module like
-`databuilder.foo` into multiple test files like `tests/unit/foo/test_{one,another}_aspect.py`
+However we do not stick slavishly to this: where appropriate we may collapse tests for submodules like `databuilder.foo.{bar,bam}` into a single test file like `tests/unit/test_foo.py`,
+or break tests for a module like `databuilder.foo` into multiple test files like `tests/unit/foo/test_{one,another}_aspect.py`.
 
-Test categories that run against the Data Builder as a whole or against multiple components (for example **spec** and
-**acceptance** tests) have their own internal structure.
+Test categories that run against the Data Builder as a whole or against multiple components (for example **spec** and **acceptance** tests) have their own internal structure.
 
 ### Code coverage
 
-Our approach to code coverage is to fail the build with less than 100% coverage, but be reasonably liberal about
-allowing lines to be marked as not requiring coverage. If you make a change that results in a newly un-covered line,
-you should make a good attempt to test it and expect to have to justify any omissions to PR reviewers; but for
-genuinely hard or impossible to hit cases it's okay to mark them as `no cover`.
+Our approach to code coverage is to fail the build with less than 100% coverage, but be reasonably liberal about allowing lines to be marked as not requiring coverage.
+If you make a change that results in a newly un-covered line, you should make a good attempt to test it and expect to have to justify any omissions to PR reviewers;
+but for genuinely hard or impossible to hit cases it's okay to mark them as `no cover`.
 
-Any `no cover` pragmas should include a note explaining why the code can't be hit. Common cases are configured in
-`pyproject.toml` with their own explanations.
+Any `no cover` pragmas should include a note explaining why the code can't be hit.
+Common cases are configured in `pyproject.toml` with their own explanations.
 
 ### Test databases
 
-For tests that need to run against a database, we run the database in a Docker container. Each run of the tests starts
-the database if it's not already running _and then leaves it running_ at the end to speed up future runs. (Each test
-cleans out the schema to avoid pollution.)
+For tests that need to run against a database, we run the database in a Docker container.
+Each run of the tests starts the database if it's not already running _and then leaves it running_ at the end to speed up future runs.
+(Each test cleans out the schema to avoid pollution.)
 
 There is a `just` command to remove the database containers:
 ```
@@ -130,12 +124,13 @@ just remove-persistent-database
 
 ### Displaying SQL queries
 
-Set the environment variable `LOG_SQL=1` (or anything non-empty) to get
-all SQL queries logged to the console.
+Set the environment variable `LOG_SQL=1` (or anything non-empty) to get all SQL queries logged to the console.
 
 ## macOS / Bash
 
-Starting with version 4.0, Bash is licenced under GPLv3. Because of this, macOS still ships with version 3.2, which is incompatible with some scripts in this repository. We recommend using [homebrew](https://brew.sh/) to install a more recent version, ensure that the new version is on your `$PATH`, and restart your Terminal/shell session if necessary.
+Starting with version 4.0, Bash is licenced under GPLv3.
+Because of this, macOS still ships with version 3.2, which is incompatible with some scripts in this repository.
+We recommend using [homebrew](https://brew.sh/) to install a more recent version, ensure that the new version is on your `$PATH`, and restart your Terminal/shell session if necessary.
 
 ```bash
 brew install bash
@@ -143,47 +138,35 @@ brew install bash
 
 ## Running tests against Databricks
 
-The test suite for Databricks/Spark backend by default runs tests against
-a local spark db in a container, for reliability and speed.
+The test suite for Databricks/Spark backend by default runs tests against a local spark db in a container, for reliability and speed.
 
-Open source Spark and Databricks' Spark are very similar, and this provides
-a good enough test basis for the SQL parts of a backend.
+Open source Spark and Databricks' Spark are very similar, and this provides a good enough test basis for the SQL parts of a backend.
 
-However, we still need to run tests against an actual Databricks instance, as
-the way connections are made is different, and potentially more things down the
-line.
+However, we still need to run tests against an actual Databricks instance, as the way connections are made is different, and potentially more things down the line.
 
-Databricks is only available in SaaS form. We can use the free Community
-Edition version, but it is limited, slow, and not 100% reliable, so we do not
-run it by default, it needs to be manually run. NHSD have given some of the
-team (Simon, Seb, Dave) access to their Databricks sandbox, which is more
-reliable. The NHSD DAE team negotiated these accounts for us, so you'll need
-to go via them or other NHSD contact to get more.
+Databricks is only available in SaaS form.
+We can use the free Community Edition version, but it is limited, slow, and not 100% reliable, so we do not run it by default, it needs to be manually run.
+NHSD have given some of the team (Simon, Seb, Dave) access to their Databricks sandbox, which is more reliable.
+The NHSD DAE team negotiated these accounts for us, so you'll need to go via them or other NHSD contact to get more.
 
-We use some `just` commands and our helper script in `scripts/dbx` to ensure we
-have a running Databricks cluster to run the tests against.
+We use some `just` commands and our helper script in `scripts/dbx` to ensure we have a running Databricks cluster to run the tests against.
 
 ### Running locally against Databricks
 
 First you need to set up your Databricks auth.
 
 
-1. Register for a free account at https://community.cloud.databricks.com/. This
-   same account is used whether accessing the NHSD Sandbox or not.
+1. Register for a free account at https://community.cloud.databricks.com/.
+   This same account is used whether accessing the NHSD Sandbox or not.
 
-2. Log in to the databricks CLI tool (which is installed in the venv) with your
-   credentials. For host, use either `https://community.cloud.databricks.com`
-   for the Community Edition, or `https://drtl-theta.cloud.databricks.com/` for
-   the NHSD sandbox.
+2. Log in to the databricks CLI tool (which is installed in the venv) with your credentials.
+   For host, use either `https://community.cloud.databricks.com` for the Community Edition, or `https://drtl-theta.cloud.databricks.com/` for the NHSD sandbox.
 
    `databricks configure`
 
-3. If using the NHSD sandbox, you will need to setup a cluster called
-   `opensafely-test`, which you can do via the web UI via `Compute -> Create
-   Cluster`, and just use all the default options.
+3. If using the NHSD sandbox, you will need to setup a cluster called `opensafely-test`, which you can do via the web UI via `Compute -> Create Cluster`, and just use all the default options.
 
-4. Test it's working with: `databricks clusters list`. If that doesn't error,
-   you are set up.
+4. Test it's working with: `databricks clusters list`. If that doesn't error, you are set up.
 
 
 You should then be able to run tests against databricks with:
@@ -192,12 +175,10 @@ You should then be able to run tests against databricks with:
 
 Warning: running the full test suite takes a long time.
 
-Note: This command will ensure there is an active Databricks cluster, and then
-run the tests against it. When using Community Edition, it will create a cluster if needed
-but if a cluster is already up and running, it will use that. If it has
-terminated (after 2 hours of inactivity), it will delete the old one and create
-a new one.  When using the NHSD sandbox, it will only use manually pre-created
-cluster called `opensafely-test`.
+Note: This command will ensure there is an active Databricks cluster, and then run the tests against it.
+When using Community Edition, it will create a cluster if needed but if a cluster is already up and running, it will use that.
+If it has terminated (after 2 hours of inactivity), it will delete the old one and create a new one.
+When using the NHSD sandbox, it will only use manually pre-created cluster called `opensafely-test`.
 
 For more information about your Databricks cluster, you can use the dbx tool:
 
@@ -210,9 +191,8 @@ or
 
 ### Running Databricks test in Github CI
 
-You can manually run the tests in github by triggering the "Databricks CI"
-action. By default it will just run the `tests/backends/test_databricks.py`,
-but you can specify different arguments when you trigger it.
+You can manually run the tests in github by triggering the "Databricks CI" action.
+By default it will just run the `tests/backends/test_databricks.py`, but you can specify different arguments when you trigger it.
 
 This CI uses simon.davy@thedatalab.org's Databricks account.
 
@@ -229,9 +209,7 @@ To do this:
 
     just dbx cleanup
 
-If using Community Edition, you will need to follow the instructions the
-command outputs to complete the cleanup process, as we cannot fully automate it
-from the cli.
+If using Community Edition, you will need to follow the instructions the command outputs to complete the cleanup process, as we cannot fully automate it from the cli.
 
 
 ### Checking `no cover` Removal
