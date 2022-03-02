@@ -1,11 +1,12 @@
 import sys
 
+import docker
 from docker.errors import ContainerError, NotFound
 
 
 class Containers:
-    def __init__(self, docker_client):
-        self._docker = docker_client
+    def __init__(self):
+        self._docker = docker.from_env()
 
     def get_container(self, name):
         return self._docker.containers.get(name)

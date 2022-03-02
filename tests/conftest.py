@@ -1,5 +1,3 @@
-import docker
-import docker.errors
 import pytest
 
 from databuilder.definition.base import cohort_registry
@@ -14,28 +12,9 @@ from .lib.study import Study
 from .lib.util import extract
 
 
-# We want to automatically apply the `integration` mark to any test that uses Docker. That is what the single, ignored
-# param to the fixture achieves.
-#
-# Amazingly this is the only way of adding marks to tests based on their use of a fixture. The behaviour we need is
-# documented here: https://docs.pytest.org/en/6.2.x/fixture.html#parametrizing-fixtures. The misuse of this behaviour
-# in this way is _almost_ condoned by the pytest developers here: https://github.com/pytest-dev/pytest/issues/1368.
-# (And if the feature requested by that issue is ever implement it we can use it instead.)
-#
-# This replaces an earlier approach where we explicitly applied marks to all the integration tests and then _asserted_
-# in the fixture that it was being used by an integration test. Unfortunately that doesn't work if the fixture is
-# session-scoped (because, reasonably, you can't access the `request` object that represents an initial test inside a
-# session-scoped fixture).
-@pytest.fixture(
-    scope="session", params=[pytest.param(0, marks=pytest.mark.integration)]
-)
-def docker_client():
-    yield docker.from_env()
-
-
 @pytest.fixture(scope="session")
-def containers(docker_client):
-    yield Containers(docker_client)
+def containers():
+    yield Containers()
 
 
 @pytest.fixture(scope="session")

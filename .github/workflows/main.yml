@@ -32,7 +32,7 @@ jobs:
       - name: Run tests
         env:
           CI: 1
-        run: just test
+        run: just test-all
 
   lint-dockerfile:
     runs-on: ubuntu-latest
