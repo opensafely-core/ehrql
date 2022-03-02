@@ -29,23 +29,23 @@ class Measure:
         small_number_suppression=False,
     ):
         """
-        Creates a "measure" using data extracted by the StudyDefinition defined
-        in the same file.
+        Creates a "measure" using data extracted by the dataset defined in the
+        same file.
 
         Args:
             id: A string used for the output filename (which will be
                 `measure_<id>.csv`).  Only alphanumeric and underscore characters
                 allowed.
-            denominator: A column name from the study definition, or the
+            denominator: A column name from the dataset definition, or the
                 special name "population". Columns must be numeric or boolean.
                 For boolean columns the value of the denominator will be the
                 number of patients with the value "true". Using the
                 "population" denominator will give you the total number of
                 patients in the dataset.
-            numerator: A column name from the study definition. This must be
+            numerator: A column name from the dataset definition. This must be
                 numeric or boolean. For boolean columns the value of the numerator
                 will be the number of patients with the value "true".
-            group_by: A column name, or a list of column names, from the study
+            group_by: A column name, or a list of column names, from the dataset
                 definition to group results by. Use the special column
                 "population" to treat the entire population as a single group.
                 Set group_by to None (or omit it entirely) to perform no
