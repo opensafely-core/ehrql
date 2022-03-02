@@ -12,6 +12,14 @@ from .lib.study import Study
 from .lib.util import extract
 
 
+# Fail the build if we see any warnings.
+def pytest_terminal_summary(terminalreporter, exitstatus, config):
+    if terminalreporter.stats.get("warnings"):  # pragma: no cover
+        print("ERROR: warnings detected")
+        if terminalreporter._session.exitstatus == 0:
+            terminalreporter._session.exitstatus = 13
+
+
 @pytest.fixture(scope="session")
 def containers():
     yield Containers()
