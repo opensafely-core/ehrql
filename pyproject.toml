@@ -110,4 +110,5 @@ filterwarnings = [
     "ignore::DeprecationWarning:pytest_freezegun:17",
     "ignore::DeprecationWarning:docker.utils.utils:52",
     "ignore::DeprecationWarning:docker.utils.utils:53",
+    "ignore::DeprecationWarning:pyhive.common:248",
 ]
