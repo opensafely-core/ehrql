@@ -7,7 +7,7 @@ from tests.lib.tpp_schema import patient
 def test_generate_dataset_in_container(study, database):
     database.setup(patient(dob=datetime(1943, 5, 5)))
 
-    study.setup_from_string(fixtures.get_year_of_birth)
+    study.setup_from_string(fixtures.trivial_dataset_definition)
     study.run_in_docker(database, "tpp")
     results = study.results()
 

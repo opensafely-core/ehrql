@@ -1,4 +1,4 @@
-get_year_of_birth = """
+trivial_dataset_definition = """
 from databuilder.query_language import Dataset
 from databuilder.tables import patients
 from databuilder.definition import register
