@@ -35,6 +35,9 @@ class Series:
     def __ne__(self, other):
         return BoolSeries(self._make_binary_fn(other, qm.Function.NE))
 
+    def isnull(self):
+        return BoolSeries(qm.Function.IsNull(self.qm_node))
+
     def _make_binary_fn(self, other, fn):
         other_qm_node = other.qm_node if isinstance(other, Series) else qm.Value(other)
         return fn(lhs=self.qm_node, rhs=other_qm_node)
