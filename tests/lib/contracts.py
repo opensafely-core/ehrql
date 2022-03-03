@@ -73,3 +73,21 @@ class Tests(TableContract):
     test_date = Column(
         type=types.Date(),
     )
+
+
+class P(TableContract):
+    _name = "p"
+    patient_id = Column(type=types.PseudoPatientId())
+    i1 = Column(type=types.Integer())
+    i2 = Column(type=types.Integer())
+    b1 = Column(type=types.Boolean())
+    b2 = Column(type=types.Boolean())
+
+
+class E(TableContract):
+    _name = "e"
+    patient_id = Column(type=types.PseudoPatientId())
+    i1 = Column(type=types.Integer())
+    i2 = Column(type=types.Integer())
+    b1 = Column(type=types.Boolean())
+    b2 = Column(type=types.Boolean())
