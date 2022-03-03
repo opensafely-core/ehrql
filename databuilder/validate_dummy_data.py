@@ -1,151 +1,160 @@
-from datetime import datetime
+import csv
+import dataclasses
+import datetime
+import gzip
 
-import pandas as pd
-
-from .query_engines.query_model_old import ValueFromCategory, ValueFromRow
-from .query_utils import get_column_definitions
-
-SUPPORTED_FILE_FORMATS = ["csv", "csv.gz"]
+from databuilder.functools_utils import singledispatch_on_value
+from databuilder.query_model import get_series_type
+from databuilder.query_utils import get_column_definitions
 
 
-class DummyDataValidationError(Exception):
+class ValidationError(Exception):
     pass
 
 
-def validate_dummy_data(dataset_class, dummy_data_file, dataset_file):
-    """Validate that dummy data provided by user matches expected structure and format.
-
-    Raises DummyDataValidationError if dummy data is not valid.
-    """
-
-    validate_file_extension(dataset_file, dummy_data_file)
-
-    df = read_into_dataframe(dummy_data_file)
-
-    column_definitions = get_column_definitions(dataset_class)
-
-    # Ignore the population definition, since it is not used as a column in the
-    # dataset
-    column_definitions.pop("population", None)
-    # Add in the patient_id, which is always included as a column in the dataset
-    column_definitions["patient_id"] = ValueFromRow(source=None, column="patient_id")
-
-    validate_expected_columns(df, column_definitions)
-
-    validate_column_values(df, column_definitions)
+@dataclasses.dataclass(frozen=True)
+class ColumnSpec:
+    type: type  # noqa: A003
+    nullable: bool = True
 
 
-def validate_file_extension(dataset_file, dummy_data_file):
-    """Raise DummyDataValidationError if dummy data file does not have expected file extension."""
-    if dataset_file.suffixes != dummy_data_file.suffixes:
-        expected_extension = "".join(dataset_file.suffixes)
-        msg = f"Expected dummy data file with extension {expected_extension}; got {dummy_data_file.name}"
-        raise DummyDataValidationError(msg)
-
-
-def read_into_dataframe(path):
-    """Read data from path into a Pandas DataFrame."""
-    try:
-        suffixes = ".".join([suffix.strip(".") for suffix in path.suffixes])
-        assert suffixes in SUPPORTED_FILE_FORMATS
-        return pd.read_csv(path)
-    except FileNotFoundError:
-        raise DummyDataValidationError(f"Dummy data file not found: {path}")
-
-
-def validate_expected_columns(df, columns_definitions):
-    """Raise DummyDataValidationError if dataframe does not have expected columns."""
-    expected_columns = set(columns_definitions.keys())
-    extra_columns = set(df.columns) - expected_columns
-    if extra_columns:
-        raise DummyDataValidationError(
-            f"Unexpected columns in dummy data: {', '.join(extra_columns)}"
-        )
-
-    missing_columns = expected_columns - set(df.columns)
-    if missing_columns:
-        raise DummyDataValidationError(
-            f"Missing columns in dummy data: {', '.join(missing_columns)}"
+def validate_file_types_match(dummy_filename, output_filename):
+    if get_file_type(dummy_filename) != get_file_type(output_filename):
+        raise ValidationError(
+            f"Dummy data file does not have the same file extension as the output "
+            f"filename:\n"
+            f"Dummy data file: {dummy_filename}\n"
+            f"Output file: {output_filename}"
         )
 
 
-def validate_column_values(df, column_definitions):
-    """Raise DummyDataValidationError if dataframe columns contains values of unexpected types."""
-    for col_name, query_node in column_definitions.items():
-        validator = get_csv_validator(query_node)
-        for ix, value in enumerate(df[col_name]):
+def validate_dummy_data_file(dataset_definition, filename):
+    column_definitions = get_column_definitions(dataset_definition)
+    column_specs = get_column_specs(column_definitions)
 
-            if pd.isna(value) or not value:
-                # Ignore null or missing values
-                continue
+    file_type, gzipped = get_file_type(filename)
+    if file_type != ".csv":
+        raise ValidationError(f"Unsupported file type: {file_type}")
+
+    open_fn = gzip.open if gzipped else open
+    with open_fn(filename, mode="rt", newline="") as f:
+        validate_csv_against_spec(f, column_specs)
+
+
+def get_file_type(filename):
+    suffixes = filename.suffixes
+    if suffixes and suffixes[-1] == ".gz":
+        gzipped = True
+        suffixes.pop()
+    else:
+        gzipped = False
+    extension = suffixes[-1] if suffixes else ""
+    return extension, gzipped
+
+
+def get_column_specs(column_definitions):
+    # TODO: It may not be universally true that IDs are ints. Internally the EMIS IDs
+    # are SHA512 hashes stored as hex strings which we convert to ints. But we can't
+    # guarantee always to be able to pull this trick.
+    column_specs = {"patient_id": ColumnSpec(int, nullable=False)}
+    for name, series in column_definitions.items():
+        if name == "population":
+            continue
+        column_specs[name] = ColumnSpec(get_series_type(series), nullable=True)
+    return column_specs
+
+
+def validate_csv_against_spec(csv_file, column_specs):
+    reader = csv.DictReader(csv_file)
+    validate_headers(reader.fieldnames, list(column_specs.keys()))
+    empty_columns = set(reader.fieldnames)
+
+    for row_n, row in enumerate(reader, start=1):
+        # DictReader puts any unexpected columns under the key `None`
+        if None in row:
+            raise ValidationError(f"Too many columns on row {row_n}")
+
+        for name, spec in column_specs.items():
+            value = row[name]
+            if value:
+                empty_columns.discard(name)
+            elif value is None:
+                raise ValidationError(f"Too few columns on row {row_n}")
 
             try:
-                validator(value)
-            except (ValueError, TypeError):
-                # Catch TypeError as well, as there's a possibility that calling the validator
-                # could raise a TypeError, depending on the value passed
-                raise DummyDataValidationError(
-                    f"Invalid value `{value!r}` for {col_name} in row {ix + 2}"
-                )
+                validate_str_against_spec(value, spec)
+            except ValidationError as e:
+                message = f"row {row_n}, column {name!r}: {e}"
+                raise ValidationError(message) from e
+
+    # In the context of dummy data I think that an all-NULL column should be considered
+    # an error, though it might not be strictly speaking invalid
+    if empty_columns:
+        raise ValidationError(f"Columns are empty: {', '.join(empty_columns)}")
 
 
-def get_csv_validator(query_node):
-    """Return function that validates that value is valid to appear in column.
+def validate_headers(headers, expected_headers):
+    headers_set = set(headers)
+    expected_set = set(expected_headers)
+    if headers_set != expected_set:
+        errors = []
+        missing = expected_set - headers_set
+        if missing:
+            errors.append(f"Missing columns: {', '.join(missing)}")
+        extra = headers_set - expected_set
+        if extra:
+            errors.append(f"Unexpected columns: {', '.join(extra)}")
+        raise ValidationError("\n".join(errors))
+    elif headers != expected_headers:
+        # We could be more relaxed about things here, but I think it's worth insisting
+        # that columns be in the same order. We've seen analysis code before which is
+        # sensitive to column ordering.
+        raise ValidationError(
+            f"Headers not in expected order:\n"
+            f"  expected: {', '.join(expected_headers)}\n"
+            f"  found: {', '.join(headers)}"
+        )
 
-    A validator is a single-argument function that raises a ValueError on invalid input.
-    """
 
-    def bool_validator(value):
-        if value not in [True, False]:
-            raise ValueError
+def validate_str_against_spec(value, spec):
+    if not value:
+        if not spec.nullable:
+            raise ValidationError("NULL value not allowed here")
+        else:
+            return
+    try:
+        validate_str_type(spec.type, value)
+    except ValidationError as e:
+        detail = str(e)
+        raise ValidationError(
+            f"Invalid {spec.type.__name__}{', ' if detail else ''}{detail}: {value}"
+        )
 
-    def date_validator(value):
-        try:
-            datetime.strptime(value, "%Y-%m-%d")
-        except ValueError:
-            datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
 
-    def category_validator(
-        value, categories, default_category
-    ):  # pragma: no cover (re-implement when the QL is in)
-        """Ensure that a category value is one of the expected categories, or the default"""
-        # The default must be either None, or of the same type as the categories
-        category_type = type(categories[0])
-        # None values are skipped in validate_column_values() above, so no need to check for None here
-        value = category_type(value)
-        if not (value == default_category or value in categories):
-            raise ValueError
+@singledispatch_on_value
+def validate_str_type(type_, value):
+    assert False, f"Unhandled type: {type_}"
 
-    # We don't yet track column types so we can only do some cursory validation based on
-    # known column names and aggregation functions
-    columns_to_validator_mapping = {
-        "date": date_validator,
-        "date_start": date_validator,
-        "date_end": date_validator,
-        "date_of_birth": date_validator,
-        "patient_id": int,
-        "pseudo_id": int,
-        "numeric_value": float,
-        "positive_result": bool_validator,
-        "index_of_multiple_deprivation_rounded": int,
-    }
-    functions_to_validator_mapping = {
-        "exists": bool_validator,
-        "count": int,
-    }
 
-    if isinstance(query_node, ValueFromCategory):
-        categories = list(query_node.definitions.keys())
-        return lambda x: category_validator(x, categories, query_node.default)
+@validate_str_type.register(int)
+@validate_str_type.register(float)
+@validate_str_type.register(str)
+def validate_str_as_type(type_, value):
+    try:
+        type_(value)
+    except (TypeError, ValueError):
+        raise ValidationError
 
-    if (
-        hasattr(query_node.source, "function")
-        and query_node.source.function in functions_to_validator_mapping
-    ):
-        return functions_to_validator_mapping[query_node.source.function]
-    if (
-        hasattr(query_node, "column")
-        and query_node.column in columns_to_validator_mapping
-    ):
-        return columns_to_validator_mapping[query_node.column]
-    return str
+
+@validate_str_type.register(bool)
+def validate_str_as_bool(type_, value):
+    if value not in ("0", "1"):
+        raise ValidationError("must be '0' or '1'")
+
+
+@validate_str_type.register(datetime.date)
+def validate_str_as_date(type_, value):
+    try:
+        datetime.date.fromisoformat(value)
+    except (TypeError, ValueError):
+        raise ValidationError("must be in YYYY-MM-DD format")

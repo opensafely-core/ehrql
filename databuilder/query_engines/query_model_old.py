@@ -123,7 +123,7 @@ class BaseTable(QueryNode):
     def get(self, column):  # pragma: no cover
         return Column(source=self, column=column)
 
-    def filter(self, *args, **kwargs):  # noqa: A003
+    def filter(self, *args, **kwargs):  # noqa: A003 pragma: no cover
         """
         args: max 1 arg, a field name (str)
         kwargs:
@@ -183,7 +183,7 @@ class BaseTable(QueryNode):
         columns = columns or ("date",)
         return self.first_by(*columns)
 
-    def latest(self, *columns):
+    def latest(self, *columns):  # pragma: no cover
         columns = columns or ("date",)
         return self.last_by(*columns)
 
@@ -191,14 +191,14 @@ class BaseTable(QueryNode):
         assert columns
         return Row(source=self, sort_columns=columns, descending=False)
 
-    def last_by(self, *columns):
+    def last_by(self, *columns):  # pragma: no cover
         assert columns
         return Row(source=self, sort_columns=columns, descending=True)
 
     def exists(self, column="patient_id"):
         return self.aggregate("exists", column)
 
-    def count(self, column="patient_id"):
+    def count(self, column="patient_id"):  # pragma: no cover
         return self.aggregate("count", column)
 
     def sum(self, column):  # noqa: A003    pragma: no cover
@@ -303,12 +303,12 @@ class RowFromAggregate(QueryNode):
 
 class Value(QueryNode):
     @staticmethod
-    def _other_as_comparator(other):
+    def _other_as_comparator(other):  # pragma: no cover
         if isinstance(other, Value):
             other = boolean_comparator(other)  # pragma: no cover
         return other
 
-    def _get_comparator(self, operator, other):
+    def _get_comparator(self, operator, other):  # pragma: no cover
         other = self._other_as_comparator(other)
         return Comparator(lhs=self, operator=operator, rhs=other)
 
@@ -324,7 +324,7 @@ class Value(QueryNode):
     def __le__(self, other):  # pragma: no cover
         return self._get_comparator("__le__", other)
 
-    def __eq__(self, other):
+    def __eq__(self, other):  # pragma: no cover
         return self._get_comparator("__eq__", other)
 
     def __ne__(self, other):  # pragma: no cover
@@ -363,7 +363,7 @@ class ValueFromAggregate(Value):
         return (self.source,)
 
 
-def categorise(mapping, default=None):
+def categorise(mapping, default=None):  # pragma: no cover
     mapping = {
         key: boolean_comparator(value) if isinstance(value, Value) else value
         for key, value in mapping.items()

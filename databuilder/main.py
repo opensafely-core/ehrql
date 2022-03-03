@@ -12,7 +12,7 @@ from .backends import BACKENDS
 from .definition.base import dataset_registry
 from .measure import MeasuresManager, combine_csv_files_with_dates
 from .query_utils import get_column_definitions, get_measures
-from .validate_dummy_data import validate_dummy_data
+from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
 log = structlog.getLogger()
 
@@ -44,11 +44,10 @@ def generate_dataset(
 ):
     dataset_file_with_date = _replace_filepath_pattern(dataset_file, date_suffix)
 
-    if (
-        dummy_data_file and not db_url
-    ):  # pragma: no cover (dummy data not currently tested)
+    if dummy_data_file and not db_url:
         dummy_data_file_with_date = Path(str(dummy_data_file).replace("*", date_suffix))
-        validate_dummy_data(dataset, dummy_data_file_with_date, dataset_file_with_date)
+        validate_file_types_match(dummy_data_file_with_date, dataset_file_with_date)
+        validate_dummy_data_file(dataset, dummy_data_file_with_date)
         shutil.copyfile(dummy_data_file_with_date, dataset_file_with_date)
     else:
         backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
@@ -153,17 +152,21 @@ def load_dataset_generator(definition_module):
 
 
 def load_module(definition_path):
-    # Add the directory containing the definition to the path so that the definition can import library modules from
-    # that directory
-    definition_dir = definition_path.parent
-    module_name = definition_path.stem
-    with added_to_path(str(definition_dir)):
-        module = importlib.import_module(module_name)
-        return module
+    # Taken from the official recipe for importing a module from a file path:
+    # https://docs.python.org/3.9/library/importlib.html#importing-a-source-file-directly
+
+    # The name we give the module is arbitrary
+    spec = importlib.util.spec_from_file_location("dataset", definition_path)
+    module = importlib.util.module_from_spec(spec)
+    # Temporarily add the directory containing the definition to the path so that the
+    # definition can import library modules from that directory
+    with add_to_sys_path(str(definition_path.parent)):
+        spec.loader.exec_module(module)
+    return module
 
 
 @contextmanager
-def added_to_path(directory):
+def add_to_sys_path(directory):
     original = sys.path.copy()
     sys.path.append(directory)
     try:
