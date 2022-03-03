@@ -52,7 +52,9 @@ class Integer(BaseType):
 class PseudoPatientId(BaseType):
     """A type representing a pseudonymised patient ID"""
 
-    allowed_backend_types = (TYPES_BY_NAME.integer, TYPES_BY_NAME.varchar)
+    # Note: we also want to allow TYPES_BY_NAME.varchar here, but we need to work out
+    # how to specify the appropriate type when generating dummy data
+    allowed_backend_types = (TYPES_BY_NAME.integer,)
     series = IdSeries
 
 
