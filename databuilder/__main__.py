@@ -107,6 +107,7 @@ def build_parser():
         "--dataset-definition",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
+        required=True,
     )
     validate_dataset_definition_parser.add_argument(
         "--output",
