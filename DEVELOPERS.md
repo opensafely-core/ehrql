@@ -126,6 +126,11 @@ just remove-persistent-database
 
 Set the environment variable `LOG_SQL=1` (or anything non-empty) to get all SQL queries logged to the console.
 
+
+### Platform end-to-end testing
+Testing databuilder changes as part of the whole platform has been documented [in the team manual](https://bennettinstitute-team-manual.pages.dev/tech-team/playbooks/opensafely-end-to-end-testing/).
+
+
 ## macOS / Bash
 
 Starting with version 4.0, Bash is licenced under GPLv3.
