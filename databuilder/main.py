@@ -4,7 +4,6 @@ import inspect
 import shutil
 import sys
 from contextlib import contextmanager
-from pathlib import Path
 
 import structlog
 
@@ -25,49 +24,39 @@ def run_dataset_action(
     dataset_file.parent.mkdir(parents=True, exist_ok=True)
     module = load_module(definition_path)
 
-    load_dataset_generator(module)
+    load_dataset_classes(module)
     assert len(dataset_registry.datasets) == 1
     dataset = list(dataset_registry.datasets)[0]
-    dataset_action_function(dataset, None, dataset_file, "", **function_kwargs)
+    dataset_action_function(dataset, dataset_file, **function_kwargs)
 
 
 def generate_dataset(
     dataset,
-    index_date,
     dataset_file,
-    date_suffix,
     backend_id,
     db_url,
     dummy_data_file=None,
     temporary_database=None,
 ):
-    dataset_file_with_date = _replace_filepath_pattern(dataset_file, date_suffix)
-
     if dummy_data_file and not db_url:
-        dummy_data_file_with_date = Path(str(dummy_data_file).replace("*", date_suffix))
-        validate_file_types_match(dummy_data_file_with_date, dataset_file_with_date)
-        validate_dummy_data_file(dataset, dummy_data_file_with_date)
-        shutil.copyfile(dummy_data_file_with_date, dataset_file_with_date)
+        validate_file_types_match(dummy_data_file, dataset_file)
+        validate_dummy_data_file(dataset, dummy_data_file)
+        shutil.copyfile(dummy_data_file, dataset_file)
     else:
         backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
         results = extract(dataset, backend)
-        write_dataset(results, dataset_file_with_date)
+        write_dataset(results, dataset_file)
 
 
 def validate_dataset(
     dataset,
-    index_date,
     dataset_file,
-    date_suffix,
     backend_id,
 ):  # pragma: no cover (Re-implement when testing with new QL)
-    dataset_file_with_date = _replace_filepath_pattern(dataset_file, date_suffix)
-    if index_date:
-        log.info("Validating for index date", index_date=index_date)
     backend = BACKENDS[backend_id](database_url=None)
     results = validate(dataset, backend)
     log.info("Validation succeeded")
-    write_validation_output(results, dataset_file_with_date)
+    write_validation_output(results, dataset_file)
 
 
 def generate_measures(
@@ -86,29 +75,12 @@ def test_connection(backend, url):
     print("SUCCESS")
 
 
-def _replace_filepath_pattern(filepath, filename_part):
-    """
-    Take a filepath and replace a '*' with the specified filename part
-    Returns a new Path
-    """
-    return Path(str(filepath).replace("*", filename_part))
-
-
 def load_dataset_classes(definition_module):
     return [
         obj
         for name, obj in inspect.getmembers(definition_module)
         if inspect.isclass(obj) and obj.__name__ == "Dataset"
     ]
-
-
-def load_dataset_generator(definition_module):
-    """
-    Load the dataset definition module and identify the Dataset class or dataset generator
-    function.
-    Return a function that returns a Dataset class, and the index date range, if applicable.
-    """
-    load_dataset_classes(definition_module)
 
 
 def load_module(definition_path):
