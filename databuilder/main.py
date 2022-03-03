@@ -50,13 +50,13 @@ def generate_dataset(
 
 def validate_dataset(
     dataset,
-    dataset_file,
+    output_file,
     backend_id,
 ):  # pragma: no cover (Re-implement when testing with new QL)
     backend = BACKENDS[backend_id](database_url=None)
     results = validate(dataset, backend)
     log.info("Validation succeeded")
-    write_validation_output(results, dataset_file)
+    write_validation_output(results, output_file)
 
 
 def generate_measures(
