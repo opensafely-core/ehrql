@@ -67,7 +67,7 @@ class TableSchema:
         self.name = name
         self.columns = columns
 
-    def __getitem__(self, column):  # pragma: no cover
+    def __getitem__(self, column):
         return self.columns[column]
 
     def __repr__(self):

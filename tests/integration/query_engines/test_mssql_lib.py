@@ -181,7 +181,7 @@ def temp_tables(database):
     try:
         yield temp_tables
     finally:
-        temp_tables.drop_all()  # pragma: no cover
+        temp_tables.drop_all()
 
 
 class TempTables:
