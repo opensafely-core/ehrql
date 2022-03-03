@@ -4,7 +4,7 @@ import pytest
 
 from databuilder.__main__ import main
 from databuilder.validate_dummy_data import ValidationError
-from tests.lib.fixtures import trivial_dataset_definition
+from tests.lib.fixtures import invalid_dataset_definition, trivial_dataset_definition
 from tests.lib.tpp_schema import patient
 
 
@@ -41,6 +41,17 @@ def test_generate_dataset(study, database):
 
     assert len(results) == 1
     assert results[0]["year"] == "1943"
+
+
+def test_validate_dataset_happy_path(study, database):
+    study.setup_from_string(trivial_dataset_definition)
+    study.validate()
+
+
+def test_validate_dataset_error_path(study, database):
+    study.setup_from_string(invalid_dataset_definition)
+    with pytest.raises(NameError):
+        study.validate()
 
 
 def test_validate_dummy_data_happy_path(tmp_path):

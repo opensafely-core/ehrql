@@ -48,11 +48,7 @@ def generate_dataset(
         write_dataset(results, dataset_file)
 
 
-def validate_dataset(
-    dataset,
-    output_file,
-    backend_id,
-):  # pragma: no cover (Re-implement when testing with new QL)
+def validate_dataset(dataset, output_file, backend_id):
     backend = BACKENDS[backend_id](database_url=None)
     results = validate(dataset, backend)
     log.info("Validation succeeded")
@@ -124,15 +120,13 @@ def extract(dataset_definition, backend):
             yield dict(row)
 
 
-def validate(
-    dataset_class, backend
-):  # pragma: no cover (Re-implement when testing with new QL)
+def validate(dataset_class, backend):
     try:
         dataset = get_column_definitions(dataset_class)
         query_engine = backend.query_engine_class(dataset, backend)
         setup_queries, results_query, cleanup_queries = query_engine.get_queries()
         return setup_queries + [results_query] + cleanup_queries
-    except Exception:
+    except Exception:  # pragma: no cover (puzzle: dataset definition that compiles to QM but not SQL)
         log.error("Validation failed")
         # raise the exception to ensure the job fails and the error and traceback are logged
         raise
@@ -154,9 +148,7 @@ def write_dataset(
             writer.writerow(entry.values())
 
 
-def write_validation_output(
-    results, output_file
-):  # pragma: no cover (Re-implement when testing with new QL)
+def write_validation_output(results, output_file):
     with output_file.open(mode="w") as f:
         for entry in results:
             f.write(f"{str(entry)}\n")
