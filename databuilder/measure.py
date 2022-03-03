@@ -172,7 +172,7 @@ def _drop_duplicates(lst):
     return list(dict.fromkeys(lst).keys())
 
 
-class MeasuresManager:
+class MeasuresManager:  # pragma: no cover (Re-implement when testing with new QL)
     """
     Manages calculation of a set of measures based on a single input file
     """
@@ -193,9 +193,7 @@ class MeasuresManager:
             return self._patient_dataframe
         return self._load_patient_dataframe()
 
-    def _load_patient_dataframe(
-        self, input_data=None
-    ):  # pragma: no cover (Re-implement when testing with new QL)
+    def _load_patient_dataframe(self, input_data=None):
         """
         Given a file name and a list of measures, load the file into a Pandas
         dataframe with types as appropriate for the supplied measures

@@ -10,8 +10,7 @@ import structlog
 
 from .backends import BACKENDS
 from .definition.base import dataset_registry
-from .measure import MeasuresManager, combine_csv_files_with_dates
-from .query_utils import get_column_definitions, get_measures
+from .query_utils import get_column_definitions
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
 log = structlog.getLogger()
@@ -73,40 +72,8 @@ def validate_dataset(
 
 def generate_measures(
     definition_path, input_file, dataset_file
-):  # pragma: no cover (measure not currently working)
-    definition_module = load_module(definition_path)
-    dataset_generator, index_date_range = load_dataset_generator(definition_module)
-    dataset_file.parent.mkdir(parents=True, exist_ok=True)
-
-    measures = []
-    for index_date in index_date_range:
-        dataset = (
-            dataset_generator() if index_date is None else dataset_generator(index_date)
-        )
-        input_file_with_date = _replace_filepath_pattern(input_file, index_date or "")
-        measures = get_measures(dataset)
-        if not measures:
-            log.warning(
-                "No measures variable found", definition_file=definition_path.name
-            )
-        for measure_id, results in calculate_measures_results(
-            measures, input_file_with_date
-        ):
-            filename_part = (
-                measure_id if index_date is None else f"{measure_id}_{index_date}"
-            )
-            measure_dataset_file = _replace_filepath_pattern(
-                dataset_file, filename_part
-            )
-            results.to_csv(measure_dataset_file, index=False)
-            log.info("Created measure dataset", dataset=dataset_file)
-
-    # Combine any date-stamped files into one additional single file per
-    # measure Use the measures from the latest dataset, since we only care
-    # about their ids here
-    for measure in measures:
-        combine_csv_files_with_dates(dataset_file, measure.id)
-        log.info(f"Combined measure dataset for all dates in {dataset_file}")
+):  # pragma: no cover (measures not implemented)
+    raise NotImplementedError
 
 
 def test_connection(backend, url):
@@ -125,13 +92,6 @@ def _replace_filepath_pattern(filepath, filename_part):
     Returns a new Path
     """
     return Path(str(filepath).replace("*", filename_part))
-
-
-def calculate_measures_results(
-    measures, input_file
-):  # pragma: no cover (measure not currently working)
-    measures_manager = MeasuresManager(measures, input_file)
-    yield from measures_manager.calculate_measures()
 
 
 def load_dataset_classes(definition_module):

@@ -1,5 +1,4 @@
 import databuilder.main
-from databuilder import table
 
 
 def extract(dataset, backend, database, **backend_kwargs):
@@ -32,8 +31,3 @@ def iter_flatten(iterable, iter_classes=(list, tuple)):
             yield from iter_flatten(item, iter_classes)
         else:
             yield item
-
-
-class OldDatasetWithPopulation:
-    def __init_subclass__(cls):
-        cls.population = table("practice_registrations").exists()
