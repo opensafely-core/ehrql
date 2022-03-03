@@ -1,54 +1,30 @@
-from databuilder.query_language import (
-    Dataset,
-    IdSeries,
-    IntSeries,
-    build_event_table,
-    build_patient_table,
-)
+from ..tables import e, p
 
-from ..helpers import transpose
+table_data = {
+    p: """
+          |  i1
+        --+-----
+        1 | 101
+        2 | 201
 
-p = build_patient_table(
-    "p",
-    {
-        "patient_id": IdSeries,
-        "i": IntSeries,
-    },
-)
-
-
-e = build_event_table(
-    "e",
-    {
-        "patient_id": IdSeries,
-        "i": IntSeries,
-    },
-)
+    """,
+    e: """
+          |  i2
+        --+-----
+        1 | 111
+        1 | 112
+        2 | 211
+        2 | 212
+    """,
+}
 
 
-def test_combine_patient_series_and_patient_series(in_memory_engine):
-    in_memory_engine.setup(
+def test_event_series_and_patient_series(spec_test):
+    spec_test(
+        table_data,
+        (e.i2 + p.i1).sum_for_patient(),
         {
-            p: (
-                [1, 101],
-                [2, 201],
-            ),
-            e: (
-                [1, 111],
-                [1, 112],
-                [2, 211],
-                [2, 212],
-            ),
-        }
+            1: (111 + 101) + (112 + 101),
+            2: (211 + 201) + (212 + 201),
+        },
     )
-
-    dataset = Dataset()
-    dataset.use_unrestricted_population()
-    dataset.v = (e.i + p.i).sum_for_patient()
-
-    results = transpose(in_memory_engine.extract(dataset))
-
-    assert results["v"] == {
-        1: (111 + 101) + (112 + 101),
-        2: (211 + 201) + (212 + 201),
-    }

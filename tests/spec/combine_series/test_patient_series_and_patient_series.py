@@ -1,34 +1,21 @@
-from databuilder.query_language import Dataset, IdSeries, IntSeries, build_patient_table
+from ..tables import p
 
-from ..helpers import transpose
-
-p = build_patient_table(
-    "p",
-    {
-        "patient_id": IdSeries,
-        "i1": IntSeries,
-        "i2": IntSeries,
-    },
-)
+table_data = {
+    p: """
+          |  i1 |  i2
+        --+-----+-----
+        1 | 101 | 102
+        2 | 201 | 202
+    """,
+}
 
 
-def test_combine_patient_series_and_patient_series(in_memory_engine):
-    in_memory_engine.setup(
+def test_patient_series_and_patient_series(spec_test):
+    spec_test(
+        table_data,
+        (p.i1 + p.i2).sum_for_patient(),
         {
-            p: (
-                [1, 101, 102],
-                [2, 201, 202],
-            ),
-        }
+            1: (101 + 102),
+            2: (201 + 202),
+        },
     )
-
-    dataset = Dataset()
-    dataset.use_unrestricted_population()
-    dataset.v = p.i1 + p.i2
-
-    results = transpose(in_memory_engine.extract(dataset))
-
-    assert results["v"] == {
-        1: (101 + 102),
-        2: (201 + 202),
-    }

@@ -33,6 +33,7 @@ class InMemoryDatabase:
         }
 
     def build_table(self, ql_table, row_records):
+        # breakpoint()
         col_names = list(ql_table.name_to_series_cls.keys())
         table = Table.from_records(col_names, row_records)
         self.all_patients |= table["patient_id"].patient_to_values.keys()

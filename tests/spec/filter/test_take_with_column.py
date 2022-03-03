@@ -1,43 +1,28 @@
-from databuilder.query_language import (
-    BoolSeries,
-    Dataset,
-    IdSeries,
-    IntSeries,
-    build_event_table,
-)
+from ..tables import e
 
-from ..helpers import transpose
-
-e = build_event_table(
-    "e",
-    {
-        "patient_id": IdSeries,
-        "i": IntSeries,
-        "b": BoolSeries,
-    },
-)
+table_data = {
+    e: """
+          |  i1 |  b1
+        --+-----+-----
+        1 | 101 |  T
+        1 | 102 |  T
+        1 | 103 |
+        2 | 201 |  T
+        2 | 202 |
+        2 | 203 |  F
+        3 | 301 |
+        3 | 302 |  F
+    """,
+}
 
 
-def test_take_with_column(in_memory_engine):
-    in_memory_engine.setup(
+def test_take_with_column(spec_test):
+    spec_test(
+        table_data,
+        e.take(e.b1).i1.sum_for_patient(),
         {
-            e: (
-                [1, 101, True],
-                [1, 102, True],
-                [1, 103, None],
-                [2, 201, True],
-                [2, 202, None],
-                [2, 203, False],
-                [3, 301, None],
-                [3, 302, False],
-            ),
-        }
+            1: (101 + 102),
+            2: 201,
+            3: None,
+        },
     )
-
-    dataset = Dataset()
-    dataset.use_unrestricted_population()
-    dataset.v = e.take(e.b).i.sum_for_patient()
-
-    results = transpose(in_memory_engine.extract(dataset))
-
-    assert results["v"] == {1: (101 + 102), 2: 201, 3: None}
