@@ -50,7 +50,7 @@ def generate_dataset(
         dummy_data_file_with_date = Path(str(dummy_data_file).replace("*", date_suffix))
         validate_dummy_data(dataset, dummy_data_file_with_date, dataset_file_with_date)
         shutil.copyfile(dummy_data_file_with_date, dataset_file_with_date)
-    else:  # pragma: no cover (Re-implement when testing with new QL)
+    else:
         backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
         results = extract(dataset, backend)
         write_dataset(results, dataset_file_with_date)

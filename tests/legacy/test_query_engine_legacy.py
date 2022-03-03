@@ -22,8 +22,7 @@ def make_codelist(*codes, system="ctv3"):
 
 class OldDatasetWithPopulation:
     def __init_subclass__(cls):
-        if not hasattr(cls, "population"):  # pragma: no cover
-            cls.population = table("practice_registrations").exists()
+        cls.population = table("practice_registrations").exists()
 
 
 def convert(dataset_using_old_query_model):
