@@ -1,14 +1,3 @@
-import databuilder.main
-
-
-def extract(dataset, backend, database, **backend_kwargs):
-    return list(
-        databuilder.main.extract(
-            dataset, backend(database.host_url(), **backend_kwargs)
-        )
-    )
-
-
 class RecordingReporter:
     def __init__(self):
         self.msg = ""
