@@ -5,7 +5,13 @@ from pathlib import Path
 
 from .backends import BACKENDS
 from .docs import generate_docs
-from .main import generate_dataset, generate_measures, test_connection, validate_dataset
+from .main import (
+    generate_dataset,
+    generate_measures,
+    pass_dummy_data,
+    test_connection,
+    validate_dataset,
+)
 
 
 def main(args=None):
@@ -19,19 +25,25 @@ def main(args=None):
     options = parser.parse_args(args)
 
     if options.which == "generate_dataset":
-        if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
+        database_url = os.environ.get("DATABASE_URL")
+        dummy_data_file = options.dummy_data_file
+
+        if database_url:
+            generate_dataset(
+                definition_file=options.dataset_definition,
+                dataset_file=options.dataset,
+                db_url=database_url,
+                backend_id=os.environ.get("OPENSAFELY_BACKEND"),
+                temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
+            )
+        elif dummy_data_file:
+            pass_dummy_data(
+                options.dataset_definition, options.dataset, dummy_data_file
+            )
+        else:
             parser.error(
                 "error: either --dummy-data-file or DATABASE_URL environment variable is required"
             )
-
-        generate_dataset(
-            definition_file=options.dataset_definition,
-            dataset_file=options.dataset,
-            db_url=os.environ.get("DATABASE_URL"),
-            backend_id=os.environ.get("OPENSAFELY_BACKEND"),
-            dummy_data_file=options.dummy_data_file,
-            temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
-        )
     elif options.which == "validate_dataset_definition":
         validate_dataset(
             options.dataset_definition,

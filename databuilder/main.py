@@ -19,22 +19,27 @@ def generate_dataset(
     dataset_file,
     backend_id,
     db_url,
-    dummy_data_file,
     temporary_database,
 ):
     log.info(f"Generating dataset for {str(definition_file)}")
+
     dataset = load_definition(definition_file)
+    backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
+    results = extract(dataset, backend)
 
     dataset_file.parent.mkdir(parents=True, exist_ok=True)
+    write_dataset(results, dataset_file)
 
-    if dummy_data_file and not db_url:
-        validate_file_types_match(dummy_data_file, dataset_file)
-        validate_dummy_data_file(dataset, dummy_data_file)
-        shutil.copyfile(dummy_data_file, dataset_file)
-    else:
-        backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
-        results = extract(dataset, backend)
-        write_dataset(results, dataset_file)
+
+def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
+    log.info(f"Generating dataset for {str(definition_file)}")
+
+    dataset = load_definition(definition_file)
+    validate_dummy_data_file(dataset, dummy_data_file)
+    validate_file_types_match(dummy_data_file, dataset_file)
+
+    dataset_file.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(dummy_data_file, dataset_file)
 
 
 def validate_dataset(definition_file, output_file, backend_id):
