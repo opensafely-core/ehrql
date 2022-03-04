@@ -3,9 +3,9 @@ import dataclasses
 import datetime
 import gzip
 
+from databuilder import query_language as ql
 from databuilder.functools_utils import singledispatch_on_value
 from databuilder.query_model import get_series_type
-from databuilder.query_utils import get_column_definitions
 
 
 class ValidationError(Exception):
@@ -29,7 +29,7 @@ def validate_file_types_match(dummy_filename, output_filename):
 
 
 def validate_dummy_data_file(dataset_definition, filename):
-    column_definitions = get_column_definitions(dataset_definition)
+    column_definitions = ql.compile(dataset_definition)
     column_specs = get_column_specs(column_definitions)
 
     file_type, gzipped = get_file_type(filename)

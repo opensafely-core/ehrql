@@ -5,13 +5,7 @@ from pathlib import Path
 
 from .backends import BACKENDS
 from .docs import generate_docs
-from .main import (
-    generate_dataset,
-    generate_measures,
-    run_dataset_action,
-    test_connection,
-    validate_dataset,
-)
+from .main import generate_dataset, generate_measures, test_connection, validate_dataset
 
 
 def main(args=None):
@@ -30,9 +24,8 @@ def main(args=None):
                 "error: either --dummy-data-file or DATABASE_URL environment variable is required"
             )
 
-        run_dataset_action(
-            generate_dataset,
-            definition_path=options.dataset_definition,
+        generate_dataset(
+            definition_file=options.dataset_definition,
             dataset_file=options.dataset,
             db_url=os.environ.get("DATABASE_URL"),
             backend_id=os.environ.get("OPENSAFELY_BACKEND"),
@@ -40,8 +33,7 @@ def main(args=None):
             temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
         )
     elif options.which == "validate_dataset_definition":
-        run_dataset_action(
-            validate_dataset,
+        validate_dataset(
             options.dataset_definition,
             options.output,
             backend_id=options.backend,

@@ -13,7 +13,7 @@ def test_no_args(capsys):
 def test_generate_dataset_with_database_url(mocker, monkeypatch, tmp_path):
     # Verify that the generate_dataset subcommand can be invoked when
     # DATABASE_URL is set.
-    patched = mocker.patch("databuilder.__main__.run_dataset_action")
+    patched = mocker.patch("databuilder.__main__.generate_dataset")
     monkeypatch.setenv("DATABASE_URL", "scheme:path")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
@@ -29,7 +29,7 @@ def test_generate_dataset_with_database_url(mocker, monkeypatch, tmp_path):
 def test_generate_dataset_with_dummy_data(mocker, tmp_path):
     # Verify that the generate_dataset subcommand can be invoked when
     # --dummy-data-file is provided.
-    patched = mocker.patch("databuilder.__main__.run_dataset_action")
+    patched = mocker.patch("databuilder.__main__.generate_dataset")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     dummy_data_path = tmp_path / "dummy-data.csv"
@@ -78,7 +78,7 @@ def test_generate_docs(mocker):
 
 def test_validate_dataset_definition(mocker, tmp_path):
     # Verify that the validate_dataset_definition subcommand can be invoked.
-    patched = mocker.patch("databuilder.__main__.run_dataset_action")
+    patched = mocker.patch("databuilder.__main__.validate_dataset")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
