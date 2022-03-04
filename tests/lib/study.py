@@ -93,6 +93,19 @@ class Study:
             volumes={self._workspace: {"bind": "/workspace", "mode": "rw"}},
         )
 
+    def validate(self):
+        self._output_path = self._workspace / "validation.out"
+        main(
+            [
+                "validate_dataset_definition",
+                "--dataset-definition",
+                str(self._definition_path),
+                "--output",
+                str(self._output_path),
+                "tpp",
+            ]
+        )
+
     @staticmethod
     def _command(definition, dataset):
         return [

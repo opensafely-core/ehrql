@@ -9,3 +9,5 @@ dataset.set_population(year >= 1900)
 dataset.year = year
 register(dataset)
 """
+
+invalid_dataset_definition = "this is nonsense"

@@ -42,8 +42,8 @@ def main(args=None):
     elif options.which == "validate_dataset_definition":
         run_dataset_action(
             validate_dataset,
-            definition_path=options.dataset_definition,
-            dataset_file=options.dataset,
+            options.dataset_definition,
+            options.output,
             backend_id=options.backend,
         )
     elif options.which == "generate_measures":
@@ -107,10 +107,11 @@ def build_parser():
         "--dataset-definition",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
+        required=True,
     )
     validate_dataset_definition_parser.add_argument(
-        "--dataset",
-        help="Path and filename (or pattern) of the file(s) where the dataset will be written",
+        "--output",
+        help="Path and filename (or pattern) of the file(s) where the output will be written",
         type=Path,
     )
 

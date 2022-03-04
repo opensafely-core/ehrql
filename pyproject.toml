@@ -68,6 +68,9 @@ exclude_lines = [
     # excludes the body of the overload-decorated function which will never be executed
     "@overload",
 ]
+omit = [
+    "databuilder/query_engines/query_model_old.py",
+]
 
 [tool.coverage.html]
 
