@@ -12,9 +12,6 @@ from ..lib.mock_backend import (
 from .query_model_convert_to_new import convert as convert_to_new
 from .query_model_old import Codelist, categorise, table
 
-# Mark the whole module as containing integration tests
-pytestmark = pytest.mark.integration
-
 
 def make_codelist(*codes, system="ctv3"):
     return Codelist(codes, system=system)
