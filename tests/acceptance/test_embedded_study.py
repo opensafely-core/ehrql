@@ -36,7 +36,7 @@ def test_generate_dataset(study, database):
     database.setup(patient(dob=datetime(1943, 5, 5)))
 
     study.setup_from_string(trivial_dataset_definition)
-    study.run(database, "tpp")
+    study.generate(database, "tpp")
     results = study.results()
 
     assert len(results) == 1
