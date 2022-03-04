@@ -62,6 +62,19 @@ class QueryEngineFixture:
         results.sort(key=lambda i: i["patient_id"])
         return results
 
+    def extract_qm(self, variables):
+        with self._execute(variables) as results:
+            result = list(dict(row) for row in results)
+            result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering
+            return result
+
+    def _execute(self, variables):
+        return self._build_engine(variables).execute_query()
+
+    def _build_engine(self, variables):
+        backend = self.backend(self.database.host_url())
+        return backend.query_engine_class(variables, backend)
+
     def sqlalchemy_engine(self, **kwargs):
         return self.database.engine(
             dialect=self.query_engine_class.sqlalchemy_dialect, **kwargs
