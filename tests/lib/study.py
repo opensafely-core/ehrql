@@ -66,48 +66,30 @@ class Study:
         self._definition_path = self._workspace / "dataset.py"
         self._definition_path.write_text(definition)
 
-    def run(self, database, backend):
+    def generate(self, database, backend):
         self._dataset_path = self._workspace / "dataset.csv"
 
         self._monkeypatch.setenv("DATABASE_URL", database.host_url())
         self._monkeypatch.setenv("OPENSAFELY_BACKEND", backend)
 
-        main(self._command(self._definition_path, self._dataset_path))
+        main(self._generate_command(self._definition_path, self._dataset_path))
 
-    def run_in_docker(self, database, backend):
+    def generate_in_docker(self, database, backend):
         self._dataset_path = self._workspace / "dataset.csv"
-        definition_in_container = Path(
-            "/workspace"
-        ) / self._definition_path.relative_to(self._workspace)
-        dataset_in_container = Path("/workspace") / self._dataset_path.relative_to(
-            self._workspace
-        )
         environment = {
             "DATABASE_URL": database.container_url(),
             "OPENSAFELY_BACKEND": backend,
         }
-        self._containers.run_fg(
-            image="databuilder:latest",
-            command=self._command(definition_in_container, dataset_in_container),
+        self._run_in_docker(
+            command=self._generate_command(
+                self._docker_path(self._definition_path),
+                self._docker_path(self._dataset_path),
+            ),
             environment=environment,
-            volumes={self._workspace: {"bind": "/workspace", "mode": "rw"}},
-        )
-
-    def validate(self):
-        self._output_path = self._workspace / "validation.out"
-        main(
-            [
-                "validate_dataset_definition",
-                "--dataset-definition",
-                str(self._definition_path),
-                "--output",
-                str(self._output_path),
-                "tpp",
-            ]
         )
 
     @staticmethod
-    def _command(definition, dataset):
+    def _generate_command(definition, dataset):
         return [
             "generate_dataset",
             "--dataset-definition",
@@ -115,6 +97,42 @@ class Study:
             "--dataset",
             str(dataset),
         ]
+
+    def validate(self):
+        self._output_path = self._workspace / "validation.out"
+        main(self._validate_command(self._definition_path, self._output_path))
+
+    def validate_in_docker(self):
+        self._output_path = self._workspace / "validation.out"
+        self._run_in_docker(
+            command=self._validate_command(
+                self._docker_path(self._definition_path),
+                self._docker_path(self._output_path),
+            )
+        )
+
+    @staticmethod
+    def _validate_command(definition, output):
+        return [
+            "validate_dataset_definition",
+            "--dataset-definition",
+            str(definition),
+            "--output",
+            str(output),
+            "tpp",
+        ]
+
+    def _docker_path(self, path):
+        return Path("/workspace") / path.relative_to(self._workspace)
+
+    def _run_in_docker(self, command, environment=None):
+        environment = environment or {}
+        self._containers.run_fg(
+            image="databuilder:latest",
+            command=command,
+            environment=environment,
+            volumes={self._workspace: {"bind": "/workspace", "mode": "rw"}},
+        )
 
     def results(self):
         with open(self._dataset_path) as f:

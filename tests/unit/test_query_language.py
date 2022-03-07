@@ -2,13 +2,13 @@ from datetime import date
 
 import pytest
 
-from databuilder.query_language import compile  # noqa A003
 from databuilder.query_language import (
     Dataset,
     DateSeries,
     IdSeries,
     IntSeries,
     build_patient_table,
+    compile,
 )
 from databuilder.query_model import (
     Function,
@@ -49,6 +49,17 @@ def test_dataset():
             rhs=Value(2000),
         ),
     }
+
+
+def test_dataset_preserves_variable_order():
+    dataset = Dataset()
+    dataset.set_population(True)
+    dataset.foo = patients.date_of_birth.year
+    dataset.baz = patients.date_of_birth.year + 100
+    dataset.bar = patients.date_of_birth.year - 100
+
+    variables = list(compile(dataset).keys())
+    assert variables == ["population", "foo", "baz", "bar"]
 
 
 # The problem: We'd like to test that operations on query language (QL) elements return

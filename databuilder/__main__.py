@@ -8,7 +8,7 @@ from .docs import generate_docs
 from .main import (
     generate_dataset,
     generate_measures,
-    run_dataset_action,
+    pass_dummy_data,
     test_connection,
     validate_dataset,
 )
@@ -25,23 +25,27 @@ def main(args=None):
     options = parser.parse_args(args)
 
     if options.which == "generate_dataset":
-        if not (options.dummy_data_file or os.environ.get("DATABASE_URL")):
+        database_url = os.environ.get("DATABASE_URL")
+        dummy_data_file = options.dummy_data_file
+
+        if database_url:
+            generate_dataset(
+                definition_file=options.dataset_definition,
+                dataset_file=options.dataset,
+                db_url=database_url,
+                backend_id=os.environ.get("OPENSAFELY_BACKEND"),
+                temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
+            )
+        elif dummy_data_file:
+            pass_dummy_data(
+                options.dataset_definition, options.dataset, dummy_data_file
+            )
+        else:
             parser.error(
                 "error: either --dummy-data-file or DATABASE_URL environment variable is required"
             )
-
-        run_dataset_action(
-            generate_dataset,
-            definition_path=options.dataset_definition,
-            dataset_file=options.dataset,
-            db_url=os.environ.get("DATABASE_URL"),
-            backend_id=os.environ.get("OPENSAFELY_BACKEND"),
-            dummy_data_file=options.dummy_data_file,
-            temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
-        )
     elif options.which == "validate_dataset_definition":
-        run_dataset_action(
-            validate_dataset,
+        validate_dataset(
             options.dataset_definition,
             options.output,
             backend_id=options.backend,
@@ -62,7 +66,7 @@ def main(args=None):
     elif options.which == "print_help":
         parser.print_help()
     else:
-        assert False, f"Unhandler subcommand: {options.which}"
+        assert False, f"Unhandled subcommand: {options.which}"
 
 
 def build_parser():
@@ -70,104 +74,113 @@ def build_parser():
         prog="databuilder", description="Generate datasets in OpenSAFELY"
     )
     parser.set_defaults(which="print_help")
-    subparsers = parser.add_subparsers(help="sub-command help")
 
-    generate_dataset_parser = subparsers.add_parser(
-        "generate_dataset", help="Generate a dataset"
-    )
-    generate_dataset_parser.set_defaults(which="generate_dataset")
-    generate_dataset_parser.add_argument(
+    subparsers = parser.add_subparsers(help="sub-command help")
+    add_generate_dataset(subparsers)
+    add_validate_dataset_definition(subparsers)
+    add_generate_measures(subparsers)
+    add_test_connection(subparsers)
+    add_generate_docs(subparsers)
+
+    return parser
+
+
+def add_generate_dataset(subparsers):
+    parser = subparsers.add_parser("generate_dataset", help="Generate a dataset")
+    parser.set_defaults(which="generate_dataset")
+    parser.add_argument(
         "--dataset-definition",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
     )
-    generate_dataset_parser.add_argument(
+    parser.add_argument(
         "--dataset",
         help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
     )
-    generate_dataset_parser.add_argument(
+    parser.add_argument(
         "--dummy-data-file",
         help="Provide dummy data from a file to be validated and used as the dataset",
         type=Path,
     )
 
-    validate_dataset_definition_parser = subparsers.add_parser(
+
+def add_validate_dataset_definition(subparsers):
+    parser = subparsers.add_parser(
         "validate_dataset_definition",
         help="Validate the dataset definition against the specified backend",
     )
-    validate_dataset_definition_parser.set_defaults(which="validate_dataset_definition")
-
-    validate_dataset_definition_parser.add_argument(
+    parser.set_defaults(which="validate_dataset_definition")
+    parser.add_argument(
         "backend",
         type=str,
         choices=BACKENDS,  # allow all registered backend subclasses
     )
-    validate_dataset_definition_parser.add_argument(
+    parser.add_argument(
         "--dataset-definition",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
         required=True,
     )
-    validate_dataset_definition_parser.add_argument(
+    parser.add_argument(
         "--output",
         help="Path and filename (or pattern) of the file(s) where the output will be written",
         type=Path,
     )
 
-    generate_measures_parser = subparsers.add_parser(
+
+def add_generate_measures(subparsers):
+    parser = subparsers.add_parser(
         "generate_measures", help="Generate measures from a dataset"
     )
-    generate_measures_parser.set_defaults(which="generate_measures")
-
-    # Measure generator parser options
-    generate_measures_parser.add_argument(
+    parser.set_defaults(which="generate_measures")
+    parser.add_argument(
         "--input",
         help="Path and filename (or pattern) of the input file(s)",
         type=Path,
     )
-    generate_measures_parser.add_argument(
+    parser.add_argument(
         "--dataset",
         help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
     )
-    generate_measures_parser.add_argument(
+    parser.add_argument(
         "--dataset-definition",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
     )
 
-    test_connection_parser = subparsers.add_parser(
+
+def add_test_connection(subparsers):
+    parser = subparsers.add_parser(
         "test_connection", help="test the database connection configuration"
     )
-    test_connection_parser.set_defaults(which="test_connection")
-
-    test_connection_parser.add_argument(
+    parser.set_defaults(which="test_connection")
+    parser.add_argument(
         "--backend",
         "-b",
         help="backend type to test",
         default=os.environ.get("BACKEND", os.environ.get("OPENSAFELY_BACKEND")),
     )
-
-    test_connection_parser.add_argument(
+    parser.add_argument(
         "--url",
         "-u",
         help="db url",
         default=os.environ.get("DATABASE_URL"),
     )
 
-    generate_docs = subparsers.add_parser(
+
+def add_generate_docs(subparsers):
+    parser = subparsers.add_parser(
         "generate_docs",
         help="Generate a JSON representation of the data needed for the public documentation of Backends and Contracts",
     )
-    generate_docs.set_defaults(which="generate_docs")
-    generate_docs.add_argument(
+    parser.set_defaults(which="generate_docs")
+    parser.add_argument(
         "--location",
         type=Path,
         help="Optional location to write documentation data to.  Uses current working directory otherwise.",
     )
-
-    return parser
 
 
 def existing_python_file(value):

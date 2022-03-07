@@ -10,10 +10,10 @@ def test_no_args(capsys):
     assert "usage: databuilder" in captured.out
 
 
-def test_generate_dataset_with_database_url(mocker, monkeypatch, tmp_path):
+def test_generate_dataset(mocker, monkeypatch, tmp_path):
     # Verify that the generate_dataset subcommand can be invoked when
     # DATABASE_URL is set.
-    patched = mocker.patch("databuilder.__main__.run_dataset_action")
+    patched = mocker.patch("databuilder.__main__.generate_dataset")
     monkeypatch.setenv("DATABASE_URL", "scheme:path")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
@@ -26,20 +26,37 @@ def test_generate_dataset_with_database_url(mocker, monkeypatch, tmp_path):
     patched.assert_called_once()
 
 
-def test_generate_dataset_with_dummy_data(mocker, tmp_path):
-    # Verify that the generate_dataset subcommand can be invoked when
+def test_pass_dummy_data(mocker, tmp_path):
+    # Verify that the pass_dummy_data subcommand can be invoked when
     # --dummy-data-file is provided.
-    patched = mocker.patch("databuilder.__main__.run_dataset_action")
+    patched = mocker.patch("databuilder.__main__.pass_dummy_data")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
-    dummy_data_path = tmp_path / "dummy-data.csv"
-    dummy_data_path.touch()
     argv = [
         "generate_dataset",
         "--dataset-definition",
         str(dataset_definition_path),
         "--dummy-data-file",
-        str(dummy_data_path),
+        str(tmp_path / "dummy-data.csv"),
+    ]
+    main(argv)
+    patched.assert_called_once()
+
+
+def test_generate_dataset_if_both_db_url_and_dummy_data_are_provided(
+    mocker, monkeypatch, tmp_path
+):
+    # This happens when studies with dummy data are run in the backend.
+    patched = mocker.patch("databuilder.__main__.generate_dataset")
+    monkeypatch.setenv("DATABASE_URL", "scheme:path")
+    dataset_definition_path = tmp_path / "dataset.py"
+    dataset_definition_path.touch()
+    argv = [
+        "generate_dataset",
+        "--dataset-definition",
+        str(dataset_definition_path),
+        "--dummy-data-file",
+        str(tmp_path / "dummy-data.csv"),
     ]
     main(argv)
     patched.assert_called_once()
@@ -78,7 +95,7 @@ def test_generate_docs(mocker):
 
 def test_validate_dataset_definition(mocker, tmp_path):
     # Verify that the validate_dataset_definition subcommand can be invoked.
-    patched = mocker.patch("databuilder.__main__.run_dataset_action")
+    patched = mocker.patch("databuilder.__main__.validate_dataset")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [

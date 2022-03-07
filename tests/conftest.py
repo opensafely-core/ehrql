@@ -1,5 +1,6 @@
 import pytest
 
+from databuilder import main
 from databuilder.definition.base import dataset_registry
 from databuilder.query_engines.mssql import MssqlQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
@@ -9,7 +10,6 @@ from .lib.docker import Containers
 from .lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from .lib.mock_backend import backend_factory
 from .lib.study import Study
-from .lib.util import extract
 
 
 # Fail the build if we see any warnings.
@@ -55,12 +55,29 @@ class QueryEngineFixture:
     def setup(self, *items):
         return self.database.setup(*items)
 
-    def extract(self, dataset, **kwargs):
-        results = extract(dataset, self.backend, self.database, **kwargs)
+    def extract(self, dataset, **backend_kwargs):
+        results = list(
+            main.extract(
+                dataset, self.backend(self.database.host_url(), **backend_kwargs)
+            )
+        )
         # We don't explicitly order the results and not all databases naturally return
         # in the same order
         results.sort(key=lambda i: i["patient_id"])
         return results
+
+    def extract_qm(self, variables):
+        with self._execute(variables) as results:
+            result = list(dict(row) for row in results)
+            result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering
+            return result
+
+    def _execute(self, variables):
+        return self._build_engine(variables).execute_query()
+
+    def _build_engine(self, variables):
+        backend = self.backend(self.database.host_url())
+        return backend.query_engine_class(variables, backend)
 
     def sqlalchemy_engine(self, **kwargs):
         return self.database.engine(

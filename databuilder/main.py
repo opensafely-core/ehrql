@@ -1,58 +1,59 @@
 import csv
 import importlib.util
-import inspect
 import shutil
 import sys
 from contextlib import contextmanager
 
 import structlog
 
+from . import query_language as ql
 from .backends import BACKENDS
 from .definition.base import dataset_registry
-from .query_utils import get_column_definitions
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
 log = structlog.getLogger()
 
 
-def run_dataset_action(
-    dataset_action_function, definition_path, dataset_file, **function_kwargs
-):
-    log.info(f"Running {dataset_action_function.__name__} for {str(definition_path)}")
-    log.debug("args:", **function_kwargs)
-
-    dataset_file.parent.mkdir(parents=True, exist_ok=True)
-    module = load_module(definition_path)
-
-    load_dataset_classes(module)
-    assert len(dataset_registry.datasets) == 1
-    dataset = list(dataset_registry.datasets)[0]
-    dataset_action_function(dataset, dataset_file, **function_kwargs)
-
-
 def generate_dataset(
-    dataset,
+    definition_file,
     dataset_file,
     backend_id,
     db_url,
-    dummy_data_file=None,
-    temporary_database=None,
+    temporary_database,
 ):
-    if dummy_data_file and not db_url:
-        validate_file_types_match(dummy_data_file, dataset_file)
-        validate_dummy_data_file(dataset, dummy_data_file)
-        shutil.copyfile(dummy_data_file, dataset_file)
-    else:
-        backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
-        results = extract(dataset, backend)
-        write_dataset(results, dataset_file)
+    log.info(f"Generating dataset for {str(definition_file)}")
+
+    dataset = load_definition(definition_file)
+    backend = BACKENDS[backend_id](db_url, temporary_database=temporary_database)
+    results = extract(dataset, backend)
+
+    dataset_file.parent.mkdir(parents=True, exist_ok=True)
+    write_dataset(results, dataset_file)
 
 
-def validate_dataset(dataset, output_file, backend_id):
+def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
+    log.info(f"Generating dataset for {str(definition_file)}")
+
+    dataset = load_definition(definition_file)
+    validate_dummy_data_file(dataset, dummy_data_file)
+    validate_file_types_match(dummy_data_file, dataset_file)
+
+    dataset_file.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(dummy_data_file, dataset_file)
+
+
+def validate_dataset(definition_file, output_file, backend_id):
+    log.info(f"Validating dataset for {str(definition_file)}")
+
+    dataset = load_definition(definition_file)
     backend = BACKENDS[backend_id](database_url=None)
     results = validate(dataset, backend)
     log.info("Validation succeeded")
-    write_validation_output(results, output_file)
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with output_file.open(mode="w") as f:
+        for entry in results:
+            f.write(f"{str(entry)}\n")
 
 
 def generate_measures(
@@ -71,12 +72,10 @@ def test_connection(backend, url):
     print("SUCCESS")
 
 
-def load_dataset_classes(definition_module):
-    return [
-        obj
-        for name, obj in inspect.getmembers(definition_module)
-        if inspect.isclass(obj) and obj.__name__ == "Dataset"
-    ]
+def load_definition(definition_file):
+    load_module(definition_file)
+    assert len(dataset_registry.datasets) == 1
+    return dataset_registry.datasets.copy().pop()
 
 
 def load_module(definition_path):
@@ -90,7 +89,6 @@ def load_module(definition_path):
     # definition can import library modules from that directory
     with add_to_sys_path(str(definition_path.parent)):
         spec.loader.exec_module(module)
-    return module
 
 
 @contextmanager
@@ -113,7 +111,7 @@ def extract(dataset_definition, backend):
         Yields the dataset as rows
     """
     backend.validate_contracts()
-    dataset = get_column_definitions(dataset_definition)
+    dataset = ql.compile(dataset_definition)
     query_engine = backend.query_engine_class(dataset, backend)
     with query_engine.execute_query() as results:
         for row in results:
@@ -122,7 +120,7 @@ def extract(dataset_definition, backend):
 
 def validate(dataset_class, backend):
     try:
-        dataset = get_column_definitions(dataset_class)
+        dataset = ql.compile(dataset_class)
         query_engine = backend.query_engine_class(dataset, backend)
         setup_queries, results_query, cleanup_queries = query_engine.get_queries()
         return setup_queries + [results_query] + cleanup_queries
@@ -132,9 +130,7 @@ def validate(dataset_class, backend):
         raise
 
 
-def write_dataset(
-    results, dataset_file
-):  # pragma: no cover (Re-implement when testing with new QL)
+def write_dataset(results, dataset_file):
     with dataset_file.open(mode="w") as f:
         writer = csv.writer(f)
         headers = None
@@ -146,9 +142,3 @@ def write_dataset(
             else:
                 assert fields == headers, f"Expected fields {headers}, but got {fields}"
             writer.writerow(entry.values())
-
-
-def write_validation_output(results, output_file):
-    with output_file.open(mode="w") as f:
-        for entry in results:
-            f.write(f"{str(entry)}\n")
