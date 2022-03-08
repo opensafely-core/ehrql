@@ -25,15 +25,23 @@ from dataclasses import dataclass
 
 
 class InMemoryDatabase:
-    def setup(self, data):
+    def setup(self, *input_data):
         self.all_patients = set()
+        table_name_to_items = defaultdict(list)
+        for item in input_data:
+            table_name_to_items[item.__tablename__].append(item)
         self.tables = {
-            ql_table.qm_node.name: self.build_table(ql_table, records)
-            for ql_table, records in data.items()
+            table_name: self.build_table(items)
+            for table_name, items in table_name_to_items.items()
         }
 
-    def build_table(self, ql_table, row_records):
-        col_names = list(ql_table.name_to_series_cls.keys())
+    def build_table(self, items):
+        model = type(items[0])
+        col_names = [col.name for col in model.__table__.columns if col.name != "Id"]
+        row_records = [
+            [getattr(item, col_name) for col_name in col_names] for item in items
+        ]
+        col_names[0] = "patient_id"
         table = Table.from_records(col_names, row_records)
         self.all_patients |= table["patient_id"].patient_to_values.keys()
         return table

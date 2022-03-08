@@ -101,6 +101,21 @@ class TestIntSeries:
             Function.LE(qm_int_series, qm_int_series),
         )
 
+    def test_radd(self):
+        assert_produces(
+            1 + IntSeries(qm_int_series),
+            Function.Add(qm_int_series, Value(1)),
+        )
+
+    def test_rsub(self):
+        assert_produces(
+            1 - IntSeries(qm_int_series),
+            Function.Add(
+                Function.Negate(qm_int_series),
+                Value(1),
+            ),
+        )
+
 
 class TestDateSeries:
     def test_year(self):

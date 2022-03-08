@@ -5,13 +5,13 @@ from . import query_model as qm
 
 class Dataset:
     def set_population(self, population):
-        if population is True:
+        if population is True:  # pragma: no cover
             population = BoolSeries(qm.Value(True))
         # TODO raise proper error here
         assert isinstance(population, BoolSeries)
         object.__setattr__(self, "population", population)
 
-    def use_unrestricted_population(self):
+    def use_unrestricted_population(self):  # pragma: no cover
         self.set_population(True)
 
     def __setattr__(self, name, value):
@@ -34,6 +34,9 @@ class Series:
 
     def __ne__(self, other):
         return BoolSeries(self._make_binary_fn(other, qm.Function.NE))
+
+    def is_null(self):
+        return BoolSeries(qm.Function.IsNull(self.qm_node))
 
     def _make_binary_fn(self, other, fn):
         other_qm_node = other.qm_node if isinstance(other, Series) else qm.Value(other)

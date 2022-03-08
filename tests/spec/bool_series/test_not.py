@@ -1,36 +1,23 @@
-from databuilder.query_language import (
-    BoolSeries,
-    Dataset,
-    IdSeries,
-    build_patient_table,
-)
+from ..tables import p
 
-from ..helpers import transpose
-
-p = build_patient_table(
-    "p",
-    {
-        "patient_id": IdSeries,
-        "b": BoolSeries,
-    },
-)
+table_data = {
+    p: """
+          | b1
+        --+----
+        1 |  T
+        2 |
+        3 |  F
+        """,
+}
 
 
-def test_not(in_memory_engine):
-    in_memory_engine.setup(
+def test_not(spec_test):
+    spec_test(
+        table_data,
+        ~p.b1,
         {
-            p: (
-                [1, True],
-                [2, None],
-                [3, False],
-            ),
-        }
+            1: False,
+            2: None,
+            3: True,
+        },
     )
-
-    dataset = Dataset()
-    dataset.use_unrestricted_population()
-    dataset.not_ = ~p.b
-
-    results = transpose(in_memory_engine.extract(dataset))
-
-    assert results["not_"] == {1: False, 2: None, 3: True}

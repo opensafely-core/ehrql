@@ -65,6 +65,26 @@ def backend_factory(query_engine_cls):
                   all_tests
             """,
         )
+        patient_level_table = MappedTable(
+            implements=contracts.PatientLevelTable,
+            source="patient_level_table",
+            columns=dict(
+                i1=Column("integer", source="i1"),
+                i2=Column("integer", source="i2"),
+                b1=Column("boolean", source="b1"),
+                b2=Column("boolean", source="b2"),
+            ),
+        )
+        event_level_table = MappedTable(
+            implements=contracts.EventLevelTable,
+            source="event_level_table",
+            columns=dict(
+                i1=Column("integer", source="i1"),
+                i2=Column("integer", source="i2"),
+                b1=Column("boolean", source="b1"),
+                b2=Column("boolean", source="b2"),
+            ),
+        )
 
     return MockBackend
 
@@ -158,3 +178,23 @@ def patient(
         ),
         *entities,
     ]
+
+
+class PatientLevelTable(Base):
+    __tablename__ = "patient_level_table"
+    Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
+    PatientId = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    i1 = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    i2 = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    b1 = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
+    b2 = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
+
+
+class EventLevelTable(Base):
+    __tablename__ = "event_level_table"
+    Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
+    PatientId = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    i1 = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    i2 = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    b1 = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
+    b2 = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
