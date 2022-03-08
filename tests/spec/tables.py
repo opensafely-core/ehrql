@@ -7,7 +7,7 @@ from databuilder.query_language import (
 )
 
 p = build_patient_table(
-    "p",
+    "patient_level_table",
     {
         "patient_id": IdSeries,
         "i1": IntSeries,
@@ -19,7 +19,7 @@ p = build_patient_table(
 
 
 e = build_event_table(
-    "e",
+    "event_level_table",
     {
         "patient_id": IdSeries,
         "i1": IntSeries,
