@@ -36,3 +36,16 @@ def test_not_equals(spec_test):
             4: None,
         },
     )
+
+
+def test_is_null(spec_test):
+    spec_test(
+        table_data,
+        p.i1.is_null(),
+        {
+            1: False,
+            2: False,
+            3: False,
+            4: True,
+        },
+    )
