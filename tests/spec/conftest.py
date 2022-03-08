@@ -49,15 +49,7 @@ def spec_test(in_memory_engine):
 def parse_table(s):
     """Parse string containing table data, returning list of dicts.
 
-    >>> parse_table(
-    ...     '''
-    ...       |  i1 |  i2
-    ...     --+-----+-----
-    ...     1 | 101 | 111
-    ...     2 | 201 |
-    ...     ''',
-    ... )
-    [{'PatientId': 1, 'i1': 101, 'i2': 111}, {'PatientId': 2, 'i1': 201, 'i2': None}]
+    See test_conftest.py for examples.
     """
 
     header, _, *lines = s.strip().splitlines()
@@ -70,11 +62,7 @@ def parse_table(s):
 def parse_row(col_names, line):
     """Parse string containing row data, returning list of values.
 
-    >>> parse_row(
-    ...     ['PatientId', 'i1', 'i2'],
-    ...     "1 | 101 | 111",
-    ... )
-    {'PatientId': 1, 'i1': 101, 'i2': 111}
+    See test_conftest.py for examples.
     """
 
     return {
