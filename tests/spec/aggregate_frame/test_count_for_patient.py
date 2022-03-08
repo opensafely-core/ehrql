@@ -1,44 +1,37 @@
-from databuilder.query_language import (
-    Dataset,
-    IdSeries,
-    build_event_table,
-    build_patient_table,
-)
+from ..tables import e, p
 
-from ..helpers import transpose
+# Although we ensure that there is a row of p for each row of e in run_test(), we
+# explictly create rows of p here, since we want to check that the correct data is
+# returned for a patient that has no data in e.
 
-p = build_patient_table(
-    "p",
-    {
-        "patient_id": IdSeries,
-    },
-)
+# Additionally, creating the rows of p in run_test() is expected to be a temporary
+# measure until Dataset.use_unrestricted_population() works for all QEs.
+
+table_data = {
+    p: """
+          | i1
+        --+----
+        1 | 101
+        2 | 201
+        3 | 301
+        """,
+    e: """
+          | b1
+        --+----
+        1 |  T
+        1 |  F
+        2 |
+        """,
+}
 
 
-e = build_event_table(
-    "e",
-    {
-        "patient_id": IdSeries,
-    },
-)
-
-
-def test_count_for_patient(in_memory_engine):
-    in_memory_engine.setup(
+def test_count_for_patient(spec_test):
+    spec_test(
+        table_data,
+        e.count_for_patient(),
         {
-            p: ([1], [2], [3]),
-            e: ([1], [1], [2]),
+            1: 2,
+            2: 1,
+            3: 0,
         },
     )
-
-    dataset = Dataset()
-    dataset.use_unrestricted_population()
-    dataset.v = e.count_for_patient()
-
-    results = transpose(in_memory_engine.extract(dataset))
-
-    assert results["v"] == {
-        1: 2,
-        2: 1,
-        3: 0,
-    }

@@ -196,7 +196,7 @@ test-all *ARGS: devenv build-databuilder
         --cov-report=term-missing:skip-covered \
         tests
         {{ ARGS }}
-    $BIN/python -m doctest tests/lib/in_memory/database.py
+    $BIN/python -m doctest tests/lib/in_memory/database.py tests/spec/conftest.py
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
 
 # run scripts/dbx
