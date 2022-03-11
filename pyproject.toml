@@ -70,6 +70,7 @@ exclude_lines = [
 ]
 omit = [
     "databuilder/query_engines/query_model_old.py",
+    "databuilder/docs/__main__.py",
 ]
 
 [tool.coverage.html]

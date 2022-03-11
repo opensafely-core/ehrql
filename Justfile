@@ -222,3 +222,7 @@ story-dependencies: devenv
     fi
 
     SHORTCUT_EPIC="Walking skeleton" $BIN/python scripts/story-dependencies | dot -Tpng >story-dependencies.png
+
+generate-docs: devenv
+    $BIN/python -m databuilder.docs >public_docs.json
+    echo "Generated data for documentation."
