@@ -1,6 +1,7 @@
 import json
 
-from databuilder.docs import _reformat_docstring, generate_docs
+from databuilder.docs import generate_docs
+from databuilder.docs.common import reformat_docstring
 
 
 def test_reformat_docstring():
@@ -10,7 +11,7 @@ def test_reformat_docstring():
     Second line.
     """
 
-    output = _reformat_docstring(docstring)
+    output = reformat_docstring(docstring)
 
     expected = [
         "First line.",
