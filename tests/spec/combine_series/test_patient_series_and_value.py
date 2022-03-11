@@ -19,3 +19,14 @@ def test_patient_series_and_value(spec_test):
             2: (201 + 1),
         },
     )
+
+
+def test_value_and_patient_series(spec_test):
+    spec_test(
+        table_data,
+        (1 + p.i1).sum_for_patient(),
+        {
+            1: (1 + 101),
+            2: (1 + 201),
+        },
+    )
