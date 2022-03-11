@@ -1,5 +1,7 @@
 from ..tables import e
 
+title = "Combining an event series with a value"
+
 table_data = {
     e: """
           |  i1

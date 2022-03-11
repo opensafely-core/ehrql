@@ -1,5 +1,7 @@
 from ..tables import e, p
 
+title = "Determining whether a row exists for each patient"
+
 # Although we ensure that there is a row of p for each row of e in run_test(), we
 # explictly create rows of p here, since we want to check that the correct data is
 # returned for a patient that has no data in e.

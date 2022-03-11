@@ -1,5 +1,7 @@
 from ..tables import e
 
+title = "Excluding rows"
+
 
 def test_drop_with_column(spec_test):
     table_data = {

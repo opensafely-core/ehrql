@@ -1,5 +1,7 @@
 from ..tables import p
 
+title = "Logical operations"
+
 
 def test_not(spec_test):
     table_data = {

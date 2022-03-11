@@ -1,5 +1,7 @@
 from ..tables import e
 
+title = "Including rows"
+
 
 def test_take_with_column(spec_test):
     table_data = {
