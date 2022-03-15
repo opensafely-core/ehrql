@@ -119,6 +119,11 @@ def parse_table(s):
     """Return data in table as list of lists."""
 
     header, _, *rows = s.strip().splitlines()
+
+    # we don't set a first header for spec definitions so add it here, to avoid
+    # having to add it in the docs plugin which renders this.
+    header = f"patient {header}"
+
     return [[token.strip() for token in line.split("|")] for line in [header] + rows]
 
 
