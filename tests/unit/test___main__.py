@@ -82,17 +82,6 @@ def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
     )
 
 
-def test_generate_docs(mocker):
-    patched = mocker.patch("databuilder.__main__.generate_docs")
-
-    argv = [
-        "generate_docs",
-    ]
-    main(argv)
-
-    patched.assert_called_once()
-
-
 def test_validate_dataset_definition(mocker, tmp_path):
     # Verify that the validate_dataset_definition subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.validate_dataset")

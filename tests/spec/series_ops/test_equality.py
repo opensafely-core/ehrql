@@ -1,5 +1,7 @@
 from ..tables import p
 
+title = "Testing for equality"
+
 table_data = {
     p: """
           |  i1 |  i2

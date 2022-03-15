@@ -1,5 +1,7 @@
 from ..tables import e, p
 
+title = "Counting the rows for each patient"
+
 # Although we ensure that there is a row of p for each row of e in run_test(), we
 # explictly create rows of p here, since we want to check that the correct data is
 # returned for a patient that has no data in e.
@@ -25,13 +27,13 @@ table_data = {
 }
 
 
-def test_exists_for_patient(spec_test):
+def test_count_for_patient(spec_test):
     spec_test(
         table_data,
-        e.exists_for_patient(),
+        e.count_for_patient(),
         {
-            1: True,
-            2: True,
-            3: False,
+            1: 2,
+            2: 1,
+            3: 0,
         },
     )

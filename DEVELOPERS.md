@@ -237,3 +237,13 @@ However, we made the decision to remove this stack after finding it was not a go
 Some type annotations remain for use with the `singledispatchmethod_with_unions` decorator which uses the type information to route to the correct method.
 
 Dataclasses have also retained their annotations to avoid initialising all fields with None.
+
+
+### Generating data for documentation
+
+Some Data Builder [documentation](https://github.com/opensafely/documentation) is generated from code in this repo.
+An intermediate step generates a JSON file (`public_docs.json`) containing the data needed to generate the documentation.
+
+To generate this file, run:
+
+    just generate-docs

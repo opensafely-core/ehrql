@@ -1,5 +1,7 @@
 from ..tables import p
 
+title = "Comparison operations"
+
 table_data = {
     p: """
           |  i1 |  i2
@@ -12,7 +14,7 @@ table_data = {
 }
 
 
-def test_lt(spec_test):
+def test_less_than(spec_test):
     spec_test(
         table_data,
         p.i1 < p.i2,
@@ -20,7 +22,7 @@ def test_lt(spec_test):
     )
 
 
-def test_le(spec_test):
+def test_less_than_or_equal_to(spec_test):
     spec_test(
         table_data,
         p.i1 <= p.i2,
@@ -28,7 +30,7 @@ def test_le(spec_test):
     )
 
 
-def test_gt(spec_test):
+def test_greater_than(spec_test):
     spec_test(
         table_data,
         p.i1 > p.i2,
@@ -36,7 +38,7 @@ def test_gt(spec_test):
     )
 
 
-def test_ge(spec_test):
+def test_greater_than_or_equal_to(spec_test):
     spec_test(
         table_data,
         p.i1 >= p.i2,

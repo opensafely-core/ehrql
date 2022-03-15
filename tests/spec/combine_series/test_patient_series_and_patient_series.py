@@ -1,5 +1,7 @@
 from ..tables import p
 
+title = "Combining two patient series"
+
 table_data = {
     p: """
           |  i1 |  i2

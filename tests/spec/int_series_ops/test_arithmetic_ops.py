@@ -1,5 +1,7 @@
 from ..tables import p
 
+title = "Arithmetic operations"
+
 table_data = {
     p: """
           |  i1 |  i2

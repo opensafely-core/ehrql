@@ -41,14 +41,3 @@ def test_test_connection_in_container(run_in_container):
     )
 
     assert output
-
-
-def test_generate_docs_in_container(run_in_container):
-    output = run_in_container(
-        [
-            "generate_docs",
-            "--help",
-        ]
-    )
-
-    assert output

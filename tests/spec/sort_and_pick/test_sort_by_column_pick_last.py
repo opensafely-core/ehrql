@@ -1,5 +1,7 @@
 from ..tables import e
 
+title = "Picking the last row for each patient"
+
 table_data = {
     e: """
           |  i1
