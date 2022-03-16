@@ -33,20 +33,21 @@ _virtualenv:
     test -e $BIN/pip-compile || $PIP install pip-tools
 
 
-# update requirements.prod.txt if requirement.prod.in has changed
-requirements-prod: _virtualenv
+_compile src dst *args: _virtualenv
     #!/usr/bin/env bash
-    # exit if .in file is older than .txt file (-nt = 'newer than', but we negate with || to avoid error exit code)
-    test pyproject.toml -nt requirements.prod.txt || exit 0
-    $COMPILE --output-file=requirements.prod.txt pyproject.toml
+    # exit if src file is older than dst file (-nt = 'newer than', but we negate with || to avoid error exit code)
+    test "${FORCE:-}" = "true" -o {{ src }} -nt {{ dst }} || exit 0
+    $BIN/pip-compile --allow-unsafe --generate-hashes --output-file={{ dst }} {{ src }} {{ args }}
+
+
+# update requirements.prod.txt if pyproject.toml has changed
+requirements-prod *args:
+    {{ just_executable() }} _compile pyproject.toml requirements.prod.txt {{ args }}
 
 
 # update requirements.dev.txt if requirements.dev.in has changed
-requirements-dev: requirements-prod
-    #!/usr/bin/env bash
-    # exit if .in file is older than .txt file (-nt = 'newer than', but we negate with || to avoid error exit code)
-    test requirements.dev.in -nt requirements.dev.txt || exit 0
-    $COMPILE --output-file=requirements.dev.txt requirements.dev.in
+requirements-dev *args: requirements-prod
+    {{ just_executable() }} _compile requirements.dev.in requirements.dev.txt {{ args }}
 
 
 # ensure prod requirements installed and up to date
@@ -79,12 +80,13 @@ _install-precommit:
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
 
 
-# upgrade dev or prod dependencies (all by default, specify package to upgrade single package)
+# upgrade dev or prod dependencies (specify package to upgrade single package, all by default)
 upgrade env package="": _virtualenv
     #!/usr/bin/env bash
     opts="--upgrade"
     test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
-    $COMPILE $opts --output-file=requirements.{{ env }}.txt requirements.{{ env }}.in
+    FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
+
 
 # runs the format (black), sort (isort) and lint (flake8) checks but does not change any files
 check: devenv
