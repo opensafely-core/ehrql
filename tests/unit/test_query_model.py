@@ -19,6 +19,7 @@ from databuilder.query_model import (
     Series,
     Sort,
     TableSchema,
+    TypeValidationError,
     Value,
     get_series_type,
     has_one_row_per_patient,
@@ -204,21 +205,21 @@ def test_filtering_frame_using_condition_derived_from_parent_frame_is_ok():
 
 def test_cannot_pick_row_from_unsorted_table():
     events = SelectTable("events")
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeValidationError):
         PickOneRowPerPatient(events, Position.FIRST)  # type: ignore
 
 
 def test_cannot_pass_argument_without_wrapping_in_value():
     events = SelectTable("events")
     date = SelectColumn(events, "date")
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeValidationError):
         Function.EQ(date, datetime.date(2020, 1, 1))  # type: ignore
 
 
 def test_cannot_compare_date_and_int():
     events = SelectTable("events", EVENTS_SCHEMA)
     date = SelectColumn(events, "date")
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeValidationError):
         Function.EQ(date, Value(2000))
 
 
@@ -237,7 +238,7 @@ def test_infer_types_where_possible_even_without_schema():
     # Even though we've got no schema we know that Count always returns an int
     assert get_series_type(event_count) == int
     # And therefore it should be an error to compare it to a string
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeValidationError):
         Function.EQ(event_count, Value("some_string"))
 
 

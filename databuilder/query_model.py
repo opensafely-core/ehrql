@@ -25,6 +25,7 @@ __all__ = [
     "Categorise",
     "TableSchema",
     "Code",
+    "ValidationError",
     "DomainMismatchError",
     "has_one_row_per_patient",
     "get_series_type",
@@ -353,11 +354,15 @@ def validate_node(node):
     validate_input_domains(node)
 
 
+class ValidationError(Exception):
+    ...
+
+
 # DOMAIN VALIDATION
 #
 
 
-class DomainMismatchError(Exception):
+class DomainMismatchError(ValidationError):
     ...
 
 
@@ -484,6 +489,10 @@ def get_input_nodes_for_categorise(node):
 #
 
 
+class TypeValidationError(ValidationError):
+    ...
+
+
 def validate_types(node):
     # Within the context of this node, any TypeVars evaluated must take consistent
     # values so we create a single context object to share between all fields
@@ -511,7 +520,7 @@ def validate_types(node):
                 resolved_typespec = target_typespec[typevar_value]
             else:
                 resolved_typespec = target_typespec
-            raise TypeError(
+            raise TypeValidationError(
                 f"{node.__class__.__name__}.{field.name} requires '{resolved_typespec}'"
                 f" but got '{typespec}'"
                 f"\nIn node:\n{node}"
