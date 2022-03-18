@@ -428,7 +428,7 @@ def get_input_domains(node):
 
 
 # We use an arbitrary unique object to represent the patient domain
-PATIENT_DOMAIN = frozenset([object()])
+PATIENT_DOMAIN = frozenset(["PatientDomain"])
 
 
 @singledispatch
