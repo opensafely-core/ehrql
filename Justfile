@@ -185,6 +185,12 @@ test-unit *ARGS: devenv
     $BIN/python -m pytest tests/unit {{ ARGS }}
     $BIN/python -m doctest tests/lib/in_memory/database.py
 
+# Run the generative tests only. Optional args are passed to pytest.
+#
+# Set DEBUG env var to see stats. Set EXAMPLES to change the number of examples generated.
+test-generative *ARGS: devenv
+    $BIN/python -m pytest tests/generative {{ ARGS }}
+
 # Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
 test-all *ARGS: devenv build-databuilder
     #!/usr/bin/env bash

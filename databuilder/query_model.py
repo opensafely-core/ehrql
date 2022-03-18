@@ -28,7 +28,9 @@ __all__ = [
     "ValidationError",
     "DomainMismatchError",
     "has_one_row_per_patient",
+    "has_many_rows_per_patient",
     "get_series_type",
+    "get_input_nodes",
 ]
 
 
@@ -335,6 +337,10 @@ def has_one_row_per_patient(node):
     return get_domain(node) == PATIENT_DOMAIN
 
 
+def has_many_rows_per_patient(node):
+    return not has_one_row_per_patient(node)
+
+
 def get_series_type(series):
     "Return the type contained within a Series"
     assert isinstance(series, Series)
@@ -416,18 +422,15 @@ def validate_input_domains(node):
     # union of the parent domain with a new unique value.
 
     if isinstance(node, Filter) or isinstance(node, Sort):
-        source_domain = get_domain(node.source)
-
-        if isinstance(node, Filter):
-            series = node.condition
-        else:
-            series = node.sort_by
+        frame, series = get_input_nodes(node)
+        assert isinstance(frame, Frame)
+        assert isinstance(series, Series)
+        frame_domain = get_domain(frame)
         series_domain = get_domain(series)
-
-        if not series_domain.issubset(source_domain):
+        if not series_domain.issubset(frame_domain):
             raise DomainMismatchError(
                 f"Attempt to combine series with domain:\n{series_domain}"
-                f"\nWith frame with domain:\n{source_domain}"
+                f"\nWith frame with domain:\n{frame_domain}"
                 f"\nIn node:\n{node}"
             )
     else:

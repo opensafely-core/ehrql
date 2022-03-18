@@ -107,3 +107,4 @@ story-dependencies.png
 
 # Build/test byproducts
 cache/
+.hypothesis
