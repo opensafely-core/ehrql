@@ -65,7 +65,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_Value(self, node):
-        return node.value
+        return Column({patient: [node.value] for patient in self.all_patients})
 
     def visit_SelectTable(self, node):
         return self.tables[node.name]
