@@ -397,14 +397,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         codes = codelist.codes
         max_code_len = max(map(len, codes))
-        collation = "Latin1_General_BIN"
         table_name = self.get_temp_table_name("codelist")
         table = TemporaryTable(
             table_name,
             sqlalchemy.MetaData(),
             sqlalchemy.Column(
                 "code",
-                sqlalchemy.types.String(max_code_len, collation=collation),
+                sqlalchemy.types.String(max_code_len),
                 nullable=False,
             ),
             sqlalchemy.Column(
