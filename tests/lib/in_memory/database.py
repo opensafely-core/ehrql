@@ -30,10 +30,10 @@ class InMemoryDatabase:
         table_name_to_items = defaultdict(list)
         for item in input_data:
             table_name_to_items[item.__tablename__].append(item)
-        self.tables = {
-            table_name: self.build_table(items)
-            for table_name, items in table_name_to_items.items()
-        }
+        self.tables = defaultdict(Table.empty)
+
+        for table_name, items in table_name_to_items.items():
+            self.tables[table_name] = self.build_table(items)
 
     def build_table(self, items):
         model = type(items[0])
@@ -58,7 +58,13 @@ class Table:
     name_to_col: dict
 
     @classmethod
+    def empty(cls):
+        return cls.from_records([], [])
+
+    @classmethod
     def from_records(cls, col_names, row_records):
+        if not row_records:
+            return cls({"patient_id": Column.from_values([], [])})
         assert col_names[0] == "patient_id"
         col_records = list(zip(*row_records))
         patient_ids = col_records[0]
@@ -98,7 +104,10 @@ class Table:
         return cls.from_records(col_names, row_records)
 
     def __getitem__(self, name):
-        return self.name_to_col[name]
+        try:
+            return self.name_to_col[name]
+        except KeyError:
+            return Column.empty()
 
     def __repr__(self):
         width = 17
@@ -150,6 +159,10 @@ class Table:
 class Column:
     patient_to_values: dict
     default: object = None
+
+    @classmethod
+    def empty(cls):
+        return cls.from_values([], [])
 
     @classmethod
     def from_values(cls, patient_ids, values):
