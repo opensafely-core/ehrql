@@ -73,6 +73,7 @@ def test_type_matches_rejects_mismatch():
     assert not type_matches(list[str], list[Numeric], {})
     assert not type_matches(list[float], list[Union[int, str]], {})
     assert not type_matches(list, list[int], {})
+    assert not type_matches(bool, Numeric, {})
 
 
 def test_type_matches_only_with_consistent_typevar():
