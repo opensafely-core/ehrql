@@ -3,7 +3,6 @@ import pytest
 from databuilder.query_language import Dataset
 
 from ..lib.mock_backend import EventLevelTable, PatientLevelTable
-from .tables import p
 
 
 @pytest.fixture
@@ -18,25 +17,13 @@ def spec_test(in_memory_engine):
             }[table.qm_node.name]
             input_data.extend(model(**row) for row in parse_table(s))
 
-        # Ensure there is a PatientLevelTable instance for every EventLevelTable
-        # instance.  This lets us set the population without needing
-        # dataset.use_unrestricted_population to work.
-        patient_ids = {
-            item.PatientId for item in input_data if isinstance(item, PatientLevelTable)
-        }
-        event_patient_ids = {
-            item.PatientId for item in input_data if isinstance(item, EventLevelTable)
-        }
-        for patient_id in event_patient_ids - patient_ids:
-            input_data.append(PatientLevelTable(PatientId=patient_id))
-
         # Populate database tables.
         in_memory_engine.setup(*input_data)
 
         # Create a Dataset whose population is every patient in table p, with a single
         # variable which is the series under test.
         dataset = Dataset()
-        dataset.set_population(~p.patient_id.is_null())
+        dataset.use_unrestricted_population()
         dataset.v = series
 
         # Extract data, and check it's as expected.
