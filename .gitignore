@@ -86,7 +86,6 @@ $RECYCLE.BIN/
 
 # Python
 __pycache__
-.python-version
 *.pyc
 
 # Coverage
