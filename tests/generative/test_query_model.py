@@ -3,6 +3,7 @@ import os
 import hypothesis as hyp
 import hypothesis.errors
 import hypothesis.strategies as st
+import sqlalchemy
 import sqlalchemy.orm
 
 from databuilder.query_model import (
@@ -26,50 +27,24 @@ from ..conftest import QueryEngineFixture
 from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from .conftest import count_nodes, observe_inputs
 
+mapper_registry = sqlalchemy.orm.registry()
 next_id = iter(range(1, 2**63)).__next__
 
 
-Base = sqlalchemy.orm.declarative_base()
+def build_table(name, schema_, patient_id_column_):
+    columns = [
+        sqlalchemy.Column("Id", sqlalchemy.Integer, primary_key=True, default=next_id),
+        sqlalchemy.Column(patient_id_column_, sqlalchemy.Integer),
+    ]
+    for col_name, type_ in schema_.items():
+        sqla_type = {int: sqlalchemy.Integer, bool: sqlalchemy.Boolean}[type_]
+        columns.append(sqlalchemy.Column(col_name, sqla_type))
 
+    table = sqlalchemy.Table(name, mapper_registry.metadata, *columns)
+    class_ = type(name, (object,), dict(__tablename__=name))
+    mapper_registry.map_imperatively(class_, table)
 
-class P1(Base):
-    __tablename__ = "p1"
-    Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
-    PatientId = sqlalchemy.Column(sqlalchemy.Integer)
-    i1 = sqlalchemy.Column(sqlalchemy.Integer)
-    i2 = sqlalchemy.Column(sqlalchemy.Integer)
-    b1 = sqlalchemy.Column(sqlalchemy.Boolean)
-    b2 = sqlalchemy.Column(sqlalchemy.Boolean)
-
-
-class P2(Base):
-    __tablename__ = "p2"
-    Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
-    PatientId = sqlalchemy.Column(sqlalchemy.Integer)
-    i1 = sqlalchemy.Column(sqlalchemy.Integer)
-    i2 = sqlalchemy.Column(sqlalchemy.Integer)
-    b1 = sqlalchemy.Column(sqlalchemy.Boolean)
-    b2 = sqlalchemy.Column(sqlalchemy.Boolean)
-
-
-class E1(Base):
-    __tablename__ = "e1"
-    Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
-    PatientId = sqlalchemy.Column(sqlalchemy.Integer)
-    i1 = sqlalchemy.Column(sqlalchemy.Integer)
-    i2 = sqlalchemy.Column(sqlalchemy.Integer)
-    b1 = sqlalchemy.Column(sqlalchemy.Boolean)
-    b2 = sqlalchemy.Column(sqlalchemy.Boolean)
-
-
-class E2(Base):
-    __tablename__ = "e2"
-    Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
-    PatientId = sqlalchemy.Column(sqlalchemy.Integer)
-    i1 = sqlalchemy.Column(sqlalchemy.Integer)
-    i2 = sqlalchemy.Column(sqlalchemy.Integer)
-    b1 = sqlalchemy.Column(sqlalchemy.Boolean)
-    b2 = sqlalchemy.Column(sqlalchemy.Boolean)
+    return class_
 
 
 # A specialized version of st.builds() which cleanly rejects invalid Query Model objects.
@@ -214,16 +189,19 @@ bool_values = st.booleans()
 value = qm_builds(Value, st.one_of(int_values, bool_values))
 
 # To simplify data generation, all tables have the same schema.
+patient_id_column = "PatientId"
 schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
-event_tables = {"e1": E1, "e2": E2}
-patient_tables = {"p1": P1, "p2": P2}
+patient_tables = [build_table(name, schema, patient_id_column) for name in ["p1", "p2"]]
+event_tables = [build_table(name, schema, patient_id_column) for name in ["e1", "e2"]]
 
 select_table = qm_builds(
-    SelectTable, st.sampled_from(sorted(event_tables.keys())), st.just(schema)
+    SelectTable,
+    st.sampled_from([t.__tablename__ for t in event_tables]),
+    st.just(schema),
 )
 select_patient_table = qm_builds(
     SelectPatientTable,
-    st.sampled_from(sorted(patient_tables.keys())),
+    st.sampled_from([t.__tablename__ for t in patient_tables]),
     st.just(schema),
 )
 select_column = qm_builds(SelectColumn, frame, st.sampled_from(list(schema.keys())))
@@ -271,18 +249,14 @@ max_num_event_records = max_patient_id  # could be anything, hasn't been fine-tu
 
 
 def record(table, id_strategy):
-    type_ = (event_tables | patient_tables)[table]
+    # We don't construct the actual objects here because it's easier to extract stats for the generated data if we
+    # pass around simple objects.
+    columns = {patient_id_column: id_strategy}
+    for name, type_ in schema.items():
+        type_strategy = {int: int_values, bool: bool_values}[type_]
+        columns[name] = type_strategy
 
-    # We don't construct the actual objects here because it's easier to extract stats for the generated data like this
-    return st.builds(
-        dict,
-        type=st.just(type_),
-        PatientId=id_strategy,
-        i1=int_values,
-        i2=int_values,
-        b1=bool_values,
-        b2=bool_values,
-    )
+    return st.builds(dict, type=st.just(table), **columns)
 
 
 @st.composite
@@ -320,8 +294,8 @@ def patient_records(draw, table):
 
 def records():
     return concat(
-        *[patient_records(t) for t in sorted(patient_tables.keys())],
-        *[event_records(t) for t in sorted(event_tables.keys())]
+        *[patient_records(t) for t in patient_tables],
+        *[event_records(t) for t in event_tables]
     )
 
 
