@@ -93,8 +93,19 @@ class DateSeries(Series):
     def year(self):
         return IntSeries(qm.Function.YearFromDate(source=self.qm_node))
 
+    def __rsub__(self, other: str):
+        return None
+
 
 class StrSeries(Series):
+    pass
+
+
+class CodeSeries(Series):
+    pass
+
+
+class FloatSeries(Series):
     pass
 
 
