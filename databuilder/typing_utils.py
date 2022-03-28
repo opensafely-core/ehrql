@@ -83,6 +83,10 @@ def type_matches(spec, target_spec, typevar_context):
 
     # If there's no origin type that means `target_spec` is an ordinary class
     if target_spec_origin is None:
+        if spec == bool and target_spec == int:
+            # This is inconsistent with Python's type hierarchy, but considering bool to be an int makes typing our
+            # operations very much harder since it allows operations like True + True => 2.
+            return False
         return spec is not None and issubclass(spec, target_spec)
     elif target_spec_origin is typing.Union:
         # For union types we just need to match one of the arguments

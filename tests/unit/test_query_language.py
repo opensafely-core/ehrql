@@ -53,7 +53,7 @@ def test_dataset():
 
 def test_dataset_preserves_variable_order():
     dataset = Dataset()
-    dataset.set_population(True)
+    dataset.use_unrestricted_population()
     dataset.foo = patients.date_of_birth.year
     dataset.baz = patients.date_of_birth.year + 100
     dataset.bar = patients.date_of_birth.year - 100

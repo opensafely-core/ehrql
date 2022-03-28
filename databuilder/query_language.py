@@ -5,14 +5,12 @@ from . import query_model as qm
 
 class Dataset:
     def set_population(self, population):
-        if population is True:  # pragma: no cover
-            population = BoolSeries(qm.Value(True))
         # TODO raise proper error here
         assert isinstance(population, BoolSeries)
         object.__setattr__(self, "population", population)
 
     def use_unrestricted_population(self):  # pragma: no cover
-        self.set_population(True)
+        self.set_population(BoolSeries(qm.Value(True)))
 
     def __setattr__(self, name, value):
         # TODO raise proper errors here

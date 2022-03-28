@@ -19,6 +19,7 @@ from databuilder.query_model import (
     Series,
     Sort,
     TableSchema,
+    TypeValidationError,
     Value,
     get_series_type,
     has_one_row_per_patient,
@@ -149,6 +150,15 @@ def test_filtering_one_frame_by_a_condition_derived_from_another_throws_error():
         Filter(events, filter_condition)
 
 
+# And ditto for sort
+def test_sorting_one_frame_by_a_series_derived_from_another_throws_an_error():
+    events = SelectTable("events")
+    vaccinations = SelectTable("vaccinations")
+    vaccine_code = SelectColumn(vaccinations, "code")
+    with pytest.raises(DomainMismatchError):
+        Sort(events, vaccine_code)
+
+
 # We also can't combine results derived from the same source table if they've been
 # through divergent filter operations. Although such operations aren't *complete*
 # nonsense, there's never a good reason to do this and so instances of this are almost
@@ -159,6 +169,14 @@ def test_combining_results_of_different_filter_operations_throws_an_error():
     bar_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("bar")))
     with pytest.raises(DomainMismatchError):
         Function.EQ(SelectColumn(foo_events, "date"), SelectColumn(bar_events, "date"))
+
+
+# And once a table has been filtered, we can no longer combine the results with the filtered table
+def test_combining_filtered_results_with_the_original_table_throws_an_error():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    foo_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("foo")))
+    with pytest.raises(DomainMismatchError):
+        Function.EQ(SelectColumn(foo_events, "date"), SelectColumn(events, "date"))
 
 
 # And in particular we can't filter a frame using a predicate derived from a different
@@ -185,7 +203,7 @@ def test_filtering_frame_using_result_derived_from_another_filter_throws_error()
 # reference to that Frame to use in the filter condition. And that would make it
 # impossible to use chained constructions like:
 #
-#     table.filter(...).filter(...).filter(...)
+#     events.filter(...).filter(events.date > ...)
 #
 def test_filtering_frame_using_condition_derived_from_parent_frame_is_ok():
     events = SelectTable("events", EVENTS_SCHEMA)
@@ -198,27 +216,76 @@ def test_filtering_frame_using_condition_derived_from_parent_frame_is_ok():
     assert recent_foo_events
 
 
+# But not the other way around...
+def test_filtering_frame_using_condition_derived_from_child_frame_is_not_ok():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    foo_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("foo")))
+    with pytest.raises(DomainMismatchError):
+        Filter(
+            events,
+            # Here we're filtering `events` using a condition derived from `foo_events`
+            Function.GE(
+                SelectColumn(foo_events, "date"), Value(datetime.date(2022, 1, 1))
+            ),
+        )
+
+
+# And similarly for sort, we can't sort on a series derived from a divergent filter
+def test_sorting_frame_using_result_derived_from_another_filter_throws_error():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    older_events = Filter(
+        events,
+        Function.LT(SelectColumn(events, "date"), Value(datetime.date(2022, 1, 1))),
+    )
+    recent_events = Filter(
+        events,
+        Function.GE(SelectColumn(events, "date"), Value(datetime.date(2022, 1, 1))),
+    )
+    recent_codes = SelectColumn(recent_events, "code")
+    with pytest.raises(DomainMismatchError):
+        Sort(older_events, recent_codes)
+
+
+# But we can sort using a series derived from an ancestor, to allow this kind of construction:
+#
+#     events.filter(...).sort(events.date)
+#
+def test_sorting_frame_using_condition_derived_from_parent_frame_is_ok():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    foo_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("foo")))
+    sorted_foo_events = Sort(foo_events, SelectColumn(events, "date"))
+    assert sorted_foo_events
+
+
+# But not the other way around...
+def test_sorting_frame_using_value_derived_from_child_frame_is_not_ok():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    foo_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("foo")))
+    with pytest.raises(DomainMismatchError):
+        Sort(events, SelectColumn(foo_events, "date"))
+
+
 # TEST TYPE VALIDATION
 #
 
 
 def test_cannot_pick_row_from_unsorted_table():
     events = SelectTable("events")
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeValidationError):
         PickOneRowPerPatient(events, Position.FIRST)  # type: ignore
 
 
 def test_cannot_pass_argument_without_wrapping_in_value():
     events = SelectTable("events")
     date = SelectColumn(events, "date")
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeValidationError):
         Function.EQ(date, datetime.date(2020, 1, 1))  # type: ignore
 
 
 def test_cannot_compare_date_and_int():
     events = SelectTable("events", EVENTS_SCHEMA)
     date = SelectColumn(events, "date")
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeValidationError):
         Function.EQ(date, Value(2000))
 
 
@@ -237,7 +304,7 @@ def test_infer_types_where_possible_even_without_schema():
     # Even though we've got no schema we know that Count always returns an int
     assert get_series_type(event_count) == int
     # And therefore it should be an error to compare it to a string
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeValidationError):
         Function.EQ(event_count, Value("some_string"))
 
 

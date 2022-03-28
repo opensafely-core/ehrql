@@ -26,9 +26,6 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
         for name, node in self.column_definitions.items():
             col = self.visit(node)
-            if col is True:  # pragma: no cover
-                # The dataset's population is unrestricted.
-                col = Column({patient: [True] for patient in self.all_patients})
             assert not any_patient_has_multiple_values(col.patient_to_values)
             name_to_col[name] = col
 
@@ -65,7 +62,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_Value(self, node):
-        return node.value
+        return Column({patient: [node.value] for patient in self.all_patients})
 
     def visit_SelectTable(self, node):
         return self.tables[node.name]

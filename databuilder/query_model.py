@@ -25,9 +25,12 @@ __all__ = [
     "Categorise",
     "TableSchema",
     "Code",
+    "ValidationError",
     "DomainMismatchError",
     "has_one_row_per_patient",
+    "has_many_rows_per_patient",
     "get_series_type",
+    "get_input_nodes",
 ]
 
 
@@ -334,6 +337,10 @@ def has_one_row_per_patient(node):
     return get_domain(node) == PATIENT_DOMAIN
 
 
+def has_many_rows_per_patient(node):
+    return not has_one_row_per_patient(node)
+
+
 def get_series_type(series):
     "Return the type contained within a Series"
     assert isinstance(series, Series)
@@ -353,11 +360,15 @@ def validate_node(node):
     validate_input_domains(node)
 
 
+class ValidationError(Exception):
+    ...
+
+
 # DOMAIN VALIDATION
 #
 
 
-class DomainMismatchError(Exception):
+class DomainMismatchError(ValidationError):
     ...
 
 
@@ -373,47 +384,60 @@ def validate_input_domains(node):
     #  * Many-rows-per-patient data drawn from different tables can never be combined
     #    — at least, not until we add an explicit JOIN operation.
     #
-    #  * Many-rows-per-patient data drawn from a single underlying table can be combined
-    #    as long as any filters applied to the data can be arranged in a linear
-    #    sequence. That is, it's legal to combine `Table A -> Filter B -> Filter C` and
-    #    `Table A -> Filter B`. But it's not legal to combine `Table A -> Filter D` and
-    #    `Table A -> Filter E`. There's never a need to use such constructions and they
+    #  * Many-rows-per-patient series data drawn from a single underlying table can be
+    #    combined if they have had the same set of filters applied to them. That is, it's
+    #    legal to combine two series derived from `Table A -> Filter B`, but not a series
+    #    derived from `Table A -> Filter B -> Filter C` with one derived from
+    #    `Table A -> Filter B`. There's never a need to use such constructions and they
     #    will almost always be the result of user error. It's better to reject them
     #    immediately than give the user unexpected results at query time.
     #
-    #    As an example, the below ehrQL would produce an invalid construct:
+    #    As an example, we reject this erhQL construction because the per-patient
+    #    cardinality of the first argument to `+` may be lower than that of the second:
     #
-    #        foo_events = events.filter(code="foo")
-    #        bar_events = events.filter(code="bar")
-    #        bar_dates = bar_events.date
-    #        foobar_events = events.filter(foo_events.date == bar_dates)
+    #        e.take(e.b).i + e.i
     #
-    #    Were we to allow this, it could be executed but it would always return empty
-    #    results because it involves the condition `code = 'foo' AND code = 'bar'`. In
-    #    this case, what the user should have written is:
+    # * Many-rows-per-patient frames can be combined with many-rows-per-patient series
+    #   derived from the same underlying table, as long as any filters applied to each
+    #   one are identical or make the series a "parent" of the frame. That is, it's legal
+    #   to combine `Table A -> Filter B -> Filter C` and a series derived from
+    #   `Table A -> Filter B`. But it's not legal to combine `Table A -> Filter D` and a
+    #   series derived from `Table A -> Filter E`. Combination of this nature takes place
+    #   with the Filter and Sort operations.
     #
-    #        foobar_events = events.filter(foo_events.date.isin(bar_dates))
+    #   That means that filters and sorts can be expressed tersely in ehrQL, like this:
+    #
+    #       events.filter(events.code == "foo").filter(events.date >= start_date)
     #
     # We enforce this by modelling domains as a hierarchy. At the root is the patient
     # domain, each table has an unique domain descending from this, and each filter
-    # operation creates a new domain descending from the domain of its source. A valid
-    # operation is one where the domains of its inputs are "nested" in the sense that
-    # each domain is an ancestor or descendant of every other.
+    # operation creates a new domain descending from the domain of its source.
+    #
+    # A valid series combination operation is one where the non-patient domains are
+    # identical.  A valid filter or sort operation is one where the domains of its series
+    # input's domain is an ancestor of its frame input's domain.
     #
     # We use sets to implement this hierarchy: we start with the patient domain as a set
-    # containing a single unique value, and we create descendent domains by forming the
-    # union of the parent domain with a new unqiue value. The `issubset()` relation then
-    # gives us the "is domain ancestor" semantics we want.
-    #
-    # Another way of expressing the "nested" condition above is that the input domains
-    # must be totally ordered by ancestory. We can check this by sorting them (sets
-    # naturally sort by subset-hood in Python) and then confirming that the ordering is
-    # total by testing that each adjacent pair has the required subset relation.
-    domains = sorted(get_input_domains(node))
-    for a, b in zip(domains, domains[1:]):
-        if not a.issubset(b):
+    # containing a single unique value, and we create descendant domains by forming the
+    # union of the parent domain with a new unique value.
+
+    if isinstance(node, Filter) or isinstance(node, Sort):
+        frame, series = get_input_nodes(node)
+        assert isinstance(frame, Frame)
+        assert isinstance(series, Series)
+        frame_domain = get_domain(frame)
+        series_domain = get_domain(series)
+        if not series_domain.issubset(frame_domain):
             raise DomainMismatchError(
-                f"Attempt to combine unrelated domains:\n{a} and {b}"
+                f"Attempt to combine series with domain:\n{series_domain}"
+                f"\nWith frame with domain:\n{frame_domain}"
+                f"\nIn node:\n{node}"
+            )
+    else:
+        non_patient_domains = get_input_domains(node) - {PATIENT_DOMAIN}
+        if len(non_patient_domains) > 1:
+            raise DomainMismatchError(
+                f"Attempt to combine unrelated domains:\n{non_patient_domains}"
                 f"\nIn node:\n{node}"
             )
 
@@ -423,7 +447,7 @@ def get_input_domains(node):
 
 
 # We use an arbitrary unique object to represent the patient domain
-PATIENT_DOMAIN = frozenset([object()])
+PATIENT_DOMAIN = frozenset(["PatientDomain"])
 
 
 @singledispatch
@@ -484,6 +508,10 @@ def get_input_nodes_for_categorise(node):
 #
 
 
+class TypeValidationError(ValidationError):
+    ...
+
+
 def validate_types(node):
     # Within the context of this node, any TypeVars evaluated must take consistent
     # values so we create a single context object to share between all fields
@@ -511,7 +539,7 @@ def validate_types(node):
                 resolved_typespec = target_typespec[typevar_value]
             else:
                 resolved_typespec = target_typespec
-            raise TypeError(
+            raise TypeValidationError(
                 f"{node.__class__.__name__}.{field.name} requires '{resolved_typespec}'"
                 f" but got '{typespec}'"
                 f"\nIn node:\n{node}"
