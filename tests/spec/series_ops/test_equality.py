@@ -30,6 +30,7 @@ def test_equals(spec_test):
     )
 
 
+@pytest.mark.sql_spec
 def test_not_equals(spec_test):
     spec_test(
         table_data,
@@ -43,6 +44,7 @@ def test_not_equals(spec_test):
     )
 
 
+@pytest.mark.sql_spec
 def test_is_null(spec_test):
     spec_test(
         table_data,

@@ -70,6 +70,54 @@ class SQLiteQueryEngine(BaseQueryEngine):
     def get_sql_eq(self, node):
         return operators.eq(self.get_sql(node.lhs), self.get_sql(node.rhs))
 
+    @get_sql.register(Function.NE)
+    def get_sql_ne(self, node):
+        return operators.ne(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    @get_sql.register(Function.IsNull)
+    def get_sql_is_null(self, node):
+        return operators.is_(self.get_sql(node.source), None)
+
+    @get_sql.register(Function.Not)
+    def get_sql_not(self, node):
+        return sqlalchemy.not_(self.get_sql(node.source))
+
+    @get_sql.register(Function.And)
+    def get_sql_and(self, node):
+        return operators.and_(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    @get_sql.register(Function.Or)
+    def get_sql_or(self, node):
+        return operators.or_(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    @get_sql.register(Function.LT)
+    def get_sql_lt(self, node):
+        return operators.lt(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    @get_sql.register(Function.LE)
+    def get_sql_le(self, node):
+        return operators.le(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    @get_sql.register(Function.GT)
+    def get_sql_gt(self, node):
+        return operators.gt(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    @get_sql.register(Function.GE)
+    def get_sql_ge(self, node):
+        return operators.ge(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    @get_sql.register(Function.Negate)
+    def get_sql_negate(self, node):
+        return operators.neg(self.get_sql(node.source))
+
+    @get_sql.register(Function.Add)
+    def get_sql_add(self, node):
+        return operators.add(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    @get_sql.register(Function.Subtract)
+    def get_sql_subtract(self, node):
+        return operators.sub(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
     @get_sql.register(SelectColumn)
     def get_sql_select_column(self, node):
         source = self.get_sql(node.source)
