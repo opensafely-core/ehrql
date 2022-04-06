@@ -44,6 +44,7 @@ __all__ = [
 # type without specifying what that type has to be
 T = TypeVar("T")
 Numeric = TypeVar("Numeric", int, float)
+Comparable = TypeVar("Comparable", int, float, str, date)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -216,12 +217,6 @@ class AggregateByPatient:
         source: Series[T]
 
 
-# Remove some duplication from the definition of the comparison functions
-class ComparisonFunction(Series[bool]):
-    lhs: Series[T]
-    rhs: Series[T]
-
-
 # A function is any operation which takes series and values and returns a series. The
 # dimension of the series it returns will be the highest dimension of its inputs i.e. if
 # any of its inputs has many-rows-per-patient then its output will too.  Below are all
@@ -229,23 +224,29 @@ class ComparisonFunction(Series[bool]):
 class Function:
 
     # Comparison
-    class EQ(ComparisonFunction):
-        ...
+    class EQ(Series[bool]):
+        lhs: Series[T]
+        rhs: Series[T]
 
-    class NE(ComparisonFunction):
-        ...
+    class NE(Series[bool]):
+        lhs: Series[T]
+        rhs: Series[T]
 
-    class LT(ComparisonFunction):
-        ...
+    class LT(Series[bool]):
+        lhs: Series[Comparable]
+        rhs: Series[Comparable]
 
-    class LE(ComparisonFunction):
-        ...
+    class LE(Series[bool]):
+        lhs: Series[Comparable]
+        rhs: Series[Comparable]
 
-    class GT(ComparisonFunction):
-        ...
+    class GT(Series[bool]):
+        lhs: Series[Comparable]
+        rhs: Series[Comparable]
 
-    class GE(ComparisonFunction):
-        ...
+    class GE(Series[bool]):
+        lhs: Series[Comparable]
+        rhs: Series[Comparable]
 
     # Boolean
     class And(Series[bool]):
