@@ -28,27 +28,12 @@ from tests.lib.util import iter_flatten
 
 class InMemoryDatabase:
     def setup(self, *input_data):
-        self.all_patients = set()
-        table_name_to_items = defaultdict(list)
+        # organize inputs by table for ease of use later
+        self.inputs = defaultdict(list)
 
         input_data = list(iter_flatten(input_data))
         for item in input_data:
-            table_name_to_items[item.__tablename__].append(item)
-        self.tables = {}
-
-        for table_name, items in table_name_to_items.items():
-            self.tables[table_name] = self.build_table(items)
-
-    def build_table(self, items):
-        model = type(items[0])
-        col_names = [col.name for col in model.__table__.columns if col.name != "Id"]
-        row_records = [
-            [getattr(item, col_name) for col_name in col_names] for item in items
-        ]
-        col_names[0] = "patient_id"
-        table = Table.from_records(col_names, row_records)
-        self.all_patients |= table["patient_id"].patient_to_values.keys()
-        return table
+            self.inputs[item.__tablename__].append(item)
 
     def host_url(self):
         # Hack!  Other test database classes deriving from tests.lib.databases.DbDetails
@@ -56,24 +41,74 @@ class InMemoryDatabase:
         # InMemoryQueryEngine.database.
         return self
 
+    def build_tables(self, patient_tables, event_tables, patient_join_column):
+        self._patient_join_column = patient_join_column
+
+        # We need to know the all the patients before we construct the tables, so we have to iterate over the inputs twice.
+        self.all_patients = set()
+        for table, rows in self.inputs.items():
+            if table not in patient_tables:
+                continue
+            for row in rows:
+                patient_id = getattr(row, patient_join_column)
+                self.all_patients.add(patient_id)
+
+        self._patient_tables = {}
+        self._event_tables = {}
+        for table, rows in self.inputs.items():
+            if table in patient_tables:
+                self._patient_tables[table] = self._build_table(rows, [None])
+            elif table in event_tables:
+                self._event_tables[table] = self._build_table(rows, [])
+            else:  # pragma: no cover
+                pass
+
+    def patient_table(self, name):
+        return self._patient_tables[name]
+
+    def event_table(self, name):
+        return self._event_tables[name]
+
+    def _build_table(self, rows, default_value):
+        model = type(rows[0])
+        assert all(type(row) == model for row in rows)
+
+        col_names = [col.name for col in model.__table__.columns if col.name != "Id"]
+        row_records = [
+            [getattr(row, col_name) for col_name in col_names] for row in rows
+        ]
+        col_names = [
+            "patient_id" if name == self._patient_join_column else name
+            for name in col_names
+        ]
+
+        # Tables need to be able to return values for patients for which they don't have records
+        mentioned_ids = {r[0] for r in row_records}
+        missing_ids = self.all_patients - mentioned_ids
+
+        table = Table.from_records(col_names, row_records, missing_ids, default_value)
+        return table
+
 
 @dataclass
 class Table:
     name_to_col: dict
 
     @classmethod
-    def from_records(cls, col_names, row_records):
+    def from_records(cls, col_names, row_records, missing_patient_ids, default_value):
         assert col_names[0] == "patient_id"
         col_records = list(zip(*row_records))
         patient_ids = col_records[0]
         name_to_col = {
-            name: Column.from_values(patient_ids, values)
+            name: Column.from_values(
+                patient_ids, values, missing_patient_ids, default_value
+            )
             for name, values in zip(col_names, col_records)
         }
         return cls(name_to_col)
 
     @classmethod
-    def parse(cls, s):
+    def parse(cls, s, missing_patient_ids=None, default_value=None):
         """Create Table instance by parsing string.
 
         >>> tbl = Table.parse(
@@ -92,6 +127,7 @@ class Table:
         >>> tbl['i1'].patient_to_values
         {1: [101, 102], 2: [201]}
         """
+        missing_patient_ids = missing_patient_ids or []
 
         header, _, *lines = s.strip().splitlines()
         col_names = [token.strip() for token in header.split("|")]
@@ -99,7 +135,9 @@ class Table:
         row_records = [
             [parse_value(token.strip()) for token in line.split("|")] for line in lines
         ]
-        return cls.from_records(col_names, row_records)
+        return cls.from_records(
+            col_names, row_records, missing_patient_ids, default_value
+        )
 
     def __getitem__(self, name):
         return self.name_to_col[name]
@@ -127,15 +165,10 @@ class Table:
             }
 
     def exists(self):
-        return self["patient_id"].make_new_column(
-            lambda p, vv: [bool(vv)], default=False
-        )
+        return self["patient_id"].make_new_column(lambda p, vv: [bool(vv)])
 
     def count(self):
-        return self["patient_id"].make_new_column(
-            lambda p, vv: [len(vv)],
-            default=0,
-        )
+        return self["patient_id"].make_new_column(lambda p, vv: [len(vv)])
 
     def filter(self, predicate):  # noqa A003
         return self.make_new_table(lambda col: col.filter(predicate))
@@ -153,17 +186,18 @@ class Table:
 @dataclass
 class Column:
     patient_to_values: dict
-    default: object = None
 
     @classmethod
-    def from_values(cls, patient_ids, values):
+    def from_values(cls, patient_ids, values, missing_patient_ids, default_value):
         patient_to_values = defaultdict(list)
         for patient, value in zip(patient_ids, values):
             patient_to_values[patient].append(value)
+        for patient_id in missing_patient_ids:
+            patient_to_values[patient_id] = default_value
         return cls(dict(patient_to_values))
 
     @classmethod
-    def parse(cls, s):
+    def parse(cls, s, missing_patient_ids=None, default_value=None):
         """Create Column instance by parsing string.
 
         >>> col = Column.parse(
@@ -176,6 +210,7 @@ class Column:
         >>> col.patient_to_values
         {1: [101, 102], 2: [201]}
         """
+        missing_patient_ids = missing_patient_ids or []
 
         patient_ids = []
         values = []
@@ -183,10 +218,10 @@ class Column:
             patient, value = (token.strip() for token in line.split("|"))
             patient_ids.append(int(patient))
             values.append(parse_value(value))
-        return cls.from_values(patient_ids, values)
+        return cls.from_values(patient_ids, values, missing_patient_ids, default_value)
 
     def get_values(self, patient):
-        return self.patient_to_values.get(patient, [self.default])
+        return self.patient_to_values.get(patient)
 
     def get_value(self, patient):
         values = self.get_values(patient)
@@ -243,17 +278,17 @@ class Column:
     def binary_op_with_null(self, fn, other):
         return self.binary_op(handle_null(fn), other)
 
-    def aggregate_values(self, fn, default=None):
-        return self.make_new_column(lambda p, vv: [fn(vv)], default)
+    def aggregate_values(self, fn):
+        return self.make_new_column(lambda p, vv: [fn(vv)])
 
     def filter(self, predicate):  # noqa A003
         def fn(p, vv):
             return [v for v, pred_val in zip(vv, predicate.get_values(p)) if pred_val]
 
-        return self.make_new_column(fn, default=self.default)
+        return self.make_new_column(fn)
 
     def sort_index(self):
-        def fn(p, vv):
+        def fn(_p, vv):
             return [pair[0] for pair in sorted(enumerate(vv), key=lambda pair: pair[1])]
 
         return self.make_new_column(fn)
@@ -272,14 +307,8 @@ class Column:
     def pick_at_index(self, ix):
         return self.make_new_column(lambda p, vv: [vv[ix]])
 
-    def make_new_column(self, fn, default=None):
-        new_patient_to_values = {
-            p: fn(p, vv) for p, vv in self.patient_to_values.items()
-        }
-        return Column(
-            {p: vv for p, vv in new_patient_to_values.items() if vv},
-            default,
-        )
+    def make_new_column(self, fn):
+        return Column({p: fn(p, vv) for p, vv in self.patient_to_values.items()})
 
 
 def any_patient_has_multiple_values(patient_to_values):
@@ -296,4 +325,8 @@ def handle_null(fn):
 
 
 def parse_value(value):
+    if value == "T":
+        return True
+    if value == "F":
+        return False
     return int(value) if value else None
