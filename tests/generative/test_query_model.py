@@ -3,8 +3,6 @@ import os
 import hypothesis as hyp
 import hypothesis.errors
 import hypothesis.strategies as st
-import sqlalchemy
-import sqlalchemy.orm
 
 from databuilder.query_model import (
     AggregateByPatient,
@@ -25,26 +23,13 @@ from databuilder.query_model import (
 
 from ..conftest import QueryEngineFixture
 from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
+from . import data_setup
 from .conftest import count_nodes, observe_inputs
 
-mapper_registry = sqlalchemy.orm.registry()
-next_id = iter(range(1, 2**63)).__next__
+# To simplify data generation, all tables have the same schema.
+schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
 
-
-def build_table(name, schema_, patient_id_column_):
-    columns = [
-        sqlalchemy.Column("Id", sqlalchemy.Integer, primary_key=True, default=next_id),
-        sqlalchemy.Column(patient_id_column_, sqlalchemy.Integer),
-    ]
-    for col_name, type_ in schema_.items():
-        sqla_type = {int: sqlalchemy.Integer, bool: sqlalchemy.Boolean}[type_]
-        columns.append(sqlalchemy.Column(col_name, sqla_type))
-
-    table = sqlalchemy.Table(name, mapper_registry.metadata, *columns)
-    class_ = type(name, (object,), dict(__tablename__=name))
-    mapper_registry.map_imperatively(class_, table)
-
-    return class_
+patient_id_column, patient_tables, event_tables = data_setup.setup(schema)
 
 
 # A specialized version of st.builds() which cleanly rejects invalid Query Model objects.
@@ -187,12 +172,6 @@ sorted_frame = st.deferred(lambda: st.one_of(sort))
 int_values = st.integers(min_value=0, max_value=10)
 bool_values = st.booleans()
 value = qm_builds(Value, st.one_of(int_values, bool_values))
-
-# To simplify data generation, all tables have the same schema.
-patient_id_column = "PatientId"
-schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
-patient_tables = [build_table(name, schema, patient_id_column) for name in ["p1", "p2"]]
-event_tables = [build_table(name, schema, patient_id_column) for name in ["e1", "e2"]]
 
 select_table = qm_builds(
     SelectTable,
