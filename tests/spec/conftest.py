@@ -1,12 +1,61 @@
 import pytest
 
+from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset
 
+from ..conftest import QueryEngineFixture
+from ..lib.databases import DbDetails
+from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from ..lib.mock_backend import EventLevelTable, PatientLevelTable
 
 
+class InMemorySQLiteDatabase(DbDetails):
+    def __init__(self, db_name):
+        super().__init__(
+            db_name=db_name,
+            protocol="sqlite",
+            driver="pysqlite",
+            host_from_container=None,
+            port_from_container=None,
+            host_from_host=None,
+            port_from_host=None,
+        )
+
+    def _url(self, host, port, include_driver=False):
+        if include_driver:
+            protocol = f"{self.protocol}+{self.driver}"
+        else:
+            protocol = self.protocol
+        # https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#uri-connections
+        # https://sqlite.org/inmemorydb.html
+        return f"{protocol}:///file:{self.db_name}?mode=memory&cache=shared&uri=true"
+
+
+@pytest.fixture(
+    scope="session",
+    params=["in_memory", "sqlite"],
+)
+def engine(request):
+    name = request.param
+    if name == "in_memory":
+        return QueryEngineFixture(name, InMemoryDatabase(), InMemoryQueryEngine)
+    elif name == "sqlite":
+        return QueryEngineFixture(
+            name, InMemorySQLiteDatabase("test_db"), SQLiteQueryEngine
+        )
+    else:
+        assert False
+
+
 @pytest.fixture
-def spec_test(in_memory_engine):
+def spec_test(request, engine):
+    # While we're developing the SQLite engine we only expect a subset of the spec
+    # tests, those we mark with `sql_spec`, to pass against it
+    if engine.name == "sqlite":
+        marks = [m.name for m in request.node.iter_markers()]
+        if "sql_spec" not in marks:
+            pytest.xfail()
+
     def run_test(table_data, series, expected_results):
         # Create SQLAlchemy model instances for each row of each table in table_data.
         input_data = []
@@ -18,7 +67,7 @@ def spec_test(in_memory_engine):
             input_data.extend(model(**row) for row in parse_table(s))
 
         # Populate database tables.
-        in_memory_engine.setup(*input_data)
+        engine.setup(*input_data)
 
         # Create a Dataset whose population is every patient in table p, with a single
         # variable which is the series under test.
@@ -27,7 +76,7 @@ def spec_test(in_memory_engine):
         dataset.v = series
 
         # Extract data, and check it's as expected.
-        results = {r["patient_id"]: r["v"] for r in in_memory_engine.extract(dataset)}
+        results = {r["patient_id"]: r["v"] for r in engine.extract(dataset)}
         assert results == expected_results
 
     return run_test

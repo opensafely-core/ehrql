@@ -1,8 +1,11 @@
+import pytest
+
 from ..tables import p
 
 title = "Logical operations"
 
 
+@pytest.mark.sql_spec
 def test_not(spec_test):
     table_data = {
         p: """
@@ -42,6 +45,7 @@ table_data = {
 }
 
 
+@pytest.mark.sql_spec
 def test_and(spec_test):
     spec_test(
         table_data,
@@ -60,6 +64,7 @@ def test_and(spec_test):
     )
 
 
+@pytest.mark.sql_spec
 def test_or(spec_test):
     spec_test(
         table_data,

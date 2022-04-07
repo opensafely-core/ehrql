@@ -124,9 +124,7 @@ class CTV3Events(Base):
     __tablename__ = "events"
     EventId = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
     PatientId = sqlalchemy.Column(sqlalchemy.Integer, default=null)
-    EventCode = sqlalchemy.Column(
-        sqlalchemy.String(collation="Latin1_General_BIN"), default=null
-    )
+    EventCode = sqlalchemy.Column(sqlalchemy.String, default=null)
     System = sqlalchemy.Column(sqlalchemy.String, default=null)
     Date = sqlalchemy.Column(sqlalchemy.Date, default=null)
     ResultValue = sqlalchemy.Column(sqlalchemy.Float, default=null)
