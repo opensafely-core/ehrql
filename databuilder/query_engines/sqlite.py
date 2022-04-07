@@ -5,7 +5,14 @@ import sqlalchemy
 from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.sql import operators
 
-from databuilder.query_model import Function, SelectColumn, SelectPatientTable, Value
+from databuilder.query_model import (
+    AggregateByPatient,
+    Function,
+    SelectColumn,
+    SelectPatientTable,
+    SelectTable,
+    Value,
+)
 from databuilder.sqlalchemy_utils import get_referenced_tables
 
 from .base import BaseQueryEngine
@@ -50,6 +57,11 @@ class SQLiteQueryEngine(BaseQueryEngine):
         )
 
     def get_patient_table(self, tables):
+        return (
+            sqlalchemy.text("SELECT PatientID as patient_id FROM patient_level_table")
+            .columns(sqlalchemy.Column("patient_id"))
+            .alias("patients")
+        )
         # TODO: This logic is still under discussion but this covers us for now: it
         # returns a Common Table Expression contain all patient_ids contained in all
         # tables references in the dataset definition
@@ -126,10 +138,29 @@ class SQLiteQueryEngine(BaseQueryEngine):
     # We have to apply caching here otherwise we generate disinct objects representing
     # the same table and this confuses SQLAlchemy into generating queries with ambiguous
     # table references
+    @get_sql.register(SelectTable)
     @get_sql.register(SelectPatientTable)
     @cache
     def get_sql_select_table(self, node):
         return self.backend.get_table_expression(node.name)
+
+    @get_sql.register(AggregateByPatient.Exists)
+    def get_sql_exists(self, node):
+        source = self.get_sql(node.source)
+        query = sqlalchemy.select(
+            [source.c.patient_id, sqlalchemy.literal(True).label("value")]
+        )
+        query = query.group_by(source.c.patient_id)
+        return sqlalchemy.func.coalesce(query.cte().c.value, False)
+
+    @get_sql.register(AggregateByPatient.Count)
+    def get_sql_count(self, node):
+        source = self.get_sql(node.source)
+        query = sqlalchemy.select(
+            [source.c.patient_id, sqlalchemy.func.count("*").label("value")]
+        )
+        query = query.group_by(source.c.patient_id)
+        return sqlalchemy.func.coalesce(query.cte().c.value, 0)
 
     @contextlib.contextmanager
     def execute_query(self):
