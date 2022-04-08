@@ -251,7 +251,9 @@ patient_ids = st.integers(min_value=1, max_value=max_patient_id)
 
 
 def event_records(table):
-    return st.lists(record(table, patient_ids), max_size=max_num_event_records)
+    return st.lists(
+        record(table, patient_ids), min_size=1, max_size=max_num_event_records
+    )
 
 
 @st.composite
@@ -268,7 +270,9 @@ def patient_records(draw, table):
         used_ids.append(id_)
         return draw(record(table, st.just(id_)))
 
-    return draw(st.lists(one_patient_record(), max_size=max_num_patient_records))
+    return draw(
+        st.lists(one_patient_record(), min_size=1, max_size=max_num_patient_records)
+    )
 
 
 def records():
