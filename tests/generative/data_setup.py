@@ -44,6 +44,10 @@ def _build_orm_class(name, schema, patient_id_column, ids, registry):
     class_ = type(name, (object,), dict(__tablename__=name, metadata=registry.metadata))
     registry.map_imperatively(class_, table)
 
+    # It's helpful to have the classes available as module properties so that we can copy-paste failing test cases
+    # from Hypothesis.
+    globals()[name] = class_
+
     return class_
 
 
