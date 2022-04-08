@@ -4,31 +4,9 @@ from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset
 
 from ..conftest import QueryEngineFixture
-from ..lib.databases import DbDetails
+from ..lib.databases import InMemorySQLiteDatabase
 from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from ..lib.mock_backend import EventLevelTable, PatientLevelTable
-
-
-class InMemorySQLiteDatabase(DbDetails):
-    def __init__(self, db_name):
-        super().__init__(
-            db_name=db_name,
-            protocol="sqlite",
-            driver="pysqlite",
-            host_from_container=None,
-            port_from_container=None,
-            host_from_host=None,
-            port_from_host=None,
-        )
-
-    def _url(self, host, port, include_driver=False):
-        if include_driver:
-            protocol = f"{self.protocol}+{self.driver}"
-        else:
-            protocol = self.protocol
-        # https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#uri-connections
-        # https://sqlite.org/inmemorydb.html
-        return f"{protocol}:///file:{self.db_name}?mode=memory&cache=shared&uri=true"
 
 
 @pytest.fixture(
