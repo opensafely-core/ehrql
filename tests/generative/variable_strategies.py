@@ -16,6 +16,7 @@ from databuilder.query_model import (
     Value,
     has_many_rows_per_patient,
     has_one_row_per_patient,
+    node_types,
 )
 
 # Here follows a set of recursive strategies for constructing valid query model graphs.
@@ -186,7 +187,11 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 
     # TODO Unsupported operations: everything that acts on dates or collections
 
-    return one_row_per_patient_series
+    def uses_the_database(v):
+        database_uses = [SelectPatientTable, SelectTable]
+        return any(t in database_uses for t in node_types(v))
+
+    return one_row_per_patient_series.filter(uses_the_database)
 
 
 # A specialized version of st.builds() which cleanly rejects invalid Query Model objects.
