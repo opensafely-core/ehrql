@@ -1,5 +1,5 @@
-import itertools
 import os
+import pprint
 from collections import defaultdict
 
 from databuilder.query_model import get_input_nodes
@@ -28,46 +28,53 @@ def count_nodes(tree):  # pragma: no cover
 
 
 def node_types(tree):  # pragma: no cover
-    return [type(tree)] + flatten(node_types(node) for node in get_input_nodes(tree))
-
-
-def flatten(lists):  # pragma: no cover
-    return list(itertools.chain.from_iterable(lists))
+    return [type(tree)] + [
+        type_ for node in get_input_nodes(tree) for type_ in node_types(node)
+    ]
 
 
 def histogram(samples):  # pragma: no cover
     h = defaultdict(int)
     for sample in samples:
         h[sample] = h[sample] + 1
-    return dict(h.items())
+    return sorted(h.items())
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):  # pragma: no cover
     if "DEBUG" not in os.environ:
         return
 
-    print(f"\n{len(observed_inputs)} unique inputs")
+    print(f"\n{len(observed_inputs)} unique input combinations")
 
     observed_variables = {i[0] for i in observed_inputs}
+    print(f"\n{len(observed_variables)} unique queries")
 
     counts = [count_nodes(example) for example in observed_variables]
     count_histo = histogram(counts)
-    print(f"\n{len(observed_variables)} unique examples with node count distribution:")
-    for count, num in sorted(count_histo.items(), key=lambda item: item[0]):
+    print("\nwith this node count distribution")
+    for count, num in count_histo:
         print(f"{count:3}\t{num}")
 
-    types = flatten(node_types(example) for example in observed_variables)
-    type_histo = histogram(types)
-    print("\nNode types:")
-    for type_, num in sorted(
-        type_histo.items(), key=lambda item: item[1], reverse=True
-    ):
-        print(f"{type_.__name__:25}{num}")
+    if observed_variables:
+        print("\nlargest query")
+        by_size = sorted(observed_variables, key=lambda v: count_nodes(v))
+        pprint.pprint(by_size[-1])
+
+    all_node_types = [
+        type_.__name__
+        for variable in observed_variables
+        for type_ in node_types(variable)
+    ]
+    type_histo = histogram(all_node_types)
+    print("\nand these node types")
+    for type_, num in sorted(type_histo, key=lambda item: item[1], reverse=True):
+        print(f"{type_:25}{num}")
 
     observed_records = {i[1] for i in observed_inputs}
+    print(f"\n{len(observed_records)} unique datasets")
 
     record_counts = [len(records) for records in observed_records]
     record_count_histo = histogram(record_counts)
-    print(f"\n{len(observed_records)} unique datasets with size distribution")
-    for count, num in sorted(record_count_histo.items(), key=lambda item: item[0]):
+    print("\nwith this size distribution")
+    for count, num in record_count_histo:
         print(f"{count:3}\t{num}")
