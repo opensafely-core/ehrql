@@ -1,7 +1,7 @@
 import sqlalchemy
 import sqlalchemy.orm
 
-from databuilder.backends.base import BaseBackend
+import databuilder.backends.base as backends
 
 
 def setup(schema, num_patient_tables, num_event_tables):
@@ -9,30 +9,29 @@ def setup(schema, num_patient_tables, num_event_tables):
     ids = iter(range(1, 2**63)).__next__
     patient_id_column = "PatientId"
 
-    patient_tables = build_tables(
+    patient_table_names, patient_tables = _build_orm_classes(
         "p", num_patient_tables, schema, patient_id_column, ids, registry
     )
-    event_tables = build_tables(
+    event_table_names, event_tables = _build_orm_classes(
         "e", num_event_tables, schema, patient_id_column, ids, registry
     )
 
-    return (
-        patient_id_column,
-        patient_tables,
-        event_tables,
-        make_backend(patient_id_column),
-    )
+    table_names = patient_table_names + event_table_names
+    backend = _make_backend(table_names, schema, patient_id_column)
+
+    return patient_id_column, patient_tables, event_tables, backend
 
 
-def build_tables(prefix, count, schema, patient_id_column, ids, registry):
-    patient_tables = [
-        build_table(f"{prefix}{i}", schema, patient_id_column, ids, registry)
-        for i in range(count)
+def _build_orm_classes(prefix, count, schema, patient_id_column, ids, registry):
+    names = [f"{prefix}{i}" for i in range(count)]
+    classes = [
+        _build_orm_class(name, schema, patient_id_column, ids, registry)
+        for name in names
     ]
-    return patient_tables
+    return names, classes
 
 
-def build_table(name, schema, patient_id_column, ids, registry):
+def _build_orm_class(name, schema, patient_id_column, ids, registry):
     columns = [
         sqlalchemy.Column("Id", sqlalchemy.Integer, primary_key=True, default=ids),
         sqlalchemy.Column(patient_id_column, sqlalchemy.Integer),
@@ -48,10 +47,33 @@ def build_table(name, schema, patient_id_column, ids, registry):
     return class_
 
 
-def make_backend(patient_id_column_):
-    class Backend(BaseBackend):
-        backend_id = "gen-test-backend"
-        query_engine_class = "not-needed"
-        patient_join_column = patient_id_column_
+def _make_backend(table_names, schema, patient_id_column):
+    tables = _backend_tables(schema, table_names)
+    class_vars = {
+        "backend_id": "gen-test-backend",
+        "query_engine_class": "not-needed",
+        "patient_join_column": patient_id_column,
+    } | tables
+    return type("Backend", (backends.BaseBackend,), class_vars)
 
-    return Backend
+
+def _backend_tables(schema, table_names):
+    table_columns = _backend_columns(schema)
+
+    tables = {}
+    for name in table_names:
+        tables[name] = _backend_table(name, table_columns)
+    return tables
+
+
+def _backend_columns(schema):
+    return {name: _backend_column(name, type_) for name, type_ in schema.items()}
+
+
+def _backend_column(name, type_):
+    type_map = {int: "integer", bool: "boolean"}
+    return backends.Column(type_map[type_], source=name)
+
+
+def _backend_table(name, columns):
+    return backends.MappedTable(implements=None, source=name, columns=columns)
