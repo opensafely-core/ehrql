@@ -1,6 +1,8 @@
 import sqlalchemy
 import sqlalchemy.orm
 
+from databuilder.backends.base import BaseBackend
+
 
 def setup(schema):
     registry = sqlalchemy.orm.registry()
@@ -14,7 +16,12 @@ def setup(schema):
         build_table(name, schema, patient_id_column, ids, registry)
         for name in ["e1", "e2"]
     ]
-    return patient_id_column, patient_tables, event_tables
+    return (
+        patient_id_column,
+        patient_tables,
+        event_tables,
+        make_backend(patient_id_column),
+    )
 
 
 def build_table(name, schema_, patient_id_column_, ids, registry):
@@ -31,3 +38,12 @@ def build_table(name, schema_, patient_id_column_, ids, registry):
     registry.map_imperatively(class_, table)
 
     return class_
+
+
+def make_backend(patient_id_column_):
+    class Backend(BaseBackend):
+        backend_id = "gen-test-backend"
+        query_engine_class = "not-needed"
+        patient_join_column = patient_id_column_
+
+    return Backend

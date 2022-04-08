@@ -21,15 +21,13 @@ from databuilder.query_model import (
     has_one_row_per_patient,
 )
 
-from ..conftest import QueryEngineFixture
 from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from . import data_setup
 from .conftest import count_nodes, observe_inputs
 
 # To simplify data generation, all tables have the same schema.
 schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
-
-patient_id_column, patient_tables, event_tables = data_setup.setup(schema)
+patient_id_column, patient_tables, event_tables, Backend = data_setup.setup(schema)
 
 
 # A specialized version of st.builds() which cleanly rejects invalid Query Model objects.
@@ -302,19 +300,20 @@ def tune_qm_graph_size(variable):
 
 
 def run_test(data, variable):
-    instances = []
-    for item in data:
-        type_ = item.pop("type")
-        instances.append(type_(**item))
+    database = InMemoryDatabase()
+    database.setup(*(instantiate(data)))
 
-    # We create an instance of the database for every test rather than using the standard fixture because Hypothesis
-    # doesn't play nicely with function-scoped fixtures. That's not a problem for the in-memory database, but will
-    # probably be too slow later when we come to use a real database. Some thought will be needed to make this work.
-    engine = QueryEngineFixture("in_memory", InMemoryDatabase(), InMemoryQueryEngine)
-    engine.setup(*instances)
-    engine.extract_qm(
-        {
-            "population": Value(True),
-            "v": variable,
-        }
-    )
+    variables = {
+        "population": Value(True),
+        "v": variable,
+    }
+    engine = InMemoryQueryEngine(variables, Backend(database.host_url()))
+
+    with engine.execute_query() as results:
+        result = list(dict(row) for row in results)
+        result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering
+        return result
+
+
+def instantiate(data):
+    return [item.pop("type")(**item) for item in data]
