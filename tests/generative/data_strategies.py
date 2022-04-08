@@ -9,7 +9,7 @@ max_num_patient_records = max_patient_id  # <= max_patient_id, hasn't been fine-
 max_num_event_records = max_patient_id  # could be anything, hasn't been fine-tuned
 
 
-def record(table, id_strategy, patient_id_column, schema, int_values, bool_values):
+def record(class_, id_strategy, patient_id_column, schema, int_values, bool_values):
     # We don't construct the actual objects here because it's easier to extract stats for the generated data if we
     # pass around simple objects.
     columns = {patient_id_column: id_strategy}
@@ -17,7 +17,7 @@ def record(table, id_strategy, patient_id_column, schema, int_values, bool_value
         type_strategy = {int: int_values, bool: bool_values}[type_]
         columns[name] = type_strategy
 
-    return st.builds(dict, type=st.just(table), **columns)
+    return st.builds(dict, type=st.just(class_), **columns)
 
 
 @st.composite
@@ -32,16 +32,16 @@ def concat(draw, *list_strategies):
 patient_ids = st.integers(min_value=1, max_value=max_patient_id)
 
 
-def event_records(table, patient_id_column, schema, int_values, bool_values):
+def event_records(class_, patient_id_column, schema, int_values, bool_values):
     return st.lists(
-        record(table, patient_ids, patient_id_column, schema, int_values, bool_values),
+        record(class_, patient_ids, patient_id_column, schema, int_values, bool_values),
         min_size=1,
         max_size=max_num_event_records,
     )
 
 
 @st.composite
-def patient_records(draw, table, patient_id_column, schema, int_values, bool_values):
+def patient_records(draw, class_, patient_id_column, schema, int_values, bool_values):
     # This strategy ensures that the patient ids are unique. We need to maintain the state to ensure that uniqueness
     # inside the strategy itself so that we can ensure the tests are idempotent as Hypothesis requires. That means that
     # this strategy must be called once only for a given table in a given test.
@@ -54,7 +54,7 @@ def patient_records(draw, table, patient_id_column, schema, int_values, bool_val
         used_ids.append(id_)
         return draw(
             record(
-                table, st.just(id_), patient_id_column, schema, int_values, bool_values
+                class_, st.just(id_), patient_id_column, schema, int_values, bool_values
             )
         )
 
@@ -64,15 +64,15 @@ def patient_records(draw, table, patient_id_column, schema, int_values, bool_val
 
 
 def data(
-    patient_tables, event_tables, patient_id_column, schema, int_values, bool_values
+    patient_classes, event_classes, patient_id_column, schema, int_values, bool_values
 ):
     return concat(
         *[
-            patient_records(t, patient_id_column, schema, int_values, bool_values)
-            for t in patient_tables
+            patient_records(c, patient_id_column, schema, int_values, bool_values)
+            for c in patient_classes
         ],
         *[
-            event_records(t, patient_id_column, schema, int_values, bool_values)
-            for t in event_tables
+            event_records(c, patient_id_column, schema, int_values, bool_values)
+            for c in event_classes
         ]
     )

@@ -9,17 +9,17 @@ def setup(schema, num_patient_tables, num_event_tables):
     ids = iter(range(1, 2**63)).__next__
     patient_id_column = "PatientId"
 
-    patient_table_names, patient_tables = _build_orm_classes(
+    patient_table_names, patient_classes = _build_orm_classes(
         "p", num_patient_tables, schema, patient_id_column, ids, registry
     )
-    event_table_names, event_tables = _build_orm_classes(
+    event_table_names, event_classes = _build_orm_classes(
         "e", num_event_tables, schema, patient_id_column, ids, registry
     )
 
     table_names = patient_table_names + event_table_names
     backend = _make_backend(table_names, schema, patient_id_column)
 
-    return patient_id_column, patient_tables, event_tables, backend
+    return patient_id_column, patient_classes, event_classes, backend
 
 
 def _build_orm_classes(prefix, count, schema, patient_id_column, ids, registry):
