@@ -18,9 +18,7 @@ def engine(request):
     if name == "in_memory":
         return QueryEngineFixture(name, InMemoryDatabase(), InMemoryQueryEngine)
     elif name == "sqlite":
-        return QueryEngineFixture(
-            name, InMemorySQLiteDatabase("test_db"), SQLiteQueryEngine
-        )
+        return QueryEngineFixture(name, InMemorySQLiteDatabase(), SQLiteQueryEngine)
     else:
         assert False
 

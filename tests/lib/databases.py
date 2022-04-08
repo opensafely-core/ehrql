@@ -1,4 +1,5 @@
 import os
+import secrets
 import time
 from pathlib import Path
 
@@ -263,7 +264,8 @@ def make_databricks_database():  # pragma: no cover
 
 
 class InMemorySQLiteDatabase(DbDetails):
-    def __init__(self, db_name):
+    def __init__(self):
+        db_name = secrets.token_hex(8)
         super().__init__(
             db_name=db_name,
             protocol="sqlite",
@@ -273,6 +275,14 @@ class InMemorySQLiteDatabase(DbDetails):
             host_from_host=None,
             port_from_host=None,
         )
+        self._engine = None
+
+    def engine(self, dialect=None, **kwargs):
+        # We need to hold a reference to the engine for the lifetime of this database to stop the contents of the
+        # database from being garbage-collected.
+        if not self._engine:
+            self._engine = super().engine(dialect, **kwargs)
+        return self._engine
 
     def _url(self, host, port, include_driver=False):
         if include_driver:
