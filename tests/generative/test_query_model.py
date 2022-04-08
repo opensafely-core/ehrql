@@ -6,7 +6,7 @@ import hypothesis.strategies as st
 from databuilder.query_model import TableSchema, Value
 
 from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
-from . import data_setup, variable_strategies
+from . import data_setup, data_strategies, variable_strategies
 from .conftest import count_nodes, observe_inputs
 
 # To simplify data generation, all tables have the same schema.
@@ -19,67 +19,6 @@ patient_id_column, patient_tables, event_tables, Backend = data_setup.setup(
 int_values = st.integers(min_value=0, max_value=10)
 bool_values = st.booleans()
 
-# And here are strategies for generating data. This is complicated by the need for patient ids in patient tables to
-# be unique (see `patient_records()`).
-max_patient_id = 10
-max_num_patient_records = max_patient_id  # <= max_patient_id, hasn't been fine-tuned
-max_num_event_records = max_patient_id  # could be anything, hasn't been fine-tuned
-
-
-def record(table, id_strategy):
-    # We don't construct the actual objects here because it's easier to extract stats for the generated data if we
-    # pass around simple objects.
-    columns = {patient_id_column: id_strategy}
-    for name, type_ in schema.items():
-        type_strategy = {int: int_values, bool: bool_values}[type_]
-        columns[name] = type_strategy
-
-    return st.builds(dict, type=st.just(table), **columns)
-
-
-@st.composite
-def concat(draw, *list_strategies):
-    results = []
-    for list_strategy in list_strategies:
-        for example in draw(list_strategy):
-            results.append(example)
-    return results
-
-
-patient_ids = st.integers(min_value=1, max_value=max_patient_id)
-
-
-def event_records(table):
-    return st.lists(
-        record(table, patient_ids), min_size=1, max_size=max_num_event_records
-    )
-
-
-@st.composite
-def patient_records(draw, table):
-    # This strategy ensures that the patient ids are unique. We need to maintain the state to ensure that uniqueness
-    # inside the strategy itself so that we can ensure the tests are idempotent as Hypothesis requires. That means that
-    # this strategy must be called once only for a given table in a given test.
-    used_ids = []
-
-    @st.composite
-    def one_patient_record(draw_):
-        id_ = draw_(patient_ids)
-        hyp.assume(id_ not in used_ids)
-        used_ids.append(id_)
-        return draw(record(table, st.just(id_)))
-
-    return draw(
-        st.lists(one_patient_record(), min_size=1, max_size=max_num_patient_records)
-    )
-
-
-def records():
-    return concat(
-        *[patient_records(t) for t in patient_tables],
-        *[event_records(t) for t in event_tables]
-    )
-
 
 max_examples = int(os.environ.get("EXAMPLES", 100))
 
@@ -90,9 +29,12 @@ variable_strategy = variable_strategies.variable(
     int_values,
     bool_values,
 )
+data_strategy = data_strategies.data(
+    patient_tables, event_tables, patient_id_column, schema, int_values, bool_values
+)
 
 
-@hyp.given(variable=variable_strategy, data=records())
+@hyp.given(variable=variable_strategy, data=data_strategy)
 @hyp.settings(
     max_examples=max_examples,
     deadline=None,
