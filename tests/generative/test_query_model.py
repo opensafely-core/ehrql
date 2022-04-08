@@ -302,15 +302,20 @@ def tune_qm_graph_size(variable):
 
 
 def run_test(data, variable):
-    database = InMemoryDatabase()
-    database.setup(*(instantiate(data)))
-
+    instances = instantiate(data)
     variables = {
         "population": Value(True),
         "v": variable,
     }
-    engine = InMemoryQueryEngine(variables, Backend(database.host_url()))
 
+    run_with(InMemoryDatabase, InMemoryQueryEngine, instances, variables)
+
+
+def run_with(database_class, engine_class, instances, variables):
+    database = database_class()
+    database.setup(instances)
+
+    engine = engine_class(variables, Backend(database.host_url()))
     with engine.execute_query() as results:
         result = list(dict(row) for row in results)
         result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering

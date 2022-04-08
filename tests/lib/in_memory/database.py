@@ -23,11 +23,15 @@ There are two places where this database does care:
 from collections import defaultdict
 from dataclasses import dataclass
 
+from tests.lib.util import iter_flatten
+
 
 class InMemoryDatabase:
     def setup(self, *input_data):
         self.all_patients = set()
         table_name_to_items = defaultdict(list)
+
+        input_data = list(iter_flatten(input_data))
         for item in input_data:
             table_name_to_items[item.__tablename__].append(item)
         self.tables = defaultdict(Table.empty)
