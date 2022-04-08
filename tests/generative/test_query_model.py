@@ -20,8 +20,6 @@ int_values = st.integers(min_value=0, max_value=10)
 bool_values = st.booleans()
 
 
-max_examples = int(os.environ.get("EXAMPLES", 100))
-
 variable_strategy = variable_strategies.variable(
     [t.__tablename__ for t in patient_tables],
     [t.__tablename__ for t in event_tables],
@@ -32,14 +30,15 @@ variable_strategy = variable_strategies.variable(
 data_strategy = data_strategies.data(
     patient_tables, event_tables, patient_id_column, schema, int_values, bool_values
 )
-
-
-@hyp.given(variable=variable_strategy, data=data_strategy)
-@hyp.settings(
-    max_examples=max_examples,
+settings = dict(
+    max_examples=(int(os.environ.get("EXAMPLES", 100))),
     deadline=None,
     suppress_health_check=[hyp.HealthCheck.filter_too_much],
 )
+
+
+@hyp.given(variable=variable_strategy, data=data_strategy)
+@hyp.settings(**settings)
 def test_query_model(variable, data):
     hyp.target(tune_qm_graph_size(variable))
     observe_inputs(variable, data)
