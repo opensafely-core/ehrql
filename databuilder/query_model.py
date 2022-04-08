@@ -30,8 +30,10 @@ __all__ = [
     "has_one_row_per_patient",
     "has_many_rows_per_patient",
     "get_series_type",
-    "get_input_nodes",
+    "all_nodes",
     "get_domain",
+    "count_nodes",
+    "node_types",
 ]
 
 
@@ -522,6 +524,23 @@ def get_input_nodes_for_categorise(node):
     if node.default is not None:
         inputs.append(node.default)
     return inputs
+
+
+def all_nodes(tree):
+    nodes = []
+
+    for subnode in get_input_nodes(tree):
+        for node in all_nodes(subnode):
+            nodes.append(node)
+    return [tree] + nodes
+
+
+def count_nodes(tree):  # pragma: no cover
+    return len(all_nodes(tree))
+
+
+def node_types(tree):
+    return [type(node) for node in all_nodes(tree)]
 
 
 # TYPE VALIDATION

@@ -2,7 +2,7 @@ import os
 import pprint
 from collections import defaultdict
 
-from databuilder.query_model import get_input_nodes
+from databuilder.query_model import count_nodes, node_types
 
 observed_inputs = set()
 
@@ -21,16 +21,6 @@ def observe_inputs(variable, records):
     hashable_data = frozenset(hashify(record) for record in records)
 
     observed_inputs.add((variable, hashable_data))
-
-
-def count_nodes(tree):  # pragma: no cover
-    return 1 + sum(count_nodes(node) for node in get_input_nodes(tree))
-
-
-def node_types(tree):  # pragma: no cover
-    return [type(tree)] + [
-        type_ for node in get_input_nodes(tree) for type_ in node_types(node)
-    ]
 
 
 def histogram(samples):  # pragma: no cover
