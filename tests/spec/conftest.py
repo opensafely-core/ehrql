@@ -7,6 +7,7 @@ from ..conftest import QueryEngineFixture
 from ..lib.databases import DbDetails
 from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from ..lib.mock_backend import EventLevelTable, PatientLevelTable
+from . import tables
 
 
 class InMemorySQLiteDatabase(DbDetails):
@@ -51,10 +52,10 @@ def engine(request):
 def spec_test(request, engine):
     # While we're developing the SQLite engine we only expect a subset of the spec
     # tests, those we mark with `sql_spec`, to pass against it
-    if engine.name == "sqlite":
-        marks = [m.name for m in request.node.iter_markers()]
-        if "sql_spec" not in marks:
-            pytest.xfail()
+    # if engine.name == "sqlite":
+    #     marks = [m.name for m in request.node.iter_markers()]
+    #     if "sql_spec" not in marks:
+    #         pytest.xfail()
 
     def run_test(table_data, series, expected_results):
         # Create SQLAlchemy model instances for each row of each table in table_data.
@@ -66,13 +67,25 @@ def spec_test(request, engine):
             }[table.qm_node.name]
             input_data.extend(model(**row) for row in parse_table(s))
 
+        all_patient_ids = set()
+        patient_table_ids = set()
+        for item in input_data:
+            all_patient_ids.add(item.PatientId)
+            if isinstance(item, PatientLevelTable):
+                patient_table_ids.add(item.PatientId)
+        missing_ids = all_patient_ids - patient_table_ids
+        input_data.extend(PatientLevelTable(PatientId=id_) for id_ in missing_ids)
+
+        population_definition = (tables.p.b1 == tables.p.b1) | tables.p.b1.is_null()
+
         # Populate database tables.
         engine.setup(*input_data)
 
         # Create a Dataset whose population is every patient in table p, with a single
         # variable which is the series under test.
         dataset = Dataset()
-        dataset.use_unrestricted_population()
+        # dataset.use_unrestricted_population()
+        dataset.set_population(population_definition)
         dataset.v = series
 
         # Extract data, and check it's as expected.

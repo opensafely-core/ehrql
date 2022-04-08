@@ -1,8 +1,11 @@
+import pytest
+
 from ..tables import e
 
 title = "Including rows"
 
 
+@pytest.mark.sql_spec
 def test_take_with_column(spec_test):
     table_data = {
         e: """
@@ -30,6 +33,7 @@ def test_take_with_column(spec_test):
     )
 
 
+@pytest.mark.sql_spec
 def test_take_with_expr(spec_test):
     table_data = {
         e: """

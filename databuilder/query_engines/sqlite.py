@@ -7,10 +7,14 @@ from sqlalchemy.sql import operators
 
 from databuilder.query_model import (
     AggregateByPatient,
+    Filter,
     Function,
+    PickOneRowPerPatient,
+    Position,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
+    Sort,
     Value,
 )
 from databuilder.sqlalchemy_utils import get_referenced_tables
@@ -31,37 +35,43 @@ class SQLiteQueryEngine(BaseQueryEngine):
         return self.get_results_query(variable_expressions, population_expression)
 
     def get_results_query(self, variable_expressions, population_expression):
-        # Get all referenced tables
-        tables = set(get_tables(population_expression))
-        for expression in variable_expressions.values():
-            tables.update(get_tables(expression))
-
-        assert len(tables) > 0, "No tables found in query"
-
-        patient_table = self.get_patient_table(tables)
-        other_tables = tables - {patient_table}
-
-        joins = patient_table
-        for table in other_tables:
-            joins = joins.join(
-                table, table.c.patient_id == patient_table.c.patient_id, isouter=True
-            )
-
+        patient_id_col, joins = self.get_joins_for_expressions(
+            population_expression, *variable_expressions.values()
+        )
         columns = [
-            patient_table.c.patient_id.label("patient_id"),
+            patient_id_col.label("patient_id"),
             *[expr.label(name) for name, expr in variable_expressions.items()],
         ]
-
         return (
             sqlalchemy.select(columns).select_from(joins).where(population_expression)
         )
 
+    def get_joins_for_expressions(self, *expressions):
+        tables = set()
+        for expression in expressions:
+            tables.update(get_tables(expression))
+
+        assert len(tables) > 0, "No tables found in expressions"
+
+        patient_table = self.get_patient_table(tables)
+        other_tables = tables - {patient_table}
+        patient_id_col = patient_table.c.patient_id
+
+        joins = patient_table
+        for table in other_tables:
+            joins = joins.join(
+                table, table.c.patient_id == patient_id_col, isouter=True
+            )
+
+        filters = set()
+        for table in tables:
+            filters.update(table._annotations.get("filters", ()))
+        if filters:
+            joins = joins._annotate({"filters": tuple(filters)})
+
+        return patient_id_col, joins
+
     def get_patient_table(self, tables):
-        return (
-            sqlalchemy.text("SELECT PatientID as patient_id FROM patient_level_table")
-            .columns(sqlalchemy.Column("patient_id"))
-            .alias("patients")
-        )
         # TODO: This logic is still under discussion but this covers us for now: it
         # returns a Common Table Expression contain all patient_ids contained in all
         # tables references in the dataset definition
@@ -133,7 +143,9 @@ class SQLiteQueryEngine(BaseQueryEngine):
     @get_sql.register(SelectColumn)
     def get_sql_select_column(self, node):
         source = self.get_sql(node.source)
-        return source.c[node.name]
+        column = source.c[node.name]
+        column.table = source
+        return column
 
     # We have to apply caching here otherwise we generate disinct objects representing
     # the same table and this confuses SQLAlchemy into generating queries with ambiguous
@@ -146,21 +158,64 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     @get_sql.register(AggregateByPatient.Exists)
     def get_sql_exists(self, node):
-        source = self.get_sql(node.source)
-        query = sqlalchemy.select(
-            [source.c.patient_id, sqlalchemy.literal(True).label("value")]
+        return self.apply_non_nullable_aggregation(
+            node.source, sqlalchemy.literal(True), False
         )
-        query = query.group_by(source.c.patient_id)
-        return sqlalchemy.func.coalesce(query.cte().c.value, False)
 
     @get_sql.register(AggregateByPatient.Count)
     def get_sql_count(self, node):
-        source = self.get_sql(node.source)
-        query = sqlalchemy.select(
-            [source.c.patient_id, sqlalchemy.func.count("*").label("value")]
+        return self.apply_non_nullable_aggregation(
+            node.source, sqlalchemy.func.count("*"), 0
         )
-        query = query.group_by(source.c.patient_id)
-        return sqlalchemy.func.coalesce(query.cte().c.value, 0)
+
+    def apply_non_nullable_aggregation(self, source, aggregation, empty_value):
+        table = self.get_sql(source)
+        query = sqlalchemy.select([table.c.patient_id, aggregation])
+        query = apply_filter_condition(query, table)
+        query = query.group_by(table.c.patient_id)
+        aggregated_value = query.cte().c[1]
+        return sqlalchemy.func.coalesce(aggregated_value, empty_value)
+
+    @get_sql.register(AggregateByPatient.Sum)
+    def get_sql_sum(self, node):
+        expression = self.get_sql(node.source)
+        patient_id_col, joins = self.get_joins_for_expressions(expression)
+        query = sqlalchemy.select([patient_id_col, sqlalchemy.func.sum(expression)])
+        query = query.select_from(joins)
+        query = apply_filter_condition(query, joins)
+        query = query.group_by(patient_id_col)
+        return query.cte().c[1]
+
+    @get_sql.register(Sort)
+    def get_sql_sort(self, node):
+        table = self.get_sql(node.source)
+        column = self.get_sql(node.sort_by)
+        return add_sort_column(table, column)
+
+    @get_sql.register(PickOneRowPerPatient)
+    def get_sql_pick_one_row_per_patient(self, node):
+        table = self.get_sql(node.source)
+        all_columns = table.columns.values()
+        sort_columns = get_sort_columns(table)
+        if node.position == Position.LAST:
+            sort_columns = [column.desc() for column in sort_columns]
+        # Number rows sequentially over the order by columns for each patient id
+        row_num = (
+            sqlalchemy.func.row_number()
+            .over(order_by=sort_columns, partition_by=table.c.patient_id)
+            .label("_row_num")
+        )
+        subquery = sqlalchemy.select(all_columns + [row_num]).alias()
+        query = sqlalchemy.select([subquery.c[col.name] for col in all_columns]).where(
+            subquery.c._row_num == 1
+        )
+        return query.cte()
+
+    @get_sql.register(Filter)
+    def get_sql_filter(self, node):
+        source = self.get_sql(node.source)
+        condition = self.get_sql(node.condition)
+        return add_filter_condition(source, condition)
 
     @contextlib.contextmanager
     def execute_query(self):
@@ -188,3 +243,25 @@ def get_tables(obj):
     else:
         # Handle literal values (e.g. True) which contain no table references
         return ()
+
+
+# https://docs.sqlalchemy.org/en/14/glossary.html#term-annotations
+def apply_filter_condition(query, table):
+    conditions = table._annotations.get("filters")
+    if conditions:
+        query = query.where(sqlalchemy.and_(*conditions))
+    return query
+
+
+def add_filter_condition(table, condition):
+    conditions = table._annotations.get("filters", ()) + (condition,)
+    return table._annotate({"filters": conditions})
+
+
+def get_sort_columns(table):
+    return table._annotations.get("sort_columns", ())
+
+
+def add_sort_column(table, column):
+    columns = get_sort_columns(table) + (column,)
+    return table._annotate({"sort_columns": columns})
