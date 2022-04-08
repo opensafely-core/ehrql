@@ -27,7 +27,9 @@ from .conftest import count_nodes, observe_inputs
 
 # To simplify data generation, all tables have the same schema.
 schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
-patient_id_column, patient_tables, event_tables, Backend = data_setup.setup(schema)
+patient_id_column, patient_tables, event_tables, Backend = data_setup.setup(
+    schema, num_patient_tables=2, num_event_tables=2
+)
 
 
 # A specialized version of st.builds() which cleanly rejects invalid Query Model objects.
