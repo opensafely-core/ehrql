@@ -42,7 +42,7 @@ def build_table(name, schema, patient_id_column, ids, registry):
         columns.append(sqlalchemy.Column(col_name, sqla_type))
 
     table = sqlalchemy.Table(name, registry.metadata, *columns)
-    class_ = type(name, (object,), dict(__tablename__=name))
+    class_ = type(name, (object,), dict(__tablename__=name, metadata=registry.metadata))
     registry.map_imperatively(class_, table)
 
     return class_
