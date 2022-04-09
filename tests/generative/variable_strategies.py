@@ -84,7 +84,7 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 
     one_row_per_patient_series = st.deferred(
         lambda: st.one_of(
-            composite_filter(unknown_dimension_series, has_one_row_per_patient),
+            unknown_dimension_series.filter(has_one_row_per_patient),
             definitely_one_row_patient_series,
         )
     )
@@ -108,7 +108,7 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     # TODO: No consumers of this are supported by sqlite engine
     # many_rows_per_patient_series = st.deferred(
     #     lambda: st.one_of(
-    #         composite_filter(unknown_dimension_series, has_many_rows_per_patient),
+    #         unknown_dimension_series.filter(has_many_rows_per_patient),
     #         definitely_many_rows_per_patient_series,
     #     )
     # )
@@ -210,17 +210,6 @@ def qm_builds(draw, type_, *arg_strategies):
 
     hyp.assume(not is_trivial(node))  # see long comment below
     return node
-
-
-@st.composite
-def composite_filter(draw, wrapped, predicate):
-    # I believe that this should be equivalent to the following (which could then be inlined). However this
-    # version discards fewer invalid examples and is noticeably faster, for reasons that I can't understand.
-    #
-    #     wrapped.filter(predicate)
-    example = draw(wrapped)
-    hyp.assume(predicate(example))
-    return example
 
 
 def uses_the_database(v):
