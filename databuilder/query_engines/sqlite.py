@@ -117,11 +117,21 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Function.And)
     def get_sql_and(self, node):
-        return operators.and_(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        # SQLAlchemy doesn't provide reverse bitwise operations, so `True & Column()` raises a `TypeError`.
+        # See https://github.com/sqlalchemy/sqlalchemy/issues/5846.
+        try:
+            return operators.and_(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        except TypeError:
+            return operators.and_(self.get_sql(node.rhs), self.get_sql(node.lhs))
 
     @get_sql.register(Function.Or)
     def get_sql_or(self, node):
-        return operators.or_(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        # SQLAlchemy doesn't provide reverse bitwise operations, so `False | Column()` raises a `TypeError`.
+        # See https://github.com/sqlalchemy/sqlalchemy/issues/5846.
+        try:
+            return operators.or_(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        except TypeError:
+            return operators.or_(self.get_sql(node.rhs), self.get_sql(node.lhs))
 
     @get_sql.register(Function.LT)
     def get_sql_lt(self, node):
