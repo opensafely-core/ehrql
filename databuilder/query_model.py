@@ -34,6 +34,7 @@ __all__ = [
     "get_domain",
     "count_nodes",
     "node_types",
+    "get_input_nodes",
 ]
 
 
