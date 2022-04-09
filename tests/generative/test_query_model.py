@@ -3,8 +3,10 @@ import os
 import hypothesis as hyp
 import hypothesis.strategies as st
 
+from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_model import TableSchema, Value
 
+from ..lib.databases import InMemorySQLiteDatabase
 from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from . import data_setup, data_strategies, variable_strategies
 from .conftest import count_nodes, observe_inputs
@@ -59,6 +61,7 @@ def run_test(data, variable):
     }
 
     run_with(InMemoryDatabase, InMemoryQueryEngine, instances, variables)
+    run_with(InMemorySQLiteDatabase, SQLiteQueryEngine, instances, variables)
 
 
 def run_with(database_class, engine_class, instances, variables):
