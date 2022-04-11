@@ -60,8 +60,13 @@ def run_test(data, variable):
         "v": variable,
     }
 
-    run_with(InMemoryDatabase, InMemoryQueryEngine, instances, variables)
-    run_with(InMemorySQLiteDatabase, SQLiteQueryEngine, instances, variables)
+    in_mem_results = run_with(
+        InMemoryDatabase, InMemoryQueryEngine, instances, variables
+    )
+    sqlite_results = run_with(
+        InMemorySQLiteDatabase, SQLiteQueryEngine, instances, variables
+    )
+    assert in_mem_results == sqlite_results
 
 
 def run_with(database_class, engine_class, instances, variables):
