@@ -1,4 +1,5 @@
 import contextlib
+import dataclasses
 from functools import cache, cached_property, singledispatchmethod
 
 import sqlalchemy
@@ -9,6 +10,9 @@ from databuilder.query_model import (
     AggregateByPatient,
     Filter,
     Function,
+    ManyRowsPerPatientFrame,
+    OneRowPerPatientFrame,
+    OneRowPerPatientSeries,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -16,8 +20,9 @@ from databuilder.query_model import (
     SelectTable,
     Sort,
     Value,
+    get_input_nodes,
+    has_many_rows_per_patient,
 )
-from databuilder.sqlalchemy_utils import get_referenced_tables
 
 from .base import BaseQueryEngine
 
@@ -32,49 +37,25 @@ class SQLiteQueryEngine(BaseQueryEngine):
             for name, definition in variable_definitions.items()
         }
         population_expression = variable_expressions.pop("population")
-        return self.get_results_query(variable_expressions, population_expression)
+        return self.get_results_query(population_expression, variable_expressions)
 
-    def get_results_query(self, variable_expressions, population_expression):
-        patient_id_col, joins = self.get_joins_for_expressions(
+    def get_results_query(self, population_expression, variable_expressions):
+        patient_table = self.get_patient_table(
             population_expression, *variable_expressions.values()
         )
         columns = [
-            patient_id_col.label("patient_id"),
+            patient_table.c.patient_id.label("patient_id"),
             *[expr.label(name) for name, expr in variable_expressions.items()],
         ]
-        return (
-            sqlalchemy.select(columns).select_from(joins).where(population_expression)
-        )
+        query = sqlalchemy.select(columns).where(population_expression)
+        return apply_joins(query, "patient_id")
 
-    def get_joins_for_expressions(self, *expressions):
-        tables = set()
-        for expression in expressions:
-            tables.update(get_tables(expression))
-
-        assert len(tables) > 0, "No tables found in expressions"
-
-        patient_table = self.get_patient_table(tables)
-        other_tables = tables - {patient_table}
-        patient_id_col = patient_table.c.patient_id
-
-        joins = patient_table
-        for table in other_tables:
-            joins = joins.join(
-                table, table.c.patient_id == patient_id_col, isouter=True
-            )
-
-        filters = set()
-        for table in tables:
-            filters.update(table._annotations.get("filters", ()))
-        if filters:
-            joins = joins._annotate({"filters": tuple(filters)})
-
-        return patient_id_col, joins
-
-    def get_patient_table(self, tables):
+    def get_patient_table(self, *expressions):
         # TODO: This logic is still under discussion but this covers us for now: it
         # returns a Common Table Expression contain all patient_ids contained in all
         # tables references in the dataset definition
+        tables = get_unique_tables(*expressions)
+        assert len(tables) > 0, "No tables found in query"
         id_selects = [
             sqlalchemy.select(table.c.patient_id).distinct() for table in tables
         ]
@@ -147,7 +128,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
         column.table = source
         return column
 
-    # We have to apply caching here otherwise we generate disinct objects representing
+    # We have to apply caching here otherwise we generate distinct objects representing
     # the same table and this confuses SQLAlchemy into generating queries with ambiguous
     # table references
     @get_sql.register(SelectTable)
@@ -169,9 +150,11 @@ class SQLiteQueryEngine(BaseQueryEngine):
         )
 
     def apply_non_nullable_aggregation(self, source, aggregation, empty_value):
-        table = self.get_sql(source)
-        query = sqlalchemy.select([table.c.patient_id, aggregation])
-        query = apply_filter_condition(query, table)
+        frame = get_filtered_sorted_frame(source)
+        table = self.get_sql(frame.root_frame)
+        conditions = sqlalchemy.and_(*(self.get_sql(c) for c in frame.filters))
+        query = sqlalchemy.select([table.c.patient_id, aggregation]).where(conditions)
+        query = apply_joins(query, "patient_id")
         query = query.group_by(table.c.patient_id)
         aggregated_value = query.cte().c[1]
         return sqlalchemy.func.coalesce(aggregated_value, empty_value)
@@ -179,24 +162,32 @@ class SQLiteQueryEngine(BaseQueryEngine):
     @get_sql.register(AggregateByPatient.Sum)
     def get_sql_sum(self, node):
         expression = self.get_sql(node.source)
-        patient_id_col, joins = self.get_joins_for_expressions(expression)
-        query = sqlalchemy.select([patient_id_col, sqlalchemy.func.sum(expression)])
-        query = query.select_from(joins)
-        query = apply_filter_condition(query, joins)
-        query = query.group_by(patient_id_col)
+        if has_many_rows_per_patient(node.source):
+            frame = get_filtered_sorted_frame(node.source)
+            table = self.get_sql(frame.root_frame)
+            conditions = sqlalchemy.and_(*(self.get_sql(c) for c in frame.filters))
+        else:
+            table = self.get_patient_table(expression)
+            conditions = True
+        query = sqlalchemy.select(
+            [table.c.patient_id, sqlalchemy.func.sum(expression)]
+        ).where(conditions)
+        query = apply_joins(query, "patient_id")
+        query = query.group_by(table.c.patient_id)
         return query.cte().c[1]
 
     @get_sql.register(Sort)
     def get_sql_sort(self, node):
-        table = self.get_sql(node.source)
-        column = self.get_sql(node.sort_by)
-        return add_sort_column(table, column)
+        return self.get_sql(node.source)
 
     @get_sql.register(PickOneRowPerPatient)
     def get_sql_pick_one_row_per_patient(self, node):
+        frame = get_filtered_sorted_frame(node.source)
+        table = self.get_sql(frame.root_frame)
+        conditions = sqlalchemy.and_(*(self.get_sql(c) for c in frame.filters))
         table = self.get_sql(node.source)
         all_columns = table.columns.values()
-        sort_columns = get_sort_columns(table)
+        sort_columns = [self.get_sql(c) for c in frame.sorts]
         if node.position == Position.LAST:
             sort_columns = [column.desc() for column in sort_columns]
         # Number rows sequentially over the order by columns for each patient id
@@ -205,7 +196,9 @@ class SQLiteQueryEngine(BaseQueryEngine):
             .over(order_by=sort_columns, partition_by=table.c.patient_id)
             .label("_row_num")
         )
-        subquery = sqlalchemy.select(all_columns + [row_num]).alias()
+        base_query = sqlalchemy.select(all_columns + [row_num]).where(conditions)
+        base_query = apply_joins(base_query, "patient_id")
+        subquery = base_query.alias()
         query = sqlalchemy.select([subquery.c[col.name] for col in all_columns]).where(
             subquery.c._row_num == 1
         )
@@ -213,9 +206,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Filter)
     def get_sql_filter(self, node):
-        source = self.get_sql(node.source)
-        condition = self.get_sql(node.condition)
-        return add_filter_condition(source, condition)
+        return self.get_sql(node.source)
 
     @contextlib.contextmanager
     def execute_query(self):
@@ -237,31 +228,87 @@ class SQLiteQueryEngine(BaseQueryEngine):
         return engine
 
 
-def get_tables(obj):
-    if isinstance(obj, sqlalchemy.sql.ClauseElement):
-        return get_referenced_tables(obj)
+def get_referenced_tables(clause):
+    """
+    Given an arbitrary SQLAlchemy clause determine what tables it references
+    """
+    if isinstance(clause, sqlalchemy.Table):
+        return (clause,)
+    if hasattr(clause, "table") and clause.table is not None:
+        return (clause.table,)
     else:
-        # Handle literal values (e.g. True) which contain no table references
-        return ()
+        tables = ()
+        for child in clause.get_children():
+            tables += get_referenced_tables(child)
+        return tables
 
 
-# https://docs.sqlalchemy.org/en/14/glossary.html#term-annotations
-def apply_filter_condition(query, table):
-    conditions = table._annotations.get("filters")
-    if conditions:
-        query = query.where(sqlalchemy.and_(*conditions))
-    return query
+def get_unique_tables(*expressions):
+    tables = {}
+    for expression in expressions:
+        if isinstance(expression, sqlalchemy.sql.ClauseElement):
+            for table in get_referenced_tables(expression):
+                tables[table] = True
+    return list(tables.keys())
 
 
-def add_filter_condition(table, condition):
-    conditions = table._annotations.get("filters", ()) + (condition,)
-    return table._annotate({"filters": conditions})
+def get_filtered_sorted_frame(node):
+    frame = get_many_rows_per_patient_frame(node)
+    return combine_filter_and_sort_operations(frame)
 
 
-def get_sort_columns(table):
-    return table._annotations.get("sort_columns", ())
+def get_many_rows_per_patient_frame(*nodes):
+    children = []
+    for node in nodes:
+        if isinstance(node, ManyRowsPerPatientFrame):
+            return node
+        else:
+            for child in get_input_nodes(node):
+                if not isinstance(
+                    child, (OneRowPerPatientSeries, OneRowPerPatientFrame)
+                ):
+                    children.append(child)
+    assert children, (
+        "No ManyRowsPerPatientFrame found: original node must not have been of "
+        "many-rows-per-patient dimension"
+    )
+    return get_many_rows_per_patient_frame(*children)
 
 
-def add_sort_column(table, column):
-    columns = get_sort_columns(table) + (column,)
-    return table._annotate({"sort_columns": columns})
+def combine_filter_and_sort_operations(frame):
+    filters = []
+    sorts = []
+    while True:
+        type_ = type(frame)
+        if type_ is Filter:
+            filters.insert(0, frame.condition)
+            frame = frame.source
+        elif type_ is Sort:
+            sorts.insert(0, frame.sort_by)
+            frame = frame.source
+        elif type_ is SelectTable:
+            return FilteredSortedFrame(
+                root_frame=frame, filters=tuple(filters), sorts=tuple(sorts)
+            )
+        else:
+            assert False, f"Unhandled type: {frame}"
+
+
+@dataclasses.dataclass
+class FilteredSortedFrame:
+    root_frame: SelectTable
+    filters: tuple
+    sorts: tuple
+
+
+def apply_joins(query, join_column):
+    base_table = query.get_final_froms()[0]
+    joins = base_table
+    joined_tables = {base_table}
+    for table in get_referenced_tables(query):
+        if table not in joined_tables:
+            joined_tables.add(table)
+            joins = joins.join(
+                table, table.c[join_column] == base_table.c[join_column], isouter=True
+            )
+    return query.select_from(joins)
