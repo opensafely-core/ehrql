@@ -150,8 +150,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
     def aggregate_by_patient(self, source, aggregation_func):
         expression = self.get_sql(source)
         if has_many_rows_per_patient(source):
-            frame = get_many_rows_per_patient_frame(source)
-            query = self.get_select_from_frame(frame)
+            query = self.get_select_query_for_node(source)
         else:
             query = sqlalchemy.select([self.get_patient_table(expression).c.patient_id])
         query = query.add_columns(aggregation_func(expression))
@@ -174,21 +173,20 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     @get_sql.register(PickOneRowPerPatient)
     def get_sql_pick_one_row_per_patient(self, node):
-        frame = get_many_rows_per_patient_frame(node.source)
-        query = self.get_select_from_frame(frame)
+        query = self.get_select_query_for_node(node.source)
 
         base_table = query.get_final_froms()[0]
         already_selected = set(query.selected_columns)
         other_columns = [c for c in base_table.c.values() if c not in already_selected]
 
-        sort_columns = self.get_sort_columns_from_frame(frame)
+        sort_columns = query.partition_order_clauses
         if node.position == Position.LAST:
             sort_columns = [column.desc() for column in sort_columns]
 
         # Number rows sequentially over the order by columns for each patient id
         row_num = (
             sqlalchemy.func.row_number()
-            .over(order_by=sort_columns, partition_by=query.selected_columns[0])
+            .over(partition_by=query.selected_columns[0], order_by=sort_columns)
             .label("_row_num")
         )
         query = query.add_columns(*other_columns, row_num)
@@ -201,20 +199,20 @@ class SQLiteQueryEngine(BaseQueryEngine):
         )
         return partitioned_query.cte()
 
-    def get_select_from_frame(self, frame):
-        root_frame, filters, _ = get_frame_operations(frame)
+    def get_select_query_for_node(self, node):
+        frame = get_many_rows_per_patient_frame(node)
+        root_frame, filters, sorts = get_frame_operations(frame)
         table = self.get_sql(root_frame)
-        conditions = [self.get_sql(c) for c in filters]
+        where_clauses = [self.get_sql(f) for f in filters]
+        order_clauses = [self.get_sql(s) for s in sorts]
 
         query = sqlalchemy.select([table.c.patient_id])
-        if conditions:
-            query = query.where(sqlalchemy.and_(*conditions))
+        if where_clauses:
+            query = query.where(sqlalchemy.and_(*where_clauses))
+
+        query.partition_order_clauses = tuple(order_clauses)
 
         return query
-
-    def get_sort_columns_from_frame(self, frame):
-        _, _, sorts = get_frame_operations(frame)
-        return [self.get_sql(c) for c in sorts]
 
     @get_sql.register(Filter)
     def get_sql_filter(self, node):
