@@ -8,7 +8,8 @@ class GraphnetBackend(BaseBackend):
     patient_join_column = "Patient_ID"
 
     patients = MappedTable(
-        source="TRE.Patients",
+        schema='TRE',
+        source="Patients",
         columns=dict(
             sex=Column("varchar", source="Sex"),
             date_of_birth=Column("date", source="DateOfBirth"),
@@ -17,7 +18,8 @@ class GraphnetBackend(BaseBackend):
     )
 
     clinical_events = MappedTable(
-        source="TRE.ClinicalEvents",
+        schema='TRE',
+        source="ClinicalEvents",
         columns=dict(
             code=Column("varchar", source="Code"),
             system=Column("varchar", source="CodingSystem"),
@@ -28,7 +30,8 @@ class GraphnetBackend(BaseBackend):
     )
 
     practice_registrations = MappedTable(
-        source="TRE.PracticeRegistrations",
+        schema='TRE',
+        source="PracticeRegistrations",
         columns=dict(
             pseudo_id=Column("integer", source="Organisation_ID"),
             nuts1_region_name=Column("varchar", source="Region"),
@@ -38,7 +41,8 @@ class GraphnetBackend(BaseBackend):
     )
 
     covid_test_results = MappedTable(
-        source="TRE.CovidTestResults",
+        schema='TRE',
+        source="CovidTestResults",
         columns=dict(
             date=Column("date", source="SpecimenDate"),
             positive_result=Column("boolean", source="positive_result"),
@@ -46,7 +50,8 @@ class GraphnetBackend(BaseBackend):
     )
 
     hospitalizations = MappedTable(
-        source="TRE.Hospitalisations",
+        schema='TRE',
+        source="Hospitalisations",
         columns=dict(
             date=Column("date", source="AdmitDate"),
             code=Column("varchar", source="DiagCode"),
@@ -54,7 +59,8 @@ class GraphnetBackend(BaseBackend):
     )
 
     patient_address = MappedTable(
-        source="TRE.PatientAddresses",
+        schema='TRE',
+        source="PatientAddresses",
         columns=dict(
             patientaddress_id=Column("integer", source="PatientAddress_ID"),
             date_start=Column("date", source="StartDate"),

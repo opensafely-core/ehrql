@@ -678,10 +678,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         debug = os.environ.get('DEBUG_LOG_SQL', default="0") == "1"
         if debug:
+            from sqlalchemy.dialects import postgresql
+    
             print()
             print("-" * 50, "execute_queries", "-" * 50)
             for sql in queries:
-                print("\t", sql)
+                try:
+                    print("\t", sql.compile(self.engine, compile_kwargs={"literal_binds": True}))
+                except:
+                    print("-- non-mssql --")
+                    print("\t", sql.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
                 print()
             print("-" * 50, "end execute_queries", "-" * 50)
 
