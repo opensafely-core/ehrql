@@ -155,6 +155,18 @@ class SQLiteQueryEngine(BaseQueryEngine):
     def get_sql_sum(self, node):
         return self.aggregate_by_patient(node.source, sqlalchemy.func.sum)
 
+    @get_sql.register(AggregateByPatient.Exists)
+    def get_sql_exists(self, node):
+        return self.aggregate_by_patient_non_nullable(
+            node.source, sqlalchemy.literal(True), empty_value=False
+        )
+
+    @get_sql.register(AggregateByPatient.Count)
+    def get_sql_count(self, node):
+        return self.aggregate_by_patient_non_nullable(
+            node.source, sqlalchemy.func.count("*"), empty_value=0
+        )
+
     @get_sql.register(PickOneRowPerPatient)
     def get_sql_pick_one_row_per_patient(self, node):
         domain = get_domain(node.source)
@@ -203,6 +215,14 @@ class SQLiteQueryEngine(BaseQueryEngine):
         query = prepare_query(query)
         aggregated_table = self.reify_query(query)
         return aggregated_table.c.value
+
+    def aggregate_by_patient_non_nullable(self, node, aggregation_func, empty_value):
+        # These aggregation functions don't take an argument as they operate over the
+        # entire query, so we wrap them in a lambda which swallows the argument
+        value = self.aggregate_by_patient(node, lambda _: aggregation_func)
+        # These aggregations are also guaranteed not to be null-valued, even when
+        # combined with data involving patient_ids for which they're not defined
+        return sqlalchemy.func.coalesce(value, empty_value)
 
     def reify_query(self, query):
         """
