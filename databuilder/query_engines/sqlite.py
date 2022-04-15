@@ -21,9 +21,9 @@ class SQLiteQueryEngine(BaseQueryEngine):
             for name, definition in variable_definitions.items()
         }
         population_expression = variable_expressions.pop("population")
-        return self.get_results_query(variable_expressions, population_expression)
+        return self.get_results_query(population_expression, variable_expressions)
 
-    def get_results_query(self, variable_expressions, population_expression):
+    def get_results_query(self, population_expression, variable_expressions):
         # Get all referenced tables
         tables = set(get_tables(population_expression))
         for expression in variable_expressions.values():
