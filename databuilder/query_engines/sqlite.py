@@ -7,6 +7,7 @@ from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.sql import operators
 
 from databuilder.query_model import (
+    AggregateByPatient,
     Filter,
     Function,
     PickOneRowPerPatient,
@@ -16,6 +17,7 @@ from databuilder.query_model import (
     SelectTable,
     Sort,
     Value,
+    get_domain,
 )
 
 from .base import BaseQueryEngine
@@ -149,9 +151,14 @@ class SQLiteQueryEngine(BaseQueryEngine):
     def get_sql_sort_and_filter(self, node):
         return self.get_sql(node.source)
 
+    @get_sql.register(AggregateByPatient.Sum)
+    def get_sql_sum(self, node):
+        return self.aggregate_by_patient(node.source, sqlalchemy.func.sum)
+
     @get_sql.register(PickOneRowPerPatient)
     def get_sql_pick_one_row_per_patient(self, node):
-        query = self.get_select_query_from_frame(node.source)
+        domain = get_domain(node.source)
+        query = self.get_select_query_from_domain(domain)
 
         # TODO: Really we only want to select the columns from the base table which
         # we're actually going to use. In the old world we did some pre-processing of
@@ -187,6 +194,16 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
         return self.reify_query(partitioned_query)
 
+    def aggregate_by_patient(self, source_node, aggregation_func):
+        domain = get_domain(source_node)
+        query = self.get_select_query_from_domain(domain)
+        expression = self.get_sql(source_node)
+        query = query.add_columns(aggregation_func(expression).label("value"))
+        query = query.group_by(query.selected_columns[0])
+        query = prepare_query(query)
+        aggregated_table = self.reify_query(query)
+        return aggregated_table.c.value
+
     def reify_query(self, query):
         """
         By "reify" we just mean turning a SELECT query into something that can function
@@ -195,6 +212,20 @@ class SQLiteQueryEngine(BaseQueryEngine):
         Expression, or writing the results of the query to a temporary table.
         """
         return query.cte()
+
+    def get_select_query_from_domain(self, domain):
+        """
+        Given a Domain object return the SELECT statement that forms the basis of any
+        queries using this domain
+        """
+        if domain != domain.PATIENT:
+            # By construction query nodes of many-rows-per-patient dimension always have
+            # a single ManyRowsPerPatientFrame which defines its domain. We fetch this
+            # and then use it to generate the corresponding query.
+            frame = domain.get_node()
+            return self.get_select_query_from_frame(frame)
+        else:
+            return self.get_patient_select_query()
 
     def get_select_query_from_frame(self, frame):
         """
