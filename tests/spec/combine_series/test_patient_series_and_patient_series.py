@@ -1,3 +1,5 @@
+import pytest
+
 from ..tables import p
 
 title = "Combining two patient series"
@@ -12,6 +14,7 @@ table_data = {
 }
 
 
+@pytest.mark.sql_spec
 def test_patient_series_and_patient_series(spec_test):
     spec_test(
         table_data,
