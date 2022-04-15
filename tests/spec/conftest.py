@@ -7,6 +7,7 @@ from ..conftest import QueryEngineFixture
 from ..lib.databases import InMemorySQLiteDatabase
 from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from ..lib.mock_backend import EventLevelTable, PatientLevelTable
+from . import tables
 
 
 @pytest.fixture(
@@ -42,13 +43,29 @@ def spec_test(request, engine):
             }[table.qm_node.name]
             input_data.extend(model(**row) for row in parse_table(s))
 
+        # TODO: TEMPORARY HACK
+        # The in-memory and SQL query engines currently have different definitions for
+        # the "universe" of patients: the im-memory engine uses all patients referenced
+        # in any tables in the data; the SQL engine uses only those referenced in tables
+        # used in the current dataset definition. Until we resolve this we modify the
+        # test data to ensure that every patient is referenced in PatientLevelTable. We
+        # also change the population definition so it uses PatientLevelTable. This makes
+        # the two engines agree on what patients there are.
+        all_patient_ids = {i.PatientId for i in input_data}
+        patient_table_ids = {
+            i.PatientId for i in input_data if isinstance(i, PatientLevelTable)
+        }
+        missing_ids = all_patient_ids - patient_table_ids
+        input_data.extend(PatientLevelTable(PatientId=id_) for id_ in missing_ids)
+
         # Populate database tables.
         engine.setup(*input_data)
 
         # Create a Dataset whose population is every patient in table p, with a single
         # variable which is the series under test.
         dataset = Dataset()
-        dataset.use_unrestricted_population()
+        # TODO: See temporary hack above
+        dataset.set_population(~tables.p.patient_id.is_null())
         dataset.v = series
 
         # Extract data, and check it's as expected.
