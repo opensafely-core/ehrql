@@ -26,13 +26,6 @@ def engine(request):
 
 @pytest.fixture
 def spec_test(request, engine):
-    # While we're developing the SQLite engine we only expect a subset of the spec
-    # tests, those we mark with `sql_spec`, to pass against it
-    if engine.name == "sqlite":
-        marks = [m.name for m in request.node.iter_markers()]
-        if "sql_spec" not in marks:
-            pytest.xfail()
-
     def run_test(table_data, series, expected_results):
         # Create SQLAlchemy model instances for each row of each table in table_data.
         input_data = []

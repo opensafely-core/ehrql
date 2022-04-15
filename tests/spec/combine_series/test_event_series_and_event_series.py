@@ -1,5 +1,3 @@
-import pytest
-
 from ..tables import e
 
 title = "Combining two event series"
@@ -16,7 +14,6 @@ table_data = {
 }
 
 
-@pytest.mark.sql_spec
 def test_event_series_and_event_series(spec_test):
     spec_test(
         table_data,

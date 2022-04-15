@@ -1,5 +1,3 @@
-import pytest
-
 from ..tables import p
 
 title = "Comparison operations"
@@ -16,7 +14,6 @@ table_data = {
 }
 
 
-@pytest.mark.sql_spec
 def test_less_than(spec_test):
     spec_test(
         table_data,
@@ -25,7 +22,6 @@ def test_less_than(spec_test):
     )
 
 
-@pytest.mark.sql_spec
 def test_less_than_or_equal_to(spec_test):
     spec_test(
         table_data,
@@ -34,7 +30,6 @@ def test_less_than_or_equal_to(spec_test):
     )
 
 
-@pytest.mark.sql_spec
 def test_greater_than(spec_test):
     spec_test(
         table_data,
@@ -43,7 +38,6 @@ def test_greater_than(spec_test):
     )
 
 
-@pytest.mark.sql_spec
 def test_greater_than_or_equal_to(spec_test):
     spec_test(
         table_data,

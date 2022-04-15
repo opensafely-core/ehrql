@@ -1,5 +1,3 @@
-import pytest
-
 from ..tables import e
 
 title = "Picking the first row for each patient"
@@ -18,7 +16,6 @@ table_data = {
 }
 
 
-@pytest.mark.sql_spec
 def test_sort_by_column_pick_first(spec_test):
     spec_test(
         table_data,

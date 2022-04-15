@@ -1,11 +1,8 @@
-import pytest
-
 from ..tables import e
 
 title = "Excluding rows"
 
 
-@pytest.mark.sql_spec
 def test_drop_with_column(spec_test):
     table_data = {
         e: """
@@ -33,7 +30,6 @@ def test_drop_with_column(spec_test):
     )
 
 
-@pytest.mark.sql_spec
 def test_drop_with_expr(spec_test):
     table_data = {
         e: """
