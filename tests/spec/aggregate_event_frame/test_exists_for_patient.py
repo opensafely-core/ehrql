@@ -1,3 +1,5 @@
+import pytest
+
 from ..tables import e, p
 
 title = "Determining whether a row exists for each patient"
@@ -27,6 +29,7 @@ table_data = {
 }
 
 
+@pytest.mark.sql_spec
 def test_exists_for_patient(spec_test):
     spec_test(
         table_data,
