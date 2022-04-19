@@ -5,6 +5,7 @@ from functools import cache, cached_property, singledispatchmethod
 import sqlalchemy
 from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.sql import operators
+from sqlalchemy.sql.visitors import replacement_traverse
 
 from databuilder.query_model import (
     AggregateByPatient,
@@ -308,15 +309,32 @@ def replace_placeholder_table_references(query):
         return query
 
     other_tables = [t for t in query.get_final_froms() if t is not placeholder_table]
-    assert len(other_tables), "No tables found in query"
-    # Select all patient IDs from all tables used in the query
-    id_selects = [sqlalchemy.select(table.c[id_column.name]) for table in other_tables]
-    # Create a CTE which is the union of all these IDs. (Note UNION rather than UNION
-    # ALL so we don't get duplicates. The tables themselves are necessarily
-    # one-row-per-patient tables and so don't require de-duplicating.)
-    placeholder_definition = sqlalchemy.union(*id_selects).cte(placeholder_table.name)
-    # Include the CTE definition in the query
-    return query.add_cte(placeholder_definition)
+    if len(other_tables) > 1:
+        # Select all patient IDs from all tables used in the query
+        id_selects = [
+            sqlalchemy.select(table.c[id_column.name]) for table in other_tables
+        ]
+        # Create a CTE which is the union of all these IDs. (Note UNION rather than
+        # UNION ALL so we don't get duplicates. The tables themselves are necessarily
+        # one-row-per-patient tables and so don't require de-duplicating.)
+        placeholder_definition = sqlalchemy.union(*id_selects).cte(
+            placeholder_table.name
+        )
+        # Include the CTE definition in the query
+        return query.add_cte(placeholder_definition)
+    elif len(other_tables) == 1:
+        # If there's only one table then, rather than define a CTE for it, just replace
+        # references to the placeholder table with references to this table. Using a CTE
+        # wouldn't be wrong — just pointless; and they can act as optimisation fences in
+        # some DBMSs.
+        new_id_column = other_tables[0].c[id_column.name]
+        # SQLAlchemy provides some handy "query surgery" functions, see:
+        # https://docs.sqlalchemy.org/en/14/core/visitors.html#sqlalchemy.sql.visitors.replacement_traverse
+        return replacement_traverse(
+            query, {}, replace=lambda obj: new_id_column if obj is id_column else None
+        )
+    else:
+        assert False, "No tables found in query"
 
 
 def apply_patient_joins(query):
