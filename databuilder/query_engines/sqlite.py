@@ -34,32 +34,29 @@ class SQLiteQueryEngine(BaseQueryEngine):
         return self.get_results_query(population_expression, variable_expressions)
 
     def get_results_query(self, population_expression, variable_expressions):
-        # Get all referenced tables
-        tables = set(get_tables(population_expression))
-        for expression in variable_expressions.values():
-            tables.update(get_tables(expression))
-
-        assert len(tables) > 0, "No tables found in query"
-
-        patient_table = self.get_patient_table(tables)
-
-        columns = [
-            patient_table.c.patient_id.label("patient_id"),
-            *[expr.label(name) for name, expr in variable_expressions.items()],
-        ]
-
-        query = sqlalchemy.select(columns).where(population_expression)
+        query = self.get_patient_select_query(
+            population_expression, *variable_expressions.values()
+        )
+        query = query.add_columns(
+            *[expr.label(name) for name, expr in variable_expressions.items()]
+        )
+        query = query.where(population_expression)
         query = apply_patient_joins(query)
         return query
 
-    def get_patient_table(self, tables):
+    def get_patient_select_query(self, *clauses):
+        tables = set()
+        for clause in clauses:
+            tables.update(get_tables(clause))
+        assert len(tables) > 0, "No tables found in query"
         # TODO: This logic is still under discussion but this covers us for now: it
         # returns a Common Table Expression contain all patient_ids contained in all
         # tables references in the dataset definition
         id_selects = [
             sqlalchemy.select(table.c.patient_id).distinct() for table in tables
         ]
-        return sqlalchemy.union(*id_selects).cte()
+        patient_table = sqlalchemy.union(*id_selects).cte()
+        return sqlalchemy.select([patient_table.c.patient_id])
 
     @singledispatchmethod
     def get_sql(self, node):
