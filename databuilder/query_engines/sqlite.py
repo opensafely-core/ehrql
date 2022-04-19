@@ -32,22 +32,15 @@ class SQLiteQueryEngine(BaseQueryEngine):
         assert len(tables) > 0, "No tables found in query"
 
         patient_table = self.get_patient_table(tables)
-        other_tables = tables - {patient_table}
-
-        joins = patient_table
-        for table in other_tables:
-            joins = joins.join(
-                table, table.c.patient_id == patient_table.c.patient_id, isouter=True
-            )
 
         columns = [
             patient_table.c.patient_id.label("patient_id"),
             *[expr.label(name) for name, expr in variable_expressions.items()],
         ]
 
-        return (
-            sqlalchemy.select(columns).select_from(joins).where(population_expression)
-        )
+        query = sqlalchemy.select(columns).where(population_expression)
+        query = apply_patient_joins(query)
+        return query
 
     def get_patient_table(self, tables):
         # TODO: This logic is still under discussion but this covers us for now: it
@@ -157,3 +150,28 @@ def get_tables(obj):
     else:
         # Handle literal values (e.g. True) which contain no table references
         return ()
+
+
+def apply_patient_joins(query):
+    """
+    Find any table references in `query` which aren't yet part of an explicit JOIN and
+    LEFT OUTER JOIN them into the query using the first selected column as the join key
+
+    A core feature of the Query Model/Engine is that we can arbitrarily include data
+    from patient-level tables in a query because, in effect, there is always an implicit
+    join on `patient_id`. This function makes those implicit joins explicit.
+    """
+    # We use the convention that the column to be joined on is always the first selected
+    # column. This avoids having to hardcode, or pass around, the name of the column.
+    join_key = query.selected_columns[0]
+    join_column = join_key.name
+    # The table referenced by `join_key`, and any tables already explicitly joined with
+    # it, will be returned as the first value from the `get_final_froms()` method
+    # (because `join_key` is the first column). Any remaining tables which aren't yet
+    # explicitly joined on will be returned as additional clauses in the list. The best
+    # explanation of SQLAlchemy's behaviour here is probably this:
+    # https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#change-4737
+    implicit_joins = query.get_final_froms()[1:]
+    for table in implicit_joins:
+        query = query.join(table, table.c[join_column] == join_key, isouter=True)
+    return query
