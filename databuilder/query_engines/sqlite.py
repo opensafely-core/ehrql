@@ -1,4 +1,5 @@
 import contextlib
+import secrets
 from functools import cache, cached_property, singledispatchmethod
 
 import sqlalchemy
@@ -16,7 +17,6 @@ from databuilder.query_model import (
     Sort,
     Value,
 )
-from databuilder.sqlalchemy_utils import get_referenced_tables
 
 from .base import BaseQueryEngine
 
@@ -34,29 +34,35 @@ class SQLiteQueryEngine(BaseQueryEngine):
         return self.get_results_query(population_expression, variable_expressions)
 
     def get_results_query(self, population_expression, variable_expressions):
-        query = self.get_patient_select_query(
-            population_expression, *variable_expressions.values()
-        )
+        query = self.get_patient_select_query()
         query = query.add_columns(
             *[expr.label(name) for name, expr in variable_expressions.items()]
         )
         query = query.where(population_expression)
-        query = apply_patient_joins(query)
+        query = prepare_query(query)
         return query
 
-    def get_patient_select_query(self, *clauses):
-        tables = set()
-        for clause in clauses:
-            tables.update(get_tables(clause))
-        assert len(tables) > 0, "No tables found in query"
-        # TODO: This logic is still under discussion but this covers us for now: it
-        # returns a Common Table Expression contain all patient_ids contained in all
-        # tables references in the dataset definition
-        id_selects = [
-            sqlalchemy.select(table.c.patient_id).distinct() for table in tables
-        ]
-        patient_table = sqlalchemy.union(*id_selects).cte()
-        return sqlalchemy.select([patient_table.c.patient_id])
+    def get_patient_select_query(self):
+        """
+        Return a SELECT query which is to form the basis of a one-row-per-patient query
+        """
+        # Eventually we may allow, or require, backends to specify a table which defines
+        # the "universe" of patients over which we operate. For now, we pretend we
+        # already have such a table by creating a "placeholder" table. Later in the
+        # query construction process we can generate a CTE which defines this table. But
+        # we don't know exactly what this CTE should contain until we've finished
+        # constructing the query. So using this placeholder trick allows us to follow a
+        # more natural ordering when constructing the query.
+
+        # Make the name unique to avoid clashes where we have more than one nested
+        # patient-level query.
+        placeholder_name = f"patients_{secrets.token_hex(6)}"
+        table = sqlalchemy.Table(
+            placeholder_name, sqlalchemy.MetaData(), sqlalchemy.Column("patient_id")
+        )
+        # Add a flag to the user metadata so we can identify these tables later
+        table.is_placeholder = True
+        return sqlalchemy.select([table.c.patient_id])
 
     @singledispatchmethod
     def get_sql(self, node):
@@ -165,7 +171,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
             )
         )
 
-        query = apply_patient_joins(query)
+        query = prepare_query(query)
 
         # Make the above into a subquery and pull out the relevant columns. Note, we're
         # deliberately using a subquery rather than `reify_query()` here as we want the
@@ -231,12 +237,38 @@ class SQLiteQueryEngine(BaseQueryEngine):
         return engine
 
 
-def get_tables(obj):
-    if isinstance(obj, sqlalchemy.sql.ClauseElement):
-        return get_referenced_tables(obj)
-    else:
-        # Handle literal values (e.g. True) which contain no table references
-        return ()
+def prepare_query(query):
+    query = replace_placeholder_table_references(query)
+    query = apply_patient_joins(query)
+    return query
+
+
+def replace_placeholder_table_references(query):
+    """
+    Where a backend doesn't provide us with a single "patient universe" table guaranteed
+    to contain all patients, we instead generate a "placeholder" table to use instead.
+
+    This function identifies such placeholder tables, generates an appropriate Common
+    Table Expression (CTE) which defines what the contents of this table should be, and
+    attaches it to the query which means that references to the placeholder will then
+    point to the CTE.
+    """
+    # By convention, the first column in all our queries is always the patient_id column
+    id_column = query.selected_columns[0]
+    placeholder_table = id_column.table
+    if not getattr(placeholder_table, "is_placeholder", False):
+        return query
+
+    other_tables = [t for t in query.get_final_froms() if t is not placeholder_table]
+    assert len(other_tables), "No tables found in query"
+    # Select all patient IDs from all tables used in the query
+    id_selects = [sqlalchemy.select(table.c[id_column.name]) for table in other_tables]
+    # Create a CTE which is the union of all these IDs. (Note UNION rather than UNION
+    # ALL so we don't get duplicates. The tables themselves are necessarily
+    # one-row-per-patient tables and so don't require de-duplicating.)
+    placeholder_definition = sqlalchemy.union(*id_selects).cte(placeholder_table.name)
+    # Include the CTE definition in the query
+    return query.add_cte(placeholder_definition)
 
 
 def apply_patient_joins(query):
