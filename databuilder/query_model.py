@@ -31,6 +31,7 @@ __all__ = [
     "has_many_rows_per_patient",
     "get_series_type",
     "get_input_nodes",
+    "get_domain",
 ]
 
 
@@ -451,6 +452,13 @@ class Domain:
     # Defining this operator means Domains work naturally with `sorted()`
     def __lt__(self, other):
         return self != other and self.is_ancestor(other)
+
+    def get_node(self):
+        """
+        Returns the Node which created this domain
+        """
+        assert len(self.lineage) > 1, "Root domains have no associated node"
+        return self.lineage[-1]
 
 
 # We use an arbitrary string to represent the patient domain for more readable debugging

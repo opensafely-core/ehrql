@@ -21,6 +21,7 @@ from databuilder.query_model import (
     TableSchema,
     TypeValidationError,
     Value,
+    get_domain,
     get_series_type,
     has_one_row_per_patient,
 )
@@ -263,6 +264,27 @@ def test_sorting_frame_using_value_derived_from_child_frame_is_not_ok():
     foo_events = Filter(events, Function.EQ(SelectColumn(events, "code"), Value("foo")))
     with pytest.raises(DomainMismatchError):
         Sort(events, SelectColumn(foo_events, "date"))
+
+
+def test_domain_get_node():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    # This filter operation creates a new domain
+    older_events = Filter(
+        events,
+        Function.LT(SelectColumn(events, "date"), Value(datetime.date(2022, 1, 1))),
+    )
+    # But the Sort and SelectColumn doesn't
+    sorted_by_date = Sort(older_events, SelectColumn(events, "date"))
+    codes_by_date = SelectColumn(sorted_by_date, "code")
+    domain = get_domain(codes_by_date)
+    # So the node corresponding to the domain should be the Filter
+    assert domain.get_node() == older_events
+
+
+def test_domain_get_node_fails_for_patient_domain():
+    patient_domain = get_domain(Value("abc"))
+    with pytest.raises(AssertionError):
+        patient_domain.get_node()
 
 
 # TEST TYPE VALIDATION
