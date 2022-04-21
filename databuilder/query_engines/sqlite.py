@@ -33,9 +33,6 @@ class SQLiteQueryEngine(BaseQueryEngine):
             for name, definition in variable_definitions.items()
         }
         population_expression = variable_expressions.pop("population")
-        return self.get_results_query(population_expression, variable_expressions)
-
-    def get_results_query(self, population_expression, variable_expressions):
         query = self.get_select_query_for_patient_domain()
         query = query.add_columns(
             *[expr.label(name) for name, expr in variable_expressions.items()]
