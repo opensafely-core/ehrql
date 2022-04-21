@@ -36,7 +36,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
         return self.get_results_query(population_expression, variable_expressions)
 
     def get_results_query(self, population_expression, variable_expressions):
-        query = self.get_patient_select_query()
+        query = self.get_select_query_for_patient_domain()
         query = query.add_columns(
             *[expr.label(name) for name, expr in variable_expressions.items()]
         )
@@ -44,7 +44,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
         query = prepare_query(query)
         return query
 
-    def get_patient_select_query(self):
+    def get_select_query_for_patient_domain(self):
         """
         Return a SELECT query which is to form the basis of a one-row-per-patient query
         """
@@ -170,7 +170,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
     @get_sql.register(PickOneRowPerPatient)
     def get_sql_pick_one_row_per_patient(self, node):
         domain = get_domain(node.source)
-        query = self.get_select_query_from_domain(domain)
+        query = self.get_select_query_for_domain(domain)
 
         # TODO: Really we only want to select the columns from the base table which
         # we're actually going to use. In the old world we did some pre-processing of
@@ -181,7 +181,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
         # Add an extra "row number" column to the query which gives the position of each
         # row within its patient_id partition as implied by the order clauses
-        order_clauses = self.get_order_clauses_from_frame(node.source)
+        order_clauses = self.get_order_clauses(node.source)
         if node.position == Position.LAST:
             order_clauses = [c.desc() for c in order_clauses]
         query = query.add_columns(
@@ -208,7 +208,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     def aggregate_by_patient(self, source_node, aggregation_func):
         domain = get_domain(source_node)
-        query = self.get_select_query_from_domain(domain)
+        query = self.get_select_query_for_domain(domain)
         expression = self.get_sql(source_node)
         query = query.add_columns(aggregation_func(expression).label("value"))
         query = query.group_by(query.selected_columns[0])
@@ -233,7 +233,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
         """
         return query.cte()
 
-    def get_select_query_from_domain(self, domain):
+    def get_select_query_for_domain(self, domain):
         """
         Given a Domain object return the SELECT statement that forms the basis of any
         queries using this domain
@@ -243,11 +243,11 @@ class SQLiteQueryEngine(BaseQueryEngine):
             # a single ManyRowsPerPatientFrame which defines its domain. We fetch this
             # and then use it to generate the corresponding query.
             frame = domain.get_node()
-            return self.get_select_query_from_frame(frame)
+            return self.get_select_query_for_frame(frame)
         else:
-            return self.get_patient_select_query()
+            return self.get_select_query_for_patient_domain()
 
-    def get_select_query_from_frame(self, frame):
+    def get_select_query_for_frame(self, frame):
         """
         Given a ManyRowsPerPatientFrame return the corresponding SELECT query with the
         appropriate filter operations applied
@@ -260,7 +260,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
             query = query.where(sqlalchemy.and_(*where_clauses))
         return query
 
-    def get_order_clauses_from_frame(self, frame):
+    def get_order_clauses(self, frame):
         """
         Given a ManyRowsPerPatientFrame return the order_by clauses created by any Sort
         operations which have been applied
