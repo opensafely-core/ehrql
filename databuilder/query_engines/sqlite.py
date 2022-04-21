@@ -44,6 +44,20 @@ class SQLiteQueryEngine(BaseQueryEngine):
         query = prepare_query(query)
         return query
 
+    def get_select_query_for_domain(self, domain):
+        """
+        Given a Domain object return the SELECT statement that forms the basis of any
+        queries using this domain
+        """
+        if domain != domain.PATIENT:
+            # By construction query nodes of many-rows-per-patient dimension always have
+            # a single ManyRowsPerPatientFrame which defines its domain. We fetch this
+            # and then use it to generate the corresponding query.
+            frame = domain.get_node()
+            return self.get_select_query_for_frame(frame)
+        else:
+            return self.get_select_query_for_patient_domain()
+
     def get_select_query_for_patient_domain(self):
         """
         Return a SELECT query which is to form the basis of a one-row-per-patient query
@@ -65,6 +79,19 @@ class SQLiteQueryEngine(BaseQueryEngine):
         # Add a flag to the user metadata so we can identify these tables later
         table.is_placeholder = True
         return sqlalchemy.select([table.c.patient_id])
+
+    def get_select_query_for_frame(self, frame):
+        """
+        Given a ManyRowsPerPatientFrame return the corresponding SELECT query with the
+        appropriate filter operations applied
+        """
+        root_frame, filters, _ = get_frame_operations(frame)
+        table = self.get_sql(root_frame)
+        where_clauses = [self.get_sql(f.condition) for f in filters]
+        query = sqlalchemy.select([table.c.patient_id])
+        if where_clauses:
+            query = query.where(sqlalchemy.and_(*where_clauses))
+        return query
 
     @singledispatchmethod
     def get_sql(self, node):
@@ -167,6 +194,24 @@ class SQLiteQueryEngine(BaseQueryEngine):
             node.source, sqlalchemy.func.count("*"), empty_value=0
         )
 
+    def aggregate_by_patient(self, source_node, aggregation_func):
+        domain = get_domain(source_node)
+        query = self.get_select_query_for_domain(domain)
+        expression = self.get_sql(source_node)
+        query = query.add_columns(aggregation_func(expression).label("value"))
+        query = query.group_by(query.selected_columns[0])
+        query = prepare_query(query)
+        aggregated_table = self.reify_query(query)
+        return aggregated_table.c.value
+
+    def aggregate_by_patient_non_nullable(self, node, aggregation_func, empty_value):
+        # These aggregation functions don't take an argument as they operate over the
+        # entire query, so we wrap them in a lambda which swallows the argument
+        value = self.aggregate_by_patient(node, lambda _: aggregation_func)
+        # These aggregations are also guaranteed not to be null-valued, even when
+        # combined with data involving patient_ids for which they're not defined
+        return sqlalchemy.func.coalesce(value, empty_value)
+
     @get_sql.register(PickOneRowPerPatient)
     def get_sql_pick_one_row_per_patient(self, node):
         domain = get_domain(node.source)
@@ -206,23 +251,13 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
         return self.reify_query(partitioned_query)
 
-    def aggregate_by_patient(self, source_node, aggregation_func):
-        domain = get_domain(source_node)
-        query = self.get_select_query_for_domain(domain)
-        expression = self.get_sql(source_node)
-        query = query.add_columns(aggregation_func(expression).label("value"))
-        query = query.group_by(query.selected_columns[0])
-        query = prepare_query(query)
-        aggregated_table = self.reify_query(query)
-        return aggregated_table.c.value
-
-    def aggregate_by_patient_non_nullable(self, node, aggregation_func, empty_value):
-        # These aggregation functions don't take an argument as they operate over the
-        # entire query, so we wrap them in a lambda which swallows the argument
-        value = self.aggregate_by_patient(node, lambda _: aggregation_func)
-        # These aggregations are also guaranteed not to be null-valued, even when
-        # combined with data involving patient_ids for which they're not defined
-        return sqlalchemy.func.coalesce(value, empty_value)
+    def get_order_clauses(self, frame):
+        """
+        Given a ManyRowsPerPatientFrame return the order_by clauses created by any Sort
+        operations which have been applied
+        """
+        _, _, sorts = get_frame_operations(frame)
+        return [self.get_sql(s.sort_by) for s in sorts]
 
     def reify_query(self, query):
         """
@@ -232,41 +267,6 @@ class SQLiteQueryEngine(BaseQueryEngine):
         Expression, or writing the results of the query to a temporary table.
         """
         return query.cte()
-
-    def get_select_query_for_domain(self, domain):
-        """
-        Given a Domain object return the SELECT statement that forms the basis of any
-        queries using this domain
-        """
-        if domain != domain.PATIENT:
-            # By construction query nodes of many-rows-per-patient dimension always have
-            # a single ManyRowsPerPatientFrame which defines its domain. We fetch this
-            # and then use it to generate the corresponding query.
-            frame = domain.get_node()
-            return self.get_select_query_for_frame(frame)
-        else:
-            return self.get_select_query_for_patient_domain()
-
-    def get_select_query_for_frame(self, frame):
-        """
-        Given a ManyRowsPerPatientFrame return the corresponding SELECT query with the
-        appropriate filter operations applied
-        """
-        root_frame, filters, _ = get_frame_operations(frame)
-        table = self.get_sql(root_frame)
-        where_clauses = [self.get_sql(f.condition) for f in filters]
-        query = sqlalchemy.select([table.c.patient_id])
-        if where_clauses:
-            query = query.where(sqlalchemy.and_(*where_clauses))
-        return query
-
-    def get_order_clauses(self, frame):
-        """
-        Given a ManyRowsPerPatientFrame return the order_by clauses created by any Sort
-        operations which have been applied
-        """
-        _, _, sorts = get_frame_operations(frame)
-        return [self.get_sql(s.sort_by) for s in sorts]
 
     @contextlib.contextmanager
     def execute_query(self):
