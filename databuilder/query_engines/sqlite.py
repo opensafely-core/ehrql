@@ -8,6 +8,7 @@ from sqlalchemy.sql.visitors import replacement_traverse
 
 from databuilder.query_model import (
     AggregateByPatient,
+    Categorise,
     Filter,
     Function,
     PickOneRowPerPatient,
@@ -156,6 +157,19 @@ class SQLiteQueryEngine(BaseQueryEngine):
     @get_sql.register(Function.Subtract)
     def get_sql_subtract(self, node):
         return operators.sub(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+
+    @get_sql.register(Categorise)
+    def get_sql_categorise(self, node):
+        cases = [
+            (self.get_sql(condition), self.get_sql(value))
+            for (value, condition) in node.categories.items()
+        ]
+        if node.default is not None:
+            default = self.get_sql(node.default)
+        else:
+            default = None
+        return sqlalchemy.case(*cases, else_=default)
 
     @get_sql.register(SelectColumn)
     def get_sql_select_column(self, node):
