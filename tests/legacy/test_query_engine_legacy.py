@@ -582,10 +582,16 @@ def test_date_in_range_filter(engine):
         stp = _registrations.first_by("date_start").get("stp")
         count = _registrations.count("patient_id")
 
+    # Workaround the fact that the Count aggregation has different semantics now
+    if engine.name == "sqlite":
+        empty_count_value = 0
+    else:
+        empty_count_value = None
+
     result = engine.extract(Cohort)
     assert result == [
         dict(patient_id=1, stp="STP1", count=1),
-        dict(patient_id=2, stp=None, count=None),
+        dict(patient_id=2, stp=None, count=empty_count_value),
         dict(patient_id=3, stp="STP2", count=1),
         dict(patient_id=4, stp="STP3", count=2),
     ]
@@ -752,6 +758,13 @@ def test_aggregation(engine, aggregation, column, expected):
             "code", is_in=make_codelist("Code1")
         )
         value = getattr(_filtered_table, aggregation)(column)
+
+    # Workaround the fact that the Count and Exists have different semantics now
+    if engine.name == "sqlite":
+        empty_value = {"exists": False, "count": 0, "sum": None}[aggregation]
+        for item in expected:
+            if item["value"] is None:
+                item["value"] = empty_value
 
     assert engine.extract(Cohort) == expected
 
