@@ -622,8 +622,6 @@ def test_in_filter_on_query_values(engine):
             ctv3_event("Code1", "2021-02-01", value=50.2),
             # 1 result matches a positive result date but a different code
             ctv3_event("Code2", "2021-05-01", value=50.3),
-            # 1 result matches a positive result date but a different system
-            ctv3_event("Code1", "2021-05-01", value=50.4, system="snomed"),
         ),
     ]
 
