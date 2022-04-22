@@ -9,6 +9,7 @@ from sqlalchemy.sql.visitors import replacement_traverse
 from databuilder.query_model import (
     AggregateByPatient,
     Categorise,
+    Code,
     Filter,
     Function,
     PickOneRowPerPatient,
@@ -104,7 +105,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Value)
     def get_sql_value(self, node):
-        return node.value
+        return convert_types(node.value)
 
     @get_sql.register(Function.EQ)
     def get_sql_eq(self, node):
@@ -304,6 +305,19 @@ class SQLiteQueryEngine(BaseQueryEngine):
         # break in future -- we want to know immediately if it does
         assert isinstance(engine.dialect, self.sqlalchemy_dialect)
         return engine
+
+
+def convert_types(value):
+    """
+    Convert static values to the types needed by SQLAlchemy
+    """
+    if isinstance(value, frozenset):
+        return tuple(convert_types(v) for v in value)
+    elif isinstance(value, Code):
+        # Unwrap Code instances to their inner values
+        return value.value
+    else:
+        return value
 
 
 def prepare_query(query):
