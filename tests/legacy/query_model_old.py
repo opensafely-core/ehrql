@@ -249,7 +249,7 @@ class Value(QueryNode):
     @staticmethod
     def _other_as_comparator(other):
         if isinstance(other, Value):
-            other = boolean_comparator(other)
+            other = boolean_comparator(other)  # pragma: no cover
         return other
 
     def _get_comparator(self, operator, other):

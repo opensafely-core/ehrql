@@ -946,7 +946,7 @@ def test_categorise_on_truthiness(engine):
         _code = (
             table("clinical_events").filter("code", is_in=make_codelist("abc")).exists()
         )
-        _codes_categories = {"yes": _code}
+        _codes_categories = {"yes": _code == True}  # noqa: E712
         abc = categorise(_codes_categories, default="na")
 
     result = engine.extract(Cohort)
@@ -1005,7 +1005,7 @@ def test_categorise_multiple_truthiness_values(engine):
             .get("code")
         )
         _has_positive_test = table("positive_tests").filter(result=True).exists()
-        _codes_categories = {"yes": _code & _has_positive_test}
+        _codes_categories = {"yes": _code & (_has_positive_test == True)}  # noqa: E712
         has_positive_code = categorise(_codes_categories, default="na")
 
     result = engine.extract(Cohort)
@@ -1065,7 +1065,7 @@ def test_categorise_invert_truthiness_values(engine):
             .latest()
             .get("code")
         )
-        _codes_categories = {"yes": _code, "no": ~_code}
+        _codes_categories = {"yes": _code != None, "no": ~(_code != None)}  # noqa: E711
         has_code = categorise(_codes_categories, default="na")
 
     result = engine.extract(Cohort)
