@@ -3,7 +3,6 @@ import secrets
 from functools import cache, cached_property, singledispatchmethod
 
 import sqlalchemy
-from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.visitors import replacement_traverse
 
@@ -22,11 +21,12 @@ from databuilder.query_model import (
 )
 
 from .base import BaseQueryEngine
+from .sqlite_dialect import SQLiteDialect
 
 
 class SQLiteQueryEngine(BaseQueryEngine):
 
-    sqlalchemy_dialect = SQLiteDialect_pysqlite
+    sqlalchemy_dialect = SQLiteDialect
 
     def get_query(self, variable_definitions):
         variable_expressions = {

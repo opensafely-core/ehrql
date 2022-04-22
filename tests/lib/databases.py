@@ -20,6 +20,13 @@ registry.register(
     "SparkDialect",
 )
 
+# Register our modified SQLite dialect
+registry.register(
+    "sqlite.pysqlite.opensafely",
+    "databuilder.query_engines.sqlite_dialect",
+    "SQLiteDialect",
+)
+
 
 class DbDetails:
     def __init__(
@@ -269,7 +276,7 @@ class InMemorySQLiteDatabase(DbDetails):
         super().__init__(
             db_name=db_name,
             protocol="sqlite",
-            driver="pysqlite",
+            driver="pysqlite+opensafely",
             host_from_container=None,
             port_from_container=None,
             host_from_host=None,
