@@ -112,6 +112,12 @@ class SQLiteQueryEngine(BaseQueryEngine):
     def get_sql_eq(self, node):
         return operators.eq(self.get_sql(node.lhs), self.get_sql(node.rhs))
 
+    @get_sql.register(Function.In)
+    def get_sql_in(self, node):
+        lhs = self.get_sql(node.lhs)
+        rhs = self.get_sql(node.rhs)
+        return lhs.in_(rhs)
+
     @get_sql.register(Function.NE)
     def get_sql_ne(self, node):
         return operators.ne(self.get_sql(node.lhs), self.get_sql(node.rhs))
