@@ -6,6 +6,7 @@ import sqlalchemy
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.visitors import replacement_traverse
 
+from databuilder import sqlalchemy_types
 from databuilder.query_model import (
     AggregateByPatient,
     Categorise,
@@ -159,6 +160,14 @@ class SQLiteQueryEngine(BaseQueryEngine):
     def get_sql_subtract(self, node):
         return operators.sub(self.get_sql(node.lhs), self.get_sql(node.rhs))
 
+    @get_sql.register(Function.YearFromDate)
+    def get_sql_year_from_date(self, node):
+        return self.date_to_year(self.get_sql(node.source))
+
+    @staticmethod
+    def date_to_year(date):
+        year_str = sqlalchemy.func.strftime("%Y", date)
+        return sqlalchemy.cast(year_str, sqlalchemy_types.Integer())
 
     @get_sql.register(Categorise)
     def get_sql_categorise(self, node):
