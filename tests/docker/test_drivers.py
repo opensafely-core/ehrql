@@ -1,4 +1,10 @@
+import pytest
+
+
 def test_driver_in_container(run_in_container, engine):
+    if engine.name == "sqlite":
+        pytest.xfail()
+
     backends = {
         "mssql": "tpp",
         "spark": "databricks",
