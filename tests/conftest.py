@@ -92,11 +92,7 @@ class QueryEngineFixture:
 
 @pytest.fixture(
     scope="session",
-    params=[
-        "mssql",
-        pytest.param("spark", marks=pytest.mark.spark),
-        pytest.param("sqlite", marks=pytest.mark.xfail),
-    ],
+    params=["mssql", pytest.param("spark", marks=pytest.mark.spark), "sqlite"],
 )
 def engine(request, database, spark_database):
     name = request.param
