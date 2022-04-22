@@ -116,7 +116,19 @@ class SQLiteQueryEngine(BaseQueryEngine):
     def get_sql_in(self, node):
         lhs = self.get_sql(node.lhs)
         rhs = self.get_sql(node.rhs)
-        return lhs.in_(rhs)
+        if isinstance(rhs, tuple):
+            return lhs.in_(rhs)
+        else:
+            # TODO: This definitely needs more thought
+            domain = get_domain(node)
+            base_query = self.get_select_query_for_domain(domain)
+            patient_id = base_query.selected_columns[0]
+            return (
+                sqlalchemy.select(None)
+                .select_from(rhs)
+                .where(rhs.c[0] == patient_id, rhs.c[1] == lhs)
+                .exists()
+            )
 
     @get_sql.register(Function.NE)
     def get_sql_ne(self, node):
@@ -259,6 +271,14 @@ class SQLiteQueryEngine(BaseQueryEngine):
         # These aggregations are also guaranteed not to be null-valued, even when
         # combined with data involving patient_ids for which they're not defined
         return sqlalchemy.func.coalesce(value, empty_value)
+
+    @get_sql.register(AggregateByPatient.CombineAsSet)
+    def get_sql_combine_as_set(self, node):
+        # TODO: This needs thinking through
+        query = self.get_select_query_for_domain(get_domain(node.source))
+        query = query.add_columns(self.get_sql(node.source))
+        table = self.reify_query(query)
+        return table
 
     @get_sql.register(PickOneRowPerPatient)
     def get_sql_pick_one_row_per_patient(self, node):
