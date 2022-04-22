@@ -1077,35 +1077,6 @@ def test_categorise_invert_truthiness_values(engine):
     ]
 
 
-def test_categorise_invert_combined_values(engine):
-    input_data = [
-        patient(1, ctv3_event("abc"), positive_test(True)),
-        patient(2, ctv3_event("xyz"), positive_test(False)),
-        patient(3, ctv3_event("abc"), positive_test(False)),
-        patient(4, ctv3_event("def"), positive_test(True)),
-    ]
-    engine.setup(input_data)
-
-    class Cohort(OldCohortWithPopulation):
-        _code = (
-            table("clinical_events")
-            .filter("code", is_in=make_codelist("abc", "def"))
-            .latest()
-            .get("code")
-        )
-        _has_positive_test = table("positive_tests").filter(result=True).exists()
-        _codes_categories = {"neg_or_no_code": ~(_code & _has_positive_test)}
-        result_group = categorise(_codes_categories, default="pos")
-
-    result = engine.extract(Cohort)
-    assert result == [
-        dict(patient_id=1, result_group="pos"),
-        dict(patient_id=2, result_group="neg_or_no_code"),
-        dict(patient_id=3, result_group="neg_or_no_code"),
-        dict(patient_id=4, result_group="pos"),
-    ]
-
-
 def test_categorise_double_invert(engine):
     input_data = [
         patient(1, ctv3_event("abc")),
