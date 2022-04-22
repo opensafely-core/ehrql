@@ -4,8 +4,14 @@ from databuilder import main
 from databuilder.definition.base import dataset_registry
 from databuilder.query_engines.mssql import MssqlQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
+from databuilder.query_engines.sqlite import SQLiteQueryEngine
 
-from .lib.databases import make_database, make_spark_database, wait_for_database
+from .lib.databases import (
+    InMemorySQLiteDatabase,
+    make_database,
+    make_spark_database,
+    wait_for_database,
+)
 from .lib.docker import Containers
 from .lib.mock_backend import backend_factory
 from .lib.study import Study
@@ -85,7 +91,12 @@ class QueryEngineFixture:
 
 
 @pytest.fixture(
-    scope="session", params=["mssql", pytest.param("spark", marks=pytest.mark.spark)]
+    scope="session",
+    params=[
+        "mssql",
+        pytest.param("spark", marks=pytest.mark.spark),
+        pytest.param("sqlite", marks=pytest.mark.xfail),
+    ],
 )
 def engine(request, database, spark_database):
     name = request.param
@@ -93,6 +104,8 @@ def engine(request, database, spark_database):
         return QueryEngineFixture(name, database, MssqlQueryEngine)
     elif name == "spark":
         return QueryEngineFixture(name, spark_database, SparkQueryEngine)
+    elif name == "sqlite":
+        return QueryEngineFixture(name, InMemorySQLiteDatabase(), SQLiteQueryEngine)
     else:
         assert False
 
