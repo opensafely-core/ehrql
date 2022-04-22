@@ -169,6 +169,20 @@ class SQLiteQueryEngine(BaseQueryEngine):
         year_str = sqlalchemy.func.strftime("%Y", date)
         return sqlalchemy.cast(year_str, sqlalchemy_types.Integer())
 
+    @get_sql.register(Function.DateDifferenceInYears)
+    def get_sql_date_difference(self, node):
+        start_date = self.get_sql(node.lhs)
+        end_date = self.get_sql(node.rhs)
+        start_month_day = sqlalchemy.func.strftime("%m-%d", start_date)
+        end_month_day = sqlalchemy.func.strftime("%m-%d", end_date)
+        start_year = self.date_to_year(start_date)
+        end_year = self.date_to_year(end_date)
+        year_diff = end_year - start_year
+        date_diff = sqlalchemy.case(
+            (end_month_day >= start_month_day, year_diff), else_=year_diff - 1
+        )
+        return sqlalchemy.type_coerce(date_diff, sqlalchemy_types.Integer())
+
     @get_sql.register(Categorise)
     def get_sql_categorise(self, node):
         cases = [
