@@ -108,7 +108,6 @@ testpaths = ["tests"]
 markers = [
     "integration: tests that use a container (mostly databases)",
     "spark: tests that use a Spark database (and therefore tend to be very slow)",
-    "sql_spec: spec test that ought to be run against SQL Query Engine (temporary — eventually this will be all spec tests)",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:past.builtins.misc:45",

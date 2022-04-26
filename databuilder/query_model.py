@@ -31,6 +31,7 @@ __all__ = [
     "has_many_rows_per_patient",
     "get_series_type",
     "get_input_nodes",
+    "get_domain",
 ]
 
 
@@ -334,7 +335,7 @@ class Categorise(Series[T]):
 
 def has_one_row_per_patient(node):
     "Return whether a Frame or Series has at most one row per patient"
-    return get_domain(node) == PATIENT_DOMAIN
+    return get_domain(node) == Domain.PATIENT
 
 
 def has_many_rows_per_patient(node):
@@ -414,12 +415,8 @@ def validate_input_domains(node):
     # operation creates a new domain descending from the domain of its source.
     #
     # A valid series combination operation is one where the non-patient domains are
-    # identical.  A valid filter or sort operation is one where the domains of its series
+    # identical. A valid filter or sort operation is one where the domains of its series
     # input's domain is an ancestor of its frame input's domain.
-    #
-    # We use sets to implement this hierarchy: we start with the patient domain as a set
-    # containing a single unique value, and we create descendant domains by forming the
-    # union of the parent domain with a new unique value.
 
     if isinstance(node, Filter) or isinstance(node, Sort):
         frame, series = get_input_nodes(node)
@@ -427,14 +424,14 @@ def validate_input_domains(node):
         assert isinstance(series, Series)
         frame_domain = get_domain(frame)
         series_domain = get_domain(series)
-        if not series_domain.issubset(frame_domain):
+        if not series_domain.is_ancestor(frame_domain):
             raise DomainMismatchError(
                 f"Attempt to combine series with domain:\n{series_domain}"
                 f"\nWith frame with domain:\n{frame_domain}"
                 f"\nIn node:\n{node}"
             )
     else:
-        non_patient_domains = get_input_domains(node) - {PATIENT_DOMAIN}
+        non_patient_domains = get_input_domains(node) - {Domain.PATIENT}
         if len(non_patient_domains) > 1:
             raise DomainMismatchError(
                 f"Attempt to combine unrelated domains:\n{non_patient_domains}"
@@ -442,12 +439,34 @@ def validate_input_domains(node):
             )
 
 
+@dataclasses.dataclass(frozen=True)
+class Domain:
+    lineage: tuple
+
+    def create_descendent(self, node):
+        return Domain(self.lineage + (node,))
+
+    def is_ancestor(self, other):
+        return self.lineage == other.lineage[: len(self.lineage)]
+
+    # Defining this operator means Domains work naturally with `sorted()`
+    def __lt__(self, other):
+        return self != other and self.is_ancestor(other)
+
+    def get_node(self):
+        """
+        Returns the Node which created this domain
+        """
+        assert len(self.lineage) > 1, "Root domains have no associated node"
+        return self.lineage[-1]
+
+
+# We use an arbitrary string to represent the patient domain for more readable debugging
+Domain.PATIENT = Domain(("PatientDomain",))
+
+
 def get_input_domains(node):
     return {get_domain(input_node) for input_node in get_input_nodes(node)}
-
-
-# We use an arbitrary unique object to represent the patient domain
-PATIENT_DOMAIN = frozenset(["PatientDomain"])
 
 
 @singledispatch
@@ -459,21 +478,21 @@ def get_domain(node):
 # patient domain
 @get_domain.register(SelectTable)
 def get_domain_for_table(node):
-    return PATIENT_DOMAIN | {node}
+    return Domain.PATIENT.create_descendent(node)
 
 
 # Filtering a Frame creates a new domain which descends from the domain of the original
 # source Frame
 @get_domain.register(Filter)
 def get_domain_for_filter(node):
-    return get_domain(node.source) | {node}
+    return get_domain(node.source).create_descendent(node)
 
 
 # Operations of these types are guaranteed to produce output in the patient domain
 @get_domain.register(OneRowPerPatientFrame)
 @get_domain.register(OneRowPerPatientSeries)
 def get_domains_for_one_row_per_patient_operations(node):
-    return PATIENT_DOMAIN
+    return Domain.PATIENT
 
 
 # For the remaining operations, their domain is the "smallest" of the domains of their
