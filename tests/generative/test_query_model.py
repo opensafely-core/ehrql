@@ -81,4 +81,8 @@ def run_with(database_class, engine_class, instances, variables):
 
 
 def instantiate(data):
-    return [item.pop("type")(**item) for item in data]
+    instances = []
+    for item in data:
+        item = item.copy()
+        instances.append(item.pop("type")(**item))
+    return instances
