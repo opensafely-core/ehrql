@@ -54,7 +54,13 @@ class SQLiteQueryEngine(BaseQueryEngine):
             frame = domain.get_node()
             return self.get_select_query_for_frame(frame)
         else:
-            return self.get_select_query_for_patient_domain()
+            # TODO: This branch is only present to support aggregations over data which
+            # is already patient-level. Our query model currently allows this (simply
+            # because (simply because it's tricky to forbid it statically using the
+            # machinery we have) and previously the spec tests made (inadvertent) use of
+            # it. We need to either forbid this in the query model, or decide that we do
+            # want to support it and write some tests for it.
+            return self.get_select_query_for_patient_domain()  # pragma: no cover
 
     def get_select_query_for_patient_domain(self):
         """
