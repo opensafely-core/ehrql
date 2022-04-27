@@ -35,8 +35,7 @@ data_strategy = data_strategies.data(
 settings = dict(
     max_examples=(int(os.environ.get("EXAMPLES", 100))),
     deadline=None,
-    # TODO: we should be able to remove `too_slow` once more of the query model is supported by the SQLite engine
-    suppress_health_check=[hyp.HealthCheck.filter_too_much, hyp.HealthCheck.too_slow],
+    suppress_health_check=[],
 )
 
 
