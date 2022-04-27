@@ -15,6 +15,7 @@ from databuilder.query_model import (
     PickOneRowPerPatient,
     Position,
     SelectColumn,
+    SelectPatientTable,
     SelectTable,
     Series,
     Sort,
@@ -328,6 +329,20 @@ def test_infer_types_where_possible_even_without_schema():
     # And therefore it should be an error to compare it to a string
     with pytest.raises(TypeValidationError):
         Function.EQ(event_count, Value("some_string"))
+
+
+def test_combination_of_typed_and_untyped_series():
+    # We're checking here that the type-checking can correctly combine typed series (`IsNull` has type `bool`) and
+    # untyped ones (`SelectColumn` has type `Any` because no schema is provided).
+    assert Function.EQ(
+        lhs=Function.IsNull(Value(None)),
+        rhs=SelectColumn(SelectPatientTable("p0"), "b1"),
+    )
+
+    assert Function.EQ(
+        lhs=SelectColumn(SelectPatientTable("p0"), "b1"),
+        rhs=Function.IsNull(Value(None)),
+    )
 
 
 def test_cannot_define_operation_returning_any_type(queries):

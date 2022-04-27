@@ -15,7 +15,7 @@ class Dataset:
     def __setattr__(self, name, value):
         # TODO raise proper errors here
         assert name != "population"
-        assert qm.has_one_row_per_patient(value.qm_node)
+        assert qm.has_one_row_per_patient(value.qm_node), value.qm_node
         super().__setattr__(name, value)
 
 

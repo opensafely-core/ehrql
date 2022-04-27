@@ -66,6 +66,12 @@ def test_type_matches_and_sets_typevar_with_any_and_concrete_type():
     assert ctx[T] == int
 
 
+def test_any_matches_bound_type_var():
+    T = TypeVar("T")
+    ctx = {T: bool}
+    assert type_matches(Any, T, ctx)
+
+
 def test_type_matches_rejects_mismatch():
     Numeric = TypeVar("Numeric", int, float)
     assert not type_matches(list[str], list[int], {})

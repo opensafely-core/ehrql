@@ -30,8 +30,11 @@ __all__ = [
     "has_one_row_per_patient",
     "has_many_rows_per_patient",
     "get_series_type",
-    "get_input_nodes",
+    "all_nodes",
     "get_domain",
+    "count_nodes",
+    "node_types",
+    "get_input_nodes",
 ]
 
 
@@ -44,6 +47,7 @@ __all__ = [
 # type without specifying what that type has to be
 T = TypeVar("T")
 Numeric = TypeVar("Numeric", int, float)
+Comparable = TypeVar("Comparable", int, float, str, date)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -216,12 +220,6 @@ class AggregateByPatient:
         source: Series[T]
 
 
-# Remove some duplication from the definition of the comparison functions
-class ComparisonFunction(Series[bool]):
-    lhs: Series[T]
-    rhs: Series[T]
-
-
 # A function is any operation which takes series and values and returns a series. The
 # dimension of the series it returns will be the highest dimension of its inputs i.e. if
 # any of its inputs has many-rows-per-patient then its output will too.  Below are all
@@ -229,23 +227,29 @@ class ComparisonFunction(Series[bool]):
 class Function:
 
     # Comparison
-    class EQ(ComparisonFunction):
-        ...
+    class EQ(Series[bool]):
+        lhs: Series[T]
+        rhs: Series[T]
 
-    class NE(ComparisonFunction):
-        ...
+    class NE(Series[bool]):
+        lhs: Series[T]
+        rhs: Series[T]
 
-    class LT(ComparisonFunction):
-        ...
+    class LT(Series[bool]):
+        lhs: Series[Comparable]
+        rhs: Series[Comparable]
 
-    class LE(ComparisonFunction):
-        ...
+    class LE(Series[bool]):
+        lhs: Series[Comparable]
+        rhs: Series[Comparable]
 
-    class GT(ComparisonFunction):
-        ...
+    class GT(Series[bool]):
+        lhs: Series[Comparable]
+        rhs: Series[Comparable]
 
-    class GE(ComparisonFunction):
-        ...
+    class GE(Series[bool]):
+        lhs: Series[Comparable]
+        rhs: Series[Comparable]
 
     # Boolean
     class And(Series[bool]):
@@ -338,7 +342,7 @@ def has_one_row_per_patient(node):
     return get_domain(node) == Domain.PATIENT
 
 
-def has_many_rows_per_patient(node):
+def has_many_rows_per_patient(node):  # pragma: no cover
     return not has_one_row_per_patient(node)
 
 
@@ -521,6 +525,23 @@ def get_input_nodes_for_categorise(node):
     if node.default is not None:
         inputs.append(node.default)
     return inputs
+
+
+def all_nodes(tree):
+    nodes = []
+
+    for subnode in get_input_nodes(tree):
+        for node in all_nodes(subnode):
+            nodes.append(node)
+    return [tree] + nodes
+
+
+def count_nodes(tree):  # pragma: no cover
+    return len(all_nodes(tree))
+
+
+def node_types(tree):
+    return [type(node) for node in all_nodes(tree)]
 
 
 # TYPE VALIDATION

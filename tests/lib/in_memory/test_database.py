@@ -240,11 +240,10 @@ def test_table_exists():
 
     expected = Column.parse(
         """
-        1 | 1
-        2 | 1
+        1 | T
+        2 | T
         """
     )
-    expected.default = False
 
     # This relies on equality of 1 and True
     assert t.exists() == expected
@@ -267,7 +266,6 @@ def test_table_count():
         2 | 1
         """
     )
-    expected.default = 0
 
     assert t.count() == expected
 
@@ -284,12 +282,15 @@ def test_column_filter():
         """
     )
 
-    predicate = Column(
-        {
-            1: [True, True, False],
-            2: [True, False],
-            3: [False],
-        }
+    predicate = Column.parse(
+        """
+        1 | T
+        1 | T
+        1 | F
+        2 | T
+        2 | F
+        3 | F
+        """
     )
 
     assert c.filter(predicate) == Column.parse(
@@ -297,7 +298,9 @@ def test_column_filter():
         1 | 101
         1 | 102
         2 | 201
-        """
+        """,
+        missing_patient_ids=[3],
+        default_value=[],
     )
 
 
@@ -315,12 +318,15 @@ def test_table_filter():
         """
     )
 
-    predicate = Column(
-        {
-            1: [True, True, False],
-            2: [True, False],
-            3: [False],
-        }
+    predicate = Column.parse(
+        """
+        1 | T
+        1 | T
+        1 | F
+        2 | T
+        2 | F
+        3 | F
+        """
     )
 
     assert t.filter(predicate) == Table.parse(
@@ -330,7 +336,9 @@ def test_table_filter():
         1 | 101 | 111
         1 | 102 | 112
         2 | 203 | 211
-        """
+        """,
+        missing_patient_ids=[3],
+        default_value=[],
     )
 
 

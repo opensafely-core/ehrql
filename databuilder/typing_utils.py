@@ -68,7 +68,7 @@ def type_matches(spec, target_spec, typevar_context):
             target_spec in typevar_context
             and typevar_context[target_spec] != typing.Any
         ):
-            if typevar_context[target_spec] != spec:
+            if spec != typing.Any and typevar_context[target_spec] != spec:
                 return False
         # Otherwise record this value as the value of the TypeVar
         else:

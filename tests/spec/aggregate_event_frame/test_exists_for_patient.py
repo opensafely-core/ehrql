@@ -6,8 +6,8 @@ title = "Determining whether a row exists for each patient"
 # explictly create rows of p here, since we want to check that the correct data is
 # returned for a patient that has no data in e.
 
-# Additionally, creating the rows of p in run_test() is expected to be a temporary
-# measure until Dataset.use_unrestricted_population() works for all QEs.
+# We also need to explicitly specify a population that includes all patients because
+# the variable doesn't mention the patients table.
 
 table_data = {
     p: """
@@ -36,4 +36,5 @@ def test_exists_for_patient(spec_test):
             2: True,
             3: False,
         },
+        population=~p.patient_id.is_null(),
     )
