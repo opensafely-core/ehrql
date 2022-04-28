@@ -165,10 +165,10 @@ class Table:
             }
 
     def exists(self):
-        return self["patient_id"].aggregate_values(bool)
+        return self["patient_id"].make_new_column(lambda p, vv: [bool(vv)])
 
     def count(self):
-        return self["patient_id"].aggregate_values(len)
+        return self["patient_id"].make_new_column(lambda p, vv: [len(vv)])
 
     def filter(self, predicate):  # noqa A003
         return self.make_new_table(lambda col: col.filter(predicate))
