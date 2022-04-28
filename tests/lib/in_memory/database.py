@@ -44,14 +44,14 @@ class InMemoryDatabase:
     def build_tables(self, patient_tables, event_tables, patient_join_column):
         self._patient_join_column = patient_join_column
 
-        # We need to know the universe before we construct the tables, so we have to iterate over the inputs twice.
-        self.universe = set()
+        # We need to know the all the patients before we construct the tables, so we have to iterate over the inputs twice.
+        self.all_patients = set()
         for table, rows in self.inputs.items():
             if table not in patient_tables:
                 continue
             for row in rows:
                 patient_id = getattr(row, patient_join_column)
-                self.universe.add(patient_id)
+                self.all_patients.add(patient_id)
 
         self._patient_tables = {}
         self._event_tables = {}
@@ -84,7 +84,7 @@ class InMemoryDatabase:
 
         # Tables need to be able to return values for patients for which they don't have records
         mentioned_ids = {r[0] for r in row_records}
-        missing_ids = self.universe - mentioned_ids
+        missing_ids = self.all_patients - mentioned_ids
 
         table = Table.from_records(col_names, row_records, missing_ids, default_value)
         return table

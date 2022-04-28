@@ -37,7 +37,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         )
 
         name_to_col = {
-            "patient_id": Column({patient: [patient] for patient in self.universe})
+            "patient_id": Column({patient: [patient] for patient in self.all_patients})
         }
 
         for name, node in self.column_definitions.items():
@@ -63,8 +63,8 @@ class InMemoryQueryEngine(BaseQueryEngine):
         return self.backend.database_url
 
     @property
-    def universe(self):
-        return self.database.universe
+    def all_patients(self):
+        return self.database.all_patients
 
     def visit(self, node):
         visitor = getattr(self, f"visit_{type(node).__name__}")
@@ -74,7 +74,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_Value(self, node):
-        return Column({patient: [node.value] for patient in self.universe})
+        return Column({patient: [node.value] for patient in self.all_patients})
 
     def visit_SelectTable(self, node):
         return self.database.event_table(node.name)
