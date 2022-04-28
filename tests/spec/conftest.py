@@ -26,7 +26,7 @@ def engine(request):
 
 @pytest.fixture
 def spec_test(request, engine):
-    def run_test(table_data, series, expected_results, population=None):
+    def run_test(table_data, series, expected_results):
         # Create SQLAlchemy model instances for each row of each table in table_data.
         input_data = []
         for table, s in table_data.items():
@@ -36,39 +36,36 @@ def spec_test(request, engine):
             }[table.qm_node.name]
             input_data.extend(model(**row) for row in parse_table(s))
 
-        # Create a Dataset whose population is every patient in table p, with a single
-        # variable which is the series under test.
-        dataset = Dataset()
-        if population:
-            dataset.set_population(population)
-        else:
-            # When the population hasn't been explicitly specified (as it won't be in most specs), we add a patient
-            # record for every patient that is mentioned only in event records. This makes it simpler to define the
-            # data for specs which only need to mention event records (but which otherwise would give unhelpful results
-            # because the patients wouldn't be included in the universe). We also then need to include a variable which
-            # references those patients via a patient table in order to include them in the universe.
-            populate_missing_patients(input_data)
-            dataset.set_population(~tables.p.patient_id.is_null())
-            dataset._hidden = tables.p.b1
-        dataset.v = series
+        # TODO: TEMPORARY HACK
+        # The in-memory and SQL query engines currently have different definitions for
+        # the "universe" of patients: the im-memory engine uses all patients referenced
+        # in any tables in the data; the SQL engine uses only those referenced in tables
+        # used in the current dataset definition. Until we resolve this we modify the
+        # test data to ensure that every patient is referenced in PatientLevelTable. We
+        # also change the population definition so it uses PatientLevelTable. This makes
+        # the two engines agree on what patients there are.
+        all_patient_ids = {i.PatientId for i in input_data}
+        patient_table_ids = {
+            i.PatientId for i in input_data if isinstance(i, PatientLevelTable)
+        }
+        missing_ids = all_patient_ids - patient_table_ids
+        input_data.extend(PatientLevelTable(PatientId=id_) for id_ in missing_ids)
 
         # Populate database tables.
         engine.setup(*input_data)
+
+        # Create a Dataset whose population is every patient in table p, with a single
+        # variable which is the series under test.
+        dataset = Dataset()
+        # TODO: See temporary hack above
+        dataset.set_population(~tables.p.patient_id.is_null())
+        dataset.v = series
 
         # Extract data, and check it's as expected.
         results = {r["patient_id"]: r["v"] for r in engine.extract(dataset)}
         assert results == expected_results
 
     return run_test
-
-
-def populate_missing_patients(input_data):
-    all_patient_ids = {i.PatientId for i in input_data}
-    patient_table_ids = {
-        i.PatientId for i in input_data if isinstance(i, PatientLevelTable)
-    }
-    missing_ids = all_patient_ids - patient_table_ids
-    input_data.extend(PatientLevelTable(PatientId=id_) for id_ in missing_ids)
 
 
 def parse_table(s):

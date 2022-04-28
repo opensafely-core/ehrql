@@ -143,7 +143,7 @@ def convert_output_value(value):
 
 
 class ArgCapturer:
-    def __call__(self, table_data, series, expected_output, population=None):
+    def __call__(self, table_data, series, expected_output):
         """Capture the arguments that an instance has been called with.
 
         The test functions each take a single callable argument which, when the tests
