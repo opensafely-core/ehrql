@@ -245,7 +245,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         if self._engine is None:
             engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
             engine_url = set_driver(engine_url)
-            self._engine = sqlalchemy.create_engine(engine_url, future=True)
+            self._engine = sqlalchemy.create_engine(engine_url, future=True, isolation_level="AUTOCOMMIT")
         return self._engine
 
     def create_output_group_tables(self):
@@ -300,10 +300,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             for codes_batch in split_list_into_batches(
                 codes, size=self.max_rows_per_insert
             ):
-                insert_query = table.insert().values(
-                    [(code, codelist.system) for code in codes_batch]
-                )
-                self.codelist_tables_queries.append(insert_query)
+                # fixed: original method using list as values parameter does not work on synapse pool
+                for code in codes_batch:
+                    insert_query = table.insert().values(
+                            [(code, codelist.system)]
+                    )
+                    self.codelist_tables_queries.append(insert_query)
 
     def get_temp_table_name(self, table_name):
         """

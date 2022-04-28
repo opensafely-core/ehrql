@@ -1,5 +1,9 @@
+import os
+
 from cohortextractor.backends.base import BaseBackend, Column, MappedTable
 from cohortextractor.query_engines.mssql import MssqlQueryEngine
+
+schema = os.environ.get('GRAPHNET_DB_SCHEMA', default='TRE')
 
 
 class GraphnetBackend(BaseBackend):
@@ -8,7 +12,7 @@ class GraphnetBackend(BaseBackend):
     patient_join_column = "Patient_ID"
 
     patients = MappedTable(
-        schema='TRE',
+        schema=schema,
         source="Patients",
         columns=dict(
             sex=Column("varchar", source="Sex"),
@@ -18,7 +22,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     clinical_events = MappedTable(
-        schema='TRE',
+        schema=schema,
         source="ClinicalEvents",
         columns=dict(
             code=Column("varchar", source="Code"),
@@ -30,7 +34,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     practice_registrations = MappedTable(
-        schema='TRE',
+        schema=schema,
         source="PracticeRegistrations",
         columns=dict(
             pseudo_id=Column("integer", source="Organisation_ID"),
@@ -41,7 +45,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     covid_test_results = MappedTable(
-        schema='TRE',
+        schema=schema,
         source="CovidTestResults",
         columns=dict(
             date=Column("date", source="SpecimenDate"),
@@ -50,7 +54,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     hospitalizations = MappedTable(
-        schema='TRE',
+        schema=schema,
         source="Hospitalisations",
         columns=dict(
             date=Column("date", source="AdmitDate"),
@@ -59,7 +63,7 @@ class GraphnetBackend(BaseBackend):
     )
 
     patient_address = MappedTable(
-        schema='TRE',
+        schema=schema,
         source="PatientAddresses",
         columns=dict(
             patientaddress_id=Column("integer", source="PatientAddress_ID"),
