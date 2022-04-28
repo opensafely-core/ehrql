@@ -2,6 +2,13 @@ import sqlalchemy
 import sqlalchemy.orm
 
 import databuilder.backends.base as backends
+from databuilder.query_model import (
+    AggregateByPatient,
+    Function,
+    SelectColumn,
+    SelectPatientTable,
+    SelectTable,
+)
 
 
 def setup(schema, num_patient_tables, num_event_tables):
@@ -19,7 +26,15 @@ def setup(schema, num_patient_tables, num_event_tables):
     table_names = patient_table_names + event_table_names
     backend = _make_backend(table_names, schema, patient_id_column)
 
-    return patient_id_column, patient_classes, event_classes, backend
+    all_patients_query = _build_query(patient_table_names, event_table_names)
+
+    return (
+        patient_id_column,
+        patient_classes,
+        event_classes,
+        backend,
+        all_patients_query,
+    )
 
 
 def _build_orm_classes(prefix, count, schema, patient_id_column, ids, registry):
@@ -81,3 +96,34 @@ def _backend_column(name, type_):
 
 def _backend_table(name, columns):
     return backends.MappedTable(implements=None, source=name, columns=columns)
+
+
+def _build_query(patient_tables, event_tables):
+    # Note that we do not include a schema for the tables here. This is because we are accessing the patient_id
+    # which isn't included in the schema for simplicity elsewhere. There is no downside to not having the schema
+    # because these queries don't mention any other columns, so we don't miss out on possible type-checking.
+    clauses = []
+
+    for table in patient_tables:
+        clauses.append(
+            Function.Not(
+                Function.IsNull(
+                    SelectColumn(
+                        name="patient_id",
+                        source=SelectPatientTable(name=table),
+                    )
+                )
+            )
+        )
+
+    for table in event_tables:
+        clauses.append(AggregateByPatient.Exists(source=SelectTable(name=table)))
+
+    return _join_with_or(clauses)
+
+
+def _join_with_or(clauses):
+    query = clauses[0]
+    for clause in clauses[1:]:
+        query = Function.Or(query, clause)
+    return query

@@ -4,7 +4,7 @@ import hypothesis as hyp
 import hypothesis.strategies as st
 
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
-from databuilder.query_model import TableSchema, Value
+from databuilder.query_model import TableSchema
 
 from ..lib.databases import InMemorySQLiteDatabase
 from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
@@ -13,9 +13,13 @@ from .conftest import count_nodes, observe_inputs
 
 # To simplify data generation, all tables have the same schema.
 schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
-patient_id_column, patient_classes, event_classes, Backend = data_setup.setup(
-    schema, num_patient_tables=2, num_event_tables=2
-)
+(
+    patient_id_column,
+    patient_classes,
+    event_classes,
+    Backend,
+    all_patients_query,
+) = data_setup.setup(schema, num_patient_tables=2, num_event_tables=2)
 
 # Use the same strategies for values both for query generation and data generation.
 int_values = st.integers(min_value=0, max_value=10)
@@ -55,7 +59,7 @@ def tune_qm_graph_size(variable):
 def run_test(data, variable):
     instances = instantiate(data)
     variables = {
-        "population": Value(True),
+        "population": all_patients_query,
         "v": variable,
     }
 
