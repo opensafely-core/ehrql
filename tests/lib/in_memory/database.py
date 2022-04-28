@@ -82,7 +82,11 @@ class InMemoryDatabase:
             for name in col_names
         ]
 
-        table = Table.from_records(col_names, row_records, self.universe, default_value)
+        # Tables need to be able to return values for patients for which they don't have records
+        mentioned_ids = {r[0] for r in row_records}
+        missing_ids = self.universe - mentioned_ids
+
+        table = Table.from_records(col_names, row_records, missing_ids, default_value)
         return table
 
 
@@ -91,12 +95,14 @@ class Table:
     name_to_col: dict
 
     @classmethod
-    def from_records(cls, col_names, row_records, universe, default_value):
+    def from_records(cls, col_names, row_records, missing_patient_ids, default_value):
         assert col_names[0] == "patient_id"
         col_records = list(zip(*row_records))
         patient_ids = col_records[0]
         name_to_col = {
-            name: Column.from_values(patient_ids, values, universe, default_value)
+            name: Column.from_values(
+                patient_ids, values, missing_patient_ids, default_value
+            )
             for name, values in zip(col_names, col_records)
         }
         return cls(name_to_col)
@@ -182,15 +188,12 @@ class Column:
     patient_to_values: dict
 
     @classmethod
-    def from_values(cls, patient_ids, values, universe, default_value):
+    def from_values(cls, patient_ids, values, missing_patient_ids, default_value):
         patient_to_values = defaultdict(list)
         for patient, value in zip(patient_ids, values):
             patient_to_values[patient].append(value)
-
-        for patient_id in universe:
-            if patient_id not in patient_to_values:
-                patient_to_values[patient_id] = default_value
-
+        for patient_id in missing_patient_ids:
+            patient_to_values[patient_id] = default_value
         return cls(dict(patient_to_values))
 
     @classmethod
