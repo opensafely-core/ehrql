@@ -1,16 +1,13 @@
 import dataclasses
 
-from . import query_model as qm
+from databuilder import query_model as qm
+from databuilder.population_validation import validate_population_definition
 
 
 class Dataset:
     def set_population(self, population):
-        # TODO raise proper error here
-        assert isinstance(population, BoolSeries)
+        validate_population_definition(population.qm_node)
         object.__setattr__(self, "population", population)
-
-    def use_unrestricted_population(self):  # pragma: no cover
-        self.set_population(BoolSeries(qm.Value(True)))
 
     def __setattr__(self, name, value):
         # TODO raise proper errors here
