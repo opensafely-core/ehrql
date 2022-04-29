@@ -1,7 +1,5 @@
 from datetime import date
 
-import pytest
-
 from databuilder.query_language import (
     Dataset,
     DateSeries,
@@ -94,7 +92,6 @@ class TestIntSeries:
             Function.LE(qm_int_series, Value(2000)),
         )
 
-    @pytest.mark.xfail(reason="LE comparison with IntSeries not supported")
     def test_le_intseries(self):
         assert_produces(
             IntSeries(qm_int_series) <= IntSeries(qm_int_series),
