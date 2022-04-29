@@ -281,7 +281,7 @@ def is_trivial(node):  # pragma: no cover
         Function.Subtract,
         Function.DateAdd,
         Function.DateSubtract,
-        Function.DateDifference,
+        Function.DateDifferenceInYears,
         Function.In,
     ]:
         # All binary functions are completely determined if all of their inputs are literals

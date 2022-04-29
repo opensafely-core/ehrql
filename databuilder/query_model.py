@@ -296,10 +296,9 @@ class Function:
         lhs: Series[date]
         rhs: Series[int]
 
-    class DateDifference(Series[int]):
-        start: Series[date]
-        end: Series[date]
-        units: Series[str]
+    class DateDifferenceInYears(Series[int]):
+        lhs: Series[date]
+        rhs: Series[date]
 
     class YearFromDate(Series[int]):
         source: Series[date]

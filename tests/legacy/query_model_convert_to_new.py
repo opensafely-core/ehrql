@@ -31,7 +31,7 @@ OPERATOR_MAP = {
 
 
 FUNCTION_CLASS_MAP = {
-    old.DateDifference: new.Function.DateDifference,
+    old.DateDifference: new.Function.DateDifferenceInYears,
     old.RoundToFirstOfMonth: new.Function.RoundToFirstOfMonth,
     old.RoundToFirstOfYear: new.Function.RoundToFirstOfYear,
     old.DateAddition: new.Function.DateAdd,
@@ -152,7 +152,10 @@ def convert_value_from_category(node: old.ValueFromCategory):
 @convert_node.register
 def convert_value_from_function(node: old.ValueFromFunction):
     Function = FUNCTION_CLASS_MAP[type(node)]
-    return Function(*[convert_value(arg) for arg in node.arguments])
+    if Function is new.Function.DateDifferenceInYears:
+        assert node.arguments[2] == "years"
+        return Function(*[convert_value(arg) for arg in node.arguments[:2]])
+    return Function(*[convert_value(arg) for arg in node.arguments])  # pragma: no cover
 
 
 @convert_node.register
