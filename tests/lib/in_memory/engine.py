@@ -21,7 +21,10 @@ class InMemoryQueryEngine(BaseQueryEngine):
     @contextlib.contextmanager
     def execute_query(self):
         name_to_col = {
-            "patient_id": Column({patient: [patient] for patient in self.all_patients})
+            "patient_id": Column(
+                {patient: [patient] for patient in self.all_patients},
+                default=None,
+            )
         }
 
         for name, node in self.column_definitions.items():
@@ -62,7 +65,10 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_Value(self, node):
-        return Column({patient: [node.value] for patient in self.all_patients})
+        return Column(
+            {patient: [node.value] for patient in self.all_patients},
+            default=None,
+        )
 
     def visit_SelectTable(self, node):
         return self.tables[node.name]
@@ -101,7 +107,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
     def visit_Sum(self, node):
         col = self.visit(node.source)
-        return col.aggregate_values(sum)
+        return col.aggregate_values(sum, None)
 
     def visit_CombineAsSet(self, node):
         assert False

@@ -153,17 +153,17 @@ class Table:
 @dataclass
 class Column:
     patient_to_values: dict
-    default: object = None
+    default: object
 
     @classmethod
-    def from_values(cls, patient_ids, values):
+    def from_values(cls, patient_ids, values, default=None):
         patient_to_values = defaultdict(list)
         for patient, value in zip(patient_ids, values):
             patient_to_values[patient].append(value)
-        return cls(dict(patient_to_values))
+        return cls(dict(patient_to_values), default)
 
     @classmethod
-    def parse(cls, s):
+    def parse(cls, s, default=None):
         """Create Column instance by parsing string.
 
         >>> col = Column.parse(
@@ -183,7 +183,7 @@ class Column:
             patient, value = (token.strip() for token in line.split("|"))
             patient_ids.append(int(patient))
             values.append(parse_value(value))
-        return cls.from_values(patient_ids, values)
+        return cls.from_values(patient_ids, values, default)
 
     def get_values(self, patient):
         return self.patient_to_values.get(patient, [self.default])
@@ -201,7 +201,8 @@ class Column:
         )
 
     def unary_op(self, fn):
-        return self.make_new_column(lambda p, vv: [fn(v) for v in vv])
+        default = fn(self.default)
+        return self.make_new_column(lambda p, vv: [fn(v) for v in vv], default)
 
     def unary_op_with_null(self, fn):
         return self.unary_op(handle_null(fn))
@@ -214,7 +215,7 @@ class Column:
         else:
             p_to_vv_2 = {p: [other] for p in self.patient_to_values}
 
-        patients = p_to_vv_1.keys() & p_to_vv_2.keys()
+        patients = p_to_vv_1.keys() | p_to_vv_2.keys()
 
         if any_patient_has_multiple_values(p_to_vv_1):
             if any_patient_has_multiple_values(p_to_vv_2):
@@ -233,30 +234,39 @@ class Column:
                 # Nothing to be done.
                 pass
 
+        reshaped_1 = Column(p_to_vv_1, self.default)
+        reshaped_2 = Column(p_to_vv_2, other.default)
+
         return Column(
             {
-                p: [fn(v1, v2) for v1, v2 in zip(p_to_vv_1[p], p_to_vv_2[p])]
+                p: [
+                    fn(v1, v2)
+                    for v1, v2 in zip(
+                        reshaped_1.get_values(p), reshaped_2.get_values(p)
+                    )
+                ]
                 for p in patients
-            }
+            },
+            default=fn(reshaped_1.default, reshaped_2.default),
         )
 
     def binary_op_with_null(self, fn, other):
         return self.binary_op(handle_null(fn), other)
 
-    def aggregate_values(self, fn, default=None):
+    def aggregate_values(self, fn, default):
         return self.make_new_column(lambda p, vv: [fn(vv)], default)
 
     def filter(self, predicate):  # noqa A003
         def fn(p, vv):
             return [v for v, pred_val in zip(vv, predicate.get_values(p)) if pred_val]
 
-        return self.make_new_column(fn, default=self.default)
+        return self.make_new_column(fn, self.default)
 
     def sort_index(self):
         def fn(p, vv):
             return [pair[0] for pair in sorted(enumerate(vv), key=lambda pair: pair[1])]
 
-        return self.make_new_column(fn)
+        return self.make_new_column(fn, default=None)
 
     def sort(self, sort_index):
         def fn(p, vv):
@@ -267,12 +277,12 @@ class Column:
                 )
             ]
 
-        return self.make_new_column(fn)
+        return self.make_new_column(fn, default=None)
 
     def pick_at_index(self, ix):
-        return self.make_new_column(lambda p, vv: [vv[ix]])
+        return self.make_new_column(lambda p, vv: [vv[ix]], self.default)
 
-    def make_new_column(self, fn, default=None):
+    def make_new_column(self, fn, default):
         new_patient_to_values = {
             p: fn(p, vv) for p, vv in self.patient_to_values.items()
         }
