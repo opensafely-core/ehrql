@@ -153,7 +153,7 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 
     filter_ = qm_builds(Filter, many_rows_per_patient_frame, series)
 
-    sort = qm_builds(Sort, many_rows_per_patient_frame, series)
+    sort = qm_builds(Sort, many_rows_per_patient_frame, many_rows_per_patient_series)
 
     pick_one_row_per_patient = qm_builds(
         PickOneRowPerPatient,
