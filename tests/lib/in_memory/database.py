@@ -193,6 +193,12 @@ class Column:
         assert len(values) == 1
         return values[0]
 
+    def patients(self):
+        return self.patient_to_values.keys()
+
+    def any_patient_has_multiple_values(self):
+        return any(len(self.get_values(p)) != 1 for p in self.patients())
+
     def __repr__(self):
         return "\n".join(
             f"{patient} | {value}"
@@ -208,46 +214,48 @@ class Column:
         return self.unary_op(handle_null(fn))
 
     def binary_op(self, fn, other):
-        p_to_vv_1 = self.patient_to_values
+        patients = self.patients() | other.patients()
 
-        if isinstance(other, Column):
-            p_to_vv_2 = other.patient_to_values
-        else:
-            p_to_vv_2 = {p: [other] for p in self.patient_to_values}
-
-        patients = p_to_vv_1.keys() | p_to_vv_2.keys()
-
-        if any_patient_has_multiple_values(p_to_vv_1):
-            if any_patient_has_multiple_values(p_to_vv_2):
+        self_values = self.patient_to_values
+        other_values = other.patient_to_values
+        if self.any_patient_has_multiple_values():
+            if other.any_patient_has_multiple_values():
                 # Check both columns have the same number of values for each patient.
                 # This is a sense check for any test data, and not a check that the QM
                 # has provided two frames with the same domain.
-                assert all(len(p_to_vv_1[p]) == len(p_to_vv_2[p]) for p in patients)
+                assert all(
+                    len(self.get_values(p)) == len(other.get_values(p))
+                    for p in patients
+                )
             else:
-                # Convert p_to_vv_2 so that it has the same shape as p_to_vv_1.
-                p_to_vv_2 = {p: p_to_vv_2[p] * len(p_to_vv_1[p]) for p in patients}
+                # Convert other so that it has the same shape as self.
+                other_values = {
+                    p: other.get_values(p) * len(self.get_values(p)) for p in patients
+                }
         else:
-            if any_patient_has_multiple_values(p_to_vv_2):
-                # Convert p_to_vv_1 so that it has the same shape as p_to_vv_2.
-                p_to_vv_1 = {p: p_to_vv_1[p] * len(p_to_vv_2[p]) for p in patients}
+            if other.any_patient_has_multiple_values():
+                # Convert self so that it has the same shape as other.
+                self_values = {
+                    p: self.get_values(p) * len(other.get_values(p)) for p in patients
+                }
             else:
                 # Nothing to be done.
                 pass
 
-        reshaped_1 = Column(p_to_vv_1, self.default)
-        reshaped_2 = Column(p_to_vv_2, other.default)
+        reshaped_self = Column(self_values, self.default)
+        reshaped_other = Column(other_values, other.default)
 
         return Column(
             {
                 p: [
                     fn(v1, v2)
                     for v1, v2 in zip(
-                        reshaped_1.get_values(p), reshaped_2.get_values(p)
+                        reshaped_self.get_values(p), reshaped_other.get_values(p)
                     )
                 ]
                 for p in patients
             },
-            default=fn(reshaped_1.default, reshaped_2.default),
+            default=fn(reshaped_self.default, reshaped_other.default),
         )
 
     def binary_op_with_null(self, fn, other):
@@ -258,7 +266,10 @@ class Column:
 
     def filter(self, predicate):  # noqa A003
         def fn(p, vv):
-            return [v for v, pred_val in zip(vv, predicate.get_values(p)) if pred_val]
+            pred_values = predicate.get_values(p)
+            if len(pred_values) == 1:
+                pred_values = pred_values * len(vv)
+            return [v for v, pred_val in zip(vv, pred_values) if pred_val]
 
         return self.make_new_column(fn, self.default)
 
@@ -290,10 +301,6 @@ class Column:
             {p: vv for p, vv in new_patient_to_values.items() if vv},
             default,
         )
-
-
-def any_patient_has_multiple_values(patient_to_values):
-    return any(len(values) != 1 for values in patient_to_values.values())
 
 
 def handle_null(fn):

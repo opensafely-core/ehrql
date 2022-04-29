@@ -4,7 +4,7 @@ import operator
 from databuilder import query_model as qm
 from databuilder.query_engines.base import BaseQueryEngine
 
-from .database import Column, Table, any_patient_has_multiple_values
+from .database import Column, Table
 
 T = True
 F = False
@@ -29,7 +29,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
         for name, node in self.column_definitions.items():
             col = self.visit(node)
-            assert not any_patient_has_multiple_values(col.patient_to_values)
+            assert not col.any_patient_has_multiple_values()
             name_to_col[name] = col
 
         table = Table(name_to_col)
