@@ -3,9 +3,8 @@ import operator
 
 from databuilder import query_model as qm
 from databuilder.query_engines.base import BaseQueryEngine
-from databuilder.query_model import SelectPatientTable, SelectTable, get_input_nodes
 
-from .database import Column, Table, any_patient_has_multiple_values
+from .database import Column, Table
 
 T = True
 F = False
@@ -21,28 +20,16 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
     @contextlib.contextmanager
     def execute_query(self):
-        # prime the database with the tables that are used in the queries so that it can correctly assemble the
-        # patient universe
-        patient_tables = set()
-        event_tables = set()
-        for variable in self.column_definitions.values():
-            for node in all_nodes(variable):
-                if isinstance(node, SelectPatientTable):
-                    patient_tables.add(node.name)
-                if isinstance(node, SelectTable):
-                    event_tables.add(node.name)
-
-        self.database.build_tables(
-            patient_tables, event_tables, self.backend.patient_join_column
-        )
-
         name_to_col = {
-            "patient_id": Column({patient: [patient] for patient in self.universe})
+            "patient_id": Column(
+                {patient: [patient] for patient in self.all_patients},
+                default=None,
+            )
         }
 
         for name, node in self.column_definitions.items():
             col = self.visit(node)
-            assert not any_patient_has_multiple_values(col.patient_to_values)
+            assert not col.any_patient_has_multiple_values()
             name_to_col[name] = col
 
         table = Table(name_to_col)
@@ -63,8 +50,12 @@ class InMemoryQueryEngine(BaseQueryEngine):
         return self.backend.database_url
 
     @property
-    def universe(self):
-        return self.database.universe
+    def tables(self):
+        return self.database.tables
+
+    @property
+    def all_patients(self):
+        return self.database.all_patients
 
     def visit(self, node):
         visitor = getattr(self, f"visit_{type(node).__name__}")
@@ -74,13 +65,16 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_Value(self, node):
-        return Column({patient: [node.value] for patient in self.universe})
+        return Column(
+            {patient: [node.value] for patient in self.all_patients},
+            default=None,
+        )
 
     def visit_SelectTable(self, node):
-        return self.database.event_table(node.name)
+        return self.tables[node.name]
 
     def visit_SelectPatientTable(self, node):
-        return self.database.patient_table(node.name)
+        return self.tables[node.name]
 
     def visit_SelectColumn(self, node):
         return self.visit(node.source)[node.name]
@@ -112,13 +106,8 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_Sum(self, node):
-        def null_sensitive_sum(vv):
-            if not vv:
-                return None
-            return sum(vv)
-
         col = self.visit(node.source)
-        return col.aggregate_values(null_sensitive_sum)
+        return col.aggregate_values(sum, None)
 
     def visit_CombineAsSet(self, node):
         assert False
@@ -234,12 +223,3 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
     def visit_Categorise(self, node):
         assert False
-
-
-def all_nodes(tree):
-    nodes = []
-
-    for subnode in get_input_nodes(tree):
-        for node in all_nodes(subnode):
-            nodes.append(node)
-    return [tree] + nodes

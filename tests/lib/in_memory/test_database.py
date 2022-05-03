@@ -36,14 +36,16 @@ def test_column_unary_op():
         1 | 101
         1 | 102
         2 | 201
-        """
+        """,
+        default=0,
     )
     assert c.unary_op(neg) == Column.parse(
         """
         1 | -101
         1 | -102
         2 | -201
-        """
+        """,
+        default=0,
     )
 
 
@@ -64,21 +66,6 @@ def test_column_unary_op_with_null():
     )
 
 
-def test_patient_column_binary_op_value():
-    pc = Column.parse(
-        """
-        1 | 101
-        2 | 201
-        """
-    )
-    assert pc.binary_op(add, 1) == Column.parse(
-        """
-        1 | 102
-        2 | 202
-        """
-    )
-
-
 def test_patient_column_binary_op_patient_column():
     pc1 = Column.parse(
         """
@@ -94,10 +81,12 @@ def test_patient_column_binary_op_patient_column():
         4 | 411
         """
     )
-    assert pc1.binary_op(add, pc2) == Column.parse(
+    assert pc1.binary_op_with_null(add, pc2) == Column.parse(
         """
         1 | 212
         2 | 412
+        3 |
+        4 |
         """
     )
 
@@ -119,31 +108,14 @@ def test_patient_column_binary_op_event_column():
         4 | 414
         """
     )
-    assert pc.binary_op(add, ec) == Column.parse(
+    assert pc.binary_op_with_null(add, ec) == Column.parse(
         """
         1 | 212
         1 | 213
         2 | 412
         2 | 413
-        """
-    )
-
-
-def test_event_column_binary_op_value():
-    ec = Column.parse(
-        """
-        1 | 101
-        1 | 102
-        2 | 201
-        2 | 202
-        """
-    )
-    assert ec.binary_op(add, 1) == Column.parse(
-        """
-        1 | 102
-        1 | 103
-        2 | 202
-        2 | 203
+        3 |
+        4 |
         """
     )
 
@@ -165,12 +137,14 @@ def test_event_column_binary_op_patient_column():
         4 | 411
         """
     )
-    assert ec.binary_op(add, pc) == Column.parse(
+    assert ec.binary_op_with_null(add, pc) == Column.parse(
         """
         1 | 212
         1 | 213
         2 | 412
         2 | 413
+        3 |
+        4 |
         """
     )
 
@@ -195,7 +169,7 @@ def test_event_column_binary_op_event_column():
         """
     )
 
-    assert es1.binary_op(add, es2) == Column.parse(
+    assert es1.binary_op_with_null(add, es2) == Column.parse(
         """
         1 | 212
         1 | 214
@@ -218,7 +192,7 @@ def test_column_aggregate_values():
         """
     )
 
-    assert c.aggregate_values(len) == Column.parse(
+    assert c.aggregate_values(len, default=None) == Column.parse(
         """
         1 | 3
         2 | 2
@@ -240,10 +214,11 @@ def test_table_exists():
 
     expected = Column.parse(
         """
-        1 | T
-        2 | T
+        1 | 1
+        2 | 1
         """
     )
+    expected.default = False
 
     # This relies on equality of 1 and True
     assert t.exists() == expected
@@ -266,6 +241,7 @@ def test_table_count():
         2 | 1
         """
     )
+    expected.default = 0
 
     assert t.count() == expected
 
@@ -282,15 +258,13 @@ def test_column_filter():
         """
     )
 
-    predicate = Column.parse(
-        """
-        1 | T
-        1 | T
-        1 | F
-        2 | T
-        2 | F
-        3 | F
-        """
+    predicate = Column(
+        {
+            1: [True, True, False],
+            2: [True, False],
+            3: [False],
+        },
+        default=None,
     )
 
     assert c.filter(predicate) == Column.parse(
@@ -298,9 +272,7 @@ def test_column_filter():
         1 | 101
         1 | 102
         2 | 201
-        """,
-        missing_patient_ids=[3],
-        default_value=[],
+        """
     )
 
 
@@ -318,15 +290,13 @@ def test_table_filter():
         """
     )
 
-    predicate = Column.parse(
-        """
-        1 | T
-        1 | T
-        1 | F
-        2 | T
-        2 | F
-        3 | F
-        """
+    predicate = Column(
+        {
+            1: [True, True, False],
+            2: [True, False],
+            3: [False],
+        },
+        default=None,
     )
 
     assert t.filter(predicate) == Table.parse(
@@ -336,9 +306,7 @@ def test_table_filter():
         1 | 101 | 111
         1 | 102 | 112
         2 | 203 | 211
-        """,
-        missing_patient_ids=[3],
-        default_value=[],
+        """
     )
 
 

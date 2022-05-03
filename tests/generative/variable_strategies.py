@@ -3,15 +3,16 @@ import hypothesis.errors
 import hypothesis.strategies as st
 
 from databuilder.query_model import (
+    AggregateByPatient,
     Filter,
     Function,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
-    Sort,
     ValidationError,
     Value,
     get_input_nodes,
+    has_many_rows_per_patient,
     has_one_row_per_patient,
     node_types,
 )
@@ -69,7 +70,7 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     one_row_per_patient_frame = st.deferred(
         lambda: st.one_of(
             select_patient_table,
-            # TODO: not supported by sqlite engine
+            # See `sort`
             # pick_one_row_per_patient,
         )
     )
@@ -77,7 +78,8 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     many_rows_per_patient_frame = st.deferred(
         lambda: st.one_of(
             select_table,
-            sorted_frame,
+            # See `sort`
+            # sorted_frame,
             filter_,
         )
     )
@@ -92,26 +94,22 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     definitely_one_row_patient_series = st.deferred(
         lambda: st.one_of(
             value,
-            # TODO: not supported by sqlite engine
-            # exists,
-            # TODO: not supported by sqlite engine
-            # count_,
+            exists,
+            count_,
             # TODO: not supported by in-memory engine
             # min_,
             # TODO: not supported by in-memory engine
             # max_,
-            # TODO: not supported by sqlite engine
-            # sum_,
+            sum_,
         )
     )
 
-    # TODO: No consumers of this are supported by sqlite engine
-    # many_rows_per_patient_series = st.deferred(
-    #     lambda: st.one_of(
-    #         unknown_dimension_series.filter(has_many_rows_per_patient),
-    #         definitely_many_rows_per_patient_series,
-    #     )
-    # )
+    many_rows_per_patient_series = st.deferred(
+        lambda: st.one_of(
+            unknown_dimension_series.filter(has_many_rows_per_patient),
+            definitely_many_rows_per_patient_series,
+        )
+    )
 
     # We don't currently have any examples of this type, but it's included here for consistency
     # and to make it clear where it fits in.
@@ -136,7 +134,8 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
         )
     )
 
-    sorted_frame = st.deferred(lambda: st.one_of(sort))
+    # See `sort`
+    # sorted_frame = st.deferred(lambda: st.one_of(sort))
 
     value = qm_builds(Value, st.one_of(int_values, bool_values))
 
@@ -154,25 +153,23 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 
     filter_ = qm_builds(Filter, many_rows_per_patient_frame, series)
 
-    sort = qm_builds(Sort, many_rows_per_patient_frame, series)
+    # TODO: gives inconsistent test results, see https://github.com/opensafely-core/databuilder/issues/461
+    # sort = qm_builds(Sort, many_rows_per_patient_frame, many_rows_per_patient_series)
 
-    # TODO: not supported by sqlite engine
+    # See `sort`
     # pick_one_row_per_patient = qm_builds(
     #     PickOneRowPerPatient,
     #     sorted_frame,
     #     st.sampled_from([Position.FIRST, Position.LAST]),
     # )
 
-    # TODO: not supported by sqlite engine
-    # exists = qm_builds(AggregateByPatient.Exists, many_rows_per_patient_frame)
-    # TODO: not supported by sqlite engine
-    # count_ = qm_builds(AggregateByPatient.Count, many_rows_per_patient_frame)
+    exists = qm_builds(AggregateByPatient.Exists, many_rows_per_patient_frame)
+    count_ = qm_builds(AggregateByPatient.Count, many_rows_per_patient_frame)
     # TODO: not supported by in-memory engine
     # min_ = qm_builds(AggregateByPatient.Min, series)
     # TODO: not supported by in-memory engine
     # max_ = qm_builds(AggregateByPatient.Max, series)
-    # TODO: not supported by sqlite engine
-    # sum_ = qm_builds(AggregateByPatient.Sum, many_rows_per_patient_series)
+    sum_ = qm_builds(AggregateByPatient.Sum, many_rows_per_patient_series)
 
     eq = qm_builds(Function.EQ, series, series)
     ne = qm_builds(Function.NE, series, series)

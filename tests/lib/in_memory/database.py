@@ -28,12 +28,27 @@ from tests.lib.util import iter_flatten
 
 class InMemoryDatabase:
     def setup(self, *input_data):
-        # organize inputs by table for ease of use later
-        self.inputs = defaultdict(list)
+        self.all_patients = set()
+        table_name_to_items = defaultdict(list)
 
         input_data = list(iter_flatten(input_data))
         for item in input_data:
-            self.inputs[item.__tablename__].append(item)
+            table_name_to_items[item.__tablename__].append(item)
+        self.tables = {}
+
+        for table_name, items in table_name_to_items.items():
+            self.tables[table_name] = self.build_table(items)
+
+    def build_table(self, items):
+        model = type(items[0])
+        col_names = [col.name for col in model.__table__.columns if col.name != "Id"]
+        row_records = [
+            [getattr(item, col_name) for col_name in col_names] for item in items
+        ]
+        col_names[0] = "patient_id"
+        table = Table.from_records(col_names, row_records)
+        self.all_patients |= table["patient_id"].patient_to_values.keys()
+        return table
 
     def host_url(self):
         # Hack!  Other test database classes deriving from tests.lib.databases.DbDetails
@@ -41,68 +56,24 @@ class InMemoryDatabase:
         # InMemoryQueryEngine.database.
         return self
 
-    def build_tables(self, patient_tables, event_tables, patient_join_column):
-        self._patient_join_column = patient_join_column
-
-        # We need to know the universe before we construct the tables, so we have to iterate over the inputs twice.
-        self.universe = set()
-        for table, rows in self.inputs.items():
-            if table not in patient_tables:
-                continue
-            for row in rows:
-                patient_id = getattr(row, patient_join_column)
-                self.universe.add(patient_id)
-
-        self._patient_tables = {}
-        self._event_tables = {}
-        for table, rows in self.inputs.items():
-            if table in patient_tables:
-                self._patient_tables[table] = self._build_table(rows, [None])
-            elif table in event_tables:
-                self._event_tables[table] = self._build_table(rows, [])
-            else:  # pragma: no cover
-                pass
-
-    def patient_table(self, name):
-        return self._patient_tables[name]
-
-    def event_table(self, name):
-        return self._event_tables[name]
-
-    def _build_table(self, rows, default_value):
-        model = type(rows[0])
-        assert all(type(row) == model for row in rows)
-
-        col_names = [col.name for col in model.__table__.columns if col.name != "Id"]
-        row_records = [
-            [getattr(row, col_name) for col_name in col_names] for row in rows
-        ]
-        col_names = [
-            "patient_id" if name == self._patient_join_column else name
-            for name in col_names
-        ]
-
-        table = Table.from_records(col_names, row_records, self.universe, default_value)
-        return table
-
 
 @dataclass
 class Table:
     name_to_col: dict
 
     @classmethod
-    def from_records(cls, col_names, row_records, universe, default_value):
+    def from_records(cls, col_names, row_records):
         assert col_names[0] == "patient_id"
         col_records = list(zip(*row_records))
         patient_ids = col_records[0]
         name_to_col = {
-            name: Column.from_values(patient_ids, values, universe, default_value)
+            name: Column.from_values(patient_ids, values)
             for name, values in zip(col_names, col_records)
         }
         return cls(name_to_col)
 
     @classmethod
-    def parse(cls, s, missing_patient_ids=None, default_value=None):
+    def parse(cls, s):
         """Create Table instance by parsing string.
 
         >>> tbl = Table.parse(
@@ -121,7 +92,6 @@ class Table:
         >>> tbl['i1'].patient_to_values
         {1: [101, 102], 2: [201]}
         """
-        missing_patient_ids = missing_patient_ids or []
 
         header, _, *lines = s.strip().splitlines()
         col_names = [token.strip() for token in header.split("|")]
@@ -129,9 +99,7 @@ class Table:
         row_records = [
             [parse_value(token.strip()) for token in line.split("|")] for line in lines
         ]
-        return cls.from_records(
-            col_names, row_records, missing_patient_ids, default_value
-        )
+        return cls.from_records(col_names, row_records)
 
     def __getitem__(self, name):
         return self.name_to_col[name]
@@ -159,10 +127,15 @@ class Table:
             }
 
     def exists(self):
-        return self["patient_id"].aggregate_values(bool)
+        return self["patient_id"].make_new_column(
+            lambda p, vv: [bool(vv)], default=False
+        )
 
     def count(self):
-        return self["patient_id"].aggregate_values(len)
+        return self["patient_id"].make_new_column(
+            lambda p, vv: [len(vv)],
+            default=0,
+        )
 
     def filter(self, predicate):  # noqa A003
         return self.make_new_table(lambda col: col.filter(predicate))
@@ -180,21 +153,17 @@ class Table:
 @dataclass
 class Column:
     patient_to_values: dict
+    default: object
 
     @classmethod
-    def from_values(cls, patient_ids, values, universe, default_value):
+    def from_values(cls, patient_ids, values, default=None):
         patient_to_values = defaultdict(list)
         for patient, value in zip(patient_ids, values):
             patient_to_values[patient].append(value)
-
-        for patient_id in universe:
-            if patient_id not in patient_to_values:
-                patient_to_values[patient_id] = default_value
-
-        return cls(dict(patient_to_values))
+        return cls(dict(patient_to_values), default)
 
     @classmethod
-    def parse(cls, s, missing_patient_ids=None, default_value=None):
+    def parse(cls, s, default=None):
         """Create Column instance by parsing string.
 
         >>> col = Column.parse(
@@ -207,7 +176,6 @@ class Column:
         >>> col.patient_to_values
         {1: [101, 102], 2: [201]}
         """
-        missing_patient_ids = missing_patient_ids or []
 
         patient_ids = []
         values = []
@@ -215,15 +183,21 @@ class Column:
             patient, value = (token.strip() for token in line.split("|"))
             patient_ids.append(int(patient))
             values.append(parse_value(value))
-        return cls.from_values(patient_ids, values, missing_patient_ids, default_value)
+        return cls.from_values(patient_ids, values, default)
 
     def get_values(self, patient):
-        return self.patient_to_values.get(patient)
+        return self.patient_to_values.get(patient, [self.default])
 
     def get_value(self, patient):
         values = self.get_values(patient)
         assert len(values) == 1
         return values[0]
+
+    def patients(self):
+        return self.patient_to_values.keys()
+
+    def any_patient_has_multiple_values(self):
+        return any(len(self.get_values(p)) != 1 for p in self.patients())
 
     def __repr__(self):
         return "\n".join(
@@ -233,62 +207,77 @@ class Column:
         )
 
     def unary_op(self, fn):
-        return self.make_new_column(lambda p, vv: [fn(v) for v in vv])
+        default = fn(self.default)
+        return self.make_new_column(lambda p, vv: [fn(v) for v in vv], default)
 
     def unary_op_with_null(self, fn):
         return self.unary_op(handle_null(fn))
 
     def binary_op(self, fn, other):
-        p_to_vv_1 = self.patient_to_values
+        patients = self.patients() | other.patients()
 
-        if isinstance(other, Column):
-            p_to_vv_2 = other.patient_to_values
-        else:
-            p_to_vv_2 = {p: [other] for p in self.patient_to_values}
-
-        patients = p_to_vv_1.keys() & p_to_vv_2.keys()
-
-        if any_patient_has_multiple_values(p_to_vv_1):
-            if any_patient_has_multiple_values(p_to_vv_2):
+        self_values = self.patient_to_values
+        other_values = other.patient_to_values
+        if self.any_patient_has_multiple_values():
+            if other.any_patient_has_multiple_values():
                 # Check both columns have the same number of values for each patient.
                 # This is a sense check for any test data, and not a check that the QM
                 # has provided two frames with the same domain.
-                assert all(len(p_to_vv_1[p]) == len(p_to_vv_2[p]) for p in patients)
+                assert all(
+                    len(self.get_values(p)) == len(other.get_values(p))
+                    for p in patients
+                )
             else:
-                # Convert p_to_vv_2 so that it has the same shape as p_to_vv_1.
-                p_to_vv_2 = {p: p_to_vv_2[p] * len(p_to_vv_1[p]) for p in patients}
+                # Convert other so that it has the same shape as self.
+                other_values = {
+                    p: other.get_values(p) * len(self.get_values(p)) for p in patients
+                }
         else:
-            if any_patient_has_multiple_values(p_to_vv_2):
-                # Convert p_to_vv_1 so that it has the same shape as p_to_vv_2.
-                p_to_vv_1 = {p: p_to_vv_1[p] * len(p_to_vv_2[p]) for p in patients}
+            if other.any_patient_has_multiple_values():
+                # Convert self so that it has the same shape as other.
+                self_values = {
+                    p: self.get_values(p) * len(other.get_values(p)) for p in patients
+                }
             else:
                 # Nothing to be done.
                 pass
 
+        reshaped_self = Column(self_values, self.default)
+        reshaped_other = Column(other_values, other.default)
+
         return Column(
             {
-                p: [fn(v1, v2) for v1, v2 in zip(p_to_vv_1[p], p_to_vv_2[p])]
+                p: [
+                    fn(v1, v2)
+                    for v1, v2 in zip(
+                        reshaped_self.get_values(p), reshaped_other.get_values(p)
+                    )
+                ]
                 for p in patients
-            }
+            },
+            default=fn(reshaped_self.default, reshaped_other.default),
         )
 
     def binary_op_with_null(self, fn, other):
         return self.binary_op(handle_null(fn), other)
 
-    def aggregate_values(self, fn):
-        return self.make_new_column(lambda p, vv: [fn(vv)])
+    def aggregate_values(self, fn, default):
+        return self.make_new_column(lambda p, vv: [fn(vv)], default)
 
     def filter(self, predicate):  # noqa A003
         def fn(p, vv):
-            return [v for v, pred_val in zip(vv, predicate.get_values(p)) if pred_val]
+            pred_values = predicate.get_values(p)
+            if len(pred_values) == 1:
+                pred_values = pred_values * len(vv)
+            return [v for v, pred_val in zip(vv, pred_values) if pred_val]
 
-        return self.make_new_column(fn)
+        return self.make_new_column(fn, self.default)
 
     def sort_index(self):
-        def fn(_p, vv):
+        def fn(p, vv):
             return [pair[0] for pair in sorted(enumerate(vv), key=lambda pair: pair[1])]
 
-        return self.make_new_column(fn)
+        return self.make_new_column(fn, default=None)
 
     def sort(self, sort_index):
         def fn(p, vv):
@@ -299,17 +288,19 @@ class Column:
                 )
             ]
 
-        return self.make_new_column(fn)
+        return self.make_new_column(fn, default=None)
 
     def pick_at_index(self, ix):
-        return self.make_new_column(lambda p, vv: [vv[ix]])
+        return self.make_new_column(lambda p, vv: [vv[ix]], self.default)
 
-    def make_new_column(self, fn):
-        return Column({p: fn(p, vv) for p, vv in self.patient_to_values.items()})
-
-
-def any_patient_has_multiple_values(patient_to_values):
-    return any(len(values) != 1 for values in patient_to_values.values())
+    def make_new_column(self, fn, default):
+        new_patient_to_values = {
+            p: fn(p, vv) for p, vv in self.patient_to_values.items()
+        }
+        return Column(
+            {p: vv for p, vv in new_patient_to_values.items() if vv},
+            default,
+        )
 
 
 def handle_null(fn):
@@ -322,8 +313,4 @@ def handle_null(fn):
 
 
 def parse_value(value):
-    if value == "T":
-        return True
-    if value == "F":
-        return False
     return int(value) if value else None
