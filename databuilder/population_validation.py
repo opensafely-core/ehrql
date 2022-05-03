@@ -8,6 +8,7 @@ from databuilder.query_model import (
     Categorise,
     Function,
     SelectColumn,
+    Series,
     ValidationError,
     Value,
     get_series_type,
@@ -19,6 +20,10 @@ def validate_population_definition(population):
     """
     Test that a given Series is suitable for use as a population definition
     """
+    if not isinstance(population, Series):
+        raise ValidationError(
+            "population definition must be a `query_model.Series` instance"
+        )
     if not has_one_row_per_patient(population) or get_series_type(population) != bool:
         raise ValidationError(
             "population definition must be a one-row-per-patient series of boolean type"

@@ -22,6 +22,12 @@ from databuilder.query_model import (
 )
 
 
+def test_rejects_non_series():
+    aint_no_series = "I am not a Series"
+    with pytest.raises(ValidationError, match="must be a `query_model.Series`"):
+        validate_population_definition(aint_no_series)
+
+
 def test_rejects_invalid_dimension():
     event_series = SelectColumn(
         SelectTable("events", schema=TableSchema(value=bool)), "value"

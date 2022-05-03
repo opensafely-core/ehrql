@@ -12,6 +12,7 @@ from .typing_utils import get_typespec, get_typevars, type_matches
 # The below classes and functions are the public API surface of the query model
 __all__ = [
     "Node",
+    "Series",
     "Value",
     "SelectTable",
     "SelectPatientTable",
