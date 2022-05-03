@@ -48,7 +48,7 @@ def spec_test(request, engine):
             # because the patients wouldn't be included in the universe). We also then need to include a variable which
             # references those patients via a patient table in order to include them in the universe.
             populate_missing_patients(input_data)
-            dataset.use_unrestricted_population()
+            dataset.set_population(~tables.p.patient_id.is_null())
             dataset._hidden = tables.p.b1
         dataset.v = series
 

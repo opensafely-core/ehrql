@@ -31,7 +31,6 @@ CONNECTOR_MAP = {
 }
 
 FUNCTION_CLASS_MAP = {
-    new.Function.DateDifference: old.DateDifference,
     new.Function.RoundToFirstOfMonth: old.RoundToFirstOfMonth,
     new.Function.RoundToFirstOfYear: old.RoundToFirstOfYear,
     new.Function.DateAdd: old.DateAddition,
@@ -201,6 +200,11 @@ def convert_function(node):
 
 for type_ in FUNCTION_CLASS_MAP.keys():
     convert_node.register(type_)(convert_function)
+
+
+@convert_node.register
+def convert_date_difference_in_years(node: new.Function.DateDifferenceInYears):
+    return old.DateDifference(convert_value(node.lhs), convert_value(node.rhs), "years")
 
 
 def convert_connector(node):

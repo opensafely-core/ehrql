@@ -1,7 +1,5 @@
 from datetime import date
 
-import pytest
-
 from databuilder.query_language import (
     Dataset,
     DateSeries,
@@ -53,7 +51,7 @@ def test_dataset():
 
 def test_dataset_preserves_variable_order():
     dataset = Dataset()
-    dataset.use_unrestricted_population()
+    dataset.set_population(~patients.patient_id.is_null())
     dataset.foo = patients.date_of_birth.year
     dataset.baz = patients.date_of_birth.year + 100
     dataset.bar = patients.date_of_birth.year - 100
@@ -94,7 +92,6 @@ class TestIntSeries:
             Function.LE(qm_int_series, Value(2000)),
         )
 
-    @pytest.mark.xfail(reason="LE comparison with IntSeries not supported")
     def test_le_intseries(self):
         assert_produces(
             IntSeries(qm_int_series) <= IntSeries(qm_int_series),

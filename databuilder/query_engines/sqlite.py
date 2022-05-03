@@ -54,7 +54,13 @@ class SQLiteQueryEngine(BaseQueryEngine):
             frame = domain.get_node()
             return self.get_select_query_for_frame(frame)
         else:
-            return self.get_select_query_for_patient_domain()
+            # TODO: This branch is only present to support aggregations over data which
+            # is already patient-level. Our query model currently allows this (simply
+            # because (simply because it's tricky to forbid it statically using the
+            # machinery we have) and previously the spec tests made (inadvertent) use of
+            # it. We need to either forbid this in the query model, or decide that we do
+            # want to support it and write some tests for it.
+            return self.get_select_query_for_patient_domain()  # pragma: no cover
 
     def get_select_query_for_patient_domain(self):
         """
@@ -117,21 +123,11 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Function.And)
     def get_sql_and(self, node):
-        # SQLAlchemy doesn't provide reverse bitwise operations, so `True & Column()` raises a `TypeError`.
-        # See https://github.com/sqlalchemy/sqlalchemy/issues/5846.
-        try:
-            return operators.and_(self.get_sql(node.lhs), self.get_sql(node.rhs))
-        except TypeError:
-            return operators.and_(self.get_sql(node.rhs), self.get_sql(node.lhs))
+        return sqlalchemy.and_(self.get_sql(node.lhs), self.get_sql(node.rhs))
 
     @get_sql.register(Function.Or)
     def get_sql_or(self, node):
-        # SQLAlchemy doesn't provide reverse bitwise operations, so `False | Column()` raises a `TypeError`.
-        # See https://github.com/sqlalchemy/sqlalchemy/issues/5846.
-        try:
-            return operators.or_(self.get_sql(node.lhs), self.get_sql(node.rhs))
-        except TypeError:
-            return operators.or_(self.get_sql(node.rhs), self.get_sql(node.lhs))
+        return sqlalchemy.or_(self.get_sql(node.lhs), self.get_sql(node.rhs))
 
     @get_sql.register(Function.LT)
     def get_sql_lt(self, node):

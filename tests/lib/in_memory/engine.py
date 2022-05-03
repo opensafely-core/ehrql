@@ -223,7 +223,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_DateSubtract(self, node):
         assert False
 
-    def visit_DateDifference(self, node):
+    def visit_DateDifferenceInYears(self, node):
         assert False
 
     def visit_YearFromDate(self, node):
