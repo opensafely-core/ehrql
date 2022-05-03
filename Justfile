@@ -202,7 +202,8 @@ test-all *ARGS: devenv build-databuilder
         --cov=tests \
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
-        tests
+        --hypothesis-seed=1234 \
+        tests \
         {{ ARGS }}
     $BIN/python -m doctest tests/lib/in_memory/database.py
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
