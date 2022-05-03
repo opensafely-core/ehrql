@@ -6,12 +6,9 @@ from databuilder.query_model import (
     AggregateByPatient,
     Filter,
     Function,
-    PickOneRowPerPatient,
-    Position,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
-    Sort,
     ValidationError,
     Value,
     get_input_nodes,
@@ -73,14 +70,16 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     one_row_per_patient_frame = st.deferred(
         lambda: st.one_of(
             select_patient_table,
-            pick_one_row_per_patient,
+            # See `sort`
+            # pick_one_row_per_patient,
         )
     )
 
     many_rows_per_patient_frame = st.deferred(
         lambda: st.one_of(
             select_table,
-            sorted_frame,
+            # See `sort`
+            # sorted_frame,
             filter_,
         )
     )
@@ -135,7 +134,8 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
         )
     )
 
-    sorted_frame = st.deferred(lambda: st.one_of(sort))
+    # See `sort`
+    # sorted_frame = st.deferred(lambda: st.one_of(sort))
 
     value = qm_builds(Value, st.one_of(int_values, bool_values))
 
@@ -153,13 +153,15 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 
     filter_ = qm_builds(Filter, many_rows_per_patient_frame, series)
 
-    sort = qm_builds(Sort, many_rows_per_patient_frame, many_rows_per_patient_series)
+    # TODO: gives inconsistent test results, see https://github.com/opensafely-core/databuilder/issues/461
+    # sort = qm_builds(Sort, many_rows_per_patient_frame, many_rows_per_patient_series)
 
-    pick_one_row_per_patient = qm_builds(
-        PickOneRowPerPatient,
-        sorted_frame,
-        st.sampled_from([Position.FIRST, Position.LAST]),
-    )
+    # See `sort`
+    # pick_one_row_per_patient = qm_builds(
+    #     PickOneRowPerPatient,
+    #     sorted_frame,
+    #     st.sampled_from([Position.FIRST, Position.LAST]),
+    # )
 
     exists = qm_builds(AggregateByPatient.Exists, many_rows_per_patient_frame)
     count_ = qm_builds(AggregateByPatient.Count, many_rows_per_patient_frame)
