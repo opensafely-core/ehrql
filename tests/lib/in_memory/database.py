@@ -262,7 +262,12 @@ class Column:
         return self.binary_op(handle_null(fn), other)
 
     def aggregate_values(self, fn, default):
-        return self.make_new_column(lambda p, vv: [fn(vv)], default)
+        def fn_with_null(values):
+            if any(value is None for value in values):
+                return None
+            return fn(values)
+
+        return self.make_new_column(lambda p, vv: [fn_with_null(vv)], default)
 
     def filter(self, predicate):  # noqa A003
         def fn(p, vv):

@@ -192,11 +192,28 @@ def test_column_aggregate_values():
         """
     )
 
-    assert c.aggregate_values(len, default=None) == Column.parse(
+    assert c.aggregate_values(sum, default=None) == Column.parse(
         """
-        1 | 3
-        2 | 2
-        3 | 1
+        1 | 306
+        2 | 403
+        3 | 301
+        """
+    )
+
+
+def test_column_aggregate_propagates_nulls():
+    c = Column.parse(
+        """
+        1 |
+        2 | 201
+        2 |
+        """
+    )
+
+    assert c.aggregate_values(sum, default=None) == Column.parse(
+        """
+        1 |
+        2 |
         """
     )
 
