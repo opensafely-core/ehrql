@@ -42,7 +42,7 @@ def validate_population_definition(population):
     #   Value(True)
     #
     # i.e. always, unconditionally True for everyone. This might seem silly, but we used
-    # to think if was a convenient way to say "just give me all the patients" in test
+    # to think it was a convenient way to say "just give me all the patients" in test
     # cases.
     #
     # A slightly less trivial example is:
@@ -50,8 +50,9 @@ def validate_population_definition(population):
     #   Function.Not(AggregateByPatient.Exists(SelectTable("ons_deaths")))
     #
     # i.e. give me all patients for whom we do not have a death record from ONS. Here
-    # the `Exists` aggregation returns False when there is no corresponding for in the
-    # `ons_deaths` table, and the `Not` function transforms that value into True.
+    # the `Exists` aggregation returns False when there is no corresponding row for the
+    # patient in the `ons_deaths` table, and the `Not` function transforms that value
+    # into True.
     #
     # In both these cases, the expression can be True when evaluated on patients which
     # do not exist in any of the tables referenced by the expression itself. This means
