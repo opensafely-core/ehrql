@@ -9,7 +9,7 @@ contents = {
         "test_sort_by_column_pick_first",
         "test_sort_by_column_pick_last",
     ],
-    "aggregate_event_frame": [
+    "aggregate_frame": [
         "test_exists_for_patient",
         "test_count_for_patient",
     ],

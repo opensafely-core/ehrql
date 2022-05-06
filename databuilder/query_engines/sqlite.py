@@ -19,6 +19,7 @@ from databuilder.query_model import (
     Sort,
     Value,
     get_domain,
+    has_many_rows_per_patient,
 )
 
 from .base import BaseQueryEngine
@@ -189,21 +190,27 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     @get_sql.register(AggregateByPatient.Sum)
     def get_sql_sum(self, node):
-        return self.aggregate_by_patient(node.source, sqlalchemy.func.sum)
+        return self.aggregate_series_by_patient(node.source, sqlalchemy.func.sum)
 
     @get_sql.register(AggregateByPatient.Exists)
     def get_sql_exists(self, node):
-        return self.aggregate_by_patient_non_nullable(
-            node.source, sqlalchemy.literal(True), empty_value=False
+        return self.aggregate_frame_by_patient(
+            node.source,
+            aggregation_func=sqlalchemy.literal(True),
+            empty_value=False,
+            single_row_value=True,
         )
 
     @get_sql.register(AggregateByPatient.Count)
     def get_sql_count(self, node):
-        return self.aggregate_by_patient_non_nullable(
-            node.source, sqlalchemy.func.count("*"), empty_value=0
+        return self.aggregate_frame_by_patient(
+            node.source,
+            aggregation_func=sqlalchemy.func.count("*"),
+            empty_value=0,
+            single_row_value=1,
         )
 
-    def aggregate_by_patient(self, source_node, aggregation_func):
+    def aggregate_series_by_patient(self, source_node, aggregation_func):
         domain = get_domain(source_node)
         query = self.get_select_query_for_domain(domain)
         expression = self.get_sql(source_node)
@@ -213,13 +220,38 @@ class SQLiteQueryEngine(BaseQueryEngine):
         aggregated_table = self.reify_query(query)
         return aggregated_table.c.value
 
-    def aggregate_by_patient_non_nullable(self, node, aggregation_func, empty_value):
-        # These aggregation functions don't take an argument as they operate over the
-        # entire query, so we wrap them in a lambda which swallows the argument
-        value = self.aggregate_by_patient(node, lambda _: aggregation_func)
-        # These aggregations are also guaranteed not to be null-valued, even when
-        # combined with data involving patient_ids for which they're not defined
-        return sqlalchemy.func.coalesce(value, empty_value)
+    def aggregate_frame_by_patient(
+        self, source_node, aggregation_func, empty_value, single_row_value
+    ):
+        # Frame aggregations can operate on both one- and many-rows-per-patient frames
+        # and these cases require different handling.
+        if has_many_rows_per_patient(source_node):
+            # For many-rows-per-patient frames we use the series aggregation code but
+            # wrapped in some extra logic: these aggregation functions don't take an
+            # argument as they operate over the entire query, so we wrap them in a
+            # lambda which swallows the argument
+            value = self.aggregate_series_by_patient(
+                source_node, lambda _: aggregation_func
+            )
+            # We also want to guarantee that our frame level aggregations are never
+            # null-valued, even when combined with data involving patient_ids for which
+            # they're not defined
+            return sqlalchemy.func.coalesce(value, empty_value)
+        else:
+            # Given that we have a one-row-per-patient frame here, we can get a
+            # reference to the table
+            table = self.get_sql(source_node)
+            # Create an expression which is True if there's a matching row for this
+            # patient and False otherwise (this differs from the SQL for event frame
+            # aggregations because there's no need for a GROUP BY)
+            has_row = table.c.patient_id.is_not(None)
+            # If True and False are the values we're looking for then just return that
+            # expression
+            if single_row_value is True and empty_value is False:
+                return has_row
+            else:
+                # Otherwise convert to the appropriate values
+                return sqlalchemy.case((has_row, single_row_value), else_=empty_value)
 
     @get_sql.register(PickOneRowPerPatient)
     def get_sql_pick_one_row_per_patient(self, node):

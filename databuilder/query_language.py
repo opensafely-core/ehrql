@@ -104,18 +104,18 @@ class Frame:
         cls = self.name_to_series_cls[name]
         return cls(qm.SelectColumn(source=self.qm_node, name=name))
 
-
-class PatientFrame(Frame):
-    pass
-
-
-class EventFrame(Frame):
     def exists_for_patient(self):
         return BoolSeries(qm.AggregateByPatient.Exists(source=self.qm_node))
 
     def count_for_patient(self):
         return IntSeries(qm.AggregateByPatient.Count(source=self.qm_node))
 
+
+class PatientFrame(Frame):
+    pass
+
+
+class EventFrame(Frame):
     def take(self, series):
         return EventFrame(
             qm.Filter(
