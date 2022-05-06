@@ -147,7 +147,7 @@ class EventFrame(Frame):
         )
 
 
-class SortedEventFrame(Frame):
+class SortedEventFrame(EventFrame):
     def first_for_patient(self):
         return PatientFrame(
             qm.PickOneRowPerPatient(
