@@ -163,19 +163,14 @@ class SQLiteQueryEngine(BaseQueryEngine):
         source = self.get_sql(node.source)
         return source.c[node.name]
 
-    @get_sql.register(SelectTable)
-    @get_sql.register(SelectPatientTable)
-    def get_sql_select_table(self, node):
-        return self.table_from_backend(node.name)
-
     # We have to apply caching here otherwise we generate distinct objects representing
     # the same table and this confuses SQLAlchemy into generating queries with ambiguous
-    # table references. We don't want to cache on the entire node because that holds a
-    # schema as well as the name, but the schema is irrelevant to the query engine and so
-    # should not be considered in the cache.
+    # table references
+    @get_sql.register(SelectTable)
+    @get_sql.register(SelectPatientTable)
     @cache
-    def table_from_backend(self, name):
-        return self.backend.get_table_expression(name)
+    def get_sql_select_table(self, node):
+        return self.backend.get_table_expression(node.name)
 
     # We ignore Filter and Sort operations completely at this point in the code and just
     # pass the underlying table reference through. It's only later, when building the
