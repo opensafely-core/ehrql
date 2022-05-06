@@ -58,7 +58,7 @@ def spec_test(request, engine):
         # variable which is the series under test.
         dataset = Dataset()
         # TODO: See temporary hack above
-        dataset.set_population(~tables.p.patient_id.is_null())
+        dataset.set_population(tables.p.exists_for_patient())
         dataset.v = series
 
         # Extract data, and check it's as expected.

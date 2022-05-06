@@ -5,7 +5,6 @@ import databuilder.backends.base as backends
 from databuilder.query_model import (
     AggregateByPatient,
     Function,
-    SelectColumn,
     SelectPatientTable,
     SelectTable,
 )
@@ -105,16 +104,7 @@ def _build_query(patient_tables, event_tables):
     clauses = []
 
     for table in patient_tables:
-        clauses.append(
-            Function.Not(
-                Function.IsNull(
-                    SelectColumn(
-                        name="patient_id",
-                        source=SelectPatientTable(name=table),
-                    )
-                )
-            )
-        )
+        clauses.append(AggregateByPatient.Exists(source=SelectPatientTable(name=table)))
 
     for table in event_tables:
         clauses.append(AggregateByPatient.Exists(source=SelectTable(name=table)))
