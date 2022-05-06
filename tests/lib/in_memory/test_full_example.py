@@ -1,7 +1,6 @@
 # from databuilder.query_language import (
 #     Dataset,
 #     DateSeries,
-#     IdSeries,
 #     build_event_table,
 #     build_patient_table,
 # )
@@ -9,7 +8,6 @@
 # patients = build_patient_table(
 #     "patients",
 #     {
-#         "patient_id": IdSeries,
 #         "date_of_birth": DateSeries,
 #     },
 # )

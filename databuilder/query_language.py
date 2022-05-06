@@ -38,10 +38,6 @@ class Series:
         return fn(lhs=self.qm_node, rhs=other_qm_node)
 
 
-class IdSeries(Series):
-    pass
-
-
 class BoolSeries(Series):
     def __invert__(self):
         return BoolSeries(qm.Function.Not(self.qm_node))
