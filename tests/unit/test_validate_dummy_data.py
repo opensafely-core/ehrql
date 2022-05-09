@@ -40,7 +40,7 @@ def test_validate_file_types_match(a, b, matches):
 @pytest.mark.parametrize("gzipped,extension", [(False, "csv"), (True, "csv.gz")])
 def test_validate_dummy_data_file_csv(tmp_path, value, is_valid, gzipped, extension):
     dataset = Dataset()
-    dataset.set_population(~patients.patient_id.is_null())
+    dataset.set_population(patients.exists_for_patient())
     dataset.year = patients.date_of_birth.year
 
     dummy_data = f"patient_id,year\n123,1980\n456,{value}"

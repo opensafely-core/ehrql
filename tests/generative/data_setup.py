@@ -5,7 +5,6 @@ import databuilder.backends.base as backends
 from databuilder.query_model import (
     AggregateByPatient,
     Function,
-    SelectColumn,
     SelectPatientTable,
     SelectTable,
 )
@@ -26,7 +25,7 @@ def setup(schema, num_patient_tables, num_event_tables):
     table_names = patient_table_names + event_table_names
     backend = _make_backend(table_names, schema, patient_id_column)
 
-    all_patients_query = _build_query(patient_table_names, event_table_names)
+    all_patients_query = _build_query(patient_table_names, event_table_names, schema)
 
     return (
         patient_id_column,
@@ -98,26 +97,20 @@ def _backend_table(name, columns):
     return backends.MappedTable(implements=None, source=name, columns=columns)
 
 
-def _build_query(patient_tables, event_tables):
-    # Note that we do not include a schema for the tables here. This is because we are accessing the patient_id
-    # which isn't included in the schema for simplicity elsewhere. There is no downside to not having the schema
-    # because these queries don't mention any other columns, so we don't miss out on possible type-checking.
+def _build_query(patient_tables, event_tables, schema):
     clauses = []
 
     for table in patient_tables:
         clauses.append(
-            Function.Not(
-                Function.IsNull(
-                    SelectColumn(
-                        name="patient_id",
-                        source=SelectPatientTable(name=table),
-                    )
-                )
+            AggregateByPatient.Exists(
+                source=SelectPatientTable(name=table, schema=schema)
             )
         )
 
     for table in event_tables:
-        clauses.append(AggregateByPatient.Exists(source=SelectTable(name=table)))
+        clauses.append(
+            AggregateByPatient.Exists(source=SelectTable(name=table, schema=schema))
+        )
 
     return _join_with_or(clauses)
 

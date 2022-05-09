@@ -38,10 +38,6 @@ class Series:
         return fn(lhs=self.qm_node, rhs=other_qm_node)
 
 
-class IdSeries(Series):
-    pass
-
-
 class BoolSeries(Series):
     def __invert__(self):
         return BoolSeries(qm.Function.Not(self.qm_node))
@@ -104,18 +100,18 @@ class Frame:
         cls = self.name_to_series_cls[name]
         return cls(qm.SelectColumn(source=self.qm_node, name=name))
 
-
-class PatientFrame(Frame):
-    pass
-
-
-class EventFrame(Frame):
     def exists_for_patient(self):
         return BoolSeries(qm.AggregateByPatient.Exists(source=self.qm_node))
 
     def count_for_patient(self):
         return IntSeries(qm.AggregateByPatient.Count(source=self.qm_node))
 
+
+class PatientFrame(Frame):
+    pass
+
+
+class EventFrame(Frame):
     def take(self, series):
         return EventFrame(
             qm.Filter(
@@ -147,7 +143,7 @@ class EventFrame(Frame):
         )
 
 
-class SortedEventFrame(Frame):
+class SortedEventFrame(EventFrame):
     def first_for_patient(self):
         return PatientFrame(
             qm.PickOneRowPerPatient(

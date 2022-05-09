@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from ..query_language import DateSeries, IdSeries, StrSeries
+from ..query_language import DateSeries, StrSeries
 from ..sqlalchemy_types import TYPES_BY_NAME
 
 
@@ -55,7 +55,6 @@ class PseudoPatientId(BaseType):
     # Note: we also want to allow TYPES_BY_NAME.varchar here, but we need to work out
     # how to specify the appropriate type when generating dummy data
     allowed_backend_types = (TYPES_BY_NAME.integer,)
-    series = IdSeries
 
 
 class String(BaseType):

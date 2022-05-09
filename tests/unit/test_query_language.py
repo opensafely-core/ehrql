@@ -3,7 +3,6 @@ from datetime import date
 from databuilder.query_language import (
     Dataset,
     DateSeries,
-    IdSeries,
     IntSeries,
     build_patient_table,
     compile,
@@ -20,7 +19,6 @@ from databuilder.query_model import (
 patients = build_patient_table(
     "patients",
     {
-        "patient_id": IdSeries,
         "date_of_birth": DateSeries,
     },
 )
@@ -51,7 +49,7 @@ def test_dataset():
 
 def test_dataset_preserves_variable_order():
     dataset = Dataset()
-    dataset.set_population(~patients.patient_id.is_null())
+    dataset.set_population(patients.exists_for_patient())
     dataset.foo = patients.date_of_birth.year
     dataset.baz = patients.date_of_birth.year + 100
     dataset.bar = patients.date_of_birth.year - 100

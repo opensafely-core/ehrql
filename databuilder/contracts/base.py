@@ -90,10 +90,16 @@ class TableContract:
         Note that we could use similar logic to generate a table from a contract.
         However, doing so would mean that we wouldn't be able to typecheck dataset definitions.
         """
-        contract_column_names = set(cls.columns)
+        # We ignore the patient_id column as that shouldn't form part of the public API
+        columns = {
+            name: col
+            for (name, col) in cls.columns.items()
+            if not isinstance(col.type, types.PseudoPatientId)
+        }
+        contract_column_names = set(columns)
         table_column_names = set(table_cls.name_to_series_cls)
         assert contract_column_names == table_column_names
-        for col_name, column in cls.columns.items():
+        for col_name, column in columns.items():
             assert (
                 column.type.series == table_cls.name_to_series_cls[col_name]
             ), f"{col_name} doesn't match {column}"
