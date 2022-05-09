@@ -64,7 +64,10 @@ class Table:
     @classmethod
     def from_records(cls, col_names, row_records):
         assert col_names[0] == "patient_id"
-        col_records = list(zip(*row_records))
+        if row_records:
+            col_records = list(zip(*row_records))
+        else:
+            col_records = [[]] * len(col_names)
         patient_ids = col_records[0]
         name_to_col = {
             name: Column.from_values(patient_ids, values)
