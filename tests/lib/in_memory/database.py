@@ -27,11 +27,17 @@ from tests.lib.util import iter_flatten
 
 
 class InMemoryDatabase:
-    def setup(self, *input_data):
+    def setup(self, *input_data, metadata=None):
         self.all_patients = set()
 
         input_data = list(iter_flatten(input_data))
-        metadata = input_data[0].metadata
+
+        if metadata:
+            pass
+        elif input_data:
+            metadata = input_data[0].metadata
+        else:
+            assert False, "No source of metadata"
         assert all(item.metadata is metadata for item in input_data)
 
         sqla_table_to_items = {table: [] for table in metadata.sorted_tables}
