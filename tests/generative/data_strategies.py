@@ -35,7 +35,7 @@ patient_ids = st.integers(min_value=1, max_value=max_patient_id)
 def event_records(class_, patient_id_column, schema, int_values, bool_values):
     return st.lists(
         record(class_, patient_ids, patient_id_column, schema, int_values, bool_values),
-        min_size=1,
+        min_size=0,
         max_size=max_num_event_records,
     )
 
@@ -59,7 +59,7 @@ def patient_records(draw, class_, patient_id_column, schema, int_values, bool_va
         )
 
     return draw(
-        st.lists(one_patient_record(), min_size=1, max_size=max_num_patient_records)
+        st.lists(one_patient_record(), min_size=0, max_size=max_num_patient_records)
     )
 
 

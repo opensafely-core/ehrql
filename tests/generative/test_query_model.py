@@ -19,6 +19,7 @@ schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
     event_classes,
     Backend,
     all_patients_query,
+    sqla_metadata,
 ) = data_setup.setup(schema, num_patient_tables=2, num_event_tables=2)
 
 # Use the same strategies for values both for query generation and data generation.
@@ -74,7 +75,7 @@ def run_test(data, variable):
 
 def run_with(database_class, engine_class, instances, variables):
     database = database_class()
-    database.setup(instances)
+    database.setup(instances, metadata=sqla_metadata)
 
     engine = engine_class(variables, Backend(database.host_url()))
     with engine.execute_query() as results:

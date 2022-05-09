@@ -57,7 +57,7 @@ class DbDetails:
     def engine(self, dialect=None, **kwargs):
         url = self._url(self.host_from_host, self.port_from_host, include_driver=True)
         engine_url = sqlalchemy.engine.make_url(url)
-        # Allow specifiying the desired dialect
+        # Allow specifying the desired dialect
         if dialect is not None:
             engine_url._get_entrypoint = lambda: dialect
         # We always want the "future" API
@@ -82,25 +82,30 @@ class DbDetails:
             url += "?" + "&".join(f"{k}={v}" for k, v in self.query.items())
         return url
 
-    def setup(self, *input_data):
+    def setup(self, *input_data, metadata=None):
         """
         Accepts SQLAlchemy ORM objects (which may be arbitrarily nested within lists and
         tuples), creates the necessary tables and inserts them into the database
         """
         input_data = list(iter_flatten(input_data))
-        # Create engine
+
         engine = self.engine()
-        # Reset the schema
-        metadata = input_data[0].metadata
-        assert all(item.metadata is metadata for item in input_data)
-        metadata.drop_all(engine)
-        metadata.create_all(engine)
-        # Create session
         Session = sessionmaker()
         Session.configure(bind=engine)
         session = Session()
-        # Load test data
+
+        if metadata:
+            pass
+        elif input_data:
+            metadata = input_data[0].metadata
+        else:
+            assert False, "No source of metadata"
+        assert all(item.metadata is metadata for item in input_data)
+
+        metadata.drop_all(engine)
+        metadata.create_all(engine)
         session.bulk_save_objects(input_data)
+
         if self.temp_db is not None:
             session.execute(
                 sqlalchemy.text(f"CREATE DATABASE IF NOT EXISTS {self.temp_db}")

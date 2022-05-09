@@ -33,6 +33,7 @@ def setup(schema, num_patient_tables, num_event_tables):
         event_classes,
         backend,
         all_patients_query,
+        registry.metadata,
     )
 
 
