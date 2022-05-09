@@ -29,19 +29,21 @@ from tests.lib.util import iter_flatten
 class InMemoryDatabase:
     def setup(self, *input_data):
         self.all_patients = set()
-        table_name_to_items = defaultdict(list)
 
         input_data = list(iter_flatten(input_data))
+        metadata = input_data[0].metadata
+        assert all(item.metadata is metadata for item in input_data)
+
+        sqla_table_to_items = {table: [] for table in metadata.sorted_tables}
         for item in input_data:
-            table_name_to_items[item.__tablename__].append(item)
+            sqla_table_to_items[item.__table__].append(item)
+
         self.tables = {}
+        for sqla_table, items in sqla_table_to_items.items():
+            self.tables[sqla_table.name] = self.build_table(sqla_table, items)
 
-        for table_name, items in table_name_to_items.items():
-            self.tables[table_name] = self.build_table(items)
-
-    def build_table(self, items):
-        model = type(items[0])
-        col_names = [col.name for col in model.__table__.columns if col.name != "Id"]
+    def build_table(self, sqla_table, items):
+        col_names = [col.name for col in sqla_table.columns if col.name != "Id"]
         row_records = [
             [getattr(item, col_name) for col_name in col_names] for item in items
         ]
@@ -64,7 +66,10 @@ class Table:
     @classmethod
     def from_records(cls, col_names, row_records):
         assert col_names[0] == "patient_id"
-        col_records = list(zip(*row_records))
+        if row_records:
+            col_records = list(zip(*row_records))
+        else:
+            col_records = [[]] * len(col_names)
         patient_ids = col_records[0]
         name_to_col = {
             name: Column.from_values(patient_ids, values)
