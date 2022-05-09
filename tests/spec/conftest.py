@@ -26,7 +26,7 @@ def engine(request):
 
 @pytest.fixture
 def spec_test(request, engine):
-    def run_test(table_data, series, expected_results):
+    def run_test(table_data, series, expected_results, population=None):
         # Create SQLAlchemy model instances for each row of each table in table_data.
         input_data = []
         for table, s in table_data.items():
@@ -39,12 +39,15 @@ def spec_test(request, engine):
         # Populate database tables.
         engine.setup(*input_data)
 
-        # Create a Dataset whose population is every patient in tables p and e, with a
-        # single variable which is the series under test.
+        # To reduce noise in the tests we provide a default population which contains
+        # all patients in tables p and e
+        if population is None:
+            population = tables.p.exists_for_patient() | tables.e.exists_for_patient()
+
+        # Create a Dataset with the specified population and a single variable which is
+        # the series under test.
         dataset = Dataset()
-        dataset.set_population(
-            tables.p.exists_for_patient() | tables.e.exists_for_patient()
-        )
+        dataset.set_population(population)
         dataset.v = series
 
         # Extract data, and check it's as expected.
