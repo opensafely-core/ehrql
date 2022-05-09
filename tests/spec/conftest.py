@@ -54,11 +54,12 @@ def spec_test(request, engine):
         # Populate database tables.
         engine.setup(*input_data)
 
-        # Create a Dataset whose population is every patient in table p, with a single
-        # variable which is the series under test.
+        # Create a Dataset whose population is every patient in tables p and e, with a
+        # single variable which is the series under test.
         dataset = Dataset()
-        # TODO: See temporary hack above
-        dataset.set_population(tables.p.exists_for_patient())
+        dataset.set_population(
+            tables.p.exists_for_patient() | tables.e.exists_for_patient()
+        )
         dataset.v = series
 
         # Extract data, and check it's as expected.
