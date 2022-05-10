@@ -1,6 +1,6 @@
 from ..tables import e
 
-title = "Picking the last row for each patient"
+title = "Picking the first or last row for each patient"
 
 table_data = {
     e: """
@@ -14,6 +14,17 @@ table_data = {
         2 | 201
         """,
 }
+
+
+def test_sort_by_column_pick_first(spec_test):
+    spec_test(
+        table_data,
+        e.sort_by(e.i1).first_for_patient().i1,
+        {
+            1: 101,
+            2: 201,
+        },
+    )
 
 
 def test_sort_by_column_pick_last(spec_test):

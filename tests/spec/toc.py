@@ -6,8 +6,7 @@ contents = {
         "test_drop",
     ],
     "sort_and_pick": [
-        "test_sort_by_column_pick_first",
-        "test_sort_by_column_pick_last",
+        "test_sort_by_column_and_pick",
     ],
     "aggregate_frame": [
         "test_exists_for_patient",
