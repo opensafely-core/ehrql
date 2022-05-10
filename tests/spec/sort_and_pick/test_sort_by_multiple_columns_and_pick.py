@@ -1,3 +1,5 @@
+import pytest
+
 from ..tables import e
 
 title = "Sort by more than one column and pick the first or last row for each patient"
@@ -16,6 +18,7 @@ table_data = {
 }
 
 
+@pytest.mark.xfail_in_memory
 def test_sort_by_multiple_columns_pick_first(spec_test):
     spec_test(
         table_data,
@@ -27,6 +30,7 @@ def test_sort_by_multiple_columns_pick_first(spec_test):
     )
 
 
+@pytest.mark.xfail_in_memory
 def test_sort_by_multiple_columns_pick_last(spec_test):
     spec_test(
         table_data,

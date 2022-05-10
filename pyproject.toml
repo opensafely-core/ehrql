@@ -108,6 +108,7 @@ testpaths = ["tests"]
 markers = [
     "integration: tests that use a container (mostly databases)",
     "spark: tests that use a Spark database (and therefore tend to be very slow)",
+    "xfail_in_memory: tests we expect to fail against the in-memory query engine (hopefully temporary!)",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:past.builtins.misc:45",
