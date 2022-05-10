@@ -12,7 +12,7 @@ from . import data_setup, data_strategies, variable_strategies
 from .conftest import count_nodes, observe_inputs
 
 # To simplify data generation, all tables have the same schema.
-schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
+schema = TableSchema(i1=int, b1=bool)
 (
     patient_id_column,
     patient_classes,
@@ -20,7 +20,7 @@ schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
     Backend,
     all_patients_query,
     sqla_metadata,
-) = data_setup.setup(schema, num_patient_tables=2, num_event_tables=2)
+) = data_setup.setup(schema, num_patient_tables=2, num_event_tables=1)
 
 # Use the same strategies for values both for query generation and data generation.
 int_values = st.integers(min_value=0, max_value=10)

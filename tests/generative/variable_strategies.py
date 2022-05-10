@@ -54,7 +54,7 @@ from databuilder.query_model import (
 def variable(patient_tables, event_tables, schema, int_values, bool_values):
     frame = st.deferred(
         lambda: st.one_of(
-            one_row_per_patient_frame,
+            # one_row_per_patient_frame,
             many_rows_per_patient_frame,
         )
     )
@@ -63,7 +63,7 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
         lambda: st.one_of(
             unknown_dimension_series,
             definitely_one_row_patient_series,
-            definitely_many_rows_per_patient_series,
+            # definitely_many_rows_per_patient_series,
         )
     )
 
@@ -86,7 +86,7 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 
     one_row_per_patient_series = st.deferred(
         lambda: st.one_of(
-            unknown_dimension_series.filter(has_one_row_per_patient),
+            # unknown_dimension_series.filter(has_one_row_per_patient),
             definitely_one_row_patient_series,
         )
     )
@@ -94,8 +94,8 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     definitely_one_row_patient_series = st.deferred(
         lambda: st.one_of(
             value,
-            exists,
-            count_,
+            # exists,
+            # count_,
             # TODO: not supported by in-memory engine
             # min_,
             # TODO: not supported by in-memory engine
@@ -107,7 +107,7 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     many_rows_per_patient_series = st.deferred(
         lambda: st.one_of(
             unknown_dimension_series.filter(has_many_rows_per_patient),
-            definitely_many_rows_per_patient_series,
+            # definitely_many_rows_per_patient_series,
         )
     )
 
@@ -118,19 +118,19 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     unknown_dimension_series = st.deferred(
         lambda: st.one_of(
             select_column,
-            not_,
-            is_null,
-            negate,
-            eq,
-            ne,
-            lt,
-            le,
-            gt,
+            # not_,
+            # is_null,
+            # negate,
+            # eq,
+            # ne,
+            # lt,
+            # le,
+            # gt,
             ge,
-            and_,
-            or_,
-            add,
-            subtract,
+            # and_,
+            # or_,
+            # add,
+            # subtract,
         )
     )
 
