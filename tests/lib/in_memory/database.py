@@ -291,7 +291,13 @@ class Column:
 
     def sort_index(self):
         def fn(p, vv):
-            return [pair[0] for pair in sorted(enumerate(vv), key=lambda pair: pair[1])]
+            # Map each unique value to its ordinal position. It's important that equal
+            # values are given the same position or else the resulting sort_index will
+            # overspecify the order and we lose the stability of the sort operation
+            value_to_position = {
+                value: position for (position, value) in enumerate(sorted(set(vv)))
+            }
+            return [value_to_position[v] for v in vv]
 
         return self.make_new_column(fn, default=None)
 

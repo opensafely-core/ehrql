@@ -293,7 +293,10 @@ class SQLiteQueryEngine(BaseQueryEngine):
         operations which have been applied
         """
         _, _, sorts = get_frame_operations(frame)
-        return [self.get_sql(s.sort_by) for s in sorts]
+        # Sort operations are given to us in order of application which is the reverse
+        # of order of priority (i.e. the most recently applied sort gives us the primary
+        # sort condition)
+        return [self.get_sql(s.sort_by) for s in reversed(sorts)]
 
     def reify_query(self, query):
         """
