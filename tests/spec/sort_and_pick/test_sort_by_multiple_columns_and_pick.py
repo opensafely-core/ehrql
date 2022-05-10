@@ -22,7 +22,7 @@ table_data = {
 def test_sort_by_multiple_columns_pick_first(spec_test):
     spec_test(
         table_data,
-        e.sort_by(e.i2).sort_by(e.i1).first_for_patient().i2,
+        e.sort_by(e.i1, e.i2).first_for_patient().i2,
         {
             1: 3,
             2: 2,
@@ -34,7 +34,7 @@ def test_sort_by_multiple_columns_pick_first(spec_test):
 def test_sort_by_multiple_columns_pick_last(spec_test):
     spec_test(
         table_data,
-        e.sort_by(e.i2).sort_by(e.i1).last_for_patient().i2,
+        e.sort_by(e.i1, e.i2).last_for_patient().i2,
         {
             1: 2,
             2: 1,

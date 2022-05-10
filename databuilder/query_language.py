@@ -133,17 +133,23 @@ class EventFrame(Frame):
             self.name_to_series_cls,
         )
 
-    def sort_by(self, series):
-        return SortedEventFrame(
-            qm.Sort(
-                source=self.qm_node,
+    def sort_by(self, *order_series):
+        qm_node = self.qm_node
+        # We expect series to be supplied highest priority first and, as the most
+        # recently applied Sort operation has the highest priority, we need to apply
+        # them in reverse order
+        for series in reversed(order_series):
+            qm_node = qm.Sort(
+                source=qm_node,
                 sort_by=series.qm_node,
-            ),
+            )
+        return SortedEventFrame(
+            qm_node,
             self.name_to_series_cls,
         )
 
 
-class SortedEventFrame(EventFrame):
+class SortedEventFrame(Frame):
     def first_for_patient(self):
         return PatientFrame(
             qm.PickOneRowPerPatient(
