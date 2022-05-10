@@ -1,6 +1,6 @@
+import datetime
 from typing import Protocol
 
-from ..query_language import DateSeries, StrSeries
 from ..sqlalchemy_types import TYPES_BY_NAME
 
 
@@ -12,10 +12,13 @@ class BaseType(Protocol):
     # Subclasses must specify the backend Column types that they allow, as
     # tuples of one or more keys from databuilder.sqlalchemy_types.TYPES_BY_NAME
     allowed_backend_types: tuple[TYPES_BY_NAME, ...]
+    # The type used to represent this column in ehrQL
+    python_type: type
 
 
 class Boolean(BaseType):
     allowed_backend_types = (TYPES_BY_NAME.boolean,)
+    python_type = bool
 
 
 class Choice(BaseType):
@@ -24,7 +27,7 @@ class Choice(BaseType):
     """
 
     allowed_backend_types = (TYPES_BY_NAME.integer, TYPES_BY_NAME.varchar)
-    series = StrSeries
+    python_type = str
 
     def __init__(self, *choices):
         self.choices = choices
@@ -38,15 +41,17 @@ class Date(BaseType):
     """A type representing a date"""
 
     allowed_backend_types = (TYPES_BY_NAME.date, TYPES_BY_NAME.datetime)
-    series = DateSeries
+    python_type = datetime.date
 
 
 class Float(BaseType):
     allowed_backend_types = (TYPES_BY_NAME.float,)
+    python_type = float
 
 
 class Integer(BaseType):
     allowed_backend_types = (TYPES_BY_NAME.integer,)
+    python_type = int
 
 
 class PseudoPatientId(BaseType):
@@ -59,3 +64,4 @@ class PseudoPatientId(BaseType):
 
 class String(BaseType):
     allowed_backend_types = (TYPES_BY_NAME.varchar,)
+    python_type = str

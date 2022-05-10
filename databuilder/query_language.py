@@ -1,7 +1,21 @@
 import dataclasses
+import datetime
 
 from databuilder import query_model as qm
 from databuilder.population_validation import validate_population_definition
+from databuilder.query_model import get_series_type, has_one_row_per_patient
+
+# This gets populated by the `__init_subclass__` methods of EventSeries and
+# PatientSeries. Its structure is:
+#
+#   (<type>, <is_patient_level>): <SeriesClass>
+#
+# For example:
+#
+#   (bool, False): BoolEventSeries,
+#   (bool, True): BoolPatientSeries,
+#
+REGISTERED_TYPES = {}
 
 
 class Dataset:
@@ -20,91 +34,208 @@ def compile(dataset):  # noqa A003
     return {k: v.qm_node for k, v in vars(dataset).items() if isinstance(v, Series)}
 
 
+# BASIC SERIES TYPES
+#
+
+
 @dataclasses.dataclass(frozen=True)
 class Series:
     qm_node: qm.Node
 
+    # These are the basic operations that apply to any series regardless of type or
+    # dimension
     def __eq__(self, other):
-        return BoolSeries(self._make_binary_fn(other, qm.Function.EQ))
+        return _apply(qm.Function.EQ, self, other)
 
     def __ne__(self, other):
-        return BoolSeries(self._make_binary_fn(other, qm.Function.NE))
+        return _apply(qm.Function.NE, self, other)
 
     def is_null(self):
-        return BoolSeries(qm.Function.IsNull(self.qm_node))
-
-    def _make_binary_fn(self, other, fn):
-        other_qm_node = other.qm_node if isinstance(other, Series) else qm.Value(other)
-        return fn(lhs=self.qm_node, rhs=other_qm_node)
+        return _apply(qm.Function.IsNull, self)
 
 
-class BoolSeries(Series):
+class EventSeries(Series):
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # Register the series using its `_type` attribute
+        REGISTERED_TYPES[cls._type, False] = cls
+
+    # If we end up with any type-agnostic aggregations (count non-null, maybe?) then
+    # they would be defined here as well
+
+
+class PatientSeries(Series):
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # Register the series using its `_type` attribute
+        REGISTERED_TYPES[cls._type, True] = cls
+
+
+# BOOLEAN SERIES
+#
+
+
+class BoolFunctions:
     def __invert__(self):
-        return BoolSeries(qm.Function.Not(self.qm_node))
+        return _apply(qm.Function.Not, self)
 
     def __and__(self, other):
-        return BoolSeries(self._make_binary_fn(other, qm.Function.And))
+        return _apply(qm.Function.And, self, other)
 
     def __or__(self, other):
-        return BoolSeries(self._make_binary_fn(other, qm.Function.Or))
+        return _apply(qm.Function.Or, self, other)
 
 
-class IntSeries(Series):
+class BoolEventSeries(BoolFunctions, EventSeries):
+    _type = bool
+
+
+class BoolPatientSeries(BoolFunctions, PatientSeries):
+    _type = bool
+
+
+# STRING SERIES
+#
+
+
+class ComparableFunctions:
+    def __lt__(self, other):
+        return _apply(qm.Function.LT, self, other)
+
+    def __le__(self, other):
+        return _apply(qm.Function.LE, self, other)
+
+    def __ge__(self, other):
+        return _apply(qm.Function.GE, self, other)
+
+    def __gt__(self, other):
+        return _apply(qm.Function.GT, self, other)
+
+
+class ComparableAggregations:
+    "Empty for now"
+
+
+class StrEventSeries(ComparableFunctions, ComparableAggregations, EventSeries):
+    _type = str
+
+
+class StrPatientSeries(ComparableFunctions, PatientSeries):
+    _type = str
+
+
+# NUMERIC SERIES
+#
+
+
+class NumericFunctions(ComparableFunctions):
     def __neg__(self):
-        return IntSeries(qm.Function.Negate(self.qm_node))
+        return _apply(qm.Function.Negate, self)
 
     def __add__(self, other):
-        return IntSeries(self._make_binary_fn(other, qm.Function.Add))
+        return _apply(qm.Function.Add, self, other)
 
     def __radd__(self, other):
         return self + other
 
     def __sub__(self, other):
-        return IntSeries(self._make_binary_fn(other, qm.Function.Subtract))
+        return _apply(qm.Function.Subtract, self, other)
 
     def __rsub__(self, other):
         return other + -self
 
-    def __lt__(self, other):
-        return BoolSeries(self._make_binary_fn(other, qm.Function.LT))
 
-    def __le__(self, other):
-        return BoolSeries(self._make_binary_fn(other, qm.Function.LE))
-
-    def __ge__(self, other):
-        return BoolSeries(self._make_binary_fn(other, qm.Function.GE))
-
-    def __gt__(self, other):
-        return BoolSeries(self._make_binary_fn(other, qm.Function.GT))
-
+class NumericAggregations(ComparableAggregations):
     def sum_for_patient(self):
-        return IntSeries(qm.AggregateByPatient.Sum(self.qm_node))
+        return _apply(qm.AggregateByPatient.Sum, self)
 
 
-class DateSeries(Series):
+class IntEventSeries(NumericFunctions, NumericAggregations, EventSeries):
+    _type = int
+
+
+class IntPatientSeries(NumericFunctions, PatientSeries):
+    _type = int
+
+
+class FloatEventSeries(NumericFunctions, NumericAggregations, EventSeries):
+    _type = float
+
+
+class FloatPatientSeries(NumericFunctions, PatientSeries):
+    _type = float
+
+
+# DATE SERIES
+#
+
+
+class DateFunctions(ComparableFunctions):
     @property
     def year(self):
-        return IntSeries(qm.Function.YearFromDate(source=self.qm_node))
+        return _apply(qm.Function.YearFromDate, self)
 
 
-class StrSeries(Series):
-    pass
+class DateAggregations(ComparableAggregations):
+    "Empty for now"
+
+
+class DateEventSeries(DateFunctions, DateAggregations, EventSeries):
+    _type = datetime.date
+
+
+class DatePatientSeries(DateFunctions, PatientSeries):
+    _type = datetime.date
+
+
+# CONVERT QUERY MODEL SERIES TO EHRQL SERIES
+#
+
+
+def _wrap(qm_node):
+    """
+    Wrap a query model series in the ehrQL series class appropriate for its type and
+    dimension
+    """
+    type_ = get_series_type(qm_node)
+    is_patient_level = has_one_row_per_patient(qm_node)
+    cls = REGISTERED_TYPES[type_, is_patient_level]
+    return cls(qm_node)
+
+
+def _apply(qm_cls, *args):
+    """
+    Applies a query model operation `qm_cls` to its arguments which can be either ehrQL
+    series or static values, returns an ehrQL series
+    """
+    # Convert all arguments into query model nodes
+    qm_args = [
+        # If it's an ehrQL series then get the wrapped query model node, otherwise it's
+        # a static value and needs to be put in query model Value wrapper
+        arg.qm_node if isinstance(arg, Series) else qm.Value(arg)
+        for arg in args
+    ]
+    qm_node = qm_cls(*qm_args)
+    # Wrap the resulting node back up in an ehrQL series
+    return _wrap(qm_node)
+
+
+# FRAME TYPES
+#
 
 
 class Frame:
-    def __init__(self, qm_node, name_to_series_cls):
+    def __init__(self, qm_node):
         self.qm_node = qm_node
-        self.name_to_series_cls = name_to_series_cls
 
     def __getattr__(self, name):
-        cls = self.name_to_series_cls[name]
-        return cls(qm.SelectColumn(source=self.qm_node, name=name))
+        return _wrap(qm.SelectColumn(source=self.qm_node, name=name))
 
     def exists_for_patient(self):
-        return BoolSeries(qm.AggregateByPatient.Exists(source=self.qm_node))
+        return _wrap(qm.AggregateByPatient.Exists(source=self.qm_node))
 
     def count_for_patient(self):
-        return IntSeries(qm.AggregateByPatient.Count(source=self.qm_node))
+        return _wrap(qm.AggregateByPatient.Count(source=self.qm_node))
 
 
 class PatientFrame(Frame):
@@ -117,8 +248,7 @@ class EventFrame(Frame):
             qm.Filter(
                 source=self.qm_node,
                 condition=series.qm_node,
-            ),
-            self.name_to_series_cls,
+            )
         )
 
     def drop(self, series):
@@ -129,8 +259,7 @@ class EventFrame(Frame):
                     lhs=qm.Function.Not(series.qm_node),
                     rhs=qm.Function.IsNull(series.qm_node),
                 ),
-            ),
-            self.name_to_series_cls,
+            )
         )
 
     def sort_by(self, *order_series):
@@ -143,10 +272,7 @@ class EventFrame(Frame):
                 source=qm_node,
                 sort_by=series.qm_node,
             )
-        return SortedEventFrame(
-            qm_node,
-            self.name_to_series_cls,
-        )
+        return SortedEventFrame(qm_node)
 
 
 class SortedEventFrame(Frame):
@@ -155,8 +281,7 @@ class SortedEventFrame(Frame):
             qm.PickOneRowPerPatient(
                 position=qm.Position.FIRST,
                 source=self.qm_node,
-            ),
-            self.name_to_series_cls,
+            )
         )
 
     def last_for_patient(self):
@@ -164,22 +289,25 @@ class SortedEventFrame(Frame):
             qm.PickOneRowPerPatient(
                 position=qm.Position.LAST,
                 source=self.qm_node,
-            ),
-            self.name_to_series_cls,
+            )
         )
 
 
-def build_patient_table(name, name_to_series_cls, contract=None):
-    qm_node = qm.SelectPatientTable(name)
-    table = PatientFrame(qm_node, name_to_series_cls)
+# FRAME CONSTRUCTOR ENTRYPOINTS
+#
+
+
+def build_patient_table(name, schema, contract=None):
     if contract is not None:
-        contract.validate_table(table)
-    return table
+        contract.validate_schema(schema)
+    return PatientFrame(
+        qm.SelectPatientTable(name, schema=qm.TableSchema(schema)),
+    )
 
 
-def build_event_table(name, name_to_series_cls, contract=None):
-    qm_node = qm.SelectTable(name)
-    table = EventFrame(qm_node, name_to_series_cls)
+def build_event_table(name, schema, contract=None):
     if contract is not None:  # pragma: no cover
-        contract.validate_table(table)
-    return table
+        contract.validate_schema(schema)
+    return EventFrame(
+        qm.SelectTable(name, schema=qm.TableSchema(schema)),
+    )

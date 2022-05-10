@@ -83,12 +83,14 @@ class TableContract:
                 )
 
     @classmethod
-    def validate_table(cls, table_cls):
-        """Validate that a table is defined with the correct attributes.
+    def validate_schema(cls, schema):
+        """
+        Validate that a schema is defined with the correct columns
+
         This uses asserts rather than raising other exceptions, since any invalid tables
-        must be identified and fixed by the development team.
-        Note that we could use similar logic to generate a table from a contract.
-        However, doing so would mean that we wouldn't be able to typecheck dataset definitions.
+        must be identified and fixed by the development team. Note that we could use
+        similar logic to generate a table from a contract. However, doing so would mean
+        that we wouldn't be able to typecheck dataset definitions.
         """
         # We ignore the patient_id column as that shouldn't form part of the public API
         columns = {
@@ -96,10 +98,8 @@ class TableContract:
             for (name, col) in cls.columns.items()
             if not isinstance(col.type, types.PseudoPatientId)
         }
-        contract_column_names = set(columns)
-        table_column_names = set(table_cls.name_to_series_cls)
-        assert contract_column_names == table_column_names
+        assert columns.keys() == schema.keys()
         for col_name, column in columns.items():
             assert (
-                column.type.series == table_cls.name_to_series_cls[col_name]
+                column.type.python_type == schema[col_name]
             ), f"{col_name} doesn't match {column}"

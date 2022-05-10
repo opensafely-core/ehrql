@@ -1,13 +1,15 @@
-from databuilder.query_language import DateSeries, StrSeries, build_patient_table
+import datetime
+
+from databuilder.query_language import build_patient_table
 
 from .contracts import universal
 
 patients = build_patient_table(
     "patients",
     {
-        "date_of_birth": DateSeries,
-        "date_of_death": DateSeries,
-        "sex": StrSeries,
+        "date_of_birth": datetime.date,
+        "date_of_death": datetime.date,
+        "sex": str,
     },
     contract=universal.Patients,
 )
