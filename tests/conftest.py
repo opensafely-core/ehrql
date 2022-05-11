@@ -84,16 +84,18 @@ class QueryEngineFixture:
         )
 
 
-@pytest.fixture(
-    scope="session",
-    params=["in_memory", "sqlite"],
-)
-def engine(request):
+@pytest.fixture(scope="session")
+def in_memory_sqlite_database():
+    return InMemorySQLiteDatabase()
+
+
+@pytest.fixture(params=["in_memory", "sqlite"])
+def engine(request, in_memory_sqlite_database):
     name = request.param
     if name == "in_memory":
         return QueryEngineFixture(name, InMemoryDatabase(), InMemoryQueryEngine)
     elif name == "sqlite":
-        return QueryEngineFixture(name, InMemorySQLiteDatabase(), SQLiteQueryEngine)
+        return QueryEngineFixture(name, in_memory_sqlite_database, SQLiteQueryEngine)
     else:
         assert False
 
