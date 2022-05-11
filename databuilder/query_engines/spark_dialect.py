@@ -25,16 +25,16 @@ class SparkDate(sqlalchemy.types.TypeDecorator):
         Without this we get dates returned as strings rather than
         `datetime.date` objects as we expect
         """
-        # If the underlying database type is a DATETIME then that's what we'll get back,
-        # even if we've cast it to a DATE in our schema. So we make sure we always
-        # return the expected type here.
-        if isinstance(value, datetime.datetime):
-            return value.date()
-        # databricks sql DBAPI returns actual date
-        elif isinstance(value, datetime.date):  # pragma: no cover
+        # databricks sql DBAPI returns a date object so we need this branch but it's not
+        # hit in our local tests
+        if isinstance(value, datetime.date):  # pragma: no cover
             return value
-        else:
+        elif isinstance(value, str):
             return sqlalchemy.processors.str_to_date(value)
+        elif value is None:
+            return None
+        else:  # pragma: no cover
+            raise TypeError(f"Unhandled date type: {value}")
 
     def bind_expression(self, bindvalue):
         """
@@ -47,7 +47,9 @@ class SparkDate(sqlalchemy.types.TypeDecorator):
 class SparkDateTime(sqlalchemy.types.TypeDecorator):
     impl = sqlalchemy.types.DateTime
 
-    def bind_expression(self, bindvalue):
+    # I expect this is end up being covered once we promote Spark from a "legacy"
+    # dialect to one included in the default engine fixture
+    def bind_expression(self, bindvalue):  # pragma: no cover
         """
         Spark won't accept datetime strings in INSERT statements unless we
         explicity cast them to datetimes

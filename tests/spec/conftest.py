@@ -1,37 +1,13 @@
 import pytest
 
-from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset
 
-from ..conftest import QueryEngineFixture
-from ..lib.databases import InMemorySQLiteDatabase
-from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from ..lib.mock_backend import EventLevelTable, PatientLevelTable
 from . import tables
 
 
-@pytest.fixture(
-    scope="session",
-    params=["in_memory", "sqlite"],
-)
-def engine(request):
-    name = request.param
-    if name == "in_memory":
-        return QueryEngineFixture(name, InMemoryDatabase(), InMemoryQueryEngine)
-    elif name == "sqlite":
-        return QueryEngineFixture(name, InMemorySQLiteDatabase(), SQLiteQueryEngine)
-    else:
-        assert False
-
-
 @pytest.fixture
 def spec_test(request, engine):
-    # There are some tests we currently expect to fail against the in-memory engine
-    if engine.name == "in_memory":
-        marks = [m.name for m in request.node.iter_markers()]
-        if "xfail_in_memory" in marks:
-            pytest.xfail()
-
     def run_test(table_data, series, expected_results, population=None):
         # Create SQLAlchemy model instances for each row of each table in table_data.
         input_data = []
