@@ -8,12 +8,6 @@ from . import tables
 
 @pytest.fixture
 def spec_test(request, engine):
-    # There are some tests we currently expect to fail against the in-memory engine
-    if engine.name == "in_memory":
-        marks = [m.name for m in request.node.iter_markers()]
-        if "xfail_in_memory" in marks:
-            pytest.xfail()
-
     def run_test(table_data, series, expected_results, population=None):
         # Create SQLAlchemy model instances for each row of each table in table_data.
         input_data = []
