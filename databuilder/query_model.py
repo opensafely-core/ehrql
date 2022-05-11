@@ -142,6 +142,7 @@ class ManyRowsPerPatientSeries(Series):
     ...
 
 
+# A Frame which has had a Sort operation applied to it
 class SortedFrame(ManyRowsPerPatientFrame):
     ...
 
@@ -193,9 +194,10 @@ class PickOneRowPerPatient(OneRowPerPatientFrame):
     position: Position
 
 
-# An aggregation is any operation which returns a one-row-per-patient series, regardless
-# of the dimension of its inputs. Below are all available aggregations (using a class
-# as a namespace).
+# Aggregations are operations which take frames and/or series and return a new series.
+# Unlike functions (see below), aggregations always return a one-row-per-patient series,
+# regardless of the dimension of their inputs. Below are all available aggregations
+# (using a class as a namespace).
 class AggregateByPatient:
     class Exists(OneRowPerPatientSeries[bool]):
         source: Frame
@@ -221,9 +223,9 @@ class AggregateByPatient:
         source: Series[T]
 
 
-# A function is any operation which takes series and values and returns a series. The
-# dimension of the series it returns will be the highest dimension of its inputs i.e. if
-# any of its inputs has many-rows-per-patient then its output will too.  Below are all
+# Functions are operations which take one or more series and return a new series. The
+# dimension of the returned series will be the highest dimension of its inputs i.e. if
+# any of its inputs has many-rows-per-patient then its output will too. Below are all
 # available functions (using a class as a namespace).
 class Function:
 
