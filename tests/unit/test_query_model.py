@@ -27,7 +27,7 @@ from databuilder.query_model import (
     has_one_row_per_patient,
 )
 
-EVENTS_SCHEMA = TableSchema(patient_id=int, date=datetime.date, code=str)
+EVENTS_SCHEMA = TableSchema(date=datetime.date, code=str)
 
 
 # TEST BASIC QUERY MODEL PROPERTIES
