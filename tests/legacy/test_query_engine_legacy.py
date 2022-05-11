@@ -2,9 +2,6 @@ from datetime import date
 
 import pytest
 
-from ..conftest import (  # noqa: F401 (flake8 doesn't understand aliased fixtures)
-    engine as new_engine,
-)
 from ..lib.mock_backend import (
     CTV3Events,
     RegistrationHistory,
@@ -12,7 +9,6 @@ from ..lib.mock_backend import (
     patient,
     positive_test,
 )
-from .query_model_convert_to_new import convert as convert_to_new
 from .query_model_old import Codelist, categorise, table
 
 
@@ -23,43 +19,6 @@ def make_codelist(*codes, system="ctv3"):
 class OldCohortWithPopulation:
     def __init_subclass__(cls):
         cls.population = table("practice_registrations").exists()
-
-
-# This engine fixture wraps the standard query engine fixture and gives it the ability to cope with
-# old-style cohort definitions. This allows us to retain these old test cases as a harness while we
-# refactor the Query Engine.
-class LegacyEngine:
-    def __init__(self, engine):
-        self.engine = engine
-        self.name = engine.name
-
-    def setup(self, *items):
-        self.engine.setup(*items)
-
-    def build_engine(self, cohort, **backend_kwargs):
-        backend = self.engine.backend(self.engine.database.host_url(), **backend_kwargs)
-        return backend.query_engine_class(self._convert(cohort), backend)
-
-    def extract(self, cohort, **backend_kwargs):
-        with self._execute(cohort, **backend_kwargs) as results:
-            result = list(dict(row) for row in results)
-            result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering
-            return result
-
-    def _execute(self, cohort, **backend_kwargs):
-        return self.build_engine(cohort, **backend_kwargs).execute_query()
-
-    @staticmethod
-    def _convert(cohort):
-        columns = {
-            key: value for key, value in vars(cohort).items() if not key.startswith("_")
-        }
-        return convert_to_new(columns)
-
-
-@pytest.fixture
-def engine(new_engine):  # noqa: F811 (flake8 doesn't understand aliased fixtures)
-    return LegacyEngine(new_engine)
 
 
 def test_query_engine_caches_sql_engine(engine):

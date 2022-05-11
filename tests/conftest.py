@@ -2,11 +2,16 @@ import pytest
 
 from databuilder import main
 from databuilder.definition.base import dataset_registry
-from databuilder.query_engines.mssql import MssqlQueryEngine
-from databuilder.query_engines.spark import SparkQueryEngine
+from databuilder.query_engines.sqlite import SQLiteQueryEngine
 
-from .lib.databases import make_database, make_spark_database, wait_for_database
+from .lib.databases import (
+    InMemorySQLiteDatabase,
+    make_database,
+    make_spark_database,
+    wait_for_database,
+)
 from .lib.docker import Containers
+from .lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from .lib.mock_backend import backend_factory
 from .lib.study import Study
 
@@ -66,17 +71,12 @@ class QueryEngineFixture:
         return results
 
     def extract_qm(self, variables):
-        with self._execute(variables) as results:
+        backend = self.backend(self.database.host_url())
+        query_engine = self.query_engine_class(variables, backend)
+        with query_engine.execute_query() as results:
             result = list(dict(row) for row in results)
             result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering
             return result
-
-    def _execute(self, variables):
-        return self._build_engine(variables).execute_query()
-
-    def _build_engine(self, variables):
-        backend = self.backend(self.database.host_url())
-        return backend.query_engine_class(variables, backend)
 
     def sqlalchemy_engine(self, **kwargs):
         return self.database.engine(
@@ -85,14 +85,15 @@ class QueryEngineFixture:
 
 
 @pytest.fixture(
-    scope="session", params=["mssql", pytest.param("spark", marks=pytest.mark.spark)]
+    scope="session",
+    params=["in_memory", "sqlite"],
 )
-def engine(request, database, spark_database):
+def engine(request):
     name = request.param
-    if name == "mssql":
-        return QueryEngineFixture(name, database, MssqlQueryEngine)
-    elif name == "spark":
-        return QueryEngineFixture(name, spark_database, SparkQueryEngine)
+    if name == "in_memory":
+        return QueryEngineFixture(name, InMemoryDatabase(), InMemoryQueryEngine)
+    elif name == "sqlite":
+        return QueryEngineFixture(name, InMemorySQLiteDatabase(), SQLiteQueryEngine)
     else:
         assert False
 

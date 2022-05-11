@@ -1,27 +1,9 @@
 import pytest
 
-from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset
 
-from ..conftest import QueryEngineFixture
-from ..lib.databases import InMemorySQLiteDatabase
-from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from ..lib.mock_backend import EventLevelTable, PatientLevelTable
 from . import tables
-
-
-@pytest.fixture(
-    scope="session",
-    params=["in_memory", "sqlite"],
-)
-def engine(request):
-    name = request.param
-    if name == "in_memory":
-        return QueryEngineFixture(name, InMemoryDatabase(), InMemoryQueryEngine)
-    elif name == "sqlite":
-        return QueryEngineFixture(name, InMemorySQLiteDatabase(), SQLiteQueryEngine)
-    else:
-        assert False
 
 
 @pytest.fixture
