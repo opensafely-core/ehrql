@@ -61,7 +61,7 @@ jobs:
 
       - name: Log into GitHub Container Registry
         if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
-        run: docker login https://ghcr.io -u ${{ github.actor }} --password ${{ secrets.DOCKER_RW_TOKEN }}
+        run: docker login https://ghcr.io -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push images to GitHub Container Registry
         if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
