@@ -267,6 +267,21 @@ def test_sorting_frame_using_value_derived_from_child_frame_is_not_ok():
         Sort(events, SelectColumn(foo_events, "date"))
 
 
+def test_can_aggregate_a_many_rows_per_patient_series():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    dates = SelectColumn(events, "date")
+    assert AggregateByPatient.Max(dates)
+
+
+def test_cannot_aggregate_a_one_row_per_patient_series():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    dates = SelectColumn(events, "date")
+    first_event = PickOneRowPerPatient(Sort(events, dates), Position.FIRST)
+    first_date = SelectColumn(first_event, "date")
+    with pytest.raises(DomainMismatchError):
+        AggregateByPatient.Max(first_date)
+
+
 def test_domain_get_node():
     events = SelectTable("events", EVENTS_SCHEMA)
     # This filter operation creates a new domain

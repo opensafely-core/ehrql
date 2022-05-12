@@ -147,6 +147,12 @@ class SortedFrame(ManyRowsPerPatientFrame):
     ...
 
 
+# A OneRowPerPatientSeries which is the result of aggregating one or more
+# ManyRowsPerPatientSeries
+class AggregatedSeries(OneRowPerPatientSeries):
+    ...
+
+
 # OPERATIONS
 #
 # Operations indicate the kind of thing they return by subclassing one of the basic
@@ -199,19 +205,22 @@ class PickOneRowPerPatient(OneRowPerPatientFrame):
 # regardless of the dimension of their inputs. Below are all available aggregations
 # (using a class as a namespace).
 class AggregateByPatient:
+    # The `Exists` and `Count` aggregations are unusual in that they operate on frames
+    # rather than series and they don't use the `AggregatedSeries` type, which means
+    # they accept inputs both of many-rows-per-patient and one-row-per-patient dimension
     class Exists(OneRowPerPatientSeries[bool]):
         source: Frame
 
     class Count(OneRowPerPatientSeries[int]):
         source: Frame
 
-    class Min(OneRowPerPatientSeries[T]):
+    class Min(AggregatedSeries[T]):
         source: Series[T]
 
-    class Max(OneRowPerPatientSeries[T]):
+    class Max(AggregatedSeries[T]):
         source: Series[T]
 
-    class Sum(OneRowPerPatientSeries[Numeric]):
+    class Sum(AggregatedSeries[Numeric]):
         source: Series[Numeric]
 
     # This is an unusual aggregation in that while it collapses multiple values per patient
@@ -219,7 +228,7 @@ class AggregateByPatient:
     # produces is a set-like object containing all of its input values. This enables
     # them to be used as arguments to the In/NotIn fuctions which require something
     # set-like as their RHS argument.
-    class CombineAsSet(OneRowPerPatientSeries[Set[T]]):
+    class CombineAsSet(AggregatedSeries[Set[T]]):
         source: Series[T]
 
 
@@ -442,6 +451,10 @@ def validate_input_domains(node):
             raise DomainMismatchError(
                 f"Attempt to combine unrelated domains:\n{non_patient_domains}"
                 f"\nIn node:\n{node}"
+            )
+        if isinstance(node, AggregatedSeries) and len(non_patient_domains) == 0:
+            raise DomainMismatchError(
+                f"Attempt to aggregate one-row-per-patient series\nIn node:\n{node}"
             )
 
 
