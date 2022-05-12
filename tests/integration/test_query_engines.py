@@ -1,3 +1,5 @@
+import sqlalchemy
+
 from databuilder.query_model import (
     AggregateByPatient,
     Filter,
@@ -76,3 +78,12 @@ def test_multiple_takes_without_chaining(engine):
     assert results == {
         1: 2,
     }
+
+
+def test_handles_degenerate_poppulaton(engine):
+    engine.setup(metadata=sqlalchemy.MetaData())
+    variables = dict(
+        population=Value(False),
+        v=Value(1),
+    )
+    assert engine.extract_qm(variables) == []
