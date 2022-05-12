@@ -1,11 +1,9 @@
 import contextlib
-import secrets
 from functools import cache, cached_property, singledispatchmethod
 
 import sqlalchemy
 from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.sql import operators
-from sqlalchemy.sql.visitors import replacement_traverse
 
 from databuilder.query_model import (
     AggregateByPatient,
@@ -35,7 +33,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
             for name, definition in variable_definitions.items()
         }
         population_expression = variable_expressions.pop("population")
-        query = self.get_select_query_for_patient_domain()
+        query = self.select_patient_id_for_population(population_expression)
         query = query.add_columns(
             *[expr.label(name) for name, expr in variable_expressions.items()]
         )
@@ -43,60 +41,34 @@ class SQLiteQueryEngine(BaseQueryEngine):
         query = prepare_query(query)
         return query
 
-    def get_select_query_for_domain(self, domain):
+    def select_patient_id_for_population(self, population_expression):
         """
-        Given a Domain object return the SELECT statement that forms the basis of any
-        queries using this domain
+        Return a SELECT query which selects all the patient_ids that _might_ be included
+        in the population (the WHERE clause later will filter this down to just those which
+        should actually be included)
+
+        This needs to cover, at a minimum, all patient_ids included in all tables
+        referenced in the population expression. But including more won't affect the
+        correctness of the result, so the only consideration here is performance.
+
+        TODO: Give backends a mechanism for marking certain tables as containing all
+        available patient_ids. We could then use such tables if available rather than
+        messing aroud with UNIONS.
         """
-        if domain != domain.PATIENT:
-            # By construction query nodes of many-rows-per-patient dimension always have
-            # a single ManyRowsPerPatientFrame which defines its domain. We fetch this
-            # and then use it to generate the corresponding query.
-            frame = domain.get_node()
-            return self.get_select_query_for_frame(frame)
+        # Get all the tables needed to evaluate the population expression
+        tables = sqlalchemy.select(population_expression).get_final_froms()
+        if len(tables) > 1:
+            # Select all patient IDs from all tables referenced in the expression
+            id_selects = [sqlalchemy.select(table.c.patient_id) for table in tables]
+            # Create a CTE which is the union of all these IDs. (Note UNION rather than
+            # UNION ALL so we don't get duplicates.)
+            population_cte = sqlalchemy.union(*id_selects).cte()
+            return sqlalchemy.select(population_cte.c.patient_id)
+        elif len(tables) == 1:
+            # If there's only one table then use the IDs from that
+            return sqlalchemy.select(tables[0].c.patient_id)
         else:
-            # TODO: This branch is only present to support aggregations over data which
-            # is already patient-level. Our query model currently allows this (simply
-            # because (simply because it's tricky to forbid it statically using the
-            # machinery we have) and previously the spec tests made (inadvertent) use of
-            # it. We need to either forbid this in the query model, or decide that we do
-            # want to support it and write some tests for it.
-            return self.get_select_query_for_patient_domain()  # pragma: no cover
-
-    def get_select_query_for_patient_domain(self):
-        """
-        Return a SELECT query which is to form the basis of a one-row-per-patient query
-        """
-        # Eventually we may allow, or require, backends to specify a table which defines
-        # the "universe" of patients over which we operate. For now, we pretend we
-        # already have such a table by creating a "placeholder" table. Later in the
-        # query construction process we can generate a CTE which defines this table. But
-        # we don't know exactly what this CTE should contain until we've finished
-        # constructing the query. So using this placeholder trick allows us to follow a
-        # more natural ordering when constructing the query.
-
-        # Make the name unique to avoid clashes where we have more than one nested
-        # patient-level query.
-        placeholder_name = f"patients_{secrets.token_hex(6)}"
-        table = sqlalchemy.Table(
-            placeholder_name, sqlalchemy.MetaData(), sqlalchemy.Column("patient_id")
-        )
-        # Add a flag to the user metadata so we can identify these tables later
-        table.is_placeholder = True
-        return sqlalchemy.select([table.c.patient_id])
-
-    def get_select_query_for_frame(self, frame):
-        """
-        Given a ManyRowsPerPatientFrame return the corresponding SELECT query with the
-        appropriate filter operations applied
-        """
-        root_frame, filters, _ = get_frame_operations(frame)
-        table = self.get_sql(root_frame)
-        where_clauses = [self.get_sql(f.condition) for f in filters]
-        query = sqlalchemy.select([table.c.patient_id])
-        if where_clauses:
-            query = query.where(sqlalchemy.and_(*where_clauses))
-        return query
+            assert False, "No tables referenced in population expression"
 
     @singledispatchmethod
     def get_sql(self, node):
@@ -206,8 +178,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
         )
 
     def aggregate_series_by_patient(self, source_node, aggregation_func):
-        domain = get_domain(source_node)
-        query = self.get_select_query_for_domain(domain)
+        query = self.get_select_query_for_node_domain(source_node)
         expression = self.get_sql(source_node)
         query = query.add_columns(aggregation_func(expression).label("value"))
         query = query.group_by(query.selected_columns[0])
@@ -250,8 +221,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     @get_sql.register(PickOneRowPerPatient)
     def get_sql_pick_one_row_per_patient(self, node):
-        domain = get_domain(node.source)
-        query = self.get_select_query_for_domain(domain)
+        query = self.get_select_query_for_node_domain(node.source)
 
         # TODO: Really we only want to select the columns from the base table which
         # we're actually going to use. In the old world we did some pre-processing of
@@ -307,6 +277,20 @@ class SQLiteQueryEngine(BaseQueryEngine):
         """
         return query.cte()
 
+    def get_select_query_for_node_domain(self, node):
+        """
+        Given a many-rows-per-patient node, return the SELECT query corresponding to
+        domain of that node
+        """
+        frame = get_domain(node).get_node()
+        root_frame, filters, _ = get_frame_operations(frame)
+        table = self.get_sql(root_frame)
+        where_clauses = [self.get_sql(f.condition) for f in filters]
+        query = sqlalchemy.select([table.c.patient_id])
+        if where_clauses:
+            query = query.where(sqlalchemy.and_(*where_clauses))
+        return query
+
     @contextlib.contextmanager
     def execute_query(self):
         results_query = self.get_query(self.column_definitions)
@@ -328,54 +312,8 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
 
 def prepare_query(query):
-    query = replace_placeholder_table_references(query)
     query = apply_patient_joins(query)
     return query
-
-
-def replace_placeholder_table_references(query):
-    """
-    Where a backend doesn't provide us with a single "patient universe" table guaranteed
-    to contain all patients, we instead generate a "placeholder" table to use instead.
-
-    This function identifies such placeholder tables, generates an appropriate Common
-    Table Expression (CTE) which defines what the contents of this table should be, and
-    attaches it to the query which means that references to the placeholder will then
-    point to the CTE.
-    """
-    # By convention, the first column in all our queries is always the patient_id column
-    id_column = query.selected_columns[0]
-    placeholder_table = id_column.table
-    if not getattr(placeholder_table, "is_placeholder", False):
-        return query
-
-    other_tables = [t for t in query.get_final_froms() if t is not placeholder_table]
-    if len(other_tables) > 1:
-        # Select all patient IDs from all tables used in the query
-        id_selects = [
-            sqlalchemy.select(table.c[id_column.name]) for table in other_tables
-        ]
-        # Create a CTE which is the union of all these IDs. (Note UNION rather than
-        # UNION ALL so we don't get duplicates. The tables themselves are necessarily
-        # one-row-per-patient tables and so don't require de-duplicating.)
-        placeholder_definition = sqlalchemy.union(*id_selects).cte(
-            placeholder_table.name
-        )
-        # Include the CTE definition in the query
-        return query.add_cte(placeholder_definition)
-    elif len(other_tables) == 1:
-        # If there's only one table then, rather than define a CTE for it, just replace
-        # references to the placeholder table with references to this table. Using a CTE
-        # wouldn't be wrong — just pointless; and they can act as optimisation fences in
-        # some DBMSs.
-        new_id_column = other_tables[0].c[id_column.name]
-        # SQLAlchemy provides some handy "query surgery" functions, see:
-        # https://docs.sqlalchemy.org/en/14/core/visitors.html#sqlalchemy.sql.visitors.replacement_traverse
-        return replacement_traverse(
-            query, {}, replace=lambda obj: new_id_column if obj is id_column else None
-        )
-    else:
-        assert False, "No tables found in query"
 
 
 def apply_patient_joins(query):
