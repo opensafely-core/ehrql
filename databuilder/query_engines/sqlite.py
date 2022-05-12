@@ -104,7 +104,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Value)
     def get_sql_value(self, node):
-        return node.value
+        return sqlalchemy.literal(node.value)
 
     @get_sql.register(Function.EQ)
     def get_sql_eq(self, node):
