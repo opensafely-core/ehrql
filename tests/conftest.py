@@ -56,8 +56,8 @@ class QueryEngineFixture:
         self.query_engine_class = query_engine_class
         self.backend = backend_factory(query_engine_class)
 
-    def setup(self, *items):
-        return self.database.setup(*items)
+    def setup(self, *items, metadata=None):
+        return self.database.setup(*items, metadata=metadata)
 
     def extract(self, dataset, **backend_kwargs):
         results = list(
