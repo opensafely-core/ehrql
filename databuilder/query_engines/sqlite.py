@@ -68,7 +68,11 @@ class SQLiteQueryEngine(BaseQueryEngine):
             # If there's only one table then use the IDs from that
             return sqlalchemy.select(tables[0].c.patient_id)
         else:
-            assert False, "No tables referenced in population expression"
+            # Gracefully handle the degenerate case where the population expression
+            # doesn't reference any tables at all. Our validation rules ensure that such
+            # an expression will never evaluate True so the population will always be
+            # empty. But we can at least return an empty result, rather than blowing up.
+            return sqlalchemy.select(sqlalchemy.literal(None).label("patient_id"))
 
     @singledispatchmethod
     def get_sql(self, node):
