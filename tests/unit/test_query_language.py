@@ -2,8 +2,8 @@ from datetime import date
 
 from databuilder.query_language import (
     Dataset,
-    DateSeries,
-    IntSeries,
+    DateEventSeries,
+    IntEventSeries,
     build_patient_table,
     compile,
 )
@@ -16,12 +16,10 @@ from databuilder.query_model import (
     Value,
 )
 
-patients = build_patient_table(
-    "patients",
-    {
-        "date_of_birth": DateSeries,
-    },
-)
+patients_schema = {
+    "date_of_birth": date,
+}
+patients = build_patient_table("patients", patients_schema)
 
 
 def test_dataset():
@@ -33,13 +31,15 @@ def test_dataset():
     assert compile(dataset) == {
         "year_of_birth": Function.YearFromDate(
             source=SelectColumn(
-                name="date_of_birth", source=SelectPatientTable("patients")
+                name="date_of_birth",
+                source=SelectPatientTable("patients", patients_schema),
             )
         ),
         "population": Function.LE(
             lhs=Function.YearFromDate(
                 source=SelectColumn(
-                    name="date_of_birth", source=SelectPatientTable("patients")
+                    name="date_of_birth",
+                    source=SelectPatientTable("patients", patients_schema),
                 )
             ),
             rhs=Value(2000),
@@ -77,34 +77,34 @@ def assert_produces(ql_element, qm_element):
     assert ql_element.qm_node == qm_element
 
 
-class TestIntSeries:
+class TestIntEventSeries:
     def test_le_value(self):
         assert_produces(
-            IntSeries(qm_int_series) <= 2000,
+            IntEventSeries(qm_int_series) <= 2000,
             Function.LE(qm_int_series, Value(2000)),
         )
 
     def test_le_value_reverse(self):
         assert_produces(
-            2000 >= IntSeries(qm_int_series),
+            2000 >= IntEventSeries(qm_int_series),
             Function.LE(qm_int_series, Value(2000)),
         )
 
     def test_le_intseries(self):
         assert_produces(
-            IntSeries(qm_int_series) <= IntSeries(qm_int_series),
+            IntEventSeries(qm_int_series) <= IntEventSeries(qm_int_series),
             Function.LE(qm_int_series, qm_int_series),
         )
 
     def test_radd(self):
         assert_produces(
-            1 + IntSeries(qm_int_series),
+            1 + IntEventSeries(qm_int_series),
             Function.Add(qm_int_series, Value(1)),
         )
 
     def test_rsub(self):
         assert_produces(
-            1 - IntSeries(qm_int_series),
+            1 - IntEventSeries(qm_int_series),
             Function.Add(
                 Function.Negate(qm_int_series),
                 Value(1),
@@ -115,5 +115,5 @@ class TestIntSeries:
 class TestDateSeries:
     def test_year(self):
         assert_produces(
-            DateSeries(qm_date_series).year, Function.YearFromDate(qm_date_series)
+            DateEventSeries(qm_date_series).year, Function.YearFromDate(qm_date_series)
         )

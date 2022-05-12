@@ -1,17 +1,12 @@
-from databuilder.query_language import (
-    BoolSeries,
-    IntSeries,
-    build_event_table,
-    build_patient_table,
-)
+from databuilder.query_language import build_event_table, build_patient_table
 
 p = build_patient_table(
     "patient_level_table",
     {
-        "i1": IntSeries,
-        "i2": IntSeries,
-        "b1": BoolSeries,
-        "b2": BoolSeries,
+        "i1": int,
+        "i2": int,
+        "b1": bool,
+        "b2": bool,
     },
 )
 
@@ -19,9 +14,9 @@ p = build_patient_table(
 e = build_event_table(
     "event_level_table",
     {
-        "i1": IntSeries,
-        "i2": IntSeries,
-        "b1": BoolSeries,
-        "b2": BoolSeries,
+        "i1": int,
+        "i2": int,
+        "b1": bool,
+        "b2": bool,
     },
 )
