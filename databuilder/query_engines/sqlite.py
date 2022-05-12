@@ -38,7 +38,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
             *[expr.label(name) for name, expr in variable_expressions.items()]
         )
         query = query.where(population_expression)
-        query = prepare_query(query)
+        query = apply_patient_joins(query)
         return query
 
     def select_patient_id_for_population(self, population_expression):
@@ -186,7 +186,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
         expression = self.get_sql(source_node)
         query = query.add_columns(aggregation_func(expression).label("value"))
         query = query.group_by(query.selected_columns[0])
-        query = prepare_query(query)
+        query = apply_patient_joins(query)
         aggregated_table = self.reify_query(query)
         return aggregated_table.c.value
 
@@ -245,7 +245,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
             )
         )
 
-        query = prepare_query(query)
+        query = apply_patient_joins(query)
 
         # Make the above into a subquery and pull out the relevant columns. Note, we're
         # deliberately using a subquery rather than `reify_query()` here as we want the
@@ -313,11 +313,6 @@ class SQLiteQueryEngine(BaseQueryEngine):
         # break in future -- we want to know immediately if it does
         assert isinstance(engine.dialect, self.sqlalchemy_dialect)
         return engine
-
-
-def prepare_query(query):
-    query = apply_patient_joins(query)
-    return query
 
 
 def apply_patient_joins(query):
