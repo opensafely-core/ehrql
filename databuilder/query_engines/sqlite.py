@@ -60,10 +60,10 @@ class SQLiteQueryEngine(BaseQueryEngine):
         if len(tables) > 1:
             # Select all patient IDs from all tables referenced in the expression
             id_selects = [sqlalchemy.select(table.c.patient_id) for table in tables]
-            # Create a CTE which is the union of all these IDs. (Note UNION rather than
-            # UNION ALL so we don't get duplicates.)
-            population_cte = sqlalchemy.union(*id_selects).cte()
-            return sqlalchemy.select(population_cte.c.patient_id)
+            # Create a table which contains the union of all these IDs. (Note UNION
+            # rather than UNION ALL so we don't get duplicates.)
+            population_table = self.reify_query(sqlalchemy.union(*id_selects))
+            return sqlalchemy.select(population_table.c.patient_id)
         elif len(tables) == 1:
             # If there's only one table then use the IDs from that
             return sqlalchemy.select(tables[0].c.patient_id)
