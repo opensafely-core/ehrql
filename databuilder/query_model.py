@@ -25,7 +25,6 @@ __all__ = [
     "Function",
     "Categorise",
     "TableSchema",
-    "Code",
     "ValidationError",
     "DomainMismatchError",
     "has_one_row_per_patient",
@@ -49,13 +48,6 @@ __all__ = [
 T = TypeVar("T")
 Numeric = TypeVar("Numeric", int, float)
 Comparable = TypeVar("Comparable", int, float, str, date)
-
-
-@dataclasses.dataclass(frozen=True)
-class Code:
-    "A code is a string tagged with the coding system it's drawn from"
-    value: str
-    system: str
 
 
 class Position(Enum):

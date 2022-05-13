@@ -12,6 +12,8 @@ convert the entire old test suite but are covered no longer.
 import dataclasses
 from functools import cache, singledispatch
 
+from databuilder.codes import CTV3Code
+
 from .. import query_model as new
 from . import query_model_old as old
 
@@ -73,7 +75,7 @@ def convert_node(node):
 def convert_value_node(node: new.Value):
     value = node.value
     if isinstance(value, frozenset):
-        if any(isinstance(v, new.Code) for v in value):
+        if any(isinstance(v, CTV3Code) for v in value):
             return convert_codelist(value)
         else:
             return tuple(value)
@@ -248,8 +250,8 @@ def convert_not(node: new.Function.Not):
 
 
 def convert_codelist(codes):
-    system = list(codes)[0].system
-    return old.Codelist(tuple(c.value for c in codes), system=system)
+    assert all(isinstance(c, CTV3Code) for c in codes)
+    return old.Codelist(tuple(c.value for c in codes), system="ctv3")
 
 
 def column_name(column):
