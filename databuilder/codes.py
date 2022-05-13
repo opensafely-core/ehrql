@@ -9,6 +9,11 @@ import dataclasses
 class BaseCode:
     value: str
 
+    # The presence of this method allows query engines to work with values of this type,
+    # despite not being explicitly told about them beforehand
+    def _to_primitive_type(self):
+        return self.value
+
 
 class BNFCode(BaseCode):
     "Pseudo BNF"

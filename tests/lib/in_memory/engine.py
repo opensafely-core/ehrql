@@ -65,10 +65,20 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_Value(self, node):
+        if isinstance(node.value, frozenset):
+            value = frozenset(self.convert_value(v) for v in node.value)
+        else:
+            value = self.convert_value(node.value)
         return Column(
-            {patient: [node.value] for patient in self.all_patients},
+            {patient: [value] for patient in self.all_patients},
             default=None,
         )
+
+    def convert_value(self, value):
+        if hasattr(value, "_to_primitive_type"):
+            return value._to_primitive_type()
+        else:
+            return value
 
     def visit_SelectTable(self, node):
         return self.tables[node.name]

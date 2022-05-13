@@ -31,4 +31,7 @@ contents = {
         "test_arithmetic_ops",
         "test_comparison_ops",
     ],
+    "code_series_ops": [
+        "test_containment",
+    ],
 }
