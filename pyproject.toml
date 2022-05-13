@@ -1,3 +1,43 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "opensafely-databuilder"
+description = ""
+version = "2+local"
+readme = "README.md"
+authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
+requires-python = ">=3.9"
+dependencies = [
+  "pandas",
+  "sqlalchemy",
+  "structlog",
+
+  # Database driver for MS-SQL
+  "pymssql",
+
+  # Database driver for Spark
+  "pyhive",
+  # `thrift` is required for accessing Hive via `pyhive`. We could get it
+  # automatically pulled in by installing `pyhive[hive]` but this will also pull
+  # in `sasl` which we don't need and which causes us installation problems
+  # because it doesn't have a wheel and requires the libsasl2 headers to compile.
+  "thrift",
+  # Databricks specific connector
+  "databricks-sql-connector",
+]
+
+[project.scripts]
+databuilder = "databuilder.__main__:main"
+
+[project.urls]
+Home = "https://opensafely.org"
+Documentation = "https://docs.opensafely.org"
+Source = "https://github.com/opensafely-core/databuilder"
+
 [tool.black]
 exclude = '''
 (
@@ -12,37 +52,68 @@ exclude = '''
 
 [tool.coverage.run]
 branch = true
-omit = []
 
 [tool.coverage.report]
-# fail_under = 100
+fail_under = 100
 skip_covered = true
 exclude_lines = [
     # this is the default, but has to be included explicitly now we specify exclude_lines
     "pragma: no cover",
-    # this indicates that the line should never be hit, so it does not make sense to test it
+    # this indicates that the line should never be hit
     "assert False",
     # this condition is only true when a module is run as a script
     'if __name__ == "__main__":',
+    # this indicates that a method should be defined in a subclass
+    "raise NotImplementedError",
+    # excludes the body of the overload-decorated function which will never be executed
+    "@overload",
+]
+omit = [
+    "databuilder/query_engines/query_model_old.py",
+    "databuilder/docs/__main__.py",
 ]
 
 [tool.coverage.html]
 
+[tool.flit.module]
+name = "databuilder"
+
+[tool.interrogate]
+fail-under = 0
+ignore-init-module = true
+omit-covered-files = true
+verbose = 1
+
 [tool.isort]
-force_grid_wrap = 0
-include_trailing_comma = true
-line_length = 88
-lines_after_imports = 2
-multi_line_output = 3
+profile = "black"
 skip_glob = [".direnv", "venv", ".venv"]
-use_parentheses = true
+
+[tool.pydocstyle]
+convention = "google"
+add_select = [
+  "D213",
+]
+# Base ignores for all docstrings, for module/package specific ones add them to
+# the CLI args in Justfile
+add_ignore = [
+  "D100",
+  "D104",
+  "D107",
+  "D212",
+]
 
 [tool.pytest.ini_options]
 addopts = "--tb=native --strict-markers"
+testpaths = ["tests"]
 markers = [
-    "integration: tests that use a database",
-    "smoke: tests that run the cohort extractor in its container against a database",
+    "integration: tests that use a container (mostly databases)",
+    "spark: tests that use a Spark database (and therefore tend to be very slow)",
+    "xfail_in_memory: tests we expect to fail against the in-memory query engine (hopefully temporary!)",
 ]
 filterwarnings = [
-    "ignore::DeprecationWarning:past.builtins.misc:45"
+    "ignore::DeprecationWarning:past.builtins.misc:45",
+    "ignore::DeprecationWarning:pytest_freezegun:17",
+    "ignore::DeprecationWarning:docker.utils.utils:52",
+    "ignore::DeprecationWarning:docker.utils.utils:53",
+    "ignore::DeprecationWarning:pyhive.common:248",
 ]

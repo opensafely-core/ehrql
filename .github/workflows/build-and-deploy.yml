@@ -1,0 +1,69 @@
+name: Build and publish image
+
+on:
+  create:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - CI
+    branches:
+      - main
+    status:
+      - completed
+
+jobs:
+  build-and-publish-docker-image:
+    runs-on: ubuntu-latest
+    env:
+      image: ghcr.io/opensafely-core/databuilder
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # Required to get previous tags
+          fetch-depth: 0
+
+      - name: 'Get Previous tag'
+        id: previoustagref
+        uses: "WyriHaximus/github-action-get-previous-tag@8a0e045f02c0a3a04e1452df58b90fc7e555e950"
+
+      - name: Previous commit
+        id: previoustagcommit
+        # if we are on a tag, should look like `v0.6.0`
+        # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
+        run: echo ::set-output name=tag_describe::`git describe --tags`
+
+      - name: Verify whether we are on a tagged commit, allows us to short-circuit this workflow
+        id: taggedcommit
+        if: ${{ steps.previoustagcommit.outputs.tag_describe == steps.previoustagref.outputs.tag }}
+        run: echo ::set-output name=tag::'y'
+
+      # 'Get Previous tag' should only get version tags, but let's verify that
+      - name: Fail if previous tag is not a version tag (i.e. it does not start with a v)
+        if: ${{ ! startsWith(steps.previoustagref.outputs.tag, 'v') }}
+        run: /bin/false
+
+      # This relies on the tag having a version of the form vX.Y.Z
+      - name: Build image
+        if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
+        run: |
+          PATCH="${{ steps.previoustagref.outputs.tag }}"
+          MAJOR="${PATCH%%.*}"
+          MINOR="${PATCH%.*}"
+
+          echo "MAJOR=$MAJOR"
+          echo "MINOR=$MINOR"
+          echo "PATCH=$PATCH"
+
+          docker build . --file Dockerfile \
+            --tag ${{ env.image }}:$MAJOR \
+            --tag ${{ env.image }}:$MINOR \
+            --tag ${{ env.image }}:$PATCH
+
+      - name: Log into GitHub Container Registry
+        if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
+        run: docker login https://ghcr.io -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push images to GitHub Container Registry
+        if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
+        run: |
+          docker push --all-tags ${{ env.image }}

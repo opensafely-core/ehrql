@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 21.10b0
+    rev: 22.3.0
     hooks:
     - id: black
       language_version: python3.9
@@ -10,19 +10,24 @@ repos:
     hooks:
     - id: flake8
       language_version: python3.9
-      additional_dependencies: [
-        "flake8-builtins",
-        "flake8-implicit-str-concat"
-      ]
+      additional_dependencies:
+        - "flake8-builtins"
+        - "flake8-implicit-str-concat"
+        - "flake8-no-pep420"
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.10.0
+    rev: 5.10.1
     hooks:
     - id: isort
       language_version: python3.9
 
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.32.0
+    hooks:
+    -   id: pyupgrade
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v4.2.0
     hooks:
     - id: trailing-whitespace
     - id: end-of-file-fixer

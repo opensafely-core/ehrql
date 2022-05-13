@@ -4,15 +4,25 @@
 # To generate a requirements file that includes both prod and dev requirements, run:
 # pip-compile --generate-hashes --output-file=requirements.dev.txt requirements.dev.in
 
-pre-commit
 black
+databricks-cli
+docker
 flake8
 flake8-builtins
 flake8-implicit-str-concat
+flake8-no-pep420
+hypothesis
+interrogate
 isort
+networkx
+pandas-stubs
+pip-tools
+pre-commit
+pydocstyle[toml]
 pytest
 pytest-cov
 pytest-freezegun
 pytest-mock
-docker
+pytest-subtests
+pyupgrade
 six # undeclared dependency of docker (https://github.com/docker/docker-py/issues/2842)

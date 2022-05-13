@@ -14,7 +14,7 @@ if [ "$1" = '/opt/mssql/bin/sqlservr' ]; then
     # starting it again.
     function initialize_app_database() {
         timeout=20
-        limit="$((SECONDS + timeout))}"
+        limit="$((SECONDS + timeout))"
         # Run the setup script to create the DB and the schema in the DB
         until /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "Your_password123!" -d master -i /mssql/setup.sql; do
           # Wait a bit for SQL Server to start. SQL Server's process

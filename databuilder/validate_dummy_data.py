@@ -1,0 +1,160 @@
+import csv
+import dataclasses
+import datetime
+import gzip
+
+from databuilder import query_language as ql
+from databuilder.functools_utils import singledispatch_on_value
+from databuilder.query_model import get_series_type
+
+
+class ValidationError(Exception):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class ColumnSpec:
+    type: type  # noqa: A003
+    nullable: bool = True
+
+
+def validate_file_types_match(dummy_filename, output_filename):
+    if get_file_type(dummy_filename) != get_file_type(output_filename):
+        raise ValidationError(
+            f"Dummy data file does not have the same file extension as the output "
+            f"filename:\n"
+            f"Dummy data file: {dummy_filename}\n"
+            f"Output file: {output_filename}"
+        )
+
+
+def validate_dummy_data_file(dataset_definition, filename):
+    column_definitions = ql.compile(dataset_definition)
+    column_specs = get_column_specs(column_definitions)
+
+    file_type, gzipped = get_file_type(filename)
+    if file_type != ".csv":
+        raise ValidationError(f"Unsupported file type: {file_type}")
+
+    open_fn = gzip.open if gzipped else open
+    with open_fn(filename, mode="rt", newline="") as f:
+        validate_csv_against_spec(f, column_specs)
+
+
+def get_file_type(filename):
+    suffixes = filename.suffixes
+    if suffixes and suffixes[-1] == ".gz":
+        gzipped = True
+        suffixes.pop()
+    else:
+        gzipped = False
+    extension = suffixes[-1] if suffixes else ""
+    return extension, gzipped
+
+
+def get_column_specs(column_definitions):
+    # TODO: It may not be universally true that IDs are ints. Internally the EMIS IDs
+    # are SHA512 hashes stored as hex strings which we convert to ints. But we can't
+    # guarantee always to be able to pull this trick.
+    column_specs = {"patient_id": ColumnSpec(int, nullable=False)}
+    for name, series in column_definitions.items():
+        if name == "population":
+            continue
+        column_specs[name] = ColumnSpec(get_series_type(series), nullable=True)
+    return column_specs
+
+
+def validate_csv_against_spec(csv_file, column_specs):
+    reader = csv.DictReader(csv_file)
+    validate_headers(reader.fieldnames, list(column_specs.keys()))
+    empty_columns = set(reader.fieldnames)
+
+    for row_n, row in enumerate(reader, start=1):
+        # DictReader puts any unexpected columns under the key `None`
+        if None in row:
+            raise ValidationError(f"Too many columns on row {row_n}")
+
+        for name, spec in column_specs.items():
+            value = row[name]
+            if value:
+                empty_columns.discard(name)
+            elif value is None:
+                raise ValidationError(f"Too few columns on row {row_n}")
+
+            try:
+                validate_str_against_spec(value, spec)
+            except ValidationError as e:
+                message = f"row {row_n}, column {name!r}: {e}"
+                raise ValidationError(message) from e
+
+    # In the context of dummy data I think that an all-NULL column should be considered
+    # an error, though it might not be strictly speaking invalid
+    if empty_columns:
+        raise ValidationError(f"Columns are empty: {', '.join(empty_columns)}")
+
+
+def validate_headers(headers, expected_headers):
+    headers_set = set(headers)
+    expected_set = set(expected_headers)
+    if headers_set != expected_set:
+        errors = []
+        missing = expected_set - headers_set
+        if missing:
+            errors.append(f"Missing columns: {', '.join(missing)}")
+        extra = headers_set - expected_set
+        if extra:
+            errors.append(f"Unexpected columns: {', '.join(extra)}")
+        raise ValidationError("\n".join(errors))
+    elif headers != expected_headers:
+        # We could be more relaxed about things here, but I think it's worth insisting
+        # that columns be in the same order. We've seen analysis code before which is
+        # sensitive to column ordering.
+        raise ValidationError(
+            f"Headers not in expected order:\n"
+            f"  expected: {', '.join(expected_headers)}\n"
+            f"  found: {', '.join(headers)}"
+        )
+
+
+def validate_str_against_spec(value, spec):
+    if not value:
+        if not spec.nullable:
+            raise ValidationError("NULL value not allowed here")
+        else:
+            return
+    try:
+        validate_str_type(spec.type, value)
+    except ValidationError as e:
+        detail = str(e)
+        raise ValidationError(
+            f"Invalid {spec.type.__name__}{', ' if detail else ''}{detail}: {value}"
+        )
+
+
+@singledispatch_on_value
+def validate_str_type(type_, value):
+    assert False, f"Unhandled type: {type_}"
+
+
+@validate_str_type.register(int)
+@validate_str_type.register(float)
+@validate_str_type.register(str)
+def validate_str_as_type(type_, value):
+    try:
+        type_(value)
+    except (TypeError, ValueError):
+        raise ValidationError
+
+
+@validate_str_type.register(bool)
+def validate_str_as_bool(type_, value):
+    if value not in ("0", "1"):
+        raise ValidationError("must be '0' or '1'")
+
+
+@validate_str_type.register(datetime.date)
+def validate_str_as_date(type_, value):
+    try:
+        datetime.date.fromisoformat(value)
+    except (TypeError, ValueError):
+        raise ValidationError("must be in YYYY-MM-DD format")

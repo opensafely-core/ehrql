@@ -86,7 +86,6 @@ $RECYCLE.BIN/
 
 # Python
 __pycache__
-.python-version
 *.pyc
 
 # Coverage
@@ -101,3 +100,13 @@ htmlcov
 venv/
 sample-researchs
 /.run/private-cohortextractor-v2-sro-measure.run.xml
+
+# Docs
+public_docs.json
+
+# Planning artifacts
+story-dependencies.png
+
+# Build/test byproducts
+cache/
+.hypothesis
