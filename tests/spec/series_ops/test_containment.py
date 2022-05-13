@@ -17,7 +17,7 @@ table_data = {
 def test_is_in(spec_test):
     spec_test(
         table_data,
-        p.i1.is_in(frozenset([101, 301])),
+        p.i1.is_in([101, 301]),
         {
             1: True,
             2: False,
