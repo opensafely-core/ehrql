@@ -53,6 +53,9 @@ class Series:
     def is_null(self):
         return _apply(qm.Function.IsNull, self)
 
+    def is_in(self, other):
+        return _apply(qm.Function.In, self, other)
+
 
 class EventSeries(Series):
     def __init_subclass__(cls, **kwargs):

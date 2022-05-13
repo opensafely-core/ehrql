@@ -219,7 +219,10 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_In(self, node):
-        assert False
+        def op(lhs, rhs):
+            return lhs in rhs
+
+        return self.visit_binary_op_with_null(node, op)
 
     def visit_Categorise(self, node):
         assert False

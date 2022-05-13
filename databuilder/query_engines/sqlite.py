@@ -94,6 +94,12 @@ class SQLiteQueryEngine(BaseQueryEngine):
     def get_sql_is_null(self, node):
         return operators.is_(self.get_sql(node.source), None)
 
+    @get_sql.register(Function.In)
+    def get_sql_in(self, node):
+        lhs = self.get_sql(node.lhs)
+        rhs = self.get_sql(node.rhs)
+        return lhs.in_(rhs)
+
     @get_sql.register(Function.Not)
     def get_sql_not(self, node):
         return sqlalchemy.not_(self.get_sql(node.source))

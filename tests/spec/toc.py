@@ -22,6 +22,7 @@ contents = {
     ],
     "series_ops": [
         "test_equality",
+        "test_containment",
     ],
     "bool_series_ops": [
         "test_logical_ops",
