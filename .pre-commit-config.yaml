@@ -1,15 +1,16 @@
+default_language_version:
+  python: python3.9
+
 repos:
   - repo: https://github.com/psf/black
     rev: 22.3.0
     hooks:
     - id: black
-      language_version: python3.9
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.2
     hooks:
     - id: flake8
-      language_version: python3.9
       additional_dependencies:
         - "flake8-builtins"
         - "flake8-implicit-str-concat"
@@ -19,7 +20,6 @@ repos:
     rev: 5.10.1
     hooks:
     - id: isort
-      language_version: python3.9
 
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.32.0
