@@ -28,7 +28,8 @@ def generate_dataset(
     query_engine = backend.query_engine_class(
         db_url, backend, temporary_database=temporary_database
     )
-    results = extract(dataset, query_engine, backend)
+    backend.validate_contracts()
+    results = extract(dataset, query_engine)
 
     dataset_file.parent.mkdir(parents=True, exist_ok=True)
     write_dataset(results, dataset_file)
@@ -105,17 +106,15 @@ def add_to_sys_path(directory):
         sys.path = original
 
 
-def extract(dataset_definition, query_engine, backend):
+def extract(dataset_definition, query_engine):
     """
     Extracts the dataset from the backend specified
     Args:
         dataset_definition: The definition of the Dataset
         query_engine: The Query Engine with which the Dataset is being extracted
-        backend: The Backend that the Dataset is being extracted from
     Returns:
         Yields the dataset as rows
     """
-    backend.validate_contracts()
     dataset = ql.compile(dataset_definition)
     with query_engine.execute_query(dataset) as results:
         for row in results:
