@@ -69,6 +69,9 @@ def backend_factory(query_engine_cls):
             implements=contracts.PatientLevelTable,
             source="patient_level_table",
             columns=dict(
+                # Temporarily add an explicit patient_id column while this table is part
+                # of a backend with a different default patient_id column
+                patient_id=Column("integer", source="patient_id"),
                 i1=Column("integer", source="i1"),
                 i2=Column("integer", source="i2"),
                 b1=Column("boolean", source="b1"),
@@ -82,6 +85,9 @@ def backend_factory(query_engine_cls):
             implements=contracts.EventLevelTable,
             source="event_level_table",
             columns=dict(
+                # Temporarily add an explicit patient_id column while this table is part
+                # of a backend with a different default patient_id column
+                patient_id=Column("integer", source="patient_id"),
                 i1=Column("integer", source="i1"),
                 i2=Column("integer", source="i2"),
                 b1=Column("boolean", source="b1"),
@@ -187,7 +193,7 @@ def patient(
 class PatientLevelTable(Base):
     __tablename__ = "patient_level_table"
     Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
-    PatientId = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    patient_id = sqlalchemy.Column(sqlalchemy.Integer, default=null)
     i1 = sqlalchemy.Column(sqlalchemy.Integer, default=null)
     i2 = sqlalchemy.Column(sqlalchemy.Integer, default=null)
     b1 = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
@@ -200,7 +206,7 @@ class PatientLevelTable(Base):
 class EventLevelTable(Base):
     __tablename__ = "event_level_table"
     Id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, default=next_id)
-    PatientId = sqlalchemy.Column(sqlalchemy.Integer, default=null)
+    patient_id = sqlalchemy.Column(sqlalchemy.Integer, default=null)
     i1 = sqlalchemy.Column(sqlalchemy.Integer, default=null)
     i2 = sqlalchemy.Column(sqlalchemy.Integer, default=null)
     b1 = sqlalchemy.Column(sqlalchemy.Boolean, default=null)

@@ -28,12 +28,12 @@ from ..lib.mock_backend import EventLevelTable
 #
 def test_sort_without_using_chained_operations(engine):
     engine.setup(
-        EventLevelTable(PatientId=1, i1=101, i2=3),
-        EventLevelTable(PatientId=1, i1=102, i2=2),
-        EventLevelTable(PatientId=1, i1=102, i2=1),
-        EventLevelTable(PatientId=2, i1=203, i2=1),
-        EventLevelTable(PatientId=2, i1=202, i2=2),
-        EventLevelTable(PatientId=2, i1=202, i2=3),
+        EventLevelTable(patient_id=1, i1=101, i2=3),
+        EventLevelTable(patient_id=1, i1=102, i2=2),
+        EventLevelTable(patient_id=1, i1=102, i2=1),
+        EventLevelTable(patient_id=2, i1=203, i2=1),
+        EventLevelTable(patient_id=2, i1=202, i2=2),
+        EventLevelTable(patient_id=2, i1=202, i2=3),
     )
 
     table = SelectTable("event_level_table")
@@ -59,9 +59,9 @@ def test_sort_without_using_chained_operations(engine):
 #
 def test_multiple_takes_without_chaining(engine):
     engine.setup(
-        EventLevelTable(PatientId=1, i1=1, b1=True),
-        EventLevelTable(PatientId=1, i1=2, b1=True),
-        EventLevelTable(PatientId=1, i1=3, b1=False),
+        EventLevelTable(patient_id=1, i1=1, b1=True),
+        EventLevelTable(patient_id=1, i1=2, b1=True),
+        EventLevelTable(patient_id=1, i1=3, b1=False),
     )
 
     table = SelectTable("event_level_table")
