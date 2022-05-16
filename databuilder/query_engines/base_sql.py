@@ -588,7 +588,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     #
     @cached_property
     def engine(self):
-        engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
+        engine_url = sqlalchemy.engine.make_url(self.dsn)
         # Hardcode the specific SQLAlchemy dialect we want to use: this is the
         # dialect the query engine will have been written for and tested with and we
         # don't want to allow global config changes to alter this

@@ -59,20 +59,20 @@ class QueryEngineFixture:
     def setup(self, *items, metadata=None):
         return self.database.setup(*items, metadata=metadata)
 
-    def extract(self, dataset, **backend_kwargs):
-        results = list(
-            main.extract(
-                dataset, self.backend(self.database.host_url(), **backend_kwargs)
-            )
+    def extract(self, dataset, **engine_kwargs):
+        backend = self.backend()
+        query_engine = self.query_engine_class(
+            self.database.host_url(), backend, **engine_kwargs
         )
+        results = list(main.extract(dataset, query_engine, backend))
         # We don't explicitly order the results and not all databases naturally return
         # in the same order
         results.sort(key=lambda i: i["patient_id"])
         return results
 
     def extract_qm(self, variables):
-        backend = self.backend(self.database.host_url())
-        query_engine = self.query_engine_class(backend)
+        backend = self.backend()
+        query_engine = self.query_engine_class(self.database.host_url(), backend)
         with query_engine.execute_query(variables) as results:
             result = list(dict(row) for row in results)
             result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering

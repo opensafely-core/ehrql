@@ -47,7 +47,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         # a database to connect to.  Since our database is just an object in our
         # process, we instantiate this engine with an instance of the database.  See
         # InMemoryDatabase.host_url.
-        return self.backend.database_url
+        return self.dsn
 
     @property
     def tables(self):

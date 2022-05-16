@@ -49,7 +49,7 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
     @contextlib.contextmanager
     def execute_query(self, column_definitions):
         """Execute a query against an MSSQL backend"""
-        if self.backend.temporary_database:
+        if self.temporary_database:
             # If we've got access to a temporary database then we use this
             # function to manage storing our results in there and downloading
             # in batches. This gives us the illusion of having a robust
@@ -65,7 +65,7 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
                 engine=self.engine,
                 queries=setup_queries + [results_query],
                 # The double dot syntax allows us to reference tables in another database
-                temp_table_prefix=f"{self.backend.temporary_database}..TempExtract",
+                temp_table_prefix=f"{self.temporary_database}..TempExtract",
                 # This value was copied from the previous cohortextractor. I
                 # suspect it has no real scientific basis.
                 batch_size=32000,

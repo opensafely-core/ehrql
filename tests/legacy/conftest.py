@@ -11,19 +11,22 @@ from .query_model_convert_to_new import convert as convert_to_new
 # old-style cohort definitions. This allows us to retain these old test cases as a harness while we
 # refactor the Query Engine.
 class LegacyQueryEngineFixture(QueryEngineFixture):
-    def build_engine(self, **backend_kwargs):
-        backend = self.backend(self.database.host_url(), **backend_kwargs)
-        return backend.query_engine_class(backend)
+    def build_engine(self, **engine_kwargs):
+        backend = self.backend()
+        return backend.query_engine_class(
+            self.database.host_url(), backend, **engine_kwargs
+        )
 
-    def extract(self, cohort, **backend_kwargs):
-        with self._execute(cohort, **backend_kwargs) as results:
+    def extract(self, cohort, **engine_kwargs):
+        cohort = self._convert(cohort)
+        return self.extract_qm(cohort, **engine_kwargs)
+
+    def extract_qm(self, cohort, **engine_kwargs):
+        query_engine = self.build_engine(**engine_kwargs)
+        with query_engine.execute_query(cohort) as results:
             result = list(dict(row) for row in results)
             result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering
             return result
-
-    def _execute(self, cohort, **backend_kwargs):
-        converted = self._convert(cohort)
-        return self.build_engine(**backend_kwargs).execute_query(converted)
 
     @staticmethod
     def _convert(cohort):

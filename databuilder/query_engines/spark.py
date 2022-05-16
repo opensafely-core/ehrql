@@ -60,7 +60,7 @@ class SparkQueryEngine(BaseSQLQueryEngine):
         return True
 
     def get_temp_database(self):
-        return self.backend.temporary_database
+        return self.temporary_database
 
     def _convert_date_diff_to_days(
         self, start, end
