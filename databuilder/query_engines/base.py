@@ -5,18 +5,17 @@ class BaseQueryEngine:
     language (SQL, pandas dataframes etc).
     """
 
-    def __init__(self, column_definitions, backend):
+    def __init__(self, backend):
+        """
+        `backend` is a Backend instance
+        """
+        self.backend = backend
+
+    def execute_query(self, column_definitions):
         """
         `column_definitions` is a dictionary mapping output column names to
         query model graphs which specify the queries used to populate them
 
-        `backend` is a Backend instance
-        """
-        self.column_definitions = column_definitions
-        self.backend = backend
-
-    def execute_query(self):
-        """
         Override this method to do the things necessary to generate query code and execute
         it against a particular backend
         """

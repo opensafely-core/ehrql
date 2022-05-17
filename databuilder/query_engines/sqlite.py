@@ -296,8 +296,8 @@ class SQLiteQueryEngine(BaseQueryEngine):
         return query
 
     @contextlib.contextmanager
-    def execute_query(self):
-        results_query = self.get_query(self.column_definitions)
+    def execute_query(self, variable_definitions):
+        results_query = self.get_query(variable_definitions)
         with self.engine.connect() as cursor:
             yield cursor.execute(results_query)
 

@@ -66,7 +66,7 @@ def test_connection(backend, url):
     from sqlalchemy import select
 
     backend = BACKENDS[backend](url, temporary_database=None)
-    query_engine = backend.query_engine_class({}, backend)
+    query_engine = backend.query_engine_class(backend)
     with query_engine.engine.connect() as connection:
         connection.execute(select(1))
     print("SUCCESS")
@@ -112,8 +112,8 @@ def extract(dataset_definition, backend):
     """
     backend.validate_contracts()
     dataset = ql.compile(dataset_definition)
-    query_engine = backend.query_engine_class(dataset, backend)
-    with query_engine.execute_query() as results:
+    query_engine = backend.query_engine_class(backend)
+    with query_engine.execute_query(dataset) as results:
         for row in results:
             yield dict(row)
 
@@ -121,8 +121,10 @@ def extract(dataset_definition, backend):
 def validate(dataset_class, backend):
     try:
         dataset = ql.compile(dataset_class)
-        query_engine = backend.query_engine_class(dataset, backend)
-        setup_queries, results_query, cleanup_queries = query_engine.get_queries()
+        query_engine = backend.query_engine_class(backend)
+        setup_queries, results_query, cleanup_queries = query_engine.get_queries(
+            dataset
+        )
         return setup_queries + [results_query] + cleanup_queries
     except Exception:  # pragma: no cover (puzzle: dataset definition that compiles to QM but not SQL)
         log.error("Validation failed")

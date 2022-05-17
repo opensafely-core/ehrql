@@ -47,7 +47,7 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
         return False
 
     @contextlib.contextmanager
-    def execute_query(self):
+    def execute_query(self, column_definitions):
         """Execute a query against an MSSQL backend"""
         if self.backend.temporary_database:
             # If we've got access to a temporary database then we use this
@@ -55,7 +55,9 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
             # in batches. This gives us the illusion of having a robust
             # connection to the database, whereas in practice in frequently
             # errors out when attempting to download large sets of results.
-            setup_queries, results_query, cleanup_queries = self.get_queries()
+            setup_queries, results_query, cleanup_queries = self.get_queries(
+                column_definitions
+            )
             # We're not expecting to have any cleanup to do here because we should be
             # using session-scoped temporary tables
             assert not cleanup_queries
@@ -75,7 +77,7 @@ class MssqlQueryEngine(BaseSQLQueryEngine):
         else:
             # Otherwise we just execute the queries and download the results in
             # the normal manner
-            with super().execute_query() as results:
+            with super().execute_query(column_definitions) as results:
                 yield results
 
     def _convert_date_diff_to_days(
