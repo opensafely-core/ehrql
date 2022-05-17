@@ -8,6 +8,7 @@ contents = {
     "sort_and_pick": [
         "test_sort_by_column_and_pick",
         "test_sort_by_multiple_columns_and_pick",
+        "test_sort_by_column_with_nulls_and_pick",
     ],
     "aggregate_frame": [
         "test_exists_for_patient",
