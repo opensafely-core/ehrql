@@ -80,7 +80,9 @@ def test_multiple_takes_without_chaining(engine):
     }
 
 
-def test_handles_degenerate_poppulaton(engine):
+def test_handles_degenerate_population(engine):
+    # Specifying a population of "False" is obviously silly, but it's more work to
+    # identify and reject just this kind of silliness than it is to handle it gracefully
     engine.setup(metadata=sqlalchemy.MetaData())
     variables = dict(
         population=Value(False),
