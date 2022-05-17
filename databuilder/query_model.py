@@ -192,7 +192,7 @@ class Filter(ManyRowsPerPatientFrame):
 
 class Sort(SortedFrame):
     source: ManyRowsPerPatientFrame
-    sort_by: Series[Any]
+    sort_by: Series[Comparable]
 
 
 class PickOneRowPerPatient(OneRowPerPatientFrame):

@@ -27,7 +27,7 @@ from databuilder.query_model import (
     has_one_row_per_patient,
 )
 
-EVENTS_SCHEMA = TableSchema(date=datetime.date, code=str)
+EVENTS_SCHEMA = TableSchema(date=datetime.date, code=str, flag=bool)
 
 
 # TEST BASIC QUERY MODEL PROPERTIES
@@ -311,6 +311,13 @@ def test_cannot_pick_row_from_unsorted_table():
     events = SelectTable("events")
     with pytest.raises(TypeValidationError):
         PickOneRowPerPatient(events, Position.FIRST)  # type: ignore
+
+
+def test_cannot_sort_by_non_comparable_type():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    bool_column = SelectColumn(events, "flag")
+    with pytest.raises(TypeValidationError):
+        Sort(events, bool_column)
 
 
 def test_cannot_pass_argument_without_wrapping_in_value():
