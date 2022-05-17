@@ -236,7 +236,7 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
         # Add an extra "row number" column to the query which gives the position of each
         # row within its patient_id partition as implied by the order clauses
-        order_clauses = self.get_order_clauses(node.source)
+        order_clauses = [self.get_sql(c) for c in get_sort_conditions(node.source)]
         if node.position == Position.LAST:
             order_clauses = [c.desc() for c in order_clauses]
         query = query.add_columns(
@@ -261,17 +261,6 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
         return self.reify_query(partitioned_query)
 
-    def get_order_clauses(self, frame):
-        """
-        Given a ManyRowsPerPatientFrame return the order_by clauses created by any Sort
-        operations which have been applied
-        """
-        _, _, sorts = get_frame_operations(frame)
-        # Sort operations are given to us in order of application which is the reverse
-        # of order of priority (i.e. the most recently applied sort gives us the primary
-        # sort condition)
-        return [self.get_sql(s.sort_by) for s in reversed(sorts)]
-
     def reify_query(self, query):
         """
         By "reify" we just mean turning a SELECT query into something that can function
@@ -287,9 +276,9 @@ class SQLiteQueryEngine(BaseQueryEngine):
         domain of that node
         """
         frame = get_domain(node).get_node()
-        root_frame, filters, _ = get_frame_operations(frame)
-        table = self.get_sql(root_frame)
-        where_clauses = [self.get_sql(f.condition) for f in filters]
+        select_table, conditions = get_table_and_filter_conditions(frame)
+        table = self.get_sql(select_table)
+        where_clauses = [self.get_sql(condition) for condition in conditions]
         query = sqlalchemy.select([table.c.patient_id])
         if where_clauses:
             query = query.where(sqlalchemy.and_(*where_clauses))
@@ -347,6 +336,26 @@ def select_all_columns_from_base_table(query):
     already_selected = {c.name for c in query.selected_columns}
     other_columns = [c for c in base_table.c.values() if c.name not in already_selected]
     return query.add_columns(*other_columns)
+
+
+def get_table_and_filter_conditions(frame):
+    """
+    Given a ManyRowsPerPatientFrame, return a base SelectTable operation and a list of
+    filter conditions (or predicates) to be applied
+    """
+    root_frame, filters, _ = get_frame_operations(frame)
+    return root_frame, [f.condition for f in filters]
+
+
+def get_sort_conditions(frame):
+    """
+    Given a SortedFrame, return a tuple of Series which gives the sort order
+    """
+    _, _, sorts = get_frame_operations(frame)
+    # Sort operations are given to us in order of application which is the reverse of
+    # order of priority (i.e. the most recently applied sort gives us the primary sort
+    # condition) so we reverse them here
+    return tuple(s.sort_by for s in reversed(sorts))
 
 
 def get_frame_operations(frame):
