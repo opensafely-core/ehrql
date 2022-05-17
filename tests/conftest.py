@@ -13,7 +13,6 @@ from .lib.databases import (
 )
 from .lib.docker import Containers
 from .lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
-from .lib.mock_backend import backend_factory
 from .lib.study import Study
 
 
@@ -55,14 +54,13 @@ class QueryEngineFixture:
         self.name = name
         self.database = database
         self.query_engine_class = query_engine_class
-        self.backend = backend_factory(query_engine_class)
 
     def setup(self, *items, metadata=None):
         return self.database.setup(*items, metadata=metadata)
 
     def extract(self, dataset, **engine_kwargs):
         query_engine = self.query_engine_class(
-            self.database.host_url(), self.backend(), **engine_kwargs
+            self.database.host_url(), backend=None, **engine_kwargs
         )
         results = list(main.extract(dataset, query_engine))
         # We don't explicitly order the results and not all databases naturally return
@@ -71,7 +69,7 @@ class QueryEngineFixture:
         return results
 
     def extract_qm(self, variables):
-        query_engine = self.query_engine_class(self.database.host_url(), self.backend())
+        query_engine = self.query_engine_class(self.database.host_url(), backend=None)
         with query_engine.execute_query(variables) as results:
             result = list(dict(row) for row in results)
             result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering
