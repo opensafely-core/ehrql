@@ -181,10 +181,9 @@ for type_ in AGGREGATE_MAP.keys():
 
 
 @convert_node.register
-def convert_categorise(node: new.Categorise):
+def convert_case(node: new.Case):
     definitions = {
-        convert_value(key): convert_node(value)
-        for key, value in node.categories.items()
+        convert_value(key): convert_node(value) for key, value in node.cases.items()
     }
     if node.default is not None:
         default = convert_value(node.default)

@@ -5,7 +5,7 @@ from functools import singledispatch
 
 from databuilder.query_model import (
     AggregateByPatient,
-    Categorise,
+    Case,
     Function,
     SelectColumn,
     Series,
@@ -155,9 +155,9 @@ def evaluate_or(node):
         return None
 
 
-@evaluate.register(Categorise)
-def evaluate_categorise(node):
-    for value, condition in node.categories.items():
+@evaluate.register(Case)
+def evaluate_case(node):
+    for value, condition in node.cases.items():
         if evaluate(condition) is True:
             return evaluate(value)
     if node.default is not None:
