@@ -1,18 +1,21 @@
+import pytest
 import sqlalchemy
 
 from databuilder.query_model import (
     AggregateByPatient,
+    Case,
     Filter,
     Function,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
+    SelectPatientTable,
     SelectTable,
     Sort,
     Value,
 )
 
-from ..lib.mock_backend import EventLevelTable
+from ..lib.mock_backend import EventLevelTable, PatientLevelTable
 
 
 # The in-memory query engine does not currently work with multiple sort operations where
@@ -89,3 +92,37 @@ def test_handles_degenerate_population(engine):
         v=Value(1),
     )
     assert engine.extract_qm(variables) == []
+
+
+@pytest.mark.parametrize("default", [None, "is_default"])
+def test_case_operation(engine, default):
+    engine.setup(
+        PatientLevelTable(PatientId=1, i1=1),
+        PatientLevelTable(PatientId=2, i1=2),
+        PatientLevelTable(PatientId=3, i1=3),
+        PatientLevelTable(PatientId=4, i1=None),
+    )
+
+    table = SelectPatientTable("patient_level_table")
+    i1 = SelectColumn(table, "i1")
+    case_operation = Case(
+        {
+            Function.LT(i1, Value(2)): Value("less_than_two"),
+            Function.EQ(i1, Value(2)): Value("equals_two"),
+            Function.GT(i1, Value(2)): Value("greater_than_two"),
+        },
+        default=Value(default) if default is not None else None,
+    )
+
+    variables = dict(
+        population=AggregateByPatient.Exists(table),
+        v=case_operation,
+    )
+
+    results = {r["patient_id"]: r["v"] for r in engine.extract_qm(variables)}
+    assert results == {
+        1: "less_than_two",
+        2: "equals_two",
+        3: "greater_than_two",
+        4: default,
+    }

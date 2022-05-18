@@ -7,6 +7,7 @@ from sqlalchemy.sql import operators
 
 from databuilder.query_model import (
     AggregateByPatient,
+    Case,
     Filter,
     Function,
     Position,
@@ -158,6 +159,18 @@ class SQLiteQueryEngine(BaseQueryEngine):
     def get_sql_select_column(self, node):
         source = self.get_sql(node.source)
         return source.c[node.name]
+
+    @get_sql.register(Case)
+    def get_sql_case(self, node):
+        cases = [
+            (self.get_sql(condition), self.get_sql(value))
+            for (condition, value) in node.cases.items()
+        ]
+        if node.default is not None:
+            default = self.get_sql(node.default)
+        else:
+            default = None
+        return sqlalchemy.case(*cases, else_=default)
 
     # We have to apply caching here otherwise we generate distinct objects representing
     # the same table and this confuses SQLAlchemy into generating queries with ambiguous
