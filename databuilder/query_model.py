@@ -317,7 +317,7 @@ class Function:
 
 class Case(Series[T]):
     cases: Mapping[Series[bool], Series[T]]
-    default: Optional[Series[T]]
+    default: Optional[Series[T]] = None
 
     def __hash__(self):
         # `cases` is a dict and so not hashable by default, but we treat it as
