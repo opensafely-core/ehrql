@@ -295,7 +295,10 @@ class Column:
             # values are given the same position or else the resulting sort_index will
             # overspecify the order and we lose the stability of the sort operation
             value_to_position = {
-                value: position for (position, value) in enumerate(sorted(set(vv)))
+                value: position
+                for (position, value) in enumerate(
+                    sorted(set(vv), key=nulls_first_order)
+                )
             }
             return [value_to_position[v] for v in vv]
 
@@ -336,3 +339,8 @@ def handle_null(fn):
 
 def parse_value(value):
     return int(value) if value else None
+
+
+def nulls_first_order(key):
+    # Usable as a key function to `sorted()` which sorts NULLs first
+    return (0 if key is None else 1, key)
