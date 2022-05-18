@@ -75,6 +75,8 @@ def parse_value(col_name, value):
         parse = int
     elif col_name[0] == "b":
         parse = lambda v: {"T": True, "F": False}[v]  # noqa E731
+    elif col_name[0] == "c":
+        parse = str
     else:
         assert False
 

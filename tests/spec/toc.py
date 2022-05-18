@@ -22,6 +22,7 @@ contents = {
     ],
     "series_ops": [
         "test_equality",
+        "test_containment",
     ],
     "bool_series_ops": [
         "test_logical_ops",
@@ -29,5 +30,8 @@ contents = {
     "int_series_ops": [
         "test_arithmetic_ops",
         "test_comparison_ops",
+    ],
+    "code_series_ops": [
+        "test_containment",
     ],
 }

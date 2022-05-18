@@ -2,6 +2,7 @@ import dataclasses
 import datetime
 
 from databuilder import query_model as qm
+from databuilder.codes import BaseCode
 from databuilder.population_validation import validate_population_definition
 from databuilder.query_model import get_series_type, has_one_row_per_patient
 
@@ -52,6 +53,13 @@ class Series:
 
     def is_null(self):
         return _apply(qm.Function.IsNull, self)
+
+    def is_in(self, other):
+        # The query model requires an immutable Set type for containment queries, but
+        # that's a bit user-unfriendly so we accept other types here and convert them
+        if isinstance(other, (tuple, list, set)):
+            other = frozenset(other)
+        return _apply(qm.Function.In, self, other)
 
 
 class EventSeries(Series):
@@ -188,6 +196,19 @@ class DatePatientSeries(DateFunctions, PatientSeries):
     _type = datetime.date
 
 
+# CODE SERIES
+#
+
+# For now we treat Codes as totally opaque objects and so Code series get no functions
+# or aggregations beyond those common to all series
+class CodeEventSeries(EventSeries):
+    _type = BaseCode
+
+
+class CodePatientSeries(PatientSeries):
+    _type = BaseCode
+
+
 # CONVERT QUERY MODEL SERIES TO EHRQL SERIES
 #
 
@@ -199,7 +220,18 @@ def _wrap(qm_node):
     """
     type_ = get_series_type(qm_node)
     is_patient_level = has_one_row_per_patient(qm_node)
-    cls = REGISTERED_TYPES[type_, is_patient_level]
+    try:
+        cls = REGISTERED_TYPES[type_, is_patient_level]
+    except KeyError:
+        # If we don't have a match for exactly this type then we should have one for a
+        # superclass
+        matches = [
+            cls
+            for ((target_type, target_dimension), cls) in REGISTERED_TYPES.items()
+            if issubclass(type_, target_type) and is_patient_level == target_dimension
+        ]
+        assert len(matches) == 1
+        cls = matches[0]
     return cls(qm_node)
 
 

@@ -1,5 +1,7 @@
 from datetime import date
 
+import pytest
+
 from databuilder.query_language import (
     Dataset,
     DateEventSeries,
@@ -13,6 +15,7 @@ from databuilder.query_model import (
     SelectPatientTable,
     SelectTable,
     TableSchema,
+    TypeValidationError,
     Value,
 )
 
@@ -117,3 +120,16 @@ class TestDateSeries:
         assert_produces(
             DateEventSeries(qm_date_series).year, Function.YearFromDate(qm_date_series)
         )
+
+
+def test_is_in():
+    int_series = IntEventSeries(qm_int_series)
+    assert_produces(
+        int_series.is_in([1, 2]), Function.In(qm_int_series, Value(frozenset([1, 2])))
+    )
+
+
+def test_passing_a_single_value_to_is_in_raises_error():
+    int_series = IntEventSeries(qm_int_series)
+    with pytest.raises(TypeValidationError):
+        int_series.is_in(1)

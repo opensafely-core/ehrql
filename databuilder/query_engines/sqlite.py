@@ -80,7 +80,17 @@ class SQLiteQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Value)
     def get_sql_value(self, node):
-        return sqlalchemy.literal(node.value)
+        if isinstance(node.value, frozenset):
+            value = tuple(self.convert_value(v) for v in node.value)
+        else:
+            value = self.convert_value(node.value)
+        return sqlalchemy.literal(value)
+
+    def convert_value(self, value):
+        if hasattr(value, "_to_primitive_type"):
+            return value._to_primitive_type()
+        else:
+            return value
 
     @get_sql.register(Function.EQ)
     def get_sql_eq(self, node):
@@ -93,6 +103,12 @@ class SQLiteQueryEngine(BaseQueryEngine):
     @get_sql.register(Function.IsNull)
     def get_sql_is_null(self, node):
         return operators.is_(self.get_sql(node.source), None)
+
+    @get_sql.register(Function.In)
+    def get_sql_in(self, node):
+        lhs = self.get_sql(node.lhs)
+        rhs = self.get_sql(node.rhs)
+        return lhs.in_(rhs)
 
     @get_sql.register(Function.Not)
     def get_sql_not(self, node):

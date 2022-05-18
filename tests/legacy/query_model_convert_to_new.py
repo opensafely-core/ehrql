@@ -10,6 +10,7 @@ import re
 from functools import cache, singledispatch
 
 from databuilder import query_model as new
+from databuilder.codes import CTV3Code
 
 from . import query_model_old as old
 
@@ -180,7 +181,8 @@ def convert_comparator(node: old.Comparator):
 @convert_node.register
 def convert_codelist(node: old.Codelist):
     assert not node.has_categories
-    code_set = frozenset(new.Code(code, system=node.system) for code in node.codes)
+    assert node.system == "ctv3"
+    code_set = frozenset(CTV3Code(code) for code in node.codes)
     return new.Value(code_set)
 
 
