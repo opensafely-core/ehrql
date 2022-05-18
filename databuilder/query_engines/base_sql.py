@@ -136,7 +136,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # See docstring on `get_sql_element` for details on this
         self.sql_element_cache: dict[QueryNode, ClauseElement] = {}
 
-    def get_queries(self):
+    def get_queries(self, column_definitions):
         """
         Build the list of SQL queries to execute
 
@@ -144,8 +144,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
             list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
         """
-        column_definitions = self.column_definitions
-
         # Check that we are being passed the new-style query model and convert it to
         # the old, which we use internally for now.
         assert isinstance(list(column_definitions.values())[0], query_model.Node)
@@ -199,8 +197,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return setup_queries, results_query, cleanup_queries
 
     @contextlib.contextmanager
-    def execute_query(self):
-        setup_queries, results_query, cleanup_queries = self.get_queries()
+    def execute_query(self, column_definitions):
+        setup_queries, results_query, cleanup_queries = self.get_queries(
+            column_definitions
+        )
         with self.engine.connect() as cursor:
             for query in setup_queries:
                 cursor.execute(query)
@@ -588,7 +588,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     #
     @cached_property
     def engine(self):
-        engine_url = sqlalchemy.engine.make_url(self.backend.database_url)
+        engine_url = sqlalchemy.engine.make_url(self.dsn)
         # Hardcode the specific SQLAlchemy dialect we want to use: this is the
         # dialect the query engine will have been written for and tested with and we
         # don't want to allow global config changes to alter this

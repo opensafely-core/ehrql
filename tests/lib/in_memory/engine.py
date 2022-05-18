@@ -19,7 +19,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
     """
 
     @contextlib.contextmanager
-    def execute_query(self):
+    def execute_query(self, variable_definitions):
         name_to_col = {
             "patient_id": Column(
                 {patient: [patient] for patient in self.all_patients},
@@ -27,7 +27,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
             )
         }
 
-        for name, node in self.column_definitions.items():
+        for name, node in variable_definitions.items():
             col = self.visit(node)
             assert not col.any_patient_has_multiple_values()
             name_to_col[name] = col
@@ -47,7 +47,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         # a database to connect to.  Since our database is just an object in our
         # process, we instantiate this engine with an instance of the database.  See
         # InMemoryDatabase.host_url.
-        return self.backend.database_url
+        return self.dsn
 
     @property
     def tables(self):

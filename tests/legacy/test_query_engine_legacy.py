@@ -22,10 +22,7 @@ class OldCohortWithPopulation:
 
 
 def test_query_engine_caches_sql_engine(engine):
-    class EmptyCohort:
-        pass
-
-    query_engine = engine.build_engine(EmptyCohort)
+    query_engine = engine.build_engine()
     # Check that the property caches the results and gives us the same object each time
     sql_engine_1 = query_engine.engine
     sql_engine_2 = query_engine.engine

@@ -16,10 +16,6 @@ class BaseBackend:
     patient_join_column = None
     tables = None
 
-    def __init__(self, database_url, temporary_database=None):
-        self.database_url = database_url
-        self.temporary_database = temporary_database
-
     def __init_subclass__(cls, **kwargs):
         assert cls.backend_id is not None
         assert cls.query_engine_class is not None

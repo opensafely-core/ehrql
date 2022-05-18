@@ -5,18 +5,22 @@ class BaseQueryEngine:
     language (SQL, pandas dataframes etc).
     """
 
-    def __init__(self, column_definitions, backend):
+    def __init__(self, dsn, backend, temporary_database=None):
+        """
+        `dsn` is  Data Source Name — a string (usually a URL) which provides connection
+            details to a data source (usually a RDBMS)
+        `backend` is a Backend instance
+        """
+        self.dsn = dsn
+        self.backend = backend
+        # TODO: Not sure this belongs here but let's worry about that later
+        self.temporary_database = temporary_database
+
+    def execute_query(self, column_definitions):
         """
         `column_definitions` is a dictionary mapping output column names to
         query model graphs which specify the queries used to populate them
 
-        `backend` is a Backend instance
-        """
-        self.column_definitions = column_definitions
-        self.backend = backend
-
-    def execute_query(self):
-        """
         Override this method to do the things necessary to generate query code and execute
         it against a particular backend
         """
