@@ -19,6 +19,13 @@ from databuilder.query_model import get_series_type, has_one_row_per_patient
 REGISTERED_TYPES = {}
 
 
+# Because ehrQL classes override `__eq__` we can't use them as dictionary keys. So where
+# the query model expects dicts we represent them as lists of pairs, which the
+# `_apply()` function can convert to dicts when it passes them to the query model.
+class _DictArg(list):
+    "Internal class for passing around dictionary arguments"
+
+
 class Dataset:
     def set_population(self, population):
         validate_population_definition(population.qm_node)
@@ -60,6 +67,16 @@ class Series:
         if isinstance(other, (tuple, list, set)):
             other = frozenset(other)
         return _apply(qm.Function.In, self, other)
+
+    def map_values(self, mapping):
+        """
+        Accepts a dictionary mapping one set of values to another and applies that
+        mapping to the series
+        """
+        cases = _DictArg(
+            (self == from_value, to_value) for from_value, to_value in mapping.items()
+        )
+        return _apply(qm.Case, cases)
 
 
 class EventSeries(Series):
@@ -248,8 +265,11 @@ def _apply(qm_cls, *args):
 
 
 def _convert(arg):
+    # Unpack dictionary arguments
+    if isinstance(arg, _DictArg):
+        return {_convert(key): _convert(value) for key, value in arg}
     # If it's an ehrQL series then get the wrapped query model node
-    if isinstance(arg, Series):
+    elif isinstance(arg, Series):
         return arg.qm_node
     # Otherwise it's a static value and needs to be put in a query model Value wrapper
     else:

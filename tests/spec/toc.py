@@ -24,6 +24,7 @@ contents = {
     "series_ops": [
         "test_equality",
         "test_containment",
+        "test_map_values",
     ],
     "bool_series_ops": [
         "test_logical_ops",
