@@ -241,15 +241,19 @@ def _apply(qm_cls, *args):
     series or static values, returns an ehrQL series
     """
     # Convert all arguments into query model nodes
-    qm_args = [
-        # If it's an ehrQL series then get the wrapped query model node, otherwise it's
-        # a static value and needs to be put in query model Value wrapper
-        arg.qm_node if isinstance(arg, Series) else qm.Value(arg)
-        for arg in args
-    ]
+    qm_args = map(_convert, args)
     qm_node = qm_cls(*qm_args)
     # Wrap the resulting node back up in an ehrQL series
     return _wrap(qm_node)
+
+
+def _convert(arg):
+    # If it's an ehrQL series then get the wrapped query model node
+    if isinstance(arg, Series):
+        return arg.qm_node
+    # Otherwise it's a static value and needs to be put in a query model Value wrapper
+    else:
+        return qm.Value(arg)
 
 
 # FRAME TYPES
