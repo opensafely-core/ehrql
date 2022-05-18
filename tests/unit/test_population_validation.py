@@ -166,8 +166,8 @@ cases = [
         "bar",
         Case(
             {
-                Value("foo"): Function.EQ(patients_value, Value(1)),
-                Value("bar"): Function.EQ(Value(1), Value(1)),
+                Function.EQ(patients_value, Value(1)): Value("foo"),
+                Function.EQ(Value(1), Value(1)): Value("bar"),
             },
             default=None,
         ),
@@ -176,8 +176,8 @@ cases = [
         "baz",
         Case(
             {
-                Value("foo"): Function.EQ(patients_value, Value(1)),
-                Value("bar"): Function.EQ(patients_value, Value(2)),
+                Function.EQ(patients_value, Value(1)): Value("foo"),
+                Function.EQ(patients_value, Value(2)): Value("bar"),
             },
             default=Value("baz"),
         ),
@@ -186,8 +186,8 @@ cases = [
         None,
         Case(
             {
-                Value("foo"): Function.EQ(patients_value, Value(1)),
-                Value("bar"): Function.EQ(patients_value, Value(2)),
+                Function.EQ(patients_value, Value(1)): Value("foo"),
+                Function.EQ(patients_value, Value(2)): Value("bar"),
             },
             default=None,
         ),

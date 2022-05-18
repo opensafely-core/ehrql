@@ -157,7 +157,7 @@ def evaluate_or(node):
 
 @evaluate.register(Case)
 def evaluate_case(node):
-    for value, condition in node.cases.items():
+    for condition, value in node.cases.items():
         if evaluate(condition) is True:
             return evaluate(value)
     if node.default is not None:

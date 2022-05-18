@@ -316,7 +316,7 @@ class Function:
 
 
 class Case(Series[T]):
-    cases: Mapping[Series[T], Series[bool]]
+    cases: Mapping[Series[bool], Series[T]]
     default: Optional[Series[T]]
 
     def __hash__(self):
