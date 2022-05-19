@@ -221,15 +221,27 @@ cases = [
         Function.DayFromDate(Value(datetime.date(2022, 4, 29))),
     ),
     (
-        3,
+        29,
         Function.DateDifferenceInYears(
-            Value(datetime.date(2020, 2, 29)), Value(datetime.date(2023, 3, 1))
+            Value(datetime.date(1990, 1, 30)), Value(datetime.date(2020, 1, 15))
         ),
     ),
     (
-        2,
+        20,
         Function.DateDifferenceInYears(
-            Value(datetime.date(2020, 2, 29)), Value(datetime.date(2023, 2, 27))
+            Value(datetime.date(2000, 1, 15)), Value(datetime.date(2020, 1, 15))
+        ),
+    ),
+    (
+        -1,
+        Function.DateDifferenceInYears(
+            Value(datetime.date(2020, 1, 20)), Value(datetime.date(2020, 1, 15))
+        ),
+    ),
+    (
+        -2,
+        Function.DateDifferenceInYears(
+            Value(datetime.date(2022, 1, 10)), Value(datetime.date(2020, 1, 15))
         ),
     ),
 ]

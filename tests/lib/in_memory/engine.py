@@ -223,7 +223,14 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_DateDifferenceInYears(self, node):
-        assert False
+        def year_diff(start, end):
+            year_diff = end.year - start.year
+            if (end.month, end.day) < (start.month, start.day):
+                return year_diff - 1
+            else:
+                return year_diff
+
+        return self.visit_binary_op_with_null(node, year_diff)
 
     def visit_YearFromDate(self, node):
         return self.visit_unary_op_with_null(node, operator.attrgetter("year"))

@@ -168,6 +168,56 @@ class SQLiteQueryEngine(BaseQueryEngine):
     def get_sql_day_from_date(self, node):
         return self.get_date_part(self.get_sql(node.source), "DAY")
 
+    @get_sql.register(Function.DateDifferenceInYears)
+    def get_sql_date_difference_in_years(self, node):
+        return self.date_difference_in_years(
+            self.get_sql(node.lhs), self.get_sql(node.rhs)
+        )
+
+    def date_difference_in_years(self, start, end):
+        year_diff = self.get_date_part(end, "YEAR") - self.get_date_part(start, "YEAR")
+        month_diff = self.get_date_part(end, "MONTH") - self.get_date_part(
+            start, "MONTH"
+        )
+        day_diff = self.get_date_part(end, "DAY") - self.get_date_part(start, "DAY")
+        # The CASE condition below detects the situation where the end day-of-year is
+        # earlier than the start day-of-year. In such cases we need to subtract one from
+        # the year delta to give the number of whole years that has elapsed between the
+        # two dates.
+        #
+        # The most obvious way to determine this duplicates calls to the "get month"
+        # function:
+        #
+        #     end_month < start_month OR (end_month == start_month AND end_day < start_day)
+        #
+        # or equivalently:
+        #
+        #     month_diff < 0 OR (month_diff == 0 AND day_diff < 0)
+        #
+        # However this expression has a simplified form that takes advantage of the fact
+        # that `day_diff` has a maximum magnitude of `30`:
+        #
+        #     month_diff * -31 > day_diff
+        #
+        # To satisfy yourself that these expressions are equivalent, consider this truth
+        # table:
+        #
+        #      month_diff | day_diff | result
+        #     ============|==========|========
+        #          +ve    |    any   | false
+        #     ------------|----------|--------
+        #                 |    +ve   | false
+        #                 |----------|--------
+        #           0     |     0    | false
+        #                 |----------|--------
+        #                 |    -ve   | true
+        #     ------------|----------|--------
+        #          -ve    |    any   | true
+        #
+        # By inspection, this truth table is correct for both expressions and therefore
+        # they are equivalent.
+        return year_diff - sqlalchemy.case((month_diff * -31 > day_diff, 1), else_=0)
+
     def get_date_part(self, date, part):
         format_str = {"YEAR": "%Y", "MONTH": "%m", "DAY": "%d"}[part]
         part_as_str = sqlalchemy.func.strftime(format_str, date)
