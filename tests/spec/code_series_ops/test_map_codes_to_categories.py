@@ -30,7 +30,7 @@ def test_map_codes_to_categories(spec_test):
 
     spec_test(
         table_data,
-        p.c1.map_values(codelist.my_categorisation),
+        p.c1.to_category(codelist.my_categorisation),
         {
             1: "cat1",
             2: None,

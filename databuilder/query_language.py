@@ -216,13 +216,17 @@ class DatePatientSeries(DateFunctions, PatientSeries):
 # CODE SERIES
 #
 
-# For now we treat Codes as totally opaque objects and so Code series get no functions
-# or aggregations beyond those common to all series
-class CodeEventSeries(EventSeries):
+
+class CodeFunctions:
+    def to_category(self, categorisation):
+        return self.map_values(categorisation)
+
+
+class CodeEventSeries(CodeFunctions, EventSeries):
     _type = BaseCode
 
 
-class CodePatientSeries(PatientSeries):
+class CodePatientSeries(CodeFunctions, PatientSeries):
     _type = BaseCode
 
 
