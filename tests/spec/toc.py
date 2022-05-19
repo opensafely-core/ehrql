@@ -35,5 +35,6 @@ contents = {
     ],
     "code_series_ops": [
         "test_containment",
+        "test_map_codes_to_categories",
     ],
 }
