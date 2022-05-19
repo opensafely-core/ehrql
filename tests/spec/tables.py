@@ -1,3 +1,5 @@
+import datetime
+
 from databuilder.codes import SNOMEDCTCode
 from databuilder.query_language import build_event_table, build_patient_table
 
@@ -9,6 +11,7 @@ p = build_patient_table(
         "b1": bool,
         "b2": bool,
         "c1": SNOMEDCTCode,
+        "d1": datetime.date,
     },
 )
 
@@ -21,5 +24,6 @@ e = build_event_table(
         "b1": bool,
         "b2": bool,
         "c1": SNOMEDCTCode,
+        "d1": datetime.date,
     },
 )

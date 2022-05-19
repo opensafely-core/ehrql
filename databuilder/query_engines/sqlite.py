@@ -5,6 +5,7 @@ import sqlalchemy
 from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.sql import operators
 
+from databuilder import sqlalchemy_types
 from databuilder.query_model import (
     AggregateByPatient,
     Case,
@@ -154,6 +155,23 @@ class SQLiteQueryEngine(BaseQueryEngine):
     @get_sql.register(Function.Subtract)
     def get_sql_subtract(self, node):
         return operators.sub(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    @get_sql.register(Function.YearFromDate)
+    def get_sql_year_from_date(self, node):
+        return self.get_date_part(self.get_sql(node.source), "YEAR")
+
+    @get_sql.register(Function.MonthFromDate)
+    def get_sql_month_from_date(self, node):
+        return self.get_date_part(self.get_sql(node.source), "MONTH")
+
+    @get_sql.register(Function.DayFromDate)
+    def get_sql_day_from_date(self, node):
+        return self.get_date_part(self.get_sql(node.source), "DAY")
+
+    def get_date_part(self, date, part):
+        format_str = {"YEAR": "%Y", "MONTH": "%m", "DAY": "%d"}[part]
+        part_as_str = sqlalchemy.func.strftime(format_str, date)
+        return sqlalchemy.cast(part_as_str, sqlalchemy_types.Integer())
 
     @get_sql.register(SelectColumn)
     def get_sql_select_column(self, node):

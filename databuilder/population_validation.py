@@ -199,6 +199,16 @@ def year_from_date(date):
     return date.year
 
 
+@register_op(Function.MonthFromDate)
+def month_from_date(date):
+    return date.month
+
+
+@register_op(Function.DayFromDate)
+def day_from_date(date):
+    return date.day
+
+
 @register_op(Function.DateDifferenceInYears)
 def date_difference_in_years(start, end):
     year_diff = end.year - start.year

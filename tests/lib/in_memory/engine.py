@@ -226,7 +226,13 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_YearFromDate(self, node):
-        assert False
+        return self.visit_unary_op_with_null(node, operator.attrgetter("year"))
+
+    def visit_MonthFromDate(self, node):
+        return self.visit_unary_op_with_null(node, operator.attrgetter("month"))
+
+    def visit_DayFromDate(self, node):
+        return self.visit_unary_op_with_null(node, operator.attrgetter("day"))
 
     def visit_In(self, node):
         def op(lhs, rhs):

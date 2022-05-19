@@ -205,6 +205,14 @@ class DateFunctions(ComparableFunctions):
     def year(self):
         return _apply(qm.Function.YearFromDate, self)
 
+    @property
+    def month(self):
+        return _apply(qm.Function.MonthFromDate, self)
+
+    @property
+    def day(self):
+        return _apply(qm.Function.DayFromDate, self)
+
 
 class DateAggregations(ComparableAggregations):
     "Empty for now"

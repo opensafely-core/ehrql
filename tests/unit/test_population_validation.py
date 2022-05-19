@@ -213,6 +213,14 @@ cases = [
         Function.YearFromDate(Value(datetime.date(2022, 4, 29))),
     ),
     (
+        4,
+        Function.MonthFromDate(Value(datetime.date(2022, 4, 29))),
+    ),
+    (
+        29,
+        Function.DayFromDate(Value(datetime.date(2022, 4, 29))),
+    ),
+    (
         3,
         Function.DateDifferenceInYears(
             Value(datetime.date(2020, 2, 29)), Value(datetime.date(2023, 3, 1))

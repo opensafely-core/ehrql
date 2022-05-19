@@ -74,6 +74,7 @@ def backend_factory(query_engine_cls):
                 b1=Column("boolean", source="b1"),
                 b2=Column("boolean", source="b2"),
                 c1=Column("varchar", source="c1"),
+                d1=Column("date", source="d1"),
             ),
         )
         event_level_table = MappedTable(
@@ -85,6 +86,7 @@ def backend_factory(query_engine_cls):
                 b1=Column("boolean", source="b1"),
                 b2=Column("boolean", source="b2"),
                 c1=Column("varchar", source="c1"),
+                d1=Column("date", source="d1"),
             ),
         )
 
@@ -189,6 +191,7 @@ class PatientLevelTable(Base):
     b1 = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
     b2 = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
     c1 = sqlalchemy.Column(sqlalchemy.Text, default=null)
+    d1 = sqlalchemy.Column(sqlalchemy.Date, default=null)
 
 
 class EventLevelTable(Base):
@@ -200,3 +203,4 @@ class EventLevelTable(Base):
     b1 = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
     b2 = sqlalchemy.Column(sqlalchemy.Boolean, default=null)
     c1 = sqlalchemy.Column(sqlalchemy.Text, default=null)
+    d1 = sqlalchemy.Column(sqlalchemy.Date, default=null)

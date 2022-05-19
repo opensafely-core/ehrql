@@ -307,6 +307,12 @@ class Function:
     class YearFromDate(Series[int]):
         source: Series[date]
 
+    class MonthFromDate(Series[int]):
+        source: Series[date]
+
+    class DayFromDate(Series[int]):
+        source: Series[date]
+
     # Containment is a special case: its right-hand side must be something vector-like i.e.
     # something containing multiple values. To build a series whose values are vectors,
     # use the `CombineAsSet` aggregation.
