@@ -55,7 +55,20 @@ class SNOMEDCTCode(BaseCode, system_id="snomedct"):
     "SNOMED CT"
 
 
+@dataclasses.dataclass(frozen=True)
+class Codelist:
+    codes: frozenset
+
+
 def codelist_from_csv(filename, column, system):
+    filename = Path(filename)
+    if not filename.exists():
+        raise CodelistError(f"No CSV file at {filename}")
+    with filename.open("r") as f:
+        return codelist_from_csv_lines(f, column, system)
+
+
+def codelist_from_csv_lines(lines, column, system):
     try:
         code_class = REGISTRY[system]
     except KeyError:
@@ -63,16 +76,14 @@ def codelist_from_csv(filename, column, system):
             f"No system matching '{system}', allowed are: "
             f"{', '.join(REGISTRY.keys())}"
         )
-    filename = Path(filename)
-    if not filename.exists():
-        raise CodelistError(f"No CSV file at {filename}")
-    codes = []
-    with filename.open("r") as f:
-        for row in csv.DictReader(f):
-            try:
-                value = row[column].strip()
-            except KeyError:
-                raise CodelistError(f"No column '{column}' in {filename}")
-            if value:
-                codes.append(code_class(value))
-    return frozenset(codes)
+    # `restval` ensures we never get None instead of string, so `.strip()` will
+    # never blow up
+    reader = csv.DictReader(iter(lines), restval="")
+    if column not in reader.fieldnames:
+        raise CodelistError(f"No column '{column}' in CSV")
+    codes = set()
+    for row in reader:
+        code_str = row[column].strip()
+        if code_str:
+            codes.add(code_class(code_str))
+    return Codelist(frozenset(codes))

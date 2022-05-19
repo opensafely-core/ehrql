@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 
 from databuilder import query_model as qm
-from databuilder.codes import BaseCode
+from databuilder.codes import BaseCode, Codelist
 from databuilder.population_validation import validate_population_definition
 from databuilder.query_model import get_series_type, has_one_row_per_patient
 
@@ -271,6 +271,9 @@ def _convert(arg):
     # If it's an ehrQL series then get the wrapped query model node
     elif isinstance(arg, Series):
         return arg.qm_node
+    # If it's a Codelist extract the set of codes and put it in a Value wrapper
+    elif isinstance(arg, Codelist):
+        return qm.Value(arg.codes)
     # Otherwise it's a static value and needs to be put in a query model Value wrapper
     else:
         return qm.Value(arg)
