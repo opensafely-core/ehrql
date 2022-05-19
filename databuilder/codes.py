@@ -55,9 +55,31 @@ class SNOMEDCTCode(BaseCode, system_id="snomedct"):
     "SNOMED CT"
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass()
 class Codelist:
-    codes: frozenset
+    codes: set[BaseCode]
+    category_maps: dict[str, dict[BaseCode, str]]
+
+    def __post_init__(self):
+        # Check that the same codes are used everywhere
+        for category_map in self.category_maps.values():
+            assert self.codes == category_map.keys()
+        # In general, we want categorisations to be accessed as attributes on the
+        # codelist e.g.
+        #
+        #   codelist.group_6_ethnicity
+        #
+        # But in case there are names which aren't valid Python identifiers (or which
+        # clash with other instance attributes) it's always possible to use the
+        # dictionary directly e.g.
+        #
+        #  codelist.category_maps["Group 6 Ethnicity"]
+        #
+        for name, category_map in self.category_maps.items():
+            # Avoid names which could be magic attributes or blat an already existing
+            # attribute
+            if not name.startswith("_") and not hasattr(self, name):
+                setattr(self, name, category_map)
 
 
 def codelist_from_csv(filename, column, system):
@@ -82,8 +104,13 @@ def codelist_from_csv_lines(lines, column, system):
     if column not in reader.fieldnames:
         raise CodelistError(f"No column '{column}' in CSV")
     codes = set()
+    # We treat every other column in the CSV as being a mapping from codes to categories
+    category_maps = {name: {} for name in reader.fieldnames if name != column}
     for row in reader:
         code_str = row[column].strip()
         if code_str:
-            codes.add(code_class(code_str))
-    return Codelist(frozenset(codes))
+            code = code_class(code_str)
+            codes.add(code)
+            for name, category_map in category_maps.items():
+                category_map[code] = row[name].strip()
+    return Codelist(codes, category_maps)

@@ -273,7 +273,7 @@ def _convert(arg):
         return arg.qm_node
     # If it's a Codelist extract the set of codes and put it in a Value wrapper
     elif isinstance(arg, Codelist):
-        return qm.Value(arg.codes)
+        return qm.Value(frozenset(arg.codes))
     # Otherwise it's a static value and needs to be put in a query model Value wrapper
     else:
         return qm.Value(arg)
