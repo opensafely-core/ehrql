@@ -222,6 +222,18 @@ class DateFunctions(ComparableFunctions):
     def subtract_days(self, other):
         return _apply(qm.Function.DateSubtractDays, self, other)
 
+    def is_before(self, other):
+        return self < other
+
+    def is_on_or_before(self, other):
+        return self <= other
+
+    def is_after(self, other):
+        return self > other
+
+    def is_on_or_after(self, other):
+        return self >= other
+
 
 class DateAggregations(ComparableAggregations):
     "Empty for now"
