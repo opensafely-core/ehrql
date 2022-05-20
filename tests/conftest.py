@@ -2,6 +2,7 @@ import pytest
 
 from databuilder import main
 from databuilder.definition.base import dataset_registry
+from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 
 from .lib.databases import (
@@ -87,8 +88,8 @@ def in_memory_sqlite_database():
     return InMemorySQLiteDatabase()
 
 
-@pytest.fixture(params=["in_memory", "sqlite"])
-def engine(request, in_memory_sqlite_database):
+@pytest.fixture(params=["in_memory", "sqlite", "mssql"])
+def engine(request, in_memory_sqlite_database, database):
     name = request.param
     if name == "in_memory":
         # There are some tests we currently expect to fail against the in-memory engine
@@ -98,6 +99,8 @@ def engine(request, in_memory_sqlite_database):
         return QueryEngineFixture(name, InMemoryDatabase(), InMemoryQueryEngine)
     elif name == "sqlite":
         return QueryEngineFixture(name, in_memory_sqlite_database, SQLiteQueryEngine)
+    elif name == "mssql":
+        return QueryEngineFixture(name, database, MSSQLQueryEngine)
     else:
         assert False
 
