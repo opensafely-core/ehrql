@@ -133,3 +133,11 @@ def test_passing_a_single_value_to_is_in_raises_error():
     int_series = IntEventSeries(qm_int_series)
     with pytest.raises(TypeValidationError):
         int_series.is_in(1)
+
+
+def test_series_are_not_hashable():
+    # The issue here is not mutability but the fact that we overload `__eq__` for
+    # syntatic sugar, which makes these types spectacularly ill-behaved as dict keys
+    int_series = IntEventSeries(qm_int_series)
+    with pytest.raises(TypeError):
+        {int_series: True}
