@@ -37,4 +37,7 @@ contents = {
         "test_containment",
         "test_map_codes_to_categories",
     ],
+    "case_expressions": [
+        "test_case",
+    ],
 }

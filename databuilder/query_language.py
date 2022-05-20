@@ -374,3 +374,31 @@ def build_event_table(name, schema, contract=None):
     return EventFrame(
         qm.SelectTable(name, schema=qm.TableSchema(schema)),
     )
+
+
+# CASE EXPRESSION FUNCTIONS
+#
+
+
+# TODO: There's no explicit error handling on using this wrong e.g. not calling `then()`
+# or passing the wrong sort of thing as `condition`. The query model will prevent any
+# invalid queries being created, but we should invest time in making the errors as
+# immediate and as friendly as possible.
+class when:
+    def __init__(self, condition):
+        self._condition = condition
+
+    def then(self, value):
+        new = self.__class__(self._condition)
+        new._value = value
+        return new
+
+
+def case(*when_thens, default=None):
+    cases = _DictArg((case._condition, case._value) for case in when_thens)
+    # If we don't want a default then we shouldn't supply an argument, or else it will
+    # get converted into `Value(None)` which is not what we want
+    if default is None:
+        return _apply(qm.Case, cases)
+    else:
+        return _apply(qm.Case, cases, default)
