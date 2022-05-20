@@ -4,7 +4,7 @@ import operator
 from databuilder import query_model as qm
 from databuilder.query_engines.base import BaseQueryEngine
 
-from .database import Column, Table
+from .database import Column, Table, apply_function
 
 T = True
 F = False
@@ -234,5 +234,31 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
         return self.visit_binary_op_with_null(node, op)
 
-    def visit_Categorise(self, node):
-        assert False
+    def visit_Case(self, node):
+        cases = [
+            (self.visit(condition), self.visit(value))
+            for condition, value in node.cases.items()
+        ]
+        if node.default is None:
+            default = Column.from_values([], [])
+        else:
+            default = self.visit(node.default)
+        # Flatten arguments into a single list for easier handling
+        arguments = [default, *[i for pair in cases for i in pair]]
+        return apply_function(case_flattened, *arguments)
+
+
+def case_flattened(default, *cases):
+    """
+    Implements CASE WHEN x THEN y ELSE x END logic but takes its arguments in a
+    flattened form:
+
+        default, condition_1, value_1, condition_2, value_2, ... condition_N, value_N
+
+    This means it can be passed directly to `apply_function_to_columns` without needing
+    to do any special argument handling.
+    """
+    for condition, value in zip(cases[::2], cases[1::2]):
+        if condition:
+            return value
+    return default

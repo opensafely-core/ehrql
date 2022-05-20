@@ -23,7 +23,7 @@ __all__ = [
     "Position",
     "AggregateByPatient",
     "Function",
-    "Categorise",
+    "Case",
     "TableSchema",
     "ValidationError",
     "DomainMismatchError",
@@ -315,14 +315,14 @@ class Function:
         rhs: Series[Set[T]]
 
 
-class Categorise(Series[T]):
-    categories: Mapping[Series[T], Series[bool]]
-    default: Optional[Series[T]]
+class Case(Series[T]):
+    cases: Mapping[Series[bool], Series[T]]
+    default: Optional[Series[T]] = None
 
     def __hash__(self):
-        # `categories` is a dict and so not hashable by default, but we treat it as
+        # `cases` is a dict and so not hashable by default, but we treat it as
         # immutable once created so we're fine to make it hashable
-        return hash((tuple(self.categories.items()), self.default))
+        return hash((tuple(self.cases.items()), self.default))
 
 
 # TODO: We don't currently support Join in the DSL or the Query Engine but this is the
@@ -524,11 +524,11 @@ def get_input_nodes(node):
     ]
 
 
-# The above bit of dynamic cheekiness doesn't work for Categorise whose inputs are
+# The above bit of dynamic cheekiness doesn't work for Case whose inputs are
 # nested inside a dict object
-@get_input_nodes.register(Categorise)
-def get_input_nodes_for_categorise(node):
-    inputs = [*node.categories.keys(), *node.categories.values()]
+@get_input_nodes.register(Case)
+def get_input_nodes_for_case(node):
+    inputs = [*node.cases.keys(), *node.cases.values()]
     if node.default is not None:
         inputs.append(node.default)
     return inputs

@@ -139,15 +139,15 @@ def convert_value_from_aggregate(node: old.ValueFromAggregate):
 
 @convert_node.register
 def convert_value_from_category(node: old.ValueFromCategory):
-    definitions = {
-        convert_value(key): convert_node(value)
-        for key, value in node.definitions.items()
+    cases = {
+        convert_node(condition): convert_value(value)
+        for value, condition in node.definitions.items()
     }
     if node.default is not None:
         default = convert_value(node.default)
     else:
         default = None
-    return new.Categorise(definitions, default)
+    return new.Case(cases, default)
 
 
 @convert_node.register

@@ -7,7 +7,7 @@ import pytest
 
 from databuilder.query_model import (
     AggregateByPatient,
-    Categorise,
+    Case,
     DomainMismatchError,
     Filter,
     Frame,
@@ -47,11 +47,11 @@ def queries():
 
     q.vaccination_count = AggregateByPatient.Count(vaccinations)
     q.first_vaccination = PickOneRowPerPatient(Sort(vaccinations, date), Position.FIRST)
-    q.vaccination_status = Categorise(
+    q.vaccination_status = Case(
         {
-            Value("partial"): Function.EQ(q.vaccination_count, Value(1)),
-            Value("full"): Function.EQ(q.vaccination_count, Value(2)),
-            Value("boosted"): Function.GE(q.vaccination_count, Value(3)),
+            Function.EQ(q.vaccination_count, Value(1)): Value("partial"),
+            Function.EQ(q.vaccination_count, Value(2)): Value("full"),
+            Function.GE(q.vaccination_count, Value(3)): Value("boosted"),
         },
         default=Value("unvaccinated"),
     )

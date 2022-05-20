@@ -11,7 +11,7 @@ from databuilder.population_validation import (
 )
 from databuilder.query_model import (
     AggregateByPatient,
-    Categorise,
+    Case,
     Function,
     SelectColumn,
     SelectPatientTable,
@@ -164,30 +164,30 @@ cases = [
     ),
     (
         "bar",
-        Categorise(
+        Case(
             {
-                Value("foo"): Function.EQ(patients_value, Value(1)),
-                Value("bar"): Function.EQ(Value(1), Value(1)),
+                Function.EQ(patients_value, Value(1)): Value("foo"),
+                Function.EQ(Value(1), Value(1)): Value("bar"),
             },
             default=None,
         ),
     ),
     (
         "baz",
-        Categorise(
+        Case(
             {
-                Value("foo"): Function.EQ(patients_value, Value(1)),
-                Value("bar"): Function.EQ(patients_value, Value(2)),
+                Function.EQ(patients_value, Value(1)): Value("foo"),
+                Function.EQ(patients_value, Value(2)): Value("bar"),
             },
             default=Value("baz"),
         ),
     ),
     (
         None,
-        Categorise(
+        Case(
             {
-                Value("foo"): Function.EQ(patients_value, Value(1)),
-                Value("bar"): Function.EQ(patients_value, Value(2)),
+                Function.EQ(patients_value, Value(1)): Value("foo"),
+                Function.EQ(patients_value, Value(2)): Value("bar"),
             },
             default=None,
         ),

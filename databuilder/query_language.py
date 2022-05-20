@@ -2,7 +2,7 @@ import dataclasses
 import datetime
 
 from databuilder import query_model as qm
-from databuilder.codes import BaseCode
+from databuilder.codes import BaseCode, Codelist
 from databuilder.population_validation import validate_population_definition
 from databuilder.query_model import get_series_type, has_one_row_per_patient
 
@@ -17,6 +17,13 @@ from databuilder.query_model import get_series_type, has_one_row_per_patient
 #   (bool, True): BoolPatientSeries,
 #
 REGISTERED_TYPES = {}
+
+
+# Because ehrQL classes override `__eq__` we can't use them as dictionary keys. So where
+# the query model expects dicts we represent them as lists of pairs, which the
+# `_apply()` function can convert to dicts when it passes them to the query model.
+class _DictArg(list):
+    "Internal class for passing around dictionary arguments"
 
 
 class Dataset:
@@ -60,6 +67,16 @@ class Series:
         if isinstance(other, (tuple, list, set)):
             other = frozenset(other)
         return _apply(qm.Function.In, self, other)
+
+    def map_values(self, mapping):
+        """
+        Accepts a dictionary mapping one set of values to another and applies that
+        mapping to the series
+        """
+        cases = _DictArg(
+            (self == from_value, to_value) for from_value, to_value in mapping.items()
+        )
+        return _apply(qm.Case, cases)
 
 
 class EventSeries(Series):
@@ -199,13 +216,17 @@ class DatePatientSeries(DateFunctions, PatientSeries):
 # CODE SERIES
 #
 
-# For now we treat Codes as totally opaque objects and so Code series get no functions
-# or aggregations beyond those common to all series
-class CodeEventSeries(EventSeries):
+
+class CodeFunctions:
+    def to_category(self, categorisation):
+        return self.map_values(categorisation)
+
+
+class CodeEventSeries(CodeFunctions, EventSeries):
     _type = BaseCode
 
 
-class CodePatientSeries(PatientSeries):
+class CodePatientSeries(CodeFunctions, PatientSeries):
     _type = BaseCode
 
 
@@ -241,15 +262,25 @@ def _apply(qm_cls, *args):
     series or static values, returns an ehrQL series
     """
     # Convert all arguments into query model nodes
-    qm_args = [
-        # If it's an ehrQL series then get the wrapped query model node, otherwise it's
-        # a static value and needs to be put in query model Value wrapper
-        arg.qm_node if isinstance(arg, Series) else qm.Value(arg)
-        for arg in args
-    ]
+    qm_args = map(_convert, args)
     qm_node = qm_cls(*qm_args)
     # Wrap the resulting node back up in an ehrQL series
     return _wrap(qm_node)
+
+
+def _convert(arg):
+    # Unpack dictionary arguments
+    if isinstance(arg, _DictArg):
+        return {_convert(key): _convert(value) for key, value in arg}
+    # If it's an ehrQL series then get the wrapped query model node
+    elif isinstance(arg, Series):
+        return arg.qm_node
+    # If it's a Codelist extract the set of codes and put it in a Value wrapper
+    elif isinstance(arg, Codelist):
+        return qm.Value(frozenset(arg.codes))
+    # Otherwise it's a static value and needs to be put in a query model Value wrapper
+    else:
+        return qm.Value(arg)
 
 
 # FRAME TYPES

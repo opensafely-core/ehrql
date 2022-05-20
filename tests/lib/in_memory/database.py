@@ -225,49 +225,7 @@ class Column:
         return self.unary_op(handle_null(fn))
 
     def binary_op(self, fn, other):
-        patients = self.patients() | other.patients()
-
-        self_values = self.patient_to_values
-        other_values = other.patient_to_values
-        if self.any_patient_has_multiple_values():
-            if other.any_patient_has_multiple_values():
-                # Check both columns have the same number of values for each patient.
-                # This is a sense check for any test data, and not a check that the QM
-                # has provided two frames with the same domain.
-                assert all(
-                    len(self.get_values(p)) == len(other.get_values(p))
-                    for p in patients
-                )
-            else:
-                # Convert other so that it has the same shape as self.
-                other_values = {
-                    p: other.get_values(p) * len(self.get_values(p)) for p in patients
-                }
-        else:
-            if other.any_patient_has_multiple_values():
-                # Convert self so that it has the same shape as other.
-                self_values = {
-                    p: self.get_values(p) * len(other.get_values(p)) for p in patients
-                }
-            else:
-                # Nothing to be done.
-                pass
-
-        reshaped_self = Column(self_values, self.default)
-        reshaped_other = Column(other_values, other.default)
-
-        return Column(
-            {
-                p: [
-                    fn(v1, v2)
-                    for v1, v2 in zip(
-                        reshaped_self.get_values(p), reshaped_other.get_values(p)
-                    )
-                ]
-                for p in patients
-            },
-            default=fn(reshaped_self.default, reshaped_other.default),
-        )
+        return apply_function(fn, self, other)
 
     def binary_op_with_null(self, fn, other):
         return self.binary_op(handle_null(fn), other)
@@ -344,3 +302,56 @@ def parse_value(value):
 def nulls_first_order(key):
     # Usable as a key function to `sorted()` which sorts NULLs first
     return (0 if key is None else 1, key)
+
+
+def apply_function(fn, *columns):
+    reshaped_columns = reshape_columns(*columns)
+    patients = set().union(*[c.patients() for c in reshaped_columns])
+
+    return Column(
+        {
+            p: [
+                fn(*args)
+                for args in zip(*[column.get_values(p) for column in reshaped_columns])
+            ]
+            for p in patients
+        },
+        default=fn(*[column.default for column in reshaped_columns]),
+    )
+
+
+def reshape_columns(*columns):
+    patients = set().union(*[c.patients() for c in columns])
+
+    multi_value_columns = [c for c in columns if c.any_patient_has_multiple_values()]
+
+    if not multi_value_columns:
+        # Nothing to be done here
+        reshaped_columns = columns
+    else:
+        # Check that every multi-values-per-patient column has the same number of values
+        # for each patient. This is a sense check for any test data, and not a check
+        # that the QM has provided two frames with the same domain.
+        assert all(
+            len({len(c.get_values(p)) for c in multi_value_columns}) == 1
+            for p in patients
+        )
+        # Arbitrarily grab the first one (we've checked above that they all have exactly
+        # the same shape)
+        reshape_target = multi_value_columns[0]
+        reshaped_columns = []
+        for column in columns:
+            if column in multi_value_columns:
+                # We've already checked these are all the right shape
+                reshaped_columns.append(column)
+            else:
+                # Repeat the single value for each patient so we have the same number as
+                # for the target column
+                new_values = {
+                    p: column.get_values(p) * len(reshape_target.get_values(p))
+                    for p in patients
+                }
+                new_column = Column(new_values, column.default)
+                reshaped_columns.append(new_column)
+
+    return reshaped_columns
