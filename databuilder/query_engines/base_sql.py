@@ -28,7 +28,7 @@ from databuilder.query_model_transforms import (
 from .base import BaseQueryEngine
 
 
-class SQLiteQueryEngine(BaseQueryEngine):
+class BaseSQLQueryEngine(BaseQueryEngine):
 
     sqlalchemy_dialect = SQLiteDialect_pysqlite
 
