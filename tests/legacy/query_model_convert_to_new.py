@@ -35,9 +35,9 @@ FUNCTION_CLASS_MAP = {
     old.DateDifference: new.Function.DateDifferenceInYears,
     old.RoundToFirstOfMonth: new.Function.RoundToFirstOfMonth,
     old.RoundToFirstOfYear: new.Function.RoundToFirstOfYear,
-    old.DateAddition: new.Function.DateAdd,
+    old.DateAddition: new.Function.DateAddDays,
     old.DateDeltaAddition: new.Function.Add,
-    old.DateSubtraction: new.Function.DateSubtract,
+    old.DateSubtraction: new.Function.DateSubtractDays,
     old.DateDeltaSubtraction: new.Function.Subtract,
 }
 

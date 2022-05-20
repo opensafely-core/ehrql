@@ -35,9 +35,9 @@ CONNECTOR_MAP = {
 FUNCTION_CLASS_MAP = {
     new.Function.RoundToFirstOfMonth: old.RoundToFirstOfMonth,
     new.Function.RoundToFirstOfYear: old.RoundToFirstOfYear,
-    new.Function.DateAdd: old.DateAddition,
+    new.Function.DateAddDays: old.DateAddition,
     new.Function.Add: old.DateDeltaAddition,
-    new.Function.DateSubtract: old.DateSubtraction,
+    new.Function.DateSubtractDays: old.DateSubtraction,
     new.Function.Subtract: old.DateDeltaSubtraction,
     new.Function.YearFromDate: old.YearFromDate,
 }

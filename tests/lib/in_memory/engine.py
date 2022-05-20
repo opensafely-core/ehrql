@@ -216,10 +216,10 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_RoundToFirstOfYear(self, node):
         assert False
 
-    def visit_DateAdd(self, node):
+    def visit_DateAddDays(self, node):
         assert False
 
-    def visit_DateSubtract(self, node):
+    def visit_DateSubtractDays(self, node):
         assert False
 
     def visit_DateDifferenceInYears(self, node):

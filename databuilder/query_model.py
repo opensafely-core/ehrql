@@ -292,11 +292,11 @@ class Function:
     class RoundToFirstOfYear(Series[date]):
         source: Series[date]
 
-    class DateAdd(Series[date]):
+    class DateAddDays(Series[date]):
         lhs: Series[date]
         rhs: Series[int]
 
-    class DateSubtract(Series[date]):
+    class DateSubtractDays(Series[date]):
         lhs: Series[date]
         rhs: Series[int]
 

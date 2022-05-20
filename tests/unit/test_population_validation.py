@@ -202,11 +202,11 @@ cases = [
     ),
     (
         datetime.date(2021, 6, 13),
-        Function.DateAdd(Value(datetime.date(2021, 5, 4)), Value(40)),
+        Function.DateAddDays(Value(datetime.date(2021, 5, 4)), Value(40)),
     ),
     (
         datetime.date(2021, 3, 25),
-        Function.DateSubtract(Value(datetime.date(2021, 5, 4)), Value(40)),
+        Function.DateSubtractDays(Value(datetime.date(2021, 5, 4)), Value(40)),
     ),
     (
         2022,
