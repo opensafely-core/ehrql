@@ -43,6 +43,11 @@ def compile(dataset):  # noqa A003
 class Series:
     qm_node: qm.Node
 
+    def __hash__(self):
+        # The issue here is not mutability but the fact that we overload `__eq__` for
+        # syntatic sugar, which makes these types spectacularly ill-behaved as dict keys
+        raise TypeError(f"unhashable type: {self.__class__.__name__!r}")
+
     # These are the basic operations that apply to any series regardless of type or
     # dimension
     def __eq__(self, other):
