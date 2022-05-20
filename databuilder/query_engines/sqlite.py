@@ -223,6 +223,24 @@ class SQLiteQueryEngine(BaseQueryEngine):
         part_as_str = sqlalchemy.func.strftime(format_str, date)
         return sqlalchemy.cast(part_as_str, sqlalchemy_types.Integer())
 
+    @get_sql.register(Function.DateAddDays)
+    def get_sql_date_add_days(self, node):
+        return self.date_add_days(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    @get_sql.register(Function.DateSubtractDays)
+    def get_sql_date_subtract_days(self, node):
+        return self.date_subtract_days(self.get_sql(node.lhs), self.get_sql(node.rhs))
+
+    def date_add_days(self, date, num_days):
+        num_days_str = sqlalchemy.cast(num_days, sqlalchemy_types.String())
+        modifier = num_days_str.concat(" days")
+        new_date = sqlalchemy.func.date(date, modifier)
+        # Tell SQLAlchemy that the result is a date without doing any CASTing in the SQL
+        return sqlalchemy.type_coerce(new_date, sqlalchemy_types.Date())
+
+    def date_subtract_days(self, date, num_days):
+        return self.date_add_days(date, -num_days)
+
     @get_sql.register(SelectColumn)
     def get_sql_select_column(self, node):
         source = self.get_sql(node.source)

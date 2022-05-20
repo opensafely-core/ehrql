@@ -216,6 +216,12 @@ class DateFunctions(ComparableFunctions):
     def difference_in_years(self, other):
         return _apply(qm.Function.DateDifferenceInYears, self, other)
 
+    def add_days(self, other):
+        return _apply(qm.Function.DateAddDays, self, other)
+
+    def subtract_days(self, other):
+        return _apply(qm.Function.DateSubtractDays, self, other)
+
 
 class DateAggregations(ComparableAggregations):
     "Empty for now"

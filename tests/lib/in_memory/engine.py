@@ -1,4 +1,5 @@
 import contextlib
+import datetime
 import operator
 
 from databuilder import query_model as qm
@@ -217,10 +218,16 @@ class InMemoryQueryEngine(BaseQueryEngine):
         assert False
 
     def visit_DateAddDays(self, node):
-        assert False
+        def date_add_days(date, num_days):
+            return date + datetime.timedelta(days=num_days)
+
+        return self.visit_binary_op_with_null(node, date_add_days)
 
     def visit_DateSubtractDays(self, node):
-        assert False
+        def date_subtract_days(date, num_days):
+            return date - datetime.timedelta(days=num_days)
+
+        return self.visit_binary_op_with_null(node, date_subtract_days)
 
     def visit_DateDifferenceInYears(self, node):
         def year_diff(start, end):

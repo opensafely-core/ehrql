@@ -6,11 +6,11 @@ title = "Operations which apply to all series containing dates"
 
 table_data = {
     p: """
-          |     d1
-        --+------------
-        1 | 1990-01-02
-        2 | 2000-03-04
-        3 |
+          |     d1     | i1
+        --+------------+-----
+        1 | 1990-01-02 | 100
+        2 | 2000-03-04 | 200
+        3 |            |
         """,
 }
 
@@ -46,6 +46,30 @@ def test_get_day(spec_test):
         {
             1: 2,
             2: 4,
+            3: None,
+        },
+    )
+
+
+def test_add_days(spec_test):
+    spec_test(
+        table_data,
+        p.d1.add_days(p.i1),
+        {
+            1: date(1990, 4, 12),
+            2: date(2000, 9, 20),
+            3: None,
+        },
+    )
+
+
+def test_subtract_days(spec_test):
+    spec_test(
+        table_data,
+        p.d1.subtract_days(p.i1),
+        {
+            1: date(1989, 9, 24),
+            2: date(1999, 8, 17),
             3: None,
         },
     )
