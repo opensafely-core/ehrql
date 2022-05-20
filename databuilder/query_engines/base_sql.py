@@ -2,10 +2,9 @@ import contextlib
 from functools import cache, cached_property, singledispatchmethod
 
 import sqlalchemy
-from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
+import sqlalchemy.engine.interfaces
 from sqlalchemy.sql import operators
 
-from databuilder import sqlalchemy_types
 from databuilder.query_model import (
     AggregateByPatient,
     Case,
@@ -30,7 +29,7 @@ from .base import BaseQueryEngine
 
 class BaseSQLQueryEngine(BaseQueryEngine):
 
-    sqlalchemy_dialect = SQLiteDialect_pysqlite
+    sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
 
     def get_query(self, variable_definitions):
         variable_definitions = apply_transforms(variable_definitions)
@@ -219,9 +218,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return year_diff - sqlalchemy.case((month_diff * -31 > day_diff, 1), else_=0)
 
     def get_date_part(self, date, part):
-        format_str = {"YEAR": "%Y", "MONTH": "%m", "DAY": "%d"}[part]
-        part_as_str = sqlalchemy.func.strftime(format_str, date)
-        return sqlalchemy.cast(part_as_str, sqlalchemy_types.Integer())
+        raise NotImplementedError()
 
     @get_sql.register(Function.DateAddDays)
     def get_sql_date_add_days(self, node):
@@ -232,11 +229,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return self.date_subtract_days(self.get_sql(node.lhs), self.get_sql(node.rhs))
 
     def date_add_days(self, date, num_days):
-        num_days_str = sqlalchemy.cast(num_days, sqlalchemy_types.String())
-        modifier = num_days_str.concat(" days")
-        new_date = sqlalchemy.func.date(date, modifier)
-        # Tell SQLAlchemy that the result is a date without doing any CASTing in the SQL
-        return sqlalchemy.type_coerce(new_date, sqlalchemy_types.Date())
+        raise NotImplementedError()
 
     def date_subtract_days(self, date, num_days):
         return self.date_add_days(date, -num_days)
