@@ -1,5 +1,5 @@
 from ..contracts import contracts
-from ..query_engines.mssql import MssqlQueryEngine
+from ..query_engines.legacy_mssql import MssqlQueryEngine
 from .base import BaseBackend, Column, MappedTable
 
 

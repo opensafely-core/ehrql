@@ -5,7 +5,7 @@ import sqlalchemy.sql.ddl
 from sqlalchemy.sql.expression import type_coerce
 
 from .. import sqlalchemy_types
-from .base_sql import BaseSQLQueryEngine
+from .legacy_base_sql import BaseSQLQueryEngine
 from .mssql_dialect import MSSQLDialect
 from .mssql_lib import fetch_results_in_batches, write_query_to_table
 

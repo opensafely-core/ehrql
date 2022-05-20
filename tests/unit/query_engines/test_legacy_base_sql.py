@@ -1,6 +1,6 @@
 import pytest
 
-from databuilder.query_engines.base_sql import split_list_into_batches
+from databuilder.query_engines.legacy_base_sql import split_list_into_batches
 
 
 @pytest.mark.parametrize(

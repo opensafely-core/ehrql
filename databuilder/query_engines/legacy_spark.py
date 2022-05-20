@@ -7,7 +7,7 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql import ClauseElement, Executable
 
 from .. import sqlalchemy_types
-from .base_sql import BaseSQLQueryEngine
+from .legacy_base_sql import BaseSQLQueryEngine
 from .spark_dialect import SparkDialect
 
 

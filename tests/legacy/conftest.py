@@ -1,7 +1,7 @@
 import pytest
 
-from databuilder.query_engines.mssql import MssqlQueryEngine
-from databuilder.query_engines.spark import SparkQueryEngine
+from databuilder.query_engines.legacy_mssql import MssqlQueryEngine
+from databuilder.query_engines.legacy_spark import SparkQueryEngine
 
 from ..conftest import QueryEngineFixture
 from .query_model_convert_to_new import convert as convert_to_new

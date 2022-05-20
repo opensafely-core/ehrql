@@ -50,7 +50,7 @@ from sqlalchemy.sql import ClauseElement
 
 from .. import query_model, sqlalchemy_types
 from ..functools_utils import singledispatchmethod_with_unions
-from ..sqlalchemy_utils import (
+from ..legacy_sqlalchemy_utils import (
     TemporaryTable,
     get_primary_table,
     get_referenced_tables,
