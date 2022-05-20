@@ -1,5 +1,3 @@
-from datetime import date
-
 from ..tables import p
 
 title = "Comparisons involving dates"
@@ -19,7 +17,7 @@ table_data = {
 def test_is_before(spec_test):
     spec_test(
         table_data,
-        p.d1.is_before(date(2000, 1, 1)),
+        p.d1.is_before("2000-01-01"),
         {
             1: True,
             2: False,
@@ -32,7 +30,7 @@ def test_is_before(spec_test):
 def test_is_on_or_before(spec_test):
     spec_test(
         table_data,
-        p.d1.is_on_or_before(date(2000, 1, 1)),
+        p.d1.is_on_or_before("2000-01-01"),
         {
             1: True,
             2: True,
@@ -45,7 +43,7 @@ def test_is_on_or_before(spec_test):
 def test_is_after(spec_test):
     spec_test(
         table_data,
-        p.d1.is_after(date(2000, 1, 1)),
+        p.d1.is_after("2000-01-01"),
         {
             1: False,
             2: False,
@@ -58,7 +56,7 @@ def test_is_after(spec_test):
 def test_is_on_or_after(spec_test):
     spec_test(
         table_data,
-        p.d1.is_on_or_after(date(2000, 1, 1)),
+        p.d1.is_on_or_after("2000-01-01"),
         {
             1: False,
             2: True,
