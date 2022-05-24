@@ -59,8 +59,7 @@ class BaseBackend:
         Raises:
             ValueError: If unknown table passed in
         """
-        table = self.tables[table_name]
-        return table.get_query().alias(table_name)
+        return self.tables[table_name].get_expression(table_name)
 
 
 class SQLTable:
@@ -92,12 +91,12 @@ class MappedTable(SQLTable):
         if "patient_id" not in self.columns:
             self.columns["patient_id"] = Column("integer", source)
 
-    def get_query(self):
+    def get_expression(self, table_name):
         columns = self._make_columns()
         query = sqlalchemy.select(columns).select_from(
             sqlalchemy.table(self.source, schema=self._schema)
         )
-        return query
+        return query.alias(table_name)
 
 
 class QueryTable(SQLTable):
@@ -111,9 +110,10 @@ class QueryTable(SQLTable):
         if "patient_id" not in self.columns:
             self.columns["patient_id"] = Column("integer")
 
-    def get_query(self):
+    def get_expression(self, table_name):
         columns = self._make_columns()
-        return sqlalchemy.text(self.query).columns(*columns)
+        query = sqlalchemy.text(self.query).columns(*columns)
+        return query.alias(table_name)
 
 
 class Column:
