@@ -271,7 +271,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql_element_no_cache.register
     def get_element_from_table(self, node: Table):
         table = self.backend.get_table_expression(node.name)
-        return table.select()
+        labeled_columns = [c.label(c.key) for c in table.columns]
+        return sqlalchemy.select(*labeled_columns)
 
     @get_sql_element_no_cache.register
     def get_element_from_filtered_table(self, node: FilteredTable):
@@ -332,7 +333,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         columns = [query.selected_columns[name] for name in column_names]
         query = query.with_only_columns(columns)
 
-        table_columns = [sqlalchemy.Column(c.name, c.type) for c in columns]
+        table_columns = [sqlalchemy.Column(c.key, c.type) for c in columns]
         table_name = self.get_temp_table_name("group_table")
         table = TemporaryTable(table_name, sqlalchemy.MetaData(), *table_columns)
 

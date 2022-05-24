@@ -66,14 +66,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         tables = sqlalchemy.select(population_expression).get_final_froms()
         if len(tables) > 1:
             # Select all patient IDs from all tables referenced in the expression
-            id_selects = [sqlalchemy.select(table.c.patient_id) for table in tables]
+            id_selects = [
+                sqlalchemy.select(table.c.patient_id.label("patient_id"))
+                for table in tables
+            ]
             # Create a table which contains the union of all these IDs. (Note UNION
             # rather than UNION ALL so we don't get duplicates.)
             population_table = self.reify_query(sqlalchemy.union(*id_selects))
             return sqlalchemy.select(population_table.c.patient_id)
         elif len(tables) == 1:
             # If there's only one table then use the IDs from that
-            return sqlalchemy.select(tables[0].c.patient_id)
+            return sqlalchemy.select(tables[0].c.patient_id.label("patient_id"))
         else:
             # Gracefully handle the degenerate case where the population expression
             # doesn't reference any tables at all. Our validation rules ensure that such
@@ -427,7 +430,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         select_table, conditions = get_table_and_filter_conditions(frame)
         table = self.get_table(select_table)
         where_clauses = [self.get_predicate(condition) for condition in conditions]
-        query = sqlalchemy.select([table.c.patient_id])
+        query = sqlalchemy.select(table.c.patient_id.label("patient_id"))
         if where_clauses:
             query = query.where(sqlalchemy.and_(*where_clauses))
         return query
@@ -464,7 +467,7 @@ def apply_patient_joins(query):
     # We use the convention that the column to be joined on is always the first selected
     # column. This avoids having to hardcode, or pass around, the name of the column.
     join_key = query.selected_columns[0]
-    join_column = join_key.name
+    join_key_name = join_key.key
     # The table referenced by `join_key`, and any tables already explicitly joined with
     # it, will be returned as the first value from the `get_final_froms()` method
     # (because `join_key` is the first column). Any remaining tables which aren't yet
@@ -473,7 +476,7 @@ def apply_patient_joins(query):
     # https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#change-4737
     implicit_joins = query.get_final_froms()[1:]
     for table in implicit_joins:
-        query = query.join(table, table.c[join_column] == join_key, isouter=True)
+        query = query.join(table, table.c[join_key_name] == join_key, isouter=True)
     return query
 
 
