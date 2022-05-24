@@ -34,11 +34,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def get_query(self, variable_definitions):
         variable_definitions = apply_transforms(variable_definitions)
+        population_definition = variable_definitions.pop("population")
         variable_expressions = {
-            name: self.get_sql(definition)
+            name: self.get_expr(definition)
             for name, definition in variable_definitions.items()
         }
-        population_expression = variable_expressions.pop("population")
+        population_expression = self.get_predicate(population_definition)
         query = self.select_patient_id_for_population(population_expression)
         query = query.add_columns(
             *[expr.label(name) for name, expr in variable_expressions.items()]
@@ -124,78 +125,82 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Function.EQ)
     def get_sql_eq(self, node):
-        return operators.eq(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return operators.eq(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     @get_sql.register(Function.NE)
     def get_sql_ne(self, node):
-        return operators.ne(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return operators.ne(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     @get_sql.register(Function.IsNull)
     def get_sql_is_null(self, node):
-        return operators.is_(self.get_sql(node.source), None)
+        return operators.is_(self.get_expr(node.source), None)
 
     @get_sql.register(Function.In)
     def get_sql_in(self, node):
-        lhs = self.get_sql(node.lhs)
-        rhs = self.get_sql(node.rhs)
+        lhs = self.get_expr(node.lhs)
+        rhs = self.get_expr(node.rhs)
         return lhs.in_(rhs)
 
     @get_sql.register(Function.Not)
     def get_sql_not(self, node):
-        return sqlalchemy.not_(self.get_sql(node.source))
+        return sqlalchemy.not_(self.get_predicate(node.source))
 
     @get_sql.register(Function.And)
     def get_sql_and(self, node):
-        return sqlalchemy.and_(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return sqlalchemy.and_(
+            self.get_predicate(node.lhs), self.get_predicate(node.rhs)
+        )
 
     @get_sql.register(Function.Or)
     def get_sql_or(self, node):
-        return sqlalchemy.or_(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return sqlalchemy.or_(
+            self.get_predicate(node.lhs), self.get_predicate(node.rhs)
+        )
 
     @get_sql.register(Function.LT)
     def get_sql_lt(self, node):
-        return operators.lt(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return operators.lt(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     @get_sql.register(Function.LE)
     def get_sql_le(self, node):
-        return operators.le(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return operators.le(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     @get_sql.register(Function.GT)
     def get_sql_gt(self, node):
-        return operators.gt(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return operators.gt(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     @get_sql.register(Function.GE)
     def get_sql_ge(self, node):
-        return operators.ge(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return operators.ge(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     @get_sql.register(Function.Negate)
     def get_sql_negate(self, node):
-        return operators.neg(self.get_sql(node.source))
+        return operators.neg(self.get_expr(node.source))
 
     @get_sql.register(Function.Add)
     def get_sql_add(self, node):
-        return operators.add(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return operators.add(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     @get_sql.register(Function.Subtract)
     def get_sql_subtract(self, node):
-        return operators.sub(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return operators.sub(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     @get_sql.register(Function.YearFromDate)
     def get_sql_year_from_date(self, node):
-        return self.get_date_part(self.get_sql(node.source), "YEAR")
+        return self.get_date_part(self.get_expr(node.source), "YEAR")
 
     @get_sql.register(Function.MonthFromDate)
     def get_sql_month_from_date(self, node):
-        return self.get_date_part(self.get_sql(node.source), "MONTH")
+        return self.get_date_part(self.get_expr(node.source), "MONTH")
 
     @get_sql.register(Function.DayFromDate)
     def get_sql_day_from_date(self, node):
-        return self.get_date_part(self.get_sql(node.source), "DAY")
+        return self.get_date_part(self.get_expr(node.source), "DAY")
 
     @get_sql.register(Function.DateDifferenceInYears)
     def get_sql_date_difference_in_years(self, node):
         return self.date_difference_in_years(
-            self.get_sql(node.lhs), self.get_sql(node.rhs)
+            self.get_expr(node.lhs), self.get_expr(node.rhs)
         )
 
     def date_difference_in_years(self, start, end):
@@ -247,11 +252,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Function.DateAddDays)
     def get_sql_date_add_days(self, node):
-        return self.date_add_days(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return self.date_add_days(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     @get_sql.register(Function.DateSubtractDays)
     def get_sql_date_subtract_days(self, node):
-        return self.date_subtract_days(self.get_sql(node.lhs), self.get_sql(node.rhs))
+        return self.date_subtract_days(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     def date_add_days(self, date, num_days):
         raise NotImplementedError()
@@ -267,11 +272,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql.register(Case)
     def get_sql_case(self, node):
         cases = [
-            (self.get_sql(condition), self.get_sql(value))
+            (self.get_predicate(condition), self.get_expr(value))
             for (condition, value) in node.cases.items()
         ]
         if node.default is not None:
-            default = self.get_sql(node.default)
+            default = self.get_expr(node.default)
         else:
             default = None
         return sqlalchemy.case(*cases, else_=default)
@@ -300,7 +305,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def aggregate_series_by_patient(self, source_node, aggregation_func):
         query = self.get_select_query_for_node_domain(source_node)
-        aggregation_expr = aggregation_func(self.get_sql(source_node))
+        aggregation_expr = aggregation_func(self.get_expr(source_node))
         return self.apply_sql_aggregation(query, aggregation_expr)
 
     def aggregate_frame_by_patient(
@@ -364,8 +369,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_table.register(PickOneRowPerPatientWithColumns)
     def get_table_pick_one_row_per_patient(self, node):
-        selected_columns = [self.get_sql(c) for c in node.selected_columns]
-        order_clauses = [self.get_sql(c) for c in get_sort_conditions(node.source)]
+        selected_columns = [self.get_expr(c) for c in node.selected_columns]
+        order_clauses = [self.get_expr(c) for c in get_sort_conditions(node.source)]
 
         if node.position == Position.LAST:
             order_clauses = [c.desc() for c in order_clauses]
@@ -413,7 +418,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         frame = get_domain(node).get_node()
         select_table, conditions = get_table_and_filter_conditions(frame)
         table = self.get_table(select_table)
-        where_clauses = [self.get_sql(condition) for condition in conditions]
+        where_clauses = [self.get_predicate(condition) for condition in conditions]
         query = sqlalchemy.select([table.c.patient_id])
         if where_clauses:
             query = query.where(sqlalchemy.and_(*where_clauses))
