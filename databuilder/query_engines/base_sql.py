@@ -83,6 +83,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql(self, node):
         assert False, f"Unhandled node: {node}"
 
+    @singledispatchmethod
+    def get_table(self, node):
+        assert False, f"Unhandled node: {node}"
+
     @get_sql.register(Value)
     def get_sql_value(self, node):
         if isinstance(node.value, frozenset):
@@ -236,8 +240,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql.register(SelectColumn)
     def get_sql_select_column(self, node):
-        source = self.get_sql(node.source)
-        return source.c[node.name]
+        table = self.get_table(node.source)
+        return table.c[node.name]
 
     @get_sql.register(Case)
     def get_sql_case(self, node):
@@ -254,10 +258,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     # We have to apply caching here otherwise we generate distinct objects representing
     # the same table and this confuses SQLAlchemy into generating queries with ambiguous
     # table references
-    @get_sql.register(SelectTable)
-    @get_sql.register(SelectPatientTable)
+    @get_table.register(SelectTable)
+    @get_table.register(SelectPatientTable)
     @cache
-    def get_sql_select_table(self, node):
+    def get_table_select_table(self, node):
         return self.backend.get_table_expression(node.name)
 
     # We ignore Filter and Sort operations completely at this point in the code and just
@@ -266,10 +270,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     # mirror the semantics of SQL whereby columns are selected directly from the
     # underlying table and filters and sorts are handled separately using WHERE/ORDER BY
     # clauses.
-    @get_sql.register(Sort)
-    @get_sql.register(Filter)
-    def get_sql_sort_and_filter(self, node):
-        return self.get_sql(node.source)
+    @get_table.register(Sort)
+    @get_table.register(Filter)
+    def get_table_sort_and_filter(self, node):
+        return self.get_table(node.source)
 
     @get_sql.register(AggregateByPatient.Sum)
     def get_sql_sum(self, node):
@@ -313,7 +317,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         else:
             # Given that we have a one-row-per-patient frame here, we can get a
             # reference to the table
-            table = self.get_sql(source_node)
+            table = self.get_table(source_node)
             # Create an expression which is True if there's a matching row for this
             # patient and False otherwise (this differs from the SQL for event frame
             # aggregations because there's no need for a GROUP BY)
@@ -333,8 +337,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         aggregated_table = self.reify_query(query)
         return aggregated_table.c.value
 
-    @get_sql.register(PickOneRowPerPatientWithColumns)
-    def get_sql_pick_one_row_per_patient(self, node):
+    @get_table.register(PickOneRowPerPatientWithColumns)
+    def get_table_pick_one_row_per_patient(self, node):
         selected_columns = [self.get_sql(c) for c in node.selected_columns]
         order_clauses = [self.get_sql(c) for c in get_sort_conditions(node.source)]
 
@@ -383,7 +387,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         """
         frame = get_domain(node).get_node()
         select_table, conditions = get_table_and_filter_conditions(frame)
-        table = self.get_sql(select_table)
+        table = self.get_table(select_table)
         where_clauses = [self.get_sql(condition) for condition in conditions]
         query = sqlalchemy.select([table.c.patient_id])
         if where_clauses:
