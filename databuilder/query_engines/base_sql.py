@@ -23,6 +23,7 @@ from databuilder.query_model_transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )
+from databuilder.sqlalchemy_utils import is_predicate
 
 from .base import BaseQueryEngine
 
@@ -78,6 +79,30 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # an expression will never evaluate True so the population will always be
             # empty. But we can at least return an empty result, rather than blowing up.
             return sqlalchemy.select(sqlalchemy.literal(None).label("patient_id"))
+
+    def get_expr(self, node):
+        sql = self.get_sql(node)
+        # Some databases care about the distinction between "predicates" (expressions
+        # which are guaranteed boolean-typed by virtue of their syntax) and other forms
+        # of expression. As these are semantically equivalent we can transform
+        # predicates into non-predicate expressions if that's what we need.
+        if is_predicate(sql):
+            return self.predicate_to_expression(sql)
+        else:
+            return sql
+
+    def predicate_to_expression(self, sql):
+        # Using the expression twice in the CASE statement is a bit inelegant, but I
+        # can't immediately think of another way of doing this which preserves the
+        # nullability of the expression (which `case((sql, True), else_=False)` doesnt'
+        # do).
+        return sqlalchemy.case((sql, True), (~sql, False))
+
+    def get_predicate(self, node):
+        # If we want a predicate, rather than an expression, then there's no further
+        # transformation to be done. (At least at present, it's possible we'll find
+        # databases that require work here.)
+        return self.get_sql(node)
 
     @singledispatchmethod
     def get_sql(self, node):
