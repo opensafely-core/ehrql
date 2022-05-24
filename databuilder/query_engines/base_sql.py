@@ -83,10 +83,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql(self, node):
         assert False, f"Unhandled node: {node}"
 
-    @singledispatchmethod
-    def get_table(self, node):
-        assert False, f"Unhandled node: {node}"
-
     @get_sql.register(Value)
     def get_sql_value(self, node):
         if isinstance(node.value, frozenset):
@@ -255,26 +251,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             default = None
         return sqlalchemy.case(*cases, else_=default)
 
-    # We have to apply caching here otherwise we generate distinct objects representing
-    # the same table and this confuses SQLAlchemy into generating queries with ambiguous
-    # table references
-    @get_table.register(SelectTable)
-    @get_table.register(SelectPatientTable)
-    @cache
-    def get_table_select_table(self, node):
-        return self.backend.get_table_expression(node.name)
-
-    # We ignore Filter and Sort operations completely at this point in the code and just
-    # pass the underlying table reference through. It's only later, when building the
-    # SELECT query for a given Frame, that we make use of these. This is in order to
-    # mirror the semantics of SQL whereby columns are selected directly from the
-    # underlying table and filters and sorts are handled separately using WHERE/ORDER BY
-    # clauses.
-    @get_table.register(Sort)
-    @get_table.register(Filter)
-    def get_table_sort_and_filter(self, node):
-        return self.get_table(node.source)
-
     @get_sql.register(AggregateByPatient.Sum)
     def get_sql_sum(self, node):
         return self.aggregate_series_by_patient(node.source, sqlalchemy.func.sum)
@@ -336,6 +312,30 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         query = apply_patient_joins(query)
         aggregated_table = self.reify_query(query)
         return aggregated_table.c.value
+
+    @singledispatchmethod
+    def get_table(self, node):
+        assert False, f"Unhandled node: {node}"
+
+    # We have to apply caching here otherwise we generate distinct objects representing
+    # the same table and this confuses SQLAlchemy into generating queries with ambiguous
+    # table references
+    @get_table.register(SelectTable)
+    @get_table.register(SelectPatientTable)
+    @cache
+    def get_table_select_table(self, node):
+        return self.backend.get_table_expression(node.name)
+
+    # We ignore Filter and Sort operations completely at this point in the code and just
+    # pass the underlying table reference through. It's only later, when building the
+    # SELECT query for a given Frame, that we make use of these. This is in order to
+    # mirror the semantics of SQL whereby columns are selected directly from the
+    # underlying table and filters and sorts are handled separately using WHERE/ORDER BY
+    # clauses.
+    @get_table.register(Sort)
+    @get_table.register(Filter)
+    def get_table_sort_and_filter(self, node):
+        return self.get_table(node.source)
 
     @get_table.register(PickOneRowPerPatientWithColumns)
     def get_table_pick_one_row_per_patient(self, node):
