@@ -55,7 +55,7 @@ class BaseBackend:
         Args:
             table_name: Name of Table
         Returns:
-            A SQL subquery
+            A SQLAlchmey TableClause
         Raises:
             ValueError: If unknown table passed in
         """
@@ -74,9 +74,7 @@ class SQLTable:
     def _make_column(self, name, column):
         source = column.source or name
         type_ = TYPES_BY_NAME[column.type].value
-        sql_column = sqlalchemy.Column(source, type_)
-        if source != name:
-            sql_column = sql_column.label(name)
+        sql_column = sqlalchemy.Column(source, type_, key=name)
         return sql_column
 
 
@@ -93,10 +91,7 @@ class MappedTable(SQLTable):
 
     def get_expression(self, table_name):
         columns = self._make_columns()
-        query = sqlalchemy.select(columns).select_from(
-            sqlalchemy.table(self.source, schema=self._schema)
-        )
-        return query.alias(table_name)
+        return sqlalchemy.table(self.source, *columns, schema=self._schema)
 
 
 class QueryTable(SQLTable):
