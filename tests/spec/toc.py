@@ -43,5 +43,6 @@ contents = {
     "date_series_ops": [
         "test_date_series_ops",
         "test_date_comparisons",
+        "test_date_comparison_types",
     ],
 }
