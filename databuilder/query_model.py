@@ -292,11 +292,11 @@ class Function:
     class RoundToFirstOfYear(Series[date]):
         source: Series[date]
 
-    class DateAdd(Series[date]):
+    class DateAddDays(Series[date]):
         lhs: Series[date]
         rhs: Series[int]
 
-    class DateSubtract(Series[date]):
+    class DateSubtractDays(Series[date]):
         lhs: Series[date]
         rhs: Series[int]
 
@@ -305,6 +305,12 @@ class Function:
         rhs: Series[date]
 
     class YearFromDate(Series[int]):
+        source: Series[date]
+
+    class MonthFromDate(Series[int]):
+        source: Series[date]
+
+    class DayFromDate(Series[int]):
         source: Series[date]
 
     # Containment is a special case: its right-hand side must be something vector-like i.e.

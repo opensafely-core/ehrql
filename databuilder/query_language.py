@@ -200,10 +200,51 @@ class FloatPatientSeries(NumericFunctions, PatientSeries):
 #
 
 
+def parse_date_if_str(value):
+    if isinstance(value, str):
+        return datetime.date.fromisoformat(value)
+    else:
+        return value
+
+
 class DateFunctions(ComparableFunctions):
     @property
     def year(self):
         return _apply(qm.Function.YearFromDate, self)
+
+    @property
+    def month(self):
+        return _apply(qm.Function.MonthFromDate, self)
+
+    @property
+    def day(self):
+        return _apply(qm.Function.DayFromDate, self)
+
+    def difference_in_years(self, other):
+        other = parse_date_if_str(other)
+        return _apply(qm.Function.DateDifferenceInYears, self, other)
+
+    def add_days(self, other):
+        return _apply(qm.Function.DateAddDays, self, other)
+
+    def subtract_days(self, other):
+        return _apply(qm.Function.DateSubtractDays, self, other)
+
+    def is_before(self, other):
+        other = parse_date_if_str(other)
+        return self < other
+
+    def is_on_or_before(self, other):
+        other = parse_date_if_str(other)
+        return self <= other
+
+    def is_after(self, other):
+        other = parse_date_if_str(other)
+        return self > other
+
+    def is_on_or_after(self, other):
+        other = parse_date_if_str(other)
+        return self >= other
 
 
 class DateAggregations(ComparableAggregations):

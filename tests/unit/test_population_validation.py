@@ -202,26 +202,46 @@ cases = [
     ),
     (
         datetime.date(2021, 6, 13),
-        Function.DateAdd(Value(datetime.date(2021, 5, 4)), Value(40)),
+        Function.DateAddDays(Value(datetime.date(2021, 5, 4)), Value(40)),
     ),
     (
         datetime.date(2021, 3, 25),
-        Function.DateSubtract(Value(datetime.date(2021, 5, 4)), Value(40)),
+        Function.DateSubtractDays(Value(datetime.date(2021, 5, 4)), Value(40)),
     ),
     (
         2022,
         Function.YearFromDate(Value(datetime.date(2022, 4, 29))),
     ),
     (
-        3,
+        4,
+        Function.MonthFromDate(Value(datetime.date(2022, 4, 29))),
+    ),
+    (
+        29,
+        Function.DayFromDate(Value(datetime.date(2022, 4, 29))),
+    ),
+    (
+        29,
         Function.DateDifferenceInYears(
-            Value(datetime.date(2020, 2, 29)), Value(datetime.date(2023, 3, 1))
+            Value(datetime.date(1990, 1, 30)), Value(datetime.date(2020, 1, 15))
         ),
     ),
     (
-        2,
+        20,
         Function.DateDifferenceInYears(
-            Value(datetime.date(2020, 2, 29)), Value(datetime.date(2023, 2, 27))
+            Value(datetime.date(2000, 1, 15)), Value(datetime.date(2020, 1, 15))
+        ),
+    ),
+    (
+        -1,
+        Function.DateDifferenceInYears(
+            Value(datetime.date(2020, 1, 20)), Value(datetime.date(2020, 1, 15))
+        ),
+    ),
+    (
+        -2,
+        Function.DateDifferenceInYears(
+            Value(datetime.date(2022, 1, 10)), Value(datetime.date(2020, 1, 15))
         ),
     ),
 ]

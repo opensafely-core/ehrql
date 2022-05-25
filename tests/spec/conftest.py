@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 from databuilder.query_language import Dataset
@@ -77,6 +79,8 @@ def parse_value(col_name, value):
         parse = lambda v: {"T": True, "F": False}[v]  # noqa E731
     elif col_name[0] == "c":
         parse = str
+    elif col_name[0] == "d":
+        parse = datetime.date.fromisoformat
     else:
         assert False
 

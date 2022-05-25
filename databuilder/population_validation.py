@@ -199,6 +199,16 @@ def year_from_date(date):
     return date.year
 
 
+@register_op(Function.MonthFromDate)
+def month_from_date(date):
+    return date.month
+
+
+@register_op(Function.DayFromDate)
+def day_from_date(date):
+    return date.day
+
+
 @register_op(Function.DateDifferenceInYears)
 def date_difference_in_years(start, end):
     year_diff = end.year - start.year
@@ -213,13 +223,13 @@ def in_(lhs, rhs):
     return operator.contains(rhs, lhs)
 
 
-@register_op(Function.DateAdd)
-def date_add(date, num_days):
+@register_op(Function.DateAddDays)
+def date_add_days(date, num_days):
     return date + datetime.timedelta(days=num_days)
 
 
-@register_op(Function.DateSubtract)
-def date_subtract(date, num_days):
+@register_op(Function.DateSubtractDays)
+def date_subtract_days(date, num_days):
     return date - datetime.timedelta(days=num_days)
 
 

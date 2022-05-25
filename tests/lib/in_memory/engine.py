@@ -1,4 +1,5 @@
 import contextlib
+import datetime
 import operator
 
 from databuilder import query_model as qm
@@ -216,17 +217,36 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_RoundToFirstOfYear(self, node):
         assert False
 
-    def visit_DateAdd(self, node):
-        assert False
+    def visit_DateAddDays(self, node):
+        def date_add_days(date, num_days):
+            return date + datetime.timedelta(days=num_days)
 
-    def visit_DateSubtract(self, node):
-        assert False
+        return self.visit_binary_op_with_null(node, date_add_days)
+
+    def visit_DateSubtractDays(self, node):
+        def date_subtract_days(date, num_days):
+            return date - datetime.timedelta(days=num_days)
+
+        return self.visit_binary_op_with_null(node, date_subtract_days)
 
     def visit_DateDifferenceInYears(self, node):
-        assert False
+        def year_diff(start, end):
+            year_diff = end.year - start.year
+            if (end.month, end.day) < (start.month, start.day):
+                return year_diff - 1
+            else:
+                return year_diff
+
+        return self.visit_binary_op_with_null(node, year_diff)
 
     def visit_YearFromDate(self, node):
-        assert False
+        return self.visit_unary_op_with_null(node, operator.attrgetter("year"))
+
+    def visit_MonthFromDate(self, node):
+        return self.visit_unary_op_with_null(node, operator.attrgetter("month"))
+
+    def visit_DayFromDate(self, node):
+        return self.visit_unary_op_with_null(node, operator.attrgetter("day"))
 
     def visit_In(self, node):
         def op(lhs, rhs):
