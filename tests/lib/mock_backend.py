@@ -7,71 +7,57 @@ from . import contracts
 from .util import next_id, null
 
 
-def backend_factory(query_engine_cls):
-    """
-    Return a instance of MockBackend associated with the supplied Query Engine
+class MockBackend(BaseBackend):
+    backend_id = "mock_backend"
+    query_engine_class = MssqlQueryEngine
+    patient_join_column = "PatientId"
 
-    Note: argument name can't be `query_engine_class` because Python's scoping rules
-    won't let us reference it in the class body.
-    """
-
-    class MockBackend(BaseBackend):
-        backend_id = f"mock_{query_engine_cls.__name__}"
-        query_engine_class = query_engine_cls
-        patient_join_column = "PatientId"
-
-        patients = MappedTable(
-            implements=contracts.Patients,
-            source="patients",
-            columns=dict(
-                height=Column("integer", source="Height"),
-                date_of_birth=Column("date", source="DateOfBirth"),
-                sex=Column("varchar", source="Sex"),
-                some_bool=Column("boolean", source="SomeBool"),
-                some_int=Column("integer", source="SomeInt"),
-            ),
-        )
-        practice_registrations = MappedTable(
-            implements=contracts.Registrations,
-            source="practice_registrations",
-            columns=dict(
-                stp=Column("varchar", source="StpId"),
-                date_start=Column("date", source="StartDate"),
-                date_end=Column("date", source="EndDate"),
-            ),
-        )
-        clinical_events = MappedTable(
-            implements=contracts.Events,
-            source="events",
-            columns=dict(
-                code=Column("varchar", source="EventCode"),
-                system=Column("varchar", source="System"),
-                date=Column("date", source="Date"),
-                value=Column("integer", source="ResultValue"),
-            ),
-        )
-        positive_tests = QueryTable(
-            implements=contracts.Tests,
-            columns=dict(
-                patient_id=Column("integer"),
-                result=Column("boolean"),
-                test_date=Column("date"),
-            ),
-            query="""
-                SELECT
-                  PatientID as patient_id,
-                  PositiveResult as result,
-                  TestDate as test_date
-                FROM
-                  all_tests
-            """,
-        )
-
-    return MockBackend
-
-
-# Create a default MockBackend instance for code which is still expecting this
-MockBackend = backend_factory(MssqlQueryEngine)
+    patients = MappedTable(
+        implements=contracts.Patients,
+        source="patients",
+        columns=dict(
+            height=Column("integer", source="Height"),
+            date_of_birth=Column("date", source="DateOfBirth"),
+            sex=Column("varchar", source="Sex"),
+            some_bool=Column("boolean", source="SomeBool"),
+            some_int=Column("integer", source="SomeInt"),
+        ),
+    )
+    practice_registrations = MappedTable(
+        implements=contracts.Registrations,
+        source="practice_registrations",
+        columns=dict(
+            stp=Column("varchar", source="StpId"),
+            date_start=Column("date", source="StartDate"),
+            date_end=Column("date", source="EndDate"),
+        ),
+    )
+    clinical_events = MappedTable(
+        implements=contracts.Events,
+        source="events",
+        columns=dict(
+            code=Column("varchar", source="EventCode"),
+            system=Column("varchar", source="System"),
+            date=Column("date", source="Date"),
+            value=Column("integer", source="ResultValue"),
+        ),
+    )
+    positive_tests = QueryTable(
+        implements=contracts.Tests,
+        columns=dict(
+            patient_id=Column("integer"),
+            result=Column("boolean"),
+            test_date=Column("date"),
+        ),
+        query="""
+            SELECT
+              PatientID as patient_id,
+              PositiveResult as result,
+              TestDate as test_date
+            FROM
+              all_tests
+        """,
+    )
 
 
 Base = sqlalchemy.orm.declarative_base()
