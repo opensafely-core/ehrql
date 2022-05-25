@@ -17,7 +17,6 @@ schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
     patient_id_column,
     patient_classes,
     event_classes,
-    Backend,
     all_patients_query,
     sqla_metadata,
 ) = data_setup.setup(schema, num_patient_tables=2, num_event_tables=2)
@@ -77,7 +76,7 @@ def run_with(database_class, engine_class, instances, variables):
     database = database_class()
     database.setup(instances, metadata=sqla_metadata)
 
-    engine = engine_class(database.host_url(), Backend())
+    engine = engine_class(database.host_url())
     with engine.execute_query(variables) as results:
         result = list(dict(row) for row in results)
         result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering

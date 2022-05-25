@@ -1,7 +1,6 @@
 import sqlalchemy
 import sqlalchemy.orm
 
-import databuilder.backends.base as backends
 from databuilder.query_model import (
     AggregateByPatient,
     Function,
@@ -15,7 +14,7 @@ from ..lib.util import next_id, null
 
 def setup(schema, num_patient_tables, num_event_tables):
     registry = sqlalchemy.orm.registry()
-    patient_id_column = "PatientId"
+    patient_id_column = "patient_id"
 
     patient_table_names, patient_classes = _build_orm_classes(
         "p", num_patient_tables, schema, patient_id_column, registry
@@ -24,16 +23,12 @@ def setup(schema, num_patient_tables, num_event_tables):
         "e", num_event_tables, schema, patient_id_column, registry
     )
 
-    table_names = patient_table_names + event_table_names
-    backend = _make_backend(table_names, schema, patient_id_column)
-
     all_patients_query = _build_query(patient_table_names, event_table_names, schema)
 
     return (
         patient_id_column,
         patient_classes,
         event_classes,
-        backend,
         all_patients_query,
         registry.metadata,
     )
@@ -66,38 +61,6 @@ def _build_orm_class(name, schema, patient_id_column, registry):
     globals()[name] = class_
 
     return class_
-
-
-def _make_backend(table_names, schema, patient_id_column):
-    tables = _backend_tables(schema, table_names)
-    class_vars = {
-        "backend_id": "gen-test-backend",
-        "query_engine_class": "not-needed",
-        "patient_join_column": patient_id_column,
-    } | tables
-    return type("Backend", (backends.BaseBackend,), class_vars)
-
-
-def _backend_tables(schema, table_names):
-    table_columns = _backend_columns(schema)
-
-    tables = {}
-    for name in table_names:
-        tables[name] = _backend_table(name, table_columns)
-    return tables
-
-
-def _backend_columns(schema):
-    return {name: _backend_column(name, type_) for name, type_ in schema.items()}
-
-
-def _backend_column(name, type_):
-    type_map = {int: "integer", bool: "boolean"}
-    return backends.Column(type_map[type_], source=name)
-
-
-def _backend_table(name, columns):
-    return backends.MappedTable(implements=None, source=name, columns=columns)
 
 
 def _build_query(patient_tables, event_tables, schema):
