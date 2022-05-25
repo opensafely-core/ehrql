@@ -9,6 +9,4 @@ def test_backend_tables():
         "practice_registrations",
         "clinical_events",
         "positive_tests",
-        "patient_level_table",
-        "event_level_table",
     }

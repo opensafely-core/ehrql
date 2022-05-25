@@ -4,7 +4,6 @@ import pytest
 
 from databuilder.query_language import Dataset
 
-from ..lib.mock_backend import EventLevelTable, PatientLevelTable
 from . import tables
 
 
@@ -15,8 +14,8 @@ def spec_test(request, engine):
         input_data = []
         for table, s in table_data.items():
             model = {
-                "patient_level_table": PatientLevelTable,
-                "event_level_table": EventLevelTable,
+                "patient_level_table": tables.PatientLevelTable,
+                "event_level_table": tables.EventLevelTable,
             }[table.qm_node.name]
             input_data.extend(model(**row) for row in parse_table(s))
 

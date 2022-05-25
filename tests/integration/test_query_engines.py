@@ -7,12 +7,11 @@ from databuilder.query_model import (
     PickOneRowPerPatient,
     Position,
     SelectColumn,
-    SelectTable,
     Sort,
     Value,
 )
 
-from ..lib.mock_backend import EventLevelTable
+from ..spec.tables import EventLevelTable, e
 
 
 # The in-memory query engine does not currently work with multiple sort operations where
@@ -36,7 +35,7 @@ def test_sort_without_using_chained_operations(engine):
         EventLevelTable(patient_id=2, i1=202, i2=3),
     )
 
-    table = SelectTable("event_level_table")
+    table = e.qm_node
     sort1 = Sort(table, SelectColumn(table, "i2"))
     sort2 = Sort(sort1, SelectColumn(sort1, "i1"))
     pick = PickOneRowPerPatient(sort2, Position.FIRST)
@@ -64,7 +63,7 @@ def test_multiple_takes_without_chaining(engine):
         EventLevelTable(patient_id=1, i1=3, b1=False),
     )
 
-    table = SelectTable("event_level_table")
+    table = e.qm_node
     filter1 = Filter(table, Function.GE(SelectColumn(table, "i1"), Value(2)))
     filter2 = Filter(filter1, SelectColumn(filter1, "b1"))
     values = SelectColumn(filter2, "i1")
