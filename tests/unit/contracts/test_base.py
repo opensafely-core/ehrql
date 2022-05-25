@@ -5,7 +5,7 @@ from databuilder.contracts import types
 from databuilder.contracts.base import BackendContractError
 from databuilder.contracts.base import Column as ColumnContract
 from databuilder.contracts.base import TableContract
-from databuilder.query_engines.base_sql import BaseSQLQueryEngine
+from databuilder.query_engines.legacy_base_sql import BaseSQLQueryEngine
 
 
 class PatientsContract(TableContract):

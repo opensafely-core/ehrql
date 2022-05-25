@@ -1,6 +1,6 @@
 from ..contracts import contracts as old_contracts
 from ..contracts import universal
-from ..query_engines.mssql import MssqlQueryEngine
+from ..query_engines.legacy_mssql import MssqlQueryEngine
 from .base import BaseBackend, Column, QueryTable
 
 

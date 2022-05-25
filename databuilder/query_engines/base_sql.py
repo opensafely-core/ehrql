@@ -1,591 +1,435 @@
-"""
-This module provides most of the logic for transforming an abstract representation of a
-data query (what we call the Query Model) into SQL and executing it against a database.
-Most, but not all: in order to run against a real database it's necessary to subclass
-BaseSQLQueryEngine and provide some database-specific attributes and methods.
-
-The primary entry point is `BaseSQLQueryEngine.get_queries()`.
-
-The job of this code is to transform one graph structure (the Query Model, consisting of
-QueryNode instances) into another (a SQLAlchemy query, consisting of ClauseElement
-instances). For each type of QueryNode there is a method which knows how to transform
-nodes of that type into SQLAlchemy ClauseElements. As nodes may reference other nodes,
-transforming node A to SQL may require transforming nodes B and C to SQL first. So the
-implementation relies heavily on recursion to do its job.
-
-The methods for handling specific QueryNode types are brought together using the
-"singledispatch" decorator into a single method which takes an arbitrary QueryNode and
-returns the appropriate SQL for it. Calling this method on the root nodes in the Query
-Model will force the code to recurse its way over the entire Query Model and generate
-the full SQL required.
-
-Before converting the Query Model graph we have the opportunity to modify it in order to
-make it easier to work with, or to generate more efficient SQL. This is handled by the
-`apply_optimisations` function.
-
-Also worth noting is the TemporaryTable class. This subclasses the standard SQLAlchemy
-Table to add a pair of extra attributes: a list of setup queries needed to create and
-populate the table, and a list of cleanup queries needed to get rid of it. This means we
-don't need a separate out-of-band mechanism to track and manage temporary tables. The
-function `get_setup_and_cleanup_queries` takes care of finding all the TemporaryTables
-embedded in a query and returning their setup and cleanup queries in the appropriate
-order.
-"""
-
 import contextlib
-import copy
-import dataclasses
-import datetime
-import typing
-from collections import defaultdict
-from functools import cached_property
-from typing import Any, Optional, Union
+from functools import cache, cached_property, singledispatchmethod
 
 import sqlalchemy
-import sqlalchemy.dialects.mssql
-import sqlalchemy.schema
-from sqlalchemy import type_coerce
-from sqlalchemy.engine.interfaces import Dialect
-from sqlalchemy.sql import ClauseElement
+import sqlalchemy.engine.interfaces
+from sqlalchemy.sql import operators
 
-from .. import query_model, sqlalchemy_types
-from ..functools_utils import singledispatchmethod_with_unions
-from ..sqlalchemy_utils import (
-    TemporaryTable,
-    get_primary_table,
-    get_referenced_tables,
-    get_setup_and_cleanup_queries,
-    group_and_aggregate,
-    include_joined_tables,
-    select_first_row_per_partition,
-)
-from .base import BaseQueryEngine
-from .query_model_convert_to_old import convert as convert_to_old
-from .query_model_old import (
-    Codelist,
-    Column,
-    Comparator,
-    DateAddition,
-    DateDeltaAddition,
-    DateDeltaSubtraction,
-    DateDifference,
-    DateSubtraction,
-    FilteredTable,
-    QueryNode,
-    RoundToFirstOfMonth,
-    RoundToFirstOfYear,
-    Row,
-    RowFromAggregate,
-    Table,
+from databuilder.query_model import (
+    AggregateByPatient,
+    Case,
+    Filter,
+    Function,
+    Position,
+    SelectColumn,
+    SelectPatientTable,
+    SelectTable,
+    Sort,
     Value,
-    ValueFromAggregate,
-    ValueFromCategory,
-    ValueFromFunction,
-    ValueFromRow,
-    YearFromDate,
+    get_domain,
+    has_many_rows_per_patient,
 )
+from databuilder.query_model_transforms import (
+    PickOneRowPerPatientWithColumns,
+    apply_transforms,
+)
+from databuilder.sqlalchemy_utils import is_predicate
 
-# These are nodes which select a single column from a query (regardless of whether that
-# results in a single value per patient or in multiple values per patient)
-ColumnSelectorNode = Union[ValueFromRow, ValueFromAggregate, Column]
-
-# These are the basic types we accept as arguments in the Query Model
-Scalar = Union[None, bool, int, float, str, datetime.datetime, datetime.date]
-StaticValue = Union[Scalar, tuple[Scalar], list[Scalar]]
-
-SCALAR_TYPES = typing.get_args(Scalar)
-
-
-# This is an internal class that is injected into the DAG by the QueryEngine, but that
-# does not form part of the public Query Model
-@dataclasses.dataclass(frozen=True)
-class ReifiedQuery(QueryNode):
-    source: QueryNode
-    columns: tuple[str]
-
-    def _get_referenced_nodes(self):
-        return (self.source,)  # pragma: no cover
-
-
-class MissingString(str):
-    def __init__(self, message):
-        self.message = message
-
-    def __str__(self):
-        raise NotImplementedError(self.message)
+from .base import BaseQueryEngine
 
 
 class BaseSQLQueryEngine(BaseQueryEngine):
 
-    sqlalchemy_dialect: type[Dialect]
+    sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
 
-    # No limit by default although some DBMSs may impose one
-    max_rows_per_insert: Optional[int] = None
-
-    # Per-instance cache for SQLAlchemy Engine
-    _engine: Optional[sqlalchemy.engine.Engine] = None
-
-    # Force subclasses to define this
-    temp_table_prefix: str = MissingString("'temp_table_prefix' is undefined")
-
-    # Use a simple counter to generate unique (per session) temporary table names
-    temp_table_count: int = 0
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # See docstring on `get_sql_element` for details on this
-        self.sql_element_cache: dict[QueryNode, ClauseElement] = {}
-
-    def get_queries(self, column_definitions):
-        """
-        Build the list of SQL queries to execute
-
-        This is returned as a triple:
-
-            list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
-        """
-        # Check that we are being passed the new-style query model and convert it to
-        # the old, which we use internally for now.
-        assert isinstance(list(column_definitions.values())[0], query_model.Node)
-        column_definitions = convert_to_old(column_definitions)
-
-        # Modify the Query Model graph to make it easier to work with, or to generate
-        # more efficient SQL
-        column_definitions = apply_optimisations(column_definitions)
-
-        # Convert each column definition to SQL
-        column_queries = {
-            column: self.get_sql_element(definition)
-            for column, definition in column_definitions.items()
+    def get_query(self, variable_definitions):
+        variable_definitions = apply_transforms(variable_definitions)
+        population_definition = variable_definitions.pop("population")
+        variable_expressions = {
+            name: self.get_expr(definition)
+            for name, definition in variable_definitions.items()
         }
+        population_expression = self.get_predicate(population_definition)
+        query = self.select_patient_id_for_population(population_expression)
+        query = query.add_columns(
+            *[expr.label(name) for name, expr in variable_expressions.items()]
+        )
+        query = query.where(population_expression)
+        query = apply_patient_joins(query)
+        return query
 
-        # `population` is a special-cased boolean column, it doesn't appear
-        # itself in the output but it determines what rows are included
-        population_query = column_queries.pop("population")
+    def select_patient_id_for_population(self, population_expression):
+        """
+        Return a SELECT query which selects all the patient_ids that _might_ be included
+        in the population (the WHERE clause later will filter this down to just those which
+        should actually be included)
 
-        # TODO: Not sure why we require just a single table here for the population. I
-        # think this could be lifted as long as we did a FULL OUTER JOIN between all the
-        # tables.
-        tables = get_referenced_tables(population_query)
-        assert len(tables) == 1
-        population_table = tables[0]
+        This needs to cover, at a minimum, all patient_ids included in all tables
+        referenced in the population expression. But including more won't affect the
+        correctness of the result, so the only consideration here is performance.
 
-        # Start the query by selecting the "patient_id" column from all rows where the
-        # "population" condition evaluates true
-        results_query = (
-            sqlalchemy.select([population_table.c.patient_id.label("patient_id")])
-            .select_from(population_table)
-            .where(population_query)
+        TODO: Give backends a mechanism for marking certain tables as containing all
+        available patient_ids. We could then use such tables if available rather than
+        messing aroud with UNIONS.
+        """
+        # Get all the tables needed to evaluate the population expression
+        tables = sqlalchemy.select(population_expression).get_final_froms()
+        if len(tables) > 1:
+            # Select all patient IDs from all tables referenced in the expression
+            id_selects = [sqlalchemy.select(table.c.patient_id) for table in tables]
+            # Create a table which contains the union of all these IDs. (Note UNION
+            # rather than UNION ALL so we don't get duplicates.)
+            population_table = self.reify_query(sqlalchemy.union(*id_selects))
+            return sqlalchemy.select(population_table.c.patient_id)
+        elif len(tables) == 1:
+            # If there's only one table then use the IDs from that
+            return sqlalchemy.select(tables[0].c.patient_id)
+        else:
+            # Gracefully handle the degenerate case where the population expression
+            # doesn't reference any tables at all. Our validation rules ensure that such
+            # an expression will never evaluate True so the population will always be
+            # empty. But we can at least return an empty result, rather than blowing up.
+            return sqlalchemy.select(sqlalchemy.literal(None).label("patient_id"))
+
+    def get_expr(self, node):
+        sql = self.get_sql(node)
+        # Some databases care about the distinction between "predicates" (expressions
+        # which are guaranteed boolean-typed by virtue of their syntax) and other forms
+        # of expression. As these are semantically equivalent we can transform
+        # predicates into non-predicate expressions if that's what we need.
+        if is_predicate(sql):
+            return self.predicate_to_expression(sql)
+        else:
+            return sql
+
+    def predicate_to_expression(self, sql):
+        # Using the expression twice in the CASE statement is a bit inelegant, but I
+        # can't immediately think of another way of doing this which preserves the
+        # nullability of the expression (which `case((sql, True), else_=False)` doesnt'
+        # do).
+        return sqlalchemy.case((sql, True), (~sql, False))
+
+    def get_predicate(self, node):
+        # If we want a predicate, rather than an expression, then there's no further
+        # transformation to be done. (At least at present, it's possible we'll find
+        # databases that require work here.)
+        return self.get_sql(node)
+
+    @singledispatchmethod
+    def get_sql(self, node):
+        assert False, f"Unhandled node: {node}"
+
+    @get_sql.register(Value)
+    def get_sql_value(self, node):
+        if isinstance(node.value, frozenset):
+            value = tuple(self.convert_value(v) for v in node.value)
+        else:
+            value = self.convert_value(node.value)
+        return sqlalchemy.literal(value)
+
+    def convert_value(self, value):
+        if hasattr(value, "_to_primitive_type"):
+            return value._to_primitive_type()
+        else:
+            return value
+
+    @get_sql.register(Function.EQ)
+    def get_sql_eq(self, node):
+        return operators.eq(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    @get_sql.register(Function.NE)
+    def get_sql_ne(self, node):
+        return operators.ne(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    @get_sql.register(Function.IsNull)
+    def get_sql_is_null(self, node):
+        return operators.is_(self.get_expr(node.source), None)
+
+    @get_sql.register(Function.In)
+    def get_sql_in(self, node):
+        lhs = self.get_expr(node.lhs)
+        rhs = self.get_expr(node.rhs)
+        return lhs.in_(rhs)
+
+    @get_sql.register(Function.Not)
+    def get_sql_not(self, node):
+        return sqlalchemy.not_(self.get_predicate(node.source))
+
+    @get_sql.register(Function.And)
+    def get_sql_and(self, node):
+        return sqlalchemy.and_(
+            self.get_predicate(node.lhs), self.get_predicate(node.rhs)
         )
 
-        # For each column to be included in the output ...
-        for column_name, column_query in column_queries.items():
-            # Ensure the results_query JOINs on all the tables it needs to be able to
-            # include this column in the output
-            results_query = include_joined_tables(
-                results_query,
-                get_referenced_tables(column_query),
-                join_column="patient_id",
+    @get_sql.register(Function.Or)
+    def get_sql_or(self, node):
+        return sqlalchemy.or_(
+            self.get_predicate(node.lhs), self.get_predicate(node.rhs)
+        )
+
+    @get_sql.register(Function.LT)
+    def get_sql_lt(self, node):
+        return operators.lt(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    @get_sql.register(Function.LE)
+    def get_sql_le(self, node):
+        return operators.le(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    @get_sql.register(Function.GT)
+    def get_sql_gt(self, node):
+        return operators.gt(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    @get_sql.register(Function.GE)
+    def get_sql_ge(self, node):
+        return operators.ge(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    @get_sql.register(Function.Negate)
+    def get_sql_negate(self, node):
+        return operators.neg(self.get_expr(node.source))
+
+    @get_sql.register(Function.Add)
+    def get_sql_add(self, node):
+        return operators.add(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    @get_sql.register(Function.Subtract)
+    def get_sql_subtract(self, node):
+        return operators.sub(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    @get_sql.register(Function.YearFromDate)
+    def get_sql_year_from_date(self, node):
+        return self.get_date_part(self.get_expr(node.source), "YEAR")
+
+    @get_sql.register(Function.MonthFromDate)
+    def get_sql_month_from_date(self, node):
+        return self.get_date_part(self.get_expr(node.source), "MONTH")
+
+    @get_sql.register(Function.DayFromDate)
+    def get_sql_day_from_date(self, node):
+        return self.get_date_part(self.get_expr(node.source), "DAY")
+
+    @get_sql.register(Function.DateDifferenceInYears)
+    def get_sql_date_difference_in_years(self, node):
+        return self.date_difference_in_years(
+            self.get_expr(node.lhs), self.get_expr(node.rhs)
+        )
+
+    def date_difference_in_years(self, start, end):
+        year_diff = self.get_date_part(end, "YEAR") - self.get_date_part(start, "YEAR")
+        month_diff = self.get_date_part(end, "MONTH") - self.get_date_part(
+            start, "MONTH"
+        )
+        day_diff = self.get_date_part(end, "DAY") - self.get_date_part(start, "DAY")
+        # The CASE condition below detects the situation where the end day-of-year is
+        # earlier than the start day-of-year. In such cases we need to subtract one from
+        # the year delta to give the number of whole years that has elapsed between the
+        # two dates.
+        #
+        # The most obvious way to determine this duplicates calls to the "get month"
+        # function:
+        #
+        #     end_month < start_month OR (end_month == start_month AND end_day < start_day)
+        #
+        # or equivalently:
+        #
+        #     month_diff < 0 OR (month_diff == 0 AND day_diff < 0)
+        #
+        # However this expression has a simplified form that takes advantage of the fact
+        # that `day_diff` has a maximum magnitude of `30`:
+        #
+        #     month_diff * -31 > day_diff
+        #
+        # To satisfy yourself that these expressions are equivalent, consider this truth
+        # table:
+        #
+        #      month_diff | day_diff | result
+        #     ============|==========|========
+        #          +ve    |    any   | false
+        #     ------------|----------|--------
+        #                 |    +ve   | false
+        #                 |----------|--------
+        #           0     |     0    | false
+        #                 |----------|--------
+        #                 |    -ve   | true
+        #     ------------|----------|--------
+        #          -ve    |    any   | true
+        #
+        # By inspection, this truth table is correct for both expressions and therefore
+        # they are equivalent.
+        return year_diff - sqlalchemy.case((month_diff * -31 > day_diff, 1), else_=0)
+
+    def get_date_part(self, date, part):
+        raise NotImplementedError()
+
+    @get_sql.register(Function.DateAddDays)
+    def get_sql_date_add_days(self, node):
+        return self.date_add_days(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    @get_sql.register(Function.DateSubtractDays)
+    def get_sql_date_subtract_days(self, node):
+        return self.date_subtract_days(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    def date_add_days(self, date, num_days):
+        raise NotImplementedError()
+
+    def date_subtract_days(self, date, num_days):
+        return self.date_add_days(date, -num_days)
+
+    @get_sql.register(SelectColumn)
+    def get_sql_select_column(self, node):
+        table = self.get_table(node.source)
+        return table.c[node.name]
+
+    @get_sql.register(Case)
+    def get_sql_case(self, node):
+        cases = [
+            (self.get_predicate(condition), self.get_expr(value))
+            for (condition, value) in node.cases.items()
+        ]
+        if node.default is not None:
+            default = self.get_expr(node.default)
+        else:
+            default = None
+        return sqlalchemy.case(*cases, else_=default)
+
+    @get_sql.register(AggregateByPatient.Sum)
+    def get_sql_sum(self, node):
+        return self.aggregate_series_by_patient(node.source, sqlalchemy.func.sum)
+
+    @get_sql.register(AggregateByPatient.Exists)
+    def get_sql_exists(self, node):
+        return self.aggregate_frame_by_patient(
+            node.source,
+            aggregation_expr=sqlalchemy.literal(True),
+            empty_value=False,
+            single_row_value=True,
+        )
+
+    @get_sql.register(AggregateByPatient.Count)
+    def get_sql_count(self, node):
+        return self.aggregate_frame_by_patient(
+            node.source,
+            aggregation_expr=sqlalchemy.func.count("*"),
+            empty_value=0,
+            single_row_value=1,
+        )
+
+    def aggregate_series_by_patient(self, source_node, aggregation_func):
+        query = self.get_select_query_for_node_domain(source_node)
+        aggregation_expr = aggregation_func(self.get_expr(source_node))
+        return self.apply_sql_aggregation(query, aggregation_expr)
+
+    def aggregate_frame_by_patient(
+        self, source_node, aggregation_expr, empty_value, single_row_value
+    ):
+        # Frame aggregations can operate on both one- and many-rows-per-patient frames
+        # and these cases require different handling.
+        if has_many_rows_per_patient(source_node):
+            query = self.get_select_query_for_node_domain(source_node)
+            value = self.apply_sql_aggregation(query, aggregation_expr)
+            # We want to guarantee that our frame level aggregations are never
+            # null-valued, even when combined with data involving patient_ids for which
+            # they're not defined
+            return sqlalchemy.func.coalesce(value, empty_value)
+        else:
+            # Given that we have a one-row-per-patient frame here, we can get a
+            # reference to the table
+            table = self.get_table(source_node)
+            # Create an expression which is True if there's a matching row for this
+            # patient and False otherwise (this differs from the SQL for event frame
+            # aggregations because there's no need for a GROUP BY)
+            has_row = table.c.patient_id.is_not(None)
+            # If True and False are the values we're looking for then just return that
+            # expression
+            if single_row_value is True and empty_value is False:
+                return has_row
+            else:
+                # Otherwise convert to the appropriate values
+                return sqlalchemy.case((has_row, single_row_value), else_=empty_value)
+
+    def apply_sql_aggregation(self, query, aggregation_expression):
+        query = query.add_columns(aggregation_expression.label("value"))
+        query = query.group_by(query.selected_columns[0])
+        query = apply_patient_joins(query)
+        aggregated_table = self.reify_query(query)
+        return aggregated_table.c.value
+
+    @singledispatchmethod
+    def get_table(self, node):
+        assert False, f"Unhandled node: {node}"
+
+    # We have to apply caching here otherwise we generate distinct objects representing
+    # the same table and this confuses SQLAlchemy into generating queries with ambiguous
+    # table references
+    @get_table.register(SelectTable)
+    @get_table.register(SelectPatientTable)
+    @cache
+    def get_table_select_table(self, node):
+        return self.backend.get_table_expression(node.name)
+
+    # We ignore Filter and Sort operations completely at this point in the code and just
+    # pass the underlying table reference through. It's only later, when building the
+    # SELECT query for a given Frame, that we make use of these. This is in order to
+    # mirror the semantics of SQL whereby columns are selected directly from the
+    # underlying table and filters and sorts are handled separately using WHERE/ORDER BY
+    # clauses.
+    @get_table.register(Sort)
+    @get_table.register(Filter)
+    def get_table_sort_and_filter(self, node):
+        return self.get_table(node.source)
+
+    @get_table.register(PickOneRowPerPatientWithColumns)
+    def get_table_pick_one_row_per_patient(self, node):
+        selected_columns = [self.get_expr(c) for c in node.selected_columns]
+        order_clauses = [self.get_expr(c) for c in get_sort_conditions(node.source)]
+
+        if node.position == Position.LAST:
+            order_clauses = [c.desc() for c in order_clauses]
+
+        query = self.get_select_query_for_node_domain(node.source)
+        query = query.add_columns(*selected_columns)
+        # Add an extra "row number" column to the query which gives the position of each
+        # row within its patient_id partition as implied by the order clauses
+        query = query.add_columns(
+            sqlalchemy.func.row_number().over(
+                partition_by=query.selected_columns[0], order_by=order_clauses
             )
-            # Add this column to the final selected results using the supplied name
-            results_query = results_query.add_columns(column_query.label(column_name))
+        )
 
-        # Get all the setup queries needed to populate the various temporary tables used
-        # by the results_query, and the queries needed to clean them up afterwards
-        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
+        query = apply_patient_joins(query)
 
-        return setup_queries, results_query, cleanup_queries
+        # Make the above into a subquery and pull out the relevant columns. Note, we're
+        # deliberately using a subquery rather than `reify_query()` here as we want the
+        # database to have the chance to spot that we're just fetching the first row
+        # from each partition and optimise the query.
+        subquery = query.alias()
+        subquery_columns = list(subquery.columns)
+        output_columns = subquery_columns[:-1]
+        row_number = subquery_columns[-1]
+
+        # Select the first row for each patient according to the above row numbering
+        partitioned_query = sqlalchemy.select(output_columns).where(row_number == 1)
+
+        return self.reify_query(partitioned_query)
+
+    def reify_query(self, query):
+        """
+        By "reify" we just mean turning a SELECT query into something that can function
+        as a table in other SQLAlchemy constructs. There are various ways to do this
+        e.g. using `.alias()` to make a sub-query, using `.cte()` to make a Common Table
+        Expression, or writing the results of the query to a temporary table.
+        """
+        return query.cte()
+
+    def get_select_query_for_node_domain(self, node):
+        """
+        Given a many-rows-per-patient node, return the SELECT query corresponding to
+        domain of that node
+        """
+        frame = get_domain(node).get_node()
+        select_table, conditions = get_table_and_filter_conditions(frame)
+        table = self.get_table(select_table)
+        where_clauses = [self.get_predicate(condition) for condition in conditions]
+        query = sqlalchemy.select([table.c.patient_id])
+        if where_clauses:
+            query = query.where(sqlalchemy.and_(*where_clauses))
+        return query
 
     @contextlib.contextmanager
-    def execute_query(self, column_definitions):
-        setup_queries, results_query, cleanup_queries = self.get_queries(
-            column_definitions
-        )
+    def execute_query(self, variable_definitions):
+        results_query = self.get_query(variable_definitions)
         with self.engine.connect() as cursor:
-            for query in setup_queries:
-                cursor.execute(query)
-
             yield cursor.execute(results_query)
 
-            for query in cleanup_queries:
-                cursor.execute(query)
-
-    @singledispatchmethod_with_unions
-    def get_sql_element_or_value(self, value: Any):
-        """
-        Certain places in our Query Model support values which can either be QueryNodes
-        themselves or plain static values (booleans, integers, dates, list of dates
-        etc). Note that the type signature really ought to be:
-
-            Union[QueryNode, StaticValue] -> Union[ClauseElement, StaticValue]
-
-        But the singledispatch decorator can't handle the StaticValue type properly (see
-        `get_static_value` below).
-        """
-        # Fallback for unhandled types
-        assert False, f"Unhandled type {value!r}"
-
-    @get_sql_element_or_value.register
-    def get_static_value(self, value: Union[Scalar, tuple, list]):
-        # This is a fudge: the type of `value` above really ought to be StaticValue but
-        # the singledispatch decorator can't handle the parameterized tuple and list
-        # types. So instead we accept all tuples and lists and enforce the types of
-        # their elements at runtime. See: https://bugs.python.org/issue46191
-        if isinstance(value, (tuple, list)) and any(
-            not isinstance(v, SCALAR_TYPES) for v in value
-        ):  # pragma: no cover
-            assert False, f"Unhandled type {value!r}"
-        return value
-
-    @get_sql_element_or_value.register
-    def get_sql_element(self, node: QueryNode):
-        """
-        Caching wrapper around `get_sql_element_no_cache()` below, which is the
-        entrypoint method for converting QueryNodes to SQL ClauseElements
-
-        The caching is a peformance enhancement, not for the Python code, but rather for
-        the SQL we generate. It ensures that we don't get needlessly complex (though
-        correct) SQL by generating duplicated temporary tables or table-like clauses.
-        """
-        # Note: we can't just use the `functools.cache` decorator here because it
-        # doesn't play nicely with the `singledispatchmethod` decorator
-        if node in self.sql_element_cache:
-            return self.sql_element_cache[node]
-        else:
-            element = self.get_sql_element_no_cache(node)
-            self.sql_element_cache[node] = element
-            return element
-
-    @singledispatchmethod_with_unions
-    def get_sql_element_no_cache(self, node: QueryNode):
-        """
-        Given a QueryNode object from the Query Model return the SQLAlchemy
-        ClauseElement which represents it.
-
-        This uses single dispatch to handle each type of QueryNode via the appropriate
-        method below.
-        """
-        # Fallback for unhandled types
-        assert False, f"Unhandled query node type: {node!r}"
-
-    @get_sql_element_no_cache.register
-    def get_element_from_table(self, node: Table):
-        table = self.backend.get_table_expression(node.name)
-        return table.select()
-
-    @get_sql_element_no_cache.register
-    def get_element_from_filtered_table(self, node: FilteredTable):
-        query = self.get_sql_element(node.source)
-        filter_value = self.get_sql_element_or_value(node.value)
-        return apply_filter(
-            query,
-            column=node.column,
-            operator=node.operator,
-            value=filter_value,
-            # Ideally we wouldn't be passing these through, but we need to until we can
-            # rewrite the `apply_filter` function
-            value_query_node=node.value,
-            or_null=node.or_null,
-        )
-
-    @get_sql_element_no_cache.register
-    def get_element_from_row(self, node: Row):
-        query = self.get_sql_element(node.source)
-        return select_first_row_per_partition(
-            query,
-            partition_column="patient_id",
-            sort_columns=node.sort_columns,
-            descending=node.descending,
-        )
-
-    @get_sql_element_no_cache.register
-    def get_element_from_row_from_aggregate(self, node: RowFromAggregate):
-        query = self.get_sql_element(node.source)
-        return group_and_aggregate(
-            query,
-            group_by_column="patient_id",
-            input_column=node.input_column,
-            function_name=node.function,
-            output_column=node.output_column,
-        )
-
-    @get_sql_element_no_cache.register
-    def get_element_from_reified_query(self, node: ReifiedQuery):
-        """
-        Take a query and return something table-like which contains the results of this
-        query.
-
-        At present, we do this via creating a temporary table and writing the results of
-        the query to that table. But this is an implementation detail, chosen for its
-        performance characteristics. It's possible to replace the below with either of:
-
-            return query.cte()
-            return query.subquery()
-
-        and the tests will still pass (other than those which assert specific things
-        about the generated SQL)
-        """
-        query = self.get_sql_element(node.source)
-        # Select just the specified columns. This is a performance optimisation to avoid
-        # reifying more data than we need.
-        column_names = {"patient_id"} | set(node.columns)
-        columns = [query.selected_columns[name] for name in column_names]
-        query = query.with_only_columns(columns)
-
-        table_columns = [sqlalchemy.Column(c.name, c.type) for c in columns]
-        table_name = self.get_temp_table_name("group_table")
-        table = TemporaryTable(table_name, sqlalchemy.MetaData(), *table_columns)
-
-        create_query = self.query_to_create_temp_table_from_select_query(table, query)
-        cleanup_queries = (
-            [sqlalchemy.schema.DropTable(table, if_exists=True)]
-            if self.temp_table_needs_dropping(create_query)
-            else []
-        )
-        table.setup_queries = [create_query]
-        table.cleanup_queries = cleanup_queries
-        return table
-
-    @get_sql_element_no_cache.register
-    def get_element_from_column_selector(self, node: ColumnSelectorNode):
-        table = self.get_sql_element(node.source)
-        return table.c[node.column]
-
-    @get_sql_element_no_cache.register
-    def get_element_from_category_node(self, node: ValueFromCategory):
-        # TODO: I think that both `label` and `default` should get passed through
-        # `get_sql_element_or_value` as there's no reason in principle these couldn't be
-        # dynamic values
-        return sqlalchemy.case(
-            [
-                (self.get_sql_element(condition), label)
-                for label, condition in node.definitions.items()
-            ],
-            else_=node.default,
-        )
-
-    @get_sql_element_no_cache.register
-    def get_element_from_comparator_node(self, comparator: Comparator):
-        # TODO: I think we can simplify things here, in particular the distinction
-        # between `operator` and `connector` and the handling of negatation. But that
-        # involves changing the Query Model which is a task for another day
-        operator = comparator.operator
-        if comparator.connector is not None:
-            assert operator is None
-            if comparator.connector == "and_":
-                operator = "__and__"
-            elif comparator.connector == "or_":
-                operator = "__or__"
-            else:
-                assert False
-
-        lhs = self.get_sql_element_or_value(comparator.lhs)
-        rhs = self.get_sql_element_or_value(comparator.rhs)
-
-        condition_expression = getattr(lhs, operator)(rhs)
-        if comparator.negated:
-            condition_expression = sqlalchemy.not_(condition_expression)
-
-        return condition_expression
-
-    @get_sql_element_no_cache.register
-    def get_element_from_codelist(self, codelist: Codelist):
-        """
-        Given a codelist, build a SQLAlchemy representation of the temporary table
-        needed to store that codelist and then generate the queries necessary to create
-        and populate that table
-        """
-        codes = codelist.codes
-        max_code_len = max(map(len, codes))
-        table_name = self.get_temp_table_name("codelist")
-        table = TemporaryTable(
-            table_name,
-            sqlalchemy.MetaData(),
-            sqlalchemy.Column(
-                "code",
-                sqlalchemy.types.String(max_code_len),
-                nullable=False,
-            ),
-            sqlalchemy.Column(
-                "system",
-                sqlalchemy.types.String(6),
-                nullable=False,
-            ),
-            # If this backend has a temp db, we use it to store codelists
-            # tables. This helps with permissions management, as we can have
-            # write acces to the temp db but not the main db
-            schema=self.get_temp_database(),
-        )
-
-        # Constuct the queries needed to create and populate this table
-        create_query = sqlalchemy.schema.CreateTable(table)
-        insert_queries = []
-        for codes_batch in split_list_into_batches(
-            codes, size=self.max_rows_per_insert
-        ):
-            insert_query = table.insert().values(
-                [(code, codelist.system) for code in codes_batch]
-            )
-            insert_queries.append(insert_query)
-
-        # Construct the queries needed to clean it up
-        cleanup_queries = (
-            [sqlalchemy.schema.DropTable(table, if_exists=True)]
-            if self.temp_table_needs_dropping(create_query)
-            else []
-        )
-
-        table.setup_queries = [create_query] + insert_queries
-        table.cleanup_queries = cleanup_queries
-        return table
-
-    @get_sql_element_no_cache.register
-    def get_element_from_value_from_function(self, value: ValueFromFunction):
-        # TODO: I'd quite like to build this map by decorating the methods e.g.
-        #
-        #   @handler_for(DateDifferenceInYears)
-        #   def my_handle_fun(...)
-        #
-        # but the simple thing will do for now. Note we can't use `singledispatchmethod`
-        # for this because it doesn't play nicely with subclassing.
-        class_method_map = {
-            DateDifference: self.date_difference,
-            DateAddition: self.date_add,
-            DateSubtraction: self.date_subtract,
-            DateDeltaAddition: self.date_delta_add,
-            DateDeltaSubtraction: self.date_delta_subtract,
-            RoundToFirstOfMonth: self.round_to_first_of_month,
-            RoundToFirstOfYear: self.round_to_first_of_year,
-            YearFromDate: self.year_from_date,
-        }
-
-        assert value.__class__ in class_method_map, f"Unsupported function: {value}"
-
-        method = class_method_map[value.__class__]
-        argument_expressions = [
-            self.get_sql_element_or_value(arg) for arg in value.arguments
-        ]
-        return method(*argument_expressions)
-
-    def date_difference(self, start_date, end_date, units):
-        start_date = type_coerce(start_date, sqlalchemy_types.Date())
-        end_date = type_coerce(end_date, sqlalchemy_types.Date())
-
-        unit_conversions = {
-            "years": self._convert_date_diff_to_years,
-            "months": self._convert_date_diff_to_months,
-            "days": self._convert_date_diff_to_days,
-            "weeks": self._convert_date_diff_to_weeks,
-        }
-        return unit_conversions[units](start_date, end_date)
-
-    @staticmethod
-    def _date_to_parts(date):
-        return (
-            sqlalchemy.func.year(date),
-            sqlalchemy.func.month(date),
-            sqlalchemy.func.day(date),
-        )
-
-    def _convert_date_diff_to_years(self, start, end):
-        # We do the arithmetic ourselves, to be portable across dbs.
-        start_year, start_month, start_day = self._date_to_parts(start)
-        end_year, end_month, end_day = self._date_to_parts(end)
-        year_diff = end_year - start_year
-        date_diff = sqlalchemy.case(
-            (end_month > start_month, year_diff),
-            (
-                sqlalchemy.and_(end_month == start_month, end_day >= start_day),
-                year_diff,
-            ),
-            else_=year_diff - 1,
-        )
-        return type_coerce(date_diff, sqlalchemy_types.Integer())
-
-    def _convert_date_diff_to_months(
-        self, start, end
-    ):  # pragma: no cover (re-implement when the QL is in)
-        start_year, start_month, start_day = self._date_to_parts(start)
-        end_year, end_month, end_day = self._date_to_parts(end)
-        year_diff = end_year - start_year
-
-        date_diff = sqlalchemy.case(
-            (
-                sqlalchemy.and_(end_day >= start_day),
-                year_diff * 12 + (end_month - start_month),
-            ),
-            else_=year_diff * 12 + (end_month - start_month - 1),
-        )
-        return type_coerce(date_diff, sqlalchemy_types.Integer())
-
-    def _convert_date_diff_to_days(self, start, end):
-        """
-        Calculate difference between dates in days
-        """
-        raise NotImplementedError()
-
-    def _convert_date_diff_to_weeks(
-        self, start, end
-    ):  # pragma: no cover (re-implement when the QL is in)
-        """
-        Calculate difference in weeks
-        Datediff calculates weeks by boundaries crossed.  Since we want the duration in total
-        number of whole weeks, use the days calculation to calculate weeks also.
-        """
-        return sqlalchemy.func.floor(self._convert_date_diff_to_days(start, end) / 7)
-
-    def date_add(self, start_date, number_of_days):
-        """
-        Add a number of days to a date.
-        """
-        raise NotImplementedError()
-
-    def date_subtract(self, start_date, number_of_days):
-        """
-        Add a number of days to a date.
-        """
-        raise NotImplementedError()
-
-    def date_delta_add(
-        self, delta1, delta2
-    ):  # pragma: no cover (re-implement when the QL is in)
-        return type_coerce((delta1 + delta2), sqlalchemy_types.Integer())
-
-    def date_delta_subtract(
-        self, delta1, delta2
-    ):  # pragma: no cover (re-implement when the QL is in)
-        return type_coerce((delta1 - delta2), sqlalchemy_types.Integer())
-
-    def round_to_first_of_month(self, date):
-        raise NotImplementedError
-
-    def round_to_first_of_year(self, date):
-        raise NotImplementedError
-
-    def year_from_date(self, date):
-        date = type_coerce(date, sqlalchemy_types.Date())
-        return sqlalchemy.func.year(date, type_=sqlalchemy_types.Integer())
-
-    def query_to_create_temp_table_from_select_query(
-        self, table: TemporaryTable, select_query
-    ):
-        """
-        Return a query to create `table` and populate it with the results of
-        `select_query`
-        """
-        raise NotImplementedError()
-
-    def temp_table_needs_dropping(self, create_table_query):
-        """
-        Given the query used to create a temporary table, return whether the table needs
-        to be explicitly dropped or whether the database will discard it automatically
-        when the session terminates
-        """
-        raise NotImplementedError()
-
-    #
-    # DATABASE CONNECTION
-    #
     @cached_property
     def engine(self):
         engine_url = sqlalchemy.engine.make_url(self.dsn)
@@ -599,139 +443,68 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         assert isinstance(engine.dialect, self.sqlalchemy_dialect)
         return engine
 
-    def get_temp_table_name(self, name_hint):
-        """
-        Return a table name based on `name_hint` suitable for use as a temporary table.
 
-        `name_hint` is arbitrary and is only present to make the resulting SQL slightly
-        more comprehensible when debugging.
-        """
-        self.temp_table_count += 1
-        return f"{self.temp_table_prefix}{name_hint}_{self.temp_table_count}"
-
-    def get_temp_database(self):
-        """Which schema/database should we write temporary tables to."""
-        return None
-
-
-def apply_filter(query, column, operator, value, value_query_node, or_null=False):
+def apply_patient_joins(query):
     """
-    Applies a WHERE condition to the supplied query, specifically:
+    Find any table references in `query` which aren't yet part of an explicit JOIN and
+    LEFT OUTER JOIN them into the query using the first selected column as the join key
 
-        WHERE <column> <operator> <value>
-
-    The extra arguments are needed to handle extra complexity in this function which we
-    haven't yet had time to refactor away.
+    A core feature of the Query Model/Engine is that we can arbitrarily include data
+    from patient-level tables in a query because, in effect, there is always an implicit
+    join on `patient_id`. This function makes those implicit joins explicit.
     """
-    # TODO: This function needs work. Once we've ironed out some of the complexities
-    # here it should be possible to have a function which doesn't know anyting about
-    # QueryNodes and can therefore be moved to `sqlalchemy_utils`
+    # We use the convention that the column to be joined on is always the first selected
+    # column. This avoids having to hardcode, or pass around, the name of the column.
+    join_key = query.selected_columns[0]
+    join_column = join_key.name
+    # The table referenced by `join_key`, and any tables already explicitly joined with
+    # it, will be returned as the first value from the `get_final_froms()` method
+    # (because `join_key` is the first column). Any remaining tables which aren't yet
+    # explicitly joined on will be returned as additional clauses in the list. The best
+    # explanation of SQLAlchemy's behaviour here is probably this:
+    # https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#change-4737
+    implicit_joins = query.get_final_froms()[1:]
+    for table in implicit_joins:
+        query = query.join(table, table.c[join_column] == join_key, isouter=True)
+    return query
 
-    # Get the base table
-    table_expr = get_primary_table(query)
 
-    # Is the filter value itself potentially drawn from another table?
-    if isinstance(value_query_node, (Value, Column)):
-        # Find the tables to which it refers
-        other_tables = get_referenced_tables(value)
-        # If we have a "Value" (i.e. a single value per patient) then we
-        # include the other tables in the join
-        if isinstance(value_query_node, Value):
-            query = include_joined_tables(query, other_tables, "patient_id")
-        # If we have a "Column" (i.e. multiple values per patient) then we
-        # can't directly join this with our single-value-per-patient query,
-        # so we have to use a correlated subquery
-        elif isinstance(value_query_node, Column):
-            # TODO: I actually think this check is wrong and we'll eventually need to
-            # support e.g. a column which is a boolean expression over multiple source
-            # columns. But I'll leave it in place for now.
-            assert len(other_tables) == 1
-            other_table = other_tables[0]
-            value = (
-                sqlalchemy.select(value)
-                .select_from(other_table)
-                .where(other_table.c.patient_id == table_expr.c.patient_id)
-            )
+def get_table_and_filter_conditions(frame):
+    """
+    Given a ManyRowsPerPatientFrame, return a base SelectTable operation and a list of
+    filter conditions (or predicates) to be applied
+    """
+    root_frame, filters, _ = get_frame_operations(frame)
+    return root_frame, [f.condition for f in filters]
+
+
+def get_sort_conditions(frame):
+    """
+    Given a SortedFrame, return a tuple of Series which gives the sort order
+    """
+    _, _, sorts = get_frame_operations(frame)
+    # Sort operations are given to us in order of application which is the reverse of
+    # order of priority (i.e. the most recently applied sort gives us the primary sort
+    # condition) so we reverse them here
+    return tuple(s.sort_by for s in reversed(sorts))
+
+
+def get_frame_operations(frame):
+    """
+    Given a ManyRowsPerPatientFrame, destructure it into a base SelectTable operation,
+    plus separate lists of Filter and Sort operations
+    """
+    filters = []
+    sorts = []
+    while True:
+        type_ = type(frame)
+        if type_ is Filter:
+            filters.insert(0, frame)
+            frame = frame.source
+        elif type_ is Sort:
+            sorts.insert(0, frame)
+            frame = frame.source
+        elif type_ is SelectTable:
+            return frame, filters, sorts
         else:
-            assert False
-
-    if isinstance(value_query_node, Codelist):
-        value = sqlalchemy.select(value.c.code).scalar_subquery()
-        # FIXME: check this condition is still valid once the new DSL is in,
-        # and remove the no cover
-        if "system" in table_expr.c:  # pragma: no cover
-            # Codelist queries must also match on `system` column if it's present
-            system_column = table_expr.c["system"]
-            value = value.where(system_column == value_query_node.system)
-
-    column_expr = table_expr.c[column]
-    method = getattr(column_expr, operator)
-    filter_expr = method(value)
-
-    if or_null:
-        null_expr = column_expr.__eq__(None)
-        filter_expr = sqlalchemy.or_(filter_expr, null_expr)
-    return query.where(filter_expr)
-
-
-def apply_optimisations(column_definitions):
-    """
-    Apply various transformations to the supplied query DAG which make it easier to
-    generate better performing SQL
-    """
-    # It's algorithmically easier to apply these transformations by modifying the graph
-    # in place, so we copy it first
-    column_definitions = copy.deepcopy(column_definitions)
-
-    reify_query_before_selecting_column(column_definitions)
-
-    return column_definitions
-
-
-def reify_query_before_selecting_column(column_definitions):
-    """
-    We sometimes need to be able to take a SQLAlchemy query and treat it as something
-    table-like from which we can select columns (a process we describe as
-    "reification"). In fact, SQLAlchemy will do this implictly for us: we can just
-    select columns from a query and it will automatically create a subquery for us.
-    However this triggers a warning not to rely on this behaviour. And in any case we
-    don't want to use subqueries, we want to use our own TemporaryTable class. So here
-    we walk the query graph, find all the places where we select columns and inject an
-    operation to explicitly reify the query before doing so.
-    """
-    # Find all ColumnSelectorNodes and group them by the source node they reference
-    selector_types = typing.get_args(ColumnSelectorNode)
-    nodes_by_source = defaultdict(list)
-    for node in get_all_nodes(column_definitions):
-        if isinstance(node, selector_types):
-            nodes_by_source[node.source].append(node)
-    # Inject a ReifyQuery node between the ColumnSelectorNodes and their source
-    for source, child_nodes in nodes_by_source.items():
-        # As an optimisation to avoid reifying more data than we need, we determine what
-        # columns we're selecting and pass these to the reification method
-        columns = {node.column for node in child_nodes}
-        new_source = ReifiedQuery(source, tuple(columns))
-        for node in child_nodes:
-            # These are frozen instances, so we can't set the attribute directly
-            object.__setattr__(node, "source", new_source)
-
-
-def get_all_nodes(column_definitions):
-    return list(recurse_over_nodes(column_definitions.values(), set()))
-
-
-def recurse_over_nodes(nodes, seen):
-    for node in nodes:
-        yield from recurse_over_nodes(node._get_referenced_nodes(), seen)
-        if node not in seen:
-            seen.add(node)
-            yield node
-
-
-def split_list_into_batches(lst, size=None):
-    # If no size limit specified yield the whole list in one batch
-    if size is None:
-        yield lst
-    else:
-        for i in range(0, len(lst), size):
-            yield lst[i : i + size]
+            assert False, f"Unexpected type: {frame}"

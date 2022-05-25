@@ -1,5 +1,5 @@
 from ..contracts import contracts
-from ..query_engines.spark import SparkQueryEngine
+from ..query_engines.legacy_spark import SparkQueryEngine
 from .base import BaseBackend, Column, MappedTable, QueryTable
 
 

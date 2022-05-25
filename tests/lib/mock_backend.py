@@ -1,7 +1,7 @@
 import sqlalchemy.orm
 
 from databuilder.backends.base import BaseBackend, Column, MappedTable, QueryTable
-from databuilder.query_engines.mssql import MssqlQueryEngine
+from databuilder.query_engines.legacy_mssql import MssqlQueryEngine
 
 from . import contracts
 
