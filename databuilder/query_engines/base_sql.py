@@ -5,6 +5,7 @@ import sqlalchemy
 import sqlalchemy.engine.interfaces
 from sqlalchemy.sql import operators
 
+from databuilder.backends.base import DefaultBackend
 from databuilder.query_model import (
     AggregateByPatient,
     Case,
@@ -31,6 +32,11 @@ from .base import BaseQueryEngine
 class BaseSQLQueryEngine(BaseQueryEngine):
 
     sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.backend:
+            self.backend = DefaultBackend()
 
     def get_query(self, variable_definitions):
         variable_definitions = apply_transforms(variable_definitions)

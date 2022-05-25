@@ -1,6 +1,6 @@
 import sqlalchemy
 
-from ..sqlalchemy_types import TYPES_BY_NAME
+from databuilder.sqlalchemy_types import TYPES_BY_NAME, type_from_python_type
 
 # Mutable global for storing registered backends
 BACKENDS = {}
@@ -120,3 +120,18 @@ class Column:
         self.type = column_type
         self.source = source
         self.system = system
+
+
+class DefaultBackend:
+    def get_table_expression(self, table_name, schema):
+        """
+        Returns a SQLAlchemy Table object matching the supplied name and schema
+        """
+        return sqlalchemy.table(
+            table_name,
+            sqlalchemy.Column("patient_id"),
+            *[
+                sqlalchemy.Column(name, type_=type_from_python_type(type_))
+                for (name, type_) in schema.items()
+            ],
+        )
