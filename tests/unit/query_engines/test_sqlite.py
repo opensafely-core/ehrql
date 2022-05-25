@@ -5,7 +5,7 @@ from databuilder.query_model import Function, SelectColumn, SelectPatientTable, 
 
 
 class DummyBackend:
-    def get_table_expression(self, _name):
+    def get_table_expression(self, _name, _schema):
         return (
             sqlalchemy.select([sqlalchemy.Column("c")])
             .select_from(sqlalchemy.table("t"))

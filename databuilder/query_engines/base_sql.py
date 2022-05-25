@@ -365,7 +365,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_table.register(SelectPatientTable)
     @cache
     def get_table_select_table(self, node):
-        return self.backend.get_table_expression(node.name)
+        return self.backend.get_table_expression(node.name, node.schema)
 
     # We ignore Filter and Sort operations completely at this point in the code and just
     # pass the underlying table reference through. It's only later, when building the

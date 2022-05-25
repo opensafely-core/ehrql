@@ -270,7 +270,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql_element_no_cache.register
     def get_element_from_table(self, node: Table):
-        table = self.backend.get_table_expression(node.name)
+        table = self.backend.get_table_expression(node.name, schema=None)
         labeled_columns = [c.label(c.key) for c in table.columns]
         return sqlalchemy.select(*labeled_columns)
 

@@ -49,16 +49,20 @@ class BaseBackend:
             contract = table.implements
             contract.validate_implementation(cls, name)
 
-    def get_table_expression(self, table_name):
+    def get_table_expression(self, table_name, schema):
         """
         Gets SQL expression for a table
         Args:
             table_name: Name of Table
+            schema: a TableSchema
         Returns:
             A SQLAlchmey TableClause
         Raises:
             ValueError: If unknown table passed in
         """
+        # TODO: We currently ignore the `schema` argument here. But I think we should
+        # move towards having the supplied schema define the column types or, if not
+        # that, then we should validate that the types match.
         return self.tables[table_name].get_expression(table_name)
 
 
