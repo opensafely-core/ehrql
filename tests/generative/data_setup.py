@@ -8,6 +8,7 @@ from databuilder.query_model import (
     SelectPatientTable,
     SelectTable,
 )
+from databuilder.sqlalchemy_types import Integer, type_from_python_type
 
 
 def setup(schema, num_patient_tables, num_event_tables):
@@ -48,12 +49,11 @@ def _build_orm_classes(prefix, count, schema, patient_id_column, ids, registry):
 
 def _build_orm_class(name, schema, patient_id_column, ids, registry):
     columns = [
-        sqlalchemy.Column("Id", sqlalchemy.Integer, primary_key=True, default=ids),
-        sqlalchemy.Column(patient_id_column, sqlalchemy.Integer),
+        sqlalchemy.Column("Id", Integer, primary_key=True, default=ids),
+        sqlalchemy.Column(patient_id_column, Integer),
     ]
     for col_name, type_ in schema.items():
-        sqla_type = {int: sqlalchemy.Integer, bool: sqlalchemy.Boolean}[type_]
-        columns.append(sqlalchemy.Column(col_name, sqla_type))
+        columns.append(sqlalchemy.Column(col_name, type_from_python_type(type_)))
 
     table = sqlalchemy.Table(name, registry.metadata, *columns)
     class_ = type(name, (object,), dict(__tablename__=name, metadata=registry.metadata))
