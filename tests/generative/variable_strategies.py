@@ -96,10 +96,8 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
             value,
             exists,
             count_,
-            # TODO: not supported by in-memory engine
-            # min_,
-            # TODO: not supported by in-memory engine
-            # max_,
+            min_,
+            max_,
             sum_,
         )
     )
@@ -165,10 +163,8 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 
     exists = qm_builds(AggregateByPatient.Exists, many_rows_per_patient_frame)
     count_ = qm_builds(AggregateByPatient.Count, many_rows_per_patient_frame)
-    # TODO: not supported by in-memory engine
-    # min_ = qm_builds(AggregateByPatient.Min, series)
-    # TODO: not supported by in-memory engine
-    # max_ = qm_builds(AggregateByPatient.Max, series)
+    min_ = qm_builds(AggregateByPatient.Min, series)
+    max_ = qm_builds(AggregateByPatient.Max, series)
     sum_ = qm_builds(AggregateByPatient.Sum, many_rows_per_patient_series)
 
     eq = qm_builds(Function.EQ, series, series)

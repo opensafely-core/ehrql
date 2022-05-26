@@ -206,11 +206,11 @@ class AggregateByPatient:
     class Count(OneRowPerPatientSeries[int]):
         source: Frame
 
-    class Min(AggregatedSeries[T]):
-        source: Series[T]
+    class Min(AggregatedSeries[Comparable]):
+        source: Series[Comparable]
 
-    class Max(AggregatedSeries[T]):
-        source: Series[T]
+    class Max(AggregatedSeries[Comparable]):
+        source: Series[Comparable]
 
     class Sum(AggregatedSeries[Numeric]):
         source: Series[Numeric]

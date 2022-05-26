@@ -111,14 +111,16 @@ class InMemoryQueryEngine(BaseQueryEngine):
         return self.visit(node.source).count()
 
     def visit_Min(self, node):
-        assert False
+        col = self.visit(node.source)
+        return col.aggregate_values(min, default=None)
 
     def visit_Max(self, node):
-        assert False
+        col = self.visit(node.source)
+        return col.aggregate_values(max, default=None)
 
     def visit_Sum(self, node):
         col = self.visit(node.source)
-        return col.aggregate_values(sum, None)
+        return col.aggregate_values(sum, default=None)
 
     def visit_CombineAsSet(self, node):
         assert False
