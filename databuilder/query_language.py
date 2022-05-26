@@ -143,7 +143,11 @@ class ComparableFunctions:
 
 
 class ComparableAggregations:
-    "Empty for now"
+    def minimum_for_patient(self):
+        return _apply(qm.AggregateByPatient.Min, self)
+
+    def maximum_for_patient(self):
+        return _apply(qm.AggregateByPatient.Max, self)
 
 
 class StrEventSeries(ComparableFunctions, ComparableAggregations, EventSeries):

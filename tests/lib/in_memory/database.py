@@ -232,9 +232,11 @@ class Column:
 
     def aggregate_values(self, fn, default):
         def fn_with_null(values):
-            if any(value is None for value in values):
-                return None
-            return fn(values)
+            filtered = [v for v in values if v is not None]
+            if not filtered:
+                return default
+            else:
+                return fn(filtered)
 
         return self.make_new_column(lambda p, vv: [fn_with_null(vv)], default)
 

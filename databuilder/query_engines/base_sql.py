@@ -285,6 +285,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_sum(self, node):
         return self.aggregate_series_by_patient(node.source, sqlalchemy.func.sum)
 
+    @get_sql.register(AggregateByPatient.Min)
+    def get_sql_min(self, node):
+        return self.aggregate_series_by_patient(node.source, sqlalchemy.func.min)
+
+    @get_sql.register(AggregateByPatient.Max)
+    def get_sql_max(self, node):
+        return self.aggregate_series_by_patient(node.source, sqlalchemy.func.max)
+
     @get_sql.register(AggregateByPatient.Exists)
     def get_sql_exists(self, node):
         return self.aggregate_frame_by_patient(
