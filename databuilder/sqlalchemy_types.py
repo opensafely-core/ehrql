@@ -1,3 +1,4 @@
+import datetime
 from enum import Enum
 
 import sqlalchemy.types
@@ -12,6 +13,7 @@ __all__ = [
     "String",
     "Text",
     "TYPES_BY_NAME",
+    "type_from_python_type",
 ]
 
 # SQLAlchemy has different coercion rules for custom types vs built-in types. For
@@ -40,6 +42,28 @@ class Date(sqlalchemy.types.TypeDecorator):
 class DateTime(sqlalchemy.types.TypeDecorator):
     impl = sqlalchemy.types.DateTime
     cache_ok = True
+
+
+TYPE_MAP = {
+    bool: Boolean,
+    datetime.date: Date,
+    datetime.datetime: DateTime,
+    float: Float,
+    int: Integer,
+    str: Text,
+}
+
+
+def type_from_python_type(type_):
+    "Return the SQLAlchemy Type for a given Python type"
+    if hasattr(type_, "_primitive_type"):
+        lookup_type = type_._primitive_type()
+    else:
+        lookup_type = type_
+    try:
+        return TYPE_MAP[lookup_type]
+    except KeyError:
+        raise TypeError(f"Unsupported column type: {type_}")
 
 
 TYPES_BY_NAME = Enum(

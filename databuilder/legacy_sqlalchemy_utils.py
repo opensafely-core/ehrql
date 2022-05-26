@@ -13,7 +13,7 @@ def select_first_row_per_partition(query, partition_column, sort_columns, descen
     table_expr = get_primary_table(query)
 
     # Find all the selected column names
-    column_names = [column.name for column in query.selected_columns]
+    column_names = [column.key for column in query.selected_columns]
 
     # Query to select the columns that we need to sort on
     order_columns = [table_expr.c[column] for column in sort_columns]

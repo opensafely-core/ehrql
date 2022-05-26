@@ -5,11 +5,11 @@ class BaseQueryEngine:
     language (SQL, pandas dataframes etc).
     """
 
-    def __init__(self, dsn, backend, temporary_database=None):
+    def __init__(self, dsn, backend=None, temporary_database=None):
         """
         `dsn` is  Data Source Name — a string (usually a URL) which provides connection
             details to a data source (usually a RDBMS)
-        `backend` is a Backend instance
+        `backend` is an optional Backend instance
         """
         self.dsn = dsn
         self.backend = backend

@@ -21,6 +21,10 @@ class BaseCode:
     def __init_subclass__(cls, system_id, **kwargs):
         REGISTRY[system_id] = cls
 
+    @classmethod
+    def _primitive_type(cls):
+        return str
+
     # The presence of this method allows query engines to work with values of this type,
     # despite not being explicitly told about them beforehand
     def _to_primitive_type(self):

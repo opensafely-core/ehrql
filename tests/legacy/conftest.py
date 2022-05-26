@@ -4,6 +4,7 @@ from databuilder.query_engines.legacy_mssql import MssqlQueryEngine
 from databuilder.query_engines.legacy_spark import SparkQueryEngine
 
 from ..conftest import QueryEngineFixture
+from ..lib.mock_backend import MockBackend
 from .query_model_convert_to_new import convert as convert_to_new
 
 
@@ -12,9 +13,8 @@ from .query_model_convert_to_new import convert as convert_to_new
 # refactor the Query Engine.
 class LegacyQueryEngineFixture(QueryEngineFixture):
     def build_engine(self, **engine_kwargs):
-        backend = self.backend()
-        return backend.query_engine_class(
-            self.database.host_url(), backend, **engine_kwargs
+        return self.query_engine_class(
+            self.database.host_url(), MockBackend(), **engine_kwargs
         )
 
     def extract(self, cohort, **engine_kwargs):

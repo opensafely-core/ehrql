@@ -1,6 +1,7 @@
 from datetime import date
 
 import pytest
+import sqlalchemy
 
 from databuilder.backends.tpp import TPPBackend
 from tests.lib.tpp_schema import apcs, patient
@@ -35,14 +36,15 @@ def test_hospitalization_table_code_conversion(database, raw, codes):
         )
     )
 
-    query = TPPBackend.hospitalizations.get_query()
+    table = TPPBackend.hospitalizations.get_expression("hospitalizations")
+    query = sqlalchemy.select(table.c.code)
 
     results = list(run_query(database, query))
 
     # Because of the way that we split the raw codes, the order in which they are returned is not the same as the order
     # they appear in the table.
     assert len(results) == len(codes)
-    assert {r[2] for r in results} == set(codes)
+    assert {r[0] for r in results} == set(codes)
 
 
 def test_patients_contract_table(database):
@@ -54,7 +56,10 @@ def test_patients_contract_table(database):
         patient(5, "X", "1990-01-01"),
     )
 
-    query = TPPBackend.patients.get_query()
+    table = TPPBackend.patients.get_expression("patients")
+    query = sqlalchemy.select(
+        table.c.patient_id, table.c.date_of_birth, table.c.date_of_death, table.c.sex
+    )
 
     results = list(run_query(database, query))
     assert results == [

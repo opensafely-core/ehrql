@@ -4,7 +4,6 @@ import pytest
 
 from databuilder.query_language import Dataset
 
-from ..lib.mock_backend import EventLevelTable, PatientLevelTable
 from . import tables
 
 
@@ -15,8 +14,8 @@ def spec_test(request, engine):
         input_data = []
         for table, s in table_data.items():
             model = {
-                "patient_level_table": PatientLevelTable,
-                "event_level_table": EventLevelTable,
+                "patient_level_table": tables.PatientLevelTable,
+                "event_level_table": tables.EventLevelTable,
             }[table.qm_node.name]
             input_data.extend(model(**row) for row in parse_table(s))
 
@@ -49,7 +48,7 @@ def parse_table(s):
 
     header, _, *lines = s.strip().splitlines()
     col_names = [token.strip() for token in header.split("|")]
-    col_names[0] = "PatientId"
+    col_names[0] = "patient_id"
     rows = [parse_row(col_names, line) for line in lines]
     return rows
 
@@ -73,7 +72,7 @@ def parse_value(col_name, value):
     a null value.
     """
 
-    if col_name == "PatientId" or col_name[0] == "i":
+    if col_name == "patient_id" or col_name[0] == "i":
         parse = int
     elif col_name[0] == "b":
         parse = lambda v: {"T": True, "F": False}[v]  # noqa E731

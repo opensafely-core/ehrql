@@ -1,6 +1,6 @@
 import sqlalchemy
 
-from ..sqlalchemy_types import TYPES_BY_NAME
+from databuilder.sqlalchemy_types import TYPES_BY_NAME, type_from_python_type
 
 # Mutable global for storing registered backends
 BACKENDS = {}
@@ -49,18 +49,21 @@ class BaseBackend:
             contract = table.implements
             contract.validate_implementation(cls, name)
 
-    def get_table_expression(self, table_name):
+    def get_table_expression(self, table_name, schema):
         """
         Gets SQL expression for a table
         Args:
             table_name: Name of Table
+            schema: a TableSchema
         Returns:
-            A SQL subquery
+            A SQLAlchmey TableClause
         Raises:
             ValueError: If unknown table passed in
         """
-        table = self.tables[table_name]
-        return table.get_query().alias(table_name)
+        # TODO: We currently ignore the `schema` argument here. But I think we should
+        # move towards having the supplied schema define the column types or, if not
+        # that, then we should validate that the types match.
+        return self.tables[table_name].get_expression(table_name)
 
 
 class SQLTable:
@@ -75,9 +78,7 @@ class SQLTable:
     def _make_column(self, name, column):
         source = column.source or name
         type_ = TYPES_BY_NAME[column.type].value
-        sql_column = sqlalchemy.Column(source, type_)
-        if source != name:
-            sql_column = sql_column.label(name)
+        sql_column = sqlalchemy.Column(source, type_, key=name)
         return sql_column
 
 
@@ -92,12 +93,9 @@ class MappedTable(SQLTable):
         if "patient_id" not in self.columns:
             self.columns["patient_id"] = Column("integer", source)
 
-    def get_query(self):
+    def get_expression(self, table_name):
         columns = self._make_columns()
-        query = sqlalchemy.select(columns).select_from(
-            sqlalchemy.table(self.source, schema=self._schema)
-        )
-        return query
+        return sqlalchemy.table(self.source, *columns, schema=self._schema)
 
 
 class QueryTable(SQLTable):
@@ -111,9 +109,10 @@ class QueryTable(SQLTable):
         if "patient_id" not in self.columns:
             self.columns["patient_id"] = Column("integer")
 
-    def get_query(self):
+    def get_expression(self, table_name):
         columns = self._make_columns()
-        return sqlalchemy.text(self.query).columns(*columns)
+        query = sqlalchemy.text(self.query).columns(*columns)
+        return query.alias(table_name)
 
 
 class Column:
@@ -121,3 +120,18 @@ class Column:
         self.type = column_type
         self.source = source
         self.system = system
+
+
+class DefaultBackend:
+    def get_table_expression(self, table_name, schema):
+        """
+        Returns a SQLAlchemy Table object matching the supplied name and schema
+        """
+        return sqlalchemy.table(
+            table_name,
+            sqlalchemy.Column("patient_id"),
+            *[
+                sqlalchemy.Column(name, type_=type_from_python_type(type_))
+                for (name, type_) in schema.items()
+            ],
+        )
