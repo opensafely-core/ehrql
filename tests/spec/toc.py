@@ -16,6 +16,7 @@ contents = {
     ],
     "aggregate_series": [
         "test_minimum_and_maximum_for_patient",
+        "test_sum_for_patient",
     ],
     "combine_series": [
         "test_patient_series_and_patient_series",
