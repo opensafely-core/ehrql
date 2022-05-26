@@ -10,17 +10,18 @@ from databuilder.query_model import (
 )
 from databuilder.sqlalchemy_types import Integer, type_from_python_type
 
+from ..lib.util import next_id
+
 
 def setup(schema, num_patient_tables, num_event_tables):
     registry = sqlalchemy.orm.registry()
-    ids = iter(range(1, 2**63)).__next__
     patient_id_column = "PatientId"
 
     patient_table_names, patient_classes = _build_orm_classes(
-        "p", num_patient_tables, schema, patient_id_column, ids, registry
+        "p", num_patient_tables, schema, patient_id_column, registry
     )
     event_table_names, event_classes = _build_orm_classes(
-        "e", num_event_tables, schema, patient_id_column, ids, registry
+        "e", num_event_tables, schema, patient_id_column, registry
     )
 
     table_names = patient_table_names + event_table_names
@@ -38,18 +39,17 @@ def setup(schema, num_patient_tables, num_event_tables):
     )
 
 
-def _build_orm_classes(prefix, count, schema, patient_id_column, ids, registry):
+def _build_orm_classes(prefix, count, schema, patient_id_column, registry):
     names = [f"{prefix}{i}" for i in range(count)]
     classes = [
-        _build_orm_class(name, schema, patient_id_column, ids, registry)
-        for name in names
+        _build_orm_class(name, schema, patient_id_column, registry) for name in names
     ]
     return names, classes
 
 
-def _build_orm_class(name, schema, patient_id_column, ids, registry):
+def _build_orm_class(name, schema, patient_id_column, registry):
     columns = [
-        sqlalchemy.Column("Id", Integer, primary_key=True, default=ids),
+        sqlalchemy.Column("Id", Integer, primary_key=True, default=next_id),
         sqlalchemy.Column(patient_id_column, Integer),
     ]
     for col_name, type_ in schema.items():
