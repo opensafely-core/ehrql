@@ -10,7 +10,7 @@ from databuilder.query_model import (
 )
 from databuilder.sqlalchemy_types import Integer, type_from_python_type
 
-from ..lib.util import next_id
+from ..lib.util import next_id, null
 
 
 def setup(schema, num_patient_tables, num_event_tables):
@@ -50,10 +50,12 @@ def _build_orm_classes(prefix, count, schema, patient_id_column, registry):
 def _build_orm_class(name, schema, patient_id_column, registry):
     columns = [
         sqlalchemy.Column("Id", Integer, primary_key=True, default=next_id),
-        sqlalchemy.Column(patient_id_column, Integer),
+        sqlalchemy.Column(patient_id_column, Integer, nullable=False),
     ]
     for col_name, type_ in schema.items():
-        columns.append(sqlalchemy.Column(col_name, type_from_python_type(type_)))
+        columns.append(
+            sqlalchemy.Column(col_name, type_from_python_type(type_), default=null)
+        )
 
     table = sqlalchemy.Table(name, registry.metadata, *columns)
     class_ = type(name, (object,), dict(__tablename__=name, metadata=registry.metadata))
