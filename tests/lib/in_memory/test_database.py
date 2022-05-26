@@ -201,7 +201,7 @@ def test_column_aggregate_values():
     )
 
 
-def test_column_aggregate_propagates_nulls():
+def test_column_aggregate_ignores_nulls():
     c = Column.parse(
         """
         1 |
@@ -213,7 +213,7 @@ def test_column_aggregate_propagates_nulls():
     assert c.aggregate_values(sum, default=None) == Column.parse(
         """
         1 |
-        2 |
+        2 | 201
         """
     )
 
