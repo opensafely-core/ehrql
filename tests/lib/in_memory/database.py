@@ -49,7 +49,7 @@ class InMemoryDatabase:
             self.tables[sqla_table.name] = self.build_table(sqla_table, items)
 
     def build_table(self, sqla_table, items):
-        col_names = [col.name for col in sqla_table.columns if col.name != "Id"]
+        col_names = [col.name for col in sqla_table.columns if col.name != "_pk"]
         row_records = [
             [getattr(item, col_name) for col_name in col_names] for item in items
         ]
