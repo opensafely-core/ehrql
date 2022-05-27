@@ -14,10 +14,11 @@ def spec_test(request, engine):
         input_data = []
         for table, s in table_data.items():
             model = {
-                "patient_level_table": tables.PatientLevelTable,
-                "event_level_table": tables.EventLevelTable,
-            }[table.qm_node.name]
-            input_data.extend(model(**row) for row in parse_table(s))
+                tables.p: tables.PatientLevelTable,
+                tables.e: tables.EventLevelTable,
+            }[table]
+            schema = table.qm_node.schema
+            input_data.extend(model(**row) for row in parse_table(schema, s))
 
         # Populate database tables.
         engine.setup(*input_data)
@@ -40,7 +41,7 @@ def spec_test(request, engine):
     return run_test
 
 
-def parse_table(s):
+def parse_table(schema, s):
     """Parse string containing table data, returning list of dicts.
 
     See test_conftest.py for examples.
@@ -49,38 +50,39 @@ def parse_table(s):
     header, _, *lines = s.strip().splitlines()
     col_names = [token.strip() for token in header.split("|")]
     col_names[0] = "patient_id"
-    rows = [parse_row(col_names, line) for line in lines]
+    schema = dict(patient_id=int, **schema)
+    rows = [parse_row(schema, col_names, line) for line in lines]
     return rows
 
 
-def parse_row(col_names, line):
+def parse_row(schema, col_names, line):
     """Parse string containing row data, returning list of values.
 
     See test_conftest.py for examples.
     """
 
     return {
-        col_name: parse_value(col_name, token.strip())
+        col_name: parse_value(schema[col_name], token.strip())
         for col_name, token in zip(col_names, line.split("|"))
     }
 
 
-def parse_value(col_name, value):
+def parse_value(type_, value):
     """Parse string returning value of correct type for column.
 
-    The desired type is determined by the name of the column.  An empty string indicates
-    a null value.
+    An empty string indicates a null value.
     """
+    if not value:
+        return None
 
-    if col_name == "patient_id" or col_name[0] == "i":
-        parse = int
-    elif col_name[0] == "b":
+    if hasattr(type_, "_primitive_type"):
+        type_ = type_._primitive_type()
+
+    if type_ == bool:
         parse = lambda v: {"T": True, "F": False}[v]  # noqa E731
-    elif col_name[0] == "c":
-        parse = str
-    elif col_name[0] == "d":
+    elif type_ == datetime.date:
         parse = datetime.date.fromisoformat
     else:
-        assert False
+        parse = type_
 
-    return parse(value) if value else None
+    return parse(value)
