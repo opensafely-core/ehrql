@@ -28,6 +28,8 @@ dependencies = [
   "thrift",
   # Databricks specific connector
   "databricks-sql-connector",
+  # for SQL engine to turn on isolation_level="AUTOCOMMIT"
+  "pyodbc",
 ]
 
 [project.scripts]

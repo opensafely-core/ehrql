@@ -5,7 +5,7 @@ FROM ghcr.io/opensafely-core/base-docker:latest
 RUN \
   apt-get update --fix-missing && \
   apt-get install -y --no-install-recommends \
-    python3.9 python3.9-dev python3-pip && \
+    python3.9 python3.9-dev python3-pip libssl-dev gcc unixodbc unixodbc-dev && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1 && \
     rm -rf /var/lib/apt/lists/*
 
