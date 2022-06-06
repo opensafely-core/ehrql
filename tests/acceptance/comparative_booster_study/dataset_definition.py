@@ -4,7 +4,7 @@ from pathlib import Path
 from databuilder.query_language import Dataset
 
 from . import schema
-from .variables_lib import create_sequential_variables
+from .variables_lib import create_sequential_variables, practice_registration_as_of
 
 dataset = Dataset()
 
@@ -926,8 +926,12 @@ create_sequential_variables(
 #      returning="date_of_death",
 #      date_format="YYYY-MM-DD",
 #    ),
-#
-#    # This line defines the study population
+
+
+#######################################################################################
+# Population
+#######################################################################################
+
 #    population=patients.satisfying(
 #      f"""
 #        registered
@@ -940,10 +944,13 @@ create_sequential_variables(
 #        AND
 #        covid_vax_disease_3_date <= enddate
 #      """,
-#      # we define baseline variables on the day _before_ the study date (start date = day of first possible booster vaccination)
-#      registered=patients.registered_as_of(
-#        "covid_vax_disease_3_date - 1 day",
-#      ),
+
+# We define baseline variables on the day _before_ the study date (start date = day of
+# first possible booster vaccination)
+registered = practice_registration_as_of(
+    dataset.covid_vax_disease_3_date.subtract_days(1)
+).exists_for_patient()
+
 #      has_died=patients.died_from_any_cause(
 #        on_or_before="covid_vax_disease_3_date - 1 day",
 #        returning="binary_flag",
@@ -954,7 +961,5 @@ create_sequential_variables(
 #
 #
 #    ),
-#
-#  )
 
-dataset.set_population(schema.patients.exists_for_patient())
+dataset.set_population(registered)

@@ -29,3 +29,15 @@ vaccinations = build_event_table(
 )
 
 Vaccination = orm_class_from_table(Base, vaccinations)
+
+
+practice_registrations = build_event_table(
+    "practice_registrations",
+    {
+        "start_date": datetime.date,
+        "end_date": datetime.date,
+        "practice_pseudo_id": int,
+    },
+)
+
+PracticeRegistration = orm_class_from_table(Base, practice_registrations)
