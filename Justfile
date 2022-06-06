@@ -192,7 +192,7 @@ test-generative *ARGS: devenv
     $BIN/python -m pytest tests/generative {{ ARGS }}
 
 # Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
-test-all *ARGS: devenv build-databuilder
+test-all *ARGS: devenv build-databuilder generate-docs
     #!/usr/bin/env bash
     set -euo pipefail
 
