@@ -1,3 +1,10 @@
+from databuilder.query_language import Dataset
+
+from . import schema
+
+dataset = Dataset()
+
+
 #
 #  from cohortextractor import (
 #    StudyDefinition,
@@ -1106,3 +1113,5 @@
 #
 #
 #  )
+
+dataset.set_population(schema.patients.exists_for_patient())
