@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 from databuilder.query_language import Dataset
 
 from . import schema
@@ -5,36 +8,24 @@ from . import schema
 dataset = Dataset()
 
 
-#
-#  from cohortextractor import (
-#    StudyDefinition,
-#    patients,
-#    codelist_from_csv,
-#    codelist,
-#    filter_codes_by_category,
-#    combine_codelists,
-#  )
-#
-#  # Import codelists from codelists.py
-#  import codelists
-#
-#  # import json module
-#  import json
-#
-#  # import study dates defined in "./lib/design/study-dates.R" script
-#  with open("./lib/design/study-dates.json") as f:
-#    study_dates = json.load(f)
-#
-#  # change these in design.R if necessary
-#  firstpossiblevax_date = study_dates["firstpossiblevax_date"]
-#  studystart_date = study_dates["studystart_date"]
-#  studyend_date = study_dates["studyend_date"]
-#  followupend_date = study_dates["followupend_date"]
-#  firstpfizer_date = study_dates["firstpfizer_date"]
-#  firstaz_date = study_dates["firstaz_date"]
-#  firstmoderna_date = study_dates["firstmoderna_date"]
-#
-#
+#######################################################################################
+# Import study dates defined in "./lib/design/study-dates.R" script and then exported
+# to JSON
+#######################################################################################
+study_dates = json.loads(
+    Path(__file__).parent.joinpath("study-dates.json").read_text(),
+)
+
+# Change these in design.R if necessary
+firstpossiblevax_date = study_dates["firstpossiblevax_date"]
+studystart_date = study_dates["studystart_date"]
+studyend_date = study_dates["studyend_date"]
+followupend_date = study_dates["followupend_date"]
+firstpfizer_date = study_dates["firstpfizer_date"]
+firstaz_date = study_dates["firstaz_date"]
+firstmoderna_date = study_dates["firstmoderna_date"]
+
+
 #  ## Functions for extracting a series of time dependent variables
 #  # These define study defintion variable signatures such that
 #  # variable_1_date is the the first event date on or after the index date
