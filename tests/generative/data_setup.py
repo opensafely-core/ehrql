@@ -1,4 +1,3 @@
-import sqlalchemy
 import sqlalchemy.orm
 
 from databuilder.query_model import (
@@ -7,59 +6,41 @@ from databuilder.query_model import (
     SelectPatientTable,
     SelectTable,
 )
-from databuilder.sqlalchemy_types import Integer, type_from_python_type
 
-from ..lib.util import next_id, null
+from ..lib.util import orm_class_from_schema
 
 
 def setup(schema, num_patient_tables, num_event_tables):
-    registry = sqlalchemy.orm.registry()
-    patient_id_column = "patient_id"
+    base_class = sqlalchemy.orm.declarative_base()
 
     patient_table_names, patient_classes = _build_orm_classes(
-        "p", num_patient_tables, schema, patient_id_column, registry
+        "p", num_patient_tables, schema, base_class
     )
     event_table_names, event_classes = _build_orm_classes(
-        "e", num_event_tables, schema, patient_id_column, registry
+        "e", num_event_tables, schema, base_class
     )
 
     all_patients_query = _build_query(patient_table_names, event_table_names, schema)
 
     return (
-        patient_id_column,
         patient_classes,
         event_classes,
         all_patients_query,
-        registry.metadata,
+        base_class.metadata,
     )
 
 
-def _build_orm_classes(prefix, count, schema, patient_id_column, registry):
+def _build_orm_classes(prefix, count, schema, base_class):
     names = [f"{prefix}{i}" for i in range(count)]
-    classes = [
-        _build_orm_class(name, schema, patient_id_column, registry) for name in names
-    ]
+    classes = [_build_orm_class(name, schema, base_class) for name in names]
     return names, classes
 
 
-def _build_orm_class(name, schema, patient_id_column, registry):
-    columns = [
-        sqlalchemy.Column("Id", Integer, primary_key=True, default=next_id),
-        sqlalchemy.Column(patient_id_column, Integer, nullable=False),
-    ]
-    for col_name, type_ in schema.items():
-        columns.append(
-            sqlalchemy.Column(col_name, type_from_python_type(type_), default=null)
-        )
-
-    table = sqlalchemy.Table(name, registry.metadata, *columns)
-    class_ = type(name, (object,), dict(__tablename__=name, metadata=registry.metadata))
-    registry.map_imperatively(class_, table)
-
-    # It's helpful to have the classes available as module properties so that we can copy-paste failing test cases
-    # from Hypothesis.
+def _build_orm_class(name, schema, base_class):
+    class_ = orm_class_from_schema(base_class, name, schema)
+    # It's helpful to have the classes available as module properties so that we can
+    # copy-paste failing test cases from Hypothesis.
     globals()[name] = class_
-
     return class_
 
 

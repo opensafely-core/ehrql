@@ -14,7 +14,6 @@ from .conftest import count_nodes, observe_inputs
 # To simplify data generation, all tables have the same schema.
 schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
 (
-    patient_id_column,
     patient_classes,
     event_classes,
     all_patients_query,
@@ -34,7 +33,7 @@ variable_strategy = variable_strategies.variable(
     bool_values,
 )
 data_strategy = data_strategies.data(
-    patient_classes, event_classes, patient_id_column, schema, int_values, bool_values
+    patient_classes, event_classes, schema, int_values, bool_values
 )
 settings = dict(
     max_examples=(int(os.environ.get("EXAMPLES", 100))),
