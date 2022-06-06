@@ -23,8 +23,6 @@ def setup(schema, num_patient_tables, num_event_tables):
     all_patients_query = _build_query(patient_table_names, event_table_names, schema)
 
     return (
-        # We don't currently support different names for this column
-        "patient_id",
         patient_classes,
         event_classes,
         all_patients_query,
