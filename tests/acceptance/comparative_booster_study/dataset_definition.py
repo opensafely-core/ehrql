@@ -957,14 +957,12 @@ baseline_date = boosted_date.subtract_days(1)
 
 registered = practice_registration_as_of(baseline_date).exists_for_patient()
 
-#      has_died=patients.died_from_any_cause(
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        returning="binary_flag",
-#      ),
-#    ),
+deaths = schema.ons_deaths
+has_died = deaths.take(deaths.date.is_on_or_before(baseline_date)).exists_for_patient()
 
 dataset.set_population(
     registered
+    & ~has_died
     & boosted_date.is_on_or_after(studystart_date)
     & boosted_date.is_on_or_before(studyend_date)
 )

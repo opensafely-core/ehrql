@@ -41,3 +41,13 @@ practice_registrations = build_event_table(
 )
 
 PracticeRegistration = orm_class_from_table(Base, practice_registrations)
+
+
+ons_deaths = build_event_table(
+    "ons_deaths",
+    {
+        "date": datetime.date,
+    },
+)
+
+ONSDeath = orm_class_from_table(Base, ons_deaths)
