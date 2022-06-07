@@ -1,4 +1,24 @@
-from cohortextractor import codelist, codelist_from_csv, combine_codelists
+from databuilder.codes import REGISTRY, Codelist, codelist_from_csv
+
+# These functions will eventually be replaced by features built in to Data Builder's
+# codelist library, but I don't want to commit to any particular approach yet so I'm
+# defining them here.
+
+
+def codelist(codes, system):
+    code_class = REGISTRY[system]
+    return Codelist(
+        codes={code_class(code) for code in codes},
+        category_maps={},
+    )
+
+
+def combine_codelists(*codelists):
+    codes = set()
+    for codelist in codelists:
+        codes.update(codelist.codes)
+    return Codelist(codes=codes, category_maps={})
+
 
 covid_icd10 = codelist_from_csv(
     "codelists/opensafely-covid-identification.csv",
