@@ -4,6 +4,7 @@ from pathlib import Path
 from databuilder.query_language import Dataset
 
 from . import schema
+from .variables_lib import create_sequential_variables
 
 dataset = Dataset()
 
@@ -26,61 +27,61 @@ firstaz_date = study_dates["firstaz_date"]
 firstmoderna_date = study_dates["firstmoderna_date"]
 
 
-#  # Specify study defeinition
-#  study = StudyDefinition(
-#
-#    # Configure the expectations framework
-#    default_expectations={
-#      "date": {"earliest": "2020-01-01", "latest": studyend_date},
-#      "rate": "uniform",
-#      "incidence": 0.2,
-#      "int": {"distribution": "normal", "mean": 1000, "stddev": 100},
-#      "float": {"distribution": "normal", "mean": 25, "stddev": 5},
-#    },
-#
-#    #index_date = index_date,
-#
-#    #################################################################
-#    ## Covid vaccine dates
-#    #################################################################
-#
-#    # pfizer
-#    **vaccination_date_X(
-#      name = "covid_vax_pfizer",
-#      # use 1900 to capture all possible recorded covid vaccinations, including date errors
-#      # any vaccines occurring before national rollout are later excluded
-#      index_date = "1900-01-01",
-#      n = 4,
-#      product_name_matches="COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)"
-#    ),
-#
-#    # az
-#    **vaccination_date_X(
-#      name = "covid_vax_az",
-#      index_date = "1900-01-01",
-#      n = 4,
-#      product_name_matches="COVID-19 Vac AstraZeneca (ChAdOx1 S recomb) 5x10000000000 viral particles/0.5ml dose sol for inj MDV"
-#    ),
-#
-#    # moderna
-#    **vaccination_date_X(
-#      name = "covid_vax_moderna",
-#      index_date = "1900-01-01",
-#      n = 4,
-#      product_name_matches="COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)"
-#    ),
-#
-#    # any covid vaccine
-#    **vaccination_date_X(
-#      name = "covid_vax_disease",
-#      index_date = "1900-01-01",
-#      n = 4,
-#      target_disease_matches="SARS-2 CORONAVIRUS"
-#    ),
-#
-#
-#
-#
+#######################################################################################
+# Covid vaccine dates
+#######################################################################################
+
+# The old study def used 1900 as a minimum date so we replicate that here; but I think
+# it only did this because it had to supply _some_ minimum date, which we don't need to
+# here, so maybe we can drop this.
+vax = schema.vaccinations.take(schema.vaccinations.date.is_after("1900-01-01"))
+
+# Pfizer
+create_sequential_variables(
+    dataset,
+    "covid_vax_pfizer_{n}_date",
+    num_variables=4,
+    events=vax.take(
+        vax.product_name
+        == "COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)"
+    ),
+    column="date",
+)
+
+# AZ
+create_sequential_variables(
+    dataset,
+    "covid_vax_az_{n}_date",
+    num_variables=4,
+    events=vax.take(
+        vax.product_name
+        == "COVID-19 Vac AstraZeneca (ChAdOx1 S recomb) 5x10000000000 viral particles/0.5ml dose sol for inj MDV"
+    ),
+    column="date",
+)
+
+# Moderna
+create_sequential_variables(
+    dataset,
+    "covid_vax_moderna_{n}_date",
+    num_variables=4,
+    events=vax.take(
+        vax.product_name
+        == "COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)"
+    ),
+    column="date",
+)
+
+# Any covid vaccine
+create_sequential_variables(
+    dataset,
+    "covid_vax_disease_{n}_date",
+    num_variables=4,
+    events=vax.take(vax.target_disease == "SARS-2 CORONAVIRUS"),
+    column="date",
+)
+
+
 #    ###############################################################################
 #    ## Admin and demographics
 #    ###############################################################################
