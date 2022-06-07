@@ -148,19 +148,15 @@ dataset.sex = schema.patients.sex
 #        },
 #      },
 #    ),
-#
-#
-#    # Ethnicity in 6 categories
-#    ethnicity = patients.with_these_clinical_events(
-#      codelists.ethnicity,
-#      returning="category",
-#      find_last_match_in_period=True,
-#      include_date_of_match=False,
-#      return_expectations={
-#        "category": {"ratios": {"1": 0.2, "2": 0.2, "3": 0.2, "4": 0.2, "5": 0.2}},
-#        "incidence": 0.75,
-#      },
-#    ),
+
+# Ethnicity in 6 categories
+dataset.ethnicity = (
+    events.take(events.ctv3_code.is_in(codelists.ethnicity))
+    .sort_by(events.date)
+    .last_for_patient()
+    .ctv3_code.to_category(codelists.ethnicity.Grouping_6)
+)
+
 #
 #    # ethnicity variable that takes data from SUS
 #    ethnicity_6_sus = patients.with_ethnicity_from_sus(

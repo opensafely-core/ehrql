@@ -2,7 +2,7 @@ import datetime
 
 import sqlalchemy.orm
 
-from databuilder.codes import SNOMEDCTCode
+from databuilder.codes import CTV3Code, SNOMEDCTCode
 from databuilder.query_language import build_event_table, build_patient_table
 
 from ...lib.util import orm_class_from_table
@@ -60,6 +60,7 @@ coded_events = build_event_table(
     {
         "date": datetime.date,
         "snomedct_code": SNOMEDCTCode,
+        "ctv3_code": CTV3Code,
         "numeric_value": float,
     },
 )
