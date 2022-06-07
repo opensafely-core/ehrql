@@ -2,6 +2,7 @@ import datetime
 
 import sqlalchemy.orm
 
+from databuilder.codes import SNOMEDCTCode
 from databuilder.query_language import build_event_table, build_patient_table
 
 from ...lib.util import orm_class_from_table
@@ -52,3 +53,15 @@ ons_deaths = build_event_table(
 )
 
 ONSDeath = orm_class_from_table(Base, ons_deaths)
+
+
+coded_events = build_event_table(
+    "coded_events",
+    {
+        "date": datetime.date,
+        "snomedct_code": SNOMEDCTCode,
+        "numeric_value": float,
+    },
+)
+
+CodedEvent = orm_class_from_table(Base, coded_events)
