@@ -13,6 +13,7 @@ patients = build_patient_table(
     "patients",
     {
         "date_of_birth": datetime.date,
+        "sex": str,
     },
 )
 

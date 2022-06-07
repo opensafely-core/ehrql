@@ -113,15 +113,8 @@ dataset.age = age_as_of(baseline_date)
 # For JCVI group definitions
 dataset.age_august2021 = age_as_of("2020-08-31")
 
-#
-#    sex=patients.sex(
-#      return_expectations={
-#        "rate": "universal",
-#        "category": {"ratios": {"M": 0.49, "F": 0.51}},
-#        "incidence": 1,
-#      }
-#    ),
-#
+dataset.sex = schema.patients.sex
+
 #    # https://github.com/opensafely/risk-factors-research/issues/51
 #    bmi=patients.categorised_as(
 #      {
