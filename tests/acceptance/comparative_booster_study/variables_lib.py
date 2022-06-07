@@ -1,3 +1,5 @@
+from databuilder.query_language import case, when
+
 from . import schema
 
 
@@ -27,3 +29,17 @@ def practice_registration_as_of(date):
 
 def age_as_of(date):
     return schema.patients.date_of_birth.difference_in_years(date)
+
+
+def has_a_continuous_practice_registration_spanning(start_date, end_date):
+    return _registrations_overlapping_period(start_date, end_date).exists_for_patient()
+
+
+def date_deregistered_from_all_supported_practices():
+    max_dereg_date = schema.practice_registrations.end_date.maximum_for_patient()
+    # In TPP currently active registrations are recorded as having an end date of
+    # 9999-12-31. We convert these, and any other far-future dates, to NULL.
+    return case(
+        when(max_dereg_date.is_before("3000-01-01")).then(max_dereg_date),
+        default=None,
+    )

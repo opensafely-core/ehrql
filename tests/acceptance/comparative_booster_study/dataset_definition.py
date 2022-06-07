@@ -7,6 +7,8 @@ from . import schema
 from .variables_lib import (
     age_as_of,
     create_sequential_variables,
+    date_deregistered_from_all_supported_practices,
+    has_a_continuous_practice_registration_spanning,
     practice_registration_as_of,
 )
 
@@ -100,15 +102,12 @@ baseline_date = boosted_date.subtract_days(1)
 # Admin and demographics
 #######################################################################################
 
-#    has_follow_up_previous_6weeks=patients.registered_with_one_practice_between(
-#      start_date="covid_vax_disease_3_date - 42 days",
-#      end_date="covid_vax_disease_3_date",
-#    ),
-#
-#    dereg_date=patients.date_deregistered_from_all_supported_practices(
-#      on_or_after="covid_vax_disease_3_date",
-#      date_format="YYYY-MM-DD",
-#    ),
+dataset.has_follow_up_previous_6weeks = has_a_continuous_practice_registration_spanning(
+    start_date=boosted_date.subtract_days(6 * 7),
+    end_date=boosted_date,
+)
+
+dataset.dereg_date = date_deregistered_from_all_supported_practices()
 
 dataset.age = age_as_of(baseline_date)
 # For JCVI group definitions
@@ -171,19 +170,14 @@ dataset.age_august2021 = age_as_of("2020-08-31")
 #        "incidence": 0.8,
 #      },
 #    ),
-#
-#    ################################################################################################
-#    ## Practice and patient ID variables
-#    ################################################################################################
-#    # practice pseudo id
-#    practice_id=patients.registered_practice_as_of(
-#      "covid_vax_disease_3_date - 1 day",
-#      returning="pseudo_id",
-#      return_expectations={
-#        "int": {"distribution": "normal", "mean": 1000, "stddev": 100},
-#        "incidence": 1,
-#      },
-#    ),
+
+
+#######################################################################################
+# Practice and patient ID variables
+#######################################################################################
+
+dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo_id
+
 #
 #    # msoa
 #    msoa=patients.address_as_of(
