@@ -33,7 +33,7 @@ covid_icd10 = codelist_from_csv(
 
 covid_emergency = codelist(
     ["1240751000000100"],
-    system="snomed",
+    system="snomedct",
 )
 
 
@@ -214,7 +214,7 @@ ethnicity_16 = codelist_from_csv(
 # )
 #
 # dmards = codelist_from_csv(
-#     CODELIST_DIR / "opensafely-dmards.csv", system="snomed", column="snomed_id",
+#     CODELIST_DIR / "opensafely-dmards.csv", system="snomedct", column="snomed_id",
 # )
 #
 #
@@ -244,7 +244,7 @@ ethnicity_16 = codelist_from_csv(
 # Patients in long-stay nursing and residential care
 carehome = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-longres.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
@@ -252,14 +252,14 @@ carehome = codelist_from_csv(
 # High Risk from COVID-19 code
 shield = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-shield.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Lower Risk from COVID-19 codes
 nonshield = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-nonshield.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
@@ -267,140 +267,140 @@ nonshield = codelist_from_csv(
 # Asthma Diagnosis code
 ast = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-ast.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Asthma Admission codes
 astadm = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-astadm.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Asthma systemic steroid prescription codes
 astrx = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-astrx.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Chronic Respiratory Disease
 resp_cov = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-resp_cov.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Chronic heart disease codes
 chd_cov = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-chd_cov.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Chronic kidney disease diagnostic codes
 ckd_cov = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-ckd_cov.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Chronic kidney disease codes - all stages
 ckd15 = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-ckd15.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Chronic kidney disease codes-stages 3 - 5
 ckd35 = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-ckd35.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Chronic Liver disease codes
 cld = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-cld.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Diabetes diagnosis codes
 diab = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-diab.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Immunosuppression diagnosis codes
 immdx_cov = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-immdx_cov.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Immunosuppression medication codes
 immrx = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-immrx.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Chronic Neurological Disease including Significant Learning Disorder
 cns_cov = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-cns_cov.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Asplenia or Dysfunction of the Spleen codes
 spln_cov = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-spln_cov.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # BMI
 bmi = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-bmi.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # All BMI coded terms
 bmi_stage = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-bmi_stage.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Severe Obesity code recorded
 sev_obesity = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-sev_obesity.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Diabetes resolved codes
 dmres = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-dmres.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Severe Mental Illness codes
 sev_mental = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-sev_mental.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Remission codes relating to Severe Mental Illness
 smhres = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-smhres.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
@@ -408,14 +408,14 @@ smhres = codelist_from_csv(
 # to represent household contact of shielding individual
 hhld_imdef = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-hhld_imdef.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Wider Learning Disability
 learndis = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-learndis.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
@@ -423,60 +423,62 @@ learndis = codelist_from_csv(
 # Carer codes
 carer = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-carer.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # No longer a carer codes
 notcarer = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-notcarer.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Employed by Care Home codes
 carehomeemployee = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-carehome.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Employed by nursing home codes
 nursehomeemployee = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-nursehome.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 # Employed by domiciliary care provider codes
 domcareemployee = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-domcare.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 
 eol = codelist_from_csv(
     CODELIST_DIR / "nhsd-primary-care-domain-refsets-palcare_cod.csv",
-    system="snomed",
+    system="snomedct",
     column="code",
 )
 
 midazolam = codelist_from_csv(
     CODELIST_DIR / "opensafely-midazolam-end-of-life.csv",
-    system="snomed",
+    system="snomedct",
     column="dmd_id",
 )
 
 housebound = codelist_from_csv(
-    CODELIST_DIR / "opensafely-housebound.csv", system="snomed", column="code"
+    CODELIST_DIR / "opensafely-housebound.csv", system="snomedct", column="code"
 )
 
 no_longer_housebound = codelist_from_csv(
-    CODELIST_DIR / "opensafely-no-longer-housebound.csv", system="snomed", column="code"
+    CODELIST_DIR / "opensafely-no-longer-housebound.csv",
+    system="snomedct",
+    column="code",
 )
 
 discharged_to_hospital = codelist(
     ["306706006", "1066331000000109", "1066391000000105"],
-    system="snomed",
+    system="snomedct",
 )
