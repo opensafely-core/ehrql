@@ -105,13 +105,11 @@ ethnicity = codelist_from_csv(
     CODELIST_DIR / "opensafely-ethnicity.csv",
     system="ctv3",
     column="Code",
-    category_column="Grouping_6",
 )
 ethnicity_16 = codelist_from_csv(
     CODELIST_DIR / "opensafely-ethnicity.csv",
     system="ctv3",
     column="Code",
-    category_column="Grouping_16",
 )
 
 #
