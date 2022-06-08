@@ -82,13 +82,13 @@ def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
     )
 
 
-def test_validate_dataset_definition(mocker, tmp_path):
-    # Verify that the validate_dataset_definition subcommand can be invoked.
+def test_dump_dataset_sql(mocker, tmp_path):
+    # Verify that the dump dataset sql subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.validate_dataset")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
-        "validate_dataset_definition",
+        "dump-dataset-sql",
         "--dataset-definition",
         str(dataset_definition_path),
         "tpp",

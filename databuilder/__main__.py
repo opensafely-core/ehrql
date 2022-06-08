@@ -43,7 +43,7 @@ def main(args=None):
             parser.error(
                 "error: either --dummy-data-file or DATABASE_URL environment variable is required"
             )
-    elif options.which == "validate_dataset_definition":
+    elif options.which == "dump-dataset-sql":
         validate_dataset(
             options.dataset_definition,
             options.output,
@@ -74,7 +74,7 @@ def build_parser():
 
     subparsers = parser.add_subparsers(help="sub-command help")
     add_generate_dataset(subparsers)
-    add_validate_dataset_definition(subparsers)
+    add_dump_dataset_sql(subparsers)
     add_generate_measures(subparsers)
     add_test_connection(subparsers)
 
@@ -101,12 +101,12 @@ def add_generate_dataset(subparsers):
     )
 
 
-def add_validate_dataset_definition(subparsers):
+def add_dump_dataset_sql(subparsers):
     parser = subparsers.add_parser(
-        "validate_dataset_definition",
+        "dump-dataset-sql",
         help="Validate the dataset definition against the specified backend",
     )
-    parser.set_defaults(which="validate_dataset_definition")
+    parser.set_defaults(which="dump-dataset-sql")
     parser.add_argument(
         "backend",
         type=str,

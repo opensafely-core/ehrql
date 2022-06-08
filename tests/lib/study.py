@@ -114,7 +114,7 @@ class Study:
     @staticmethod
     def _validate_command(definition, output):
         return [
-            "validate_dataset_definition",
+            "dump-dataset-sql",
             "--dataset-definition",
             str(definition),
             "--output",
