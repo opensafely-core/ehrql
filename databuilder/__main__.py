@@ -30,14 +30,14 @@ def main(args=None):
         if database_url:
             generate_dataset(
                 definition_file=options.dataset_definition,
-                dataset_file=options.dataset,
+                dataset_file=options.output
                 db_url=database_url,
                 backend_id=os.environ.get("OPENSAFELY_BACKEND"),
                 temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
             )
         elif dummy_data_file:
             pass_dummy_data(
-                options.dataset_definition, options.dataset, dummy_data_file
+                options.dataset_definition, options.output dummy_data_file
             )
         else:
             parser.error(
@@ -53,7 +53,7 @@ def main(args=None):
         generate_measures(
             definition_path=options.dataset_definition,
             input_file=options.input,
-            dataset_file=options.dataset,
+            dataset_file=options.output
         )
     elif options.which == "test-connection":
         test_connection(
