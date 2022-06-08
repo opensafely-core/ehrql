@@ -94,7 +94,7 @@ class Study:
             "generate_dataset",
             "--dataset-definition",
             str(definition),
-            "--dataset",
+            "--output",
             str(dataset),
         ]
 

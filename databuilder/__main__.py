@@ -90,7 +90,7 @@ def add_generate_dataset(subparsers):
         type=existing_python_file,
     )
     parser.add_argument(
-        "--dataset",
+        "--output",
         help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
     )
@@ -136,7 +136,7 @@ def add_generate_measures(subparsers):
         type=Path,
     )
     parser.add_argument(
-        "--dataset",
+        "--output",
         help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
     )
