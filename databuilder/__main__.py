@@ -23,7 +23,7 @@ def main(args=None):
 
     options = parser.parse_args(args)
 
-    if options.which == "generate_dataset":
+    if options.which == "generate-dataset":
         database_url = os.environ.get("DATABASE_URL")
         dummy_data_file = options.dummy_data_file
 
@@ -49,18 +49,18 @@ def main(args=None):
             options.output,
             backend_id=options.backend,
         )
-    elif options.which == "generate_measures":
+    elif options.which == "generate-measures":
         generate_measures(
             definition_path=options.dataset_definition,
             input_file=options.input,
             dataset_file=options.dataset,
         )
-    elif options.which == "test_connection":
+    elif options.which == "test-connection":
         test_connection(
             backend=options.backend,
             url=options.url,
         )
-    elif options.which == "print_help":
+    elif options.which == "print-help":
         parser.print_help()
     else:
         assert False, f"Unhandled subcommand: {options.which}"
@@ -70,7 +70,7 @@ def build_parser():
     parser = ArgumentParser(
         prog="databuilder", description="Generate datasets in OpenSAFELY"
     )
-    parser.set_defaults(which="print_help")
+    parser.set_defaults(which="print-help")
 
     subparsers = parser.add_subparsers(help="sub-command help")
     add_generate_dataset(subparsers)
@@ -82,8 +82,8 @@ def build_parser():
 
 
 def add_generate_dataset(subparsers):
-    parser = subparsers.add_parser("generate_dataset", help="Generate a dataset")
-    parser.set_defaults(which="generate_dataset")
+    parser = subparsers.add_parser("generate-dataset", help="Generate a dataset")
+    parser.set_defaults(which="generate-dataset")
     parser.add_argument(
         "--dataset-definition",
         help="The path of the file where the dataset is defined",
@@ -127,9 +127,9 @@ def add_dump_dataset_sql(subparsers):
 
 def add_generate_measures(subparsers):
     parser = subparsers.add_parser(
-        "generate_measures", help="Generate measures from a dataset"
+        "generate-measures", help="Generate measures from a dataset"
     )
-    parser.set_defaults(which="generate_measures")
+    parser.set_defaults(which="generate-measures")
     parser.add_argument(
         "--input",
         help="Path and filename (or pattern) of the input file(s)",
@@ -149,9 +149,9 @@ def add_generate_measures(subparsers):
 
 def add_test_connection(subparsers):
     parser = subparsers.add_parser(
-        "test_connection", help="test the database connection configuration"
+        "test-connection", help="test the database connection configuration"
     )
-    parser.set_defaults(which="test_connection")
+    parser.set_defaults(which="test-connection")
     parser.add_argument(
         "--backend",
         "-b",

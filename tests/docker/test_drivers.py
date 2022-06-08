@@ -32,7 +32,7 @@ def test_driver_in_container(run_in_container, engine):
 
     run_in_container(
         [
-            "test_connection",
+            "test-connection",
             "--backend",
             backend,
             "--url",

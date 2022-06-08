@@ -91,7 +91,7 @@ class Study:
     @staticmethod
     def _generate_command(definition, dataset):
         return [
-            "generate_dataset",
+            "generate-dataset",
             "--dataset-definition",
             str(definition),
             "--output",
