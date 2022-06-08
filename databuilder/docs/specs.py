@@ -26,14 +26,18 @@ def build_chapter(chapter_id, package_name, module_names):
     """
 
     package = import_module(f"tests.spec.{package_name}")
-    return {
-        "id": chapter_id,
-        "title": package.title,
-        "sections": [
-            build_section(f"{chapter_id}.{ix + 1}", package_name, module_name)
-            for ix, module_name in enumerate(module_names)
-        ],
-    }
+    text = getattr(package, "text", None)
+    return concatenate_optional_text(
+        {
+            "id": chapter_id,
+            "title": package.title,
+            "sections": [
+                build_section(f"{chapter_id}.{ix + 1}", package_name, module_name)
+                for ix, module_name in enumerate(module_names)
+            ],
+        },
+        text,
+    )
 
 
 def build_section(section_id, package_name, module_name):
@@ -48,11 +52,15 @@ def build_section(section_id, package_name, module_name):
         build_paragraph(f"{section_id}.{ix + 1}", test_fn)
         for ix, test_fn in enumerate(test_fns)
     ]
-    return {
-        "id": section_id,
-        "title": module.title,
-        "paragraphs": paragraphs,
-    }
+    text = getattr(module, "text", None)
+    return concatenate_optional_text(
+        {
+            "id": section_id,
+            "title": module.title,
+            "paragraphs": paragraphs,
+        },
+        text,
+    )
 
 
 def build_paragraph(paragraph_id, test_fn):
@@ -93,13 +101,26 @@ def build_paragraph(paragraph_id, test_fn):
     series_line = source_lines[ix + 2]
     series = series_line.strip().removesuffix(",")
 
-    return {
-        "id": paragraph_id,
-        "title": title,
-        "tables": tables,
-        "series": series,
-        "output": output,
-    }
+    # Extract descriptive docstring if any
+    text = inspect.getdoc(test_fn)
+
+    return concatenate_optional_text(
+        {
+            "id": paragraph_id,
+            "title": title,
+            "tables": tables,
+            "series": series,
+            "output": output,
+        },
+        text,
+    )
+
+
+def concatenate_optional_text(dictionary, text):
+    return dict(
+        dictionary,
+        **{"text": text} if text else {},
+    )
 
 
 def get_table_name(table):
