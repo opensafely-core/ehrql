@@ -20,7 +20,11 @@ from databuilder.query_model import PickOneRowPerPatient, SelectColumn, get_inpu
 
 
 class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):
-    selected_columns: frozenset[Any]
+    # The actual type here is `frozenset[Series]` but our type-checking code can't
+    # currently handle the mixed type sets we get here (e.g. `Series[bool]` and
+    # `Series[int]`). We've decided that, as this is an internal class not part of the
+    # public API, it's not worth complicating the type-checking code for this use case.
+    selected_columns: Any
 
 
 def apply_transforms(variables):
