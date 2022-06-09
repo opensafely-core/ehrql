@@ -426,28 +426,26 @@ sev_obesity_event = last_prior_event(
 )
 bmi_event = last_prior_event(codelists.bmi, where=(events.numeric_value != 0.0))
 
-#    sev_obesity = patients.satisfying(
-#      """
-#        sev_obesity_date > bmi_date OR
-#        bmi_value1 >= 40
-#        """,
-#    ),
+dataset.sev_obesity = (sev_obesity_event.date > bmi_event.date) | (
+    bmi_event.numeric_value >= 40.0
+)
 
+# Diabetes
 diab_date = last_prior_event(codelists.diab).date
 dmres_date = last_prior_event(codelists.dmres).date
 
-#    diabetes = patients.satisfying(
-#      "(dmres_date < diab_date) OR (diab_date AND (NOT dmres_date))",
-#    ),
+dataset.diabetes = (dmres_date < diab_date) | (
+    diab_date.is_not_null() & dmres_date.is_null()
+)
 
 # Severe Mental Illness codes
 sev_mental_date = last_prior_event(codelists.sev_mental).date
 # Remission codes relating to Severe Mental Illness
 smhres_date = last_prior_event(codelists.smhres).date
 
-#    sev_mental=patients.satisfying(
-#      "(smhres_date < sev_mental_date) OR (sev_mental_date AND (NOT smhres_date))",
-#    ),
+dataset.sev_mental = (smhres_date < sev_mental_date) | (
+    sev_mental_date.is_not_null() & smhres_date.is_null()
+)
 
 # Chronic heart disease codes
 dataset.chronic_heart_disease = has_prior_event(codelists.chd_cov)
@@ -459,12 +457,8 @@ ckd = has_prior_event(codelists.ckd_cov)
 ckd15_date = last_prior_event(codelists.ckd15).date
 # Chronic kidney disease codes-stages 3 - 5
 ckd35_date = last_prior_event(codelists.ckd35).date
-#    chronic_kidney_disease=patients.satisfying(
-#      """
-#        ckd OR
-#        (ckd15_date AND ckd35_date >= ckd15_date)
-#        """,
-#    ),
+
+dataset.chronic_kidney_disease = ckd | (ckd35_date >= ckd15_date)
 
 # Chronic Liver disease codes
 dataset.chronic_liver_disease = has_prior_event(codelists.cld)
@@ -540,6 +534,12 @@ dataset.hhld_imdef_dat = last_prior_event(codelists.hhld_imdef).date
 #    #   date_format="YYYY-MM-DD",
 #    # ),
 
+# Shielding - Clinically Extremely Vulnerable
+#
+# The shielded patient list was retired in March/April 2021 when shielding ended
+# so it might be worth using that as the end date instead of index_date, as we're not sure
+# what has happened to these codes since then, e.g. have doctors still been adding new
+# shielding flags or low-risk flags? Depends what you're looking for really. Could investigate separately.
 # Ever coded as Clinically Extremely Vulnerable
 date_severely_clinically_vulnerable = last_prior_event(codelists.shield).date
 dataset.cev_ever = date_severely_clinically_vulnerable.is_not_null()
@@ -550,14 +550,9 @@ less_vulnerable = has_prior_event(
     where=events.date.is_after(date_severely_clinically_vulnerable),
 )
 
-#    cev = patients.satisfying(
-#      """severely_clinically_vulnerable AND NOT less_vulnerable""",
-#      ##### The shielded patient list was retired in March/April 2021 when shielding ended
-#      ##### so it might be worth using that as the end date instead of index_date, as we're not sure
-#      ##### what has happened to these codes since then, e.g. have doctors still been adding new
-#      ##### shielding flags or low-risk flags? Depends what you're looking for really. Could investigate separately.
-#    ),
+dataset.cev = dataset.cev_ever & ~less_vulnerable
 
+# End of life
 endoflife_coding = has_prior_event(codelists.eol)
 
 #    endoflife = patients.satisfying(
@@ -574,6 +569,7 @@ endoflife_coding = has_prior_event(codelists.eol)
 #
 #    ),
 
+# Housebound
 housebound_date = last_prior_event(codelists.housebound).date
 no_longer_housebound = has_prior_event(
     codelists.no_longer_housebound,
@@ -584,12 +580,9 @@ moved_into_care_home = has_prior_event(
     where=events.date.is_on_or_after(housebound_date),
 )
 
-#    housebound = patients.satisfying(
-#      """housebound_date
-#      AND NOT no_longer_housebound
-#      AND NOT moved_into_care_home
-#      """,
-#    ),
+dataset.housebound = (
+    housebound_date.is_not_null() & ~no_longer_housebound & ~moved_into_care_home
+)
 
 #    prior_covid_test_frequency=patients.with_test_result_in_sgss(
 #      pathogen="SARS-CoV-2",
