@@ -4,6 +4,7 @@ from pathlib import Path
 from databuilder.query_language import Dataset
 
 from . import codelists, schema
+from .codelists import combine_codelists
 from .variables_lib import (
     age_as_of,
     create_sequential_variables,
@@ -310,24 +311,27 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 dataset.care_home_code = has_prior_event(codelists.carehome)
 
 
-#    ################################################################################################
-#    ## Pre-baseline events where event date is of interest
-#    ################################################################################################
-#
-#
-#    # Positive case identification prior to study start date
-#    primary_care_covid_case_0_date=patients.with_these_clinical_events(
-#      combine_codelists(
-#        codelists.covid_primary_care_code,
-#        codelists.covid_primary_care_positive_test,
-#        codelists.covid_primary_care_sequelae,
-#      ),
-#      returning="date",
-#      date_format="YYYY-MM-DD",
-#      on_or_before="covid_vax_disease_3_date - 1 day",
-#      find_last_match_in_period=True,
-#    ),
-#
+#######################################################################################
+# Pre-baseline events where event date is of interest
+#######################################################################################
+
+primary_care_covid_events = events.take(
+    events.ctv3_code.is_in(
+        combine_codelists(
+            codelists.covid_primary_care_code,
+            codelists.covid_primary_care_positive_test,
+            codelists.covid_primary_care_sequelae,
+        )
+    )
+)
+
+dataset.primary_care_covid_case_0_date = (
+    primary_care_covid_events.take(events.date.is_on_or_before(baseline_date))
+    .sort_by(events.date)
+    .last_for_patient()
+    .date
+)
+
 #    # covid PCR test dates from SGSS
 #    covid_test_0_date=patients.with_test_result_in_sgss(
 #      pathogen="SARS-CoV-2",
@@ -628,26 +632,20 @@ dataset.housebound = (
 #
 #    ),
 #
-#
-#    ############################################################
-#    ## Post-baseline variables (outcomes)
-#    ############################################################
-#
-#
-#    # Positive case identification after study start date
-#    primary_care_covid_case_date=patients.with_these_clinical_events(
-#      combine_codelists(
-#        codelists.covid_primary_care_code,
-#        codelists.covid_primary_care_positive_test,
-#        codelists.covid_primary_care_sequelae,
-#      ),
-#      returning="date",
-#      date_format="YYYY-MM-DD",
-#      on_or_after="covid_vax_disease_3_date",
-#      find_first_match_in_period=True,
-#    ),
-#
-#
+
+
+#######################################################################################
+# Post-baseline variables (outcomes)
+#######################################################################################
+
+# Positive case identification after study start date
+dataset.primary_care_covid_case_date = (
+    primary_care_covid_events.take(events.date.is_on_or_after(boosted_date))
+    .sort_by(events.date)
+    .first_for_patient()
+    .date
+)
+
 #    # covid PCR test dates from SGSS
 #    covid_test_date=patients.with_test_result_in_sgss(
 #      pathogen="SARS-CoV-2",
