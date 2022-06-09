@@ -196,9 +196,14 @@ dataset.ethnicity = (
 # Practice and patient ID variables
 #######################################################################################
 
-dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo_id
+practice_reg = practice_registration_as_of(baseline_date)
 
-#
+dataset.practice_id = practice_reg.practice_pseudo_id
+# STP is an NHS administration region based on geography
+dataset.stp = practice_reg.practice_stp
+# NHS administrative region
+dataset.region = practice_reg.practice_nuts1_region_name
+
 #    # msoa
 #    msoa=patients.address_as_of(
 #      "covid_vax_disease_3_date - 1 day",
@@ -211,52 +216,7 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 #          "E02000014": 0.0625, "E02000015": 0.0625, "E02000016": 0.0625, "E02000017": 0.0625}},
 #      },
 #    ),
-#
-#    # stp is an NHS administration region based on geography
-#    stp=patients.registered_practice_as_of(
-#      "covid_vax_disease_3_date - 1 day",
-#      returning="stp_code",
-#      return_expectations={
-#        "rate": "universal",
-#        "category": {
-#          "ratios": {
-#            "STP1": 0.1,
-#            "STP2": 0.1,
-#            "STP3": 0.1,
-#            "STP4": 0.1,
-#            "STP5": 0.1,
-#            "STP6": 0.1,
-#            "STP7": 0.1,
-#            "STP8": 0.1,
-#            "STP9": 0.1,
-#            "STP10": 0.1,
-#          }
-#        },
-#      },
-#    ),
-#    # NHS administrative region
-#    region=patients.registered_practice_as_of(
-#      "covid_vax_disease_3_date - 1 day",
-#      returning="nuts1_region_name",
-#      return_expectations={
-#        "rate": "universal",
-#        "category": {
-#          "ratios": {
-#            "North East": 0.1,
-#            "North West": 0.1,
-#            "Yorkshire and The Humber": 0.2,
-#            "East Midlands": 0.1,
-#            "West Midlands": 0.1,
-#            "East": 0.1,
-#            "London": 0.1,
-#            "South East": 0.1,
-#            "South West": 0.1
-#            #"" : 0.01
-#          },
-#        },
-#      },
-#    ),
-#
+
 #    ## IMD - quintile
 #
 #    imd=patients.address_as_of(

@@ -39,6 +39,8 @@ practice_registrations = build_event_table(
         "start_date": datetime.date,
         "end_date": datetime.date,
         "practice_pseudo_id": int,
+        "practice_stp": str,
+        "practice_nuts1_region_name": str,
     },
 )
 
