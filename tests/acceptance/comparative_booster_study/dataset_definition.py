@@ -3,7 +3,7 @@ from pathlib import Path
 
 from databuilder.query_language import Dataset
 
-from . import schema
+from . import codelists, schema
 from .variables_lib import (
     age_as_of,
     create_sequential_variables,
@@ -96,6 +96,14 @@ boosted_date = dataset.covid_vax_disease_3_date
 # We define baseline variables on the day _before_ the study date (start date = day of
 # first possible booster vaccination)
 baseline_date = boosted_date.subtract_days(1)
+
+events = schema.coded_events
+prior_events = events.take(events.date.is_on_or_before(baseline_date))
+
+
+def has_prior_event(codelist):
+    matching = prior_events.take(prior_events.snomedct_code.is_in(codelist))
+    return matching.exists_for_patient()
 
 
 #######################################################################################
@@ -289,17 +297,11 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 #        return_expectations={"incidence": 0.01},
 #    ),
 #
-#    # Patients in long-stay nursing and residential care
-#    care_home_code=patients.with_these_clinical_events(
-#        codelists.carehome,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        returning="binary_flag",
-#        return_expectations={"incidence": 0.01},
-#    ),
-#
-#
-#
-#
+
+# Patients in long-stay nursing and residential care
+dataset.care_home_code = has_prior_event(codelists.carehome)
+
+
 #    ################################################################################################
 #    ## Pre-baseline events where event date is of interest
 #    ################################################################################################
@@ -359,35 +361,24 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 #      date_format="YYYY-MM-DD",
 #      find_last_match_in_period=True,
 #    ),
-#
-#
-#
-#
-#
-#    ############################################################
-#    ## Clinical information as at (day before) 3rd / booster dose date
-#    ############################################################
-#
-#
-#    # From PRIMIS
-#
+
+
+#######################################################################################
+# Clinical information as at (day before) 3rd / booster dose date
+#######################################################################################
+
+# From PRIMIS
+
+# Asthma Admission codes
+astadm = has_prior_event(codelists.astadm)
+# Asthma Diagnosis code
+ast = has_prior_event(codelists.ast)
+
 #    asthma = patients.satisfying(
 #      """
 #        astadm OR
 #        (ast AND astrxm1 AND astrxm2 AND astrxm3)
 #        """,
-#      # Asthma Admission codes
-#      astadm=patients.with_these_clinical_events(
-#        codelists.astadm,
-#        returning="binary_flag",
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#      ),
-#      # Asthma Diagnosis code
-#      ast = patients.with_these_clinical_events(
-#        codelists.ast,
-#        returning="binary_flag",
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#      ),
 #      # Asthma systemic steroid prescription code in month 1
 #      astrxm1=patients.with_these_medications(
 #        codelists.astrx,
@@ -408,23 +399,17 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 #      ),
 #
 #    ),
-#
-#    # Chronic Neurological Disease including Significant Learning Disorder
-#    chronic_neuro_disease=patients.with_these_clinical_events(
-#      codelists.cns_cov,
-#      returning="binary_flag",
-#      on_or_before="covid_vax_disease_3_date - 1 day",
-#    ),
-#
-#    # Chronic Respiratory Disease
+
+# Chronic Neurological Disease including Significant Learning Disorder
+dataset.chronic_neuro_disease = has_prior_event(codelists.cns_cov)
+
+# Chronic Respiratory Disease
+resp_cov = has_prior_event(codelists.resp_cov)
+
 #    chronic_resp_disease = patients.satisfying(
 #      "asthma OR resp_cov",
-#      resp_cov=patients.with_these_clinical_events(
-#        codelists.resp_cov,
-#        returning="binary_flag",
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#      ),
 #    ),
+
 #
 #    sev_obesity = patients.satisfying(
 #      """
@@ -508,15 +493,13 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 #        date_format="YYYY-MM-DD",
 #      ),
 #    ),
-#
-#
-#    # Chronic heart disease codes
-#    chronic_heart_disease=patients.with_these_clinical_events(
-#      codelists.chd_cov,
-#      returning="binary_flag",
-#      on_or_before="covid_vax_disease_3_date - 1 day",
-#    ),
-#
+
+# Chronic heart disease codes
+dataset.chronic_heart_disease = has_prior_event(codelists.chd_cov)
+
+# Chronic kidney disease diagnostic codes
+ckd = has_prior_event(codelists.ckd_cov)
+
 #    chronic_kidney_disease=patients.satisfying(
 #      """
 #        ckd OR
@@ -540,33 +523,17 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 #        on_or_before="covid_vax_disease_3_date - 1 day",
 #        date_format="YYYY-MM-DD",
 #      ),
-#
-#      # Chronic kidney disease diagnostic codes
-#      ckd=patients.with_these_clinical_events(
-#        codelists.ckd_cov,
-#        returning="binary_flag",
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#      ),
 #    ),
-#
-#
-#    # Chronic Liver disease codes
-#    chronic_liver_disease=patients.with_these_clinical_events(
-#      codelists.cld,
-#      returning="binary_flag",
-#      on_or_before="covid_vax_disease_3_date - 1 day",
-#    ),
-#
-#
+
+# Chronic Liver disease codes
+dataset.chronic_liver_disease = has_prior_event(codelists.cld)
+
+# Immunosuppression diagnosis codes
+immdx = has_prior_event(codelists.immdx_cov)
+
 #    immunosuppressed=patients.satisfying(
 #      "immrx OR immdx",
 #
-#      # Immunosuppression diagnosis codes
-#      immdx=patients.with_these_clinical_events(
-#        codelists.immdx_cov,
-#        returning="binary_flag",
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#      ),
 #      # Immunosuppression medication codes
 #      immrx=patients.with_these_medications(
 #        codelists.immrx,
@@ -574,22 +541,13 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 #        between=["covid_vax_disease_3_date - 182 days", "covid_vax_disease_3_date - 1 day"]
 #      ),
 #    ),
-#
-#    # Asplenia or Dysfunction of the Spleen codes
-#    asplenia=patients.with_these_clinical_events(
-#      codelists.spln_cov,
-#      returning="binary_flag",
-#      on_or_before="covid_vax_disease_3_date - 1 day",
-#    ),
-#
-#    # Wider Learning Disability
-#    learndis=patients.with_these_clinical_events(
-#      codelists.learndis,
-#      returning="binary_flag",
-#      on_or_before="covid_vax_disease_3_date - 1 day",
-#    ),
-#
-#
+
+# Asplenia or Dysfunction of the Spleen codes
+dataset.asplenia = has_prior_event(codelists.spln_cov)
+
+# Wider Learning Disability
+dataset.learndis = has_prior_event(codelists.learndis)
+
 #    # to represent household contact of shielding individual
 #    # hhld_imdef_dat=patients.with_these_clinical_events(
 #    #   codelists.hhld_imdef,
@@ -643,14 +601,10 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 #    #   on_or_before="covid_vax_disease_3_date - 1 day",
 #    #   date_format="YYYY-MM-DD",
 #    # ),
-#
-#    cev_ever = patients.with_these_clinical_events(
-#      codelists.shield,
-#      returning="binary_flag",
-#      on_or_before = "covid_vax_disease_3_date - 1 day",
-#      find_last_match_in_period = True,
-#    ),
-#
+
+# Ever coded as Clinically Extremely Vulnerable
+dataset.cev_ever = has_prior_event(codelists.shield)
+
 #    cev = patients.satisfying(
 #      """severely_clinically_vulnerable AND NOT less_vulnerable""",
 #      ##### The shielded patient list was retired in March/April 2021 when shielding ended
@@ -679,7 +633,9 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 #      ),
 #
 #    ),
-#
+
+endoflife_coding = has_prior_event(codelists.eol)
+
 #    endoflife = patients.satisfying(
 #      """
 #      midazolam OR
@@ -690,13 +646,6 @@ dataset.practice_id = practice_registration_as_of(baseline_date).practice_pseudo
 #        codelists.midazolam,
 #        returning="binary_flag",
 #        on_or_before = "covid_vax_disease_3_date - 1 day",
-#      ),
-#
-#      endoflife_coding = patients.with_these_clinical_events(
-#        codelists.eol,
-#        returning="binary_flag",
-#        on_or_before = "covid_vax_disease_3_date - 1 day",
-#        find_last_match_in_period = True,
 #      ),
 #
 #    ),
