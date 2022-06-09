@@ -1,0 +1,73 @@
+code,term
+1025611000000105,End of life care plan offered
+1034241000000106,Has end of life care key general practitioner
+103735009,Palliative care
+1091311000000108,Referral to end of life care service
+1092551000000109,Under care of hospice at home service
+1092801000000106,Palliative care phase measure phase
+1095091000000103,End of life advance care planning declined
+1095131000000100,Offer of end of life advance care plan review
+1095151000000107,Has end of life advance care plan
+1095161000000105,End of life advance care plan review declined
+1099101000000108,Assessment using Palliative Care Outcomes Collaboration assessment tools
+162608008,Terminal illness - late stage
+182964004,Terminal care
+183569005,Refer to terminal care consult
+183595007,Refer for terminal care
+1841000124106,Palliative care medication review
+201511000000105,Under care of palliative care service
+25411000000109,Referred to community specialist palliative care team
+305496007,Under care of palliative care physician
+305686008,Seen by palliative care physician
+305824005,Seen by palliative care medicine service
+306237005,Referral to palliative care service
+306288008,Referral to palliative care physician
+395103003,Final days pathway
+395669003,Specialist palliative care treatment
+395670002,Specialist palliative care treatment - inpatient
+395694002,Specialist palliative care treatment - daycare
+395695001,Specialist palliative care treatment - outpatient
+414937009,On gold standards palliative care framework
+443761007,Anticipatory palliative care
+511401000000102,Last days of life
+514591000000108,Completion of DS1500 terminal illness medical report
+518901000000101,Gold standards framework supportive care stage 1 - advancing disease
+518941000000103,Gold standards framework supportive care stage 2 - increasing decline
+519041000000106,Gold standards framework supportive care stage 3 - last days: category C - weeks prognosis
+519061000000107,Gold standards framework supportive care stage 3 - last days: category D - days prognosis
+526631000000108,On end of life care register
+707988003,Last days of life discussed
+713058002,End of life care planning
+713673000,Has end of life care plan
+718890006,Assessment using Integrated Palliative care Outcome Scale Staff Version (3 day recall period)
+718893008,Assessment using Integrated Palliative care Outcome Scale 5 Patient Version (1 week recall period)
+718895001,Assessment using Integrated Palliative care Outcome Scale Staff Version (1 week recall period)
+718898004,Assessment using Integrated Palliative care Outcome Scale 5 Patient Version (3 day recall period)
+718899007,Assessment using Integrated Palliative care Outcome Scale Patient Version (3 day recall period)
+718901003,Assessment using Integrated Palliative care Outcome Scale 5 Staff Version (1 week recall period)
+718903000,Assessment using Integrated Palliative care Outcome Scale 5 Staff Version (3 day recall period)
+718904006,Assessment using Integrated Palliative care Outcome Scale Patient Version (1 week recall period)
+719238004,Has end of life care key nurse
+719240009,Has end of life care key worker
+754401000000106,Gold standards framework supportive care stage 3 - last days: category B - months prognosis
+761866001,Palliative care Outcome Scale symptom list for end-stage renal disease score
+783841000000101,Referral to community palliative care team declined
+783941000000105,Liverpool care pathway for the dying patient declined
+818221000000103,On Liverpool care pathway for the dying
+845721000000108,Gold standards framework prognostic indicator stage B (green) - months prognosis
+845751000000103,Gold standards framework prognostic indicator stage C (yellow) - weeks prognosis
+845771000000107,Gold standards framework prognostic indicator stage D (red) - days prognosis
+846161000000108,Palliative care handover form completed
+847771000000100,End of life care pathway
+850951000000107,Under care of palliative care specialist nurse
+854021000000106,Ambulance service notified of patient on end of life care register
+871021000000106,Prescription of palliative care anticipatory medication
+873411000000105,Liverpool care pathway for the dying
+874311000000104,Integrated care priorities for end of life
+902471000000105,Palliative Care Problem Severity Score
+902501000000103,Palliative Care Problem Severity Score - pain
+902511000000101,Palliative Care Problem Severity Score - other symptoms
+902521000000107,Palliative Care Problem Severity Score - psychological/spiritual
+902531000000109,Palliative Care Problem Severity Score - family/carer
+955231000000109,Last weeks of life
+968211000000101,Last months of life
