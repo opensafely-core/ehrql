@@ -187,35 +187,6 @@ firstmoderna_date = study_dates["firstmoderna_date"]
 #
 #    #index_date = index_date,
 #
-#    # This line defines the study population
-#    population=patients.satisfying(
-#      f"""
-#        registered
-#        AND
-#        age_august2021 >= 18
-#        AND
-#        NOT has_died
-#        AND
-#        covid_vax_disease_3_date >= startdate
-#        AND
-#        covid_vax_disease_3_date <= enddate
-#      """,
-#      # we define baseline variables on the day _before_ the study date (start date = day of first possible booster vaccination)
-#      registered=patients.registered_as_of(
-#        "covid_vax_disease_3_date - 1 day",
-#      ),
-#      has_died=patients.died_from_any_cause(
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        returning="binary_flag",
-#      ),
-#
-#      startdate = patients.fixed_value(studystart_date),
-#      enddate = patients.fixed_value(studyend_date),
-#
-#
-#    ),
-#
-#
 #    #################################################################
 #    ## Covid vaccine dates
 #    #################################################################
@@ -1102,6 +1073,33 @@ firstmoderna_date = study_dates["firstmoderna_date"]
 #      date_format="YYYY-MM-DD",
 #    ),
 #
+#    # This line defines the study population
+#    population=patients.satisfying(
+#      f"""
+#        registered
+#        AND
+#        age_august2021 >= 18
+#        AND
+#        NOT has_died
+#        AND
+#        covid_vax_disease_3_date >= startdate
+#        AND
+#        covid_vax_disease_3_date <= enddate
+#      """,
+#      # we define baseline variables on the day _before_ the study date (start date = day of first possible booster vaccination)
+#      registered=patients.registered_as_of(
+#        "covid_vax_disease_3_date - 1 day",
+#      ),
+#      has_died=patients.died_from_any_cause(
+#        on_or_before="covid_vax_disease_3_date - 1 day",
+#        returning="binary_flag",
+#      ),
+#
+#      startdate = patients.fixed_value(studystart_date),
+#      enddate = patients.fixed_value(studyend_date),
+#
+#
+#    ),
 #
 #  )
 
