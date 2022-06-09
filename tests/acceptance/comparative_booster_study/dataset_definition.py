@@ -82,6 +82,16 @@ create_sequential_variables(
 )
 
 
+#######################################################################################
+# Aliases and common functions
+#######################################################################################
+
+boosted_date = dataset.covid_vax_disease_3_date
+# We define baseline variables on the day _before_ the study date (start date = day of
+# first possible booster vaccination)
+baseline_date = boosted_date.subtract_days(1)
+
+
 #    ###############################################################################
 #    ## Admin and demographics
 #    ###############################################################################
@@ -945,21 +955,16 @@ create_sequential_variables(
 #        covid_vax_disease_3_date <= enddate
 #      """,
 
-# We define baseline variables on the day _before_ the study date (start date = day of
-# first possible booster vaccination)
-registered = practice_registration_as_of(
-    dataset.covid_vax_disease_3_date.subtract_days(1)
-).exists_for_patient()
+registered = practice_registration_as_of(baseline_date).exists_for_patient()
 
 #      has_died=patients.died_from_any_cause(
 #        on_or_before="covid_vax_disease_3_date - 1 day",
 #        returning="binary_flag",
 #      ),
-#
-#      startdate = patients.fixed_value(studystart_date),
-#      enddate = patients.fixed_value(studyend_date),
-#
-#
 #    ),
 
-dataset.set_population(registered)
+dataset.set_population(
+    registered
+    & boosted_date.is_on_or_after(studystart_date)
+    & boosted_date.is_on_or_before(studyend_date)
+)
