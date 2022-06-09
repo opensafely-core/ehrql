@@ -101,9 +101,21 @@ events = schema.coded_events
 prior_events = events.take(events.date.is_on_or_before(baseline_date))
 
 
-def has_prior_event(codelist):
-    matching = prior_events.take(prior_events.snomedct_code.is_in(codelist))
-    return matching.exists_for_patient()
+def has_prior_event(codelist, where=True):
+    return (
+        prior_events.take(where)
+        .take(prior_events.snomedct_code.is_in(codelist))
+        .exists_for_patient()
+    )
+
+
+def last_prior_event(codelist, where=True):
+    return (
+        prior_events.take(where)
+        .take(prior_events.snomedct_code.is_in(codelist))
+        .sort_by(events.date)
+        .last_for_patient()
+    )
 
 
 #######################################################################################
@@ -406,88 +418,35 @@ resp_cov = has_prior_event(codelists.resp_cov)
 #      "asthma OR resp_cov",
 #    ),
 
-#
+# Severe Obesity
+bmi_stage_event = last_prior_event(codelists.bmi_stage)
+sev_obesity_event = last_prior_event(
+    codelists.sev_obesity,
+    where=((events.date >= bmi_stage_event.date) & (events.numeric_value != 0.0)),
+)
+bmi_event = last_prior_event(codelists.bmi, where=(events.numeric_value != 0.0))
+
 #    sev_obesity = patients.satisfying(
 #      """
 #        sev_obesity_date > bmi_date OR
 #        bmi_value1 >= 40
 #        """,
-#
-#      bmi_stage_date=patients.with_these_clinical_events(
-#        codelists.bmi_stage,
-#        returning="date",
-#        find_last_match_in_period=True,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        date_format="YYYY-MM-DD",
-#      ),
-#
-#      sev_obesity_date=patients.with_these_clinical_events(
-#        codelists.sev_obesity,
-#        returning="date",
-#        find_last_match_in_period=True,
-#        ignore_missing_values=True,
-#        between= ["bmi_stage_date", "covid_vax_disease_3_date - 1 day"],
-#        date_format="YYYY-MM-DD",
-#      ),
-#
-#      bmi_date=patients.with_these_clinical_events(
-#        codelists.bmi,
-#        returning="date",
-#        ignore_missing_values=True,
-#        find_last_match_in_period=True,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        date_format="YYYY-MM-DD",
-#      ),
-#
-#      bmi_value1=patients.with_these_clinical_events(
-#        codelists.bmi,
-#        returning="numeric_value",
-#        ignore_missing_values=True,
-#        find_last_match_in_period=True,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#      ),
-#
 #    ),
-#
+
+diab_date = last_prior_event(codelists.diab).date
+dmres_date = last_prior_event(codelists.dmres).date
+
 #    diabetes = patients.satisfying(
 #      "(dmres_date < diab_date) OR (diab_date AND (NOT dmres_date))",
-#
-#      diab_date=patients.with_these_clinical_events(
-#        codelists.diab,
-#        returning="date",
-#        find_last_match_in_period=True,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        date_format="YYYY-MM-DD",
-#      ),
-#
-#      dmres_date=patients.with_these_clinical_events(
-#        codelists.dmres,
-#        returning="date",
-#        find_last_match_in_period=True,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        date_format="YYYY-MM-DD",
-#      ),
 #    ),
-#
+
+# Severe Mental Illness codes
+sev_mental_date = last_prior_event(codelists.sev_mental).date
+# Remission codes relating to Severe Mental Illness
+smhres_date = last_prior_event(codelists.smhres).date
+
 #    sev_mental=patients.satisfying(
 #      "(smhres_date < sev_mental_date) OR (sev_mental_date AND (NOT smhres_date))",
-#
-#      # Severe Mental Illness codes
-#      sev_mental_date=patients.with_these_clinical_events(
-#        codelists.sev_mental,
-#        returning="date",
-#        find_last_match_in_period=True,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        date_format="YYYY-MM-DD",
-#      ),
-#      # Remission codes relating to Severe Mental Illness
-#      smhres_date=patients.with_these_clinical_events(
-#        codelists.smhres,
-#        returning="date",
-#        find_last_match_in_period=True,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        date_format="YYYY-MM-DD",
-#      ),
 #    ),
 
 # Chronic heart disease codes
@@ -496,29 +455,15 @@ dataset.chronic_heart_disease = has_prior_event(codelists.chd_cov)
 # Chronic kidney disease diagnostic codes
 ckd = has_prior_event(codelists.ckd_cov)
 
+# Chronic kidney disease codes - all stages
+ckd15_date = last_prior_event(codelists.ckd15).date
+# Chronic kidney disease codes-stages 3 - 5
+ckd35_date = last_prior_event(codelists.ckd35).date
 #    chronic_kidney_disease=patients.satisfying(
 #      """
 #        ckd OR
 #        (ckd15_date AND ckd35_date >= ckd15_date)
 #        """,
-#
-#      # Chronic kidney disease codes - all stages
-#      ckd15_date=patients.with_these_clinical_events(
-#        codelists.ckd15,
-#        returning="date",
-#        find_last_match_in_period=True,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        date_format="YYYY-MM-DD",
-#      ),
-#
-#      # Chronic kidney disease codes-stages 3 - 5
-#      ckd35_date=patients.with_these_clinical_events(
-#        codelists.ckd35,
-#        returning="date",
-#        find_last_match_in_period=True,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        date_format="YYYY-MM-DD",
-#      ),
 #    ),
 
 # Chronic Liver disease codes
@@ -544,15 +489,12 @@ dataset.asplenia = has_prior_event(codelists.spln_cov)
 # Wider Learning Disability
 dataset.learndis = has_prior_event(codelists.learndis)
 
-#    # to represent household contact of shielding individual
-#    # hhld_imdef_dat=patients.with_these_clinical_events(
-#    #   codelists.hhld_imdef,
-#    #   returning="date",
-#    #   find_last_match_in_period=True,
-#    #   on_or_before="covid_vax_disease_3_date - 1 day",
-#    #   date_format="YYYY-MM-DD",
-#    # ),
-#    #
+# To represent household contact of shielding individual
+dataset.hhld_imdef_dat = last_prior_event(codelists.hhld_imdef).date
+
+
+# This section is commented out in the original study so leaving commented out here
+
 #    # #####################################
 #    # # primis employment codelists
 #    # #####################################
@@ -599,7 +541,14 @@ dataset.learndis = has_prior_event(codelists.learndis)
 #    # ),
 
 # Ever coded as Clinically Extremely Vulnerable
-dataset.cev_ever = has_prior_event(codelists.shield)
+date_severely_clinically_vulnerable = last_prior_event(codelists.shield).date
+dataset.cev_ever = date_severely_clinically_vulnerable.is_not_null()
+
+# NOT SHIELDED GROUP (medium and low risk) - only flag if later than 'shielded'
+less_vulnerable = has_prior_event(
+    codelists.nonshield,
+    where=events.date.is_after(date_severely_clinically_vulnerable),
+)
 
 #    cev = patients.satisfying(
 #      """severely_clinically_vulnerable AND NOT less_vulnerable""",
@@ -607,27 +556,6 @@ dataset.cev_ever = has_prior_event(codelists.shield)
 #      ##### so it might be worth using that as the end date instead of index_date, as we're not sure
 #      ##### what has happened to these codes since then, e.g. have doctors still been adding new
 #      ##### shielding flags or low-risk flags? Depends what you're looking for really. Could investigate separately.
-#
-#      ### SHIELDED GROUP - first flag all patients with "high risk" codes
-#      severely_clinically_vulnerable = patients.with_these_clinical_events(
-#        codelists.shield,
-#        returning="binary_flag",
-#        on_or_before = "covid_vax_disease_3_date - 1 day",
-#        find_last_match_in_period = True,
-#      ),
-#
-#      # find date at which the high risk code was added
-#      date_severely_clinically_vulnerable = patients.date_of(
-#        "severely_clinically_vulnerable",
-#        date_format="YYYY-MM-DD",
-#      ),
-#
-#      ### NOT SHIELDED GROUP (medium and low risk) - only flag if later than 'shielded'
-#      less_vulnerable = patients.with_these_clinical_events(
-#        codelists.nonshield,
-#        between=["date_severely_clinically_vulnerable + 1 day", "covid_vax_disease_3_date - 1 day",],
-#      ),
-#
 #    ),
 
 endoflife_coding = has_prior_event(codelists.eol)
@@ -645,30 +573,24 @@ endoflife_coding = has_prior_event(codelists.eol)
 #      ),
 #
 #    ),
-#
+
+housebound_date = last_prior_event(codelists.housebound).date
+no_longer_housebound = has_prior_event(
+    codelists.no_longer_housebound,
+    where=events.date.is_on_or_after(housebound_date),
+)
+moved_into_care_home = has_prior_event(
+    codelists.carehome,
+    where=events.date.is_on_or_after(housebound_date),
+)
+
 #    housebound = patients.satisfying(
 #      """housebound_date
 #      AND NOT no_longer_housebound
 #      AND NOT moved_into_care_home
 #      """,
-#
-#      housebound_date=patients.with_these_clinical_events(
-#        codelists.housebound,
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        find_last_match_in_period = True,
-#        returning="date",
-#        date_format="YYYY-MM-DD",
-#      ),
-#      no_longer_housebound=patients.with_these_clinical_events(
-#        codelists.no_longer_housebound,
-#        on_or_after="housebound_date",
-#      ),
-#      moved_into_care_home=patients.with_these_clinical_events(
-#        codelists.carehome,
-#        on_or_after="housebound_date",
-#      ),
 #    ),
-#
+
 #    prior_covid_test_frequency=patients.with_test_result_in_sgss(
 #      pathogen="SARS-CoV-2",
 #      test_result="any",
