@@ -24,7 +24,7 @@ def test_validate_dataset_definition_in_container(study):
 def test_generate_measures_in_container(run_in_container):
     output = run_in_container(
         [
-            "generate_measures",
+            "generate-measures",
             "--help",
         ]
     )
@@ -35,7 +35,7 @@ def test_generate_measures_in_container(run_in_container):
 def test_test_connection_in_container(run_in_container):
     output = run_in_container(
         [
-            "test_connection",
+            "test-connection",
             "--help",
         ]
     )

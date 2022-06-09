@@ -266,7 +266,7 @@ def test(name):
             PYTHON,
             "-m",
             "databuilder",
-            "test_connection",
+            "test-connection",
             "-b",
             "databricks",
             "-u",

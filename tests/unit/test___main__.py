@@ -18,7 +18,7 @@ def test_generate_dataset(mocker, monkeypatch, tmp_path):
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
-        "generate_dataset",
+        "generate-dataset",
         "--dataset-definition",
         str(dataset_definition_path),
     ]
@@ -33,7 +33,7 @@ def test_pass_dummy_data(mocker, tmp_path):
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
-        "generate_dataset",
+        "generate-dataset",
         "--dataset-definition",
         str(dataset_definition_path),
         "--dummy-data-file",
@@ -52,7 +52,7 @@ def test_generate_dataset_if_both_db_url_and_dummy_data_are_provided(
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
-        "generate_dataset",
+        "generate-dataset",
         "--dataset-definition",
         str(dataset_definition_path),
         "--dummy-data-file",
@@ -69,7 +69,7 @@ def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
-        "generate_dataset",
+        "generate-dataset",
         "--dataset-definition",
         str(dataset_definition_path),
     ]
@@ -82,13 +82,13 @@ def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
     )
 
 
-def test_validate_dataset_definition(mocker, tmp_path):
-    # Verify that the validate_dataset_definition subcommand can be invoked.
+def test_dump_dataset_sql(mocker, tmp_path):
+    # Verify that the dump dataset sql subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.validate_dataset")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
-        "validate_dataset_definition",
+        "dump-dataset-sql",
         "--dataset-definition",
         str(dataset_definition_path),
         "tpp",
@@ -103,7 +103,7 @@ def test_generate_measures(mocker, tmp_path):
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
-        "generate_measures",
+        "generate-measures",
         "--dataset-definition",
         str(dataset_definition_path),
     ]
@@ -116,7 +116,7 @@ def test_existing_python_file_missing_file(capsys, tmp_path):
     # file that should exist but doesn't.
     dataset_definition_path = tmp_path / "dataset.py"
     argv = [
-        "generate_dataset",
+        "generate-dataset",
         "--dataset-definition",
         str(dataset_definition_path),
     ]
@@ -132,7 +132,7 @@ def test_existing_python_file_unpythonic_file(capsys, tmp_path):
     dataset_definition_path = tmp_path / "dataset.cpp"
     dataset_definition_path.touch()
     argv = [
-        "generate_dataset",
+        "generate-dataset",
         "--dataset-definition",
         str(dataset_definition_path),
     ]
