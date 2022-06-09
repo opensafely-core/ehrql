@@ -417,24 +417,14 @@ astrxm3 = has_prior_meds(
         & meds.date.is_on_or_before(baseline_date.subtract_days(60))
     ),
 )
-
-#    asthma = patients.satisfying(
-#      """
-#        astadm OR
-#        (ast AND astrxm1 AND astrxm2 AND astrxm3)
-#        """,
-#
-#    ),
+dataset.asthma = astadm | (ast & astrxm1 & astrxm2 & astrxm3)
 
 # Chronic Neurological Disease including Significant Learning Disorder
 dataset.chronic_neuro_disease = has_prior_event(codelists.cns_cov)
 
 # Chronic Respiratory Disease
 resp_cov = has_prior_event(codelists.resp_cov)
-
-#    chronic_resp_disease = patients.satisfying(
-#      "asthma OR resp_cov",
-#    ),
+dataset.chronic_resp_disease = dataset.asthma | resp_cov
 
 # Severe Obesity
 bmi_stage_event = last_prior_event(codelists.bmi_stage)
@@ -490,9 +480,7 @@ immrx = has_prior_meds(
     where=(meds.date.is_after(baseline_date.subtract_days(182))),
 )
 
-#    immunosuppressed=patients.satisfying(
-#      "immrx OR immdx",
-#    ),
+dataset.immunosuppressed = immrx | immdx
 
 # Asplenia or Dysfunction of the Spleen codes
 dataset.asplenia = has_prior_event(codelists.spln_cov)
@@ -572,13 +560,7 @@ dataset.cev = dataset.cev_ever & ~less_vulnerable
 # End of life
 endoflife_coding = has_prior_event(codelists.eol)
 midazolam = has_prior_meds(codelists.midazolam)
-
-#    endoflife = patients.satisfying(
-#      """
-#      midazolam OR
-#      endoflife_coding
-#      """,
-#    ),
+dataset.endoflife = midazolam | endoflife_coding
 
 # Housebound
 housebound_date = last_prior_event(codelists.housebound).date
