@@ -4,7 +4,11 @@ from pathlib import Path
 from databuilder.query_language import Dataset
 
 from . import schema
-from .variables_lib import create_sequential_variables, practice_registration_as_of
+from .variables_lib import (
+    age_as_of,
+    create_sequential_variables,
+    practice_registration_as_of,
+)
 
 dataset = Dataset()
 
@@ -92,10 +96,10 @@ boosted_date = dataset.covid_vax_disease_3_date
 baseline_date = boosted_date.subtract_days(1)
 
 
-#    ###############################################################################
-#    ## Admin and demographics
-#    ###############################################################################
-#
+#######################################################################################
+# Admin and demographics
+#######################################################################################
+
 #    has_follow_up_previous_6weeks=patients.registered_with_one_practice_between(
 #      start_date="covid_vax_disease_3_date - 42 days",
 #      end_date="covid_vax_disease_3_date",
@@ -105,16 +109,11 @@ baseline_date = boosted_date.subtract_days(1)
 #      on_or_after="covid_vax_disease_3_date",
 #      date_format="YYYY-MM-DD",
 #    ),
-#
-#
-#    age=patients.age_as_of(
-#      "covid_vax_disease_3_date - 1 day",
-#    ),
-#
-#    # for jcvi group definitions
-#    age_august2021=patients.age_as_of(
-#      "2020-08-31",
-#    ),
+
+dataset.age = age_as_of(baseline_date)
+# For JCVI group definitions
+dataset.age_august2021 = age_as_of("2020-08-31")
+
 #
 #    sex=patients.sex(
 #      return_expectations={

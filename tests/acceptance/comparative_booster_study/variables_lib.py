@@ -23,3 +23,7 @@ def _registrations_overlapping_period(start_date, end_date):
 def practice_registration_as_of(date):
     regs = _registrations_overlapping_period(date, date)
     return regs.sort_by(regs.start_date, regs.end_date).first_for_patient()
+
+
+def age_as_of(date):
+    return schema.patients.date_of_birth.difference_in_years(date)
