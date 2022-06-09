@@ -99,7 +99,9 @@ boosted_date = dataset.covid_vax_disease_3_date
 baseline_date = boosted_date.subtract_days(1)
 
 events = schema.coded_events
+meds = schema.medications
 prior_events = events.take(events.date.is_on_or_before(baseline_date))
+prior_meds = meds.take(meds.date.is_on_or_before(baseline_date))
 
 
 def has_prior_event(codelist, where=True):
@@ -116,6 +118,14 @@ def last_prior_event(codelist, where=True):
         .take(prior_events.snomedct_code.is_in(codelist))
         .sort_by(events.date)
         .last_for_patient()
+    )
+
+
+def has_prior_meds(codelist, where=True):
+    return (
+        prior_meds.take(where)
+        .take(prior_meds.snomedct_code.is_in(codelist))
+        .exists_for_patient()
     )
 
 
@@ -386,29 +396,33 @@ astadm = has_prior_event(codelists.astadm)
 # Asthma Diagnosis code
 ast = has_prior_event(codelists.ast)
 
+# Asthma systemic steroid prescription code in month 1
+astrxm1 = has_prior_meds(
+    codelists.astrx,
+    where=meds.date.is_after(baseline_date.subtract_days(30)),
+)
+# Asthma systemic steroid prescription code in month 2
+astrxm2 = has_prior_meds(
+    codelists.astrx,
+    where=(
+        meds.date.is_after(baseline_date.subtract_days(60))
+        & meds.date.is_on_or_before(baseline_date.subtract_days(30))
+    ),
+)
+# Asthma systemic steroid prescription code in month 3
+astrxm3 = has_prior_meds(
+    codelists.astrx,
+    where=(
+        meds.date.is_after(baseline_date.subtract_days(90))
+        & meds.date.is_on_or_before(baseline_date.subtract_days(60))
+    ),
+)
+
 #    asthma = patients.satisfying(
 #      """
 #        astadm OR
 #        (ast AND astrxm1 AND astrxm2 AND astrxm3)
 #        """,
-#      # Asthma systemic steroid prescription code in month 1
-#      astrxm1=patients.with_these_medications(
-#        codelists.astrx,
-#        returning="binary_flag",
-#        between=["covid_vax_disease_3_date - 30 days", "covid_vax_disease_3_date - 1 day"],
-#      ),
-#      # Asthma systemic steroid prescription code in month 2
-#      astrxm2=patients.with_these_medications(
-#        codelists.astrx,
-#        returning="binary_flag",
-#        between=["covid_vax_disease_3_date - 60 days", "covid_vax_disease_3_date - 31 days"],
-#      ),
-#      # Asthma systemic steroid prescription code in month 3
-#      astrxm3=patients.with_these_medications(
-#        codelists.astrx,
-#        returning="binary_flag",
-#        between= ["covid_vax_disease_3_date - 90 days", "covid_vax_disease_3_date - 61 days"],
-#      ),
 #
 #    ),
 
@@ -470,15 +484,14 @@ dataset.chronic_liver_disease = has_prior_event(codelists.cld)
 # Immunosuppression diagnosis codes
 immdx = has_prior_event(codelists.immdx_cov)
 
+# Immunosuppression medication codes
+immrx = has_prior_meds(
+    codelists.immrx,
+    where=(meds.date.is_after(baseline_date.subtract_days(182))),
+)
+
 #    immunosuppressed=patients.satisfying(
 #      "immrx OR immdx",
-#
-#      # Immunosuppression medication codes
-#      immrx=patients.with_these_medications(
-#        codelists.immrx,
-#        returning="binary_flag",
-#        between=["covid_vax_disease_3_date - 182 days", "covid_vax_disease_3_date - 1 day"]
-#      ),
 #    ),
 
 # Asplenia or Dysfunction of the Spleen codes
@@ -558,19 +571,13 @@ dataset.cev = dataset.cev_ever & ~less_vulnerable
 
 # End of life
 endoflife_coding = has_prior_event(codelists.eol)
+midazolam = has_prior_meds(codelists.midazolam)
 
 #    endoflife = patients.satisfying(
 #      """
 #      midazolam OR
 #      endoflife_coding
 #      """,
-#
-#      midazolam = patients.with_these_medications(
-#        codelists.midazolam,
-#        returning="binary_flag",
-#        on_or_before = "covid_vax_disease_3_date - 1 day",
-#      ),
-#
 #    ),
 
 # Housebound

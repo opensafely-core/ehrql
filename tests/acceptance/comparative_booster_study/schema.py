@@ -66,3 +66,14 @@ coded_events = build_event_table(
 )
 
 CodedEvent = orm_class_from_table(Base, coded_events)
+
+
+medications = build_event_table(
+    "medications",
+    {
+        "date": datetime.date,
+        "snomedct_code": SNOMEDCTCode,
+    },
+)
+
+Medication = orm_class_from_table(Base, medications)
