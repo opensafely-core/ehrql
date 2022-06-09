@@ -941,19 +941,6 @@ dataset.age_august2021 = age_as_of("2020-08-31")
 # Population
 #######################################################################################
 
-#    population=patients.satisfying(
-#      f"""
-#        registered
-#        AND
-#        age_august2021 >= 18
-#        AND
-#        NOT has_died
-#        AND
-#        covid_vax_disease_3_date >= startdate
-#        AND
-#        covid_vax_disease_3_date <= enddate
-#      """,
-
 registered = practice_registration_as_of(baseline_date).exists_for_patient()
 
 deaths = schema.ons_deaths
@@ -961,6 +948,7 @@ has_died = deaths.take(deaths.date.is_on_or_before(baseline_date)).exists_for_pa
 
 dataset.set_population(
     registered
+    & (dataset.age_august2021 >= 18)
     & ~has_died
     & boosted_date.is_on_or_after(studystart_date)
     & boosted_date.is_on_or_before(studyend_date)
