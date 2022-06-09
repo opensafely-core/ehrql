@@ -6,6 +6,7 @@ from databuilder.query_language import Dataset
 from . import codelists, schema
 from .codelists import combine_codelists
 from .variables_lib import (
+    address_as_of,
     age_as_of,
     create_sequential_variables,
     date_deregistered_from_all_supported_practices,
@@ -204,42 +205,16 @@ dataset.stp = practice_reg.practice_stp
 # NHS administrative region
 dataset.region = practice_reg.practice_nuts1_region_name
 
-#    # msoa
-#    msoa=patients.address_as_of(
-#      "covid_vax_disease_3_date - 1 day",
-#      returning="msoa",
-#      return_expectations={
-#        "rate": "universal",
-#        "category": {"ratios": {"E02000001": 0.0625, "E02000002": 0.0625, "E02000003": 0.0625, "E02000004": 0.0625,
-#          "E02000005": 0.0625, "E02000007": 0.0625, "E02000008": 0.0625, "E02000009": 0.0625,
-#          "E02000010": 0.0625, "E02000011": 0.0625, "E02000012": 0.0625, "E02000013": 0.0625,
-#          "E02000014": 0.0625, "E02000015": 0.0625, "E02000016": 0.0625, "E02000017": 0.0625}},
-#      },
-#    ),
+address = address_as_of(baseline_date)
 
-#    ## IMD - quintile
-#
-#    imd=patients.address_as_of(
-#      "covid_vax_disease_3_date - 1 day",
-#      returning="index_of_multiple_deprivation",
-#      round_to_nearest=100,
-#      return_expectations={
-#        "category": {"ratios": {c: 1/320 for c in range(100, 32100, 100)}}
-#      }
-#    ),
-#
-#    #rurality
-#    rural_urban=patients.address_as_of(
-#      "covid_vax_disease_3_date - 1 day",
-#      returning="rural_urban_classification",
-#      return_expectations={
-#        "rate": "universal",
-#        "category": {"ratios": {1: 0.125, 2: 0.125, 3: 0.125, 4: 0.125, 5: 0.125, 6: 0.125, 7: 0.125, 8: 0.125}},
-#      },
-#    ),
-#
-#
-#
+# Middle Super Output Area
+dataset.msoa = address.msoa_code
+# Index of Multiple Deprevation Rank (rounded down to nearest 100)
+dataset.imd = address.imd_rounded
+# Rurality
+dataset.rural_urban = address.rural_urban_classification
+
+
 #    ################################################################################################
 #    ## occupation / residency
 #    ################################################################################################

@@ -79,3 +79,19 @@ medications = build_event_table(
 )
 
 Medication = orm_class_from_table(Base, medications)
+
+
+addresses = build_event_table(
+    "addresses",
+    {
+        "address_id": int,
+        "start_date": datetime.date,
+        "end_date": datetime.date,
+        "address_type": int,
+        "rural_urban_classification": int,
+        "imd_rounded": int,
+        "msoa_code": str,
+    },
+)
+
+Address = orm_class_from_table(Base, addresses)
