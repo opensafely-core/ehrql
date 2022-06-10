@@ -117,10 +117,7 @@ def build_paragraph(paragraph_id, test_fn):
 
 
 def concatenate_optional_text(dictionary, text):
-    return dict(
-        dictionary,
-        **{"text": text} if text else {},
-    )
+    return dictionary | {"text": text} if text else dictionary
 
 
 def get_table_name(table):
