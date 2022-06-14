@@ -11,6 +11,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
     def get_date_part(self, date, part):
         func = sqlalchemy.func
         get_part = {"YEAR": func.year, "MONTH": func.month, "DAY": func.day}[part]
+        # Tell SQLAlchemy that the result is an int without doing any CASTing in the SQL
         return sqlalchemy.type_coerce(get_part(date), sqlalchemy_types.Integer())
 
     def date_add_days(self, date, num_days):

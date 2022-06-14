@@ -9,7 +9,7 @@ def is_predicate(clause):
       a == b
 
     Others happen to be boolean-typed by virtue of the columns they use, but you can't
-    tell just by looking at them, e..g
+    tell just by looking at them, e.g.
 
       some_table.some_boolean_column
 
