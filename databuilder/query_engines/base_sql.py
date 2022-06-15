@@ -463,8 +463,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             variable_definitions
         )
         with self.engine.connect() as cursor:
-            assert not setup_queries, "Support these once tests exercise them"
+            for setup_query in setup_queries:
+                cursor.execute(setup_query)
+
             yield cursor.execute(results_query)
+
             assert not cleanup_queries, "Support these once tests exercise them"
 
     @cached_property
