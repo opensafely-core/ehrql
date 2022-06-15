@@ -33,6 +33,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
 
+    intermediate_table_prefix = "cte_"
+    intermediate_table_count = 0
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.backend:
@@ -425,7 +428,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         e.g. using `.alias()` to make a sub-query, using `.cte()` to make a Common Table
         Expression, or writing the results of the query to a temporary table.
         """
-        return query.cte()
+        return query.cte(name=self.next_intermediate_table_name())
+
+    def next_intermediate_table_name(self):
+        self.intermediate_table_count += 1
+        return f"{self.intermediate_table_prefix}{self.intermediate_table_count}"
 
     def get_select_query_for_node_domain(self, node):
         """
