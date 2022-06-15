@@ -2,6 +2,8 @@ import datetime
 
 import sqlalchemy.types
 from sqlalchemy.dialects.mssql.pymssql import MSDialect_pymssql
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql.expression import ClauseElement, Executable
 
 
 # MS-SQL can misinterpret ISO dates, depending on its localisation settings so
@@ -61,3 +63,20 @@ class MSSQLDialect(MSDialect_pymssql):
         sqlalchemy.types.Date: MSSQLDate,
         sqlalchemy.types.DateTime: MSSQLDateTime,
     }
+
+
+class SelectStarInto(Executable, ClauseElement):
+    def __init__(self, table, selectable):
+        self.table = table
+        self.selectable = selectable
+
+    def get_children(self):
+        return (self.table, self.selectable)
+
+
+@compiles(SelectStarInto)
+def visit_select_star_into(element, compiler, **kw):
+    return "SELECT * INTO {} FROM {}".format(
+        compiler.process(element.table, asfrom=True, **kw),
+        compiler.process(element.selectable, asfrom=True, **kw),
+    )
