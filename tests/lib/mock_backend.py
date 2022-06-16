@@ -1,7 +1,7 @@
 import sqlalchemy.orm
 
 from databuilder.backends.base import BaseBackend, Column, MappedTable, QueryTable
-from databuilder.query_engines.legacy_mssql import MssqlQueryEngine
+from databuilder.query_engines.mssql import MSSQLQueryEngine
 
 from . import contracts
 from .util import next_id, null
@@ -9,7 +9,7 @@ from .util import next_id, null
 
 class MockBackend(BaseBackend):
     backend_id = "mock_backend"
-    query_engine_class = MssqlQueryEngine
+    query_engine_class = MSSQLQueryEngine
     patient_join_column = "PatientId"
 
     patients = MappedTable(
