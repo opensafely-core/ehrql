@@ -3,8 +3,8 @@ from datetime import datetime
 from tests.lib.tpp_schema import patient
 
 
-def test_generate_dataset(study, database):
-    database.setup(
+def test_generate_dataset(study, mssql_database):
+    mssql_database.setup(
         patient(dob=datetime(1910, 5, 5)),
         patient(dob=datetime(2010, 5, 5)),
     )
@@ -12,7 +12,7 @@ def test_generate_dataset(study, database):
     study.setup_from_repo(
         "opensafely/test-age-distribution", "analysis/dataset_definition.py"
     )
-    study.generate(database, "tpp")
+    study.generate(mssql_database, "tpp")
     results = study.results()
 
     assert len(results) == 1

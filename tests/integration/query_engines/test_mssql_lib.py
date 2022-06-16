@@ -9,11 +9,11 @@ from databuilder.query_engines.mssql_lib import (
 )
 
 
-def test_fetch_results_in_batches_happy_path(database):
+def test_fetch_results_in_batches_happy_path(mssql_database):
     table = sqlalchemy.table("test_table")
     test_data = _make_test_data(rows=12)
 
-    engine = database.engine()
+    engine = mssql_database.engine()
     with engine.connect() as conn:
         _populate_table(conn, table, test_data)
 
@@ -28,11 +28,11 @@ def test_fetch_results_in_batches_happy_path(database):
         assert _as_dicts(results) == test_data
 
 
-def test_fetch_results_in_batches_with_retry(database):
+def test_fetch_results_in_batches_with_retry(mssql_database):
     table = sqlalchemy.table("test_table")
     test_data = _make_test_data(rows=12)
 
-    engine = database.engine()
+    engine = mssql_database.engine()
     with engine.connect() as conn:
         _populate_table(conn, table, test_data)
 
@@ -52,11 +52,11 @@ def test_fetch_results_in_batches_with_retry(database):
             assert execute.call_count == 5
 
 
-def test_fetch_results_in_batches_with_reconnect_and_retry(database):
+def test_fetch_results_in_batches_with_reconnect_and_retry(mssql_database):
     table = sqlalchemy.table("test_table")
     test_data = _make_test_data(rows=12)
 
-    engine = database.engine()
+    engine = mssql_database.engine()
     with engine.connect() as conn:
         _populate_table(conn, table, test_data)
 
@@ -78,11 +78,11 @@ def test_fetch_results_in_batches_with_reconnect_and_retry(database):
             assert execute.call_count == 5
 
 
-def test_fetch_results_in_batches_caches_results(database, temp_tables):
+def test_fetch_results_in_batches_caches_results(mssql_database, temp_tables):
     table = sqlalchemy.table("test_table")
     test_data = _make_test_data(rows=12)
 
-    engine = database.engine()
+    engine = mssql_database.engine()
     with engine.connect() as conn:
         _populate_table(conn, table, test_data)
 
@@ -173,9 +173,9 @@ def _as_dicts(results):
 
 
 @pytest.fixture
-def temp_tables(database):
+def temp_tables(mssql_database):
     temp_tables = TempTables(
-        engine=database.engine(), database="temp_tables", prefix="temp_"
+        engine=mssql_database.engine(), database="temp_tables", prefix="temp_"
     )
     temp_tables.drop_all()
     try:

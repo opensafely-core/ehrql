@@ -29,8 +29,8 @@ def run_query(database, query):
         "strips just trailing xs",
     ],
 )
-def test_hospitalization_table_code_conversion(database, raw, codes):
-    database.setup(
+def test_hospitalization_table_code_conversion(mssql_database, raw, codes):
+    mssql_database.setup(
         patient(
             related=[apcs(codes=raw)],
         )
@@ -39,7 +39,7 @@ def test_hospitalization_table_code_conversion(database, raw, codes):
     table = TPPBackend.hospitalizations.get_expression("hospitalizations")
     query = sqlalchemy.select(table.c.code)
 
-    results = list(run_query(database, query))
+    results = list(run_query(mssql_database, query))
 
     # Because of the way that we split the raw codes, the order in which they are returned is not the same as the order
     # they appear in the table.
@@ -47,8 +47,8 @@ def test_hospitalization_table_code_conversion(database, raw, codes):
     assert {r[0] for r in results} == set(codes)
 
 
-def test_patients_contract_table(database):
-    database.setup(
+def test_patients_contract_table(mssql_database):
+    mssql_database.setup(
         patient(1, "M", "1990-01-01", date_of_death="2021-01-04"),
         patient(2, "F", "1990-01-01", date_of_death="2020-02-04"),
         patient(3, "I", "1990-01-01", date_of_death="9999-12-31"),
@@ -61,7 +61,7 @@ def test_patients_contract_table(database):
         table.c.patient_id, table.c.date_of_birth, table.c.date_of_death, table.c.sex
     )
 
-    results = list(run_query(database, query))
+    results = list(run_query(mssql_database, query))
     assert results == [
         (1, date(1990, 1, 1), date(2021, 1, 1), "male"),
         (2, date(1990, 1, 1), date(2020, 2, 1), "female"),

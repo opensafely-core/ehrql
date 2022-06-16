@@ -32,26 +32,26 @@ class DummyDataStudy:
         )
 
 
-def test_generate_dataset(study, database):
-    database.setup(
+def test_generate_dataset(study, mssql_database):
+    mssql_database.setup(
         patient(dob=datetime(1943, 5, 5)),
         patient(dob=datetime(1999, 5, 5)),
     )
 
     study.setup_from_string(trivial_dataset_definition)
-    study.generate(database, "tpp")
+    study.generate(mssql_database, "tpp")
     results = study.results()
 
     assert len(results) == 2
     assert {r["year"] for r in results} == {"1943", "1999"}
 
 
-def test_validate_dataset_happy_path(study, database):
+def test_validate_dataset_happy_path(study, mssql_database):
     study.setup_from_string(trivial_dataset_definition)
     study.validate()
 
 
-def test_validate_dataset_error_path(study, database):
+def test_validate_dataset_error_path(study, mssql_database):
     study.setup_from_string(invalid_dataset_definition)
     with pytest.raises(NameError):
         study.validate()

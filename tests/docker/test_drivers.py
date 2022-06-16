@@ -9,9 +9,9 @@ import pytest
 # to add a check the test to skip on the in-memory and SQLite engines because the test
 # won't apply to them.
 @pytest.fixture(params=["mssql", "spark"])
-def engine(request, database, spark_database):
+def engine(request, mssql_database, spark_database):
     if request.param == "mssql":
-        return SimpleNamespace(name=request.param, database=database)
+        return SimpleNamespace(name=request.param, database=mssql_database)
     elif request.param == "spark":
         return SimpleNamespace(name=request.param, database=spark_database)
     else:

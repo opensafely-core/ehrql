@@ -130,7 +130,7 @@ def wait_for_database(database, timeout=10):
             time.sleep(1)
 
 
-def make_database(containers):
+def make_mssql_database(containers):
     password = "Your_password123!"
 
     container_name = "databuilder-mssql"
