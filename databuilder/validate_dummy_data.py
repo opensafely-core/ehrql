@@ -1,10 +1,10 @@
 import csv
 import dataclasses
 import datetime
+import functools
 import gzip
 
 from databuilder import query_language as ql
-from databuilder.functools_utils import singledispatch_on_value
 from databuilder.query_model import get_series_type
 
 
@@ -122,8 +122,12 @@ def validate_str_against_spec(value, spec):
             raise ValidationError("NULL value not allowed here")
         else:
             return
+    # We can't call the singledispatch function directly as we don't have an instance
+    # of the type, we just have the type itself. So we call `dispatch()` to find the
+    # appropriate implementation.
+    validate = validate_str_type.dispatch(spec.type)
     try:
-        validate_str_type(spec.type, value)
+        validate(spec.type, value)
     except ValidationError as e:
         detail = str(e)
         raise ValidationError(
@@ -131,7 +135,7 @@ def validate_str_against_spec(value, spec):
         )
 
 
-@singledispatch_on_value
+@functools.singledispatch
 def validate_str_type(type_, value):
     assert False, f"Unhandled type: {type_}"
 

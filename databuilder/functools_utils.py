@@ -23,25 +23,3 @@ class singledispatchmethod_with_unions(singledispatchmethod):
                     super().register(type_, method=target_method)
                 return target_method
         return super().register(cls, method=method)
-
-
-class singledispatch_on_value:
-    """
-    Like `singledispatch` but dispatches on the *value* of the first argument rather
-    than its type
-    """
-
-    def __init__(self, default_impl):
-        self.default_impl = default_impl
-        self.registry = {}
-
-    def register(self, value):
-        def wrapper(fn):
-            self.registry[value] = fn
-            return fn
-
-        return wrapper
-
-    def __call__(self, *args, **kwargs):
-        impl = self.registry.get(args[0], self.default_impl)
-        return impl(*args, **kwargs)
