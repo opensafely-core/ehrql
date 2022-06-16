@@ -1,4 +1,5 @@
 import sqlalchemy
+from sqlalchemy.schema import CreateIndex
 
 from databuilder import sqlalchemy_types
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
@@ -31,8 +32,17 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             sqlalchemy.Column(c.name, c.type, key=c.key) for c in query.selected_columns
         ]
         table = GeneratedTable(table_name, sqlalchemy.MetaData(), *columns)
-        # Use the MSSQL `SELECT * INTO ...` construct to create and populate this table
-        table.setup_queries = [SelectStarInto(table, query.alias())]
+        table.setup_queries = [
+            # Use the MSSQL `SELECT * INTO ...` construct to create and populate this
+            # table
+            SelectStarInto(table, query.alias()),
+            # As we always join rows on `patient_id` it makes sense to store them on
+            # disk in `patient_id` order, which is what creating a clustered index does.
+            # (We use `None` as the index name to let SQLAlchemy generate one for us.)
+            CreateIndex(
+                sqlalchemy.Index(None, table.c.patient_id, mssql_clustered=True)
+            ),
+        ]
         # The "#" in `intermediate_table_prefix` ensures this is a session-scoped
         # temporary table so there's no explict cleanup needed
         return table
