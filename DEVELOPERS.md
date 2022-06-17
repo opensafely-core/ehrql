@@ -263,7 +263,9 @@ However, it's not clear how stable this process is yet and it's fairly low prior
 We previously used [mypy](https://mypy.readthedocs.io/en/stable/) and type annotations to perform correctness checking of the code base.
 However, we made the decision to remove this stack after finding it was not a good fit for large parts of the code base.
 
-Some type annotations remain for use with the `singledispatchmethod_with_unions` decorator which uses the type information to route to the correct method.
+This does not mean we've abandoned type annotations entirely.
+The `query_model` module still makes heavy use of them and implements its own runtime checking to enforce them.
+And developers should feel free to use them wherever this aids clarity vs a docstring or a comment.
 
 Dataclasses have also retained their annotations to avoid initialising all fields with None.
 
