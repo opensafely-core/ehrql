@@ -24,7 +24,7 @@ from databuilder.query_model_transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )
-from databuilder.sqlalchemy_utils import is_predicate
+from databuilder.sqlalchemy_utils import get_setup_and_cleanup_queries, is_predicate
 
 from .base import BaseQueryEngine
 
@@ -33,12 +33,22 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
 
+    intermediate_table_prefix = "cte_"
+    intermediate_table_count = 0
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.backend:
             self.backend = DefaultBackend()
 
-    def get_query(self, variable_definitions):
+    def get_queries(self, variable_definitions):
+        """
+        Return the SQL queries to fetch the results for `variable_definitions`
+
+        These are specified as a triple:
+
+            list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
+        """
         variable_definitions = apply_transforms(variable_definitions)
         population_definition = variable_definitions.pop("population")
         variable_expressions = {
@@ -52,7 +62,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         query = query.where(population_expression)
         query = apply_patient_joins(query)
-        return query
+
+        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(query)
+        return setup_queries, query, cleanup_queries
 
     def select_patient_id_for_population(self, population_expression):
         """
@@ -425,7 +437,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         e.g. using `.alias()` to make a sub-query, using `.cte()` to make a Common Table
         Expression, or writing the results of the query to a temporary table.
         """
-        return query.cte()
+        return query.cte(name=self.next_intermediate_table_name())
+
+    def next_intermediate_table_name(self):
+        self.intermediate_table_count += 1
+        return f"{self.intermediate_table_prefix}{self.intermediate_table_count}"
 
     def get_select_query_for_node_domain(self, node):
         """
@@ -443,9 +459,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @contextlib.contextmanager
     def execute_query(self, variable_definitions):
-        results_query = self.get_query(variable_definitions)
+        setup_queries, results_query, cleanup_queries = self.get_queries(
+            variable_definitions
+        )
         with self.engine.connect() as cursor:
+            for setup_query in setup_queries:
+                cursor.execute(setup_query)
+
             yield cursor.execute(results_query)
+
+            assert not cleanup_queries, "Support these once tests exercise them"
 
     @cached_property
     def engine(self):

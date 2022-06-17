@@ -2,9 +2,10 @@ import datetime
 
 import pytest
 import sqlalchemy
+from sqlalchemy.sql.visitors import iterate
 
 from databuilder import sqlalchemy_types
-from databuilder.query_engines.mssql_dialect import MSSQLDialect
+from databuilder.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
 
 
 def test_mssql_date_types():
@@ -33,10 +34,37 @@ def test_mssql_date_types():
         _str(datetime_col == 2021)
 
 
-def _str(expression):
-    return str(
-        expression.compile(
-            dialect=MSSQLDialect(),
-            compile_kwargs={"literal_binds": True},
-        )
+def test_select_star_into():
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar).where(table.c.bar > 1)
+    target_table = sqlalchemy.table("test")
+    select_into = SelectStarInto(target_table, query.alias())
+    assert _str(select_into) == (
+        "SELECT * INTO test FROM (SELECT foo.bar AS bar \n"
+        "FROM foo \n"
+        "WHERE foo.bar > 1) AS anon_1"
     )
+
+
+def test_select_star_into_can_be_iterated():
+    # If we don't define the `get_children()` method on `SelectStarInto` we won't get an
+    # error when attempting to iterate the resulting element structure: it will just act
+    # as a leaf node. But as we rely heavily on query introspection we need to ensure we
+    # can iterate over query structures.
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar).where(table.c.bar > 1)
+    target_table = sqlalchemy.table("test")
+    select_into = SelectStarInto(target_table, query.alias())
+
+    # Check that SelectStarInto supports iteration by confirming that we can get back to
+    # both the target table and the original table by iterating it
+    assert any([e is table for e in iterate(select_into)]), "no `table`"
+    assert any([e is target_table for e in iterate(select_into)]), "no `target_table`"
+
+
+def _str(expression):
+    compiled = expression.compile(
+        dialect=MSSQLDialect(),
+        compile_kwargs={"literal_binds": True},
+    )
+    return str(compiled).strip()
