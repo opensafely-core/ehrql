@@ -193,14 +193,6 @@ cases = [
         ),
     ),
     (
-        datetime.date(2021, 1, 1),
-        Function.RoundToFirstOfYear(Value(datetime.date(2021, 8, 16))),
-    ),
-    (
-        datetime.date(2021, 8, 1),
-        Function.RoundToFirstOfMonth(Value(datetime.date(2021, 8, 16))),
-    ),
-    (
         datetime.date(2021, 6, 13),
         Function.DateAddDays(Value(datetime.date(2021, 5, 4)), Value(40)),
     ),

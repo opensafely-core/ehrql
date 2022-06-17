@@ -184,16 +184,6 @@ def register_op(cls):
     return register
 
 
-@register_op(Function.RoundToFirstOfMonth)
-def round_to_first_of_month(date):
-    return datetime.date(date.year, date.month, 1)
-
-
-@register_op(Function.RoundToFirstOfYear)
-def round_to_first_of_year(date):
-    return datetime.date(date.year, 1, 1)
-
-
 @register_op(Function.YearFromDate)
 def year_from_date(date):
     return date.year

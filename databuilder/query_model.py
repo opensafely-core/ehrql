@@ -284,14 +284,6 @@ class Function:
         rhs: Series[Numeric]
 
     # Dates
-    # TODO: Our date handling needs thinking through. Possibly we need an explicit
-    # datedelta type. Consider the below functions provisional.
-    class RoundToFirstOfMonth(Series[date]):
-        source: Series[date]
-
-    class RoundToFirstOfYear(Series[date]):
-        source: Series[date]
-
     class DateAddDays(Series[date]):
         lhs: Series[date]
         rhs: Series[int]

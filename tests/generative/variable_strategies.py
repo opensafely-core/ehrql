@@ -245,8 +245,6 @@ def is_trivial(node):  # pragma: no cover
         Function.Not,
         Function.IsNull,
         Function.Negate,
-        Function.RoundToFirstOfMonth,
-        Function.RoundToFirstOfYear,
         Function.YearFromDate,
     ]:
         # Unary functions are completely determined if their input is a literal
@@ -285,8 +283,6 @@ def is_trivial(node):  # pragma: no cover
         Function.Not,
         Function.IsNull,
         Function.Negate,
-        Function.RoundToFirstOfMonth,
-        Function.RoundToFirstOfYear,
     ]:
         # Nested application of these unary functions is allowed by the type system, but never necessary
         if isinstance(get_input_nodes(node)[0], type(node)):
