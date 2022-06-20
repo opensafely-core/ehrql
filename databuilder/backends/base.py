@@ -116,10 +116,9 @@ class QueryTable(SQLTable):
 
 
 class Column:
-    def __init__(self, column_type, source=None, system=None):
+    def __init__(self, column_type, source=None):
         self.type = column_type
         self.source = source
-        self.system = system
 
 
 class DefaultBackend:
