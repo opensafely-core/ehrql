@@ -83,7 +83,7 @@ class SQLTable:
 
 
 class MappedTable(SQLTable):
-    def __init__(self, source, columns, implements, schema=None):
+    def __init__(self, source, columns, implements=None, schema=None):
         self.source = source
         self.columns = columns
         self.implements = implements
@@ -99,7 +99,7 @@ class MappedTable(SQLTable):
 
 
 class QueryTable(SQLTable):
-    def __init__(self, query, columns, implements, implementation_notes=None):
+    def __init__(self, query, columns, implements=None, implementation_notes=None):
         self.query = query
         self.columns = columns
         self.implements = implements
