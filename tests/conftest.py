@@ -61,7 +61,7 @@ class QueryEngineFixture:
 
     def extract(self, dataset, **engine_kwargs):
         query_engine = self.query_engine_class(
-            self.database.host_url(), backend=None, **engine_kwargs
+            self.database.host_url(), **engine_kwargs
         )
         results = list(main.extract(dataset, query_engine))
         # We don't explicitly order the results and not all databases naturally return
