@@ -106,8 +106,10 @@ class QueryTable(SQLTable):
         self.implementation_notes = implementation_notes or {}
 
     def learn_patient_join(self, source):
-        if "patient_id" not in self.columns:
-            self.columns["patient_id"] = Column("integer")
+        # Given that `patient_id` has only one valid definition here, it should never be
+        # explicitly specified
+        assert "patient_id" not in self.columns
+        self.columns["patient_id"] = Column("integer")
 
     def get_expression(self, table_name):
         columns = self._make_columns()
