@@ -3,11 +3,12 @@ import pytest
 from databuilder import main
 from databuilder.definition.base import dataset_registry
 from databuilder.query_engines.mssql import MSSQLQueryEngine
+from databuilder.query_engines.spark import SparkQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 
 from .lib.databases import (
     InMemorySQLiteDatabase,
-    make_database,
+    make_mssql_database,
     make_spark_database,
     wait_for_database,
 )
@@ -30,8 +31,8 @@ def containers():
 
 
 @pytest.fixture(scope="session")
-def database(containers):
-    database = make_database(containers)
+def mssql_database(containers):
+    database = make_mssql_database(containers)
     wait_for_database(database)
     yield database
 
@@ -86,8 +87,8 @@ def in_memory_sqlite_database():
     return InMemorySQLiteDatabase()
 
 
-@pytest.fixture(params=["in_memory", "sqlite", "mssql"])
-def engine(request, in_memory_sqlite_database, database):
+@pytest.fixture(params=["in_memory", "sqlite", "mssql", "spark"])
+def engine(request, in_memory_sqlite_database, mssql_database, spark_database):
     name = request.param
     if name == "in_memory":
         # There are some tests we currently expect to fail against the in-memory engine
@@ -98,7 +99,9 @@ def engine(request, in_memory_sqlite_database, database):
     elif name == "sqlite":
         return QueryEngineFixture(name, in_memory_sqlite_database, SQLiteQueryEngine)
     elif name == "mssql":
-        return QueryEngineFixture(name, database, MSSQLQueryEngine)
+        return QueryEngineFixture(name, mssql_database, MSSQLQueryEngine)
+    elif name == "spark":
+        return QueryEngineFixture(name, spark_database, SparkQueryEngine)
     else:
         assert False
 

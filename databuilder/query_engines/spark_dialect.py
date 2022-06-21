@@ -13,8 +13,26 @@ import databricks.sql
 import sqlalchemy.types
 from pyhive.sqlalchemy_hive import HiveHTTPDialect, HiveTypeCompiler, _type_map
 from sqlalchemy import String, exc, types, util
+from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.compiler import DDLCompiler, IdentifierPreparer
-from sqlalchemy.sql.expression import cast
+from sqlalchemy.sql.expression import ClauseElement, Executable, cast
+
+
+class CreateTemporaryViewAs(Executable, ClauseElement):
+    def __init__(self, table, query):
+        self.table = table
+        self.query = query
+
+    def get_children(self):
+        return (self.table, self.query)
+
+
+@compiles(CreateTemporaryViewAs)
+def visit_create_temporary_view_as(element, compiler, **kw):
+    return "CREATE TEMPORARY VIEW {} AS {}".format(
+        compiler.process(element.table, asfrom=True, **kw),
+        compiler.process(element.query, **kw),
+    )
 
 
 class SparkDate(sqlalchemy.types.TypeDecorator):

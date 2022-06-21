@@ -4,11 +4,11 @@ from tests.lib import fixtures
 from tests.lib.tpp_schema import patient
 
 
-def test_generate_dataset_in_container(study, database):
-    database.setup(patient(dob=datetime(1943, 5, 5)))
+def test_generate_dataset_in_container(study, mssql_database):
+    mssql_database.setup(patient(dob=datetime(1943, 5, 5)))
 
     study.setup_from_string(fixtures.trivial_dataset_definition)
-    study.generate_in_docker(database, "tpp")
+    study.generate_in_docker(mssql_database, "tpp")
     results = study.results()
 
     assert len(results) == 1

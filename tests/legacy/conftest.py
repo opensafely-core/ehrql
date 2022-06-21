@@ -39,10 +39,10 @@ class LegacyQueryEngineFixture(QueryEngineFixture):
 @pytest.fixture(
     scope="session", params=["mssql", pytest.param("spark", marks=pytest.mark.spark)]
 )
-def engine(request, database, spark_database):
+def engine(request, mssql_database, spark_database):
     name = request.param
     if name == "mssql":
-        return LegacyQueryEngineFixture(name, database, MssqlQueryEngine)
+        return LegacyQueryEngineFixture(name, mssql_database, MssqlQueryEngine)
     elif name == "spark":
         return LegacyQueryEngineFixture(name, spark_database, SparkQueryEngine)
     else:
