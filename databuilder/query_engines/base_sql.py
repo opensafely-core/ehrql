@@ -1,11 +1,12 @@
 import contextlib
-from functools import cache, cached_property, singledispatchmethod
+from functools import cached_property
 
 import sqlalchemy
 import sqlalchemy.engine.interfaces
 from sqlalchemy.sql import operators
 
 from databuilder.backends.base import DefaultBackend
+from databuilder.functools_utils import singledispatchmethod_with_cache
 from databuilder.query_model import (
     AggregateByPatient,
     Case,
@@ -126,7 +127,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # databases that require work here.)
         return self.get_sql(node)
 
-    @singledispatchmethod
+    # Without caching here we emit unnecessarily verbose and duplicative SQL because any
+    # nodes which generate CTEs or temporary tables end up generating new ones each time
+    # they're referenced — we want to generate them only once and then reuse them
+    @singledispatchmethod_with_cache
     def get_sql(self, node):
         assert False, f"Unhandled node: {node}"
 
@@ -372,16 +376,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         aggregated_table = self.reify_query(query)
         return aggregated_table.c.value
 
-    @singledispatchmethod
+    # The caching here is required for correctness: without it we can generate distinct
+    # objects representing the same table and this confuses SQLAlchemy into generating
+    # queries with ambiguous table references
+    @singledispatchmethod_with_cache
     def get_table(self, node):
         assert False, f"Unhandled node: {node}"
 
-    # We have to apply caching here otherwise we generate distinct objects representing
-    # the same table and this confuses SQLAlchemy into generating queries with ambiguous
-    # table references
     @get_table.register(SelectTable)
     @get_table.register(SelectPatientTable)
-    @cache
     def get_table_select_table(self, node):
         return self.backend.get_table_expression(node.name, node.schema)
 
