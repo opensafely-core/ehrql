@@ -164,14 +164,6 @@ test-integration *ARGS: devenv
 test-integration-no-spark *ARGS: devenv
     $BIN/python -m pytest tests/integration -m "not spark" {{ ARGS }}
 
-# Run the legacy tests only. Optional args are passed to pytest.
-test-legacy *ARGS: devenv
-    $BIN/python -m pytest tests/legacy {{ ARGS }}
-
-# Run the legacy tests only, excluding spark tests which are slow. Optional args are passed to pytest.
-test-legacy-no-spark *ARGS: devenv
-    $BIN/python -m pytest tests/legacy -m "not spark" {{ ARGS }}
-
 # Run the spec tests only. Optional args are passed to pytest.
 test-spec *ARGS: devenv
     $BIN/python -m pytest tests/spec {{ ARGS }}

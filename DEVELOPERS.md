@@ -27,7 +27,6 @@ Tests are divided into the following categories.
    <dt>integration</dt><dd>tests of detailed code logic that require a database</dd>
    <dt>backend validation</dt><dd>tests which check that the backends correctly implement their contracts</dd>
    <dt>docker</dt><dd>tests of the Data Builder docker image</dd>
-   <dt>legacy</dt><dd>old tests currently required to provide test coverage for the execution engines</dd>
 </dl>
 
 Each category lives in its own directory (for example `tests/unit`) and has its own `just` command to run it (for
@@ -118,7 +117,6 @@ You should follow these guidelines and raise it with the rest of the team for di
 * The adherence of _backends to contracts_ that they implement is automatically validated by **backend validation** tests.
 * Where _backend tables_ do not map directly to the contracts that they implement, it may be helpful to write **integration** tests.
 * All other _supporting logic_ should be covered by **unit** tests. Please avoid the temptation to cover this using acceptance, integration or docker tests that run the Data Builder end-to-end.
-* Do not write **legacy** tests. :-)
 
 Contrary to practice in some quarters we allow disk access by **unit** tests because it doesn't seem to cause any significant slow-down in those tests at the moment.
 We'll keep this under review.
@@ -265,7 +263,9 @@ However, it's not clear how stable this process is yet and it's fairly low prior
 We previously used [mypy](https://mypy.readthedocs.io/en/stable/) and type annotations to perform correctness checking of the code base.
 However, we made the decision to remove this stack after finding it was not a good fit for large parts of the code base.
 
-Some type annotations remain for use with the `singledispatchmethod_with_unions` decorator which uses the type information to route to the correct method.
+This does not mean we've abandoned type annotations entirely.
+The `query_model` module still makes heavy use of them and implements its own runtime checking to enforce them.
+And developers should feel free to use them wherever this aids clarity vs a docstring or a comment.
 
 Dataclasses have also retained their annotations to avoid initialising all fields with None.
 

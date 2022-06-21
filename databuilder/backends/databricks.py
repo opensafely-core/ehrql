@@ -1,5 +1,5 @@
 from ..contracts import contracts
-from ..query_engines.legacy_spark import SparkQueryEngine
+from ..query_engines.spark import SparkQueryEngine
 from .base import BaseBackend, Column, MappedTable, QueryTable
 
 
@@ -36,9 +36,7 @@ class DatabricksBackend(BaseBackend):
         schema="PCAREMEDS",
         columns=dict(
             patient_id=Column("integer", source="Person_ID"),
-            prescribed_dmd_code=Column(
-                "varchar", source="PrescribeddmdCode", system="dmd"
-            ),
+            prescribed_dmd_code=Column("varchar", source="PrescribeddmdCode"),
             processing_date=Column("date", source="ProcessingPeriodDate"),
         ),
     )
@@ -47,7 +45,7 @@ class DatabricksBackend(BaseBackend):
         implements=contracts.WIP_HospitalAdmissions,
         columns=dict(
             admission_date=Column("date"),
-            primary_diagnosis=Column("varchar", system="icd10"),
+            primary_diagnosis=Column("varchar"),
             admission_method=Column("integer"),
             episode_is_finished=Column("boolean"),
             spell_id=Column("integer"),

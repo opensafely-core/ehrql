@@ -1,6 +1,6 @@
 from ..contracts import contracts as old_contracts
 from ..contracts import universal
-from ..query_engines.legacy_mssql import MssqlQueryEngine
+from ..query_engines.mssql import MSSQLQueryEngine
 from .base import BaseBackend, Column, QueryTable
 
 
@@ -70,7 +70,7 @@ class TPPBackend(BaseBackend):
     """Backend for working with data in TPP."""
 
     backend_id = "tpp"
-    query_engine_class = MssqlQueryEngine
+    query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
 
     patients = QueryTable(

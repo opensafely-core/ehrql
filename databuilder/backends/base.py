@@ -83,7 +83,7 @@ class SQLTable:
 
 
 class MappedTable(SQLTable):
-    def __init__(self, source, columns, implements, schema=None):
+    def __init__(self, source, columns, implements=None, schema=None):
         self.source = source
         self.columns = columns
         self.implements = implements
@@ -99,15 +99,17 @@ class MappedTable(SQLTable):
 
 
 class QueryTable(SQLTable):
-    def __init__(self, query, columns, implements, implementation_notes=None):
+    def __init__(self, query, columns, implements=None, implementation_notes=None):
         self.query = query
         self.columns = columns
         self.implements = implements
         self.implementation_notes = implementation_notes or {}
 
     def learn_patient_join(self, source):
-        if "patient_id" not in self.columns:
-            self.columns["patient_id"] = Column("integer")
+        # Given that `patient_id` has only one valid definition here, it should never be
+        # explicitly specified
+        assert "patient_id" not in self.columns
+        self.columns["patient_id"] = Column("integer")
 
     def get_expression(self, table_name):
         columns = self._make_columns()
@@ -116,10 +118,9 @@ class QueryTable(SQLTable):
 
 
 class Column:
-    def __init__(self, column_type, source=None, system=None):
+    def __init__(self, column_type, source=None):
         self.type = column_type
         self.source = source
-        self.system = system
 
 
 class DefaultBackend:

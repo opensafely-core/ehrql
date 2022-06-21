@@ -213,12 +213,6 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_Subtract(self, node):
         return self.visit_binary_op_with_null(node, operator.sub)
 
-    def visit_RoundToFirstOfMonth(self, node):
-        assert False
-
-    def visit_RoundToFirstOfYear(self, node):
-        assert False
-
     def visit_DateAddDays(self, node):
         def date_add_days(date, num_days):
             return date + datetime.timedelta(days=num_days)
