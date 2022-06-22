@@ -29,8 +29,8 @@ def validate_file_types_match(dummy_filename, output_filename):
 
 
 def validate_dummy_data_file(dataset_definition, filename):
-    column_definitions = ql.compile(dataset_definition)
-    column_specs = get_column_specs(column_definitions)
+    variable_definitions = ql.compile(dataset_definition)
+    column_specs = get_column_specs(variable_definitions)
 
     file_type, gzipped = get_file_type(filename)
     if file_type != ".csv":
@@ -52,12 +52,12 @@ def get_file_type(filename):
     return extension, gzipped
 
 
-def get_column_specs(column_definitions):
+def get_column_specs(variable_definitions):
     # TODO: It may not be universally true that IDs are ints. Internally the EMIS IDs
     # are SHA512 hashes stored as hex strings which we convert to ints. But we can't
     # guarantee always to be able to pull this trick.
     column_specs = {"patient_id": ColumnSpec(int, nullable=False)}
-    for name, series in column_definitions.items():
+    for name, series in variable_definitions.items():
         if name == "population":
             continue
         column_specs[name] = ColumnSpec(get_series_type(series), nullable=True)
