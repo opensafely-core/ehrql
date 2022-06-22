@@ -16,9 +16,9 @@ class BaseQueryEngine:
         # TODO: Not sure this belongs here but let's worry about that later
         self.temporary_database = temporary_database
 
-    def execute_query(self, column_definitions):
+    def execute_query(self, variable_definitions):
         """
-        `column_definitions` is a dictionary mapping output column names to
+        `variable_definitions` is a dictionary mapping output column names to
         query model graphs which specify the queries used to populate them
 
         Override this method to do the things necessary to generate query code and execute

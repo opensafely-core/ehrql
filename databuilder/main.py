@@ -23,13 +23,13 @@ def generate_dataset(
 ):
     log.info(f"Generating dataset for {str(definition_file)}")
 
-    dataset = load_definition(definition_file)
+    dataset_definition = load_definition(definition_file)
     backend = BACKENDS[backend_id]()
     query_engine = backend.query_engine_class(
         db_url, backend, temporary_database=temporary_database
     )
     backend.validate_contracts()
-    results = extract(dataset, query_engine)
+    results = extract(dataset_definition, query_engine)
 
     dataset_file.parent.mkdir(parents=True, exist_ok=True)
     write_dataset(results, dataset_file)
@@ -38,8 +38,8 @@ def generate_dataset(
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
     log.info(f"Generating dataset for {str(definition_file)}")
 
-    dataset = load_definition(definition_file)
-    validate_dummy_data_file(dataset, dummy_data_file)
+    dataset_definition = load_definition(definition_file)
+    validate_dummy_data_file(dataset_definition, dummy_data_file)
     validate_file_types_match(dummy_data_file, dataset_file)
 
     dataset_file.parent.mkdir(parents=True, exist_ok=True)
@@ -49,10 +49,10 @@ def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
 def validate_dataset(definition_file, output_file, backend_id):
     log.info(f"Validating dataset for {str(definition_file)}")
 
-    dataset = load_definition(definition_file)
+    dataset_definition = load_definition(definition_file)
     backend = BACKENDS[backend_id]()
     query_engine = backend.query_engine_class(None, backend)
-    results = validate(dataset, query_engine)
+    results = validate(dataset_definition, query_engine)
     log.info("Validation succeeded")
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -115,17 +115,17 @@ def extract(dataset_definition, query_engine):
     Returns:
         Yields the dataset as rows
     """
-    dataset = ql.compile(dataset_definition)
-    with query_engine.execute_query(dataset) as results:
+    variable_definitions = ql.compile(dataset_definition)
+    with query_engine.execute_query(variable_definitions) as results:
         for row in results:
             yield dict(row)
 
 
-def validate(dataset_class, query_engine):
+def validate(dataset_definition, query_engine):
     try:
-        dataset = ql.compile(dataset_class)
+        variable_definitions = ql.compile(dataset_definition)
         setup_queries, results_query, cleanup_queries = query_engine.get_queries(
-            dataset
+            variable_definitions
         )
         return setup_queries + [results_query] + cleanup_queries
     except Exception:  # pragma: no cover (puzzle: dataset definition that compiles to QM but not SQL)
