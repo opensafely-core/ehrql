@@ -142,7 +142,7 @@ test *ARGS="tests": devenv
 
 # Run all or some pytest tests, excluding spark tests which are slow. Optional args are passed to pytest, including the path of tests to run.
 test-no-spark *ARGS="tests": devenv
-    $BIN/python -m pytest -m "not spark" {{ ARGS }}
+    $BIN/python -m pytest -k "not spark" {{ ARGS }}
 
 # Run the acceptance tests only. Optional args are passed to pytest.
 test-acceptance *ARGS: devenv
@@ -162,7 +162,7 @@ test-integration *ARGS: devenv
 
 # Run the integration tests only, excluding spark tests which are slow. Optional args are passed to pytest.
 test-integration-no-spark *ARGS: devenv
-    $BIN/python -m pytest tests/integration -m "not spark" {{ ARGS }}
+    $BIN/python -m pytest tests/integration -k "not spark" {{ ARGS }}
 
 # Run the spec tests only. Optional args are passed to pytest.
 test-spec *ARGS: devenv
@@ -170,7 +170,7 @@ test-spec *ARGS: devenv
 
 # Run the spec tests only, excluding spark tests which are slow. Optional args are passed to pytest.
 test-spec-no-spark *ARGS: devenv
-    $BIN/python -m pytest tests/spec -m "not spark" {{ ARGS }}
+    $BIN/python -m pytest tests/spec -k "not spark" {{ ARGS }}
 
 # Run the unit tests only. Optional args are passed to pytest.
 test-unit *ARGS: devenv
