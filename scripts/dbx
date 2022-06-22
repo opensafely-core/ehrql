@@ -268,7 +268,7 @@ def test(name):
             "databuilder",
             "test-connection",
             "-b",
-            "databricks",
+            "databuilder.backends.databricks.DatabricksBackend",
             "-u",
             c.url,
         ]

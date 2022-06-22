@@ -18,7 +18,6 @@ class PatientsContract(TableContract):
 
 def test_validate_implementation_success():
     class GoodBackend(BaseBackend):
-        backend_id = "good_test_backend"
         query_engine_class = BaseSQLQueryEngine
         patient_join_column = "patient_id"
 
@@ -36,7 +35,6 @@ def test_validate_implementation_success():
 
 def test_validate_implementation_failure_misnamed_table():
     class BadBackend(BaseBackend):
-        backend_id = "bad_test_backend"
         query_engine_class = BaseSQLQueryEngine
         patient_join_column = "patient_id"
 
@@ -56,7 +54,6 @@ def test_validate_implementation_failure_misnamed_table():
 
 def test_validate_implementation_failure_missing_column():
     class BadBackend(BaseBackend):
-        backend_id = "bad_test_backend"
         query_engine_class = BaseSQLQueryEngine
         patient_join_column = "patient_id"
 
@@ -74,7 +71,6 @@ def test_validate_implementation_failure_missing_column():
 
 def test_validate_implementation_failure_invalid_type():
     class BadBackend(BaseBackend):
-        backend_id = "bad_test_backend"
         query_engine_class = BaseSQLQueryEngine
         patient_join_column = "patient_id"
 

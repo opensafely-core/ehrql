@@ -7,8 +7,8 @@ def test_driver_in_container(run_in_container, engine):
         pytest.skip()
 
     backends = {
-        "mssql": "tpp",
-        "spark": "databricks",
+        "mssql": "databuilder.backends.tpp.TPPBackend",
+        "spark": "databuilder.backends.databricks.DatabricksBackend",
     }
 
     if engine.name not in backends:

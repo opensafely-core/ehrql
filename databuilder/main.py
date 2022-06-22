@@ -7,7 +7,6 @@ from contextlib import contextmanager
 import structlog
 
 from . import query_language as ql
-from .backends import BACKENDS
 from .definition.base import dataset_registry
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
@@ -24,7 +23,7 @@ def generate_dataset(
     log.info(f"Generating dataset for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
-    backend = BACKENDS[backend_id]()
+    backend = import_string(backend_id)()
     query_engine = backend.query_engine_class(
         db_url, backend, temporary_database=temporary_database
     )
@@ -50,7 +49,7 @@ def validate_dataset(definition_file, output_file, backend_id):
     log.info(f"Validating dataset for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
-    backend = BACKENDS[backend_id]()
+    backend = import_string(backend_id)()
     query_engine = backend.query_engine_class(None, backend)
     results = validate(dataset_definition, query_engine)
     log.info("Validation succeeded")
@@ -67,10 +66,10 @@ def generate_measures(
     raise NotImplementedError
 
 
-def test_connection(backend, url):
+def test_connection(backend_id, url):
     from sqlalchemy import select
 
-    backend = BACKENDS[backend]()
+    backend = import_string(backend_id)()
     query_engine = backend.query_engine_class(url, backend)
     with query_engine.engine.connect() as connection:
         connection.execute(select(1))
@@ -104,6 +103,12 @@ def add_to_sys_path(directory):
         yield
     finally:
         sys.path = original
+
+
+def import_string(dotted_path):
+    module_name, _, attribute_name = dotted_path.rpartition(".")
+    module = importlib.import_module(module_name)
+    return getattr(module, attribute_name)
 
 
 def extract(dataset_definition, query_engine):
