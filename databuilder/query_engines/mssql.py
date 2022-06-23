@@ -1,5 +1,6 @@
 import sqlalchemy
 from sqlalchemy.schema import CreateIndex
+from sqlalchemy.sql.functions import Function as SQLFunction
 
 from databuilder import sqlalchemy_types
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
@@ -15,15 +16,17 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
     intermediate_table_prefix = "#tmp_"
 
     def get_date_part(self, date, part):
-        func = sqlalchemy.func
-        get_part = {"YEAR": func.year, "MONTH": func.month, "DAY": func.day}[part]
-        # Tell SQLAlchemy that the result is an int without doing any CASTing in the SQL
-        return sqlalchemy.type_coerce(get_part(date), sqlalchemy_types.Integer())
+        assert part in {"YEAR", "MONTH", "DAY"}
+        return SQLFunction(part, date, type_=sqlalchemy_types.Integer)
 
     def date_add_days(self, date, num_days):
-        new_date = sqlalchemy.func.dateadd(sqlalchemy.text("day"), num_days, date)
-        # Tell SQLAlchemy that the result is a date without doing any CASTing in the SQL
-        return sqlalchemy.type_coerce(new_date, sqlalchemy_types.Date())
+        return SQLFunction(
+            "DATEADD",
+            sqlalchemy.text("day"),
+            num_days,
+            date,
+            type_=sqlalchemy_types.Date,
+        )
 
     def reify_query(self, query):
         # Define a table object with the same columns as the query
