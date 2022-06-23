@@ -562,6 +562,12 @@ def validate_types(node):
     # values so we create a single context object to share between all fields
     typevar_context = {}
     for field in dataclasses.fields(node):
+        target_typespec = field.type
+        # Bail out early if there's no type-checking to be done; this allows us to work
+        # with values that `get_typespec` cant' handle in cases where we don't actually
+        # care about the type.
+        if target_typespec is Any:
+            continue
         value = getattr(node, field.name)
         # This might look a bit backward: instead of checking whether the value is of
         # the expected type, we convert the value to a type specification and check that
@@ -572,7 +578,6 @@ def validate_types(node):
         # approach to type checking doesn't work. There may well be a more elegant
         # alternative approach here, but this works for now.
         typespec = get_typespec(value)
-        target_typespec = field.type
         if not type_matches(typespec, target_typespec, typevar_context):
             # Try to make errors a bit more helpful by resolving TypeVars if we can.
             # This means that if validation fails because e.g. `T` has been bound to
