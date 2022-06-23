@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from databuilder.query_language import Dataset
+from databuilder.query_language import Dataset, case, when
 
 from . import codelists, schema
 from .codelists import combine_codelists
@@ -11,6 +11,7 @@ from .variables_lib import (
     create_sequential_variables,
     date_deregistered_from_all_supported_practices,
     has_a_continuous_practice_registration_spanning,
+    most_recent_bmi,
     practice_registration_as_of,
 )
 
@@ -147,31 +148,23 @@ dataset.age_august2021 = age_as_of("2020-08-31")
 
 dataset.sex = schema.patients.sex
 
-#    # https://github.com/opensafely/risk-factors-research/issues/51
-#    bmi=patients.categorised_as(
-#      {
-#        "Not obese": "DEFAULT",
-#        "Obese I (30-34.9)": """ bmi_value >= 30 AND bmi_value < 35""",
-#        "Obese II (35-39.9)": """ bmi_value >= 35 AND bmi_value < 40""",
-#        "Obese III (40+)": """ bmi_value >= 40 AND bmi_value < 100""",
-#        # set maximum to avoid any impossibly extreme values being classified as obese
-#      },
-#      bmi_value=patients.most_recent_bmi(
-#        on_or_after="covid_vax_disease_3_date - 5 years",
-#        minimum_age_at_measurement=16
-#      ),
-#      return_expectations={
-#        "rate": "universal",
-#        "category": {
-#          "ratios": {
-#            "Not obese": 0.7,
-#            "Obese I (30-34.9)": 0.1,
-#            "Obese II (35-39.9)": 0.1,
-#            "Obese III (40+)": 0.1,
-#          }
-#        },
-#      },
-#    ),
+# BMI
+# https://github.com/opensafely/risk-factors-research/issues/51
+bmi_measurement = most_recent_bmi(
+    # This isn't _exactly_ 5 years as the old study used, but I can't see that would
+    # matter here
+    where=events.date.is_after(baseline_date.subtract_days(5 * 365)),
+    minimum_age_at_measurement=16,
+)
+bmi_value = bmi_measurement.numeric_value
+
+dataset.bmi = case(
+    when((bmi_value >= 30.0) & (bmi_value < 35.0)).then("Obese I (30-34.9)"),
+    when((bmi_value >= 35.0) & (bmi_value < 40.0)).then("Obese II (35-39.9)"),
+    # Set maximum to avoid any impossibly extreme values being classified as obese
+    when((bmi_value >= 40.0) & (bmi_value < 100.0)).then("Obese III (40+)"),
+    default="Not obese",
+)
 
 # Ethnicity in 6 categories
 dataset.ethnicity = (

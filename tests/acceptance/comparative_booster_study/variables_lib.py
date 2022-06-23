@@ -1,3 +1,4 @@
+from databuilder.codes import CTV3Code
 from databuilder.query_language import case, when
 
 from . import schema
@@ -65,3 +66,22 @@ def address_as_of(date):
         addr.address_id,
     )
     return ordered.first_for_patient()
+
+
+def most_recent_bmi(*, minimum_age_at_measurement, where=True):
+    events = schema.coded_events
+    age_threshold = schema.patients.date_of_birth.add_days(
+        # This is obviously inexact but, given that the dates of birth are rounded to
+        # the first of the month anyway, there's no point trying to be more accurate
+        int(365.25 * minimum_age_at_measurement)
+    )
+    return (
+        # This captures just explicitly recorded BMI observations rather than attempting
+        # to calculate it from height and weight measurements. Investigation has shown
+        # this to have no real benefit it terms of coverage or accuracy.
+        events.take(events.ctv3_code == CTV3Code("22K.."))
+        .take(events.date >= age_threshold)
+        .take(where)
+        .sort_by(events.date)
+        .last_for_patient()
+    )
