@@ -270,29 +270,16 @@ dataset.primary_care_covid_case_0_date = (
     .date
 )
 
-#    # covid PCR test dates from SGSS
-#    covid_test_0_date=patients.with_test_result_in_sgss(
-#      pathogen="SARS-CoV-2",
-#      test_result="any",
-#      on_or_before="covid_vax_disease_3_date - 1 day",
-#      returning="date",
-#      date_format="YYYY-MM-DD",
-#      find_last_match_in_period=True,
-#      restrict_to_earliest_specimen_date=False,
-#    ),
-#
-#
-#    # positive covid test
-#    postest_0_date=patients.with_test_result_in_sgss(
-#        pathogen="SARS-CoV-2",
-#        test_result="positive",
-#        returning="date",
-#        date_format="YYYY-MM-DD",
-#        on_or_before="covid_vax_disease_3_date - 1 day",
-#        find_last_match_in_period=True,
-#        restrict_to_earliest_specimen_date=False,
-#    ),
-#
+# Covid test dates from SGSS
+covid_tests = schema.sgss_covid_all_tests
+prior_tests = covid_tests.take(
+    covid_tests.specimen_taken_date.is_on_or_before(baseline_date)
+)
+dataset.covid_test_0_date = prior_tests.specimen_taken_date.maximum_for_patient()
+dataset.postest_0_date = prior_tests.take(
+    prior_tests.is_positive
+).specimen_taken_date.maximum_for_patient()
+
 #    # emergency attendance for covid
 #    covidemergency_0_date=patients.attended_emergency_care(
 #      returning="date_arrived",
@@ -505,15 +492,10 @@ dataset.housebound = (
     housebound_date.is_not_null() & ~no_longer_housebound & ~moved_into_care_home
 )
 
-#    prior_covid_test_frequency=patients.with_test_result_in_sgss(
-#      pathogen="SARS-CoV-2",
-#      test_result="any",
-#      between=["covid_vax_disease_3_date - 182 days", "covid_vax_disease_3_date - 1 day"], # 182 days = 26 weeks
-#      returning="number_of_matches_in_period",
-#      date_format="YYYY-MM-DD",
-#      restrict_to_earliest_specimen_date=False,
-#    ),
-#
+dataset.prior_covid_test_frequency = prior_tests.take(
+    prior_tests.specimen_taken_date.is_after(baseline_date.subtract_days(26 * 7))
+).count_for_patient()
+
 #    # unplanned hospital admission at time of 3rd / booster dose
 #    inhospital_unplanned = patients.satisfying(
 #
@@ -563,28 +545,16 @@ dataset.primary_care_covid_case_date = (
     .date
 )
 
-#    # covid PCR test dates from SGSS
-#    covid_test_date=patients.with_test_result_in_sgss(
-#      pathogen="SARS-CoV-2",
-#      test_result="any",
-#      on_or_after="covid_vax_disease_3_date",
-#      find_first_match_in_period=True,
-#      restrict_to_earliest_specimen_date=False,
-#      returning="date",
-#      date_format="YYYY-MM-DD",
-#    ),
-#
-#    # positive covid test
-#    postest_date=patients.with_test_result_in_sgss(
-#        pathogen="SARS-CoV-2",
-#        test_result="positive",
-#        returning="date",
-#        date_format="YYYY-MM-DD",
-#        on_or_after="covid_vax_disease_3_date",
-#        find_first_match_in_period=True,
-#        restrict_to_earliest_specimen_date=False,
-#    ),
-#
+# Covid test dates from SGSS
+post_baseline_tests = covid_tests.take(
+    covid_tests.specimen_taken_date.is_on_or_after(boosted_date)
+)
+dataset.covid_tests_date = post_baseline_tests.specimen_taken_date.minimum_for_patient()
+# Positive covid test
+dataset.postest_date = post_baseline_tests.take(
+    post_baseline_tests.is_positive
+).specimen_taken_date.minimum_for_patient()
+
 #    # emergency attendance for covid, as per discharge diagnosis
 #    covidemergency_date=patients.attended_emergency_care(
 #      returning="date_arrived",

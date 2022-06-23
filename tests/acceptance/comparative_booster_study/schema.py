@@ -95,3 +95,14 @@ addresses = build_event_table(
 )
 
 Address = orm_class_from_table(Base, addresses)
+
+
+sgss_covid_all_tests = build_event_table(
+    "sgss_covid_all_tests",
+    {
+        "specimen_taken_date": datetime.date,
+        "is_positive": bool,
+    },
+)
+
+SGSSCovidAllTestsResult = orm_class_from_table(Base, sgss_covid_all_tests)
