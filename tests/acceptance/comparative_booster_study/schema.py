@@ -91,6 +91,12 @@ addresses = build_event_table(
         "rural_urban_classification": int,
         "imd_rounded": int,
         "msoa_code": str,
+        # Is the address potentially a match for a care home? (Using TPP's algorithm)
+        "care_home_is_potential_match": bool,
+        # These two fields look like they should be a single boolean, but this is how
+        # they're represented in the data
+        "care_home_requires_nursing": bool,
+        "care_home_does_not_require_nursing": bool,
     },
 )
 

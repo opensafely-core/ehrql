@@ -216,34 +216,22 @@ dataset.rural_urban = address.rural_urban_classification
 vaxx_job = schema.occupation_on_covid_vaccine_record
 dataset.hscworker = vaxx_job.take(vaxx_job.is_healthcare_worker).exists_for_patient()
 
-#    care_home_type=patients.care_home_status_as_of(
-#        "covid_vax_disease_3_date - 1 day",
-#        categorised_as={
-#            "Carehome": """
-#              IsPotentialCareHome
-#              AND LocationDoesNotRequireNursing='Y'
-#              AND LocationRequiresNursing='N'
-#            """,
-#            "Nursinghome": """
-#              IsPotentialCareHome
-#              AND LocationDoesNotRequireNursing='N'
-#              AND LocationRequiresNursing='Y'
-#            """,
-#            "Mixed": "IsPotentialCareHome",
-#            "": "DEFAULT",  # use empty string
-#        },
-#        return_expectations={
-#            "category": {"ratios": {"Carehome": 0.05, "Nursinghome": 0.05, "Mixed": 0.05, "": 0.85, }, },
-#            "incidence": 1,
-#        },
-#    ),
-#
-#    # simple care home flag
-#    care_home_tpp=patients.satisfying(
-#        """care_home_type""",
-#        return_expectations={"incidence": 0.01},
-#    ),
-#
+dataset.care_home_type = case(
+    when(
+        address.care_home_is_potential_match
+        & ~address.care_home_requires_nursing
+        & address.care_home_does_not_require_nursing
+    ).then("Carehome"),
+    when(
+        address.care_home_is_potential_match
+        & address.care_home_requires_nursing
+        & ~address.care_home_does_not_require_nursing
+    ).then("Nursinghome"),
+    when(address.care_home_is_potential_match).then("Mixed"),
+)
+
+# Simple care home flag
+dataset.care_home_tpp = dataset.care_home_type.is_not_null()
 
 # Patients in long-stay nursing and residential care
 dataset.care_home_code = has_prior_event(codelists.carehome)
