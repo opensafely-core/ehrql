@@ -1,9 +1,12 @@
+import datetime
+
 from databuilder.query_model import (
     PickOneRowPerPatient,
     Position,
     SelectColumn,
     SelectTable,
     Sort,
+    TableSchema,
 )
 from databuilder.query_model_transforms import (
     PickOneRowPerPatientWithColumns,
@@ -12,7 +15,9 @@ from databuilder.query_model_transforms import (
 
 
 def test_pick_one_row_per_patient_transform():
-    events = SelectTable("events")
+    events = SelectTable(
+        "events", schema=TableSchema(date=datetime.date, code=str, value=float)
+    )
     date = SelectColumn(events, "date")
     by_date = Sort(events, date)
     first_event = PickOneRowPerPatient(by_date, Position.FIRST)
