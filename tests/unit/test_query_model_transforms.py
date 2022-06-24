@@ -24,6 +24,9 @@ def test_pick_one_row_per_patient_transform():
     variables = dict(
         first_code=SelectColumn(first_event, "code"),
         first_value=SelectColumn(first_event, "value"),
+        # Create a new distinct colum object with the same value as the first column:
+        # equal but not identical objects expose bugs in the query model transformation
+        first_code_again=SelectColumn(first_event, "code"),
     )
 
     first_event_with_columns = PickOneRowPerPatientWithColumns(
@@ -45,6 +48,7 @@ def test_pick_one_row_per_patient_transform():
     expected = {
         "first_code": SelectColumn(first_event_with_columns, "code"),
         "first_value": SelectColumn(first_event_with_columns, "value"),
+        "first_code_again": SelectColumn(first_event_with_columns, "code"),
     }
 
     transformed = apply_transforms(variables)
