@@ -106,3 +106,15 @@ sgss_covid_all_tests = build_event_table(
 )
 
 SGSSCovidAllTestsResult = orm_class_from_table(Base, sgss_covid_all_tests)
+
+
+occupation_on_covid_vaccine_record = build_event_table(
+    "occupation_on_covid_vaccine_record",
+    {
+        "is_healthcare_worker": bool,
+    },
+)
+
+OccupationOnCovidVaccineRecord = orm_class_from_table(
+    Base, occupation_on_covid_vaccine_record
+)

@@ -208,14 +208,14 @@ dataset.imd = address.imd_rounded
 dataset.rural_urban = address.rural_urban_classification
 
 
-#    ################################################################################################
-#    ## occupation / residency
-#    ################################################################################################
-#
-#
-#    # health or social care worker
-#    hscworker = patients.with_healthcare_worker_flag_on_covid_vaccine_record(returning="binary_flag"),
-#
+#######################################################################################
+# Occupation / residency
+#######################################################################################
+
+# Health or social care worker
+vaxx_job = schema.occupation_on_covid_vaccine_record
+dataset.hscworker = vaxx_job.take(vaxx_job.is_healthcare_worker).exists_for_patient()
+
 #    care_home_type=patients.care_home_status_as_of(
 #        "covid_vax_disease_3_date - 1 day",
 #        categorised_as={
