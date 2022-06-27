@@ -1,7 +1,14 @@
+import operator
+from functools import reduce
+
 from databuilder.codes import CTV3Code
 from databuilder.query_language import case, when
 
 from . import schema
+
+
+def any_of(conditions):
+    return reduce(operator.or_, conditions)
 
 
 def create_sequential_variables(
@@ -85,3 +92,11 @@ def most_recent_bmi(*, minimum_age_at_measurement, where=True):
         .sort_by(events.date)
         .last_for_patient()
     )
+
+
+def cause_of_death_matches(deaths, codelist):
+    conditions = [
+        getattr(deaths, column_name).is_in(codelist)
+        for column_name in [f"cause_of_death_{i:02d}" for i in range(1, 16)]
+    ]
+    return deaths.take(any_of(conditions))

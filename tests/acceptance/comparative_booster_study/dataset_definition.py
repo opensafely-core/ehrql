@@ -8,6 +8,7 @@ from .codelists import combine_codelists
 from .variables_lib import (
     address_as_of,
     age_as_of,
+    cause_of_death_matches,
     create_sequential_variables,
     date_deregistered_from_all_supported_practices,
     has_a_continuous_practice_registration_spanning,
@@ -642,19 +643,12 @@ dataset.postest_date = post_baseline_tests.take(
 #      with_admission_method = ["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
 #      with_these_diagnoses = codelists.covid_icd10
 #    ),
-#
-#    # Covid-related death
-#    coviddeath_date=patients.with_these_codes_on_death_certificate(
-#      codelists.covid_icd10,
-#      returning="date_of_death",
-#      date_format="YYYY-MM-DD",
-#    ),
-#
-#    # All-cause death
-#    death_date=patients.died_from_any_cause(
-#      returning="date_of_death",
-#      date_format="YYYY-MM-DD",
-#    ),
+
+deaths = schema.ons_deaths
+dataset.coviddeath_date = cause_of_death_matches(
+    deaths, codelists.covid_icd10
+).date.maximum_for_patient()
+dataset.death_date = deaths.date.maximum_for_patient()
 
 
 #######################################################################################
@@ -663,7 +657,6 @@ dataset.postest_date = post_baseline_tests.take(
 
 registered = practice_registration_as_of(baseline_date).exists_for_patient()
 
-deaths = schema.ons_deaths
 has_died = deaths.take(deaths.date.is_on_or_before(baseline_date)).exists_for_patient()
 
 dataset.set_population(

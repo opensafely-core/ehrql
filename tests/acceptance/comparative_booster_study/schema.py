@@ -2,7 +2,7 @@ import datetime
 
 import sqlalchemy.orm
 
-from databuilder.codes import CTV3Code, SNOMEDCTCode
+from databuilder.codes import CTV3Code, ICD10Code, SNOMEDCTCode
 from databuilder.query_language import build_event_table, build_patient_table
 
 from ...lib.util import orm_class_from_table
@@ -51,6 +51,8 @@ ons_deaths = build_event_table(
     "ons_deaths",
     {
         "date": datetime.date,
+        # TODO: Revisit this when we have support for multi-valued fields
+        **{f"cause_of_death_{i:02d}": ICD10Code for i in range(1, 16)},
     },
 )
 
