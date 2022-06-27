@@ -103,16 +103,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # empty. But we can at least return an empty result, rather than blowing up.
             return sqlalchemy.select(sqlalchemy.literal(None).label("patient_id"))
 
+    # Some databases care about the distinction between "predicates" (expressions which
+    # are guaranteed boolean-typed by virtue of their syntax) and other forms of
+    # expression. As these are semantically equivalent we can transform from one to the
+    # other, we just need to know which one we're expecting in a context.
     def get_expr(self, node):
         sql = self.get_sql(node)
-        # Some databases care about the distinction between "predicates" (expressions
-        # which are guaranteed boolean-typed by virtue of their syntax) and other forms
-        # of expression. As these are semantically equivalent we can transform
-        # predicates into non-predicate expressions if that's what we need.
-        if is_predicate(sql):
-            return self.predicate_to_expression(sql)
-        else:
-            return sql
+        return self.predicate_to_expression(sql) if is_predicate(sql) else sql
+
+    def get_predicate(self, node):
+        sql = self.get_sql(node)
+        return self.expression_to_predicate(sql) if not is_predicate(sql) else sql
 
     def predicate_to_expression(self, sql):
         # Using the expression twice in the CASE statement is a bit inelegant, but I
@@ -121,11 +122,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # do).
         return sqlalchemy.case((sql, True), (~sql, False))
 
-    def get_predicate(self, node):
-        # If we want a predicate, rather than an expression, then there's no further
-        # transformation to be done. (At least at present, it's possible we'll find
-        # databases that require work here.)
-        return self.get_sql(node)
+    def expression_to_predicate(self, sql):
+        return operators.eq(sql, True)
 
     # Without caching here we emit unnecessarily verbose and duplicative SQL because any
     # nodes which generate CTEs or temporary tables end up generating new ones each time
