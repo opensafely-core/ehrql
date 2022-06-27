@@ -1,9 +1,12 @@
+import datetime
+
 from databuilder.query_model import (
     PickOneRowPerPatient,
     Position,
     SelectColumn,
     SelectTable,
     Sort,
+    TableSchema,
 )
 from databuilder.query_model_transforms import (
     PickOneRowPerPatientWithColumns,
@@ -12,13 +15,18 @@ from databuilder.query_model_transforms import (
 
 
 def test_pick_one_row_per_patient_transform():
-    events = SelectTable("events")
+    events = SelectTable(
+        "events", schema=TableSchema(date=datetime.date, code=str, value=float)
+    )
     date = SelectColumn(events, "date")
     by_date = Sort(events, date)
     first_event = PickOneRowPerPatient(by_date, Position.FIRST)
     variables = dict(
         first_code=SelectColumn(first_event, "code"),
         first_value=SelectColumn(first_event, "value"),
+        # Create a new distinct colum object with the same value as the first column:
+        # equal but not identical objects expose bugs in the query model transformation
+        first_code_again=SelectColumn(first_event, "code"),
     )
 
     first_event_with_columns = PickOneRowPerPatientWithColumns(
@@ -40,6 +48,7 @@ def test_pick_one_row_per_patient_transform():
     expected = {
         "first_code": SelectColumn(first_event_with_columns, "code"),
         "first_value": SelectColumn(first_event_with_columns, "value"),
+        "first_code_again": SelectColumn(first_event_with_columns, "code"),
     }
 
     transformed = apply_transforms(variables)

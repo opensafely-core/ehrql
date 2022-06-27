@@ -47,13 +47,16 @@ def get_reverse_index(nodes):
     index = {}
     for node in nodes:
         populate_reverse_index(index, node)
-    return index
+    return {node: references.values() for node, references in index.items()}
 
 
 def populate_reverse_index(index, node):
-    index.setdefault(node, set())
+    index.setdefault(node, {})
     for subnode in get_input_nodes(node):
-        index.setdefault(subnode, set()).add(node)
+        references = index.setdefault(subnode, {})
+        # Index nodes by their object ID so as to disambiguate distnct objects which
+        # compare equal
+        references[id(node)] = node
         populate_reverse_index(index, subnode)
 
 
