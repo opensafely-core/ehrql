@@ -119,7 +119,7 @@ class Study:
             str(definition),
             "--output",
             str(output),
-            "tpp",
+            "databuilder.backends.tpp.TPPBackend",
         ]
 
     def _docker_path(self, path):

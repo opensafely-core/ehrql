@@ -39,7 +39,7 @@ def test_generate_dataset(study, mssql_database):
     )
 
     study.setup_from_string(trivial_dataset_definition)
-    study.generate(mssql_database, "tpp")
+    study.generate(mssql_database, "databuilder.backends.tpp.TPPBackend")
     results = study.results()
 
     assert len(results) == 2

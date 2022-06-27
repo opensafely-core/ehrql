@@ -25,7 +25,6 @@ covid_tests = build_event_table(
 
 
 class TestBackend(BaseBackend):
-    backend_id = "tests_integration_backends_test_base"
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "patient_id"
 

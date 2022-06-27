@@ -12,7 +12,7 @@ def test_generate_dataset(study, mssql_database):
     study.setup_from_repo(
         "opensafely/test-age-distribution", "analysis/dataset_definition.py"
     )
-    study.generate(mssql_database, "tpp")
+    study.generate(mssql_database, "databuilder.backends.tpp.TPPBackend")
     results = study.results()
 
     assert len(results) == 1

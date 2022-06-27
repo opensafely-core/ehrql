@@ -6,7 +6,6 @@ from .base import BaseBackend, Column, MappedTable, QueryTable
 class DatabricksBackend(BaseBackend):
     """Backend for working with data in Databricks."""
 
-    backend_id = "databricks"
     query_engine_class = SparkQueryEngine
     patient_join_column = "patient_id"
 

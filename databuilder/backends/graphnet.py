@@ -6,7 +6,6 @@ from .base import BaseBackend, Column, MappedTable
 class GraphnetBackend(BaseBackend):
     """Backend for working with data in Graphnet."""
 
-    backend_id = "graphnet"
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
 

@@ -2,27 +2,16 @@ import sqlalchemy
 
 from databuilder.sqlalchemy_types import TYPES_BY_NAME, type_from_python_type
 
-# Mutable global for storing registered backends
-BACKENDS = {}
-
-
-def register_backend(backend_class):
-    BACKENDS[backend_class.backend_id] = backend_class
-
 
 class BaseBackend:
-    backend_id = None
     query_engine_class = None
     patient_join_column = None
     tables = None
 
     def __init_subclass__(cls, **kwargs):
-        assert cls.backend_id is not None
         assert cls.query_engine_class is not None
         assert cls.patient_join_column is not None
 
-        # Register each Backend by its id so we can identify it from an environment variable
-        register_backend(cls)
         # Make sure each Backend knows what its tables are
         cls.tables = {}
         for name, value in vars(cls).items():

@@ -20,7 +20,6 @@ class DummyContract:
 
 
 class TestBackend(BaseBackend):
-    backend_id = "tests_unit_test_backends"
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "PatientId"
 

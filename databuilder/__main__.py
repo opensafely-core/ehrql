@@ -3,7 +3,6 @@ import sys
 from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
-from .backends import BACKENDS
 from .main import (
     generate_dataset,
     generate_measures,
@@ -55,7 +54,7 @@ def main(args=None):
         )
     elif options.which == "test-connection":
         test_connection(
-            backend=options.backend,
+            backend_id=options.backend,
             url=options.url,
         )
     elif options.which == "print-help":
@@ -108,7 +107,6 @@ def add_dump_dataset_sql(subparsers):
     parser.add_argument(
         "backend",
         type=str,
-        choices=BACKENDS,  # allow all registered backend subclasses
     )
     parser.add_argument(
         "--dataset-definition",
