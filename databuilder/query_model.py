@@ -157,6 +157,16 @@ class AggregatedSeries(OneRowPerPatientSeries):
 class Value(OneRowPerPatientSeries[T]):
     value: T
 
+    # Python treats certain differently typed values as equal (e.g. `1 == True` and `10
+    # == 10.0`) but we need to be stricter about types because some of the databases we
+    # run against are strict
+    def __eq__(self, other):
+        if other.__class__ is self.__class__:
+            if self.value.__class__ is not other.value.__class__:
+                return False
+            return self.value == other.value
+        return NotImplemented
+
 
 class SelectTable(ManyRowsPerPatientFrame):
     name: str
