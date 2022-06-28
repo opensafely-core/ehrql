@@ -124,7 +124,7 @@ class BoolPatientSeries(BoolFunctions, PatientSeries):
     _type = bool
 
 
-# STRING SERIES
+# METHODS COMMON TO ALL COMPARABLE TYPES
 #
 
 
@@ -150,11 +150,23 @@ class ComparableAggregations:
         return _apply(qm.AggregateByPatient.Max, self)
 
 
-class StrEventSeries(ComparableFunctions, ComparableAggregations, EventSeries):
+# STRING SERIES
+#
+
+
+class StrFunctions(ComparableFunctions):
+    "Empty for now"
+
+
+class StrAggregations(ComparableAggregations):
+    "Empty for now"
+
+
+class StrEventSeries(StrFunctions, StrAggregations, EventSeries):
     _type = str
 
 
-class StrPatientSeries(ComparableFunctions, PatientSeries):
+class StrPatientSeries(StrFunctions, PatientSeries):
     _type = str
 
 
