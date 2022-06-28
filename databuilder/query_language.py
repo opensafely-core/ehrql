@@ -272,6 +272,9 @@ class DateFunctions(ComparableFunctions):
     def to_first_of_year(self):
         return _apply(qm.Function.ToFirstOfYear, self)
 
+    def to_first_of_month(self):
+        return _apply(qm.Function.ToFirstOfMonth, self)
+
 
 class DateAggregations(ComparableAggregations):
     "Empty for now"

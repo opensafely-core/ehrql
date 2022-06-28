@@ -318,6 +318,9 @@ class Function:
     class ToFirstOfYear(Series[date]):
         source: Series[date]
 
+    class ToFirstOfMonth(Series[date]):
+        source: Series[date]
+
     # Strings
     class StringContains(Series[bool]):
         lhs: Series[str]

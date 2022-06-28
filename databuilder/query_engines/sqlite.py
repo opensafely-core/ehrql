@@ -21,3 +21,6 @@ class SQLiteQueryEngine(BaseSQLQueryEngine):
 
     def to_first_of_year(self, date):
         return SQLFunction("DATE", date, "start of year", type_=sqlalchemy_types.Date)
+
+    def to_first_of_month(self, date):
+        return SQLFunction("DATE", date, "start of month", type_=sqlalchemy_types.Date)
