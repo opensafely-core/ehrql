@@ -17,6 +17,8 @@ p = build_patient_table(
         "c1": SNOMEDCTCode,
         "d1": datetime.date,
         "d2": datetime.date,
+        "s1": str,
+        "s2": str,
     },
 )
 
@@ -31,6 +33,8 @@ e = build_event_table(
         "c1": SNOMEDCTCode,
         "d1": datetime.date,
         "d2": datetime.date,
+        "s1": str,
+        "s2": str,
     },
 )
 

@@ -244,6 +244,9 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_DayFromDate(self, node):
         return self.visit_unary_op_with_null(node, operator.attrgetter("day"))
 
+    def visit_StringContains(self, node):
+        return self.visit_binary_op_with_null(node, operator.contains)
+
     def visit_In(self, node):
         def op(lhs, rhs):
             return lhs in rhs

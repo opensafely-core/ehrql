@@ -155,7 +155,8 @@ class ComparableAggregations:
 
 
 class StrFunctions(ComparableFunctions):
-    "Empty for now"
+    def contains(self, other):
+        return _apply(qm.Function.StringContains, self, other)
 
 
 class StrAggregations(ComparableAggregations):

@@ -193,6 +193,14 @@ cases = [
         ),
     ),
     (
+        True,
+        Function.StringContains(Value("foobar"), Value("oba")),
+    ),
+    (
+        False,
+        Function.StringContains(Value("foo bar"), Value("oba")),
+    ),
+    (
         datetime.date(2021, 6, 13),
         Function.DateAddDays(Value(datetime.date(2021, 5, 4)), Value(40)),
     ),

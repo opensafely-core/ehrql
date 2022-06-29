@@ -208,6 +208,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_subtract(self, node):
         return operators.sub(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
+    @get_sql.register(Function.StringContains)
+    def get_sql_string_contains(self, node):
+        haystack = self.get_expr(node.lhs)
+        needle = self.get_expr(node.rhs)
+        return haystack.contains(needle)
+
     @get_sql.register(Function.YearFromDate)
     def get_sql_year_from_date(self, node):
         return self.get_date_part(self.get_expr(node.source), "YEAR")
