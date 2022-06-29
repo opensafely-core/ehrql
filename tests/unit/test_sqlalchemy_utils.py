@@ -32,6 +32,11 @@ boolean = table.c.b
         (True, boolean | boolean),
         (True, boolean & boolean),
         (True, ~boolean),
+        # And combined boolean operations
+        (True, ~(boolean & boolean)),
+        (True, ~(boolean | boolean)),
+        (True, ~boolean | ~boolean),
+        (True, ~boolean & ~boolean),
         # And null checks
         (True, integer.is_(None)),
         (True, integer.is_not(None)),

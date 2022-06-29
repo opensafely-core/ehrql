@@ -1,5 +1,11 @@
 import sqlalchemy
-from sqlalchemy.sql.elements import AsBoolean, BinaryExpression, BooleanClauseList
+from sqlalchemy.sql.elements import (
+    AsBoolean,
+    BinaryExpression,
+    BooleanClauseList,
+    UnaryExpression,
+    operators,
+)
 from sqlalchemy.sql.visitors import iterate
 
 
@@ -27,6 +33,9 @@ def is_predicate(clause):
         return True
     if isinstance(clause, BinaryExpression):
         return clause._is_implicitly_boolean
+    # We have to identify `NOT ...` expressions by the operator they use
+    if isinstance(clause, UnaryExpression) and clause.operator is operators.inv:
+        return True
     return False
 
 
