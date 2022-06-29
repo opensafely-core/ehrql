@@ -32,6 +32,29 @@ def test_contains_fixed_value(spec_test):
     )
 
 
+def test_contains_fixed_value_with_special_characters(spec_test):
+    table_data = {
+        p: """
+              |  s1
+            --+-------
+            1 | /a%b_
+            2 | /ab_
+            3 | /a%bc
+            4 | a%b_
+            """,
+    }
+    spec_test(
+        table_data,
+        p.s1.contains("/a%b_"),
+        {
+            1: True,
+            2: False,
+            3: False,
+            4: False,
+        },
+    )
+
+
 def test_contains_value_from_column(spec_test):
     table_data = {
         p: """
@@ -59,5 +82,29 @@ def test_contains_value_from_column(spec_test):
             6: False,
             7: None,
             8: None,
+        },
+    )
+
+
+def test_contains_value_from_column_with_special_characters(spec_test):
+    table_data = {
+        p: """
+              |  s1   |  s2
+            --+-------+-------
+            1 | /a%b_ | /a%b_
+            2 | /ab_  | /a%b_
+            3 | /a%bc | /a%b_
+            4 | a%b_  | /a%b_
+
+            """,
+    }
+    spec_test(
+        table_data,
+        p.s1.contains(p.s2),
+        {
+            1: True,
+            2: False,
+            3: False,
+            4: False,
         },
     )

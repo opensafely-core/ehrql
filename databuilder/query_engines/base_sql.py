@@ -4,7 +4,9 @@ from functools import cached_property
 import sqlalchemy
 import sqlalchemy.engine.interfaces
 from sqlalchemy.sql import operators
+from sqlalchemy.sql.functions import Function as SQLFunction
 
+from databuilder import sqlalchemy_types
 from databuilder.backends.base import DefaultBackend
 from databuilder.functools_utils import singledispatchmethod_with_cache
 from databuilder.query_model import (
@@ -210,9 +212,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Function.StringContains)
     def get_sql_string_contains(self, node):
+        # Note: SQLAlchemy uses forward slash rather than backslash as its default
+        # escape character (perhaps to avoid complications with nested escaping?) so we
+        # follow its lead here
         haystack = self.get_expr(node.lhs)
         needle = self.get_expr(node.rhs)
-        return haystack.contains(needle)
+        escaped_needle = self.string_replace(needle, "/", "//")
+        escaped_needle = self.string_replace(escaped_needle, "%", "/%")
+        escaped_needle = self.string_replace(escaped_needle, "_", "/_")
+        return haystack.contains(escaped_needle, escape="/")
+
+    def string_replace(self, value, pattern, replacement):
+        return SQLFunction(
+            "REPLACE", value, pattern, replacement, type=sqlalchemy_types.String
+        )
 
     @get_sql.register(Function.YearFromDate)
     def get_sql_year_from_date(self, node):
