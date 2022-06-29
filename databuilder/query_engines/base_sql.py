@@ -4,6 +4,7 @@ from functools import cached_property
 import sqlalchemy
 import sqlalchemy.engine.interfaces
 from sqlalchemy.sql import operators
+from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
 
 from databuilder import sqlalchemy_types
@@ -217,10 +218,18 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # follow its lead here
         haystack = self.get_expr(node.lhs)
         needle = self.get_expr(node.rhs)
-        escaped_needle = self.string_replace(needle, "/", "//")
-        escaped_needle = self.string_replace(escaped_needle, "%", "/%")
-        escaped_needle = self.string_replace(escaped_needle, "_", "/_")
-        return haystack.contains(escaped_needle, escape="/")
+        # Where the needle is a string literal (as it most often will be) we can avoid
+        # some convoluted SQL by doing the escaping and wildcard wrapping in Python
+        if isinstance(needle, BindParameter):
+            escaped_needle = (
+                needle.value.replace("/", "//").replace("%", "/%").replace("_", "/_")
+            )
+            return haystack.like(f"%{escaped_needle}%", escape="/")
+        else:
+            escaped_needle = self.string_replace(needle, "/", "//")
+            escaped_needle = self.string_replace(escaped_needle, "%", "/%")
+            escaped_needle = self.string_replace(escaped_needle, "_", "/_")
+            return haystack.contains(escaped_needle, escape="/")
 
     def string_replace(self, value, pattern, replacement):
         return SQLFunction(
