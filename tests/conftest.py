@@ -1,10 +1,10 @@
 import pytest
 
-from databuilder import main
 from databuilder.definition.base import dataset_registry
 from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
+from databuilder.query_language import compile
 
 from .lib.databases import (
     InMemorySQLiteDatabase,
@@ -60,26 +60,20 @@ class QueryEngineFixture:
         return self.database.setup(*items, metadata=metadata)
 
     def extract(self, dataset, **engine_kwargs):
+        variables = compile(dataset)
+        return self.extract_qm(variables, **engine_kwargs)
+
+    def extract_qm(self, variables, **engine_kwargs):
         query_engine = self.query_engine_class(
             self.database.host_url(), **engine_kwargs
         )
-        results = list(main.extract(dataset, query_engine))
-        # We don't explicitly order the results and not all databases naturally return
-        # in the same order
-        results.sort(key=lambda i: i["patient_id"])
-        return results
-
-    def extract_qm(self, variables):
-        query_engine = self.query_engine_class(self.database.host_url(), backend=None)
         with query_engine.execute_query(variables) as results:
-            result = list(dict(row) for row in results)
-            result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering
-            return result
+            # We don't explicitly order the results and not all databases naturally
+            # return in the same order
+            return sorted(map(dict, results), key=lambda i: i["patient_id"])
 
-    def sqlalchemy_engine(self, **kwargs):
-        return self.database.engine(
-            dialect=self.query_engine_class.sqlalchemy_dialect, **kwargs
-        )
+    def sqlalchemy_engine(self):
+        return self.query_engine_class(self.database.host_url()).engine
 
 
 @pytest.fixture(scope="session")
