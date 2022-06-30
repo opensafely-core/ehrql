@@ -11,6 +11,8 @@ def test_dataset_definition(engine):
     # it looks
     if engine.name == "spark":
         pytest.skip("spark tests are too slow")
+    if engine.name == "sqlite":
+        pytest.xfail("SQLite engine can't handle more than 64 variables")
 
     engine.setup(metadata=schema.Base.metadata)
     results = engine.extract(dataset)
