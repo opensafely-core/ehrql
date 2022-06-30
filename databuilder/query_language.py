@@ -66,12 +66,18 @@ class Series:
     def is_null(self):
         return _apply(qm.Function.IsNull, self)
 
+    def is_not_null(self):
+        return self.is_null().__invert__()
+
     def is_in(self, other):
         # The query model requires an immutable Set type for containment queries, but
         # that's a bit user-unfriendly so we accept other types here and convert them
         if isinstance(other, (tuple, list, set)):
             other = frozenset(other)
         return _apply(qm.Function.In, self, other)
+
+    def is_not_in(self, other):
+        return self.is_in(other).__invert__()
 
     def map_values(self, mapping):
         """

@@ -51,3 +51,16 @@ def test_is_null(spec_test):
             4: True,
         },
     )
+
+
+def test_is_not_null(spec_test):
+    spec_test(
+        table_data,
+        p.i1.is_not_null(),
+        {
+            1: True,
+            2: True,
+            3: True,
+            4: False,
+        },
+    )
