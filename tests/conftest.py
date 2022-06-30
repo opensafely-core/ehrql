@@ -1,10 +1,10 @@
 import pytest
 
-from databuilder import main
 from databuilder.definition.base import dataset_registry
 from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
+from databuilder.query_language import compile
 
 from .lib.databases import (
     InMemorySQLiteDatabase,
@@ -60,26 +60,20 @@ class QueryEngineFixture:
         return self.database.setup(*items, metadata=metadata)
 
     def extract(self, dataset, **engine_kwargs):
+        variables = compile(dataset)
+        return self.extract_qm(variables, **engine_kwargs)
+
+    def extract_qm(self, variables, **engine_kwargs):
         query_engine = self.query_engine_class(
             self.database.host_url(), **engine_kwargs
         )
-        results = list(main.extract(dataset, query_engine))
-        # We don't explicitly order the results and not all databases naturally return
-        # in the same order
-        results.sort(key=lambda i: i["patient_id"])
-        return results
-
-    def extract_qm(self, variables):
-        query_engine = self.query_engine_class(self.database.host_url(), backend=None)
         with query_engine.execute_query(variables) as results:
-            result = list(dict(row) for row in results)
-            result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering
-            return result
+            # We don't explicitly order the results and not all databases naturally
+            # return in the same order
+            return sorted(map(dict, results), key=lambda i: i["patient_id"])
 
-    def sqlalchemy_engine(self, **kwargs):
-        return self.database.engine(
-            dialect=self.query_engine_class.sqlalchemy_dialect, **kwargs
-        )
+    def sqlalchemy_engine(self):
+        return self.query_engine_class(self.database.host_url()).engine
 
 
 @pytest.fixture(scope="session")
@@ -87,23 +81,39 @@ def in_memory_sqlite_database():
     return InMemorySQLiteDatabase()
 
 
-@pytest.fixture(params=["in_memory", "sqlite", "mssql", "spark"])
-def engine(request, in_memory_sqlite_database, mssql_database, spark_database):
-    name = request.param
-    if name == "in_memory":
+QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql", "spark")
+
+
+def engine_factory(request, engine_name):
+    # We dynamically request fixtures rather than making them arguments in the usual way
+    # so that we only start the database containers we actually need for the test run
+    fixture = request.getfixturevalue
+
+    if engine_name == "in_memory":
         # There are some tests we currently expect to fail against the in-memory engine
         marks = [m.name for m in request.node.iter_markers()]
         if "xfail_in_memory" in marks:
             pytest.xfail()
-        return QueryEngineFixture(name, InMemoryDatabase(), InMemoryQueryEngine)
-    elif name == "sqlite":
-        return QueryEngineFixture(name, in_memory_sqlite_database, SQLiteQueryEngine)
-    elif name == "mssql":
-        return QueryEngineFixture(name, mssql_database, MSSQLQueryEngine)
-    elif name == "spark":
-        return QueryEngineFixture(name, spark_database, SparkQueryEngine)
+        return QueryEngineFixture(engine_name, InMemoryDatabase(), InMemoryQueryEngine)
+    elif engine_name == "sqlite":
+        return QueryEngineFixture(
+            engine_name, fixture("in_memory_sqlite_database"), SQLiteQueryEngine
+        )
+    elif engine_name == "mssql":
+        return QueryEngineFixture(
+            engine_name, fixture("mssql_database"), MSSQLQueryEngine
+        )
+    elif engine_name == "spark":
+        return QueryEngineFixture(
+            engine_name, fixture("spark_database"), SparkQueryEngine
+        )
     else:
         assert False
+
+
+@pytest.fixture(params=QUERY_ENGINE_NAMES)
+def engine(request):
+    return engine_factory(request, request.param)
 
 
 @pytest.fixture

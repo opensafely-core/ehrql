@@ -2,12 +2,11 @@ import os
 
 import hypothesis as hyp
 import hypothesis.strategies as st
+import pytest
 
-from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_model import TableSchema
 
-from ..lib.databases import InMemorySQLiteDatabase
-from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
+from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
 from .conftest import count_nodes, observe_inputs
 
@@ -42,12 +41,25 @@ settings = dict(
 )
 
 
+@pytest.fixture(scope="session")
+def query_engines(request):
+    # By contrast with the `engine` fixture which is parametrized over the types of
+    # engine and so returns them one at a time, this fixture constructs and returns all
+    # the engines together at once
+    return {
+        name: engine_factory(request, name)
+        for name in QUERY_ENGINE_NAMES
+        # The Spark engine is still too slow to run generative tests against
+        if name != "spark"
+    }
+
+
 @hyp.given(variable=variable_strategy, data=data_strategy)
 @hyp.settings(**settings)
-def test_query_model(variable, data):
+def test_query_model(query_engines, variable, data):
     hyp.target(tune_qm_graph_size(variable))
     observe_inputs(variable, data)
-    run_test(data, variable)
+    run_test(query_engines, data, variable)
 
 
 def tune_qm_graph_size(variable):
@@ -55,31 +67,28 @@ def tune_qm_graph_size(variable):
     return -abs(target_size - count_nodes(variable))
 
 
-def run_test(data, variable):
+def run_test(query_engines, data, variable):
     instances = instantiate(data)
     variables = {
         "population": all_patients_query,
         "v": variable,
     }
 
-    in_mem_results = run_with(
-        InMemoryDatabase, InMemoryQueryEngine, instances, variables
-    )
-    sqlite_results = run_with(
-        InMemorySQLiteDatabase, SQLiteQueryEngine, instances, variables
-    )
-    assert in_mem_results == sqlite_results
+    results = [
+        (name, run_with(engine, instances, variables))
+        for name, engine in query_engines.items()
+    ]
+
+    first_name, first_results = results[0]
+    for other_name, other_results in results[1:]:
+        assert (
+            first_results == other_results
+        ), f"Mismatch between {first_name} and {other_name}"
 
 
-def run_with(database_class, engine_class, instances, variables):
-    database = database_class()
-    database.setup(instances, metadata=sqla_metadata)
-
-    engine = engine_class(database.host_url())
-    with engine.execute_query(variables) as results:
-        result = list(dict(row) for row in results)
-        result.sort(key=lambda i: i["patient_id"])  # ensure stable ordering
-        return result
+def run_with(engine, instances, variables):
+    engine.setup(instances, metadata=sqla_metadata)
+    return engine.extract_qm(variables)
 
 
 def instantiate(data):
