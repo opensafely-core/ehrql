@@ -1,8 +1,13 @@
 from datetime import datetime
 
+import pytest
+
 from tests.lib.tpp_schema import patient
 
 
+@pytest.mark.xfail(
+    reason="Requires update to 'opensafely/test-age-distribution' repo to remove dataset registration"
+)
 def test_generate_dataset(study, mssql_database):
     mssql_database.setup(
         patient(dob=datetime(1910, 5, 5)),
