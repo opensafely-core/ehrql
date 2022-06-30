@@ -64,27 +64,3 @@ def test_is_in_codelist_csv(spec_test):
             4: None,
         },
     )
-
-
-def test_is_not_in_codelist_csv(spec_test):
-
-    codelist = codelist_from_csv_lines(
-        [
-            "code",
-            "abc",
-            "ghi",
-        ],
-        column="code",
-        system="snomedct",
-    )
-
-    spec_test(
-        table_data,
-        p.c1.is_not_in(codelist),
-        {
-            1: False,
-            2: True,
-            3: False,
-            4: None,
-        },
-    )
