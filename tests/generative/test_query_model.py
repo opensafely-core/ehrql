@@ -76,9 +76,16 @@ def run_test(query_engines, data, variable):
         "v": variable,
     }
 
-    in_mem_results = run_with(query_engines["in_memory"], instances, variables)
-    sqlite_results = run_with(query_engines["sqlite"], instances, variables)
-    assert in_mem_results == sqlite_results
+    results = [
+        (name, run_with(engine, instances, variables))
+        for name, engine in query_engines.items()
+    ]
+
+    first_name, first_results = results[0]
+    for other_name, other_results in results[1:]:
+        assert (
+            first_results == other_results
+        ), f"Mismatch between {first_name} and {other_name}"
 
 
 def run_with(engine, instances, variables):
