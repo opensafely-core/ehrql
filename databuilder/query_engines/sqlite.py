@@ -1,13 +1,13 @@
 import sqlalchemy
-from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.sql.functions import Function as SQLFunction
 
 from databuilder import sqlalchemy_types
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
+from databuilder.query_engines.sqlite_dialect import SQLiteDialect
 
 
 class SQLiteQueryEngine(BaseSQLQueryEngine):
-    sqlalchemy_dialect = SQLiteDialect_pysqlite
+    sqlalchemy_dialect = SQLiteDialect
 
     def get_date_part(self, date, part):
         format_str = {"YEAR": "%Y", "MONTH": "%m", "DAY": "%d"}[part]

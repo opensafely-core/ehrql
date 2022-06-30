@@ -49,4 +49,7 @@ contents = {
         "test_date_comparisons",
         "test_date_comparison_types",
     ],
+    "str_series_ops": [
+        "test_contains",
+    ],
 }
