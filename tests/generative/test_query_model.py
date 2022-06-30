@@ -4,12 +4,9 @@ import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
 
-from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_model import TableSchema
 
-from ..conftest import QueryEngineFixture
-from ..lib.databases import InMemorySQLiteDatabase
-from ..lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
+from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
 from .conftest import count_nodes, observe_inputs
 
@@ -45,14 +42,15 @@ settings = dict(
 
 
 @pytest.fixture(scope="session")
-def query_engines():
+def query_engines(request):
+    # By contrast with the `engine` fixture which is parametrized over the types of
+    # engine and so returns them one at a time, this fixture constructs and returns all
+    # the engines together at once
     return {
-        "in_memory": QueryEngineFixture(
-            "in_memory", InMemoryDatabase(), InMemoryQueryEngine
-        ),
-        "sqlite": QueryEngineFixture(
-            "sqlite", InMemorySQLiteDatabase(), SQLiteQueryEngine
-        ),
+        name: engine_factory(request, name)
+        for name in QUERY_ENGINE_NAMES
+        # The Spark engine is still too slow to run generative tests against
+        if name != "spark"
     }
 
 

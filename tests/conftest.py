@@ -81,29 +81,39 @@ def in_memory_sqlite_database():
     return InMemorySQLiteDatabase()
 
 
-@pytest.fixture(params=["in_memory", "sqlite", "mssql", "spark"])
-def engine(request):
+QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql", "spark")
+
+
+def engine_factory(request, engine_name):
     # We dynamically request fixtures rather than making them arguments in the usual way
     # so that we only start the database containers we actually need for the test run
     fixture = request.getfixturevalue
 
-    name = request.param
-    if name == "in_memory":
+    if engine_name == "in_memory":
         # There are some tests we currently expect to fail against the in-memory engine
         marks = [m.name for m in request.node.iter_markers()]
         if "xfail_in_memory" in marks:
             pytest.xfail()
-        return QueryEngineFixture(name, InMemoryDatabase(), InMemoryQueryEngine)
-    elif name == "sqlite":
+        return QueryEngineFixture(engine_name, InMemoryDatabase(), InMemoryQueryEngine)
+    elif engine_name == "sqlite":
         return QueryEngineFixture(
-            name, fixture("in_memory_sqlite_database"), SQLiteQueryEngine
+            engine_name, fixture("in_memory_sqlite_database"), SQLiteQueryEngine
         )
-    elif name == "mssql":
-        return QueryEngineFixture(name, fixture("mssql_database"), MSSQLQueryEngine)
-    elif name == "spark":
-        return QueryEngineFixture(name, fixture("spark_database"), SparkQueryEngine)
+    elif engine_name == "mssql":
+        return QueryEngineFixture(
+            engine_name, fixture("mssql_database"), MSSQLQueryEngine
+        )
+    elif engine_name == "spark":
+        return QueryEngineFixture(
+            engine_name, fixture("spark_database"), SparkQueryEngine
+        )
     else:
         assert False
+
+
+@pytest.fixture(params=QUERY_ENGINE_NAMES)
+def engine(request):
+    return engine_factory(request, request.param)
 
 
 @pytest.fixture
