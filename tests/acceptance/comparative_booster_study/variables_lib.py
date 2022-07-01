@@ -100,3 +100,11 @@ def cause_of_death_matches(deaths, codelist):
         for column_name in [f"cause_of_death_{i:02d}" for i in range(1, 16)]
     ]
     return deaths.take(any_of(conditions))
+
+
+def emergency_care_diagnosis_matches(emergency_care_attendances, codelist):
+    conditions = [
+        getattr(emergency_care_attendances, column_name).is_in(codelist)
+        for column_name in [f"diagnosis_{i:02d}" for i in range(1, 25)]
+    ]
+    return emergency_care_attendances.take(any_of(conditions))

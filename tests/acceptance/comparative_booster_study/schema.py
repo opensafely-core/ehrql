@@ -126,3 +126,17 @@ occupation_on_covid_vaccine_record = build_event_table(
 OccupationOnCovidVaccineRecord = orm_class_from_table(
     Base, occupation_on_covid_vaccine_record
 )
+
+
+emergency_care_attendances = build_event_table(
+    "emergency_care_attendances",
+    {
+        "id": int,
+        "arrival_date": datetime.date,
+        "discharge_destination": SNOMEDCTCode,
+        # TODO: Revisit this when we have support for multi-valued fields
+        **{f"diagnosis_{i:02d}": SNOMEDCTCode for i in range(1, 25)},
+    },
+)
+
+EmergencyCareAttendance = orm_class_from_table(Base, emergency_care_attendances)

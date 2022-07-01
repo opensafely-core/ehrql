@@ -11,6 +11,7 @@ from .variables_lib import (
     cause_of_death_matches,
     create_sequential_variables,
     date_deregistered_from_all_supported_practices,
+    emergency_care_diagnosis_matches,
     has_a_continuous_practice_registration_spanning,
     most_recent_bmi,
     practice_registration_as_of,
@@ -269,15 +270,18 @@ dataset.postest_0_date = prior_tests.take(
     prior_tests.is_positive
 ).specimen_taken_date.maximum_for_patient()
 
-#    # emergency attendance for covid
-#    covidemergency_0_date=patients.attended_emergency_care(
-#      returning="date_arrived",
-#      on_or_before="covid_vax_disease_3_date - 1 day",
-#      with_these_diagnoses = codelists.covid_emergency,
-#      date_format="YYYY-MM-DD",
-#      find_last_match_in_period=True,
-#    ),
-#
+
+# Emergency attendance for covid
+emerg_care = schema.emergency_care_attendances
+
+dataset.covidemergency_0_date = (
+    emergency_care_diagnosis_matches(emerg_care, codelists.covid_emergency)
+    .take(emerg_care.arrival_date.is_on_or_before(baseline_date))
+    .sort_by(emerg_care.arrival_date)
+    .last_for_patient()
+    .arrival_date
+)
+
 #      # Positive covid admission prior to study start date
 #    covidadmitted_0_date=patients.admitted_to_hospital(
 #      returning="date_admitted",
@@ -544,25 +548,34 @@ dataset.postest_date = post_baseline_tests.take(
     post_baseline_tests.is_positive
 ).specimen_taken_date.minimum_for_patient()
 
-#    # emergency attendance for covid, as per discharge diagnosis
-#    covidemergency_date=patients.attended_emergency_care(
-#      returning="date_arrived",
-#      date_format="YYYY-MM-DD",
-#      on_or_after="covid_vax_disease_3_date",
-#      with_these_diagnoses = codelists.covid_emergency,
-#      find_first_match_in_period=True,
-#    ),
-#
-#    # emergency attendance for covid, as per discharge diagnosis, resulting in discharge to hospital
-#    covidemergencyhosp_date=patients.attended_emergency_care(
-#      returning="date_arrived",
-#      date_format="YYYY-MM-DD",
-#      on_or_after="covid_vax_disease_3_date",
-#      find_first_match_in_period=True,
-#      with_these_diagnoses = codelists.covid_emergency,
-#      discharged_to = codelists.discharged_to_hospital,
-#    ),
-#
+
+# Post baseline date emergency care attendance
+def post_baseline_ec_date(diagnoses=None, where=True):
+    return (
+        (
+            emergency_care_diagnosis_matches(emerg_care, diagnoses)
+            if diagnoses
+            else emerg_care
+        )
+        .take(emerg_care.arrival_date.is_on_or_after(boosted_date))
+        .take(where)
+        .sort_by(emerg_care.arrival_date)
+        .first_for_patient()
+        .arrival_date
+    )
+
+
+# Emergency attendance for covid, as per discharge diagnosis
+dataset.covidemergency_date = post_baseline_ec_date(codelists.covid_emergency)
+
+# Emergency attendance for covid, as per discharge diagnosis, resulting in discharge to
+# hospital
+dataset.covidemergencyhosp_date = post_baseline_ec_date(
+    codelists.covid_emergency,
+    where=emerg_care.discharge_destination.is_in(codelists.discharged_to_hospital),
+)
+
+
 #    # emergency attendance for respiratory illness
 #    # FIXME -- need to define codelist
 #    # respemergency_date=patients.attended_emergency_care(
@@ -583,25 +596,17 @@ dataset.postest_date = post_baseline_tests.take(
 #    #   with_these_diagnoses = codelists.resp_emergency,
 #    #   discharged_to = codelists.discharged_to_hospital,
 #    # ),
-#
-#    # any emergency attendance
-#    emergency_date=patients.attended_emergency_care(
-#      returning="date_arrived",
-#      on_or_after="covid_vax_disease_3_date",
-#      date_format="YYYY-MM-DD",
-#      find_first_match_in_period=True,
-#    ),
-#
-#    # emergency attendance resulting in discharge to hospital
-#    emergencyhosp_date=patients.attended_emergency_care(
-#      returning="date_arrived",
-#      on_or_after="covid_vax_disease_3_date",
-#      date_format="YYYY-MM-DD",
-#      find_last_match_in_period=True,
-#      discharged_to = codelists.discharged_to_hospital,
-#    ),
-#
-#
+
+
+# Any emergency attendance
+dataset.emergency_date = post_baseline_ec_date(diagnoses=None)
+
+# Emergency attendance resulting in discharge to hospital
+dataset.emergencyhosp_date = post_baseline_ec_date(
+    diagnoses=None,
+    where=emerg_care.discharge_destination.is_in(codelists.discharged_to_hospital),
+)
+
 #    # unplanned hospital admission
 #    admitted_unplanned_date=patients.admitted_to_hospital(
 #      returning="date_admitted",
