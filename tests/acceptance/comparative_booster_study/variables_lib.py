@@ -12,14 +12,16 @@ def any_of(conditions):
 
 
 def create_sequential_variables(
-    dataset, variable_name_template, events, column, num_variables
+    dataset, variable_name_template, events, column, num_variables, sort_column=None
 ):
-    next_events = events
+    sort_column = sort_column or column
     for index in range(num_variables):
-        variable_def = getattr(next_events, column).minimum_for_patient()
-        next_events = events.take(getattr(events, column) > variable_def)
+        next_event = events.sort_by(getattr(events, sort_column)).first_for_patient()
+        events = events.take(
+            getattr(events, sort_column) > getattr(next_event, sort_column)
+        )
         variable_name = variable_name_template.format(n=index + 1)
-        setattr(dataset, variable_name, variable_def)
+        setattr(dataset, variable_name, getattr(next_event, column))
 
 
 def _registrations_overlapping_period(start_date, end_date):
