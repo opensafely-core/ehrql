@@ -13,6 +13,7 @@ from .variables_lib import (
     date_deregistered_from_all_supported_practices,
     emergency_care_diagnosis_matches,
     has_a_continuous_practice_registration_spanning,
+    hospitalisation_diagnosis_matches,
     most_recent_bmi,
     practice_registration_as_of,
 )
@@ -282,15 +283,22 @@ dataset.covidemergency_0_date = (
     .arrival_date
 )
 
-#      # Positive covid admission prior to study start date
-#    covidadmitted_0_date=patients.admitted_to_hospital(
-#      returning="date_admitted",
-#      with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-#      with_these_diagnoses=codelists.covid_icd10,
-#      on_or_before="covid_vax_disease_3_date - 1 day",
-#      date_format="YYYY-MM-DD",
-#      find_last_match_in_period=True,
-#    ),
+
+# Positive covid admission prior to study start date
+hosp = schema.hospital_admissions
+
+dataset.covidadmitted_0_date = (
+    hospitalisation_diagnosis_matches(hosp, codelists.covid_icd10)
+    .take(hosp.admission_date.is_on_or_before(baseline_date))
+    .take(
+        hosp.admission_method.is_in(
+            ["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"]
+        )
+    )
+    .sort_by(hosp.admission_date)
+    .last_for_patient()
+    .admission_date
+)
 
 
 #######################################################################################
@@ -489,41 +497,33 @@ dataset.prior_covid_test_frequency = prior_tests.take(
     prior_tests.specimen_taken_date.is_after(baseline_date.subtract_days(26 * 7))
 ).count_for_patient()
 
-#    # unplanned hospital admission at time of 3rd / booster dose
-#    inhospital_unplanned = patients.satisfying(
-#
-#      "discharged_unplanned_0_date >= covid_vax_disease_3_date",
-#
-#      discharged_unplanned_0_date=patients.admitted_to_hospital(
-#        returning="date_discharged",
-#        on_or_before="covid_vax_disease_3_date - 1 day", #FIXME -- need to decide whether to include admissions discharged on the same day as booster dose or not
-#        # see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
-#        # see https://docs.opensafely.org/study-def-variables/#sus for more info
-#        with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-#        with_patient_classification = ["1"], # ordinary admissions only
-#        date_format="YYYY-MM-DD",
-#        find_last_match_in_period=True,
-#      ),
-#    ),
-#
-#    # planned hospital admission at time of 3rd / booster dose
-#    inhospital_planned = patients.satisfying(
-#
-#      "discharged_planned_0_date >= covid_vax_disease_3_date",
-#
-#      discharged_planned_0_date=patients.admitted_to_hospital(
-#        returning="date_discharged",
-#        on_or_before="covid_vax_disease_3_date - 1 day", #FIXME -- need to decide whether to include admissions discharged on the same day as booster dose or not
-#        # see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
-#        # see https://docs.opensafely.org/study-def-variables/#sus for more info
-#        with_admission_method=["11", "12", "13", "81"],
-#        with_patient_classification = ["1"], # ordinary admissions only
-#        date_format="YYYY-MM-DD",
-#        find_last_match_in_period=True
-#      ),
-#
-#    ),
-#
+
+# Hospital admissions at time of 3rd / booster dose
+admissions = (
+    # FIXME -- need to decide whether to include admissions discharged on the same day as
+    # booster dose or not
+    hosp.take(hosp.admission_date.is_on_or_before(baseline_date)).take(
+        hosp.discharge_date.is_on_or_after(boosted_date)
+    )
+    # Ordinary admissions only
+    .take(hosp.patient_classification == "1")
+)
+
+# Unplanned hospital admission
+dataset.inhospital_unplanned = admissions.take(
+    # see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
+    # see https://docs.opensafely.org/study-def-variables/#sus for more info
+    hosp.admission_method.is_in(
+        ["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"]
+    )
+).exists_for_patient()
+
+# Planned hospital admission
+dataset.inhospital_planned = admissions.take(
+    # see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
+    # see https://docs.opensafely.org/study-def-variables/#sus for more info
+    hosp.admission_method.is_in(["11", "12", "13", "81"])
+).exists_for_patient()
 
 
 #######################################################################################
@@ -607,40 +607,42 @@ dataset.emergencyhosp_date = post_baseline_ec_date(
     where=emerg_care.discharge_destination.is_in(codelists.discharged_to_hospital),
 )
 
-#    # unplanned hospital admission
-#    admitted_unplanned_date=patients.admitted_to_hospital(
-#      returning="date_admitted",
-#      on_or_after="covid_vax_disease_3_date",
-#      # see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
-#      # see https://docs.opensafely.org/study-def-variables/#sus for more info
-#      with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-#      with_patient_classification = ["1"], # ordinary admissions only
-#      date_format="YYYY-MM-DD",
-#      find_first_match_in_period=True,
-#    ),
-#
-#    # planned hospital admission
-#    admitted_planned_date=patients.admitted_to_hospital(
-#      returning="date_admitted",
-#      on_or_after="covid_vax_disease_3_date",
-#      # see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
-#      # see https://docs.opensafely.org/study-def-variables/#sus for more info
-#      with_admission_method=["11", "12", "13", "81"],
-#      with_patient_classification = ["1"], # ordinary admissions only
-#      date_format="YYYY-MM-DD",
-#      find_first_match_in_period=True,
-#    ),
-#
-#    # Positive covid admission prior to study start date
-#    covidadmitted_date=patients.admitted_to_hospital(
-#      returning="date_admitted",
-#      with_admission_method=["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-#      with_these_diagnoses=codelists.covid_icd10,
-#      on_or_after="covid_vax_disease_3_date",
-#      date_format="YYYY-MM-DD",
-#      find_first_match_in_period=True,
-#    ),
-#
+
+# Post baseline date hosptial admission
+def post_baseline_admission_date(codelist=None, where=True):
+    return (
+        (hospitalisation_diagnosis_matches(hosp, codelist) if codelist else hosp)
+        .take(hosp.admission_date.is_on_or_after(boosted_date))
+        # Ordinary admissions only
+        .take(hosp.patient_classification == "1")
+        .take(where)
+        .sort_by(hosp.admission_date)
+        .first_for_patient()
+        .admission_date
+    )
+
+
+# Unplanned hospital admission
+dataset.admitted_unplanned_date = post_baseline_admission_date(
+    where=hosp.admission_method.is_in(
+        ["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"]
+    )
+)
+
+# Planned hospital admission
+dataset.admitted_planned_date = post_baseline_admission_date(
+    where=hosp.admission_method.is_in(["11", "12", "13", "81"])
+)
+
+# Positive covid admission prior to study start date
+dataset.covidadmitted_date = post_baseline_admission_date(
+    codelist=codelists.covid_icd10,
+    where=hosp.admission_method.is_in(
+        ["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"]
+    ),
+)
+
+
 #    **critcare_dates(
 #      name = "potentialcovidcritcare",
 #      on_or_after = "covid_vax_disease_3_date",

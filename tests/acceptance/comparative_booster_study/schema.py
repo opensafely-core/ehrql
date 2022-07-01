@@ -140,3 +140,19 @@ emergency_care_attendances = build_event_table(
 )
 
 EmergencyCareAttendance = orm_class_from_table(Base, emergency_care_attendances)
+
+
+hospital_admissions = build_event_table(
+    "hospital_admissions",
+    {
+        "id": int,
+        "admission_date": datetime.date,
+        "discharge_date": datetime.date,
+        "admission_method": str,
+        # TODO: Revisit this when we have support for multi-valued fields
+        "all_diagnoses": str,
+        "patient_classification": str,
+    },
+)
+
+HospitalAdmission = orm_class_from_table(Base, hospital_admissions)
