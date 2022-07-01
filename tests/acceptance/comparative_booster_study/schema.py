@@ -152,6 +152,7 @@ hospital_admissions = build_event_table(
         # TODO: Revisit this when we have support for multi-valued fields
         "all_diagnoses": str,
         "patient_classification": str,
+        "days_in_critical_care": int,
     },
 )
 

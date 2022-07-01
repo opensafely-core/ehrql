@@ -642,14 +642,35 @@ dataset.covidadmitted_date = post_baseline_admission_date(
     ),
 )
 
+# Record dates of hospitalisation and days in critical care for the first three
+# hospitalisations after study start
+covid_admissions = (
+    hospitalisation_diagnosis_matches(hosp, codelists.covid_icd10)
+    .take(
+        hosp.admission_method.is_in(
+            ["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"]
+        )
+    )
+    .take(hosp.admission_date.is_on_or_after(boosted_date))
+)
 
-#    **critcare_dates(
-#      name = "potentialcovidcritcare",
-#      on_or_after = "covid_vax_disease_3_date",
-#      n = 3,
-#      with_admission_method = ["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"],
-#      with_these_diagnoses = codelists.covid_icd10
-#    ),
+create_sequential_variables(
+    dataset,
+    "potentialcovidcritcare_{n}_date",
+    covid_admissions,
+    num_variables=3,
+    column="admission_date",
+)
+
+create_sequential_variables(
+    dataset,
+    "potentialcovidcritcare_{n}_ccdays",
+    covid_admissions,
+    num_variables=3,
+    column="days_in_critical_care",
+    sort_column="admission_date",
+)
+
 
 deaths = schema.ons_deaths
 dataset.coviddeath_date = cause_of_death_matches(
