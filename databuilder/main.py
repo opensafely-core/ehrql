@@ -6,8 +6,9 @@ from contextlib import contextmanager
 
 import structlog
 
+from databuilder.query_language import Dataset
+
 from . import query_language as ql
-from .definition.base import dataset_registry
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
 log = structlog.getLogger()
@@ -77,9 +78,15 @@ def test_connection(backend_id, url):
 
 
 def load_definition(definition_file):
-    load_module(definition_file)
-    assert len(dataset_registry.datasets) == 1
-    return dataset_registry.datasets.copy().pop()
+    module = load_module(definition_file)
+    try:
+        dataset = module.dataset
+    except AttributeError:
+        raise AttributeError("A dataset definition must define one 'dataset'")
+    assert isinstance(
+        dataset, Dataset
+    ), "'dataset' must be an instance of databuilder.query_language.Dataset()"
+    return dataset
 
 
 def load_module(definition_path):
@@ -93,6 +100,7 @@ def load_module(definition_path):
     # definition can import library modules from that directory
     with add_to_sys_path(str(definition_path.parent)):
         spec.loader.exec_module(module)
+    return module
 
 
 @contextmanager

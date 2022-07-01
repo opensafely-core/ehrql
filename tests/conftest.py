@@ -1,6 +1,5 @@
 import pytest
 
-from databuilder.definition.base import dataset_registry
 from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
@@ -42,12 +41,6 @@ def spark_database(containers):
     database = make_spark_database(containers)
     wait_for_database(database, timeout=15)
     yield database
-
-
-@pytest.fixture(autouse=True)
-def cleanup_register():
-    yield
-    dataset_registry.reset()
 
 
 class QueryEngineFixture:

@@ -4,7 +4,12 @@ import pytest
 
 from databuilder.__main__ import main
 from databuilder.validate_dummy_data import ValidationError
-from tests.lib.fixtures import invalid_dataset_definition, trivial_dataset_definition
+from tests.lib.fixtures import (
+    invalid_dataset_attribute_dataset_definition,
+    invalid_dataset_definition,
+    no_dataset_attribute_dataset_definition,
+    trivial_dataset_definition,
+)
 from tests.lib.tpp_schema import patient
 
 
@@ -54,6 +59,23 @@ def test_validate_dataset_happy_path(study, mssql_database):
 def test_validate_dataset_error_path(study, mssql_database):
     study.setup_from_string(invalid_dataset_definition)
     with pytest.raises(NameError):
+        study.validate()
+
+
+def test_validate_dataset_with_no_dataset_attribute(study, mssql_database):
+    study.setup_from_string(no_dataset_attribute_dataset_definition)
+    with pytest.raises(
+        AttributeError, match="A dataset definition must define one 'dataset'"
+    ):
+        study.validate()
+
+
+def test_validate_dataset_attribute_invalid(study, mssql_database):
+    study.setup_from_string(invalid_dataset_attribute_dataset_definition)
+    with pytest.raises(
+        AssertionError,
+        match="'dataset' must be an instance of databuilder.query_language.Dataset()",
+    ):
         study.validate()
 
 
