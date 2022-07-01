@@ -54,3 +54,45 @@ def test_drop_with_expr(spec_test):
             3: 301,
         },
     )
+
+
+def test_drop_with_constant_true(spec_test):
+    table_data = {
+        e: """
+              |  i1
+            --+----
+            1 | 101
+            1 | 102
+            2 | 201
+        """,
+    }
+
+    spec_test(
+        table_data,
+        e.drop(True).count_for_patient(),
+        {
+            1: 0,
+            2: 0,
+        },
+    )
+
+
+def test_drop_with_constant_false(spec_test):
+    table_data = {
+        e: """
+              |  i1
+            --+----
+            1 | 101
+            1 | 102
+            2 | 201
+        """,
+    }
+
+    spec_test(
+        table_data,
+        e.drop(False).count_for_patient(),
+        {
+            1: 2,
+            2: 1,
+        },
+    )

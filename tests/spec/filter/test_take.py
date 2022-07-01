@@ -58,6 +58,48 @@ def test_take_with_expr(spec_test):
     )
 
 
+def test_take_with_constant_true(spec_test):
+    table_data = {
+        e: """
+              |  i1
+            --+----
+            1 | 101
+            1 | 102
+            2 | 201
+        """,
+    }
+
+    spec_test(
+        table_data,
+        e.take(True).count_for_patient(),
+        {
+            1: 2,
+            2: 1,
+        },
+    )
+
+
+def test_take_with_constant_false(spec_test):
+    table_data = {
+        e: """
+              |  i1
+            --+----
+            1 | 101
+            1 | 102
+            2 | 201
+        """,
+    }
+
+    spec_test(
+        table_data,
+        e.take(False).count_for_patient(),
+        {
+            1: 0,
+            2: 0,
+        },
+    )
+
+
 @pytest.mark.xfail_in_memory
 def test_chain_multiple_takes(spec_test):
     table_data = {
