@@ -379,7 +379,7 @@ class EventFrame(Frame):
         return EventFrame(
             qm.Filter(
                 source=self.qm_node,
-                condition=series.qm_node,
+                condition=_convert(series),
             )
         )
 
@@ -388,8 +388,8 @@ class EventFrame(Frame):
             qm.Filter(
                 source=self.qm_node,
                 condition=qm.Function.Or(
-                    lhs=qm.Function.Not(series.qm_node),
-                    rhs=qm.Function.IsNull(series.qm_node),
+                    lhs=qm.Function.Not(_convert(series)),
+                    rhs=qm.Function.IsNull(_convert(series)),
                 ),
             )
         )
@@ -402,7 +402,7 @@ class EventFrame(Frame):
         for series in reversed(order_series):
             qm_node = qm.Sort(
                 source=qm_node,
-                sort_by=series.qm_node,
+                sort_by=_convert(series),
             )
         return SortedEventFrame(qm_node)
 
