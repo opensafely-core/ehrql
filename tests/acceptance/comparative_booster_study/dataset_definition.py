@@ -177,6 +177,14 @@ dataset.ethnicity = (
     .ctv3_code.to_category(codelists.ethnicity.Grouping_6)
 )
 
+# I haven't translated the `with_ethnicity_from_sus` query below because all the logic
+# for this would currently have to live in a QueryTable SQL definition rather than in
+# ehrQL, making the ehrQL side of things trivial. The SQL is here:
+# https://github.com/opensafely-core/cohort-extractor/blob/45967211/cohortextractor/tpp_backend.py#L2771-L2807
+#
+# If we were going to represent this logic in ehrQL we'd need some kind of UNION
+# operator, and a `most_common_for_patient()` aggregation. We may well want both of
+# those eventuallly, but not right now.
 #
 #    # ethnicity variable that takes data from SUS
 #    ethnicity_6_sus = patients.with_ethnicity_from_sus(
