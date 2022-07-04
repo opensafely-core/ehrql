@@ -153,7 +153,7 @@ test-backend-validation *ARGS: devenv
     $BIN/python -m pytest tests/backend_validation {{ ARGS }}
 
 # Run the databuilder-in-docker tests only. Optional args are passed to pytest.
-test-docker *ARGS: devenv build-databuilder
+test-docker *ARGS: devenv
     $BIN/python -m pytest tests/docker {{ ARGS }}
 
 # Run the integration tests only. Optional args are passed to pytest.
@@ -184,7 +184,7 @@ test-generative *ARGS: devenv
     $BIN/python -m pytest tests/generative {{ ARGS }}
 
 # Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
-test-all *ARGS: devenv build-databuilder generate-docs
+test-all *ARGS: devenv generate-docs
     #!/usr/bin/env bash
     set -euo pipefail
 

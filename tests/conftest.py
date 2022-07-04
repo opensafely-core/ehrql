@@ -1,5 +1,9 @@
+import subprocess
+from pathlib import Path
+
 import pytest
 
+import databuilder
 from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
@@ -109,6 +113,20 @@ def engine(request):
     return engine_factory(request, request.param)
 
 
+@pytest.fixture(scope="session")
+def databuilder_image():
+    project_dir = Path(databuilder.__file__).parents[1]
+    image = "databuilder"
+    # We're deliberately choosing to shell out to the docker client here rather than use
+    # the docker-py library to avoid possible difference in the build process (docker-py
+    # doesn't seem to be particularly actively maintained)
+    subprocess.run(
+        ["docker", "build", project_dir, "-t", image],
+        check=True,
+    )
+    return f"{image}:latest"
+
+
 @pytest.fixture
-def study(tmp_path, monkeypatch, containers):
-    return Study(tmp_path, monkeypatch, containers)
+def study(tmp_path, monkeypatch, containers, databuilder_image):
+    return Study(tmp_path, monkeypatch, containers, databuilder_image)

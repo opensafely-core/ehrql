@@ -52,10 +52,11 @@ def fetch_repo(repo, root):
 
 
 class Study:
-    def __init__(self, root, monkeypatch, containers):
+    def __init__(self, root, monkeypatch, containers, image):
         self._root = root
         self._monkeypatch = monkeypatch
         self._containers = containers
+        self._image = image
 
     def setup_from_repo(self, repo, definition_path):
         self._workspace = fetch_repo(repo, self._root)
@@ -128,7 +129,7 @@ class Study:
     def _run_in_docker(self, command, environment=None):
         environment = environment or {}
         self._containers.run_fg(
-            image="databuilder:latest",
+            image=self._image,
             command=command,
             environment=environment,
             volumes={self._workspace: {"bind": "/workspace", "mode": "rw"}},
