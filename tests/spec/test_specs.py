@@ -55,6 +55,9 @@ def test_take_with_expr():
     pass
 
 
+test_take_with_expr.title = "Take rows that match an expression"
+
+
 def test_take_with_constant_true():
     pass
 
@@ -62,7 +65,7 @@ def test_take_with_constant_true():
 @pytest.mark.parametrize(
     "test_fn,title",
     [
-        (test_take_with_expr, "Take with expr"),
+        (test_take_with_expr, "Take rows that match an expression"),
         (test_take_with_constant_true, "Take with constant true"),
     ],
 )

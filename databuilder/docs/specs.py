@@ -64,6 +64,8 @@ def build_section(section_id, package_name, module_name):
 
 
 def get_title_for_test_fn(test_fn):
+    if hasattr(test_fn, "title"):
+        return test_fn.title
     return test_fn.__name__.removeprefix("test_").replace("_", " ").capitalize()
 
 
