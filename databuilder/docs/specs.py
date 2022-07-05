@@ -63,16 +63,17 @@ def build_section(section_id, package_name, module_name):
     )
 
 
+def get_title_for_test_fn(test_fn):
+    return test_fn.__name__.removeprefix("test_").replace("_", " ").capitalize()
+
+
 def build_paragraph(paragraph_id, test_fn):
     """Return dict containing details of a single paragraph.
 
     There is a paragraph for each test function.
     """
 
-    # Extract the paragraph title from the test function name.  NB we may want more
-    # control over the title, in which case we could record it in the function
-    # docstring.
-    title = test_fn.__name__.removeprefix("test_").replace("_", " ").capitalize()
+    title = get_title_for_test_fn(test_fn)
 
     # Capture the arguments that the test function is called with.
     capturer = ArgCapturer()

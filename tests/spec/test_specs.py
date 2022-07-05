@@ -1,7 +1,10 @@
+import pytest
+
 from databuilder.docs.specs import (
     build_chapter,
     build_section,
     concatenate_optional_text,
+    get_title_for_test_fn,
 )
 
 
@@ -46,3 +49,22 @@ def test_build_section():
             ), "paragraph text found when no docstring present"
             continue
         assert False, "expected paragraph ids not found"
+
+
+def test_take_with_expr():
+    pass
+
+
+def test_take_with_constant_true():
+    pass
+
+
+@pytest.mark.parametrize(
+    "test_fn,title",
+    [
+        (test_take_with_expr, "Take with expr"),
+        (test_take_with_constant_true, "Take with constant true"),
+    ],
+)
+def test_get_title_for_test_fn(test_fn, title):
+    assert get_title_for_test_fn(test_fn) == title
