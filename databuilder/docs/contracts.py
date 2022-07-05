@@ -1,11 +1,12 @@
 from ..contracts.base import Column, TableContract
+from ..module_utils import get_sibling_subclasses
 from .common import build_hierarchy, reformat_docstring
 
 
 def build_contracts():
     """Build a dict representation for each Contract"""
 
-    for contract in TableContract.__subclasses__():
+    for contract in get_sibling_subclasses(TableContract):
         columns = {k: v for k, v in vars(contract).items() if isinstance(v, Column)}
         columns = [_build_column(name, instance) for name, instance in columns.items()]
 
