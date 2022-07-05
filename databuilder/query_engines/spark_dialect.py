@@ -19,6 +19,8 @@ from sqlalchemy.sql.expression import ClauseElement, Executable, cast
 
 
 class CreateTemporaryViewAs(Executable, ClauseElement):
+    inherit_cache = True
+
     def __init__(self, table, query):
         self.table = table
         self.query = query
@@ -36,7 +38,7 @@ def visit_create_temporary_view_as(element, compiler, **kw):
 
 
 class SparkDate(sqlalchemy.types.TypeDecorator):
-
+    cache_ok = True
     impl = sqlalchemy.types.Date
 
     def process_result_value(self, value, dialect):
@@ -64,6 +66,7 @@ class SparkDate(sqlalchemy.types.TypeDecorator):
 
 
 class SparkDateTime(sqlalchemy.types.TypeDecorator):
+    cache_ok = True
     impl = sqlalchemy.types.DateTime
 
     # I expect this is end up being covered once we promote Spark from a "legacy"

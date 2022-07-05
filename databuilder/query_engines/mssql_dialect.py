@@ -69,6 +69,8 @@ class MSSQLDialect(MSDialect_pymssql):
 
 
 class SelectStarInto(Executable, ClauseElement):
+    inherit_cache = True
+
     def __init__(self, table, selectable):
         self.table = table
         self.selectable = selectable
