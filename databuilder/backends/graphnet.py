@@ -1,6 +1,10 @@
+import os
+
 from ..contracts import contracts
 from ..query_engines.mssql import MSSQLQueryEngine
 from .base import BaseBackend, Column, MappedTable
+
+SCHEMA = os.environ.get("GRAPHNET_DB_SCHEMA", default="TRE")
 
 
 class GraphnetBackend(BaseBackend):
@@ -11,7 +15,8 @@ class GraphnetBackend(BaseBackend):
 
     patient_demographics = MappedTable(
         implements=contracts.PatientDemographics,
-        source="TRE.Patients",
+        schema=SCHEMA,
+        source="Patients",
         columns=dict(
             sex=Column("varchar", source="Sex"),
             date_of_birth=Column("date", source="DateOfBirth"),
@@ -21,7 +26,8 @@ class GraphnetBackend(BaseBackend):
 
     clinical_events = MappedTable(
         implements=contracts.WIP_ClinicalEvents,
-        source="TRE.ClinicalEvents",
+        schema=SCHEMA,
+        source="ClinicalEvents",
         columns=dict(
             code=Column("varchar", source="Code"),
             system=Column("varchar", source="CodingSystem"),
@@ -32,7 +38,8 @@ class GraphnetBackend(BaseBackend):
 
     practice_registrations = MappedTable(
         implements=contracts.WIP_PracticeRegistrations,
-        source="TRE.PracticeRegistrations",
+        schema=SCHEMA,
+        source="PracticeRegistrations",
         columns=dict(
             pseudo_id=Column("integer", source="Organisation_ID"),
             nuts1_region_name=Column("varchar", source="Region"),
@@ -43,7 +50,8 @@ class GraphnetBackend(BaseBackend):
 
     covid_test_results = MappedTable(
         implements=contracts.WIP_CovidTestResults,
-        source="TRE.CovidTestResults",
+        schema=SCHEMA,
+        source="CovidTestResults",
         columns=dict(
             date=Column("date", source="SpecimenDate"),
             positive_result=Column("boolean", source="positive_result"),
@@ -52,7 +60,8 @@ class GraphnetBackend(BaseBackend):
 
     hospitalizations_without_system = MappedTable(
         implements=contracts.WIP_HospitalizationsWithoutSystem,
-        source="TRE.Hospitalisations",
+        schema=SCHEMA,
+        source="Hospitalisations",
         columns=dict(
             date=Column("date", source="AdmitDate"),
             code=Column("varchar", source="DiagCode"),
@@ -61,7 +70,8 @@ class GraphnetBackend(BaseBackend):
 
     patient_address = MappedTable(
         implements=contracts.WIP_PatientAddress,
-        source="TRE.PatientAddresses",
+        schema=SCHEMA,
+        source="PatientAddresses",
         columns=dict(
             patientaddress_id=Column("integer", source="PatientAddress_ID"),
             date_start=Column("date", source="StartDate"),
