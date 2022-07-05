@@ -128,5 +128,5 @@ def databuilder_image():
 
 
 @pytest.fixture
-def study(tmp_path, monkeypatch, containers, databuilder_image):
-    return Study(tmp_path, monkeypatch, containers, databuilder_image)
+def study(tmp_path, containers, databuilder_image):
+    return Study(tmp_path, containers, databuilder_image)
