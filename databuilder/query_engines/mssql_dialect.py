@@ -59,6 +59,9 @@ class MSSQLDateTime(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
 
 
 class MSSQLDialect(MSDialect_pymssql):
+
+    supports_statement_cache = True
+
     colspecs = MSDialect_pymssql.colspecs | {
         sqlalchemy.types.Date: MSSQLDate,
         sqlalchemy.types.DateTime: MSSQLDateTime,
@@ -66,6 +69,8 @@ class MSSQLDialect(MSDialect_pymssql):
 
 
 class SelectStarInto(Executable, ClauseElement):
+    inherit_cache = True
+
     def __init__(self, table, selectable):
         self.table = table
         self.selectable = selectable
