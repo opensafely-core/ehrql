@@ -5,16 +5,16 @@ class BaseQueryEngine:
     language (SQL, pandas dataframes etc).
     """
 
-    def __init__(self, dsn, backend=None, temporary_database=None):
+    def __init__(self, dsn, backend=None, config=None):
         """
         `dsn` is  Data Source Name — a string (usually a URL) which provides connection
             details to a data source (usually a RDBMS)
         `backend` is an optional Backend instance
+        `config` is an optional dictionary of config values
         """
         self.dsn = dsn
         self.backend = backend
-        # TODO: Not sure this belongs here but let's worry about that later
-        self.temporary_database = temporary_database
+        self.config = config or {}
 
     def execute_query(self, variable_definitions):
         """

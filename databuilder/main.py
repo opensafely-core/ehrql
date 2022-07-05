@@ -19,15 +19,13 @@ def generate_dataset(
     dataset_file,
     backend_id,
     db_url,
-    temporary_database,
+    environ,
 ):
     log.info(f"Generating dataset for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
     backend = import_string(backend_id)()
-    query_engine = backend.query_engine_class(
-        db_url, backend, temporary_database=temporary_database
-    )
+    query_engine = backend.query_engine_class(db_url, backend, config=environ)
     backend.validate_contracts()
     results = extract(dataset_definition, query_engine)
 
@@ -67,11 +65,11 @@ def generate_measures(
     raise NotImplementedError
 
 
-def test_connection(backend_id, url):
+def test_connection(backend_id, url, environ):
     from sqlalchemy import select
 
     backend = import_string(backend_id)()
-    query_engine = backend.query_engine_class(url, backend)
+    query_engine = backend.query_engine_class(url, backend, config=environ)
     with query_engine.engine.connect() as connection:
         connection.execute(select(1))
     print("SUCCESS")

@@ -28,7 +28,7 @@ def main(args, environ=None):
                 dataset_file=options.output,
                 db_url=database_url,
                 backend_id=environ.get("OPENSAFELY_BACKEND"),
-                temporary_database=environ.get("TEMP_DATABASE_NAME"),
+                environ=environ,
             )
         elif dummy_data_file:
             pass_dummy_data(options.dataset_definition, options.output, dummy_data_file)
@@ -52,6 +52,7 @@ def main(args, environ=None):
         test_connection(
             backend_id=options.backend,
             url=options.url,
+            environ=environ,
         )
     elif options.which == "print-help":
         parser.print_help()
