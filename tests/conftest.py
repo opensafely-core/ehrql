@@ -116,7 +116,8 @@ def engine(request):
 @pytest.fixture(scope="session")
 def databuilder_image():
     project_dir = Path(databuilder.__file__).parents[1]
-    image = "databuilder"
+    # Note different name from production image to avoid confusion
+    image = "databuilder-dev"
     # We're deliberately choosing to shell out to the docker client here rather than use
     # the docker-py library to avoid possible difference in the build process (docker-py
     # doesn't seem to be particularly actively maintained)
