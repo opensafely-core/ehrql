@@ -52,9 +52,8 @@ def fetch_repo(repo, root):
 
 
 class Study:
-    def __init__(self, root, monkeypatch, containers, image):
+    def __init__(self, root, containers, image):
         self._root = root
-        self._monkeypatch = monkeypatch
         self._containers = containers
         self._image = image
 
@@ -70,10 +69,15 @@ class Study:
     def generate(self, database, backend):
         self._dataset_path = self._workspace / "dataset.csv"
 
-        self._monkeypatch.setenv("DATABASE_URL", database.host_url())
-        self._monkeypatch.setenv("OPENSAFELY_BACKEND", backend)
+        env = {
+            "DATABASE_URL": database.host_url(),
+            "OPENSAFELY_BACKEND": backend,
+        }
 
-        main(self._generate_command(self._definition_path, self._dataset_path))
+        main(
+            self._generate_command(self._definition_path, self._dataset_path),
+            environ=env,
+        )
 
     def generate_in_docker(self, database, backend):
         self._dataset_path = self._workspace / "dataset.csv"
