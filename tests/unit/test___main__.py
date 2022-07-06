@@ -87,9 +87,9 @@ def test_dump_dataset_sql(mocker, tmp_path):
     dataset_definition_path.touch()
     argv = [
         "dump-dataset-sql",
-        "--dataset-definition",
-        str(dataset_definition_path),
+        "--backend",
         "databuilder.backends.tpp.TPPBackend",
+        str(dataset_definition_path),
     ]
     main(argv)
     patched.assert_called_once()

@@ -120,11 +120,11 @@ class Study:
     def _dump_dataset_sql_command(definition, output):
         return [
             "dump-dataset-sql",
-            "--dataset-definition",
-            str(definition),
+            "--backend",
+            "databuilder.backends.tpp.TPPBackend",
             "--output",
             str(output),
-            "databuilder.backends.tpp.TPPBackend",
+            str(definition),
         ]
 
     def _docker_path(self, path):
