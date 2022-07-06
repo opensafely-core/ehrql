@@ -4,11 +4,11 @@ from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
 from .main import (
+    dump_dataset_sql,
     generate_dataset,
     generate_measures,
     pass_dummy_data,
     test_connection,
-    validate_dataset,
 )
 
 
@@ -37,7 +37,7 @@ def main(args, environ=None):
                 "error: either --dummy-data-file or DATABASE_URL environment variable is required"
             )
     elif options.which == "dump-dataset-sql":
-        validate_dataset(
+        dump_dataset_sql(
             options.dataset_definition,
             options.output,
             backend_id=options.backend,

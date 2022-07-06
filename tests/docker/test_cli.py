@@ -15,9 +15,9 @@ def test_generate_dataset_in_container(study, mssql_database):
     assert results[0]["year"] == "1943"
 
 
-def test_validate_dataset_definition_in_container(study):
+def test_dump_dataset_sql_in_container(study):
     study.setup_from_string(fixtures.trivial_dataset_definition)
-    study.validate_in_docker()
+    study.dump_dataset_sql_in_docker()
     # non-zero exit raises an exception
 
 

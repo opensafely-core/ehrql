@@ -44,14 +44,14 @@ def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
     shutil.copyfile(dummy_data_file, dataset_file)
 
 
-def validate_dataset(definition_file, output_file, backend_id):
-    log.info(f"Validating dataset for {str(definition_file)}")
+def dump_dataset_sql(definition_file, output_file, backend_id):
+    log.info(f"Generating SQL for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
     backend = import_string(backend_id)()
     query_engine = backend.query_engine_class(None, backend)
     results = validate(dataset_definition, query_engine)
-    log.info("Validation succeeded")
+    log.info("SQL generation succeeded")
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     with output_file.open(mode="w") as f:

@@ -82,7 +82,7 @@ def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
 
 def test_dump_dataset_sql(mocker, tmp_path):
     # Verify that the dump dataset sql subcommand can be invoked.
-    patched = mocker.patch("databuilder.__main__.validate_dataset")
+    patched = mocker.patch("databuilder.__main__.dump_dataset_sql")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
