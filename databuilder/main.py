@@ -50,13 +50,18 @@ def dump_dataset_sql(definition_file, output_file, backend_id):
     dataset_definition = load_definition(definition_file)
     backend = import_string(backend_id)()
     query_engine = backend.query_engine_class(None, backend)
-    results = validate(dataset_definition, query_engine)
+
+    variable_definitions = ql.compile(dataset_definition)
+    setup_queries, results_query, cleanup_queries = query_engine.get_queries(
+        variable_definitions
+    )
+    all_queries = setup_queries + [results_query] + cleanup_queries
     log.info("SQL generation succeeded")
 
     output_file.parent.mkdir(parents=True, exist_ok=True)
     with output_file.open(mode="w") as f:
-        for entry in results:
-            f.write(f"{str(entry)}\n")
+        for query in all_queries:
+            f.write(f"{str(query)}\n")
 
 
 def generate_measures(
@@ -130,19 +135,6 @@ def extract(dataset_definition, query_engine):
     with query_engine.execute_query(variable_definitions) as results:
         for row in results:
             yield dict(row)
-
-
-def validate(dataset_definition, query_engine):
-    try:
-        variable_definitions = ql.compile(dataset_definition)
-        setup_queries, results_query, cleanup_queries = query_engine.get_queries(
-            variable_definitions
-        )
-        return setup_queries + [results_query] + cleanup_queries
-    except Exception:  # pragma: no cover (puzzle: dataset definition that compiles to QM but not SQL)
-        log.error("Validation failed")
-        # raise the exception to ensure the job fails and the error and traceback are logged
-        raise
 
 
 def write_dataset(results, dataset_file):
