@@ -28,7 +28,7 @@ class Patients(TableContract):
     date_of_death = Column(
         type=types.Date(),
         description=(
-            "Patient's year and month of death, provided in format YYYY-MM-01."
+            "Patient's year and month of death, provided in format YYYY-MM-01. "
             "The day will always be the first of the month."
         ),
         constraints=[FirstOfMonthConstraint()],
