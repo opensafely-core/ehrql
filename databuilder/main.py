@@ -7,6 +7,7 @@ from contextlib import contextmanager, nullcontext
 import structlog
 
 from databuilder.query_language import Dataset
+from databuilder.sqlalchemy_utils import clause_as_str
 
 from . import query_language as ql
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
@@ -53,15 +54,21 @@ def dump_dataset_sql(
     query_engine = get_query_engine(backend_id, query_engine_id, environ)
 
     variable_definitions = ql.compile(dataset_definition)
+    all_query_strings = get_sql_strings(query_engine, variable_definitions)
+    log.info("SQL generation succeeded")
+
+    with open_output_file(output_file) as f:
+        for query_str in all_query_strings:
+            f.write(f"{query_str};\n\n")
+
+
+def get_sql_strings(query_engine, variable_definitions):
     setup_queries, results_query, cleanup_queries = query_engine.get_queries(
         variable_definitions
     )
     all_queries = setup_queries + [results_query] + cleanup_queries
-    log.info("SQL generation succeeded")
-
-    with open_output_file(output_file) as f:
-        for query in all_queries:
-            f.write(f"{str(query)}\n")
+    dialect = query_engine.sqlalchemy_dialect()
+    return [clause_as_str(query, dialect) for query in all_queries]
 
 
 def open_output_file(output_file):

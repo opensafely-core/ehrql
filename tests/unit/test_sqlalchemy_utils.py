@@ -1,8 +1,10 @@
 import pytest
 import sqlalchemy
+from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 
 from databuilder.sqlalchemy_utils import (
     GeneratedTable,
+    clause_as_str,
     get_setup_and_cleanup_queries,
     is_predicate,
 )
@@ -121,3 +123,11 @@ def _queries_as_strs(query):
         + [str(query).strip()]
         + [str(q).strip() for q in cleanup_queries]
     )
+
+
+def test_clause_as_str():
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar).where(table.c.bar > 100)
+    dialect = SQLiteDialect_pysqlite()
+    query_str = clause_as_str(query, dialect)
+    assert query_str == "SELECT foo.bar \nFROM foo \nWHERE foo.bar > 100"

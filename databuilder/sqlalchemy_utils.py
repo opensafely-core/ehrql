@@ -122,3 +122,12 @@ def get_generated_tables(clause):
 
 def flatten_iter(nested_iters):
     return [i for sub_iter in nested_iters for i in sub_iter]
+
+
+def clause_as_str(clause, dialect):
+    """
+    Return a SQL clause as a string in the supplied SQL dialect with any included
+    parameters interpolated in
+    """
+    compiled = clause.compile(dialect=dialect, compile_kwargs={"literal_binds": True})
+    return str(compiled).strip()
