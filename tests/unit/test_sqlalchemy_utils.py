@@ -131,3 +131,13 @@ def test_clause_as_str():
     dialect = SQLiteDialect_pysqlite()
     query_str = clause_as_str(query, dialect)
     assert query_str == "SELECT foo.bar \nFROM foo \nWHERE foo.bar > 100"
+
+
+# Converting CreateIndex to a string blows up without a special workaround
+def test_clause_as_str_wtih_create_index():
+    table = sqlalchemy.Table("foo", sqlalchemy.MetaData(), sqlalchemy.Column("bar"))
+    index = sqlalchemy.Index(None, table.c.bar)
+    create_index = sqlalchemy.schema.CreateIndex(index)
+    dialect = SQLiteDialect_pysqlite()
+    query_str = clause_as_str(create_index, dialect)
+    assert query_str == "CREATE INDEX ix_foo_bar ON foo (bar)"
