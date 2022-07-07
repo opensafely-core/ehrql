@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import configparser
-import json
 import os
 import subprocess
 import sys
 import time
+from urllib.parse import urljoin
 
 import click
 import requests
@@ -21,41 +21,6 @@ OUTPUT = True
 VENV = os.environ["VIRTUAL_ENV"]
 DATABRICKS_EXEC = f"{VENV}/bin/databricks"
 PYTHON = f"{VENV}/bin/python"
-
-# https://docs.databricks.com/dev-tools/api/latest/clusters.html#create
-# Create a cluster in Community Edition.
-CLUSTER_REQUEST = {
-    "cluster_name": "opensafely-test",
-    "spark_version": "7.3.x-scala2.12",
-    "spark_conf": {
-        # This was added to try work around a problem with deleting tables, we may not need it any more
-        "spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation": "true",
-    },
-    "aws_attributes": {
-        "zone_id": "auto",
-        "first_on_demand": 0,
-        "availability": "ON_DEMAND",
-        "spot_bid_price_percent": 100,
-    },
-    "node_type_id": "dev-tier-node",
-    "driver_node_type_id": "dev-tier-node",
-    "spark_env_vars": {
-        "PYSPARK_PYTHON": "/databricks/python3/bin/python3",
-    },
-    "autotermination_minutes": 120,
-    "enable_elastic_disk": False,
-    "disk_spec": {
-        "disk_count": 0,
-    },
-    "enable_local_disk_encryption": False,
-    "instance_source": {
-        "node_type_id": "dev-tier-node",
-    },
-    "driver_instance_source": {
-        "node_type_id": "dev-tier-node",
-    },
-    "num_workers": 0,
-}
 
 
 def run(cmd, check=True, text=True, **kwargs):
@@ -116,7 +81,7 @@ def get_clusters():
     global CLUSTERS, ORGID
 
     resp = requests.get(
-        f"{HOST}/api/2.0/clusters/list",
+        urljoin(HOST, "/api/2.0/clusters/list"),
         auth=(USERNAME, PASSWORD),
     )
     resp.raise_for_status()
@@ -125,19 +90,12 @@ def get_clusters():
     ORGID = resp.headers["X-Databricks-Org-Id"]
 
 
-def _teardown(name):
-    if name not in CLUSTERS:
-        return
-
-    c = CLUSTERS[name]
-    echo(f"Tearing down {c}...")
-    databricks(["clusters", "permanent-delete", "--cluster-id", c.cluster_id])
-
-
 def _wait(name, timeout=90):
     echo(CLUSTERS[name])
     start = time.time()
-    while CLUSTERS[name].state == "PENDING":
+    # We need to wait if the state is TERMINATED, as the first try after starting may not
+    # register it as PENDING yet
+    while CLUSTERS[name].state in ["PENDING", "TERMINATED"]:
         if time.time() - start > timeout:
             sys.exit(f"timed out after {timeout}s waiting for cluster {name}")
         time.sleep(10)
@@ -149,11 +107,10 @@ def _wait(name, timeout=90):
 def cli():
     """Command for managing databricks cluster.
 
-    If ssing Databricks Community Edition, it will teardown/create a cluster for you.
-    If using the full SaaS, it will simply ensure it is running.
-
     The default cluster name is 'opensafely-test', but can be overridden with
     --name option or the DATABRICKS_CLUSTER env var.
+
+    It will ensure the cluster is running, but will not create it if it doesn't already exist.
 
     By default, it uses the DEFAULT profile of your databricks cli config, but
     this can be altered with the DATABRICKS_PROFILE env var.
@@ -167,17 +124,6 @@ name_option = click.option("--name", default="opensafely-test", help="name of cl
 
 @cli.command()
 @name_option
-def teardown(name):
-    """Teardown current cluster."""
-    if is_community_edition():
-        _teardown(name)
-    else:
-        click.echo("Cowardly refusing to terminate non-community edition cluster.")
-        sys.exit(1)
-
-
-@cli.command()
-@name_option
 @click.option(
     "--wait/--no-wait",
     default=False,
@@ -187,8 +133,8 @@ def teardown(name):
 @click.option(
     "--output-url/--no-output-url", default=False, help="only output the connection url"
 )
-def create(name, wait, output_url, timeout):
-    """Create a new cluster."""
+def start(name, wait, output_url, timeout):
+    """Ensure cluster is running."""
     global OUTPUT
 
     if output_url:
@@ -197,32 +143,22 @@ def create(name, wait, output_url, timeout):
     c = CLUSTERS.get(name)
 
     # it exists
-    if c and c.state in ("PENDING", "RUNNING"):
-        if output_url:
-            click.echo(c.url)
+    if c:
+        # it's running or starting up
+        if c.state in ("PENDING", "RUNNING"):
+            if output_url:
+                click.echo(c.url)
+            else:
+                echo(f"{HOST} {c}")
+            return
         else:
-            echo(c)
-        return
-
-    if is_community_edition():
-        # with community edition, it is best to destroy/create a new cluster,
-        # as restarting clusters does not seem to work well.
-        _teardown(name)
-        request = CLUSTER_REQUEST.copy()
-        request["cluster_name"] = name
-        request_json = json.dumps(request)
-        databricks(
-            ["clusters", "create", "--json-file", "/dev/stdin"],
-            input=request_json,
-            capture_output=output_url,
-        )
-    elif c:
-        # cluster exists, but is not running
-        databricks(["clusters", "start", "--cluster-id", c.cluster_id])
+            # cluster exists, but is not running or starting up
+            click.echo("Starting cluster")
+            databricks(["clusters", "start", "--cluster-id", c.cluster_id])
     else:
         click.echo(
-            "No {name} cluster found, and refusing to create one as not using Community Edition.\n"
-            "You will need to create one called 'opensafely-test' via the web UI."
+            f"No {name} cluster found.\n"
+            f"You will need to create one called '{name}' via the web UI."
         )
         sys.exit(1)
 

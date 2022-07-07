@@ -204,9 +204,9 @@ test-all *ARGS: devenv generate-docs
 dbx *ARGS:
     @$BIN/python scripts/dbx {{ ARGS }}
 
-# ensure a working databricks cluster is set up
+# ensure a working databricks cluster is set up and running
 databricks-env: devenv
-    $BIN/python scripts/dbx create --wait --timeout 120
+    $BIN/python scripts/dbx start --wait --timeout 180
 
 databricks-test *ARGS: devenv databricks-env
     #!/usr/bin/env bash
