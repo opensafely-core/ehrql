@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 import databuilder
+from databuilder.main import get_sql_strings
 from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
@@ -68,6 +69,11 @@ class QueryEngineFixture:
             # We don't explicitly order the results and not all databases naturally
             # return in the same order
             return sorted(map(dict, results), key=lambda i: i["patient_id"])
+
+    def dump_dataset_sql(self, dataset, **engine_kwargs):
+        variables = compile(dataset)
+        query_engine = self.query_engine_class(dsn=None, **engine_kwargs)
+        return get_sql_strings(query_engine, variables)
 
     def sqlalchemy_engine(self):
         return self.query_engine_class(self.database.host_url()).engine
