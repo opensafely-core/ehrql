@@ -13,6 +13,35 @@ from .validate_dummy_data import validate_dummy_data_file, validate_file_types_m
 
 log = structlog.getLogger()
 
+DATABUILDER_CODE = True
+
+
+def is_databuilder(tb: traceback) -> bool:
+    """
+    Check if the code in the traceback frame is
+    from the Databuilder Code Base. This aims to remove
+    traceback involving other libaries such as importlib.
+    """
+    globals = tb.tb_frame.f_globals
+    return "DATABUILDER_CODE" in globals
+
+
+def user_code_traceback_level(tb: traceback, error_type: Exception) -> int:
+    """
+    Find the length of the traceback that originates in the user code.
+    """
+    # This is needed as SyntaxError has additional lines to display exact
+    # location of syntax error
+    if error_type == SyntaxError:
+        length = 3
+    else:
+        length = 1
+
+    while tb and is_databuilder(tb):
+        tb = tb.tb_next
+        length += 1
+    return length
+
 
 def generate_dataset(
     definition_file,
@@ -97,8 +126,19 @@ def load_module(definition_path):
     # Temporarily add the directory containing the definition to the path so that the
     # definition can import library modules from that directory
     with add_to_sys_path(str(definition_path.parent)):
-        spec.loader.exec_module(module)
-    return module
+        try:
+            spec.loader.exec_module(module)
+        except Exception:
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            length = user_code_traceback_level(exc_tb, exc_type)
+
+            tb = traceback.format_exception(exc_type, exc_value, exc_tb)[-length:]
+            print(
+                f"***********\nError Type: {exc_type.__name__}\nMessage: {exc_value}\n***********\nSpecific Details:"
+            )
+            for i in tb:
+                print(i)
+            sys.exit()
 
 
 @contextmanager
