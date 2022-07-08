@@ -2,6 +2,7 @@ import csv
 import importlib.util
 import shutil
 import sys
+import traceback
 from contextlib import contextmanager
 
 import structlog
