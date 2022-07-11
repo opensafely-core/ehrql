@@ -200,14 +200,18 @@ class SparkDialect(HiveHTTPDialect):
         string matching for this and the format of the error messages in the
         specific version of Spark/Hive we are using doesn't match. See:
 
-        https://github.com/dropbox/PyHive/blob/b21c507a24/pyhive/sqlalchemy_hive.py#L275-L297
+        https://github.com/dropbox/PyHive/blob/release/0.6.5/pyhive/sqlalchemy_hive.py#L275-L297
         """
         connection = ConnectionWrapper(connection)
         try:
             return super()._get_table_columns(connection, table_name, schema)
-        except exc.OperationalError as e:
+        except (exc.OperationalError, exc.DatabaseError) as e:
             full_table = table_name if not schema else f"{schema}.{table_name}"
-            if "Table or view not found" in str(e):  # pragma: no cover
+            if "Table or view not found" in str(
+                e
+            ) or f"{full_table} doesn't exist" in str(
+                e
+            ):  # pragma: no cover
                 raise exc.NoSuchTableError(full_table)
             else:
                 raise
