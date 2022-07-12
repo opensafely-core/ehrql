@@ -58,7 +58,7 @@ def test_validate_dataset_happy_path(study, mssql_database):
 
 def test_validate_dataset_error_path(study, mssql_database):
     study.setup_from_string(invalid_dataset_definition)
-    with pytest.raises(NameError):
+    with pytest.raises(SystemExit):
         study.validate()
 
 

@@ -23,8 +23,8 @@ def is_databuilder(tb: traceback) -> bool:
     from the Databuilder Code Base. This aims to remove
     traceback involving other libaries such as importlib.
     """
-    globals = tb.tb_frame.f_globals
-    return "DATABUILDER_CODE" in globals
+    db_globals = tb.tb_frame.f_globals
+    return "DATABUILDER_CODE" in db_globals
 
 
 def user_code_traceback_level(tb: traceback, error_type: Exception) -> int:
@@ -129,6 +129,7 @@ def load_module(definition_path):
     with add_to_sys_path(str(definition_path.parent)):
         try:
             spec.loader.exec_module(module)
+            return module
         except Exception:
             exc_type, exc_value, exc_tb = sys.exc_info()
             length = user_code_traceback_level(exc_tb, exc_type)
