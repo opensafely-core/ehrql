@@ -1,8 +1,6 @@
 import inspect
 from importlib import import_module
 
-from tests.spec import toc
-
 
 def build_specs():
     """Return data describing the specs for use in documentation.
@@ -12,7 +10,7 @@ def build_specs():
       * each chapter is split into sections, with one section per test module
       * each section is split into paragraphs, with one paragraph per test function
     """
-
+    toc = import_module("tests.spec.toc")
     return [
         build_chapter(str(ix + 1), package_name, module_names)
         for ix, (package_name, module_names) in enumerate(toc.contents.items())
