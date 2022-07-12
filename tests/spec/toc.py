@@ -52,4 +52,7 @@ contents = {
     "str_series_ops": [
         "test_contains",
     ],
+    "population": [
+        "test_population",
+    ],
 }
