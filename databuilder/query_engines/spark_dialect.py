@@ -40,6 +40,7 @@ def visit_create_temporary_view_as(element, compiler, **kw):
 class SparkDate(sqlalchemy.types.TypeDecorator):
     cache_ok = True
     impl = sqlalchemy.types.Date
+    text_type = sqlalchemy.types.Text()
 
     def process_result_value(self, value, dialect):
         """
@@ -63,6 +64,16 @@ class SparkDate(sqlalchemy.types.TypeDecorator):
         explicity cast them to dates
         """
         return cast(bindvalue, type_=self)
+
+    def process_literal_param(self, value, dialect):
+        """
+        Convert a Python value into an escaped string suitable for interpolating
+        directly into an SQL string
+        """
+        value_str = value.isoformat()
+        # Use the Text literal processor to quote and escape the string value
+        literal_processor = self.text_type.literal_processor(dialect)
+        return literal_processor(value_str)
 
 
 class SparkDateTime(sqlalchemy.types.TypeDecorator):

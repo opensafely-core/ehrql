@@ -122,3 +122,25 @@ def get_generated_tables(clause):
 
 def flatten_iter(nested_iters):
     return [i for sub_iter in nested_iters for i in sub_iter]
+
+
+def clause_as_str(clause, dialect):
+    """
+    Return a SQL clause as a string in the supplied SQL dialect with any included
+    parameters interpolated in
+    """
+    # This is an awkward workaround for the fact that some constructs, e.g. CreateIndex,
+    # blow up if you try to compile them with `literal_binds = True` because they don't
+    # accept the `literal_binds` keyword. I _think_ this is just a bug in SQLAlchemy,
+    # but one that hasn't be noticed because index definitions don't tend to take
+    # paramters. In any case, the workaround here is that we compile a parameterised
+    # version of the query first, and then recompile with `literal_binds` only if it
+    # actually has parameters.
+    compiled = clause.compile(dialect=dialect)
+    if not compiled.params:
+        return str(compiled).strip()
+    else:
+        compiled = clause.compile(
+            dialect=dialect, compile_kwargs={"literal_binds": True}
+        )
+        return str(compiled).strip()

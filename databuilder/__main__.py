@@ -4,11 +4,11 @@ from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
 from .main import (
+    dump_dataset_sql,
     generate_dataset,
     generate_measures,
     pass_dummy_data,
     test_connection,
-    validate_dataset,
 )
 
 
@@ -37,10 +37,12 @@ def main(args, environ=None):
                 "error: either --dummy-data-file or DATABASE_URL environment variable is required"
             )
     elif options.which == "dump-dataset-sql":
-        validate_dataset(
+        dump_dataset_sql(
             options.dataset_definition,
             options.output,
             backend_id=options.backend,
+            query_engine_id=options.query_engine,
+            environ=environ,
         )
     elif options.which == "generate-measures":
         generate_measures(
@@ -98,23 +100,29 @@ def add_generate_dataset(subparsers, environ):
 def add_dump_dataset_sql(subparsers, environ):
     parser = subparsers.add_parser(
         "dump-dataset-sql",
-        help="Validate the dataset definition against the specified backend",
+        help=(
+            "Output the SQL that would be executed to fetch the results of the "
+            "dataset definition"
+        ),
     )
     parser.set_defaults(which="dump-dataset-sql")
     parser.add_argument(
-        "backend",
+        "--query-engine",
         type=str,
     )
     parser.add_argument(
-        "--dataset-definition",
-        help="The path of the file where the dataset is defined",
-        type=existing_python_file,
-        required=True,
+        "--backend",
+        type=str,
     )
     parser.add_argument(
         "--output",
-        help="Path and filename (or pattern) of the file(s) where the output will be written",
+        help="SQL output file (outputs to console by default)",
         type=Path,
+    )
+    parser.add_argument(
+        "dataset_definition",
+        help="Path of Python file where dataset is defined",
+        type=existing_python_file,
     )
 
 
