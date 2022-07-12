@@ -103,28 +103,28 @@ class Study:
             str(dataset),
         ]
 
-    def validate(self):
-        self._output_path = self._workspace / "validation.out"
-        main(self._validate_command(self._definition_path, self._output_path))
+    def dump_dataset_sql(self):
+        self._output_path = self._workspace / "queries.sql"
+        main(self._dump_dataset_sql_command(self._definition_path, self._output_path))
 
-    def validate_in_docker(self):
-        self._output_path = self._workspace / "validation.out"
+    def dump_dataset_sql_in_docker(self):
+        self._output_path = self._workspace / "queries.sql"
         self._run_in_docker(
-            command=self._validate_command(
+            command=self._dump_dataset_sql_command(
                 self._docker_path(self._definition_path),
                 self._docker_path(self._output_path),
             )
         )
 
     @staticmethod
-    def _validate_command(definition, output):
+    def _dump_dataset_sql_command(definition, output):
         return [
             "dump-dataset-sql",
-            "--dataset-definition",
-            str(definition),
+            "--backend",
+            "databuilder.backends.tpp.TPPBackend",
             "--output",
             str(output),
-            "databuilder.backends.tpp.TPPBackend",
+            str(definition),
         ]
 
     def _docker_path(self, path):

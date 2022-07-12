@@ -51,32 +51,32 @@ def test_generate_dataset(study, mssql_database):
     assert {r["year"] for r in results} == {"1943", "1999"}
 
 
-def test_validate_dataset_happy_path(study, mssql_database):
+def test_dump_dataset_sql_happy_path(study, mssql_database):
     study.setup_from_string(trivial_dataset_definition)
-    study.validate()
+    study.dump_dataset_sql()
 
 
-def test_validate_dataset_error_path(study, mssql_database):
+def test_dump_dataset_sql_error_path(study, mssql_database):
     study.setup_from_string(invalid_dataset_definition)
     with pytest.raises(SystemExit):
-        study.validate()
+        study.dump_dataset_sql()
 
 
-def test_validate_dataset_with_no_dataset_attribute(study, mssql_database):
+def test_dump_dataset_sql_with_no_dataset_attribute(study, mssql_database):
     study.setup_from_string(no_dataset_attribute_dataset_definition)
     with pytest.raises(
         AttributeError, match="A dataset definition must define one 'dataset'"
     ):
-        study.validate()
+        study.dump_dataset_sql()
 
 
-def test_validate_dataset_attribute_invalid(study, mssql_database):
+def test_dump_dataset_sql_attribute_invalid(study, mssql_database):
     study.setup_from_string(invalid_dataset_attribute_dataset_definition)
     with pytest.raises(
         AssertionError,
         match="'dataset' must be an instance of databuilder.query_language.Dataset()",
     ):
-        study.validate()
+        study.dump_dataset_sql()
 
 
 def test_validate_dummy_data_happy_path(tmp_path):

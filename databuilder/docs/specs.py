@@ -1,7 +1,6 @@
 import inspect
+import re
 from importlib import import_module
-
-from tests.spec import toc
 
 
 def build_specs():
@@ -12,7 +11,7 @@ def build_specs():
       * each chapter is split into sections, with one section per test module
       * each section is split into paragraphs, with one paragraph per test function
     """
-
+    toc = import_module("tests.spec.toc")
     return [
         build_chapter(str(ix + 1), package_name, module_names)
         for ix, (package_name, module_names) in enumerate(toc.contents.items())
@@ -100,9 +99,7 @@ def build_paragraph(paragraph_id, test_fn):
     # Check that the next line is as expected.
     assert source_lines[ix + 1] == "        table_data,"
 
-    # Extract the definition of the series.
-    series_line = source_lines[ix + 2]
-    series = series_line.strip().removesuffix(",")
+    series = get_series_code(source_lines, ix + 2)
 
     # Extract descriptive docstring if any
     text = inspect.getdoc(test_fn)
@@ -117,6 +114,52 @@ def build_paragraph(paragraph_id, test_fn):
         },
         text,
     )
+
+
+def get_series_code(source_lines, series_index):
+    """
+    Extract the definition of the series from the test function.
+    """
+    # A series may be defined over more than one line; iterate over the next
+    # lines and build the string representing the series definition; when a potential
+    # ending (a , at the end of a line) is found, check that the parentheses in the
+    # statement so far are balanced; if they are not, we haven't reached the end of the
+    # definition yet.
+    first_series_line = source_lines[series_index]
+    # Find the leading whitespace for the first line; this will be stripped, but in order to
+    # preserve indentation, we strip only the equivalent whitespace from any subsequent lines.
+    leading_whitespace_match = re.match(r"^(?P<whitespace>\s+)\w*", first_series_line)
+    if leading_whitespace_match:
+        leading_whitespace = leading_whitespace_match.group("whitespace")
+    else:
+        leading_whitespace = ""
+    series_lines = []
+    for line in source_lines[series_index:]:
+        series_lines.append(line.rstrip().replace(leading_whitespace, ""))
+        series_line = "".join(series_lines)
+        if series_line.strip().endswith(","):
+            # check series_line is balanced; if it is, then we're done
+            if series_is_balanced(series_line):
+                break
+    return "\n".join(series_lines).strip().removesuffix(",")
+
+
+def series_is_balanced(series_line_string):
+    """
+    Takes a string representing a series definition and ensures that parentheses are
+    balanced.
+    """
+    stack = []
+    for char in series_line_string:
+        if char == "(":
+            stack.append(char)
+        elif char == ")":
+            # we can assume that the string composing a series definition will always be valid
+            # syntax, but may not be complete yet.  If we encounter a closing parenthesis, the
+            # last item on the stack must always be an opening parenthesis
+            assert stack[-1] == "("
+            stack.pop()
+    return len(stack) == 0
 
 
 def concatenate_optional_text(dictionary, text):

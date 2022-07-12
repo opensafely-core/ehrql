@@ -151,9 +151,9 @@ freezegun==1.2.1 \
     --hash=sha256:15103a67dfa868ad809a8f508146e396be2995172d25f927e48ce51c0bf5cb09 \
     --hash=sha256:b4c64efb275e6bc68dc6e771b17ffe0ff0f90b81a2a5189043550b6519926ba4
     # via pytest-freezegun
-hypothesis==6.49.1 \
-    --hash=sha256:0310d446fb87415e31798e8267288acc22f0be4a0530128a3a694190fcc43e5b \
-    --hash=sha256:a28a74e700960065f9fc972983c56f7c0821989c6c06a6fbcc42abe3a47e9986
+hypothesis==6.50.1 \
+    --hash=sha256:1a19ade3b27825cab622c95fcf25182a27a42f97589c163173fcbdafb8621d1e \
+    --hash=sha256:b69c6152dc0e346e228757f76895d6351e8872394b6da3bf1deac26de6cc6956
     # via -r requirements.dev.in
 identify==2.5.1 \
     --hash=sha256:0dca2ea3e4381c435ef9c33ba100a78a9b40c0bab11189c7cf121f75815efeaa \
@@ -205,9 +205,9 @@ packaging==21.3 \
     # via
     #   build
     #   pytest
-pandas-stubs==1.4.3.220704 \
-    --hash=sha256:175ed68aeb0dcd0a1c430452fba3091fdea1093e7e157ede71a8979f9a29edd3 \
-    --hash=sha256:bf6e48e6219627d93136b126b480fb2ae344808846c352f7f501447e44c7d674
+pandas-stubs==1.4.3.220710 \
+    --hash=sha256:57afeb068d56012ff9813e61ebdc36473fa225ff1258fc3e4783e524101f4ad0 \
+    --hash=sha256:90998e8477e7c28a9a2f84b6aa0a6cfca4ae3b98ed1a4484ece9f75da3f7395b
     # via -r requirements.dev.in
 pathspec==0.9.0 \
     --hash=sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a \
@@ -231,9 +231,9 @@ pluggy==1.0.0 \
     --hash=sha256:4224373bacce55f955a878bf9cfa763c1e360858e330072059e10bad68531159 \
     --hash=sha256:74134bbf457f031a36d68416e1509f34bd5ccc019f0bcc952c7b909d06b37bd3
     # via pytest
-pre-commit==2.19.0 \
-    --hash=sha256:10c62741aa5704faea2ad69cb550ca78082efe5697d6f04e5710c3c229afdd10 \
-    --hash=sha256:4233a1e38621c87d9dda9808c6606d7e7ba0e087cd56d3fe03202a01d2919615
+pre-commit==2.20.0 \
+    --hash=sha256:51a5ba7c480ae8072ecdb6933df22d2f812dc897d5fe848778116129a681aac7 \
+    --hash=sha256:a978dac7bc9ec0bcee55c18a277d553b0f419d259dadb4b9418ff2d00eb43959
     # via -r requirements.dev.in
 py==1.11.0 \
     --hash=sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719 \
@@ -278,9 +278,9 @@ pytest-freezegun==0.4.2 \
     --hash=sha256:19c82d5633751bf3ec92caa481fb5cffaac1787bd485f0df6436fd6242176949 \
     --hash=sha256:5318a6bfb8ba4b709c8471c94d0033113877b3ee02da5bfcd917c1889cde99a7
     # via -r requirements.dev.in
-pytest-mock==3.8.1 \
-    --hash=sha256:2c6d756d5d3bf98e2e80797a959ca7f81f479e7d1f5f571611b0fdd6d1745240 \
-    --hash=sha256:d989f11ca4a84479e288b0cd1e6769d6ad0d3d7743dcc75e460d1416a5f2135a
+pytest-mock==3.8.2 \
+    --hash=sha256:77f03f4554392558700295e05aed0b1096a20d4a60a4f3ddcde58b0c31c8fca2 \
+    --hash=sha256:8a9e226d6c0ef09fcf20c94eb3405c388af438a90f3e39687f84166da82d5948
     # via -r requirements.dev.in
 pytest-subtests==0.8.0 \
     --hash=sha256:46eb376022e926950816ccc23502de3277adcc1396652ddb3328ce0289052c4d \
@@ -292,9 +292,9 @@ python-dateutil==2.8.2 \
     # via
     #   -c requirements.prod.txt
     #   freezegun
-pyupgrade==2.34.0 \
-    --hash=sha256:16617805b8d1138f96a1ff9cdb4b302b39b51804b3fc5474dc36c0326387445a \
-    --hash=sha256:ed0d9f282fa6282d0ca3bc0596a022aeb95435edab9daf3fc04c2ba118687b68
+pyupgrade==2.37.0 \
+    --hash=sha256:0942c038aab199bed81274f259c6920f1b0065abde32f4092e3d0f55c970de29 \
+    --hash=sha256:b17a580eb187fa3d25493f38d0acac550277b953d84fdd24de37d321c01f27bd
     # via -r requirements.dev.in
 pyyaml==6.0 \
     --hash=sha256:0283c35a6a9fbf047493e3a0ce8d79ef5030852c51e9d911a27badfde0605293 \

@@ -193,21 +193,19 @@ First you need to set up your Databricks auth.
 
    `databricks configure`
 
-3. If using the NHSD sandbox, you will need to setup a cluster called `opensafely-test`, which you can do via the web UI via `Compute -> Create Cluster`, and just use all the default options.
+3. You will need to setup a cluster called `opensafely-test`, which you can do via the web UI via `Compute -> Create Cluster`, and just use all the default options.
 
 4. Test it's working with: `databricks clusters list`. If that doesn't error, you are set up.
 
 
 You should then be able to run tests against databricks with:
 
-    just databricks-test [tests/backends/test_databricks.py]
+    just databricks-test [tests/spec/ -k 'spark']
 
-Warning: running the full test suite takes a long time.
+Warning: running the full test suite (or even just all the spark specs tests) takes a long time (20+ mins using the NHSD Sandbox).
 
-Note: This command will ensure there is an active Databricks cluster, and then run the tests against it.
-When using Community Edition, it will create a cluster if needed but if a cluster is already up and running, it will use that.
-If it has terminated (after 2 hours of inactivity), it will delete the old one and create a new one.
-When using the NHSD sandbox, it will only use manually pre-created cluster called `opensafely-test`.
+Note: This command will ensure there is an active Databricks cluster, and then run the tests against it. By default it will use a manually pre-created cluster called `opensafely-test`; it will not create a cluster if one does not already exist.
+
 
 For more information about your Databricks cluster, you can use the dbx tool:
 
@@ -221,7 +219,7 @@ or
 ### Running Databricks test in Github CI
 
 You can manually run the tests in github by triggering the "Databricks CI" action.
-By default it will just run the `tests/backends/test_databricks.py`, but you can specify different arguments when you trigger it.
+By default it will just run the spark tests with `tests/spec -k 'spark'`, but you can specify different arguments when you trigger it.
 
 This CI uses simon.davy@thedatalab.org's Databricks account.
 
@@ -273,6 +271,10 @@ Dataclasses have also retained their annotations to avoid initialising all field
 ### Generating data for documentation
 
 Some Data Builder [documentation](https://github.com/opensafely/documentation) is generated from code in this repo.
+
+See the [spec tests docs](tests/spec/README.md) for further information on writing tests that
+contribute to the ehrQL docs.
+
 An intermediate step generates a JSON file (`public_docs.json`) containing the data needed to generate the documentation.
 
 To generate this file, run:
