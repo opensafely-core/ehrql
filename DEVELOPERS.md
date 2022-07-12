@@ -271,6 +271,10 @@ Dataclasses have also retained their annotations to avoid initialising all field
 ### Generating data for documentation
 
 Some Data Builder [documentation](https://github.com/opensafely/documentation) is generated from code in this repo.
+
+See the [spec tests docs](tests/spec/README.md) for further information on writing tests that
+contribute to the ehrQL docs.
+
 An intermediate step generates a JSON file (`public_docs.json`) containing the data needed to generate the documentation.
 
 To generate this file, run:
