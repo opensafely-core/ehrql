@@ -30,8 +30,8 @@ dependencies = [
   "databricks-sql-connector",
 ]
 
-[project.scripts]
-databuilder = "databuilder.__main__:main"
+[tool.flit.external-data]
+directory = "tests"
 
 [project.urls]
 Home = "https://opensafely.org"
@@ -77,6 +77,9 @@ omit = [
 
 [tool.flit.module]
 name = "databuilder"
+
+[tool.flit.sdist]
+include = ["databuilder/", "tests/spec"]
 
 [tool.interrogate]
 fail-under = 0
