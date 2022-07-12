@@ -116,7 +116,10 @@ def get_clusters():
     # one before a terminated one.  This means that if we retrieved one of two terminated
     # clusters in order to start one up, when we fetch them again we'll find the one that's
     # been started up
-    # Note that we need to reverse the sorted list as the CLUSTERS dict will keep the last one
+    # We reverse the sorted list, such that RUNNING is last and TERMINATED is first.
+    # We then instantiate a Cluster object for each state/name combination,
+    # but overwrite earlier instances with later instances, for instances with
+    # the same name.
     all_clusters.sort(
         key=lambda c: (STATES.index(c["state"]), c["cluster_id"]), reverse=True
     )
