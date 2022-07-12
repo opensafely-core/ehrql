@@ -47,6 +47,10 @@ class Cluster:
         self.data = data
 
     @property
+    def name(self):
+        return self.data["cluster_name"]
+
+    @property
     def cluster_id(self):
         return self.data["cluster_id"]
 
@@ -60,7 +64,7 @@ class Cluster:
         return f"{host_with_creds}/default?http_path=sql/protocolv1/o/{ORGID}/{self.cluster_id}"
 
     def __str__(self):
-        return f"{self.cluster_id}: {self.state}"
+        return f"{self.cluster_id} ({self.name}): {self.state}"
 
 
 def get_auth():
@@ -86,21 +90,50 @@ def get_clusters():
     )
     resp.raise_for_status()
 
-    CLUSTERS = {c["cluster_name"]: Cluster(c) for c in resp.json().get("clusters", {})}
+    all_clusters = resp.json().get("clusters", [])
+    if all_clusters:
+        echo("Fetched clusters:")
+        echo(
+            "\n".join(
+                [
+                    f'{cl["cluster_name"]} | {cl["cluster_id"]} | {cl["state"]}'
+                    for cl in all_clusters
+                ]
+            )
+        )
+    # All possible clusters states
+    STATES = [
+        "RUNNING",
+        "PENDING",
+        "RESTARTING",
+        "RESIZING",
+        "TERMINATING",
+        "TERMINATED",
+    ]
+    # There can be more than one cluster with the same name
+    # Sort clusters by state and then cluster ID; if there are multiple clusters with the
+    # same name and different states, this will return the running one first, and a pending
+    # one before a terminated one.  This means that if we retrieved one of two terminated
+    # clusters in order to start one up, when we fetch them again we'll find the one that's
+    # been started up
+    # Note that we need to reverse the sorted list as the CLUSTERS dict will keep the last one
+    all_clusters.sort(
+        key=lambda c: (STATES.index(c["state"]), c["cluster_id"]), reverse=True
+    )
+    CLUSTERS = {
+        c["cluster_name"]: Cluster(c) for c in all_clusters if c["cluster_name"]
+    }
     ORGID = resp.headers["X-Databricks-Org-Id"]
 
 
 def _wait(name, timeout=90):
-    echo(CLUSTERS[name])
+    echo(f"Waiting for cluster:\n{CLUSTERS[name]}")
     start = time.time()
-    # We need to wait if the state is TERMINATED, as the first try after starting may not
-    # register it as PENDING yet
-    while CLUSTERS[name].state in ["PENDING", "TERMINATED"]:
+    while CLUSTERS[name].state in ["PENDING", "RESTARTING"]:
         if time.time() - start > timeout:
             sys.exit(f"timed out after {timeout}s waiting for cluster {name}")
         time.sleep(10)
         get_clusters()
-        echo(CLUSTERS[name])
 
 
 @click.group()
@@ -145,15 +178,16 @@ def start(name, wait, output_url, timeout):
     # it exists
     if c:
         # it's running or starting up
-        if c.state in ("PENDING", "RUNNING"):
+        if c.state in ("PENDING", "RUNNING", "RESTARTING"):
             if output_url:
                 click.echo(c.url)
             else:
-                echo(f"{HOST} {c}")
-            return
+                echo(f"Target cluster:\n{c}")
+            if c.state == "RUNNING":
+                return
         else:
             # cluster exists, but is not running or starting up
-            click.echo("Starting cluster")
+            click.echo(f"Starting cluster {c.cluster_id}")
             databricks(["clusters", "start", "--cluster-id", c.cluster_id])
     else:
         click.echo(
