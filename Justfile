@@ -213,17 +213,6 @@ databricks-test *ARGS: devenv databricks-env
     export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
     just test {{ ARGS }}
 
-story-dependencies: devenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    if [[ -z "${SHORTCUT_TOKEN:-}" ]]; then
-        echo >&2 "You must provide SHORTCUT_TOKEN as an env var."
-        exit 1
-    fi
-
-    SHORTCUT_EPIC="Walking skeleton" $BIN/python scripts/story-dependencies | dot -Tpng >story-dependencies.png
-
 generate-docs: devenv
     $BIN/python -m databuilder.docs >public_docs.json
     echo "Generated data for documentation."
