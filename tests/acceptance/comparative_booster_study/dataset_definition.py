@@ -213,10 +213,21 @@ address = address_as_of(baseline_date)
 
 # Middle Super Output Area
 dataset.msoa = address.msoa_code
-# Index of Multiple Deprevation Rank (rounded down to nearest 100)
-dataset.imd = address.imd_rounded
 # Rurality
 dataset.rural_urban = address.rural_urban_classification
+
+# Index of Multiple Deprevation Rank (rounded down to nearest 100)
+dataset.imd = address.imd_rounded
+
+imd = dataset.imd
+dataset.imd_Q5 = case(
+    when((imd >= 0) & (imd < 32844 * 1 // 5)).then("1 (most deprived)"),
+    when((imd >= 32844 * 1 // 5) & (imd < 32844 * 2 // 5)).then("2"),
+    when((imd >= 32844 * 2 // 5) & (imd < 32844 * 3 // 5)).then("3"),
+    when((imd >= 32844 * 3 // 5) & (imd < 32844 * 4 // 5)).then("4"),
+    when((imd >= 32844 * 4 // 5) & (imd <= 32844)).then("5 (least deprived)"),
+    default="Unknown",
+)
 
 
 #######################################################################################
