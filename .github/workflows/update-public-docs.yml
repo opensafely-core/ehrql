@@ -52,7 +52,7 @@ jobs:
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: ./new_public_docs.json
-          asset_name: new_public_docs.json
+          asset_name: public_docs.json
           asset_content_type: application/json
 
       - name: Trigger update in docs repo
@@ -63,8 +63,7 @@ jobs:
         with:
           github-token: ${{ secrets.DOCS_WRITE_TOKEN }}
           script: |
-            const DOWNLOAD_URL = process.env
-            console.log(DOWNLOAD_URL)
+            const { DOWNLOAD_URL } = process.env
             await github.rest.actions.createWorkflowDispatch({
               owner: 'opensafely',
               repo: 'documentation',
