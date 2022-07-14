@@ -63,8 +63,7 @@ jobs:
         with:
           github-token: ${{ secrets.DOCS_WRITE_TOKEN }}
           script: |
-            const DOWNLOAD_URL = process.env
-            console.log(DOWNLOAD_URL)
+            const { DOWNLOAD_URL } = process.env
             await github.rest.actions.createWorkflowDispatch({
               owner: 'opensafely',
               repo: 'documentation',
