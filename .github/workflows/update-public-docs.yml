@@ -33,28 +33,42 @@ jobs:
         run: |
           echo "::set-output name=DOCS_CHANGED::$(cmp new_public_docs.json documentation/public_docs.json)"
 
-      # - name: Upload public docs artifact
-      #   if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: databuilder-public-docs
-      #     path: new_public_docs.json
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: docs-metadata-${{ github.sha }}
+          release_name: Databuilder public docs metadata for ${{ github.sha }}
+          draft: false
+          prerelease: false
 
-      - name: get json content for POST
-        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
-        run: echo "::set-output name=DOCS_JSON::$(cat new_public_docs.json)""
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./new_public_docs.json
+          asset_name: new_public_docs.json
+          asset_content_type: application/json
 
       - name: Trigger update in docs repo
         if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
         uses: actions/github-script@v6
+        env:
+          DOWNLOAD_URL: ${{ steps.upload-release-asset.outputs.browser_download_url }}
         with:
           github-token: ${{ secrets.DOCS_WRITE_TOKEN }}
           script: |
-            const docs_json = ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+            const {DOWNLOAD_URL} = process.env
+            console.log(${DOWNLOAD_URL})
             await github.rest.actions.createWorkflowDispatch({
               owner: 'opensafely',
               repo: 'documentation',
               workflow_id: 'update_databuilder_docs.yml',
               ref: 'autogenerate-docs',
-              inputs: {'docs_json': docs_json}
+              inputs: {'download_url': ${DOWNLOAD_URL}}
             })
