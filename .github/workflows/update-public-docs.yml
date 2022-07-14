@@ -3,6 +3,9 @@ name: Update public docs
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - autogenerate-docs
   workflow_run:
     workflows:
       - CI
@@ -73,6 +76,6 @@ jobs:
               owner: 'opensafely',
               repo: 'documentation',
               workflow_id: 'update_databuilder_docs.yml',
-              ref: 'main',
+              ref: 'autogenerate-docs',
               inputs: {'download_url': DOWNLOAD_URL, 'branch_tag': GITHUB_SHA}
             })
