@@ -1,0 +1,54 @@
+---
+name: Update public docs
+
+on:
+  push:
+    branches:
+      - autogenerate-docs
+  workflow_dispatch:
+
+jobs:
+  update-public-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+      - uses: extractions/setup-just@v1
+
+      - name: Generate new public docs file
+        run: just generate-docs new_public_docs.json
+
+      - name: Clone docs repo
+        uses: actions/checkout@v3
+        with:
+          repository: opensafely/documentation
+          path: documentation
+          ref: main
+
+      - name: Check if docs have changed
+        id: check_docs
+        run: |
+          echo "::set-output name=DOCS_CHANGED::$(cmp new_public_docs.json documentation/public_docs.json)"
+
+      - name: Upload public docs artifact
+        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: databuilder-public-docs
+          path: new_public_docs.json
+
+      - name: Trigger update in docs repo
+        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.DOCS_WRITE_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'opensafely',
+              repo: 'documentation',
+              workflow_id: 'update_databuilder_docs.yml',
+              ref: 'autogenerate-docs',
+            })

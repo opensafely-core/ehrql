@@ -213,6 +213,6 @@ databricks-test *ARGS: devenv databricks-env
     export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
     just test {{ ARGS }}
 
-generate-docs: devenv
-    $BIN/python -m databuilder.docs >public_docs.json
+generate-docs OUTPUT_FILE="public_docs.json": devenv
+    $BIN/python -m databuilder.docs > {{ OUTPUT_FILE }}
     echo "Generated data for documentation."
