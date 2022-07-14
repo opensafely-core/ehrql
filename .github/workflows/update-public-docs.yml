@@ -46,6 +46,7 @@ jobs:
         with:
           github-token: ${{ secrets.DOCS_WRITE_TOKEN }}
           script: |
+            console.log(context.runId)
             await github.rest.actions.createWorkflowDispatch({
               owner: 'opensafely',
               repo: 'documentation',
