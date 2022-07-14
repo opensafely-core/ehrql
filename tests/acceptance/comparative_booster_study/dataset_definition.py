@@ -472,6 +472,10 @@ dataset.cancer = has_prior_event(
 )
 
 
+#######################################################################################
+# JCVI groups
+#######################################################################################
+
 # Shielding - Clinically Extremely Vulnerable
 #
 # The shielded patient list was retired in March/April 2021 when shielding ended
