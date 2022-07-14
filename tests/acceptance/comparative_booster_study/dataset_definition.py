@@ -462,6 +462,16 @@ dataset.hhld_imdef_dat = last_prior_event(codelists.hhld_imdef).date
 #    #   date_format="YYYY-MM-DD",
 #    # ),
 
+
+dataset.cancer = has_prior_event(
+    combine_codelists(
+        codelists.cancer_nonhaem_snomed,
+        codelists.cancer_haem_snomed,
+    ),
+    where=events.date.is_after(baseline_date.subtract_days(int(3 * 365.25))),
+)
+
+
 # Shielding - Clinically Extremely Vulnerable
 #
 # The shielded patient list was retired in March/April 2021 when shielding ended
