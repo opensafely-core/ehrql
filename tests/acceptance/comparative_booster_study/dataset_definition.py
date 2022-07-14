@@ -238,22 +238,10 @@ dataset.imd_Q5 = case(
 vaxx_job = schema.occupation_on_covid_vaccine_record
 dataset.hscworker = vaxx_job.take(vaxx_job.is_healthcare_worker).exists_for_patient()
 
-dataset.care_home_type = case(
-    when(
-        address.care_home_is_potential_match
-        & ~address.care_home_requires_nursing
-        & address.care_home_does_not_require_nursing
-    ).then("Carehome"),
-    when(
-        address.care_home_is_potential_match
-        & address.care_home_requires_nursing
-        & ~address.care_home_does_not_require_nursing
-    ).then("Nursinghome"),
-    when(address.care_home_is_potential_match).then("Mixed"),
+# TPP care home flag
+dataset.care_home_tpp = case(
+    when(address.care_home_is_potential_match).then(True), default=False
 )
-
-# Simple care home flag
-dataset.care_home_tpp = dataset.care_home_type.is_not_null()
 
 # Patients in long-stay nursing and residential care
 dataset.care_home_code = has_prior_event(codelists.carehome)
