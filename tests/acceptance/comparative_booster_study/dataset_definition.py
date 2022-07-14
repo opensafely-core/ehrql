@@ -67,7 +67,7 @@ create_sequential_variables(
     num_variables=4,
     events=vax.take(
         vax.product_name
-        == "COVID-19 Vac AstraZeneca (ChAdOx1 S recomb) 5x10000000000 viral particles/0.5ml dose sol for inj MDV"
+        == "COVID-19 Vaccine Vaxzevria 0.5ml inj multidose vials (AstraZeneca)"
     ),
     column="date",
 )
