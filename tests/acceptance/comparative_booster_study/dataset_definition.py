@@ -67,7 +67,7 @@ create_sequential_variables(
     num_variables=4,
     events=vax.take(
         vax.product_name
-        == "COVID-19 Vac AstraZeneca (ChAdOx1 S recomb) 5x10000000000 viral particles/0.5ml dose sol for inj MDV"
+        == "COVID-19 Vaccine Vaxzevria 0.5ml inj multidose vials (AstraZeneca)"
     ),
     column="date",
 )
@@ -213,10 +213,21 @@ address = address_as_of(baseline_date)
 
 # Middle Super Output Area
 dataset.msoa = address.msoa_code
-# Index of Multiple Deprevation Rank (rounded down to nearest 100)
-dataset.imd = address.imd_rounded
 # Rurality
 dataset.rural_urban = address.rural_urban_classification
+
+# Index of Multiple Deprevation Rank (rounded down to nearest 100)
+dataset.imd = address.imd_rounded
+
+imd = dataset.imd
+dataset.imd_Q5 = case(
+    when((imd >= 0) & (imd < 32844 * 1 // 5)).then("1 (most deprived)"),
+    when((imd >= 32844 * 1 // 5) & (imd < 32844 * 2 // 5)).then("2"),
+    when((imd >= 32844 * 2 // 5) & (imd < 32844 * 3 // 5)).then("3"),
+    when((imd >= 32844 * 3 // 5) & (imd < 32844 * 4 // 5)).then("4"),
+    when((imd >= 32844 * 4 // 5) & (imd <= 32844)).then("5 (least deprived)"),
+    default="Unknown",
+)
 
 
 #######################################################################################
@@ -227,22 +238,10 @@ dataset.rural_urban = address.rural_urban_classification
 vaxx_job = schema.occupation_on_covid_vaccine_record
 dataset.hscworker = vaxx_job.take(vaxx_job.is_healthcare_worker).exists_for_patient()
 
-dataset.care_home_type = case(
-    when(
-        address.care_home_is_potential_match
-        & ~address.care_home_requires_nursing
-        & address.care_home_does_not_require_nursing
-    ).then("Carehome"),
-    when(
-        address.care_home_is_potential_match
-        & address.care_home_requires_nursing
-        & ~address.care_home_does_not_require_nursing
-    ).then("Nursinghome"),
-    when(address.care_home_is_potential_match).then("Mixed"),
+# TPP care home flag
+dataset.care_home_tpp = case(
+    when(address.care_home_is_potential_match).then(True), default=False
 )
-
-# Simple care home flag
-dataset.care_home_tpp = dataset.care_home_type.is_not_null()
 
 # Patients in long-stay nursing and residential care
 dataset.care_home_code = has_prior_event(codelists.carehome)
@@ -463,6 +462,20 @@ dataset.hhld_imdef_dat = last_prior_event(codelists.hhld_imdef).date
 #    #   date_format="YYYY-MM-DD",
 #    # ),
 
+
+dataset.cancer = has_prior_event(
+    combine_codelists(
+        codelists.cancer_nonhaem_snomed,
+        codelists.cancer_haem_snomed,
+    ),
+    where=events.date.is_after(baseline_date.subtract_days(int(3 * 365.25))),
+)
+
+
+#######################################################################################
+# JCVI groups
+#######################################################################################
+
 # Shielding - Clinically Extremely Vulnerable
 #
 # The shielded patient list was retired in March/April 2021 when shielding ended
@@ -505,33 +518,35 @@ dataset.prior_covid_test_frequency = prior_tests.take(
     prior_tests.specimen_taken_date.is_after(baseline_date.subtract_days(26 * 7))
 ).count_for_patient()
 
-
-# Hospital admissions at time of 3rd / booster dose
-admissions = (
-    # FIXME -- need to decide whether to include admissions discharged on the same day as
-    # booster dose or not
-    hosp.take(hosp.admission_date.is_on_or_before(baseline_date)).take(
-        hosp.discharge_date.is_on_or_after(boosted_date)
+# Overnight hospital admission at time of 3rd / booster dose
+dataset.inhospital = (
+    hosp.take(hosp.admission_date.is_on_or_before(boosted_date))
+    .take(hosp.discharge_date.is_on_or_after(boosted_date))
+    .take(
+        # See https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
+        # See https://docs.opensafely.org/study-def-variables/#sus for more info
+        hosp.admission_method.is_in(
+            [
+                "11",
+                "12",
+                "13",
+                "21",
+                "2A",
+                "22",
+                "23",
+                "24",
+                "25",
+                "2D",
+                "28",
+                "2B",
+                "81",
+            ]
+        )
     )
     # Ordinary admissions only
     .take(hosp.patient_classification == "1")
+    .exists_for_patient()
 )
-
-# Unplanned hospital admission
-dataset.inhospital_unplanned = admissions.take(
-    # see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
-    # see https://docs.opensafely.org/study-def-variables/#sus for more info
-    hosp.admission_method.is_in(
-        ["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"]
-    )
-).exists_for_patient()
-
-# Planned hospital admission
-dataset.inhospital_planned = admissions.take(
-    # see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
-    # see https://docs.opensafely.org/study-def-variables/#sus for more info
-    hosp.admission_method.is_in(["11", "12", "13", "81"])
-).exists_for_patient()
 
 
 #######################################################################################

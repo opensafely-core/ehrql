@@ -417,7 +417,6 @@ learndis = codelist_from_csv(
     column="code",
 )
 
-
 # Carer codes
 carer = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-carer.csv",
@@ -453,6 +452,34 @@ domcareemployee = codelist_from_csv(
     column="code",
 )
 
+
+# Cancer
+
+cancer_haem_snomed = codelist_from_csv(
+    CODELIST_DIR / "opensafely-haematological-cancer-snomed.csv",
+    system="snomedct",
+    column="id",
+)
+
+cancer_nonhaem_nonlung_snomed = codelist_from_csv(
+    CODELIST_DIR / "opensafely-cancer-excluding-lung-and-haematological-snomed.csv",
+    system="snomedct",
+    column="id",
+)
+
+cancer_lung_snomed = codelist_from_csv(
+    CODELIST_DIR / "opensafely-lung-cancer-snomed.csv",
+    system="snomedct",
+    column="id",
+)
+
+cancer_nonhaem_snomed = combine_codelists(
+    cancer_nonhaem_nonlung_snomed,
+    cancer_lung_snomed,
+)
+
+
+# end of life
 
 eol = codelist_from_csv(
     CODELIST_DIR / "nhsd-primary-care-domain-refsets-palcare_cod.csv",
