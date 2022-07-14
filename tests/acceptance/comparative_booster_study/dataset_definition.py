@@ -518,33 +518,35 @@ dataset.prior_covid_test_frequency = prior_tests.take(
     prior_tests.specimen_taken_date.is_after(baseline_date.subtract_days(26 * 7))
 ).count_for_patient()
 
-
-# Hospital admissions at time of 3rd / booster dose
-admissions = (
-    # FIXME -- need to decide whether to include admissions discharged on the same day as
-    # booster dose or not
-    hosp.take(hosp.admission_date.is_on_or_before(baseline_date)).take(
-        hosp.discharge_date.is_on_or_after(boosted_date)
+# Overnight hospital admission at time of 3rd / booster dose
+dataset.inhospital = (
+    hosp.take(hosp.admission_date.is_on_or_before(boosted_date))
+    .take(hosp.discharge_date.is_on_or_after(boosted_date))
+    .take(
+        # See https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
+        # See https://docs.opensafely.org/study-def-variables/#sus for more info
+        hosp.admission_method.is_in(
+            [
+                "11",
+                "12",
+                "13",
+                "21",
+                "2A",
+                "22",
+                "23",
+                "24",
+                "25",
+                "2D",
+                "28",
+                "2B",
+                "81",
+            ]
+        )
     )
     # Ordinary admissions only
     .take(hosp.patient_classification == "1")
+    .exists_for_patient()
 )
-
-# Unplanned hospital admission
-dataset.inhospital_unplanned = admissions.take(
-    # see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
-    # see https://docs.opensafely.org/study-def-variables/#sus for more info
-    hosp.admission_method.is_in(
-        ["21", "22", "23", "24", "25", "2A", "2B", "2C", "2D", "28"]
-    )
-).exists_for_patient()
-
-# Planned hospital admission
-dataset.inhospital_planned = admissions.take(
-    # see https://github.com/opensafely-core/cohort-extractor/pull/497 for codes
-    # see https://docs.opensafely.org/study-def-variables/#sus for more info
-    hosp.admission_method.is_in(["11", "12", "13", "81"])
-).exists_for_patient()
 
 
 #######################################################################################
