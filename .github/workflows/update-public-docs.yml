@@ -33,12 +33,16 @@ jobs:
         run: |
           echo "::set-output name=DOCS_CHANGED::$(cmp new_public_docs.json documentation/public_docs.json)"
 
-      - name: Upload public docs artifact
+      # - name: Upload public docs artifact
+      #   if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: databuilder-public-docs
+      #     path: new_public_docs.json
+
+      - name: get json content for POST
         if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: databuilder-public-docs
-          path: new_public_docs.json
+        run: echo "::set-output name=DOCS_JSON::$(cat new_public_docs.json)""
 
       - name: Trigger update in docs repo
         if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
@@ -46,11 +50,11 @@ jobs:
         with:
           github-token: ${{ secrets.DOCS_WRITE_TOKEN }}
           script: |
-            console.log(context.runId)
+            const docs_json = ${{ steps.check_docs.outputs.DOCS_CHANGED }}
             await github.rest.actions.createWorkflowDispatch({
               owner: 'opensafely',
               repo: 'documentation',
               workflow_id: 'update_databuilder_docs.yml',
               ref: 'autogenerate-docs',
-              inputs: {'databuilder_run_id': context.runId.toString()}
+              inputs: {'docs_json': docs_json}
             })
