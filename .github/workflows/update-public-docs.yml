@@ -1,0 +1,51 @@
+---
+name: Update public docs
+
+on:
+  push:
+    branches:
+      - autogenerate-docs
+  workflow_dispatch:
+
+jobs:
+  update-public-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+
+      - name : Checkout databuilder repo
+        uses: actions/checkout@v3
+        with:
+          path: databuilder
+
+      - name: Generate new public docs file
+        run: |
+          cd databuilder
+          python -m databuilder.docs > public_docs.json
+
+      - name: Clone docs repo
+        uses: actions/checkout@v3
+        with:
+          repository: opensafely/documentation
+          path: documentation
+          ref: main
+
+      - name: Check if docs have changed
+        id: check_docs
+        run: |
+          echo "::set-output name=DOCS_CHANGED::$(cmp documentation/public_docs.json databuilder/public_docs.json)"
+
+      - name: Copy file and push changes to docs
+        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+        run: |
+          cd documentation
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git checkout -b update-docs-$GITHUB_SHA
+          cp databuilder/public_docs.json public_docs.json
+          git add public_docs.json
+          git commit 'Update public_docs.json'
+          git push -u origin HEAD:update-docs-$GITHUB_SHA
