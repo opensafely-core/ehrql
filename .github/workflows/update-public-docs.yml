@@ -49,6 +49,6 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
               owner: 'opensafely',
               repo: 'documentation',
-              workflow_id: 'update_databuilder_docs.yml',
+              workflow_id: 'check_links.yml',
               ref: 'autogenerate-docs',
             })
