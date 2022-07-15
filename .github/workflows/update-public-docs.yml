@@ -35,8 +35,10 @@ jobs:
               repo: context.repo.repo,
             })
             const assets_response = await github.request(response.data.assets_url)
-            console.log(assets_response.data)
-            return assets_response.data[0].browser_download_url
+            const matching_asset = assets_response.data.find(
+              asset => asset.browser_download_url.endsWith("public_docs.json")
+            );
+            return matching_asset.browser_download_url
 
       - name: Check if docs have changed
         id: check_docs
