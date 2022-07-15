@@ -27,7 +27,6 @@ def generate_dataset(
     dataset_definition = load_definition(definition_file)
     backend = import_string(backend_id)()
     query_engine = backend.query_engine_class(db_url, backend, config=environ)
-    backend.validate_contracts()
     results = extract(dataset_definition, query_engine)
 
     dataset_file.parent.mkdir(parents=True, exist_ok=True)
