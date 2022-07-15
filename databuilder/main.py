@@ -18,8 +18,8 @@ log = structlog.getLogger()
 def generate_dataset(
     definition_file,
     dataset_file,
-    backend_id,
     db_url,
+    backend_id,
     environ,
 ):
     log.info(f"Generating dataset for {str(definition_file)}")
