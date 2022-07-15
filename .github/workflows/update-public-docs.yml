@@ -87,7 +87,7 @@ jobs:
             const result = await github.graphql(query, variables)
             console.log(result.repository.refs.edges)
             const latestVersionTagEdge = result.repository.refs.edges.find(
-              tag => tag.node.name.startsWith("v")
+              tag => tag.node.name.startsWith("z")
               )
             console.log(latestVersionTagEdge)
             if(latestVersionTagEdge){
@@ -95,14 +95,14 @@ jobs:
             } else {
               return "no-tag-found"
             }
+          result-encoding: string
 
       - name: Previous commit
         id: previoustagcommit
         # if we are on a tag, should look like `v0.6.0`
         # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
         run: |
-          echo ${{ steps.latest-version-tag.outputs.result }}
-          echo ::set-output name=tag_describe::`git describe --tags`
+          echo ::set-output name=tag_describe::v0.40.6
 
       - name: Verify whether we are on a tagged version commit, allows us to short-circuit this workflow
         id: taggedcommit
@@ -111,14 +111,14 @@ jobs:
 
       # 'Get latest version tag' should only get version tags, but let's verify that
       - name: Fail if no version tag found
-        if: ${{ startsWith(steps.latest-version-tag.outputs.result, 'no-tag-found') }}
+        if: ${{ steps.latest-version-tag.outputs.result == 'no-tag-found' }}
         run: |
           /bin/false
 
       - name: Build image check
         if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
         run: |
-          echo "${{ steps.latest-version-tag.outputs.result }}"
+          echo ${{ steps.latest-version-tag.outputs.result }}
 
       # - name: Create Release
       #   if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
