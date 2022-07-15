@@ -28,6 +28,7 @@ def main(args, environ=None):
                 dataset_file=options.output,
                 db_url=database_url,
                 backend_id=environ.get("OPENSAFELY_BACKEND"),
+                query_engine_id=environ.get("OPENSAFELY_QUERY_ENGINE"),
                 environ=environ,
             )
         elif dummy_data_file:
