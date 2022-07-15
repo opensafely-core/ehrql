@@ -25,19 +25,27 @@ jobs:
       - name: Generate new public docs file
         run: just generate-docs new_public_docs.json
 
-      - name: Clone docs repo
-        uses: actions/checkout@v3
+      - name: Get latest release
+        id: latest_release
+        uses: actions/github-script@v6
         with:
-          repository: opensafely/documentation
-          path: documentation
-          ref: main
+          script: |
+            response = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            const assets_response = await github.request(response.data.assets_url)
+            console.log(assets_response.data)
+            return assets_response.data[0].browser_download_url
 
       - name: Check if docs have changed
         id: check_docs
         run: |
-          echo "::set-output name=DOCS_CHANGED::$(cmp new_public_docs.json documentation/public_docs.json)"
+          curl -L ${{steps.latest_release.outputs.result}} > latest_release_public_docs.json
+          echo "::set-output name=DOCS_CHANGED::$(cmp new_public_docs.json latest_release_public_docs.json)"
 
       - name: Create Release
+        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
         id: create-release
         uses: actions/create-release@v1
         env:
@@ -49,6 +57,7 @@ jobs:
           prerelease: false
 
       - name: Upload Release Asset
+        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
