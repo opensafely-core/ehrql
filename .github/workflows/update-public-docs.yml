@@ -1,0 +1,89 @@
+---
+name: Update public docs
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Build and publish image
+    branches:
+      - main
+    status:
+      - completed
+
+jobs:
+  update-public-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+      - uses: extractions/setup-just@v1
+
+      - name: Generate new public docs file
+        run: just generate-docs new_public_docs.json
+
+      - name: Get latest release
+        id: latest_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            response = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            const assets_response = await github.request(response.data.assets_url)
+            const matching_asset = assets_response.data.find(
+              asset => asset.browser_download_url.endsWith("public_docs.json")
+            );
+            return matching_asset.browser_download_url
+
+      - name: Check if docs have changed
+        id: check_docs
+        run: |
+          curl -L ${{steps.latest_release.outputs.result}} > latest_release_public_docs.json
+          echo "::set-output name=DOCS_CHANGED::$(cmp new_public_docs.json latest_release_public_docs.json)"
+
+      - name: Create Release
+        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: docs-metadata-${{ github.sha }}
+          release_name: Databuilder public docs metadata for ${{ github.sha }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./new_public_docs.json
+          asset_name: public_docs.json
+          asset_content_type: application/json
+
+      - name: Trigger update in docs repo
+        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+        uses: actions/github-script@v6
+        env:
+          DOWNLOAD_URL: ${{ steps.upload-release-asset.outputs.browser_download_url }}
+          GITHUB_SHA: ${{ github.sha }}
+        with:
+          github-token: ${{ secrets.DOCS_WRITE_TOKEN }}
+          script: |
+            const { DOWNLOAD_URL, GITHUB_SHA } = process.env
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'opensafely',
+              repo: 'documentation',
+              workflow_id: 'update_databuilder_docs.yml',
+              ref: 'main',
+              inputs: {'download_url': DOWNLOAD_URL, 'branch_tag': GITHUB_SHA}
+            })
