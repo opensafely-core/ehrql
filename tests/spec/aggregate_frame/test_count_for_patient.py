@@ -27,7 +27,7 @@ table_data = {
 }
 
 
-def test_count_for_patient_on_event_frame(spec_test):
+def test_count_for_patient_on_event_frame_renamed(spec_test):
     spec_test(
         table_data,
         e.count_for_patient(),

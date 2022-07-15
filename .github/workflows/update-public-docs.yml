@@ -27,16 +27,16 @@ jobs:
       - name: Generate new public docs file
         run: just generate-docs new_public_docs.json
 
-      - name: Get latest release
-        id: latest_release
-        uses: actions/github-script@v6
-        with:
-          script: |
-            result = await github.rest.repos.getLatestRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            })
-            console.log(result.data)
+      # - name: Get latest release
+      #   id: latest_release
+      #   uses: actions/github-script@v6
+      #   with:
+      #     script: |
+      #       result = await github.rest.repos.getLatestRelease({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #       })
+      #       console.log(result.data)
 
 
       # - name: Check if docs have changed
@@ -44,27 +44,29 @@ jobs:
       #   run: |
       #     echo "::set-output name=DOCS_CHANGED::$(cmp new_public_docs.json documentation/public_docs.json)"
 
-      # - name: Create Release
-      #   id: create-release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: docs-metadata-${{ github.sha }}
-      #     release_name: Databuilder public docs metadata for ${{ github.sha }}
-      #     draft: false
-      #     prerelease: false
+      - name: Create Release
+        id: create-release
+        # if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: docs-metadata-${{ github.sha }}
+          release_name: Databuilder public docs metadata for ${{ github.sha }}
+          draft: false
+          prerelease: false
 
-      # - name: Upload Release Asset
-      #   id: upload-release-asset
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create-release.outputs.upload_url }}
-      #     asset_path: ./new_public_docs.json
-      #     asset_name: public_docs.json
-      #     asset_content_type: application/json
+      - name: Upload Release Asset
+        id: upload-release-asset
+        # if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./new_public_docs.json
+          asset_name: public_docs.json
+          asset_content_type: application/json
 
       # - name: Trigger update in docs repo
       #   if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
