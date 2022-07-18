@@ -80,8 +80,8 @@ def test_get_title_for_test_fn(test_fn, title):
         (
             # single line
             ['p.d1.is_before("2000-01-20"),'],
-            False,
             0,
+            False,
             'p.d1.is_before("2000-01-20")',
         ),
         (
