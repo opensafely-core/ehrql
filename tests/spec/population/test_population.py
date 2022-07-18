@@ -1,9 +1,17 @@
+from databuilder.query_language import case, when
+
 from ..tables import e, p
 
 title = "Defining a population"
+text = """
+`set_population` is used to limit the population from which data is extracted.
+"""
 
 
 def test_population_with_single_table(spec_test):
+    """
+    Extract a column from a patient table after limiting the population by another column.
+    """
     table_data = {
         p: """
               | b1 | i1
@@ -26,6 +34,10 @@ def test_population_with_single_table(spec_test):
 
 
 def test_population_with_multiple_tables(spec_test):
+    """
+    Limit the patient population by a column in one table, and return values from another
+    table.
+    """
     table_data = {
         p: """
               | i1
@@ -52,4 +64,33 @@ def test_population_with_multiple_tables(spec_test):
             2: False,
         },
         population=p.i1 > 0,
+    )
+
+
+def test_case_with_case_expression(spec_test):
+    """
+    Limit the patient population by a case expression.
+    """
+    table_data = {
+        p: """
+              | i1
+            --+---
+            1 | 6
+            2 | 7
+            3 | 9
+            4 |
+            """,
+    }
+
+    spec_test(
+        table_data,
+        p.i1,
+        {
+            1: 6,
+            2: 7,
+        },
+        population=case(
+            when(p.i1 <= 8).then(True),
+            when(p.i1 > 8).then(False),
+        ),
     )
