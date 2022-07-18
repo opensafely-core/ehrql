@@ -18,16 +18,16 @@ log = structlog.getLogger()
 def generate_dataset(
     definition_file,
     dataset_file,
-    backend_id,
     db_url,
+    backend_id,
+    query_engine_id,
     environ,
 ):
     log.info(f"Generating dataset for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
-    backend = import_string(backend_id)()
-    query_engine = backend.query_engine_class(db_url, backend, config=environ)
-    backend.validate_contracts()
+    query_engine = get_query_engine(db_url, backend_id, query_engine_id, environ)
+
     results = extract(dataset_definition, query_engine)
 
     dataset_file.parent.mkdir(parents=True, exist_ok=True)
@@ -51,7 +51,7 @@ def dump_dataset_sql(
     log.info(f"Generating SQL for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
-    query_engine = get_query_engine(backend_id, query_engine_id, environ)
+    query_engine = get_query_engine(None, backend_id, query_engine_id, environ)
 
     variable_definitions = ql.compile(dataset_definition)
     all_query_strings = get_sql_strings(query_engine, variable_definitions)
@@ -81,7 +81,7 @@ def open_output_file(output_file):
         return nullcontext(sys.stdout)
 
 
-def get_query_engine(backend_id, query_engine_id, environ):
+def get_query_engine(dsn, backend_id, query_engine_id, environ):
     # Load backend if supplied
     if backend_id:
         backend = import_string(backend_id)()
@@ -100,7 +100,7 @@ def get_query_engine(backend_id, query_engine_id, environ):
             "databuilder.query_engines.sqlite.SQLiteQueryEngine"
         )
 
-    return query_engine_class(dsn=None, backend=backend, config=environ)
+    return query_engine_class(dsn=dsn, backend=backend, config=environ)
 
 
 def generate_measures(
