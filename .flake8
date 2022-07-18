@@ -8,6 +8,8 @@ ignore = \
     W503 \ # line break before binary operator (black disagrees)
 max-line-length = 88
 per-file-ignores =
+    scripts/create-schema.py:INP001,E402
     scripts/dbx:INP001
     scripts/dbx-cleanup.py:INP001,F821
+    scripts/generate-dataset-sqlite.py:INP001,E402
     scripts/parse_coverage_output.py:INP001
