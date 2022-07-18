@@ -110,10 +110,12 @@ def add_dump_dataset_sql(subparsers, environ):
     parser.add_argument(
         "--query-engine",
         type=str,
+        default=environ.get("OPENSAFELY_QUERY_ENGINE"),
     )
     parser.add_argument(
         "--backend",
         type=str,
+        default=environ.get("OPENSAFELY_BACKEND"),
     )
     parser.add_argument(
         "--output",
