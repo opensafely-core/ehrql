@@ -187,9 +187,9 @@ mypy-extensions==0.4.3 \
     --hash=sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d \
     --hash=sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8
     # via black
-networkx==2.8.4 \
-    --hash=sha256:5e53f027c0d567cf1f884dbb283224df525644e43afd1145d64c9d88a3584762 \
-    --hash=sha256:6933b9b3174a0bdf03c911bb4a1ee43a86ce3edeb813e37e1d4c553b3f4a2c4f
+networkx==2.8.5 \
+    --hash=sha256:15a7b81a360791c458c55a417418ea136c13378cfdc06a2dcdc12bd2f9cf09c1 \
+    --hash=sha256:a762f4b385692d9c3a6f2912d058d76d29a827deaedf9e63ed14d397b8030687
     # via -r requirements.dev.in
 nodeenv==1.7.0 \
     --hash=sha256:27083a7b96a25f2f5e1d8cb4b6317ee8aeda3bdd121394e5ac54e498028a042e \
