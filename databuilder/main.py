@@ -6,6 +6,7 @@ from contextlib import contextmanager, nullcontext
 
 import structlog
 
+from databuilder.column_specs import get_column_specs
 from databuilder.query_language import Dataset
 from databuilder.sqlalchemy_utils import clause_as_str
 
@@ -26,12 +27,12 @@ def generate_dataset(
     log.info(f"Generating dataset for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
+    variable_definitions = ql.compile(dataset_definition)
+    column_specs = get_column_specs(variable_definitions)
+
     query_engine = get_query_engine(db_url, backend_id, query_engine_id, environ)
-
-    results = extract(dataset_definition, query_engine)
-
-    dataset_file.parent.mkdir(parents=True, exist_ok=True)
-    write_dataset(results, dataset_file)
+    with query_engine.execute_query(variable_definitions) as results:
+        write_dataset_csv(column_specs, results, dataset_file)
 
 
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
@@ -161,30 +162,10 @@ def import_string(dotted_path):
     return getattr(module, attribute_name)
 
 
-def extract(dataset_definition, query_engine):
-    """
-    Extracts the dataset from the backend specified
-    Args:
-        dataset_definition: The definition of the Dataset
-        query_engine: The Query Engine with which the Dataset is being extracted
-    Returns:
-        Yields the dataset as rows
-    """
-    variable_definitions = ql.compile(dataset_definition)
-    with query_engine.execute_query(variable_definitions) as results:
-        for row in results:
-            yield dict(row)
-
-
-def write_dataset(results, dataset_file):
+def write_dataset_csv(column_specs, results, dataset_file):
+    headers = list(column_specs.keys())
+    dataset_file.parent.mkdir(parents=True, exist_ok=True)
     with dataset_file.open(mode="w") as f:
         writer = csv.writer(f)
-        headers = None
-        for entry in results:
-            fields = entry.keys()
-            if not headers:
-                headers = fields
-                writer.writerow(headers)
-            else:
-                assert fields == headers, f"Expected fields {headers}, but got {fields}"
-            writer.writerow(entry.values())
+        writer.writerow(headers)
+        writer.writerows(results)
