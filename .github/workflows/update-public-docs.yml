@@ -8,12 +8,15 @@ on:
       - Build and publish image
     branches:
       - main
-    status:
+    types:
       - completed
 
 jobs:
   update-public-docs:
     runs-on: ubuntu-latest
+
+    env:
+      BRANCH: update-docs-${{ github.sha }}
 
     steps:
       - uses: actions/checkout@v3
@@ -40,15 +43,15 @@ jobs:
             );
             return matching_asset.browser_download_url
 
-      - name: Check if docs have changed
-        id: check_docs
+      - name: Check if docs have changed since latest release
+        id: check_release_changed
         run: |
           curl -L ${{steps.latest_release.outputs.result}} > latest_release_public_docs.json
           echo "::set-output name=DOCS_CHANGED::$(cmp new_public_docs.json latest_release_public_docs.json)"
 
       - name: Create Release
-        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
-        id: create-release
+        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
+        id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -59,31 +62,90 @@ jobs:
           prerelease: false
 
       - name: Upload Release Asset
-        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
-        id: upload-release-asset
+        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
+        id: upload_release_asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./new_public_docs.json
           asset_name: public_docs.json
           asset_content_type: application/json
 
-      - name: Trigger update in docs repo
-        if: ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+      - name: Clone docs repo
+        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
+        uses: actions/checkout@v3
+        with:
+          repository: opensafely/documentation
+          path: docs
+          ref: 'main'
+          token: ${{ secrets.DOCS_WRITE_TOKEN }}
+
+      - name: Check if update branch exists
+        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
+        id: check-branch
+        run: |
+          cd docs
+          echo ::set-output name=branch-exists::`git ls-remote --heads origin ${BRANCH}`
+
+      - name: Create or checkout branch
+        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
+        run: |
+          cd docs
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          if [ -n "${{ steps.check-branch.outputs.branch-exists }}" ]; then
+            echo "Checking out existing branch"
+            git fetch origin $BRANCH
+            git checkout $BRANCH
+          else
+            echo "Creating new branch"
+            git checkout -b $BRANCH
+          fi
+
+      - name: Commit new docs file
+        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
+        run: |
+          echo ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+          mv new_public_docs.json docs/public_docs.json
+          cd docs
+          git add public_docs.json
+          git commit -m "Update databuilder docs"
+          git push origin $BRANCH
+
+      # Open a PR for this branch, if one isn't already open
+      - name: Open PR
+        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
+        id: list-pr
         uses: actions/github-script@v6
         env:
-          DOWNLOAD_URL: ${{ steps.upload-release-asset.outputs.browser_download_url }}
-          GITHUB_SHA: ${{ github.sha }}
+          HEAD: "opensafely:${{env.BRANCH}}"
+          OWNER: "opensafely"
+          REPO: "documentation"
+          BRANCH: ${{env.BRANCH}}
         with:
           github-token: ${{ secrets.DOCS_WRITE_TOKEN }}
           script: |
-            const { DOWNLOAD_URL, GITHUB_SHA } = process.env
-            await github.rest.actions.createWorkflowDispatch({
-              owner: 'opensafely',
-              repo: 'documentation',
-              workflow_id: 'update_databuilder_docs.yml',
-              ref: 'main',
-              inputs: {'download_url': DOWNLOAD_URL, 'branch_tag': GITHUB_SHA}
-            })
+            const { HEAD, OWNER, REPO, BRANCH } = process.env;
+
+            pull_requests = await github.rest.pulls.list({
+              owner: OWNER,
+              repo: REPO,
+              state: 'open',
+              head: HEAD,
+              base: 'main',
+            });
+
+            if (pull_requests.data.length > 0) {
+              console.log("Open pull request already exists")
+              console.log(pull_requests.data[0])
+            } else {
+              result = await github.rest.pulls.create({
+                title: 'Update databuilder docs',
+                owner: OWNER,
+                repo: REPO,
+                head: BRANCH,
+                base: 'main',
+              });
+            }
