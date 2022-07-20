@@ -63,7 +63,6 @@ jobs:
 
       - name: Upload Release Asset
         if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
-        id: upload_release_asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -84,7 +83,7 @@ jobs:
 
       - name: Check if update branch exists
         if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
-        id: check-branch
+        id: check_branch
         run: |
           cd docs
           echo ::set-output name=branch-exists::`git ls-remote --heads origin ${BRANCH}`
@@ -95,7 +94,7 @@ jobs:
           cd docs
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          if [ -n "${{ steps.check-branch.outputs.branch-exists }}" ]; then
+          if [ -n "${{ steps.check_branch.outputs.branch-exists }}" ]; then
             echo "Checking out existing branch"
             git fetch origin $BRANCH
             git checkout $BRANCH
@@ -117,7 +116,6 @@ jobs:
       # Open a PR for this branch, if one isn't already open
       - name: Open PR
         if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
-        id: list-pr
         uses: actions/github-script@v6
         env:
           HEAD: "opensafely:${{env.BRANCH}}"
@@ -149,3 +147,5 @@ jobs:
                 base: 'main',
               });
             }
+
+            console.log(results.data.url)
