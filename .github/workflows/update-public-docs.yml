@@ -80,18 +80,12 @@ jobs:
           ref: 'main'
           token: ${{ secrets.DOCS_WRITE_TOKEN }}
 
-      - name: Check if update branch exists
-        id: check_branch
-        run: |
-          cd docs
-          echo ::set-output name=branch-exists::`git ls-remote --heads origin ${BRANCH}`
-
       - name: Create or checkout branch
         run: |
           cd docs
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          if [ -n "${{ steps.check_branch.outputs.branch-exists }}" ]; then
+          if [[ $(git ls-remote --heads origin $BRANCH) ]]; then
             echo "Checking out existing branch"
             git fetch origin $BRANCH
             git checkout $BRANCH
