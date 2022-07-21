@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      BRANCH: update-docs-${{ github.sha }}
+      BRANCH: autoupdate-databuilder-docs
 
     steps:
       - uses: actions/checkout@v3
@@ -73,7 +73,6 @@ jobs:
           asset_content_type: application/json
 
       - name: Clone docs repo
-        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
         uses: actions/checkout@v3
         with:
           repository: opensafely/documentation
@@ -82,14 +81,12 @@ jobs:
           token: ${{ secrets.DOCS_WRITE_TOKEN }}
 
       - name: Check if update branch exists
-        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
         id: check_branch
         run: |
           cd docs
           echo ::set-output name=branch-exists::`git ls-remote --heads origin ${BRANCH}`
 
       - name: Create or checkout branch
-        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
         run: |
           cd docs
           git config --local user.email "action@github.com"
@@ -103,19 +100,24 @@ jobs:
             git checkout -b $BRANCH
           fi
 
-      - name: Commit new docs file
-        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
+      - name: Check if docs have changed on docs PR branch
+        id: check_docs_changed
         run: |
-          echo ${{ steps.check_docs.outputs.DOCS_CHANGED }}
+          echo "::set-output name=DOCS_CHANGED::$(cmp new_public_docs.json docs/public_docs.json)"
+
+      - name: Commit new docs file
+        if: ${{ steps.check_docs_changed.outputs.DOCS_CHANGED }}
+        run: |
+          echo ${{ steps.check_docs_changed.outputs.DOCS_CHANGED }}
           mv new_public_docs.json docs/public_docs.json
           cd docs
           git add public_docs.json
-          git commit -m "Update databuilder docs"
+          git commit -m "Update databuilder docs from ${{ github.sha }}"
           git push origin $BRANCH
 
       # Open a PR for this branch, if one isn't already open
       - name: Open PR
-        if: ${{ steps.check_release_changed.outputs.DOCS_CHANGED }}
+        if: ${{ steps.check_docs_changed.outputs.DOCS_CHANGED }}
         uses: actions/github-script@v6
         env:
           HEAD: "opensafely:${{env.BRANCH}}"
@@ -148,4 +150,4 @@ jobs:
               });
             }
 
-            console.log(results.data.url)
+            console.log(result.data.url)
