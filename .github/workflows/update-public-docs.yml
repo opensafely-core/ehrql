@@ -10,6 +10,9 @@ on:
       - main
     types:
       - completed
+  push:
+    branches:
+      - update-docs-workflow
 
 jobs:
   update-public-docs:
