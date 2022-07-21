@@ -1,6 +1,6 @@
 from ..tables import e, p
 
-title = "Counting the rows for each patient"
+title = "Count the rows for each patient"
 
 # Although we ensure that there is a row of p for each row of e in run_test(), we
 # explictly create rows of p here, since we want to check that the correct data is
