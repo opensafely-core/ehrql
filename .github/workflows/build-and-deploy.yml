@@ -8,7 +8,7 @@ on:
       - CI
     branches:
       - main
-    status:
+    types:
       - completed
 
 jobs:
