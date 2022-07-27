@@ -1,3 +1,5 @@
+import contextlib
+
 import sqlalchemy
 from sqlalchemy.schema import CreateIndex
 from sqlalchemy.sql.functions import Function as SQLFunction
@@ -51,35 +53,28 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         # temporary table so there's no explict cleanup needed
         return table
 
+    @contextlib.contextmanager
     def execute_query(self, variable_definitions):
-        if self.temporary_database:
-            # If we've got access to a temporary database then we use this
-            # function to manage storing our results in there and downloading
-            # in batches. This gives us the illusion of having a robust
-            # connection to the database, whereas in practice in frequently
-            # errors out when attempting to download large sets of results.
-            setup_queries, results_query, cleanup_queries = self.get_queries(
-                variable_definitions
-            )
-            # We're not expecting to have any cleanup to do here because we should be
-            # using session-scoped temporary tables
-            assert not cleanup_queries
-            with fetch_results_in_batches(
-                engine=self.engine,
-                queries=setup_queries + [results_query],
-                # The double dot syntax allows us to reference tables in another database
-                temp_table_prefix=f"{self.temporary_database}..TempExtract",
-                # This value was copied from the previous cohortextractor. I
-                # suspect it has no real scientific basis.
-                batch_size=32000,
-                max_retries=2,
-                sleep=0.5,
-                reconnect_on_error=True,
-            ) as results:
-                yield results
-
-        else:
-            # Otherwise we just execute the queries and download the results in
-            # the normal manner
-            with super().execute_query(variable_definitions) as results:
-                yield results
+        # Use this function to manage storing our results in session-scoped
+        # temporary_tables and downloading
+        # in batches. This gives us the illusion of having a robust
+        # connection to the database, whereas in practice in frequently
+        # errors out when attempting to download large sets of results.
+        setup_queries, results_query, cleanup_queries = self.get_queries(
+            variable_definitions
+        )
+        # We're not expecting to have any cleanup to do here because we should be
+        # using session-scoped temporary tables
+        assert not cleanup_queries
+        with fetch_results_in_batches(
+            engine=self.engine,
+            queries=setup_queries + [results_query],
+            temp_table_prefix="#",
+            # This value was copied from the previous cohortextractor. I
+            # suspect it has no real scientific basis.
+            batch_size=32000,
+            max_retries=2,
+            sleep=0.5,
+            reconnect_on_error=True,
+        ) as results:
+            yield results
