@@ -66,7 +66,7 @@ def fetch_results_in_batches(
         # but since it is not a true MSSQL temporary table it will
         # persist across MSSQL sessions in case of reconnection
 
-        table_name = f"[{temp_table_prefix}_{secrets.token_hex(8)}])"
+        table_name = f"[{temp_table_prefix}_{secrets.token_hex(8)}]"
         table = make_table_with_key(table_name, key_column)
         assert_temporary_tables_writable(connection, temp_table_prefix)
         for n, query in enumerate(preparatory_queries):
