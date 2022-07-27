@@ -4,26 +4,22 @@ from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
 from .main import (
+    dump_dataset_sql,
     generate_dataset,
     generate_measures,
     pass_dummy_data,
     test_connection,
-    validate_dataset,
 )
 
 
-def main(args=None):
-    parser = build_parser()
+def main(args, environ=None):
+    environ = environ or {}
 
-    if args is None:
-        # allow the passing in of args, for testing, but otherwise look them
-        # up.  This saves a lot of laborious mocking in tests.
-        args = sys.argv[1:]  # pragma: no cover
-
+    parser = build_parser(environ)
     options = parser.parse_args(args)
 
     if options.which == "generate-dataset":
-        database_url = os.environ.get("DATABASE_URL")
+        database_url = environ.get("DATABASE_URL")
         dummy_data_file = options.dummy_data_file
 
         if database_url:
@@ -31,8 +27,9 @@ def main(args=None):
                 definition_file=options.dataset_definition,
                 dataset_file=options.output,
                 db_url=database_url,
-                backend_id=os.environ.get("OPENSAFELY_BACKEND"),
-                temporary_database=os.environ.get("TEMP_DATABASE_NAME"),
+                backend_id=environ.get("OPENSAFELY_BACKEND"),
+                query_engine_id=environ.get("OPENSAFELY_QUERY_ENGINE"),
+                environ=environ,
             )
         elif dummy_data_file:
             pass_dummy_data(options.dataset_definition, options.output, dummy_data_file)
@@ -41,10 +38,12 @@ def main(args=None):
                 "error: either --dummy-data-file or DATABASE_URL environment variable is required"
             )
     elif options.which == "dump-dataset-sql":
-        validate_dataset(
+        dump_dataset_sql(
             options.dataset_definition,
             options.output,
             backend_id=options.backend,
+            query_engine_id=options.query_engine,
+            environ=environ,
         )
     elif options.which == "generate-measures":
         generate_measures(
@@ -56,6 +55,7 @@ def main(args=None):
         test_connection(
             backend_id=options.backend,
             url=options.url,
+            environ=environ,
         )
     elif options.which == "print-help":
         parser.print_help()
@@ -63,22 +63,22 @@ def main(args=None):
         assert False, f"Unhandled subcommand: {options.which}"
 
 
-def build_parser():
+def build_parser(environ):
     parser = ArgumentParser(
         prog="databuilder", description="Generate datasets in OpenSAFELY"
     )
     parser.set_defaults(which="print-help")
 
     subparsers = parser.add_subparsers(help="sub-command help")
-    add_generate_dataset(subparsers)
-    add_dump_dataset_sql(subparsers)
-    add_generate_measures(subparsers)
-    add_test_connection(subparsers)
+    add_generate_dataset(subparsers, environ)
+    add_dump_dataset_sql(subparsers, environ)
+    add_generate_measures(subparsers, environ)
+    add_test_connection(subparsers, environ)
 
     return parser
 
 
-def add_generate_dataset(subparsers):
+def add_generate_dataset(subparsers, environ):
     parser = subparsers.add_parser("generate-dataset", help="Generate a dataset")
     parser.set_defaults(which="generate-dataset")
     parser.add_argument(
@@ -98,30 +98,38 @@ def add_generate_dataset(subparsers):
     )
 
 
-def add_dump_dataset_sql(subparsers):
+def add_dump_dataset_sql(subparsers, environ):
     parser = subparsers.add_parser(
         "dump-dataset-sql",
-        help="Validate the dataset definition against the specified backend",
+        help=(
+            "Output the SQL that would be executed to fetch the results of the "
+            "dataset definition"
+        ),
     )
     parser.set_defaults(which="dump-dataset-sql")
     parser.add_argument(
-        "backend",
+        "--query-engine",
         type=str,
+        default=environ.get("OPENSAFELY_QUERY_ENGINE"),
     )
     parser.add_argument(
-        "--dataset-definition",
-        help="The path of the file where the dataset is defined",
-        type=existing_python_file,
-        required=True,
+        "--backend",
+        type=str,
+        default=environ.get("OPENSAFELY_BACKEND"),
     )
     parser.add_argument(
         "--output",
-        help="Path and filename (or pattern) of the file(s) where the output will be written",
+        help="SQL output file (outputs to console by default)",
         type=Path,
+    )
+    parser.add_argument(
+        "dataset_definition",
+        help="Path of Python file where dataset is defined",
+        type=existing_python_file,
     )
 
 
-def add_generate_measures(subparsers):
+def add_generate_measures(subparsers, environ):
     parser = subparsers.add_parser(
         "generate-measures", help="Generate measures from a dataset"
     )
@@ -143,7 +151,7 @@ def add_generate_measures(subparsers):
     )
 
 
-def add_test_connection(subparsers):
+def add_test_connection(subparsers, environ):
     parser = subparsers.add_parser(
         "test-connection", help="test the database connection configuration"
     )
@@ -152,13 +160,13 @@ def add_test_connection(subparsers):
         "--backend",
         "-b",
         help="backend type to test",
-        default=os.environ.get("BACKEND", os.environ.get("OPENSAFELY_BACKEND")),
+        default=environ.get("BACKEND", environ.get("OPENSAFELY_BACKEND")),
     )
     parser.add_argument(
         "--url",
         "-u",
         help="db url",
-        default=os.environ.get("DATABASE_URL"),
+        default=environ.get("DATABASE_URL"),
     )
 
 
@@ -172,4 +180,4 @@ def existing_python_file(value):
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:], environ=os.environ)

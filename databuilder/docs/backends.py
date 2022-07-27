@@ -1,11 +1,13 @@
 import operator
 
 from ..backends.base import BaseBackend
+from ..module_utils import get_sibling_subclasses
 from .common import build_hierarchy
 
 
 def build_backends():
-    backends = sorted(BaseBackend.__subclasses__(), key=operator.attrgetter("__name__"))
+    backends = get_sibling_subclasses(BaseBackend)
+    backends.sort(key=operator.attrgetter("__name__"))
 
     for backend in backends:
         # get the full name for all implemented contracts the backend implements

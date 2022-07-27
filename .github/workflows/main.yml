@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
+      - uses: actions/checkout@v3
+      - uses: "actions/setup-python@v4"
         with:
           python-version: "3.9"
       - uses: extractions/setup-just@v1
@@ -24,8 +24,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
+      - uses: actions/checkout@v3
+      - uses: "actions/setup-python@v4"
         with:
           python-version: "3.9"
       - uses: extractions/setup-just@v1
@@ -37,8 +37,8 @@ jobs:
   lint-dockerfile:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: hadolint/hadolint-action@v1.5.0
+      - uses: actions/checkout@v3
+      - uses: hadolint/hadolint-action@v2.1.0
         with:
           failure-threshold: error
 
@@ -57,7 +57,7 @@ jobs:
     outputs:
       tag: ${{ steps.tag.outputs.new_version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Bump version and push tag
@@ -72,8 +72,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
       with:
         python-version: "3.9"
     - name: Install package

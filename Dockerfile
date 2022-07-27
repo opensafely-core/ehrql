@@ -1,6 +1,15 @@
 # hadolint ignore=DL3007
 FROM ghcr.io/opensafely-core/base-docker:latest
 
+# Some static metadata for this specific image, as defined by:
+# https://github.com/opencontainers/image-spec/blob/master/annotations.md#pre-defined-annotation-keys
+# The org.opensafely.action label is used by the jobrunner to indicate this is
+# an approved action image to run.
+LABEL org.opencontainers.image.title="databuilder" \
+      org.opencontainers.image.description="Data Builder action for opensafely.org" \
+      org.opencontainers.image.source="https://github.com/opensafely-core/databuilder" \
+      org.opensafely.action="databuilder"
+
 # hadolint ignore=DL3008
 RUN \
   apt-get update --fix-missing && \

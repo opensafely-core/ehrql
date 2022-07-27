@@ -2,11 +2,13 @@ import csv
 import importlib.util
 import shutil
 import sys
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 
 import structlog
 
+from databuilder.column_specs import get_column_specs
 from databuilder.query_language import Dataset
+from databuilder.sqlalchemy_utils import clause_as_str
 
 from . import query_language as ql
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
@@ -17,22 +19,20 @@ log = structlog.getLogger()
 def generate_dataset(
     definition_file,
     dataset_file,
-    backend_id,
     db_url,
-    temporary_database,
+    backend_id,
+    query_engine_id,
+    environ,
 ):
     log.info(f"Generating dataset for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
-    backend = import_string(backend_id)()
-    query_engine = backend.query_engine_class(
-        db_url, backend, temporary_database=temporary_database
-    )
-    backend.validate_contracts()
-    results = extract(dataset_definition, query_engine)
+    variable_definitions = ql.compile(dataset_definition)
+    column_specs = get_column_specs(variable_definitions)
 
-    dataset_file.parent.mkdir(parents=True, exist_ok=True)
-    write_dataset(results, dataset_file)
+    query_engine = get_query_engine(db_url, backend_id, query_engine_id, environ)
+    with query_engine.execute_query(variable_definitions) as results:
+        write_dataset_csv(column_specs, results, dataset_file)
 
 
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
@@ -46,19 +46,62 @@ def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
     shutil.copyfile(dummy_data_file, dataset_file)
 
 
-def validate_dataset(definition_file, output_file, backend_id):
-    log.info(f"Validating dataset for {str(definition_file)}")
+def dump_dataset_sql(
+    definition_file, output_file, backend_id, query_engine_id, environ
+):
+    log.info(f"Generating SQL for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
-    backend = import_string(backend_id)()
-    query_engine = backend.query_engine_class(None, backend)
-    results = validate(dataset_definition, query_engine)
-    log.info("Validation succeeded")
+    query_engine = get_query_engine(None, backend_id, query_engine_id, environ)
 
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with output_file.open(mode="w") as f:
-        for entry in results:
-            f.write(f"{str(entry)}\n")
+    variable_definitions = ql.compile(dataset_definition)
+    all_query_strings = get_sql_strings(query_engine, variable_definitions)
+    log.info("SQL generation succeeded")
+
+    with open_output_file(output_file) as f:
+        for query_str in all_query_strings:
+            f.write(f"{query_str};\n\n")
+
+
+def get_sql_strings(query_engine, variable_definitions):
+    setup_queries, results_query, cleanup_queries = query_engine.get_queries(
+        variable_definitions
+    )
+    all_queries = setup_queries + [results_query] + cleanup_queries
+    dialect = query_engine.sqlalchemy_dialect()
+    return [clause_as_str(query, dialect) for query in all_queries]
+
+
+def open_output_file(output_file):
+    # If a file path is supplied, create it and open for writing
+    if output_file:
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        return output_file.open(mode="w")
+    # Otherwise return `stdout` wrapped in a no-op context manager
+    else:
+        return nullcontext(sys.stdout)
+
+
+def get_query_engine(dsn, backend_id, query_engine_id, environ):
+    # Load backend if supplied
+    if backend_id:
+        backend = import_string(backend_id)()
+    else:
+        backend = None
+
+    # If there's an explictly specified query engine class use that
+    if query_engine_id:
+        query_engine_class = import_string(query_engine_id)
+    # Otherwise use whatever the backend specifies
+    elif backend:
+        query_engine_class = backend.query_engine_class
+    # Default to using SQLite
+    else:
+        query_engine_class = import_string(
+            "databuilder.query_engines.sqlite.SQLiteQueryEngine"
+        )
+
+    return query_engine_class(dsn=dsn, backend=backend, config=environ)
 
 
 def generate_measures(
@@ -67,11 +110,11 @@ def generate_measures(
     raise NotImplementedError
 
 
-def test_connection(backend_id, url):
+def test_connection(backend_id, url, environ):
     from sqlalchemy import select
 
     backend = import_string(backend_id)()
-    query_engine = backend.query_engine_class(url, backend)
+    query_engine = backend.query_engine_class(url, backend, config=environ)
     with query_engine.engine.connect() as connection:
         connection.execute(select(1))
     print("SUCCESS")
@@ -119,43 +162,10 @@ def import_string(dotted_path):
     return getattr(module, attribute_name)
 
 
-def extract(dataset_definition, query_engine):
-    """
-    Extracts the dataset from the backend specified
-    Args:
-        dataset_definition: The definition of the Dataset
-        query_engine: The Query Engine with which the Dataset is being extracted
-    Returns:
-        Yields the dataset as rows
-    """
-    variable_definitions = ql.compile(dataset_definition)
-    with query_engine.execute_query(variable_definitions) as results:
-        for row in results:
-            yield dict(row)
-
-
-def validate(dataset_definition, query_engine):
-    try:
-        variable_definitions = ql.compile(dataset_definition)
-        setup_queries, results_query, cleanup_queries = query_engine.get_queries(
-            variable_definitions
-        )
-        return setup_queries + [results_query] + cleanup_queries
-    except Exception:  # pragma: no cover (puzzle: dataset definition that compiles to QM but not SQL)
-        log.error("Validation failed")
-        # raise the exception to ensure the job fails and the error and traceback are logged
-        raise
-
-
-def write_dataset(results, dataset_file):
+def write_dataset_csv(column_specs, results, dataset_file):
+    headers = list(column_specs.keys())
+    dataset_file.parent.mkdir(parents=True, exist_ok=True)
     with dataset_file.open(mode="w") as f:
         writer = csv.writer(f)
-        headers = None
-        for entry in results:
-            fields = entry.keys()
-            if not headers:
-                headers = fields
-                writer.writerow(headers)
-            else:
-                assert fields == headers, f"Expected fields {headers}, but got {fields}"
-            writer.writerow(entry.values())
+        writer.writerow(headers)
+        writer.writerows(results)

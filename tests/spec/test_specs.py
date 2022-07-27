@@ -1,7 +1,11 @@
+import pytest
+
 from databuilder.docs.specs import (
     build_chapter,
     build_section,
     concatenate_optional_text,
+    get_series_code,
+    get_title_for_test_fn,
 )
 
 
@@ -46,3 +50,101 @@ def test_build_section():
             ), "paragraph text found when no docstring present"
             continue
         assert False, "expected paragraph ids not found"
+
+
+def test_take_with_expr():
+    pass
+
+
+test_take_with_expr.title = "Take rows that match an expression"
+
+
+def test_take_with_constant_true():
+    pass
+
+
+@pytest.mark.parametrize(
+    "test_fn,title",
+    [
+        (test_take_with_expr, "Take rows that match an expression"),
+        (test_take_with_constant_true, "Take with constant true"),
+    ],
+)
+def test_get_title_for_test_fn(test_fn, title):
+    assert get_title_for_test_fn(test_fn) == title
+
+
+@pytest.mark.parametrize(
+    "source_lines,source_index,includes_population,expected",
+    [
+        (
+            # single line
+            ['p.d1.is_before("2000-01-20"),'],
+            0,
+            False,
+            'p.d1.is_before("2000-01-20")',
+        ),
+        (
+            # multiple lines
+            [
+                "case(",
+                "    when(p.i1 < 8).then(p.i1),",
+                "    when(p.i1 > 8).then(100),",
+                "),",
+            ],
+            0,
+            False,
+            "case(\n    when(p.i1 < 8).then(p.i1),\n    when(p.i1 > 8).then(100),\n)",
+        ),
+        (
+            # real test function; multiple lines, series starts after table_data
+            [
+                "    spec_test(",
+                "        table_data,",
+                "        case(",
+                "            when(p.i1 < 8).then(p.i1),",
+                "            when(p.i1 > 8).then(100),",
+                "        ),",
+                "        {",
+                "            1: 6,",
+                "            2: 7,",
+                "            3: None,",
+                "            4: 100,",
+                "            5: None,",
+                "        },",
+                "    )",
+            ],
+            2,
+            False,
+            "case(\n    when(p.i1 < 8).then(p.i1),\n    when(p.i1 > 8).then(100),\n)",
+        ),
+        (
+            # incomplete series definition; this should never happen as it should only exist if
+            # there's a syntax error in a specs tests, which would raise an error earlier than
+            # this code
+            ["p.d1.is_before("],
+            0,
+            False,
+            "p.d1.is_before(",
+        ),
+        (
+            # with population definition
+            ['p.d1.is_before("2000-01-20"),', "population=p.b1"],
+            0,
+            True,
+            'p.d1.is_before("2000-01-20")\nset_population(p.b1)',
+        ),
+        (
+            # incomplete population definition; this should also never happen
+            ['p.d1.is_before("2000-01-20"),', 'population=p.d2.is_before("2000-01-'],
+            0,
+            True,
+            'p.d1.is_before("2000-01-20")\nset_population(p.d2.is_before("2000-01-)',
+        ),
+    ],
+)
+def test_get_series_code(source_lines, source_index, includes_population, expected):
+    assert (
+        get_series_code(source_lines, source_index, set_population=includes_population)
+        == expected
+    )

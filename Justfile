@@ -119,7 +119,7 @@ build-databuilder:
     set -euo pipefail
 
     [[ -v CI ]] && echo "::group::Build databuilder (click to view)" || echo "Build databuilder"
-    docker build . -t databuilder
+    docker build . -t databuilder-dev
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
@@ -153,7 +153,7 @@ test-backend-validation *ARGS: devenv
     $BIN/python -m pytest tests/backend_validation {{ ARGS }}
 
 # Run the databuilder-in-docker tests only. Optional args are passed to pytest.
-test-docker *ARGS: devenv build-databuilder
+test-docker *ARGS: devenv
     $BIN/python -m pytest tests/docker {{ ARGS }}
 
 # Run the integration tests only. Optional args are passed to pytest.
@@ -184,7 +184,7 @@ test-generative *ARGS: devenv
     $BIN/python -m pytest tests/generative {{ ARGS }}
 
 # Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
-test-all *ARGS: devenv build-databuilder generate-docs
+test-all *ARGS: devenv generate-docs
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -204,26 +204,15 @@ test-all *ARGS: devenv build-databuilder generate-docs
 dbx *ARGS:
     @$BIN/python scripts/dbx {{ ARGS }}
 
-# ensure a working databricks cluster is set up
+# ensure a working databricks cluster is set up and running
 databricks-env: devenv
-    $BIN/python scripts/dbx create --wait --timeout 120
+    $BIN/python scripts/dbx start --wait --timeout 180
 
 databricks-test *ARGS: devenv databricks-env
     #!/usr/bin/env bash
     export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
     just test {{ ARGS }}
 
-story-dependencies: devenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    if [[ -z "${SHORTCUT_TOKEN:-}" ]]; then
-        echo >&2 "You must provide SHORTCUT_TOKEN as an env var."
-        exit 1
-    fi
-
-    SHORTCUT_EPIC="Walking skeleton" $BIN/python scripts/story-dependencies | dot -Tpng >story-dependencies.png
-
-generate-docs: devenv
-    $BIN/python -m databuilder.docs >public_docs.json
+generate-docs OUTPUT_FILE="public_docs.json": devenv
+    $BIN/python -m databuilder.docs > {{ OUTPUT_FILE }}
     echo "Generated data for documentation."

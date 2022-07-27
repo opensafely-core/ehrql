@@ -4,12 +4,12 @@ import pytest
 
 
 @pytest.fixture
-def run_in_container(tmpdir, containers):
+def run_in_container(tmpdir, containers, databuilder_image):
     workspace = Path(tmpdir.mkdir("workspace"))
 
     def run(command):
         output = containers.run_fg(
-            image="databuilder:latest",
+            image=databuilder_image,
             command=command,
             volumes={workspace: {"bind": "/workspace", "mode": "rw"}},
         )

@@ -7,7 +7,7 @@ on:
       test_args:
         description: "Tests to run or other pytest args"
         required: true
-        default: "tests/backend/test_databricks.py"
+        default: "tests/spec -k 'spark'"
 
 jobs:
   test:
@@ -15,19 +15,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
+      - uses: "actions/setup-python@v4"
         with:
           python-version: "3.9"
       - uses: extractions/setup-just@v1
       - name: Login to databricks
         run: |
-            echo <<< EOF > ~/.databrickscfg
-            [DEFAULT]
+            echo -e \
+            "[DEFAULT]
             host = https://drtl-theta.cloud.databricks.com
             username = simon.davy@thedatalab.org
             password = ${{ secrets.DATABRICKS_PASSWORD }}
-            jobs-api-version = 2.0
-            EOF
+            jobs-api-version = 2.0" \
+            >> ~/.databrickscfg
+
       - name: Run Databricks tests
         run:
             just databricks-test ${{ github.event.inputs.test_args }}

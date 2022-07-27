@@ -8,7 +8,7 @@ on:
       - CI
     branches:
       - main
-    status:
+    types:
       - completed
 
 jobs:
@@ -17,14 +17,57 @@ jobs:
     env:
       image: ghcr.io/opensafely-core/databuilder
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # Required to get previous tags
           fetch-depth: 0
 
-      - name: 'Get Previous tag'
-        id: previoustagref
-        uses: "WyriHaximus/github-action-get-previous-tag@8a0e045f02c0a3a04e1452df58b90fc7e555e950"
+      # Find the latest tag by fetching the first 20 tags in descending date order,
+      # and finding the first one that starts with "v"
+      - name: Get latest version tag
+        id: latest-version-tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const query = `query($owner:String!, $name:String!) {
+              repository(owner:$owner, name:$name) {
+                refs(refPrefix: "refs/tags/", first: 20, orderBy: {field: TAG_COMMIT_DATE, direction: DESC}) {
+                  edges {
+                    node {
+                      name
+                      target {
+                        oid
+                        ... on Tag {
+                          message
+                          commitUrl
+                          tagger {
+                            name
+                            email
+                            date
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }`;
+            const variables = {
+              owner: context.repo.owner,
+              name: context.repo.repo,
+            }
+            const result = await github.graphql(query, variables)
+            console.log(result.repository.refs.edges)
+            const latestVersionTagEdge = result.repository.refs.edges.find(
+              tag => tag.node.name.startsWith("v")
+              )
+            console.log(latestVersionTagEdge)
+            if(latestVersionTagEdge){
+              return latestVersionTagEdge.node.name
+            } else {
+              return "no-tag-found"
+            }
+          result-encoding: string
 
       - name: Previous commit
         id: previoustagcommit
@@ -32,21 +75,22 @@ jobs:
         # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
         run: echo ::set-output name=tag_describe::`git describe --tags`
 
-      - name: Verify whether we are on a tagged commit, allows us to short-circuit this workflow
+      - name: Verify whether we are on a tagged version commit, allows us to short-circuit this workflow
         id: taggedcommit
-        if: ${{ steps.previoustagcommit.outputs.tag_describe == steps.previoustagref.outputs.tag }}
+        if: ${{ steps.previoustagcommit.outputs.tag_describe == steps.latest-version-tag.outputs.result }}
         run: echo ::set-output name=tag::'y'
 
-      # 'Get Previous tag' should only get version tags, but let's verify that
-      - name: Fail if previous tag is not a version tag (i.e. it does not start with a v)
-        if: ${{ ! startsWith(steps.previoustagref.outputs.tag, 'v') }}
-        run: /bin/false
+      # Verify that 'Get latest version tag' returned a version tag
+      - name: Fail if no version tag found
+        if: ${{ steps.latest-version-tag.outputs.result == 'no-tag-found' }}
+        run: |
+          /bin/false
 
       # This relies on the tag having a version of the form vX.Y.Z
       - name: Build image
         if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
         run: |
-          PATCH="${{ steps.previoustagref.outputs.tag }}"
+          PATCH="${{ steps.latest-version-tag.outputs.result }}"
           MAJOR="${PATCH%%.*}"
           MINOR="${PATCH%.*}"
 

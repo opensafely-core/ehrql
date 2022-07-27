@@ -1,0 +1,552 @@
+code,term
+1035471000000100,Dialysis therapy started by renal service
+104931000119100,Chronic kidney disease due to hypertension
+105502003,Dependence on renal dialysis
+10757401000119104,Pre-existing hypertensive heart and chronic kidney disease in mother complicating childbirth
+10757481000119107,Pre-existing hypertensive heart and chronic kidney disease in mother complicating pregnancy
+1081801000112104,Acute nephrotic syndrome
+1082321000119100,Nephroblastoma of left kidney
+1082331000119102,Nephroblastoma of right kidney
+108241001,Dialysis procedure
+10848006,Removal of peritoneal dialysis catheter
+109477002,Enamel-renal syndrome
+11000731000119102,Dependence on continuous ambulatory peritoneal dialysis
+11000771000119104,Dependence on continuous cycling peritoneal dialysis
+111411000119103,End stage renal disease due to hypertension
+112066009,Absent renal function
+118781000119108,Pre-existing hypertensive chronic kidney disease in mother complicating pregnancy
+120241000119100,Glomerulonephritis due to hepatitis C
+123752003,Immune-complex glomerulonephritis
+127991000119101,Hypertension concurrent and due to end stage renal disease on dialysis due to type 2 diabetes mellitus
+128001000119105,Hypertension concurrent and due to end stage renal disease on dialysis due to type 1 diabetes mellitus
+12963004,Dialysis-associated ascites
+133031000119106,Thrombosis of arteriovenous graft caused by hemodialysis arteriovenous access device
+13335004,Sclerosing glomerulonephritis
+13889008,Methyl lomustine nephropathy
+1426004,Necrotizing glomerulonephritis
+15123008,Familial amyloid nephropathy with urticaria AND deafness
+153891000119101,End stage renal disease on dialysis due to hypertension
+15859004,Chronic hemodialysis diet
+161665007,History of renal transplant
+16320631000119104,Dependence on continuous ambulatory peritoneal dialysis due to end stage renal disease
+16652001,Fabry's disease
+175899003,Autotransplantation of kidney
+175901007,Live donor renal transplant
+175902000,Cadaveric renal transplant
+175948009,Exploration of renal transplant
+17901006,Primary hyperoxaluria
+1801000119106,"Anemia, pre-end stage renal disease on erythropoietin protocol"
+180272001,Insertion of chronic ambulatory peritoneal dialysis catheter
+180273006,Removal of chronic ambulatory peritoneal dialysis catheter
+180277007,Insertion of temporary peritoneal dialysis catheter
+183985008,Renal transplant planned
+1866009,Bilateral total nephrectomy
+195791000119101,Chronic proliferative glomerulonephritis
+197589005,Nephrotic syndrome with proliferative glomerulonephritis
+197590001,Nephrotic syndrome with membranous glomerulonephritis
+197591002,Nephrotic syndrome with membranoproliferative glomerulonephritis
+197592009,Nephrotic syndrome (& [minimal change glomerulonephritis] or [steroid sensitive])
+197593004,"Nephrotic syndrome, minor glomerular abnormality"
+197594005,"Nephrotic syndrome, focal and segmental glomerular lesions"
+197595006,"Nephrotic syndrome, diffuse membranous glomerulonephritis"
+197596007,"Nephrotic syndrome, diffuse mesangial proliferative glomerulonephritis"
+197597003,"Nephrotic syndrome, diffuse endocapillary proliferative glomerulonephritis"
+197598008,"Nephrotic syndrome, diffuse mesangiocapillary glomerulonephritis"
+197599000,"Nephrotic syndrome, dense deposit disease"
+197600002,"Nephrotic syndrome, diffuse crescentic glomerulonephritis"
+197601003,Finnish congenital nephrotic syndrome
+197603000,Nephrotic syndrome associated with another disorder
+197604006,Nephrotic syndrome in amyloidosis
+197605007,Nephrotic syndrome due to diabetes mellitus
+197606008,Nephrotic syndrome in malaria
+197607004,Nephrotic syndrome in polyarteritis nodosa
+197613008,Chronic mesangial proliferative glomerulonephritis
+197614002,Chronic rapidly progressive glomerulonephritis
+197616000,Chronic glomerulonephritis associated with another disorder
+197617009,Chronic exudative glomerulonephritis
+197618004,Chronic focal glomerulonephritis
+197619007,Chronic diffuse glomerulonephritis
+197626007,Focal membranoproliferative glomerulonephritis
+197632002,Berger's immunoglobulin A or immunoglobulin G nephropathy
+19765000,Complication of dialysis
+197654000,Renal failure: [chronic] or [end stage]
+197688006,"Acute nephritic syndrome, diffuse crescentic glomerulonephritis"
+197689003,Rapidly progressive nephritic syndrome
+197690007,"Rapidly progressive nephritic syndrome, minor glomerular abnormality"
+197691006,"Rapidly progressive nephritic syndrome, focal and segmental glomerular lesions"
+197692004,"Rapidly progressive nephritic syndrome, diffuse membranous glomerulonephritis"
+197693009,"Rapidly progressive nephritic syndrome, diffuse mesangial proliferative glomerulonephritis"
+197694003,"Rapidly progressive nephritic syndrome, diffuse endocapillary proliferative glomerulonephritis"
+197695002,"Rapidly progressive nephritic syndrome, diffuse mesangiocapillary glomerulonephritis"
+197696001,"Rapidly progressive nephritic syndrome, dense deposit disease"
+197697005,"Rapidly progressive nephritic syndrome, diffuse crescentic glomerulonephritis"
+197709005,"Chronic nephritic syndrome, focal and segmental glomerular lesions"
+197712008,"Chronic nephritic syndrome, diffuse endocapillary proliferative glomerulonephritis"
+197713003,"Chronic nephritic syndrome, diffuse mesangiocapillary glomerulonephritis"
+197714009,"Chronic nephritic syndrome, dense deposit disease"
+197715005,"Chronic nephritic syndrome, diffuse crescentic glomerulonephritis"
+197738008,Glomerular disorders in neoplastic diseases
+20917003,Chronic glomerulonephritis
+213150003,Kidney transplant failure and rejection
+21764004,Renal carnitine transport defect
+224967001,Revision of cannula for dialysis
+225892009,Revision of arteriovenous shunt for renal dialysis
+233766001,Dialysis-associated hypoxia
+234046009,Transplant renal vein thrombosis
+234348004,Anemia of renal disease
+234485006,Epstein syndrome
+236138007,Xenograft renal transplant
+236380004,Steroid-sensitive nephrotic syndrome
+236381000,Steroid-resistant nephrotic syndrome
+236382007,Steroid-dependent nephrotic syndrome
+236383002,Familial mesangial sclerosis
+236384008,Congenital nephrotic syndrome with focal glomerulosclerosis
+236385009,Drash syndrome
+236392004,Rapidly progressive glomerulonephritis
+236393009,Endocapillary glomerulonephritis
+236394003,Idiopathic endocapillary glomerulonephritis
+236398000,Crescentic glomerulonephritis
+236399008,Steroid-sensitive minimal change glomerulonephritis
+236400001,Steroid-resistant minimal change glomerulonephritis
+236401002,Steroid-dependent minimal change glomerulonephritis
+236407003,Immunoglobulin A nephropathy
+236409000,Mesangiocapillary glomerulonephritis type III
+236410005,Mesangiocapillary glomerulonephritis type IV
+236411009,Immunoglobulin M nephropathy
+236412002,C1q nephropathy
+236413007,Membranous glomerulonephritis - stage I
+236414001,Membranous glomerulonephritis - stage II
+236415000,Membranous glomerulonephritis - stage III
+236416004,Membranous glomerulonephritis - stage IV
+236417008,Membranous glomerulonephritis stage V
+236418003,Thin basement membrane disease
+236419006,Progressive hereditary glomerulonephritis without deafness
+236420000,Alport syndrome-like hereditary nephritis
+236422008,Fechtner syndrome
+236433006,Acute-on-chronic renal failure
+236434000,End stage renal failure untreated by renal replacement therapy
+236435004,End stage renal failure on dialysis
+236436003,End stage renal failure with renal transplant
+236441006,Acquired renal cyst with neoplastic change
+236452000,Chronic drug-induced tubulointerstitial nephritis
+236466005,Congenital Fanconi syndrome
+236482006,Inherited renal tubule insufficiency with cholestatic jaundice
+236506009,Goodpasture's disease
+236508005,Malignancy-associated glomerulonephritis
+236519008,Chronic drug-induced renal disease
+236520002,Gold nephropathy
+236521003,Penicillamine nephropathy
+236522005,Chronic cyclosporin A nephrotoxicity
+236525007,Chronic radiation nephritis
+236528009,Diffuse mesangial sclerosis with ocular abnormalities
+236530006,Pulmonic stenosis and congenital nephrosis
+236531005,Renal dysplasia and retinal aplasia
+236532003,Renal tubular acidosis with progressive nerve deafness
+236535001,Glomerulopathy with giant fibrillar deposits
+236538004,Acute disorder of hemodialysis
+236539007,First use syndrome of dialysis
+236540009,Anaphylactoid reaction to dialysis
+236541008,Hyperchloremic acidosis associated with dialysis
+236542001,Long-term disorder of dialysis
+236544000,Matrix stone formation of dialysis
+236550005,Polyserositis syndrome of dialysis
+236551009,Underdialysis
+236552002,Adynamic bone disease
+236554001,Pain during inflow of dialysate
+236555000,Pain during outflow of dialysate
+236556004,Bloodstained peritoneal dialysis effluent
+236557008,Peritoneal dialysis catheter exit site infection
+236559006,Loss of ultrafiltration
+236560001,Loss of solute clearance
+236569000,Primary non-function of renal transplant
+236570004,Renal transplant rejection
+236571000,Hyperacute rejection of renal transplant
+236572007,Accelerated rejection of renal transplant
+236573002,Very mild acute rejection of renal transplant
+236574008,Acute rejection of renal transplant
+236575009,Acute rejection of renal transplant - grade I
+236576005,Acute rejection of renal transplant - grade II
+236577001,Acute rejection of renal transplant - grade III
+236578006,Chronic rejection of renal transplant
+236579003,Chronic rejection of renal transplant - grade I
+236580000,Chronic rejection of renal transplant - grade II
+236581001,Chronic rejection of renal transplant - grade III
+236582008,Acute-on-chronic rejection of renal transplant
+236583003,Failed renal transplant
+236584009,Perfusion injury of renal transplant
+236587002,Transplant glomerulopathy
+236588007,Transplant glomerulopathy - early form
+236589004,Transplant glomerulopathy - late form
+236614007,Perirenal and periureteric post-transplant lymphocele
+236713006,X-linked recessive nephrolithiasis with renal failure
+237612000,"Photomyoclonus, diabetes mellitus, deafness, nephropathy and cerebral dysfunction"
+238251000000109,Pre-transplantation of kidney work-up of recipient
+238314006,Renewal of chronic ambulatory peritoneal dialysis catheter
+238315007,Adjustment of chronic ambulatory peritoneal dialysis catheter
+238316008,Aspiration of chronic ambulatory peritoneal dialysis catheter
+238317004,Flushing of chronic ambulatory peritoneal dialysis catheter
+239101000000109,Pre-transplantation of kidney work-up of live donor
+239932005,Primary pauci-immune necrotizing and crescentic glomerulonephritis
+241951000,Dialysis membrane-induced anaphylactoid reaction
+253878003,Adult type polycystic kidney disease type 1
+253879006,Adult type polycystic kidney disease type 2
+253880009,Autosomal dominant polycystic kidney disease in childhood
+254092004,Saldino-Mainzer dysplasia
+265550007,Transplant nephrectomy
+265763003,Compensation for renal failure
+265764009,Renal dialysis
+266549004,Nephrotic syndrome with minimal change glomerulonephritis
+268234004,Fibrocystic kidney disease
+268854008,Congenital renal failure
+26944003,Acute megaloblastic anemia due to dialysis
+271418008,Chronic ambulatory peritoneal dialysis catheter procedure
+276883000,Peritoneal dialysis-associated peritonitis
+277010001,Unexplained episode of renal transplant dysfunction
+277011002,Pre-existing disease in renal transplant
+278905001,Continuous ambulatory peritoneal dialysis diet
+28191000119109,Chronic nephritic syndrome with membranous glomerulonephritis
+282364005,Immunoglobulin A nephropathy associated with liver disease
+284348003,Excision of rejected transplanted kidney
+284961000119106,Chronic kidney disease due to benign hypertension
+285831000119108,Malignant hypertensive chronic kidney disease
+285841000119104,Malignant hypertensive end stage renal disease
+286371000119107,Malignant hypertensive end stage renal disease on dialysis
+28770003,"Polycystic kidney disease, infantile type"
+290006,Melnick-Fraser syndrome
+292760002,Dialysis fluid adverse reaction
+292761003,Peritoneal dialysis solution adverse reaction
+292762005,Hemodialysis fluid adverse reaction
+292763000,Hemofiltration solution adverse reaction
+295101000119105,Nephropathy co-occurrent and due to systemic lupus erythematosus
+295121000119101,Nephrosis co-occurrent and due to systemic lupus erythematosus
+302849000,Nephroblastoma
+308751000119106,Glomerular disease due to systemic lupus erythematosus
+310647000,Anemia secondary to renal failure
+313030004,Donor renal transplantation
+32599008,Hemodialysis-associated amyloidosis
+33461007,Complication of peritoneal dialysis
+33603003,Complication of renal dialysis
+35546006,Mesangial proliferative glomerulonephritis
+359694003,"Idiopathic crescentic glomerulonephritis, type II"
+363233007,Nephrotic syndrome secondary to glomerulonephritis
+363234001,Nephrotic syndrome secondary to systemic disease
+365001000000107,Peritoneal dialysis associated encapsulating peritoneal sclerosis
+365061000000106,Active on kidney transplant waiting list
+365071000000104,Active on kidney transplant waiting list while waiting live donor work-up
+365081000000102,Active on kidney and pancreas transplant waiting list
+365111000000105,Active on kidney and other organ transplant waiting list
+365131000000102,Active on paired exchange kidney transplant waiting list
+365151000000109,Active on kidney transplant waiting list with failing graft
+365161000000107,Active on urgent kidney transplant waiting list
+367051000119105,Morphologic change of kidney due to chronic nephritic syndrome
+367511000119101,"Hereditary mesangiocapillary glomerulonephritis, type 2"
+367521000119108,Hereditary diffuse crescentic glomerulonephritis
+367531000119106,Hereditary diffuse endocapillary proliferative glomerulonephritis
+367541000119102,Hereditary diffuse membranous glomerulonephritis
+367551000119100,Hereditary diffuse mesangial proliferative glomerulonephritis
+367561000119103,Hereditary diffuse mesangiocapillary glomerulonephritis
+367571000119109,Hereditary focal and segmental glomerular lesions
+367591000119105,Hereditary nephropathy
+368871000119106,Acute nephritic syndrome co-occurrent and due to membranoproliferative glomerulonephritis type III
+368881000119109,Rapidly progressive nephritic syndrome co-occurrent and due to membranoproliferative glomerulonephritis type III
+368901000119106,Chronic nephritic syndrome co-occurrent and due to membranoproliferative glomerulonephritis type III
+368911000119109,Nephrotic syndrome co-occurrent and due to membranoproliferative glomerulonephritis type III
+368921000119102,Nephritic syndrome co-occurrent and due to membranoproliferative glomerulonephritis type III
+368931000119104,Isolated proteinuria co-occurrent and due to membranoproliferative glomerulonephritis type III
+368941000119108,Hereditary nephropathy co-occurrent with membranoproliferative glomerulonephritis type III
+3704008,Diffuse endocapillary proliferative glomerulonephritis
+37061001,Granulomatous sarcoid nephropathy
+37183000,"Cystinuria, type 1"
+385971003,Dialysis care
+398471000000102,[V]Aftercare involving intermittent dialysis
+398887003,Renal replacement
+399340005,Hereditary nephritis
+40233000,Nephrotic-nephritic syndrome
+402458002,Hemodialysis-associated secondary amyloidosis of skin
+402762007,Skin lesion associated with hemodialysis
+403732009,Hemodialysis-associated pseudoporphyria
+404813001,Peritoneal dialysis leakage
+406168002,Dialysis access maintenance
+408667000,Hemodialysis-associated hypotension
+40951006,"Primary hyperoxaluria, type II"
+41962002,Oligohydramnios sequence
+423062001,Stenosis of arteriovenous dialysis fistula
+425369003,Chronic progressive renal failure
+425384007,Sarcoidosis with glomerulonephritis
+425879009,Amyloid A nephropathy
+426136000,Delayed renal graft function
+426340003,Creation of graft fistula for dialysis
+426598005,Amyloid light-chain nephropathy
+427555000,Glomerulonephritis due to granulomatosis with polyangiitis
+428118009,Procedure involving peritoneal dialysis catheter
+428575007,Hypertension secondary to kidney transplant
+428645009,Examination of recipient after kidney transplant
+428937001,Dependence on peritoneal dialysis due to end stage renal disease
+428982002,Dependence on hemodialysis due to end stage renal disease
+429075005,Dependence on dialysis due to end stage renal disease
+429451003,Disorder related to renal transplantation
+430333000,Hematoma of dialysis access site
+431873008,Peritonitis due to infected peritoneal dialysis catheter
+432018009,Replacement of dialysis catheter using fluoroscopic guidance
+432654009,Insertion of peritoneal dialysis catheter using fluoroscopy guidance
+438341004,Laparoscopic insertion of peritoneal dialysis catheter
+438342006,Replacement of peritoneal dialysis catheter
+4390004,Lithium nephropathy
+439534001,Shaving of peritoneal dialysis catheter cuff
+440084005,Assessment of adequacy of dialysis
+440228000,Leakage of peritoneal dialysate into subcutaneous tissue of abdominal wall
+440310004,Leakage of peritoneal dialysate into pleural cavity
+440663004,Encapsulating peritoneal sclerosis associated with peritoneal dialysis
+441815006,Proliferative glomerulonephritis
+443143006,Dependence on hemodialysis
+443596009,Dependence on peritoneal dialysis
+444645005,Dent's disease
+445119005,Steroid sensitive nephrotic syndrome of childhood
+445258009,Idiopathic rapidly progressive glomerulonephritis
+445404003,Familial immunoglobulin A nephropathy
+446449009,Renal coloboma syndrome
+446923008,Lipoprotein glomerulopathy
+44785005,Minimal change disease
+448591002,Repositioning of Tenckhoff catheter
+449288005,Infection of arteriovenous fistula for hemodialysis
+449408005,Disorder of kidney due to kappa light chain disease
+449409002,Disorder of kidney due to lambda light chain disease
+449820008,Steroid resistant nephrotic syndrome of childhood
+46177005,End-stage renal disease
+473195006,Normal renal function of transplanted kidney
+48713002,Amyloid nephropathy
+48796009,Congenital nephrotic syndrome
+49708008,Anemia of chronic renal failure
+52213001,Renal homotransplantation excluding donor and recipient nephrectomy
+52254009,Nephrotic syndrome
+53556002,Cis-platinum nephropathy
+55652009,"Idiopathic crescentic glomerulonephritis, type III"
+57557005,Chronic milk alkali syndrome
+58797008,Complication of transplanted kidney
+59400006,Analgesic nephropathy
+59479006,"Mesangiocapillary glomerulonephritis, type II"
+61165007,Hereditary nephrogenic diabetes insipidus
+61598006,Glycogenosis with glucoaminophosphaturia
+62216007,Familial arthrogryposis-cholestatic hepatorenal syndrome
+62332007,Infantile nephropathic cystinosis
+64168005,"Idiopathic crescentic glomerulonephritis, type I"
+64212008,Diffuse crescentic glomerulonephritis
+6471000179103,Transplantation of kidney and pancreas
+65520001,"Primary hyperoxaluria, type I"
+66451004,"Familial visceral amyloidosis, Ostertag type"
+68779003,Primary immunoglobulin A nephropathy
+698306007,Awaiting transplantation of kidney
+698869007,Laparoscopic bilateral total nephrectomy
+699235009,Continuous ambulatory peritoneal dialysis associated peritonitis
+700107006,Bartter syndrome antenatal type 1
+700109009,Bartter syndrome antenatal type 2
+700111000,Bartter syndrome type 3
+700112007,Bartter syndrome type 4
+702397002,Renal tubular dysgenesis
+702634004,Inadequate peritoneal dialysis
+702635003,Inadequate hemodialysis
+703048006,Vesicoureteric reflux after renal transplant
+703094009,Peritoneal dialysis catheter procedure using fluoroscopic guidance
+703102004,Dialysis catheter procedure using fluoroscopic guidance
+703310005,Autosomal dominant progressive nephropathy with hypertension
+704667004,Hypertension concurrent and due to end stage renal disease on dialysis
+705065000,Childhood nephrotic syndrome
+70536003,Transplant of kidney
+707090004,Spondyloarthropathy due to hemodialysis-associated amyloidosis
+707148007,Recurrent post-transplant renal disease
+707324008,Anemia co-occurrent and due to end stage renal disease
+707332000,Recurrent proliferative glomerulonephritis
+707742001,Bartter syndrome
+708988001,Laparoscopic repositioning of Tenckhoff catheter
+709044004,Chronic kidney disease
+710071003,Management of peritoneal dialysis
+711411006,Allotransplantation of kidney from beating heart cadaver
+711413009,Allotransplantation of kidney from non-beating heart cadaver
+711446003,Transplantation of kidney regime
+711531007,Focal mesangial proliferative glomerulonephritis
+712487000,End stage renal disease due to benign hypertension
+713313000,Chronic kidney disease mineral and bone disorder
+713695001,Nephrotic syndrome co-occurrent with human immunodeficiency virus infection
+713720009,Sclerosing peritonitis as complication of peritoneal dialysis
+713721008,Hydrothorax as complication of peritoneal dialysis
+713724000,Abdominal hernia as complication of peritoneal dialysis
+713727007,Hemoperitoneum as complication of peritoneal dialysis
+713825007,Renal artery stenosis of transplanted kidney
+713887002,Focal segmental glomerulosclerosis co-occurrent with human immunodeficiency virus infection
+71421000119105,Hypertension in chronic kidney disease due to type 2 diabetes mellitus
+71441000119104,Nephrotic syndrome due to type 2 diabetes mellitus
+714813000,Recurrent hematuria co-occurrent and due to dense deposit disease
+714814006,Persistent hematuria co-occurrent and due to dense deposit disease
+714815007,Recurrent hematuria co-occurrent and due to diffuse crescentic glomerulonephritis
+714816008,Persistent hematuria co-occurrent and due to diffuse crescentic glomerulonephritis
+714817004,Recurrent hematuria co-occurrent and due to diffuse endocapillary proliferative glomerulonephritis
+714818009,Persistent hematuria co-occurrent and due to diffuse endocapillary proliferative glomerulonephritis
+716094008,Fibulo-ulnar hypoplasia and renal anomalies syndrome
+716657000,Familial papillary thyroid carcinoma with renal papillary neoplasia syndrome
+716999001,Joubert syndrome with renal defect
+71701000119105,Hypertension in chronic kidney disease due to type 1 diabetes mellitus
+717187000,Nephronophthisis hepatic fibrosis syndrome
+717191005,Sporadic idiopathic steroid-resistant nephrotic syndrome
+71721000119101,Nephrotic syndrome due to type 1 diabetes mellitus
+717736007,Familial renal cell carcinoma
+717760006,Multi-drug resistant nephrotic syndrome
+717766000,Alport syndrome autosomal dominant
+717767009,Alport syndrome autosomal recessive
+717768004,Alport syndrome X-linked
+717789008,Dent disease type 1
+717790004,Dent disease type 2
+717791000,Bartter syndrome type 4a
+718141008,Familial idiopathic steroid-resistant nephrotic syndrome
+718192000,Non-amyloid fibrillary glomerulonephritis
+718308002,Peritoneal dialysis care
+718330001,Hemodialysis care
+719501003,Ultrafiltration failure
+719839000,Tubular renal disease with cardiomyopathy syndrome
+719840003,Renal dysplasia with limb defect syndrome
+720414005,Acrorenal mandibular syndrome
+720415006,Acrorenoocular syndrome
+720458005,Acrorenal syndrome
+720519003,"Atherosclerosis, deafness, diabetes, epilepsy, nephropathy syndrome"
+720982007,"Alport syndrome, intellectual disability, midface hypoplasia, elliptocytosis syndrome"
+721173005,Hypotonia cystinuria syndrome
+721207002,"Seizure, sensorineural deafness, ataxia, intellectual disability, electrolyte imbalance syndrome"
+721297008,Galloway Mowat syndrome
+721840000,"Hyperuricemia, anemia, renal failure syndrome"
+721862000,Joubert syndrome with oculorenal defect
+721970009,Persistent Mullerian derivative with lymphangiectasia and polydactyly syndrome
+722086002,Membranous glomerulonephritis due to malignant neoplastic disease
+722098007,Chronic kidney disease following donor nephrectomy
+722118005,Congenital nephrotic syndrome due to congenital infection
+722119002,Idiopathic membranous glomerulonephritis
+722120008,Membranous glomerulonephritis caused by drug
+722149000,Chronic kidney disease following excision of renal neoplasm
+722150000,Chronic kidney disease due to systemic infection
+722168002,Membranous glomerulonephritis co-occurrent with infectious disease
+722231005,Perlman syndrome
+722294004,Autosomal dominant intermediate Charcot-Marie-Tooth disease type E
+722369003,Congenital nephrotic syndrome due to diffuse mesangial sclerosis
+722381004,"Congenital cataract, nephropathy, encephalopathy syndrome"
+722433005,Dyschondrosteosis and nephritis syndrome
+722457005,"Juvenile cataract, microcornea, renal glucosuria syndrome"
+722467000,Chronic kidney disease due to traumatic loss of kidney
+722758004,Complement component 3 glomerulopathy
+722759007,Glomerulopathy with fibronectin deposits 2
+722760002,Dense deposit disease
+722761003,Complement component 3 glomerulonephritis
+722948009,Glomerular disorder due to non-neuropathic heredofamilial amyloidosis
+723190009,Chronic renal insufficiency
+723333000,Faciocardiorenal syndrome
+723363009,"Hypotrichosis, lymphedema, telangiectasia, renal defect syndrome"
+723373006,Uromodulin related autosomal dominant tubulointerstitial kidney disease
+723409007,"Multinodular goiter, cystic kidney, polydactyly syndrome"
+723440000,Nephrogenic syndrome of inappropriate antidiuresis
+723449004,Pierson syndrome
+723555007,"Thymic, renal, anal, lung dysplasia syndrome"
+723720008,"Sex reversion, kidney, adrenal and lung dysgenesis syndrome"
+723995003,Schimke immuno-osseous dysplasia
+723999009,"Retinitis pigmentosa, hypopituitarism, nephronophthisis, skeletal dysplasia syndrome"
+724094005,"Neonatal diabetes, congenital hypothyroidism, congenital glaucoma, hepatic fibrosis, polycystic kidney syndrome"
+724282009,"Hypoparathyroidism, deafness, renal disease syndrome"
+724612006,Osteonecrosis due to and following renal dialysis
+725033008,Familial primary hypomagnesemia with hypercalciuria and nephrocalcinosis without severe ocular involvement
+725905005,Infundibulopelvic stenosis multicystic kidney syndrome
+725908007,Neurofaciodigitorenal syndrome
+726017001,Mucin 1 related autosomal dominant tubulointerstitial kidney disease
+726018006,Autosomal dominant tubulointerstitial kidney disease
+726082003,Immunotactoid glomerulonephritis
+726106004,X-linked diffuse leiomyomatosis with Alport syndrome
+73305009,Fibrillary glomerulonephritis
+733089005,"Spastic paraplegia, nephritis, deafness syndrome"
+733096007,Thyrocerebrorenal syndrome
+733097003,"Ichthyosis, intellectual disability, dwarfism, renal impairment syndrome"
+733116005,"Aniridia, renal agenesis, psychomotor retardation syndrome"
+733453005,"Congenital nephrotic syndrome, interstitial lung disease, epidermolysis bullosa syndrome"
+733472005,"Microcephalus, glomerulonephritis, marfanoid habitus syndrome"
+734990008,Primary hyperoxaluria type III
+737295003,Transplanted kidney present
+75652008,Familial renal iminoglycinuria
+75888001,"Mesangiocapillary glomerulonephritis, type I"
+763891005,Renal hepatic pancreatic dysplasia
+764961009,Hereditary clear cell renal cell carcinoma
+765330003,Autosomal dominant polycystic kidney disease
+765331004,Autosomal dominant polycystic kidney disease type 1 with tuberous sclerosis
+765478004,Allotransplantation of left kidney
+765479007,Allotransplantation of right kidney
+766765009,Radio-renal syndrome
+770414008,Alport syndrome
+771000119108,Chronic kidney disease due to type 2 diabetes mellitus
+771266007,"Torticollis, keloids, cryptorchidism, renal dysplasia syndrome"
+771447009,Laminin subunit beta 2 related infantile-onset nephrotic syndrome
+77182004,Membranous glomerulonephritis
+773647007,"Nephrotic syndrome, deafness, pretibial epidermolysis bullosa syndrome"
+773737004,Nephrocystin 3-related Meckel-like syndrome
+775909002,"Congenital neutropenia, myelofibrosis, nephromegaly syndrome"
+776416004,"Hyperuricemia, pulmonary hypertension, renal failure, alkalosis syndrome"
+778025006,Atypical hypotonia cystinuria syndrome
+782655004,Laparoscopic transplant of kidney using robotic assistance
+782722002,"Global developmental delay, lung cysts, overgrowth, Wilms tumor syndrome"
+782738008,Karyomegalic interstitial nephritis
+782771007,Mitochondrial deoxyribonucleic acid depletion syndrome hepatocerebrorenal form
+783157004,Leigh syndrome with nephrotic syndrome
+783159001,Holzgreve syndrome
+783187005,Aseptic peritoneal eosinophilia due to and following dialysis
+783614008,Familial steroid-resistant nephrotic syndrome with sensorineural deafness
+783620009,Dominant hypophosphatemia with nephrolithiasis and/or osteoporosis
+783787000,Retinal vasculopathy with cerebral leukoencephalopathy and systemic manifestations
+78815005,Hereditary tubulointerstitial disorder
+79385002,Lowe syndrome
+79827002,Arteriovenous anastomosis for renal dialysis
+80321008,Mesangiocapillary glomerulonephritis
+818952002,Fibronectin glomerulopathy
+81896006,Dysmorphic sialidosis with renal involvement
+81987005,"Familial hypokalemic alkalosis, Gullner type"
+828971000000101,"Primary hyperoxaluria, type III"
+83866005,Focal AND segmental proliferative glomerulonephritis
+83923004,Familial interstitial nephritis
+843691000000100,Urological complication of renal transplant
+844661000000109,Vascular complication of renal transplant
+846671000000106,Aneurysm of superficialised artery of dialysis arteriovenous fistula
+846731000000104,Aneurysm of dialysis arteriovenous fistula
+846761000000109,Aneurysm of needle site of dialysis arteriovenous fistula
+846801000000104,Aneurysm of anastomotic site of dialysis arteriovenous fistula
+847791000000101,Rupture of artery of transplanted kidney
+847811000000100,Rupture of vein of transplanted kidney
+847881000000107,Stenosis of vein of transplanted kidney
+8501000119104,Hypertensive heart and chronic kidney disease
+85223007,Complication of hemodialysis
+852981000000100,Aneurysm of vein of transplanted kidney
+853021000000108,Aneurysm of artery of transplanted kidney
+853631000000103,Stenosis of dialysis vascular access
+853651000000105,Thrombosis of dialysis vascular access
+854161000000102,Anaphylactoid reaction due to haemodialysis
+85487008,Renal phosphaturia
+863331000000100,Aneurysm of dialysis vascular access
+864271000000105,Thrombosis of artery of transplanted kidney
+864311000000105,Thrombosis of vein of transplanted kidney
+865761000000105,Occlusion of dialysis vascular access
+865801000000100,Haemorrhage of dialysis vascular access
+865821000000109,Rupture of dialysis vascular access
+865841000000102,Stenosis of dialysis arteriovenous graft
+865861000000101,Stenosis of dialysis arteriovenous shunt
+865981000000103,Thrombosis of dialysis arteriovenous graft
+866001000000102,Thrombosis of dialysis arteriovenous fistula
+866021000000106,Thrombosis of dialysis arteriovenous shunt
+866041000000104,Occlusion of dialysis arteriovenous graft
+866061000000103,Occlusion of dialysis arteriovenous fistula
+866081000000107,Occlusion of dialysis arteriovenous shunt
+866991000000105,Haemorrhage of dialysis arteriovenous graft
+867011000000102,Haemorrhage of dialysis arteriovenous fistula
+867031000000105,Haemorrhage of dialysis arteriovenous shunt
+867051000000103,Rupture of dialysis arteriovenous graft
+867071000000107,Rupture of dialysis arteriovenous fistula
+867091000000106,Rupture of dialysis arteriovenous shunt
+87235005,Dialysis disequilibrium syndrome
+872461000000102,Stenosis of arterial side of dialysis arteriovenous shunt
+872481000000106,Stenosis of venous side of dialysis arteriovenous shunt
+88351001,Hypercalcemia associated with chronic dialysis
+89681000119101,Glomerulonephritis co-occurrent and due to scleroderma
+90688005,Chronic renal failure syndrome
+90771000119100,End stage renal disease on dialysis due to type 1 diabetes mellitus
+90791000119104,End stage renal disease on dialysis due to type 2 diabetes mellitus
+96441000119101,Chronic kidney disease due to type 1 diabetes mellitus
+96701000119107,Hypertensive heart AND chronic kidney disease on dialysis

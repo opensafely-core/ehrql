@@ -52,10 +52,10 @@ def fetch_repo(repo, root):
 
 
 class Study:
-    def __init__(self, root, monkeypatch, containers):
+    def __init__(self, root, containers, image):
         self._root = root
-        self._monkeypatch = monkeypatch
         self._containers = containers
+        self._image = image
 
     def setup_from_repo(self, repo, definition_path):
         self._workspace = fetch_repo(repo, self._root)
@@ -69,10 +69,15 @@ class Study:
     def generate(self, database, backend):
         self._dataset_path = self._workspace / "dataset.csv"
 
-        self._monkeypatch.setenv("DATABASE_URL", database.host_url())
-        self._monkeypatch.setenv("OPENSAFELY_BACKEND", backend)
+        env = {
+            "DATABASE_URL": database.host_url(),
+            "OPENSAFELY_BACKEND": backend,
+        }
 
-        main(self._generate_command(self._definition_path, self._dataset_path))
+        main(
+            self._generate_command(self._definition_path, self._dataset_path),
+            environ=env,
+        )
 
     def generate_in_docker(self, database, backend):
         self._dataset_path = self._workspace / "dataset.csv"
@@ -98,28 +103,28 @@ class Study:
             str(dataset),
         ]
 
-    def validate(self):
-        self._output_path = self._workspace / "validation.out"
-        main(self._validate_command(self._definition_path, self._output_path))
+    def dump_dataset_sql(self):
+        self._output_path = self._workspace / "queries.sql"
+        main(self._dump_dataset_sql_command(self._definition_path, self._output_path))
 
-    def validate_in_docker(self):
-        self._output_path = self._workspace / "validation.out"
+    def dump_dataset_sql_in_docker(self):
+        self._output_path = self._workspace / "queries.sql"
         self._run_in_docker(
-            command=self._validate_command(
+            command=self._dump_dataset_sql_command(
                 self._docker_path(self._definition_path),
                 self._docker_path(self._output_path),
             )
         )
 
     @staticmethod
-    def _validate_command(definition, output):
+    def _dump_dataset_sql_command(definition, output):
         return [
             "dump-dataset-sql",
-            "--dataset-definition",
-            str(definition),
+            "--backend",
+            "databuilder.backends.tpp.TPPBackend",
             "--output",
             str(output),
-            "databuilder.backends.tpp.TPPBackend",
+            str(definition),
         ]
 
     def _docker_path(self, path):
@@ -128,7 +133,7 @@ class Study:
     def _run_in_docker(self, command, environment=None):
         environment = environment or {}
         self._containers.run_fg(
-            image="databuilder:latest",
+            image=self._image,
             command=command,
             environment=environment,
             volumes={self._workspace: {"bind": "/workspace", "mode": "rw"}},

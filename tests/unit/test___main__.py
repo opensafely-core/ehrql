@@ -10,11 +10,11 @@ def test_no_args(capsys):
     assert "usage: databuilder" in captured.out
 
 
-def test_generate_dataset(mocker, monkeypatch, tmp_path):
+def test_generate_dataset(mocker, tmp_path):
     # Verify that the generate_dataset subcommand can be invoked when
     # DATABASE_URL is set.
     patched = mocker.patch("databuilder.__main__.generate_dataset")
-    monkeypatch.setenv("DATABASE_URL", "scheme:path")
+    env = {"DATABASE_URL": "scheme:path"}
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
@@ -22,7 +22,7 @@ def test_generate_dataset(mocker, monkeypatch, tmp_path):
         "--dataset-definition",
         str(dataset_definition_path),
     ]
-    main(argv)
+    main(argv, env)
     patched.assert_called_once()
 
 
@@ -43,12 +43,10 @@ def test_pass_dummy_data(mocker, tmp_path):
     patched.assert_called_once()
 
 
-def test_generate_dataset_if_both_db_url_and_dummy_data_are_provided(
-    mocker, monkeypatch, tmp_path
-):
+def test_generate_dataset_if_both_db_url_and_dummy_data_are_provided(mocker, tmp_path):
     # This happens when studies with dummy data are run in the backend.
     patched = mocker.patch("databuilder.__main__.generate_dataset")
-    monkeypatch.setenv("DATABASE_URL", "scheme:path")
+    env = {"DATABASE_URL": "scheme:path"}
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
@@ -58,7 +56,7 @@ def test_generate_dataset_if_both_db_url_and_dummy_data_are_provided(
         "--dummy-data-file",
         str(tmp_path / "dummy-data.csv"),
     ]
-    main(argv)
+    main(argv, env)
     patched.assert_called_once()
 
 
@@ -84,14 +82,14 @@ def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
 
 def test_dump_dataset_sql(mocker, tmp_path):
     # Verify that the dump dataset sql subcommand can be invoked.
-    patched = mocker.patch("databuilder.__main__.validate_dataset")
+    patched = mocker.patch("databuilder.__main__.dump_dataset_sql")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
         "dump-dataset-sql",
-        "--dataset-definition",
-        str(dataset_definition_path),
+        "--backend",
         "databuilder.backends.tpp.TPPBackend",
+        str(dataset_definition_path),
     ]
     main(argv)
     patched.assert_called_once()

@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
+from databuilder.column_specs import ColumnSpec
 from databuilder.query_language import Dataset
 from databuilder.tables import patients
 from databuilder.validate_dummy_data import (
-    ColumnSpec,
     ValidationError,
     validate_csv_against_spec,
     validate_dummy_data_file,

@@ -1,5 +1,10 @@
+import subprocess
+from pathlib import Path
+
 import pytest
 
+import databuilder
+from databuilder.main import get_sql_strings
 from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
@@ -65,6 +70,11 @@ class QueryEngineFixture:
             # return in the same order
             return sorted(map(dict, results), key=lambda i: i["patient_id"])
 
+    def dump_dataset_sql(self, dataset, **engine_kwargs):
+        variables = compile(dataset)
+        query_engine = self.query_engine_class(dsn=None, **engine_kwargs)
+        return get_sql_strings(query_engine, variables)
+
     def sqlalchemy_engine(self):
         return self.query_engine_class(self.database.host_url()).engine
 
@@ -109,6 +119,21 @@ def engine(request):
     return engine_factory(request, request.param)
 
 
+@pytest.fixture(scope="session")
+def databuilder_image():
+    project_dir = Path(databuilder.__file__).parents[1]
+    # Note different name from production image to avoid confusion
+    image = "databuilder-dev"
+    # We're deliberately choosing to shell out to the docker client here rather than use
+    # the docker-py library to avoid possible difference in the build process (docker-py
+    # doesn't seem to be particularly actively maintained)
+    subprocess.run(
+        ["docker", "build", project_dir, "-t", image],
+        check=True,
+    )
+    return f"{image}:latest"
+
+
 @pytest.fixture
-def study(tmp_path, monkeypatch, containers):
-    return Study(tmp_path, monkeypatch, containers)
+def study(tmp_path, containers, databuilder_image):
+    return Study(tmp_path, containers, databuilder_image)

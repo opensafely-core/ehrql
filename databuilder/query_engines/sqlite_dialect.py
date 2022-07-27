@@ -2,6 +2,9 @@ from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 
 
 class SQLiteDialect(SQLiteDialect_pysqlite):
+
+    supports_statement_cache = True
+
     def do_on_connect(self, connection):
         # Set the per-connection flag which makes LIKE queries case-sensitive
         connection.execute("PRAGMA case_sensitive_like = 1;")
