@@ -162,8 +162,7 @@ def fetch_table_in_batches(
         for row in results:
             row_count += 1
             yield row
-
-        min_key = row[key_column]
+            min_key = row[key_column]
 
         total_rows += row_count
         batch_count += 1
