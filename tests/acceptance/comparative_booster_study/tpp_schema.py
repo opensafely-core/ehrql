@@ -338,7 +338,7 @@ class ONSDeaths(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Patient = relationship("Patient", back_populates="ONSDeath", cascade="all, delete")
     Sex = Column(String)
@@ -418,7 +418,7 @@ class VaccinationReference(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
     # Note this is *not* unique because a single named vaccine product can
     # target multiple diseases and therefore have multiple "contents"
     VaccinationName_ID = Column(Integer)
@@ -431,7 +431,7 @@ class SGSS_Negative(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Patient = relationship(
         "Patient", back_populates="SGSS_Negatives", cascade="all, delete"
@@ -456,7 +456,7 @@ class SGSS_Positive(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Patient = relationship(
         "Patient", back_populates="SGSS_Positives", cascade="all, delete"
@@ -507,7 +507,7 @@ class SGSS_AllTests_Negative(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Patient = relationship(
         "Patient", back_populates="SGSS_AllTests_Negatives", cascade="all, delete"
@@ -542,7 +542,7 @@ class SGSS_AllTests_Positive(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Patient = relationship(
         "Patient", back_populates="SGSS_AllTests_Positives", cascade="all, delete"
@@ -580,7 +580,7 @@ class PotentialCareHomeAddress(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
 
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     PatientAddress_ID = Column(Integer, ForeignKey("PatientAddress.PatientAddress_ID"))
@@ -645,7 +645,7 @@ class EC_Diagnosis(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
 
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Patient = relationship(
@@ -742,7 +742,7 @@ class HighCostDrugs(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
 
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Patient = relationship(
@@ -798,7 +798,7 @@ class DecisionSupportValue(Base):
     )
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
     AlgorithmType = Column(Integer)
     CalculationDateTime = Column(DateTime)
     NumericValue = Column(Float)
@@ -809,7 +809,7 @@ class HealthCareWorker(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Patient = relationship(
         "Patient", back_populates="HealthCareWorker", cascade="all, delete"
@@ -827,7 +827,7 @@ class ClusterRandomisedTrial(Base):
     # assume that one organisation can be in one arm of one trial). However, MSSQL
     # complains when we add `primary_key=True` to two columns. To make life easier, we
     # use a column that isn't in the database.
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
 
     Organisation_ID = Column(Integer, ForeignKey("Organisation.Organisation_ID"))
     Organisation = relationship("Organisation", back_populates="ClusterRandomisedTrial")
@@ -850,7 +850,7 @@ class ClusterRandomisedTrialDetail(Base):
     # This table's PK is probably a composite of Organisation_ID, TrialNumber, and
     # Property. However, MSSQL complains about Property's type. To make life easier, we
     # use a column that isn't in the database.
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
 
     TrialNumber = Column(
         Integer, ForeignKey("ClusterRandomisedTrialReference.TrialNumber")
@@ -891,7 +891,7 @@ class Therapeutics(Base):
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset
     # if we don't give it a primary key
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Patient = relationship(
         "Patient", back_populates="Therapeutics", cascade="all, delete"
@@ -931,7 +931,7 @@ class UKRR(Base):
     __tablename__ = "UKRR"
 
     # fake pk to satisfy the ORM
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
 
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
     Patient = relationship("Patient", back_populates="UKRR")
@@ -949,7 +949,7 @@ class BuildProgress(Base):
     __tablename__ = "BuildProgress"
 
     # fake pk to satisfy the ORM
-    id = Column(Integer, primary_key=True)
+    pk = Column(Integer, primary_key=True)
 
     Event = Column(String)
     BuildStart = Column(DateTime, default=datetime.utcnow)
