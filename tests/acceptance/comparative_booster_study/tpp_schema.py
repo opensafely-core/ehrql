@@ -1,5 +1,3 @@
-import os
-import re
 from datetime import datetime
 
 from sqlalchemy import (
@@ -12,74 +10,11 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
-    types,
 )
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship
 
-from cohortextractor.process_covariate_definitions import (
-    ISARIC_COLUMN_MAPPINGS,
-    ONS_CIS_COLUMN_MAPPINGS,
-)
-from cohortextractor.tpp_backend import AppointmentStatus
-from tests.helpers import mssql_sqlalchemy_engine_from_url, wait_for_mssql_to_be_ready
-
-
-# Hack: in order to improve the variety of our test data, we intercept object
-# initialization, adding a time part to any kwarg that is for a datetime field that has
-# been provided as a date.
-class BaseTable:
-    def __init__(self, **kwargs):
-        columns = type(self).__table__.columns
-        for k in kwargs:
-            if k not in columns:
-                continue
-            if not isinstance(columns[k].type, DateTime):
-                continue
-            if re.match(r"\d\d\d\d-\d\d-\d\d$", kwargs[k]):
-                kwargs[k] += " 12:00:00"
-        super().__init__(**kwargs)
-
-
-Base = declarative_base(cls=BaseTable)
-
-
-# a SQLAlchemy enum that uses the int values rather than the strings
-class IntEnum(types.TypeDecorator):
-    impl = Integer
-
-    def __init__(self, enumtype, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._enumtype = enumtype
-
-    def process_bind_param(self, value, dialect):
-        return value.value
-
-    def process_result_value(self, value, dialect):
-        return self._enumtype(value)
-
-
-def make_engine():
-    engine = mssql_sqlalchemy_engine_from_url(os.environ["TPP_DATABASE_URL"])
-    timeout = float(os.environ.get("CONNECTION_RETRY_TIMEOUT", "60"))
-    wait_for_mssql_to_be_ready(engine, timeout)
-    return engine
-
-
-def make_session():
-    engine = make_engine()
-    Session = sessionmaker()
-    Session.configure(bind=engine)
-    session = Session()
-    return session
-
-
-def make_database():
-    Base.metadata.create_all(make_engine())
-
-
-def clear_database():
-    Base.metadata.drop_all(make_engine())
+Base = declarative_base()
 
 
 class MedicationIssue(Base):
@@ -139,12 +74,6 @@ class CodedEvent(Base):
         cascade="all, delete, delete-orphan",
     )
 
-    def __init__(self, **kwargs):
-        if "ConsultationDate" in kwargs:
-            if re.match(r"\d\d\d\d-\d\d-\d\d$", kwargs["ConsultationDate"]):
-                kwargs["ConsultationDate"] += " 12:00:00"
-        super().__init__(**kwargs)
-
 
 class CodedEventSnomed(Base):
     __tablename__ = "CodedEvent_SNOMED"
@@ -201,7 +130,7 @@ class Appointment(Base):
     # The real table has various other datetime columns but we don't currently
     # use them
     SeenDate = Column(DateTime)
-    Status = Column(IntEnum(AppointmentStatus))
+    # Status = Column(IntEnum(AppointmentStatus))
 
 
 class Patient(Base):
@@ -318,16 +247,6 @@ class Patient(Base):
     )
     Therapeutics = relationship(
         "Therapeutics",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    ISARIC = relationship(
-        "ISARICData",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    ONS_CIS = relationship(
-        "ONS_CIS",
         back_populates="Patient",
         cascade="all, delete, delete-orphan",
     )
@@ -1006,45 +925,6 @@ class Therapeutics(Base):
     SOT02_onset_of_symptoms = Column(String)
     Count = Column(String)
     Der_LoadDate = Column(String)
-
-
-class ISARICData(Base):
-    __tablename__ = "ISARIC_Patient_Data_TopLine"
-
-    # fake pk to satisfy the ORM
-    id = Column(Integer, primary_key=True)
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="ISARIC")
-
-
-# There are lots of string columns for ISARIC, so we create the ORM columns
-# dynamically
-for name, type_ in ISARIC_COLUMN_MAPPINGS.items():
-    setattr(ISARICData, name, Column(String))
-
-
-class ONS_CIS(Base):
-    __tablename__ = "ONS_CIS"
-
-    # fake pk to satisfy the ORM
-    id = Column(Integer, primary_key=True)
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="ONS_CIS")
-
-
-# There are lots of columns for ONS_CIS, so we create the ORM columns
-# dynamically
-sqlalchemy_type_conversion = {
-    "int": Integer,
-    "bool": Boolean,
-    "float": Float,
-    "str": String,
-    "date": Date,
-}
-for name, ons_cis_type in ONS_CIS_COLUMN_MAPPINGS.items():
-    setattr(ONS_CIS, name, Column(sqlalchemy_type_conversion[ons_cis_type]))
 
 
 class UKRR(Base):
