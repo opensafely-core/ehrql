@@ -1,7 +1,8 @@
 import pytest
 
-from . import schema
+from . import schema, tpp_schema
 from .dataset_definition import dataset
+from .tpp_backend import TPPBackend
 
 
 def test_dataset_definition(engine):
@@ -16,4 +17,13 @@ def test_dataset_definition(engine):
 
     engine.setup(metadata=schema.Base.metadata)
     results = engine.extract(dataset)
+    assert results == []
+
+
+def test_dataset_definition_against_tpp_backend(engine):
+    if engine.query_engine_class is not TPPBackend.query_engine_class:
+        pytest.skip("TPPBackend is only designed for one query engine")
+
+    engine.setup(metadata=tpp_schema.Base.metadata)
+    results = engine.extract(dataset, backend=TPPBackend())
     assert results == []
