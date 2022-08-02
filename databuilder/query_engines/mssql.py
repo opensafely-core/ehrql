@@ -29,23 +29,27 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         )
 
     def reify_query(self, query):
-        # Define a table object with the same columns as the query
-        table_name = self.next_intermediate_table_name()
-        columns = [
-            sqlalchemy.Column(c.name, c.type, key=c.key) for c in query.selected_columns
-        ]
-        table = GeneratedTable(table_name, sqlalchemy.MetaData(), *columns)
-        table.setup_queries = [
-            # Use the MSSQL `SELECT * INTO ...` construct to create and populate this
-            # table
-            SelectStarInto(table, query.alias()),
-            # As we always join rows on `patient_id` it makes sense to store them on
-            # disk in `patient_id` order, which is what creating a clustered index does.
-            # (We use `None` as the index name to let SQLAlchemy generate one for us.)
-            CreateIndex(
-                sqlalchemy.Index(None, table.c.patient_id, mssql_clustered=True)
-            ),
-        ]
-        # The "#" in `intermediate_table_prefix` ensures this is a session-scoped
-        # temporary table so there's no explict cleanup needed
-        return table
+        return temporary_table_from_query(
+            self.next_intermediate_table_name(), query, index_col="patient_id"
+        )
+
+
+def temporary_table_from_query(table_name, query, index_col=0):
+    # Define a table object with the same columns as the query
+    columns = [
+        sqlalchemy.Column(c.name, c.type, key=c.key) for c in query.selected_columns
+    ]
+    table = GeneratedTable(table_name, sqlalchemy.MetaData(), *columns)
+    table.setup_queries = [
+        # Use the MSSQL `SELECT * INTO ...` construct to create and populate this
+        # table
+        SelectStarInto(table, query.alias()),
+        # Create a clustered index on the specified column which defines the order in
+        # which data will be stored on disk. (We use `None` as the index name to let
+        # SQLAlchemy generate one for us.)
+        CreateIndex(sqlalchemy.Index(None, table.c[index_col], mssql_clustered=True)),
+    ]
+    # The "#" prefix ensures this is a session-scoped temporary table so there's no
+    # explict cleanup needed
+    assert table_name.startswith("#")
+    return table
