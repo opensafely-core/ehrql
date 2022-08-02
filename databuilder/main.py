@@ -31,8 +31,8 @@ def generate_dataset(
     column_specs = get_column_specs(variable_definitions)
 
     query_engine = get_query_engine(db_url, backend_id, query_engine_id, environ)
-    with query_engine.execute_query(variable_definitions) as results:
-        write_dataset_csv(column_specs, results, dataset_file)
+    results = query_engine.execute_query(variable_definitions)
+    write_dataset_csv(column_specs, results, dataset_file)
 
 
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):

@@ -65,10 +65,10 @@ class QueryEngineFixture:
         query_engine = self.query_engine_class(
             self.database.host_url(), **engine_kwargs
         )
-        with query_engine.execute_query(variables) as results:
-            # We don't explicitly order the results and not all databases naturally
-            # return in the same order
-            return sorted(map(dict, results), key=lambda i: i["patient_id"])
+        results = query_engine.execute_query(variables)
+        # We don't explicitly order the results and not all databases naturally
+        # return in the same order
+        return sorted(map(dict, results), key=lambda i: i["patient_id"])
 
     def dump_dataset_sql(self, dataset, **engine_kwargs):
         variables = compile(dataset)

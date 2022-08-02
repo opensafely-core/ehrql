@@ -1,4 +1,3 @@
-import contextlib
 from functools import cached_property
 
 import sqlalchemy
@@ -486,7 +485,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             query = query.where(sqlalchemy.and_(*where_clauses))
         return query
 
-    @contextlib.contextmanager
     def execute_query(self, variable_definitions):
         setup_queries, results_query, cleanup_queries = self.get_queries(
             variable_definitions
@@ -495,7 +493,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             for setup_query in setup_queries:
                 cursor.execute(setup_query)
 
-            yield cursor.execute(results_query)
+            yield from cursor.execute(results_query)
 
             assert not cleanup_queries, "Support these once tests exercise them"
 
