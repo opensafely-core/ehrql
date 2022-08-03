@@ -489,11 +489,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         setup_queries, results_query, cleanup_queries = self.get_queries(
             variable_definitions
         )
-        with self.engine.connect() as cursor:
+        with self.engine.connect() as connection:
             for setup_query in setup_queries:
-                cursor.execute(setup_query)
+                connection.execute(setup_query)
 
-            yield from cursor.execute(results_query)
+            yield from connection.execute(results_query)
 
             assert not cleanup_queries, "Support these once tests exercise them"
 
