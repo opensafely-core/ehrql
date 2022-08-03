@@ -8,7 +8,7 @@ import structlog
 
 from databuilder.column_specs import get_column_specs
 from databuilder.query_language import Dataset
-from databuilder.sqlalchemy_utils import clause_as_str
+from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
 
 from . import query_language as ql
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
@@ -64,9 +64,8 @@ def dump_dataset_sql(
 
 
 def get_sql_strings(query_engine, variable_definitions):
-    setup_queries, results_query, cleanup_queries = query_engine.get_queries(
-        variable_definitions
-    )
+    results_query = query_engine.get_query(variable_definitions)
+    setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
     all_queries = setup_queries + [results_query] + cleanup_queries
     dialect = query_engine.sqlalchemy_dialect()
     return [clause_as_str(query, dialect) for query in all_queries]

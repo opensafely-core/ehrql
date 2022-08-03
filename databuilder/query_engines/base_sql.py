@@ -44,13 +44,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         if not self.backend:
             self.backend = DefaultBackend()
 
-    def get_queries(self, variable_definitions):
+    def get_query(self, variable_definitions):
         """
-        Return the SQL queries to fetch the results for `variable_definitions`
+        Return the SQL query to fetch the results for `variable_definitions`
 
-        These are specified as a triple:
-
-            list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
+        Note that this query might make use of intermediate tables. The SQL queries
+        needed to create these tables and clean them up can be retrieved by calling
+        `get_setup_and_cleanup_queries` on the query object.
         """
         variable_definitions = apply_transforms(variable_definitions)
         population_definition = variable_definitions.pop("population")
@@ -66,8 +66,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         query = query.where(population_expression)
         query = apply_patient_joins(query)
 
-        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(query)
-        return setup_queries, query, cleanup_queries
+        return query
 
     def select_patient_id_for_population(self, population_expression):
         """
@@ -486,9 +485,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return query
 
     def get_results(self, variable_definitions):
-        setup_queries, results_query, cleanup_queries = self.get_queries(
-            variable_definitions
-        )
+        results_query = self.get_query(variable_definitions)
+        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
         with self.engine.connect() as connection:
             for setup_query in setup_queries:
                 connection.execute(setup_query)
