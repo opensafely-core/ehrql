@@ -133,11 +133,18 @@ def test_clause_as_str():
     assert query_str == "SELECT foo.bar \nFROM foo \nWHERE foo.bar > 100"
 
 
-# Converting CreateIndex to a string blows up without a special workaround
 def test_clause_as_str_wtih_create_index():
     table = sqlalchemy.Table("foo", sqlalchemy.MetaData(), sqlalchemy.Column("bar"))
     index = sqlalchemy.Index(None, table.c.bar)
     create_index = sqlalchemy.schema.CreateIndex(index)
     dialect = SQLiteDialect_pysqlite()
+
+    # Compiling CreateIndex to a string using literal_binds blows up with a TypeError. I
+    # think this is just a bug in SQLAlchemy, so if this suddenly starts working we want
+    # to know so we can remove our workaround (see `clause_as_str` function for details)
+    with pytest.raises(TypeError, match="unexpected keyword argument 'literal_binds'"):
+        create_index.compile(dialect=dialect, compile_kwargs={"literal_binds": True})
+
+    # Check that our workaround is effective
     query_str = clause_as_str(create_index, dialect)
     assert query_str == "CREATE INDEX ix_foo_bar ON foo (bar)"
