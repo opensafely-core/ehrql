@@ -65,7 +65,7 @@ class QueryEngineFixture:
         query_engine = self.query_engine_class(
             self.database.host_url(), **engine_kwargs
         )
-        results = query_engine.execute_query(variables)
+        results = query_engine.get_results(variables)
         # We don't explicitly order the results and not all databases naturally
         # return in the same order
         return sorted(map(dict, results), key=lambda i: i["patient_id"])

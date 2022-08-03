@@ -31,7 +31,7 @@ def generate_dataset(
     column_specs = get_column_specs(variable_definitions)
 
     query_engine = get_query_engine(db_url, backend_id, query_engine_id, environ)
-    results = query_engine.execute_query(variable_definitions)
+    results = query_engine.get_results(variable_definitions)
     write_dataset_csv(column_specs, results, dataset_file)
 
 

@@ -18,7 +18,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
     tests, and a to provide a reference implementation for other engines.
     """
 
-    def execute_query(self, variable_definitions):
+    def get_results(self, variable_definitions):
         name_to_col = {
             "patient_id": Column(
                 {patient: [patient] for patient in self.all_patients},

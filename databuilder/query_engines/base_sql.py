@@ -485,7 +485,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             query = query.where(sqlalchemy.and_(*where_clauses))
         return query
 
-    def execute_query(self, variable_definitions):
+    def get_results(self, variable_definitions):
         setup_queries, results_query, cleanup_queries = self.get_queries(
             variable_definitions
         )
