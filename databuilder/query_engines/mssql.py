@@ -33,6 +33,15 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             self.next_intermediate_table_name(), query, index_col="patient_id"
         )
 
+    def get_query(self, variable_definitions):
+        results_query = super().get_query(variable_definitions)
+        # Write results to a temporary table and select them from there. This allows us
+        # to use more efficient/robust mechanisms to retrieve the results.
+        results_table = temporary_table_from_query(
+            "#results", results_query, index_col="patient_id"
+        )
+        return sqlalchemy.select(results_table)
+
 
 def temporary_table_from_query(table_name, query, index_col=0):
     # Define a table object with the same columns as the query
