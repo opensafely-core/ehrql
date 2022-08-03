@@ -66,9 +66,19 @@ def dump_dataset_sql(
 def get_sql_strings(query_engine, variable_definitions):
     results_query = query_engine.get_query(variable_definitions)
     setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
-    all_queries = setup_queries + [results_query] + cleanup_queries
     dialect = query_engine.sqlalchemy_dialect()
-    return [clause_as_str(query, dialect) for query in all_queries]
+    sql_strings = []
+
+    for n, query in enumerate(setup_queries, start=1):
+        sql = clause_as_str(query, dialect)
+        sql_strings.append(f"-- Setup query {n:03} / {len(setup_queries):03}\n{sql}")
+
+    sql = clause_as_str(results_query, dialect)
+    sql_strings.append(f"-- Results query\n{sql}")
+
+    assert not cleanup_queries, "Support these once tests exercise them"
+
+    return sql_strings
 
 
 def open_output_file(output_file):
