@@ -1,11 +1,18 @@
 import sqlalchemy
+import structlog
 from sqlalchemy.schema import CreateIndex
 from sqlalchemy.sql.functions import Function as SQLFunction
 
 from databuilder import sqlalchemy_types
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 from databuilder.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
-from databuilder.sqlalchemy_utils import GeneratedTable
+from databuilder.sqlalchemy_utils import (
+    GeneratedTable,
+    fetch_table_in_batches,
+    get_setup_and_cleanup_queries,
+)
+
+log = structlog.getLogger()
 
 
 class MSSQLQueryEngine(BaseSQLQueryEngine):
@@ -41,6 +48,33 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             "#results", results_query, index_col="patient_id"
         )
         return sqlalchemy.select(results_table)
+
+    def get_results(self, variable_definitions):
+        results_query = self.get_query(variable_definitions)
+
+        # We're expecting a query in a very specific form which is "select everything
+        # from one table"; so we assert that it has this form and retrieve a reference
+        # to the table
+        results_table = results_query.get_final_froms()[0]
+        assert str(results_query) == str(sqlalchemy.select(results_table))
+
+        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
+        with self.engine.connect() as connection:
+            for n, setup_query in enumerate(setup_queries, start=1):
+                log.info(f"Running setup query {n:03} / {len(setup_queries):03}")
+                connection.execute(setup_query)
+
+            yield from fetch_table_in_batches(
+                connection,
+                results_table,
+                key_column=results_table.c.patient_id,
+                # This value was copied from the previous cohortextractor. I suspect it
+                # has no real scientific basis.
+                batch_size=32000,
+                log=log.info,
+            )
+
+            assert not cleanup_queries, "Support these once tests exercise them"
 
 
 def temporary_table_from_query(table_name, query, index_col=0):
