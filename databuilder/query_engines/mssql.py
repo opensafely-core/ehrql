@@ -39,10 +39,10 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
 
     def to_first_of_month(self, date):
         return SQLFunction(
-            "DATEADD",
-            sqlalchemy.text("day"),
+            "DATEFROMPARTS",
+            self.get_date_part(date, "YEAR"),
+            self.get_date_part(date, "MONTH"),
             1,
-            SQLFunction("EOMONTH", date, -1),
             type_=sqlalchemy_types.Date,
         )
 
