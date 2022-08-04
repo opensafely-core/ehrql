@@ -8,7 +8,7 @@ import structlog
 
 from databuilder.column_specs import get_column_specs
 from databuilder.query_language import Dataset
-from databuilder.sqlalchemy_utils import clause_as_str
+from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
 
 from . import query_language as ql
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
@@ -31,8 +31,8 @@ def generate_dataset(
     column_specs = get_column_specs(variable_definitions)
 
     query_engine = get_query_engine(db_url, backend_id, query_engine_id, environ)
-    with query_engine.execute_query(variable_definitions) as results:
-        write_dataset_csv(column_specs, results, dataset_file)
+    results = query_engine.get_results(variable_definitions)
+    write_dataset_csv(column_specs, results, dataset_file)
 
 
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
@@ -64,12 +64,21 @@ def dump_dataset_sql(
 
 
 def get_sql_strings(query_engine, variable_definitions):
-    setup_queries, results_query, cleanup_queries = query_engine.get_queries(
-        variable_definitions
-    )
-    all_queries = setup_queries + [results_query] + cleanup_queries
+    results_query = query_engine.get_query(variable_definitions)
+    setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
     dialect = query_engine.sqlalchemy_dialect()
-    return [clause_as_str(query, dialect) for query in all_queries]
+    sql_strings = []
+
+    for n, query in enumerate(setup_queries, start=1):
+        sql = clause_as_str(query, dialect)
+        sql_strings.append(f"-- Setup query {n:03} / {len(setup_queries):03}\n{sql}")
+
+    sql = clause_as_str(results_query, dialect)
+    sql_strings.append(f"-- Results query\n{sql}")
+
+    assert not cleanup_queries, "Support these once tests exercise them"
+
+    return sql_strings
 
 
 def open_output_file(output_file):

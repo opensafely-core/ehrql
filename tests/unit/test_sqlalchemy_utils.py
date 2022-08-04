@@ -5,6 +5,7 @@ from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from databuilder.sqlalchemy_utils import (
     GeneratedTable,
     clause_as_str,
+    fetch_table_in_batches,
     get_setup_and_cleanup_queries,
     is_predicate,
 )
@@ -133,11 +134,67 @@ def test_clause_as_str():
     assert query_str == "SELECT foo.bar \nFROM foo \nWHERE foo.bar > 100"
 
 
-# Converting CreateIndex to a string blows up without a special workaround
 def test_clause_as_str_wtih_create_index():
     table = sqlalchemy.Table("foo", sqlalchemy.MetaData(), sqlalchemy.Column("bar"))
     index = sqlalchemy.Index(None, table.c.bar)
     create_index = sqlalchemy.schema.CreateIndex(index)
     dialect = SQLiteDialect_pysqlite()
+
+    # Compiling CreateIndex to a string using literal_binds blows up with a TypeError. I
+    # think this is just a bug in SQLAlchemy, so if this suddenly starts working we want
+    # to know so we can remove our workaround (see `clause_as_str` function for details)
+    with pytest.raises(TypeError, match="unexpected keyword argument 'literal_binds'"):
+        create_index.compile(dialect=dialect, compile_kwargs={"literal_binds": True})
+
+    # Check that our workaround is effective
     query_str = clause_as_str(create_index, dialect)
     assert query_str == "CREATE INDEX ix_foo_bar ON foo (bar)"
+
+
+@pytest.mark.parametrize(
+    "table_size,batch_size,expected_query_count",
+    [
+        (20, 5, 5),  # 4 batches of results, plus one to confirm there are no more
+        (20, 6, 4),  # 4th batch will be part empty so we know it's the final one
+        (0, 10, 1),  # 1 query to confirm there are no results
+        (9, 1, 10),  # a batch size of 1 is obviously silly but it ought to work
+    ],
+)
+def test_fetch_table_in_batches(table_size, batch_size, expected_query_count):
+    table_data = [(i, f"foo{i}") for i in range(table_size)]
+
+    # Pretend to be a SQL connection that understands just two forms of query
+    class FakeConnection:
+        call_count = 0
+
+        def execute(self, query):
+            self.call_count += 1
+            compiled = query.compile()
+            sql = str(compiled).replace("\n", "").strip()
+            params = compiled.params
+
+            if sql == "SELECT t.pk, t.foo FROM t ORDER BY t.pk LIMIT :param_1":
+                limit = params["param_1"]
+                return table_data[:limit]
+            elif sql == (
+                "SELECT t.pk, t.foo FROM t WHERE t.pk > :pk_1 "
+                "ORDER BY t.pk LIMIT :param_1"
+            ):
+                limit, min_pk = params["param_1"], params["pk_1"]
+                return [row for row in table_data if row[0] > min_pk][:limit]
+            else:
+                assert False, f"Unexpected SQL: {sql}"
+
+    table = sqlalchemy.table(
+        "t",
+        sqlalchemy.Column("pk"),
+        sqlalchemy.Column("foo"),
+    )
+
+    connection = FakeConnection()
+
+    results = fetch_table_in_batches(
+        connection, table, table.c.pk, batch_size=batch_size
+    )
+    assert list(results) == table_data
+    assert connection.call_count == expected_query_count

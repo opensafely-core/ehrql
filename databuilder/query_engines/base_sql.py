@@ -1,8 +1,8 @@
-import contextlib
 from functools import cached_property
 
 import sqlalchemy
 import sqlalchemy.engine.interfaces
+import structlog
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
@@ -32,6 +32,8 @@ from databuilder.sqlalchemy_utils import get_setup_and_cleanup_queries, is_predi
 
 from .base import BaseQueryEngine
 
+log = structlog.getLogger()
+
 
 class BaseSQLQueryEngine(BaseQueryEngine):
 
@@ -45,13 +47,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         if not self.backend:
             self.backend = DefaultBackend()
 
-    def get_queries(self, variable_definitions):
+    def get_query(self, variable_definitions):
         """
-        Return the SQL queries to fetch the results for `variable_definitions`
+        Return the SQL query to fetch the results for `variable_definitions`
 
-        These are specified as a triple:
-
-            list_of_setup_queries, query_to_fetch_results, list_of_cleanup_queries
+        Note that this query might make use of intermediate tables. The SQL queries
+        needed to create these tables and clean them up can be retrieved by calling
+        `get_setup_and_cleanup_queries` on the query object.
         """
         variable_definitions = apply_transforms(variable_definitions)
         population_definition = variable_definitions.pop("population")
@@ -67,8 +69,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         query = query.where(population_expression)
         query = apply_patient_joins(query)
 
-        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(query)
-        return setup_queries, query, cleanup_queries
+        return query
 
     def select_patient_id_for_population(self, population_expression):
         """
@@ -486,16 +487,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             query = query.where(sqlalchemy.and_(*where_clauses))
         return query
 
-    @contextlib.contextmanager
-    def execute_query(self, variable_definitions):
-        setup_queries, results_query, cleanup_queries = self.get_queries(
-            variable_definitions
-        )
-        with self.engine.connect() as cursor:
-            for setup_query in setup_queries:
-                cursor.execute(setup_query)
+    def get_results(self, variable_definitions):
+        results_query = self.get_query(variable_definitions)
+        setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
+        with self.engine.connect() as connection:
+            for n, setup_query in enumerate(setup_queries, start=1):
+                log.info(f"Running setup query {n:03} / {len(setup_queries):03}")
+                connection.execute(setup_query)
 
-            yield cursor.execute(results_query)
+            log.info("Fetching results")
+            yield from connection.execute(results_query)
 
             assert not cleanup_queries, "Support these once tests exercise them"
 

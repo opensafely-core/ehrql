@@ -1,4 +1,3 @@
-import contextlib
 import datetime
 import operator
 
@@ -19,8 +18,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
     tests, and a to provide a reference implementation for other engines.
     """
 
-    @contextlib.contextmanager
-    def execute_query(self, variable_definitions):
+    def get_results(self, variable_definitions):
         name_to_col = {
             "patient_id": Column(
                 {patient: [patient] for patient in self.all_patients},
@@ -35,12 +33,10 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
         table = Table(name_to_col)
         table = table.filter(table["population"])
-        records = []
+
         for record in table.to_records():
             del record["population"]
-            records.append(record)
-
-        yield records
+            yield record
 
     @property
     def database(self):
