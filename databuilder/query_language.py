@@ -269,6 +269,12 @@ class DateFunctions(ComparableFunctions):
         other = parse_date_if_str(other)
         return self >= other
 
+    def to_first_of_year(self):
+        return _apply(qm.Function.ToFirstOfYear, self)
+
+    def to_first_of_month(self):
+        return _apply(qm.Function.ToFirstOfMonth, self)
+
 
 class DateAggregations(ComparableAggregations):
     "Empty for now"

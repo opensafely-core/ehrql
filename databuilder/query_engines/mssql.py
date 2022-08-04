@@ -35,6 +35,24 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             type_=sqlalchemy_types.Date,
         )
 
+    def to_first_of_year(self, date):
+        return SQLFunction(
+            "DATEFROMPARTS",
+            self.get_date_part(date, "YEAR"),
+            1,
+            1,
+            type_=sqlalchemy_types.Date,
+        )
+
+    def to_first_of_month(self, date):
+        return SQLFunction(
+            "DATEFROMPARTS",
+            self.get_date_part(date, "YEAR"),
+            self.get_date_part(date, "MONTH"),
+            1,
+            type_=sqlalchemy_types.Date,
+        )
+
     def reify_query(self, query):
         return temporary_table_from_query(
             self.next_intermediate_table_name(), query, index_col="patient_id"

@@ -240,6 +240,18 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_DayFromDate(self, node):
         return self.visit_unary_op_with_null(node, operator.attrgetter("day"))
 
+    def visit_ToFirstOfYear(self, node):
+        def to_first_of_year(date):
+            return date.replace(day=1, month=1)
+
+        return self.visit_unary_op_with_null(node, to_first_of_year)
+
+    def visit_ToFirstOfMonth(self, node):
+        def to_first_of_month(date):
+            return date.replace(day=1)
+
+        return self.visit_unary_op_with_null(node, to_first_of_month)
+
     def visit_StringContains(self, node):
         return self.visit_binary_op_with_null(node, operator.contains)
 

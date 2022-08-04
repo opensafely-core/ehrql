@@ -17,6 +17,12 @@ class SparkQueryEngine(BaseSQLQueryEngine):
     def date_add_days(self, date, num_days):
         return SQLFunction("DATE_ADD", date, num_days, type_=sqlalchemy_types.Date)
 
+    def to_first_of_year(self, date):
+        return SQLFunction("TRUNC", date, "year", type_=sqlalchemy_types.Date)
+
+    def to_first_of_month(self, date):
+        return SQLFunction("TRUNC", date, "month", type_=sqlalchemy_types.Date)
+
     def reify_query(self, query):
         # Define a table object with the same columns as the query
         table_name = self.next_intermediate_table_name()
