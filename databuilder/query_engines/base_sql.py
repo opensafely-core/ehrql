@@ -2,6 +2,7 @@ from functools import cached_property
 
 import sqlalchemy
 import sqlalchemy.engine.interfaces
+import structlog
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
@@ -30,6 +31,8 @@ from databuilder.query_model_transforms import (
 from databuilder.sqlalchemy_utils import get_setup_and_cleanup_queries, is_predicate
 
 from .base import BaseQueryEngine
+
+log = structlog.getLogger()
 
 
 class BaseSQLQueryEngine(BaseQueryEngine):
@@ -488,9 +491,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         results_query = self.get_query(variable_definitions)
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
         with self.engine.connect() as connection:
-            for setup_query in setup_queries:
+            for n, setup_query in enumerate(setup_queries, start=1):
+                log.info(f"Running setup query {n:03} / {len(setup_queries):03}")
                 connection.execute(setup_query)
 
+            log.info("Fetching results")
             yield from connection.execute(results_query)
 
             assert not cleanup_queries, "Support these once tests exercise them"
