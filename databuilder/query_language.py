@@ -438,22 +438,6 @@ class SortedEventFrame(BaseFrame):
 #
 
 
-def build_patient_table(name, schema, contract=None):
-    if contract is not None:
-        contract.validate_schema(schema)
-    return PatientFrame(
-        qm.SelectPatientTable(name, schema=qm.TableSchema(schema)),
-    )
-
-
-def build_event_table(name, schema, contract=None):
-    if contract is not None:  # pragma: no cover
-        contract.validate_schema(schema)
-    return EventFrame(
-        qm.SelectTable(name, schema=qm.TableSchema(schema)),
-    )
-
-
 class SchemaError(Exception):
     ...
 
