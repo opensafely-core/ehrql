@@ -13,7 +13,6 @@ from databuilder.query_language import (
     Series,
     StrEventSeries,
     StrPatientSeries,
-    build_patient_table,
     compile,
     construct,
 )
@@ -27,10 +26,8 @@ from databuilder.query_model import (
     Value,
 )
 
-patients_schema = {
-    "date_of_birth": date,
-}
-patients = build_patient_table("patients", patients_schema)
+patients_schema = TableSchema(date_of_birth=date)
+patients = PatientFrame(SelectPatientTable("patients", patients_schema))
 
 
 def test_dataset():
