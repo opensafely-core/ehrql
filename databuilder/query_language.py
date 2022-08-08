@@ -367,6 +367,9 @@ class BaseFrame:
         self.qm_node = qm_node
 
     def __getattr__(self, name):
+        return self._select_column(name)
+
+    def _select_column(self, name):
         return _wrap(qm.SelectColumn(source=self.qm_node, name=name))
 
     def exists_for_patient(self):
