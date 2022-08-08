@@ -39,7 +39,7 @@ class Dataset:
 
 
 def compile(dataset):  # noqa A003
-    return {k: v.qm_node for k, v in vars(dataset).items() if isinstance(v, Series)}
+    return {k: v.qm_node for k, v in vars(dataset).items() if isinstance(v, BaseSeries)}
 
 
 # BASIC SERIES TYPES
@@ -47,7 +47,7 @@ def compile(dataset):  # noqa A003
 
 
 @dataclasses.dataclass(frozen=True)
-class Series:
+class BaseSeries:
     qm_node: qm.Node
 
     def __hash__(self):
@@ -90,7 +90,7 @@ class Series:
         return _apply(qm.Case, cases)
 
 
-class EventSeries(Series):
+class EventSeries(BaseSeries):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         # Register the series using its `_type` attribute
@@ -100,7 +100,7 @@ class EventSeries(Series):
     # they would be defined here as well
 
 
-class PatientSeries(Series):
+class PatientSeries(BaseSeries):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         # Register the series using its `_type` attribute
@@ -348,7 +348,7 @@ def _convert(arg):
     if isinstance(arg, _DictArg):
         return {_convert(key): _convert(value) for key, value in arg}
     # If it's an ehrQL series then get the wrapped query model node
-    elif isinstance(arg, Series):
+    elif isinstance(arg, BaseSeries):
         return arg.qm_node
     # If it's a Codelist extract the set of codes and put it in a Value wrapper
     elif isinstance(arg, Codelist):
@@ -362,7 +362,7 @@ def _convert(arg):
 #
 
 
-class Frame:
+class BaseFrame:
     def __init__(self, qm_node):
         self.qm_node = qm_node
 
@@ -376,11 +376,11 @@ class Frame:
         return _wrap(qm.AggregateByPatient.Count(source=self.qm_node))
 
 
-class PatientFrame(Frame):
+class PatientFrame(BaseFrame):
     pass
 
 
-class EventFrame(Frame):
+class EventFrame(BaseFrame):
     def take(self, series):
         return EventFrame(
             qm.Filter(
@@ -413,7 +413,7 @@ class EventFrame(Frame):
         return SortedEventFrame(qm_node)
 
 
-class SortedEventFrame(Frame):
+class SortedEventFrame(BaseFrame):
     def first_for_patient(self):
         return PatientFrame(
             qm.PickOneRowPerPatient(
