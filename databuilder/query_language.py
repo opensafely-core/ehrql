@@ -454,6 +454,58 @@ def build_event_table(name, schema, contract=None):
     )
 
 
+class SchemaError(Exception):
+    ...
+
+
+# A class decorator which replaces the class definition with an appropriately configured
+# instance of the class. Obviously this is a _bit_ odd, but I think worth it overall.
+# Using classes to define tables is (as far as I can tell) the only way to get nice
+# autocomplete and type-checking behaviour for column names. But we don't actually want
+# these classes accessible anywhere: users should only be interacting with instances of
+# the classes, and having the classes themselves in the module namespaces only makes
+# autocomplete more confusing and error prone.
+def construct(cls):
+    try:
+        qm_class = {
+            (PatientFrame,): qm.SelectPatientTable,
+            (EventFrame,): qm.SelectTable,
+        }[cls.__bases__]
+    except KeyError:
+        raise SchemaError(
+            "Schema class must subclass either `PatientFrame` or `EventFrame`"
+        )
+
+    table_name = cls.__name__
+    # Get all `Series` objects on the class and determine the schema from them
+    schema = {
+        series.name: series.type_
+        for series in vars(cls).values()
+        if isinstance(series, Series)
+    }
+
+    qm_node = qm_class(table_name, qm.TableSchema(schema))
+    return cls(qm_node)
+
+
+# A descriptor which will return the appropriate type of series depending on the type of
+# frame it belongs to i.e. a PatientSeries subclass for PatientFrames and an EventSeries
+# subclass for EventFrames. This lets schema authors use a consistent syntax when
+# defining frames of either type.
+class Series:
+    def __init__(self, type_):
+        self.type_ = type_
+
+    def __set_name__(self, owner, name):
+        self.name = name
+
+    def __get__(self, instance, owner):
+        # Prevent users attempting to interact with the class rather than an instance
+        if instance is None:
+            raise SchemaError("Missing `@construct` decorator on schema class")
+        return instance._select_column(self.name)
+
+
 # CASE EXPRESSION FUNCTIONS
 #
 
