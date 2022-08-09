@@ -32,8 +32,8 @@ def main(args, environ=None):
                 definition_file=options.dataset_definition,
                 dataset_file=options.output,
                 db_url=database_url,
-                backend_id=environ.get("OPENSAFELY_BACKEND"),
-                query_engine_id=environ.get("OPENSAFELY_QUERY_ENGINE"),
+                backend_id=options.backend,
+                query_engine_id=options.query_engine,
                 environ=environ,
             )
         elif dummy_data_file:
@@ -100,6 +100,16 @@ def add_generate_dataset(subparsers, environ):
         "--dummy-data-file",
         help="Provide dummy data from a file to be validated and used as the dataset",
         type=Path,
+    )
+    parser.add_argument(
+        "--query-engine",
+        type=str,
+        default=environ.get("OPENSAFELY_QUERY_ENGINE"),
+    )
+    parser.add_argument(
+        "--backend",
+        type=str,
+        default=environ.get("OPENSAFELY_BACKEND"),
     )
 
 
