@@ -68,3 +68,29 @@ def test_csv_query_engine(tmp_path):
         (1, "M", 1100, datetime.date(2000, 2, 1), 3),
         (2, "F", 1200, datetime.date(2001, 2, 1), 2),
     ]
+
+
+def test_csv_query_engine_create_missing(tmp_path):
+    @construct
+    class patients(PatientFrame):
+        sex = Series(str)
+
+    @construct
+    class events(EventFrame):
+        date = Series(datetime.date)
+        code = Series(str)
+
+    dataset = Dataset()
+    dataset.sex = patients.sex
+    dataset.set_population(events.exists_for_patient())
+    variable_definitions = compile(dataset)
+
+    query_engine = CSVQueryEngine(
+        tmp_path, config={"DATABUILDER_CREATE_MISSING_CSV": "True"}
+    )
+    results = query_engine.get_results(variable_definitions)
+
+    assert list(results) == []
+
+    assert tmp_path.joinpath("patients.csv").read_text() == "patient_id,sex\n"
+    assert tmp_path.joinpath("events.csv").read_text() == "patient_id,date,code\n"
