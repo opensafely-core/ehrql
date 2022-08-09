@@ -19,7 +19,7 @@ class Column:
 PatientIDColumn = Column(
     type=types.PseudoPatientId(),
     description=(
-        "Patient's pseudonymous identifier, for linkage."
+        "Patient's pseudonymous identifier, for linkage. "
         "This will not normally be output, or operated on by researchers."
     ),
     constraints=[NotNullConstraint(), UniqueConstraint()],
