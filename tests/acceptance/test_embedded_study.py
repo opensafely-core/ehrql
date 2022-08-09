@@ -27,7 +27,6 @@ class DummyDataStudy:
         main(
             [
                 "generate-dataset",
-                "--dataset-definition",
                 str(self.dataset_definition_path),
                 "--output",
                 str(self.dataset_path),

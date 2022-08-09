@@ -87,7 +87,7 @@ def add_generate_dataset(subparsers, environ):
     parser = subparsers.add_parser("generate-dataset", help="Generate a dataset")
     parser.set_defaults(which="generate-dataset")
     parser.add_argument(
-        "--dataset-definition",
+        "dataset_definition",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
     )

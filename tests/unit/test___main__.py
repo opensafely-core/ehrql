@@ -19,7 +19,6 @@ def test_generate_dataset(mocker, tmp_path):
     dataset_definition_path.touch()
     argv = [
         "generate-dataset",
-        "--dataset-definition",
         str(dataset_definition_path),
     ]
     main(argv, env)
@@ -34,7 +33,6 @@ def test_pass_dummy_data(mocker, tmp_path):
     dataset_definition_path.touch()
     argv = [
         "generate-dataset",
-        "--dataset-definition",
         str(dataset_definition_path),
         "--dummy-data-file",
         str(tmp_path / "dummy-data.csv"),
@@ -51,7 +49,6 @@ def test_generate_dataset_if_both_db_url_and_dummy_data_are_provided(mocker, tmp
     dataset_definition_path.touch()
     argv = [
         "generate-dataset",
-        "--dataset-definition",
         str(dataset_definition_path),
         "--dummy-data-file",
         str(tmp_path / "dummy-data.csv"),
@@ -68,7 +65,6 @@ def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
     dataset_definition_path.touch()
     argv = [
         "generate-dataset",
-        "--dataset-definition",
         str(dataset_definition_path),
     ]
     with pytest.raises(SystemExit):
@@ -115,7 +111,6 @@ def test_existing_python_file_missing_file(capsys, tmp_path):
     dataset_definition_path = tmp_path / "dataset.py"
     argv = [
         "generate-dataset",
-        "--dataset-definition",
         str(dataset_definition_path),
     ]
     with pytest.raises(SystemExit):
@@ -131,7 +126,6 @@ def test_existing_python_file_unpythonic_file(capsys, tmp_path):
     dataset_definition_path.touch()
     argv = [
         "generate-dataset",
-        "--dataset-definition",
         str(dataset_definition_path),
     ]
     with pytest.raises(SystemExit):
