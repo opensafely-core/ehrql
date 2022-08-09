@@ -98,7 +98,6 @@ def test_generate_measures(mocker, tmp_path):
     dataset_definition_path.touch()
     argv = [
         "generate-measures",
-        "--dataset-definition",
         str(dataset_definition_path),
     ]
     main(argv)

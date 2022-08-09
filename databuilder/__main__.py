@@ -150,7 +150,7 @@ def add_generate_measures(subparsers, environ):
         type=Path,
     )
     parser.add_argument(
-        "--dataset-definition",
+        "dataset_definition",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
     )
