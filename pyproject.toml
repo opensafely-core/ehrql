@@ -31,7 +31,7 @@ dependencies = [
 ]
 
 [project.scripts]
-databuilder = "databuilder.__main__:main"
+databuilder = "databuilder.__main__:entrypoint"
 
 [project.urls]
 Home = "https://opensafely.org"

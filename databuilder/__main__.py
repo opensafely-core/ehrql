@@ -12,6 +12,11 @@ from .main import (
 )
 
 
+def entrypoint():
+    # This is covered by the Docker tests but they're not recorded for coverage
+    return main(sys.argv[1:], environ=os.environ)  # pragma: no cover
+
+
 def main(args, environ=None):
     environ = environ or {}
 
@@ -180,4 +185,4 @@ def existing_python_file(value):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:], environ=os.environ)
+    entrypoint()
