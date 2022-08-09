@@ -15,6 +15,7 @@ from databuilder.query_model import (
     PickOneRowPerPatient,
     Position,
     SelectColumn,
+    SelectPatientTable,
     SelectTable,
     Series,
     Sort,
@@ -36,6 +37,8 @@ EVENTS_SCHEMA = TableSchema(date=datetime.date, code=str, flag=bool)
 @pytest.fixture
 def queries():
     q = SimpleNamespace()
+
+    patients = SelectPatientTable("patients", TableSchema(sex=str))
     events = SelectTable("events", EVENTS_SCHEMA)
     code = SelectColumn(events, "code")
     date = SelectColumn(events, "date")
@@ -44,6 +47,7 @@ def queries():
         events, Function.In(code, Value(frozenset({"def456", "xyz789"})))
     )
 
+    q.sex = SelectColumn(patients, "sex")
     q.vaccination_count = AggregateByPatient.Count(vaccinations)
     q.first_vaccination = PickOneRowPerPatient(Sort(vaccinations, date), Position.FIRST)
     q.vaccination_status = Case(
@@ -66,6 +70,7 @@ def queries():
 
 
 def test_queries_have_expected_types(queries):
+    assert isinstance(queries.sex, Series)
     assert isinstance(queries.vaccination_count, Series)
     assert isinstance(queries.first_vaccination, Frame)
     assert isinstance(queries.vaccination_status, Series)
@@ -76,6 +81,7 @@ def test_queries_have_expected_types(queries):
 
 
 def test_queries_have_expected_dimension(queries):
+    assert has_one_row_per_patient(queries.sex)
     assert has_one_row_per_patient(queries.vaccination_count)
     assert has_one_row_per_patient(queries.first_vaccination)
     assert has_one_row_per_patient(queries.vaccination_status)
@@ -86,6 +92,7 @@ def test_queries_have_expected_dimension(queries):
 
 
 def test_series_contain_expected_types(queries):
+    assert get_series_type(queries.sex) == str
     assert get_series_type(queries.vaccination_count) == int
     assert get_series_type(queries.vaccination_status) == str
     assert get_series_type(queries.vaccination_days) == datetime.date
