@@ -5,9 +5,16 @@ import pytest
 from databuilder.query_language import (
     Dataset,
     DateEventSeries,
+    EventFrame,
     IntEventSeries,
-    build_patient_table,
+    IntPatientSeries,
+    PatientFrame,
+    SchemaError,
+    Series,
+    StrEventSeries,
+    StrPatientSeries,
     compile,
+    construct,
 )
 from databuilder.query_model import (
     Function,
@@ -19,10 +26,8 @@ from databuilder.query_model import (
     Value,
 )
 
-patients_schema = {
-    "date_of_birth": date,
-}
-patients = build_patient_table("patients", patients_schema)
+patients_schema = TableSchema(date_of_birth=date)
+patients = PatientFrame(SelectPatientTable("patients", patients_schema))
 
 
 def test_dataset():
@@ -141,3 +146,55 @@ def test_series_are_not_hashable():
     int_series = IntEventSeries(qm_int_series)
     with pytest.raises(TypeError):
         {int_series: True}
+
+
+# TEST CLASS-BASED FRAME CONSTRUCTOR
+#
+
+
+def test_construct_constructs_patient_frame():
+    @construct
+    class some_table(PatientFrame):
+        some_int = Series(int)
+        some_str = Series(str)
+
+    assert isinstance(some_table, PatientFrame)
+    assert some_table.qm_node.name == "some_table"
+    assert isinstance(some_table.some_int, IntPatientSeries)
+    assert isinstance(some_table.some_str, StrPatientSeries)
+
+
+def test_construct_constructs_event_frame():
+    @construct
+    class some_table(EventFrame):
+        some_int = Series(int)
+        some_str = Series(str)
+
+    assert isinstance(some_table, EventFrame)
+    assert some_table.qm_node.name == "some_table"
+    assert isinstance(some_table.some_int, IntEventSeries)
+    assert isinstance(some_table.some_str, StrEventSeries)
+
+
+def test_construct_enforces_correct_base_class():
+    with pytest.raises(SchemaError, match="Schema class must subclass"):
+
+        @construct
+        class some_table(Dataset):
+            some_int = Series(int)
+
+
+def test_construct_enforces_exactly_one_base_class():
+    with pytest.raises(SchemaError, match="Schema class must subclass"):
+
+        @construct
+        class some_table(PatientFrame, Dataset):
+            some_int = Series(int)
+
+
+def test_must_reference_instance_not_class():
+    class some_table(PatientFrame):
+        some_int = Series(int)
+
+    with pytest.raises(SchemaError, match="Missing `@construct` decorator"):
+        some_table.some_int

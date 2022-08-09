@@ -6,7 +6,13 @@ import sqlalchemy
 from databuilder import sqlalchemy_types
 from databuilder.backends.base import BaseBackend, Column, MappedTable, QueryTable
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
-from databuilder.query_language import Dataset, build_event_table, build_patient_table
+from databuilder.query_language import (
+    Dataset,
+    EventFrame,
+    PatientFrame,
+    Series,
+    construct,
+)
 
 from ...lib.util import next_id
 
@@ -14,14 +20,15 @@ Base = sqlalchemy.orm.declarative_base()
 
 
 # Simple schema to test against
-patients = build_patient_table(
-    "patients",
-    {"date_of_birth": datetime.date},
-)
-covid_tests = build_event_table(
-    "covid_tests",
-    {"date": datetime.date, "positive": int},
-)
+@construct
+class patients(PatientFrame):
+    date_of_birth = Series(datetime.date)
+
+
+@construct
+class covid_tests(EventFrame):
+    date = Series(datetime.date)
+    positive = Series(int)
 
 
 class TestBackend(BaseBackend):

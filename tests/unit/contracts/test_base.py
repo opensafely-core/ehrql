@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 
 from databuilder.backends.base import BaseBackend, Column, MappedTable
@@ -88,3 +90,33 @@ def test_validate_implementation_failure_invalid_type():
         match="Column date_of_birth is defined with an invalid type 'integer'.\n\nAllowed types are: date",
     ):
         PatientsContract.validate_implementation(BadBackend, "patients")
+
+
+def test_validate_schema():
+    PatientsContract.validate_schema(
+        {
+            "sex": str,
+            "date_of_birth": datetime.date,
+        }
+    )
+
+
+def test_validate_schema_wrong_columns():
+    with pytest.raises(AssertionError):
+        PatientsContract.validate_schema(
+            {
+                "sex": str,
+                "date_of_birth": datetime.date,
+                "extra_column": int,
+            }
+        )
+
+
+def test_validate_schema_wrong_types():
+    with pytest.raises(AssertionError):
+        PatientsContract.validate_schema(
+            {
+                "sex": str,
+                "date_of_birth": str,
+            }
+        )

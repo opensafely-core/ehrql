@@ -39,7 +39,7 @@ class Dataset:
 
 
 def compile(dataset):  # noqa A003
-    return {k: v.qm_node for k, v in vars(dataset).items() if isinstance(v, Series)}
+    return {k: v.qm_node for k, v in vars(dataset).items() if isinstance(v, BaseSeries)}
 
 
 # BASIC SERIES TYPES
@@ -47,7 +47,7 @@ def compile(dataset):  # noqa A003
 
 
 @dataclasses.dataclass(frozen=True)
-class Series:
+class BaseSeries:
     qm_node: qm.Node
 
     def __hash__(self):
@@ -90,7 +90,7 @@ class Series:
         return _apply(qm.Case, cases)
 
 
-class EventSeries(Series):
+class EventSeries(BaseSeries):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         # Register the series using its `_type` attribute
@@ -100,7 +100,7 @@ class EventSeries(Series):
     # they would be defined here as well
 
 
-class PatientSeries(Series):
+class PatientSeries(BaseSeries):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         # Register the series using its `_type` attribute
@@ -348,7 +348,7 @@ def _convert(arg):
     if isinstance(arg, _DictArg):
         return {_convert(key): _convert(value) for key, value in arg}
     # If it's an ehrQL series then get the wrapped query model node
-    elif isinstance(arg, Series):
+    elif isinstance(arg, BaseSeries):
         return arg.qm_node
     # If it's a Codelist extract the set of codes and put it in a Value wrapper
     elif isinstance(arg, Codelist):
@@ -362,11 +362,14 @@ def _convert(arg):
 #
 
 
-class Frame:
+class BaseFrame:
     def __init__(self, qm_node):
         self.qm_node = qm_node
 
     def __getattr__(self, name):
+        return self._select_column(name)
+
+    def _select_column(self, name):
         return _wrap(qm.SelectColumn(source=self.qm_node, name=name))
 
     def exists_for_patient(self):
@@ -376,11 +379,11 @@ class Frame:
         return _wrap(qm.AggregateByPatient.Count(source=self.qm_node))
 
 
-class PatientFrame(Frame):
+class PatientFrame(BaseFrame):
     pass
 
 
-class EventFrame(Frame):
+class EventFrame(BaseFrame):
     def take(self, series):
         return EventFrame(
             qm.Filter(
@@ -413,7 +416,7 @@ class EventFrame(Frame):
         return SortedEventFrame(qm_node)
 
 
-class SortedEventFrame(Frame):
+class SortedEventFrame(BaseFrame):
     def first_for_patient(self):
         return PatientFrame(
             qm.PickOneRowPerPatient(
@@ -435,20 +438,56 @@ class SortedEventFrame(Frame):
 #
 
 
-def build_patient_table(name, schema, contract=None):
-    if contract is not None:
-        contract.validate_schema(schema)
-    return PatientFrame(
-        qm.SelectPatientTable(name, schema=qm.TableSchema(schema)),
-    )
+class SchemaError(Exception):
+    ...
 
 
-def build_event_table(name, schema, contract=None):
-    if contract is not None:  # pragma: no cover
-        contract.validate_schema(schema)
-    return EventFrame(
-        qm.SelectTable(name, schema=qm.TableSchema(schema)),
-    )
+# A class decorator which replaces the class definition with an appropriately configured
+# instance of the class. Obviously this is a _bit_ odd, but I think worth it overall.
+# Using classes to define tables is (as far as I can tell) the only way to get nice
+# autocomplete and type-checking behaviour for column names. But we don't actually want
+# these classes accessible anywhere: users should only be interacting with instances of
+# the classes, and having the classes themselves in the module namespaces only makes
+# autocomplete more confusing and error prone.
+def construct(cls):
+    try:
+        qm_class = {
+            (PatientFrame,): qm.SelectPatientTable,
+            (EventFrame,): qm.SelectTable,
+        }[cls.__bases__]
+    except KeyError:
+        raise SchemaError(
+            "Schema class must subclass either `PatientFrame` or `EventFrame`"
+        )
+
+    table_name = cls.__name__
+    # Get all `Series` objects on the class and determine the schema from them
+    schema = {
+        series.name: series.type_
+        for series in vars(cls).values()
+        if isinstance(series, Series)
+    }
+
+    qm_node = qm_class(table_name, qm.TableSchema(schema))
+    return cls(qm_node)
+
+
+# A descriptor which will return the appropriate type of series depending on the type of
+# frame it belongs to i.e. a PatientSeries subclass for PatientFrames and an EventSeries
+# subclass for EventFrames. This lets schema authors use a consistent syntax when
+# defining frames of either type.
+class Series:
+    def __init__(self, type_):
+        self.type_ = type_
+
+    def __set_name__(self, owner, name):
+        self.name = name
+
+    def __get__(self, instance, owner):
+        # Prevent users attempting to interact with the class rather than an instance
+        if instance is None:
+            raise SchemaError("Missing `@construct` decorator on schema class")
+        return instance._select_column(self.name)
 
 
 # CASE EXPRESSION FUNCTIONS

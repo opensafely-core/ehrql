@@ -3,157 +3,172 @@ import datetime
 import sqlalchemy.orm
 
 from databuilder.codes import CTV3Code, ICD10Code, SNOMEDCTCode
-from databuilder.query_language import build_event_table, build_patient_table
+from databuilder.query_language import EventFrame, PatientFrame, Series, construct
 
 from ...lib.util import orm_class_from_table
 
 Base = sqlalchemy.orm.declarative_base()
 
 
-patients = build_patient_table(
-    "patients",
-    {
-        "date_of_birth": datetime.date,
-        "sex": str,
-    },
-)
+@construct
+class patients(PatientFrame):
+    date_of_birth = Series(datetime.date)
+    sex = Series(str)
+
 
 Patient = orm_class_from_table(Base, patients)
 
 
-vaccinations = build_event_table(
-    "vaccinations",
-    {
-        "date": datetime.date,
-        "target_disease": str,
-        "product_name": str,
-    },
-)
+@construct
+class vaccinations(EventFrame):
+    date = Series(datetime.date)
+    target_disease = Series(str)
+    product_name = Series(str)
+
 
 Vaccination = orm_class_from_table(Base, vaccinations)
 
 
-practice_registrations = build_event_table(
-    "practice_registrations",
-    {
-        "start_date": datetime.date,
-        "end_date": datetime.date,
-        "practice_pseudo_id": int,
-        "practice_stp": str,
-        "practice_nuts1_region_name": str,
-    },
-)
+@construct
+class practice_registrations(EventFrame):
+    start_date = Series(datetime.date)
+    end_date = Series(datetime.date)
+    practice_pseudo_id = Series(int)
+    practice_stp = Series(str)
+    practice_nuts1_region_name = Series(str)
+
 
 PracticeRegistration = orm_class_from_table(Base, practice_registrations)
 
 
-ons_deaths = build_event_table(
-    "ons_deaths",
-    {
-        "date": datetime.date,
-        # TODO: Revisit this when we have support for multi-valued fields
-        **{f"cause_of_death_{i:02d}": ICD10Code for i in range(1, 16)},
-    },
-)
+@construct
+class ons_deaths(EventFrame):
+    date = Series(datetime.date)
+    # TODO: Revisit this when we have support for multi-valued fields
+    cause_of_death_01 = Series(ICD10Code)
+    cause_of_death_02 = Series(ICD10Code)
+    cause_of_death_03 = Series(ICD10Code)
+    cause_of_death_04 = Series(ICD10Code)
+    cause_of_death_05 = Series(ICD10Code)
+    cause_of_death_06 = Series(ICD10Code)
+    cause_of_death_07 = Series(ICD10Code)
+    cause_of_death_08 = Series(ICD10Code)
+    cause_of_death_09 = Series(ICD10Code)
+    cause_of_death_10 = Series(ICD10Code)
+    cause_of_death_11 = Series(ICD10Code)
+    cause_of_death_12 = Series(ICD10Code)
+    cause_of_death_13 = Series(ICD10Code)
+    cause_of_death_14 = Series(ICD10Code)
+    cause_of_death_15 = Series(ICD10Code)
+
 
 ONSDeath = orm_class_from_table(Base, ons_deaths)
 
 
-coded_events = build_event_table(
-    "coded_events",
-    {
-        "date": datetime.date,
-        "snomedct_code": SNOMEDCTCode,
-        "ctv3_code": CTV3Code,
-        "numeric_value": float,
-    },
-)
+@construct
+class coded_events(EventFrame):
+    date = Series(datetime.date)
+    snomedct_code = Series(SNOMEDCTCode)
+    ctv3_code = Series(CTV3Code)
+    numeric_value = Series(float)
+
 
 CodedEvent = orm_class_from_table(Base, coded_events)
 
 
-medications = build_event_table(
-    "medications",
-    {
-        "date": datetime.date,
-        "snomedct_code": SNOMEDCTCode,
-    },
-)
+@construct
+class medications(EventFrame):
+    date = Series(datetime.date)
+    snomedct_code = Series(SNOMEDCTCode)
+
 
 Medication = orm_class_from_table(Base, medications)
 
 
-addresses = build_event_table(
-    "addresses",
-    {
-        "address_id": int,
-        "start_date": datetime.date,
-        "end_date": datetime.date,
-        "address_type": int,
-        "rural_urban_classification": int,
-        "imd_rounded": int,
-        "msoa_code": str,
-        # Is the address potentially a match for a care home? (Using TPP's algorithm)
-        "care_home_is_potential_match": bool,
-        # These two fields look like they should be a single boolean, but this is how
-        # they're represented in the data
-        "care_home_requires_nursing": bool,
-        "care_home_does_not_require_nursing": bool,
-    },
-)
+@construct
+class addresses(EventFrame):
+    address_id = Series(int)
+    start_date = Series(datetime.date)
+    end_date = Series(datetime.date)
+    address_type = Series(int)
+    rural_urban_classification = Series(int)
+    imd_rounded = Series(int)
+    msoa_code = Series(str)
+    # Is the address potentially a match for a care home? (Using TPP's algorithm)
+    care_home_is_potential_match = Series(bool)
+    # These two fields look like they should be a single boolean, but this is how
+    # they're represented in the data
+    care_home_requires_nursing = Series(bool)
+    care_home_does_not_require_nursing = Series(bool)
+
 
 Address = orm_class_from_table(Base, addresses)
 
 
-sgss_covid_all_tests = build_event_table(
-    "sgss_covid_all_tests",
-    {
-        "specimen_taken_date": datetime.date,
-        "is_positive": bool,
-    },
-)
+@construct
+class sgss_covid_all_tests(EventFrame):
+    specimen_taken_date = Series(datetime.date)
+    is_positive = Series(bool)
+
 
 SGSSCovidAllTestsResult = orm_class_from_table(Base, sgss_covid_all_tests)
 
 
-occupation_on_covid_vaccine_record = build_event_table(
-    "occupation_on_covid_vaccine_record",
-    {
-        "is_healthcare_worker": bool,
-    },
-)
+@construct
+class occupation_on_covid_vaccine_record(EventFrame):
+    is_healthcare_worker = Series(bool)
+
 
 OccupationOnCovidVaccineRecord = orm_class_from_table(
     Base, occupation_on_covid_vaccine_record
 )
 
 
-emergency_care_attendances = build_event_table(
-    "emergency_care_attendances",
-    {
-        "id": int,
-        "arrival_date": datetime.date,
-        "discharge_destination": SNOMEDCTCode,
-        # TODO: Revisit this when we have support for multi-valued fields
-        **{f"diagnosis_{i:02d}": SNOMEDCTCode for i in range(1, 25)},
-    },
-)
+@construct
+class emergency_care_attendances(EventFrame):
+    id = Series(int)  # noqa: A003
+    arrival_date = Series(datetime.date)
+    discharge_destination = Series(SNOMEDCTCode)
+    # TODO: Revisit this when we have support for multi-valued fields
+    diagnosis_01 = Series(SNOMEDCTCode)
+    diagnosis_02 = Series(SNOMEDCTCode)
+    diagnosis_03 = Series(SNOMEDCTCode)
+    diagnosis_04 = Series(SNOMEDCTCode)
+    diagnosis_05 = Series(SNOMEDCTCode)
+    diagnosis_06 = Series(SNOMEDCTCode)
+    diagnosis_07 = Series(SNOMEDCTCode)
+    diagnosis_08 = Series(SNOMEDCTCode)
+    diagnosis_09 = Series(SNOMEDCTCode)
+    diagnosis_10 = Series(SNOMEDCTCode)
+    diagnosis_11 = Series(SNOMEDCTCode)
+    diagnosis_12 = Series(SNOMEDCTCode)
+    diagnosis_13 = Series(SNOMEDCTCode)
+    diagnosis_14 = Series(SNOMEDCTCode)
+    diagnosis_15 = Series(SNOMEDCTCode)
+    diagnosis_16 = Series(SNOMEDCTCode)
+    diagnosis_17 = Series(SNOMEDCTCode)
+    diagnosis_18 = Series(SNOMEDCTCode)
+    diagnosis_19 = Series(SNOMEDCTCode)
+    diagnosis_20 = Series(SNOMEDCTCode)
+    diagnosis_21 = Series(SNOMEDCTCode)
+    diagnosis_22 = Series(SNOMEDCTCode)
+    diagnosis_23 = Series(SNOMEDCTCode)
+    diagnosis_24 = Series(SNOMEDCTCode)
+
 
 EmergencyCareAttendance = orm_class_from_table(Base, emergency_care_attendances)
 
 
-hospital_admissions = build_event_table(
-    "hospital_admissions",
-    {
-        "id": int,
-        "admission_date": datetime.date,
-        "discharge_date": datetime.date,
-        "admission_method": str,
-        # TODO: Revisit this when we have support for multi-valued fields
-        "all_diagnoses": str,
-        "patient_classification": str,
-        "days_in_critical_care": int,
-    },
-)
+@construct
+class hospital_admissions(EventFrame):
+    id = Series(int)  # noqa: A003
+    admission_date = Series(datetime.date)
+    discharge_date = Series(datetime.date)
+    admission_method = Series(str)
+    # TODO: Revisit this when we have support for multi-valued fields
+    all_diagnoses = Series(str)
+    patient_classification = Series(str)
+    days_in_critical_care = Series(int)
+
 
 HospitalAdmission = orm_class_from_table(Base, hospital_admissions)
