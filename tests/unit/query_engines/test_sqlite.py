@@ -1,7 +1,13 @@
 import sqlalchemy
 
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
-from databuilder.query_model import Function, SelectColumn, SelectPatientTable, Value
+from databuilder.query_model import (
+    Function,
+    SelectColumn,
+    SelectPatientTable,
+    TableSchema,
+    Value,
+)
 
 
 class DummyBackend:
@@ -17,8 +23,16 @@ def test_or_with_literal():
     # SQLAlchemy doesn't provide reverse bitwise operations, so `False | Column()` raises a `TypeError`.
     # See https://github.com/sqlalchemy/sqlalchemy/issues/5846.
     engine = SQLiteQueryEngine(None, DummyBackend())
-    engine.get_sql(Function.Or(Value(True), SelectColumn(SelectPatientTable("t"), "c")))
-    engine.get_sql(Function.Or(SelectColumn(SelectPatientTable("t"), "c"), Value(True)))
+    engine.get_sql(
+        Function.Or(
+            Value(True), SelectColumn(SelectPatientTable("t", TableSchema(c=bool)), "c")
+        )
+    )
+    engine.get_sql(
+        Function.Or(
+            SelectColumn(SelectPatientTable("t", TableSchema(c=bool)), "c"), Value(True)
+        )
+    )
 
 
 def test_and_with_literal():
@@ -26,8 +40,14 @@ def test_and_with_literal():
     # See https://github.com/sqlalchemy/sqlalchemy/issues/5846.
     engine = SQLiteQueryEngine(None, DummyBackend())
     engine.get_sql(
-        Function.And(Value(False), SelectColumn(SelectPatientTable("t"), "c"))
+        Function.And(
+            Value(False),
+            SelectColumn(SelectPatientTable("t", TableSchema(c=bool)), "c"),
+        )
     )
     engine.get_sql(
-        Function.And(SelectColumn(SelectPatientTable("t"), "c"), Value(False))
+        Function.And(
+            SelectColumn(SelectPatientTable("t", TableSchema(c=bool)), "c"),
+            Value(False),
+        )
     )

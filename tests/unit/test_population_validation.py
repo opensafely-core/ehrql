@@ -45,12 +45,18 @@ def test_rejects_invalid_type():
 
 
 def test_accepts_basic_reasonable_population():
-    has_registration = AggregateByPatient.Exists(SelectTable("registrations"))
+    has_registration = AggregateByPatient.Exists(
+        SelectTable("registrations", schema=TableSchema(value=int))
+    )
     assert validate_population_definition(has_registration)
 
 
 def test_rejects_basic_unreasonable_population():
-    not_died = Function.Not(AggregateByPatient.Exists(SelectTable("ons_deaths")))
+    not_died = Function.Not(
+        AggregateByPatient.Exists(
+            SelectTable("ons_deaths", schema=TableSchema(value=int))
+        )
+    )
     with pytest.raises(ValidationError, match="must not evaluate as True for NULL"):
         validate_population_definition(not_died)
 

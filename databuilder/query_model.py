@@ -170,16 +170,13 @@ class Value(OneRowPerPatientSeries[T]):
 
 class SelectTable(ManyRowsPerPatientFrame):
     name: str
-    # A schema is a mapping from available column names to types which allows us to check
-    # that operations only use columns which actually exist and are of the correct type.
-    # It's optional because we don't *need* it to construct a query, but we're obviously
-    # more limited in the validation we can do without it.
-    schema: Optional[Mapping[str, type]] = None
+    # A schema is a mapping from column names to types
+    schema: Mapping[str, type]
 
 
 class SelectPatientTable(OneRowPerPatientFrame):
     name: str
-    schema: Optional[Mapping[str, type]] = None
+    schema: Mapping[str, type]
 
 
 class SelectColumn(Series):
@@ -722,12 +719,7 @@ def resolve_typevar_from_inputs(series, typevar):
 def get_typespec_for_select_column(column):
     # Find the table from which this SelectColumn operation draws
     root = get_root_frame(column.source)
-    # If it has a schema then that gives us the type of the resulting Series
-    if root.schema:
-        type_ = root.schema[column.name]
-    # Otherwise use the default type Any
-    else:
-        type_ = Any
+    type_ = root.schema[column.name]
     return Series[type_]
 
 
