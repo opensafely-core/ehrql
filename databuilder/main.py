@@ -7,6 +7,7 @@ from contextlib import contextmanager, nullcontext
 import structlog
 
 from databuilder.column_specs import get_column_specs
+from databuilder.itertools_utils import eager_iterator
 from databuilder.query_language import Dataset
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
 
@@ -32,6 +33,11 @@ def generate_dataset(
 
     query_engine = get_query_engine(db_url, backend_id, query_engine_id, environ)
     results = query_engine.get_results(variable_definitions)
+    # Because `results` is a generator we won't actually execute any queries until we
+    # start consuming it. But we want to make sure we trigger any errors (or relevant
+    # log output) before we create the output file. Wrapping the generator in
+    # `eager_iterator` ensures this happens by consuming the first item upfront.
+    results = eager_iterator(results)
     write_dataset_csv(column_specs, results, dataset_file)
 
 
