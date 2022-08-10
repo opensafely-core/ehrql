@@ -257,7 +257,7 @@ class DateFunctions(ComparableFunctions):
         return _apply(qm.Function.DateAddDays, self, other)
 
     def subtract_days(self, other):
-        return _apply(qm.Function.DateSubtractDays, self, other)
+        return self.add_days(other.__neg__())
 
     def is_before(self, other):
         other = parse_date_if_str(other)

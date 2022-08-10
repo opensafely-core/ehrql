@@ -271,7 +271,6 @@ def is_trivial(node):  # pragma: no cover
         Function.Add,
         Function.Subtract,
         Function.DateAddDays,
-        Function.DateSubtractDays,
         Function.DateDifferenceInYears,
         Function.In,
     ]:
