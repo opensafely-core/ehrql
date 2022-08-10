@@ -179,8 +179,7 @@ def import_string(dotted_path):
 
 def write_dataset_csv(column_specs, results, dataset_file):
     headers = list(column_specs.keys())
-    dataset_file.parent.mkdir(parents=True, exist_ok=True)
-    with dataset_file.open(mode="w") as f:
+    with open_output_file(dataset_file) as f:
         writer = csv.writer(f)
         writer.writerow(headers)
         writer.writerows(results)

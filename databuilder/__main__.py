@@ -93,7 +93,7 @@ def add_generate_dataset(subparsers, environ):
     )
     parser.add_argument(
         "--output",
-        help="Path of the file where the dataset will be written",
+        help="Path of the file where the dataset will be written (console by default)",
         type=Path,
     )
     parser.add_argument(
