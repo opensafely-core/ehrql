@@ -306,15 +306,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_date_add_days(self, node):
         return self.date_add_days(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
-    @get_sql.register(Function.DateSubtractDays)
-    def get_sql_date_subtract_days(self, node):
-        return self.date_subtract_days(self.get_expr(node.lhs), self.get_expr(node.rhs))
-
     def date_add_days(self, date, num_days):
         raise NotImplementedError()
-
-    def date_subtract_days(self, date, num_days):
-        return self.date_add_days(date, -num_days)
 
     @get_sql.register(Function.ToFirstOfYear)
     def get_sql_to_first_of_year(self, node):
