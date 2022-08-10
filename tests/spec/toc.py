@@ -29,6 +29,7 @@ contents = {
         "test_equality",
         "test_containment",
         "test_map_values",
+        "test_if_null_then",
     ],
     "bool_series_ops": [
         "test_logical_ops",
