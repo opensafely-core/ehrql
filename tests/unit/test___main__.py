@@ -71,7 +71,7 @@ def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
         main(argv)
     captured = capsys.readouterr()
     assert (
-        "either --dummy-data-file or DATABASE_URL environment variable is required"
+        "one of --dummy-data-file, --dsn or DATABASE_URL environment variable is required"
         in captured.err
     )
 

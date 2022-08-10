@@ -24,23 +24,23 @@ def main(args, environ=None):
     options = parser.parse_args(args)
 
     if options.which == "generate-dataset":
-        database_url = environ.get("DATABASE_URL")
-        dummy_data_file = options.dummy_data_file
-
-        if database_url:
+        if options.dsn:
             generate_dataset(
                 definition_file=options.dataset_definition,
                 dataset_file=options.output,
-                db_url=database_url,
+                db_url=options.dsn,
                 backend_id=options.backend,
                 query_engine_id=options.query_engine,
                 environ=environ,
             )
-        elif dummy_data_file:
-            pass_dummy_data(options.dataset_definition, options.output, dummy_data_file)
+        elif options.dummy_data_file:
+            pass_dummy_data(
+                options.dataset_definition, options.output, options.dummy_data_file
+            )
         else:
             parser.error(
-                "error: either --dummy-data-file or DATABASE_URL environment variable is required"
+                "error: one of --dummy-data-file, --dsn or DATABASE_URL environment "
+                "variable is required"
             )
     elif options.which == "dump-dataset-sql":
         dump_dataset_sql(
@@ -110,6 +110,12 @@ def add_generate_dataset(subparsers, environ):
         "--backend",
         type=str,
         default=environ.get("OPENSAFELY_BACKEND"),
+    )
+    parser.add_argument(
+        "--dsn",
+        help="Data Source Name: URL of remote database, or path to data on disk",
+        type=str,
+        default=environ.get("DATABASE_URL"),
     )
 
 
