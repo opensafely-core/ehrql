@@ -12,6 +12,19 @@ from .main import (
     test_connection,
 )
 
+QUERY_ENGINE_ALIASES = {
+    "mssql": "databuilder.query_engines.mssql.MSSQLQueryEngine",
+    "spark": "databuilder.query_engines.spark.SparkQueryEngine",
+    "sqlite": "databuilder.query_engines.sqlite.SQLiteQueryEngine",
+}
+
+
+BACKEND_ALIASES = {
+    "databricks": "databuilder.backends.databricks.DatabricksBackend",
+    "graphnet": "databuilder.backends.graphnet.GraphnetBackend",
+    "tpp": "databuilder.backends.tpp.TPPBackend",
+}
+
 
 def entrypoint():
     # This is covered by the Docker tests but they're not recorded for coverage
@@ -132,11 +145,13 @@ def add_common_dataset_arguments(parser, environ):
     parser.add_argument(
         "--query-engine",
         type=query_engine_from_id,
+        help=f"Dotted import path to class, or one of: {', '.join(QUERY_ENGINE_ALIASES)}",
         default=environ.get("OPENSAFELY_QUERY_ENGINE"),
     )
     parser.add_argument(
         "--backend",
         type=backend_from_id,
+        help=f"Dotted import path to class, or one of: {', '.join(BACKEND_ALIASES)}",
         default=environ.get("OPENSAFELY_BACKEND"),
     )
 
@@ -193,12 +208,28 @@ def existing_python_file(value):
 
 
 def query_engine_from_id(str_id):
+    if "." not in str_id:
+        try:
+            str_id = QUERY_ENGINE_ALIASES[str_id]
+        except KeyError:
+            raise ArgumentTypeError(
+                f"must be one of: {', '.join(QUERY_ENGINE_ALIASES.keys())} "
+                f"(or a full dotted path to a query engine class)"
+            )
     query_engine = import_string(str_id)
     assert_duck_type(query_engine, "query engine", "get_results")
     return query_engine
 
 
 def backend_from_id(str_id):
+    if "." not in str_id:
+        try:
+            str_id = BACKEND_ALIASES[str_id]
+        except KeyError:
+            raise ArgumentTypeError(
+                f"must be one of: {', '.join(BACKEND_ALIASES.keys())} "
+                f"(or a full dotted path to a backend class)"
+            )
     backend = import_string(str_id)
     assert_duck_type(backend, "backend", "get_table_expression")
     return backend

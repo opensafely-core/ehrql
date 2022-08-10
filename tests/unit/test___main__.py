@@ -168,6 +168,11 @@ def test_query_engine_from_id():
     assert query_engine_from_id(engine_id) is DummyQueryEngine
 
 
+def test_query_engine_from_id_missing_alias():
+    with pytest.raises(ArgumentTypeError, match="must be one of"):
+        query_engine_from_id("missing")
+
+
 def test_query_engine_from_id_wrong_type():
     with pytest.raises(ArgumentTypeError, match="is not a valid query engine"):
         query_engine_from_id("pathlib.Path")
@@ -181,6 +186,11 @@ class DummyBackend:
 def test_backend_from_id():
     engine_id = f"{DummyBackend.__module__}.{DummyBackend.__name__}"
     assert backend_from_id(engine_id) is DummyBackend
+
+
+def test_backend_from_id_missing_alias():
+    with pytest.raises(ArgumentTypeError, match="must be one of"):
+        backend_from_id("missing")
 
 
 def test_backend_from_id_wrong_type():
