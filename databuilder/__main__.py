@@ -28,7 +28,7 @@ def main(args, environ=None):
             generate_dataset(
                 definition_file=options.dataset_definition,
                 dataset_file=options.output,
-                db_url=options.dsn,
+                dsn=options.dsn,
                 backend_id=options.backend,
                 query_engine_id=options.query_engine,
                 environ=environ,

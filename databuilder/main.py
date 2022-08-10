@@ -20,7 +20,7 @@ log = structlog.getLogger()
 def generate_dataset(
     definition_file,
     dataset_file,
-    db_url,
+    dsn,
     backend_id,
     query_engine_id,
     environ,
@@ -31,7 +31,7 @@ def generate_dataset(
     variable_definitions = ql.compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
-    query_engine = get_query_engine(db_url, backend_id, query_engine_id, environ)
+    query_engine = get_query_engine(dsn, backend_id, query_engine_id, environ)
     results = query_engine.get_results(variable_definitions)
     # Because `results` is a generator we won't actually execute any queries until we
     # start consuming it. But we want to make sure we trigger any errors (or relevant

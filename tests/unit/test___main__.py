@@ -41,7 +41,7 @@ def test_pass_dummy_data(mocker, tmp_path):
     patched.assert_called_once()
 
 
-def test_generate_dataset_if_both_db_url_and_dummy_data_are_provided(mocker, tmp_path):
+def test_generate_dataset_if_both_dsn_and_dummy_data_are_provided(mocker, tmp_path):
     # This happens when studies with dummy data are run in the backend.
     patched = mocker.patch("databuilder.__main__.generate_dataset")
     env = {"DATABASE_URL": "scheme:path"}
@@ -57,7 +57,7 @@ def test_generate_dataset_if_both_db_url_and_dummy_data_are_provided(mocker, tmp
     patched.assert_called_once()
 
 
-def test_generate_dataset_without_database_url_or_dummy_data(capsys, tmp_path):
+def test_generate_dataset_without_dsn_or_dummy_data(capsys, tmp_path):
     # Verify that a helpful message is shown when the generate_dataset
     # subcommand is invoked but DATABASE_URL is not set and --dummy-data-file
     # is not provided.
