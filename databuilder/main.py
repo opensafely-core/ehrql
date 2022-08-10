@@ -110,10 +110,10 @@ def get_query_engine(dsn, backend_id, query_engine_id, environ):
     # Otherwise use whatever the backend specifies
     elif backend:
         query_engine_class = backend.query_engine_class
-    # Default to using SQLite
+    # Default to using CSV query engine
     else:
         query_engine_class = import_string(
-            "databuilder.query_engines.sqlite.SQLiteQueryEngine"
+            "databuilder.query_engines.csv.CSVQueryEngine"
         )
 
     return query_engine_class(dsn=dsn, backend=backend, config=environ)
