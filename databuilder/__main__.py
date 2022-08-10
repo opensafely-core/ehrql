@@ -87,29 +87,9 @@ def add_generate_dataset(subparsers, environ):
     parser = subparsers.add_parser("generate-dataset", help="Generate a dataset")
     parser.set_defaults(which="generate-dataset")
     parser.add_argument(
-        "dataset_definition",
-        help="The path of the file where the dataset is defined",
-        type=existing_python_file,
-    )
-    parser.add_argument(
         "--output",
         help="Path of the file where the dataset will be written (console by default)",
         type=Path,
-    )
-    parser.add_argument(
-        "--dummy-data-file",
-        help="Provide dummy data from a file to be validated and used as the dataset",
-        type=Path,
-    )
-    parser.add_argument(
-        "--query-engine",
-        type=str,
-        default=environ.get("OPENSAFELY_QUERY_ENGINE"),
-    )
-    parser.add_argument(
-        "--backend",
-        type=str,
-        default=environ.get("OPENSAFELY_BACKEND"),
     )
     parser.add_argument(
         "--dsn",
@@ -117,6 +97,12 @@ def add_generate_dataset(subparsers, environ):
         type=str,
         default=environ.get("DATABASE_URL"),
     )
+    parser.add_argument(
+        "--dummy-data-file",
+        help="Provide dummy data from a file to be validated and used as the dataset",
+        type=Path,
+    )
+    add_common_dataset_arguments(parser, environ)
 
 
 def add_dump_dataset_sql(subparsers, environ):
@@ -129,6 +115,20 @@ def add_dump_dataset_sql(subparsers, environ):
     )
     parser.set_defaults(which="dump-dataset-sql")
     parser.add_argument(
+        "--output",
+        help="SQL output file (outputs to console by default)",
+        type=Path,
+    )
+    add_common_dataset_arguments(parser, environ)
+
+
+def add_common_dataset_arguments(parser, environ):
+    parser.add_argument(
+        "dataset_definition",
+        help="The path of the file where the dataset is defined",
+        type=existing_python_file,
+    )
+    parser.add_argument(
         "--query-engine",
         type=str,
         default=environ.get("OPENSAFELY_QUERY_ENGINE"),
@@ -137,16 +137,6 @@ def add_dump_dataset_sql(subparsers, environ):
         "--backend",
         type=str,
         default=environ.get("OPENSAFELY_BACKEND"),
-    )
-    parser.add_argument(
-        "--output",
-        help="SQL output file (outputs to console by default)",
-        type=Path,
-    )
-    parser.add_argument(
-        "dataset_definition",
-        help="Path of Python file where dataset is defined",
-        type=existing_python_file,
     )
 
 
