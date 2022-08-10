@@ -89,6 +89,12 @@ class BaseSeries:
         )
         return _apply(qm.Case, cases)
 
+    def if_null_then(self, other):
+        return case(
+            when(self.is_not_null()).then(self),
+            default=other,
+        )
+
 
 class EventSeries(BaseSeries):
     def __init_subclass__(cls, **kwargs):
