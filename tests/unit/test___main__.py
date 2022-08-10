@@ -1,6 +1,12 @@
 import pytest
 
-from databuilder.__main__ import main
+from databuilder.__main__ import (
+    ArgumentTypeError,
+    backend_from_id,
+    import_string,
+    main,
+    query_engine_from_id,
+)
 
 
 def test_no_args(capsys):
@@ -131,3 +137,52 @@ def test_existing_python_file_unpythonic_file(capsys, tmp_path):
         main(argv)
     captured = capsys.readouterr()
     assert "dataset.cpp is not a Python file" in captured.err
+
+
+def test_import_string():
+    assert import_string("databuilder.__main__.main") is main
+
+
+def test_import_string_not_a_dotted_path():
+    with pytest.raises(ArgumentTypeError, match="must be a full dotted path"):
+        import_string("urllib")
+
+
+def test_import_string_no_such_module():
+    with pytest.raises(ArgumentTypeError, match="could not import module"):
+        import_string("urllib.this_is_not_a_module.Foo")
+
+
+def test_import_string_no_such_attribute():
+    with pytest.raises(ArgumentTypeError, match="'urllib.parse' has no attribute"):
+        import_string("urllib.parse.ThisIsNotAClass")
+
+
+class DummyQueryEngine:
+    def get_results(self):
+        raise NotImplementedError()
+
+
+def test_query_engine_from_id():
+    engine_id = f"{DummyQueryEngine.__module__}.{DummyQueryEngine.__name__}"
+    assert query_engine_from_id(engine_id) is DummyQueryEngine
+
+
+def test_query_engine_from_id_wrong_type():
+    with pytest.raises(ArgumentTypeError, match="is not a valid query engine"):
+        query_engine_from_id("pathlib.Path")
+
+
+class DummyBackend:
+    def get_table_expression(self):
+        raise NotImplementedError()
+
+
+def test_backend_from_id():
+    engine_id = f"{DummyBackend.__module__}.{DummyBackend.__name__}"
+    assert backend_from_id(engine_id) is DummyBackend
+
+
+def test_backend_from_id_wrong_type():
+    with pytest.raises(ArgumentTypeError, match="is not a valid backend"):
+        backend_from_id("pathlib.Path")

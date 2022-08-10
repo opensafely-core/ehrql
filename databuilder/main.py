@@ -21,8 +21,8 @@ def generate_dataset(
     definition_file,
     dataset_file,
     dsn,
-    backend_id,
-    query_engine_id,
+    backend_class,
+    query_engine_class,
     environ,
 ):
     log.info(f"Generating dataset for {str(definition_file)}")
@@ -31,7 +31,7 @@ def generate_dataset(
     variable_definitions = ql.compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
-    query_engine = get_query_engine(dsn, backend_id, query_engine_id, environ)
+    query_engine = get_query_engine(dsn, backend_class, query_engine_class, environ)
     results = query_engine.get_results(variable_definitions)
     # Because `results` is a generator we won't actually execute any queries until we
     # start consuming it. But we want to make sure we trigger any errors (or relevant
@@ -53,12 +53,12 @@ def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
 
 
 def dump_dataset_sql(
-    definition_file, output_file, backend_id, query_engine_id, environ
+    definition_file, output_file, backend_class, query_engine_class, environ
 ):
     log.info(f"Generating SQL for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
-    query_engine = get_query_engine(None, backend_id, query_engine_id, environ)
+    query_engine = get_query_engine(None, backend_class, query_engine_class, environ)
 
     variable_definitions = ql.compile(dataset_definition)
     all_query_strings = get_sql_strings(query_engine, variable_definitions)
@@ -97,24 +97,22 @@ def open_output_file(output_file):
         return nullcontext(sys.stdout)
 
 
-def get_query_engine(dsn, backend_id, query_engine_id, environ):
-    # Load backend if supplied
-    if backend_id:
-        backend = import_string(backend_id)()
+def get_query_engine(dsn, backend_class, query_engine_class, environ):
+    # Construct backend if supplied
+    if backend_class:
+        backend = backend_class()
     else:
         backend = None
 
-    # If there's an explictly specified query engine class use that
-    if query_engine_id:
-        query_engine_class = import_string(query_engine_id)
-    # Otherwise use whatever the backend specifies
-    elif backend:
-        query_engine_class = backend.query_engine_class
-    # Default to using CSV query engine
-    else:
-        query_engine_class = import_string(
-            "databuilder.query_engines.csv.CSVQueryEngine"
-        )
+    if not query_engine_class:
+        # Use the query engine class specified by the backend, if we have one
+        if backend:
+            query_engine_class = backend.query_engine_class
+        # Otherwise default to using SQLite
+        else:
+            from databuilder.query_engines.csv import (
+                CSVQueryEngine as query_engine_class,
+            )
 
     return query_engine_class(dsn=dsn, backend=backend, config=environ)
 
@@ -125,10 +123,10 @@ def generate_measures(
     raise NotImplementedError
 
 
-def test_connection(backend_id, url, environ):
+def test_connection(backend_class, url, environ):
     from sqlalchemy import select
 
-    backend = import_string(backend_id)()
+    backend = backend_class()
     query_engine = backend.query_engine_class(url, backend, config=environ)
     with query_engine.engine.connect() as connection:
         connection.execute(select(1))
@@ -169,12 +167,6 @@ def add_to_sys_path(directory):
         yield
     finally:
         sys.path = original
-
-
-def import_string(dotted_path):
-    module_name, _, attribute_name = dotted_path.rpartition(".")
-    module = importlib.import_module(module_name)
-    return getattr(module, attribute_name)
 
 
 def write_dataset_csv(column_specs, results, dataset_file):

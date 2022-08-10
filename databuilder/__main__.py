@@ -1,3 +1,4 @@
+import importlib
 import os
 import sys
 from argparse import ArgumentParser, ArgumentTypeError
@@ -29,8 +30,8 @@ def main(args, environ=None):
                 definition_file=options.dataset_definition,
                 dataset_file=options.output,
                 dsn=options.dsn,
-                backend_id=options.backend,
-                query_engine_id=options.query_engine,
+                backend_class=options.backend,
+                query_engine_class=options.query_engine,
                 environ=environ,
             )
         elif options.dummy_data_file:
@@ -46,8 +47,8 @@ def main(args, environ=None):
         dump_dataset_sql(
             options.dataset_definition,
             options.output,
-            backend_id=options.backend,
-            query_engine_id=options.query_engine,
+            backend_class=options.backend,
+            query_engine_class=options.query_engine,
             environ=environ,
         )
     elif options.which == "generate-measures":
@@ -58,7 +59,7 @@ def main(args, environ=None):
         )
     elif options.which == "test-connection":
         test_connection(
-            backend_id=options.backend,
+            backend_class=options.backend,
             url=options.url,
             environ=environ,
         )
@@ -130,12 +131,12 @@ def add_common_dataset_arguments(parser, environ):
     )
     parser.add_argument(
         "--query-engine",
-        type=str,
+        type=query_engine_from_id,
         default=environ.get("OPENSAFELY_QUERY_ENGINE"),
     )
     parser.add_argument(
         "--backend",
-        type=str,
+        type=backend_from_id,
         default=environ.get("OPENSAFELY_BACKEND"),
     )
 
@@ -171,6 +172,7 @@ def add_test_connection(subparsers, environ):
         "--backend",
         "-b",
         help="backend type to test",
+        type=backend_from_id,
         default=environ.get("BACKEND", environ.get("OPENSAFELY_BACKEND")),
     )
     parser.add_argument(
@@ -188,6 +190,41 @@ def existing_python_file(value):
     if not path.suffix == ".py":
         raise ArgumentTypeError(f"{value} is not a Python file")
     return path
+
+
+def query_engine_from_id(str_id):
+    query_engine = import_string(str_id)
+    assert_duck_type(query_engine, "query engine", "get_results")
+    return query_engine
+
+
+def backend_from_id(str_id):
+    backend = import_string(str_id)
+    assert_duck_type(backend, "backend", "get_table_expression")
+    return backend
+
+
+def import_string(dotted_path):
+    if "." not in dotted_path:
+        raise ArgumentTypeError("must be a full dotted path to a Python class")
+    module_name, _, attribute_name = dotted_path.rpartition(".")
+    try:
+        module = importlib.import_module(module_name)
+    except ImportError:
+        raise ArgumentTypeError(f"could not import module '{module_name}'")
+    try:
+        return getattr(module, attribute_name)
+    except AttributeError:
+        raise ArgumentTypeError(
+            f"module '{module_name}' has no attribute '{attribute_name}'"
+        )
+
+
+def assert_duck_type(obj, type_name, required_method):
+    if not hasattr(obj, required_method):
+        raise ArgumentTypeError(
+            f"{obj} is not a valid {type_name}: no '{required_method}' method"
+        )
 
 
 if __name__ == "__main__":
