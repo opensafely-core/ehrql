@@ -87,11 +87,11 @@ def get_sql_strings(query_engine, variable_definitions):
     return sql_strings
 
 
-def open_output_file(output_file):
+def open_output_file(output_file, newline=None):
     # If a file path is supplied, create it and open for writing
     if output_file:
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        return output_file.open(mode="w")
+        return output_file.open(mode="w", newline=newline)
     # Otherwise return `stdout` wrapped in a no-op context manager
     else:
         return nullcontext(sys.stdout)
@@ -171,7 +171,8 @@ def add_to_sys_path(directory):
 
 def write_dataset_csv(column_specs, results, dataset_file):
     headers = list(column_specs.keys())
-    with open_output_file(dataset_file) as f:
+    # Set `newline` as per Python docs: https://docs.python.org/3/library/csv.html#id3
+    with open_output_file(dataset_file, newline="") as f:
         writer = csv.writer(f)
         writer.writerow(headers)
         writer.writerows(results)
