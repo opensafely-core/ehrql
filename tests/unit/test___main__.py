@@ -82,6 +82,20 @@ def test_generate_dataset_without_dsn_or_dummy_data(capsys, tmp_path):
     )
 
 
+def test_generate_dataset_rejects_unknown_extension(capsys):
+    argv = [
+        "generate-dataset",
+        # We just need any old Python file to supply as the dataset
+        __file__,
+        "--output",
+        "out_file.badformat",
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert ".badformat' is not a supported format" in captured.err
+
+
 def test_dump_dataset_sql(mocker, tmp_path):
     # Verify that the dump dataset sql subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.dump_dataset_sql")

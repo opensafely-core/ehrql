@@ -1,4 +1,5 @@
 import csv
+import gzip
 import importlib.util
 import shutil
 import sys
@@ -25,8 +26,9 @@ def generate_dataset(
     query_engine_class,
     environ,
 ):
-    log.info(f"Generating dataset for {str(definition_file)}")
+    write_dataset = FILE_FORMATS[get_file_extension(dataset_file)]
 
+    log.info(f"Generating dataset for {str(definition_file)}")
     dataset_definition = load_definition(definition_file)
     variable_definitions = ql.compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
@@ -38,7 +40,7 @@ def generate_dataset(
     # log output) before we create the output file. Wrapping the generator in
     # `eager_iterator` ensures this happens by consuming the first item upfront.
     results = eager_iterator(results)
-    write_dataset_csv(column_specs, results, dataset_file)
+    write_dataset(column_specs, results, dataset_file)
 
 
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
@@ -87,13 +89,17 @@ def get_sql_strings(query_engine, variable_definitions):
     return sql_strings
 
 
-def open_output_file(output_file, newline=None):
+def open_output_file(output_file, newline=None, gzipped=False):
     # If a file path is supplied, create it and open for writing
     if output_file:
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        return output_file.open(mode="w", newline=newline)
+        if gzipped:
+            return gzip.open(output_file, "wt", newline=newline, compresslevel=6)
+        else:
+            return output_file.open(mode="w", newline=newline)
     # Otherwise return `stdout` wrapped in a no-op context manager
     else:
+        assert not gzipped
         return nullcontext(sys.stdout)
 
 
@@ -169,10 +175,30 @@ def add_to_sys_path(directory):
         sys.path = original
 
 
-def write_dataset_csv(column_specs, results, dataset_file):
+def get_file_extension(filename):
+    if filename is None:
+        # If we have no filename we're writing to stdout, so default to CSV
+        return ".csv"
+    elif filename.suffix == ".gz":
+        return "".join(filename.suffixes[-2:])
+    else:
+        return filename.suffix
+
+
+def write_dataset_csv(column_specs, results, dataset_file, gzipped=False):
     headers = list(column_specs.keys())
     # Set `newline` as per Python docs: https://docs.python.org/3/library/csv.html#id3
-    with open_output_file(dataset_file, newline="") as f:
+    with open_output_file(dataset_file, newline="", gzipped=gzipped) as f:
         writer = csv.writer(f)
         writer.writerow(headers)
         writer.writerows(results)
+
+
+def write_dataset_csv_gz(*args):
+    return write_dataset_csv(*args, gzipped=True)
+
+
+FILE_FORMATS = {
+    ".csv": write_dataset_csv,
+    ".csv.gz": write_dataset_csv_gz,
+}

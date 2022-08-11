@@ -5,9 +5,11 @@ from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
 from .main import (
+    FILE_FORMATS,
     dump_dataset_sql,
     generate_dataset,
     generate_measures,
+    get_file_extension,
     pass_dummy_data,
     test_connection,
 )
@@ -102,8 +104,11 @@ def add_generate_dataset(subparsers, environ):
     parser.set_defaults(which="generate-dataset")
     parser.add_argument(
         "--output",
-        help="Path of the file where the dataset will be written (console by default)",
-        type=Path,
+        help=(
+            f"Path of the file where the dataset will be written (console by default),"
+            f" supported formats: {', '.join(FILE_FORMATS)}"
+        ),
+        type=valid_output_path,
     )
     parser.add_argument(
         "--dsn",
@@ -204,6 +209,17 @@ def existing_python_file(value):
         raise ArgumentTypeError(f"{value} does not exist")
     if not path.suffix == ".py":
         raise ArgumentTypeError(f"{value} is not a Python file")
+    return path
+
+
+def valid_output_path(value):
+    path = Path(value)
+    extension = get_file_extension(path)
+    if extension not in FILE_FORMATS:
+        raise ArgumentTypeError(
+            f"'{extension}' is not a supported format, must be one of: "
+            f"{', '.join(FILE_FORMATS)}"
+        )
     return path
 
 

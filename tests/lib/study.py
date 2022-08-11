@@ -1,4 +1,5 @@
 import csv
+import gzip
 import hashlib
 import shutil
 from datetime import datetime, timedelta
@@ -6,6 +7,7 @@ from pathlib import Path
 from urllib.request import urlretrieve
 
 from databuilder.__main__ import main
+from databuilder.main import get_file_extension
 
 
 class Cache:
@@ -66,8 +68,8 @@ class Study:
         self._definition_path = self._workspace / "dataset.py"
         self._definition_path.write_text(definition)
 
-    def generate(self, database, backend):
-        self._dataset_path = self._workspace / "dataset.csv"
+    def generate(self, database, backend, extension=".csv"):
+        self._dataset_path = self._workspace / f"dataset{extension}"
 
         env = {
             "DATABASE_URL": database.host_url(),
@@ -79,8 +81,8 @@ class Study:
             environ=env,
         )
 
-    def generate_in_docker(self, database, backend):
-        self._dataset_path = self._workspace / "dataset.csv"
+    def generate_in_docker(self, database, backend, extension=".csv"):
+        self._dataset_path = self._workspace / f"dataset{extension}"
         environment = {
             "DATABASE_URL": database.container_url(),
             "OPENSAFELY_BACKEND": backend,
@@ -139,5 +141,12 @@ class Study:
         )
 
     def results(self):
-        with open(self._dataset_path) as f:
-            return list(csv.DictReader(f))
+        extension = get_file_extension(self._dataset_path)
+        if extension == ".csv":
+            with open(self._dataset_path) as f:
+                return list(csv.DictReader(f))
+        elif extension == ".csv.gz":
+            with gzip.open(self._dataset_path, "rt") as f:
+                return list(csv.DictReader(f))
+        else:
+            assert False
