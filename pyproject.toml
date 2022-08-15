@@ -1,11 +1,11 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "opensafely-databuilder"
 description = ""
-version = "2+local"
+dynamic = ["version"]
 readme = "README.md"
 authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
 license = {file = "LICENSE"}
@@ -75,9 +75,6 @@ omit = [
 
 [tool.coverage.html]
 
-[tool.flit.module]
-name = "databuilder"
-
 [tool.interrogate]
 fail-under = 0
 ignore-init-module = true
@@ -116,3 +113,9 @@ filterwarnings = [
     "ignore::DeprecationWarning:docker.utils.utils:53",
     "ignore::DeprecationWarning:pyhive.common:248",
 ]
+
+[tool.setuptools.packages.find]
+include = ["databuilder*"]
+
+[tool.setuptools_scm]
+git_describe_command = "git describe --dirty --tags --long --match 'v*[0-9]*'"

@@ -14,7 +14,7 @@ LABEL org.opencontainers.image.title="databuilder" \
 RUN \
   apt-get update --fix-missing && \
   apt-get install -y --no-install-recommends \
-    python3.9 python3.9-dev python3-pip && \
+    python3.9 python3.9-dev python3-pip git && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1 && \
     rm -rf /var/lib/apt/lists/*
 
@@ -28,5 +28,7 @@ WORKDIR /workspace
 # -B: don't write bytecode files
 ENTRYPOINT ["python", "-B", "-m", "databuilder"]
 ENV PYTHONPATH="/app"
+COPY pyproject.toml /app/pyproject.toml
 COPY databuilder /app/databuilder
+RUN --mount=type=bind,target=/app/.git,source=.git python -m pip install --no-cache-dir /app
 RUN python -m compileall /app/databuilder
