@@ -108,9 +108,9 @@ coverage[toml]==6.4.1 \
     --hash=sha256:fdb6f7bd51c2d1714cea40718f6149ad9be6a2ee7d93b19e9f00934c0f2a74d9 \
     --hash=sha256:ffa9297c3a453fba4717d06df579af42ab9a28022444cae7fa605af4df612d54
     # via pytest-cov
-databricks-cli==0.17.0 \
-    --hash=sha256:4afa17da73c6e93ca09c5fdf24fa3552965854bbbc3f1428cf4d27edb751b72c \
-    --hash=sha256:66c0ecb315041c28ba4ab3576c6c367b6933dc7c3b7d3130c4b8dc1f4f9140a1
+databricks-cli==0.17.1 \
+    --hash=sha256:4efab931aff1a4d021a3fae3580c34b84a4d2a7f2aa9b933e310c2456bf25e0a \
+    --hash=sha256:65f15c3df2ffbaa444c05f332bb28ab889fac0c9da1853b1e96fdefec3c69c0c
     # via -r requirements.dev.in
 distlib==0.3.4 \
     --hash=sha256:6564fe0a8f51e734df6333d08b8b94d4ea8ee6b99b5ed50613f731fd4089f34b \
