@@ -36,14 +36,17 @@ class DummyDataStudy:
         )
 
 
-def test_generate_dataset(study, mssql_database):
+@pytest.mark.parametrize("extension", [".csv", ".csv.gz"])
+def test_generate_dataset(study, mssql_database, extension):
     mssql_database.setup(
         patient(dob=datetime(1943, 5, 5)),
         patient(dob=datetime(1999, 5, 5)),
     )
 
     study.setup_from_string(trivial_dataset_definition)
-    study.generate(mssql_database, "databuilder.backends.tpp.TPPBackend")
+    study.generate(
+        mssql_database, "databuilder.backends.tpp.TPPBackend", extension=extension
+    )
     results = study.results()
 
     assert len(results) == 2
