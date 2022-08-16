@@ -1,7 +1,7 @@
 import dataclasses
 
 from databuilder.main import get_query_engine, open_output_file
-from databuilder.query_engines.sqlite import SQLiteQueryEngine
+from databuilder.query_engines.csv import CSVQueryEngine
 
 
 @dataclasses.dataclass
@@ -17,15 +17,14 @@ class DummyBackend:
 
 def test_get_query_engine_defaults():
     query_engine = get_query_engine(
-        dsn=None, backend_id=None, query_engine_id=None, environ={}
+        dsn=None, backend_class=None, query_engine_class=None, environ={}
     )
-    assert isinstance(query_engine, SQLiteQueryEngine)
+    assert isinstance(query_engine, CSVQueryEngine)
 
 
 def test_get_query_engine_with_query_engine():
-    query_engine_id = f"{DummyQueryEngine.__module__}.{DummyQueryEngine.__name__}"
     query_engine = get_query_engine(
-        dsn=None, backend_id=None, query_engine_id=query_engine_id, environ={}
+        dsn=None, backend_class=None, query_engine_class=DummyQueryEngine, environ={}
     )
     assert isinstance(query_engine, DummyQueryEngine)
     assert query_engine.backend is None
@@ -33,9 +32,8 @@ def test_get_query_engine_with_query_engine():
 
 
 def test_get_query_engine_with_backend():
-    backend_id = f"{DummyBackend.__module__}.{DummyBackend.__name__}"
     query_engine = get_query_engine(
-        dsn=None, backend_id=backend_id, query_engine_id=None, environ={}
+        dsn=None, backend_class=DummyBackend, query_engine_class=None, environ={}
     )
     assert isinstance(query_engine, DummyQueryEngine)
     assert isinstance(query_engine.backend, DummyBackend)
@@ -43,12 +41,13 @@ def test_get_query_engine_with_backend():
 
 
 def test_get_query_engine_with_backend_and_query_engine():
-    backend_id = f"{DummyBackend.__module__}.{DummyBackend.__name__}"
-    query_engine_id = "databuilder.query_engines.sqlite.SQLiteQueryEngine"
     query_engine = get_query_engine(
-        dsn=None, backend_id=backend_id, query_engine_id=query_engine_id, environ={}
+        dsn=None,
+        backend_class=DummyBackend,
+        query_engine_class=CSVQueryEngine,
+        environ={},
     )
-    assert isinstance(query_engine, SQLiteQueryEngine)
+    assert isinstance(query_engine, CSVQueryEngine)
     assert isinstance(query_engine.backend, DummyBackend)
     assert query_engine.config == {}
 

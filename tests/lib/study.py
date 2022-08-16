@@ -97,7 +97,6 @@ class Study:
     def _generate_command(definition, dataset):
         return [
             "generate-dataset",
-            "--dataset-definition",
             str(definition),
             "--output",
             str(dataset),
