@@ -1,33 +1,29 @@
-from . import types
-from .base import Column, TableContract
-from .constraints import FirstOfMonthConstraint, NotNullConstraint, UniqueConstraint
+import datetime
+
+from databuilder.query_language import EventFrame, PatientFrame, Series, construct
+
+from .constraints import ChoiceConstraint, FirstOfMonthConstraint, NotNullConstraint
 
 
-class PatientDemographics(TableContract):
+@construct
+class patient_demographics(PatientFrame):
     """Provides demographic information about patients."""
 
-    _name = "patient_demographics"
-
-    patient_id = Column(
-        type=types.PseudoPatientId(),
-        description=(
-            "Patient's pseudonymous identifier, for linkage. You should not normally "
-            "output or operate on this column"
-        ),
-        constraints=[NotNullConstraint(), UniqueConstraint()],
-    )
-    date_of_birth = Column(
-        type=types.Date(),
+    date_of_birth = Series(
+        datetime.date,
         description="Patient's year and month of birth, provided in format YYYY-MM-01.",
         constraints=[NotNullConstraint(), FirstOfMonthConstraint()],
     )
-    sex = Column(
-        type=types.Choice("female", "male", "intersex", "unknown"),
+    sex = Series(
+        str,
         description="Patient's sex.",
-        constraints=[NotNullConstraint()],
+        constraints=[
+            NotNullConstraint(),
+            ChoiceConstraint("female", "male", "intersex", "unknown"),
+        ],
     )
-    date_of_death = Column(
-        type=types.Date(),
+    date_of_death = Series(
+        datetime.date,
         description="Patient's year and month of death, provided in format YYYY-MM-01.",
         constraints=[FirstOfMonthConstraint()],
     )
@@ -38,244 +34,100 @@ class PatientDemographics(TableContract):
 ###
 
 
-class WIP_ClinicalEvents(TableContract):
+@construct
+class wip_clinical_events(EventFrame):
     """TODO."""
 
-    _name = "clinical_events"
+    __tablename__ = "clinical_events"
 
-    patient_id = Column(
-        type=types.PseudoPatientId(),
-        description="",
-        constraints=[],
-    )
-    code = Column(
-        type=types.Code(),
-        description="",
-        constraints=[],
-    )
-    system = Column(
-        type=types.String(),
-        description="",
-        constraints=[],
-    )
-    date = Column(
-        type=types.Date(),
-        description="",
-        constraints=[],
-    )
-    numeric_value = Column(
-        type=types.Float(),
-        description="",
-        constraints=[],
-    )
+    code = Series(str)
+    system = Series(str)
+    date = Series(datetime.date)
+    numeric_value = Series(float)
 
 
-class WIP_HospitalAdmissions(TableContract):
+@construct
+class wip_hospital_admissions(EventFrame):
     """TODO."""
 
-    _name = "hospital_admissions"
+    __tablename__ = "hospital_admissions"
 
-    patient_id = Column(
-        type=types.PseudoPatientId(),
-        description="",
-        constraints=[],
-    )
-    admission_date = Column(
-        type=types.Date(),
-        description="",
-        constraints=[],
-    )
-    primary_diagnosis = Column(
-        type=types.Code(),
-        description="",
-        constraints=[],
-    )
-    admission_method = Column(
-        type=types.Integer(),
-        description="",
-        constraints=[],
-    )
-    episode_is_finished = Column(
-        type=types.Boolean(),
-        description="",
-        constraints=[],
-    )
-    spell_id = Column(
-        type=types.Integer(),
-        description="",
-        constraints=[],
-    )
+    admission_date = Series(datetime.date)
+    primary_diagnosis = Series(str)
+    admission_method = Series(int)
+    episode_is_finished = Series(bool)
+    spell_id = Series(int)
 
 
-class WIP_Hospitalizations(TableContract):
+@construct
+class wip_hospitalizations(EventFrame):
     """TODO."""
 
-    _name = "hospitalizations"
+    __tablename__ = "hospitalizations"
 
-    patient_id = Column(
-        type=types.PseudoPatientId(),
-        description="",
-        constraints=[],
-    )
-    date = Column(
-        type=types.Date(),
-        description="",
-        constraints=[],
-    )
-    code = Column(
-        type=types.Code(),
-        description="",
-        constraints=[],
-    )
-    system = Column(
-        type=types.String(),
-        description="",
-        constraints=[],
-    )
+    date = Series(datetime.date)
+    code = Series(str)
+    system = Series(str)
 
 
-class WIP_HospitalizationsWithoutSystem(TableContract):
+@construct
+class wip_hospitalizations_without_system(EventFrame):
     """TODO."""
 
-    _name = "hospitalizations_without_system"
+    __tablename__ = "hospitalizations_without_system"
 
-    patient_id = Column(
-        type=types.PseudoPatientId(),
-        description="",
-        constraints=[],
-    )
-    code = Column(
-        type=types.Code(),
-        description="",
-        constraints=[],
-    )
+    code = Series(str)
 
 
-class WIP_PatientAddress(TableContract):
+@construct
+class wip_patient_address(EventFrame):
     """TODO."""
 
-    _name = "patient_address"
+    __tablename__ = "patient_address"
 
-    patient_id = Column(
-        type=types.PseudoPatientId(),
-        description="",
-        constraints=[],
-    )
-    patientaddress_id = Column(
-        type=types.Integer(),
-        description="",
-        constraints=[],
-    )
-    date_start = Column(
-        type=types.Date(),
-        description="",
-        constraints=[],
-    )
-    date_end = Column(
-        type=types.Date(),
-        description="",
-        constraints=[],
-    )
-    index_of_multiple_deprivation_rounded = Column(
-        type=types.Integer(),
-        description="",
-        constraints=[],
-    )
-    has_postcode = Column(
-        type=types.Boolean(),
-        description="",
-        constraints=[],
-    )
+    patientaddress_id = Series(int)
+    date_start = Series(datetime.date)
+    date_end = Series(datetime.date)
+    index_of_multiple_deprivation_rounded = Series(int)
+    has_postcode = Series(bool)
 
 
-class WIP_PracticeRegistrations(TableContract):
+@construct
+class wip_practice_registrations(EventFrame):
     """TODO."""
 
-    _name = "practice_registrations"
+    __tablename__ = "practice_registrations"
 
-    patient_id = Column(
-        type=types.PseudoPatientId(),
-        description="",
-        constraints=[],
-    )
-    pseudo_id = Column(
-        type=types.Integer(),
-        description="",
-        constraints=[],
-    )
-    nuts1_region_name = Column(
-        type=types.String(),
-        description="",
-        constraints=[],
-    )
-    date_start = Column(
-        type=types.Date(),
-        description="",
-        constraints=[],
-    )
-    date_end = Column(
-        type=types.Date(),
-        description="",
-        constraints=[],
-    )
+    pseudo_id = Series(int)
+    nuts1_region_name = Series(str)
+    date_start = Series(datetime.date)
+    date_end = Series(datetime.date)
 
 
-class WIP_Prescriptions(TableContract):
+@construct
+class wip_prescriptions(EventFrame):
     """TODO."""
 
-    _name = "prescriptions"
+    __tablename__ = "prescriptions"
 
-    patient_id = Column(
-        type=types.PseudoPatientId(),
-        description="",
-        constraints=[],
-    )
-    prescribed_dmd_code = Column(
-        type=types.Code(),
-        description="",
-        constraints=[],
-    )
-    processing_date = Column(
-        type=types.Date(),
-        description="",
-        constraints=[],
-    )
+    prescribed_dmd_code = Series(str)
+    processing_date = Series(datetime.date)
 
 
-class WIP_CovidTestResults(TableContract):
+@construct
+class wip_covid_test_results(EventFrame):
     """TODO."""
 
-    _name = "covid_test_results"
+    __tablename__ = "covid_test_results"
 
-    patient_id = Column(
-        type=types.PseudoPatientId(),
-        description="",
-        constraints=[],
-    )
-    date = Column(
-        type=types.Date(),
-        description="",
-        constraints=[],
-    )
-    positive_result = Column(
-        type=types.Boolean(),
-        description="",
-        constraints=[],
-    )
+    date = Series(datetime.date)
+    positive_result = Series(bool)
 
 
-class WIP_SimplePatientDemographics(TableContract):
+@construct
+class wip_simple_patient_demographics(EventFrame):
     """TODO."""
 
-    _name = "patients"
+    __tablename__ = "patients"
 
-    patient_id = Column(
-        type=types.PseudoPatientId(),
-        description="",
-        constraints=[UniqueConstraint()],
-    )
-    date_of_birth = Column(
-        type=types.Date(),
-        description="",
-        constraints=[],
-    )
+    date_of_birth = Series(datetime.date)

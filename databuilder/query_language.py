@@ -496,7 +496,6 @@ class Series:
     def __init__(
         self,
         type_,
-        choices=None,
         description="",
         constraints=(),
         required=True,
@@ -504,7 +503,6 @@ class Series:
         notes_for_implementors="",
     ):
         self.type_ = type_
-        self.choices = choices
         self.description = description
         self.constraints = constraints
         self.required = required
