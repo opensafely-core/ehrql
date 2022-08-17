@@ -26,9 +26,8 @@ def test_generate_docs():
     output = {b["name"] for b in data["backends"]}
     assert expected <= output
 
-    # TODO: Temporarily disabled while we work on contracts
-    # names = {contract["name"] for contract in data["contracts"]}
-    # assert "PatientDemographics" in names
+    names = {contract["name"] for contract in data["contracts"]}
+    assert "patients" in names
 
     # Find all series strings
     all_series = [
