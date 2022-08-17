@@ -1,6 +1,5 @@
 import os
 
-from ..contracts import contracts
 from ..query_engines.mssql import MSSQLQueryEngine
 from .base import BaseBackend, Column, MappedTable
 
@@ -14,7 +13,6 @@ class GraphnetBackend(BaseBackend):
     patient_join_column = "Patient_ID"
 
     patient_demographics = MappedTable(
-        implements=contracts.PatientDemographics,
         schema=SCHEMA,
         source="Patients",
         columns=dict(
@@ -25,7 +23,6 @@ class GraphnetBackend(BaseBackend):
     )
 
     clinical_events = MappedTable(
-        implements=contracts.WIP_ClinicalEvents,
         schema=SCHEMA,
         source="ClinicalEvents",
         columns=dict(
@@ -37,7 +34,6 @@ class GraphnetBackend(BaseBackend):
     )
 
     practice_registrations = MappedTable(
-        implements=contracts.WIP_PracticeRegistrations,
         schema=SCHEMA,
         source="PracticeRegistrations",
         columns=dict(
@@ -49,7 +45,6 @@ class GraphnetBackend(BaseBackend):
     )
 
     covid_test_results = MappedTable(
-        implements=contracts.WIP_CovidTestResults,
         schema=SCHEMA,
         source="CovidTestResults",
         columns=dict(
@@ -59,7 +54,6 @@ class GraphnetBackend(BaseBackend):
     )
 
     hospitalizations_without_system = MappedTable(
-        implements=contracts.WIP_HospitalizationsWithoutSystem,
         schema=SCHEMA,
         source="Hospitalisations",
         columns=dict(
@@ -69,7 +63,6 @@ class GraphnetBackend(BaseBackend):
     )
 
     patient_address = MappedTable(
-        implements=contracts.WIP_PatientAddress,
         schema=SCHEMA,
         source="PatientAddresses",
         columns=dict(

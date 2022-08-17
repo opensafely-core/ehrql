@@ -1,4 +1,3 @@
-from ..contracts import contracts
 from ..query_engines.spark import SparkQueryEngine
 from .base import BaseBackend, Column, MappedTable, QueryTable
 
@@ -10,7 +9,6 @@ class DatabricksBackend(BaseBackend):
     patient_join_column = "patient_id"
 
     patients = QueryTable(
-        implements=contracts.WIP_SimplePatientDemographics,
         columns=dict(
             date_of_birth=Column("date"),
         ),
@@ -30,7 +28,6 @@ class DatabricksBackend(BaseBackend):
     )
 
     prescriptions = MappedTable(
-        implements=contracts.WIP_Prescriptions,
         source="pcaremeds",
         schema="PCAREMEDS",
         columns=dict(
@@ -41,7 +38,6 @@ class DatabricksBackend(BaseBackend):
     )
 
     hospital_admissions = QueryTable(
-        implements=contracts.WIP_HospitalAdmissions,
         columns=dict(
             admission_date=Column("date"),
             primary_diagnosis=Column("varchar"),

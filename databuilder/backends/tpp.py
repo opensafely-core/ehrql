@@ -1,5 +1,3 @@
-from ..contracts import contracts as old_contracts
-from ..contracts import universal
 from ..query_engines.mssql import MSSQLQueryEngine
 from .base import BaseBackend, Column, QueryTable
 
@@ -73,7 +71,6 @@ class TPPBackend(BaseBackend):
     patient_join_column = "Patient_ID"
 
     patients = QueryTable(
-        implements=universal.Patients,
         columns=dict(
             sex=Column("varchar"),
             date_of_birth=Column("date"),
@@ -101,7 +98,6 @@ class TPPBackend(BaseBackend):
     )
 
     clinical_events = QueryTable(
-        implements=old_contracts.WIP_ClinicalEvents,
         columns=dict(
             code=Column("varchar"),
             system=Column("varchar"),
@@ -116,7 +112,6 @@ class TPPBackend(BaseBackend):
     )
 
     practice_registrations = QueryTable(
-        implements=old_contracts.WIP_PracticeRegistrations,
         columns=dict(
             pseudo_id=Column("integer"),
             nuts1_region_name=Column("varchar"),
@@ -135,7 +130,6 @@ class TPPBackend(BaseBackend):
     )
 
     covid_test_results = QueryTable(
-        implements=old_contracts.WIP_CovidTestResults,
         columns=dict(
             date=Column("date"),
             positive_result=Column("boolean"),
@@ -148,7 +142,6 @@ class TPPBackend(BaseBackend):
     )
 
     hospitalizations = QueryTable(
-        implements=old_contracts.WIP_Hospitalizations,
         columns=dict(
             date=Column("date"),
             code=Column("varchar"),
@@ -165,7 +158,6 @@ class TPPBackend(BaseBackend):
     )
 
     patient_address = QueryTable(
-        implements=old_contracts.WIP_PatientAddress,
         columns=dict(
             patientaddress_id=Column("integer"),
             date_start=Column("date"),
