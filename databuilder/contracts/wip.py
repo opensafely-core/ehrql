@@ -39,10 +39,8 @@ class patient_demographics(PatientFrame):
 
 
 @construct
-class wip_clinical_events(EventFrame):
+class clinical_events(EventFrame):
     """TODO."""
-
-    __tablename__ = "clinical_events"
 
     code = Series(str)
     system = Series(str)
@@ -51,10 +49,8 @@ class wip_clinical_events(EventFrame):
 
 
 @construct
-class wip_hospital_admissions(EventFrame):
+class hospital_admissions(EventFrame):
     """TODO."""
-
-    __tablename__ = "hospital_admissions"
 
     admission_date = Series(datetime.date)
     primary_diagnosis = Series(str)
@@ -64,10 +60,8 @@ class wip_hospital_admissions(EventFrame):
 
 
 @construct
-class wip_hospitalizations(EventFrame):
+class hospitalizations(EventFrame):
     """TODO."""
-
-    __tablename__ = "hospitalizations"
 
     date = Series(datetime.date)
     code = Series(str)
@@ -75,19 +69,15 @@ class wip_hospitalizations(EventFrame):
 
 
 @construct
-class wip_hospitalizations_without_system(EventFrame):
+class hospitalizations_without_system(EventFrame):
     """TODO."""
-
-    __tablename__ = "hospitalizations_without_system"
 
     code = Series(str)
 
 
 @construct
-class wip_patient_address(EventFrame):
+class patient_address(EventFrame):
     """TODO."""
-
-    __tablename__ = "patient_address"
 
     patientaddress_id = Series(int)
     date_start = Series(datetime.date)
@@ -97,10 +87,8 @@ class wip_patient_address(EventFrame):
 
 
 @construct
-class wip_practice_registrations(EventFrame):
+class practice_registrations(EventFrame):
     """TODO."""
-
-    __tablename__ = "practice_registrations"
 
     pseudo_id = Series(int)
     nuts1_region_name = Series(str)
@@ -109,29 +97,23 @@ class wip_practice_registrations(EventFrame):
 
 
 @construct
-class wip_prescriptions(EventFrame):
+class prescriptions(EventFrame):
     """TODO."""
-
-    __tablename__ = "prescriptions"
 
     prescribed_dmd_code = Series(str)
     processing_date = Series(datetime.date)
 
 
 @construct
-class wip_covid_test_results(EventFrame):
+class covid_test_results(EventFrame):
     """TODO."""
-
-    __tablename__ = "covid_test_results"
 
     date = Series(datetime.date)
     positive_result = Series(bool)
 
 
 @construct
-class wip_simple_patient_demographics(EventFrame):
+class patients(EventFrame):
     """TODO."""
-
-    __tablename__ = "patients"
 
     date_of_birth = Series(datetime.date)
