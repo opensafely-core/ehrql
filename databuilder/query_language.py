@@ -493,8 +493,25 @@ def construct(cls):
 # subclass for EventFrames. This lets schema authors use a consistent syntax when
 # defining frames of either type.
 class Series:
-    def __init__(self, type_):
+    def __init__(
+        self,
+        type_,
+        choices=None,
+        description="",
+        constraints=(),
+        required=True,
+        implementation_notes_to_add_to_description="",
+        notes_for_implementors="",
+    ):
         self.type_ = type_
+        self.choices = choices
+        self.description = description
+        self.constraints = constraints
+        self.required = required
+        self.implementation_notes_to_add_to_description = (
+            implementation_notes_to_add_to_description
+        )
+        self.notes_for_implementors = notes_for_implementors
 
     def __set_name__(self, owner, name):
         self.name = name
