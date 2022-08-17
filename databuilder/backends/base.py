@@ -28,17 +28,6 @@ class BaseBackend:
         """
         table.learn_patient_join(cls.patient_join_column)
 
-    @classmethod
-    def validate_contracts(cls):
-        """
-        Loops through all the tables in a backend and validates that
-        each one meets any contract that it claims to implement
-        """
-        for name, table in cls.tables.items():
-            contract = table.implements
-            if contract is not None:
-                contract.validate_implementation(cls, name)
-
     def get_table_expression(self, table_name, schema):
         """
         Gets SQL expression for a table
@@ -73,10 +62,9 @@ class SQLTable:
 
 
 class MappedTable(SQLTable):
-    def __init__(self, source, columns, implements=None, schema=None):
+    def __init__(self, source, columns, schema=None):
         self.source = source
         self.columns = columns
-        self.implements = implements
         self._schema = schema
 
     def learn_patient_join(self, source):
@@ -89,10 +77,9 @@ class MappedTable(SQLTable):
 
 
 class QueryTable(SQLTable):
-    def __init__(self, query, columns, implements=None, implementation_notes=None):
+    def __init__(self, query, columns, implementation_notes=None):
         self.query = query
         self.columns = columns
-        self.implements = implements
         self.implementation_notes = implementation_notes or {}
 
     def learn_patient_join(self, source):

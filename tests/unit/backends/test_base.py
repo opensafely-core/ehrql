@@ -1,5 +1,4 @@
 import datetime
-from unittest.mock import call, patch
 
 import sqlalchemy
 
@@ -13,18 +12,11 @@ from databuilder.backends.base import (
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 
 
-class DummyContract:
-    @classmethod
-    def validate_implementation(cls, table_cls, name):
-        assert False
-
-
 class TestBackend(BaseBackend):
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "PatientId"
 
     patients = MappedTable(
-        implements=DummyContract,
         source="Patient",
         columns=dict(
             patient_id=Column("integer", source="PatID"),
@@ -33,7 +25,6 @@ class TestBackend(BaseBackend):
     )
 
     events = MappedTable(
-        implements=DummyContract,
         source="events",
         columns=dict(
             date=Column("date"),
@@ -41,7 +32,6 @@ class TestBackend(BaseBackend):
     )
 
     practice_registrations = QueryTable(
-        implements=DummyContract,
         columns=dict(
             date_start=Column("date"),
             date_end=Column("date"),
@@ -58,20 +48,6 @@ def test_backend_registers_tables():
         "events",
         "practice_registrations",
     }
-
-
-def test_validate_contract():
-    validate_implementation = f"{__name__}.DummyContract.validate_implementation"
-    with patch(validate_implementation, return_value=True) as mocked_method:
-        TestBackend.validate_contracts()
-        mocked_method.assert_has_calls(
-            [
-                call(TestBackend, "patients"),
-                call(TestBackend, "events"),
-                call(TestBackend, "practice_registrations"),
-            ],
-            any_order=True,
-        )
 
 
 def test_mapped_table_sql_with_modified_names():
