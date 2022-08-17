@@ -380,7 +380,10 @@ class BaseFrame:
         self.qm_node = qm_node
 
     def __getattr__(self, name):
-        return self._select_column(name)
+        if not name.startswith("__"):
+            return self._select_column(name)
+        else:
+            raise AttributeError(f"object has no attribute {name!r}")
 
     def _select_column(self, name):
         return _wrap(qm.SelectColumn(source=self.qm_node, name=name))
