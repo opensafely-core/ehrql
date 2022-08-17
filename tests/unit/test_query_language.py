@@ -199,6 +199,16 @@ def test_construct_constructs_event_frame():
     assert isinstance(some_table.some_str, StrEventSeries)
 
 
+def test_construct_respects_custom_table_name():
+    @construct
+    class some_table(PatientFrame):
+        __tablename__ = "different-name"
+        some_int = Series(int)
+
+    assert isinstance(some_table, PatientFrame)
+    assert some_table.qm_node.name == "different-name"
+
+
 def test_construct_enforces_correct_base_class():
     with pytest.raises(SchemaError, match="Schema class must subclass"):
 
