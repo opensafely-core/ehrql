@@ -33,12 +33,12 @@ def test_all_backend_aliases_are_importable():
 
 
 def test_all_query_engines_have_an_alias():
-    for cls in get_sibling_subclasses(BaseSQLQueryEngine):
+    for cls in get_sibling_subclasses(BaseQueryEngine):
+        # Ignore abstract classes that shouldn't have an alias
+        if cls is BaseSQLQueryEngine:
+            continue
         name = f"{cls.__module__}.{cls.__name__}"
         assert name in QUERY_ENGINE_ALIASES.values(), f"No alias defined for {cls}"
-    # We don't currently have any production query engines which aren't SQL query
-    # engines, but shout if this changes
-    assert get_sibling_subclasses(BaseQueryEngine) == [BaseSQLQueryEngine]
 
 
 def test_all_backends_have_an_alias():
