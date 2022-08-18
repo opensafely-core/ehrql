@@ -9,9 +9,11 @@ def build_backends():
     backends.sort(key=operator.attrgetter("__name__"))
 
     for backend in backends:
+        implements = [namespace.__name__ for namespace in backend.implements]
         yield {
             "name": backend.__name__,
-            # TODO: Re-establish a listing of the tables a given backend supports once
-            # we decide exactly how this is going to work
+            "implements": implements,
+            # TODO: Backends no longer implement individual contracts but we leave this
+            # empty list in place for now while we update the docs code which expects it
             "contracts": [],
         }
