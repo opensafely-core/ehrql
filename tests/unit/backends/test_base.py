@@ -1,5 +1,6 @@
 import datetime
 
+import pytest
 import sqlalchemy
 
 from databuilder.backends.base import (
@@ -7,8 +8,10 @@ from databuilder.backends.base import (
     DefaultBackend,
     MappedTable,
     QueryTable,
+    ValidationError,
 )
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
+from databuilder.query_language import PatientFrame, Series, construct
 
 
 class TestBackend(BaseBackend):
@@ -89,3 +92,82 @@ def test_default_backend_sql():
     assert sql == (
         "SELECT some_table.patient_id, some_table.i, some_table.b \nFROM some_table"
     )
+
+
+# Use a class as a convenient namespace (`types.SimpleNamespace` would also work)
+class Schema:
+    @construct
+    class patients(PatientFrame):
+        date_of_birth = Series(datetime.date)
+
+
+def test_backend_definition_is_allowed_extra_tables_and_columns():
+    class TestBackend(BaseBackend):
+        query_engine_class = BaseSQLQueryEngine
+        patient_join_column = "patient_id"
+        implements = [Schema]
+
+        patients = MappedTable(
+            source="patient",
+            columns=dict(date_of_birth="date_of_birth", sex="sex"),
+        )
+        events = MappedTable(
+            source="patient",
+            columns=dict(date="date", code="code"),
+        )
+
+    assert TestBackend
+
+
+def test_backend_definition_accepts_query_table():
+    class TestBackend(BaseBackend):
+        query_engine_class = BaseSQLQueryEngine
+        patient_join_column = "patient_id"
+        implements = [Schema]
+
+        patients = QueryTable(
+            "SELECT patient_id, CAST(DoB AS date) AS date_of_birth FROM patients",
+        )
+
+    assert TestBackend
+
+
+def test_backend_definition_fails_if_missing_tables():
+    with pytest.raises(ValidationError, match="does not implement table"):
+
+        class TestBackend(BaseBackend):
+            query_engine_class = BaseSQLQueryEngine
+            patient_join_column = "patient_id"
+            implements = [Schema]
+
+            events = MappedTable(
+                source="patient",
+                columns=dict(date="date", code="code"),
+            )
+
+
+def test_backend_definition_fails_if_missing_column():
+    with pytest.raises(ValidationError, match="missing columns"):
+
+        class TestBackend(BaseBackend):
+            query_engine_class = BaseSQLQueryEngine
+            patient_join_column = "patient_id"
+            implements = [Schema]
+
+            patients = MappedTable(
+                source="patient",
+                columns=dict(sex="sex"),
+            )
+
+
+def test_backend_definition_fails_if_query_table_missing_columns():
+    with pytest.raises(ValidationError, match="SQL does not reference columns"):
+
+        class TestBackend(BaseBackend):
+            query_engine_class = BaseSQLQueryEngine
+            patient_join_column = "patient_id"
+            implements = [Schema]
+
+            patients = QueryTable(
+                "SELECT patient_id, not_date_of_birth FROM patients",
+            )
