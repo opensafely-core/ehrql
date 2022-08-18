@@ -4,7 +4,6 @@ import sqlalchemy
 
 from databuilder.backends.base import (
     BaseBackend,
-    Column,
     DefaultBackend,
     MappedTable,
     QueryTable,
@@ -19,24 +18,20 @@ class TestBackend(BaseBackend):
     patients = MappedTable(
         source="Patient",
         columns=dict(
-            patient_id=Column("integer", source="PatID"),
-            date_of_birth=Column("date", source="DateOfBirth"),
+            patient_id="PatID",
+            date_of_birth="DateOfBirth",
         ),
     )
 
     events = MappedTable(
         source="events",
         columns=dict(
-            date=Column("date"),
+            date="date",
         ),
     )
 
     practice_registrations = QueryTable(
-        columns=dict(
-            date_start=Column("date"),
-            date_end=Column("date"),
-        ),
-        query="SELECT patient_id, date_start, date_end FROM some_table",
+        "SELECT patient_id, date_start, date_end FROM some_table"
     )
 
 

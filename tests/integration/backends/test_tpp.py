@@ -4,6 +4,7 @@ import pytest
 import sqlalchemy
 
 from databuilder.backends.tpp import TPPBackend
+from databuilder.query_model import TableSchema
 from tests.lib.tpp_schema import apcs, patient
 
 
@@ -36,7 +37,9 @@ def test_hospitalization_table_code_conversion(mssql_database, raw, codes):
         )
     )
 
-    table = TPPBackend.hospitalizations.get_expression("hospitalizations")
+    table = TPPBackend.hospitalizations.get_expression(
+        "hospitalizations", TableSchema(code=str)
+    )
     query = sqlalchemy.select(table.c.code)
 
     results = list(run_query(mssql_database, query))
@@ -56,7 +59,9 @@ def test_patients_contract_table(mssql_database):
         patient(5, "X", "1990-01-01"),
     )
 
-    table = TPPBackend.patients.get_expression("patients")
+    table = TPPBackend.patients.get_expression(
+        "patients", TableSchema(date_of_birth=date, date_of_death=date, sex=str)
+    )
     query = sqlalchemy.select(
         table.c.patient_id, table.c.date_of_birth, table.c.date_of_death, table.c.sex
     )

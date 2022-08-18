@@ -1,5 +1,5 @@
 from ..query_engines.spark import SparkQueryEngine
-from .base import BaseBackend, Column, MappedTable, QueryTable
+from .base import BaseBackend, MappedTable, QueryTable
 
 
 class DatabricksBackend(BaseBackend):
@@ -9,45 +9,35 @@ class DatabricksBackend(BaseBackend):
     patient_join_column = "patient_id"
 
     patients = QueryTable(
-        columns=dict(
-            date_of_birth=Column("date"),
-        ),
         # We're not (currently) provided with a patient table so we have to
         # synthesize one by grabbing all the unique patients with their dates
         # of birth from the prescriptions table. This obviously means that we
         # don't know about patients which have never been prescribed a med.
         # This is OK for our intial purposes.
-        query="""
+        """
         SELECT
             Person_ID AS patient_id, MAX(PatientDoB) AS date_of_birth
         FROM
             PCAREMEDS.pcaremeds
         GROUP BY
             Person_ID
-        """,
+        """
     )
 
     prescriptions = MappedTable(
         source="pcaremeds",
         schema="PCAREMEDS",
         columns=dict(
-            patient_id=Column("integer", source="Person_ID"),
-            prescribed_dmd_code=Column("varchar", source="PrescribeddmdCode"),
-            processing_date=Column("date", source="ProcessingPeriodDate"),
+            patient_id="Person_ID",
+            prescribed_dmd_code="PrescribeddmdCode",
+            processing_date="ProcessingPeriodDate",
         ),
     )
 
     hospital_admissions = QueryTable(
-        columns=dict(
-            admission_date=Column("date"),
-            primary_diagnosis=Column("varchar"),
-            admission_method=Column("integer"),
-            episode_is_finished=Column("boolean"),
-            spell_id=Column("integer"),
-        ),
         # HES data comes in distinct tables for each financial year which we
         # union together to pretend its a single table.
-        query="\nUNION ALL\n".join(
+        "\nUNION ALL\n".join(
             # We join the APC (Admitted Patient Care) table with the MPS
             # (Master Person Service) table so we can get the associated
             # "person ID" which functions as our unique patient identifier that
@@ -88,5 +78,5 @@ class DatabricksBackend(BaseBackend):
             # "1920" means "Financial year 2019/2020". We only have the one
             # year in the sample data for now but we're anticipating more.
             for year in ["1920"]
-        ),
+        )
     )
