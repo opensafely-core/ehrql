@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, declarative_base
 from databuilder.orm_factory import orm_class_from_qm_table
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_model import SelectPatientTable, SelectTable, all_nodes
+from databuilder.sqlalchemy_types import Boolean
 
 
 class CSVQueryEngine(SQLiteQueryEngine):
@@ -62,10 +63,34 @@ def read_all_csvs(csv_directory, orm_classes, create_missing=False):
 
 
 def orm_instances_from_csv(orm_class, csv_file, create_missing=False):
-    fields = orm_class.__table__.columns.keys()
     if create_missing and not csv_file.exists():
-        csv_file.write_text(",".join(f for f in fields if f != "row_id") + "\n")
-    with open(csv_file) as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            yield orm_class(**{k: v for k, v in row.items() if k in fields})
+        field_names = orm_class.__table__.columns.keys()
+        csv_file.write_text(",".join(f for f in field_names if f != "row_id") + "\n")
+    with open(csv_file) as fileobj:
+        yield from orm_instances_from_csv_lines(orm_class, fileobj)
+
+
+def orm_instances_from_csv_lines(orm_class, lines):
+    fields = orm_class.__table__.columns
+    reader = csv.DictReader(lines)
+    for row in reader:
+        yield orm_class(
+            **{k: convert_value(v, fields[k]) for k, v in row.items() if k in fields}
+        )
+
+
+def convert_value(value, field):
+    # Treat the empty string as NULL
+    if value == "":
+        return None
+    # The ORM will implicitly convert most types correctly from their string
+    # representations, but not booleans
+    if isinstance(field.type, Boolean):
+        if value == "1":
+            return True
+        elif value == "0":
+            return False
+        else:
+            # Let the ORM throw the error for us
+            return value  # pragma: no cover
+    return value
