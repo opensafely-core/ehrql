@@ -216,3 +216,7 @@ databricks-test *ARGS: devenv databricks-env
 generate-docs OUTPUT_FILE="public_docs.json": devenv
     $BIN/python -m databuilder.docs > {{ OUTPUT_FILE }}
     echo "Generated data for documentation."
+
+graph DATASET_DEFINITION OUTPUT_DIR: devenv
+    which dot >/dev/null || (echo >&2 "ERROR: you must install Graphviz to use this target" && exit 1)
+    $BIN/python -m databuilder graph-query --output-dir {{ OUTPUT_DIR }} {{ DATASET_DEFINITION }}

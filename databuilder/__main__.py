@@ -7,6 +7,7 @@ from .main import (
     dump_dataset_sql,
     generate_dataset,
     generate_measures,
+    graph_query,
     pass_dummy_data,
     test_connection,
 )
@@ -57,6 +58,8 @@ def main(args, environ=None):
             url=options.url,
             environ=environ,
         )
+    elif options.which == "graph-query":
+        graph_query(options.dataset_definition, options.output_dir)
     elif options.which == "print-help":
         parser.print_help()
     else:
@@ -72,6 +75,7 @@ def build_parser(environ):
     subparsers = parser.add_subparsers(help="sub-command help")
     add_generate_dataset(subparsers, environ)
     add_dump_dataset_sql(subparsers, environ)
+    add_graph_query(subparsers)
     add_generate_measures(subparsers, environ)
     add_test_connection(subparsers, environ)
 
@@ -121,6 +125,24 @@ def add_dump_dataset_sql(subparsers, environ):
         "--output",
         help="SQL output file (outputs to console by default)",
         type=Path,
+    )
+    parser.add_argument(
+        "dataset_definition",
+        help="Path of Python file where dataset is defined",
+        type=existing_python_file,
+    )
+
+
+def add_graph_query(subparsers):
+    parser = subparsers.add_parser(
+        "graph-query",
+        help=("Output the dataset definition's query graph"),
+    )
+    parser.set_defaults(which="graph-query")
+    parser.add_argument(
+        "--output-dir",
+        help="The directory to write the outputs into",
+        required=True,
     )
     parser.add_argument(
         "dataset_definition",
