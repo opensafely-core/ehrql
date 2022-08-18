@@ -1,6 +1,6 @@
 import sqlalchemy
 
-from databuilder.sqlalchemy_types import TYPES_BY_NAME, type_from_python_type
+from databuilder.sqlalchemy_types import type_from_python_type
 
 
 class BaseBackend:
@@ -39,65 +39,49 @@ class BaseBackend:
         Raises:
             ValueError: If unknown table passed in
         """
-        # TODO: We currently ignore the `schema` argument here. But I think we should
-        # move towards having the supplied schema define the column types or, if not
-        # that, then we should validate that the types match.
-        return self.tables[table_name].get_expression(table_name)
+        return self.tables[table_name].get_expression(table_name, schema)
 
 
 class SQLTable:
     def learn_patient_join(self, source):
-        raise NotImplementedError()
-
-    def _make_columns(self):
-        return [
-            self._make_column(name, column) for name, column in self.columns.items()
-        ]
-
-    def _make_column(self, name, column):
-        source = column.source or name
-        type_ = TYPES_BY_NAME[column.type].value
-        sql_column = sqlalchemy.Column(source, type_, key=name)
-        return sql_column
+        self.patient_join_column = source
 
 
 class MappedTable(SQLTable):
     def __init__(self, source, columns, schema=None):
-        self.source = source
-        self.columns = columns
-        self._schema = schema
+        self.source_table_name = source
+        self.column_map = columns
+        # Not to be confused with the schema which defines the column names and types
+        self.db_schema_name = schema
 
-    def learn_patient_join(self, source):
-        if "patient_id" not in self.columns:
-            self.columns["patient_id"] = Column("integer", source)
-
-    def get_expression(self, table_name):
-        columns = self._make_columns()
-        return sqlalchemy.table(self.source, *columns, schema=self._schema)
+    def get_expression(self, table_name, schema):
+        patient_id_column = self.column_map.get("patient_id", self.patient_join_column)
+        return sqlalchemy.table(
+            self.source_table_name,
+            sqlalchemy.Column(patient_id_column, key="patient_id"),
+            *[
+                sqlalchemy.Column(
+                    self.column_map[name], key=name, type_=type_from_python_type(type_)
+                )
+                for (name, type_) in schema.items()
+            ],
+            schema=self.db_schema_name,
+        )
 
 
 class QueryTable(SQLTable):
-    def __init__(self, query, columns, implementation_notes=None):
+    def __init__(self, query, implementation_notes=None):
         self.query = query
-        self.columns = columns
         self.implementation_notes = implementation_notes or {}
 
-    def learn_patient_join(self, source):
-        # Given that `patient_id` has only one valid definition here, it should never be
-        # explicitly specified
-        assert "patient_id" not in self.columns
-        self.columns["patient_id"] = Column("integer")
-
-    def get_expression(self, table_name):
-        columns = self._make_columns()
+    def get_expression(self, table_name, schema):
+        columns = [sqlalchemy.Column("patient_id")]
+        columns.extend(
+            sqlalchemy.Column(name, type_=type_from_python_type(type_))
+            for (name, type_) in schema.items()
+        )
         query = sqlalchemy.text(self.query).columns(*columns)
         return query.alias(table_name)
-
-
-class Column:
-    def __init__(self, column_type, source=None):
-        self.type = column_type
-        self.source = source
 
 
 class DefaultBackend:
