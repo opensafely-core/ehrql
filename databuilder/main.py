@@ -140,11 +140,25 @@ def test_connection(backend_class, url, environ):
 
 
 def load_definition(definition_file):
-    module = load_module(definition_file)
+    try:
+        module = load_module(definition_file)
+    except Exception:
+        exc_type, exc_value, exc_tb = sys.exc_info()
+        while exc_tb:
+            if exc_tb.tb_frame.f_globals["__name__"] == "dataset":
+                print(f"Error Type: {exc_type}")
+                print(f"File: {exc_tb.tb_frame.f_code.co_filename}")
+                print(
+                    f"Line number {exc_tb.tb_frame.f_code.co_firstlineno}: {exc_value}"
+                )
+            exc_tb = exc_tb.tb_next
+        sys.exit(2)
+
     try:
         dataset = module.dataset
     except AttributeError:
         raise AttributeError("A dataset definition must define one 'dataset'")
+
     assert isinstance(
         dataset, Dataset
     ), "'dataset' must be an instance of databuilder.query_language.Dataset()"
