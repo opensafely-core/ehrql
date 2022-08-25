@@ -93,10 +93,6 @@ def engine_factory(request, engine_name):
     fixture = request.getfixturevalue
 
     if engine_name == "in_memory":
-        # There are some tests we currently expect to fail against the in-memory engine
-        marks = [m.name for m in request.node.iter_markers()]
-        if "xfail_in_memory" in marks:
-            pytest.xfail()
         return QueryEngineFixture(engine_name, InMemoryDatabase(), InMemoryQueryEngine)
     elif engine_name == "sqlite":
         return QueryEngineFixture(

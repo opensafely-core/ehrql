@@ -59,3 +59,9 @@ def orm_class_from_ql_table(base_class, table):
     class with the schema of that table
     """
     return orm_class_from_qm_table(base_class, table.qm_node)
+
+
+def table_has_one_row_per_patient(table):
+    """Given a SQLAlchemy ORM table, return boolean indicating whether the table has one
+    row per patient."""
+    return table.columns["patient_id"].primary_key

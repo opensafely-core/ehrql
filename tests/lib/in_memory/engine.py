@@ -4,7 +4,7 @@ import operator
 from databuilder import query_model as qm
 from databuilder.query_engines.base import BaseQueryEngine
 
-from .database import Column, Table, apply_function, handle_null
+from .database import PatientColumn, PatientTable, apply_function, handle_null
 
 T = True
 F = False
@@ -20,18 +20,18 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
     def get_results(self, variable_definitions):
         name_to_col = {
-            "patient_id": Column(
-                {patient: [patient] for patient in self.all_patients},
+            "patient_id": PatientColumn(
+                {patient: patient for patient in self.all_patients},
                 default=None,
             )
         }
 
         for name, node in variable_definitions.items():
             col = self.visit(node)
-            assert not col.any_patient_has_multiple_values()
+            assert isinstance(col, PatientColumn)
             name_to_col[name] = col
 
-        table = Table(name_to_col)
+        table = PatientTable(name_to_col)
         table = table.filter(table["population"])
 
         for record in table.to_records():
@@ -66,8 +66,8 @@ class InMemoryQueryEngine(BaseQueryEngine):
             value = frozenset(self.convert_value(v) for v in node.value)
         else:
             value = self.convert_value(node.value)
-        return Column(
-            {patient: [value] for patient in self.all_patients},
+        return PatientColumn(
+            {patient: value for patient in self.all_patients},
             default=None,
         )
 
@@ -90,8 +90,9 @@ class InMemoryQueryEngine(BaseQueryEngine):
         return self.visit(node.source).filter(self.visit(node.condition))
 
     def visit_Sort(self, node):
+        source = self.visit(node.source)
         sort_index = self.visit(node.sort_by).sort_index()
-        return self.visit(node.source).sort(sort_index)
+        return source.sort(sort_index)
 
     def visit_PickOneRowPerPatient(self, node):
         ix = {
@@ -263,7 +264,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
             for condition, value in node.cases.items()
         ]
         if node.default is None:
-            default = Column.from_values([], [])
+            default = PatientColumn({}, None)
         else:
             default = self.visit(node.default)
         # Flatten arguments into a single list for easier handling
