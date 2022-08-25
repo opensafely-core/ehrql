@@ -1,5 +1,6 @@
 import sqlalchemy
 
+from databuilder.query_model import has_one_row_per_patient
 from databuilder.sqlalchemy_types import Integer, type_from_python_type
 
 # Generate an integer sequence to use as default IDs. Normally you'd rely on the DBMS to
@@ -16,21 +17,26 @@ def null():
     return None
 
 
-def orm_class_from_schema(base_class, table_name, schema):
+def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patient):
     """
     Given a SQLAlchemy ORM "declarative base" class, a table name and a schema, return
     an ORM class with the schema of that table
     """
-    attributes = dict(
-        __tablename__=table_name,
+    attributes = {"__tablename__": table_name}
+
+    if has_one_row_per_patient:
+        attributes["patient_id"] = sqlalchemy.Column(Integer, primary_key=True)
+    else:
         # This column is only present because the SQLAlchemy ORM needs it
-        _pk=sqlalchemy.Column(Integer, primary_key=True, default=next_id),
-        patient_id=sqlalchemy.Column(Integer, nullable=False),
-        **{
-            col_name: sqlalchemy.Column(type_from_python_type(type_), default=null)
-            for col_name, type_ in schema.items()
-        }
-    )
+        attributes["_pk"] = sqlalchemy.Column(
+            Integer, primary_key=True, default=next_id
+        )
+        attributes["patient_id"] = sqlalchemy.Column(Integer, nullable=False)
+
+    for col_name, type_ in schema.items():
+        attributes[col_name] = sqlalchemy.Column(
+            type_from_python_type(type_), default=null
+        )
 
     class_name = table_name.title().replace("_", "")
 
@@ -42,7 +48,9 @@ def orm_class_from_qm_table(base_class, qm_table):
     Given a SQLAlchemy ORM "declarative base" class and a QM table, return an ORM
     class with the schema of that table
     """
-    return orm_class_from_schema(base_class, qm_table.name, qm_table.schema)
+    return orm_class_from_schema(
+        base_class, qm_table.name, qm_table.schema, has_one_row_per_patient(qm_table)
+    )
 
 
 def orm_class_from_ql_table(base_class, table):
