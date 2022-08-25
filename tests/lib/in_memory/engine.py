@@ -4,7 +4,7 @@ import operator
 from databuilder import query_model as qm
 from databuilder.query_engines.base import BaseQueryEngine
 
-from .database import Column, Table, apply_function
+from .database import Column, Table, apply_function, handle_null
 
 T = True
 F = False
@@ -121,14 +121,20 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_CombineAsSet(self, node):
         assert False
 
-    def visit_unary_op_with_null(self, node, op):
+    def visit_unary_op(self, node, op):
         series = self.visit(node.source)
-        return series.unary_op_with_null(op)
+        return apply_function(op, series)
 
-    def visit_binary_op_with_null(self, node, op):
+    def visit_unary_op_with_null(self, node, op):
+        return self.visit_unary_op(node, handle_null(op))
+
+    def visit_binary_op(self, node, op):
         lhs = self.visit(node.lhs)
         rhs = self.visit(node.rhs)
-        return lhs.binary_op_with_null(op, rhs)
+        return apply_function(op, lhs, rhs)
+
+    def visit_binary_op_with_null(self, node, op):
+        return self.visit_binary_op(node, handle_null(op))
 
     def visit_EQ(self, node):
         return self.visit_binary_op_with_null(node, operator.eq)
@@ -162,9 +168,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
                 (F, F): F,
             }[lhs, rhs]
 
-        lhs = self.visit(node.lhs)
-        rhs = self.visit(node.rhs)
-        return lhs.binary_op(op, rhs)
+        return self.visit_binary_op(node, op)
 
     def visit_Or(self, node):
         def op(lhs, rhs):
@@ -180,9 +184,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
                 (F, F): F,
             }[lhs, rhs]
 
-        lhs = self.visit(node.lhs)
-        rhs = self.visit(node.rhs)
-        return lhs.binary_op(op, rhs)
+        return self.visit_binary_op(node, op)
 
     def visit_Not(self, node):
         def op(value):
@@ -192,13 +194,13 @@ class InMemoryQueryEngine(BaseQueryEngine):
                 F: T,
             }[value]
 
-        return self.visit(node.source).unary_op(op)
+        return self.visit_unary_op(node, op)
 
     def visit_IsNull(self, node):
         def op(value):
             return value is None
 
-        return self.visit(node.source).unary_op(op)
+        return self.visit_unary_op(node, op)
 
     def visit_Negate(self, node):
         return self.visit_unary_op_with_null(node, operator.neg)

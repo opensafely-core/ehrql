@@ -217,19 +217,6 @@ class Column:
             for value in values
         )
 
-    def unary_op(self, fn):
-        default = fn(self.default)
-        return self.make_new_column(lambda p, vv: [fn(v) for v in vv], default)
-
-    def unary_op_with_null(self, fn):
-        return self.unary_op(handle_null(fn))
-
-    def binary_op(self, fn, other):
-        return apply_function(fn, self, other)
-
-    def binary_op_with_null(self, fn, other):
-        return self.binary_op(handle_null(fn), other)
-
     def aggregate_values(self, fn, default):
         def fn_with_null(values):
             filtered = [v for v in values if v is not None]

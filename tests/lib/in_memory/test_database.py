@@ -1,6 +1,4 @@
-from operator import add, neg
-
-from .database import Column, Table
+from .database import Column, Table, apply_function, handle_null
 
 
 def test_table_repr():
@@ -28,156 +26,6 @@ def test_column_repr():
         """
     )
     assert Column.parse(repr(c)) == c
-
-
-def test_column_unary_op():
-    c = Column.parse(
-        """
-        1 | 101
-        1 | 102
-        2 | 201
-        """,
-        default=0,
-    )
-    assert c.unary_op(neg) == Column.parse(
-        """
-        1 | -101
-        1 | -102
-        2 | -201
-        """,
-        default=0,
-    )
-
-
-def test_column_unary_op_with_null():
-    c = Column.parse(
-        """
-        1 | 101
-        1 |
-        2 | 201
-        """
-    )
-    assert c.unary_op_with_null(neg) == Column.parse(
-        """
-        1 | -101
-        1 |
-        2 | -201
-        """
-    )
-
-
-def test_patient_column_binary_op_patient_column():
-    pc1 = Column.parse(
-        """
-        1 | 101
-        2 | 201
-        3 | 301
-        """
-    )
-    pc2 = Column.parse(
-        """
-        1 | 111
-        2 | 211
-        4 | 411
-        """
-    )
-    assert pc1.binary_op_with_null(add, pc2) == Column.parse(
-        """
-        1 | 212
-        2 | 412
-        3 |
-        4 |
-        """
-    )
-
-
-def test_patient_column_binary_op_event_column():
-    pc = Column.parse(
-        """
-        1 | 101
-        2 | 201
-        3 | 301
-        """
-    )
-    ec = Column.parse(
-        """
-        1 | 111
-        1 | 112
-        2 | 211
-        2 | 212
-        4 | 414
-        """
-    )
-    assert pc.binary_op_with_null(add, ec) == Column.parse(
-        """
-        1 | 212
-        1 | 213
-        2 | 412
-        2 | 413
-        3 |
-        4 |
-        """
-    )
-
-
-def test_event_column_binary_op_patient_column():
-    pc = Column.parse(
-        """
-        1 | 101
-        2 | 201
-        3 | 301
-        """
-    )
-    ec = Column.parse(
-        """
-        1 | 111
-        1 | 112
-        2 | 211
-        2 | 212
-        4 | 411
-        """
-    )
-    assert ec.binary_op_with_null(add, pc) == Column.parse(
-        """
-        1 | 212
-        1 | 213
-        2 | 412
-        2 | 413
-        3 |
-        4 |
-        """
-    )
-
-
-def test_event_column_binary_op_event_column():
-    es1 = Column.parse(
-        """
-        1 | 101
-        1 | 102
-        2 | 201
-        2 | 202
-        3 | 301
-        """
-    )
-    es2 = Column.parse(
-        """
-        1 | 111
-        1 | 112
-        2 | 211
-        2 | 212
-        3 | 311
-        """
-    )
-
-    assert es1.binary_op_with_null(add, es2) == Column.parse(
-        """
-        1 | 212
-        1 | 214
-        2 | 412
-        2 | 414
-        3 | 612
-        """
-    )
 
 
 def test_column_aggregate_values():
@@ -467,5 +315,80 @@ def test_table_pick_at_index():
         1 | 103 | 111
         2 | 202 | 211
         3 | 301 | 311
+        """
+    )
+
+
+def test_apply_function_with_event_columns():
+    pc1 = Column.parse(
+        """
+        1 | 101
+        2 | 201
+        3 | 301
+        """
+    )
+    pc2 = Column.parse(
+        """
+        1 | 102
+        2 | 202
+        4 | 402
+        """
+    )
+    ec1 = Column.parse(
+        """
+        1 | 111
+        1 | 112
+        2 | 211
+        2 | 212
+        3 | 311
+        """
+    )
+    ec2 = Column.parse(
+        """
+        1 | 121
+        1 | 122
+        2 | 221
+        2 | 222
+        5 | 521
+        """
+    )
+    op = handle_null(lambda *args: sum(args))
+    results = apply_function(op, pc1, pc2, ec1, ec2)
+    assert results == Column.parse(
+        """
+        1 | 435
+        1 | 437
+        2 | 835
+        2 | 837
+        3 |
+        4 |
+        5 |
+        """
+    )
+
+
+def test_apply_function_with_no_event_columns():
+    pc1 = Column.parse(
+        """
+        1 | 101
+        2 | 201
+        3 | 301
+        """
+    )
+    pc2 = Column.parse(
+        """
+        1 | 102
+        2 | 202
+        4 | 402
+        """
+    )
+    op = handle_null(lambda *args: sum(args))
+    results = apply_function(op, pc1, pc2)
+    assert results == Column.parse(
+        """
+        1 | 203
+        2 | 403
+        3 |
+        4 |
         """
     )
