@@ -126,9 +126,9 @@ def test_patient_table_exists():
         """
         1 | 1
         2 | 1
-        """
+        """,
+        default=False,
     )
-    expected.default = False
 
     # This relies on equality of 1 and True
     assert t.exists() == expected
@@ -149,9 +149,9 @@ def test_event_table_exists():
         """
         1 | 1
         2 | 1
-        """
+        """,
+        default=False,
     )
-    expected.default = False
 
     # This relies on equality of 1 and True
     assert t.exists() == expected
@@ -171,9 +171,9 @@ def test_patient_table_count():
         """
         1 | 1
         2 | 1
-        """
+        """,
+        default=0,
     )
-    expected.default = 0
 
     assert t.count() == expected
 
@@ -193,9 +193,9 @@ def test_event_table_count():
         """
         1 | 2
         2 | 1
-        """
+        """,
+        default=0,
     )
-    expected.default = 0
 
     assert t.count() == expected
 
