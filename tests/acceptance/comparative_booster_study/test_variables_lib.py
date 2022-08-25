@@ -4,9 +4,9 @@ from types import SimpleNamespace
 import pytest
 import sqlalchemy.orm
 
+from databuilder.orm_factory import orm_class_from_table
 from databuilder.query_language import Dataset, EventFrame, Series, construct
 
-from ...lib.util import orm_class_from_table
 from .variables_lib import create_sequential_variables
 
 

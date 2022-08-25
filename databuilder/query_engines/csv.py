@@ -1,12 +1,11 @@
 import csv
 from pathlib import Path
 
-import sqlalchemy
-from sqlalchemy.orm import Session, declarative_base
+from sqlalchemy.orm import Session
 
+from databuilder.orm_factory import create_orm_classes_from_table_nodes
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_model import SelectPatientTable, SelectTable, all_nodes
-from databuilder.sqlalchemy_types import Integer, type_from_python_type
 
 
 class CSVQueryEngine(SQLiteQueryEngine):
@@ -52,32 +51,6 @@ def get_table_nodes(variables):
             if isinstance(node, (SelectTable, SelectPatientTable)):
                 table_nodes.add(node)
     return table_nodes
-
-
-def create_orm_classes_from_table_nodes(table_nodes):
-    Base = declarative_base()
-    return [
-        orm_class_from_schema(
-            Base,
-            node.name,
-            node.schema,
-        )
-        for node in table_nodes
-    ]
-
-
-def orm_class_from_schema(base_class, table_name, schema):
-    attributes = dict(
-        __tablename__=table_name,
-        # This column is only present because the SQLAlchemy ORM needs it
-        _pk=sqlalchemy.Column(Integer, primary_key=True),
-        patient_id=sqlalchemy.Column(Integer, nullable=False),
-        **{
-            col_name: sqlalchemy.Column(type_from_python_type(type_))
-            for col_name, type_ in schema.items()
-        },
-    )
-    return type(table_name, (base_class,), attributes)
 
 
 def read_all_csvs(csv_directory, orm_classes, create_missing=False):
