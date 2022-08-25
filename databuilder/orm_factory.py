@@ -1,5 +1,4 @@
 import sqlalchemy
-from sqlalchemy.orm import declarative_base
 
 from databuilder.sqlalchemy_types import Integer, type_from_python_type
 
@@ -38,22 +37,17 @@ def orm_class_from_schema(base_class, table_name, schema):
     return type(class_name, (base_class,), attributes)
 
 
-def orm_class_from_table(base_class, table):
+def orm_class_from_qm_table(base_class, qm_table):
     """
-    Given a SQLAlchemy ORM "declarative base" class and an ehrQL table, return an ORM
+    Given a SQLAlchemy ORM "declarative base" class and a QM table, return an ORM
     class with the schema of that table
     """
-    qm_node = table.qm_node
-    return orm_class_from_schema(base_class, qm_node.name, qm_node.schema)
+    return orm_class_from_schema(base_class, qm_table.name, qm_table.schema)
 
 
-def create_orm_classes_from_table_nodes(table_nodes):
-    Base = declarative_base()
-    return [
-        orm_class_from_schema(
-            Base,
-            node.name,
-            node.schema,
-        )
-        for node in table_nodes
-    ]
+def orm_class_from_ql_table(base_class, table):
+    """
+    Given a SQLAlchemy ORM "declarative base" class and a QL table, return an ORM
+    class with the schema of that table
+    """
+    return orm_class_from_qm_table(base_class, table.qm_node)

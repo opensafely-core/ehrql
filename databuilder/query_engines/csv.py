@@ -1,9 +1,9 @@
 import csv
 from pathlib import Path
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, declarative_base
 
-from databuilder.orm_factory import create_orm_classes_from_table_nodes
+from databuilder.orm_factory import orm_class_from_qm_table
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_model import SelectPatientTable, SelectTable, all_nodes
 
@@ -28,7 +28,8 @@ class CSVQueryEngine(SQLiteQueryEngine):
         # Given the variables supplied determine the tables used, create corresponding
         # ORM classes and use them to initialise the database schema
         table_nodes = get_table_nodes(variable_definitions)
-        orm_classes = create_orm_classes_from_table_nodes(table_nodes)
+        Base = declarative_base()
+        orm_classes = [orm_class_from_qm_table(Base, node) for node in table_nodes]
         assert orm_classes
         orm_classes[0].metadata.create_all(self.engine)
 

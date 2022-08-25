@@ -3,7 +3,7 @@ import datetime
 import sqlalchemy.orm
 
 from databuilder.codes import SNOMEDCTCode
-from databuilder.orm_factory import orm_class_from_table
+from databuilder.orm_factory import orm_class_from_ql_table
 from databuilder.query_language import EventFrame, PatientFrame, Series, construct
 
 
@@ -38,5 +38,5 @@ p = patient_level_table
 e = event_level_table
 
 Base = sqlalchemy.orm.declarative_base()
-PatientLevelTable = orm_class_from_table(Base, patient_level_table)
-EventLevelTable = orm_class_from_table(Base, event_level_table)
+PatientLevelTable = orm_class_from_ql_table(Base, patient_level_table)
+EventLevelTable = orm_class_from_ql_table(Base, event_level_table)
