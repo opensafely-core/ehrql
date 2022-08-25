@@ -477,6 +477,11 @@ def handle_null(fn):
 
 
 def parse_value(value):
+    value = value.strip()
+    if value == "T":
+        return True
+    if value == "F":
+        return False
     return int(value) if value else None
 
 

@@ -124,13 +124,12 @@ def test_patient_table_exists():
 
     expected = PatientColumn.parse(
         """
-        1 | 1
-        2 | 1
+        1 | T
+        2 | T
         """,
         default=False,
     )
 
-    # This relies on equality of 1 and True
     assert t.exists() == expected
 
 
@@ -147,13 +146,12 @@ def test_event_table_exists():
 
     expected = PatientColumn.parse(
         """
-        1 | 1
-        2 | 1
+        1 | T
+        2 | T
         """,
         default=False,
     )
 
-    # This relies on equality of 1 and True
     assert t.exists() == expected
 
 
@@ -209,13 +207,12 @@ def test_patient_column_filter():
         """
     )
 
-    predicate = PatientColumn(
-        {
-            1: True,
-            2: True,
-            3: False,
-        },
-        default=None,
+    predicate = PatientColumn.parse(
+        """
+        1 | T
+        2 | T
+        3 | F
+        """,
     )
 
     assert c.filter(predicate) == PatientColumn.parse(
@@ -243,12 +240,15 @@ def test_event_column_filter():
         """
     )
 
-    predicate = EventColumn(
-        {
-            1: Rows({0: True, 1: True, 2: False}),
-            2: Rows({3: True, 4: False}),
-            3: Rows({5: False}),
-        },
+    predicate = EventColumn.parse(
+        """
+        1 | 0 | T
+        1 | 1 | T
+        1 | 2 | F
+        2 | 3 | T
+        2 | 4 | F
+        3 | 5 | F
+        """
     )
 
     assert c.filter(predicate) == EventColumn.parse(
@@ -271,13 +271,12 @@ def test_patient_table_filter():
         """
     )
 
-    predicate = PatientColumn(
-        {
-            1: True,
-            2: True,
-            3: False,
-        },
-        default=None,
+    predicate = PatientColumn.parse(
+        """
+        1 | T
+        2 | T
+        3 | F
+        """
     )
 
     assert t.filter(predicate) == PatientTable.parse(
@@ -304,12 +303,15 @@ def test_event_table_filter():
         """
     )
 
-    predicate = EventColumn(
-        {
-            1: Rows({0: True, 1: True, 2: False}),
-            2: Rows({3: True, 4: False}),
-            3: Rows({5: False}),
-        }
+    predicate = EventColumn.parse(
+        """
+        1 | 0 | T
+        1 | 1 | T
+        1 | 2 | F
+        2 | 3 | T
+        2 | 4 | F
+        3 | 5 | F
+        """
     )
 
     assert t.filter(predicate) == EventTable.parse(
