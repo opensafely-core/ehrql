@@ -205,9 +205,9 @@ packaging==21.3 \
     # via
     #   build
     #   pytest
-pandas-stubs==1.4.3.220807 \
-    --hash=sha256:0048410980f546c07d4ac9ecd8061dc6ecdedb26901730f9439e2f07ce812bec \
-    --hash=sha256:ecc38adcd26cdbb40fc02a4e5b9a4837db5ac37168d562a6b25fbbcc38d1b861
+pandas-stubs==1.4.3.220822 \
+    --hash=sha256:8d7d48fc15939557c05ceec75f452713bf2c4788f854ed38e1a19fffd1bcf766 \
+    --hash=sha256:c9404fde13e15b2d37c32da2299ba2bcf59fb89eb44e4e93c14dabf2d7df8f55
     # via -r requirements.dev.in
 pathspec==0.9.0 \
     --hash=sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a \
