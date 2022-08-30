@@ -148,9 +148,8 @@ def load_definition(definition_file):
             if exc_tb.tb_frame.f_globals["__name__"] == "dataset":
                 print(f"Error Type: {exc_type}")
                 print(f"File: {exc_tb.tb_frame.f_code.co_filename}")
-                print(
-                    f"Line number {exc_tb.tb_frame.f_code.co_firstlineno}: {exc_value}"
-                )
+                print(f"Line number {exc_tb.tb_lineno}: {exc_value}")
+                sys.exit(2)
             exc_tb = exc_tb.tb_next
         sys.exit(2)
 
