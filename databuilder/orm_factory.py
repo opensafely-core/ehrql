@@ -27,11 +27,10 @@ def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patien
     if has_one_row_per_patient:
         attributes["patient_id"] = sqlalchemy.Column(Integer, primary_key=True)
     else:
-        # This column is only present because the SQLAlchemy ORM needs it
-        attributes["_pk"] = sqlalchemy.Column(
+        attributes["patient_id"] = sqlalchemy.Column(Integer, nullable=False)
+        attributes["row_id"] = sqlalchemy.Column(
             Integer, primary_key=True, default=next_id
         )
-        attributes["patient_id"] = sqlalchemy.Column(Integer, nullable=False)
 
     for col_name, type_ in schema.items():
         attributes[col_name] = sqlalchemy.Column(

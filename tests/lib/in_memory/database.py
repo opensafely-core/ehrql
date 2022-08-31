@@ -34,20 +34,16 @@ class InMemoryDatabase:
             self.tables[sqla_table.name] = self.build_table(sqla_table, items)
 
     def build_table(self, sqla_table, items):
-        col_names = [col.name for col in sqla_table.columns if col.name != "_pk"]
+        col_names = [col.name for col in sqla_table.columns]
+        if table_has_one_row_per_patient(sqla_table):
+            table_cls = PatientTable
+        else:
+            table_cls = EventTable
+            for ix, item in enumerate(items):
+                item.row_id = ix
         row_records = [
             [getattr(item, col_name) for col_name in col_names] for item in items
         ]
-        if table_has_one_row_per_patient(sqla_table):
-            table_cls = PatientTable
-            col_names[0] = "patient_id"
-        else:
-            table_cls = EventTable
-            col_names = ["patient_id", "row_id"] + col_names[1:]
-            row_records = [
-                [patient_id, row_id, *rest]
-                for row_id, (patient_id, *rest) in enumerate(row_records)
-            ]
         table = table_cls.from_records(col_names, row_records)
         self.all_patients |= table.patients()
         return table
@@ -155,6 +151,8 @@ class EventTable:
             col_records = list(zip(*row_records))
         else:
             col_records = [[]] * len(col_names)
+        assert col_names[0] == "patient_id"
+        assert col_names[1] == "row_id"
         patients = col_records[0]
         rows = col_records[1]
         name_to_col = {}

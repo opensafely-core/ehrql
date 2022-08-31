@@ -64,7 +64,7 @@ def read_all_csvs(csv_directory, orm_classes, create_missing=False):
 def orm_instances_from_csv(orm_class, csv_file, create_missing=False):
     fields = orm_class.__table__.columns.keys()
     if create_missing and not csv_file.exists():
-        csv_file.write_text(",".join(f for f in fields if f != "_pk") + "\n")
+        csv_file.write_text(",".join(f for f in fields if f != "row_id") + "\n")
     with open(csv_file) as f:
         reader = csv.DictReader(f)
         for row in reader:
