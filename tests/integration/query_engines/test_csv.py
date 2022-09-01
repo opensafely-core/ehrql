@@ -7,7 +7,7 @@ from databuilder.query_language import (
     PatientFrame,
     Series,
     compile,
-    construct,
+    table,
 )
 
 
@@ -36,12 +36,12 @@ def test_csv_query_engine(tmp_path):
         ),
     )
 
-    @construct
+    @table
     class patients(PatientFrame):
         sex = Series(str)
         top_score = Series(int)
 
-    @construct
+    @table
     class events(EventFrame):
         date = Series(datetime.date)
         code = Series(str)
@@ -71,11 +71,11 @@ def test_csv_query_engine(tmp_path):
 
 
 def test_csv_query_engine_create_missing(tmp_path):
-    @construct
+    @table
     class patients(PatientFrame):
         sex = Series(str)
 
-    @construct
+    @table
     class events(EventFrame):
         date = Series(datetime.date)
         code = Series(str)

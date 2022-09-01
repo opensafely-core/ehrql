@@ -1,6 +1,6 @@
 import datetime
 
-from databuilder.query_language import PatientFrame, Series, construct
+from databuilder.query_language import PatientFrame, Series, table
 
 from .constraints import (
     CategoricalConstraint,
@@ -11,7 +11,7 @@ from .constraints import (
 __all__ = ["patients"]
 
 
-@construct
+@table
 class patients(PatientFrame):
 
     date_of_birth = Series(

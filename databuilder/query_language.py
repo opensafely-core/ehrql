@@ -465,7 +465,7 @@ class SchemaError(Exception):
 # these classes accessible anywhere: users should only be interacting with instances of
 # the classes, and having the classes themselves in the module namespaces only makes
 # autocomplete more confusing and error prone.
-def construct(cls):
+def table(cls):
     try:
         qm_class = {
             (PatientFrame,): qm.SelectPatientTable,
@@ -517,7 +517,7 @@ class Series:
     def __get__(self, instance, owner):
         # Prevent users attempting to interact with the class rather than an instance
         if instance is None:
-            raise SchemaError("Missing `@construct` decorator on schema class")
+            raise SchemaError("Missing `@table` decorator on schema class")
         return instance._select_column(self.name)
 
 

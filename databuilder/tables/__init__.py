@@ -4,10 +4,10 @@
 # [1]: https://github.com/opensafely/test-age-distribution
 import datetime
 
-from databuilder.query_language import PatientFrame, Series, construct
+from databuilder.query_language import PatientFrame, Series, table
 
 
-@construct
+@table
 class patients(PatientFrame):
     date_of_birth = Series(datetime.date)
     date_of_death = Series(datetime.date)

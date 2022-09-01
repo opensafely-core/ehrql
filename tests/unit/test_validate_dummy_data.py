@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from databuilder.column_specs import ColumnSpec
-from databuilder.query_language import Dataset, PatientFrame, Series, construct
+from databuilder.query_language import Dataset, PatientFrame, Series, table
 from databuilder.validate_dummy_data import (
     ValidationError,
     validate_csv_against_spec,
@@ -16,7 +16,7 @@ from databuilder.validate_dummy_data import (
 )
 
 
-@construct
+@table
 class patients(PatientFrame):
     date_of_birth = Series(datetime.date)
 

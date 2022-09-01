@@ -4,12 +4,12 @@ import sqlalchemy.orm
 
 from databuilder.codes import CTV3Code, ICD10Code, SNOMEDCTCode
 from databuilder.orm_factory import orm_class_from_ql_table
-from databuilder.query_language import EventFrame, PatientFrame, Series, construct
+from databuilder.query_language import EventFrame, PatientFrame, Series, table
 
 Base = sqlalchemy.orm.declarative_base()
 
 
-@construct
+@table
 class patients(PatientFrame):
     date_of_birth = Series(datetime.date)
     sex = Series(str)
@@ -18,7 +18,7 @@ class patients(PatientFrame):
 Patient = orm_class_from_ql_table(Base, patients)
 
 
-@construct
+@table
 class vaccinations(EventFrame):
     date = Series(datetime.date)
     target_disease = Series(str)
@@ -28,7 +28,7 @@ class vaccinations(EventFrame):
 Vaccination = orm_class_from_ql_table(Base, vaccinations)
 
 
-@construct
+@table
 class practice_registrations(EventFrame):
     start_date = Series(datetime.date)
     end_date = Series(datetime.date)
@@ -40,7 +40,7 @@ class practice_registrations(EventFrame):
 PracticeRegistration = orm_class_from_ql_table(Base, practice_registrations)
 
 
-@construct
+@table
 class ons_deaths(EventFrame):
     date = Series(datetime.date)
     # TODO: Revisit this when we have support for multi-valued fields
@@ -64,7 +64,7 @@ class ons_deaths(EventFrame):
 ONSDeath = orm_class_from_ql_table(Base, ons_deaths)
 
 
-@construct
+@table
 class coded_events(EventFrame):
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
@@ -75,7 +75,7 @@ class coded_events(EventFrame):
 CodedEvent = orm_class_from_ql_table(Base, coded_events)
 
 
-@construct
+@table
 class medications(EventFrame):
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
@@ -84,7 +84,7 @@ class medications(EventFrame):
 Medication = orm_class_from_ql_table(Base, medications)
 
 
-@construct
+@table
 class addresses(EventFrame):
     address_id = Series(int)
     start_date = Series(datetime.date)
@@ -104,7 +104,7 @@ class addresses(EventFrame):
 Address = orm_class_from_ql_table(Base, addresses)
 
 
-@construct
+@table
 class sgss_covid_all_tests(EventFrame):
     specimen_taken_date = Series(datetime.date)
     is_positive = Series(bool)
@@ -113,7 +113,7 @@ class sgss_covid_all_tests(EventFrame):
 SGSSCovidAllTestsResult = orm_class_from_ql_table(Base, sgss_covid_all_tests)
 
 
-@construct
+@table
 class occupation_on_covid_vaccine_record(EventFrame):
     is_healthcare_worker = Series(bool)
 
@@ -123,7 +123,7 @@ OccupationOnCovidVaccineRecord = orm_class_from_ql_table(
 )
 
 
-@construct
+@table
 class emergency_care_attendances(EventFrame):
     id = Series(int)  # noqa: A003
     arrival_date = Series(datetime.date)
@@ -158,7 +158,7 @@ class emergency_care_attendances(EventFrame):
 EmergencyCareAttendance = orm_class_from_ql_table(Base, emergency_care_attendances)
 
 
-@construct
+@table
 class hospital_admissions(EventFrame):
     id = Series(int)  # noqa: A003
     admission_date = Series(datetime.date)

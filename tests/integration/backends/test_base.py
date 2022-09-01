@@ -6,13 +6,7 @@ import sqlalchemy
 from databuilder import sqlalchemy_types
 from databuilder.backends.base import BaseBackend, MappedTable, QueryTable
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
-from databuilder.query_language import (
-    Dataset,
-    EventFrame,
-    PatientFrame,
-    Series,
-    construct,
-)
+from databuilder.query_language import Dataset, EventFrame, PatientFrame, Series, table
 
 # Generate an integer sequence to use as default IDs. Normally you'd rely on the DBMS to
 # provide these, but we need to support DBMSs like Spark which don't have this feature.
@@ -22,12 +16,12 @@ Base = sqlalchemy.orm.declarative_base()
 
 
 # Simple schema to test against
-@construct
+@table
 class patients(PatientFrame):
     date_of_birth = Series(datetime.date)
 
 
-@construct
+@table
 class covid_tests(EventFrame):
     date = Series(datetime.date)
     positive = Series(int)

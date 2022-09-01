@@ -5,14 +5,14 @@ import pytest
 import sqlalchemy.orm
 
 from databuilder.orm_factory import orm_class_from_ql_table
-from databuilder.query_language import Dataset, EventFrame, Series, construct
+from databuilder.query_language import Dataset, EventFrame, Series, table
 
 from .variables_lib import create_sequential_variables
 
 
 @pytest.fixture
 def schema():
-    @construct
+    @table
     class events(EventFrame):
         date = Series(date)
         value = Series(int)

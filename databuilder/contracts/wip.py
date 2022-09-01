@@ -1,6 +1,6 @@
 import datetime
 
-from databuilder.query_language import EventFrame, PatientFrame, Series, construct
+from databuilder.query_language import EventFrame, PatientFrame, Series, table
 
 from .constraints import (
     CategoricalConstraint,
@@ -9,7 +9,7 @@ from .constraints import (
 )
 
 
-@construct
+@table
 class patient_demographics(PatientFrame):
     """Provides demographic information about patients."""
 
@@ -38,7 +38,7 @@ class patient_demographics(PatientFrame):
 ###
 
 
-@construct
+@table
 class clinical_events(EventFrame):
     """TODO."""
 
@@ -48,7 +48,7 @@ class clinical_events(EventFrame):
     numeric_value = Series(float)
 
 
-@construct
+@table
 class hospital_admissions(EventFrame):
     """TODO."""
 
@@ -59,7 +59,7 @@ class hospital_admissions(EventFrame):
     spell_id = Series(int)
 
 
-@construct
+@table
 class hospitalizations(EventFrame):
     """TODO."""
 
@@ -68,14 +68,14 @@ class hospitalizations(EventFrame):
     system = Series(str)
 
 
-@construct
+@table
 class hospitalizations_without_system(EventFrame):
     """TODO."""
 
     code = Series(str)
 
 
-@construct
+@table
 class patient_address(EventFrame):
     """TODO."""
 
@@ -86,7 +86,7 @@ class patient_address(EventFrame):
     has_postcode = Series(bool)
 
 
-@construct
+@table
 class practice_registrations(EventFrame):
     """TODO."""
 
@@ -96,7 +96,7 @@ class practice_registrations(EventFrame):
     date_end = Series(datetime.date)
 
 
-@construct
+@table
 class prescriptions(EventFrame):
     """TODO."""
 
@@ -104,7 +104,7 @@ class prescriptions(EventFrame):
     processing_date = Series(datetime.date)
 
 
-@construct
+@table
 class covid_test_results(EventFrame):
     """TODO."""
 
@@ -112,7 +112,7 @@ class covid_test_results(EventFrame):
     positive_result = Series(bool)
 
 
-@construct
+@table
 class patients(EventFrame):
     """TODO."""
 

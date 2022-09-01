@@ -11,7 +11,7 @@ from databuilder.backends.base import (
     ValidationError,
 )
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
-from databuilder.query_language import PatientFrame, Series, construct
+from databuilder.query_language import PatientFrame, Series, table
 
 
 class TestBackend(BaseBackend):
@@ -96,7 +96,7 @@ def test_default_backend_sql():
 
 # Use a class as a convenient namespace (`types.SimpleNamespace` would also work)
 class Schema:
-    @construct
+    @table
     class patients(PatientFrame):
         date_of_birth = Series(datetime.date)
 
