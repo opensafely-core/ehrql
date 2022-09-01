@@ -1,28 +1,13 @@
 """An implementation of a simple and fast in-memory database that can be driven by the
 the in-memory engine.
 
-There are two classes:
-
-    * Tables contain a mapping from a name to a column.
-    * Columns contain a mapping from a patient id to a list of values, and have a
-      default value (which defaults to None) for any patients not in the mapping.
-
-In most cases, this database does not care whether the table or column contains one row
-per patient or many rows per patient, and instead relies on the in-memory engine doing
-the right thing with a valid QM object.
-
-There are two places where this database does care:
-
-    * When applying a binary operation on two columns, if column C1 contains one row
-      per patient and column C2 contains many rows per patient, we have to create
-      a mapping with values from C1 with the shape of C2.
-    * When getting the single value from a column with one row per patient, we verify
-      that the column does contain one row per patient.
+See tests in test_database.py for comprehensive examples of how this all works.
 """
 
-from collections import defaultdict
+from collections import UserDict, defaultdict
 from dataclasses import dataclass
 
+from databuilder.orm_factory import table_has_one_row_per_patient
 from tests.lib.util import iter_flatten
 
 
@@ -49,13 +34,18 @@ class InMemoryDatabase:
             self.tables[sqla_table.name] = self.build_table(sqla_table, items)
 
     def build_table(self, sqla_table, items):
-        col_names = [col.name for col in sqla_table.columns if col.name != "_pk"]
+        col_names = [col.name for col in sqla_table.columns]
+        if table_has_one_row_per_patient(sqla_table):
+            table_cls = PatientTable
+        else:
+            table_cls = EventTable
+            for ix, item in enumerate(items):
+                item.row_id = ix
         row_records = [
             [getattr(item, col_name) for col_name in col_names] for item in items
         ]
-        col_names[0] = "patient_id"
-        table = Table.from_records(col_names, row_records)
-        self.all_patients |= table["patient_id"].patient_to_values.keys()
+        table = table_cls.from_records(col_names, row_records)
+        self.all_patients |= table.patients()
         return table
 
     def host_url(self):
@@ -66,7 +56,9 @@ class InMemoryDatabase:
 
 
 @dataclass
-class Table:
+class PatientTable:
+    """A wrapper around a mapping from column names to PatientColumn instances."""
+
     name_to_col: dict
 
     @classmethod
@@ -76,32 +68,32 @@ class Table:
             col_records = list(zip(*row_records))
         else:
             col_records = [[]] * len(col_names)
-        patient_ids = col_records[0]
+        patients = col_records[0]
         name_to_col = {
-            name: Column.from_values(patient_ids, values)
-            for name, values in zip(col_names, col_records)
+            col_name: PatientColumn(dict(zip(patients, col_record)))
+            for col_name, col_record in zip(col_names, col_records)
         }
         return cls(name_to_col)
 
     @classmethod
     def parse(cls, s):
-        """Create Table instance by parsing string.
-
-        >>> tbl = Table.parse(
+        """Create instance by parsing string.
+        >>> tbl = PatientTable.parse(
         ...     '''
         ...       |  i1 |  i2
         ...     --+-----+-----
         ...     1 | 101 | 111
-        ...     1 | 102 | 112
-        ...     2 | 201 | 211
+        ...     2 | 201 |
         ...     '''
         ... )
         >>> tbl.name_to_col.keys()
         dict_keys(['patient_id', 'i1', 'i2'])
-        >>> tbl['patient_id'].patient_to_values
-        {1: [1, 1], 2: [2]}
-        >>> tbl['i1'].patient_to_values
-        {1: [101, 102], 2: [201]}
+        >>> tbl['patient_id'].patient_to_value
+        {1: 1, 2: 2}
+        >>> tbl['i1'].patient_to_value
+        {1: 101, 2: 201}
+        >>> tbl['i2'].patient_to_value
+        {1: 111, 2: None}
         """
 
         header, _, *lines = s.strip().splitlines()
@@ -112,185 +104,370 @@ class Table:
         ]
         return cls.from_records(col_names, row_records)
 
+    def __repr__(self):
+        width = 17
+        lines = []
+        lines.append(" | ".join(name.ljust(width) for name in self.name_to_col))
+        lines.append("-+-".join("-" * width for _ in self.name_to_col))
+        for p in sorted(self["patient_id"].patients()):
+            lines.append(
+                " | ".join(
+                    str(col[p]).ljust(width) for col in self.name_to_col.values()
+                )
+            )
+        return "\n".join(lines)
+
     def __getitem__(self, name):
         return self.name_to_col[name]
 
-    def __repr__(self):
-        width = 17
-        rows = []
-        rows.append(" | ".join(name.ljust(width) for name in self.name_to_col))
-        rows.append("-+-".join("-" * width for _ in self.name_to_col))
-        for patient, values in sorted(self["patient_id"].patient_to_values.items()):
-            for ix in range(len(values)):
-                rows.append(
-                    " | ".join(
-                        str(col.get_values(patient)[ix]).ljust(width)
-                        for col in self.name_to_col.values()
-                    )
-                )
-
-        return "\n".join(rows)
-
     def to_records(self):
-        for patient in self["patient_id"].patient_to_values:
-            yield {
-                name: col.get_value(patient) for name, col in self.name_to_col.items()
-            }
+        for p in self.patients():
+            yield {name: col[p] for name, col in self.name_to_col.items()}
+
+    def patients(self):
+        return self["patient_id"].patients()
 
     def exists(self):
-        return self["patient_id"].make_new_column(
-            lambda p, vv: [bool(vv)], default=False
-        )
+        return PatientColumn({p: True for p in self.patients()}, False)
 
     def count(self):
-        return self["patient_id"].make_new_column(
-            lambda p, vv: [len(vv)],
-            default=0,
-        )
+        return PatientColumn({p: 1 for p in self.patients()}, 0)
 
     def filter(self, predicate):  # noqa A003
-        return self.make_new_table(lambda col: col.filter(predicate))
-
-    def sort(self, sort_index):
-        return self.make_new_table(lambda col: col.sort(sort_index))
-
-    def pick_at_index(self, ix):
-        return self.make_new_table(lambda col: col.pick_at_index(ix))
-
-    def make_new_table(self, fn):
-        return Table({name: fn(col) for name, col in self.name_to_col.items()})
+        return PatientTable(
+            {name: col.filter(predicate) for name, col in self.name_to_col.items()}
+        )
 
 
 @dataclass
-class Column:
-    patient_to_values: dict
-    default: object
+class EventTable:
+    """A wrapper around a mapping from column names to EventColumn instances."""
+
+    name_to_col: dict
 
     @classmethod
-    def from_values(cls, patient_ids, values, default=None):
-        patient_to_values = defaultdict(list)
-        for patient, value in zip(patient_ids, values):
-            patient_to_values[patient].append(value)
-        return cls(dict(patient_to_values), default)
+    def from_records(cls, col_names, row_records):
+        if row_records:
+            col_records = list(zip(*row_records))
+        else:
+            col_records = [[]] * len(col_names)
+        assert col_names[0] == "patient_id"
+        assert col_names[1] == "row_id"
+        patients = col_records[0]
+        rows = col_records[1]
+        name_to_col = {}
+        for col_name, col_record in zip(col_names, col_records):
+            patient_to_values = defaultdict(dict)
+            for p, k, v in zip(patients, rows, col_record):
+                patient_to_values[p][k] = v
+            name_to_col[col_name] = EventColumn(
+                {p: Rows(vv) for p, vv in patient_to_values.items()}
+            )
+        return cls(name_to_col)
+
+    @classmethod
+    def parse(cls, s):
+        """Create instance by parsing string.
+        >>> tbl = EventTable.parse(
+        ...     '''
+        ...       |   |  i1 |  i2
+        ...     --+---+-----+-----
+        ...     1 | 0 | 100 | 110
+        ...     1 | 1 | 101 |
+        ...     2 | 2 | 200 | 210
+        ...     '''
+        ... )
+        >>> tbl.name_to_col.keys()
+        dict_keys(['patient_id', 'row_id', 'i1', 'i2'])
+        >>> tbl['patient_id'].patient_to_rows
+        {1: Rows({0: 1, 1: 1}), 2: Rows({2: 2})}
+        >>> tbl['i1'].patient_to_rows
+        {1: Rows({0: 100, 1: 101}), 2: Rows({2: 200})}
+        """
+
+        header, _, *lines = s.strip().splitlines()
+        col_names = [token.strip() for token in header.split("|")]
+        col_names[0] = "patient_id"
+        col_names[1] = "row_id"
+        row_records = [
+            [parse_value(token) for token in line.split("|")] for line in lines
+        ]
+        return cls.from_records(col_names, row_records)
+
+    def __repr__(self):
+        width = 17
+        lines = []
+        lines.append(" | ".join(name.ljust(width) for name in self.name_to_col))
+        lines.append("-+-".join("-" * width for _ in self.name_to_col))
+        for p, rows in sorted(self["patient_id"].patient_to_rows.items()):
+            for k in rows:
+                lines.append(
+                    " | ".join(
+                        str(col[p][k]).ljust(width) for col in self.name_to_col.values()
+                    )
+                )
+        return "\n".join(lines)
+
+    def __getitem__(self, name):
+        return self.name_to_col[name]
+
+    def patients(self):
+        return self["patient_id"].patients()
+
+    def exists(self):
+        return self["patient_id"].aggregate_values(bool, False)
+
+    def count(self):
+        return self["patient_id"].aggregate_values(len, 0)
+
+    def filter(self, predicate):  # noqa A003
+        return EventTable(
+            {name: col.filter(predicate) for name, col in self.name_to_col.items()}
+        )
+
+    def sort(self, sort_index):
+        return EventTable(
+            {name: col.sort(sort_index) for name, col in self.name_to_col.items()}
+        )
+
+    def pick_at_index(self, ix):
+        return PatientTable(
+            {
+                name: col.pick_at_index(ix)
+                for name, col in self.name_to_col.items()
+                if name != "row_id"
+            }
+        )
+
+
+@dataclass
+class PatientColumn:
+    """A wrapper around a mapping from a patient ID to a Python value, with a default
+    value for missing patients.
+    """
+
+    patient_to_value: dict
+    default: object = None
 
     @classmethod
     def parse(cls, s, default=None):
-        """Create Column instance by parsing string.
-
-        >>> col = Column.parse(
+        """Create instance by parsing string.
+        >>> col = PatientColumn.parse(
         ...     '''
         ...     1 | 101
-        ...     1 | 102
-        ...     2 | 201
+        ...     2 |
         ...     '''
         ... )
-        >>> col.patient_to_values
-        {1: [101, 102], 2: [201]}
+        >>> col.patient_to_value
+        {1: 101, 2: None}
         """
 
-        patient_ids = []
-        values = []
+        patient_to_value = {}
         for line in s.strip().splitlines():
-            patient, value = (token.strip() for token in line.split("|"))
-            patient_ids.append(int(patient))
-            values.append(parse_value(value))
-        return cls.from_values(patient_ids, values, default)
+            p, v = line.split("|")
+            patient_to_value[int(p)] = parse_value(v)
+        return cls(patient_to_value, default)
 
-    def get_values(self, patient):
-        return self.patient_to_values.get(patient, [self.default])
+    def __repr__(self):
+        return "\n".join(f"{p} | {v}" for p, v in sorted(self.patient_to_value.items()))
 
-    def get_value(self, patient):
-        values = self.get_values(patient)
-        assert len(values) == 1
-        return values[0]
+    def __getitem__(self, patient):
+        return self.patient_to_value.get(patient, self.default)
 
     def patients(self):
-        return self.patient_to_values.keys()
+        return set(self.patient_to_value)
 
-    def any_patient_has_multiple_values(self):
-        return any(len(self.get_values(p)) != 1 for p in self.patients())
+    def filter(self, predicate):  # noqa A003
+        return PatientColumn(
+            {p: self[p] for p in self.patients() if predicate[p]},
+            self.default,
+        )
+
+
+@dataclass
+class EventColumn:
+    """A wrapper around a mapping from a patient ID to a Rows instance."""
+
+    patient_to_rows: dict
+
+    @classmethod
+    def parse(cls, s):
+        """Create instance by parsing string.
+        >>> col = EventColumn.parse(
+        ...     '''
+        ...     1 | 0 | 101
+        ...     1 | 1 | 102
+        ...     2 | 2 | 201
+        ...     2 | 3 | 202
+        ...     3 | 4 | ---
+        ...     '''
+        ... )
+        >>> col.patient_to_rows
+        {1: Rows({0: 101, 1: 102}), 2: Rows({2: 201, 3: 202}), 3: Rows({})}
+        """
+
+        patient_to_values = defaultdict(dict)
+        for line in s.strip().splitlines():
+            p, k, v = line.split("|")
+            if v.strip() == "---":
+                patient_to_values[int(p)] = {}
+                continue
+            patient_to_values[int(p)][int(k)] = parse_value(v)
+        patient_to_rows = {p: Rows(vv) for p, vv in patient_to_values.items()}
+        return cls(patient_to_rows)
 
     def __repr__(self):
         return "\n".join(
-            f"{patient} | {value}"
-            for patient, values in sorted(self.patient_to_values.items())
-            for value in values
+            f"{p} | {k} | {v}"
+            for p, rows in sorted(self.patient_to_rows.items())
+            for k, v in rows.items()
         )
 
-    def unary_op(self, fn):
-        default = fn(self.default)
-        return self.make_new_column(lambda p, vv: [fn(v) for v in vv], default)
+    def __getitem__(self, patient):
+        return self.patient_to_rows.get(patient, Rows({}))
 
-    def unary_op_with_null(self, fn):
-        return self.unary_op(handle_null(fn))
-
-    def binary_op(self, fn, other):
-        return apply_function(fn, self, other)
-
-    def binary_op_with_null(self, fn, other):
-        return self.binary_op(handle_null(fn), other)
+    def patients(self):
+        return set(self.patient_to_rows)
 
     def aggregate_values(self, fn, default):
-        def fn_with_null(values):
-            filtered = [v for v in values if v is not None]
-            if not filtered:
-                return default
-            else:
-                return fn(filtered)
-
-        return self.make_new_column(lambda p, vv: [fn_with_null(vv)], default)
-
-    def filter(self, predicate):  # noqa A003
-        def fn(p, vv):
-            pred_values = predicate.get_values(p)
-            if len(pred_values) == 1:
-                pred_values = pred_values * len(vv)
-            return [v for v, pred_val in zip(vv, pred_values) if pred_val]
-
-        return self.make_new_column(fn, self.default)
-
-    def sort_index(self):
-        def fn(p, vv):
-            # Map each unique value to its ordinal position. It's important that equal
-            # values are given the same position or else the resulting sort_index will
-            # overspecify the order and we lose the stability of the sort operation
-            value_to_position = {
-                value: position
-                for (position, value) in enumerate(
-                    sorted(set(vv), key=nulls_first_order)
-                )
-            }
-            return [value_to_position[v] for v in vv]
-
-        return self.make_new_column(fn, default=None)
-
-    def sort(self, sort_index):
-        def fn(p, vv):
-            return [
-                pair[1]
-                for pair in sorted(
-                    zip(sort_index.get_values(p), vv), key=lambda pair: pair[0]
-                )
-            ]
-
-        return self.make_new_column(fn, default=None)
-
-    def pick_at_index(self, ix):
-        return self.make_new_column(lambda p, vv: [vv[ix]], self.default)
-
-    def make_new_column(self, fn, default):
-        new_patient_to_values = {
-            p: fn(p, vv) for p, vv in self.patient_to_values.items()
-        }
-        return Column(
-            {p: vv for p, vv in new_patient_to_values.items() if vv},
+        return PatientColumn(
+            {
+                p: rows.aggregate_values(fn, default)
+                for p, rows in self.patient_to_rows.items()
+            },
             default,
         )
+
+    def filter(self, predicate):  # noqa A003
+        patient_to_rows = {
+            p: rows.filter(predicate[p]) for p, rows in self.patient_to_rows.items()
+        }
+        return EventColumn({p: rows for p, rows in patient_to_rows.items() if rows})
+
+    def sort_index(self):
+        return EventColumn(
+            {p: rows.sort_index() for p, rows in self.patient_to_rows.items()}
+        )
+
+    def sort(self, sort_index):
+        return EventColumn(
+            {p: rows.sort(sort_index[p]) for p, rows in self.patient_to_rows.items()}
+        )
+
+    def pick_at_index(self, ix):
+        return PatientColumn(
+            {p: rows.pick_at_index(ix) for p, rows in self.patient_to_rows.items()}
+        )
+
+
+class Rows(UserDict):
+    """Instances are an ordered mapping from opaque row IDs to values, representing the
+    values belonging to a single patient in an EventColumn.
+    """
+
+    def __repr__(self):
+        return f"Rows({super().__repr__()})"
+
+    def __eq__(self, other):
+        """Compare for equality with other.
+
+        Two instances are equal if and only if their items are the same, and their
+        keys are in the same order.
+        """
+
+        return list(self.items()) == list(other.items())
+
+    def aggregate_values(self, fn, default):
+        """Apply aggregation function to all non-null values.
+
+        See https://github.com/opensafely-core/databuilder/issues/465.
+        """
+
+        filtered = [v for v in self.values() if v is not None]
+        if filtered:
+            return fn(filtered)
+        else:
+            return default
+
+    def filter(self, predicate):  # noqa A003
+        """Filter rows, keeping only those whose value in predicate is True."""
+
+        if not isinstance(predicate, Rows):
+            # This branch is hit when an EventSeries is filtered by a literal boolean.
+            predicate = Rows({k: predicate for k in self})
+        return Rows({k: v for k, v in self.items() if predicate[k]})
+
+    def sort_index(self):
+        """Map each value to its ordinal position in set of unique values.
+
+        It's important that equal values are given the same position or else the
+        resulting sort_index will overspecify the order and we lose the stability of the
+        sort operation.
+        """
+
+        sorted_values = sorted(set(self.values()), key=nulls_first_order)
+        return Rows({k: sorted_values.index(v) for k, v in self.items()})
+
+    def sort(self, sort_index):
+        """Sort rows by position in sort_index.
+
+        If two values have the same position, their current position is used as a
+        tiebreaker.  This ensures that sorting is stable.
+        """
+
+        return Rows(
+            {
+                k: v
+                for (_, _, k, v) in sorted(
+                    (sort_index[k], tiebreaker, k, v)
+                    for tiebreaker, (k, v) in enumerate(self.items())
+                )
+            }
+        )
+
+    def pick_at_index(self, ix):
+        """Return element at given position."""
+
+        k = list(self)[ix]
+        return self[k]
+
+
+def apply_function(fn, *columns):
+    """Apply function to list containing EventColumn and/or PatientColumn instances."""
+
+    patients = set().union(*[col.patients() for col in columns])
+    if any(col for col in columns if isinstance(col, EventColumn)):
+        return EventColumn(
+            {
+                p: apply_function_to_rows_and_values(fn, [col[p] for col in columns])
+                for p in patients
+            }
+        )
+    else:
+        return PatientColumn(
+            {p: fn(*[col[p] for col in columns]) for p in patients},
+            default=fn(*[col.default for col in columns]),
+        )
+
+
+def apply_function_to_rows_and_values(fn, args):
+    """Apply function to list containing one or more Rows instances, and zero or more
+    Python values.  Each Rows instance should have the same keys."""
+
+    # Check that every Rows instance has the same keys.  This is a sense check for any
+    # test data, and not a check that the QM has provided two frames with the same
+    # domain.
+    keys_list = [tuple(a) for a in args if isinstance(a, Rows)]
+    assert len(set(keys_list)) == 1
+    keys = keys_list[0]
+
+    values = [a if isinstance(a, Rows) else {k: a for k in keys} for a in args]
+    return Rows({k: fn(*[v[k] for v in values]) for k in keys})
 
 
 def handle_null(fn):
     def fn_with_null(*values):
-        if any(value is None for value in values):
+        if any(v is None for v in values):
             return None
         return fn(*values)
 
@@ -298,62 +475,14 @@ def handle_null(fn):
 
 
 def parse_value(value):
+    value = value.strip()
+    if value == "T":
+        return True
+    if value == "F":
+        return False
     return int(value) if value else None
 
 
 def nulls_first_order(key):
     # Usable as a key function to `sorted()` which sorts NULLs first
     return (0 if key is None else 1, key)
-
-
-def apply_function(fn, *columns):
-    reshaped_columns = reshape_columns(*columns)
-    patients = set().union(*[c.patients() for c in reshaped_columns])
-
-    return Column(
-        {
-            p: [
-                fn(*args)
-                for args in zip(*[column.get_values(p) for column in reshaped_columns])
-            ]
-            for p in patients
-        },
-        default=fn(*[column.default for column in reshaped_columns]),
-    )
-
-
-def reshape_columns(*columns):
-    patients = set().union(*[c.patients() for c in columns])
-
-    multi_value_columns = [c for c in columns if c.any_patient_has_multiple_values()]
-
-    if not multi_value_columns:
-        # Nothing to be done here
-        reshaped_columns = columns
-    else:
-        # Check that every multi-values-per-patient column has the same number of values
-        # for each patient. This is a sense check for any test data, and not a check
-        # that the QM has provided two frames with the same domain.
-        assert all(
-            len({len(c.get_values(p)) for c in multi_value_columns}) == 1
-            for p in patients
-        )
-        # Arbitrarily grab the first one (we've checked above that they all have exactly
-        # the same shape)
-        reshape_target = multi_value_columns[0]
-        reshaped_columns = []
-        for column in columns:
-            if column in multi_value_columns:
-                # We've already checked these are all the right shape
-                reshaped_columns.append(column)
-            else:
-                # Repeat the single value for each patient so we have the same number as
-                # for the target column
-                new_values = {
-                    p: column.get_values(p) * len(reshape_target.get_values(p))
-                    for p in patients
-                }
-                new_column = Column(new_values, column.default)
-                reshaped_columns.append(new_column)
-
-    return reshaped_columns

@@ -1,5 +1,6 @@
 import sqlalchemy.orm
 
+from databuilder.orm_factory import orm_class_from_schema
 from databuilder.query_model import (
     AggregateByPatient,
     Function,
@@ -7,17 +8,15 @@ from databuilder.query_model import (
     SelectTable,
 )
 
-from ..lib.util import orm_class_from_schema
-
 
 def setup(schema, num_patient_tables, num_event_tables):
     base_class = sqlalchemy.orm.declarative_base()
 
     patient_table_names, patient_classes = _build_orm_classes(
-        "p", num_patient_tables, schema, base_class
+        "p", num_patient_tables, schema, base_class, has_one_row_per_patient=True
     )
     event_table_names, event_classes = _build_orm_classes(
-        "e", num_event_tables, schema, base_class
+        "e", num_event_tables, schema, base_class, has_one_row_per_patient=False
     )
 
     all_patients_query = _build_query(patient_table_names, event_table_names, schema)
@@ -30,14 +29,17 @@ def setup(schema, num_patient_tables, num_event_tables):
     )
 
 
-def _build_orm_classes(prefix, count, schema, base_class):
+def _build_orm_classes(prefix, count, schema, base_class, has_one_row_per_patient):
     names = [f"{prefix}{i}" for i in range(count)]
-    classes = [_build_orm_class(name, schema, base_class) for name in names]
+    classes = [
+        _build_orm_class(name, schema, base_class, has_one_row_per_patient)
+        for name in names
+    ]
     return names, classes
 
 
-def _build_orm_class(name, schema, base_class):
-    class_ = orm_class_from_schema(base_class, name, schema)
+def _build_orm_class(name, schema, base_class, has_one_row_per_patient):
+    class_ = orm_class_from_schema(base_class, name, schema, has_one_row_per_patient)
     # It's helpful to have the classes available as module properties so that we can
     # copy-paste failing test cases from Hypothesis.
     globals()[name] = class_

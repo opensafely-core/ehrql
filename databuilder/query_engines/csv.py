@@ -1,12 +1,11 @@
 import csv
 from pathlib import Path
 
-import sqlalchemy
 from sqlalchemy.orm import Session, declarative_base
 
+from databuilder.orm_factory import orm_class_from_qm_table
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_model import SelectPatientTable, SelectTable, all_nodes
-from databuilder.sqlalchemy_types import Integer, type_from_python_type
 
 
 class CSVQueryEngine(SQLiteQueryEngine):
@@ -29,7 +28,8 @@ class CSVQueryEngine(SQLiteQueryEngine):
         # Given the variables supplied determine the tables used, create corresponding
         # ORM classes and use them to initialise the database schema
         table_nodes = get_table_nodes(variable_definitions)
-        orm_classes = create_orm_classes_from_table_nodes(table_nodes)
+        Base = declarative_base()
+        orm_classes = [orm_class_from_qm_table(Base, node) for node in table_nodes]
         assert orm_classes
         orm_classes[0].metadata.create_all(self.engine)
 
@@ -54,32 +54,6 @@ def get_table_nodes(variables):
     return table_nodes
 
 
-def create_orm_classes_from_table_nodes(table_nodes):
-    Base = declarative_base()
-    return [
-        orm_class_from_schema(
-            Base,
-            node.name,
-            node.schema,
-        )
-        for node in table_nodes
-    ]
-
-
-def orm_class_from_schema(base_class, table_name, schema):
-    attributes = dict(
-        __tablename__=table_name,
-        # This column is only present because the SQLAlchemy ORM needs it
-        _pk=sqlalchemy.Column(Integer, primary_key=True),
-        patient_id=sqlalchemy.Column(Integer, nullable=False),
-        **{
-            col_name: sqlalchemy.Column(type_from_python_type(type_))
-            for col_name, type_ in schema.items()
-        },
-    )
-    return type(table_name, (base_class,), attributes)
-
-
 def read_all_csvs(csv_directory, orm_classes, create_missing=False):
     csv_directory = Path(csv_directory)
     for orm_class in orm_classes:
@@ -90,7 +64,7 @@ def read_all_csvs(csv_directory, orm_classes, create_missing=False):
 def orm_instances_from_csv(orm_class, csv_file, create_missing=False):
     fields = orm_class.__table__.columns.keys()
     if create_missing and not csv_file.exists():
-        csv_file.write_text(",".join(f for f in fields if f != "_pk") + "\n")
+        csv_file.write_text(",".join(f for f in fields if f != "row_id") + "\n")
     with open(csv_file) as f:
         reader = csv.DictReader(f)
         for row in reader:

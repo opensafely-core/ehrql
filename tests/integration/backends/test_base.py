@@ -14,7 +14,9 @@ from databuilder.query_language import (
     construct,
 )
 
-from ...lib.util import next_id
+# Generate an integer sequence to use as default IDs. Normally you'd rely on the DBMS to
+# provide these, but we need to support DBMSs like Spark which don't have this feature.
+next_id = iter(range(1, 2**63)).__next__
 
 Base = sqlalchemy.orm.declarative_base()
 

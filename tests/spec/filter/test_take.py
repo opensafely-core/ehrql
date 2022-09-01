@@ -1,5 +1,3 @@
-import pytest
-
 from ..tables import e
 
 title = "Including rows"
@@ -100,7 +98,6 @@ def test_take_with_constant_false(spec_test):
     )
 
 
-@pytest.mark.xfail_in_memory
 def test_chain_multiple_takes(spec_test):
     table_data = {
         e: """
