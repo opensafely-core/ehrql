@@ -144,14 +144,22 @@ def load_definition(definition_file):
         module = load_module(definition_file)
     except Exception:
         exc_type, exc_value, exc_tb = sys.exc_info()
+
+        print("Traceback (most recent call last):")
         while exc_tb:
+            # this comes from the load_module() func and ties it to the dataset module
             if exc_tb.tb_frame.f_globals["__name__"] == "dataset":
-                print(f"Error Type: {exc_type}")
-                print(f"File: {exc_tb.tb_frame.f_code.co_filename}")
-                print(f"Line number {exc_tb.tb_lineno}: {exc_value}")
-                sys.exit(2)
+                print(
+                    f"File {exc_tb.tb_frame.f_code.co_filename}, line {exc_tb.tb_lineno}, in {exc_tb.tb_frame.f_code.co_name}"
+                )
+                if exc_tb.tb_next.tb_frame.f_globals["__name__"] is not None:
+                    print(f"{exc_type.__name__}: {exc_value}")
+                    # force an exit at the end of traceback from dataset
+                    sys.exit(1)
+                else:
+                    print(f"  {exc_tb.tb_next.tb_frame.f_code.co_name}")
             exc_tb = exc_tb.tb_next
-        sys.exit(2)
+        sys.exit(1)
 
     try:
         dataset = module.dataset
