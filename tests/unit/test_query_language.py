@@ -28,6 +28,8 @@ from databuilder.query_model import (
 
 patients_schema = TableSchema(date_of_birth=date)
 patients = PatientFrame(SelectPatientTable("patients", patients_schema))
+events_schema = TableSchema(event_date=date)
+events = EventFrame(SelectTable("coded_events", events_schema))
 
 
 def test_dataset():
@@ -64,6 +66,19 @@ def test_dataset_preserves_variable_order():
 
     variables = list(compile(dataset).keys())
     assert variables == ["population", "foo", "baz", "bar"]
+
+
+def test_assign_population_variable():
+    dataset = Dataset()
+    with pytest.raises(AttributeError, match="Cannot set column 'population'"):
+        dataset.population = patients.exists_for_patient()
+
+
+def test_cannot_assign_frame_to_column():
+    dataset = Dataset()
+    dataset.set_population(patients.exists_for_patient())
+    with pytest.raises(TypeError, match="Invalid column 'event_date'"):
+        dataset.event_date = events.event_date
 
 
 # The problem: We'd like to test that operations on query language (QL) elements return
