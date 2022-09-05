@@ -2,7 +2,11 @@ import datetime
 
 from databuilder.query_language import PatientFrame, Series, construct
 
-from .constraints import ChoiceConstraint, FirstOfMonthConstraint, NotNullConstraint
+from .constraints import (
+    CategoricalConstraint,
+    FirstOfMonthConstraint,
+    NotNullConstraint,
+)
 
 __all__ = ["patients"]
 
@@ -26,7 +30,7 @@ class patients(PatientFrame):
         ),
         constraints=[
             NotNullConstraint(),
-            ChoiceConstraint("female", "male", "intersex", "unknown"),
+            CategoricalConstraint("female", "male", "intersex", "unknown"),
         ],
     )
     date_of_death = Series(
