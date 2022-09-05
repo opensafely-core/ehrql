@@ -74,6 +74,14 @@ def test_assign_population_variable():
         dataset.population = patients.exists_for_patient()
 
 
+def test_cannot_reassign_dataset_column():
+    dataset = Dataset()
+    dataset.set_population(patients.exists_for_patient())
+    dataset.foo = patients.date_of_birth.year
+    with pytest.raises(AttributeError, match="already set"):
+        dataset.foo = patients.date_of_birth.year + 100
+
+
 def test_cannot_assign_frame_to_column():
     dataset = Dataset()
     dataset.set_population(patients.exists_for_patient())
