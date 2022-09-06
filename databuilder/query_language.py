@@ -476,7 +476,7 @@ def table(cls):
             "Schema class must subclass either `PatientFrame` or `EventFrame`"
         )
 
-    table_name = getattr(cls, "__tablename__", cls.__name__)
+    table_name = cls.__name__
     # Get all `Series` objects on the class and determine the schema from them
     schema = {
         series.name: series.type_
