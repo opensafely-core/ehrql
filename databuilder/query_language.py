@@ -32,9 +32,16 @@ class Dataset:
         object.__setattr__(self, "population", population)
 
     def __setattr__(self, name, value):
-        # TODO raise proper errors here
-        assert name != "population"
-        assert qm.has_one_row_per_patient(value.qm_node), value.qm_node
+        if name == "population":
+            raise AttributeError(
+                "Cannot set column 'population'; use set_population() instead"
+            )
+        if getattr(self, name, None):
+            raise AttributeError(f"'{name}' is already set and cannot be reassigned")
+        if not qm.has_one_row_per_patient(value.qm_node):
+            raise TypeError(
+                f"Invalid column '{name}'. Dataset columns must return one row per patient"
+            )
         super().__setattr__(name, value)
 
 
