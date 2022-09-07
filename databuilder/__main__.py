@@ -26,6 +26,7 @@ BACKEND_ALIASES = {
     "databricks": "databuilder.backends.databricks.DatabricksBackend",
     "graphnet": "databuilder.backends.graphnet.GraphnetBackend",
     "tpp": "databuilder.backends.tpp.TPPBackend",
+    "tutorial": "databuilder.backends.tutorial.TutorialBackend",
 }
 
 
