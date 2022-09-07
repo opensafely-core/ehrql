@@ -18,6 +18,8 @@ class patient_level_table(PatientFrame):
     d2 = Series(datetime.date)
     s1 = Series(str)
     s2 = Series(str)
+    f1 = Series(float)
+    f2 = Series(float)
 
 
 @construct
@@ -31,6 +33,8 @@ class event_level_table(EventFrame):
     d2 = Series(datetime.date)
     s1 = Series(str)
     s2 = Series(str)
+    f1 = Series(float)
+    f2 = Series(float)
 
 
 # Define short aliases for terser tests

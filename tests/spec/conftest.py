@@ -32,7 +32,10 @@ def spec_test(request, engine):
 
         # Extract data, and check it's as expected.
         results = {r["patient_id"]: r["v"] for r in engine.extract(dataset)}
-        assert results == expected_results
+        if series._type == float:
+            assert results == pytest.approx(expected_results, rel=1e-5)
+        else:
+            assert results == expected_results
 
     # Test that we can generate SQL with literal parmeters for debugging purposes
     def run_test_dump_sql(table_data, series, expected_results, population=None):
