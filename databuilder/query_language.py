@@ -210,6 +210,12 @@ class NumericFunctions(ComparableFunctions):
     def __rsub__(self, other):
         return other + -self
 
+    def as_int(self):
+        return _apply(qm.Function.CastToInt, self)
+
+    def as_float(self):
+        return _apply(qm.Function.CastToFloat, self)
+
 
 class NumericAggregations(ComparableAggregations):
     def sum_for_patient(self):

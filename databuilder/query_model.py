@@ -290,6 +290,13 @@ class Function:
         lhs: Series[Numeric]
         rhs: Series[Numeric]
 
+    # Casting numeric types
+    class CastToInt(Series[int]):
+        source: Series[Numeric]
+
+    class CastToFloat(Series[float]):
+        source: Series[Numeric]
+
     # Dates
     class DateAddDays(Series[date]):
         lhs: Series[date]
