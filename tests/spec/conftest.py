@@ -30,12 +30,14 @@ def spec_test(request, engine):
         dataset = make_dataset(population)
         dataset.v = series
 
+        # If we're expecting floats then we want only approximate equality to account
+        # for rounding differences
+        if any(isinstance(v, float) for v in expected_results.values()):
+            expected_results = pytest.approx(expected_results, rel=1e-5)
+
         # Extract data, and check it's as expected.
         results = {r["patient_id"]: r["v"] for r in engine.extract(dataset)}
-        if series._type == float:
-            assert results == pytest.approx(expected_results, rel=1e-5)
-        else:
-            assert results == expected_results
+        assert results == expected_results
 
     # Test that we can generate SQL with literal parmeters for debugging purposes
     def run_test_dump_sql(table_data, series, expected_results, population=None):
