@@ -18,6 +18,7 @@ QUERY_ENGINE_ALIASES = {
     "mssql": "databuilder.query_engines.mssql.MSSQLQueryEngine",
     "spark": "databuilder.query_engines.spark.SparkQueryEngine",
     "sqlite": "databuilder.query_engines.sqlite.SQLiteQueryEngine",
+    "csv": "databuilder.query_engines.csv.CSVQueryEngine",
 }
 
 

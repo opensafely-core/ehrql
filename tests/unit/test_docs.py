@@ -27,7 +27,7 @@ def test_generate_docs():
     assert expected <= output
 
     names = {contract["name"] for contract in data["contracts"]}
-    assert "PatientDemographics" in names
+    assert "patients" in names
 
     # Find all series strings
     all_series = [

@@ -14,7 +14,7 @@ from databuilder.query_language import (
     StrEventSeries,
     StrPatientSeries,
     compile,
-    construct,
+    table,
 )
 from databuilder.query_model import (
     Function,
@@ -176,7 +176,7 @@ def test_series_are_not_hashable():
 
 
 def test_construct_constructs_patient_frame():
-    @construct
+    @table
     class some_table(PatientFrame):
         some_int = Series(int)
         some_str = Series(str)
@@ -188,7 +188,7 @@ def test_construct_constructs_patient_frame():
 
 
 def test_construct_constructs_event_frame():
-    @construct
+    @table
     class some_table(EventFrame):
         some_int = Series(int)
         some_str = Series(str)
@@ -202,7 +202,7 @@ def test_construct_constructs_event_frame():
 def test_construct_enforces_correct_base_class():
     with pytest.raises(SchemaError, match="Schema class must subclass"):
 
-        @construct
+        @table
         class some_table(Dataset):
             some_int = Series(int)
 
@@ -210,7 +210,7 @@ def test_construct_enforces_correct_base_class():
 def test_construct_enforces_exactly_one_base_class():
     with pytest.raises(SchemaError, match="Schema class must subclass"):
 
-        @construct
+        @table
         class some_table(PatientFrame, Dataset):
             some_int = Series(int)
 
@@ -219,5 +219,5 @@ def test_must_reference_instance_not_class():
     class some_table(PatientFrame):
         some_int = Series(int)
 
-    with pytest.raises(SchemaError, match="Missing `@construct` decorator"):
+    with pytest.raises(SchemaError, match="Missing `@table` decorator"):
         some_table.some_int

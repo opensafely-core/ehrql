@@ -380,7 +380,10 @@ class BaseFrame:
         self.qm_node = qm_node
 
     def __getattr__(self, name):
-        return self._select_column(name)
+        if not name.startswith("__"):
+            return self._select_column(name)
+        else:
+            raise AttributeError(f"object has no attribute {name!r}")
 
     def _select_column(self, name):
         return _wrap(qm.SelectColumn(source=self.qm_node, name=name))
@@ -462,7 +465,7 @@ class SchemaError(Exception):
 # these classes accessible anywhere: users should only be interacting with instances of
 # the classes, and having the classes themselves in the module namespaces only makes
 # autocomplete more confusing and error prone.
-def construct(cls):
+def table(cls):
     try:
         qm_class = {
             (PatientFrame,): qm.SelectPatientTable,
@@ -490,8 +493,23 @@ def construct(cls):
 # subclass for EventFrames. This lets schema authors use a consistent syntax when
 # defining frames of either type.
 class Series:
-    def __init__(self, type_):
+    def __init__(
+        self,
+        type_,
+        description="",
+        constraints=(),
+        required=True,
+        implementation_notes_to_add_to_description="",
+        notes_for_implementors="",
+    ):
         self.type_ = type_
+        self.description = description
+        self.constraints = constraints
+        self.required = required
+        self.implementation_notes_to_add_to_description = (
+            implementation_notes_to_add_to_description
+        )
+        self.notes_for_implementors = notes_for_implementors
 
     def __set_name__(self, owner, name):
         self.name = name
@@ -499,7 +517,7 @@ class Series:
     def __get__(self, instance, owner):
         # Prevent users attempting to interact with the class rather than an instance
         if instance is None:
-            raise SchemaError("Missing `@construct` decorator on schema class")
+            raise SchemaError("Missing `@table` decorator on schema class")
         return instance._select_column(self.name)
 
 

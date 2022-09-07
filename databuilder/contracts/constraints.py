@@ -8,17 +8,17 @@ class BaseConstraint:
         raise NotImplementedError
 
 
-class ChoiceConstraint(BaseConstraint):
+class CategoricalConstraint(BaseConstraint):
     """
-    Defines a constraint on a choices Column to ensure data matches the allowed options
+    Specifies that a column takes only a fixed set of values
     """
 
-    def __init__(self, *choices):
-        self.choices = choices
+    def __init__(self, *values):
+        self.values = values
 
     @property
     def description(self):
-        return ", ".join(self.choices)
+        return ", ".join(self.values)
 
     def validate(self, backend_table, column):
         """Validate against data"""

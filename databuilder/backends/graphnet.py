@@ -1,8 +1,9 @@
 import os
 
-from ..contracts import contracts
+import databuilder.tables.beta.graphnet
+
 from ..query_engines.mssql import MSSQLQueryEngine
-from .base import BaseBackend, Column, MappedTable
+from .base import BaseBackend, MappedTable
 
 SCHEMA = os.environ.get("GRAPHNET_DB_SCHEMA", default="TRE")
 
@@ -12,72 +13,67 @@ class GraphnetBackend(BaseBackend):
 
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
+    implements = [databuilder.tables.beta.graphnet]
 
     patient_demographics = MappedTable(
-        implements=contracts.PatientDemographics,
         schema=SCHEMA,
         source="Patients",
         columns=dict(
-            sex=Column("varchar", source="Sex"),
-            date_of_birth=Column("date", source="DateOfBirth"),
-            date_of_death=Column("date", source="DateOfDeath"),
+            sex="Sex",
+            date_of_birth="DateOfBirth",
+            date_of_death="DateOfDeath",
         ),
     )
 
     clinical_events = MappedTable(
-        implements=contracts.WIP_ClinicalEvents,
         schema=SCHEMA,
         source="ClinicalEvents",
         columns=dict(
-            code=Column("varchar", source="Code"),
-            system=Column("varchar", source="CodingSystem"),
-            date=Column("datetime", source="ConsultationDate"),
-            numeric_value=Column("float", source="NumericValue"),
+            code="Code",
+            system="CodingSystem",
+            date="ConsultationDate",
+            numeric_value="NumericValue",
         ),
     )
 
     practice_registrations = MappedTable(
-        implements=contracts.WIP_PracticeRegistrations,
         schema=SCHEMA,
         source="PracticeRegistrations",
         columns=dict(
-            pseudo_id=Column("integer", source="Organisation_ID"),
-            nuts1_region_name=Column("varchar", source="Region"),
-            date_start=Column("datetime", source="StartDate"),
-            date_end=Column("datetime", source="EndDate"),
+            pseudo_id="Organisation_ID",
+            nuts1_region_name="Region",
+            date_start="StartDate",
+            date_end="EndDate",
         ),
     )
 
     covid_test_results = MappedTable(
-        implements=contracts.WIP_CovidTestResults,
         schema=SCHEMA,
         source="CovidTestResults",
         columns=dict(
-            date=Column("date", source="SpecimenDate"),
-            positive_result=Column("boolean", source="positive_result"),
+            date="SpecimenDate",
+            positive_result="positive_result",
         ),
     )
 
     hospitalizations_without_system = MappedTable(
-        implements=contracts.WIP_HospitalizationsWithoutSystem,
         schema=SCHEMA,
         source="Hospitalisations",
         columns=dict(
-            date=Column("date", source="AdmitDate"),
-            code=Column("varchar", source="DiagCode"),
+            date="AdmitDate",
+            code="DiagCode",
         ),
     )
 
     patient_address = MappedTable(
-        implements=contracts.WIP_PatientAddress,
         schema=SCHEMA,
         source="PatientAddresses",
         columns=dict(
-            patientaddress_id=Column("integer", source="PatientAddress_ID"),
-            date_start=Column("date", source="StartDate"),
-            date_end=Column("date", source="EndDate"),
-            index_of_multiple_deprivation_rounded=Column("integer", source="IMD"),
-            msoa_code=Column("varchar", source="MSOACode"),
-            has_postcode=Column("boolean", source="has_postcode"),
+            patientaddress_id="PatientAddress_ID",
+            date_start="StartDate",
+            date_end="EndDate",
+            index_of_multiple_deprivation_rounded="IMD",
+            msoa_code="MSOACode",
+            has_postcode="has_postcode",
         ),
     )

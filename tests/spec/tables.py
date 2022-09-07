@@ -4,10 +4,10 @@ import sqlalchemy.orm
 
 from databuilder.codes import SNOMEDCTCode
 from databuilder.orm_factory import orm_class_from_ql_table
-from databuilder.query_language import EventFrame, PatientFrame, Series, construct
+from databuilder.query_language import EventFrame, PatientFrame, Series, table
 
 
-@construct
+@table
 class patient_level_table(PatientFrame):
     i1 = Series(int)
     i2 = Series(int)
@@ -20,7 +20,7 @@ class patient_level_table(PatientFrame):
     s2 = Series(str)
 
 
-@construct
+@table
 class event_level_table(EventFrame):
     i1 = Series(int)
     i2 = Series(int)

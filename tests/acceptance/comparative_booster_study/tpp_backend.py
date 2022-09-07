@@ -1,4 +1,4 @@
-from databuilder.backends.base import BaseBackend, Column, MappedTable, QueryTable
+from databuilder.backends.base import BaseBackend, MappedTable, QueryTable
 from databuilder.query_engines.mssql import MSSQLQueryEngine
 
 
@@ -11,18 +11,13 @@ class TPPBackend(BaseBackend):
     patients = MappedTable(
         source="Patient",
         columns=dict(
-            sex=Column("varchar", source="Sex"),
-            date_of_birth=Column("date", source="DateOfBirth"),
+            sex="Sex",
+            date_of_birth="DateOfBirth",
         ),
     )
 
     vaccinations = QueryTable(
-        columns=dict(
-            date=Column("date"),
-            product_name=Column("varchar"),
-            target_disease=Column("varchar"),
-        ),
-        query="""
+        """
             SELECT
                 vax.Patient_ID AS patient_id,
                 CAST(vax.VaccinationDate AS date) AS date,
@@ -31,18 +26,11 @@ class TPPBackend(BaseBackend):
             FROM Vaccination AS vax
             LEFT JOIN VaccinationReference AS ref
             ON vax.VaccinationName_ID = ref.VaccinationName_ID
-        """,
+        """
     )
 
     practice_registrations = QueryTable(
-        columns=dict(
-            start_date=Column("date"),
-            end_date=Column("date"),
-            practice_pseudo_id=Column("integer"),
-            practice_stp=Column("varchar"),
-            practice_nuts1_region_name=Column("varchar"),
-        ),
-        query="""
+        """
             SELECT
                 reg.Patient_ID AS patient_id,
                 reg.StartDate AS start_date,
@@ -53,28 +41,19 @@ class TPPBackend(BaseBackend):
             FROM RegistrationHistory AS reg
             LEFT OUTER JOIN Organisation AS org
             ON reg.Organisation_ID = org.Organisation_ID
-        """,
+        """
     )
 
     ons_deaths = MappedTable(
         source="ONS_Deaths",
         columns=dict(
-            date=Column("date", source="dod"),
-            **{
-                f"cause_of_death_{i:02d}": Column("varchar", source=f"ICD100{i:02d}")
-                for i in range(1, 16)
-            },
+            date="dod",
+            **{f"cause_of_death_{i:02d}": f"ICD100{i:02d}" for i in range(1, 16)},
         ),
     )
 
     coded_events = QueryTable(
-        columns=dict(
-            date=Column("date"),
-            snomedct_code=Column("varchar"),
-            ctv3_code=Column("varchar"),
-            numeric_value=Column("float"),
-        ),
-        query="""
+        """
             SELECT
                 Patient_ID AS patient_id,
                 CAST(ConsultationDate AS date) AS date,
@@ -90,37 +69,21 @@ class TPPBackend(BaseBackend):
                 NULL AS ctv3_code,
                 NumericValue AS numeric_value
             FROM CodedEvent_SNOMED
-        """,
+        """
     )
 
     medications = QueryTable(
-        columns=dict(
-            date=Column("date"),
-            snomedct_code=Column("varchar"),
-        ),
-        query="""
+        """
             SELECT
                 Patient_ID AS patient_id,
                 CAST(ConsultationDate AS date) AS date,
                 MultilexDrug_ID AS snomedct_code
             FROM MedicationIssue
-        """,
+        """
     )
 
     addresses = QueryTable(
-        columns=dict(
-            address_id=Column("integer"),
-            start_date=Column("date"),
-            end_date=Column("date"),
-            address_type=Column("integer"),
-            rural_urban_classification=Column("integer"),
-            imd_rounded=Column("integer"),
-            msoa_code=Column("varchar"),
-            care_home_is_potential_match=Column("boolean"),
-            care_home_requires_nursing=Column("boolean"),
-            care_home_does_not_require_nursing=Column("boolean"),
-        ),
-        query="""
+        """
             SELECT
                 addr.Patient_ID AS patient_id,
                 addr.PatientAddress_ID AS address_id,
@@ -139,15 +102,11 @@ class TPPBackend(BaseBackend):
             FROM PatientAddress AS addr
             LEFT JOIN PotentialCareHomeAddress AS carehm
             ON addr.PatientAddress_ID = carehm.PatientAddress_ID
-        """,
+        """
     )
 
     sgss_covid_all_tests = QueryTable(
-        columns=dict(
-            specimen_taken_date=Column("date"),
-            is_positive=Column("boolean"),
-        ),
-        query="""
+        """
             SELECT
                 Patient_ID AS patient_id,
                 Specimen_Date AS specimen_taken_date,
@@ -159,29 +118,20 @@ class TPPBackend(BaseBackend):
                 Specimen_Date AS specimen_taken_date,
                 0 AS is_positive
             FROM SGSS_AllTests_Negative
-        """,
+        """
     )
 
     occupation_on_covid_vaccine_record = QueryTable(
-        columns=dict(
-            is_healthcare_worker=Column("boolean"),
-        ),
-        query="""
+        """
             SELECT
                 Patient_ID AS patient_id,
                 1 AS is_healthcare_worker
             FROM HealthCareWorker
-        """,
+        """
     )
 
     emergency_care_attendances = QueryTable(
-        columns=dict(
-            id=Column("integer"),
-            arrival_date=Column("date"),
-            discharge_destination=Column("varchar"),
-            **{f"diagnosis_{i:02d}": Column("varchar") for i in range(1, 25)},
-        ),
-        query=f"""
+        f"""
             SELECT
                 EC.Patient_ID AS patient_id,
                 EC.EC_Ident AS id,
@@ -191,20 +141,11 @@ class TPPBackend(BaseBackend):
             FROM EC
             LEFT JOIN EC_Diagnosis AS diag
             ON EC.EC_Ident = diag.EC_Ident
-        """,
+        """
     )
 
     hospital_admissions = QueryTable(
-        columns=dict(
-            id=Column("integer"),
-            admission_date=Column("date"),
-            discharge_date=Column("date"),
-            admission_method=Column("varchar"),
-            all_diagnoses=Column("varchar"),
-            patient_classification=Column("varchar"),
-            days_in_critical_care=Column("integer"),
-        ),
-        query="""
+        """
             SELECT
                 apcs.Patient_ID AS patient_id,
                 apcs.APCS_Ident AS id,
@@ -217,5 +158,5 @@ class TPPBackend(BaseBackend):
             FROM APCS AS apcs
             LEFT JOIN APCS_Der AS der
             ON apcs.APCS_Ident = der.APCS_Ident
-        """,
+        """
     )

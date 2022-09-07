@@ -1,7 +1,7 @@
-from ..contracts import contracts as old_contracts
-from ..contracts import universal
+import databuilder.tables.beta.tpp
+
 from ..query_engines.mssql import MSSQLQueryEngine
-from .base import BaseBackend, Column, QueryTable
+from .base import BaseBackend, QueryTable
 
 
 def rtrim(ref, char):
@@ -71,18 +71,10 @@ class TPPBackend(BaseBackend):
 
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
+    implements = [databuilder.tables.beta.tpp]
 
     patients = QueryTable(
-        implements=universal.Patients,
-        columns=dict(
-            sex=Column("varchar"),
-            date_of_birth=Column("date"),
-            date_of_death=Column("date"),
-        ),
-        implementation_notes=dict(
-            sex="Sex assigned at birth.",
-        ),
-        query="""
+        """
             SELECT Patient_ID as patient_id,
                 DateOfBirth as date_of_birth,
                 CASE
@@ -98,32 +90,21 @@ class TPPBackend(BaseBackend):
                 END as sex
             FROM Patient
         """,
+        implementation_notes=dict(
+            sex="Sex assigned at birth.",
+        ),
     )
 
     clinical_events = QueryTable(
-        implements=old_contracts.WIP_ClinicalEvents,
-        columns=dict(
-            code=Column("varchar"),
-            system=Column("varchar"),
-            date=Column("datetime"),
-            numeric_value=Column("float"),
-        ),
-        query="""
+        """
             SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as system, ConsultationDate AS date, NumericValue AS numeric_value FROM CodedEvent
             UNION ALL
             SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' as system, ConsultationDate AS date, NumericValue AS numeric_value FROM CodedEvent_SNOMED
-        """,
+        """
     )
 
     practice_registrations = QueryTable(
-        implements=old_contracts.WIP_PracticeRegistrations,
-        columns=dict(
-            pseudo_id=Column("integer"),
-            nuts1_region_name=Column("varchar"),
-            date_start=Column("datetime"),
-            date_end=Column("datetime"),
-        ),
-        query="""
+        """
             SELECT RegistrationHistory.Patient_ID AS patient_id,
                 RegistrationHistory.StartDate AS date_start,
                 RegistrationHistory.EndDate AS date_end,
@@ -131,49 +112,30 @@ class TPPBackend(BaseBackend):
                 Organisation.Region as nuts1_region_name
             FROM RegistrationHistory
             LEFT OUTER JOIN Organisation ON RegistrationHistory.Organisation_ID = Organisation.Organisation_ID
-        """,
+        """
     )
 
     covid_test_results = QueryTable(
-        implements=old_contracts.WIP_CovidTestResults,
-        columns=dict(
-            date=Column("date"),
-            positive_result=Column("boolean"),
-        ),
-        query="""
+        """
             SELECT Patient_ID as patient_id, Specimen_Date AS date, 1 AS positive_result FROM SGSS_AllTests_Positive
             UNION ALL
             SELECT Patient_ID as patient_id, Specimen_Date AS date, 0 AS positive_result FROM SGSS_AllTests_Negative
-        """,
+        """
     )
 
     hospitalizations = QueryTable(
-        implements=old_contracts.WIP_Hospitalizations,
-        columns=dict(
-            date=Column("date"),
-            code=Column("varchar"),
-            system=Column("varchar"),
-        ),
-        query=f"""
+        f"""
             SELECT Patient_ID as patient_id, Admission_Date as date, {rtrim("fully_split.Value", "X")} as code, 'icd10' as system
             FROM APCS
             -- Our string_split() implementation only works as long as the codelists do not contain '<', '>' or '&'
             -- characters. If that assumption is broken then this will fail unpredictably.
             CROSS APPLY {string_split("Der_Diagnosis_All", " ||")} pipe_split
             CROSS APPLY {string_split("pipe_split.Value", " ,")} fully_split
-        """,
+        """
     )
 
     patient_address = QueryTable(
-        implements=old_contracts.WIP_PatientAddress,
-        columns=dict(
-            patientaddress_id=Column("integer"),
-            date_start=Column("date"),
-            date_end=Column("date"),
-            index_of_multiple_deprivation_rounded=Column("integer"),
-            has_postcode=Column("boolean"),
-        ),
-        query="""
+        """
             SELECT
               Patient_ID as patient_id,
               PatientAddress_ID as patientaddress_id,
@@ -182,5 +144,5 @@ class TPPBackend(BaseBackend):
               ImdRankRounded as index_of_multiple_deprivation_rounded,
               IIF(MSOACode = 'NPC', 0, 1) as has_postcode
             FROM PatientAddress
-        """,
+        """
     )
