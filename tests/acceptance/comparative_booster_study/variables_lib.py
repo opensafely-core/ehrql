@@ -2,7 +2,7 @@ import operator
 from functools import reduce
 
 from databuilder.codes import CTV3Code, ICD10Code
-from databuilder.query_language import case, when
+from databuilder.ehrql import case, when
 
 from . import schema
 

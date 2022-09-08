@@ -146,7 +146,7 @@ def load_definition(definition_file):
         raise AttributeError("A dataset definition must define one 'dataset'")
     assert isinstance(
         dataset, Dataset
-    ), "'dataset' must be an instance of databuilder.query_language.Dataset()"
+    ), "'dataset' must be an instance of databuilder.ehrql.Dataset()"
     return dataset
 
 

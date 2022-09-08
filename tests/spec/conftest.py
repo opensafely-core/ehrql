@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from databuilder.query_language import Dataset
+from databuilder.ehrql import Dataset
 
 from . import tables
 

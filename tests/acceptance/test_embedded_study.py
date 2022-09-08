@@ -76,7 +76,7 @@ def test_dump_dataset_sql_attribute_invalid(study, mssql_database):
     study.setup_from_string(invalid_dataset_attribute_dataset_definition)
     with pytest.raises(
         AssertionError,
-        match="'dataset' must be an instance of databuilder.query_language.Dataset()",
+        match="'dataset' must be an instance of databuilder.ehrql.Dataset()",
     ):
         study.dump_dataset_sql()
 

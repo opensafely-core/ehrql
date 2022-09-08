@@ -4,8 +4,9 @@ from types import SimpleNamespace
 import pytest
 import sqlalchemy.orm
 
+from databuilder.ehrql import Dataset
 from databuilder.orm_factory import orm_class_from_ql_table
-from databuilder.query_language import Dataset, EventFrame, Series, table
+from databuilder.query_language import EventFrame, Series, table
 
 from .variables_lib import create_sequential_variables
 
