@@ -1,14 +1,10 @@
 import csv
-import dataclasses
 import importlib.util
 import pathlib
 import shutil
-import subprocess
 import sys
-from collections import Mapping
 from contextlib import contextmanager, nullcontext
 
-import networkx as nx
 import structlog
 
 from databuilder.column_specs import get_column_specs
@@ -17,7 +13,7 @@ from databuilder.query_language import Dataset
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
 
 from . import query_language as ql
-from .query_model import Case, all_nodes, get_input_nodes
+from .graph_rendering import render_graph
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
 log = structlog.getLogger()
@@ -75,188 +71,11 @@ def dump_dataset_sql(
             f.write(f"{query_str};\n\n")
 
 
-def positive_hash(node):
-    return hash(node) & sys.maxsize
-
-
-def to_nx_node(node):
-    def should_ignore(name, value):
-        return (
-            value in get_input_nodes(node)
-            or (name == "schema" and isinstance(value, Mapping))
-            or (isinstance(node, Case) and name == "cases")
-        )
-
-    args = [
-        value
-        for name, value in [
-            (name, getattr(node, name))
-            for name in [f.name for f in dataclasses.fields(node)]
-        ]
-        if not should_ignore(name, value)
-    ]
-
-    return positive_hash(node), type(node).__name__, tuple(args)
-
-
-def nx_node_for_variable(name):
-    if name == "population":
-        return positive_hash(name), "Population", ()
-    return positive_hash(name), "Variable", (name,)
-
-
-def as_nx_graph(variable_definitions):
-    # This is currently not an isomorphism because we throw away the attribute names (which would clutter up the
-    # visual representation). It would be straightforward to add them to this encoding, though; for subnodes we could
-    # decorate the edges with a "type" property and for other attributes we could store them in a dict rather than a
-    # tuple. Then we'd have an isomorphism and could freely transform in either direction without losing anything.
-    g = nx.DiGraph()
-    for name, definition in variable_definitions.items():
-        g.add_edge(nx_node_for_variable(name), to_nx_node(definition))
-        for node in all_nodes(definition):
-            for subnode in get_input_nodes(node):
-                g.add_edge(to_nx_node(node), to_nx_node(subnode))
-    return g
-
-
-def is_node_type(node, *types):
-    _, type_, _ = node
-    return type_ in types
-
-
-def is_variable_ish(node):
-    return is_node_type(node, "Variable", "Population")
-
-
-def is_table_ish(node):
-    return is_node_type(node, "SelectTable", "SelectPatientTable")
-
-
-def file_for_variable(node):
-    _, type_, args = node
-    if type_ == "Population":
-        name = "population"
-    else:
-        (name,) = args
-    return f"{name}.svg"
-
-
-def write_svg(graph, output_path):
-    def truncate(s, limit):
-        if len(s) <= limit:
-            return s
-        return s[: limit - 3] + "..."
-
-    dot_lines = []
-
-    def write(s, indent=0):
-        dot_lines.append("\t" * indent + s + "\n")
-
-    def write_node(node, indent):
-        id_, type_, args = node
-
-        if is_variable_ish(node):
-            url_fragment = f'URL="{file_for_variable(node)}",'
-        else:
-            url_fragment = ""
-
-        args = [truncate(str(arg), 20) for arg in args]
-        style = (
-            "filled, rounded"
-            if is_variable_ish(node) or is_table_ish(node)
-            else "rounded"
-        )
-        write(
-            f'{id_} [label="{type_}({",".join(args)})", {url_fragment} style="{style}", shape=box]',
-            indent,
-        )
-
-    def write_edge(edge, indent):
-        frm, to, virtual = edge
-        frm_id, _, _ = frm
-        to_id, _, _ = to
-        colour = "lightgrey" if virtual else "black"
-        write(f"{frm_id} -> {to_id} [color={colour}]", indent)
-
-    def partition(nodes):
-        sources, others, sinks = [], [], []
-        for node in nodes:
-            if is_variable_ish(node):
-                sources.append(node)
-            elif is_table_ish(node):
-                sinks.append(node)
-            else:
-                others.append(node)
-        return sources, others, sinks
-
-    sources, others, sinks = partition(graph.nodes)
-
-    write("digraph {")
-
-    write("{", indent=1)
-    write("rank=source", indent=2)
-    for node in sources:
-        write_node(node, indent=2)
-    write("}", indent=1)
-
-    for node in others:
-        write_node(node, indent=1)
-
-    write("{", indent=1)
-    write("rank=sink", indent=2)
-    for node in sinks:
-        write_node(node, indent=2)
-    write("}", indent=1)
-
-    for edge in graph.edges.data("virtual"):
-        write_edge(edge, indent=1)
-
-    write("}")
-
-    output_file = open(output_path, mode="w")
-    dot_process = subprocess.Popen(
-        ["dot", "-Tsvg"], stdin=subprocess.PIPE, stdout=output_file
-    )
-    dot_process.communicate("".join(dot_lines).encode())
-    if not dot_process.returncode == 0:
-        raise Exception(f"dot failed: {dot_process.returncode}")
-
-
 def graph_query(definition_file, output_dir):
     log.info(f"Graphing query for {str(definition_file)}")
-
-    output_dir = pathlib.Path(output_dir)
-
     dataset_definition = load_definition(definition_file)
     variable_definitions = ql.compile(dataset_definition)
-
-    graph = as_nx_graph(variable_definitions)
-
-    variables = nx.subgraph_view(graph, filter_node=is_variable_ish).nodes
-
-    for variable in variables:
-        descendants = nx.descendants(graph, variable)
-
-        variable_subgraph = graph.subgraph(
-            {variable} | descendants
-        ).copy()  # we're going to modify, so make a copy
-        rest_of_graph = graph.copy()
-        rest_of_graph.remove_edges_from(variable_subgraph.edges)
-        rest_of_graph_reversed = rest_of_graph.reverse()
-
-        related_variables = set()
-        for descendant in descendants:
-            desc_type, _, _ = descendant
-            if desc_type == "Value":
-                continue
-
-            for other_variable in variables - {variable}:
-                if nx.has_path(rest_of_graph_reversed, descendant, other_variable):
-                    related_variables.add(other_variable)
-                    variable_subgraph.add_edge(other_variable, descendant, virtual=True)
-
-        file_name = file_for_variable(variable)
-        write_svg(variable_subgraph, output_dir / file_name)
+    render_graph(pathlib.Path(output_dir), variable_definitions)
 
 
 def get_sql_strings(query_engine, variable_definitions):
@@ -374,3 +193,11 @@ def write_dataset_csv(column_specs, results, dataset_file):
         writer = csv.writer(f)
         writer.writerow(headers)
         writer.writerows(results)
+
+
+if __name__ == "__main__":
+    definition_file = "foo/study.py"
+    output_dir = "tmp/booster"
+    dataset_definition = load_definition(pathlib.Path(definition_file))
+    variable_definitions = ql.compile(dataset_definition)
+    render_graph(pathlib.Path(output_dir), variable_definitions)

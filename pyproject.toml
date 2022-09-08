@@ -28,6 +28,11 @@ dependencies = [
   "thrift",
   # Databricks specific connector
   "databricks-sql-connector",
+
+  # Graph manipulation libraries
+  "networkx",
+  "regraph @ git+https://github.com/Kappa-Dev/ReGraph@master",
+#   "neo4j-driver < 4",  # pin to a version that's compatible with regraph (although we don't use it)
 ]
 
 [project.scripts]

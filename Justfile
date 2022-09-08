@@ -6,7 +6,7 @@ export VIRTUAL_ENV  := `echo ${VIRTUAL_ENV:-.venv}`
 export BIN := VIRTUAL_ENV + "/bin"
 export PIP := BIN + "/python -m pip"
 # enforce our chosen pip compile flags
-export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
+export COMPILE := BIN + "/pip-compile --allow-unsafe"
 
 
 alias help := list
@@ -37,7 +37,7 @@ _compile src dst *args: _virtualenv
     #!/usr/bin/env bash
     # exit if src file is older than dst file (-nt = 'newer than', but we negate with || to avoid error exit code)
     test "${FORCE:-}" = "true" -o {{ src }} -nt {{ dst }} || exit 0
-    $BIN/pip-compile --allow-unsafe --generate-hashes --output-file={{ dst }} {{ src }} {{ args }}
+    $BIN/pip-compile --allow-unsafe --output-file={{ dst }} {{ src }} {{ args }}
 
 
 # update requirements.prod.txt if pyproject.toml has changed
@@ -219,4 +219,5 @@ generate-docs OUTPUT_FILE="public_docs.json": devenv
 
 graph DATASET_DEFINITION OUTPUT_DIR: devenv
     which dot >/dev/null || (echo >&2 "ERROR: you must install Graphviz to use this target" && exit 1)
+    mkdir -p {{ OUTPUT_DIR }}
     $BIN/python -m databuilder graph-query --output-dir {{ OUTPUT_DIR }} {{ DATASET_DEFINITION }}
