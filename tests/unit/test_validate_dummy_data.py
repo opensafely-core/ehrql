@@ -6,7 +6,7 @@ import pytest
 
 from databuilder.column_specs import ColumnSpec
 from databuilder.ehrql import Dataset
-from databuilder.query_language import PatientFrame, Series, table
+from databuilder.tables import PatientFrame, Series, table
 from databuilder.validate_dummy_data import (
     ValidationError,
     validate_csv_against_spec,

@@ -7,7 +7,7 @@ from databuilder import sqlalchemy_types
 from databuilder.backends.base import BaseBackend, MappedTable, QueryTable
 from databuilder.ehrql import Dataset
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
-from databuilder.query_language import EventFrame, PatientFrame, Series, table
+from databuilder.tables import EventFrame, PatientFrame, Series, table
 
 # Generate an integer sequence to use as default IDs. Normally you'd rely on the DBMS to
 # provide these, but we need to support DBMSs like Spark which don't have this feature.

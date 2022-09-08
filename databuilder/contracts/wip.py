@@ -1,11 +1,13 @@
 import datetime
 
-from databuilder.query_language import EventFrame, PatientFrame, Series, table
-
-from .constraints import (
+from databuilder.tables import (
     CategoricalConstraint,
+    EventFrame,
     FirstOfMonthConstraint,
     NotNullConstraint,
+    PatientFrame,
+    Series,
+    table,
 )
 
 
