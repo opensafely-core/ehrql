@@ -3,8 +3,8 @@ import datetime
 import functools
 import gzip
 
-from databuilder import query_language as ql
 from databuilder.column_specs import get_column_specs
+from databuilder.query_language import compile
 
 
 class ValidationError(Exception):
@@ -22,7 +22,7 @@ def validate_file_types_match(dummy_filename, output_filename):
 
 
 def validate_dummy_data_file(dataset_definition, filename):
-    variable_definitions = ql.compile(dataset_definition)
+    variable_definitions = compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
     file_type, gzipped = get_file_type(filename)
