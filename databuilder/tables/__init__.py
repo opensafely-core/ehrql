@@ -1,12 +1,27 @@
-# TODO: This should probably be removed altogether but it's being used by the test
-# study, and possibly by other example code others have written so I don't now is quite
-# the right time to remove it.
-# [1]: https://github.com/opensafely/test-age-distribution
 import datetime
 
-from databuilder.query_language import PatientFrame, Series, table
+from databuilder.contracts.constraints import (
+    CategoricalConstraint,
+    FirstOfMonthConstraint,
+    NotNullConstraint,
+    UniqueConstraint,
+)
+from databuilder.query_language import EventFrame, PatientFrame, Series, table
+
+__all__ = [
+    "CategoricalConstraint",
+    "FirstOfMonthConstraint",
+    "NotNullConstraint",
+    "UniqueConstraint",
+    "EventFrame",
+    "PatientFrame",
+    "Series",
+    "table",
+]
 
 
+# TODO: This is destined for removal see:
+# https://github.com/opensafely-core/databuilder/issues/701
 @table
 class patients(PatientFrame):
     date_of_birth = Series(datetime.date)

@@ -4,7 +4,7 @@ import sqlalchemy.orm
 
 from databuilder.codes import SNOMEDCTCode
 from databuilder.orm_factory import orm_class_from_ql_table
-from databuilder.query_language import EventFrame, PatientFrame, Series, table
+from databuilder.tables import EventFrame, PatientFrame, Series, table
 
 
 @table

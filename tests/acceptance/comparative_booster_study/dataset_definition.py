@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from databuilder.query_language import Dataset, case, when
+from databuilder.ehrql import Dataset, case, when
 
 from . import codelists, schema
 from .codelists import combine_codelists

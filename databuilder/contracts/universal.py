@@ -1,11 +1,12 @@
 import datetime
 
-from databuilder.query_language import PatientFrame, Series, table
-
-from .constraints import (
+from databuilder.tables import (
     CategoricalConstraint,
     FirstOfMonthConstraint,
     NotNullConstraint,
+    PatientFrame,
+    Series,
+    table,
 )
 
 __all__ = ["patients"]
