@@ -1,14 +1,9 @@
 import datetime
 
+from databuilder.ehrql import Dataset
 from databuilder.query_engines.csv import CSVQueryEngine
-from databuilder.query_language import (
-    Dataset,
-    EventFrame,
-    PatientFrame,
-    Series,
-    compile,
-    table,
-)
+from databuilder.query_language import compile
+from databuilder.tables import EventFrame, PatientFrame, Series, table
 
 
 def test_csv_query_engine(tmp_path):

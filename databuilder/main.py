@@ -9,10 +9,9 @@ import structlog
 
 from databuilder.column_specs import get_column_specs
 from databuilder.itertools_utils import eager_iterator
-from databuilder.query_language import Dataset
+from databuilder.query_language import Dataset, compile
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
 
-from . import query_language as ql
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
 log = structlog.getLogger()
@@ -30,7 +29,7 @@ def generate_dataset(
 
     log.info(f"Generating dataset for {str(definition_file)}")
     dataset_definition = load_definition(definition_file)
-    variable_definitions = ql.compile(dataset_definition)
+    variable_definitions = compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
     query_engine = get_query_engine(dsn, backend_class, query_engine_class, environ)
@@ -62,7 +61,7 @@ def dump_dataset_sql(
     dataset_definition = load_definition(definition_file)
     query_engine = get_query_engine(None, backend_class, query_engine_class, environ)
 
-    variable_definitions = ql.compile(dataset_definition)
+    variable_definitions = compile(dataset_definition)
     all_query_strings = get_sql_strings(query_engine, variable_definitions)
     log.info("SQL generation succeeded")
 
@@ -147,7 +146,7 @@ def load_definition(definition_file):
         raise AttributeError("A dataset definition must define one 'dataset'")
     assert isinstance(
         dataset, Dataset
-    ), "'dataset' must be an instance of databuilder.query_language.Dataset()"
+    ), "'dataset' must be an instance of databuilder.ehrql.Dataset()"
     return dataset
 
 

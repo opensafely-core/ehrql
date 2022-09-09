@@ -1,4 +1,4 @@
-from databuilder.query_language import case, when
+from databuilder.ehrql import case, when
 
 from ..tables import p
 
