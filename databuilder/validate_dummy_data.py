@@ -4,6 +4,7 @@ import functools
 import gzip
 
 from databuilder.column_specs import get_column_specs
+from databuilder.file_formats import get_file_extension
 from databuilder.query_language import compile
 
 
@@ -12,7 +13,7 @@ class ValidationError(Exception):
 
 
 def validate_file_types_match(dummy_filename, output_filename):
-    if get_file_type(dummy_filename) != get_file_type(output_filename):
+    if get_file_extension(dummy_filename) != get_file_extension(output_filename):
         raise ValidationError(
             f"Dummy data file does not have the same file extension as the output "
             f"filename:\n"
@@ -25,24 +26,13 @@ def validate_dummy_data_file(dataset_definition, filename):
     variable_definitions = compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
-    file_type, gzipped = get_file_type(filename)
-    if file_type != ".csv":
-        raise ValidationError(f"Unsupported file type: {file_type}")
+    extension = get_file_extension(filename)
+    if extension not in (".csv", ".csv.gz"):
+        raise ValidationError(f"Unsupported file type: {extension}")
 
-    open_fn = gzip.open if gzipped else open
+    open_fn = gzip.open if extension.endswith(".gz") else open
     with open_fn(filename, mode="rt", newline="") as f:
         validate_csv_against_spec(f, column_specs)
-
-
-def get_file_type(filename):
-    suffixes = filename.suffixes
-    if suffixes and suffixes[-1] == ".gz":
-        gzipped = True
-        suffixes.pop()
-    else:
-        gzipped = False
-    extension = suffixes[-1] if suffixes else ""
-    return extension, gzipped
 
 
 def validate_csv_against_spec(csv_file, column_specs):

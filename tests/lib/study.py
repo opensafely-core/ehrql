@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.request import urlretrieve
 
 from databuilder.__main__ import main
-from databuilder.main import get_file_extension
+from databuilder.file_formats import get_file_extension
 
 
 class Cache:
