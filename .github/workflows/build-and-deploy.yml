@@ -98,6 +98,7 @@ jobs:
           echo "MINOR=$MINOR"
           echo "PATCH=$PATCH"
 
+          export DOCKER_BUILDKIT=1
           docker build . --file Dockerfile \
             --tag ${{ env.image }}:$MAJOR \
             --tag ${{ env.image }}:$MINOR \
