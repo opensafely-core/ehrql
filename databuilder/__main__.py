@@ -29,6 +29,8 @@ BACKEND_ALIASES = {
     "tpp": "databuilder.backends.tpp.TPPBackend",
 }
 
+EXPECTATIONS_BACKEND_PLACEHOLDER = object()
+
 
 def entrypoint():
     # This is covered by the Docker tests but they're not recorded for coverage
@@ -43,6 +45,7 @@ def main(args, environ=None):
 
     if options.which == "generate-dataset":
         if options.dsn:
+            assert options.backend != EXPECTATIONS_BACKEND_PLACEHOLDER
             generate_dataset(
                 definition_file=options.dataset_definition,
                 dataset_file=options.output,
@@ -61,6 +64,7 @@ def main(args, environ=None):
                 "variable is required"
             )
     elif options.which == "dump-dataset-sql":
+        assert options.backend != EXPECTATIONS_BACKEND_PLACEHOLDER
         dump_dataset_sql(
             options.dataset_definition,
             options.output,
@@ -244,6 +248,9 @@ def query_engine_from_id(str_id):
 
 
 def backend_from_id(str_id):
+    if str_id == "expectations":
+        return EXPECTATIONS_BACKEND_PLACEHOLDER
+
     if "." not in str_id:
         try:
             str_id = BACKEND_ALIASES[str_id]

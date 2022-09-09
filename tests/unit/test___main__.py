@@ -42,6 +42,8 @@ def test_pass_dummy_data(mocker, tmp_path):
         str(dataset_definition_path),
         "--dummy-data-file",
         str(tmp_path / "dummy-data.csv"),
+        "--backend",
+        "expectations",
     ]
     main(argv)
     patched.assert_called_once()
