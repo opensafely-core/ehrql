@@ -8,7 +8,6 @@ from .codelists import combine_codelists
 from .variables_lib import (
     address_as_of,
     age_as_of,
-    cause_of_death_matches,
     create_sequential_variables,
     date_deregistered_from_all_supported_practices,
     emergency_care_diagnosis_matches,
@@ -695,25 +694,15 @@ create_sequential_variables(
 )
 
 
-deaths = schema.ons_deaths
-dataset.coviddeath_date = cause_of_death_matches(
-    deaths, codelists.covid_icd10
-).date.maximum_for_patient()
-dataset.death_date = deaths.date.maximum_for_patient()
-
-
 #######################################################################################
 # Population
 #######################################################################################
 
 registered = practice_registration_as_of(baseline_date).exists_for_patient()
 
-has_died = deaths.take(deaths.date.is_on_or_before(baseline_date)).exists_for_patient()
-
 dataset.set_population(
     registered
     & (dataset.age_august2021 >= 18)
-    & ~has_died
     & boosted_date.is_on_or_after(studystart_date)
     & boosted_date.is_on_or_before(studyend_date)
 )
