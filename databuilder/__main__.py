@@ -249,8 +249,8 @@ def backend_from_id(str_id):
             str_id = BACKEND_ALIASES[str_id]
         except KeyError:
             raise ArgumentTypeError(
-                f"must be one of: {', '.join(BACKEND_ALIASES.keys())} "
-                f"(or a full dotted path to a backend class)"
+                f"(or OPENSAFELY_BACKEND) must be one of: {', '.join(BACKEND_ALIASES.keys())} "
+                f"(or a full dotted path to a backend class) but got '{str_id}'"
             )
     backend = import_string(str_id)
     assert_duck_type(backend, "backend", "get_table_expression")
