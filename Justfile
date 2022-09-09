@@ -123,6 +123,12 @@ build-databuilder:
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
+# Build a docker image that can then be used locally via the OpenSAFELY CLI. You must also change project.yaml
+# in the study you're running to specify `dev` as the `databuilder` version (like `run: databuilder:dev ...`).
+build-databuilder-for-os-cli: build-databuilder
+    docker tag databuilder-dev ghcr.io/opensafely-core/databuilder:dev
+
+
 # tear down the persistent docker containers we create to run tests again
 remove-database-containers:
     docker rm --force databuilder-mssql
