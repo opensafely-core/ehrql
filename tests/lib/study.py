@@ -38,8 +38,8 @@ class Cache:
         return p.stat().st_mtime < (datetime.now() - self._cache_expiry).timestamp()
 
 
-def fetch_repo(repo, root):
-    tarball = Cache().get(f"https://github.com/{repo}/tarball/main")
+def fetch_repo(repo, branch, root):
+    tarball = Cache().get(f"https://github.com/{repo}/tarball/{branch}")
     shutil.unpack_archive(tarball, root, format="gztar")
 
     # The name of the directory inside the tarball is a bit unpredictable, like
@@ -59,8 +59,8 @@ class Study:
         self._containers = containers
         self._image = image
 
-    def setup_from_repo(self, repo, definition_path):
-        self._workspace = fetch_repo(repo, self._root)
+    def setup_from_repo(self, repo, branch, definition_path):
+        self._workspace = fetch_repo(repo, branch, self._root)
         self._definition_path = self._workspace / definition_path
 
     def setup_from_string(self, definition):
