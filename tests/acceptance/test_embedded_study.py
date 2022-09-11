@@ -6,7 +6,7 @@ from databuilder.__main__ import main
 from databuilder.validate_dummy_data import ValidationError
 from tests.lib.fixtures import (
     invalid_dataset_attribute_dataset_definition,
-    invalid_dataset_definition,
+    invalid_dataset_query_model_error_definition,
     no_dataset_attribute_dataset_definition,
     trivial_dataset_definition,
 )
@@ -58,12 +58,6 @@ def test_dump_dataset_sql_happy_path(study, mssql_database):
     study.dump_dataset_sql()
 
 
-def test_dump_dataset_sql_error_path(study, mssql_database):
-    study.setup_from_string(invalid_dataset_definition)
-    with pytest.raises(NameError):
-        study.dump_dataset_sql()
-
-
 def test_dump_dataset_sql_with_no_dataset_attribute(study, mssql_database):
     study.setup_from_string(no_dataset_attribute_dataset_definition)
     with pytest.raises(
@@ -79,6 +73,16 @@ def test_dump_dataset_sql_attribute_invalid(study, mssql_database):
         match="'dataset' must be an instance of databuilder.ehrql.Dataset()",
     ):
         study.dump_dataset_sql()
+
+
+def test_dump_dataset_sql_query_model_error(study, mssql_database, capsys):
+    study.setup_from_string(invalid_dataset_query_model_error_definition)
+    with pytest.raises(SystemExit) as exc_info:
+        study.dump_dataset_sql()
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert "patients.date_of_birth.year + (patients.sex.is_null())" in captured.err
+    assert "main.py" not in captured.err
 
 
 def test_validate_dummy_data_happy_path(tmp_path):
