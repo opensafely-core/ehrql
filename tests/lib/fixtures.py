@@ -8,8 +8,6 @@ dataset.set_population(year >= 1900)
 dataset.year = year
 """
 
-invalid_dataset_definition = "this is nonsense"
-
 no_dataset_attribute_dataset_definition = """
 from databuilder.ehrql import Dataset
 from databuilder.tables.beta.tpp import patients
@@ -24,4 +22,12 @@ from databuilder.ehrql import Dataset
 from databuilder.tables.beta.tpp import patients
 
 dataset = patients
+"""
+
+invalid_dataset_query_model_error_definition = """
+from databuilder.ehrql import Dataset
+from databuilder.tables.beta.tpp import patients
+
+# Odd construction is required to get an error that comes from inside library code.
+dataset.column = patients.date_of_birth.year + (patients.sex.is_null())
 """
