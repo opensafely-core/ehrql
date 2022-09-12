@@ -96,14 +96,6 @@ def most_recent_bmi(*, minimum_age_at_measurement, where=True):
     )
 
 
-def cause_of_death_matches(deaths, codelist):
-    conditions = [
-        getattr(deaths, column_name).is_in(codelist)
-        for column_name in [f"cause_of_death_{i:02d}" for i in range(1, 16)]
-    ]
-    return deaths.take(any_of(conditions))
-
-
 def emergency_care_diagnosis_matches(emergency_care_attendances, codelist):
     conditions = [
         getattr(emergency_care_attendances, column_name).is_in(codelist)
