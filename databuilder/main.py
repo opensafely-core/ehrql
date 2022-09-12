@@ -11,6 +11,7 @@ from databuilder.column_specs import get_column_specs
 from databuilder.itertools_utils import eager_iterator
 from databuilder.query_language import Dataset, compile
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
+from databuilder.traceback_utils import trim_and_print_exception
 
 from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
@@ -139,7 +140,11 @@ def test_connection(backend_class, url, environ):
 
 
 def load_definition(definition_file):
-    module = load_module(definition_file)
+    try:
+        module = load_module(definition_file)
+    except Exception:
+        trim_and_print_exception()
+        sys.exit(1)
     try:
         dataset = module.dataset
     except AttributeError:
