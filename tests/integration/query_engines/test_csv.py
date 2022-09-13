@@ -12,9 +12,10 @@ def test_csv_query_engine(tmp_path):
             [
                 # Columns like `extra_column` which aren't in the schema should just be
                 # ignored
-                "patient_id,sex,top_score,extra_column",
-                "1,M,100,a",
-                "2,F,200,b",
+                "patient_id,sex,top_score,sharpe_ratio,is_ok,extra_column",
+                "1,M,100,0.5,0,a",
+                "2,F,200,1.5,1,b",
+                "3,,,,,",
             ]
         ),
     )
@@ -35,6 +36,8 @@ def test_csv_query_engine(tmp_path):
     class patients(PatientFrame):
         sex = Series(str)
         top_score = Series(int)
+        sharpe_ratio = Series(float)
+        is_ok = Series(bool)
 
     @table
     class events(EventFrame):
@@ -45,8 +48,10 @@ def test_csv_query_engine(tmp_path):
 
     dataset = Dataset()
     dataset.sex = patients.sex
-    # Check that ints are imported correctly as ints
-    dataset.score = patients.top_score + 1000
+    dataset.top_score = patients.top_score
+    dataset.sharpe_ratio = patients.sharpe_ratio
+    dataset.is_ok = patients.is_ok
+
     dataset.latest_abc = (
         events.take(events.code == "def").sort_by(events.date).first_for_patient().date
     )
@@ -60,8 +65,9 @@ def test_csv_query_engine(tmp_path):
     results = query_engine.get_results(variable_definitions)
 
     assert list(results) == [
-        (1, "M", 1100, datetime.date(2000, 2, 1), 3),
-        (2, "F", 1200, datetime.date(2001, 2, 1), 2),
+        (1, "M", 100, 0.5, False, datetime.date(2000, 2, 1), 3),
+        (2, "F", 200, 1.5, True, datetime.date(2001, 2, 1), 2),
+        (3, None, None, None, None, None, 0),
     ]
 
 
