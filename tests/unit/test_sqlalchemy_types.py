@@ -12,7 +12,6 @@ from databuilder.sqlalchemy_types import type_from_python_type
     [
         (bool, types.Boolean),
         (datetime.date, types.Date),
-        (datetime.datetime, types.DateTime),
         (float, types.Float),
         (int, types.Integer),
         (str, types.Text),
