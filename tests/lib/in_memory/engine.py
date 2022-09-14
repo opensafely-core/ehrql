@@ -212,6 +212,12 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_Subtract(self, node):
         return self.visit_binary_op_with_null(node, operator.sub)
 
+    def visit_CastToInt(self, node):
+        return self.visit_unary_op_with_null(node, int)
+
+    def visit_CastToFloat(self, node):
+        return self.visit_unary_op_with_null(node, float)
+
     def visit_DateAddDays(self, node):
         def date_add_days(date, num_days):
             return date + datetime.timedelta(days=num_days)

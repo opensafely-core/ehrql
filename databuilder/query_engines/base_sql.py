@@ -212,6 +212,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_subtract(self, node):
         return operators.sub(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
+    @get_sql.register(Function.CastToInt)
+    def get_sql_cast_to_int(self, node):
+        return sqlalchemy.cast(self.get_expr(node.source), sqlalchemy.Integer)
+
+    @get_sql.register(Function.CastToFloat)
+    def get_sql_cast_to_float(self, node):
+        return sqlalchemy.cast(self.get_expr(node.source), sqlalchemy.Float)
+
     @get_sql.register(Function.StringContains)
     def get_sql_string_contains(self, node):
         # Note: SQLAlchemy uses forward slash rather than backslash as its default
