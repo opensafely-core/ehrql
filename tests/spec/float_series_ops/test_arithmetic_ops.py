@@ -5,7 +5,7 @@ title = "Arithmetic operations"
 table_data = {
     p: """
           |  f1   |  f2
-        --+-----+-----
+        --+-------+-------
         1 | 101.3 | 111.5
         2 | 201.4 |
         """,
