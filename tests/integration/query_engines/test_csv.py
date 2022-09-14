@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, declarative_base
 from databuilder.ehrql import Dataset
 from databuilder.query_engines.csv import CSVQueryEngine, orm_instances_from_csv_lines
 from databuilder.query_language import compile
-from databuilder.sqlalchemy_types import Integer, type_from_python_type
+from databuilder.sqlalchemy_types import TYPE_MAP, Integer, type_from_python_type
 from databuilder.tables import EventFrame, PatientFrame, Series, table
 
 
@@ -123,3 +123,11 @@ def test_orm_instances_from_csv_lines(type_, csv_value, expected_value):
         result = session.query(Model.value).scalar()
 
     assert result == expected_value
+
+
+def test_orm_instances_from_csv_lines_params_are_exhaustive():
+    # This is dirty but useful, I think. It checks that the parameters to the test
+    # include at least one of every type in `sqlalchemy_types`.
+    params = test_orm_instances_from_csv_lines.pytestmark[0].args[1]
+    types = [arg[0] for arg in params]
+    assert set(types) == set(TYPE_MAP)
