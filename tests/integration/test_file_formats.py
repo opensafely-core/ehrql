@@ -1,5 +1,6 @@
 import gzip
 
+import pyarrow.feather
 import pytest
 
 from databuilder.column_specs import ColumnSpec
@@ -49,6 +50,28 @@ def test_write_dataset_csv(tmp_path, capsys, basename):
     ]
 
 
+def test_write_dataset_arrow(tmp_path):
+    filename = tmp_path / "somedir" / "file.arrow"
+    column_specs = {
+        "patient_id": ColumnSpec(int),
+        "year_of_birth": ColumnSpec(int),
+        "sex": ColumnSpec(str),
+    }
+    results = [
+        (123, 1980, "F"),
+        (456, None, None),
+        (789, 1999, "M"),
+    ]
+    write_dataset(filename, results, column_specs)
+
+    table = pyarrow.feather.read_table(filename)
+    output_columns = table.column_names
+    output_rows = [tuple(d.values()) for d in table.to_pylist()]
+
+    assert output_columns == list(column_specs.keys())
+    assert output_rows == results
+
+
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
 def test_validate_dataset_happy_path(tmp_path, extension):
     filename = tmp_path / f"dataset{extension}"
@@ -85,5 +108,11 @@ def test_validate_dataset_type_mismatch(tmp_path, extension):
         "sex": ColumnSpec(int),
     }
 
-    with pytest.raises(ValidationError, match="invalid literal for int"):
+    errors = {
+        ".arrow": "File does not have expected schema",
+        ".csv": "invalid literal for int",
+        ".csv.gz": "invalid literal for int",
+    }
+
+    with pytest.raises(ValidationError, match=errors[extension]):
         validate_dataset(filename, column_specs_2)
