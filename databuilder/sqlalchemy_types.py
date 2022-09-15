@@ -45,7 +45,6 @@ class DateTime(sqlalchemy.types.TypeDecorator):
 TYPE_MAP = {
     bool: Boolean,
     datetime.date: Date,
-    datetime.datetime: DateTime,
     float: Float,
     int: Integer,
     str: Text,
