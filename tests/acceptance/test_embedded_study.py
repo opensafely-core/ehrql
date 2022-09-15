@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 
 from databuilder.__main__ import main
-from databuilder.validate_dummy_data import ValidationError
+from databuilder.file_formats import ValidationError
 from tests.lib.fixtures import (
     invalid_dataset_attribute_dataset_definition,
     invalid_dataset_query_model_error_definition,
@@ -95,5 +95,5 @@ def test_validate_dummy_data_happy_path(tmp_path):
 def test_validate_dummy_data_error_path(tmp_path):
     dummy_data = "patient_id,year\n1,1971\n2,foo"
     study = DummyDataStudy(tmp_path, trivial_dataset_definition, dummy_data)
-    with pytest.raises(ValidationError, match="Invalid int"):
+    with pytest.raises(ValidationError, match="invalid literal for int"):
         study.generate_dataset()

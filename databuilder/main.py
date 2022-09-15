@@ -6,13 +6,15 @@ from contextlib import contextmanager, nullcontext
 import structlog
 
 from databuilder.column_specs import get_column_specs
-from databuilder.file_formats import write_dataset
+from databuilder.file_formats import (
+    validate_dataset,
+    validate_file_types_match,
+    write_dataset,
+)
 from databuilder.itertools_utils import eager_iterator
 from databuilder.query_language import Dataset, compile
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
 from databuilder.traceback_utils import trim_and_print_exception
-
-from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
 log = structlog.getLogger()
 
@@ -44,8 +46,11 @@ def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
     log.info(f"Generating dataset for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
-    validate_dummy_data_file(dataset_definition, dummy_data_file)
+    variable_definitions = compile(dataset_definition)
+    column_specs = get_column_specs(variable_definitions)
+
     validate_file_types_match(dummy_data_file, dataset_file)
+    validate_dataset(dummy_data_file, column_specs)
 
     dataset_file.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(dummy_data_file, dataset_file)
