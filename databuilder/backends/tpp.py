@@ -1,3 +1,4 @@
+import databuilder.tables.beta.smoketest
 import databuilder.tables.beta.tpp
 
 from ..query_engines.mssql import MSSQLQueryEngine
@@ -71,7 +72,7 @@ class TPPBackend(BaseBackend):
 
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
-    implements = [databuilder.tables.beta.tpp]
+    implements = [databuilder.tables.beta.tpp, databuilder.tables.beta.smoketest]
 
     patients = QueryTable(
         """
