@@ -1,4 +1,5 @@
 import databuilder.tables.beta.databricks
+import databuilder.tables.beta.smoketest
 
 from ..query_engines.spark import SparkQueryEngine
 from .base import BaseBackend, MappedTable, QueryTable
@@ -9,7 +10,7 @@ class DatabricksBackend(BaseBackend):
 
     query_engine_class = SparkQueryEngine
     patient_join_column = "patient_id"
-    implements = [databuilder.tables.beta.databricks]
+    implements = [databuilder.tables.beta.databricks, databuilder.tables.beta.smoketest]
 
     patients = QueryTable(
         # We're not (currently) provided with a patient table so we have to

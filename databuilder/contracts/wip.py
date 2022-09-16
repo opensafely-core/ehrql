@@ -1,39 +1,6 @@
 import datetime
 
-from databuilder.tables import (
-    CategoricalConstraint,
-    EventFrame,
-    FirstOfMonthConstraint,
-    NotNullConstraint,
-    PatientFrame,
-    Series,
-    table,
-)
-
-
-@table
-class patient_demographics(PatientFrame):
-    """Provides demographic information about patients."""
-
-    date_of_birth = Series(
-        datetime.date,
-        description="Patient's year and month of birth, provided in format YYYY-MM-01.",
-        constraints=[NotNullConstraint(), FirstOfMonthConstraint()],
-    )
-    sex = Series(
-        str,
-        description="Patient's sex.",
-        constraints=[
-            NotNullConstraint(),
-            CategoricalConstraint("female", "male", "intersex", "unknown"),
-        ],
-    )
-    date_of_death = Series(
-        datetime.date,
-        description="Patient's year and month of death, provided in format YYYY-MM-01.",
-        constraints=[FirstOfMonthConstraint()],
-    )
-
+from databuilder.tables import EventFrame, Series, table
 
 ###
 # The following contracts have not been through any kind of assurance process!

@@ -1,6 +1,7 @@
 import os
 
 import databuilder.tables.beta.graphnet
+import databuilder.tables.beta.smoketest
 
 from ..query_engines.mssql import MSSQLQueryEngine
 from .base import BaseBackend, MappedTable
@@ -13,9 +14,9 @@ class GraphnetBackend(BaseBackend):
 
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
-    implements = [databuilder.tables.beta.graphnet]
+    implements = [databuilder.tables.beta.graphnet, databuilder.tables.beta.smoketest]
 
-    patient_demographics = MappedTable(
+    patients = MappedTable(
         schema=SCHEMA,
         source="Patients",
         columns=dict(
