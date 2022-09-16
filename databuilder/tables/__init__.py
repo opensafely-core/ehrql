@@ -1,5 +1,3 @@
-import datetime
-
 from databuilder.contracts.constraints import (
     CategoricalConstraint,
     FirstOfMonthConstraint,
@@ -18,12 +16,3 @@ __all__ = [
     "Series",
     "table",
 ]
-
-
-# TODO: This is destined for removal see:
-# https://github.com/opensafely-core/databuilder/issues/701
-@table
-class patients(PatientFrame):
-    date_of_birth = Series(datetime.date)
-    date_of_death = Series(datetime.date)
-    sex = Series(str)
