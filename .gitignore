@@ -87,6 +87,7 @@ $RECYCLE.BIN/
 # Python
 __pycache__
 *.pyc
+/opensafely_databuilder.egg-info/
 
 # Coverage
 .coverage
