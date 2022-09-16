@@ -1,5 +1,3 @@
-import csv
-import gzip
 import importlib.util
 import shutil
 import sys
@@ -8,12 +6,15 @@ from contextlib import contextmanager, nullcontext
 import structlog
 
 from databuilder.column_specs import get_column_specs
+from databuilder.file_formats import (
+    validate_dataset,
+    validate_file_types_match,
+    write_dataset,
+)
 from databuilder.itertools_utils import eager_iterator
 from databuilder.query_language import Dataset, compile
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
 from databuilder.traceback_utils import trim_and_print_exception
-
-from .validate_dummy_data import validate_dummy_data_file, validate_file_types_match
 
 log = structlog.getLogger()
 
@@ -26,8 +27,6 @@ def generate_dataset(
     query_engine_class,
     environ,
 ):
-    write_dataset = FILE_FORMATS[get_file_extension(dataset_file)]
-
     log.info(f"Generating dataset for {str(definition_file)}")
     dataset_definition = load_definition(definition_file)
     variable_definitions = compile(dataset_definition)
@@ -40,15 +39,18 @@ def generate_dataset(
     # log output) before we create the output file. Wrapping the generator in
     # `eager_iterator` ensures this happens by consuming the first item upfront.
     results = eager_iterator(results)
-    write_dataset(column_specs, results, dataset_file)
+    write_dataset(dataset_file, results, column_specs)
 
 
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
     log.info(f"Generating dataset for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
-    validate_dummy_data_file(dataset_definition, dummy_data_file)
+    variable_definitions = compile(dataset_definition)
+    column_specs = get_column_specs(variable_definitions)
+
     validate_file_types_match(dummy_data_file, dataset_file)
+    validate_dataset(dummy_data_file, column_specs)
 
     dataset_file.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(dummy_data_file, dataset_file)
@@ -89,17 +91,13 @@ def get_sql_strings(query_engine, variable_definitions):
     return sql_strings
 
 
-def open_output_file(output_file, newline=None, gzipped=False):
+def open_output_file(output_file):
     # If a file path is supplied, create it and open for writing
-    if output_file:
+    if output_file is not None:
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        if gzipped:
-            return gzip.open(output_file, "wt", newline=newline, compresslevel=6)
-        else:
-            return output_file.open(mode="w", newline=newline)
+        return output_file.open("w")
     # Otherwise return `stdout` wrapped in a no-op context manager
     else:
-        assert not gzipped
         return nullcontext(sys.stdout)
 
 
@@ -177,32 +175,3 @@ def add_to_sys_path(directory):
         yield
     finally:
         sys.path = original
-
-
-def get_file_extension(filename):
-    if filename is None:
-        # If we have no filename we're writing to stdout, so default to CSV
-        return ".csv"
-    elif filename.suffix == ".gz":
-        return "".join(filename.suffixes[-2:])
-    else:
-        return filename.suffix
-
-
-def write_dataset_csv(column_specs, results, dataset_file, gzipped=False):
-    headers = list(column_specs.keys())
-    # Set `newline` as per Python docs: https://docs.python.org/3/library/csv.html#id3
-    with open_output_file(dataset_file, newline="", gzipped=gzipped) as f:
-        writer = csv.writer(f)
-        writer.writerow(headers)
-        writer.writerows(results)
-
-
-def write_dataset_csv_gz(*args):
-    return write_dataset_csv(*args, gzipped=True)
-
-
-FILE_FORMATS = {
-    ".csv": write_dataset_csv,
-    ".csv.gz": write_dataset_csv_gz,
-}

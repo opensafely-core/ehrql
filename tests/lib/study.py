@@ -6,8 +6,10 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.request import urlretrieve
 
+from pyarrow.feather import read_table
+
 from databuilder.__main__ import main
-from databuilder.main import get_file_extension
+from databuilder.file_formats import get_file_extension
 
 
 class Cache:
@@ -148,5 +150,7 @@ class Study:
         elif extension == ".csv.gz":
             with gzip.open(self._dataset_path, "rt") as f:
                 return list(csv.DictReader(f))
+        elif extension == ".arrow":
+            return read_table(str(self._dataset_path)).to_pylist()
         else:
             assert False

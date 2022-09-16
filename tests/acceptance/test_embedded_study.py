@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 
 from databuilder.__main__ import main
-from databuilder.validate_dummy_data import ValidationError
+from databuilder.file_formats import FILE_FORMATS, ValidationError
 from tests.lib.fixtures import (
     invalid_dataset_attribute_dataset_definition,
     invalid_dataset_query_model_error_definition,
@@ -36,7 +36,7 @@ class DummyDataStudy:
         )
 
 
-@pytest.mark.parametrize("extension", [".csv", ".csv.gz"])
+@pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
 def test_generate_dataset(study, mssql_database, extension):
     mssql_database.setup(
         patient(dob=datetime(1943, 5, 5)),
@@ -49,8 +49,12 @@ def test_generate_dataset(study, mssql_database, extension):
     )
     results = study.results()
 
-    assert len(results) == 2
-    assert {r["year"] for r in results} == {"1943", "1999"}
+    expected = [1943, 1999]
+    if extension in (".csv", ".csv.gz"):
+        expected = [str(v) for v in expected]
+
+    assert len(results) == len(expected)
+    assert {r["year"] for r in results} == set(expected)
 
 
 def test_dump_dataset_sql_happy_path(study, mssql_database):
@@ -95,5 +99,5 @@ def test_validate_dummy_data_happy_path(tmp_path):
 def test_validate_dummy_data_error_path(tmp_path):
     dummy_data = "patient_id,year\n1,1971\n2,foo"
     study = DummyDataStudy(tmp_path, trivial_dataset_definition, dummy_data)
-    with pytest.raises(ValidationError, match="Invalid int"):
+    with pytest.raises(ValidationError, match="invalid literal for int"):
         study.generate_dataset()

@@ -1,9 +1,6 @@
 import dataclasses
-from pathlib import Path
 
-import pytest
-
-from databuilder.main import get_file_extension, get_query_engine, open_output_file
+from databuilder.main import get_query_engine, open_output_file
 from databuilder.query_engines.csv import CSVQueryEngine
 
 
@@ -66,17 +63,3 @@ def test_open_output_file_with_stdout(capsys):
     with open_output_file(None) as f:
         f.write("hello")
     assert capsys.readouterr().out == "hello"
-
-
-@pytest.mark.parametrize(
-    "filename,extension",
-    [
-        (None, ".csv"),
-        (Path("a/b.c/file.txt"), ".txt"),
-        (Path("a/b.c/file.txt.foo"), ".foo"),
-        (Path("a/b.c/file.txt.gz"), ".txt.gz"),
-        (Path("a/b.c/file"), ""),
-    ],
-)
-def test_get_file_extension(filename, extension):
-    assert get_file_extension(filename) == extension

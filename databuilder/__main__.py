@@ -4,13 +4,13 @@ import sys
 from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
+from databuilder.file_formats import FILE_FORMATS, get_file_extension
+
 from . import __version__
 from .main import (
-    FILE_FORMATS,
     dump_dataset_sql,
     generate_dataset,
     generate_measures,
-    get_file_extension,
     pass_dummy_data,
     test_connection,
 )

@@ -21,5 +21,8 @@ def get_column_specs(variable_definitions):
     for name, series in variable_definitions.items():
         if name == "population":
             continue
-        column_specs[name] = ColumnSpec(get_series_type(series), nullable=True)
+        type_ = get_series_type(series)
+        if hasattr(type_, "_primitive_type"):
+            type_ = type_._primitive_type()
+        column_specs[name] = ColumnSpec(type_, nullable=True)
     return column_specs
