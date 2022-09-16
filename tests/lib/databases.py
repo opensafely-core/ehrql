@@ -158,7 +158,7 @@ def make_mssql_database(containers):
 def run_mssql(container_name, containers, password, mssql_port):  # pragma: no cover
     containers.run_bg(
         name=container_name,
-        image="mcr.microsoft.com/mssql/server:2017-CU25-ubuntu-16.04",
+        image="mcr.microsoft.com/mssql/server:2017-CU30-ubuntu-18.04",
         volumes={
             MSSQL_SETUP_DIR: {"bind": "/mssql", "mode": "ro"},
         },
@@ -191,7 +191,7 @@ def make_spark_container_database(containers):
             name=container_name,
             # Nothing special about this particular version other than that
             # it's the latest as of the time of writing
-            image="docker.io/bitnami/spark:3.1.2-debian-10-r126",
+            image="docker.io/bitnami/spark:3.3.0-debian-11-r29",
             entrypoint="/bin/bash",
             command=[
                 # To speak SQL to our Spark database we need to start a thing
