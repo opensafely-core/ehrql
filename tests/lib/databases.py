@@ -158,7 +158,7 @@ def make_mssql_database(containers):
 def run_mssql(container_name, containers, password, mssql_port):  # pragma: no cover
     containers.run_bg(
         name=container_name,
-        image="mcr.microsoft.com/mssql/server:2017-CU25-ubuntu-16.04",
+        image="mcr.microsoft.com/mssql/server:2017-CU30-ubuntu-18.04",
         volumes={
             MSSQL_SETUP_DIR: {"bind": "/mssql", "mode": "ro"},
         },
