@@ -206,9 +206,9 @@ packaging==21.3 \
     #   build
     #   docker
     #   pytest
-pandas-stubs==1.4.4.220906 \
-    --hash=sha256:05b6709b8edf721858ebc7523ff5e8c7b4dcb9774bf91b0e03abb64a6b4e330b \
-    --hash=sha256:514d801d30141be6af42bc2553c69cc7fb30ebf5e623ebfcc28589635275a448
+pandas-stubs==1.4.4.220912 \
+    --hash=sha256:5920ffd5a09e49bfc987c4400056ffe6d9e9448c821e64c2c47a18345f8b00d7 \
+    --hash=sha256:7f5569bdeb57d07a8c4c6c8ccabb438155ec0c4c346bc6cf562c2fab7085e3f6
     # via -r requirements.dev.in
 pathspec==0.9.0 \
     --hash=sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a \
