@@ -34,25 +34,44 @@ ROWS_PER_BATCH = 64000
 
 
 def write_dataset_arrow(filename, results, column_specs):
-    schema = schema_from_column_specs(column_specs)
+    schema, batch_to_pyarrow = get_schema_and_convertor(column_specs)
     options = pyarrow.ipc.IpcWriteOptions(compression="zstd", use_threads=True)
 
     with pyarrow.OSFile(str(filename), "wb") as sink:
         with pyarrow.ipc.new_file(sink, schema, options=options) as writer:
             for results_batch in batch_and_transpose(results, ROWS_PER_BATCH):
-                record_batch = pyarrow.record_batch(results_batch, schema=schema)
+                record_batch = pyarrow.record_batch(
+                    batch_to_pyarrow(results_batch), schema=schema
+                )
                 writer.write(record_batch)
 
 
-def schema_from_column_specs(column_specs):
-    return pyarrow.schema(
-        pyarrow.field(
-            name,
-            PYARROW_TYPE_MAP[spec.type](),
-            nullable=spec.nullable,
-        )
-        for name, spec in column_specs.items()
-    )
+def get_schema_and_convertor(column_specs):
+    fields = []
+    convertors = []
+    for name, spec in column_specs.items():
+        field, column_to_pyarrow = get_field_and_convertor(name, spec)
+        fields.append(field)
+        convertors.append(column_to_pyarrow)
+
+    def batch_to_pyarrow(columns):
+        return [f(column) for f, column in zip(convertors, columns)]
+
+    return pyarrow.schema(fields), batch_to_pyarrow
+
+
+def get_field_and_convertor(name, spec):
+    type_ = PYARROW_TYPE_MAP[spec.type]()
+    field = pyarrow.field(name, type_, nullable=spec.nullable)
+    column_to_pyarrow = make_column_to_pyarrow(type_)
+    return field, column_to_pyarrow
+
+
+def make_column_to_pyarrow(type_):
+    def column_to_pyarrow(column):
+        return pyarrow.array(column, type=type_, size=len(column))
+
+    return column_to_pyarrow
 
 
 def batch_and_transpose(iterable, batch_size):
@@ -78,7 +97,7 @@ def batch_and_transpose(iterable, batch_size):
 
 
 def validate_dataset_arrow(filename, column_specs):
-    target_schema = schema_from_column_specs(column_specs)
+    target_schema, _ = get_schema_and_convertor(column_specs)
     file_schema = read_schema_from_file(filename)
     validate_headers(file_schema.names, target_schema.names)
     if not file_schema.equals(target_schema):
