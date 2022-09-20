@@ -35,6 +35,7 @@ __all__ = [
     "count_nodes",
     "node_types",
     "get_input_nodes",
+    "get_root_frame",
 ]
 
 
@@ -62,13 +63,14 @@ class Position(Enum):
 @dataclasses.dataclass(frozen=True)
 class Column:
     type_: type
+    categories: Optional[tuple] = None
 
     def __repr__(self):
         # Gives us `self == eval(repr(self))`
         module = self.type_.__module__
         prefix = f"{module}." if module != "builtins" else ""
         type_repr = f"{prefix}{self.type_.__name__}"
-        return f"{self.__class__.__name__}({type_repr})"
+        return f"{self.__class__.__name__}({type_repr}, categories={self.categories!r})"
 
 
 class TableSchema:
@@ -92,6 +94,9 @@ class TableSchema:
 
     def get_column_type(self, name):
         return self.schema[name].type_
+
+    def get_column_categories(self, name):
+        return self.schema[name].categories
 
     @property
     def column_names(self):
