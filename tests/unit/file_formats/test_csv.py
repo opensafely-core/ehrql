@@ -136,6 +136,19 @@ def test_read_dataset_csv_lines(csv, error):
             "day is out of range for month",
         ),
         ("2021-2-2", ColumnSpec(datetime.date), None, "Invalid isoformat string"),
+        # Categoricals
+        (
+            "foo",
+            ColumnSpec(str, categories=("foo", "bar")),
+            "foo",
+            None,
+        ),
+        (
+            "baz",
+            ColumnSpec(str, categories=("foo", "bar")),
+            None,
+            "'baz' not in valid categories",
+        ),
     ],
 )
 def test_create_column_parser(value, spec, expected, error):
