@@ -62,14 +62,42 @@ def get_schema_and_convertor(column_specs):
 
 def get_field_and_convertor(name, spec):
     type_ = PYARROW_TYPE_MAP[spec.type]()
+
+    if spec.categories is not None:
+        index_type = PYARROW_TYPE_MAP[int]()
+        value_type = type_
+        type_ = pyarrow.dictionary(index_type, value_type, ordered=True)
+        column_to_pyarrow = make_column_to_pyarrow_with_categories(
+            index_type, value_type, spec.categories
+        )
+    else:
+        column_to_pyarrow = make_column_to_pyarrow(type_)
+
     field = pyarrow.field(name, type_, nullable=spec.nullable)
-    column_to_pyarrow = make_column_to_pyarrow(type_)
     return field, column_to_pyarrow
 
 
 def make_column_to_pyarrow(type_):
     def column_to_pyarrow(column):
         return pyarrow.array(column, type=type_, size=len(column))
+
+    return column_to_pyarrow
+
+
+def make_column_to_pyarrow_with_categories(index_type, value_type, categories):
+    value_array = pyarrow.array(categories, type=value_type)
+    # NULL values should remain NULL
+    mapping = {None: None}
+    for index, category in enumerate(categories):
+        mapping[category] = index
+
+    def column_to_pyarrow(column):
+        indices = map(mapping.__getitem__, column)
+        index_array = pyarrow.array(indices, type=index_type, size=len(column))
+        # This looks a bit like we're including another copy of the `value_array` along
+        # with each batch of results. However, Arrow only stores a single copy of this
+        # and enforces that subsequent batches use the same set of values.
+        return pyarrow.DictionaryArray.from_arrays(index_array, value_array)
 
     return column_to_pyarrow
 

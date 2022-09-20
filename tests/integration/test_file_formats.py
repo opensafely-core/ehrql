@@ -55,7 +55,7 @@ def test_write_dataset_arrow(tmp_path):
     column_specs = {
         "patient_id": ColumnSpec(int),
         "year_of_birth": ColumnSpec(int),
-        "sex": ColumnSpec(str),
+        "sex": ColumnSpec(str, categories=("M", "F", "I")),
     }
     results = [
         (123, 1980, "F"),
@@ -67,9 +67,11 @@ def test_write_dataset_arrow(tmp_path):
     table = pyarrow.feather.read_table(filename)
     output_columns = table.column_names
     output_rows = [tuple(d.values()) for d in table.to_pylist()]
+    categories = table.column("sex").chunk(0).dictionary.to_pylist()
 
     assert output_columns == list(column_specs.keys())
     assert output_rows == results
+    assert categories == ["M", "F", "I"]
 
 
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
