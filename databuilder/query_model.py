@@ -59,22 +59,47 @@ class Position(Enum):
         return f"{self.__class__.__name__}.{self.name}"
 
 
-class TableSchema(dict):
-    "Defines a mapping of column names to types"
+@dataclasses.dataclass(frozen=True)
+class Column:
+    type_: type
+
+    def __repr__(self):
+        # Gives us `self == eval(repr(self))`
+        module = self.type_.__module__
+        prefix = f"{module}." if module != "builtins" else ""
+        type_repr = f"{prefix}{self.type_.__name__}"
+        return f"{self.__class__.__name__}({type_repr})"
+
+
+class TableSchema:
+    "Defines a mapping of column names to column definitions"
+
+    def __init__(self, **kwargs):
+        self.schema = kwargs
+
+    def __eq__(self, other):
+        if other.__class__ is self.__class__:
+            return self.schema == other.schema
+        return NotImplemented
 
     def __hash__(self):
-        # These need to be hashable if they're to be used as attributes on frozen
-        # dataclasses. We treat them as immutable once created, so this is fine.
-        return hash(tuple(self.items()))
+        return hash(tuple(self.schema.items()))
 
     def __repr__(self):
         # Gives us `self == eval(repr(self))` as for dataclasses
-        kwargs = []
-        for name, type_ in self.items():
-            module = type_.__module__
-            prefix = f"{module}." if module != "builtins" else ""
-            kwargs.append(f"{name}={prefix}{type_.__name__}")
+        kwargs = [f"{key}={value!r}" for key, value in self.schema.items()]
         return f"{self.__class__.__name__}({', '.join(kwargs)})"
+
+    def get_column_type(self, name):
+        return self.schema[name].type_
+
+    @property
+    def column_names(self):
+        return list(self.schema.keys())
+
+    @property
+    def column_types(self):
+        return [(name, column.type_) for name, column in self.schema.items()]
 
 
 # BASIC QUERY MODEL TYPES
@@ -170,13 +195,12 @@ class Value(OneRowPerPatientSeries[T]):
 
 class SelectTable(ManyRowsPerPatientFrame):
     name: str
-    # A schema is a mapping from column names to types
-    schema: Mapping[str, type]
+    schema: TableSchema
 
 
 class SelectPatientTable(OneRowPerPatientFrame):
     name: str
-    schema: Mapping[str, type]
+    schema: TableSchema
 
 
 class SelectColumn(Series):
@@ -722,7 +746,7 @@ def resolve_typevar_from_inputs(series, typevar):
 def get_typespec_for_select_column(column):
     # Find the table from which this SelectColumn operation draws
     root = get_root_frame(column.source)
-    type_ = root.schema[column.name]
+    type_ = root.schema.get_column_type(column.name)
     return Series[type_]
 
 

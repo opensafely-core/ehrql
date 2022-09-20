@@ -11,6 +11,7 @@ from databuilder.backends.base import (
     ValidationError,
 )
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
+from databuilder.query_model import Column, TableSchema
 from databuilder.tables import PatientFrame, Series, table
 
 
@@ -51,9 +52,9 @@ def test_backend_registers_tables():
 def test_mapped_table_sql_with_modified_names():
     table = TestBackend().get_table_expression(
         "patients",
-        {
-            "date_of_birth": datetime.date,
-        },
+        TableSchema(
+            date_of_birth=Column(datetime.date),
+        ),
     )
     sql = str(sqlalchemy.select(table.c.patient_id, table.c.date_of_birth))
     assert sql == 'SELECT "Patient"."PatID", "Patient"."DateOfBirth" \nFROM "Patient"'
@@ -62,9 +63,9 @@ def test_mapped_table_sql_with_modified_names():
 def test_mapped_table_sql_with_matching_names():
     table = TestBackend().get_table_expression(
         "events",
-        {
-            "date": datetime.date,
-        },
+        TableSchema(
+            date=Column(datetime.date),
+        ),
     )
     sql = str(sqlalchemy.select(table.c.patient_id, table.c.date))
     assert sql == 'SELECT events."PatientId", events.date \nFROM events'
@@ -73,10 +74,10 @@ def test_mapped_table_sql_with_matching_names():
 def test_query_table_sql():
     table = TestBackend().get_table_expression(
         "practice_registrations",
-        {
-            "date_start": datetime.date,
-            "date_end": datetime.date,
-        },
+        TableSchema(
+            date_start=Column(datetime.date),
+            date_end=Column(datetime.date),
+        ),
     )
     sql = str(sqlalchemy.select(table.c.patient_id, table.c.date_start))
     assert sql == (
@@ -87,7 +88,9 @@ def test_query_table_sql():
 
 
 def test_default_backend_sql():
-    table = DefaultBackend().get_table_expression("some_table", {"i": int, "b": bool})
+    table = DefaultBackend().get_table_expression(
+        "some_table", TableSchema(i=Column(int), b=Column(bool))
+    )
     sql = str(sqlalchemy.select(table.c.patient_id, table.c.i, table.c.b))
     assert sql == (
         "SELECT some_table.patient_id, some_table.i, some_table.b \nFROM some_table"

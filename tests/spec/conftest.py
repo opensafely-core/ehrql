@@ -80,19 +80,21 @@ def parse_table(schema, s):
     header, _, *lines = s.strip().splitlines()
     col_names = [token.strip() for token in header.split("|")]
     col_names[0] = "patient_id"
-    schema = dict(patient_id=int, **schema)
-    rows = [parse_row(schema, col_names, line) for line in lines]
+    column_types = dict(
+        patient_id=int, **{name: type_ for name, type_ in schema.column_types}
+    )
+    rows = [parse_row(column_types, col_names, line) for line in lines]
     return rows
 
 
-def parse_row(schema, col_names, line):
+def parse_row(column_types, col_names, line):
     """Parse string containing row data, returning list of values.
 
     See test_conftest.py for examples.
     """
 
     return {
-        col_name: parse_value(schema[col_name], token.strip())
+        col_name: parse_value(column_types[col_name], token.strip())
         for col_name, token in zip(col_names, line.split("|"))
     }
 

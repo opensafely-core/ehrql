@@ -17,6 +17,7 @@ from databuilder.query_language import (
     table,
 )
 from databuilder.query_model import (
+    Column,
     Function,
     SelectColumn,
     SelectPatientTable,
@@ -26,9 +27,9 @@ from databuilder.query_model import (
     Value,
 )
 
-patients_schema = TableSchema(date_of_birth=date)
+patients_schema = TableSchema(date_of_birth=Column(date))
 patients = PatientFrame(SelectPatientTable("patients", patients_schema))
-events_schema = TableSchema(event_date=date)
+events_schema = TableSchema(event_date=Column(date))
 events = EventFrame(SelectTable("coded_events", events_schema))
 
 
@@ -98,7 +99,7 @@ def test_cannot_assign_frame_to_column():
 # instantiated isn't important.
 qm_table = SelectTable(
     name="table",
-    schema=TableSchema(int_column=int, date_column=date),
+    schema=TableSchema(int_column=Column(int), date_column=Column(date)),
 )
 qm_int_series = SelectColumn(source=qm_table, name="int_column")
 qm_date_series = SelectColumn(source=qm_table, name="date_column")

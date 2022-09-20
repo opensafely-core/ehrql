@@ -8,6 +8,7 @@ import pytest
 from databuilder.query_model import (
     AggregateByPatient,
     Case,
+    Column,
     DomainMismatchError,
     Filter,
     Frame,
@@ -27,7 +28,22 @@ from databuilder.query_model import (
     has_one_row_per_patient,
 )
 
-EVENTS_SCHEMA = TableSchema(date=datetime.date, code=str, flag=bool)
+EVENTS_SCHEMA = TableSchema(
+    date=Column(datetime.date), code=Column(str), flag=Column(bool)
+)
+
+
+# TEST TABLESCHEMA
+#
+
+
+def test_table_schema_equality():
+    t1 = TableSchema(i=Column(int))
+    t2 = TableSchema(i=Column(int))
+    t3 = TableSchema(j=Column(int))
+    assert t1 == t2
+    assert t1 != t3
+    assert t1 != "a fish"
 
 
 # TEST BASIC QUERY MODEL PROPERTIES
@@ -38,7 +54,7 @@ EVENTS_SCHEMA = TableSchema(date=datetime.date, code=str, flag=bool)
 def queries():
     q = SimpleNamespace()
 
-    patients = SelectPatientTable("patients", TableSchema(sex=str))
+    patients = SelectPatientTable("patients", TableSchema(sex=Column(str)))
     events = SelectTable("events", EVENTS_SCHEMA)
     code = SelectColumn(events, "code")
     date = SelectColumn(events, "date")
@@ -118,7 +134,9 @@ def test_query_reprs_round_trip(queries):
 
 # The simple, happy case: combining series derived directly from the same frame
 def test_combining_series_from_same_frame_is_ok():
-    events = SelectTable("events", TableSchema(value_1=int, value_2=int))
+    events = SelectTable(
+        "events", TableSchema(value_1=Column(int), value_2=Column(int))
+    )
     value_1 = SelectColumn(events, "value_1")
     value_2 = SelectColumn(events, "value_2")
     assert Function.GT(value_1, value_2)

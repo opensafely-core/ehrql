@@ -501,12 +501,12 @@ def table(cls):
     table_name = cls.__name__
     # Get all `Series` objects on the class and determine the schema from them
     schema = {
-        series.name: series.type_
+        series.name: qm.Column(series.type_)
         for series in vars(cls).values()
         if isinstance(series, Series)
     }
 
-    qm_node = qm_class(table_name, qm.TableSchema(schema))
+    qm_node = qm_class(table_name, qm.TableSchema(**schema))
     return cls(qm_node)
 
 

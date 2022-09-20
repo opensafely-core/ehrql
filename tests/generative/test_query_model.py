@@ -4,14 +4,14 @@ import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
 
-from databuilder.query_model import TableSchema
+from databuilder.query_model import Column, TableSchema
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
 from .conftest import count_nodes, observe_inputs
 
 # To simplify data generation, all tables have the same schema.
-schema = TableSchema(i1=int, i2=int, b1=bool, b2=bool)
+schema = TableSchema(i1=Column(int), i2=Column(int), b1=Column(bool), b2=Column(bool))
 (
     patient_classes,
     event_classes,

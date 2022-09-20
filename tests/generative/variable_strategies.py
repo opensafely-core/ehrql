@@ -147,7 +147,9 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
         st.sampled_from(patient_tables),
         st.just(schema),
     )
-    select_column = qm_builds(SelectColumn, frame, st.sampled_from(list(schema.keys())))
+    select_column = qm_builds(
+        SelectColumn, frame, st.sampled_from(list(schema.column_names))
+    )
 
     filter_ = qm_builds(Filter, many_rows_per_patient_frame, series)
 

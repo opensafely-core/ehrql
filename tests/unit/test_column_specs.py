@@ -4,6 +4,7 @@ from databuilder.codes import SNOMEDCTCode
 from databuilder.column_specs import ColumnSpec, get_column_specs
 from databuilder.query_model import (
     AggregateByPatient,
+    Column,
     SelectColumn,
     SelectPatientTable,
     TableSchema,
@@ -13,7 +14,9 @@ from databuilder.query_model import (
 def test_get_column_specs():
     patients = SelectPatientTable(
         "patients",
-        schema=TableSchema({"date_of_birth": datetime.date, "code": SNOMEDCTCode}),
+        schema=TableSchema(
+            date_of_birth=Column(datetime.date), code=Column(SNOMEDCTCode)
+        ),
     )
     variables = dict(
         population=AggregateByPatient.Exists(patients),

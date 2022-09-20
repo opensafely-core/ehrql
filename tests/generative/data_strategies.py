@@ -14,7 +14,7 @@ def record(class_, id_strategy, schema, int_values, bool_values):
     # We don't construct the actual objects here because it's easier to extract stats for the generated data if we
     # pass around simple objects.
     columns = {patient_id_column: id_strategy}
-    for name, type_ in schema.items():
+    for name, type_ in schema.column_types:
         type_strategy = {int: int_values, bool: bool_values}[type_]
         columns[name] = type_strategy
 
