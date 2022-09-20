@@ -64,3 +64,55 @@ def test_is_on_or_after(spec_test):
             4: None,
         },
     )
+
+
+def test_is_before_with_str_date(spec_test):
+    spec_test(
+        table_data,
+        p.d1 < "2000-01-01",
+        {
+            1: True,
+            2: False,
+            3: False,
+            4: None,
+        },
+    )
+
+
+def test_is_on_or_before_with_str_date(spec_test):
+    spec_test(
+        table_data,
+        p.d1 <= "2000-01-01",
+        {
+            1: True,
+            2: True,
+            3: False,
+            4: None,
+        },
+    )
+
+
+def test_is_after_with_str_date(spec_test):
+    spec_test(
+        table_data,
+        p.d1 > "2000-01-01",
+        {
+            1: False,
+            2: False,
+            3: True,
+            4: None,
+        },
+    )
+
+
+def test_is_on_or_after_with_str_date(spec_test):
+    spec_test(
+        table_data,
+        p.d1 >= "2000-01-01",
+        {
+            1: False,
+            2: True,
+            3: True,
+            4: None,
+        },
+    )
