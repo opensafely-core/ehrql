@@ -98,6 +98,8 @@ jobs:
           echo "MINOR=$MINOR"
           echo "PATCH=$PATCH"
 
+          echo "$MAJOR.$MINOR.$PATCH" > databuilder/VERSION
+
           docker build . --file Dockerfile \
             --tag ${{ env.image }}:$MAJOR \
             --tag ${{ env.image }}:$MINOR \

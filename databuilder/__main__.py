@@ -4,6 +4,7 @@ import sys
 from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
+from databuilder import __version__
 from databuilder.file_formats import FILE_FORMATS, get_file_extension
 
 from .main import (
@@ -94,6 +95,10 @@ def build_parser(environ):
         prog="databuilder", description="Generate datasets in OpenSAFELY"
     )
     parser.set_defaults(which="print-help")
+
+    parser.add_argument(
+        "--version", action="version", version=f"databuilder {__version__}"
+    )
 
     subparsers = parser.add_subparsers(help="sub-command help")
     add_generate_dataset(subparsers, environ)
