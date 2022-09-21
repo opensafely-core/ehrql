@@ -68,10 +68,12 @@ def test_write_dataset_arrow(tmp_path):
     output_columns = table.column_names
     output_rows = [tuple(d.values()) for d in table.to_pylist()]
     categories = table.column("sex").chunk(0).dictionary.to_pylist()
+    index_type = table.column("sex").type.index_type
 
     assert output_columns == list(column_specs.keys())
     assert output_rows == results
     assert categories == ["M", "F", "I"]
+    assert index_type == pyarrow.uint8()
 
 
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))

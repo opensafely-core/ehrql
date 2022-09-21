@@ -64,7 +64,7 @@ def get_field_and_convertor(name, spec):
     type_ = PYARROW_TYPE_MAP[spec.type]()
 
     if spec.categories is not None:
-        index_type = PYARROW_TYPE_MAP[int]()
+        index_type = smallest_int_type_for_range(0, len(spec.categories) - 1)
         value_type = type_
         type_ = pyarrow.dictionary(index_type, value_type, ordered=True)
         column_to_pyarrow = make_column_to_pyarrow_with_categories(
@@ -82,6 +82,40 @@ def make_column_to_pyarrow(type_):
         return pyarrow.array(column, type=type_, size=len(column))
 
     return column_to_pyarrow
+
+
+def smallest_int_type_for_range(minimum, maximum):
+    """
+    Return smallest pyarrow integer type capable of representing all values in the
+    supplied range
+
+    Note: this was cribbed from the OpenPrescribing codebase and handles a large range
+    of types than we need right now.
+    """
+    signed = minimum < 0
+    abs_max = max(maximum, abs(minimum))
+    if signed:
+        if abs_max < 1 << 7:
+            return pyarrow.int8()
+        elif abs_max < 1 << 15:
+            return pyarrow.int16()
+        elif abs_max < 1 << 31:
+            return pyarrow.int32()
+        elif abs_max < 1 << 63:
+            return pyarrow.int64()
+        else:
+            assert False
+    else:
+        if abs_max < 1 << 8:
+            return pyarrow.uint8()
+        elif abs_max < 1 << 16:
+            return pyarrow.uint16()
+        elif abs_max < 1 << 32:
+            return pyarrow.uint32()
+        elif abs_max < 1 << 64:
+            return pyarrow.uint64()
+        else:
+            assert False
 
 
 def make_column_to_pyarrow_with_categories(index_type, value_type, categories):
