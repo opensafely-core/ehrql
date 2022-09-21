@@ -306,6 +306,10 @@ class DateFunctions(ComparableFunctions):
         other = parse_date_if_str(other)
         return _apply(qm.Function.GT, self, other)
 
+    def __eq__(self, other):
+        other = parse_date_if_str(other)
+        return _apply(qm.Function.EQ, self, other)
+
 
 class DateAggregations(ComparableAggregations):
     "Empty for now"

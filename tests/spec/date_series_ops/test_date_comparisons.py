@@ -116,3 +116,16 @@ def test_is_on_or_after_with_str_date(spec_test):
             4: None,
         },
     )
+
+
+def test_is_equal_with_str_date(spec_test):
+    spec_test(
+        table_data,
+        p.d1 == "2000-01-01",
+        {
+            1: False,
+            2: True,
+            3: False,
+            4: None,
+        },
+    )
