@@ -4,9 +4,9 @@ import sys
 from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
+from databuilder import __version__
 from databuilder.file_formats import FILE_FORMATS, get_file_extension
 
-from . import __version__
 from .main import (
     dump_dataset_sql,
     generate_dataset,
@@ -97,7 +97,7 @@ def build_parser(environ):
     parser.set_defaults(which="print-help")
 
     parser.add_argument(
-        "-v", "--version", action="version", version=f"databuilder {__version__}"
+        "--version", action="version", version=f"databuilder {__version__}"
     )
 
     subparsers = parser.add_subparsers(help="sub-command help")
