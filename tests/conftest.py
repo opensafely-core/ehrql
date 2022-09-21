@@ -1,4 +1,3 @@
-import os
 import subprocess
 from pathlib import Path
 
@@ -127,7 +126,6 @@ def databuilder_image():
     subprocess.run(
         ["docker", "build", project_dir, "-t", image],
         check=True,
-        env=os.environ | {"DOCKER_BUILDKIT": "1"},
     )
     return f"{image}:latest"
 
