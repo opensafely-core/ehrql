@@ -6,7 +6,6 @@ from pathlib import Path
 
 from databuilder.file_formats import FILE_FORMATS, get_file_extension
 
-from . import __version__
 from .main import (
     dump_dataset_sql,
     generate_dataset,
@@ -95,10 +94,6 @@ def build_parser(environ):
         prog="databuilder", description="Generate datasets in OpenSAFELY"
     )
     parser.set_defaults(which="print-help")
-
-    parser.add_argument(
-        "-v", "--version", action="version", version=f"databuilder {__version__}"
-    )
 
     subparsers = parser.add_subparsers(help="sub-command help")
     add_generate_dataset(subparsers, environ)
