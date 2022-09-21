@@ -273,26 +273,42 @@ class DateFunctions(ComparableFunctions):
         return self.add_days(other.__neg__())
 
     def is_before(self, other):
-        other = parse_date_if_str(other)
-        return self < other
+        return self.__lt__(other)
 
     def is_on_or_before(self, other):
-        other = parse_date_if_str(other)
-        return self <= other
+        return self.__le__(other)
 
     def is_after(self, other):
-        other = parse_date_if_str(other)
-        return self > other
+        return self.__gt__(other)
 
     def is_on_or_after(self, other):
-        other = parse_date_if_str(other)
-        return self >= other
+        return self.__ge__(other)
 
     def to_first_of_year(self):
         return _apply(qm.Function.ToFirstOfYear, self)
 
     def to_first_of_month(self):
         return _apply(qm.Function.ToFirstOfMonth, self)
+
+    def __lt__(self, other):
+        other = parse_date_if_str(other)
+        return _apply(qm.Function.LT, self, other)
+
+    def __le__(self, other):
+        other = parse_date_if_str(other)
+        return _apply(qm.Function.LE, self, other)
+
+    def __ge__(self, other):
+        other = parse_date_if_str(other)
+        return _apply(qm.Function.GE, self, other)
+
+    def __gt__(self, other):
+        other = parse_date_if_str(other)
+        return _apply(qm.Function.GT, self, other)
+
+    def __eq__(self, other):
+        other = parse_date_if_str(other)
+        return _apply(qm.Function.EQ, self, other)
 
 
 class DateAggregations(ComparableAggregations):
