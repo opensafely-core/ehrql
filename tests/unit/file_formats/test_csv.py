@@ -17,8 +17,8 @@ from databuilder.sqlalchemy_types import TYPE_MAP
     "type_,value,expected",
     [
         (bool, None, ""),
-        (bool, True, "1"),
-        (bool, False, "0"),
+        (bool, True, "T"),
+        (bool, False, "F"),
         (int, None, ""),
         (int, 123, "123"),
         (float, None, ""),
@@ -114,9 +114,10 @@ def test_read_dataset_csv_lines(csv, error):
         # Str
         ("foo", ColumnSpec(str), "foo", None),
         # Bool
-        ("0", ColumnSpec(bool), False, None),
-        ("1", ColumnSpec(bool), True, None),
-        ("3", ColumnSpec(bool), None, "invalid boolean, must be '0' or '1'"),
+        ("F", ColumnSpec(bool), False, None),
+        ("T", ColumnSpec(bool), True, None),
+        ("t", ColumnSpec(bool), None, "invalid boolean, must be 'T' or 'F'"),
+        ("3", ColumnSpec(bool), None, "invalid boolean, must be 'T' or 'F'"),
         # Int
         ("123", ColumnSpec(int), 123, None),
         ("-123", ColumnSpec(int), -123, None),
