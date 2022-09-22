@@ -86,9 +86,9 @@ def convert_value(value, field):
     # The ORM will implicitly convert most types correctly from their string
     # representations, but not booleans
     if isinstance(field.type, Boolean):
-        if value == "1":
+        if value == "T":
             return True
-        elif value == "0":
+        elif value == "F":
             return False
         else:
             # Let the ORM throw the error for us

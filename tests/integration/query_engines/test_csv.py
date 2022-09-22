@@ -96,8 +96,8 @@ def test_csv_query_engine_create_missing(tmp_path):
     "type_,csv_value,expected_value",
     [
         (bool, '""', None),
-        (bool, "0", False),
-        (bool, "1", True),
+        (bool, "F", False),
+        (bool, "T", True),
         (int, "123", 123),
         (float, "1.23", 1.23),
         (str, "foo", "foo"),

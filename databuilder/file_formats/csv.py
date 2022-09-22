@@ -55,7 +55,7 @@ def identity(value):
 def format_bool(value):
     if value is None:
         return ""
-    return "1" if value else "0"
+    return "T" if value else "F"
 
 
 def validate_dataset_csv(filename, column_specs):
@@ -130,9 +130,9 @@ def create_column_parser(headers, name, spec):
 
 
 def parse_bool(value):
-    if value == "1":
+    if value == "T":
         return True
-    elif value == "0":
+    elif value == "F":
         return False
     else:
-        raise ValueError("invalid boolean, must be '0' or '1'")
+        raise ValueError("invalid boolean, must be 'T' or 'F'")
