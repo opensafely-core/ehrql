@@ -1,6 +1,3 @@
-import gzip
-
-import pyarrow.feather
 import pytest
 
 from databuilder.column_specs import ColumnSpec
@@ -12,74 +9,8 @@ from databuilder.file_formats import (
 )
 
 
-@pytest.mark.parametrize("basename", [None, "file.csv", "file.csv.gz"])
-def test_write_dataset_csv(tmp_path, capsys, basename):
-    if basename is None:
-        filename = None
-    else:
-        filename = tmp_path / "somedir" / basename
-
-    column_specs = {
-        "patient_id": ColumnSpec(int),
-        "year_of_birth": ColumnSpec(int),
-        "sex": ColumnSpec(str),
-    }
-    results = [
-        (123, 1980, "F"),
-        (456, None, None),
-        (789, 1999, "M"),
-    ]
-
-    write_dataset(filename, results, column_specs)
-
-    if basename is None:
-        output = capsys.readouterr().out
-    elif basename.endswith(".csv.gz"):
-        with gzip.open(filename, "rt") as f:
-            output = f.read()
-    elif basename.endswith(".csv"):
-        output = filename.read_text()
-    else:
-        assert False
-
-    assert output.splitlines() == [
-        "patient_id,year_of_birth,sex",
-        "123,1980,F",
-        "456,,",
-        "789,1999,M",
-    ]
-
-
-def test_write_dataset_arrow(tmp_path):
-    filename = tmp_path / "somedir" / "file.arrow"
-    column_specs = {
-        "patient_id": ColumnSpec(int),
-        "year_of_birth": ColumnSpec(int, min_value=1900, max_value=2100),
-        "sex": ColumnSpec(str, categories=("M", "F", "I")),
-    }
-    results = [
-        (123, 1980, "F"),
-        (456, None, None),
-        (789, 1999, "M"),
-    ]
-    write_dataset(filename, results, column_specs)
-
-    table = pyarrow.feather.read_table(filename)
-    output_columns = table.column_names
-    output_rows = [tuple(d.values()) for d in table.to_pylist()]
-    categories = table.column("sex").chunk(0).dictionary.to_pylist()
-    index_type = table.column("sex").type.index_type
-
-    assert output_columns == list(column_specs.keys())
-    assert output_rows == results
-    assert categories == ["M", "F", "I"]
-    assert index_type == pyarrow.uint8()
-    assert table.column("patient_id").type == pyarrow.int64()
-    assert table.column("year_of_birth").type == pyarrow.uint16()
-
-
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
-def test_validate_dataset_happy_path(tmp_path, extension):
+def test_write_and_validate_dataset_happy_path(tmp_path, extension):
     filename = tmp_path / f"dataset{extension}"
     column_specs = {
         "patient_id": ColumnSpec(int),
