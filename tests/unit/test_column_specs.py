@@ -4,11 +4,14 @@ from databuilder.codes import SNOMEDCTCode
 from databuilder.column_specs import ColumnSpec, get_categories, get_column_specs
 from databuilder.query_model import (
     AggregateByPatient,
+    Case,
     Column,
+    Function,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
     TableSchema,
+    Value,
 )
 
 
@@ -47,6 +50,7 @@ events = SelectTable(
     ),
 )
 event_type = SelectColumn(events, "event_type")
+event_name = SelectColumn(events, "event_name")
 
 
 def test_get_categories_default_implementation():
@@ -60,3 +64,30 @@ def test_get_categories_for_select_column():
 def test_get_categories_for_min_max():
     assert get_categories(AggregateByPatient.Min(event_type)) == ("a", "b", "c")
     assert get_categories(AggregateByPatient.Max(event_type)) == ("a", "b", "c")
+
+
+def test_get_categories_for_case_with_static_values():
+    name_bucket = Case(
+        {
+            Function.LT(event_name, Value("abc")): Value("low"),
+            Function.LT(event_name, Value("lmn")): Value("med"),
+            Function.GE(event_name, Value("lmn")): Value("high"),
+        },
+    )
+    assert get_categories(name_bucket) == ("low", "med", "high")
+
+
+def test_get_categories_for_case_with_static_default():
+    type_or_missing = Case(
+        {Function.Not(Function.IsNull(event_type)): event_type},
+        default=Value("missing"),
+    )
+    assert get_categories(type_or_missing) == ("a", "b", "c", "missing")
+
+
+def test_get_categories_for_case_with_mixed_categorical_and_noncategorical_values():
+    type_or_name = Case(
+        {Function.Not(Function.IsNull(event_type)): event_type},
+        default=event_name,
+    )
+    assert get_categories(type_or_name) is None

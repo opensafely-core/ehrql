@@ -4,7 +4,9 @@ from typing import Optional, TypeVar
 
 from databuilder.query_model import (
     AggregateByPatient,
+    Case,
     SelectColumn,
+    Value,
     get_root_frame,
     get_series_type,
 )
@@ -61,3 +63,28 @@ def get_categories_for_select_column(series):
 def get_categories_for_min_max(series):
     # The min/max aggregations preserve the categories of their inputs
     return get_categories(series.source)
+
+
+@get_categories.register(Value)
+def get_categories_for_value(series):
+    # Static values can be considered categoricals with a single available category
+    return (series.value,)
+
+
+@get_categories.register(Case)
+def get_categories_for_case(series):
+    # The categories for a Case expression are the combined categories of all its output
+    # values, with the proviso that if any output value is non-categorical then the
+    # whole expression is non-categorical also
+    output_values = list(series.cases.values())
+    if series.default is not None:
+        output_values.append(series.default)
+    all_categories = []
+    for output_value in output_values:
+        categories = get_categories(output_value)
+        # Bail if we've got a non-categorical output value
+        if categories is None:
+            return None
+        all_categories.extend(categories)
+    # De-duplicate categories while maintaining their original order
+    return tuple(dict.fromkeys(all_categories).keys())
