@@ -1,7 +1,12 @@
 import datetime
 
 from databuilder.codes import SNOMEDCTCode
-from databuilder.column_specs import ColumnSpec, get_categories, get_column_specs
+from databuilder.column_specs import (
+    ColumnSpec,
+    get_categories,
+    get_column_specs,
+    get_range,
+)
 from databuilder.query_model import (
     AggregateByPatient,
     Case,
@@ -91,3 +96,8 @@ def test_get_categories_for_case_with_mixed_categorical_and_noncategorical_value
         default=event_name,
     )
     assert get_categories(type_or_name) is None
+
+
+def test_get_range_default_implementation():
+    i = SelectColumn(SelectTable("t", schema=TableSchema(i=Column(int))), "i")
+    assert get_range(i) == (None, None)

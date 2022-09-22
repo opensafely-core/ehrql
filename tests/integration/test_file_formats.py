@@ -54,7 +54,7 @@ def test_write_dataset_arrow(tmp_path):
     filename = tmp_path / "somedir" / "file.arrow"
     column_specs = {
         "patient_id": ColumnSpec(int),
-        "year_of_birth": ColumnSpec(int),
+        "year_of_birth": ColumnSpec(int, min_value=1900, max_value=2100),
         "sex": ColumnSpec(str, categories=("M", "F", "I")),
     }
     results = [
@@ -74,6 +74,8 @@ def test_write_dataset_arrow(tmp_path):
     assert output_rows == results
     assert categories == ["M", "F", "I"]
     assert index_type == pyarrow.uint8()
+    assert table.column("patient_id").type == pyarrow.int64()
+    assert table.column("year_of_birth").type == pyarrow.uint16()
 
 
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))

@@ -19,6 +19,8 @@ class ColumnSpec:
     type: type[T]  # noqa: A003
     nullable: bool = True
     categories: Optional[tuple[T]] = None
+    min_value: Optional[T] = None
+    max_value: Optional[T] = None
 
 
 def get_column_specs(variable_definitions):
@@ -35,11 +37,18 @@ def get_column_specs(variable_definitions):
             continue
         type_ = get_series_type(series)
         categories = get_categories(series)
+        min_value, max_value = get_range(series)
         if hasattr(type_, "_primitive_type"):
             type_ = type_._primitive_type()
             if categories:
                 categories = tuple(c._to_primitive_type() for c in categories)
-        column_specs[name] = ColumnSpec(type_, nullable=True, categories=categories)
+        column_specs[name] = ColumnSpec(
+            type_,
+            nullable=True,
+            categories=categories,
+            min_value=min_value,
+            max_value=max_value,
+        )
     return column_specs
 
 
@@ -88,3 +97,9 @@ def get_categories_for_case(series):
         all_categories.extend(categories)
     # De-duplicate categories while maintaining their original order
     return tuple(dict.fromkeys(all_categories).keys())
+
+
+@singledispatch
+def get_range(series):
+    # For most operations we don't even try to determine the numerical range
+    return None, None

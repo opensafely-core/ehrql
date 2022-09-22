@@ -64,3 +64,8 @@ def test_smallest_int_type_for_range(min_value, max_value, expected_width):
 
     assert [min_value, max_value] == roundtripped
     assert type_.bit_width == expected_width
+
+
+def test_smallest_int_type_for_range_default():
+    assert smallest_int_type_for_range(None, 0) == pyarrow.int64()
+    assert smallest_int_type_for_range(0, None) == pyarrow.int64()

@@ -7,9 +7,7 @@ from databuilder.file_formats.validation import ValidationError, validate_header
 
 PYARROW_TYPE_MAP = {
     bool: pyarrow.bool_,
-    # If we added some kind of range specification as part of ColumnSpec we could use
-    # that to select smaller numeric types where appropriate
-    int: pyarrow.int64,
+    # Note ints are handled separately
     float: pyarrow.float64,
     str: pyarrow.string,
     datetime.date: pyarrow.date32,
@@ -61,7 +59,10 @@ def get_schema_and_convertor(column_specs):
 
 
 def get_field_and_convertor(name, spec):
-    type_ = PYARROW_TYPE_MAP[spec.type]()
+    if spec.type == int:
+        type_ = smallest_int_type_for_range(spec.min_value, spec.max_value)
+    else:
+        type_ = PYARROW_TYPE_MAP[spec.type]()
 
     if spec.categories is not None:
         index_type = smallest_int_type_for_range(0, len(spec.categories) - 1)
@@ -92,6 +93,9 @@ def smallest_int_type_for_range(minimum, maximum):
     Note: this was cribbed from the OpenPrescribing codebase and handles a large range
     of types than we need right now.
     """
+    # If either bound is unknown return the default type
+    if minimum is None or maximum is None:
+        return pyarrow.int64()
     signed = minimum < 0
     abs_max = max(maximum, abs(minimum))
     if signed:
