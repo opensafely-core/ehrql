@@ -103,3 +103,12 @@ def get_categories_for_case(series):
 def get_range(series):
     # For most operations we don't even try to determine the numerical range
     return None, None
+
+
+@get_range.register(AggregateByPatient.Count)
+def get_range_for_count(series):
+    # Per-patient row counts can never be negative and we think 65,535 is a reasonable
+    # upper bound, meaning they can be stored in a 16-bit unsigned int, thus reducing
+    # memory pressure. For counts anywhere near this high the user should be classifying
+    # them into buckets rather than retrieving the raw numbers in any case.
+    return 0, 2**16 - 1

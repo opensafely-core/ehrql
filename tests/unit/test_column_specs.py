@@ -101,3 +101,11 @@ def test_get_categories_for_case_with_mixed_categorical_and_noncategorical_value
 def test_get_range_default_implementation():
     i = SelectColumn(SelectTable("t", schema=TableSchema(i=Column(int))), "i")
     assert get_range(i) == (None, None)
+
+
+def test_get_range_for_count():
+    count = AggregateByPatient.Count(events)
+    min_value, max_value = get_range(count)
+    assert min_value == 0
+    num_bits = len(f"{max_value:b}")
+    assert num_bits == 16
