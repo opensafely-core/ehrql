@@ -87,7 +87,7 @@ class MappedTable(SQLTable):
         self.db_schema_name = schema
 
     def validate_against_table_schema(self, schema):
-        missing = set(schema) - set(self.column_map)
+        missing = set(schema.column_names) - set(self.column_map)
         if missing:
             raise ValidationError(f"missing columns: {', '.join(missing)}")
 
@@ -100,7 +100,7 @@ class MappedTable(SQLTable):
                 sqlalchemy.Column(
                     self.column_map[name], key=name, type_=type_from_python_type(type_)
                 )
-                for (name, type_) in schema.items()
+                for (name, type_) in schema.column_types
             ],
             schema=self.db_schema_name,
         )
@@ -115,7 +115,7 @@ class QueryTable(SQLTable):
         # This is a very crude form of validation: we just check that the SQL string
         # contains each of the column names as words. But without actually executing the
         # SQL we can't know what it returns
-        columns = ["patient_id", *schema.keys()]
+        columns = ["patient_id", *schema.column_names]
         missing = [
             name
             for name in columns
@@ -130,7 +130,7 @@ class QueryTable(SQLTable):
         columns = [sqlalchemy.Column("patient_id")]
         columns.extend(
             sqlalchemy.Column(name, type_=type_from_python_type(type_))
-            for (name, type_) in schema.items()
+            for (name, type_) in schema.column_types
         )
         query = sqlalchemy.text(self.query).columns(*columns)
         return query.alias(table_name)
@@ -146,7 +146,7 @@ class DefaultBackend:
             sqlalchemy.Column("patient_id"),
             *[
                 sqlalchemy.Column(name, type_=type_from_python_type(type_))
-                for (name, type_) in schema.items()
+                for (name, type_) in schema.column_types
             ],
         )
 

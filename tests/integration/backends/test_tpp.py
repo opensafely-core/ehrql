@@ -4,7 +4,7 @@ import pytest
 import sqlalchemy
 
 from databuilder.backends.tpp import TPPBackend
-from databuilder.query_model import TableSchema
+from databuilder.query_model import Column, TableSchema
 from tests.lib.tpp_schema import apcs, patient
 
 
@@ -38,7 +38,7 @@ def test_hospitalization_table_code_conversion(mssql_database, raw, codes):
     )
 
     table = TPPBackend.hospitalizations.get_expression(
-        "hospitalizations", TableSchema(code=str)
+        "hospitalizations", TableSchema(code=Column(str))
     )
     query = sqlalchemy.select(table.c.code)
 
@@ -60,7 +60,10 @@ def test_patients_contract_table(mssql_database):
     )
 
     table = TPPBackend.patients.get_expression(
-        "patients", TableSchema(date_of_birth=date, date_of_death=date, sex=str)
+        "patients",
+        TableSchema(
+            date_of_birth=Column(date), date_of_death=Column(date), sex=Column(str)
+        ),
     )
     query = sqlalchemy.select(
         table.c.patient_id, table.c.date_of_birth, table.c.date_of_death, table.c.sex

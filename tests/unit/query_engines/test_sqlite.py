@@ -2,6 +2,7 @@ import sqlalchemy
 
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_model import (
+    Column,
     Function,
     SelectColumn,
     SelectPatientTable,
@@ -9,7 +10,7 @@ from databuilder.query_model import (
     Value,
 )
 
-BOOLEAN_COLUMN = SelectColumn(SelectPatientTable("t", TableSchema(c=bool)), "c")
+BOOLEAN_COLUMN = SelectColumn(SelectPatientTable("t", TableSchema(c=Column(bool))), "c")
 
 
 class DummyBackend:

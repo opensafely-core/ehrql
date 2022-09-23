@@ -109,6 +109,9 @@ def create_column_parser(headers, name, spec):
     else:
         assert False, f"Unhandled type: {spec.type}"
 
+    if spec.categories is not None:
+        convertor = validate_categories(convertor, spec.categories)
+
     index = headers.index(name)
 
     def parser(row):
@@ -136,3 +139,16 @@ def parse_bool(value):
         return False
     else:
         raise ValueError("invalid boolean, must be 'T' or 'F'")
+
+
+def validate_categories(convertor, categories):
+    category_set = frozenset(categories)
+    category_str = ", ".join(map(repr, categories))
+
+    def wrapper(value):
+        parsed = convertor(value)
+        if parsed not in category_set:
+            raise ValueError(f"{value!r} not in valid categories: {category_str}")
+        return parsed
+
+    return wrapper

@@ -1,10 +1,12 @@
+from databuilder.query_model import Column, TableSchema
+
 from .conftest import parse_row, parse_table
 
 
 def test_parse_table():
     assert (
         parse_table(
-            {"i1": int, "i2": int},
+            TableSchema(i1=Column(int), i2=Column(int)),
             """
           |  i1 |  i2
         --+-----+-----

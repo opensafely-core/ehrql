@@ -32,7 +32,7 @@ def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patien
             Integer, primary_key=True, default=next_id
         )
 
-    for col_name, type_ in schema.items():
+    for col_name, type_ in schema.column_types:
         attributes[col_name] = sqlalchemy.Column(
             type_from_python_type(type_), default=null
         )

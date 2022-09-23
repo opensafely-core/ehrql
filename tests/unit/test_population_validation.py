@@ -12,6 +12,7 @@ from databuilder.population_validation import (
 from databuilder.query_model import (
     AggregateByPatient,
     Case,
+    Column,
     Function,
     SelectColumn,
     SelectPatientTable,
@@ -30,7 +31,7 @@ def test_rejects_non_series():
 
 def test_rejects_invalid_dimension():
     event_series = SelectColumn(
-        SelectTable("events", schema=TableSchema(value=bool)), "value"
+        SelectTable("events", schema=TableSchema(value=Column(bool))), "value"
     )
     with pytest.raises(ValidationError, match="one-row-per-patient series"):
         validate_population_definition(event_series)
@@ -38,7 +39,7 @@ def test_rejects_invalid_dimension():
 
 def test_rejects_invalid_type():
     int_series = SelectColumn(
-        SelectPatientTable("patients", schema=TableSchema(value=int)), "value"
+        SelectPatientTable("patients", schema=TableSchema(value=Column(int))), "value"
     )
     with pytest.raises(ValidationError, match="boolean type"):
         validate_population_definition(int_series)
@@ -46,7 +47,7 @@ def test_rejects_invalid_type():
 
 def test_accepts_basic_reasonable_population():
     has_registration = AggregateByPatient.Exists(
-        SelectTable("registrations", schema=TableSchema(value=int))
+        SelectTable("registrations", schema=TableSchema(value=Column(int)))
     )
     assert validate_population_definition(has_registration)
 
@@ -54,7 +55,7 @@ def test_accepts_basic_reasonable_population():
 def test_rejects_basic_unreasonable_population():
     not_died = Function.Not(
         AggregateByPatient.Exists(
-            SelectTable("ons_deaths", schema=TableSchema(value=int))
+            SelectTable("ons_deaths", schema=TableSchema(value=Column(int)))
         )
     )
     with pytest.raises(ValidationError, match="must not evaluate as True for NULL"):
@@ -64,8 +65,8 @@ def test_rejects_basic_unreasonable_population():
 # TEST EVALUATE FUNCTION
 #
 
-patients = SelectPatientTable("patients", schema=TableSchema(value=int))
-events = SelectTable("events", schema=TableSchema(value=int))
+patients = SelectPatientTable("patients", schema=TableSchema(value=Column(int)))
+events = SelectTable("events", schema=TableSchema(value=Column(int)))
 patients_value = SelectColumn(patients, "value")
 events_value = SelectColumn(events, "value")
 
