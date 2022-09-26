@@ -360,56 +360,37 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_max(self, node):
         return self.aggregate_series_by_patient(node.source, sqlalchemy.func.max)
 
+    # `Exists` and `Count` are Frame-level (rather than Series-level) aggregations and
+    # so have a different implementation. They can operate on both many- and
+    # one-row-per-patient frames, and they are never NULL valued.
     @get_sql.register(AggregateByPatient.Exists)
     def get_sql_exists(self, node):
-        return self.aggregate_frame_by_patient(
-            node.source,
-            aggregation_expr=sqlalchemy.literal(True),
-            empty_value=False,
-            single_row_value=True,
-        )
+        if has_many_rows_per_patient(node.source):
+            query = self.get_select_query_for_node_domain(node.source)
+            # We don't need an aggregation function here: we just need all distinct
+            # patient_ids
+            query = query.distinct()
+            query = apply_patient_joins(query)
+            table = self.reify_query(query)
+        else:
+            table = self.get_table(node.source)
+        return table.c.patient_id.is_not(None)
 
     @get_sql.register(AggregateByPatient.Count)
     def get_sql_count(self, node):
-        return self.aggregate_frame_by_patient(
-            node.source,
-            aggregation_expr=sqlalchemy.func.count("*"),
-            empty_value=0,
-            single_row_value=1,
-        )
+        if has_many_rows_per_patient(node.source):
+            query = self.get_select_query_for_node_domain(node.source)
+            count = self.apply_sql_aggregation(query, sqlalchemy.func.count("*"))
+            return sqlalchemy.func.coalesce(count, 0)
+        else:
+            table = self.get_table(node.source)
+            has_row = table.c.patient_id.is_not(None)
+            return sqlalchemy.case((has_row, 1), else_=0)
 
     def aggregate_series_by_patient(self, source_node, aggregation_func):
         query = self.get_select_query_for_node_domain(source_node)
         aggregation_expr = aggregation_func(self.get_expr(source_node))
         return self.apply_sql_aggregation(query, aggregation_expr)
-
-    def aggregate_frame_by_patient(
-        self, source_node, aggregation_expr, empty_value, single_row_value
-    ):
-        # Frame aggregations can operate on both one- and many-rows-per-patient frames
-        # and these cases require different handling.
-        if has_many_rows_per_patient(source_node):
-            query = self.get_select_query_for_node_domain(source_node)
-            value = self.apply_sql_aggregation(query, aggregation_expr)
-            # We want to guarantee that our frame level aggregations are never
-            # null-valued, even when combined with data involving patient_ids for which
-            # they're not defined
-            return sqlalchemy.func.coalesce(value, empty_value)
-        else:
-            # Given that we have a one-row-per-patient frame here, we can get a
-            # reference to the table
-            table = self.get_table(source_node)
-            # Create an expression which is True if there's a matching row for this
-            # patient and False otherwise (this differs from the SQL for event frame
-            # aggregations because there's no need for a GROUP BY)
-            has_row = table.c.patient_id.is_not(None)
-            # If True and False are the values we're looking for then just return that
-            # expression
-            if single_row_value is True and empty_value is False:
-                return has_row
-            else:
-                # Otherwise convert to the appropriate values
-                return sqlalchemy.case((has_row, single_row_value), else_=empty_value)
 
     def apply_sql_aggregation(self, query, aggregation_expression):
         query = query.add_columns(aggregation_expression.label("value"))

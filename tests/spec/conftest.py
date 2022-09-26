@@ -36,8 +36,10 @@ def spec_test(request, engine):
             expected_results = pytest.approx(expected_results, rel=1e-5)
 
         # Extract data, and check it's as expected.
-        results = {r["patient_id"]: r["v"] for r in engine.extract(dataset)}
-        assert results == expected_results
+        results = [(r["patient_id"], r["v"]) for r in engine.extract(dataset)]
+        results_dict = dict(results)
+        assert len(results) == len(results_dict), "Duplicate patient IDs found"
+        assert results_dict == expected_results
 
     # Test that we can generate SQL with literal parmeters for debugging purposes
     def run_test_dump_sql(table_data, series, expected_results, population=None):
