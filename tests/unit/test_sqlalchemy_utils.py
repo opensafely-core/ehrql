@@ -194,7 +194,7 @@ def test_fetch_table_in_batches(table_size, batch_size, expected_query_count):
     connection = FakeConnection()
 
     results = fetch_table_in_batches(
-        connection, table, table.c.pk, batch_size=batch_size
+        connection.execute, table, table.c.pk, batch_size=batch_size
     )
     assert list(results) == table_data
     assert connection.call_count == expected_query_count

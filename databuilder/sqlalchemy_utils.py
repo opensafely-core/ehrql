@@ -147,13 +147,14 @@ def clause_as_str(clause, dialect):
 
 
 def fetch_table_in_batches(
-    connection, table, key_column, batch_size=32000, log=lambda *_: None
+    execute, table, key_column, batch_size=32000, log=lambda *_: None
 ):
     """
     Returns an iterator over all the rows in a table by querying it in batches
 
     Args:
-        connection: SQLAlchemy Connection object
+        execute: callable which accepts a SQLAlchemy query and returns results (can be
+            just a Connection.execute method)
         table: SQLAlchemy TableClause
         key_column: reference to a unique orderable column on `table`, used for
             paging (note that this will need an index on it to avoid terrible
@@ -174,7 +175,7 @@ def fetch_table_in_batches(
             query = query.where(key_column > min_key)
 
         log(f"Fetching batch {batch_count}")
-        results = connection.execute(query)
+        results = execute(query)
 
         row_count = 0
         for row in results:

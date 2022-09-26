@@ -83,7 +83,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 connection.execute(setup_query)
 
             yield from fetch_table_in_batches(
-                connection,
+                connection.execute,
                 results_table,
                 key_column=results_table.c.patient_id,
                 # This value was copied from the previous cohortextractor. I suspect it
