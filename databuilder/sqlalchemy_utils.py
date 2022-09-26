@@ -1,4 +1,7 @@
+import time
+
 import sqlalchemy
+from sqlalchemy.exc import InternalError, OperationalError
 from sqlalchemy.sql.elements import (
     AsBoolean,
     BinaryExpression,
@@ -190,3 +193,32 @@ def fetch_table_in_batches(
             break
         else:
             min_key = row[key_column_index]
+
+
+def execute_with_retry_factory(
+    execute, max_retries=0, retry_sleep=0, backoff_factor=1, log=lambda *_: None
+):
+    """
+    Wraps a `Connection.execute` method in logic which retries on certain classes of
+    error, using an expontential backoff strategy
+    """
+
+    def execute_with_retry(*args, **kwargs):
+        retries = 0
+        next_sleep = retry_sleep
+
+        while True:
+            if retries > 0:
+                log(f"Retrying query (attempt {retries} / {max_retries})")
+            try:
+                return execute(*args, **kwargs)
+            except (OperationalError, InternalError) as e:
+                if retries >= max_retries:
+                    raise
+                retries += 1
+                log(f"{e.__class__.__name__}: {e}")
+                log(f"Waiting {next_sleep}s before retrying")
+                time.sleep(next_sleep)
+                next_sleep *= backoff_factor
+
+    return execute_with_retry

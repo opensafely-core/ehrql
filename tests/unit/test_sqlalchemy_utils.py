@@ -1,10 +1,14 @@
+from unittest import mock
+
 import pytest
 import sqlalchemy
 from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
+from sqlalchemy.exc import OperationalError
 
 from databuilder.sqlalchemy_utils import (
     GeneratedTable,
     clause_as_str,
+    execute_with_retry_factory,
     fetch_table_in_batches,
     get_setup_and_cleanup_queries,
     is_predicate,
@@ -198,3 +202,29 @@ def test_fetch_table_in_batches(table_size, batch_size, expected_query_count):
     )
     assert list(results) == table_data
     assert connection.call_count == expected_query_count
+
+
+ERROR = OperationalError("A bad thing happend", {}, None)
+
+
+@mock.patch("time.sleep")
+def test_execute_with_retry(sleep):
+    execute = mock.Mock(side_effect=[ERROR, ERROR, ERROR, "its OK now"])
+    execute_with_retry = execute_with_retry_factory(
+        execute, max_retries=3, retry_sleep=10, backoff_factor=2
+    )
+    assert execute_with_retry() == "its OK now"
+    assert execute.call_count == 4
+    assert sleep.mock_calls == [mock.call(t) for t in [10, 20, 40]]
+
+
+@mock.patch("time.sleep")
+def test_execute_with_retry_exhausted(sleep):
+    execute = mock.Mock(side_effect=[ERROR, ERROR, ERROR, ERROR])
+    execute_with_retry = execute_with_retry_factory(
+        execute, max_retries=3, retry_sleep=10, backoff_factor=2
+    )
+    with pytest.raises(OperationalError):
+        execute_with_retry()
+    assert execute.call_count == 4
+    assert sleep.mock_calls == [mock.call(t) for t in [10, 20, 40]]

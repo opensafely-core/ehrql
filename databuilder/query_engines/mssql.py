@@ -8,6 +8,7 @@ from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 from databuilder.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
 from databuilder.sqlalchemy_utils import (
     GeneratedTable,
+    execute_with_retry_factory,
     fetch_table_in_batches,
     get_setup_and_cleanup_queries,
 )
@@ -82,8 +83,17 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 log.info(f"Running setup query {n:03} / {len(setup_queries):03}")
                 connection.execute(setup_query)
 
-            yield from fetch_table_in_batches(
+            # Retry 6 times over ~90m
+            execute_with_retry = execute_with_retry_factory(
                 connection.execute,
+                max_retries=6,
+                retry_sleep=4.0,
+                backoff_factor=4,
+                log=log.info,
+            )
+
+            yield from fetch_table_in_batches(
+                execute_with_retry,
                 results_table,
                 key_column=results_table.c.patient_id,
                 # This value was copied from the previous cohortextractor. I suspect it
