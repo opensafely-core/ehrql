@@ -57,9 +57,11 @@ def test_generate_dataset_if_both_dsn_and_dummy_data_are_provided(mocker, tmp_pa
     dataset_definition_path.touch()
     argv = [
         "generate-dataset",
-        str(dataset_definition_path),
+        "--output",
+        str(tmp_path / "dataset.csv"),
         "--dummy-data-file",
         str(tmp_path / "dummy-data.csv"),
+        str(dataset_definition_path),
     ]
     main(argv, env)
     patched.assert_called_once()

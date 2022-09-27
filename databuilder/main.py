@@ -43,7 +43,7 @@ def generate_dataset(
 
 
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
-    log.info(f"Generating dataset for {str(definition_file)}")
+    log.info(f"Propagating dummy data {dummy_data_file} for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
     variable_definitions = compile(dataset_definition)
