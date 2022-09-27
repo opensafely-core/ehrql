@@ -30,15 +30,15 @@ def run_query(database, query):
         "strips just trailing xs",
     ],
 )
-def test_hospitalization_table_code_conversion(mssql_database, raw, codes):
+def test_hospitalisation_table_code_conversion(mssql_database, raw, codes):
     mssql_database.setup(
         patient(
             related=[apcs(codes=raw)],
         )
     )
 
-    table = TPPBackend.hospitalizations.get_expression(
-        "hospitalizations", TableSchema(code=Column(str))
+    table = TPPBackend.hospitalisations.get_expression(
+        "hospitalisations", TableSchema(code=Column(str))
     )
     query = sqlalchemy.select(table.c.code)
 

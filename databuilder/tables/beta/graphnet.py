@@ -1,7 +1,7 @@
 from databuilder.contracts.wip import (
     clinical_events,
     covid_test_results,
-    hospitalizations_without_system,
+    hospitalisations_without_system,
     patient_address,
     patients,
     practice_registrations,
@@ -10,7 +10,7 @@ from databuilder.contracts.wip import (
 __all__ = [
     "clinical_events",
     "covid_test_results",
-    "hospitalizations_without_system",
+    "hospitalisations_without_system",
     "patient_address",
     "patients",
     "practice_registrations",

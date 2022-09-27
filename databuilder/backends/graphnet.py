@@ -57,7 +57,7 @@ class GraphnetBackend(BaseBackend):
         ),
     )
 
-    hospitalizations_without_system = MappedTable(
+    hospitalisations_without_system = MappedTable(
         schema=SCHEMA,
         source="Hospitalisations",
         columns=dict(
