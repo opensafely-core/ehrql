@@ -29,7 +29,7 @@ class hospital_admissions(EventFrame):
 
 
 @table
-class hospitalizations(EventFrame):
+class hospitalisations(EventFrame):
     """TODO."""
 
     date = Series(datetime.date)
@@ -38,7 +38,7 @@ class hospitalizations(EventFrame):
 
 
 @table
-class hospitalizations_without_system(EventFrame):
+class hospitalisations_without_system(EventFrame):
     """TODO."""
 
     code = Series(str)

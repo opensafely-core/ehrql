@@ -124,7 +124,7 @@ class TPPBackend(BaseBackend):
         """
     )
 
-    hospitalizations = QueryTable(
+    hospitalisations = QueryTable(
         f"""
             SELECT Patient_ID as patient_id, Admission_Date as date, {rtrim("fully_split.Value", "X")} as code, 'icd10' as system
             FROM APCS
