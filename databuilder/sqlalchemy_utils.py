@@ -222,3 +222,52 @@ def execute_with_retry_factory(
                 next_sleep *= backoff_factor
 
     return execute_with_retry
+
+
+class ReconnectableConnection:
+    """
+    Context manager which takes an `Engine` and provides a connection-like object which
+    supports disconnection and reconnection.
+
+    The `execute_disconnect_on_error()` method acts as `execute()` but if it encounters
+    an error it will disconnect before raising them. Subsequent calls to `execute()`
+    will automatically attempt to reconnect.
+    """
+
+    _connection = None
+
+    def __init__(self, engine, **connect_kwargs):
+        self.engine = engine
+        self.connect_kwargs = connect_kwargs
+
+    def _get_connection(self):
+        if self._connection is None:
+            self._connection = self.engine.connect(**self.connect_kwargs)
+        return self._connection
+
+    def __enter__(self):
+        self._get_connection()
+        return self
+
+    def __exit__(self, *args):
+        if self._connection is not None:
+            self._connection.close()
+
+    def execute(self, *args, **kwargs):
+        return self._get_connection().execute(*args, **kwargs)
+
+    def execute_disconnect_on_error(self, *args, **kwargs):
+        try:
+            return self.execute(*args, **kwargs)
+        except Exception:
+            self.disconnect()
+            raise
+
+    def disconnect(self):
+        if self._connection is None:
+            return
+        # Remove the connection from the pool so that calling `close()` will actually
+        # close it rather than just returning it to the pool
+        self._connection.detach()
+        self._connection.close()
+        self._connection = None
