@@ -2,7 +2,7 @@ import datetime
 
 import sqlalchemy.orm
 
-from databuilder.codes import CTV3Code, ICD10Code, SNOMEDCTCode
+from databuilder.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
 from databuilder.orm_factory import orm_class_from_ql_table
 from databuilder.tables import EventFrame, PatientFrame, Series, table
 
@@ -78,7 +78,8 @@ ClinicalEvent = orm_class_from_ql_table(Base, clinical_events)
 @table
 class medications(EventFrame):
     date = Series(datetime.date)
-    snomedct_code = Series(SNOMEDCTCode)
+    dmd_code = Series(DMDCode)
+    multilex_code = Series(str)
 
 
 Medication = orm_class_from_ql_table(Base, medications)

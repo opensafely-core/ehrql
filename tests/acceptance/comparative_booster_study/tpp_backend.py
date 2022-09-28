@@ -75,10 +75,13 @@ class TPPBackend(BaseBackend):
     medications = QueryTable(
         """
             SELECT
-                Patient_ID AS patient_id,
-                CAST(ConsultationDate AS date) AS date,
-                MultilexDrug_ID AS snomedct_code
-            FROM MedicationIssue
+                meds.Patient_ID AS patient_id,
+                CAST(meds.ConsultationDate AS date) AS date,
+                dict.DMD_ID AS dmd_code,
+                meds.MultilexDrug_ID AS multilex_code
+            FROM MedicationIssue AS meds
+            LEFT JOIN MedicationDictionary AS dict
+            ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
         """
     )
 

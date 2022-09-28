@@ -128,7 +128,7 @@ def last_prior_event(codelist, where=True):
 def has_prior_meds(codelist, where=True):
     return (
         prior_meds.take(where)
-        .take(prior_meds.snomedct_code.is_in(codelist))
+        .take(prior_meds.dmd_code.is_in(codelist))
         .exists_for_patient()
     )
 
