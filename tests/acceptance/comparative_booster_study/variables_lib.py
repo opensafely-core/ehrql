@@ -3,8 +3,7 @@ from functools import reduce
 
 from databuilder.codes import CTV3Code, ICD10Code
 from databuilder.ehrql import case, when
-
-from . import schema
+from databuilder.tables.beta import tpp as schema
 
 
 def any_of(conditions):

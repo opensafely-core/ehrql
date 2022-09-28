@@ -2,8 +2,9 @@ import json
 from pathlib import Path
 
 from databuilder.ehrql import Dataset, case, when
+from databuilder.tables.beta import tpp as schema
 
-from . import codelists, schema
+from . import codelists
 from .codelists import combine_codelists
 from .variables_lib import (
     address_as_of,
