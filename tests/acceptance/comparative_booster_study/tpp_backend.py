@@ -20,6 +20,7 @@ class TPPBackend(BaseBackend):
         """
             SELECT
                 vax.Patient_ID AS patient_id,
+                vax.Vaccination_ID AS vaccination_id,
                 CAST(vax.VaccinationDate AS date) AS date,
                 vax.VaccinationName AS product_name,
                 ref.VaccinationContent AS target_disease

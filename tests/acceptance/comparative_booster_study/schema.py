@@ -20,6 +20,7 @@ Patient = orm_class_from_ql_table(Base, patients)
 
 @table
 class vaccinations(EventFrame):
+    vaccination_id = Series(int)
     date = Series(datetime.date)
     target_disease = Series(str)
     product_name = Series(str)
