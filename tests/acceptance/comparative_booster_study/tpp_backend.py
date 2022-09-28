@@ -52,7 +52,7 @@ class TPPBackend(BaseBackend):
         ),
     )
 
-    coded_events = QueryTable(
+    clinical_events = QueryTable(
         """
             SELECT
                 Patient_ID AS patient_id,

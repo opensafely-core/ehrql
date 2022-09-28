@@ -78,7 +78,7 @@ def address_as_of(date):
 
 
 def most_recent_bmi(*, minimum_age_at_measurement, where=True):
-    events = schema.coded_events
+    events = schema.clinical_events
     age_threshold = schema.patients.date_of_birth.add_days(
         # This is obviously inexact but, given that the dates of birth are rounded to
         # the first of the month anyway, there's no point trying to be more accurate

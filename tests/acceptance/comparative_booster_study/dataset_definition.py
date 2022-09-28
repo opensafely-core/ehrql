@@ -102,7 +102,7 @@ boosted_date = dataset.covid_vax_disease_3_date
 # first possible booster vaccination)
 baseline_date = boosted_date.subtract_days(1)
 
-events = schema.coded_events
+events = schema.clinical_events
 meds = schema.medications
 prior_events = events.take(events.date.is_on_or_before(baseline_date))
 prior_meds = meds.take(meds.date.is_on_or_before(baseline_date))

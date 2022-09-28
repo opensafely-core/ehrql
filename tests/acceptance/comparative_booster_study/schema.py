@@ -65,14 +65,14 @@ ONSDeath = orm_class_from_ql_table(Base, ons_deaths)
 
 
 @table
-class coded_events(EventFrame):
+class clinical_events(EventFrame):
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
     ctv3_code = Series(CTV3Code)
     numeric_value = Series(float)
 
 
-CodedEvent = orm_class_from_ql_table(Base, coded_events)
+ClinicalEvent = orm_class_from_ql_table(Base, clinical_events)
 
 
 @table
