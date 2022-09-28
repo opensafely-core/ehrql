@@ -117,11 +117,17 @@ class TPPBackend(BaseBackend):
                     ELSE 0
                 END AS has_postcode,
                 CASE
-                    WHEN carehm.PatientAddress_ID IS NULL THEN 1
+                    WHEN carehm.PatientAddress_ID IS NOT NULL THEN 1
                     ELSE 0
                 END AS care_home_is_potential_match,
-                carehm.LocationRequiresNursing AS care_home_requires_nursing,
-                carehm.LocationDoesNotRequireNursing AS care_home_does_not_require_nursing
+                CASE
+                    WHEN carehm.LocationRequiresNursing = 'Y' THEN 1
+                    WHEN carehm.LocationRequiresNursing = 'N' THEN 0
+                 END AS care_home_requires_nursing,
+                CASE
+                    WHEN carehm.LocationDoesNotRequireNursing = 'Y' THEN 1
+                    WHEN carehm.LocationDoesNotRequireNursing = 'N' THEN 0
+                 END AS care_home_does_not_require_nursing
             FROM PatientAddress AS addr
             LEFT JOIN PotentialCareHomeAddress AS carehm
             ON addr.PatientAddress_ID = carehm.PatientAddress_ID
