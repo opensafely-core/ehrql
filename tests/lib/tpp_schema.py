@@ -18,20 +18,9 @@ Base = declarative_base()
 rand = random.Random(12345)
 
 
-def patient(patient_id=None, sex=None, dob=None, date_of_death=None, related=None):
-    if not patient_id:
-        patient_id = rand.randint(1, 10**6)
-    if not related:
-        related = []
-
-    for entity in related:
-        entity.Patient_ID = patient_id
-    return [
-        Patient(
-            Patient_ID=patient_id, Sex=sex, DateOfBirth=dob, DateOfDeath=date_of_death
-        ),
-        *related,
-    ]
+def patient(dob=None):
+    patient_id = rand.randint(1, 10**6)
+    return [Patient(Patient_ID=patient_id, DateOfBirth=dob)]
 
 
 class MedicationIssue(Base):
