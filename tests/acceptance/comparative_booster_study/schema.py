@@ -94,6 +94,7 @@ class addresses(EventFrame):
     rural_urban_classification = Series(int)
     imd_rounded = Series(int)
     msoa_code = Series(str)
+    has_postcode = Series(bool)
     # Is the address potentially a match for a care home? (Using TPP's algorithm)
     care_home_is_potential_match = Series(bool)
     # These two fields look like they should be a single boolean, but this is how

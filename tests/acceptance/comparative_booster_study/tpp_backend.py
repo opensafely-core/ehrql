@@ -95,7 +95,13 @@ class TPPBackend(BaseBackend):
                 addr.AddressType AS address_type,
                 addr.RuralUrbanClassificationCode AS rural_urban_classification,
                 addr.ImdRankRounded AS imd_rounded,
-                addr.MSOACode AS msoa_code,
+                CASE
+                    WHEN addr.MSOACode != 'NPC' THEN addr.MSOACode
+                END AS msoa_code,
+                CASE
+                    WHEN addr.MSOACode != 'NPC' THEN 1
+                    ELSE 0
+                END AS has_postcode,
                 CASE
                     WHEN carehm.PatientAddress_ID IS NULL THEN 1
                     ELSE 0

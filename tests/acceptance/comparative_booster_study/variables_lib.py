@@ -69,8 +69,8 @@ def address_as_of(date):
         addr.start_date,
         # Prefer the address registered for longest
         addr.end_date,
-        # Prefer those which aren't classified as "NPC" (No Postcode)
-        case(when(addr.msoa_code == "NPC").then(1), default=0),
+        # Prefer addresses with a postcode
+        case(when(addr.has_postcode).then(1), default=0),
         # Use the opaque ID as a tie-breaker for sort stability
         addr.address_id,
     )
