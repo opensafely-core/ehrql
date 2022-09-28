@@ -1,5 +1,7 @@
 import pytest
 
+from databuilder.orm_factory import orm_classes_from_ql_table_namespace
+
 from . import schema, tpp_schema
 from .dataset_definition import dataset
 from .tpp_backend import TPPBackend
@@ -14,8 +16,8 @@ def test_dataset_definition(engine):
         pytest.skip("spark tests are too slow")
     if engine.name == "sqlite":
         pytest.xfail("SQLite engine can't handle more than 64 variables")
-
-    engine.setup(metadata=schema.Base.metadata)
+    orm_classes = orm_classes_from_ql_table_namespace(schema)
+    engine.setup(metadata=orm_classes.Base.metadata)
     results = engine.extract(dataset)
     assert results == []
 

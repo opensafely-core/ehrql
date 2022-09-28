@@ -1,21 +1,13 @@
 import datetime
 
-import sqlalchemy.orm
-
 from databuilder.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
-from databuilder.orm_factory import orm_class_from_ql_table
 from databuilder.tables import EventFrame, PatientFrame, Series, table
-
-Base = sqlalchemy.orm.declarative_base()
 
 
 @table
 class patients(PatientFrame):
     date_of_birth = Series(datetime.date)
     sex = Series(str)
-
-
-Patient = orm_class_from_ql_table(Base, patients)
 
 
 @table
@@ -26,9 +18,6 @@ class vaccinations(EventFrame):
     product_name = Series(str)
 
 
-Vaccination = orm_class_from_ql_table(Base, vaccinations)
-
-
 @table
 class practice_registrations(EventFrame):
     start_date = Series(datetime.date)
@@ -36,9 +25,6 @@ class practice_registrations(EventFrame):
     practice_pseudo_id = Series(int)
     practice_stp = Series(str)
     practice_nuts1_region_name = Series(str)
-
-
-PracticeRegistration = orm_class_from_ql_table(Base, practice_registrations)
 
 
 @table
@@ -62,9 +48,6 @@ class ons_deaths(EventFrame):
     cause_of_death_15 = Series(ICD10Code)
 
 
-ONSDeath = orm_class_from_ql_table(Base, ons_deaths)
-
-
 @table
 class clinical_events(EventFrame):
     date = Series(datetime.date)
@@ -73,17 +56,11 @@ class clinical_events(EventFrame):
     numeric_value = Series(float)
 
 
-ClinicalEvent = orm_class_from_ql_table(Base, clinical_events)
-
-
 @table
 class medications(EventFrame):
     date = Series(datetime.date)
     dmd_code = Series(DMDCode)
     multilex_code = Series(str)
-
-
-Medication = orm_class_from_ql_table(Base, medications)
 
 
 @table
@@ -104,26 +81,15 @@ class addresses(EventFrame):
     care_home_does_not_require_nursing = Series(bool)
 
 
-Address = orm_class_from_ql_table(Base, addresses)
-
-
 @table
 class sgss_covid_all_tests(EventFrame):
     specimen_taken_date = Series(datetime.date)
     is_positive = Series(bool)
 
 
-SGSSCovidAllTestsResult = orm_class_from_ql_table(Base, sgss_covid_all_tests)
-
-
 @table
 class occupation_on_covid_vaccine_record(EventFrame):
     is_healthcare_worker = Series(bool)
-
-
-OccupationOnCovidVaccineRecord = orm_class_from_ql_table(
-    Base, occupation_on_covid_vaccine_record
-)
 
 
 @table
@@ -158,9 +124,6 @@ class emergency_care_attendances(EventFrame):
     diagnosis_24 = Series(SNOMEDCTCode)
 
 
-EmergencyCareAttendance = orm_class_from_ql_table(Base, emergency_care_attendances)
-
-
 @table
 class hospital_admissions(EventFrame):
     id = Series(int)  # noqa: A003
@@ -171,6 +134,3 @@ class hospital_admissions(EventFrame):
     all_diagnoses = Series(str)
     patient_classification = Series(str)
     days_in_critical_care = Series(int)
-
-
-HospitalAdmission = orm_class_from_ql_table(Base, hospital_admissions)
