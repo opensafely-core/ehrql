@@ -8,11 +8,24 @@ class TPPBackend(BaseBackend):
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
 
-    patients = MappedTable(
-        source="Patient",
-        columns=dict(
-            sex="Sex",
-            date_of_birth="DateOfBirth",
+    patients = QueryTable(
+        """
+            SELECT
+                Patient_ID as patient_id,
+                DateOfBirth as date_of_birth,
+                CASE
+                    WHEN Sex = 'M' THEN 'male'
+                    WHEN Sex = 'F' THEN 'female'
+                    WHEN Sex = 'I' THEN 'intersex'
+                    ELSE 'unknown'
+                END AS sex,
+                CASE
+                    WHEN DateOfDeath != '99991231' THEN DateOfDeath
+                END As date_of_death
+            FROM Patient
+        """,
+        implementation_notes=dict(
+            sex="Sex assigned at birth.",
         ),
     )
 

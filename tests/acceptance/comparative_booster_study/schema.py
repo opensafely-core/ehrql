@@ -1,13 +1,22 @@
 import datetime
 
 from databuilder.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
-from databuilder.tables import EventFrame, PatientFrame, Series, table
+from databuilder.contracts.universal import patients
+from databuilder.tables import EventFrame, Series, table
 
-
-@table
-class patients(PatientFrame):
-    date_of_birth = Series(datetime.date)
-    sex = Series(str)
+__all__ = [
+    "patients",
+    "vaccinations",
+    "practice_registrations",
+    "ons_deaths",
+    "clinical_events",
+    "medications",
+    "addresses",
+    "sgss_covid_all_tests",
+    "occupation_on_covid_vaccine_record",
+    "emergency_care_attendances",
+    "hospital_admissions",
+]
 
 
 @table
