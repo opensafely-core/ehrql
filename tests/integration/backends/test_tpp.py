@@ -4,6 +4,7 @@ import pytest
 import sqlalchemy
 
 from databuilder.backends.tpp import TPPBackend
+from databuilder.query_language import BaseFrame
 from databuilder.tables.beta import tpp
 from tests.lib.tpp_schema import (
     APCS,
@@ -27,25 +28,48 @@ from tests.lib.tpp_schema import (
     VaccinationReference,
 )
 
+REGISTERED_TABLES = set()
+
+
+# This slightly odd way of supplying the table object to the test function makes the
+# tests introspectable in such a way that we can confirm that every table in the module
+# is covered by a test
+def register_test_for(table):
+    def annotate_test_function(fn):
+        REGISTERED_TABLES.add(table)
+        fn._table = table
+        return fn
+
+    return annotate_test_function
+
 
 @pytest.fixture
-def select_all(mssql_database):
-    def _select_all(table, *input_data):
+def select_all(request, mssql_database):
+    try:
+        ql_table = request.function._table
+    except AttributeError:  # pragma: no cover
+        raise RuntimeError(
+            f"Function '{request.function.__name__}' needs the "
+            f"`@register_test_for(table)` decorator applied"
+        )
+
+    qm_table = ql_table.qm_node
+    sql_table = TPPBackend().get_table_expression(qm_table.name, qm_table.schema)
+    columns = [column.label(column.key) for column in sql_table.columns]
+    select_all_query = sqlalchemy.select(*columns)
+
+    def _select_all(*input_data):
         mssql_database.setup(*input_data)
-        qm_table = table.qm_node
-        sql_table = TPPBackend().get_table_expression(qm_table.name, qm_table.schema)
-        columns = [column.label(column.key) for column in sql_table.columns]
-        query = sqlalchemy.select(*columns)
         with mssql_database.engine().connect() as connection:
-            results = connection.execute(query)
+            results = connection.execute(select_all_query)
             return [dict(row) for row in results]
 
     return _select_all
 
 
+@register_test_for(tpp.patients)
 def test_patients(select_all):
     results = select_all(
-        tpp.patients,
         Patient(Patient_ID=1, DateOfBirth="2020-01-01", Sex="M"),
         Patient(Patient_ID=2, DateOfBirth="2020-01-01", Sex="F"),
         Patient(Patient_ID=3, DateOfBirth="2020-01-01", Sex="I"),
@@ -104,9 +128,9 @@ def test_patients(select_all):
     ]
 
 
+@register_test_for(tpp.vaccinations)
 def test_vaccinations(select_all):
     results = select_all(
-        tpp.vaccinations,
         Patient(Patient_ID=1),
         VaccinationReference(VaccinationName_ID=10, VaccinationContent="foo"),
         VaccinationReference(VaccinationName_ID=10, VaccinationContent="bar"),
@@ -136,9 +160,9 @@ def test_vaccinations(select_all):
     ]
 
 
+@register_test_for(tpp.practice_registrations)
 def test_practice_registrations(select_all):
     results = select_all(
-        tpp.practice_registrations,
         Patient(Patient_ID=1),
         Organisation(Organisation_ID=2, STPCode="abc", Region="def"),
         RegistrationHistory(
@@ -160,9 +184,9 @@ def test_practice_registrations(select_all):
     ]
 
 
+@register_test_for(tpp.ons_deaths)
 def test_ons_deaths(select_all):
     results = select_all(
-        tpp.ons_deaths,
         Patient(Patient_ID=1),
         ONSDeaths(Patient_ID=1, dod="2022-01-01", ICD10001="abc", ICD10002="def"),
     )
@@ -178,9 +202,9 @@ def test_ons_deaths(select_all):
     ]
 
 
+@register_test_for(tpp.clinical_events)
 def test_clinical_events(select_all):
     results = select_all(
-        tpp.clinical_events,
         Patient(Patient_ID=1),
         CodedEvent(
             Patient_ID=1,
@@ -213,9 +237,9 @@ def test_clinical_events(select_all):
     ]
 
 
+@register_test_for(tpp.medications)
 def test_medications(select_all):
     results = select_all(
-        tpp.medications,
         Patient(Patient_ID=1),
         MedicationDictionary(MultilexDrug_ID="abc", DMD_ID="xyz"),
         MedicationIssue(
@@ -232,9 +256,9 @@ def test_medications(select_all):
     ]
 
 
+@register_test_for(tpp.addresses)
 def test_addresses(select_all):
     results = select_all(
-        tpp.addresses,
         Patient(Patient_ID=1),
         PatientAddress(
             Patient_ID=1,
@@ -294,9 +318,9 @@ def test_addresses(select_all):
     ]
 
 
+@register_test_for(tpp.sgss_covid_all_tests)
 def test_sgss_covid_all_tests(select_all):
     results = select_all(
-        tpp.sgss_covid_all_tests,
         Patient(Patient_ID=1),
         SGSS_AllTests_Positive(Patient_ID=1, Specimen_Date="2021-10-20"),
         SGSS_AllTests_Negative(Patient_ID=1, Specimen_Date="2021-11-20"),
@@ -315,18 +339,18 @@ def test_sgss_covid_all_tests(select_all):
     ]
 
 
+@register_test_for(tpp.occupation_on_covid_vaccine_record)
 def test_occupation_on_covid_vaccine_record(select_all):
     results = select_all(
-        tpp.occupation_on_covid_vaccine_record,
         Patient(Patient_ID=1),
         HealthCareWorker(Patient_ID=1),
     )
     assert results == [{"patient_id": 1, "is_healthcare_worker": True}]
 
 
+@register_test_for(tpp.emergency_care_attendances)
 def test_emergency_care_attendances(select_all):
     results = select_all(
-        tpp.emergency_care_attendances,
         Patient(Patient_ID=1),
         EC(
             Patient_ID=1,
@@ -350,9 +374,9 @@ def test_emergency_care_attendances(select_all):
     ]
 
 
+@register_test_for(tpp.hospital_admissions)
 def test_hospital_admissions(select_all):
     results = select_all(
-        tpp.hospital_admissions,
         Patient(Patient_ID=1),
         APCS(
             Patient_ID=1,
@@ -377,3 +401,10 @@ def test_hospital_admissions(select_all):
             "days_in_critical_care": 5,
         }
     ]
+
+
+def test_registered_tests_are_exhaustive():
+    for name, table in vars(tpp).items():
+        if not isinstance(table, BaseFrame):
+            continue
+        assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"
