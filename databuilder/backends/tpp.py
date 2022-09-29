@@ -1,70 +1,5 @@
-import databuilder.tables.beta.smoketest
-import databuilder.tables.beta.tpp
-
-from ..query_engines.mssql import MSSQLQueryEngine
-from .base import BaseBackend, QueryTable
-
-
-def rtrim(ref, char):
-    """
-    Right trim arbitrary characters.
-
-    MSSQL's {L,R}TRIM() functions (unlike TRIM()) don't allow trimming of
-    arbitrary characters, only spaces. So we've implemented it here. Note that
-    this won't work as-is for '^' or ']', but they could be supported with a
-    bit of escaping.
-
-      * Since we're using PATINDEX(), which only works from the front of the
-        string, we REVERSE() the string every time we refer to it and then
-        re-REVERSE() the result once we're done.
-      * We search through the string to find the index of the first character
-        that isn't the thing we're stripping.
-      * Then we work out the length of the string remaining from that point to
-        the end.
-      * Finally we take a substring from the index to the end of the string.
-
-    (LTRIM() could be implemented in the same way, but without all the reversing.)
-    """
-    assert len(char) == 1
-    assert char not in ["^", "]"]
-    return f"""
-        REVERSE(
-            SUBSTRING(
-                REVERSE({ref}),
-                PATINDEX(
-                    '%[^{char}]%',
-                    REVERSE({ref})
-                ),
-                LEN({ref}) - PATINDEX('%[^{char}]%', REVERSE({ref})) + 1
-            )
-        )
-    """
-
-
-def string_split(ref, delim):
-    """
-    Split strings on the given delimiter.
-
-    The compatibility level that TPP runs SQL Server at doesn't include the
-    `STRING_SPLIT()` function, so we implement it here ourselves. This use of
-    SQL Server's XML-handling capabilities is truly ugly, but it allows us to
-    implement this inline so we don't need to define a function.
-
-    Implementation copied from
-    https://sqlperformance.com/2012/07/t-sql-queries/split-strings.
-    """
-    return f"""
-        (
-            SELECT Value = y.i.value('(./text())[1]', 'nvarchar(4000)')
-            FROM
-            (
-                SELECT x = CONVERT(
-                    XML,
-                    '<i>' + REPLACE({ref}, '{delim}', '</i><i>') + '</i>'
-                ).query('.')
-            ) AS t CROSS APPLY x.nodes('i') AS y(i)
-        )
-    """
+from databuilder.backends.base import BaseBackend, MappedTable, QueryTable
+from databuilder.query_engines.mssql import MSSQLQueryEngine
 
 
 class TPPBackend(BaseBackend):
@@ -72,23 +7,21 @@ class TPPBackend(BaseBackend):
 
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
-    implements = [databuilder.tables.beta.tpp, databuilder.tables.beta.smoketest]
 
     patients = QueryTable(
         """
-            SELECT Patient_ID as patient_id,
+            SELECT
+                Patient_ID as patient_id,
                 DateOfBirth as date_of_birth,
-                CASE
-                    WHEN DateOfDeath = '9999-12-31' THEN NULL
-                    ELSE
-                        datefromparts(year(DateOfDeath), month(DateOfDeath), 1)
-                    END as date_of_death,
                 CASE
                     WHEN Sex = 'M' THEN 'male'
                     WHEN Sex = 'F' THEN 'female'
                     WHEN Sex = 'I' THEN 'intersex'
                     ELSE 'unknown'
-                END as sex
+                END AS sex,
+                CASE
+                    WHEN DateOfDeath != '99991231' THEN DateOfDeath
+                END As date_of_death
             FROM Patient
         """,
         implementation_notes=dict(
@@ -96,54 +29,163 @@ class TPPBackend(BaseBackend):
         ),
     )
 
-    clinical_events = QueryTable(
+    vaccinations = QueryTable(
         """
-            SELECT Patient_ID as patient_id, CTV3Code as code, 'ctv3' as system, ConsultationDate AS date, NumericValue AS numeric_value FROM CodedEvent
-            UNION ALL
-            SELECT Patient_ID as patient_id, ConceptID as code, 'snomed' as system, ConsultationDate AS date, NumericValue AS numeric_value FROM CodedEvent_SNOMED
+            SELECT
+                vax.Patient_ID AS patient_id,
+                vax.Vaccination_ID AS vaccination_id,
+                CAST(vax.VaccinationDate AS date) AS date,
+                vax.VaccinationName AS product_name,
+                ref.VaccinationContent AS target_disease
+            FROM Vaccination AS vax
+            LEFT JOIN VaccinationReference AS ref
+            ON vax.VaccinationName_ID = ref.VaccinationName_ID
         """
     )
 
     practice_registrations = QueryTable(
         """
-            SELECT RegistrationHistory.Patient_ID AS patient_id,
-                RegistrationHistory.StartDate AS date_start,
-                RegistrationHistory.EndDate AS date_end,
-                Organisation.Organisation_ID AS pseudo_id,
-                Organisation.Region as nuts1_region_name
-            FROM RegistrationHistory
-            LEFT OUTER JOIN Organisation ON RegistrationHistory.Organisation_ID = Organisation.Organisation_ID
+            SELECT
+                reg.Patient_ID AS patient_id,
+                reg.StartDate AS start_date,
+                reg.EndDate AS end_date,
+                org.Organisation_ID AS practice_pseudo_id,
+                org.STPCode AS practice_stp,
+                org.Region AS practice_nuts1_region_name
+            FROM RegistrationHistory AS reg
+            LEFT OUTER JOIN Organisation AS org
+            ON reg.Organisation_ID = org.Organisation_ID
         """
     )
 
-    covid_test_results = QueryTable(
-        """
-            SELECT Patient_ID as patient_id, Specimen_Date AS date, 1 AS positive_result FROM SGSS_AllTests_Positive
-            UNION ALL
-            SELECT Patient_ID as patient_id, Specimen_Date AS date, 0 AS positive_result FROM SGSS_AllTests_Negative
-        """
+    ons_deaths = MappedTable(
+        source="ONS_Deaths",
+        columns=dict(
+            date="dod",
+            **{f"cause_of_death_{i:02d}": f"ICD100{i:02d}" for i in range(1, 16)},
+        ),
     )
 
-    hospitalisations = QueryTable(
-        f"""
-            SELECT Patient_ID as patient_id, Admission_Date as date, {rtrim("fully_split.Value", "X")} as code, 'icd10' as system
-            FROM APCS
-            -- Our string_split() implementation only works as long as the codelists do not contain '<', '>' or '&'
-            -- characters. If that assumption is broken then this will fail unpredictably.
-            CROSS APPLY {string_split("Der_Diagnosis_All", " ||")} pipe_split
-            CROSS APPLY {string_split("pipe_split.Value", " ,")} fully_split
-        """
-    )
-
-    patient_address = QueryTable(
+    clinical_events = QueryTable(
         """
             SELECT
-              Patient_ID as patient_id,
-              PatientAddress_ID as patientaddress_id,
-              StartDate as date_start,
-              EndDate as date_end,
-              ImdRankRounded as index_of_multiple_deprivation_rounded,
-              IIF(MSOACode = 'NPC', 0, 1) as has_postcode
-            FROM PatientAddress
+                Patient_ID AS patient_id,
+                CAST(ConsultationDate AS date) AS date,
+                NULL AS snomedct_code,
+                CTV3Code AS ctv3_code,
+                NumericValue AS numeric_value
+            FROM CodedEvent
+            UNION ALL
+            SELECT
+                Patient_ID AS patient_id,
+                CAST(ConsultationDate AS date) AS date,
+                ConceptID AS snomedct_code,
+                NULL AS ctv3_code,
+                NumericValue AS numeric_value
+            FROM CodedEvent_SNOMED
+        """
+    )
+
+    medications = QueryTable(
+        """
+            SELECT
+                meds.Patient_ID AS patient_id,
+                CAST(meds.ConsultationDate AS date) AS date,
+                dict.DMD_ID AS dmd_code,
+                meds.MultilexDrug_ID AS multilex_code
+            FROM MedicationIssue AS meds
+            LEFT JOIN MedicationDictionary AS dict
+            ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
+        """
+    )
+
+    addresses = QueryTable(
+        """
+            SELECT
+                addr.Patient_ID AS patient_id,
+                addr.PatientAddress_ID AS address_id,
+                addr.StartDate AS start_date,
+                addr.EndDate AS end_date,
+                addr.AddressType AS address_type,
+                addr.RuralUrbanClassificationCode AS rural_urban_classification,
+                addr.ImdRankRounded AS imd_rounded,
+                CASE
+                    WHEN addr.MSOACode != 'NPC' THEN addr.MSOACode
+                END AS msoa_code,
+                CASE
+                    WHEN addr.MSOACode != 'NPC' THEN 1
+                    ELSE 0
+                END AS has_postcode,
+                CASE
+                    WHEN carehm.PatientAddress_ID IS NOT NULL THEN 1
+                    ELSE 0
+                END AS care_home_is_potential_match,
+                CASE
+                    WHEN carehm.LocationRequiresNursing = 'Y' THEN 1
+                    WHEN carehm.LocationRequiresNursing = 'N' THEN 0
+                 END AS care_home_requires_nursing,
+                CASE
+                    WHEN carehm.LocationDoesNotRequireNursing = 'Y' THEN 1
+                    WHEN carehm.LocationDoesNotRequireNursing = 'N' THEN 0
+                 END AS care_home_does_not_require_nursing
+            FROM PatientAddress AS addr
+            LEFT JOIN PotentialCareHomeAddress AS carehm
+            ON addr.PatientAddress_ID = carehm.PatientAddress_ID
+        """
+    )
+
+    sgss_covid_all_tests = QueryTable(
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                Specimen_Date AS specimen_taken_date,
+                1 AS is_positive
+            FROM SGSS_AllTests_Positive
+            UNION ALL
+            SELECT
+                Patient_ID AS patient_id,
+                Specimen_Date AS specimen_taken_date,
+                0 AS is_positive
+            FROM SGSS_AllTests_Negative
+        """
+    )
+
+    occupation_on_covid_vaccine_record = QueryTable(
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                1 AS is_healthcare_worker
+            FROM HealthCareWorker
+        """
+    )
+
+    emergency_care_attendances = QueryTable(
+        f"""
+            SELECT
+                EC.Patient_ID AS patient_id,
+                EC.EC_Ident AS id,
+                EC.Arrival_Date AS arrival_date,
+                EC.Discharge_Destination_SNOMED_CT AS discharge_destination,
+                {", ".join(f"diag.EC_Diagnosis_{i:02d} AS diagnosis_{i:02d}" for i in range(1, 25))}
+            FROM EC
+            LEFT JOIN EC_Diagnosis AS diag
+            ON EC.EC_Ident = diag.EC_Ident
+        """
+    )
+
+    hospital_admissions = QueryTable(
+        """
+            SELECT
+                apcs.Patient_ID AS patient_id,
+                apcs.APCS_Ident AS id,
+                apcs.Admission_Date AS admission_date,
+                apcs.Discharge_Date AS discharge_date,
+                apcs.Admission_Method AS admission_method,
+                apcs.Der_Diagnosis_All AS all_diagnoses,
+                apcs.Patient_Classification AS patient_classification,
+                CAST(der.Spell_PbR_CC_Day AS INTEGER) AS days_in_critical_care
+            FROM APCS AS apcs
+            LEFT JOIN APCS_Der AS der
+            ON apcs.APCS_Ident = der.APCS_Ident
         """
     )

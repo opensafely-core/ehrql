@@ -2,8 +2,9 @@ import json
 from pathlib import Path
 
 from databuilder.ehrql import Dataset, case, when
+from databuilder.tables.beta import tpp as schema
 
-from . import codelists, schema
+from . import codelists
 from .codelists import combine_codelists
 from .variables_lib import (
     address_as_of,
@@ -102,7 +103,7 @@ boosted_date = dataset.covid_vax_disease_3_date
 # first possible booster vaccination)
 baseline_date = boosted_date.subtract_days(1)
 
-events = schema.coded_events
+events = schema.clinical_events
 meds = schema.medications
 prior_events = events.take(events.date.is_on_or_before(baseline_date))
 prior_meds = meds.take(meds.date.is_on_or_before(baseline_date))
@@ -128,7 +129,7 @@ def last_prior_event(codelist, where=True):
 def has_prior_meds(codelist, where=True):
     return (
         prior_meds.take(where)
-        .take(prior_meds.snomedct_code.is_in(codelist))
+        .take(prior_meds.dmd_code.is_in(codelist))
         .exists_for_patient()
     )
 

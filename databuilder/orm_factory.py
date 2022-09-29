@@ -1,5 +1,9 @@
-import sqlalchemy
+from types import SimpleNamespace
 
+import sqlalchemy
+from sqlalchemy.orm import declarative_base
+
+from databuilder.query_language import BaseFrame
 from databuilder.query_model import has_one_row_per_patient
 from databuilder.sqlalchemy_types import Integer, type_from_python_type
 
@@ -58,6 +62,19 @@ def orm_class_from_ql_table(base_class, table):
     class with the schema of that table
     """
     return orm_class_from_qm_table(base_class, table.qm_node)
+
+
+def orm_classes_from_ql_table_namespace(namespace):
+    """
+    Given a namespace containing QL tables, return a namespace where each QL table is
+    mapped to an equivalent ORM class
+    """
+    Base = declarative_base()
+    orm_classes = {"Base": Base}
+    for attr, value in vars(namespace).items():
+        if isinstance(value, BaseFrame):
+            orm_classes[attr] = orm_class_from_ql_table(Base, value)
+    return SimpleNamespace(**orm_classes)
 
 
 def table_has_one_row_per_patient(table):

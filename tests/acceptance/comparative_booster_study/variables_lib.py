@@ -3,8 +3,7 @@ from functools import reduce
 
 from databuilder.codes import CTV3Code, ICD10Code
 from databuilder.ehrql import case, when
-
-from . import schema
+from databuilder.tables.beta import tpp as schema
 
 
 def any_of(conditions):
@@ -69,8 +68,8 @@ def address_as_of(date):
         addr.start_date,
         # Prefer the address registered for longest
         addr.end_date,
-        # Prefer those which aren't classified as "NPC" (No Postcode)
-        case(when(addr.msoa_code == "NPC").then(1), default=0),
+        # Prefer addresses with a postcode
+        case(when(addr.has_postcode).then(1), default=0),
         # Use the opaque ID as a tie-breaker for sort stability
         addr.address_id,
     )
@@ -78,7 +77,7 @@ def address_as_of(date):
 
 
 def most_recent_bmi(*, minimum_age_at_measurement, where=True):
-    events = schema.coded_events
+    events = schema.clinical_events
     age_threshold = schema.patients.date_of_birth.add_days(
         # This is obviously inexact but, given that the dates of birth are rounded to
         # the first of the month anyway, there's no point trying to be more accurate

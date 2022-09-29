@@ -279,7 +279,7 @@ astadm = codelist_from_csv(
 # Asthma systemic steroid prescription codes
 astrx = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-astrx.csv",
-    system="snomedct",
+    system="dmd",
     column="code",
 )
 
@@ -342,7 +342,7 @@ immdx_cov = codelist_from_csv(
 # Immunosuppression medication codes
 immrx = codelist_from_csv(
     CODELIST_DIR / "primis-covid19-vacc-uptake-immrx.csv",
-    system="snomedct",
+    system="dmd",
     column="code",
 )
 
@@ -489,7 +489,7 @@ eol = codelist_from_csv(
 
 midazolam = codelist_from_csv(
     CODELIST_DIR / "opensafely-midazolam-end-of-life.csv",
-    system="snomedct",
+    system="dmd",
     column="dmd_id",
 )
 
