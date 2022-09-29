@@ -28,7 +28,7 @@ def test_fetch_table_in_batches(engine):
 
     with engine.sqlalchemy_engine().connect() as connection:
         results = fetch_table_in_batches(
-            connection, table, table.c.pk, batch_size=batch_size
+            connection.execute, table, table.c.pk, batch_size=batch_size
         )
         results = list(results)
 
