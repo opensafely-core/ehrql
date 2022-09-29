@@ -1,4 +1,11 @@
+import contextlib
+from unittest import mock
+
+import pytest
+from sqlalchemy.exc import OperationalError, ProgrammingError
+from sqlalchemy.future.engine import Connection
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.sql import Select
 
 from databuilder.orm_factory import orm_class_from_qm_table
 from databuilder.query_engines.mssql import MSSQLQueryEngine
@@ -30,6 +37,44 @@ def test_get_results_using_temporary_database(mssql_database):
         config=dict(TEMP_DATABASE_NAME=temp_database_name),
     )
 
-    results = query_engine.get_results(variable_definitions)
+    with wrap_select_queries() as select, mock.patch("time.sleep") as sleep:
+        # We want the first two SELECT queries to fail but the third to succeed
+        select.side_effect = [
+            OperationalError("fail", None, None),
+            OperationalError("fail again", None, None),
+            None,
+        ]
 
-    assert list(results) == [(1, 10), (2, 20)]
+        results = query_engine.get_results(variable_definitions)
+
+        assert list(results) == [(1, 10), (2, 20)]
+        assert select.call_count == 3
+        # We expect to sleep after each failure
+        assert sleep.call_count == 2
+        # Grab a reference to the SELECT query so we can use it later
+        query = select.call_args[0][0]
+
+    # Check that we were actually using the temporary database
+    assert temp_database_name in str(query)
+    # Check that the table we were querying has now been cleaned up
+    with mssql_database.engine().connect() as conn:
+        with pytest.raises(ProgrammingError, match="Invalid object name"):
+            conn.execute(query)
+
+
+@contextlib.contextmanager
+def wrap_select_queries():
+    """
+    Intercept SELECT queries so we can track them, and optionally raise exceptions,
+    while still calling the original database methods and passing the result through
+    """
+    original = Connection.execute
+    mocked = mock.Mock()
+
+    def wrapper(self, *args, **kwargs):
+        if args and isinstance(args[0], Select):
+            mocked(*args, **kwargs)
+        return original(self, *args, **kwargs)
+
+    with mock.patch.object(Connection, "execute", wrapper):
+        yield mocked

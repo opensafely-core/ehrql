@@ -11,6 +11,7 @@ from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 from databuilder.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
 from databuilder.sqlalchemy_utils import (
     GeneratedTable,
+    ReconnectableConnection,
     execute_with_retry_factory,
     fetch_table_in_batches,
     get_setup_and_cleanup_queries,
@@ -112,14 +113,29 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         assert str(results_query) == str(sqlalchemy.select(results_table))
 
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
-        with self.engine.connect() as connection:
+
+        # Because we may be disconnecting and reconnecting to the database part way
+        # through downloading results we need to make sure that the temporary tables we
+        # create, and the commands which delete them, get committed. There's no need for
+        # careful transaction management here: we just want them committed immediately.
+        autocommit_engine = self.engine.execution_options(isolation_level="AUTOCOMMIT")
+
+        with ReconnectableConnection(autocommit_engine) as connection:
             for n, setup_query in enumerate(setup_queries, start=1):
                 log.info(f"Running setup query {n:03} / {len(setup_queries):03}")
                 connection.execute(setup_query)
 
+            # Re-establishing the database connection after an error allows us to
+            # recover from a wider range of failure modes. But we can only do this if
+            # the table we're reading from persists across connections.
+            if results_table.is_persistent:
+                conn_execute = connection.execute_disconnect_on_error
+            else:
+                conn_execute = connection.execute
+
             # Retry 6 times over ~90m
             execute_with_retry = execute_with_retry_factory(
-                connection.execute,
+                conn_execute,
                 max_retries=6,
                 retry_sleep=4.0,
                 backoff_factor=4,
