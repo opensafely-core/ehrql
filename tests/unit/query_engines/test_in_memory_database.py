@@ -1,4 +1,4 @@
-from .database import (
+from databuilder.query_engines.in_memory_database import (
     EventColumn,
     EventTable,
     PatientColumn,

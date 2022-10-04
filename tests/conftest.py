@@ -5,6 +5,8 @@ import pytest
 
 import databuilder
 from databuilder.main import get_sql_strings
+from databuilder.query_engines.in_memory import InMemoryQueryEngine
+from databuilder.query_engines.in_memory_database import InMemoryDatabase
 from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
@@ -17,7 +19,6 @@ from .lib.databases import (
     wait_for_database,
 )
 from .lib.docker import Containers
-from .lib.in_memory import InMemoryDatabase, InMemoryQueryEngine
 from .lib.study import Study
 
 
