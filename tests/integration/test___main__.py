@@ -38,10 +38,10 @@ def test_all_query_engines_have_an_alias():
         if cls is BaseSQLQueryEngine:
             continue
         name = f"{cls.__module__}.{cls.__name__}"
-        assert name in QUERY_ENGINE_ALIASES.values(), f"No alias defined for {cls}"
+        assert name in QUERY_ENGINE_ALIASES.values(), f"No alias defined for '{name}'"
 
 
 def test_all_backends_have_an_alias():
     for cls in get_sibling_subclasses(BaseBackend):
         name = f"{cls.__module__}.{cls.__name__}"
-        assert name in BACKEND_ALIASES.values(), f"No alias defined for {cls}"
+        assert name in BACKEND_ALIASES.values(), f"No alias defined for '{name}'"
