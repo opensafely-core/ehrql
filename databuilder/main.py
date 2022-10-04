@@ -42,6 +42,17 @@ def generate_dataset(
     write_dataset(dataset_file, results, column_specs)
 
 
+def generate_dummy_dataset(definition_file, dataset_file):
+    log.info(f"Generating dummy dataset for {str(definition_file)}")
+    dataset_definition = load_definition(definition_file)
+    variable_definitions = compile(dataset_definition)
+    column_specs = get_column_specs(variable_definitions)
+
+    # TODO: Generate _slightly_ more sophisticated dummy data
+    results = []
+    write_dataset(dataset_file, results, column_specs)
+
+
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
     log.info(f"Propagating dummy data {dummy_data_file} for {str(definition_file)}")
 

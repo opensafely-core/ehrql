@@ -10,6 +10,7 @@ from databuilder.file_formats import FILE_FORMATS, get_file_extension
 from .main import (
     dump_dataset_sql,
     generate_dataset,
+    generate_dummy_dataset,
     generate_measures,
     pass_dummy_data,
     test_connection,
@@ -59,9 +60,9 @@ def main(args, environ=None):
                 options.dataset_definition, options.output, options.dummy_data_file
             )
         else:
-            parser.error(
-                "error: one of --dummy-data-file, --dsn or DATABASE_URL environment "
-                "variable is required"
+            generate_dummy_dataset(
+                definition_file=options.dataset_definition,
+                dataset_file=options.output,
             )
     elif options.which == "dump-dataset-sql":
         assert options.backend != EXPECTATIONS_BACKEND_PLACEHOLDER

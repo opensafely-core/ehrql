@@ -92,3 +92,10 @@ def test_validate_dummy_data_error_path(study, tmp_path):
             backend="expectations",
             dummy_data_file=str(dummy_data_file),
         )
+
+
+def test_generate_dummy_data(study):
+    study.setup_from_string(trivial_dataset_definition)
+    study.generate(database=None, backend="expectations", extension=".csv")
+    header_line = study._dataset_path.read_text().splitlines()[0]
+    assert header_line == "patient_id,year"

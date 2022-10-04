@@ -67,23 +67,18 @@ def test_generate_dataset_if_both_dsn_and_dummy_data_are_provided(mocker, tmp_pa
     patched.assert_called_once()
 
 
-def test_generate_dataset_without_dsn_or_dummy_data(capsys, tmp_path):
-    # Verify that a helpful message is shown when the generate_dataset
-    # subcommand is invoked but DATABASE_URL is not set and --dummy-data-file
-    # is not provided.
+def test_generate_dummy_dataset(mocker, tmp_path):
+    # If none of --dsn, --dummy-data-file, or DATABASE_URL is set then we should invoke
+    # `generate_dummy_dataset`
+    patched = mocker.patch("databuilder.__main__.generate_dummy_dataset")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [
         "generate-dataset",
         str(dataset_definition_path),
     ]
-    with pytest.raises(SystemExit):
-        main(argv)
-    captured = capsys.readouterr()
-    assert (
-        "one of --dummy-data-file, --dsn or DATABASE_URL environment variable is required"
-        in captured.err
-    )
+    main(argv)
+    patched.assert_called_once()
 
 
 def test_generate_dataset_rejects_unknown_extension(capsys):
