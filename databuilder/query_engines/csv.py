@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session, declarative_base
 
 from databuilder.orm_factory import orm_class_from_qm_table
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
-from databuilder.query_model import SelectPatientTable, SelectTable, all_nodes
+from databuilder.query_model import get_table_nodes
 from databuilder.sqlalchemy_types import Boolean
 
 
@@ -28,7 +28,7 @@ class CSVQueryEngine(SQLiteQueryEngine):
     def get_results(self, variable_definitions):
         # Given the variables supplied determine the tables used, create corresponding
         # ORM classes and use them to initialise the database schema
-        table_nodes = get_table_nodes(variable_definitions)
+        table_nodes = get_table_nodes(*variable_definitions.values())
         Base = declarative_base()
         orm_classes = [orm_class_from_qm_table(Base, node) for node in table_nodes]
         assert orm_classes
@@ -44,15 +44,6 @@ class CSVQueryEngine(SQLiteQueryEngine):
 
         # Run the query as normal
         return super().get_results(variable_definitions)
-
-
-def get_table_nodes(variables):
-    table_nodes = set()
-    for variable in variables.values():
-        for node in all_nodes(variable):
-            if isinstance(node, (SelectTable, SelectPatientTable)):
-                table_nodes.add(node)
-    return table_nodes
 
 
 def read_all_csvs(csv_directory, orm_classes, create_missing=False):

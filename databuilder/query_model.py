@@ -31,6 +31,7 @@ __all__ = [
     "has_many_rows_per_patient",
     "get_series_type",
     "all_nodes",
+    "get_table_nodes",
     "get_domain",
     "count_nodes",
     "node_types",
@@ -597,6 +598,15 @@ def count_nodes(tree):  # pragma: no cover
 
 def node_types(tree):
     return [type(node) for node in all_nodes(tree)]
+
+
+def get_table_nodes(*nodes):
+    table_nodes = set()
+    for node in nodes:
+        for subnode in all_nodes(node):
+            if isinstance(subnode, (SelectTable, SelectPatientTable)):
+                table_nodes.add(subnode)
+    return table_nodes
 
 
 # TYPE VALIDATION
