@@ -8,6 +8,7 @@ from databuilder import __version__
 from databuilder.file_formats import FILE_FORMATS, get_file_extension
 
 from .main import (
+    create_dummy_tables,
     dump_dataset_sql,
     generate_dataset,
     generate_dummy_dataset,
@@ -74,6 +75,11 @@ def main(args, environ=None):
             query_engine_class=options.query_engine,
             environ=environ,
         )
+    elif options.which == "create-dummy-tables":
+        create_dummy_tables(
+            options.dataset_definition,
+            options.dummy_tables_path,
+        )
     elif options.which == "generate-measures":
         generate_measures(
             definition_path=options.dataset_definition,
@@ -105,6 +111,7 @@ def build_parser(environ):
     subparsers = parser.add_subparsers(help="sub-command help")
     add_generate_dataset(subparsers, environ)
     add_dump_dataset_sql(subparsers, environ)
+    add_create_dummy_tables(subparsers, environ)
     add_generate_measures(subparsers, environ)
     add_test_connection(subparsers, environ)
 
@@ -178,6 +185,24 @@ def add_common_dataset_arguments(parser, environ):
         type=backend_from_id,
         help=f"Dotted import path to class, or one of: {', '.join(BACKEND_ALIASES)}",
         default=environ.get("OPENSAFELY_BACKEND"),
+    )
+
+
+def add_create_dummy_tables(subparsers, environ):
+    parser = subparsers.add_parser(
+        "create-dummy-tables",
+        help=("Write dummy data tables as CSV ready for customisation"),
+    )
+    parser.set_defaults(which="create-dummy-tables")
+    parser.add_argument(
+        "dataset_definition",
+        help="The path of the file where the dataset is defined",
+        type=existing_python_file,
+    )
+    parser.add_argument(
+        "dummy_tables_path",
+        help=("Path to directory where CSV files (one per table) will be written"),
+        type=Path,
     )
 
 

@@ -116,3 +116,11 @@ def test_generate_dummy_data_with_dummy_tables(study, tmp_path):
         {"patient_id": "8", "year": "1985"},
         {"patient_id": "9", "year": "1995"},
     ]
+
+
+def test_create_dummy_tables(study, tmp_path):
+    dummy_tables_path = tmp_path / "subdir" / "dummy_data"
+    study.setup_from_string(trivial_dataset_definition)
+    study.create_dummy_tables(dummy_tables_path)
+    header_line = (dummy_tables_path / "patients.csv").read_text().splitlines()[0]
+    assert header_line == "patient_id,date_of_birth,sex,date_of_death"

@@ -12,7 +12,12 @@ from databuilder.file_formats import (
     write_dataset,
 )
 from databuilder.itertools_utils import eager_iterator
+from databuilder.orm_factory import (
+    orm_classes_from_qm_tables,
+    write_orm_models_to_csv_directory,
+)
 from databuilder.query_language import Dataset, compile
+from databuilder.query_model import get_table_nodes
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
 from databuilder.traceback_utils import trim_and_print_exception
 
@@ -60,6 +65,21 @@ def generate_dummy_dataset(definition_file, dataset_file, dummy_tables_path=None
 
     results = eager_iterator(results)
     write_dataset(dataset_file, results, column_specs)
+
+
+def create_dummy_tables(definition_file, dummy_tables_path):
+    dataset_definition = load_definition(definition_file)
+    variable_definitions = compile(dataset_definition)
+    tables = get_table_nodes(*variable_definitions.values())
+    orm_classes = orm_classes_from_qm_tables(tables)
+    dummy_tables_path.parent.mkdir(parents=True, exist_ok=True)
+    # TODO: Generate _slightly_ more sophisticated dummy data
+    dummy_table_data = []
+    write_orm_models_to_csv_directory(
+        dummy_tables_path,
+        orm_classes,
+        dummy_table_data,
+    )
 
 
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):

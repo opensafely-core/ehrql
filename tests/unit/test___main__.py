@@ -110,6 +110,20 @@ def test_dump_dataset_sql(mocker, tmp_path):
     patched.assert_called_once()
 
 
+def test_create_dummy_tables(mocker, tmp_path):
+    # Verify that the dump dataset sql subcommand can be invoked.
+    patched = mocker.patch("databuilder.__main__.create_dummy_tables")
+    dataset_definition_path = tmp_path / "dataset.py"
+    dataset_definition_path.touch()
+    argv = [
+        "create-dummy-tables",
+        str(dataset_definition_path),
+        str(tmp_path / "dummy_data"),
+    ]
+    main(argv)
+    patched.assert_called_once()
+
+
 def test_generate_measures(mocker, tmp_path):
     # Verify that the generate_measures subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.generate_measures")

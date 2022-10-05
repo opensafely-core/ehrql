@@ -138,6 +138,11 @@ class Study:
             str(definition),
         ]
 
+    def create_dummy_tables(self, dummy_tables_path):
+        main(
+            ["create-dummy-tables", str(self._definition_path), str(dummy_tables_path)]
+        )
+
     def _docker_path(self, path):
         return Path("/workspace") / path.relative_to(self._workspace)
 
