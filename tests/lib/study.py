@@ -70,41 +70,49 @@ class Study:
         self._definition_path = self._workspace / "dataset.py"
         self._definition_path.write_text(definition)
 
-    def generate(self, database, backend, extension=".csv"):
+    def generate(self, database, backend, extension=".csv", **kwargs):
         self._dataset_path = self._workspace / f"dataset{extension}"
 
         env = {
-            "DATABASE_URL": database.host_url(),
+            "DATABASE_URL": database.host_url() if database else "",
             "OPENSAFELY_BACKEND": backend,
         }
 
         main(
-            self._generate_command(self._definition_path, self._dataset_path),
+            self._generate_command(
+                self._definition_path,
+                self._dataset_path,
+                **kwargs,
+            ),
             environ=env,
         )
 
-    def generate_in_docker(self, database, backend, extension=".csv"):
+    def generate_in_docker(self, database, backend, extension=".csv", **kwargs):
         self._dataset_path = self._workspace / f"dataset{extension}"
         environment = {
-            "DATABASE_URL": database.container_url(),
+            "DATABASE_URL": database.container_url() if database else "",
             "OPENSAFELY_BACKEND": backend,
         }
         self._run_in_docker(
             command=self._generate_command(
                 self._docker_path(self._definition_path),
                 self._docker_path(self._dataset_path),
+                **kwargs,
             ),
             environment=environment,
         )
 
     @staticmethod
-    def _generate_command(definition, dataset):
-        return [
+    def _generate_command(definition, dataset, **kwargs):
+        args = [
             "generate-dataset",
             str(definition),
             "--output",
             str(dataset),
         ]
+        for key, value in kwargs.items():
+            args.extend([f"--{key.replace('_' , '-')}", value])
+        return args
 
     def dump_dataset_sql(self):
         self._output_path = self._workspace / "queries.sql"
