@@ -42,14 +42,23 @@ def generate_dataset(
     write_dataset(dataset_file, results, column_specs)
 
 
-def generate_dummy_dataset(definition_file, dataset_file):
+def generate_dummy_dataset(definition_file, dataset_file, dummy_tables_path=None):
     log.info(f"Generating dummy dataset for {str(definition_file)}")
     dataset_definition = load_definition(definition_file)
     variable_definitions = compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
-    # TODO: Generate _slightly_ more sophisticated dummy data
-    results = []
+    if dummy_tables_path:
+        log.info(f"Reading CSV data from {dummy_tables_path}")
+        from databuilder.query_engines.csv import CSVQueryEngine
+
+        query_engine = CSVQueryEngine(dummy_tables_path)
+        results = query_engine.get_results(variable_definitions)
+    else:
+        # TODO: Generate _slightly_ more sophisticated dummy data
+        results = iter([])
+
+    results = eager_iterator(results)
     write_dataset(dataset_file, results, column_specs)
 
 

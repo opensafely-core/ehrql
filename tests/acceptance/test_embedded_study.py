@@ -99,3 +99,20 @@ def test_generate_dummy_data(study):
     study.generate(database=None, backend="expectations", extension=".csv")
     header_line = study._dataset_path.read_text().splitlines()[0]
     assert header_line == "patient_id,year"
+
+
+def test_generate_dummy_data_with_dummy_tables(study, tmp_path):
+    tmp_path.joinpath("patients.csv").write_text(
+        "patient_id,date_of_birth\n8,1985-10-20\n9,1995-05-10"
+    )
+    study.setup_from_string(trivial_dataset_definition)
+    study.generate(
+        database=None,
+        backend="expectations",
+        extension=".csv",
+        dummy_tables=str(tmp_path),
+    )
+    assert study.results() == [
+        {"patient_id": "8", "year": "1985"},
+        {"patient_id": "9", "year": "1995"},
+    ]

@@ -63,6 +63,7 @@ def main(args, environ=None):
             generate_dummy_dataset(
                 definition_file=options.dataset_definition,
                 dataset_file=options.output,
+                dummy_tables_path=options.dummy_tables,
             )
     elif options.which == "dump-dataset-sql":
         assert options.backend != EXPECTATIONS_BACKEND_PLACEHOLDER
@@ -130,6 +131,14 @@ def add_generate_dataset(subparsers, environ):
     parser.add_argument(
         "--dummy-data-file",
         help="Provide dummy data from a file to be validated and used as the dataset",
+        type=Path,
+    )
+    parser.add_argument(
+        "--dummy-tables",
+        help=(
+            "Path to directory of CSV files (one per table) to use when generating "
+            "dummy data"
+        ),
         type=Path,
     )
     add_common_dataset_arguments(parser, environ)
