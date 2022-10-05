@@ -119,7 +119,7 @@ build-databuilder:
     set -euo pipefail
 
     [[ -v CI ]] && echo "::group::Build databuilder (click to view)" || echo "Build databuilder"
-    docker build . -t databuilder-dev
+    DOCKER_BUILDKIT=1 docker build . -t databuilder-dev
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
