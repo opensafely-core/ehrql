@@ -1,4 +1,5 @@
 import csv
+import datetime
 from types import SimpleNamespace
 
 import sqlalchemy
@@ -114,7 +115,7 @@ def read_value(value, field):
         return None
     # The ORM will implicitly convert most types correctly from their string
     # representations, but not booleans
-    if isinstance(field.type, sqlalchemy.Boolean):
+    if _has_type(field, sqlalchemy.Boolean):
         if value == "T":
             return True
         elif value == "F":
@@ -122,4 +123,15 @@ def read_value(value, field):
         else:
             # Let the ORM throw the error for us
             return value  # pragma: no cover
+    # Some ORM dialects handle this for us, but not all
+    if _has_type(field, sqlalchemy.Date):
+        return datetime.date.fromisoformat(value)
     return value
+
+
+def _has_type(field, type_):
+    if isinstance(field.type, type_):
+        return True
+    if hasattr(field.type, "impl") and isinstance(field.type.impl, type_):
+        return True
+    return False
