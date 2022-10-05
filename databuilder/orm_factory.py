@@ -1,5 +1,6 @@
 import csv
 import datetime
+from contextlib import ExitStack
 from types import SimpleNamespace
 
 import sqlalchemy
@@ -8,6 +9,8 @@ from sqlalchemy.orm import declarative_base
 from databuilder.query_language import BaseFrame
 from databuilder.query_model import has_one_row_per_patient
 from databuilder.sqlalchemy_types import Integer, type_from_python_type
+
+SYNTHETIC_PRIMARY_KEY = "row_id"
 
 # Generate an integer sequence to use as default IDs. Normally you'd rely on the DBMS to
 # provide these, but we need to support DBMSs like Spark which don't have this feature.
@@ -34,7 +37,7 @@ def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patien
         attributes["patient_id"] = sqlalchemy.Column(Integer, primary_key=True)
     else:
         attributes["patient_id"] = sqlalchemy.Column(Integer, nullable=False)
-        attributes["row_id"] = sqlalchemy.Column(
+        attributes[SYNTHETIC_PRIMARY_KEY] = sqlalchemy.Column(
             Integer, primary_key=True, default=next_id
         )
 
@@ -135,3 +138,51 @@ def _has_type(field, type_):
     if hasattr(field.type, "impl") and isinstance(field.type.impl, type_):
         return True
     return False
+
+
+def write_orm_models_to_csv_directory(directory, orm_classes, models):
+    directory.mkdir(exist_ok=True)
+    writers = {}
+    with ExitStack() as stack:
+        for orm_class in orm_classes:
+            fileobj = stack.enter_context(
+                open(directory / f"{orm_class.__tablename__}.csv", "wt", newline="")
+            )
+            writers[orm_class] = orm_csv_writer(fileobj, orm_class)
+        for model in models:
+            write_row = writers[model.__class__]
+            write_row(model)
+
+
+def orm_csv_writer(fileobj, orm_class):
+    fields = {
+        name: field
+        for (name, field) in orm_class.__table__.columns.items()
+        if name != SYNTHETIC_PRIMARY_KEY
+    }
+    writer = csv.DictWriter(fileobj, fields.keys())
+    writer.writeheader()
+
+    def write_model(model):
+        row = {
+            name: format_value(getattr(model, name), field)
+            for name, field in fields.items()
+        }
+        writer.writerow(row)
+
+    return write_model
+
+
+def format_value(value, field):
+    # The CSV library will implicitly format most types correctly as strings, but
+    # doesn't handle booleans as we'd like
+    if _has_type(field, sqlalchemy.Boolean):
+        if value is True:
+            return "T"
+        elif value is False:
+            return "F"
+        elif value is None:
+            return ""
+        else:
+            assert False
+    return value
