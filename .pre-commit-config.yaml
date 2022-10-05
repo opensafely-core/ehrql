@@ -42,3 +42,4 @@ repos:
     rev: cdefcb096e520a6daa9552b1d4636f5f1e1729cd
     hooks:
     - id: hadolint
+      entry: --entrypoint /bin/hadolint hadolint/hadolint:latest --ignore DL3061 --ignore DL3013 --ignore DL3042
