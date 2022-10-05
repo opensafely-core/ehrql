@@ -1,3 +1,4 @@
+import csv
 from types import SimpleNamespace
 
 import sqlalchemy
@@ -77,7 +78,48 @@ def orm_classes_from_ql_table_namespace(namespace):
     return SimpleNamespace(**orm_classes)
 
 
+def orm_classes_from_qm_tables(qm_tables):
+    """
+    Given a list of Query Model tables, return a list of corresponding ORM instances
+    """
+    Base = declarative_base()
+    return [orm_class_from_qm_table(Base, table) for table in qm_tables]
+
+
 def table_has_one_row_per_patient(table):
     """Given a SQLAlchemy ORM table, return boolean indicating whether the table has one
     row per patient."""
     return table.columns["patient_id"].primary_key
+
+
+def read_orm_models_from_csv_directory(directory, orm_classes):
+    for orm_class in orm_classes:
+        csv_file = directory / f"{orm_class.__tablename__}.csv"
+        with open(csv_file, newline="") as fileobj:
+            yield from read_orm_models_from_csv_lines(fileobj, orm_class)
+
+
+def read_orm_models_from_csv_lines(lines, orm_class):
+    fields = orm_class.__table__.columns
+    reader = csv.DictReader(lines)
+    for row in reader:
+        yield orm_class(
+            **{k: read_value(v, fields[k]) for k, v in row.items() if k in fields}
+        )
+
+
+def read_value(value, field):
+    # Treat the empty string as NULL
+    if value == "":
+        return None
+    # The ORM will implicitly convert most types correctly from their string
+    # representations, but not booleans
+    if isinstance(field.type, sqlalchemy.Boolean):
+        if value == "T":
+            return True
+        elif value == "F":
+            return False
+        else:
+            # Let the ORM throw the error for us
+            return value  # pragma: no cover
+    return value

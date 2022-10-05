@@ -1,13 +1,6 @@
-import datetime
-
-import pytest
-import sqlalchemy
-from sqlalchemy.orm import Session, declarative_base
-
 from databuilder.ehrql import Dataset
-from databuilder.query_engines.csv import CSVQueryEngine, orm_instances_from_csv_lines
+from databuilder.query_engines.csv import CSVQueryEngine
 from databuilder.query_language import compile
-from databuilder.sqlalchemy_types import TYPE_MAP, Integer, type_from_python_type
 from databuilder.tables import EventFrame, PatientFrame, Series, table
 
 
@@ -64,70 +57,3 @@ def test_csv_query_engine(tmp_path):
         (2, "F", 15, 2),
         (3, None, None, 0),
     ]
-
-
-def test_csv_query_engine_create_missing(tmp_path):
-    @table
-    class patients(PatientFrame):
-        sex = Series(str)
-
-    @table
-    class events(EventFrame):
-        date = Series(datetime.date)
-        code = Series(str)
-
-    dataset = Dataset()
-    dataset.sex = patients.sex
-    dataset.set_population(events.exists_for_patient())
-    variable_definitions = compile(dataset)
-
-    query_engine = CSVQueryEngine(
-        tmp_path, config={"DATABUILDER_CREATE_MISSING_CSV": "True"}
-    )
-    results = query_engine.get_results(variable_definitions)
-
-    assert list(results) == []
-
-    assert tmp_path.joinpath("patients.csv").read_text() == "patient_id,sex\n"
-    assert tmp_path.joinpath("events.csv").read_text() == "patient_id,date,code\n"
-
-
-@pytest.mark.parametrize(
-    "type_,csv_value,expected_value",
-    [
-        (bool, '""', None),
-        (bool, "F", False),
-        (bool, "T", True),
-        (int, "123", 123),
-        (float, "1.23", 1.23),
-        (str, "foo", "foo"),
-        (datetime.date, "2020-10-20", datetime.date(2020, 10, 20)),
-    ],
-)
-def test_orm_instances_from_csv_lines(type_, csv_value, expected_value):
-    column_type = type_from_python_type(type_)
-
-    class Model(declarative_base()):
-        __tablename__ = "test"
-        pk = sqlalchemy.Column(Integer(), primary_key=True)
-        value = sqlalchemy.Column(column_type)
-
-    csv_lines = ["value", csv_value]
-    instances = orm_instances_from_csv_lines(Model, csv_lines)
-
-    engine = CSVQueryEngine(None).engine
-    Model.metadata.create_all(engine)
-    with Session(engine) as session:
-        session.add_all(instances)
-        session.flush()
-        result = session.query(Model.value).scalar()
-
-    assert result == expected_value
-
-
-def test_orm_instances_from_csv_lines_params_are_exhaustive():
-    # This is dirty but useful, I think. It checks that the parameters to the test
-    # include at least one of every type in `sqlalchemy_types`.
-    params = test_orm_instances_from_csv_lines.pytestmark[0].args[1]
-    types = [arg[0] for arg in params]
-    assert set(types) == set(TYPE_MAP)
