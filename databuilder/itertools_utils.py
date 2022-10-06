@@ -13,3 +13,15 @@ def eager_iterator(iterator):
         return iterator
     # Otherwise chain the first item back on to the front and continue
     return itertools.chain([first_item], iterator)
+
+
+def iter_flatten(iterable, iter_classes=(list, tuple)):
+    """
+    Iterate over `iterable` recursively flattening any lists or tuples
+    encountered
+    """
+    for item in iterable:
+        if isinstance(item, iter_classes):
+            yield from iter_flatten(item, iter_classes)
+        else:
+            yield item
