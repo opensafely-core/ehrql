@@ -1,7 +1,7 @@
 import pytest
 
 from databuilder.backends.tpp import TPPBackend
-from databuilder.orm_factory import orm_classes_from_ql_table_namespace
+from databuilder.orm_utils import orm_classes_from_ql_table_namespace
 from databuilder.tables.beta import tpp
 from tests.lib import tpp_schema
 

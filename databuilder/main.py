@@ -12,7 +12,12 @@ from databuilder.file_formats import (
     write_dataset,
 )
 from databuilder.itertools_utils import eager_iterator
+from databuilder.orm_utils import (
+    orm_classes_from_qm_tables,
+    write_orm_models_to_csv_directory,
+)
 from databuilder.query_language import Dataset, compile
+from databuilder.query_model import get_table_nodes
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
 from databuilder.traceback_utils import trim_and_print_exception
 
@@ -40,6 +45,41 @@ def generate_dataset(
     # `eager_iterator` ensures this happens by consuming the first item upfront.
     results = eager_iterator(results)
     write_dataset(dataset_file, results, column_specs)
+
+
+def generate_dummy_dataset(definition_file, dataset_file, dummy_tables_path=None):
+    log.info(f"Generating dummy dataset for {str(definition_file)}")
+    dataset_definition = load_definition(definition_file)
+    variable_definitions = compile(dataset_definition)
+    column_specs = get_column_specs(variable_definitions)
+
+    if dummy_tables_path:
+        log.info(f"Reading CSV data from {dummy_tables_path}")
+        from databuilder.query_engines.csv import CSVQueryEngine
+
+        query_engine = CSVQueryEngine(dummy_tables_path)
+        results = query_engine.get_results(variable_definitions)
+    else:
+        # TODO: Generate _slightly_ more sophisticated dummy data
+        results = iter([])
+
+    results = eager_iterator(results)
+    write_dataset(dataset_file, results, column_specs)
+
+
+def create_dummy_tables(definition_file, dummy_tables_path):
+    dataset_definition = load_definition(definition_file)
+    variable_definitions = compile(dataset_definition)
+    tables = get_table_nodes(*variable_definitions.values())
+    orm_classes = orm_classes_from_qm_tables(tables)
+    dummy_tables_path.parent.mkdir(parents=True, exist_ok=True)
+    # TODO: Generate _slightly_ more sophisticated dummy data
+    dummy_table_data = []
+    write_orm_models_to_csv_directory(
+        dummy_tables_path,
+        orm_classes,
+        dummy_table_data,
+    )
 
 
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
