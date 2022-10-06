@@ -189,9 +189,8 @@ def make_spark_container_database(containers):
     if not containers.is_running(container_name):  # pragma: no cover
         containers.run_bg(
             name=container_name,
-            # Nothing special about this particular version other than that
-            # it's the latest as of the time of writing
-            image="docker.io/bitnami/spark:3.3.0-debian-11-r29",
+            # This is the version of Spark that Graphnet use.
+            image="docker.io/bitnami/spark:3.2.1-debian-11-r12",
             entrypoint="/bin/bash",
             command=[
                 # To speak SQL to our Spark database we need to start a thing
