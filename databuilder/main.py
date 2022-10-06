@@ -12,7 +12,7 @@ from databuilder.file_formats import (
     write_dataset,
 )
 from databuilder.itertools_utils import eager_iterator
-from databuilder.orm_factory import (
+from databuilder.orm_utils import (
     orm_classes_from_qm_tables,
     write_orm_models_to_csv_directory,
 )

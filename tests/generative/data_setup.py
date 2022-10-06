@@ -1,6 +1,6 @@
 import sqlalchemy.orm
 
-from databuilder.orm_factory import orm_class_from_schema
+from databuilder.orm_utils import orm_class_from_schema
 from databuilder.query_model import (
     AggregateByPatient,
     Function,

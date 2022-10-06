@@ -7,7 +7,7 @@ See tests in test_database.py for comprehensive examples of how this all works.
 from collections import UserDict, defaultdict
 from dataclasses import dataclass
 
-from databuilder.orm_factory import table_has_one_row_per_patient
+from databuilder.orm_utils import table_has_one_row_per_patient
 from tests.lib.util import iter_flatten
 
 

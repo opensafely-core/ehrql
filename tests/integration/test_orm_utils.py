@@ -5,7 +5,7 @@ import pytest
 import sqlalchemy
 from sqlalchemy.orm import Session, declarative_base
 
-from databuilder.orm_factory import (
+from databuilder.orm_utils import (
     orm_csv_writer,
     read_orm_models_from_csv_lines,
     write_orm_models_to_csv_directory,

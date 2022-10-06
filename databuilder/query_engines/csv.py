@@ -2,7 +2,7 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
-from databuilder.orm_factory import (
+from databuilder.orm_utils import (
     orm_classes_from_qm_tables,
     read_orm_models_from_csv_directory,
 )

@@ -7,7 +7,7 @@ from sqlalchemy.future.engine import Connection
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import Select
 
-from databuilder.orm_factory import orm_class_from_qm_table
+from databuilder.orm_utils import orm_class_from_qm_table
 from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_model import (
     AggregateByPatient,
