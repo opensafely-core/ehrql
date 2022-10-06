@@ -3,8 +3,12 @@ import operator
 
 from databuilder import query_model as qm
 from databuilder.query_engines.base import BaseQueryEngine
-
-from .database import PatientColumn, PatientTable, apply_function, handle_null
+from databuilder.query_engines.in_memory_database import (
+    PatientColumn,
+    PatientTable,
+    apply_function,
+    handle_null,
+)
 
 T = True
 F = False

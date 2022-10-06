@@ -181,7 +181,7 @@ test-spec-no-spark *ARGS: devenv
 # Run the unit tests only. Optional args are passed to pytest.
 test-unit *ARGS: devenv
     $BIN/python -m pytest tests/unit {{ ARGS }}
-    $BIN/python -m doctest tests/lib/in_memory/database.py
+    $BIN/python -m pytest --doctest-modules databuilder
 
 # Run the generative tests only. Optional args are passed to pytest.
 #
@@ -203,7 +203,7 @@ test-all *ARGS: devenv generate-docs
         --hypothesis-seed=1234 \
         tests \
         {{ ARGS }}
-    $BIN/python -m doctest tests/lib/in_memory/database.py
+    $BIN/python -m pytest --doctest-modules databuilder
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
 
 # run scripts/dbx

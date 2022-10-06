@@ -9,6 +9,7 @@ from databuilder.backends.base import BaseBackend
 from databuilder.module_utils import get_sibling_subclasses
 from databuilder.query_engines.base import BaseQueryEngine
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
+from databuilder.query_engines.in_memory import InMemoryQueryEngine
 
 
 def test_test_connection(mssql_database, capsys):
@@ -37,11 +38,14 @@ def test_all_query_engines_have_an_alias():
         # Ignore abstract classes that shouldn't have an alias
         if cls is BaseSQLQueryEngine:
             continue
+        # We don't (currently) expose the in-memory engine as an option to users
+        if cls is InMemoryQueryEngine:
+            continue
         name = f"{cls.__module__}.{cls.__name__}"
-        assert name in QUERY_ENGINE_ALIASES.values(), f"No alias defined for {cls}"
+        assert name in QUERY_ENGINE_ALIASES.values(), f"No alias defined for '{name}'"
 
 
 def test_all_backends_have_an_alias():
     for cls in get_sibling_subclasses(BaseBackend):
         name = f"{cls.__module__}.{cls.__name__}"
-        assert name in BACKEND_ALIASES.values(), f"No alias defined for {cls}"
+        assert name in BACKEND_ALIASES.values(), f"No alias defined for '{name}'"
