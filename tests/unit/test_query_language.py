@@ -232,3 +232,17 @@ def test_categories_are_passed_through_to_schema():
 
     schema = some_table.qm_node.schema
     assert schema.get_column_categories("some_str") == ("a", "b", "c")
+
+
+def test_boolean_operators_raise_errors():
+    exists = patients.exists_for_patient()
+    has_dob = patients.date_of_birth.is_not_null()
+    error = "The keywords 'and', 'or', and 'not' cannot be used with ehrQL"
+    with pytest.raises(TypeError, match=error):
+        not exists
+    with pytest.raises(TypeError, match=error):
+        exists and has_dob
+    with pytest.raises(TypeError, match=error):
+        exists or has_dob
+    with pytest.raises(TypeError, match=error):
+        date(2000, 1, 1) < patients.date_of_birth < date(2020, 1, 1)
