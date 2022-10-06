@@ -37,7 +37,7 @@ class Dataset:
             raise AttributeError(
                 "Cannot set column 'population'; use set_population() instead"
             )
-        if getattr(self, name, None):
+        if hasattr(self, name):
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
         if not qm.has_one_row_per_patient(value.qm_node):
             raise TypeError(
@@ -62,6 +62,14 @@ class BaseSeries:
         # The issue here is not mutability but the fact that we overload `__eq__` for
         # syntatic sugar, which makes these types spectacularly ill-behaved as dict keys
         raise TypeError(f"unhashable type: {self.__class__.__name__!r}")
+
+    def __bool__(self):
+        raise TypeError(
+            "The keywords 'and', 'or', and 'not' cannot be used with ehrQL, please "
+            "use the operators '&', '|' and '~' instead.\n"
+            "(You will also see this error if you try use a chained comparison, "
+            "such as 'a < b < c'.)"
+        )
 
     # These are the basic operations that apply to any series regardless of type or
     # dimension
