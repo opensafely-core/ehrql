@@ -1,4 +1,5 @@
 import itertools
+from types import GeneratorType
 
 
 def eager_iterator(iterator):
@@ -15,9 +16,9 @@ def eager_iterator(iterator):
     return itertools.chain([first_item], iterator)
 
 
-def iter_flatten(iterable, iter_classes=(list, tuple)):
+def iter_flatten(iterable, iter_classes=(list, tuple, GeneratorType)):
     """
-    Iterate over `iterable` recursively flattening any lists or tuples
+    Iterate over `iterable` recursively flattening any lists, tuples or generators
     encountered
     """
     for item in iterable:
