@@ -16,6 +16,8 @@ from databuilder.orm_utils import (
     orm_classes_from_qm_tables,
     write_orm_models_to_csv_directory,
 )
+from databuilder.query_engines.csv import CSVQueryEngine
+from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset, compile
 from databuilder.query_model import get_table_nodes
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
@@ -37,7 +39,13 @@ def generate_dataset(
     variable_definitions = compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
-    query_engine = get_query_engine(dsn, backend_class, query_engine_class, environ)
+    query_engine = get_query_engine(
+        dsn,
+        backend_class,
+        query_engine_class,
+        environ,
+        default_query_engine_class=CSVQueryEngine,
+    )
     results = query_engine.get_results(variable_definitions)
     # Because `results` is a generator we won't actually execute any queries until we
     # start consuming it. But we want to make sure we trigger any errors (or relevant
@@ -55,8 +63,6 @@ def generate_dummy_dataset(definition_file, dataset_file, dummy_tables_path=None
 
     if dummy_tables_path:
         log.info(f"Reading CSV data from {dummy_tables_path}")
-        from databuilder.query_engines.csv import CSVQueryEngine
-
         query_engine = CSVQueryEngine(dummy_tables_path)
         results = query_engine.get_results(variable_definitions)
     else:
@@ -102,7 +108,13 @@ def dump_dataset_sql(
     log.info(f"Generating SQL for {str(definition_file)}")
 
     dataset_definition = load_definition(definition_file)
-    query_engine = get_query_engine(None, backend_class, query_engine_class, environ)
+    query_engine = get_query_engine(
+        None,
+        backend_class,
+        query_engine_class,
+        environ,
+        default_query_engine_class=SQLiteQueryEngine,
+    )
 
     variable_definitions = compile(dataset_definition)
     all_query_strings = get_sql_strings(query_engine, variable_definitions)
@@ -141,7 +153,9 @@ def open_output_file(output_file):
         return nullcontext(sys.stdout)
 
 
-def get_query_engine(dsn, backend_class, query_engine_class, environ):
+def get_query_engine(
+    dsn, backend_class, query_engine_class, environ, default_query_engine_class
+):
     # Construct backend if supplied
     if backend_class:
         backend = backend_class()
@@ -154,9 +168,7 @@ def get_query_engine(dsn, backend_class, query_engine_class, environ):
             query_engine_class = backend.query_engine_class
         # Otherwise default to using SQLite
         else:
-            from databuilder.query_engines.csv import (
-                CSVQueryEngine as query_engine_class,
-            )
+            query_engine_class = default_query_engine_class
 
     return query_engine_class(dsn=dsn, backend=backend, config=environ)
 

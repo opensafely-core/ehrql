@@ -1,11 +1,17 @@
 import dataclasses
 
 from databuilder.main import get_query_engine, open_output_file
-from databuilder.query_engines.csv import CSVQueryEngine
 
 
 @dataclasses.dataclass
 class DummyQueryEngine:
+    dsn: str
+    backend: object
+    config: dict
+
+
+@dataclasses.dataclass
+class DefaultQueryEngine:
     dsn: str
     backend: object
     config: dict
@@ -17,14 +23,22 @@ class DummyBackend:
 
 def test_get_query_engine_defaults():
     query_engine = get_query_engine(
-        dsn=None, backend_class=None, query_engine_class=None, environ={}
+        dsn=None,
+        backend_class=None,
+        query_engine_class=None,
+        environ={},
+        default_query_engine_class=DefaultQueryEngine,
     )
-    assert isinstance(query_engine, CSVQueryEngine)
+    assert isinstance(query_engine, DefaultQueryEngine)
 
 
 def test_get_query_engine_with_query_engine():
     query_engine = get_query_engine(
-        dsn=None, backend_class=None, query_engine_class=DummyQueryEngine, environ={}
+        dsn=None,
+        backend_class=None,
+        query_engine_class=DummyQueryEngine,
+        environ={},
+        default_query_engine_class=None,
     )
     assert isinstance(query_engine, DummyQueryEngine)
     assert query_engine.backend is None
@@ -33,7 +47,11 @@ def test_get_query_engine_with_query_engine():
 
 def test_get_query_engine_with_backend():
     query_engine = get_query_engine(
-        dsn=None, backend_class=DummyBackend, query_engine_class=None, environ={}
+        dsn=None,
+        backend_class=DummyBackend,
+        query_engine_class=None,
+        environ={},
+        default_query_engine_class=None,
     )
     assert isinstance(query_engine, DummyQueryEngine)
     assert isinstance(query_engine.backend, DummyBackend)
@@ -44,10 +62,11 @@ def test_get_query_engine_with_backend_and_query_engine():
     query_engine = get_query_engine(
         dsn=None,
         backend_class=DummyBackend,
-        query_engine_class=CSVQueryEngine,
+        query_engine_class=DefaultQueryEngine,
         environ={},
+        default_query_engine_class=None,
     )
-    assert isinstance(query_engine, CSVQueryEngine)
+    assert isinstance(query_engine, DefaultQueryEngine)
     assert isinstance(query_engine.backend, DummyBackend)
     assert query_engine.config == {}
 
