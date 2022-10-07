@@ -3,7 +3,7 @@ from io import StringIO
 
 import pytest
 import sqlalchemy
-from sqlalchemy.orm import Session, declarative_base
+from sqlalchemy.orm import declarative_base
 
 from databuilder.orm_utils import (
     orm_csv_writer,
@@ -43,15 +43,9 @@ def test_read_orm_models_from_csv_lines(
 
     csv_lines = ["value", csv_value]
     models = read_orm_models_from_csv_lines(csv_lines, Model)
+    model = next(models)
 
-    engine = in_memory_sqlite_database.engine()
-    Model.metadata.create_all(engine)
-    with Session(engine) as session:
-        session.add_all(models)
-        session.flush()
-        result = session.query(Model.value).scalar()
-
-    assert result == expected_value
+    assert model.value == expected_value
 
 
 def test_read_orm_models_from_csv_lines_params_are_exhaustive():
