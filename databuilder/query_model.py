@@ -165,11 +165,6 @@ class ManyRowsPerPatientSeries(Series):
     ...
 
 
-# A Frame which has had a Sort operation applied to it
-class SortedFrame(ManyRowsPerPatientFrame):
-    ...
-
-
 # A OneRowPerPatientSeries which is the result of aggregating one or more
 # ManyRowsPerPatientSeries
 class AggregatedSeries(OneRowPerPatientSeries):
@@ -219,13 +214,13 @@ class Filter(ManyRowsPerPatientFrame):
     condition: Series[bool]
 
 
-class Sort(SortedFrame):
+class Sort(ManyRowsPerPatientFrame):
     source: ManyRowsPerPatientFrame
     sort_by: Series[Comparable]
 
 
 class PickOneRowPerPatient(OneRowPerPatientFrame):
-    source: SortedFrame
+    source: Sort
     position: Position
 
 

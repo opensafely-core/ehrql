@@ -546,7 +546,7 @@ def get_table_and_filter_conditions(frame):
 
 def get_sort_conditions(frame):
     """
-    Given a SortedFrame, return a tuple of Series which gives the sort order
+    Given a sorted frame, return a tuple of Series which gives the sort order
     """
     _, _, sorts = get_frame_operations(frame)
     # Sort operations are given to us in order of application which is the reverse of
