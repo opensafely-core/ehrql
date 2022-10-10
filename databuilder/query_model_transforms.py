@@ -46,6 +46,7 @@ def apply_transforms(variables):
     variables = copy.deepcopy(variables)
     nodes = all_nodes_from_variables(variables)
     add_selected_columns_to_pick_row(nodes)
+    include_all_selected_columns_in_sorts(nodes)
     return variables
 
 
@@ -75,10 +76,34 @@ def add_selected_columns_to_pick_row(nodes):
         force_setattr(node, "selected_columns", selected_columns)
 
 
+def include_all_selected_columns_in_sorts(nodes):
+    """
+    We want to ensure that results are consistent when picking the first or last of a sorted
+    frame, even when the sorting specified in the variable definition isn't sufficient to completely
+    specify the order. To that end we add extra sorts for each column that is ultimately going to
+    be returned from the sorted table.
+
+    This has the additional benefit that the order is the same between different DBMSes, which
+    doesn't help our users but makes testing a bit easier.
+    """
+    for node in nodes:
+        if not isinstance(node, PickOneRowPerPatientWithColumns):
+            continue
+
+        # The new sorts come below the existing ones in the stack -- meaning that they have lower
+        # priority and are only used to disambiguate between rows for which the sort order would
+        # otherwise be undefined.
+        lowest_sort = get_immediate_sorts(node)[-1]
+        for column in node.selected_columns:
+            new_sort = Sort(source=lowest_sort.source, sort_by=column)
+            force_setattr(lowest_sort, "source", new_sort)
+            lowest_sort = new_sort
+
+
 def get_immediate_sorts(node):
     """
-    The source of a PickOneRowPerPatient is always a Sort, which itself may be stacked
-    on top of further Sort nodes. Return just those Sort nodes, from top to bottom.
+    The source of a PickOneRowPerPatient[WithColumns] is always a Sort, which itself may be
+    stacked on top of further Sort nodes. Return just those Sort nodes, from top to bottom.
     """
     sorts = []
     source = node.source

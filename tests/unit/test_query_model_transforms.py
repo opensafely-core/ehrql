@@ -65,3 +65,79 @@ def test_pick_one_row_per_patient_transform():
 
     transformed = apply_transforms(variables)
     assert transformed == expected
+
+
+def test_adds_one_selected_column_to_sorts():
+    events = SelectTable(
+        "events",
+        TableSchema(i1=Column(int), i2=Column(int)),
+    )
+    by_i1 = Sort(events, SelectColumn(events, "i1"))
+    variables = dict(
+        v=SelectColumn(
+            PickOneRowPerPatient(source=by_i1, position=Position.FIRST), "i2"
+        ),
+    )
+
+    transformed = apply_transforms(variables)
+
+    by_i2 = Sort(events, SelectColumn(events, "i2"))
+    by_i2_then_i1 = Sort(by_i2, SelectColumn(events, "i1"))
+    expected_variables = dict(
+        v=SelectColumn(
+            PickOneRowPerPatientWithColumns(
+                by_i2_then_i1,
+                Position.FIRST,
+                selected_columns=frozenset(
+                    {
+                        SelectColumn(
+                            source=events,
+                            name="i2",
+                        ),
+                    }
+                ),
+            ),
+            "i2",
+        ),
+    )
+
+    assert transformed == expected_variables
+
+
+def test_adds_sorts_at_lowest_priority():
+    events = SelectTable(
+        "events",
+        TableSchema(i1=Column(int), i2=Column(int), i3=Column(int)),
+    )
+    by_i2 = Sort(events, SelectColumn(events, "i2"))
+    by_i2_then_i1 = Sort(by_i2, SelectColumn(events, "i1"))
+    variables = dict(
+        v=SelectColumn(
+            PickOneRowPerPatient(source=by_i2_then_i1, position=Position.FIRST), "i3"
+        ),
+    )
+
+    transformed = apply_transforms(variables)
+
+    by_i3 = Sort(events, SelectColumn(events, "i3"))
+    by_i3_then_i2 = Sort(by_i3, SelectColumn(events, "i2"))
+    by_i3_then_i2_then_i1 = Sort(by_i3_then_i2, SelectColumn(events, "i1"))
+    expected_variables = dict(
+        v=SelectColumn(
+            PickOneRowPerPatientWithColumns(
+                by_i3_then_i2_then_i1,
+                Position.FIRST,
+                selected_columns=frozenset(
+                    {
+                        SelectColumn(
+                            source=events,
+                            name="i3",
+                        ),
+                    }
+                ),
+            ),
+            "i3",
+        ),
+    )
+
+    assert transformed == expected_variables
