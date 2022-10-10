@@ -86,7 +86,7 @@ def test_write_orm_models_to_csv_directory(tmp_path):
     ]
 
     csv_dir = tmp_path / "csvs"
-    write_orm_models_to_csv_directory(csv_dir, [Patient, Event], models)
+    write_orm_models_to_csv_directory(csv_dir, models)
 
     patients_csv = (csv_dir / "patients.csv").read_text()
     events_csv = (csv_dir / "events.csv").read_text()

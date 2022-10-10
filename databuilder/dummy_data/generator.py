@@ -15,6 +15,6 @@ class DummyDataGenerator:
 
     def get_results(self):
         database = InMemoryDatabase()
-        database.setup(self.get_data(), metadata=self.orm_classes[0].metadata)
+        database.setup(self.get_data())
         engine = InMemoryQueryEngine(database)
         return engine.get_results(self.variable_definitions)

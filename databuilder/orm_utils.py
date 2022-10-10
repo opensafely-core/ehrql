@@ -143,17 +143,21 @@ def _has_type(field, type_):
     return False
 
 
-def write_orm_models_to_csv_directory(directory, orm_classes, models):
+def write_orm_models_to_csv_directory(directory, models):
     directory.mkdir(exist_ok=True)
     writers = {}
     with ExitStack() as stack:
-        for orm_class in orm_classes:
-            fileobj = stack.enter_context(
-                open(directory / f"{orm_class.__tablename__}.csv", "w", newline="")
-            )
-            writers[orm_class] = orm_csv_writer(fileobj, orm_class)
         for model in models:
-            write_row = writers[model.__class__]
+            orm_class = model.__class__
+
+            write_row = writers.get(orm_class)
+            if write_row is None:
+                fileobj = stack.enter_context(
+                    open(directory / f"{orm_class.__tablename__}.csv", "w", newline="")
+                )
+                write_row = orm_csv_writer(fileobj, orm_class)
+                writers[orm_class] = write_row
+
             write_row(model)
 
 
