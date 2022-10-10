@@ -11,7 +11,7 @@ class DummyDataGenerator:
         self.orm_classes = orm_classes_from_qm_tables(self.tables)
 
     def get_data(self):
-        return []
+        return [orm_class(patient_id=1) for orm_class in self.orm_classes]
 
     def get_results(self):
         database = InMemoryDatabase()
