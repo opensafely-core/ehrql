@@ -69,7 +69,7 @@ class QueryEngineFixture:
         results = query_engine.get_results(variables)
         # We don't explicitly order the results and not all databases naturally
         # return in the same order
-        return sorted(map(dict, results), key=lambda i: i["patient_id"])
+        return [row._asdict() for row in sorted(results)]
 
     def dump_dataset_sql(self, dataset, **engine_kwargs):
         variables = compile(dataset)

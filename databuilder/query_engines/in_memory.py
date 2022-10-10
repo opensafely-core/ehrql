@@ -1,5 +1,6 @@
 import datetime
 import operator
+from collections import namedtuple
 
 from databuilder import query_model as qm
 from databuilder.query_engines.base import BaseQueryEngine
@@ -37,10 +38,11 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
         table = PatientTable(name_to_col)
         table = table.filter(table["population"])
+        table.name_to_col.pop("population")
 
+        Row = namedtuple("Row", table.name_to_col.keys())
         for record in table.to_records():
-            del record["population"]
-            yield record
+            yield Row(**record)
 
     @property
     def database(self):

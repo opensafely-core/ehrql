@@ -116,20 +116,23 @@ def read_value(value, field):
     # Treat the empty string as NULL
     if value == "":
         return None
-    # The ORM will implicitly convert most types correctly from their string
-    # representations, but not booleans
     if _has_type(field, sqlalchemy.Boolean):
         if value == "T":
             return True
         elif value == "F":
             return False
         else:
-            # Let the ORM throw the error for us
-            return value  # pragma: no cover
-    # Some ORM dialects handle this for us, but not all
-    if _has_type(field, sqlalchemy.Date):
+            assert False
+    elif _has_type(field, sqlalchemy.Date):
         return datetime.date.fromisoformat(value)
-    return value
+    elif _has_type(field, sqlalchemy.Float):
+        return float(value)
+    elif _has_type(field, sqlalchemy.Integer):
+        return int(value)
+    elif _has_type(field, sqlalchemy.String):
+        return value
+    else:
+        assert False
 
 
 def _has_type(field, type_):
