@@ -18,11 +18,15 @@ from collections.abc import MutableSet
 from typing import Any
 
 from databuilder.query_model import (
+    Case,
+    Function,
     PickOneRowPerPatient,
     SelectColumn,
     Sort,
+    Value,
     all_nodes,
     get_input_nodes,
+    get_series_type,
 )
 
 
@@ -120,7 +124,7 @@ def include_all_selected_columns_in_sorts(nodes):
         # otherwise be undefined.
         lowest_sort = sorts[-1]
         for column in ordered_sorts_to_add:
-            new_sort = Sort(source=lowest_sort.source, sort_by=column)
+            new_sort = Sort(source=lowest_sort.source, sort_by=make_sortable(column))
             force_setattr(lowest_sort, "source", new_sort)
             lowest_sort = new_sort
 
@@ -136,6 +140,15 @@ def get_immediate_sorts(node):
         sorts.append(source)
         source = source.source
     return sorts
+
+
+def make_sortable(col):
+    if get_series_type(col) == bool:
+        # Some databases can't sort booleans (including SQL Server), so we map them to integers
+        return Case(
+            cases={col: Value(2), Function.Not(col): Value(1)}, default=Value(0)
+        )
+    return col
 
 
 def all_nodes_from_variables(variables):

@@ -78,6 +78,10 @@ class Column:
 class TableSchema:
     "Defines a mapping of column names to column definitions"
 
+    @classmethod
+    def from_primitives(cls, **kwargs):
+        return cls(**{name: Column(type_) for name, type_ in kwargs.items()})
+
     def __init__(self, **kwargs):
         self.schema = kwargs
 

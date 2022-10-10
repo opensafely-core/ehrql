@@ -1,13 +1,16 @@
 import datetime
 
 from databuilder.query_model import (
+    Case,
     Column,
+    Function,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
     SelectTable,
     Sort,
     TableSchema,
+    Value,
 )
 from databuilder.query_model_transforms import (
     PickOneRowPerPatientWithColumns,
@@ -214,6 +217,44 @@ def test_adds_sorts_in_lexical_order_of_column_names():
     expected_variables = dict(
         z=SelectColumn(first_with_extra_sorts, "iz"),
         a=SelectColumn(first_with_extra_sorts, "ia"),
+    )
+
+    assert transformed == expected_variables
+
+
+def test_maps_booleans_to_a_sortable_type():
+    events = SelectTable(
+        "events",
+        TableSchema(i=Column(int), b=Column(bool)),
+    )
+    by_i = Sort(events, SelectColumn(events, "i"))
+    variables = dict(
+        v=SelectColumn(PickOneRowPerPatient(source=by_i, position=Position.FIRST), "b"),
+    )
+
+    transformed = apply_transforms(variables)
+
+    b = SelectColumn(events, "b")
+    by_b = Sort(
+        events, Case({b: Value(2), Function.Not(b): Value(1)}, default=Value(0))
+    )
+    by_b_then_i = Sort(by_b, SelectColumn(events, "i"))
+    expected_variables = dict(
+        v=SelectColumn(
+            PickOneRowPerPatientWithColumns(
+                by_b_then_i,
+                Position.FIRST,
+                selected_columns=frozenset(
+                    {
+                        SelectColumn(
+                            source=events,
+                            name="b",
+                        ),
+                    }
+                ),
+            ),
+            "b",
+        ),
     )
 
     assert transformed == expected_variables
