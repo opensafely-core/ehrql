@@ -20,6 +20,7 @@ from typing import Any
 from databuilder.query_model import (
     PickOneRowPerPatient,
     SelectColumn,
+    Sort,
     all_nodes,
     get_input_nodes,
 )
@@ -62,15 +63,29 @@ def add_selected_columns_to_pick_row(nodes):
         dependers = get_dependers(node, nodes)
         column_names = {c.name for c in dependers if isinstance(c, SelectColumn)}
 
-        # Build a new set of SelectColumn operations which reference this node's source
-        # instead
+        # Record the selected columns. We refer to the underlying source of any stack of sorts
+        # to simplify later transformation.
+        lowest_sort = get_immediate_sorts(node)[-1]
         selected_columns = frozenset(
-            SelectColumn(node.source, name) for name in column_names
+            SelectColumn(lowest_sort.source, name) for name in column_names
         )
 
         # Modify the node in-place to have the new type
         force_setattr(node, "__class__", PickOneRowPerPatientWithColumns)
         force_setattr(node, "selected_columns", selected_columns)
+
+
+def get_immediate_sorts(node):
+    """
+    The source of a PickOneRowPerPatient is always a Sort, which itself may be stacked
+    on top of further Sort nodes. Return just those Sort nodes, from top to bottom.
+    """
+    sorts = []
+    source = node.source
+    while isinstance(source, Sort):
+        sorts.append(source)
+        source = source.source
+    return sorts
 
 
 def all_nodes_from_variables(variables):
