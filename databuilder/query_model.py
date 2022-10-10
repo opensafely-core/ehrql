@@ -7,6 +7,7 @@ from functools import cache, singledispatch
 from types import GenericAlias
 from typing import Any, Optional, TypeVar
 
+from .codes import BaseCode
 from .typing_utils import get_typespec, get_typevars, type_matches
 
 # The below classes and functions are the public API surface of the query model
@@ -49,7 +50,7 @@ __all__ = [
 # type without specifying what that type has to be
 T = TypeVar("T")
 Numeric = TypeVar("Numeric", int, float)
-Comparable = TypeVar("Comparable", int, float, str, date)
+Comparable = TypeVar("Comparable", int, float, str, date, BaseCode)
 
 
 class Position(Enum):
