@@ -2,7 +2,7 @@
 Apply modifications to the query graph which make it easier to work with or allow us to
 generate more efficient SQL.
 
-This involes adding new kinds of nodes to the query model. However we deliberately
+This involves adding new kinds of nodes to the query model. However we deliberately
 define these nodes outside of the core query_model module because we're trying to
 maintain separation of three types of concern:
 
@@ -14,9 +14,15 @@ The transformations applied here are all about efficient execution, and therefor
 want to keep them separate from the core query model classes.
 """
 import copy
+from collections.abc import MutableSet
 from typing import Any
 
-from databuilder.query_model import PickOneRowPerPatient, SelectColumn, get_input_nodes
+from databuilder.query_model import (
+    PickOneRowPerPatient,
+    SelectColumn,
+    all_nodes,
+    get_input_nodes,
+)
 
 
 class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):
@@ -28,75 +34,104 @@ class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):
 
 
 def apply_transforms(variables):
-    # For algorithmic ease we're going to be mutating the query objects, so we make a
-    # copy first to avoid side-effects
+    # For algorithmic ease we're going to be mutating the query objects. Since the QM
+    # graph is a notionally immutable structure consisting of "frozen" dataclasses, we need
+    # to do that carefully. In particular:
+    #
+    # 1. We copy the data that is passed in so that callers don't observe side-effects.
+    # 2. When we store QM nodes in equality/hash-sensitive containers during this manipulation
+    #    we use customized versions of those containers which ignore the __eq__() and
+    #    __hash__() implementations provided by dataclasses.
     variables = copy.deepcopy(variables)
-    reverse_index = get_reverse_index(variables.values())
-    add_selected_columns_to_pick_row(reverse_index)
+    nodes = all_nodes_from_variables(variables)
+    add_selected_columns_to_pick_row(nodes)
     return variables
 
 
-def get_reverse_index(nodes):
-    """
-    Return a dict mapping every node in the query to the (possibly empty) set of nodes
-    which reference it
-
-    This allows walking "backwards" along the graph which makes certain kinds of
-    transformation easier.
-    """
-    index = {}
-    for node in nodes:
-        populate_reverse_index(index, node)
-    return {node: references.values() for node, references in index.items()}
-
-
-def populate_reverse_index(index, node):
-    index.setdefault(node, {})
-    for subnode in get_input_nodes(node):
-        references = index.setdefault(subnode, {})
-        # Index nodes by their object ID so as to disambiguate distnct objects which
-        # compare equal
-        references[id(node)] = node
-        populate_reverse_index(index, subnode)
-
-
-def add_selected_columns_to_pick_row(reverse_index):
+def add_selected_columns_to_pick_row(nodes):
     """
     Replace instances of `PickOneRowPerPatient` with `PickOneRowPerPatientWithColumns`
     which track the columns that are going to be selected and allow us to generate the
     appropriate query
     """
-    for node, references in reverse_index.items():
+    for node in nodes:
         if not isinstance(node, PickOneRowPerPatient):
             continue
+
         # Get the name of any columns selected from this node
-        column_names = {c.name for c in references if isinstance(c, SelectColumn)}
+        dependers = get_dependers(node, nodes)
+        column_names = {c.name for c in dependers if isinstance(c, SelectColumn)}
+
         # Build a new set of SelectColumn operations which reference this node's source
         # instead
         selected_columns = frozenset(
             SelectColumn(node.source, name) for name in column_names
         )
-        # Create a new node which has the original attributes, plus the tuple of selected
-        # columns
-        new_node = PickOneRowPerPatientWithColumns(
-            source=node.source,
-            position=node.position,
-            selected_columns=selected_columns,
-        )
-        # Update any references to the old node to point to the new one
-        for ref_node in references:
-            update_references(ref_node, node, new_node)
+
+        # Modify the node in-place to have the new type
+        force_setattr(node, "__class__", PickOneRowPerPatientWithColumns)
+        force_setattr(node, "selected_columns", selected_columns)
 
 
-def update_references(target, old_ref, new_ref):
+def all_nodes_from_variables(variables):
+    nodes = IdentitySet()  # see comment in apply_transforms()
+    for query in variables.values():
+        query_nodes = all_nodes(query)
+        for query_node in query_nodes:
+            nodes.add(query_node)
+    return nodes
+
+
+def get_dependers(node, nodes):
     """
-    Replace references to `old_ref` with `new_ref` on `target`
+    Return all members of `nodes` that have `node` as an input
     """
-    # We're only expecting nodes with a source attribute here
-    assert target.source == old_ref
-    force_setattr(target, "source", new_ref)
-    # We're only expecting nodes which reference a single input
-    assert get_input_nodes(target) == [new_ref]
+    dependers = []
+    for other_node in nodes:
+        if node in get_input_nodes(other_node):
+            dependers.append(other_node)
+    return dependers
+
+
+class IdentitySet(MutableSet):
+    """
+    This set considers objects equal if and only if they are identical, even if they
+    have overridden __eq__() and __hash__().
+
+    Adapted with gratitude from https://stackoverflow.com/a/17039643/400467.
+    """
+
+    def __init__(self, seq=()):
+        self._set = {Ref(v) for v in seq}
+
+    def add(self, value):
+        self._set.add(Ref(value))
+
+    def discard(self, value):
+        self._set.discard(Ref(value))
+
+    def __contains__(self, value):
+        return Ref(value) in self._set
+
+    def __len__(self):
+        return len(self._set)
+
+    def __iter__(self):
+        return (ref.referent for ref in self._set)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({list(self)})"
+
+
+class Ref:
+    def __init__(self, referent):
+        self.referent = referent
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and self.referent is other.referent
+
+    def __hash__(self):
+        return id(self.referent)
 
 
 # We can't modify attributes on frozen dataclass instances in the normal way, so we have
