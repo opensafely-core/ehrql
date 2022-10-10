@@ -90,11 +90,32 @@ def include_all_selected_columns_in_sorts(nodes):
         if not isinstance(node, PickOneRowPerPatientWithColumns):
             continue
 
+        sorts = get_immediate_sorts(node)
+
+        # We only add sorts for columns which don't already have sorts specified.
+        #
+        # Note that we only consider "direct" column sorts, not those where we're sorting on the
+        # result of a calculation on a column. We do that because 1) extracting the referenced columns
+        # from within a complex expression is complicated and 2) such calculations might return the
+        # same value for distinct column values and so not completely determine the order. Adding
+        # the sort in cases where the result of the calculation would have completely determined the
+        # order can never change the results and is, at worst, a slight inefficiency.
+        existing_sorted_column_names = [
+            sort.sort_by.name
+            for sort in sorts
+            if isinstance(sort.sort_by, SelectColumn)
+        ]
+        sorts_to_add = [
+            column
+            for column in node.selected_columns
+            if column.name not in existing_sorted_column_names
+        ]
+
         # The new sorts come below the existing ones in the stack -- meaning that they have lower
         # priority and are only used to disambiguate between rows for which the sort order would
         # otherwise be undefined.
-        lowest_sort = get_immediate_sorts(node)[-1]
-        for column in node.selected_columns:
+        lowest_sort = sorts[-1]
+        for column in sorts_to_add:
             new_sort = Sort(source=lowest_sort.source, sort_by=column)
             force_setattr(lowest_sort, "source", new_sort)
             lowest_sort = new_sort

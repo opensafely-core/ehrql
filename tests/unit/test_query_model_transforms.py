@@ -141,3 +141,38 @@ def test_adds_sorts_at_lowest_priority():
     )
 
     assert transformed == expected_variables
+
+
+def test_doesnt_duplicate_existing_sorts():
+    events = SelectTable(
+        "events",
+        TableSchema(i1=Column(int)),
+    )
+    by_i1 = Sort(events, SelectColumn(events, "i1"))
+    variables = dict(
+        v=SelectColumn(
+            PickOneRowPerPatient(source=by_i1, position=Position.FIRST), "i1"
+        ),
+    )
+
+    transformed = apply_transforms(variables)
+
+    expected_variables = dict(
+        v=SelectColumn(
+            PickOneRowPerPatientWithColumns(
+                by_i1,
+                Position.FIRST,
+                selected_columns=frozenset(
+                    {
+                        SelectColumn(
+                            source=events,
+                            name="i1",
+                        ),
+                    }
+                ),
+            ),
+            "i1",
+        ),
+    )
+
+    assert transformed == expected_variables
