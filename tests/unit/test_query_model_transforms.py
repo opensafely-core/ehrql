@@ -176,3 +176,44 @@ def test_doesnt_duplicate_existing_sorts():
     )
 
     assert transformed == expected_variables
+
+
+def test_adds_sorts_in_lexical_order_of_column_names():
+    events = SelectTable(
+        "events",
+        TableSchema(i1=Column(int), iz=Column(int), ia=Column(int)),
+    )
+    by_i1 = Sort(events, SelectColumn(events, "i1"))
+    first_initial = PickOneRowPerPatient(source=by_i1, position=Position.FIRST)
+    variables = dict(
+        z=SelectColumn(first_initial, "iz"),
+        a=SelectColumn(first_initial, "ia"),
+    )
+
+    transformed = apply_transforms(variables)
+
+    by_iz = Sort(events, SelectColumn(events, "iz"))
+    by_iz_then_ia = Sort(by_iz, SelectColumn(events, "ia"))
+    by_iz_then_ia_then_i1 = Sort(by_iz_then_ia, SelectColumn(events, "i1"))
+    first_with_extra_sorts = PickOneRowPerPatientWithColumns(
+        by_iz_then_ia_then_i1,
+        Position.FIRST,
+        selected_columns=frozenset(
+            {
+                SelectColumn(
+                    source=events,
+                    name="iz",
+                ),
+                SelectColumn(
+                    source=events,
+                    name="ia",
+                ),
+            }
+        ),
+    )
+    expected_variables = dict(
+        z=SelectColumn(first_with_extra_sorts, "iz"),
+        a=SelectColumn(first_with_extra_sorts, "ia"),
+    )
+
+    assert transformed == expected_variables

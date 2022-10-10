@@ -111,11 +111,15 @@ def include_all_selected_columns_in_sorts(nodes):
             if column.name not in existing_sorted_column_names
         ]
 
+        # We introduce an arbitrary canonical order for the added sorts (lexically by column name) so
+        # that the sort order is stable.
+        ordered_sorts_to_add = sorted(sorts_to_add, key=lambda c: c.name)
+
         # The new sorts come below the existing ones in the stack -- meaning that they have lower
         # priority and are only used to disambiguate between rows for which the sort order would
         # otherwise be undefined.
         lowest_sort = sorts[-1]
-        for column in sorts_to_add:
+        for column in ordered_sorts_to_add:
             new_sort = Sort(source=lowest_sort.source, sort_by=column)
             force_setattr(lowest_sort, "source", new_sort)
             lowest_sort = new_sort
