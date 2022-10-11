@@ -78,7 +78,8 @@ def test_adds_one_selected_column_to_sorts():
     by_i1 = Sort(events, SelectColumn(events, "i1"))
     variables = dict(
         v=SelectColumn(
-            PickOneRowPerPatient(source=by_i1, position=Position.FIRST), "i2"
+            PickOneRowPerPatient(source=by_i1, position=Position.FIRST),
+            "i2",
         ),
     )
 
@@ -116,7 +117,8 @@ def test_adds_sorts_at_lowest_priority():
     by_i2_then_i1 = Sort(by_i2, SelectColumn(events, "i1"))
     variables = dict(
         v=SelectColumn(
-            PickOneRowPerPatient(source=by_i2_then_i1, position=Position.FIRST), "i3"
+            PickOneRowPerPatient(source=by_i2_then_i1, position=Position.FIRST),
+            "i3",
         ),
     )
 
@@ -154,7 +156,8 @@ def test_doesnt_duplicate_existing_sorts():
     by_i1 = Sort(events, SelectColumn(events, "i1"))
     variables = dict(
         v=SelectColumn(
-            PickOneRowPerPatient(source=by_i1, position=Position.FIRST), "i1"
+            PickOneRowPerPatient(source=by_i1, position=Position.FIRST),
+            "i1",
         ),
     )
 
@@ -229,7 +232,10 @@ def test_maps_booleans_to_a_sortable_type():
     )
     by_i = Sort(events, SelectColumn(events, "i"))
     variables = dict(
-        v=SelectColumn(PickOneRowPerPatient(source=by_i, position=Position.FIRST), "b"),
+        v=SelectColumn(
+            PickOneRowPerPatient(source=by_i, position=Position.FIRST),
+            "b",
+        ),
     )
 
     transformed = apply_transforms(variables)
