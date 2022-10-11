@@ -8,6 +8,7 @@ from sqlalchemy.orm import declarative_base
 from databuilder.orm_utils import (
     orm_csv_writer,
     read_orm_models_from_csv_lines,
+    read_value,
     write_orm_models_to_csv_directory,
 )
 from databuilder.sqlalchemy_types import (
@@ -46,6 +47,11 @@ def test_read_orm_models_from_csv_lines(
     model = next(models)
 
     assert model.value == expected_value
+
+
+def test_helpful_error_for_boolens():
+    with pytest.raises(ValueError, match="invalid boolean '0', must be 'T' or 'F'"):
+        read_value("0", sqlalchemy.Column(sqlalchemy.Boolean))
 
 
 def test_read_orm_models_from_csv_lines_params_are_exhaustive():

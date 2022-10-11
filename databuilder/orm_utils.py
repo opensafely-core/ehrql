@@ -122,7 +122,7 @@ def read_value(value, field):
         elif value == "F":
             return False
         else:
-            assert False
+            raise ValueError(f"invalid boolean '{value}', must be 'T' or 'F'")
     elif _has_type(field, sqlalchemy.Date):
         return datetime.date.fromisoformat(value)
     elif _has_type(field, sqlalchemy.Float):
