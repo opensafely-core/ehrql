@@ -3,6 +3,7 @@ import datetime
 from databuilder.query_model import (
     Case,
     Column,
+    Filter,
     Function,
     PickOneRowPerPatient,
     Position,
@@ -127,6 +128,50 @@ def test_adds_sorts_at_lowest_priority():
     by_i3 = Sort(events, SelectColumn(events, "i3"))
     by_i3_then_i2 = Sort(by_i3, SelectColumn(by_i3, "i2"))
     by_i3_then_i2_then_i1 = Sort(by_i3_then_i2, SelectColumn(by_i3_then_i2, "i1"))
+    expected_variables = dict(
+        v=SelectColumn(
+            PickOneRowPerPatientWithColumns(
+                by_i3_then_i2_then_i1,
+                Position.FIRST,
+                selected_columns=frozenset(
+                    {
+                        SelectColumn(
+                            source=by_i3_then_i2_then_i1,
+                            name="i3",
+                        ),
+                    }
+                ),
+            ),
+            "i3",
+        ),
+    )
+
+    assert transformed == expected_variables
+
+
+def test_copes_with_interleaved_sorts_and_filters():
+    events = SelectTable(
+        "events",
+        TableSchema(i1=Column(int), i2=Column(int), i3=Column(int)),
+    )
+    by_i2 = Sort(events, SelectColumn(events, "i2"))
+    by_i2_filtered = Filter(by_i2, Value(True))
+    by_i2_then_i1 = Sort(by_i2_filtered, SelectColumn(by_i2_filtered, "i1"))
+    variables = dict(
+        v=SelectColumn(
+            PickOneRowPerPatient(source=by_i2_then_i1, position=Position.FIRST),
+            "i3",
+        ),
+    )
+
+    transformed = apply_transforms(variables)
+
+    by_i3 = Sort(events, SelectColumn(events, "i3"))
+    by_i3_then_i2 = Sort(by_i3, SelectColumn(by_i3, "i2"))
+    by_i3_then_i2_filtered = Filter(by_i3_then_i2, Value(True))
+    by_i3_then_i2_then_i1 = Sort(
+        by_i3_then_i2_filtered, SelectColumn(by_i3_then_i2_filtered, "i1")
+    )
     expected_variables = dict(
         v=SelectColumn(
             PickOneRowPerPatientWithColumns(

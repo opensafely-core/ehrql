@@ -27,6 +27,7 @@ from databuilder.query_model import (
     all_nodes,
     get_input_nodes,
     get_series_type,
+    get_sorts,
 )
 
 
@@ -128,7 +129,7 @@ def add_columns_to_pick(node, selected_column_names):
 
 
 def add_extra_sorts(node, selected_column_names):
-    all_sorts = get_immediate_sorts(node)
+    all_sorts = get_sorts(node.source)
 
     # Don't duplicate existing direct sorts
     direct_sorts = [
@@ -141,7 +142,7 @@ def add_extra_sorts(node, selected_column_names):
     ordered_sorts_to_add = sorted(sorts_to_add)
 
     # Add at the bottom of the stack
-    lowest_sort = all_sorts[-1]
+    lowest_sort = all_sorts[0]
     for column in ordered_sorts_to_add:
         sort_by = make_sortable(SelectColumn(lowest_sort.source, column))
         new_sort = Sort(
@@ -151,19 +152,6 @@ def add_extra_sorts(node, selected_column_names):
         force_setattr(lowest_sort, "source", new_sort)
         force_setattr(lowest_sort.sort_by, "source", new_sort)
         lowest_sort = new_sort
-
-
-def get_immediate_sorts(node):
-    """
-    The source of a PickOneRowPerPatient[WithColumns] is always a Sort, which itself may be
-    stacked on top of further Sort nodes. Return just those Sort nodes, from top to bottom.
-    """
-    sorts = []
-    source = node.source
-    while isinstance(source, Sort):
-        sorts.append(source)
-        source = source.source
-    return sorts
 
 
 def make_sortable(col):
