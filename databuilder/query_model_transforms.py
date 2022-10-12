@@ -51,87 +51,106 @@ def apply_transforms(variables):
     #    we use customized versions of those containers which ignore the __eq__() and
     #    __hash__() implementations provided by dataclasses.
     variables = copy.deepcopy(variables)
+
     nodes = all_nodes_from_variables(variables)
-    add_selected_columns_to_pick_row(nodes)
-    include_all_selected_columns_in_sorts(nodes)
+    rewrite_sorts(nodes)
 
     variables = copy.deepcopy(variables)  # see comment above
 
     return variables
 
 
-def add_selected_columns_to_pick_row(nodes):
+def rewrite_sorts(nodes):
     """
-    Replace instances of `PickOneRowPerPatient` with `PickOneRowPerPatientWithColumns`
-    which track the columns that are going to be selected and allow us to generate the
-    appropriate query
+    Frames are sorted in order to then pick the first or last row for a patient. Multiple sorts
+    may be applied to give the desired results. Once a single row has been picked, one ore more
+    columns are then selected.
+
+    This results in a subgraph of QM objects like this:
+
+    SelectColumn(A) -+
+                     |
+    SelectColumn(B) -+-> PickOneRowPerPatient -> Sort(A) -> Sort(B) -> SelectTable
+                     |
+    SelectColumn(C) -+
+
+    There are two transformations that we need to carry out on this stack.
+
+    1. We annotate PickOneRowPerPatient with the columns that are going to be selected from it, in
+       order to allow us to generate the appropriate query more easily.
+    2. Add sorts so that we have one for each column that will be selected, in order to ensure that
+       the sort order (and hence the values of the selected columns) is deterministic.
+
+    For the example above the resulting subgraph would be:
+
+    SelectColumn(A) -+
+                     |
+    SelectColumn(B) -+-> PickOneRowPerPatientWithColumns -> Sort(A) -> Sort(B) -> Sort(C) -> SelectTable
+                     |
+    SelectColumn(C) -+
+
+    Some notes on the additional sorts are in order.
+
+    * A potential lack of determinism in sort order creeps in when a patient has multiple rows with
+      the same value of the column(s) being sorted on. In this case some databases may give different
+      orders on different runs of the same query against the same data.
+    * When this lack of determinism exists, and we select a column that has not been sorted on, the
+      value returned may change between runs.
+    * We add sorts only for columns that don't already have them. Duplicate sorts wouldn't cause a
+      problem, but are conceptually messy and might have a small performance impact.
+    * We add the sorts below the existing ones so that they have lower priority and are only used to
+      break any ties in the user-specified sorts.
+    * When considering the existing sorts we only attend to those that sort directly on selected
+      columns, not on expressions derived from a column. Such expressions may not be injective and so
+      may not be sufficient to fully determine the order. As above, duplicates are not a problem.
+    * We introduce an arbitrary order for the additional sorts (lexically by column name) to ensure
+      that their order itself is deterministic.
     """
     for node in nodes:
         if not isinstance(node, PickOneRowPerPatient):
             continue
 
-        # Get the name of any columns selected from this node
-        dependers = get_dependers(node, nodes)
-        column_names = {c.name for c in dependers if isinstance(c, SelectColumn)}
-
-        # Record the selected columns.
-        selected_columns = frozenset(
-            SelectColumn(node.source, name) for name in column_names
-        )
-
-        # Modify the node in-place to have the new type
-        force_setattr(node, "__class__", PickOneRowPerPatientWithColumns)
-        force_setattr(node, "selected_columns", selected_columns)
-
-
-def include_all_selected_columns_in_sorts(nodes):
-    """
-    We want to ensure that results are consistent when picking the first or last of a sorted
-    frame, even when the sorting specified in the variable definition isn't sufficient to completely
-    specify the order. To that end we add extra sorts for each column that is ultimately going to
-    be returned from the sorted table.
-
-    This has the additional benefit that the order is the same between different DBMSes, which
-    doesn't help our users but makes testing a bit easier.
-    """
-    for node in nodes:
-        if not isinstance(node, PickOneRowPerPatientWithColumns):
-            continue
-
-        sorts = get_immediate_sorts(node)
-
-        # Get the name of any columns selected from this node
-        column_names = {c.name for c in node.selected_columns}
-
-        # We only add sorts for columns which don't already have sorts specified.
-        #
-        # Note that we only consider "direct" column sorts, not those where we're sorting on the
-        # result of a calculation on a column. We do that because 1) extracting the referenced columns
-        # from within a complex expression is complicated and 2) such calculations might return the
-        # same value for distinct column values and so not completely determine the order. Adding
-        # the sort in cases where the result of the calculation would have completely determined the
-        # order can never change the results and is, at worst, a slight inefficiency.
-        existing_sorted_column_names = {
-            sort.sort_by.name
-            for sort in sorts
-            if isinstance(sort.sort_by, SelectColumn)
+        # What columns are select from this patient frame?
+        selected_column_names = {
+            c.name for c in (get_dependers(node, nodes)) if isinstance(c, SelectColumn)
         }
-        sorts_to_add = column_names - existing_sorted_column_names
 
-        # We introduce an arbitrary canonical order for the added sorts (lexically by column name) so
-        # that the sort order is stable.
-        ordered_sorts_to_add = sorted(sorts_to_add)
+        add_columns_to_pick(node, selected_column_names)
+        add_extra_sorts(node, selected_column_names)
 
-        # The new sorts come below the existing ones in the stack -- meaning that they have lower
-        # priority and are only used to disambiguate between rows for which the sort order would
-        # otherwise be undefined.
-        lowest_sort = sorts[-1]
-        for column_name in ordered_sorts_to_add:
-            column = SelectColumn(lowest_sort.source, column_name)
-            new_sort = Sort(source=lowest_sort.source, sort_by=make_sortable(column))
-            force_setattr(lowest_sort, "source", new_sort)
-            force_setattr(lowest_sort.sort_by, "source", new_sort)
-            lowest_sort = new_sort
+
+def add_columns_to_pick(node, selected_column_names):
+    selected_columns = frozenset(
+        SelectColumn(node.source, c) for c in selected_column_names
+    )
+    force_setattr(node, "__class__", PickOneRowPerPatientWithColumns)
+    force_setattr(node, "selected_columns", selected_columns)
+
+
+def add_extra_sorts(node, selected_column_names):
+    all_sorts = get_immediate_sorts(node)
+
+    # Don't duplicate existing direct sorts
+    direct_sorts = [
+        sort for sort in all_sorts if isinstance(sort.sort_by, SelectColumn)
+    ]
+    existing_sorted_column_names = {sort.sort_by.name for sort in direct_sorts}
+    sorts_to_add = selected_column_names - existing_sorted_column_names
+
+    # Arbitrary canonical ordering
+    ordered_sorts_to_add = sorted(sorts_to_add)
+
+    # Add at the bottom of the stack
+    lowest_sort = all_sorts[-1]
+    for column in ordered_sorts_to_add:
+        sort_by = make_sortable(SelectColumn(lowest_sort.source, column))
+        new_sort = Sort(
+            source=lowest_sort.source,
+            sort_by=sort_by,
+        )
+        force_setattr(lowest_sort, "source", new_sort)
+        force_setattr(lowest_sort.sort_by, "source", new_sort)
+        lowest_sort = new_sort
 
 
 def get_immediate_sorts(node):
