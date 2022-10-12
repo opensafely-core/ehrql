@@ -774,3 +774,42 @@ def get_root_frame(frame):
 @get_root_frame.register(SelectPatientTable)
 def get_root_frame_for_table(frame):
     return frame
+
+
+def get_table_and_filters(frame):
+    """
+    Given a ManyRowsPerPatientFrame, destructure it and return the underlying table and
+    any filter operations that have been applied, in application order.
+    """
+    root_frame, filters, _ = get_frame_operations(frame)
+    return filters, root_frame
+
+
+def get_sorts(frame):
+    """
+    Given a ManyRowsPerPatientFrame, destructure it and return any sort operations that
+    have been applied, in application order.
+    """
+    _, _, sorts = get_frame_operations(frame)
+    return sorts
+
+
+def get_frame_operations(frame):
+    """
+    Given a ManyRowsPerPatientFrame, destructure it and return the underlying table and
+    any filter and sort operations that have been applied, in application order.
+    """
+    filters = []
+    sorts = []
+    while True:
+        type_ = type(frame)
+        if type_ is Filter:
+            filters.insert(0, frame)
+            frame = frame.source
+        elif type_ is Sort:
+            sorts.insert(0, frame)
+            frame = frame.source
+        elif type_ is SelectTable:
+            return frame, filters, sorts
+        else:
+            assert False, f"Unexpected type: {frame}"
