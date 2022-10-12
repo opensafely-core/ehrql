@@ -50,11 +50,11 @@ def test_pick_one_row_per_patient_transform():
         selected_columns=frozenset(
             {
                 SelectColumn(
-                    source=events,
+                    source=sorted_events,
                     name="value",
                 ),
                 SelectColumn(
-                    source=events,
+                    source=sorted_events,
                     name="code",
                 ),
             }
@@ -86,7 +86,7 @@ def test_adds_one_selected_column_to_sorts():
     transformed = apply_transforms(variables)
 
     by_i2 = Sort(events, SelectColumn(events, "i2"))
-    by_i2_then_i1 = Sort(by_i2, SelectColumn(events, "i1"))
+    by_i2_then_i1 = Sort(by_i2, SelectColumn(by_i2, "i1"))
     expected_variables = dict(
         v=SelectColumn(
             PickOneRowPerPatientWithColumns(
@@ -95,7 +95,7 @@ def test_adds_one_selected_column_to_sorts():
                 selected_columns=frozenset(
                     {
                         SelectColumn(
-                            source=events,
+                            source=by_i2_then_i1,
                             name="i2",
                         ),
                     }
@@ -114,7 +114,7 @@ def test_adds_sorts_at_lowest_priority():
         TableSchema(i1=Column(int), i2=Column(int), i3=Column(int)),
     )
     by_i2 = Sort(events, SelectColumn(events, "i2"))
-    by_i2_then_i1 = Sort(by_i2, SelectColumn(events, "i1"))
+    by_i2_then_i1 = Sort(by_i2, SelectColumn(by_i2, "i1"))
     variables = dict(
         v=SelectColumn(
             PickOneRowPerPatient(source=by_i2_then_i1, position=Position.FIRST),
@@ -125,8 +125,8 @@ def test_adds_sorts_at_lowest_priority():
     transformed = apply_transforms(variables)
 
     by_i3 = Sort(events, SelectColumn(events, "i3"))
-    by_i3_then_i2 = Sort(by_i3, SelectColumn(events, "i2"))
-    by_i3_then_i2_then_i1 = Sort(by_i3_then_i2, SelectColumn(events, "i1"))
+    by_i3_then_i2 = Sort(by_i3, SelectColumn(by_i3, "i2"))
+    by_i3_then_i2_then_i1 = Sort(by_i3_then_i2, SelectColumn(by_i3_then_i2, "i1"))
     expected_variables = dict(
         v=SelectColumn(
             PickOneRowPerPatientWithColumns(
@@ -135,7 +135,7 @@ def test_adds_sorts_at_lowest_priority():
                 selected_columns=frozenset(
                     {
                         SelectColumn(
-                            source=events,
+                            source=by_i3_then_i2_then_i1,
                             name="i3",
                         ),
                     }
@@ -171,7 +171,7 @@ def test_doesnt_duplicate_existing_sorts():
                 selected_columns=frozenset(
                     {
                         SelectColumn(
-                            source=events,
+                            source=by_i1,
                             name="i1",
                         ),
                     }
@@ -199,19 +199,19 @@ def test_adds_sorts_in_lexical_order_of_column_names():
     transformed = apply_transforms(variables)
 
     by_iz = Sort(events, SelectColumn(events, "iz"))
-    by_iz_then_ia = Sort(by_iz, SelectColumn(events, "ia"))
-    by_iz_then_ia_then_i1 = Sort(by_iz_then_ia, SelectColumn(events, "i1"))
+    by_iz_then_ia = Sort(by_iz, SelectColumn(by_iz, "ia"))
+    by_iz_then_ia_then_i1 = Sort(by_iz_then_ia, SelectColumn(by_iz_then_ia, "i1"))
     first_with_extra_sorts = PickOneRowPerPatientWithColumns(
         by_iz_then_ia_then_i1,
         Position.FIRST,
         selected_columns=frozenset(
             {
                 SelectColumn(
-                    source=events,
+                    source=by_iz_then_ia_then_i1,
                     name="iz",
                 ),
                 SelectColumn(
-                    source=events,
+                    source=by_iz_then_ia_then_i1,
                     name="ia",
                 ),
             }
@@ -244,7 +244,7 @@ def test_maps_booleans_to_a_sortable_type():
     by_b = Sort(
         events, Case({b: Value(2), Function.Not(b): Value(1)}, default=Value(0))
     )
-    by_b_then_i = Sort(by_b, SelectColumn(events, "i"))
+    by_b_then_i = Sort(by_b, SelectColumn(by_b, "i"))
     expected_variables = dict(
         v=SelectColumn(
             PickOneRowPerPatientWithColumns(
@@ -253,7 +253,7 @@ def test_maps_booleans_to_a_sortable_type():
                 selected_columns=frozenset(
                     {
                         SelectColumn(
-                            source=events,
+                            source=by_b_then_i,
                             name="b",
                         ),
                     }

@@ -44,13 +44,19 @@ def apply_transforms(variables):
     # to do that carefully. In particular:
     #
     # 1. We copy the data that is passed in so that callers don't observe side-effects.
-    # 2. When we store QM nodes in equality/hash-sensitive containers during this manipulation
+    # 2. We copy the results on the way out to rectify the state of containers that depend
+    #    on object hashes which may have changed unexpectedly (specifically the frozenset used
+    #    to hold selected columns).
+    # 3. When we store QM nodes in equality/hash-sensitive containers during this manipulation
     #    we use customized versions of those containers which ignore the __eq__() and
     #    __hash__() implementations provided by dataclasses.
     variables = copy.deepcopy(variables)
     nodes = all_nodes_from_variables(variables)
     add_selected_columns_to_pick_row(nodes)
     include_all_selected_columns_in_sorts(nodes)
+
+    variables = copy.deepcopy(variables)  # see comment above
+
     return variables
 
 
@@ -68,11 +74,9 @@ def add_selected_columns_to_pick_row(nodes):
         dependers = get_dependers(node, nodes)
         column_names = {c.name for c in dependers if isinstance(c, SelectColumn)}
 
-        # Record the selected columns. We refer to the underlying source of any stack of sorts
-        # to simplify later transformation.
-        lowest_sort = get_immediate_sorts(node)[-1]
+        # Record the selected columns.
         selected_columns = frozenset(
-            SelectColumn(lowest_sort.source, name) for name in column_names
+            SelectColumn(node.source, name) for name in column_names
         )
 
         # Modify the node in-place to have the new type
@@ -96,6 +100,9 @@ def include_all_selected_columns_in_sorts(nodes):
 
         sorts = get_immediate_sorts(node)
 
+        # Get the name of any columns selected from this node
+        column_names = {c.name for c in node.selected_columns}
+
         # We only add sorts for columns which don't already have sorts specified.
         #
         # Note that we only consider "direct" column sorts, not those where we're sorting on the
@@ -104,28 +111,26 @@ def include_all_selected_columns_in_sorts(nodes):
         # same value for distinct column values and so not completely determine the order. Adding
         # the sort in cases where the result of the calculation would have completely determined the
         # order can never change the results and is, at worst, a slight inefficiency.
-        existing_sorted_column_names = [
+        existing_sorted_column_names = {
             sort.sort_by.name
             for sort in sorts
             if isinstance(sort.sort_by, SelectColumn)
-        ]
-        sorts_to_add = [
-            column
-            for column in node.selected_columns
-            if column.name not in existing_sorted_column_names
-        ]
+        }
+        sorts_to_add = column_names - existing_sorted_column_names
 
         # We introduce an arbitrary canonical order for the added sorts (lexically by column name) so
         # that the sort order is stable.
-        ordered_sorts_to_add = sorted(sorts_to_add, key=lambda c: c.name)
+        ordered_sorts_to_add = sorted(sorts_to_add)
 
         # The new sorts come below the existing ones in the stack -- meaning that they have lower
         # priority and are only used to disambiguate between rows for which the sort order would
         # otherwise be undefined.
         lowest_sort = sorts[-1]
-        for column in ordered_sorts_to_add:
+        for column_name in ordered_sorts_to_add:
+            column = SelectColumn(lowest_sort.source, column_name)
             new_sort = Sort(source=lowest_sort.source, sort_by=make_sortable(column))
             force_setattr(lowest_sort, "source", new_sort)
+            force_setattr(lowest_sort.sort_by, "source", new_sort)
             lowest_sort = new_sort
 
 
