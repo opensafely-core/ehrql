@@ -16,7 +16,6 @@ ENV VIRTUAL_ENV=/opt/venv/ \
     PYTHONUNBUFFERED=True \
     PYTHONDONTWRITEBYTECODE=1
 
-
 RUN mkdir /workspace
 WORKDIR /workspace
 
@@ -82,13 +81,3 @@ FROM databuilder-base as databuilder
 COPY entrypoint.sh /app/entrypoint.sh
 COPY databuilder /app/databuilder
 RUN python -m compileall /app/databuilder
-
-################################################
-#
-# Development image that includes test dependencies and mounts the code in
-FROM databuilder as databuilder-dev
-
-# Install dev dependencies
-COPY requirements.dev.txt /root/requirements.dev.txt
-# hadolint ignore=DL3042
-RUN --mount=type=cache,target=/root/.cache python -m pip install -r /root/requirements.dev.txt
