@@ -24,6 +24,8 @@ class InMemoryQueryEngine(BaseQueryEngine):
     """
 
     def get_results(self, variable_definitions):
+        self.cache = {}
+
         name_to_col = {
             "patient_id": PatientColumn(
                 {patient: patient for patient in self.all_patients},
@@ -61,8 +63,12 @@ class InMemoryQueryEngine(BaseQueryEngine):
         return self.database.all_patients
 
     def visit(self, node):
-        visitor = getattr(self, f"visit_{type(node).__name__}")
-        return visitor(node)
+        value = self.cache.get(node)
+        if value is None:
+            visitor = getattr(self, f"visit_{type(node).__name__}")
+            value = visitor(node)
+            self.cache[node] = value
+        return value
 
     def visit_Code(self, node):
         assert False
