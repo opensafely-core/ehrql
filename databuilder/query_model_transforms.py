@@ -14,7 +14,8 @@ The transformations applied here are all about efficient execution, and therefor
 want to keep them separate from the core query model classes.
 """
 import copy
-from collections.abc import MutableSet
+from abc import ABC
+from collections.abc import Mapping, MutableMapping, MutableSet
 from typing import Any
 
 from databuilder.query_model import (
@@ -54,14 +55,16 @@ def apply_transforms(variables):
     variables = copy.deepcopy(variables)
 
     nodes = all_nodes_from_variables(variables)
-    rewrite_sorts(nodes)
+    reverse_index = build_reverse_index(nodes)
+
+    rewrite_sorts(nodes, reverse_index)
 
     variables = copy.deepcopy(variables)  # see comment above
 
     return variables
 
 
-def rewrite_sorts(nodes):
+def rewrite_sorts(nodes, reverse_index):
     """
     Frames are sorted in order to then pick the first or last row for a patient. Multiple sorts
     may be applied to give the desired results. Once a single row has been picked, one ore more
@@ -113,7 +116,7 @@ def rewrite_sorts(nodes):
 
         # What columns are select from this patient frame?
         selected_column_names = {
-            c.name for c in (get_dependers(node, nodes)) if isinstance(c, SelectColumn)
+            c.name for c in reverse_index[node] if isinstance(c, SelectColumn)
         }
 
         add_columns_to_pick(node, selected_column_names)
@@ -172,15 +175,12 @@ def all_nodes_from_variables(variables):
     return nodes
 
 
-def get_dependers(node, nodes):
-    """
-    Return all members of `nodes` that have `node` as an input
-    """
-    dependers = []
-    for other_node in nodes:
-        if node in get_input_nodes(other_node):
-            dependers.append(other_node)
-    return dependers
+def build_reverse_index(nodes):
+    reverse_index = DefaultIdentityDict(IdentitySet)
+    for n in nodes:
+        for i in get_input_nodes(n):
+            reverse_index[i].add(n)
+    return reverse_index
 
 
 class IdentitySet(MutableSet):
@@ -211,6 +211,64 @@ class IdentitySet(MutableSet):
 
     def __repr__(self):
         return f"{type(self).__name__}({list(self)})"
+
+
+class IdentityDict(MutableMapping):
+    """
+    This map considers keys equal if and only if they are identical, even if they
+    have overridden __eq__() and __hash__().
+    """
+
+    def __init__(self, seq=(), **kwargs):
+        self._dict = {Ref(k): v for k, v in seq}
+
+    def __setitem__(self, key, value):
+        self._dict[Ref(key)] = value
+
+    def __delitem__(self, key):
+        del self._dict[Ref(key)]
+
+    def __getitem__(self, key):
+        return self._dict[Ref(key)]
+
+    def __len__(self):
+        return len(self._dict)
+
+    def __iter__(self):
+        return (ref.referent for ref in self._dict)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({list(self.items())})"
+
+
+class DefaultDict(Mapping, ABC):
+    """
+    Mixin to provide defaultdict-like behaviour for custom Mapping classes.
+
+    Must be the first base class of a derived class. Must be mixed in with
+    another base class that provides Mapping methods.
+    """
+
+    def __init__(self, default_factory=None, **kwargs):
+        super().__init__(**kwargs)
+        self.default_factory = default_factory
+
+    def __getitem__(self, key):
+        try:
+            return super().__getitem__(key)
+        except KeyError:
+            return self.__missing__(key)
+
+    def __missing__(self, key):
+        if self.default_factory is None:
+            raise KeyError(key)
+        value = self.default_factory()
+        self[key] = value
+        return value
+
+
+class DefaultIdentityDict(DefaultDict, IdentityDict):
+    pass
 
 
 class Ref:
