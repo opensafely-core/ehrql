@@ -97,6 +97,8 @@ check: devenv
         $(find databuilder -name "*.py" -type f) \
         $(find tests -name "*.py" -type f)
     just docstrings
+    docker pull hadolint/hadolint
+    docker run --rm -i hadolint/hadolint < Dockerfile
 
 # ensure our public facing docstrings exist so we can build docs from them
 docstrings: devenv
