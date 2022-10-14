@@ -133,7 +133,20 @@ def add_columns_to_pick(node, selected_column_names):
 
 def add_extra_sorts(node, selected_column_names):
     all_sorts = get_sorts(node.source)
+    # Add at the bottom of the stack
+    lowest_sort = all_sorts[0]
 
+    for column in calculate_sorts_to_add(all_sorts, selected_column_names):
+        new_sort = Sort(
+            source=lowest_sort.source,
+            sort_by=make_sortable(SelectColumn(lowest_sort.source, column)),
+        )
+        force_setattr(lowest_sort, "source", new_sort)
+        force_setattr(lowest_sort.sort_by, "source", new_sort)
+        lowest_sort = new_sort
+
+
+def calculate_sorts_to_add(all_sorts, selected_column_names):
     # Don't duplicate existing direct sorts
     direct_sorts = [
         sort for sort in all_sorts if isinstance(sort.sort_by, SelectColumn)
@@ -142,19 +155,7 @@ def add_extra_sorts(node, selected_column_names):
     sorts_to_add = selected_column_names - existing_sorted_column_names
 
     # Arbitrary canonical ordering
-    ordered_sorts_to_add = sorted(sorts_to_add)
-
-    # Add at the bottom of the stack
-    lowest_sort = all_sorts[0]
-    for column in ordered_sorts_to_add:
-        sort_by = make_sortable(SelectColumn(lowest_sort.source, column))
-        new_sort = Sort(
-            source=lowest_sort.source,
-            sort_by=sort_by,
-        )
-        force_setattr(lowest_sort, "source", new_sort)
-        force_setattr(lowest_sort.sort_by, "source", new_sort)
-        lowest_sort = new_sort
+    return sorted(sorts_to_add)
 
 
 def make_sortable(col):
