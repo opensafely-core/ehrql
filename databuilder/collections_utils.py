@@ -11,7 +11,9 @@ class IdentitySet(MutableSet):
     """
 
     def __init__(self, seq=()):
-        self._set = {Ref(v) for v in seq}
+        self._set = set()
+        for value in seq:
+            self.add(value)
 
     def add(self, value):
         self._set.add(Ref(value))
@@ -28,7 +30,7 @@ class IdentitySet(MutableSet):
     def __iter__(self):
         return (ref.referent for ref in self._set)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return f"{type(self).__name__}({list(self)})"
 
 
@@ -39,7 +41,11 @@ class IdentityDict(MutableMapping):
     """
 
     def __init__(self, seq=(), **kwargs):
-        self._dict = {Ref(k): v for k, v in seq}
+        self._dict = {}
+        for k, v in seq:
+            self[k] = v
+        for k, v in kwargs.items():
+            self[k] = v
 
     def __setitem__(self, key, value):
         self._dict[Ref(key)] = value
@@ -56,7 +62,7 @@ class IdentityDict(MutableMapping):
     def __iter__(self):
         return (ref.referent for ref in self._dict)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return f"{type(self).__name__}({list(self.items())})"
 
 
