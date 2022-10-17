@@ -1,4 +1,5 @@
 import datetime
+import sys
 
 from databuilder.codes import CTV3Code
 from databuilder.dummy_data.query_info import ColumnInfo, QueryInfo, TableInfo
@@ -102,3 +103,11 @@ def test_query_info_ignores_complex_comparisons():
     column_info = query_info.tables["patients"].columns["date_of_birth"]
 
     assert column_info.values_used == {datetime.date(2022, 10, 5)}
+
+
+def test_remove_pragmas_for_python_3_10():
+    # https://github.com/nedbat/coveragepy/issues/198#issuecomment-798891606
+    assert sys.version_info < (3, 10), (
+        f"Remove `no cover` pragmas from continue "
+        f"statements in {QueryInfo.__module__}"
+    )
