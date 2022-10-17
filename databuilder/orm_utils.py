@@ -149,7 +149,7 @@ def write_orm_models_to_csv_directory(directory, orm_classes, models):
     with ExitStack() as stack:
         for orm_class in orm_classes:
             fileobj = stack.enter_context(
-                open(directory / f"{orm_class.__tablename__}.csv", "wt", newline="")
+                open(directory / f"{orm_class.__tablename__}.csv", "w", newline="")
             )
             writers[orm_class] = orm_csv_writer(fileobj, orm_class)
         for model in models:
