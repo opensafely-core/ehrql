@@ -1,5 +1,6 @@
 import dataclasses
 from collections import defaultdict
+from functools import cached_property
 from typing import Optional
 
 from databuilder.query_model import (
@@ -33,6 +34,13 @@ class ColumnInfo:
             value = value._to_primitive_type()
         self.values_used.add(value)
 
+    @cached_property
+    def choices(self):
+        if self.categories is not None:
+            return self.categories
+        else:
+            return sorted(self.values_used)
+
 
 @dataclasses.dataclass
 class TableInfo:
@@ -43,6 +51,12 @@ class TableInfo:
     name: str
     has_one_row_per_patient: bool
     columns: dict[str, ColumnInfo] = dataclasses.field(default_factory=dict)
+
+    # Act enough like a `query_model.TableSchema` that we can use this class with the
+    # `orm_utils` factory functions
+    @property
+    def column_types(self):
+        return [(name, column.type) for name, column in self.columns.items()]
 
 
 @dataclasses.dataclass

@@ -123,4 +123,4 @@ def test_create_dummy_tables(study, tmp_path):
     study.setup_from_string(trivial_dataset_definition)
     study.create_dummy_tables(dummy_tables_path)
     header_line = (dummy_tables_path / "patients.csv").read_text().splitlines()[0]
-    assert header_line == "patient_id,date_of_birth,sex,date_of_death"
+    assert header_line == "patient_id,date_of_birth"
