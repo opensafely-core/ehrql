@@ -67,6 +67,8 @@ class QueryInfo:
     """
 
     tables: dict[str, TableInfo]
+    population_table_names: list[str]
+    other_table_names: list[str]
 
     @classmethod
     def from_variable_definitions(cls, variable_definitions):
@@ -128,7 +130,21 @@ class QueryInfo:
             for value in node.rhs.value:
                 column_info.record_value(value)
 
-        return cls(tables=tables)
+        # Record which tables are used in determining population membership and which
+        # are not
+        population_table_names = {
+            node.name
+            for node in walk_tree(variable_definitions["population"])
+            if isinstance(node, (SelectTable, SelectPatientTable))
+        }
+
+        other_table_names = tables.keys() - population_table_names
+
+        return cls(
+            tables=tables,
+            population_table_names=sorted(population_table_names),
+            other_table_names=sorted(other_table_names),
+        )
 
 
 def get_nodes_by_type(nodes):

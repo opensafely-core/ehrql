@@ -52,10 +52,12 @@ class DummyDataGenerator:
         # TODO: This needs some sort of timeout as it's possible we won't generate
         # matching patients fast enough
         for batch_start in range(1, 2**63, self.batch_size):
-            # Generate batches of patient data and find those matching the population
-            # definition
+            # Generate batches of patient data (just enough to determine population
+            # membership) and find those matching the population definition
             patient_batch = {
-                patient_id: list(self.get_patient_data(patient_id))
+                patient_id: list(
+                    self.get_patient_data_for_population_condition(patient_id)
+                )
                 for patient_id in range(batch_start, batch_start + self.batch_size)
             }
             database.setup(*patient_batch.values())
@@ -63,6 +65,9 @@ class DummyDataGenerator:
             # Accumulate all data from matching patients, returning once we have enough
             for row in results:
                 data.extend(patient_batch[row.patient_id])
+                # Include additional data needed for the dataset but not required just
+                # to determine population membership
+                data.extend(self.get_remaining_patient_data(row.patient_id))
                 found += 1
                 if found >= self.population_size:
                     return data
@@ -76,15 +81,27 @@ class DummyDataGenerator:
         engine = InMemoryQueryEngine(database)
         return engine.get_results(self.variable_definitions)
 
-    def get_patient_data(self, patient_id):
+    def get_patient_data_for_population_condition(self, patient_id):
+        # Generate data for just those tables needed for determining whether the patient
+        # is included in the population
+        return self.get_patient_data(patient_id, self.query_info.population_table_names)
+
+    def get_remaining_patient_data(self, patient_id):
+        # Generate data for any tables not included above
+        return self.get_patient_data(patient_id, self.query_info.other_table_names)
+
+    def get_patient_data(self, patient_id, table_names):
         # Seed the random generator using the patient_id so we always generate the same
         # data for the same patient
         self.rnd.seed(f"{self.random_seed}:{patient_id}")
         # Generate some basic demographic facts about the patient which subsequent table
         # generators can use to ensure a consistent patient history
         self.generate_patient_facts()
-        # Generate data for each of the tables used in the query
-        for table_info in self.query_info.tables.values():
+        for name in table_names:
+            # Seed the random generator per-table, so that we get the same data no
+            # matter what order the tables are generated in
+            self.rnd.seed(f"{self.random_seed}:{patient_id}:{name}")
+            table_info = self.query_info.tables[name]
             # Support specialised generators for individual tables, otherwise just make
             # some empty rows
             get_rows = getattr(self, f"rows_for_{table_info.name}", self.empty_rows)

@@ -60,7 +60,9 @@ def test_query_info_from_variable_definitions():
                     ),
                 },
             ),
-        }
+        },
+        population_table_names=["events"],
+        other_table_names=["patients"],
     )
 
 
