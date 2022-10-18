@@ -13,7 +13,8 @@ class DummyDataGenerator:
     # TODO: Make these user configurable. We're deliberately not doing this right now
     # because we want to keep the API surface to zero in the early stages while we
     # iterate on things.
-    population_size = 5000
+    population_size = 500
+    batch_size = 5000
     random_seed = "BwRV3spP"
 
     def __init__(self, variable_definitions):
@@ -39,8 +40,35 @@ class DummyDataGenerator:
         }
 
     def get_data(self):
-        for patient_id in range(1, self.population_size + 1):
-            yield from self.get_patient_data(patient_id)
+        data = []
+        found = 0
+
+        # Create a version of the query with just the population definition, and an
+        # in-memory engine to run it against
+        population_query = {"population": self.variable_definitions["population"]}
+        database = InMemoryDatabase()
+        engine = InMemoryQueryEngine(database)
+
+        # TODO: This needs some sort of timeout as it's possible we won't generate
+        # matching patients fast enough
+        for batch_start in range(1, 2**63, self.batch_size):
+            # Generate batches of patient data and find those matching the population
+            # definition
+            patient_batch = {
+                patient_id: list(self.get_patient_data(patient_id))
+                for patient_id in range(batch_start, batch_start + self.batch_size)
+            }
+            database.setup(*patient_batch.values())
+            results = engine.get_results(population_query)
+            # Accumulate all data from matching patients, returning once we have enough
+            for row in results:
+                data.extend(patient_batch[row.patient_id])
+                found += 1
+                if found >= self.population_size:
+                    return data
+
+        # Keep coverage happy: the loop should never complete
+        assert False
 
     def get_results(self):
         database = InMemoryDatabase()

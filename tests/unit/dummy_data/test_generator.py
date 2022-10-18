@@ -55,6 +55,7 @@ def test_dummy_data_generator():
     variable_definitions = compile(dataset)
     generator = DummyDataGenerator(variable_definitions)
     generator.population_size = 7
+    generator.batch_size = 4
     results = list(generator.get_results())
 
     # Check they look right
