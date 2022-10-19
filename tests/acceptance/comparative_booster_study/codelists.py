@@ -106,11 +106,6 @@ ethnicity = codelist_from_csv(
     system="ctv3",
     column="Code",
 )
-ethnicity_16 = codelist_from_csv(
-    CODELIST_DIR / "opensafely-ethnicity.csv",
-    system="ctv3",
-    column="Code",
-)
 
 #
 # solid_organ_transplantation = codelist_from_csv(

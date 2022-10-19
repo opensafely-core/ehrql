@@ -14,12 +14,13 @@ class CSVQueryEngine(InMemoryQueryEngine):
     Subclass of the in-memory engine which loads its data from a directory of CSV files
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, dsn, *args, **kwargs):
         # Treat the DSN as the path to a directory of CSVs
-        self.csv_directory = self.dsn
-        # This gives us an in memory SQLite database
-        self.dsn = InMemoryDatabase()
+        self.csv_directory = dsn
+        # The in-memory engine is a bit unusual in that it expects the DSN to be an
+        # actual instance of the database
+        dsn = InMemoryDatabase()
+        super().__init__(dsn, *args, **kwargs)
 
     def get_results(self, variable_definitions):
         # Given the variables supplied determine the tables used and create
