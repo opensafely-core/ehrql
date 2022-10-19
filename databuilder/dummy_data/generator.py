@@ -1,12 +1,15 @@
 import random
 from datetime import date, timedelta
 
+import structlog
 from sqlalchemy.orm import declarative_base
 
 from databuilder.dummy_data.query_info import QueryInfo
 from databuilder.orm_utils import orm_class_from_schema
 from databuilder.query_engines.in_memory import InMemoryQueryEngine
 from databuilder.query_engines.in_memory_database import InMemoryDatabase
+
+log = structlog.getLogger()
 
 
 class DummyDataGenerator:
@@ -49,6 +52,11 @@ class DummyDataGenerator:
         database = InMemoryDatabase()
         engine = InMemoryQueryEngine(database)
 
+        log.info(
+            f"Attempting to generate {self.population_size} matching patients "
+            f"(random seed: {self.random_seed})"
+        )
+
         # TODO: This needs some sort of timeout as it's possible we won't generate
         # matching patients fast enough
         for batch_start in range(1, 2**63, self.batch_size):
@@ -70,7 +78,14 @@ class DummyDataGenerator:
                 data.extend(self.get_remaining_patient_data(row.patient_id))
                 found += 1
                 if found >= self.population_size:
-                    return data
+                    break
+
+            log.info(
+                f"Generated {batch_start + self.batch_size - 1} patients, "
+                f"found {found} matching"
+            )
+            if found >= self.population_size:
+                return data
 
         # Keep coverage happy: the loop should never complete
         assert False

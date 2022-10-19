@@ -65,16 +65,19 @@ def generate_dummy_dataset(definition_file, dataset_file, dummy_tables_path=None
     else:
         results = DummyDataGenerator(variable_definitions).get_results()
 
+    log.info("Building dataset and writing results")
     results = eager_iterator(results)
     write_dataset(dataset_file, results, column_specs)
 
 
 def create_dummy_tables(definition_file, dummy_tables_path):
+    log.info(f"Creating dummy data tables for {str(definition_file)}")
     dataset_definition = load_definition(definition_file)
     variable_definitions = compile(dataset_definition)
     generator = DummyDataGenerator(variable_definitions)
     dummy_tables = generator.get_data()
     dummy_tables_path.parent.mkdir(parents=True, exist_ok=True)
+    log.info(f"Writing CSV files to {dummy_tables_path}")
     write_orm_models_to_csv_directory(dummy_tables_path, dummy_tables)
 
 
