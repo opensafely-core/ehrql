@@ -1,4 +1,5 @@
 import random
+import time
 from datetime import date, timedelta
 
 import structlog
@@ -19,6 +20,7 @@ class DummyDataGenerator:
     population_size = 500
     batch_size = 5000
     random_seed = "BwRV3spP"
+    timeout = 60
 
     def __init__(self, variable_definitions):
         self.variable_definitions = variable_definitions
@@ -54,11 +56,10 @@ class DummyDataGenerator:
 
         log.info(
             f"Attempting to generate {self.population_size} matching patients "
-            f"(random seed: {self.random_seed})"
+            f"(random seed: {self.random_seed}, timeout: {self.timeout}s)"
         )
+        start = time.time()
 
-        # TODO: This needs some sort of timeout as it's possible we won't generate
-        # matching patients fast enough
         for batch_start in range(1, 2**63, self.batch_size):
             # Generate batches of patient data (just enough to determine population
             # membership) and find those matching the population definition
@@ -84,7 +85,24 @@ class DummyDataGenerator:
                 f"Generated {batch_start + self.batch_size - 1} patients, "
                 f"found {found} matching"
             )
+
             if found >= self.population_size:
+                return data
+
+            if time.time() - start > self.timeout:
+                log.warn(
+                    f"Failed to find {self.population_size} matching patients within "
+                    f"{self.timeout} seconds — giving up"
+                )
+                # If we failed to generate any matching patients at all then generate an
+                # empty instance of each table so we have _something_ to return. This
+                # means that we get an empty dataset rather than an error, and can
+                # create empty CSV tables with the right headers.
+                if not data:
+                    data = [
+                        orm_class(patient_id=1)
+                        for orm_class in self.orm_classes.values()
+                    ]
                 return data
 
         # Keep coverage happy: the loop should never complete

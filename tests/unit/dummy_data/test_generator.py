@@ -1,4 +1,5 @@
 import datetime
+from unittest import mock
 
 import pytest
 
@@ -70,6 +71,43 @@ def test_dummy_data_generator():
         if r.code is not None or r.date is not None:
             assert r.code in {"abc", "def"}
             assert isinstance(r.date, datetime.date)
+
+
+@mock.patch("databuilder.dummy_data.generator.time")
+def test_dummy_data_generator_timeout_with_some_results(patched_time):
+    dataset = Dataset()
+    dataset.set_population(patients.exists_for_patient())
+
+    variable_definitions = compile(dataset)
+    generator = DummyDataGenerator(variable_definitions)
+    generator.population_size = 100
+    generator.batch_size = 3
+    generator.timeout = 10
+
+    # Configure `time.time()` so we timeout after two loop passes
+    patched_time.time.side_effect = [0.0, 5.0, 20.0]
+    data = generator.get_data()
+
+    # Expecting 2 loops * 3 patients * 1 table
+    assert len(data) == 6
+
+
+@mock.patch("databuilder.dummy_data.generator.time")
+def test_dummy_data_generator_timeout_with_no_results(patched_time):
+    # Define a dataset with a condition no patient can match
+    dataset = Dataset()
+    dataset.set_population(patients.sex != patients.sex)
+
+    variable_definitions = compile(dataset)
+    generator = DummyDataGenerator(variable_definitions)
+    generator.timeout = 10
+
+    # Configure `time.time` so we timeout immediately
+    patched_time.time.side_effect = [0.0, 100.0]
+    data = generator.get_data()
+
+    # Expecting 1 patient * 1 table
+    assert len(data) == 1
 
 
 @pytest.mark.parametrize("type_", [bool, int, float, str, datetime.date])
