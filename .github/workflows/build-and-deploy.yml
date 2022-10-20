@@ -100,7 +100,7 @@ jobs:
 
           echo "$MAJOR.$MINOR.$PATCH" > databuilder/VERSION
 
-          DOCKER_BUILDKIT=1 docker build .docker build . --file Dockerfile \
+          DOCKER_BUILDKIT=1 docker build . --file Dockerfile \
             --target databuilder
             --tag ${{ env.image }}:$MAJOR \
             --tag ${{ env.image }}:$MINOR \
