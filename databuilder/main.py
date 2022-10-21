@@ -6,20 +6,17 @@ from contextlib import contextmanager, nullcontext
 import structlog
 
 from databuilder.column_specs import get_column_specs
+from databuilder.dummy_data import DummyDataGenerator
 from databuilder.file_formats import (
     validate_dataset,
     validate_file_types_match,
     write_dataset,
 )
 from databuilder.itertools_utils import eager_iterator
-from databuilder.orm_utils import (
-    orm_classes_from_qm_tables,
-    write_orm_models_to_csv_directory,
-)
+from databuilder.orm_utils import write_orm_models_to_csv_directory
 from databuilder.query_engines.csv import CSVQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset, compile
-from databuilder.query_model import get_table_nodes
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
 from databuilder.traceback_utils import trim_and_print_exception
 
@@ -66,26 +63,22 @@ def generate_dummy_dataset(definition_file, dataset_file, dummy_tables_path=None
         query_engine = CSVQueryEngine(dummy_tables_path)
         results = query_engine.get_results(variable_definitions)
     else:
-        # TODO: Generate _slightly_ more sophisticated dummy data
-        results = iter([])
+        results = DummyDataGenerator(variable_definitions).get_results()
 
+    log.info("Building dataset and writing results")
     results = eager_iterator(results)
     write_dataset(dataset_file, results, column_specs)
 
 
 def create_dummy_tables(definition_file, dummy_tables_path):
+    log.info(f"Creating dummy data tables for {str(definition_file)}")
     dataset_definition = load_definition(definition_file)
     variable_definitions = compile(dataset_definition)
-    tables = get_table_nodes(*variable_definitions.values())
-    orm_classes = orm_classes_from_qm_tables(tables)
+    generator = DummyDataGenerator(variable_definitions)
+    dummy_tables = generator.get_data()
     dummy_tables_path.parent.mkdir(parents=True, exist_ok=True)
-    # TODO: Generate _slightly_ more sophisticated dummy data
-    dummy_table_data = []
-    write_orm_models_to_csv_directory(
-        dummy_tables_path,
-        orm_classes,
-        dummy_table_data,
-    )
+    log.info(f"Writing CSV files to {dummy_tables_path}")
+    write_orm_models_to_csv_directory(dummy_tables_path, dummy_tables)
 
 
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
