@@ -24,27 +24,12 @@ class DummyDataGenerator:
 
     def __init__(self, variable_definitions):
         self.variable_definitions = variable_definitions
-
-        # TODO: I dislike using today's date as part of the data generation because it
-        # makes the results non-deterministic. However until we're able to infer a
-        # suitable time range by inspecting the query, this will have to do.
-        self.today = date.today()
-        self.rnd = random.Random()
-
-        # Create ORM classes for each of the tables used in the dataset definition
-        self.query_info = QueryInfo.from_variable_definitions(self.variable_definitions)
-        Base = declarative_base()
-        self.orm_classes = {
-            table_info.name: orm_class_from_schema(
-                Base,
-                table_info.name,
-                table_info,
-                table_info.has_one_row_per_patient,
-            )
-            for table_info in self.query_info.tables.values()
-        }
+        self.patient_generator = DummyPatientGenerator(
+            self.variable_definitions, self.random_seed
+        )
 
     def get_data(self):
+        generator = self.patient_generator
         data = []
         found = 0
 
@@ -65,7 +50,7 @@ class DummyDataGenerator:
             # membership) and find those matching the population definition
             patient_batch = {
                 patient_id: list(
-                    self.get_patient_data_for_population_condition(patient_id)
+                    generator.get_patient_data_for_population_condition(patient_id)
                 )
                 for patient_id in range(batch_start, batch_start + self.batch_size)
             }
@@ -76,7 +61,7 @@ class DummyDataGenerator:
                 data.extend(patient_batch[row.patient_id])
                 # Include additional data needed for the dataset but not required just
                 # to determine population membership
-                data.extend(self.get_remaining_patient_data(row.patient_id))
+                data.extend(generator.get_remaining_patient_data(row.patient_id))
                 found += 1
                 if found >= self.population_size:
                     break
@@ -99,10 +84,7 @@ class DummyDataGenerator:
                 # means that we get an empty dataset rather than an error, and can
                 # create empty CSV tables with the right headers.
                 if not data:
-                    data = [
-                        orm_class(patient_id=1)
-                        for orm_class in self.orm_classes.values()
-                    ]
+                    data = generator.get_one_empty_row_for_each_table()
                 return data
 
         # Keep coverage happy: the loop should never complete
@@ -113,6 +95,29 @@ class DummyDataGenerator:
         database.setup(self.get_data())
         engine = InMemoryQueryEngine(database)
         return engine.get_results(self.variable_definitions)
+
+
+class DummyPatientGenerator:
+    def __init__(self, variable_definitions, random_seed):
+        # TODO: I dislike using today's date as part of the data generation because it
+        # makes the results non-deterministic. However until we're able to infer a
+        # suitable time range by inspecting the query, this will have to do.
+        self.today = date.today()
+        self.rnd = random.Random()
+        self.random_seed = random_seed
+
+        self.query_info = QueryInfo.from_variable_definitions(variable_definitions)
+        # Create ORM classes for each of the tables used in the dataset definition
+        Base = declarative_base()
+        self.orm_classes = {
+            table_info.name: orm_class_from_schema(
+                Base,
+                table_info.name,
+                table_info,
+                table_info.has_one_row_per_patient,
+            )
+            for table_info in self.query_info.tables.values()
+        }
 
     def get_patient_data_for_population_condition(self, patient_id):
         # Generate data for just those tables needed for determining whether the patient
@@ -218,3 +223,8 @@ class DummyDataGenerator:
             return max(event_date, self.events_start)
         else:
             assert False, f"Unhandled type: {column_info.type}"
+
+    def get_one_empty_row_for_each_table(self):
+        # Useful if we can't generate any matching patients at all but we want to be
+        # able to at least show the structure of each table
+        return [orm_class(patient_id=1) for orm_class in self.orm_classes.values()]

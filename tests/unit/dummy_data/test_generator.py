@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from databuilder.dummy_data.generator import DummyDataGenerator
+from databuilder.dummy_data.generator import DummyDataGenerator, DummyPatientGenerator
 from databuilder.dummy_data.query_info import ColumnInfo
 from databuilder.ehrql import Dataset
 from databuilder.query_language import compile
@@ -111,17 +111,17 @@ def test_dummy_data_generator_timeout_with_no_results(patched_time):
 
 
 @pytest.mark.parametrize("type_", [bool, int, float, str, datetime.date])
-def test_get_random_value(generator, type_):
+def test_dummy_patient_generator_get_random_value(dummy_patient_generator, type_):
     column_info = ColumnInfo(name="test", categories=None, type=type_)
-    value = generator.get_random_value(column_info)
+    value = dummy_patient_generator.get_random_value(column_info)
     assert isinstance(value, type_)
 
 
 @pytest.fixture(scope="module")
-def generator():
+def dummy_patient_generator():
     dataset = Dataset()
     dataset.set_population(patients.exists_for_patient())
     variable_definitions = compile(dataset)
-    generator = DummyDataGenerator(variable_definitions)
+    generator = DummyPatientGenerator(variable_definitions, random_seed="abc")
     generator.generate_patient_facts()
     return generator
