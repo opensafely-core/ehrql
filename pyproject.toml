@@ -38,18 +38,6 @@ Home = "https://opensafely.org"
 Documentation = "https://docs.opensafely.org"
 Source = "https://github.com/opensafely-core/databuilder"
 
-[tool.black]
-exclude = '''
-(
-  /(
-      \.git         # exclude a few common directories
-    | \.direnv
-    | \.venv
-    | venv
-  )/
-)
-'''
-
 [tool.coverage.run]
 branch = true
 
