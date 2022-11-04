@@ -12,7 +12,7 @@ FROM ghcr.io/opensafely-core/base-action:latest as databuilder-dependencies
 ENV VIRTUAL_ENV=/opt/venv/ \
     PYTHONPATH=/app \
     PATH="/opt/venv/bin:/opt/mssql-tools/bin:$PATH" \
-    ACTION_EXEC=/app/entrypoint.sh \
+    ACTION_EXEC=databuilder \
     PYTHONUNBUFFERED=True \
     PYTHONDONTWRITEBYTECODE=1
 
@@ -53,6 +53,43 @@ COPY requirements.prod.txt /root/requirements.prod.txt
 # hadolint ignore=DL3042
 RUN --mount=type=cache,target=/root/.cache python -m pip install -r /root/requirements.prod.txt
 
+# WARNING clever/ugly python packaging hacks alert
+#
+# Borrowed (with modifications) from:
+# https://github.com/opensafely-core/cohort-extractor/blob/669e2d5d2e/Dockerfile#L54-L84
+#
+# We could just do `COPY . /app` and then `pip install /app`. However, this is
+# not ideal for a number of reasons:
+#
+# 1) Any changes to the app files will invalidate this and all subsequent
+#    layers, causing them to need rebuilding. This would mean basically
+#    reinstalling dev dependencies every time.
+#
+# 2) We want to use the pinned versions of dependencies in
+#    requirements.prod.txt rather than the unpinned versions in setup.py.
+#
+# 3) We want for developers be able to mount /app with their code and it Just
+#    Works, without reinstalling anything.
+#
+# So, we do the following:
+#
+# 1) Copy a stripped down version of the pyproject.toml file, and install an
+#    empty package from it alone (a test ensured the minimal version stays in
+#    sync with the full version)
+#
+# 2) We install it without deps, as they've already been installed.
+#
+# 3) We have set PYTHONPATH=/app, so that code copied or mounted into /app will
+#    be used automatically.
+#
+# Note: we only really need to install it at all to use setuptools entrypoints.
+RUN mkdir /app
+COPY pyproject.minimal.toml /app/pyproject.toml
+# hadolint ignore=DL3042
+RUN --mount=type=cache,target=/root/.cache \
+  /opt/venv/bin/python -m pip install --no-deps /app
+
+
 ################################################
 #
 # A base image with the including the prepared venv and metadata.
@@ -69,15 +106,13 @@ LABEL org.opencontainers.image.title="databuilder" \
 
 COPY --from=databuilder-builder /opt/venv /opt/venv
 
-RUN mkdir /app
 
 ################################################
 #
 # Build the actual production image from the base
 FROM databuilder-base as databuilder
 
-# copy app code. This will be automatically picked up by the virtual env as per
+# Copy app code. This will be automatically picked up by the virtualenv as per
 # comment above
-COPY entrypoint.sh /app/entrypoint.sh
 COPY databuilder /app/databuilder
 RUN python -m compileall /app/databuilder
