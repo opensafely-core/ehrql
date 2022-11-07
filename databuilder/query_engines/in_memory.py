@@ -10,6 +10,7 @@ from databuilder.query_engines.in_memory_database import (
     apply_function,
     handle_null,
 )
+from databuilder.query_model_transforms import apply_transforms
 
 T = True
 F = False
@@ -25,6 +26,8 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
     def get_results(self, variable_definitions):
         self.cache = {}
+
+        variable_definitions = apply_transforms(variable_definitions)
 
         name_to_col = {
             "patient_id": PatientColumn(
@@ -106,7 +109,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         sort_index = self.visit(node.sort_by).sort_index()
         return source.sort(sort_index)
 
-    def visit_PickOneRowPerPatient(self, node):
+    def visit_PickOneRowPerPatientWithColumns(self, node):
         ix = {
             qm.Position.FIRST: 0,
             qm.Position.LAST: -1,

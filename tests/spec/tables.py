@@ -26,6 +26,7 @@ class patient_level_table(PatientFrame):
 class event_level_table(EventFrame):
     i1 = Series(int)
     i2 = Series(int)
+    i3 = Series(int)
     b1 = Series(bool)
     b2 = Series(bool)
     c1 = Series(SNOMEDCTCode)

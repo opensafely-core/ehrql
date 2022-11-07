@@ -2,7 +2,7 @@
 Apply modifications to the query graph which make it easier to work with or allow us to
 generate more efficient SQL.
 
-This involes adding new kinds of nodes to the query model. However we deliberately
+This involves adding new kinds of nodes to the query model. However we deliberately
 define these nodes outside of the core query_model module because we're trying to
 maintain separation of three types of concern:
 
@@ -16,7 +16,19 @@ want to keep them separate from the core query model classes.
 import copy
 from typing import Any
 
-from databuilder.query_model import PickOneRowPerPatient, SelectColumn, get_input_nodes
+from databuilder.collections_utils import DefaultIdentityDict, IdentitySet
+from databuilder.query_model import (
+    Case,
+    Function,
+    PickOneRowPerPatient,
+    SelectColumn,
+    Sort,
+    Value,
+    all_nodes,
+    get_input_nodes,
+    get_series_type,
+    get_sorts,
+)
 
 
 class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):
@@ -28,75 +40,147 @@ class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):
 
 
 def apply_transforms(variables):
-    # For algorithmic ease we're going to be mutating the query objects, so we make a
-    # copy first to avoid side-effects
+    # For algorithmic ease we're going to be mutating the query objects. Since the QM
+    # graph is a notionally immutable structure consisting of "frozen" dataclasses, we need
+    # to do that carefully. In particular:
+    #
+    # 1. We copy the data that is passed in so that callers don't observe side-effects.
+    # 2. We copy the results on the way out to rectify the state of containers that depend
+    #    on object hashes which may have changed unexpectedly (specifically the frozenset used
+    #    to hold selected columns).
+    # 3. When we store QM nodes in equality/hash-sensitive containers during this manipulation
+    #    we use customized versions of those containers which ignore the __eq__() and
+    #    __hash__() implementations provided by dataclasses.
     variables = copy.deepcopy(variables)
-    reverse_index = get_reverse_index(variables.values())
-    add_selected_columns_to_pick_row(reverse_index)
+
+    nodes = all_nodes_from_variables(variables)
+    reverse_index = build_reverse_index(nodes)
+
+    rewrite_sorts(nodes, reverse_index)
+
+    variables = copy.deepcopy(variables)  # see comment above
+
     return variables
 
 
-def get_reverse_index(nodes):
+def rewrite_sorts(nodes, reverse_index):
     """
-    Return a dict mapping every node in the query to the (possibly empty) set of nodes
-    which reference it
+    Frames are sorted in order to then pick the first or last row for a patient. Multiple sorts
+    may be applied to give the desired results. Once a single row has been picked, one ore more
+    columns are then selected.
 
-    This allows walking "backwards" along the graph which makes certain kinds of
-    transformation easier.
+    This results in a subgraph of QM objects like this:
+
+    SelectColumn(A) -+
+                     |
+    SelectColumn(B) -+-> PickOneRowPerPatient -> Sort(A) -> Sort(B) -> SelectTable
+                     |
+    SelectColumn(C) -+
+
+    There are two transformations that we need to carry out on this stack.
+
+    1. We annotate PickOneRowPerPatient with the columns that are going to be selected from it, in
+       order to allow us to generate the appropriate query more easily.
+    2. Add sorts so that we have one for each column that will be selected, in order to ensure that
+       the sort order (and hence the values of the selected columns) is deterministic.
+
+    For the example above the resulting subgraph would be:
+
+    SelectColumn(A) -+
+                     |
+    SelectColumn(B) -+-> PickOneRowPerPatientWithColumns -> Sort(A) -> Sort(B) -> Sort(C) -> SelectTable
+                     |
+    SelectColumn(C) -+
+
+    Some notes on the additional sorts are in order.
+
+    * A potential lack of determinism in sort order creeps in when a patient has multiple rows with
+      the same value of the column(s) being sorted on. In this case some databases may give different
+      orders on different runs of the same query against the same data.
+    * When this lack of determinism exists, and we select a column that has not been sorted on, the
+      value returned may change between runs.
+    * We add sorts only for columns that don't already have them. Duplicate sorts wouldn't cause a
+      problem, but are conceptually messy and might have a small performance impact.
+    * We add the sorts below the existing ones so that they have lower priority and are only used to
+      break any ties in the user-specified sorts.
+    * When considering the existing sorts we only attend to those that sort directly on selected
+      columns, not on expressions derived from a column. Such expressions may not be injective and so
+      may not be sufficient to fully determine the order. As above, duplicates are not a problem.
+    * We introduce an arbitrary order for the additional sorts (lexically by column name) to ensure
+      that their order itself is deterministic.
     """
-    index = {}
     for node in nodes:
-        populate_reverse_index(index, node)
-    return {node: references.values() for node, references in index.items()}
-
-
-def populate_reverse_index(index, node):
-    index.setdefault(node, {})
-    for subnode in get_input_nodes(node):
-        references = index.setdefault(subnode, {})
-        # Index nodes by their object ID so as to disambiguate distnct objects which
-        # compare equal
-        references[id(node)] = node
-        populate_reverse_index(index, subnode)
-
-
-def add_selected_columns_to_pick_row(reverse_index):
-    """
-    Replace instances of `PickOneRowPerPatient` with `PickOneRowPerPatientWithColumns`
-    which track the columns that are going to be selected and allow us to generate the
-    appropriate query
-    """
-    for node, references in reverse_index.items():
         if not isinstance(node, PickOneRowPerPatient):
             continue
-        # Get the name of any columns selected from this node
-        column_names = {c.name for c in references if isinstance(c, SelectColumn)}
-        # Build a new set of SelectColumn operations which reference this node's source
-        # instead
-        selected_columns = frozenset(
-            SelectColumn(node.source, name) for name in column_names
-        )
-        # Create a new node which has the original attributes, plus the tuple of selected
-        # columns
-        new_node = PickOneRowPerPatientWithColumns(
-            source=node.source,
-            position=node.position,
-            selected_columns=selected_columns,
-        )
-        # Update any references to the old node to point to the new one
-        for ref_node in references:
-            update_references(ref_node, node, new_node)
+
+        # What columns are select from this patient frame?
+        selected_column_names = {
+            c.name for c in reverse_index[node] if isinstance(c, SelectColumn)
+        }
+
+        add_columns_to_pick(node, selected_column_names)
+        add_extra_sorts(node, selected_column_names)
 
 
-def update_references(target, old_ref, new_ref):
-    """
-    Replace references to `old_ref` with `new_ref` on `target`
-    """
-    # We're only expecting nodes with a source attribute here
-    assert target.source == old_ref
-    force_setattr(target, "source", new_ref)
-    # We're only expecting nodes which reference a single input
-    assert get_input_nodes(target) == [new_ref]
+def add_columns_to_pick(node, selected_column_names):
+    selected_columns = frozenset(
+        SelectColumn(node.source, c) for c in selected_column_names
+    )
+    force_setattr(node, "__class__", PickOneRowPerPatientWithColumns)
+    force_setattr(node, "selected_columns", selected_columns)
+
+
+def add_extra_sorts(node, selected_column_names):
+    all_sorts = get_sorts(node.source)
+    # Add at the bottom of the stack
+    lowest_sort = all_sorts[0]
+
+    for column in calculate_sorts_to_add(all_sorts, selected_column_names):
+        new_sort = Sort(
+            source=lowest_sort.source,
+            sort_by=make_sortable(SelectColumn(lowest_sort.source, column)),
+        )
+        force_setattr(lowest_sort, "source", new_sort)
+        force_setattr(lowest_sort.sort_by, "source", new_sort)
+        lowest_sort = new_sort
+
+
+def calculate_sorts_to_add(all_sorts, selected_column_names):
+    # Don't duplicate existing direct sorts
+    direct_sorts = [
+        sort for sort in all_sorts if isinstance(sort.sort_by, SelectColumn)
+    ]
+    existing_sorted_column_names = {sort.sort_by.name for sort in direct_sorts}
+    sorts_to_add = selected_column_names - existing_sorted_column_names
+
+    # Arbitrary canonical ordering
+    return sorted(sorts_to_add)
+
+
+def make_sortable(col):
+    if get_series_type(col) == bool:
+        # Some databases can't sort booleans (including SQL Server), so we map them to integers
+        return Case(
+            cases={col: Value(2), Function.Not(col): Value(1)}, default=Value(0)
+        )
+    return col
+
+
+def all_nodes_from_variables(variables):
+    nodes = IdentitySet()  # see comment in apply_transforms()
+    for query in variables.values():
+        query_nodes = all_nodes(query)
+        for query_node in query_nodes:
+            nodes.add(query_node)
+    return nodes
+
+
+def build_reverse_index(nodes):
+    reverse_index = DefaultIdentityDict(IdentitySet)
+    for n in nodes:
+        for i in get_input_nodes(n):
+            reverse_index[i].add(n)
+    return reverse_index
 
 
 # We can't modify attributes on frozen dataclass instances in the normal way, so we have

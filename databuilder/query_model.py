@@ -7,6 +7,7 @@ from functools import cache, singledispatch
 from types import GenericAlias
 from typing import Any, Optional, TypeVar
 
+from .codes import BaseCode
 from .typing_utils import get_typespec, get_typevars, type_matches
 
 # The below classes and functions are the public API surface of the query model
@@ -49,7 +50,7 @@ __all__ = [
 # type without specifying what that type has to be
 T = TypeVar("T")
 Numeric = TypeVar("Numeric", int, float)
-Comparable = TypeVar("Comparable", int, float, str, date)
+Comparable = TypeVar("Comparable", int, float, str, date, BaseCode)
 
 
 class Position(Enum):
@@ -76,6 +77,10 @@ class Column:
 
 class TableSchema:
     "Defines a mapping of column names to column definitions"
+
+    @classmethod
+    def from_primitives(cls, **kwargs):
+        return cls(**{name: Column(type_) for name, type_ in kwargs.items()})
 
     def __init__(self, **kwargs):
         self.schema = kwargs
@@ -165,11 +170,6 @@ class ManyRowsPerPatientSeries(Series):
     ...
 
 
-# A Frame which has had a Sort operation applied to it
-class SortedFrame(ManyRowsPerPatientFrame):
-    ...
-
-
 # A OneRowPerPatientSeries which is the result of aggregating one or more
 # ManyRowsPerPatientSeries
 class AggregatedSeries(OneRowPerPatientSeries):
@@ -219,13 +219,13 @@ class Filter(ManyRowsPerPatientFrame):
     condition: Series[bool]
 
 
-class Sort(SortedFrame):
+class Sort(ManyRowsPerPatientFrame):
     source: ManyRowsPerPatientFrame
     sort_by: Series[Comparable]
 
 
 class PickOneRowPerPatient(OneRowPerPatientFrame):
-    source: SortedFrame
+    source: Sort
     position: Position
 
 
@@ -774,3 +774,42 @@ def get_root_frame(frame):
 @get_root_frame.register(SelectPatientTable)
 def get_root_frame_for_table(frame):
     return frame
+
+
+def get_table_and_filters(frame):
+    """
+    Given a ManyRowsPerPatientFrame, destructure it and return the underlying table and
+    any filter operations that have been applied, in application order.
+    """
+    root_frame, filters, _ = get_frame_operations(frame)
+    return filters, root_frame
+
+
+def get_sorts(frame):
+    """
+    Given a ManyRowsPerPatientFrame, destructure it and return any sort operations that
+    have been applied, in application order.
+    """
+    _, _, sorts = get_frame_operations(frame)
+    return sorts
+
+
+def get_frame_operations(frame):
+    """
+    Given a ManyRowsPerPatientFrame, destructure it and return the underlying table and
+    any filter and sort operations that have been applied, in application order.
+    """
+    filters = []
+    sorts = []
+    while True:
+        type_ = type(frame)
+        if type_ is Filter:
+            filters.insert(0, frame)
+            frame = frame.source
+        elif type_ is Sort:
+            sorts.insert(0, frame)
+            frame = frame.source
+        elif type_ is SelectTable:
+            return frame, filters, sorts
+        else:
+            assert False, f"Unexpected type: {frame}"

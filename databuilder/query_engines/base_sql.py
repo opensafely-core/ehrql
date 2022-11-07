@@ -22,6 +22,8 @@ from databuilder.query_model import (
     Sort,
     Value,
     get_domain,
+    get_sorts,
+    get_table_and_filters,
     has_many_rows_per_patient,
 )
 from databuilder.query_model_transforms import (
@@ -540,37 +542,15 @@ def get_table_and_filter_conditions(frame):
     Given a ManyRowsPerPatientFrame, return a base SelectTable operation and a list of
     filter conditions (or predicates) to be applied
     """
-    root_frame, filters, _ = get_frame_operations(frame)
+    filters, root_frame = get_table_and_filters(frame)
     return root_frame, [f.condition for f in filters]
 
 
 def get_sort_conditions(frame):
     """
-    Given a SortedFrame, return a tuple of Series which gives the sort order
+    Given a sorted frame, return a tuple of Series which gives the sort order
     """
-    _, _, sorts = get_frame_operations(frame)
     # Sort operations are given to us in order of application which is the reverse of
     # order of priority (i.e. the most recently applied sort gives us the primary sort
     # condition) so we reverse them here
-    return tuple(s.sort_by for s in reversed(sorts))
-
-
-def get_frame_operations(frame):
-    """
-    Given a ManyRowsPerPatientFrame, destructure it into a base SelectTable operation,
-    plus separate lists of Filter and Sort operations
-    """
-    filters = []
-    sorts = []
-    while True:
-        type_ = type(frame)
-        if type_ is Filter:
-            filters.insert(0, frame)
-            frame = frame.source
-        elif type_ is Sort:
-            sorts.insert(0, frame)
-            frame = frame.source
-        elif type_ is SelectTable:
-            return frame, filters, sorts
-        else:
-            assert False, f"Unexpected type: {frame}"
+    return tuple(s.sort_by for s in reversed(get_sorts(frame)))
