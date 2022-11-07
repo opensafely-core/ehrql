@@ -205,9 +205,10 @@ def load_module(definition_path):
     # The name we give the module is arbitrary
     spec = importlib.util.spec_from_file_location("dataset", definition_path)
     module = importlib.util.module_from_spec(spec)
-    # Temporarily add the directory containing the definition to the path so that the
-    # definition can import library modules from that directory
-    with add_to_sys_path(str(definition_path.parent)):
+    # Temporarily add the directory containing the definition to the start of `sys.path`
+    # (just as `python path/to/script.py` would) so that the definition can import
+    # library modules from that directory
+    with add_to_sys_path(str(definition_path.parent.absolute())):
         spec.loader.exec_module(module)
     return module
 
@@ -215,7 +216,7 @@ def load_module(definition_path):
 @contextmanager
 def add_to_sys_path(directory):
     original = sys.path.copy()
-    sys.path.append(directory)
+    sys.path.insert(0, directory)
     try:
         yield
     finally:
