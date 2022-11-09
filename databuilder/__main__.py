@@ -30,8 +30,6 @@ BACKEND_ALIASES = {
     "tpp": "databuilder.backends.tpp.TPPBackend",
 }
 
-EXPECTATIONS_BACKEND_PLACEHOLDER = object()
-
 
 def entrypoint():
     # This is covered by the Docker tests but they're not recorded for coverage
@@ -250,8 +248,12 @@ def query_engine_from_id(str_id):
 
 
 def backend_from_id(str_id):
+    # Workaround for the fact that Job Runner insists on setting OPENSAFELY_BACKEND to
+    # "expectations" when running locally. Cohort Extractor backends have a different
+    # meaning from Data Builder's, and the semantics of the "expectations" backend
+    # translate to "no backend at all" in Data Builder terms so that's how we treat it.
     if str_id == "expectations":
-        return EXPECTATIONS_BACKEND_PLACEHOLDER
+        return None
 
     if "." not in str_id:
         try:
