@@ -18,7 +18,7 @@ from databuilder.query_engines.csv import CSVQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset, compile
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
-from databuilder.traceback_utils import trim_and_print_exception
+from databuilder.traceback_utils import get_trimmed_traceback
 
 log = structlog.getLogger()
 
@@ -213,9 +213,9 @@ def test_connection(backend_class, url, environ):
 def load_definition(definition_file):
     try:
         module = load_module(definition_file)
-    except Exception:
-        trim_and_print_exception()
-        sys.exit(1)
+    except Exception as exc:
+        traceback = get_trimmed_traceback(exc)
+        raise CommandError(f"Failed to import dataset definition:\n\n{traceback}")
     try:
         dataset = module.dataset
     except AttributeError:

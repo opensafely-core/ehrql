@@ -1,4 +1,3 @@
-import sys
 import traceback
 from pathlib import Path
 
@@ -20,16 +19,16 @@ strings_to_trim = [
 ]
 
 
-def trim_and_print_exception():
-    """Print only the relevant lines from the most recent exception.
+def get_trimmed_traceback(exc):
+    """Return only the relevant traceback lines from the supplied exception
 
     We only want to show lines from a user's own code, and not lines from our library
     code.
     """
-    tb_fragments = traceback.format_exception(*sys.exc_info())
+    tb_fragments = traceback.format_exception(type(exc), exc, exc.__traceback__)
     tb_fragments = [
         fragment
         for fragment in tb_fragments
         if not any(s in fragment for s in strings_to_trim)
     ]
-    print("".join(tb_fragments).strip(), file=sys.stderr)
+    return "".join(tb_fragments).strip()
