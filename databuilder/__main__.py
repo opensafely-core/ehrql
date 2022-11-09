@@ -40,58 +40,14 @@ def entrypoint():
 def main(args, environ=None):
     environ = environ or {}
 
-    parser = build_parser(environ)
-    options = parser.parse_args(args)
-
-    if options.which == "generate-dataset":
-        generate_dataset(
-            definition_file=options.definition_file,
-            dataset_file=options.dataset_file,
-            dsn=options.dsn,
-            backend_class=options.backend_class,
-            query_engine_class=options.query_engine_class,
-            dummy_tables_path=options.dummy_tables_path,
-            dummy_data_file=options.dummy_data_file,
-            environ=environ,
-        )
-    elif options.which == "dump-dataset-sql":
-        assert options.backend_class != EXPECTATIONS_BACKEND_PLACEHOLDER
-        dump_dataset_sql(
-            definition_file=options.definition_file,
-            output_file=options.output_file,
-            backend_class=options.backend_class,
-            query_engine_class=options.query_engine_class,
-            environ=environ,
-        )
-    elif options.which == "create-dummy-tables":
-        create_dummy_tables(
-            definition_file=options.definition_file,
-            dummy_tables_path=options.dummy_tables_path,
-        )
-    elif options.which == "generate-measures":
-        generate_measures(
-            definition_file=options.definition_file,
-            input_file=options.input_file,
-            output_file=options.output_file,
-        )
-    elif options.which == "test-connection":
-        test_connection(
-            backend_class=options.backend_class,
-            url=options.url,
-            environ=environ,
-        )
-    elif options.which == "print-help":
-        parser.print_help()
-    else:
-        assert False, f"Unhandled subcommand: {options.which}"
-
-
-def build_parser(environ):
     parser = ArgumentParser(
         prog="databuilder", description="Generate datasets in OpenSAFELY"
     )
-    parser.set_defaults(which="print-help")
 
+    def show_help(**kwargs):
+        parser.print_help()
+
+    parser.set_defaults(function=show_help)
     parser.add_argument(
         "--version", action="version", version=f"databuilder {__version__}"
     )
@@ -103,12 +59,16 @@ def build_parser(environ):
     add_generate_measures(subparsers, environ)
     add_test_connection(subparsers, environ)
 
-    return parser
+    kwargs = vars(parser.parse_args(args))
+    function = kwargs.pop("function")
+
+    function(**kwargs)
 
 
 def add_generate_dataset(subparsers, environ):
     parser = subparsers.add_parser("generate-dataset", help="Generate a dataset")
-    parser.set_defaults(which="generate-dataset")
+    parser.set_defaults(function=generate_dataset)
+    parser.set_defaults(environ=environ)
     parser.add_argument(
         "--output",
         help=(
@@ -149,7 +109,8 @@ def add_dump_dataset_sql(subparsers, environ):
             "dataset definition"
         ),
     )
-    parser.set_defaults(which="dump-dataset-sql")
+    parser.set_defaults(function=dump_dataset_sql)
+    parser.set_defaults(environ=environ)
     parser.add_argument(
         "--output",
         help="SQL output file (outputs to console by default)",
@@ -187,7 +148,7 @@ def add_create_dummy_tables(subparsers, environ):
         "create-dummy-tables",
         help=("Write dummy data tables as CSV ready for customisation"),
     )
-    parser.set_defaults(which="create-dummy-tables")
+    parser.set_defaults(function=create_dummy_tables)
     parser.add_argument(
         "definition_file",
         help="The path of the file where the dataset is defined",
@@ -205,7 +166,7 @@ def add_generate_measures(subparsers, environ):
     parser = subparsers.add_parser(
         "generate-measures", help="Generate measures from a dataset"
     )
-    parser.set_defaults(which="generate-measures")
+    parser.set_defaults(function=generate_measures)
     parser.add_argument(
         "--input",
         help="Path and filename (or pattern) of the input file(s)",
@@ -230,7 +191,8 @@ def add_test_connection(subparsers, environ):
     parser = subparsers.add_parser(
         "test-connection", help="test the database connection configuration"
     )
-    parser.set_defaults(which="test-connection")
+    parser.set_defaults(function=test_connection)
+    parser.set_defaults(environ=environ)
     parser.add_argument(
         "--backend",
         "-b",
