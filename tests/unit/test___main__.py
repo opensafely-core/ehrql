@@ -11,7 +11,8 @@ from databuilder.__main__ import (
 
 def test_no_args(capsys):
     # Verify that when databuilder is called without arguments, help text is shown.
-    main([])
+    with pytest.raises(SystemExit):
+        main([])
     captured = capsys.readouterr()
     assert "usage: databuilder" in captured.out
 

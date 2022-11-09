@@ -46,6 +46,7 @@ def main(args, environ=None):
 
     def show_help(**kwargs):
         parser.print_help()
+        parser.exit()
 
     parser.set_defaults(function=show_help)
     parser.add_argument(
