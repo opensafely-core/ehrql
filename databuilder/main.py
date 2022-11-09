@@ -167,7 +167,7 @@ def get_query_engine(
 
 
 def generate_measures(
-    definition_path, input_file, dataset_file
+    definition_file, input_file, output_file
 ):  # pragma: no cover (measures not implemented)
     raise NotImplementedError
 

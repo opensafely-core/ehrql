@@ -58,7 +58,9 @@ def main(args, environ=None):
             )
         elif options.dummy_data_file:
             pass_dummy_data(
-                options.dataset_definition, options.output, options.dummy_data_file
+                definition_file=options.dataset_definition,
+                dataset_file=options.output,
+                dummy_data_file=options.dummy_data_file,
             )
         else:
             generate_dummy_dataset(
@@ -69,22 +71,22 @@ def main(args, environ=None):
     elif options.which == "dump-dataset-sql":
         assert options.backend != EXPECTATIONS_BACKEND_PLACEHOLDER
         dump_dataset_sql(
-            options.dataset_definition,
-            options.output,
+            definition_file=options.dataset_definition,
+            output_file=options.output,
             backend_class=options.backend,
             query_engine_class=options.query_engine,
             environ=environ,
         )
     elif options.which == "create-dummy-tables":
         create_dummy_tables(
-            options.dataset_definition,
-            options.dummy_tables_path,
+            definition_file=options.dataset_definition,
+            dummy_tables_path=options.dummy_tables_path,
         )
     elif options.which == "generate-measures":
         generate_measures(
-            definition_path=options.dataset_definition,
+            definition_file=options.dataset_definition,
             input_file=options.input,
-            dataset_file=options.output,
+            output_file=options.output,
         )
     elif options.which == "test-connection":
         test_connection(
