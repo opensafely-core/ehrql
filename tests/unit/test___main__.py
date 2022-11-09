@@ -8,6 +8,10 @@ from databuilder.__main__ import (
     query_engine_from_id,
 )
 
+# We just need any old existing file with a ".py" extension for testing purposes, its
+# contents are immaterial; this one will do
+DATASET_DEFINITON_PATH = __file__
+
 
 def test_no_args(capsys):
     # Verify that when databuilder is called without arguments, help text is shown.
@@ -17,14 +21,12 @@ def test_no_args(capsys):
     assert "usage: databuilder" in captured.out
 
 
-def test_generate_dataset(mocker, tmp_path):
+def test_generate_dataset(mocker):
     # Verify that the generate_dataset subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.generate_dataset")
-    dataset_definition_path = tmp_path / "dataset.py"
-    dataset_definition_path.touch()
     argv = [
         "generate-dataset",
-        str(dataset_definition_path),
+        DATASET_DEFINITON_PATH,
     ]
     main(argv)
     patched.assert_called_once()
@@ -33,8 +35,7 @@ def test_generate_dataset(mocker, tmp_path):
 def test_generate_dataset_rejects_unknown_extension(capsys):
     argv = [
         "generate-dataset",
-        # We just need any old Python file to supply as the dataset
-        __file__,
+        DATASET_DEFINITON_PATH,
         "--output",
         "out_file.badformat",
     ]
@@ -44,43 +45,37 @@ def test_generate_dataset_rejects_unknown_extension(capsys):
     assert ".badformat' is not a supported format" in captured.err
 
 
-def test_dump_dataset_sql(mocker, tmp_path):
-    # Verify that the dump dataset sql subcommand can be invoked.
+def test_dump_dataset_sql(mocker):
+    # Verify that the dump_dataset_sql subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.dump_dataset_sql")
-    dataset_definition_path = tmp_path / "dataset.py"
-    dataset_definition_path.touch()
     argv = [
         "dump-dataset-sql",
         "--backend",
         "databuilder.backends.tpp.TPPBackend",
-        str(dataset_definition_path),
+        DATASET_DEFINITON_PATH,
     ]
     main(argv)
     patched.assert_called_once()
 
 
-def test_create_dummy_tables(mocker, tmp_path):
-    # Verify that the dump dataset sql subcommand can be invoked.
+def test_create_dummy_tables(mocker):
+    # Verify that the create_dummy_tables subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.create_dummy_tables")
-    dataset_definition_path = tmp_path / "dataset.py"
-    dataset_definition_path.touch()
     argv = [
         "create-dummy-tables",
-        str(dataset_definition_path),
-        str(tmp_path / "dummy_data"),
+        DATASET_DEFINITON_PATH,
+        "dummy_data_tables",
     ]
     main(argv)
     patched.assert_called_once()
 
 
-def test_generate_measures(mocker, tmp_path):
+def test_generate_measures(mocker):
     # Verify that the generate_measures subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.generate_measures")
-    dataset_definition_path = tmp_path / "dataset.py"
-    dataset_definition_path.touch()
     argv = [
         "generate-measures",
-        str(dataset_definition_path),
+        DATASET_DEFINITON_PATH,
     ]
     main(argv)
     patched.assert_called_once()
