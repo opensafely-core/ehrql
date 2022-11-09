@@ -17,60 +17,8 @@ def test_no_args(capsys):
 
 
 def test_generate_dataset(mocker, tmp_path):
-    # Verify that the generate_dataset subcommand can be invoked when
-    # DATABASE_URL is set.
+    # Verify that the generate_dataset subcommand can be invoked.
     patched = mocker.patch("databuilder.__main__.generate_dataset")
-    env = {"DATABASE_URL": "scheme:path"}
-    dataset_definition_path = tmp_path / "dataset.py"
-    dataset_definition_path.touch()
-    argv = [
-        "generate-dataset",
-        str(dataset_definition_path),
-    ]
-    main(argv, env)
-    patched.assert_called_once()
-
-
-def test_pass_dummy_data(mocker, tmp_path):
-    # Verify that the pass_dummy_data subcommand can be invoked when
-    # --dummy-data-file is provided.
-    patched = mocker.patch("databuilder.__main__.pass_dummy_data")
-    dataset_definition_path = tmp_path / "dataset.py"
-    dataset_definition_path.touch()
-    argv = [
-        "generate-dataset",
-        str(dataset_definition_path),
-        "--dummy-data-file",
-        str(tmp_path / "dummy-data.csv"),
-        "--backend",
-        "expectations",
-    ]
-    main(argv)
-    patched.assert_called_once()
-
-
-def test_generate_dataset_if_both_dsn_and_dummy_data_are_provided(mocker, tmp_path):
-    # This happens when studies with dummy data are run in the backend.
-    patched = mocker.patch("databuilder.__main__.generate_dataset")
-    env = {"DATABASE_URL": "scheme:path"}
-    dataset_definition_path = tmp_path / "dataset.py"
-    dataset_definition_path.touch()
-    argv = [
-        "generate-dataset",
-        "--output",
-        str(tmp_path / "dataset.csv"),
-        "--dummy-data-file",
-        str(tmp_path / "dummy-data.csv"),
-        str(dataset_definition_path),
-    ]
-    main(argv, env)
-    patched.assert_called_once()
-
-
-def test_generate_dummy_dataset(mocker, tmp_path):
-    # If none of --dsn, --dummy-data-file, or DATABASE_URL is set then we should invoke
-    # `generate_dummy_dataset`
-    patched = mocker.patch("databuilder.__main__.generate_dummy_dataset")
     dataset_definition_path = tmp_path / "dataset.py"
     dataset_definition_path.touch()
     argv = [

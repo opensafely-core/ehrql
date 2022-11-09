@@ -11,9 +11,7 @@ from .main import (
     create_dummy_tables,
     dump_dataset_sql,
     generate_dataset,
-    generate_dummy_dataset,
     generate_measures,
-    pass_dummy_data,
     test_connection,
 )
 
@@ -46,28 +44,16 @@ def main(args, environ=None):
     options = parser.parse_args(args)
 
     if options.which == "generate-dataset":
-        if options.dsn:
-            assert options.backend_class != EXPECTATIONS_BACKEND_PLACEHOLDER
-            generate_dataset(
-                definition_file=options.definition_file,
-                dataset_file=options.dataset_file,
-                dsn=options.dsn,
-                backend_class=options.backend_class,
-                query_engine_class=options.query_engine_class,
-                environ=environ,
-            )
-        elif options.dummy_data_file:
-            pass_dummy_data(
-                definition_file=options.definition_file,
-                dataset_file=options.dataset_file,
-                dummy_data_file=options.dummy_data_file,
-            )
-        else:
-            generate_dummy_dataset(
-                definition_file=options.definition_file,
-                dataset_file=options.dataset_file,
-                dummy_tables_path=options.dummy_tables_path,
-            )
+        generate_dataset(
+            definition_file=options.definition_file,
+            dataset_file=options.dataset_file,
+            dsn=options.dsn,
+            backend_class=options.backend_class,
+            query_engine_class=options.query_engine_class,
+            dummy_tables_path=options.dummy_tables_path,
+            dummy_data_file=options.dummy_data_file,
+            environ=environ,
+        )
     elif options.which == "dump-dataset-sql":
         assert options.backend_class != EXPECTATIONS_BACKEND_PLACEHOLDER
         dump_dataset_sql(

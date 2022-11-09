@@ -26,10 +26,32 @@ log = structlog.getLogger()
 def generate_dataset(
     definition_file,
     dataset_file,
-    dsn,
-    backend_class,
-    query_engine_class,
-    environ,
+    dsn=None,
+    backend_class=None,
+    query_engine_class=None,
+    dummy_tables_path=None,
+    dummy_data_file=None,
+    environ=None,
+):
+    if dsn:
+        generate_dataset_with_dsn(
+            definition_file,
+            dataset_file,
+            dsn,
+            backend_class=backend_class,
+            query_engine_class=query_engine_class,
+            environ=environ or {},
+        )
+    elif dummy_data_file:
+        pass_dummy_data(definition_file, dataset_file, dummy_data_file)
+    else:
+        generate_dataset_with_dummy_data(
+            definition_file, dataset_file, dummy_tables_path
+        )
+
+
+def generate_dataset_with_dsn(
+    definition_file, dataset_file, dsn, backend_class, query_engine_class, environ
 ):
     log.info(f"Generating dataset for {str(definition_file)}")
     dataset_definition = load_definition(definition_file)
@@ -52,7 +74,9 @@ def generate_dataset(
     write_dataset(dataset_file, results, column_specs)
 
 
-def generate_dummy_dataset(definition_file, dataset_file, dummy_tables_path=None):
+def generate_dataset_with_dummy_data(
+    definition_file, dataset_file, dummy_tables_path=None
+):
     log.info(f"Generating dummy dataset for {str(definition_file)}")
     dataset_definition = load_definition(definition_file)
     variable_definitions = compile(dataset_definition)
