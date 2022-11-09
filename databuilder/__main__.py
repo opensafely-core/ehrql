@@ -47,50 +47,50 @@ def main(args, environ=None):
 
     if options.which == "generate-dataset":
         if options.dsn:
-            assert options.backend != EXPECTATIONS_BACKEND_PLACEHOLDER
+            assert options.backend_class != EXPECTATIONS_BACKEND_PLACEHOLDER
             generate_dataset(
-                definition_file=options.dataset_definition,
-                dataset_file=options.output,
+                definition_file=options.definition_file,
+                dataset_file=options.dataset_file,
                 dsn=options.dsn,
-                backend_class=options.backend,
-                query_engine_class=options.query_engine,
+                backend_class=options.backend_class,
+                query_engine_class=options.query_engine_class,
                 environ=environ,
             )
         elif options.dummy_data_file:
             pass_dummy_data(
-                definition_file=options.dataset_definition,
-                dataset_file=options.output,
+                definition_file=options.definition_file,
+                dataset_file=options.dataset_file,
                 dummy_data_file=options.dummy_data_file,
             )
         else:
             generate_dummy_dataset(
-                definition_file=options.dataset_definition,
-                dataset_file=options.output,
-                dummy_tables_path=options.dummy_tables,
+                definition_file=options.definition_file,
+                dataset_file=options.dataset_file,
+                dummy_tables_path=options.dummy_tables_path,
             )
     elif options.which == "dump-dataset-sql":
-        assert options.backend != EXPECTATIONS_BACKEND_PLACEHOLDER
+        assert options.backend_class != EXPECTATIONS_BACKEND_PLACEHOLDER
         dump_dataset_sql(
-            definition_file=options.dataset_definition,
-            output_file=options.output,
-            backend_class=options.backend,
-            query_engine_class=options.query_engine,
+            definition_file=options.definition_file,
+            output_file=options.output_file,
+            backend_class=options.backend_class,
+            query_engine_class=options.query_engine_class,
             environ=environ,
         )
     elif options.which == "create-dummy-tables":
         create_dummy_tables(
-            definition_file=options.dataset_definition,
+            definition_file=options.definition_file,
             dummy_tables_path=options.dummy_tables_path,
         )
     elif options.which == "generate-measures":
         generate_measures(
-            definition_file=options.dataset_definition,
-            input_file=options.input,
-            output_file=options.output,
+            definition_file=options.definition_file,
+            input_file=options.input_file,
+            output_file=options.output_file,
         )
     elif options.which == "test-connection":
         test_connection(
-            backend_class=options.backend,
+            backend_class=options.backend_class,
             url=options.url,
             environ=environ,
         )
@@ -130,6 +130,7 @@ def add_generate_dataset(subparsers, environ):
             f" supported formats: {', '.join(FILE_FORMATS)}"
         ),
         type=valid_output_path,
+        dest="dataset_file",
     )
     parser.add_argument(
         "--dsn",
@@ -149,6 +150,7 @@ def add_generate_dataset(subparsers, environ):
             "dummy data"
         ),
         type=Path,
+        dest="dummy_tables_path",
     )
     add_common_dataset_arguments(parser, environ)
 
@@ -166,27 +168,31 @@ def add_dump_dataset_sql(subparsers, environ):
         "--output",
         help="SQL output file (outputs to console by default)",
         type=Path,
+        dest="output_file",
     )
     add_common_dataset_arguments(parser, environ)
 
 
 def add_common_dataset_arguments(parser, environ):
     parser.add_argument(
-        "dataset_definition",
+        "definition_file",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
+        metavar="dataset_definition",
     )
     parser.add_argument(
         "--query-engine",
         type=query_engine_from_id,
         help=f"Dotted import path to class, or one of: {', '.join(QUERY_ENGINE_ALIASES)}",
         default=environ.get("OPENSAFELY_QUERY_ENGINE"),
+        dest="query_engine_class",
     )
     parser.add_argument(
         "--backend",
         type=backend_from_id,
         help=f"Dotted import path to class, or one of: {', '.join(BACKEND_ALIASES)}",
         default=environ.get("OPENSAFELY_BACKEND"),
+        dest="backend_class",
     )
 
 
@@ -197,9 +203,10 @@ def add_create_dummy_tables(subparsers, environ):
     )
     parser.set_defaults(which="create-dummy-tables")
     parser.add_argument(
-        "dataset_definition",
+        "definition_file",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
+        metavar="dataset_definition",
     )
     parser.add_argument(
         "dummy_tables_path",
@@ -217,16 +224,19 @@ def add_generate_measures(subparsers, environ):
         "--input",
         help="Path and filename (or pattern) of the input file(s)",
         type=Path,
+        dest="input_file",
     )
     parser.add_argument(
         "--output",
         help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
+        dest="output_file",
     )
     parser.add_argument(
-        "dataset_definition",
+        "definition_file",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
+        metavar="dataset_definition",
     )
 
 
@@ -241,6 +251,7 @@ def add_test_connection(subparsers, environ):
         help="backend type to test",
         type=backend_from_id,
         default=environ.get("BACKEND", environ.get("OPENSAFELY_BACKEND")),
+        dest="backend_class",
     )
     parser.add_argument(
         "--url",
