@@ -38,21 +38,24 @@ def test_dump_dataset_sql_happy_path(study, mssql_database):
     study.dump_dataset_sql()
 
 
-def test_dump_dataset_sql_with_no_dataset_attribute(study, mssql_database):
+def test_dump_dataset_sql_with_no_dataset_attribute(study, mssql_database, capsys):
     study.setup_from_string(no_dataset_attribute_dataset_definition)
-    with pytest.raises(
-        AttributeError, match="A dataset definition must define one 'dataset'"
-    ):
+    with pytest.raises(SystemExit):
         study.dump_dataset_sql()
+    assert (
+        "Did not find a variable called 'dataset' in dataset definition file"
+        in capsys.readouterr().err
+    )
 
 
-def test_dump_dataset_sql_attribute_invalid(study, mssql_database):
+def test_dump_dataset_sql_attribute_invalid(study, mssql_database, capsys):
     study.setup_from_string(invalid_dataset_attribute_dataset_definition)
-    with pytest.raises(
-        AssertionError,
-        match="'dataset' must be an instance of databuilder.ehrql.Dataset()",
-    ):
+    with pytest.raises(SystemExit):
         study.dump_dataset_sql()
+    assert (
+        "'dataset' must be an instance of databuilder.ehrql.Dataset()"
+        in capsys.readouterr().err
+    )
 
 
 def test_dump_dataset_sql_query_model_error(study, mssql_database, capsys):

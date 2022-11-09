@@ -8,6 +8,7 @@ from databuilder import __version__
 from databuilder.file_formats import FILE_FORMATS, get_file_extension
 
 from .main import (
+    CommandError,
     create_dummy_tables,
     dump_dataset_sql,
     generate_dataset,
@@ -63,7 +64,11 @@ def main(args, environ=None):
     kwargs = vars(parser.parse_args(args))
     function = kwargs.pop("function")
 
-    function(**kwargs)
+    try:
+        function(**kwargs)
+    except CommandError as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
 
 
 def add_generate_dataset(subparsers, environ):

@@ -23,6 +23,10 @@ from databuilder.traceback_utils import trim_and_print_exception
 log = structlog.getLogger()
 
 
+class CommandError(Exception):
+    "Errors that should be shown to the user without a traceback"
+
+
 def generate_dataset(
     definition_file,
     dataset_file,
@@ -215,10 +219,13 @@ def load_definition(definition_file):
     try:
         dataset = module.dataset
     except AttributeError:
-        raise AttributeError("A dataset definition must define one 'dataset'")
-    assert isinstance(
-        dataset, Dataset
-    ), "'dataset' must be an instance of databuilder.ehrql.Dataset()"
+        raise CommandError(
+            "Did not find a variable called 'dataset' in dataset definition file"
+        )
+    if not isinstance(dataset, Dataset):
+        raise CommandError(
+            "'dataset' must be an instance of databuilder.ehrql.Dataset()"
+        )
     return dataset
 
 
