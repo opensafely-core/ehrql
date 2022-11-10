@@ -1,7 +1,7 @@
 import importlib.util
 import shutil
 import sys
-from contextlib import contextmanager, nullcontext
+from contextlib import nullcontext
 
 import structlog
 
@@ -58,7 +58,7 @@ def generate_dataset_with_dsn(
     definition_file, dataset_file, dsn, backend_class, query_engine_class, environ
 ):
     log.info(f"Generating dataset for {str(definition_file)}")
-    dataset_definition = load_definition(definition_file)
+    dataset_definition = load_dataset_definition(definition_file)
     variable_definitions = compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
@@ -82,7 +82,7 @@ def generate_dataset_with_dummy_data(
     definition_file, dataset_file, dummy_tables_path=None
 ):
     log.info(f"Generating dummy dataset for {str(definition_file)}")
-    dataset_definition = load_definition(definition_file)
+    dataset_definition = load_dataset_definition(definition_file)
     variable_definitions = compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
@@ -100,7 +100,7 @@ def generate_dataset_with_dummy_data(
 
 def create_dummy_tables(definition_file, dummy_tables_path):
     log.info(f"Creating dummy data tables for {str(definition_file)}")
-    dataset_definition = load_definition(definition_file)
+    dataset_definition = load_dataset_definition(definition_file)
     variable_definitions = compile(dataset_definition)
     generator = DummyDataGenerator(variable_definitions)
     dummy_tables = generator.get_data()
@@ -112,7 +112,7 @@ def create_dummy_tables(definition_file, dummy_tables_path):
 def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
     log.info(f"Propagating dummy data {dummy_data_file} for {str(definition_file)}")
 
-    dataset_definition = load_definition(definition_file)
+    dataset_definition = load_dataset_definition(definition_file)
     variable_definitions = compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
@@ -128,7 +128,7 @@ def dump_dataset_sql(
 ):
     log.info(f"Generating SQL for {str(definition_file)}")
 
-    dataset_definition = load_definition(definition_file)
+    dataset_definition = load_dataset_definition(definition_file)
     query_engine = get_query_engine(
         None,
         backend_class,
@@ -210,12 +210,8 @@ def test_connection(backend_class, url, environ):
     print("SUCCESS")
 
 
-def load_definition(definition_file):
-    try:
-        module = load_module(definition_file)
-    except Exception as exc:
-        traceback = get_trimmed_traceback(exc)
-        raise CommandError(f"Failed to import dataset definition:\n\n{traceback}")
+def load_dataset_definition(definition_file):
+    module = load_module(definition_file)
     try:
         dataset = module.dataset
     except AttributeError:
@@ -229,26 +225,21 @@ def load_definition(definition_file):
     return dataset
 
 
-def load_module(definition_path):
+def load_module(module_path):
     # Taken from the official recipe for importing a module from a file path:
     # https://docs.python.org/3.9/library/importlib.html#importing-a-source-file-directly
-
-    # The name we give the module is arbitrary
-    spec = importlib.util.spec_from_file_location("dataset", definition_path)
+    spec = importlib.util.spec_from_file_location(module_path.stem, module_path)
     module = importlib.util.module_from_spec(spec)
     # Temporarily add the directory containing the definition to the start of `sys.path`
     # (just as `python path/to/script.py` would) so that the definition can import
     # library modules from that directory
-    with add_to_sys_path(str(definition_path.parent.absolute())):
-        spec.loader.exec_module(module)
-    return module
-
-
-@contextmanager
-def add_to_sys_path(directory):
-    original = sys.path.copy()
-    sys.path.insert(0, directory)
+    original_sys_path = sys.path.copy()
+    sys.path.insert(0, str(module_path.parent.absolute()))
     try:
-        yield
+        spec.loader.exec_module(module)
+        return module
+    except Exception as exc:
+        traceback = get_trimmed_traceback(exc)
+        raise CommandError(f"Failed to import '{module_path}':\n\n{traceback}")
     finally:
-        sys.path = original
+        sys.path = original_sys_path
