@@ -18,18 +18,44 @@ from databuilder.query_engines.csv import CSVQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset, compile
 from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
-from databuilder.traceback_utils import trim_and_print_exception
+from databuilder.traceback_utils import get_trimmed_traceback
 
 log = structlog.getLogger()
+
+
+class CommandError(Exception):
+    "Errors that should be shown to the user without a traceback"
 
 
 def generate_dataset(
     definition_file,
     dataset_file,
-    dsn,
-    backend_class,
-    query_engine_class,
-    environ,
+    dsn=None,
+    backend_class=None,
+    query_engine_class=None,
+    dummy_tables_path=None,
+    dummy_data_file=None,
+    environ=None,
+):
+    if dsn:
+        generate_dataset_with_dsn(
+            definition_file,
+            dataset_file,
+            dsn,
+            backend_class=backend_class,
+            query_engine_class=query_engine_class,
+            environ=environ or {},
+        )
+    elif dummy_data_file:
+        pass_dummy_data(definition_file, dataset_file, dummy_data_file)
+    else:
+        generate_dataset_with_dummy_data(
+            definition_file, dataset_file, dummy_tables_path
+        )
+
+
+def generate_dataset_with_dsn(
+    definition_file, dataset_file, dsn, backend_class, query_engine_class, environ
 ):
     log.info(f"Generating dataset for {str(definition_file)}")
     dataset_definition = load_definition(definition_file)
@@ -52,7 +78,9 @@ def generate_dataset(
     write_dataset(dataset_file, results, column_specs)
 
 
-def generate_dummy_dataset(definition_file, dataset_file, dummy_tables_path=None):
+def generate_dataset_with_dummy_data(
+    definition_file, dataset_file, dummy_tables_path=None
+):
     log.info(f"Generating dummy dataset for {str(definition_file)}")
     dataset_definition = load_definition(definition_file)
     variable_definitions = compile(dataset_definition)
@@ -167,7 +195,7 @@ def get_query_engine(
 
 
 def generate_measures(
-    definition_path, input_file, dataset_file
+    definition_file, input_file, output_file
 ):  # pragma: no cover (measures not implemented)
     raise NotImplementedError
 
@@ -185,16 +213,19 @@ def test_connection(backend_class, url, environ):
 def load_definition(definition_file):
     try:
         module = load_module(definition_file)
-    except Exception:
-        trim_and_print_exception()
-        sys.exit(1)
+    except Exception as exc:
+        traceback = get_trimmed_traceback(exc)
+        raise CommandError(f"Failed to import dataset definition:\n\n{traceback}")
     try:
         dataset = module.dataset
     except AttributeError:
-        raise AttributeError("A dataset definition must define one 'dataset'")
-    assert isinstance(
-        dataset, Dataset
-    ), "'dataset' must be an instance of databuilder.ehrql.Dataset()"
+        raise CommandError(
+            "Did not find a variable called 'dataset' in dataset definition file"
+        )
+    if not isinstance(dataset, Dataset):
+        raise CommandError(
+            "'dataset' must be an instance of databuilder.ehrql.Dataset()"
+        )
     return dataset
 
 

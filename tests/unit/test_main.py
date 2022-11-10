@@ -1,6 +1,8 @@
 import dataclasses
+from pathlib import Path
+from unittest import mock
 
-from databuilder.main import get_query_engine, open_output_file
+from databuilder.main import generate_dataset, get_query_engine, open_output_file
 
 
 @dataclasses.dataclass
@@ -19,6 +21,35 @@ class DefaultQueryEngine:
 
 class DummyBackend:
     query_engine_class = DummyQueryEngine
+
+
+def test_generate_dataset_dsn_arg():
+    with mock.patch("databuilder.main.generate_dataset_with_dsn") as p:
+        generate_dataset(
+            Path("dataset_definition.py"),
+            Path("results.csv"),
+            dsn="sqlite://:memory:",
+            backend_class=DummyBackend,
+            query_engine_class=DummyQueryEngine,
+            environ={"FOO": "bar"},
+        )
+        p.assert_called_once()
+
+
+def test_generate_dataset_dummy_data_file_arg():
+    with mock.patch("databuilder.main.pass_dummy_data") as p:
+        generate_dataset(
+            Path("dataset_definition.py"),
+            Path("results.csv"),
+            dummy_data_file="dummy-data.csv",
+        )
+        p.assert_called_once()
+
+
+def test_generate_dataset_no_data_args():
+    with mock.patch("databuilder.main.generate_dataset_with_dummy_data") as p:
+        generate_dataset(Path("dataset_definition.py"), Path("results.csv"))
+        p.assert_called_once()
 
 
 def test_get_query_engine_defaults():

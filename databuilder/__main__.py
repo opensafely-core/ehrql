@@ -8,12 +8,11 @@ from databuilder import __version__
 from databuilder.file_formats import FILE_FORMATS, get_file_extension
 
 from .main import (
+    CommandError,
     create_dummy_tables,
     dump_dataset_sql,
     generate_dataset,
-    generate_dummy_dataset,
     generate_measures,
-    pass_dummy_data,
     test_connection,
 )
 
@@ -31,8 +30,6 @@ BACKEND_ALIASES = {
     "tpp": "databuilder.backends.tpp.TPPBackend",
 }
 
-EXPECTATIONS_BACKEND_PLACEHOLDER = object()
-
 
 def entrypoint():
     # This is covered by the Docker tests but they're not recorded for coverage
@@ -42,68 +39,15 @@ def entrypoint():
 def main(args, environ=None):
     environ = environ or {}
 
-    parser = build_parser(environ)
-    options = parser.parse_args(args)
-
-    if options.which == "generate-dataset":
-        if options.dsn:
-            assert options.backend != EXPECTATIONS_BACKEND_PLACEHOLDER
-            generate_dataset(
-                definition_file=options.dataset_definition,
-                dataset_file=options.output,
-                dsn=options.dsn,
-                backend_class=options.backend,
-                query_engine_class=options.query_engine,
-                environ=environ,
-            )
-        elif options.dummy_data_file:
-            pass_dummy_data(
-                options.dataset_definition, options.output, options.dummy_data_file
-            )
-        else:
-            generate_dummy_dataset(
-                definition_file=options.dataset_definition,
-                dataset_file=options.output,
-                dummy_tables_path=options.dummy_tables,
-            )
-    elif options.which == "dump-dataset-sql":
-        assert options.backend != EXPECTATIONS_BACKEND_PLACEHOLDER
-        dump_dataset_sql(
-            options.dataset_definition,
-            options.output,
-            backend_class=options.backend,
-            query_engine_class=options.query_engine,
-            environ=environ,
-        )
-    elif options.which == "create-dummy-tables":
-        create_dummy_tables(
-            options.dataset_definition,
-            options.dummy_tables_path,
-        )
-    elif options.which == "generate-measures":
-        generate_measures(
-            definition_path=options.dataset_definition,
-            input_file=options.input,
-            dataset_file=options.output,
-        )
-    elif options.which == "test-connection":
-        test_connection(
-            backend_class=options.backend,
-            url=options.url,
-            environ=environ,
-        )
-    elif options.which == "print-help":
-        parser.print_help()
-    else:
-        assert False, f"Unhandled subcommand: {options.which}"
-
-
-def build_parser(environ):
     parser = ArgumentParser(
         prog="databuilder", description="Generate datasets in OpenSAFELY"
     )
-    parser.set_defaults(which="print-help")
 
+    def show_help(**kwargs):
+        parser.print_help()
+        parser.exit()
+
+    parser.set_defaults(function=show_help)
     parser.add_argument(
         "--version", action="version", version=f"databuilder {__version__}"
     )
@@ -115,12 +59,20 @@ def build_parser(environ):
     add_generate_measures(subparsers, environ)
     add_test_connection(subparsers, environ)
 
-    return parser
+    kwargs = vars(parser.parse_args(args))
+    function = kwargs.pop("function")
+
+    try:
+        function(**kwargs)
+    except CommandError as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
 
 
 def add_generate_dataset(subparsers, environ):
     parser = subparsers.add_parser("generate-dataset", help="Generate a dataset")
-    parser.set_defaults(which="generate-dataset")
+    parser.set_defaults(function=generate_dataset)
+    parser.set_defaults(environ=environ)
     parser.add_argument(
         "--output",
         help=(
@@ -128,6 +80,7 @@ def add_generate_dataset(subparsers, environ):
             f" supported formats: {', '.join(FILE_FORMATS)}"
         ),
         type=valid_output_path,
+        dest="dataset_file",
     )
     parser.add_argument(
         "--dsn",
@@ -147,6 +100,7 @@ def add_generate_dataset(subparsers, environ):
             "dummy data"
         ),
         type=Path,
+        dest="dummy_tables_path",
     )
     add_common_dataset_arguments(parser, environ)
 
@@ -159,32 +113,37 @@ def add_dump_dataset_sql(subparsers, environ):
             "dataset definition"
         ),
     )
-    parser.set_defaults(which="dump-dataset-sql")
+    parser.set_defaults(function=dump_dataset_sql)
+    parser.set_defaults(environ=environ)
     parser.add_argument(
         "--output",
         help="SQL output file (outputs to console by default)",
         type=Path,
+        dest="output_file",
     )
     add_common_dataset_arguments(parser, environ)
 
 
 def add_common_dataset_arguments(parser, environ):
     parser.add_argument(
-        "dataset_definition",
+        "definition_file",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
+        metavar="dataset_definition",
     )
     parser.add_argument(
         "--query-engine",
         type=query_engine_from_id,
         help=f"Dotted import path to class, or one of: {', '.join(QUERY_ENGINE_ALIASES)}",
         default=environ.get("OPENSAFELY_QUERY_ENGINE"),
+        dest="query_engine_class",
     )
     parser.add_argument(
         "--backend",
         type=backend_from_id,
         help=f"Dotted import path to class, or one of: {', '.join(BACKEND_ALIASES)}",
         default=environ.get("OPENSAFELY_BACKEND"),
+        dest="backend_class",
     )
 
 
@@ -193,11 +152,12 @@ def add_create_dummy_tables(subparsers, environ):
         "create-dummy-tables",
         help=("Write dummy data tables as CSV ready for customisation"),
     )
-    parser.set_defaults(which="create-dummy-tables")
+    parser.set_defaults(function=create_dummy_tables)
     parser.add_argument(
-        "dataset_definition",
+        "definition_file",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
+        metavar="dataset_definition",
     )
     parser.add_argument(
         "dummy_tables_path",
@@ -210,21 +170,24 @@ def add_generate_measures(subparsers, environ):
     parser = subparsers.add_parser(
         "generate-measures", help="Generate measures from a dataset"
     )
-    parser.set_defaults(which="generate-measures")
+    parser.set_defaults(function=generate_measures)
     parser.add_argument(
         "--input",
         help="Path and filename (or pattern) of the input file(s)",
         type=Path,
+        dest="input_file",
     )
     parser.add_argument(
         "--output",
         help="Path and filename (or pattern) of the file(s) where the dataset will be written",
         type=Path,
+        dest="output_file",
     )
     parser.add_argument(
-        "dataset_definition",
+        "definition_file",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
+        metavar="dataset_definition",
     )
 
 
@@ -232,13 +195,15 @@ def add_test_connection(subparsers, environ):
     parser = subparsers.add_parser(
         "test-connection", help="test the database connection configuration"
     )
-    parser.set_defaults(which="test-connection")
+    parser.set_defaults(function=test_connection)
+    parser.set_defaults(environ=environ)
     parser.add_argument(
         "--backend",
         "-b",
         help="backend type to test",
         type=backend_from_id,
         default=environ.get("BACKEND", environ.get("OPENSAFELY_BACKEND")),
+        dest="backend_class",
     )
     parser.add_argument(
         "--url",
@@ -283,8 +248,12 @@ def query_engine_from_id(str_id):
 
 
 def backend_from_id(str_id):
+    # Workaround for the fact that Job Runner insists on setting OPENSAFELY_BACKEND to
+    # "expectations" when running locally. Cohort Extractor backends have a different
+    # meaning from Data Builder's, and the semantics of the "expectations" backend
+    # translate to "no backend at all" in Data Builder terms so that's how we treat it.
     if str_id == "expectations":
-        return EXPECTATIONS_BACKEND_PLACEHOLDER
+        return None
 
     if "." not in str_id:
         try:
