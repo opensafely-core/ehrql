@@ -314,7 +314,7 @@ class DateFunctions(ComparableFunctions):
 
     def difference_in_years(self, other):
         other = parse_date_if_str(other)
-        return _apply(qm.Function.DateDifferenceInYears, self, other)
+        return _apply(qm.Function.DateDifferenceInYears, other, self)
 
     def add_days(self, other):
         return _apply(qm.Function.DateAddDays, self, other)

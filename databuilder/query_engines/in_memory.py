@@ -240,7 +240,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         return self.visit_binary_op_with_null(node, date_add_days)
 
     def visit_DateDifferenceInYears(self, node):
-        def year_diff(start, end):
+        def year_diff(end, start):
             year_diff = end.year - start.year
             if (end.month, end.day) < (start.month, start.day):
                 return year_diff - 1

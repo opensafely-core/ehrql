@@ -265,7 +265,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             self.get_expr(node.lhs), self.get_expr(node.rhs)
         )
 
-    def date_difference_in_years(self, start, end):
+    def date_difference_in_years(self, end, start):
         year_diff = self.get_date_part(end, "YEAR") - self.get_date_part(start, "YEAR")
         month_diff = self.get_date_part(end, "MONTH") - self.get_date_part(
             start, "MONTH"

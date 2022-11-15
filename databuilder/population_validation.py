@@ -200,7 +200,7 @@ def day_from_date(date):
 
 
 @register_op(Function.DateDifferenceInYears)
-def date_difference_in_years(start, end):
+def date_difference_in_years(end, start):
     year_diff = end.year - start.year
     if (end.month, end.day) < (start.month, start.day):
         return year_diff - 1
