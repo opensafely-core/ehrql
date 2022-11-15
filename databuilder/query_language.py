@@ -1,5 +1,7 @@
 import dataclasses
 import datetime
+import enum
+from typing import Union
 
 from databuilder import query_model as qm
 from databuilder.codes import BaseCode, Codelist
@@ -309,6 +311,20 @@ class DateFunctions(ComparableFunctions):
         other = parse_date_if_str(other)
         return _apply(qm.Function.EQ, self, other)
 
+    def __add__(self, other):
+        if isinstance(other, Duration):
+            # This is currently the only supported unit
+            assert other.units is Duration.Units.DAYS
+            return _apply(qm.Function.DateAddDays, self, other.value)
+        else:
+            return NotImplemented
+
+    def __sub__(self, other):
+        if isinstance(other, Duration):
+            return self.__add__(Duration(other.value.__neg__(), other.units))
+        else:
+            return NotImplemented
+
     # DEPRECATED METHODS
     #
 
@@ -333,6 +349,19 @@ class DateEventSeries(DateFunctions, DateAggregations, EventSeries):
 
 class DatePatientSeries(DateFunctions, PatientSeries):
     _type = datetime.date
+
+
+@dataclasses.dataclass
+class Duration:
+
+    Units = enum.Enum("Units", ["DAYS"])
+
+    value: Union[int, IntEventSeries, IntPatientSeries]
+    units: Units
+
+
+def days(value):
+    return Duration(value, Duration.Units.DAYS)
 
 
 # CODE SERIES

@@ -1,5 +1,7 @@
 from datetime import date
 
+from databuilder.ehrql import days
+
 from ..tables import p
 
 title = "Operations which apply to all series containing dates"
@@ -95,11 +97,35 @@ def test_to_first_of_month(spec_test):
     )
 
 
+def test_add_days(spec_test):
+    spec_test(
+        table_data,
+        p.d1 + days(p.i1),
+        {
+            1: date(1990, 4, 12),
+            2: date(2000, 9, 20),
+            3: None,
+        },
+    )
+
+
+def test_subtract_days(spec_test):
+    spec_test(
+        table_data,
+        p.d1 - days(p.i1),
+        {
+            1: date(1989, 9, 24),
+            2: date(1999, 8, 17),
+            3: None,
+        },
+    )
+
+
 # DEPRECATED METHODS
 #
 
 
-def test_add_days(spec_test):
+def test_add_days_method(spec_test):
     spec_test(
         table_data,
         p.d1.add_days(p.i1),
@@ -111,7 +137,7 @@ def test_add_days(spec_test):
     )
 
 
-def test_subtract_days(spec_test):
+def test_subtract_days_method(spec_test):
     spec_test(
         table_data,
         p.d1.subtract_days(p.i1),
