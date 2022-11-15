@@ -319,6 +319,9 @@ class DateFunctions(ComparableFunctions):
         else:
             return NotImplemented
 
+    def __radd__(self, other):
+        return self.__add__(other)
+
     def __sub__(self, other):
         if isinstance(other, Duration):
             return self.__add__(Duration(other.value.__neg__(), other.units))

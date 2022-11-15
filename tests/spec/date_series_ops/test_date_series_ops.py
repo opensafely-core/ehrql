@@ -121,6 +121,18 @@ def test_subtract_days(spec_test):
     )
 
 
+def test_add_date_to_duration(spec_test):
+    spec_test(
+        table_data,
+        days(100) + p.d1,
+        {
+            1: date(1990, 4, 12),
+            2: date(2000, 6, 12),
+            3: None,
+        },
+    )
+
+
 # DEPRECATED METHODS
 #
 
