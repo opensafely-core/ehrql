@@ -328,6 +328,13 @@ class DateFunctions(ComparableFunctions):
         else:
             return NotImplemented
 
+    def __rsub__(self, other):
+        other = parse_date_if_str(other)
+        if isinstance(other, (datetime.date, DateEventSeries, DatePatientSeries)):
+            return DateDifference(other, self)
+        else:
+            return NotImplemented
+
     # DEPRECATED METHODS
     #
 
@@ -352,6 +359,16 @@ class DateEventSeries(DateFunctions, DateAggregations, EventSeries):
 
 class DatePatientSeries(DateFunctions, PatientSeries):
     _type = datetime.date
+
+
+@dataclasses.dataclass
+class DateDifference:
+    lhs: Union[datetime.date, DateEventSeries, DatePatientSeries]
+    rhs: Union[datetime.date, DateEventSeries, DatePatientSeries]
+
+    @property
+    def years(self):
+        return _apply(qm.Function.DateDifferenceInYears, self.lhs, self.rhs)
 
 
 @dataclasses.dataclass

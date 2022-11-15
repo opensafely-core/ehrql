@@ -133,6 +133,39 @@ def test_add_date_to_duration(spec_test):
     )
 
 
+def test_difference_between_dates_in_years(spec_test):
+    # We define "(A - B).years" as the number of entire elapsed calendar years between B
+    # and A, as you'd use to calculate someone's age. Note the behaviour specified with
+    # respect to leap years: those born on 29 February on a leap year have their
+    # birthday on 1 March on non-leap years. Note also the behaviour with respect to
+    # negative numbers: if A is earlier than B then the year difference is always
+    # negative, even if this difference is only one day.
+    table_data = {
+        p: """
+              |     d1
+            --+------------
+            1 | 2020-02-29
+            2 | 2020-02-28
+            3 | 2019-01-01
+            4 | 2021-03-01
+            5 | 2023-01-01
+            6 |
+            """,
+    }
+    spec_test(
+        table_data,
+        (date(2021, 2, 28) - p.d1).years,
+        {
+            1: 0,
+            2: 1,
+            3: 2,
+            4: -1,
+            5: -2,
+            6: None,
+        },
+    )
+
+
 # DEPRECATED METHODS
 #
 
