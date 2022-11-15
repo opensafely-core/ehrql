@@ -271,16 +271,6 @@ class DateFunctions(ComparableFunctions):
     def day(self):
         return _apply(qm.Function.DayFromDate, self)
 
-    def difference_in_years(self, other):
-        other = parse_date_if_str(other)
-        return _apply(qm.Function.DateDifferenceInYears, self, other)
-
-    def add_days(self, other):
-        return _apply(qm.Function.DateAddDays, self, other)
-
-    def subtract_days(self, other):
-        return self.add_days(other.__neg__())
-
     def is_before(self, other):
         return self.__lt__(other)
 
@@ -318,6 +308,19 @@ class DateFunctions(ComparableFunctions):
     def __eq__(self, other):
         other = parse_date_if_str(other)
         return _apply(qm.Function.EQ, self, other)
+
+    # DEPRECATED METHODS
+    #
+
+    def difference_in_years(self, other):
+        other = parse_date_if_str(other)
+        return _apply(qm.Function.DateDifferenceInYears, self, other)
+
+    def add_days(self, other):
+        return _apply(qm.Function.DateAddDays, self, other)
+
+    def subtract_days(self, other):
+        return self.add_days(other.__neg__())
 
 
 class DateAggregations(ComparableAggregations):
