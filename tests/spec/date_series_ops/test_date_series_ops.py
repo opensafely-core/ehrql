@@ -166,6 +166,25 @@ def test_difference_between_dates_in_years(spec_test):
     )
 
 
+def test_reversed_date_differences(spec_test):
+    table_data = {
+        p: """
+              |     d1
+            --+------------
+            1 | 1990-01-30
+            2 | 1970-01-15
+            """,
+    }
+    spec_test(
+        table_data,
+        (p.d1 - "1980-01-20").years,
+        {
+            1: 10,
+            2: -11,
+        },
+    )
+
+
 # DEPRECATED METHODS
 #
 

@@ -323,8 +323,11 @@ class DateFunctions(ComparableFunctions):
         return self.__add__(other)
 
     def __sub__(self, other):
+        other = parse_date_if_str(other)
         if isinstance(other, Duration):
             return self.__add__(Duration(other.value.__neg__(), other.units))
+        elif isinstance(other, (datetime.date, DateEventSeries, DatePatientSeries)):
+            return DateDifference(self, other)
         else:
             return NotImplemented
 
