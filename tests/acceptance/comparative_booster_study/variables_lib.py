@@ -2,7 +2,7 @@ import operator
 from functools import reduce
 
 from databuilder.codes import CTV3Code, ICD10Code
-from databuilder.ehrql import case, when
+from databuilder.ehrql import case, days, when
 from databuilder.tables.beta import tpp as schema
 
 
@@ -37,7 +37,7 @@ def practice_registration_as_of(date):
 
 
 def age_as_of(date):
-    return schema.patients.date_of_birth.difference_in_years(date)
+    return (date - schema.patients.date_of_birth).years
 
 
 def has_a_continuous_practice_registration_spanning(start_date, end_date):
@@ -78,7 +78,7 @@ def address_as_of(date):
 
 def most_recent_bmi(*, minimum_age_at_measurement, where=True):
     events = schema.clinical_events
-    age_threshold = schema.patients.date_of_birth.add_days(
+    age_threshold = schema.patients.date_of_birth + days(
         # This is obviously inexact but, given that the dates of birth are rounded to
         # the first of the month anyway, there's no point trying to be more accurate
         int(365.25 * minimum_age_at_measurement)

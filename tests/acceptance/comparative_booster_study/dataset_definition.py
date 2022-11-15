@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from databuilder.ehrql import Dataset, case, when
+from databuilder.ehrql import Dataset, case, days, when
 from databuilder.tables.beta import tpp as schema
 
 from . import codelists
@@ -101,7 +101,7 @@ create_sequential_variables(
 boosted_date = dataset.covid_vax_disease_3_date
 # We define baseline variables on the day _before_ the study date (start date = day of
 # first possible booster vaccination)
-baseline_date = boosted_date.subtract_days(1)
+baseline_date = boosted_date - days(1)
 
 events = schema.clinical_events
 meds = schema.medications
@@ -139,7 +139,7 @@ def has_prior_meds(codelist, where=True):
 #######################################################################################
 
 dataset.has_follow_up_previous_6weeks = has_a_continuous_practice_registration_spanning(
-    start_date=boosted_date.subtract_days(6 * 7),
+    start_date=boosted_date - days(6 * 7),
     end_date=boosted_date,
 )
 
@@ -156,7 +156,7 @@ dataset.sex = schema.patients.sex
 bmi_measurement = most_recent_bmi(
     # This isn't _exactly_ 5 years as the old study used, but I can't see that would
     # matter here
-    where=events.date.is_after(baseline_date.subtract_days(5 * 365)),
+    where=events.date.is_after(baseline_date - days(5 * 365)),
     minimum_age_at_measurement=16,
 )
 bmi_value = bmi_measurement.numeric_value
@@ -322,22 +322,22 @@ ast = has_prior_event(codelists.ast)
 # Asthma systemic steroid prescription code in month 1
 astrxm1 = has_prior_meds(
     codelists.astrx,
-    where=meds.date.is_after(baseline_date.subtract_days(30)),
+    where=meds.date.is_after(baseline_date - days(30)),
 )
 # Asthma systemic steroid prescription code in month 2
 astrxm2 = has_prior_meds(
     codelists.astrx,
     where=(
-        meds.date.is_after(baseline_date.subtract_days(60))
-        & meds.date.is_on_or_before(baseline_date.subtract_days(30))
+        meds.date.is_after(baseline_date - days(60))
+        & meds.date.is_on_or_before(baseline_date - days(30))
     ),
 )
 # Asthma systemic steroid prescription code in month 3
 astrxm3 = has_prior_meds(
     codelists.astrx,
     where=(
-        meds.date.is_after(baseline_date.subtract_days(90))
-        & meds.date.is_on_or_before(baseline_date.subtract_days(60))
+        meds.date.is_after(baseline_date - days(90))
+        & meds.date.is_on_or_before(baseline_date - days(60))
     ),
 )
 dataset.asthma = astadm | (ast & astrxm1 & astrxm2 & astrxm3)
@@ -400,7 +400,7 @@ immdx = has_prior_event(codelists.immdx_cov)
 # Immunosuppression medication codes
 immrx = has_prior_meds(
     codelists.immrx,
-    where=(meds.date.is_after(baseline_date.subtract_days(182))),
+    where=(meds.date.is_after(baseline_date - days(182))),
 )
 
 dataset.immunosuppressed = immrx | immdx
@@ -468,7 +468,7 @@ dataset.cancer = has_prior_event(
         codelists.cancer_nonhaem_snomed,
         codelists.cancer_haem_snomed,
     ),
-    where=events.date.is_after(baseline_date.subtract_days(int(3 * 365.25))),
+    where=events.date.is_after(baseline_date - days(int(3 * 365.25))),
 )
 
 
@@ -515,7 +515,7 @@ dataset.housebound = (
 )
 
 dataset.prior_covid_test_frequency = prior_tests.take(
-    prior_tests.specimen_taken_date.is_after(baseline_date.subtract_days(26 * 7))
+    prior_tests.specimen_taken_date.is_after(baseline_date - days(26 * 7))
 ).count_for_patient()
 
 # Overnight hospital admission at time of 3rd / booster dose
