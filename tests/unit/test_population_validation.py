@@ -1,5 +1,4 @@
 import dataclasses
-import datetime
 
 import pytest
 
@@ -206,60 +205,6 @@ cases = [
     (
         False,
         Function.StringContains(Value("foo bar"), Value("oba")),
-    ),
-    (
-        datetime.date(2021, 6, 13),
-        Function.DateAddDays(Value(datetime.date(2021, 5, 4)), Value(40)),
-    ),
-    (
-        datetime.date(2021, 3, 25),
-        Function.DateAddDays(
-            Value(datetime.date(2021, 5, 4)), Function.Negate(Value(40))
-        ),
-    ),
-    (
-        datetime.date(2021, 1, 1),
-        Function.ToFirstOfYear(Value(datetime.date(2021, 5, 4))),
-    ),
-    (
-        datetime.date(2021, 5, 1),
-        Function.ToFirstOfMonth(Value(datetime.date(2021, 5, 4))),
-    ),
-    (
-        2022,
-        Function.YearFromDate(Value(datetime.date(2022, 4, 29))),
-    ),
-    (
-        4,
-        Function.MonthFromDate(Value(datetime.date(2022, 4, 29))),
-    ),
-    (
-        29,
-        Function.DayFromDate(Value(datetime.date(2022, 4, 29))),
-    ),
-    (
-        29,
-        Function.DateDifferenceInYears(
-            Value(datetime.date(2020, 1, 15)), Value(datetime.date(1990, 1, 30))
-        ),
-    ),
-    (
-        20,
-        Function.DateDifferenceInYears(
-            Value(datetime.date(2020, 1, 15)), Value(datetime.date(2000, 1, 15))
-        ),
-    ),
-    (
-        -1,
-        Function.DateDifferenceInYears(
-            Value(datetime.date(2020, 1, 15)), Value(datetime.date(2020, 1, 20))
-        ),
-    ),
-    (
-        -2,
-        Function.DateDifferenceInYears(
-            Value(datetime.date(2020, 1, 15)), Value(datetime.date(2022, 1, 10))
-        ),
     ),
 ]
 

@@ -1,7 +1,7 @@
-import datetime
 import operator
 from collections import namedtuple
 
+from databuilder import date_utils
 from databuilder import query_model as qm
 from databuilder.query_engines.base import BaseQueryEngine
 from databuilder.query_engines.in_memory_database import (
@@ -234,41 +234,25 @@ class InMemoryQueryEngine(BaseQueryEngine):
         return self.visit_unary_op_with_null(node, float)
 
     def visit_DateAddDays(self, node):
-        def date_add_days(date, num_days):
-            return date + datetime.timedelta(days=num_days)
-
-        return self.visit_binary_op_with_null(node, date_add_days)
+        return self.visit_binary_op_with_null(node, date_utils.date_add_days)
 
     def visit_DateDifferenceInYears(self, node):
-        def year_diff(end, start):
-            year_diff = end.year - start.year
-            if (end.month, end.day) < (start.month, start.day):
-                return year_diff - 1
-            else:
-                return year_diff
-
-        return self.visit_binary_op_with_null(node, year_diff)
+        return self.visit_binary_op_with_null(node, date_utils.date_difference_in_years)
 
     def visit_YearFromDate(self, node):
-        return self.visit_unary_op_with_null(node, operator.attrgetter("year"))
+        return self.visit_unary_op_with_null(node, date_utils.year_from_date)
 
     def visit_MonthFromDate(self, node):
-        return self.visit_unary_op_with_null(node, operator.attrgetter("month"))
+        return self.visit_unary_op_with_null(node, date_utils.month_from_date)
 
     def visit_DayFromDate(self, node):
-        return self.visit_unary_op_with_null(node, operator.attrgetter("day"))
+        return self.visit_unary_op_with_null(node, date_utils.day_from_date)
 
     def visit_ToFirstOfYear(self, node):
-        def to_first_of_year(date):
-            return date.replace(day=1, month=1)
-
-        return self.visit_unary_op_with_null(node, to_first_of_year)
+        return self.visit_unary_op_with_null(node, date_utils.to_first_of_year)
 
     def visit_ToFirstOfMonth(self, node):
-        def to_first_of_month(date):
-            return date.replace(day=1)
-
-        return self.visit_unary_op_with_null(node, to_first_of_month)
+        return self.visit_unary_op_with_null(node, date_utils.to_first_of_month)
 
     def visit_StringContains(self, node):
         return self.visit_binary_op_with_null(node, operator.contains)
