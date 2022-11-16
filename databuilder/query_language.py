@@ -313,9 +313,12 @@ class DateFunctions(ComparableFunctions):
 
     def __add__(self, other):
         if isinstance(other, Duration):
-            # This is currently the only supported unit
-            assert other.units is Duration.Units.DAYS
-            return _apply(qm.Function.DateAddDays, self, other.value)
+            if other.units is Duration.Units.DAYS:
+                return _apply(qm.Function.DateAddDays, self, other.value)
+            elif other.units is Duration.Units.YEARS:
+                return _apply(qm.Function.DateAddYears, self, other.value)
+            else:
+                assert False
         else:
             return NotImplemented
 
@@ -381,7 +384,7 @@ class DateDifference:
 @dataclasses.dataclass
 class Duration:
 
-    Units = enum.Enum("Units", ["DAYS"])
+    Units = enum.Enum("Units", ["DAYS", "YEARS"])
 
     value: Union[int, IntEventSeries, IntPatientSeries]
     units: Units
@@ -389,6 +392,10 @@ class Duration:
 
 def days(value):
     return Duration(value, Duration.Units.DAYS)
+
+
+def years(value):
+    return Duration(value, Duration.Units.YEARS)
 
 
 # CODE SERIES

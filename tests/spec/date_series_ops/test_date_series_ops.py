@@ -1,6 +1,6 @@
 from datetime import date
 
-from databuilder.ehrql import days
+from databuilder.ehrql import days, years
 
 from ..tables import p
 
@@ -117,6 +117,48 @@ def test_subtract_days(spec_test):
             1: date(1989, 9, 24),
             2: date(1999, 8, 17),
             3: None,
+        },
+    )
+
+
+def test_add_years(spec_test):
+    # Below we specify that where adding/subtracting years to 29 February lands us on a
+    # non-leap year, we round up to 1 March, rather than down to 28 February. There are
+    # various ways of defending this approach:
+    #
+    #  1. It is the only behaviour consistent with our "difference in years" definition,
+    #     if we define `x + N years` as:
+    #
+    #       The smallest y such that `(y - x).years == N`
+    #
+    #  2. It is what SQLite does.
+    #
+    # Other databases take different approachs so we have to work around their behaviour
+    # in their respective query engines.
+    table_data = {
+        p: """
+          |     d1     | i1
+        --+------------+-----
+        1 | 2000-06-15 |  5
+        2 | 2000-06-15 | -5
+        3 | 2004-02-29 |  1
+        4 | 2004-02-29 | -1
+        5 | 2004-02-29 |  4
+        6 | 2004-02-29 | -4
+        7 | 2003-03-01 | 1
+        """,
+    }
+    spec_test(
+        table_data,
+        p.d1 + years(p.i1),
+        {
+            1: date(2005, 6, 15),
+            2: date(1995, 6, 15),
+            3: date(2005, 3, 1),
+            4: date(2003, 3, 1),
+            5: date(2008, 2, 29),
+            6: date(2000, 2, 29),
+            7: date(2004, 3, 1),
         },
     )
 

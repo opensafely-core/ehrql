@@ -20,6 +20,19 @@ class SparkQueryEngine(BaseSQLQueryEngine):
     def date_add_days(self, date, num_days):
         return SQLFunction("DATE_ADD", date, num_days, type_=sqlalchemy_types.Date)
 
+    def date_add_years(self, date, num_years):
+        # We can't just use `ADD_MONTHS` directly here due to Spark's insistence on
+        # rounding 29 Feb down rather than up on non-leap years. For more detail see:
+        # tests/spec/date_series/ops/test_date_series_ops.py::test_add_years
+        #
+        # Instead we truncate the date to the fist of the month, shift the year, and
+        # then add the relevant number of days back on which has the effect of rolling
+        # 29 Feb over to 1 Mar as we want.
+        start_of_month = self.to_first_of_month(date)
+        # Spark doesn't have a native ADD_YEARS function so we have to use months
+        offset_result = SQLFunction("ADD_MONTHS", start_of_month, num_years * 12)
+        return self.date_add_days(offset_result, self.get_date_part(date, "DAY") - 1)
+
     def to_first_of_year(self, date):
         return SQLFunction("TRUNC", date, "year", type_=sqlalchemy_types.Date)
 
