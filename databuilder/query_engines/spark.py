@@ -10,6 +10,9 @@ from databuilder.sqlalchemy_utils import GeneratedTable
 class SparkQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = SparkDialect
 
+    def date_difference_in_days(self, end, start):
+        return SQLFunction("DATEDIFF", end, start, type_=sqlalchemy_types.Integer)
+
     def get_date_part(self, date, part):
         assert part in {"YEAR", "MONTH", "DAY"}
         return SQLFunction(part, date, type_=sqlalchemy_types.Integer)

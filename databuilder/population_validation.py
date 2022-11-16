@@ -192,6 +192,7 @@ def in_(lhs, rhs):
 register_op(Function.YearFromDate)(date_utils.year_from_date)
 register_op(Function.MonthFromDate)(date_utils.month_from_date)
 register_op(Function.DayFromDate)(date_utils.day_from_date)
+register_op(Function.DateDifferenceInDays)(date_utils.date_difference_in_days)
 register_op(Function.DateDifferenceInYears)(date_utils.date_difference_in_years)
 register_op(Function.DateAddDays)(date_utils.date_add_days)
 register_op(Function.ToFirstOfYear)(date_utils.to_first_of_year)

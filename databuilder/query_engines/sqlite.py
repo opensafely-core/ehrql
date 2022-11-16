@@ -9,6 +9,11 @@ from databuilder.query_engines.sqlite_dialect import SQLiteDialect
 class SQLiteQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = SQLiteDialect
 
+    def date_difference_in_days(self, end, start):
+        start_day = SQLFunction("JULIANDAY", start)
+        end_day = SQLFunction("JULIANDAY", end)
+        return sqlalchemy.cast(end_day - start_day, sqlalchemy_types.Integer)
+
     def get_date_part(self, date, part):
         format_str = {"YEAR": "%Y", "MONTH": "%m", "DAY": "%d"}[part]
         part_as_str = SQLFunction("STRFTIME", format_str, date)

@@ -27,6 +27,15 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
     # temporary tables
     intermediate_table_prefix = "#tmp_"
 
+    def date_difference_in_days(self, end, start):
+        return SQLFunction(
+            "DATEDIFF",
+            sqlalchemy.text("day"),
+            start,
+            end,
+            type_=sqlalchemy_types.Integer,
+        )
+
     def get_date_part(self, date, part):
         assert part in {"YEAR", "MONTH", "DAY"}
         return SQLFunction(part, date, type_=sqlalchemy_types.Integer)

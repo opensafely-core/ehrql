@@ -370,6 +370,10 @@ class DateDifference:
     rhs: Union[datetime.date, DateEventSeries, DatePatientSeries]
 
     @property
+    def days(self):
+        return _apply(qm.Function.DateDifferenceInDays, self.lhs, self.rhs)
+
+    @property
     def years(self):
         return _apply(qm.Function.DateDifferenceInYears, self.lhs, self.rhs)
 

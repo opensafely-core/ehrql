@@ -13,6 +13,10 @@ def day_from_date(date):
     return date.day
 
 
+def date_difference_in_days(end, start):
+    return (end - start).days
+
+
 def date_difference_in_years(end, start):
     year_diff = end.year - start.year
     if (end.month, end.day) < (start.month, start.day):

@@ -166,6 +166,29 @@ def test_difference_between_dates_in_years(spec_test):
     )
 
 
+def test_difference_between_dates_in_days(spec_test):
+    table_data = {
+        p: """
+              |     d1     |     d2
+            --+------------+------------
+            1 | 2000-01-01 | 2000-01-01
+            2 | 2000-03-01 | 2000-01-01
+            3 | 2001-03-01 | 2001-01-01
+            4 | 1999-12-31 | 2001-01-01
+            """,
+    }
+    spec_test(
+        table_data,
+        (p.d1 - p.d2).days,
+        {
+            1: 0,
+            2: 31 + 29,
+            3: 31 + 28,
+            4: -366 - 1,
+        },
+    )
+
+
 def test_reversed_date_differences(spec_test):
     table_data = {
         p: """

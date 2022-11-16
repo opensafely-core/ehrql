@@ -259,6 +259,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_day_from_date(self, node):
         return self.get_date_part(self.get_expr(node.source), "DAY")
 
+    @get_sql.register(Function.DateDifferenceInDays)
+    def get_sql_date_difference_in_days(self, node):
+        return self.date_difference_in_days(
+            self.get_expr(node.lhs), self.get_expr(node.rhs)
+        )
+
+    def date_difference_in_days(self, end, start):
+        raise NotImplementedError()
+
     @get_sql.register(Function.DateDifferenceInYears)
     def get_sql_date_difference_in_years(self, node):
         return self.date_difference_in_years(
