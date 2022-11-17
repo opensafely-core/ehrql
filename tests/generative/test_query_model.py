@@ -57,14 +57,18 @@ def query_engines(request):
 @hyp.given(variable=variable_strategy, data=data_strategy)
 @hyp.settings(**settings)
 def test_query_model(query_engines, variable, data):
-    hyp.target(tune_qm_graph_size(variable))
+    tune_inputs(variable)
     observe_inputs(variable, data)
     run_test(query_engines, data, variable)
 
 
-def tune_qm_graph_size(variable):
-    target_size = 40  # seems to give a reasonable spread of query model graphs
-    return -abs(target_size - count_nodes(variable))
+def tune_inputs(variable):
+    # Hypothesis maximizes the metric, which makes the number of nodes in the variable
+    # tend towards the target. The target chosen here seems to give a reasonable spread
+    # of query model graphs
+    target_size = 40
+    metric = -abs(target_size - count_nodes(variable))
+    hyp.target(metric)
 
 
 def run_test(query_engines, data, variable):
