@@ -332,6 +332,10 @@ class Function:
         lhs: Series[date]
         rhs: Series[int]
 
+    class DateAddMonths(Series[date]):
+        lhs: Series[date]
+        rhs: Series[int]
+
     class DateAddYears(Series[date]):
         lhs: Series[date]
         rhs: Series[int]

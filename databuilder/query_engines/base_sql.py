@@ -342,6 +342,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def date_add_days(self, date, num_days):
         raise NotImplementedError()
 
+    @get_sql.register(Function.DateAddMonths)
+    def get_sql_date_add_months(self, node):
+        return self.date_add_months(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    def date_add_months(self, date, num_months):
+        raise NotImplementedError()
+
     @get_sql.register(Function.DateAddYears)
     def get_sql_date_add_years(self, node):
         return self.date_add_years(self.get_expr(node.lhs), self.get_expr(node.rhs))

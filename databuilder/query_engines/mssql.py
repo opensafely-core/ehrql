@@ -49,6 +49,24 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             type_=sqlalchemy_types.Date,
         )
 
+    def date_add_months(self, date, num_months):
+        new_date = SQLFunction(
+            "DATEADD",
+            sqlalchemy.text("month"),
+            num_months,
+            date,
+            type_=sqlalchemy_types.Date,
+        )
+        # In cases of day-of-month overflow, MSSQL clips to the end of the month rather
+        # than rolling over to the first of the next month as want it to, so we detect
+        # when it's done that and correct for it here. For more detail see:
+        # tests/spec/date_series/ops/test_date_series_ops.py::test_add_months
+        correction = sqlalchemy.case(
+            (self.get_date_part(new_date, "DAY") < self.get_date_part(date, "DAY"), 1),
+            else_=0,
+        )
+        return self.date_add_days(new_date, correction)
+
     def date_add_years(self, date, num_years):
         # We can't just use `DATEADD(year, ...)` here due to MSSQL's insistence on
         # rounding 29 Feb down rather than up on non-leap years. For more detail see:

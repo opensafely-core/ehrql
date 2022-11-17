@@ -38,6 +38,25 @@ def date_add_days(date, num_days):
     return date + datetime.timedelta(days=num_days)
 
 
+def date_add_months(date, num_months):
+    # Dear me, calendars really are terrible aren't they?
+    zero_indexed_month = date.month - 1
+    new_zero_indexed_month = zero_indexed_month + num_months
+    new_month = 1 + new_zero_indexed_month % 12
+    new_year = date.year + new_zero_indexed_month // 12
+    try:
+        return datetime.date(new_year, new_month, date.day)
+    except ValueError:
+        # Where the month we end up has no corresponding day we roll forward to the
+        # first of the next month. For a defence of this logic see:
+        # tests/spec/date_series/ops/test_date_series_ops.py::test_add_months
+
+        # As no month has more days than December we'll never need to roll forward from
+        # December and so we don't need to worry about wrapping round to the next year
+        assert new_month != 12
+        return datetime.date(new_year, new_month + 1, 1)
+
+
 def date_add_years(date, num_years):
     try:
         return datetime.date(date.year + num_years, date.month, date.day)

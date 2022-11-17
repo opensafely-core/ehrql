@@ -22,6 +22,9 @@ class SQLiteQueryEngine(BaseSQLQueryEngine):
     def date_add_days(self, date, num_days):
         return self.date_add("days", date, num_days)
 
+    def date_add_months(self, date, num_months):
+        return self.date_add("months", date, num_months)
+
     def date_add_years(self, date, num_years):
         return self.date_add("years", date, num_years)
 

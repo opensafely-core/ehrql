@@ -1,6 +1,6 @@
 from datetime import date
 
-from databuilder.ehrql import days, years
+from databuilder.ehrql import days, months, years
 
 from ..tables import p
 
@@ -117,6 +117,45 @@ def test_subtract_days(spec_test):
             1: date(1989, 9, 24),
             2: date(1999, 8, 17),
             3: None,
+        },
+    )
+
+
+def test_add_months(spec_test):
+    # Below we specify that where adding/subtracting months takes us to a date which
+    # doesn't exist (e.g. 31 September, or 29 February on a non-leap year) we roll
+    # forward to the first of the next month. As with our definition of year addition
+    # below:
+    #
+    #  1. It is the only behaviour consistent with our "difference in months" definition,
+    #     if we define `x + N months` as:
+    #
+    #       The smallest y such that `(y - x).months == N`
+    #
+    #  2. It is what SQLite does.
+    #
+    # Other databases take different approachs so we have to work around their behaviour
+    # in their respective query engines.
+    table_data = {
+        p: """
+          |     d1     | i1
+        --+------------+-----
+        1 | 2003-01-29 |  1
+        2 | 2004-01-29 |  1
+        3 | 2003-01-29 | -1
+        4 | 2000-10-31 |  11
+        5 | 2000-10-31 | -11
+        """,
+    }
+    spec_test(
+        table_data,
+        p.d1 + months(p.i1),
+        {
+            1: date(2003, 3, 1),
+            2: date(2004, 2, 29),
+            3: date(2002, 12, 29),
+            4: date(2001, 10, 1),
+            5: date(1999, 12, 1),
         },
     )
 

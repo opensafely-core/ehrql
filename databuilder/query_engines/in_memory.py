@@ -236,6 +236,9 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_DateAddDays(self, node):
         return self.visit_binary_op_with_null(node, date_utils.date_add_days)
 
+    def visit_DateAddMonths(self, node):
+        return self.visit_binary_op_with_null(node, date_utils.date_add_months)
+
     def visit_DateAddYears(self, node):
         return self.visit_binary_op_with_null(node, date_utils.date_add_years)
 
