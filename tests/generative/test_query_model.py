@@ -4,7 +4,7 @@ import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
 
-from databuilder.query_model.nodes import Column, TableSchema
+from databuilder.query_model.nodes import Column, TableSchema, node_types
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
@@ -63,12 +63,9 @@ def test_query_model(query_engines, variable, data):
 
 
 def tune_inputs(variable):
-    # Hypothesis maximizes the metric, which makes the number of nodes in the variable
-    # tend towards the target. The target chosen here seems to give a reasonable spread
-    # of query model graphs
-    target_size = 40
-    metric = -abs(target_size - count_nodes(variable))
-    hyp.target(metric)
+    # Encourage Hypothesis to maximize the number and type of nodes
+    hyp.target(count_nodes(variable), label="number of nodes")
+    hyp.target(len(node_types(variable)), label="number of node types")
 
 
 def run_test(query_engines, data, variable):
