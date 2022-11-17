@@ -208,6 +208,41 @@ def test_difference_between_dates_in_years(spec_test):
     )
 
 
+def test_difference_between_dates_in_months(spec_test):
+    table_data = {
+        p: """
+               |     d1     |     d2
+            ---+------------+------------
+             1 | 2000-02-28 | 2000-01-30
+             2 | 2000-03-01 | 2000-01-30
+             3 | 2000-03-28 | 2000-02-28
+             4 | 2000-03-30 | 2000-01-30
+             5 | 2000-02-27 | 2000-01-30
+             6 | 2000-01-27 | 2000-01-30
+             7 | 1999-12-26 | 2000-01-27
+             8 | 2005-02-28 | 2004-02-29
+             9 | 2010-01-01 | 2000-01-01
+            10 | 2000-01-01 |
+            """,
+    }
+    spec_test(
+        table_data,
+        (p.d1 - p.d2).months,
+        {
+            1: 0,
+            2: 1,
+            3: 1,
+            4: 2,
+            5: 0,
+            6: -1,
+            7: -2,
+            8: 11,
+            9: 120,
+            10: None,
+        },
+    )
+
+
 def test_difference_between_dates_in_days(spec_test):
     table_data = {
         p: """

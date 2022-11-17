@@ -377,6 +377,10 @@ class DateDifference:
         return _apply(qm.Function.DateDifferenceInDays, self.lhs, self.rhs)
 
     @property
+    def months(self):
+        return _apply(qm.Function.DateDifferenceInMonths, self.lhs, self.rhs)
+
+    @property
     def years(self):
         return _apply(qm.Function.DateDifferenceInYears, self.lhs, self.rhs)
 

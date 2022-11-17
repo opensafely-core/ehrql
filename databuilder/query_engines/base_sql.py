@@ -318,6 +318,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # they are equivalent.
         return year_diff - sqlalchemy.case((month_diff * -31 > day_diff, 1), else_=0)
 
+    @get_sql.register(Function.DateDifferenceInMonths)
+    def get_sql_date_difference_in_months(self, node):
+        return self.date_difference_in_months(
+            self.get_expr(node.lhs), self.get_expr(node.rhs)
+        )
+
+    def date_difference_in_months(self, end, start):
+        year_diff = self.get_date_part(end, "YEAR") - self.get_date_part(start, "YEAR")
+        month_diff = self.get_date_part(end, "MONTH") - self.get_date_part(
+            start, "MONTH"
+        )
+        part_month = self.get_date_part(end, "DAY") < self.get_date_part(start, "DAY")
+        return year_diff * 12 + month_diff - sqlalchemy.case((part_month, 1), else_=0)
+
     def get_date_part(self, date, part):
         raise NotImplementedError()
 

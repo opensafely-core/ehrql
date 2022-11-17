@@ -242,6 +242,11 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_DateDifferenceInDays(self, node):
         return self.visit_binary_op_with_null(node, date_utils.date_difference_in_days)
 
+    def visit_DateDifferenceInMonths(self, node):
+        return self.visit_binary_op_with_null(
+            node, date_utils.date_difference_in_months
+        )
+
     def visit_DateDifferenceInYears(self, node):
         return self.visit_binary_op_with_null(node, date_utils.date_difference_in_years)
 

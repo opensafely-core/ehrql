@@ -340,6 +340,10 @@ class Function:
         lhs: Series[date]
         rhs: Series[date]
 
+    class DateDifferenceInMonths(Series[int]):
+        lhs: Series[date]
+        rhs: Series[date]
+
     class DateDifferenceInYears(Series[int]):
         lhs: Series[date]
         rhs: Series[date]

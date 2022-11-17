@@ -17,6 +17,15 @@ def date_difference_in_days(end, start):
     return (end - start).days
 
 
+def date_difference_in_months(end, start):
+    year_diff = end.year - start.year
+    month_diff = end.month - start.month + 12 * year_diff
+    if end.day < start.day:
+        return month_diff - 1
+    else:
+        return month_diff
+
+
 def date_difference_in_years(end, start):
     year_diff = end.year - start.year
     if (end.month, end.day) < (start.month, start.day):
