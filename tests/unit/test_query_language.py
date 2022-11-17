@@ -246,3 +246,15 @@ def test_boolean_operators_raise_errors():
         exists or has_dob
     with pytest.raises(TypeError, match=error):
         date(2000, 1, 1) < patients.date_of_birth < date(2020, 1, 1)
+
+
+def test_date_arithmetic_with_unsupport_types_raises_error():
+    error = "unsupported operand type"
+    with pytest.raises(TypeError, match=error):
+        100 + patients.date_of_birth
+    with pytest.raises(TypeError, match=error):
+        100 - patients.date_of_birth
+    with pytest.raises(TypeError, match=error):
+        patients.date_of_birth + 100
+    with pytest.raises(TypeError, match=error):
+        patients.date_of_birth - 100
