@@ -15,7 +15,10 @@ from databuilder.query_language import (
     StrEventSeries,
     StrPatientSeries,
     compile,
+    days,
+    months,
     table,
+    years,
 )
 from databuilder.query_model import (
     Column,
@@ -258,3 +261,30 @@ def test_date_arithmetic_with_unsupport_types_raises_error():
         patients.date_of_birth + 100
     with pytest.raises(TypeError, match=error):
         patients.date_of_birth - 100
+    with pytest.raises(TypeError, match=error):
+        100 + days(100)
+
+
+@pytest.mark.parametrize(
+    "lhs,op,rhs,expected",
+    [
+        # Test each type of Duration constructor
+        (days(40), "+", "2020-01-01", date(2020, 2, 10)),
+        (months(4), "+", "2020-01-01", date(2020, 5, 1)),
+        (years(4), "+", "2020-01-01", date(2024, 1, 1)),
+        # Test with date objects rather than strings
+        (date(2020, 1, 1), "+", days(40), date(2020, 2, 10)),
+        # Test with order reversed
+        ("2020-01-01", "+", days(40), date(2020, 2, 10)),
+        # Test subtraction
+        ("2020-01-01", "-", days(40), date(2019, 11, 22)),
+    ],
+)
+def test_date_arithmetic_with_durations(lhs, op, rhs, expected):
+    if op == "+":
+        result = lhs + rhs
+    elif op == "-":
+        result = lhs - rhs
+    else:
+        assert False
+    assert result == expected

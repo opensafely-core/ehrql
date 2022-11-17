@@ -3,6 +3,7 @@ import datetime
 import enum
 from typing import Union
 
+from databuilder import date_utils
 from databuilder import query_model as qm
 from databuilder.codes import BaseCode, Codelist
 from databuilder.contracts.constraints import CategoricalConstraint
@@ -394,6 +395,29 @@ class Duration:
 
     value: Union[int, IntEventSeries, IntPatientSeries]
     units: Units
+
+    def __add__(self, other):
+        other = parse_date_if_str(other)
+        if isinstance(other, datetime.date):
+            if self.units is Duration.Units.DAYS:
+                return date_utils.date_add_days(other, self.value)
+            elif self.units is Duration.Units.MONTHS:
+                return date_utils.date_add_months(other, self.value)
+            elif self.units is Duration.Units.YEARS:
+                return date_utils.date_add_years(other, self.value)
+            else:
+                assert False
+        else:
+            return NotImplemented
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __rsub__(self, other):
+        return self.__neg__().__add__(other)
+
+    def __neg__(self):
+        return Duration(self.value.__neg__(), self.units)
 
 
 def days(value):
