@@ -332,6 +332,22 @@ class Function:
         lhs: Series[date]
         rhs: Series[int]
 
+    class DateAddMonths(Series[date]):
+        lhs: Series[date]
+        rhs: Series[int]
+
+    class DateAddYears(Series[date]):
+        lhs: Series[date]
+        rhs: Series[int]
+
+    class DateDifferenceInDays(Series[int]):
+        lhs: Series[date]
+        rhs: Series[date]
+
+    class DateDifferenceInMonths(Series[int]):
+        lhs: Series[date]
+        rhs: Series[date]
+
     class DateDifferenceInYears(Series[int]):
         lhs: Series[date]
         rhs: Series[date]

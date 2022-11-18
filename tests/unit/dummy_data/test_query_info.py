@@ -3,7 +3,7 @@ import sys
 
 from databuilder.codes import CTV3Code
 from databuilder.dummy_data.query_info import ColumnInfo, QueryInfo, TableInfo
-from databuilder.ehrql import Dataset
+from databuilder.ehrql import Dataset, days
 from databuilder.query_language import compile
 from databuilder.tables import (
     CategoricalConstraint,
@@ -97,7 +97,7 @@ def test_query_info_ignores_complex_comparisons():
     dataset = Dataset()
     dataset.set_population(events.exists_for_patient())
     dataset.q1 = patients.date_of_birth.year.is_in([2000, 2010, 2020])
-    dataset.q2 = patients.date_of_birth.add_days(100) == "2021-10-20"
+    dataset.q2 = patients.date_of_birth + days(100) == "2021-10-20"
     dataset.q3 = patients.date_of_birth == "2022-10-05"
     variable_definitions = compile(dataset)
 

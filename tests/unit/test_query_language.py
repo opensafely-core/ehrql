@@ -5,7 +5,9 @@ import pytest
 from databuilder.query_language import (
     CategoricalConstraint,
     Dataset,
+    DateDifference,
     DateEventSeries,
+    DatePatientSeries,
     EventFrame,
     IntEventSeries,
     IntPatientSeries,
@@ -15,7 +17,10 @@ from databuilder.query_language import (
     StrEventSeries,
     StrPatientSeries,
     compile,
+    days,
+    months,
     table,
+    years,
 )
 from databuilder.query_model import (
     Column,
@@ -246,3 +251,87 @@ def test_boolean_operators_raise_errors():
         exists or has_dob
     with pytest.raises(TypeError, match=error):
         date(2000, 1, 1) < patients.date_of_birth < date(2020, 1, 1)
+
+
+@pytest.mark.parametrize(
+    "lhs,op,rhs",
+    [
+        (100, "+", patients.date_of_birth),
+        (100, "-", patients.date_of_birth),
+        (patients.date_of_birth, "+", 100),
+        (patients.date_of_birth, "-", 100),
+        (100, "+", days(100)),
+        (100, "-", days(100)),
+        (days(100), "+", 100),
+        (days(100), "-", 100),
+        (date(2010, 1, 1), "+", patients.date_of_birth - "2000-01-01"),
+    ],
+)
+def test_unsupported_date_operations(lhs, op, rhs):
+    with pytest.raises(TypeError, match="unsupported operand type"):
+        if op == "+":
+            lhs + rhs
+        elif op == "-":
+            lhs - rhs
+        else:
+            assert False
+
+
+@pytest.mark.parametrize(
+    "lhs,op,rhs,expected",
+    [
+        # Test each type of Duration constructor
+        ("2020-01-01", "+", days(10), date(2020, 1, 11)),
+        ("2020-01-01", "+", months(10), date(2020, 11, 1)),
+        ("2020-01-01", "+", years(10), date(2030, 1, 1)),
+        # Order reversed
+        (days(10), "+", "2020-01-01", date(2020, 1, 11)),
+        # Subtraction
+        ("2020-01-01", "-", years(10), date(2010, 1, 1)),
+        # Date objects rather than ISO strings
+        (date(2020, 1, 1), "+", years(10), date(2030, 1, 1)),
+        (years(10), "+", date(2020, 1, 1), date(2030, 1, 1)),
+        (date(2020, 1, 1), "-", years(10), date(2010, 1, 1)),
+    ],
+)
+def test_static_date_operations(lhs, op, rhs, expected):
+    if op == "+":
+        result = lhs + rhs
+    elif op == "-":
+        result = lhs - rhs
+    else:
+        assert False
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "lhs,op,rhs,expected_type",
+    [
+        # Test each type of Duration constructor
+        (patients.date_of_birth, "+", days(10), DatePatientSeries),
+        (patients.date_of_birth, "+", months(10), DatePatientSeries),
+        (patients.date_of_birth, "+", years(10), DatePatientSeries),
+        # Order reversed
+        (days(10), "+", patients.date_of_birth, DatePatientSeries),
+        # Subtraction
+        (patients.date_of_birth, "-", days(10), DatePatientSeries),
+        # Date differences
+        (patients.date_of_birth, "-", "2020-01-01", DateDifference),
+        (patients.date_of_birth, "-", date(2020, 1, 1), DateDifference),
+        # Order reversed
+        ("2020-01-01", "-", patients.date_of_birth, DateDifference),
+        (date(2020, 1, 1), "-", patients.date_of_birth, DateDifference),
+        # DateDifference attributes
+        ((patients.date_of_birth - "2020-01-01").days, "+", 1, IntPatientSeries),
+        ((patients.date_of_birth - "2020-01-01").months, "+", 1, IntPatientSeries),
+        ((patients.date_of_birth - "2020-01-01").years, "+", 1, IntPatientSeries),
+    ],
+)
+def test_ehrql_date_operations(lhs, op, rhs, expected_type):
+    if op == "+":
+        result = lhs + rhs
+    elif op == "-":
+        result = lhs - rhs
+    else:
+        assert False
+    assert isinstance(result, expected_type)

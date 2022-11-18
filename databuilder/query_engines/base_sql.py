@@ -259,13 +259,22 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_day_from_date(self, node):
         return self.get_date_part(self.get_expr(node.source), "DAY")
 
+    @get_sql.register(Function.DateDifferenceInDays)
+    def get_sql_date_difference_in_days(self, node):
+        return self.date_difference_in_days(
+            self.get_expr(node.lhs), self.get_expr(node.rhs)
+        )
+
+    def date_difference_in_days(self, end, start):
+        raise NotImplementedError()
+
     @get_sql.register(Function.DateDifferenceInYears)
     def get_sql_date_difference_in_years(self, node):
         return self.date_difference_in_years(
             self.get_expr(node.lhs), self.get_expr(node.rhs)
         )
 
-    def date_difference_in_years(self, start, end):
+    def date_difference_in_years(self, end, start):
         year_diff = self.get_date_part(end, "YEAR") - self.get_date_part(start, "YEAR")
         month_diff = self.get_date_part(end, "MONTH") - self.get_date_part(
             start, "MONTH"
@@ -309,6 +318,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # they are equivalent.
         return year_diff - sqlalchemy.case((month_diff * -31 > day_diff, 1), else_=0)
 
+    @get_sql.register(Function.DateDifferenceInMonths)
+    def get_sql_date_difference_in_months(self, node):
+        return self.date_difference_in_months(
+            self.get_expr(node.lhs), self.get_expr(node.rhs)
+        )
+
+    def date_difference_in_months(self, end, start):
+        year_diff = self.get_date_part(end, "YEAR") - self.get_date_part(start, "YEAR")
+        month_diff = self.get_date_part(end, "MONTH") - self.get_date_part(
+            start, "MONTH"
+        )
+        part_month = self.get_date_part(end, "DAY") < self.get_date_part(start, "DAY")
+        return year_diff * 12 + month_diff - sqlalchemy.case((part_month, 1), else_=0)
+
     def get_date_part(self, date, part):
         raise NotImplementedError()
 
@@ -317,6 +340,20 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return self.date_add_days(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
     def date_add_days(self, date, num_days):
+        raise NotImplementedError()
+
+    @get_sql.register(Function.DateAddMonths)
+    def get_sql_date_add_months(self, node):
+        return self.date_add_months(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    def date_add_months(self, date, num_months):
+        raise NotImplementedError()
+
+    @get_sql.register(Function.DateAddYears)
+    def get_sql_date_add_years(self, node):
+        return self.date_add_years(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    def date_add_years(self, date, num_years):
         raise NotImplementedError()
 
     @get_sql.register(Function.ToFirstOfYear)

@@ -1,6 +1,9 @@
 import dataclasses
 import datetime
+import enum
+from typing import Union
 
+from databuilder import date_utils
 from databuilder import query_model as qm
 from databuilder.codes import BaseCode, Codelist
 from databuilder.contracts.constraints import CategoricalConstraint
@@ -271,16 +274,6 @@ class DateFunctions(ComparableFunctions):
     def day(self):
         return _apply(qm.Function.DayFromDate, self)
 
-    def difference_in_years(self, other):
-        other = parse_date_if_str(other)
-        return _apply(qm.Function.DateDifferenceInYears, self, other)
-
-    def add_days(self, other):
-        return _apply(qm.Function.DateAddDays, self, other)
-
-    def subtract_days(self, other):
-        return self.add_days(other.__neg__())
-
     def is_before(self, other):
         return self.__lt__(other)
 
@@ -319,6 +312,51 @@ class DateFunctions(ComparableFunctions):
         other = parse_date_if_str(other)
         return _apply(qm.Function.EQ, self, other)
 
+    def __add__(self, other):
+        if isinstance(other, Duration):
+            if other.units is Duration.Units.DAYS:
+                return _apply(qm.Function.DateAddDays, self, other.value)
+            elif other.units is Duration.Units.MONTHS:
+                return _apply(qm.Function.DateAddMonths, self, other.value)
+            elif other.units is Duration.Units.YEARS:
+                return _apply(qm.Function.DateAddYears, self, other.value)
+            else:
+                assert False
+        else:
+            return NotImplemented
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __sub__(self, other):
+        other = parse_date_if_str(other)
+        if isinstance(other, Duration):
+            return self.__add__(Duration(other.value.__neg__(), other.units))
+        elif isinstance(other, (datetime.date, DateEventSeries, DatePatientSeries)):
+            return DateDifference(self, other)
+        else:
+            return NotImplemented
+
+    def __rsub__(self, other):
+        other = parse_date_if_str(other)
+        if isinstance(other, (datetime.date, DateEventSeries, DatePatientSeries)):
+            return DateDifference(other, self)
+        else:
+            return NotImplemented
+
+    # DEPRECATED METHODS
+    #
+
+    def difference_in_years(self, other):
+        other = parse_date_if_str(other)
+        return _apply(qm.Function.DateDifferenceInYears, other, self)
+
+    def add_days(self, other):
+        return _apply(qm.Function.DateAddDays, self, other)
+
+    def subtract_days(self, other):
+        return self.add_days(other.__neg__())
+
 
 class DateAggregations(ComparableAggregations):
     "Empty for now"
@@ -330,6 +368,68 @@ class DateEventSeries(DateFunctions, DateAggregations, EventSeries):
 
 class DatePatientSeries(DateFunctions, PatientSeries):
     _type = datetime.date
+
+
+@dataclasses.dataclass
+class DateDifference:
+    lhs: Union[datetime.date, DateEventSeries, DatePatientSeries]
+    rhs: Union[datetime.date, DateEventSeries, DatePatientSeries]
+
+    @property
+    def days(self):
+        return _apply(qm.Function.DateDifferenceInDays, self.lhs, self.rhs)
+
+    @property
+    def months(self):
+        return _apply(qm.Function.DateDifferenceInMonths, self.lhs, self.rhs)
+
+    @property
+    def years(self):
+        return _apply(qm.Function.DateDifferenceInYears, self.lhs, self.rhs)
+
+
+@dataclasses.dataclass
+class Duration:
+
+    Units = enum.Enum("Units", ["DAYS", "MONTHS", "YEARS"])
+
+    value: Union[int, IntEventSeries, IntPatientSeries]
+    units: Units
+
+    def __add__(self, other):
+        other = parse_date_if_str(other)
+        if isinstance(other, datetime.date):
+            if self.units is Duration.Units.DAYS:
+                return date_utils.date_add_days(other, self.value)
+            elif self.units is Duration.Units.MONTHS:
+                return date_utils.date_add_months(other, self.value)
+            elif self.units is Duration.Units.YEARS:
+                return date_utils.date_add_years(other, self.value)
+            else:
+                assert False
+        else:
+            return NotImplemented
+
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __rsub__(self, other):
+        return self.__neg__().__add__(other)
+
+    def __neg__(self):
+        return Duration(self.value.__neg__(), self.units)
+
+
+def days(value):
+    return Duration(value, Duration.Units.DAYS)
+
+
+def months(value):
+    return Duration(value, Duration.Units.MONTHS)
+
+
+def years(value):
+    return Duration(value, Duration.Units.YEARS)
 
 
 # CODE SERIES

@@ -1,8 +1,8 @@
 import dataclasses
-import datetime
 import operator
 from functools import singledispatch
 
+from databuilder import date_utils
 from databuilder.query_model import (
     AggregateByPatient,
     Case,
@@ -184,50 +184,22 @@ def register_op(cls):
     return register
 
 
-@register_op(Function.YearFromDate)
-def year_from_date(date):
-    return date.year
-
-
-@register_op(Function.MonthFromDate)
-def month_from_date(date):
-    return date.month
-
-
-@register_op(Function.DayFromDate)
-def day_from_date(date):
-    return date.day
-
-
-@register_op(Function.DateDifferenceInYears)
-def date_difference_in_years(start, end):
-    year_diff = end.year - start.year
-    if (end.month, end.day) < (start.month, start.day):
-        return year_diff - 1
-    else:
-        return year_diff
-
-
 @register_op(Function.In)
 def in_(lhs, rhs):
     return operator.contains(rhs, lhs)
 
 
-@register_op(Function.DateAddDays)
-def date_add_days(date, num_days):
-    return date + datetime.timedelta(days=num_days)
-
-
-@register_op(Function.ToFirstOfYear)
-def to_first_of_year(date):
-    return date.replace(day=1, month=1)
-
-
-@register_op(Function.ToFirstOfMonth)
-def to_first_of_month(date):
-    return date.replace(day=1)
-
-
+register_op(Function.YearFromDate)(date_utils.year_from_date)
+register_op(Function.MonthFromDate)(date_utils.month_from_date)
+register_op(Function.DayFromDate)(date_utils.day_from_date)
+register_op(Function.DateDifferenceInDays)(date_utils.date_difference_in_days)
+register_op(Function.DateDifferenceInMonths)(date_utils.date_difference_in_months)
+register_op(Function.DateDifferenceInYears)(date_utils.date_difference_in_years)
+register_op(Function.DateAddDays)(date_utils.date_add_days)
+register_op(Function.DateAddMonths)(date_utils.date_add_months)
+register_op(Function.DateAddYears)(date_utils.date_add_years)
+register_op(Function.ToFirstOfYear)(date_utils.to_first_of_year)
+register_op(Function.ToFirstOfMonth)(date_utils.to_first_of_month)
 register_op(Function.Not)(operator.not_)
 register_op(Function.Negate)(operator.neg)
 register_op(Function.EQ)(operator.eq)
