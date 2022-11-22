@@ -7,7 +7,7 @@ from databuilder.column_specs import (
     get_column_specs,
     get_range,
 )
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     Case,
     Column,

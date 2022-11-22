@@ -1,6 +1,6 @@
 import sqlalchemy
 
-from databuilder.query_model import Value
+from databuilder.query_model.nodes import Value
 
 
 def test_handles_degenerate_population(engine):

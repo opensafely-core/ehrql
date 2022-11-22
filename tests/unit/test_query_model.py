@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     Case,
     Column,

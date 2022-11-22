@@ -2,7 +2,7 @@ import dataclasses
 from functools import singledispatch
 from typing import Optional, TypeVar
 
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     Case,
     SelectColumn,

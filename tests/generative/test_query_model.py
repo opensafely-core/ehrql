@@ -4,7 +4,7 @@ import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
 
-from databuilder.query_model import Column, TableSchema
+from databuilder.query_model.nodes import Column, TableSchema
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies

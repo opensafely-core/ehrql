@@ -2,13 +2,13 @@ import dataclasses
 
 import pytest
 
-from databuilder import query_model
 from databuilder.population_validation import (
     ValidationError,
     evaluate,
     validate_population_definition,
 )
-from databuilder.query_model import (
+from databuilder.query_model import nodes as query_model
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     Case,
     Column,

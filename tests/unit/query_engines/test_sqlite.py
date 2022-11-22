@@ -1,7 +1,7 @@
 import sqlalchemy
 
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     Column,
     Function,
     SelectColumn,

@@ -11,7 +11,7 @@ from databuilder.backends.base import (
     ValidationError,
 )
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
-from databuilder.query_model import Column, TableSchema
+from databuilder.query_model.nodes import Column, TableSchema
 from databuilder.tables import PatientFrame, Series, table
 
 

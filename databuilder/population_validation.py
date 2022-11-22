@@ -2,7 +2,7 @@ import dataclasses
 import operator
 from functools import singledispatch
 
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     Case,
     Function,

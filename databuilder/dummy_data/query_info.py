@@ -3,7 +3,7 @@ from collections import defaultdict
 from functools import cached_property
 from typing import Optional
 
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     Function,
     SelectColumn,
     SelectPatientTable,

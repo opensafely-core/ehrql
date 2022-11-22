@@ -1,7 +1,6 @@
 import operator
 from collections import namedtuple
 
-from databuilder import query_model as qm
 from databuilder.query_engines.base import BaseQueryEngine
 from databuilder.query_engines.in_memory_database import (
     PatientColumn,
@@ -9,6 +8,7 @@ from databuilder.query_engines.in_memory_database import (
     apply_function,
     handle_null,
 )
+from databuilder.query_model import nodes as qm
 from databuilder.query_model_transforms import apply_transforms
 from databuilder.utils import date_utils
 

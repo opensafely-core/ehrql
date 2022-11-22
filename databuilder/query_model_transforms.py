@@ -16,7 +16,7 @@ want to keep them separate from the core query model classes.
 import copy
 from typing import Any
 
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     Case,
     Function,
     PickOneRowPerPatient,

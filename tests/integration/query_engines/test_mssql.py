@@ -8,7 +8,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import Select
 
 from databuilder.query_engines.mssql import MSSQLQueryEngine
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     Column,
     SelectColumn,
