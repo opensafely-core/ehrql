@@ -31,7 +31,7 @@ def histogram(samples):  # pragma: no cover
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):  # pragma: no cover
-    if "DEBUG" not in os.environ:
+    if "GENTEST_DEBUG" not in os.environ:
         return
 
     print(f"\n{len(observed_inputs)} unique input combinations")

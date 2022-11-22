@@ -80,7 +80,7 @@ To get the benefit of the generative tests you need to run them at larger scale 
 Use something like this:
 
 ```
-EXAMPLES=10000 just test-generative
+GENTEST_EXAMPLES=10000 just test-generative
 ```
 
 This generates 10k examples and takes ten or fifteen minutes to run.
@@ -88,7 +88,7 @@ When developing this, I (Ben) only ever saw one problem that took more than 10k 
 We should schedule longer runs from time to time to make sure that we're not missing anything.
 
 You can get Hypothesis to dump statistics at the end of the run with `--hypothesis-show-statistics`,
-or (more usefully) dump some of our own statistics about the generated data and queries by setting `DEBUG=t`.
+or (more usefully) dump some of our own statistics about the generated data and queries by setting `GENTEST_DEBUG=t`.
 
 When debugging a failure you'll probably want to reproduce it.
 

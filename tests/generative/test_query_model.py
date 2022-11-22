@@ -35,7 +35,7 @@ data_strategy = data_strategies.data(
     patient_classes, event_classes, schema, int_values, bool_values
 )
 settings = dict(
-    max_examples=(int(os.environ.get("EXAMPLES", 100))),
+    max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 100))),
     deadline=None,
     suppress_health_check=[hyp.HealthCheck.filter_too_much, hyp.HealthCheck.too_slow],
 )
