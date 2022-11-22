@@ -1,4 +1,3 @@
-import hypothesis as hyp
 import hypothesis.errors
 import hypothesis.strategies as st
 
@@ -14,7 +13,6 @@ from databuilder.query_model.nodes import (
     Sort,
     ValidationError,
     Value,
-    get_input_nodes,
     has_many_rows_per_patient,
     has_one_row_per_patient,
     node_types,
@@ -195,102 +193,12 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 @st.composite
 def qm_builds(draw, type_, *arg_strategies):
     args = [draw(s) for s in arg_strategies]
-
     try:
-        node = type_(*args)
+        return type_(*args)
     except ValidationError:
         raise hypothesis.errors.UnsatisfiedAssumption
-
-    hyp.assume(not is_trivial(node))  # see long comment below
-    return node
 
 
 def uses_the_database(v):
     database_uses = [SelectPatientTable, SelectTable]
     return any(t in database_uses for t in node_types(v))
-
-
-# SQlAlchemy does a certain amount of interpretation and optimization client-side. In particular in some cases where it
-# can statically determine that the result of a function is constant, it replaces that function with the constant
-# value. In extreme cases this may mean that the result of an entire query is completely determined client-side. In
-# those cases our engine cannot determine the population for the dataset because it draws the patient universe from all
-# tables used by the query -- and the query will use no tables.
-#
-# So we need to exclude such queries. This function detects function calls that SQLAlchemy will optimize away so that
-# can avoid queries made up entirely of such things.
-#
-# Note that it is not sufficient to check that there is at least one non-trivial node in the tree because the collapse
-# of trivial nodes lower down the tree can cause those higher up to become collapsible. For example this query reduces
-# to `False`:
-#
-#     Function.And(
-#         lhs=SelectColumn(
-#             source=SelectPatientTable(name="p0"),
-#             name="b1",
-#         ),
-#         rhs=Function.IsNull(source=Value(value=0)),
-#     )
-#
-# The only way to detect cases like that would be to replicate SQLAlchemy's interpretation of the entire tree in order
-# to check that the query is non-trivial.
-#
-# We therefore exclude all trivial nodes from the query. That means that there are realistic queries with trivial
-# subtrees that we can't generate with these strategies. We could consider composing known-non-trivial subtrees with
-# possibly-trivial subtrees as a future improvement to these strategies.
-#
-# And advantage to this approach is that we reject huge numbers of trivial queries that Hypothesis was otherwise
-# inclined to generate, so the queries generally are rather more realistic.
-def is_trivial(node):  # pragma: no cover
-    if type(node) in [
-        Function.Not,
-        Function.IsNull,
-        Function.Negate,
-        Function.YearFromDate,
-    ]:
-        # Unary functions are completely determined if their input is a literal
-        if isinstance(get_input_nodes(node)[0], Value):
-            return True
-
-    # Shortcut-able binary functions may be completely determined if one of their inputs is a literal
-    if isinstance(node, Function.And):
-        if any(n == Value(False) for n in get_input_nodes(node)):
-            return True
-    if isinstance(node, Function.Or):
-        if any(n == Value(True) for n in get_input_nodes(node)):
-            return True
-
-    if type(node) in [
-        Function.And,
-        Function.Or,
-        Function.EQ,
-        Function.NE,
-        Function.LT,
-        Function.LE,
-        Function.GT,
-        Function.GE,
-        Function.Add,
-        Function.Subtract,
-        Function.DateAddDays,
-        Function.DateDifferenceInYears,
-        Function.In,
-    ]:
-        # All binary functions are completely determined if all of their inputs are literals
-        if all(isinstance(n, Value) for n in get_input_nodes(node)):
-            return True
-
-    if type(node) in [
-        Function.Not,
-        Function.IsNull,
-        Function.Negate,
-    ]:
-        # Nested application of these unary functions is allowed by the type system, but never necessary
-        if isinstance(get_input_nodes(node)[0], type(node)):
-            return True
-
-    if isinstance(node, Function.Subtract):
-        # Subtracting a value from itself always returns zero
-        left, right = get_input_nodes(node)
-        if left == right:
-            return True
-
-    return False
