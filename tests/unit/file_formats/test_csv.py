@@ -3,13 +3,13 @@ from io import StringIO
 
 import pytest
 
-from databuilder.column_specs import ColumnSpec
 from databuilder.file_formats.csv import (
     ValidationError,
     create_column_parser,
     read_dataset_csv_lines,
     write_dataset_csv_lines,
 )
+from databuilder.query_model.column_specs import ColumnSpec
 from databuilder.sqlalchemy_types import TYPE_MAP
 
 

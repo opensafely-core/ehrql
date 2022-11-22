@@ -13,7 +13,7 @@ from databuilder.query_model.nodes import (
     TableSchema,
     Value,
 )
-from databuilder.query_model_transforms import (
+from databuilder.query_model.transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )

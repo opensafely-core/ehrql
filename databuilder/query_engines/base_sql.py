@@ -25,7 +25,7 @@ from databuilder.query_model.nodes import (
     get_table_and_filters,
     has_many_rows_per_patient,
 )
-from databuilder.query_model_transforms import (
+from databuilder.query_model.transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )

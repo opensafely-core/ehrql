@@ -1,12 +1,12 @@
 import pytest
 
-from databuilder.column_specs import ColumnSpec
 from databuilder.file_formats import (
     FILE_FORMATS,
     ValidationError,
     validate_dataset,
     write_dataset,
 )
+from databuilder.query_model.column_specs import ColumnSpec
 
 
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))

@@ -1,7 +1,7 @@
 import datetime
 
 from databuilder.codes import SNOMEDCTCode
-from databuilder.column_specs import (
+from databuilder.query_model.column_specs import (
     ColumnSpec,
     get_categories,
     get_column_specs,

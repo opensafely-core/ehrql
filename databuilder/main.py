@@ -5,7 +5,6 @@ from contextlib import nullcontext
 
 import structlog
 
-from databuilder.column_specs import get_column_specs
 from databuilder.dummy_data import DummyDataGenerator
 from databuilder.file_formats import (
     validate_dataset,
@@ -15,6 +14,7 @@ from databuilder.file_formats import (
 from databuilder.query_engines.csv import CSVQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset, compile
+from databuilder.query_model.column_specs import get_column_specs
 from databuilder.utils.itertools_utils import eager_iterator
 from databuilder.utils.orm_utils import write_orm_models_to_csv_directory
 from databuilder.utils.sqlalchemy_query_utils import (
