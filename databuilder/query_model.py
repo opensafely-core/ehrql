@@ -7,9 +7,8 @@ from functools import cache, singledispatch
 from types import GenericAlias
 from typing import Any, Optional, TypeVar
 
+from databuilder.codes import BaseCode
 from databuilder.utils.typing_utils import get_typespec, get_typevars, type_matches
-
-from .codes import BaseCode
 
 # The below classes and functions are the public API surface of the query model
 __all__ = [
