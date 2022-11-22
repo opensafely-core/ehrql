@@ -344,19 +344,6 @@ class DateFunctions(ComparableFunctions):
         else:
             return NotImplemented
 
-    # DEPRECATED METHODS
-    #
-
-    def difference_in_years(self, other):
-        other = parse_date_if_str(other)
-        return _apply(qm.Function.DateDifferenceInYears, other, self)
-
-    def add_days(self, other):
-        return _apply(qm.Function.DateAddDays, self, other)
-
-    def subtract_days(self, other):
-        return self.add_days(other.__neg__())
-
 
 class DateAggregations(ComparableAggregations):
     "Empty for now"
