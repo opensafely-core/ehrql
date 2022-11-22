@@ -10,13 +10,14 @@ from databuilder.query_model.nodes import (
     Column,
     Function,
     TableSchema,
+    count_nodes,
     node_types,
 )
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from ..lib.query_model_utils import get_all_operations
 from . import data_setup, data_strategies, variable_strategies
-from .conftest import count_nodes, observe_inputs
+from .conftest import observe_inputs
 
 # To simplify data generation, all tables have the same schema.
 schema = TableSchema(i1=Column(int), i2=Column(int), b1=Column(bool), b2=Column(bool))
