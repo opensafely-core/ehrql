@@ -17,7 +17,7 @@ from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset, compile
 from databuilder.utils.itertools_utils import eager_iterator
 from databuilder.utils.orm_utils import write_orm_models_to_csv_directory
-from databuilder.utils.sqlalchemy_utils import (
+from databuilder.utils.sqlalchemy_query_utils import (
     clause_as_str,
     get_setup_and_cleanup_queries,
 )

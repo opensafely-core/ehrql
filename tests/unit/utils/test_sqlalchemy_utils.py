@@ -6,12 +6,14 @@ from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 
-from databuilder.utils.sqlalchemy_utils import (
-    GeneratedTable,
+from databuilder.utils.sqlalchemy_exec_utils import (
     ReconnectableConnection,
-    clause_as_str,
     execute_with_retry_factory,
     fetch_table_in_batches,
+)
+from databuilder.utils.sqlalchemy_query_utils import (
+    GeneratedTable,
+    clause_as_str,
     get_setup_and_cleanup_queries,
     is_predicate,
 )

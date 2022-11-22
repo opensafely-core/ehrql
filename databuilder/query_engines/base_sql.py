@@ -30,7 +30,7 @@ from databuilder.query_model_transforms import (
     apply_transforms,
 )
 from databuilder.utils.functools_utils import singledispatchmethod_with_cache
-from databuilder.utils.sqlalchemy_utils import (
+from databuilder.utils.sqlalchemy_query_utils import (
     get_setup_and_cleanup_queries,
     is_predicate,
 )
