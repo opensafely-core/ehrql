@@ -27,6 +27,7 @@ from databuilder.query_model.nodes import (
     get_input_nodes,
     get_series_type,
     get_sorts,
+    validate_node,
 )
 from databuilder.utils.collections_utils import DefaultIdentityDict, IdentitySet
 
@@ -128,6 +129,7 @@ def add_columns_to_pick(node, selected_column_names):
     )
     force_setattr(node, "__class__", PickOneRowPerPatientWithColumns)
     force_setattr(node, "selected_columns", selected_columns)
+    validate_node(node)  # check we haven't broken any invariants
 
 
 def add_extra_sorts(node, selected_column_names):
@@ -141,7 +143,7 @@ def add_extra_sorts(node, selected_column_names):
             sort_by=make_sortable(SelectColumn(lowest_sort.source, column)),
         )
         force_setattr(lowest_sort, "source", new_sort)
-        force_setattr(lowest_sort.sort_by, "source", new_sort)
+        validate_node(lowest_sort)  # check we haven't broken any invariants
         lowest_sort = new_sort
 
 
