@@ -6,6 +6,7 @@ from pathlib import Path
 
 from databuilder import __version__
 from databuilder.file_formats import FILE_FORMATS, get_file_extension
+from databuilder.utils.log_utils import init_logging
 
 from .main import (
     CommandError,
@@ -38,6 +39,8 @@ def entrypoint():
 
 def main(args, environ=None):
     environ = environ or {}
+
+    init_logging()
 
     parser = ArgumentParser(
         prog="databuilder", description="Generate datasets in OpenSAFELY"
