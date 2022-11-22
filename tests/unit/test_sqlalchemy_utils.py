@@ -6,7 +6,7 @@ from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 
-from databuilder.sqlalchemy_utils import (
+from databuilder.utils.sqlalchemy_utils import (
     GeneratedTable,
     ReconnectableConnection,
     clause_as_str,

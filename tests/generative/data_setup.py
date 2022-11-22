@@ -1,12 +1,12 @@
 import sqlalchemy.orm
 
-from databuilder.orm_utils import orm_class_from_schema
 from databuilder.query_model import (
     AggregateByPatient,
     Function,
     SelectPatientTable,
     SelectTable,
 )
+from databuilder.utils.orm_utils import orm_class_from_schema
 
 
 def setup(schema, num_patient_tables, num_event_tables):

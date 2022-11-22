@@ -5,18 +5,18 @@ import pytest
 import sqlalchemy
 from sqlalchemy.orm import declarative_base
 
-from databuilder.orm_utils import (
-    orm_csv_writer,
-    read_orm_models_from_csv_lines,
-    read_value,
-    write_orm_models_to_csv_directory,
-)
 from databuilder.sqlalchemy_types import (
     TYPE_MAP,
     Date,
     Integer,
     String,
     type_from_python_type,
+)
+from databuilder.utils.orm_utils import (
+    orm_csv_writer,
+    read_orm_models_from_csv_lines,
+    read_value,
+    write_orm_models_to_csv_directory,
 )
 
 

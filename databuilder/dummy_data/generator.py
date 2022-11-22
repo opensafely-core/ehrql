@@ -6,9 +6,9 @@ import structlog
 from sqlalchemy.orm import declarative_base
 
 from databuilder.dummy_data.query_info import QueryInfo
-from databuilder.orm_utils import orm_class_from_schema
 from databuilder.query_engines.in_memory import InMemoryQueryEngine
 from databuilder.query_engines.in_memory_database import InMemoryDatabase
+from databuilder.utils.orm_utils import orm_class_from_schema
 
 log = structlog.getLogger()
 

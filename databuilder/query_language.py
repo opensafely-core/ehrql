@@ -3,12 +3,12 @@ import datetime
 import enum
 from typing import Union
 
-from databuilder import date_utils
 from databuilder import query_model as qm
 from databuilder.codes import BaseCode, Codelist
 from databuilder.contracts.constraints import CategoricalConstraint
 from databuilder.population_validation import validate_population_definition
 from databuilder.query_model import get_series_type, has_one_row_per_patient
+from databuilder.utils import date_utils
 
 # This gets populated by the `__init_subclass__` methods of EventSeries and
 # PatientSeries. Its structure is:

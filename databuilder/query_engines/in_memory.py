@@ -1,7 +1,6 @@
 import operator
 from collections import namedtuple
 
-from databuilder import date_utils
 from databuilder import query_model as qm
 from databuilder.query_engines.base import BaseQueryEngine
 from databuilder.query_engines.in_memory_database import (
@@ -11,6 +10,7 @@ from databuilder.query_engines.in_memory_database import (
     handle_null,
 )
 from databuilder.query_model_transforms import apply_transforms
+from databuilder.utils import date_utils
 
 T = True
 F = False

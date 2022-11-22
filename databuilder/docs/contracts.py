@@ -1,7 +1,7 @@
 from databuilder import contracts
 from databuilder.query_language import BaseFrame, Series
+from databuilder.utils.module_utils import get_submodules
 
-from ..module_utils import get_submodules
 from .common import build_hierarchy, reformat_docstring
 
 

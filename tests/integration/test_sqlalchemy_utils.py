@@ -2,7 +2,7 @@ import pytest
 import sqlalchemy
 import sqlalchemy.orm
 
-from databuilder.sqlalchemy_utils import fetch_table_in_batches
+from databuilder.utils.sqlalchemy_utils import fetch_table_in_batches
 
 Base = sqlalchemy.orm.declarative_base()
 

@@ -1,4 +1,4 @@
-from databuilder.collections_utils import IdentitySet
+from databuilder.utils.collections_utils import IdentitySet
 
 
 def test_empty_means_empty():

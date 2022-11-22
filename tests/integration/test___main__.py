@@ -6,10 +6,10 @@ from databuilder.__main__ import (
     query_engine_from_id,
 )
 from databuilder.backends.base import BaseBackend
-from databuilder.module_utils import get_sibling_subclasses
 from databuilder.query_engines.base import BaseQueryEngine
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 from databuilder.query_engines.in_memory import InMemoryQueryEngine
+from databuilder.utils.module_utils import get_sibling_subclasses
 
 
 def test_test_connection(mssql_database, capsys):

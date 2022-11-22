@@ -1,7 +1,8 @@
 import operator
 
+from databuilder.utils.module_utils import get_sibling_subclasses
+
 from ..backends.base import BaseBackend
-from ..module_utils import get_sibling_subclasses
 
 
 def build_backends():
