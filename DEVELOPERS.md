@@ -97,6 +97,16 @@ When debugging a failure you'll probably want to reproduce it.
    (You'll need to add some imports to get it to run.) This allows you to get the failure case running in a debugger
    (and also to get the example nicely formatted to help understand it).
 
+Since the variable generation strategies are quite complex, it's hard to convince yourself that they give good coverage of the query space.
+To help with this there is an optional assertion that the generative tests have included every query model operation at least once.
+To enable this assertion set `GENTEST_COMPREHENSIVE=t`, like this:
+
+```
+GENTEST_COMPREHENSIVE=t GENTEST_EXAMPLES=5000 just test-generative
+```
+
+(But note that you need something like 5k examples to have any chance of this passing.)
+
 ### Writing tests
 
 Please think carefully about how to test code that you are adding or changing.

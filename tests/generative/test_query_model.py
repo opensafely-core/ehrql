@@ -4,9 +4,17 @@ import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
 
-from databuilder.query_model.nodes import Column, TableSchema, node_types
+from databuilder.query_model.nodes import (
+    AggregateByPatient,
+    Case,
+    Column,
+    Function,
+    TableSchema,
+    node_types,
+)
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
+from ..lib.query_model_utils import get_all_operations
 from . import data_setup, data_strategies, variable_strategies
 from .conftest import count_nodes, observe_inputs
 
@@ -54,9 +62,54 @@ def query_engines(request):
     }
 
 
+@pytest.fixture(scope="session")
+def recorder():  # pragma: no cover
+    variables = []
+    yield lambda v: variables.append(v)
+
+    if not os.getenv("GENTEST_COMPREHENSIVE"):
+        return
+
+    all_operations = set(get_all_operations())
+    known_missing = {
+        AggregateByPatient.CombineAsSet,
+        Case,
+        Function.In,
+        Function.StringContains,
+        Function.CastToFloat,
+        Function.CastToInt,
+        Function.DateAddYears,
+        Function.DateAddMonths,
+        Function.DateAddDays,
+        Function.YearFromDate,
+        Function.MonthFromDate,
+        Function.DayFromDate,
+        Function.DateDifferenceInYears,
+        Function.DateDifferenceInMonths,
+        Function.DateDifferenceInDays,
+        Function.ToFirstOfYear,
+        Function.ToFirstOfMonth,
+    }
+
+    operations_seen = set()
+    for v in variables:
+        for o in node_types(v):
+            operations_seen.add(o)
+
+    unexpected_missing = all_operations - known_missing - operations_seen
+    assert (
+        not unexpected_missing
+    ), f"unseen operations: {[o.__name__ for o in unexpected_missing]}"
+    unexpected_present = known_missing & operations_seen
+    assert (
+        not unexpected_present
+    ), f"unexpectedly seen operations: {[o.__name__ for o in unexpected_present]}"
+
+
 @hyp.given(variable=variable_strategy, data=data_strategy)
 @hyp.settings(**settings)
-def test_query_model(query_engines, variable, data):
+def test_query_model(query_engines, variable, data, recorder):
+    recorder(variable)
     tune_inputs(variable)
     observe_inputs(variable, data)
     run_test(query_engines, data, variable)
