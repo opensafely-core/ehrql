@@ -3,8 +3,8 @@ import datetime
 import sqlalchemy.orm
 
 from databuilder.codes import SNOMEDCTCode
-from databuilder.orm_utils import orm_class_from_ql_table
 from databuilder.tables import EventFrame, PatientFrame, Series, table
+from databuilder.utils.orm_utils import orm_class_from_ql_table
 
 
 @table

@@ -7,15 +7,15 @@ from sqlalchemy.future.engine import Connection
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import Select
 
-from databuilder.orm_utils import orm_class_from_qm_table
 from databuilder.query_engines.mssql import MSSQLQueryEngine
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     Column,
     SelectColumn,
     SelectPatientTable,
     TableSchema,
 )
+from databuilder.utils.orm_utils import orm_class_from_qm_table
 
 
 def test_get_results_using_temporary_database(mssql_database):

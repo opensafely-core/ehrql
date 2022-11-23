@@ -16,8 +16,7 @@ want to keep them separate from the core query model classes.
 import copy
 from typing import Any
 
-from databuilder.collections_utils import DefaultIdentityDict, IdentitySet
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     Case,
     Function,
     PickOneRowPerPatient,
@@ -29,6 +28,7 @@ from databuilder.query_model import (
     get_series_type,
     get_sorts,
 )
+from databuilder.utils.collections_utils import DefaultIdentityDict, IdentitySet
 
 
 class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):

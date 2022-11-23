@@ -1,7 +1,6 @@
 import sqlalchemy.orm
 
-from databuilder import orm_utils
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     PickOneRowPerPatient,
     Position,
@@ -10,6 +9,7 @@ from databuilder.query_model import (
     Sort,
     TableSchema,
 )
+from databuilder.utils import orm_utils
 
 schema = TableSchema.from_primitives(i=int, b=bool)
 base = sqlalchemy.orm.declarative_base()

@@ -2,7 +2,7 @@ import os
 import pprint
 from collections import defaultdict
 
-from databuilder.query_model import count_nodes, node_types
+from databuilder.query_model.nodes import count_nodes, node_types
 
 observed_inputs = set()
 

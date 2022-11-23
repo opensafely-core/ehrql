@@ -9,8 +9,7 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 
 from databuilder import sqlalchemy_types
 from databuilder.backends.base import DefaultBackend
-from databuilder.functools_utils import singledispatchmethod_with_cache
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     Case,
     Filter,
@@ -26,11 +25,15 @@ from databuilder.query_model import (
     get_table_and_filters,
     has_many_rows_per_patient,
 )
-from databuilder.query_model_transforms import (
+from databuilder.query_model.transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )
-from databuilder.sqlalchemy_utils import get_setup_and_cleanup_queries, is_predicate
+from databuilder.utils.functools_utils import singledispatchmethod_with_cache
+from databuilder.utils.sqlalchemy_query_utils import (
+    get_setup_and_cleanup_queries,
+    is_predicate,
+)
 
 from .base import BaseQueryEngine
 

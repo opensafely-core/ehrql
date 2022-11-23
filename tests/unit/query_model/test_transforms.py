@@ -1,6 +1,6 @@
 import datetime
 
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     Case,
     Column,
     Filter,
@@ -13,7 +13,7 @@ from databuilder.query_model import (
     TableSchema,
     Value,
 )
-from databuilder.query_model_transforms import (
+from databuilder.query_model.transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )

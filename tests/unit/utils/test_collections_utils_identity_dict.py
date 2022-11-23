@@ -1,6 +1,6 @@
 from pytest import raises
 
-from databuilder.collections_utils import DefaultIdentityDict, IdentityDict
+from databuilder.utils.collections_utils import DefaultIdentityDict, IdentityDict
 
 
 def test_empty_means_empty():

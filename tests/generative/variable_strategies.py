@@ -2,7 +2,7 @@ import hypothesis as hyp
 import hypothesis.errors
 import hypothesis.strategies as st
 
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     Filter,
     Function,

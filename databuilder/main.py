@@ -5,20 +5,23 @@ from contextlib import nullcontext
 
 import structlog
 
-from databuilder.column_specs import get_column_specs
 from databuilder.dummy_data import DummyDataGenerator
 from databuilder.file_formats import (
     validate_dataset,
     validate_file_types_match,
     write_dataset,
 )
-from databuilder.itertools_utils import eager_iterator
-from databuilder.orm_utils import write_orm_models_to_csv_directory
 from databuilder.query_engines.csv import CSVQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset, compile
-from databuilder.sqlalchemy_utils import clause_as_str, get_setup_and_cleanup_queries
-from databuilder.traceback_utils import get_trimmed_traceback
+from databuilder.query_model.column_specs import get_column_specs
+from databuilder.utils.itertools_utils import eager_iterator
+from databuilder.utils.orm_utils import write_orm_models_to_csv_directory
+from databuilder.utils.sqlalchemy_query_utils import (
+    clause_as_str,
+    get_setup_and_cleanup_queries,
+)
+from databuilder.utils.traceback_utils import get_trimmed_traceback
 
 log = structlog.getLogger()
 

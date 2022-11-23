@@ -2,7 +2,7 @@ import traceback
 from pathlib import Path
 
 # Note that if this file is moved, this will need to be updated.
-package_root = Path(__file__).resolve().parent
+package_root = Path(__file__).resolve().parents[1]
 
 
 # The presence of any of these strings in a traceback line indicates that the line

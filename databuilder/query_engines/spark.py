@@ -4,7 +4,7 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 from databuilder import sqlalchemy_types
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 from databuilder.query_engines.spark_dialect import CreateTemporaryViewAs, SparkDialect
-from databuilder.sqlalchemy_utils import GeneratedTable
+from databuilder.utils.sqlalchemy_query_utils import GeneratedTable
 
 
 class SparkQueryEngine(BaseSQLQueryEngine):

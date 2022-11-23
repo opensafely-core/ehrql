@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from databuilder.orm_utils import (
+from databuilder.query_engines.in_memory import InMemoryQueryEngine
+from databuilder.query_engines.in_memory_database import InMemoryDatabase
+from databuilder.query_model.nodes import get_table_nodes
+from databuilder.utils.orm_utils import (
     orm_classes_from_qm_tables,
     read_orm_models_from_csv_directory,
 )
-from databuilder.query_engines.in_memory import InMemoryQueryEngine
-from databuilder.query_engines.in_memory_database import InMemoryDatabase
-from databuilder.query_model import get_table_nodes
 
 
 class CSVQueryEngine(InMemoryQueryEngine):

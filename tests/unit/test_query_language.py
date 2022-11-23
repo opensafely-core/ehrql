@@ -22,7 +22,7 @@ from databuilder.query_language import (
     table,
     years,
 )
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     Column,
     Function,
     SelectColumn,

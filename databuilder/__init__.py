@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from .log_utils import init_logging
+from databuilder.utils.log_utils import init_logging
 
 init_logging()
 

@@ -1,12 +1,12 @@
 import pyarrow
 import pytest
 
-from databuilder.column_specs import ColumnSpec
 from databuilder.file_formats.arrow import (
     batch_and_transpose,
     get_schema_and_convertor,
     smallest_int_type_for_range,
 )
+from databuilder.query_model.column_specs import ColumnSpec
 from databuilder.sqlalchemy_types import TYPE_MAP
 
 

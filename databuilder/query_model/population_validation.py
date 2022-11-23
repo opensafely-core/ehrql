@@ -2,8 +2,7 @@ import dataclasses
 import operator
 from functools import singledispatch
 
-from databuilder import date_utils
-from databuilder.query_model import (
+from databuilder.query_model.nodes import (
     AggregateByPatient,
     Case,
     Function,
@@ -14,6 +13,7 @@ from databuilder.query_model import (
     get_series_type,
     has_one_row_per_patient,
 )
+from databuilder.utils import date_utils
 
 
 def validate_population_definition(population):

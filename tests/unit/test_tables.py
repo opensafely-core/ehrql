@@ -1,6 +1,6 @@
 from databuilder import tables
 from databuilder.contracts import constraints
-from databuilder.module_utils import is_proper_subclass
+from databuilder.utils.module_utils import is_proper_subclass
 
 
 def test_all_required_classes_are_exported():

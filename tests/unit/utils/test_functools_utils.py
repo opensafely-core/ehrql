@@ -1,6 +1,6 @@
 import pytest
 
-from databuilder.functools_utils import singledispatchmethod_with_cache
+from databuilder.utils.functools_utils import singledispatchmethod_with_cache
 
 
 @pytest.fixture

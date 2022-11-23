@@ -9,11 +9,13 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 from databuilder import sqlalchemy_types
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 from databuilder.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
-from databuilder.sqlalchemy_utils import (
-    GeneratedTable,
+from databuilder.utils.sqlalchemy_exec_utils import (
     ReconnectableConnection,
     execute_with_retry_factory,
     fetch_table_in_batches,
+)
+from databuilder.utils.sqlalchemy_query_utils import (
+    GeneratedTable,
     get_setup_and_cleanup_queries,
 )
 
