@@ -182,8 +182,6 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     add = qm_builds(Function.Add, series, series)
     subtract = qm_builds(Function.Subtract, series, series)
 
-    # TODO Unsupported operations: everything that acts on dates or collections
-
     # Variables must be single values which have been reduced to the patient level. We also need to ensure that they
     # contains nodes which actually access the database so that the query engine can calculate a patient universe.
     return one_row_per_patient_series.filter(uses_the_database)
