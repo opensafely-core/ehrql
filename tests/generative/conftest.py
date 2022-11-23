@@ -3,24 +3,7 @@ import pprint
 from collections import defaultdict
 
 from databuilder.query_model.nodes import count_nodes, node_types
-
-observed_inputs = set()
-
-
-def observe_inputs(variable, records):
-    def hashify(record):
-        record = record.copy()
-
-        # SQLAlchemy ORM objects aren't hashable, but the name is good enough for us
-        record["type"] = record["type"].__name__
-
-        # There are only a small number of values in each record and their order is predictable, so we can record just
-        # the values as a tuple and recover the field names later if we want them
-        return tuple(record.values())
-
-    hashable_data = frozenset(hashify(record) for record in records)
-
-    observed_inputs.add((variable, hashable_data))
+from tests.generative.test_query_model import observed_inputs
 
 
 def histogram(samples):  # pragma: no cover
@@ -34,9 +17,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):  # pragma: no
     if "GENTEST_DEBUG" not in os.environ:
         return
 
-    print(f"\n{len(observed_inputs)} unique input combinations")
+    print(f"\n{len(observed_inputs.unique_inputs)} unique input combinations")
 
-    observed_variables = {i[0] for i in observed_inputs}
+    observed_variables = observed_inputs.variables
     print(f"\n{len(observed_variables)} unique queries")
 
     counts = [count_nodes(example) for example in observed_variables]
@@ -60,7 +43,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):  # pragma: no
     for type_, num in sorted(type_histo, key=lambda item: item[1], reverse=True):
         print(f"{type_:25}{num}")
 
-    observed_records = {i[1] for i in observed_inputs}
+    observed_records = observed_inputs.records
     print(f"\n{len(observed_records)} unique datasets")
 
     record_counts = [len(records) for records in observed_records]

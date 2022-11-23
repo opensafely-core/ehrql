@@ -17,7 +17,6 @@ from databuilder.query_model.nodes import (
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from ..lib.query_model_utils import get_all_operations
 from . import data_setup, data_strategies, variable_strategies
-from .conftest import observe_inputs
 
 # To simplify data generation, all tables have the same schema.
 schema = TableSchema(i1=Column(int), i2=Column(int), b1=Column(bool), b2=Column(bool))
@@ -63,10 +62,44 @@ def query_engines(request):
     }
 
 
+class ObservedInputs:
+    _inputs = set()
+
+    def record(self, variable, data):
+        hashable_data = frozenset(self._hashable(item) for item in data)
+        self._inputs.add((variable, hashable_data))
+
+    @property
+    def variables(self):  # pragma: no cover
+        return {i[0] for i in self._inputs}
+
+    @property
+    def records(self):  # pragma: no cover
+        return {i[1] for i in self._inputs}
+
+    @property
+    def unique_inputs(self):  # pragma: no cover
+        return self._inputs
+
+    @staticmethod
+    def _hashable(item):
+        copy = item.copy()
+
+        # SQLAlchemy ORM objects aren't hashable, but the name is good enough for us
+        copy["type"] = copy["type"].__name__
+
+        # There are only a small number of values in each record and their order is predictable,
+        # so we can record just the values as a tuple and recover the field names later
+        # if we want them.
+        return tuple(copy.values())
+
+
+observed_inputs = ObservedInputs()
+
+
 @pytest.fixture(scope="session")
 def recorder():  # pragma: no cover
-    variables = []
-    yield lambda v: variables.append(v)
+    yield observed_inputs.record
 
     if not os.getenv("GENTEST_COMPREHENSIVE"):
         return
@@ -92,15 +125,13 @@ def recorder():  # pragma: no cover
         Function.ToFirstOfMonth,
     }
 
-    operations_seen = set()
-    for v in variables:
-        for o in node_types(v):
-            operations_seen.add(o)
+    operations_seen = {o for v in observed_inputs.variables for o in node_types(v)}
 
     unexpected_missing = all_operations - known_missing - operations_seen
     assert (
         not unexpected_missing
     ), f"unseen operations: {[o.__name__ for o in unexpected_missing]}"
+
     unexpected_present = known_missing & operations_seen
     assert (
         not unexpected_present
@@ -110,9 +141,8 @@ def recorder():  # pragma: no cover
 @hyp.given(variable=variable_strategy, data=data_strategy)
 @hyp.settings(**settings)
 def test_query_model(query_engines, variable, data, recorder):
-    recorder(variable)
+    recorder(variable, data)
     tune_inputs(variable)
-    observe_inputs(variable, data)
     run_test(query_engines, data, variable)
 
 
