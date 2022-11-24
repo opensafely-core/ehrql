@@ -42,6 +42,10 @@ class Dataset:
             )
         if hasattr(self, name):
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
+        if not isinstance(value, BaseSeries):
+            raise TypeError(
+                f"Invalid column '{name}'. Dataset columns must be values not whole rows"
+            )
         if not qm.has_one_row_per_patient(value.qm_node):
             raise TypeError(
                 f"Invalid column '{name}'. Dataset columns must return one row per patient"

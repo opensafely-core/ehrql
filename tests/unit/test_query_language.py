@@ -89,6 +89,13 @@ def test_cannot_reassign_dataset_column():
         dataset.foo = patients.date_of_birth.year + 100
 
 
+def test_cannot_assign_frame_to_column():
+    dataset = Dataset()
+    dataset.set_population(patients.exists_for_patient())
+    with pytest.raises(TypeError, match="Invalid column 'patient'"):
+        dataset.patient = patients
+
+
 def test_cannot_assign_event_series_to_column():
     dataset = Dataset()
     dataset.set_population(patients.exists_for_patient())
