@@ -31,16 +31,19 @@ class _DictArg(list):
 
 
 class Dataset:
+    def __init__(self):
+        object.__setattr__(self, "variables", {})
+
     def set_population(self, population):
         validate_population_definition(population.qm_node)
-        object.__setattr__(self, "population", population)
+        self.variables["population"] = population
 
     def __setattr__(self, name, value):
         if name == "population":
             raise AttributeError(
                 "Cannot set column 'population'; use set_population() instead"
             )
-        if hasattr(self, name):
+        if name in self.variables:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
         if not isinstance(value, BaseSeries):
             raise TypeError(
@@ -50,11 +53,16 @@ class Dataset:
             raise TypeError(
                 f"Invalid column '{name}'. Dataset columns must return one row per patient"
             )
-        super().__setattr__(name, value)
+        self.variables[name] = value
+
+    def __getattr__(self, name):
+        if name in self.variables:
+            return self.variables[name]
+        raise AttributeError(f"Variable '{name}' has not been defined")
 
 
 def compile(dataset):  # noqa A003
-    return {k: v.qm_node for k, v in vars(dataset).items() if isinstance(v, BaseSeries)}
+    return {k: v.qm_node for k, v in dataset.variables.items()}
 
 
 # BASIC SERIES TYPES

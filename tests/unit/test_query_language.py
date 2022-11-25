@@ -45,6 +45,8 @@ def test_dataset():
     dataset.set_population(year_of_birth <= 2000)
     dataset.year_of_birth = year_of_birth
 
+    assert dataset.year_of_birth is year_of_birth
+
     assert compile(dataset) == {
         "year_of_birth": Function.YearFromDate(
             source=SelectColumn(
@@ -101,6 +103,11 @@ def test_cannot_assign_event_series_to_column():
     dataset.set_population(patients.exists_for_patient())
     with pytest.raises(TypeError, match="Invalid column 'event_date'"):
         dataset.event_date = events.event_date
+
+
+def test_accessing_unassigned_variable_gives_helpful_error():
+    with pytest.raises(AttributeError, match="'foo' has not been defined"):
+        Dataset().foo
 
 
 # The problem: We'd like to test that operations on query language (QL) elements return
