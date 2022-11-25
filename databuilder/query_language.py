@@ -41,17 +41,17 @@ class Dataset:
     def __setattr__(self, name, value):
         if name == "population":
             raise AttributeError(
-                "Cannot set column 'population'; use set_population() instead"
+                "Cannot set variable 'population'; use set_population() instead"
             )
         if name in self.variables:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
         if not isinstance(value, BaseSeries):
             raise TypeError(
-                f"Invalid column '{name}'. Dataset columns must be values not whole rows"
+                f"Invalid variable '{name}'. Dataset variables must be values not whole rows"
             )
         if not qm.has_one_row_per_patient(value.qm_node):
             raise TypeError(
-                f"Invalid column '{name}'. Dataset columns must return one row per patient"
+                f"Invalid variable '{name}'. Dataset variables must return one row per patient"
             )
         self.variables[name] = value
 

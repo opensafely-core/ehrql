@@ -79,11 +79,11 @@ def test_dataset_preserves_variable_order():
 
 def test_assign_population_variable():
     dataset = Dataset()
-    with pytest.raises(AttributeError, match="Cannot set column 'population'"):
+    with pytest.raises(AttributeError, match="Cannot set variable 'population'"):
         dataset.population = patients.exists_for_patient()
 
 
-def test_cannot_reassign_dataset_column():
+def test_cannot_reassign_dataset_variable():
     dataset = Dataset()
     dataset.set_population(patients.exists_for_patient())
     dataset.foo = patients.date_of_birth.year
@@ -91,17 +91,17 @@ def test_cannot_reassign_dataset_column():
         dataset.foo = patients.date_of_birth.year + 100
 
 
-def test_cannot_assign_frame_to_column():
+def test_cannot_assign_frame_to_variable():
     dataset = Dataset()
     dataset.set_population(patients.exists_for_patient())
-    with pytest.raises(TypeError, match="Invalid column 'patient'"):
+    with pytest.raises(TypeError, match="Invalid variable 'patient'"):
         dataset.patient = patients
 
 
-def test_cannot_assign_event_series_to_column():
+def test_cannot_assign_event_series_to_variable():
     dataset = Dataset()
     dataset.set_population(patients.exists_for_patient())
-    with pytest.raises(TypeError, match="Invalid column 'event_date'"):
+    with pytest.raises(TypeError, match="Invalid variable 'event_date'"):
         dataset.event_date = events.event_date
 
 
