@@ -45,6 +45,10 @@ class Dataset:
             )
         if name in self.variables:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
+        if name.startswith("__"):
+            raise AttributeError(
+                f"Variable names must not start with underscores (you defined a variable '{name}')"
+            )
         if not isinstance(value, BaseSeries):
             raise TypeError(
                 f"Invalid variable '{name}'. Dataset variables must be values not whole rows"
