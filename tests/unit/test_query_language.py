@@ -45,6 +45,8 @@ def test_dataset():
     dataset.set_population(year_of_birth <= 2000)
     dataset.year_of_birth = year_of_birth
 
+    assert dataset.year_of_birth is year_of_birth
+
     assert compile(dataset) == {
         "year_of_birth": Function.YearFromDate(
             source=SelectColumn(
@@ -76,24 +78,40 @@ def test_dataset_preserves_variable_order():
 
 
 def test_assign_population_variable():
-    dataset = Dataset()
-    with pytest.raises(AttributeError, match="Cannot set column 'population'"):
-        dataset.population = patients.exists_for_patient()
+    with pytest.raises(AttributeError, match="Cannot set variable 'population'"):
+        Dataset().population = patients.exists_for_patient()
 
 
-def test_cannot_reassign_dataset_column():
+def test_cannot_reassign_dataset_variable():
     dataset = Dataset()
-    dataset.set_population(patients.exists_for_patient())
     dataset.foo = patients.date_of_birth.year
     with pytest.raises(AttributeError, match="already set"):
         dataset.foo = patients.date_of_birth.year + 100
 
 
-def test_cannot_assign_frame_to_column():
-    dataset = Dataset()
-    dataset.set_population(patients.exists_for_patient())
-    with pytest.raises(TypeError, match="Invalid column 'event_date'"):
-        dataset.event_date = events.event_date
+def test_cannot_assign_frame_to_variable():
+    with pytest.raises(TypeError, match="Invalid variable 'patient'"):
+        Dataset().patient = patients
+
+
+def test_cannot_assign_event_series_to_variable():
+    with pytest.raises(TypeError, match="Invalid variable 'event_date'"):
+        Dataset().event_date = events.event_date
+
+
+def test_cannot_define_variable_called_variables():
+    with pytest.raises(AttributeError, match="variables"):
+        Dataset().variables = patients.exists_for_patient()
+
+
+def test_cannot_define_variable_names_starting_with_double_underscores():
+    with pytest.raises(AttributeError, match="underscore"):
+        Dataset().__something = patients.exists_for_patient()
+
+
+def test_accessing_unassigned_variable_gives_helpful_error():
+    with pytest.raises(AttributeError, match="'foo' has not been defined"):
+        Dataset().foo
 
 
 # The problem: We'd like to test that operations on query language (QL) elements return
