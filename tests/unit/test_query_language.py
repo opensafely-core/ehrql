@@ -99,6 +99,11 @@ def test_cannot_assign_event_series_to_variable():
         Dataset().event_date = events.event_date
 
 
+def test_cannot_define_variable_called_variables():
+    with pytest.raises(AttributeError, match="variables"):
+        Dataset().variables = patients.exists_for_patient()
+
+
 def test_cannot_define_variable_names_starting_with_double_underscores():
     with pytest.raises(AttributeError, match="underscore"):
         Dataset().__something = patients.exists_for_patient()

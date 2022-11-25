@@ -45,6 +45,8 @@ class Dataset:
             )
         if name in self.variables:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
+        if name == "variables":
+            raise AttributeError("'variables' is not an allowed variable name")
         if name.startswith("__"):
             raise AttributeError(
                 f"Variable names must not start with underscores (you defined a variable '{name}')"
