@@ -3,6 +3,7 @@ import hypothesis.strategies as st
 
 from databuilder.query_model.nodes import (
     AggregateByPatient,
+    Case,
     Filter,
     Function,
     PickOneRowPerPatient,
@@ -50,6 +51,7 @@ from databuilder.query_model.nodes import (
 #   constructing the query model objects using a special-purpose strategy `qm_builds`, which can discard invalid
 #   instances. There is an unexplored optimization avenue here: make the strategies more specific to include type
 #   and/or domain, so that we don't discard so many examples.
+from tests.lib.query_model_utils import get_all_operations
 
 
 def variable(patient_tables, event_tables, schema, int_values, bool_values):
@@ -182,19 +184,70 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     add = qm_builds(Function.Add, series, series)
     subtract = qm_builds(Function.Subtract, series, series)
 
+    assert_complete_coverage()
+
     # Variables must be single values which have been reduced to the patient level. We also need to ensure that they
     # contains nodes which actually access the database so that the query engine can calculate a patient universe.
     return one_row_per_patient_series.filter(uses_the_database)
 
 
 # A specialized version of st.builds() which cleanly rejects invalid Query Model objects.
-@st.composite
-def qm_builds(draw, type_, *arg_strategies):
-    args = [draw(s) for s in arg_strategies]
-    try:
-        return type_(*args)
-    except ValidationError:
-        raise hypothesis.errors.UnsatisfiedAssumption
+# We also record the QM operations for which strategies have been created and then assert that
+# this includes all operations that exist, to act as a reminder to us to add new operations here
+# when they are added to the query model.
+def qm_builds(type_, *arg_strategies):
+    included_operations.add(type_)
+
+    @st.composite
+    def strategy(draw, type_, *arg_strategies):
+        args = [draw(s) for s in arg_strategies]
+        try:
+            return type_(*args)
+        except ValidationError:
+            raise hypothesis.errors.UnsatisfiedAssumption
+
+    return strategy(type_, *arg_strategies)
+
+
+included_operations = set()
+
+known_missing_operations = {
+    AggregateByPatient.CombineAsSet,
+    Case,
+    Function.In,
+    Function.StringContains,
+    Function.CastToFloat,
+    Function.CastToInt,
+    Function.DateAddYears,
+    Function.DateAddMonths,
+    Function.DateAddDays,
+    Function.YearFromDate,
+    Function.MonthFromDate,
+    Function.DayFromDate,
+    Function.DateDifferenceInYears,
+    Function.DateDifferenceInMonths,
+    Function.DateDifferenceInDays,
+    Function.ToFirstOfYear,
+    Function.ToFirstOfMonth,
+}
+
+
+def assert_complete_coverage():
+    assert_includes_all_operations(included_operations)
+
+
+def assert_includes_all_operations(operations):  # pragma: no cover
+    all_operations = set(get_all_operations())
+
+    unexpected_missing = all_operations - known_missing_operations - operations
+    assert (
+        not unexpected_missing
+    ), f"unseen operations: {[o.__name__ for o in unexpected_missing]}"
+
+    unexpected_present = known_missing_operations & operations
+    assert (
+        not unexpected_present
+    ), f"unexpectedly seen operations: {[o.__name__ for o in unexpected_present]}"
 
 
 def uses_the_database(v):
