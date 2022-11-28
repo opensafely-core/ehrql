@@ -80,7 +80,7 @@ To get the benefit of the generative tests you need to run them at larger scale 
 Use something like this:
 
 ```
-EXAMPLES=10000 just test-generative
+GENTEST_EXAMPLES=10000 just test-generative
 ```
 
 This generates 10k examples and takes ten or fifteen minutes to run.
@@ -88,7 +88,7 @@ When developing this, I (Ben) only ever saw one problem that took more than 10k 
 We should schedule longer runs from time to time to make sure that we're not missing anything.
 
 You can get Hypothesis to dump statistics at the end of the run with `--hypothesis-show-statistics`,
-or (more usefully) dump some of our own statistics about the generated data and queries by setting `DEBUG=t`.
+or (more usefully) dump some of our own statistics about the generated data and queries by setting `GENTEST_DEBUG=t`.
 
 When debugging a failure you'll probably want to reproduce it.
 
@@ -96,6 +96,16 @@ When debugging a failure you'll probably want to reproduce it.
  * The output from the failing test includes the examples in a form where they can be copy-pasted into the test code as arguments to a `@hyp.example()` decorator for the test.
    (You'll need to add some imports to get it to run.) This allows you to get the failure case running in a debugger
    (and also to get the example nicely formatted to help understand it).
+
+Since the variable generation strategies are quite complex, it's hard to convince yourself that they give good coverage of the query space.
+To help with this there is an optional assertion that the generative tests have included every query model operation at least once.
+To enable this assertion set `GENTEST_COMPREHENSIVE=t`, like this:
+
+```
+GENTEST_COMPREHENSIVE=t GENTEST_EXAMPLES=5000 just test-generative
+```
+
+(But note that you need something like 5k examples to have any chance of this passing.)
 
 ### Writing tests
 

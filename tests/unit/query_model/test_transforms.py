@@ -87,7 +87,7 @@ def test_adds_one_selected_column_to_sorts():
     transformed = apply_transforms(variables)
 
     by_i2 = Sort(events, SelectColumn(events, "i2"))
-    by_i2_then_i1 = Sort(by_i2, SelectColumn(by_i2, "i1"))
+    by_i2_then_i1 = Sort(by_i2, SelectColumn(events, "i1"))
     expected_variables = dict(
         v=SelectColumn(
             PickOneRowPerPatientWithColumns(
@@ -126,7 +126,7 @@ def test_adds_sorts_at_lowest_priority():
     transformed = apply_transforms(variables)
 
     by_i3 = Sort(events, SelectColumn(events, "i3"))
-    by_i3_then_i2 = Sort(by_i3, SelectColumn(by_i3, "i2"))
+    by_i3_then_i2 = Sort(by_i3, SelectColumn(events, "i2"))
     by_i3_then_i2_then_i1 = Sort(by_i3_then_i2, SelectColumn(by_i3_then_i2, "i1"))
     expected_variables = dict(
         v=SelectColumn(
@@ -167,7 +167,7 @@ def test_copes_with_interleaved_sorts_and_filters():
     transformed = apply_transforms(variables)
 
     by_i3 = Sort(events, SelectColumn(events, "i3"))
-    by_i3_then_i2 = Sort(by_i3, SelectColumn(by_i3, "i2"))
+    by_i3_then_i2 = Sort(by_i3, SelectColumn(events, "i2"))
     by_i3_then_i2_filtered = Filter(by_i3_then_i2, Value(True))
     by_i3_then_i2_then_i1 = Sort(
         by_i3_then_i2_filtered, SelectColumn(by_i3_then_i2_filtered, "i1")
@@ -244,8 +244,8 @@ def test_adds_sorts_in_lexical_order_of_column_names():
     transformed = apply_transforms(variables)
 
     by_iz = Sort(events, SelectColumn(events, "iz"))
-    by_iz_then_ia = Sort(by_iz, SelectColumn(by_iz, "ia"))
-    by_iz_then_ia_then_i1 = Sort(by_iz_then_ia, SelectColumn(by_iz_then_ia, "i1"))
+    by_iz_then_ia = Sort(by_iz, SelectColumn(events, "ia"))
+    by_iz_then_ia_then_i1 = Sort(by_iz_then_ia, SelectColumn(events, "i1"))
     first_with_extra_sorts = PickOneRowPerPatientWithColumns(
         by_iz_then_ia_then_i1,
         Position.FIRST,
@@ -289,7 +289,7 @@ def test_maps_booleans_to_a_sortable_type():
     by_b = Sort(
         events, Case({b: Value(2), Function.Not(b): Value(1)}, default=Value(0))
     )
-    by_b_then_i = Sort(by_b, SelectColumn(by_b, "i"))
+    by_b_then_i = Sort(by_b, SelectColumn(events, "i"))
     expected_variables = dict(
         v=SelectColumn(
             PickOneRowPerPatientWithColumns(
@@ -309,3 +309,29 @@ def test_maps_booleans_to_a_sortable_type():
     )
 
     assert transformed == expected_variables
+
+
+def test_sorts_by_derived_value_handled_correctly():
+    events = SelectTable("events", TableSchema(i=Column(int)))
+
+    by_negative_i = Sort(events, Function.Negate(SelectColumn(events, "i")))
+    variables = dict(
+        v=(SelectColumn(PickOneRowPerPatient(by_negative_i, Position.FIRST), "i"))
+    )
+
+    transformed = apply_transforms(variables)
+
+    by_i = Sort(events, SelectColumn(events, "i"))
+    by_i_then_by_negative_i = Sort(by_i, Function.Negate(SelectColumn(events, "i")))
+    expected = dict(
+        v=SelectColumn(
+            PickOneRowPerPatientWithColumns(
+                by_i_then_by_negative_i,
+                Position.FIRST,
+                frozenset({SelectColumn(by_i_then_by_negative_i, "i")}),
+            ),
+            "i",
+        )
+    )
+
+    assert transformed == expected

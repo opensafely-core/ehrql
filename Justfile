@@ -187,7 +187,8 @@ test-unit *ARGS: devenv
 
 # Run the generative tests only. Optional args are passed to pytest.
 #
-# Set DEBUG env var to see stats. Set EXAMPLES to change the number of examples generated.
+# Set GENTEST_DEBUG env var to see stats.
+# Set GENTEST_EXAMPLES to change the number of examples generated.
 test-generative *ARGS: devenv
     $BIN/python -m pytest tests/generative {{ ARGS }}
 

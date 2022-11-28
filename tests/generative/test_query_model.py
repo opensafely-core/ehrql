@@ -4,11 +4,10 @@ import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
 
-from databuilder.query_model.nodes import Column, TableSchema
+from databuilder.query_model.nodes import Column, TableSchema, count_nodes, node_types
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
-from .conftest import count_nodes, observe_inputs
 
 # To simplify data generation, all tables have the same schema.
 schema = TableSchema(i1=Column(int), i2=Column(int), b1=Column(bool), b2=Column(bool))
@@ -35,7 +34,7 @@ data_strategy = data_strategies.data(
     patient_classes, event_classes, schema, int_values, bool_values
 )
 settings = dict(
-    max_examples=(int(os.environ.get("EXAMPLES", 100))),
+    max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 100))),
     deadline=None,
     suppress_health_check=[hyp.HealthCheck.filter_too_much, hyp.HealthCheck.too_slow],
 )
@@ -54,17 +53,64 @@ def query_engines(request):
     }
 
 
+class ObservedInputs:
+    _inputs = set()
+
+    def record(self, variable, data):
+        hashable_data = frozenset(self._hashable(item) for item in data)
+        self._inputs.add((variable, hashable_data))
+
+    @property
+    def variables(self):  # pragma: no cover
+        return {i[0] for i in self._inputs}
+
+    @property
+    def records(self):  # pragma: no cover
+        return {i[1] for i in self._inputs}
+
+    @property
+    def unique_inputs(self):  # pragma: no cover
+        return self._inputs
+
+    @staticmethod
+    def _hashable(item):
+        copy = item.copy()
+
+        # SQLAlchemy ORM objects aren't hashable, but the name is good enough for us
+        copy["type"] = copy["type"].__name__
+
+        # There are only a small number of values in each record and their order is predictable,
+        # so we can record just the values as a tuple and recover the field names later
+        # if we want them.
+        return tuple(copy.values())
+
+
+observed_inputs = ObservedInputs()
+
+
+@pytest.fixture(scope="session")
+def recorder():  # pragma: no cover
+    yield observed_inputs.record
+
+    if not os.getenv("GENTEST_COMPREHENSIVE"):
+        return
+
+    operations_seen = {o for v in observed_inputs.variables for o in node_types(v)}
+    variable_strategies.assert_includes_all_operations(operations_seen)
+
+
 @hyp.given(variable=variable_strategy, data=data_strategy)
 @hyp.settings(**settings)
-def test_query_model(query_engines, variable, data):
-    hyp.target(tune_qm_graph_size(variable))
-    observe_inputs(variable, data)
+def test_query_model(query_engines, variable, data, recorder):
+    recorder(variable, data)
+    tune_inputs(variable)
     run_test(query_engines, data, variable)
 
 
-def tune_qm_graph_size(variable):
-    target_size = 40  # seems to give a reasonable spread of query model graphs
-    return -abs(target_size - count_nodes(variable))
+def tune_inputs(variable):
+    # Encourage Hypothesis to maximize the number and type of nodes
+    hyp.target(count_nodes(variable), label="number of nodes")
+    hyp.target(len(node_types(variable)), label="number of node types")
 
 
 def run_test(query_engines, data, variable):

@@ -393,7 +393,8 @@ def test_any_type_acts_as_an_escape_hatch():
     assert SomeInternalOperation(value=mixed_set)
 
 
-def test_comparions_between_value_nodes_are_strict():
+def test_comparisons_between_value_nodes_are_strict():
     assert Value(10) == Value(10)
     assert Value(10) != Value(10.0)
     assert Value(1) != Value(True)
+    assert Value(10) != 10
