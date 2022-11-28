@@ -1,0 +1,19 @@
+---
+name: Long-running generative tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  "0 0 * * *"
+
+jobs:
+  gentests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: "actions/setup-python@v4"
+        with:
+          python-version: "3.9"
+      - uses: extractions/setup-just@v1
+      - run: GENTEST_EXAMPLES=20000 GENTEST_COMPREHENSIVE=t GENTEST_DEBUG=t just test-generative
