@@ -41,18 +41,19 @@ class ObservedInputs:
         return tuple(copy.values())
 
 
-observed_inputs = ObservedInputs()
-
-
 @pytest.fixture(scope="session")
-def recorder():  # pragma: no cover
+def recorder(request):  # pragma: no cover
+    observed_inputs = ObservedInputs()
+
     yield observed_inputs.record
 
-    if not os.getenv("GENTEST_COMPREHENSIVE"):
-        return
+    if os.getenv("GENTEST_COMPREHENSIVE"):
+        operations_seen = {o for v in observed_inputs.variables for o in node_types(v)}
+        variable_strategies.assert_includes_all_operations(operations_seen)
 
-    operations_seen = {o for v in observed_inputs.variables for o in node_types(v)}
-    variable_strategies.assert_includes_all_operations(operations_seen)
+    capturemanager = request.config.pluginmanager.getplugin("capturemanager")
+    with capturemanager.global_and_fixture_disabled():
+        show_input_summary(observed_inputs)
 
 
 def histogram(samples):  # pragma: no cover
@@ -62,10 +63,11 @@ def histogram(samples):  # pragma: no cover
     return sorted(h.items())
 
 
-def show_input_summary():  # pragma: no cover
+def show_input_summary(observed_inputs):  # pragma: no cover
     if "GENTEST_DEBUG" not in os.environ:
         return
 
+    print()
     print(f"\n{len(observed_inputs.unique_inputs)} unique input combinations")
 
     observed_variables = observed_inputs.variables
