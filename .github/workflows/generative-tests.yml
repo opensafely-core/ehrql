@@ -4,7 +4,7 @@ name: Long-running generative tests
 on:
   workflow_dispatch:
   schedule:
-    - cron:  "0 0 * * *"
+    - cron:  "13 3 * * *"
 
 jobs:
   gentests:
@@ -16,4 +16,4 @@ jobs:
         with:
           python-version: "3.9"
       - uses: extractions/setup-just@v1
-      - run: GENTEST_EXAMPLES=20000 GENTEST_COMPREHENSIVE=t GENTEST_DEBUG=t just test-generative
+      - run: GENTEST_EXAMPLES=40000 GENTEST_COMPREHENSIVE=t GENTEST_DEBUG=t just test-generative
