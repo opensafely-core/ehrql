@@ -53,52 +53,6 @@ def query_engines(request):
     }
 
 
-class ObservedInputs:
-    _inputs = set()
-
-    def record(self, variable, data):
-        hashable_data = frozenset(self._hashable(item) for item in data)
-        self._inputs.add((variable, hashable_data))
-
-    @property
-    def variables(self):  # pragma: no cover
-        return {i[0] for i in self._inputs}
-
-    @property
-    def records(self):  # pragma: no cover
-        return {i[1] for i in self._inputs}
-
-    @property
-    def unique_inputs(self):  # pragma: no cover
-        return self._inputs
-
-    @staticmethod
-    def _hashable(item):
-        copy = item.copy()
-
-        # SQLAlchemy ORM objects aren't hashable, but the name is good enough for us
-        copy["type"] = copy["type"].__name__
-
-        # There are only a small number of values in each record and their order is predictable,
-        # so we can record just the values as a tuple and recover the field names later
-        # if we want them.
-        return tuple(copy.values())
-
-
-observed_inputs = ObservedInputs()
-
-
-@pytest.fixture(scope="session")
-def recorder():  # pragma: no cover
-    yield observed_inputs.record
-
-    if not os.getenv("GENTEST_COMPREHENSIVE"):
-        return
-
-    operations_seen = {o for v in observed_inputs.variables for o in node_types(v)}
-    variable_strategies.assert_includes_all_operations(operations_seen)
-
-
 @hyp.given(variable=variable_strategy, data=data_strategy)
 @hyp.settings(**settings)
 def test_query_model(query_engines, variable, data, recorder):
