@@ -1,3 +1,4 @@
+import hypothesis as hyp
 import hypothesis.errors
 import hypothesis.strategies as st
 
@@ -176,11 +177,19 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 
     and_ = qm_builds(Function.And, series, series)
     or_ = qm_builds(Function.Or, series, series)
-    not_ = qm_builds(Function.Not, series)
+    not_ = qm_builds(Function.Not, series, avoided_inputs=[Function.Not])
 
-    is_null = qm_builds(Function.IsNull, series)
+    never_null = [
+        Function.IsNull,
+        AggregateByPatient.Exists,
+        AggregateByPatient.Count,
+        AggregateByPatient.Min,
+        AggregateByPatient.Max,
+        AggregateByPatient.Sum,
+    ]
+    is_null = qm_builds(Function.IsNull, series, avoided_inputs=never_null)
 
-    negate = qm_builds(Function.Negate, series)
+    negate = qm_builds(Function.Negate, series, avoided_inputs=[Function.Negate])
     add = qm_builds(Function.Add, series, series)
     subtract = qm_builds(Function.Subtract, series, series)
 
@@ -195,12 +204,17 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 # We also record the QM operations for which strategies have been created and then assert that
 # this includes all operations that exist, to act as a reminder to us to add new operations here
 # when they are added to the query model.
-def qm_builds(type_, *arg_strategies):
+def qm_builds(type_, *arg_strategies, avoided_inputs=None):
     included_operations.add(type_)
 
     @st.composite
     def strategy(draw, type_, *arg_strategies):
         args = [draw(s) for s in arg_strategies]
+
+        if avoided_inputs:
+            for input_type in avoided_inputs:
+                hyp.assume(not any(isinstance(arg, input_type) for arg in args))
+
         try:
             return type_(*args)
         except ValidationError:
