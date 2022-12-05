@@ -62,7 +62,7 @@ jobs:
           fetch-depth: 0
       - name: Bump version and push tag
         id: tag
-        uses: mathieudutour/github-tag-action@981ffb2cc3f2b684b2bfd8ee17bc8d781368ba60
+        uses: mathieudutour/github-tag-action@fcfbdceb3093f6d85a3b194740f8c6cec632f4e2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: false
