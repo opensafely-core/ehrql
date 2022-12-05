@@ -1,4 +1,3 @@
-import hypothesis as hyp
 import hypothesis.errors
 import hypothesis.strategies as st
 
@@ -200,6 +199,15 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     return one_row_per_patient_series.filter(uses_the_database)
 
 
+def carefully_draw(draw, strategy, avoided_types):
+    if not avoided_types:
+        return draw(strategy)
+    while True:
+        o = draw(strategy)
+        if not any(isinstance(o, type_) for type_ in avoided_types):
+            return o
+
+
 # A specialized version of st.builds() which cleanly rejects invalid Query Model objects.
 # We also record the QM operations for which strategies have been created and then assert that
 # this includes all operations that exist, to act as a reminder to us to add new operations here
@@ -209,11 +217,7 @@ def qm_builds(type_, *arg_strategies, avoided_inputs=None):
 
     @st.composite
     def strategy(draw, type_, *arg_strategies):
-        args = [draw(s) for s in arg_strategies]
-
-        if avoided_inputs:
-            for input_type in avoided_inputs:
-                hyp.assume(not any(isinstance(arg, input_type) for arg in args))
+        args = [carefully_draw(draw, s, avoided_inputs) for s in arg_strategies]
 
         try:
             return type_(*args)
