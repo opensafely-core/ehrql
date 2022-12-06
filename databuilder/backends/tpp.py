@@ -113,10 +113,10 @@ class TPPBackend(BaseBackend):
                 addr.RuralUrbanClassificationCode AS rural_urban_classification,
                 addr.ImdRankRounded AS imd_rounded,
                 CASE
-                    WHEN addr.MSOACode != 'NPC' THEN addr.MSOACode
+                    WHEN addr.MSOACode NOT IN ('NPC', '') THEN addr.MSOACode
                 END AS msoa_code,
                 CASE
-                    WHEN addr.MSOACode != 'NPC' THEN 1
+                    WHEN addr.MSOACode NOT IN ('NPC', '') THEN 1
                     ELSE 0
                 END AS has_postcode,
                 CASE
