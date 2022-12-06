@@ -64,16 +64,18 @@ def address_as_of(date):
     # Logic copied from:
     # https://github.com/opensafely-core/cohort-extractor/blob/e77a0aa2/cohortextractor/tpp_backend.py#L1756-L1773
     ordered = active.sort_by(
-        # Prefer the address which was registered first
+        # Prefer the most recently registered address
         addr.start_date,
         # Prefer the address registered for longest
         addr.end_date,
         # Prefer addresses with a postcode
         case(when(addr.has_postcode).then(1), default=0),
-        # Use the opaque ID as a tie-breaker for sort stability
-        addr.address_id,
+        # Use the opaque ID as a tie-breaker for sort stability (we invert this simply
+        # so the order matches the original order defined in Cohort Extractor to
+        # facilitate direct comparison)
+        -addr.address_id,
     )
-    return ordered.first_for_patient()
+    return ordered.last_for_patient()
 
 
 def most_recent_bmi(*, minimum_age_at_measurement, where=True):
