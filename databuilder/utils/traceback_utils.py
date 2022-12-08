@@ -16,7 +16,9 @@ def get_trimmed_traceback(exc, filename):
     first_user_frame = next(
         tb for tb in walk_traceback(exc.__traceback__) if get_filename(tb) == filename
     )
-    last_user_frame = next(
+    # By construction, this iterator can never be exhausted so we need to tell Coverage
+    # not to moan at us about it
+    last_user_frame = next(  # pragma: no branch
         tb for tb in walk_traceback(first_user_frame) if is_final_user_frame(tb)
     )
     # Truncate the traceback chain at the last user frame by NULLing the reference.
