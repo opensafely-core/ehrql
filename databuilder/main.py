@@ -242,7 +242,7 @@ def load_module(module_path):
         spec.loader.exec_module(module)
         return module
     except Exception as exc:
-        traceback = get_trimmed_traceback(exc, str(module_path))
+        traceback = get_trimmed_traceback(exc, module.__file__)
         raise CommandError(f"Failed to import '{module_path}':\n\n{traceback}")
     finally:
         sys.path = original_sys_path

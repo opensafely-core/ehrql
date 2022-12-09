@@ -33,3 +33,10 @@ def test_references_to_failed_imports_from_databuilder_are_not_stripped_out():
     # We tried to import a name from `smoketest` which doesn't exist, though the module
     # itself does. Therefore this module should be visible in the traceback.
     assert re.search(re.escape(smoketest.__file__), str(excinfo.value))
+
+
+def test_traceback_filtering_handles_relative_paths():
+    relative_filename = (FIXTURES / "bad_import.py").relative_to(Path.cwd())
+    message = r'Traceback \(most recent call last\):\n  File ".*bad_import\.py"'
+    with pytest.raises(CommandError, match=message):
+        load_module(relative_filename)
