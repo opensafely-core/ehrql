@@ -146,6 +146,8 @@ def test_is_in_dates(spec_test):
         },
     )
 
+
+def test_is_in_dates_not(spec_test):
     dates = [date(2010, 1, 2), date(2010, 1, 3)]
     spec_test(
         table_data,
@@ -167,6 +169,8 @@ def test_is_in_strings(spec_test):
         {1: False, 2: False, 3: True, 4: None},
     )
 
+
+def test_is_in_strings_not(spec_test):
     d = ["2010-01-02", "2010-01-03"]
     spec_test(
         table_data,
