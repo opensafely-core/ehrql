@@ -213,6 +213,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_add(self, node):
         return operators.add(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
+    @get_sql.register(Function.Multiply)
+    def get_sql_multiply(self, node):
+        return operators.mul(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
     @get_sql.register(Function.Subtract)
     def get_sql_subtract(self, node):
         return operators.sub(self.get_expr(node.lhs), self.get_expr(node.rhs))
