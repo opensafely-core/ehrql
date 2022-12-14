@@ -1,6 +1,7 @@
 import pytest
 import sqlalchemy
 from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
+from sqlalchemy.engine.default import DefaultDialect
 
 from databuilder.utils.sqlalchemy_query_utils import (
     GeneratedTable,
@@ -128,23 +129,83 @@ def _queries_as_strs(query):
 def test_clause_as_str():
     table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
     query = sqlalchemy.select(table.c.bar).where(table.c.bar > 100)
-    dialect = SQLiteDialect_pysqlite()
-    query_str = clause_as_str(query, dialect)
+    query_str = clause_as_str(query, DefaultDialect())
     assert query_str == "SELECT foo.bar \nFROM foo \nWHERE foo.bar > 100"
 
 
-def test_clause_as_str_wtih_create_index():
+def test_clause_as_str_with_create_index_on_sqlite():
+    # This test confirms the presence of a SQLAlchemy bug which we have to work around
+    # in `clause_as_str` by compiling the query twice: once without the
+    # `render_postcompile` argument, and then again with the argument if it's needed. If
+    # the bug gets fixed we want to know so that we can remove the workaround.
+
     table = sqlalchemy.Table("foo", sqlalchemy.MetaData(), sqlalchemy.Column("bar"))
     index = sqlalchemy.Index(None, table.c.bar)
     create_index = sqlalchemy.schema.CreateIndex(index)
-    dialect = SQLiteDialect_pysqlite()
+    dialect = SQLiteDialect_pysqlite(paramstyle="named")
 
-    # Compiling CreateIndex to a string using literal_binds blows up with a TypeError. I
-    # think this is just a bug in SQLAlchemy, so if this suddenly starts working we want
-    # to know so we can remove our workaround (see `clause_as_str` function for details)
-    with pytest.raises(TypeError, match="unexpected keyword argument 'literal_binds'"):
-        create_index.compile(dialect=dialect, compile_kwargs={"literal_binds": True})
+    # Passing `compile_kwargs` while compiling CreateIndex to a string blows up with a
+    # TypeError in the SQLite dialect. I think this is just a bug in an infrequently
+    # exercised corner SQLAlchemy as most of the equivalent methods in other dialects
+    # accept `**kwargs`.
+    with pytest.raises(
+        TypeError, match="unexpected keyword argument 'render_postcompile'"
+    ):
+        create_index.compile(
+            dialect=dialect, compile_kwargs={"render_postcompile": True}
+        )
 
-    # Check that our workaround is effective
+    # Check that our function compiles the query correctly
     query_str = clause_as_str(create_index, dialect)
     assert query_str == "CREATE INDEX ix_foo_bar ON foo (bar)"
+
+
+def test_clause_as_str_with_expanding_bindparameter_and_bind_expression():
+    # This test confirms the presence of a SQLAlchemy bug which we have to work around
+    # in `clause_as_str`. If this gets fixed we want to know so that we can remove all
+    # the hand-rolled parameter interpolation.
+
+    # Create a custom type with a "bind_expression", see:
+    # https://docs.sqlalchemy.org/en/14/core/type_api.html#sqlalchemy.types.TypeEngine.bind_expression
+    class CustomType(sqlalchemy.types.TypeDecorator):
+        impl = sqlalchemy.types.String
+        cache_ok = True
+
+        # This means that every time we reference of value of this type it gets wrapped
+        # in a function call
+        def bind_expression(self, bindvalue):
+            return sqlalchemy.func.upper(bindvalue)
+
+    table = sqlalchemy.Table(
+        "tbl", sqlalchemy.MetaData(), sqlalchemy.Column("col", CustomType())
+    )
+
+    # With a single value comparison like `==` we can compile this to either a
+    # parameterised string, or a string containing literals and it works as expected
+    equality_expr = table.c.col == "abc"
+    assert (
+        str(equality_expr.compile(compile_kwargs={"render_postcompile": True}))
+        == "tbl.col = upper(:col_1)"
+    )
+    assert (
+        str(equality_expr.compile(compile_kwargs={"literal_binds": True}))
+        == "tbl.col = upper('abc')"
+    )
+
+    # With a multi-valued comparison like `IN` we get an "expanding" BindParameter, see:
+    # https://docs.sqlalchemy.org/en/14/core/sqlelement.html#sqlalchemy.sql.expression.bindparam.params.expanding
+    contains_expr = table.c.col.in_(["abc", "def"])
+    # We can compile this to a parameterised string and get the expected output
+    assert (
+        str(contains_expr.compile(compile_kwargs={"render_postcompile": True}))
+        == "tbl.col IN (upper(:col_1_1), upper(:col_1_2))"
+    )
+    # But attempting to compile this using string literals triggers an error
+    with pytest.raises(
+        AttributeError, match="'NoneType' object has no attribute 'group'"
+    ):
+        contains_expr.compile(compile_kwargs={"literal_binds": True})
+
+    # However our `clause_to_str` functions renders it as expected
+    compiled = clause_as_str(contains_expr, DefaultDialect())
+    assert compiled == "tbl.col IN (upper('abc'), upper('def'))"
