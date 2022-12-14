@@ -1,6 +1,6 @@
 import dataclasses
 import typing
-from collections.abc import Mapping, Set
+from collections.abc import Iterable, Mapping, Set
 from datetime import date
 from enum import Enum
 from functools import cache, singledispatch
@@ -63,6 +63,27 @@ class Position(Enum):
     def __repr__(self):
         # Gives us `self == eval(repr(self))` as for dataclasses
         return f"{self.__class__.__name__}.{self.name}"
+
+
+# For the `InlinePatientTable` node we want to be able to supply an arbitrary iterable
+# of rows. By default the query model's type checking code tries to "reach inside" any
+# value it sees to determine the types and will then complain that it doesn't know what
+# to do with the iterable its been given. The below provides an opaque wrapper around an
+# iterable of tuples which prevents the query model attempting to reach in any further.
+class IterWrapper(Iterable):
+    def __init__(self, iterable: Iterable[tuple]):
+        self.iterable = iterable
+
+    def __iter__(self):
+        return iter(self.iterable)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.iterable!r})"
+
+
+@get_typespec.register(IterWrapper)
+def get_typespec_for_iter_wrapper(_):
+    return IterWrapper[tuple]
 
 
 # BASIC QUERY MODEL TYPES
@@ -158,6 +179,15 @@ class SelectTable(ManyRowsPerPatientFrame):
 
 class SelectPatientTable(OneRowPerPatientFrame):
     name: str
+    schema: TableSchema
+
+
+class InlinePatientTable(OneRowPerPatientFrame):
+    # Row tuples specify the data for the table in the form:
+    #
+    #     (patient_id, column_1_in_schema, column_2_in_schema, ...)
+    #
+    rows: Iterable[tuple]
     schema: TableSchema
 
 
@@ -749,6 +779,7 @@ def get_root_frame(frame):
 
 @get_root_frame.register(SelectTable)
 @get_root_frame.register(SelectPatientTable)
+@get_root_frame.register(InlinePatientTable)
 def get_root_frame_for_table(frame):
     return frame
 

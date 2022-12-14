@@ -13,6 +13,8 @@ from databuilder.query_model.nodes import (
     Filter,
     Frame,
     Function,
+    InlinePatientTable,
+    IterWrapper,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -114,6 +116,35 @@ def test_query_reprs_round_trip(queries):
     # This relies on all public query model names being imported into local scope
     for query in vars(queries).values():
         assert eval(repr(query)) == query
+
+
+def test_inline_patient_table():
+    # Because the `rows` attribute uses the `IterWrapper` class we can't test
+    # `InlinePatientTable` in quite the same way as the other nodes above: by design,
+    # instances of `IterWrapper` only compare equal if they're the very same object.
+    inline_table = InlinePatientTable(
+        rows=IterWrapper(
+            [
+                (1, 100),
+                (2, 200),
+            ]
+        ),
+        schema=TableSchema(i=Column(int)),
+    )
+    # Check that the table node is still hashable even though the iterable hidden by the
+    # `IterWrapper` is mutable
+    assert hash(inline_table)
+
+    # Check that the repr still round-trips. To do this we have to compare the
+    # _contents_ of the iterators, rather than the identity of the wrappers.
+    round_tripped = eval(repr(inline_table))
+    assert list(round_tripped.rows) == list(inline_table.rows)
+    assert round_tripped.schema == inline_table.schema
+
+    # Check that `get_series_type` knows how to get the schema from an
+    # `InlinePatientTable`
+    i = SelectColumn(inline_table, "i")
+    assert get_series_type(i) == int
 
 
 # TEST DOMAIN VALIDATION
