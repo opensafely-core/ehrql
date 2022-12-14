@@ -158,7 +158,7 @@ Each run of the tests starts the database if it's not already running _and then 
 
 There is a `just` command to remove the database containers:
 ```
-just remove-persistent-database
+just remove-database-containers
 ```
 
 ### Displaying SQL queries
