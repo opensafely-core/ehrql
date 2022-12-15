@@ -43,6 +43,11 @@ def test_from_primitives():
     assert t1 == t2
 
 
+def test_get_column():
+    schema = TableSchema(i=Column(int))
+    assert schema.get_column("i") == Column(int)
+
+
 def test_get_column_type():
     schema = TableSchema(i=Column(int))
     assert schema.get_column_type("i") is int
