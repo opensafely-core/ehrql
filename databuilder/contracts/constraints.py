@@ -13,8 +13,8 @@ class CategoricalConstraint(BaseConstraint):
     Specifies that a column takes only a fixed set of values
     """
 
-    def __init__(self, *values):
-        self.values = values
+    def __init__(self, values):
+        self.values = tuple(values)
 
     @property
     def description(self):

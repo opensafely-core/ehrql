@@ -31,7 +31,7 @@ class patients(PatientFrame):
         ),
         constraints=[
             NotNullConstraint(),
-            CategoricalConstraint("female", "male", "intersex", "unknown"),
+            CategoricalConstraint(["female", "male", "intersex", "unknown"]),
         ],
     )
     date_of_death = Series(

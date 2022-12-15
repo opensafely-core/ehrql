@@ -10,5 +10,9 @@ def test_constraints_have_descriptions(subtests):
     ]
 
     for constraint in constraint_classes:
+        if constraint is constraints.CategoricalConstraint:
+            kwargs = {"values": ["a"]}
+        else:
+            kwargs = {}
         with subtests.test(name=constraint.__name__):
-            assert hasattr(constraint(), "description")
+            assert constraint(**kwargs).description > ""

@@ -20,7 +20,9 @@ from databuilder.tables import (
 class patients(PatientFrame):
     date_of_birth = Series(datetime.date)
     date_of_death = Series(datetime.date)
-    sex = Series(str, constraints=[CategoricalConstraint("male", "female", "intersex")])
+    sex = Series(
+        str, constraints=[CategoricalConstraint(["male", "female", "intersex"])]
+    )
 
 
 @table

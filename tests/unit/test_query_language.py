@@ -251,7 +251,7 @@ def test_must_reference_instance_not_class():
 def test_categories_are_passed_through_to_schema():
     @table
     class some_table(PatientFrame):
-        some_str = Series(str, constraints=[CategoricalConstraint("a", "b", "c")])
+        some_str = Series(str, constraints=[CategoricalConstraint(["a", "b", "c"])])
 
     schema = some_table.qm_node.schema
     assert schema.get_column_categories("some_str") == ("a", "b", "c")
