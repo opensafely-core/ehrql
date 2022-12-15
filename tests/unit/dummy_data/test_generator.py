@@ -12,7 +12,7 @@ from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, tab
 
 @table
 class patients(PatientFrame):
-    date_of_birth = Series(datetime.date)
+    date_of_birth = Series(datetime.date, constraints=[Constraint.FirstOfMonth()])
     date_of_death = Series(datetime.date)
     sex = Series(
         str, constraints=[Constraint.Categorical(["male", "female", "intersex"])]
@@ -60,6 +60,7 @@ def test_dummy_data_generator():
 
     for r in results:
         assert isinstance(r.date_of_birth, datetime.date)
+        assert r.date_of_birth.day == 1
         assert r.date_of_death is None or r.date_of_death > r.date_of_birth
         assert r.sex in {"male", "female", "intersex"}
         # To get full coverage here we need to generate enough data so that we get at
@@ -111,6 +112,17 @@ def test_dummy_patient_generator_get_random_value(dummy_patient_generator, type_
     column_info = ColumnInfo(name="test", categories=None, type=type_)
     value = dummy_patient_generator.get_random_value(column_info)
     assert isinstance(value, type_)
+
+
+def test_get_random_value_on_first_of_month(dummy_patient_generator):
+    column_info = ColumnInfo(
+        name="test",
+        categories=None,
+        type=datetime.date,
+        has_first_of_month_constraint=True,
+    )
+    value = dummy_patient_generator.get_random_value(column_info)
+    assert value.day == 1
 
 
 @pytest.fixture(scope="module")

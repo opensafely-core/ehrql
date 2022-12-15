@@ -24,6 +24,7 @@ class ColumnInfo:
     name: str
     type: type  # NOQA: A003
     categories: Optional[tuple]
+    has_first_of_month_constraint: bool = False
     values_used: set = dataclasses.field(default_factory=set)
 
     @classmethod
@@ -38,8 +39,17 @@ class ColumnInfo:
             categories = cat_constraint.values
         else:
             categories = None
+        # Get date constraints
+        has_first_of_month_constraint = bool(
+            column.get_constraint_by_type(Constraint.FirstOfMonth)
+        )
         # Construct
-        return cls(name=name, type=type_, categories=categories)
+        return cls(
+            name=name,
+            type=type_,
+            categories=categories,
+            has_first_of_month_constraint=has_first_of_month_constraint,
+        )
 
     def record_value(self, value):
         if hasattr(value, "_to_primitive_type"):
