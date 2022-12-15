@@ -3,7 +3,6 @@ from datetime import date
 import pytest
 
 from databuilder.query_language import (
-    CategoricalConstraint,
     Dataset,
     DateDifference,
     DateEventSeries,
@@ -246,15 +245,6 @@ def test_must_reference_instance_not_class():
 
     with pytest.raises(SchemaError, match="Missing `@table` decorator"):
         some_table.some_int
-
-
-def test_categories_are_passed_through_to_schema():
-    @table
-    class some_table(PatientFrame):
-        some_str = Series(str, constraints=[CategoricalConstraint(["a", "b", "c"])])
-
-    schema = some_table.qm_node.schema
-    assert schema.get_column_categories("some_str") == ("a", "b", "c")
 
 
 def test_boolean_operators_raise_errors():

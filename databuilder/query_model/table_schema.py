@@ -1,18 +1,75 @@
 import dataclasses
-from typing import Optional
+
+
+class BaseConstraint:
+    def __init_subclass__(cls, **kwargs):
+        assert hasattr(cls, "description")
+        dataclasses.dataclass(cls, frozen=True)
+
+
+class Constraint:
+    class Categorical(BaseConstraint):
+        values: tuple
+
+        def __post_init__(self):
+            # Accept values as list rather than a tuple as they don't suffer from the
+            # trailing comma problem
+            _setattrs(self, values=tuple(self.values))
+
+        @property
+        def description(self):
+            return f"Must be one of: {', '.join(map(repr, self.values))}"
+
+    class NotNull(BaseConstraint):
+        description = "Must have a value"
+
+    class Unique(BaseConstraint):
+        description = "Must be unique"
+
+    class FirstOfMonth(BaseConstraint):
+        description = "Must be the first day of a month"
 
 
 @dataclasses.dataclass(frozen=True)
 class Column:
     type_: type
-    categories: Optional[tuple] = None
+    constraints: tuple[BaseConstraint] = ()
+
+    def __post_init__(self):
+        _setattrs(
+            self,
+            # Accept constraints as list rather than a tuple as they don't suffer from
+            # the trailing comma problem
+            constraints=tuple(self.constraints),
+            # We build an internal lookup table of constraints by their type
+            _constraints_by_type={},
+        )
+        # Enforce that we get only one instance of each type of constraint and populate
+        # the lookup table
+        for constraint in self.constraints:
+            cls = type(constraint)
+            # Supplying the class rather than the instance seems like an easy mistake to
+            # make so we'll guard againt that here
+            if cls is type:
+                raise ValueError(
+                    f"Constraint should be instance not class e.g. "
+                    f"'{constraint.__qualname__}()' not '{constraint.__qualname__}'"
+                )
+            if cls in self._constraints_by_type:
+                raise ValueError(f"'{cls.__qualname__}' specified more than once")
+            self._constraints_by_type[cls] = constraint
+
+    def get_constraint_by_type(self, cls):
+        return self._constraints_by_type.get(cls)
 
     def __repr__(self):
         # Gives us `self == eval(repr(self))`
         module = self.type_.__module__
         prefix = f"{module}." if module != "builtins" else ""
         type_repr = f"{prefix}{self.type_.__name__}"
-        return f"{self.__class__.__name__}({type_repr}, categories={self.categories!r})"
+        return (
+            f"{self.__class__.__name__}({type_repr}, constraints={self.constraints!r})"
+        )
 
 
 class TableSchema:
@@ -41,8 +98,13 @@ class TableSchema:
     def get_column_type(self, name):
         return self.schema[name].type_
 
+    def get_column_constraint_by_type(self, name, constraint_type):
+        return self.schema[name].get_constraint_by_type(constraint_type)
+
     def get_column_categories(self, name):
-        return self.schema[name].categories
+        categorical = self.get_column_constraint_by_type(name, Constraint.Categorical)
+        if categorical:
+            return categorical.values
 
     @property
     def column_names(self):
@@ -51,3 +113,11 @@ class TableSchema:
     @property
     def column_types(self):
         return [(name, column.type_) for name, column in self.schema.items()]
+
+
+# We need this to customise the initialisation of frozen dataclasses. Using frozen
+# dataclasses gets us so much for free that I think it's worth this little bit of
+# unpleasantness.
+def _setattrs(obj, **attrs):
+    for key, value in attrs.items():
+        object.__setattr__(obj, key, value)

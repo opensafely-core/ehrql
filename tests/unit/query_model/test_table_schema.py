@@ -1,6 +1,9 @@
 import datetime
+import re
 
-from databuilder.query_model.table_schema import Column, TableSchema
+import pytest
+
+from databuilder.query_model.table_schema import Column, Constraint, TableSchema
 
 
 def test_table_schema_equality():
@@ -63,6 +66,53 @@ def test_column_types():
 
 def test_get_column_categories():
     schema = TableSchema(
-        c1=Column(str, categories=("a", "b", "c")),
+        c1=Column(
+            str,
+            constraints=[
+                Constraint.Categorical(["a", "b", "c"]),
+            ],
+        ),
     )
     assert schema.get_column_categories("c1") == ("a", "b", "c")
+
+
+def test_get_column_categories_where_no_categories_defined():
+    schema = TableSchema(c1=Column(str))
+    assert schema.get_column_categories("c1") is None
+
+
+def test_categorical_constraint_casts_lists_to_tuple():
+    assert Constraint.Categorical([1, 2, 3]) == Constraint.Categorical((1, 2, 3))
+
+
+def test_categorical_constraint_description():
+    assert Constraint.Categorical([1, 2, 3]).description == "Must be one of: 1, 2, 3"
+
+
+def test_column_casts_constraint_lists_to_tuple():
+    column = Column(str, constraints=[Constraint.NotNull(), Constraint.Unique()])
+    assert column.constraints == (Constraint.NotNull(), Constraint.Unique())
+
+
+def test_supplying_multiple_instances_of_same_constraint_raises_error():
+    with pytest.raises(
+        ValueError, match="'Constraint.Categorical' specified more than once"
+    ):
+        Column(
+            int,
+            constraints=[
+                Constraint.Categorical([1, 2]),
+                Constraint.Categorical([3, 4]),
+            ],
+        )
+
+
+def test_supplying_class_instead_of_instance_raises_error():
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Constraint should be instance not class e.g."
+            " 'Constraint.NotNull()' not 'Constraint.NotNull'"
+        ),
+    ):
+        Column(int, constraints=[Constraint.NotNull])

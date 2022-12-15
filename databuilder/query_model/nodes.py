@@ -8,7 +8,7 @@ from types import GenericAlias
 from typing import Any, Optional, TypeVar
 
 from databuilder.codes import BaseCode
-from databuilder.query_model.table_schema import Column, TableSchema
+from databuilder.query_model.table_schema import Column, Constraint, TableSchema
 from databuilder.utils.typing_utils import get_typespec, get_typevars, type_matches
 
 # The below classes and functions are the public API surface of the query model
@@ -27,6 +27,7 @@ __all__ = [
     "Function",
     "Case",
     "Column",
+    "Constraint",
     "TableSchema",
     "ValidationError",
     "DomainMismatchError",
