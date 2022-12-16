@@ -139,10 +139,7 @@ def test_is_in_dates(spec_test):
         p.d1.is_in(
             [
                 date(2010, 1, 1),
-                date(
-                    1900,
-                    1,
-                ),
+                date(1900, 1, 1),
             ]
         ),
         {
