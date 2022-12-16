@@ -1,5 +1,6 @@
 import os
 import subprocess
+import threading
 from pathlib import Path
 
 import pytest
@@ -32,21 +33,52 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
 
 @pytest.fixture(scope="session")
+def show_delayed_warning(request):
+    """
+    Some fixtures can take a long time to execute the first time they're run (e.g. they
+    might need to pull down a large Docker image) but pytest's output capturing means
+    that the user has no idea what's happening. This fixture allows us to "poke through"
+    the output capturing and display a message to the user, but only if the task has
+    already taken more than N seconds.
+    """
+
+    def show_warning(message):
+        capturemanager = request.config.pluginmanager.getplugin("capturemanager")
+        # No need to display anything if output is not being captured
+        if capturemanager.is_capturing():  # pragma: no branch
+            with capturemanager.global_and_fixture_disabled():
+                print(f"\n => {message} ...")
+
+    return lambda delay, message: ContextTimer(delay, show_warning, args=[message])
+
+
+# Timer which starts/cancels itself when entering/exiting a context block
+class ContextTimer(threading.Timer):
+    def __enter__(self):
+        self.start()
+
+    def __exit__(self, *_):
+        self.cancel()
+
+
+@pytest.fixture(scope="session")
 def containers():
     yield Containers()
 
 
 @pytest.fixture(scope="session")
-def mssql_database(containers):
-    database = make_mssql_database(containers)
-    wait_for_database(database)
+def mssql_database(containers, show_delayed_warning):
+    with show_delayed_warning(3, "Downloading and starting MSSQL Docker image"):
+        database = make_mssql_database(containers)
+        wait_for_database(database)
     yield database
 
 
 @pytest.fixture(scope="session")
-def spark_database(containers):
-    database = make_spark_database(containers)
-    wait_for_database(database, timeout=15)
+def spark_database(containers, show_delayed_warning):
+    with show_delayed_warning(3, "Downloading and starting Spark Docker image"):
+        database = make_spark_database(containers)
+        wait_for_database(database, timeout=15)
     yield database
 
 
@@ -118,18 +150,19 @@ def engine(request):
 
 
 @pytest.fixture(scope="session")
-def databuilder_image():
+def databuilder_image(show_delayed_warning):
     project_dir = Path(databuilder.__file__).parents[1]
     # Note different name from production image to avoid confusion
     image = "databuilder-dev"
     # We're deliberately choosing to shell out to the docker client here rather than use
     # the docker-py library to avoid possible difference in the build process (docker-py
     # doesn't seem to be particularly actively maintained)
-    subprocess.run(
-        ["docker", "build", project_dir, "-t", image],
-        check=True,
-        env=dict(os.environ, DOCKER_BUILDKIT="1"),
-    )
+    with show_delayed_warning(3, f"Building {image} Docker image"):
+        subprocess.run(
+            ["docker", "build", project_dir, "-t", image],
+            check=True,
+            env=dict(os.environ, DOCKER_BUILDKIT="1"),
+        )
     return f"{image}:latest"
 
 
