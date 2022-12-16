@@ -136,12 +136,7 @@ def test_is_equal_with_str_date(spec_test):
 def test_is_in_dates(spec_test):
     spec_test(
         table_data,
-        p.d1.is_in(
-            [
-                date(2010, 1, 1),
-                date(1900, 1, 1),
-            ]
-        ),
+        p.d1.is_in([date(2010, 1, 1), date(1900, 1, 1)]),
         {
             1: False,
             2: False,
@@ -167,12 +162,7 @@ def test_is_in_strings(spec_test):
 def test_is_not_in_dates(spec_test):
     spec_test(
         table_data,
-        p.d1.is_not_in(
-            [
-                date(2010, 1, 1),
-                date(1900, 1, 1),
-            ]
-        ),
+        p.d1.is_not_in([date(2010, 1, 1), date(1900, 1, 1)]),
         {
             1: True,
             2: True,
