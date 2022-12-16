@@ -125,6 +125,13 @@ def test_get_random_value_on_first_of_month(dummy_patient_generator):
     assert value.day == 1
 
 
+def test_get_random_str(dummy_patient_generator):
+    column_info = ColumnInfo(name="test", type=str)
+    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    lengths = {len(s) for s in values}
+    assert len(lengths) > 1, "strings are all the same length"
+
+
 @pytest.fixture(scope="module")
 def dummy_patient_generator():
     dataset = Dataset()
