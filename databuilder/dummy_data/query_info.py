@@ -4,6 +4,7 @@ from functools import cached_property
 from typing import Optional
 
 from databuilder.query_model.nodes import (
+    Constraint,
     Function,
     SelectColumn,
     SelectPatientTable,
@@ -23,11 +24,32 @@ class ColumnInfo:
     name: str
     type: type  # NOQA: A003
     categories: Optional[tuple]
+    has_first_of_month_constraint: bool = False
     values_used: set = dataclasses.field(default_factory=set)
 
-    def __post_init__(self):
-        if hasattr(self.type, "_primitive_type"):
-            self.type = self.type._primitive_type()
+    @classmethod
+    def from_column(cls, name, column):
+        # Get type
+        type_ = column.type_
+        if hasattr(type_, "_primitive_type"):
+            type_ = type_._primitive_type()
+        # Get categories
+        cat_constraint = column.get_constraint_by_type(Constraint.Categorical)
+        if cat_constraint is not None:
+            categories = cat_constraint.values
+        else:
+            categories = None
+        # Get date constraints
+        has_first_of_month_constraint = bool(
+            column.get_constraint_by_type(Constraint.FirstOfMonth)
+        )
+        # Construct
+        return cls(
+            name=name,
+            type=type_,
+            categories=categories,
+            has_first_of_month_constraint=has_first_of_month_constraint,
+        )
 
     def record_value(self, value):
         if hasattr(value, "_to_primitive_type"):
@@ -97,10 +119,8 @@ class QueryInfo:
             column_info = table_info.columns.get(name)
             if column_info is None:
                 # … insert a ColumnInfo object into the appropriate table
-                column_info = ColumnInfo(
-                    name=name,
-                    type=table.schema.get_column_type(name),
-                    categories=table.schema.get_column_categories(name),
+                column_info = ColumnInfo.from_column(
+                    name, table.schema.get_column(name)
                 )
                 table_info.columns[name] = column_info
             # Record the ColumnInfo object associated with each SelectColumn node

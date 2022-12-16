@@ -5,7 +5,7 @@ All backends should implement this schema.
 
 import datetime
 
-from .. import FirstOfMonthConstraint, NotNullConstraint, PatientFrame, Series, table
+from .. import Constraint, PatientFrame, Series, table
 
 __all__ = [
     "patients",
@@ -21,5 +21,5 @@ class patients(PatientFrame):
             "Patient's year and month of birth, provided in format YYYY-MM-01. "
             "The day will always be the first of the month."
         ),
-        constraints=[FirstOfMonthConstraint(), NotNullConstraint()],
+        constraints=[Constraint.FirstOfMonth(), Constraint.NotNull()],
     )

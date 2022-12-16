@@ -1,3 +1,5 @@
+import re
+
 import sqlalchemy
 from sqlalchemy.sql.elements import (
     AsBoolean,
@@ -129,18 +131,55 @@ def clause_as_str(clause, dialect):
     Return a SQL clause as a string in the supplied SQL dialect with any included
     parameters interpolated in
     """
-    # This is an awkward workaround for the fact that some constructs, e.g. CreateIndex,
-    # blow up if you try to compile them with `literal_binds = True` because they don't
-    # accept the `literal_binds` keyword. I _think_ this is just a bug in SQLAlchemy,
-    # but one that hasn't be noticed because index definitions don't tend to take
-    # paramters. In any case, the workaround here is that we compile a parameterised
-    # version of the query first, and then recompile with `literal_binds` only if it
-    # actually has parameters.
+    # Workaround: we call `.compile()` twice below, first without the `compile_kwargs`
+    # argument and then again with it if the clause has bound parameters. This ought to
+    # be unnecessary as compilers for clauses which don't take bound parameters should
+    # accept and ignore `compile_kwargs` — and most do. But some (`visit_create_index`
+    # in the SQLite dialect for example) blow up if given `compile_kwargs` so we have to
+    # take this two-step approach. For more detail see:
+    #   tests/unit/utils/test_sqlalchemy_query_utils.py
+    #     ::test_clause_as_str_with_create_index_on_sqlite
     compiled = clause.compile(dialect=dialect)
     if not compiled.params:
         return str(compiled).strip()
-    else:
-        compiled = clause.compile(
-            dialect=dialect, compile_kwargs={"literal_binds": True}
-        )
-        return str(compiled).strip()
+
+    compiled = clause.compile(
+        dialect=dialect,
+        # `render_postcompile` is needed for handling multi-valued parameters e.g. those
+        # used in the expression `some_column.in_([1, 2, 3])`. For more detail see:
+        # https://docs.sqlalchemy.org/en/14/faq/sqlexpressions.html#rendering-postcompile-parameters-as-bound-parameters
+        compile_kwargs={"render_postcompile": True},
+    )
+
+    # To produce a SQL expression with string literals instead of parameter placeholders
+    # we compile it with placeholders, format all the parameters as string literals and
+    # then substitute them in to the placeholders using a regex. In theory SQLAlchemy can
+    # do this for us if we pass `"literal_binds": True` in `compile_kwargs` but sadly
+    # this doesn't work in all cases. For more detail see:
+    #   tests/unit/utils/test_sqlalchemy_query_utils.py
+    #     ::test_clause_as_str_with_expanding_bindparameter_and_bind_expression
+    compiled_str = str(compiled).strip()
+    literal_params = dict(yield_params_as_literals(compiled, dialect))
+
+    # If we need to use a dialect which uses a different parameter style then we'll have
+    # to come up with an appropriate regex for it
+    assert dialect.paramstyle == "named"
+    return re.sub(
+        # Match placeholders like ":param_1", but ignore double colons which act as
+        # escape characters
+        r"(?<!:):([A-Za-z_]\w*)",
+        lambda m: literal_params[m.group(1)],
+        compiled_str,
+    )
+
+
+def yield_params_as_literals(compiled, dialect):
+    for key, value in compiled.params.items():
+        # Get the type of the BindParameter object corresponding to each param
+        param_type = compiled.binds[key].type
+        # Get the implemention of this type for the supplied dialect
+        dialect_impl = param_type.dialect_impl(dialect)
+        # Get the processor which turns values of this type into string literals
+        literal_processor = dialect_impl.literal_processor(dialect)
+        # Yield the string literal with its key
+        yield key, literal_processor(value)

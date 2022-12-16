@@ -1,16 +1,8 @@
-from databuilder.contracts.constraints import (
-    CategoricalConstraint,
-    FirstOfMonthConstraint,
-    NotNullConstraint,
-    UniqueConstraint,
-)
 from databuilder.query_language import EventFrame, PatientFrame, Series, table
+from databuilder.query_model.table_schema import Constraint
 
 __all__ = [
-    "CategoricalConstraint",
-    "FirstOfMonthConstraint",
-    "NotNullConstraint",
-    "UniqueConstraint",
+    "Constraint",
     "EventFrame",
     "PatientFrame",
     "Series",

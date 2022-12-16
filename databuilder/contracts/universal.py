@@ -1,13 +1,6 @@
 import datetime
 
-from databuilder.tables import (
-    CategoricalConstraint,
-    FirstOfMonthConstraint,
-    NotNullConstraint,
-    PatientFrame,
-    Series,
-    table,
-)
+from databuilder.tables import Constraint, PatientFrame, Series, table
 
 __all__ = ["patients"]
 
@@ -21,7 +14,7 @@ class patients(PatientFrame):
             "Patient's year and month of birth, provided in format YYYY-MM-01. "
             "The day will always be the first of the month."
         ),
-        constraints=[FirstOfMonthConstraint(), NotNullConstraint()],
+        constraints=[Constraint.FirstOfMonth(), Constraint.NotNull()],
     )
     sex = Series(
         str,
@@ -30,8 +23,8 @@ class patients(PatientFrame):
             'Specify how this has been determined, e.g. "sex at birth", or "current sex".'
         ),
         constraints=[
-            NotNullConstraint(),
-            CategoricalConstraint("female", "male", "intersex", "unknown"),
+            Constraint.NotNull(),
+            Constraint.Categorical(["female", "male", "intersex", "unknown"]),
         ],
     )
     date_of_death = Series(
@@ -40,5 +33,5 @@ class patients(PatientFrame):
             "Patient's year and month of death, provided in format YYYY-MM-01. "
             "The day will always be the first of the month."
         ),
-        constraints=[FirstOfMonthConstraint()],
+        constraints=[Constraint.FirstOfMonth()],
     )

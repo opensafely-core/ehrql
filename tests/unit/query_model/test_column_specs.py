@@ -11,6 +11,7 @@ from databuilder.query_model.nodes import (
     AggregateByPatient,
     Case,
     Column,
+    Constraint,
     Function,
     SelectColumn,
     SelectPatientTable,
@@ -28,7 +29,9 @@ def test_get_column_specs():
             code=Column(SNOMEDCTCode),
             category=Column(
                 SNOMEDCTCode,
-                categories=(SNOMEDCTCode("abc"), SNOMEDCTCode("def")),
+                constraints=[
+                    Constraint.Categorical([SNOMEDCTCode("abc"), SNOMEDCTCode("def")])
+                ],
             ),
         ),
     )
@@ -50,7 +53,7 @@ def test_get_column_specs():
 events = SelectTable(
     "events",
     schema=TableSchema(
-        event_type=Column(str, categories=("a", "b", "c")),
+        event_type=Column(str, constraints=[Constraint.Categorical(["a", "b", "c"])]),
         event_name=Column(str),
     ),
 )
