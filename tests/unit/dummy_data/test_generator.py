@@ -7,20 +7,16 @@ from databuilder.dummy_data.generator import DummyDataGenerator, DummyPatientGen
 from databuilder.dummy_data.query_info import ColumnInfo
 from databuilder.ehrql import Dataset
 from databuilder.query_language import compile
-from databuilder.tables import (
-    CategoricalConstraint,
-    EventFrame,
-    PatientFrame,
-    Series,
-    table,
-)
+from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
 @table
 class patients(PatientFrame):
     date_of_birth = Series(datetime.date)
     date_of_death = Series(datetime.date)
-    sex = Series(str, constraints=[CategoricalConstraint("male", "female", "intersex")])
+    sex = Series(
+        str, constraints=[Constraint.Categorical(["male", "female", "intersex"])]
+    )
 
 
 @table

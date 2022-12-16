@@ -4,7 +4,6 @@ import enum
 from typing import Union
 
 from databuilder.codes import BaseCode, Codelist
-from databuilder.contracts.constraints import CategoricalConstraint
 from databuilder.query_model import nodes as qm
 from databuilder.query_model.nodes import get_series_type, has_one_row_per_patient
 from databuilder.query_model.population_validation import validate_population_definition
@@ -615,26 +614,13 @@ def table(cls):
     table_name = cls.__name__
     # Get all `Series` objects on the class and determine the schema from them
     schema = {
-        series.name: query_model_column_from_series(series)
+        series.name: qm.Column(series.type_, constraints=series.constraints)
         for series in vars(cls).values()
         if isinstance(series, Series)
     }
 
     qm_node = qm_class(table_name, qm.TableSchema(**schema))
     return cls(qm_node)
-
-
-def query_model_column_from_series(series):
-    cat_constraints = [
-        c for c in series.constraints if isinstance(c, CategoricalConstraint)
-    ]
-    if len(cat_constraints) == 0:
-        categories = None
-    elif len(cat_constraints) == 1:
-        categories = cat_constraints[0].values
-    else:
-        assert False
-    return qm.Column(series.type_, categories=categories)
 
 
 # A descriptor which will return the appropriate type of series depending on the type of
