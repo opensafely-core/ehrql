@@ -218,6 +218,9 @@ class DummyPatientGenerator:
             # TODO: As is this
             return self.rnd.random() * 100
         elif column_info.type is str:
+            # Generate appropriately formatted Middle Layer Super Output Area codes
+            if column_info.name == "msoa_code":
+                return f"E02{self.rnd.randrange(0, 8000):06d}"
             # A random ASCII string is unlikely to be very useful here, but it at least
             # makes it a bit clearer what the issue is (that we don't know enough about
             # the column to generate anything more helpful) rather than the blank string

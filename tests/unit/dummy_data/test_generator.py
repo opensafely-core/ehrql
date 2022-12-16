@@ -1,4 +1,5 @@
 import datetime
+import re
 from unittest import mock
 
 import pytest
@@ -130,6 +131,12 @@ def test_get_random_str(dummy_patient_generator):
     values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
     lengths = {len(s) for s in values}
     assert len(lengths) > 1, "strings are all the same length"
+
+
+def test_get_random_msoa_code(dummy_patient_generator):
+    column_info = ColumnInfo(name="msoa_code", type=str)
+    value = dummy_patient_generator.get_random_value(column_info)
+    assert re.match(r"E020[0-9]{5}", value)
 
 
 @pytest.fixture(scope="module")
