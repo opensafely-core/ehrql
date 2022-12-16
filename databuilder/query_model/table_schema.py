@@ -95,6 +95,9 @@ class TableSchema:
         kwargs = [f"{key}={value!r}" for key, value in self.schema.items()]
         return f"{self.__class__.__name__}({', '.join(kwargs)})"
 
+    def get_column(self, name):
+        return self.schema[name]
+
     def get_column_type(self, name):
         return self.schema[name].type_
 

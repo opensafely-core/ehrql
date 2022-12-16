@@ -165,9 +165,14 @@ class DummyPatientGenerator:
 
     def rows_for_patients(self, table_info):
         row = {
-            "date_of_birth": self.date_of_birth.replace(day=1),
+            "date_of_birth": self.date_of_birth,
             "date_of_death": self.date_of_death,
         }
+        # Apply any FirstOfMonth constraints
+        for key, value in row.items():
+            if key in table_info.columns:
+                if table_info.columns[key].has_first_of_month_constraint:
+                    row[key] = value.replace(day=1)
         return [row]
 
     def rows_for_practice_registrations(self, table_info):
@@ -220,7 +225,11 @@ class DummyPatientGenerator:
             days_ago = int(self.rnd.expovariate(1 / 365))
             event_date = self.events_end - timedelta(days=days_ago)
             # Clip to the available time range
-            return max(event_date, self.events_start)
+            event_date = max(event_date, self.events_start)
+            # Apply any FirstOfMonth constraints
+            if column_info.has_first_of_month_constraint:
+                event_date = event_date.replace(day=1)
+            return event_date
         else:
             assert False, f"Unhandled type: {column_info.type}"
 
