@@ -3,6 +3,8 @@ import datetime
 import pytest
 
 from databuilder.ehrql import Dataset
+from databuilder.query_language import compile
+from databuilder.query_model.nodes import get_series_type
 
 from . import tables
 
@@ -40,6 +42,11 @@ def spec_test(request, engine):
         results_dict = dict(results)
         assert len(results) == len(results_dict), "Duplicate patient IDs found"
         assert results_dict == expected_results
+
+        # assert types are as expected
+        variables = compile(dataset)
+        variable_type = get_series_type(variables["v"])
+        assert results[0][1] is None or isinstance(results[0][1], variable_type)
 
     # Test that we can generate SQL with literal parmeters for debugging purposes
     def run_test_dump_sql(table_data, series, expected_results, population=None):
