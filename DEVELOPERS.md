@@ -67,6 +67,10 @@ For example:
 just test-spec-no-spark
 ```
 
+There are further notes on using `pytest` in the wiki here:
+https://github.com/opensafely-core/databuilder/wiki/Tips-for-using-pytest
+
+
 #### Generative tests
 
 The generative tests use Hypothesis to generate variable definitions (in the query model) and test data.
