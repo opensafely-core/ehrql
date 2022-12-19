@@ -428,6 +428,9 @@ class Duration:
                 return date_utils.date_add_years(other, self.value)
             else:
                 assert False
+        if isinstance(other, Duration):
+            if self.units == other.units:
+                return Duration(units=self.units, value=(self.value + other.value))
         else:
             # Otherwise we wrap the date up as a Series and let the method in
             # DateFunctions handle the addition

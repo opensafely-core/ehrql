@@ -300,6 +300,9 @@ def test_unsupported_date_operations(lhs, op, rhs):
         (date(2020, 1, 1), "+", years(10), date(2030, 1, 1)),
         (years(10), "+", date(2020, 1, 1), date(2030, 1, 1)),
         (date(2020, 1, 1), "-", years(10), date(2010, 1, 1)),
+        # Test addition of Durations
+        (days(10), "+", days(5), days(15)),
+        (months(10), "+", months(5), months(15)),
     ],
 )
 def test_static_date_operations(lhs, op, rhs, expected):
