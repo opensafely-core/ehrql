@@ -64,8 +64,12 @@ Since we have many tests that are parameterized across multiple databases and th
 These are much faster and should be used unless you're specifically working on Spark.
 For example:
 ```
-just test-integration-no-spark
+just test-spec-no-spark
 ```
+
+There are further notes on using `pytest` in the wiki here:
+https://github.com/opensafely-core/databuilder/wiki/Tips-for-using-pytest
+
 
 #### Generative tests
 

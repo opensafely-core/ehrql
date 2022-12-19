@@ -168,10 +168,6 @@ test-docker *ARGS: devenv
 test-integration *ARGS: devenv
     $BIN/python -m pytest tests/integration {{ ARGS }}
 
-# Run the integration tests only, excluding spark tests which are slow. Optional args are passed to pytest.
-test-integration-no-spark *ARGS: devenv
-    $BIN/python -m pytest tests/integration -k "not spark" {{ ARGS }}
-
 # Run the spec tests only. Optional args are passed to pytest.
 test-spec *ARGS: devenv
     $BIN/python -m pytest tests/spec {{ ARGS }}
