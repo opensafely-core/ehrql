@@ -23,7 +23,7 @@ class ColumnInfo:
 
     name: str
     type: type  # NOQA: A003
-    categories: Optional[tuple]
+    categories: Optional[tuple] = None
     has_first_of_month_constraint: bool = False
     values_used: set = dataclasses.field(default_factory=set)
 

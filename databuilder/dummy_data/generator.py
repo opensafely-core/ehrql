@@ -1,4 +1,5 @@
 import random
+import string
 import time
 from datetime import date, timedelta
 
@@ -11,6 +12,9 @@ from databuilder.query_engines.in_memory_database import InMemoryDatabase
 from databuilder.utils.orm_utils import orm_class_from_schema
 
 log = structlog.getLogger()
+
+
+CHARS = string.ascii_letters + string.digits + ".-+_"
 
 
 class DummyDataGenerator:
@@ -214,10 +218,16 @@ class DummyPatientGenerator:
             # TODO: As is this
             return self.rnd.random() * 100
         elif column_info.type is str:
-            # There's not much we can do about non-categorical strings with no
-            # comparison values used in the query (generating a random string is
-            # unlikely to be useful), but I don't expect we'll get many of these
-            return ""
+            # Generate appropriately formatted Middle Layer Super Output Area codes
+            if column_info.name == "msoa_code":
+                return f"E02{self.rnd.randrange(0, 8000):06d}"
+            # A random ASCII string is unlikely to be very useful here, but it at least
+            # makes it a bit clearer what the issue is (that we don't know enough about
+            # the column to generate anything more helpful) rather than the blank string
+            # we always used to return
+            return "".join(
+                self.rnd.choice(CHARS) for _ in range(self.rnd.randrange(16))
+            )
         elif column_info.type is date:
             # Use an exponential distribution to preferentially generate recent events
             # (mean of one year ago). This works OK for the our immediate purposes but
