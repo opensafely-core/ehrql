@@ -11,7 +11,9 @@ table_data = {
         1 | 1990-01-01
         2 | 2000-01-01
         3 | 2010-01-01
-        4 |
+        4 | 2010-01-02
+        5 | 2010-01-03
+        6 |
         """,
 }
 
@@ -24,7 +26,9 @@ def test_is_before(spec_test):
             1: True,
             2: False,
             3: False,
-            4: None,
+            4: False,
+            5: False,
+            6: None,
         },
     )
 
@@ -37,7 +41,9 @@ def test_is_on_or_before(spec_test):
             1: True,
             2: True,
             3: False,
-            4: None,
+            4: False,
+            5: False,
+            6: None,
         },
     )
 
@@ -50,7 +56,9 @@ def test_is_after(spec_test):
             1: False,
             2: False,
             3: True,
-            4: None,
+            4: True,
+            5: True,
+            6: None,
         },
     )
 
@@ -63,7 +71,9 @@ def test_is_on_or_after(spec_test):
             1: False,
             2: True,
             3: True,
-            4: None,
+            4: True,
+            5: True,
+            6: None,
         },
     )
 
@@ -76,7 +86,9 @@ def test_is_before_with_str_date(spec_test):
             1: True,
             2: False,
             3: False,
-            4: None,
+            4: False,
+            5: False,
+            6: None,
         },
     )
 
@@ -89,7 +101,9 @@ def test_is_on_or_before_with_str_date(spec_test):
             1: True,
             2: True,
             3: False,
-            4: None,
+            4: False,
+            5: False,
+            6: None,
         },
     )
 
@@ -102,7 +116,9 @@ def test_is_after_with_str_date(spec_test):
             1: False,
             2: False,
             3: True,
-            4: None,
+            4: True,
+            5: True,
+            6: None,
         },
     )
 
@@ -115,7 +131,9 @@ def test_is_on_or_after_with_str_date(spec_test):
             1: False,
             2: True,
             3: True,
-            4: None,
+            4: True,
+            5: True,
+            6: None,
         },
     )
 
@@ -128,7 +146,9 @@ def test_is_equal_with_str_date(spec_test):
             1: False,
             2: True,
             3: False,
-            4: None,
+            4: False,
+            5: False,
+            6: None,
         },
     )
 
@@ -141,7 +161,9 @@ def test_is_in_dates(spec_test):
             1: False,
             2: False,
             3: True,
-            4: None,
+            4: False,
+            5: False,
+            6: None,
         },
     )
 
@@ -154,7 +176,9 @@ def test_is_in_strings(spec_test):
             1: False,
             2: False,
             3: True,
-            4: None,
+            4: False,
+            5: False,
+            6: None,
         },
     )
 
@@ -167,7 +191,9 @@ def test_is_not_in_dates(spec_test):
             1: True,
             2: True,
             3: False,
-            4: None,
+            4: True,
+            5: True,
+            6: None,
         },
     )
 
@@ -180,7 +206,9 @@ def test_is_not_in_strings(spec_test):
             1: True,
             2: True,
             3: False,
-            4: None,
+            4: True,
+            5: True,
+            6: None,
         },
     )
 
@@ -188,12 +216,14 @@ def test_is_not_in_strings(spec_test):
 def test_is_between_dates(spec_test):
     spec_test(
         table_data,
-        p.d1.is_between(date(2009, 12, 31), date(2010, 1, 2)),
+        p.d1.is_between(date(2010, 1, 1), date(2010, 1, 3)),
         {
             1: False,
             2: False,
-            3: True,
-            4: None,
+            3: False,
+            4: True,
+            5: False,
+            6: None,
         },
     )
 
@@ -201,12 +231,14 @@ def test_is_between_dates(spec_test):
 def test_is_on_or_between_dates(spec_test):
     spec_test(
         table_data,
-        p.d1.is_on_or_between(date(2010, 1, 1), date(2010, 1, 2)),
+        p.d1.is_on_or_between(date(2010, 1, 1), date(2010, 1, 3)),
         {
             1: False,
             2: False,
             3: True,
-            4: None,
+            4: True,
+            5: False,
+            6: None,
         },
     )
 
@@ -214,12 +246,14 @@ def test_is_on_or_between_dates(spec_test):
 def test_is_between_strings(spec_test):
     spec_test(
         table_data,
-        p.d1.is_between("2009-12-31", "2010-01-02"),
+        p.d1.is_between("2010-01-01", "2010-01-03"),
         {
             1: False,
             2: False,
-            3: True,
-            4: None,
+            3: False,
+            4: True,
+            5: False,
+            6: None,
         },
     )
 
@@ -227,11 +261,13 @@ def test_is_between_strings(spec_test):
 def test_is_on_or_between_strings(spec_test):
     spec_test(
         table_data,
-        p.d1.is_on_or_between("2010-01-01", "2010-01-02"),
+        p.d1.is_on_or_between("2010-01-01", "2010-01-03"),
         {
             1: False,
             2: False,
             3: True,
-            4: None,
+            4: True,
+            5: False,
+            6: None,
         },
     )
