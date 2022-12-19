@@ -303,6 +303,13 @@ class DateFunctions(ComparableFunctions):
     def is_on_or_after(self, other):
         return self.__ge__(other)
 
+    def is_in(self, other):
+        # The query model requires an immutable Set type for containment queries, but
+        # that's a bit user-unfriendly so we accept other types here and convert them
+        # whilst parsing any ISO date strings in the collection
+        other = frozenset(map(parse_date_if_str, other))
+        return _apply(qm.Function.In, self, other)
+
     def to_first_of_year(self):
         return _apply(qm.Function.ToFirstOfYear, self)
 
