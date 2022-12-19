@@ -42,3 +42,11 @@ def test_multiply(spec_test):
         p.i1 * p.i2,
         {1: 101 * 111, 2: None},
     )
+
+
+def test_multiply_with_constant(spec_test):
+    spec_test(
+        table_data,
+        10 * p.i2,
+        {1: 10 * 111, 2: None},
+    )
