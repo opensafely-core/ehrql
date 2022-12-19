@@ -224,11 +224,11 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_Add(self, node):
         return self.visit_binary_op_with_null(node, operator.add)
 
-    def visit_Multiply(self, node):
-        return self.visit_binary_op_with_null(node, operator.mul)
-
     def visit_Subtract(self, node):
         return self.visit_binary_op_with_null(node, operator.sub)
+
+    def visit_Multiply(self, node):
+        return self.visit_binary_op_with_null(node, operator.mul)
 
     def visit_CastToInt(self, node):
         return self.visit_unary_op_with_null(node, int)
