@@ -317,10 +317,10 @@ class DateFunctions(ComparableFunctions):
         return _apply(qm.Function.ToFirstOfMonth, self)
 
     def is_between(self, begin, end):
-        raise NotImplementedError
+        return self.__gt__(begin) & self.__lt__(end)
 
     def is_on_or_between(self, begin, end):
-        raise NotImplementedError
+        return self.__ge__(begin) & self.__lt__(end)
 
     def __lt__(self, other):
         other = parse_date_if_str(other)
