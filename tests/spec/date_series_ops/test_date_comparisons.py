@@ -183,3 +183,55 @@ def test_is_not_in_strings(spec_test):
             4: None,
         },
     )
+
+
+def test_is_between_dates(spec_test):
+    spec_test(
+        table_data,
+        p.d1.is_between(date(2009, 12, 31), date(2010, 1, 2)),
+        {
+            1: False,
+            2: False,
+            3: True,
+            4: None,
+        },
+    )
+
+
+def test_is_on_or_between_dates(spec_test):
+    spec_test(
+        table_data,
+        p.d1.is_on_or_between(date(2010, 1, 1), date(2010, 1, 2)),
+        {
+            1: False,
+            2: False,
+            3: True,
+            4: None,
+        },
+    )
+
+
+def test_is_between_strings(spec_test):
+    spec_test(
+        table_data,
+        p.d1.is_between("2009-12-31", "2010-01-02"),
+        {
+            1: False,
+            2: False,
+            3: True,
+            4: None,
+        },
+    )
+
+
+def test_is_on_or_between_strings(spec_test):
+    spec_test(
+        table_data,
+        p.d1.is_on_or_between("2010-01-01", "2010-01-02"),
+        {
+            1: False,
+            2: False,
+            3: True,
+            4: None,
+        },
+    )
