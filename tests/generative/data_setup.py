@@ -41,8 +41,12 @@ def _build_orm_classes(prefix, count, schema, base_class, has_one_row_per_patien
 def _build_orm_class(name, schema, base_class, has_one_row_per_patient):
     class_ = orm_class_from_schema(base_class, name, schema, has_one_row_per_patient)
     # It's helpful to have the classes available as module properties so that we can
-    # copy-paste failing test cases from Hypothesis.
-    globals()[name] = class_
+    # copy-paste failing test cases from Hypothesis. These classes naturally believe
+    # that they belong to the `orm_utils` module which created them, so we have to
+    # re-parent them here. We use only the final component of the module name as that's
+    # how we import it in `test_query_model`.
+    class_.__module__ = __name__.rpartition(".")[2]
+    globals()[class_.__name__] = class_
     return class_
 
 
