@@ -237,7 +237,7 @@ def test_is_on_or_between_dates(spec_test):
             2: False,
             3: True,
             4: True,
-            5: False,
+            5: True,
             6: None,
         },
     )
@@ -267,7 +267,7 @@ def test_is_on_or_between_strings(spec_test):
             2: False,
             3: True,
             4: True,
-            5: False,
+            5: True,
             6: None,
         },
     )
