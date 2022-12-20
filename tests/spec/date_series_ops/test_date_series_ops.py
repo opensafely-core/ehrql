@@ -1,6 +1,7 @@
 from datetime import date
 
 from databuilder.ehrql import days, months, years
+from databuilder.query_language import _convert, _wrap
 
 from ..tables import p
 
@@ -320,5 +321,71 @@ def test_reversed_date_differences(spec_test):
         {
             1: 10,
             2: -11,
+        },
+    )
+
+
+# This exists to temporarily workaround a bug (see issue below) in ehrQL which prevents
+# us constructing the kinds of examples we need in order to expose a separate bug in the
+# MSSQL query engine.
+# https://github.com/opensafely-core/databuilder/issues/890
+def _series(value):
+    # Wrap up a static value in an ehrQL series of the appropriate type
+    return _wrap(_convert(value))
+
+
+def test_add_days_to_static_date(spec_test):
+    table_data = {
+        p: """
+          | i1
+        --+-----
+        1 |  10
+        2 | -10
+        """,
+    }
+    spec_test(
+        table_data,
+        _series(date(2000, 1, 1)) + days(p.i1),
+        {
+            1: date(2000, 1, 11),
+            2: date(1999, 12, 22),
+        },
+    )
+
+
+def test_add_months_to_static_date(spec_test):
+    table_data = {
+        p: """
+          | i1
+        --+-----
+        1 |  10
+        2 | -10
+        """,
+    }
+    spec_test(
+        table_data,
+        _series(date(2000, 1, 1)) + months(p.i1),
+        {
+            1: date(2000, 11, 1),
+            2: date(1999, 3, 1),
+        },
+    )
+
+
+def test_add_years_to_static_date(spec_test):
+    table_data = {
+        p: """
+          | i1
+        --+-----
+        1 |  10
+        2 | -10
+        """,
+    }
+    spec_test(
+        table_data,
+        _series(date(2000, 1, 1)) + years(p.i1),
+        {
+            1: date(2010, 1, 1),
+            2: date(1990, 1, 1),
         },
     )
