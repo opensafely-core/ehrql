@@ -210,6 +210,15 @@ def make_spark_container_database(containers):
                 "hive.server2.transport.mode=http",
                 "--hiveconf",
                 f"hive.server2.thrift.http.port={spark_port}",
+                # These settings try to reduce the amount of unnecessary "Big Data" work
+                # which Spark does on our tiny test queries in an attempt to speed them
+                # up. They were suggested by a helpful StackOverflow user and seem to
+                # give about a 20% speed up on the Spark tests:
+                # https://stackoverflow.com/a/74878746
+                "--conf",
+                "spark.sql.shuffle.partitions=1",
+                "--conf",
+                "spark.sql.autoBroadcastJoinThreshold=-1",
             ],
             # As described below, there's a directory permissions issue when
             # trying to run Hive using this container. It's possible to chmod
