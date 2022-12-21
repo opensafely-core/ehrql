@@ -54,7 +54,9 @@ from databuilder.query_model.nodes import (
 from tests.lib.query_model_utils import get_all_operations
 
 
-def variable(patient_tables, event_tables, schema, int_values, bool_values):
+def variable(
+    patient_tables, event_tables, schema, int_values, bool_values, date_values
+):
     frame = st.deferred(
         lambda: st.one_of(
             one_row_per_patient_frame,
@@ -136,7 +138,7 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
 
     sorted_frame = st.deferred(lambda: st.one_of(sort))
 
-    value = qm_builds(Value, st.one_of(int_values, bool_values))
+    value = qm_builds(Value, st.one_of(int_values, bool_values, date_values))
 
     select_table = qm_builds(
         SelectTable,

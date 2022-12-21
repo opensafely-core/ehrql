@@ -1,4 +1,5 @@
 import os
+from datetime import date
 
 import hypothesis as hyp
 import hypothesis.strategies as st
@@ -10,7 +11,14 @@ from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
 
 # To simplify data generation, all tables have the same schema.
-schema = TableSchema(i1=Column(int), i2=Column(int), b1=Column(bool), b2=Column(bool))
+schema = TableSchema(
+    i1=Column(int),
+    i2=Column(int),
+    b1=Column(bool),
+    b2=Column(bool),
+    d1=Column(date),
+    d2=Column(date),
+)
 (
     patient_classes,
     event_classes,
@@ -21,6 +29,7 @@ schema = TableSchema(i1=Column(int), i2=Column(int), b1=Column(bool), b2=Column(
 # Use the same strategies for values both for query generation and data generation.
 int_values = st.integers(min_value=0, max_value=10)
 bool_values = st.booleans()
+date_values = st.dates(min_value=date(1900, 1, 1), max_value=date(2100, 12, 31))
 
 
 variable_strategy = variable_strategies.variable(
@@ -29,9 +38,10 @@ variable_strategy = variable_strategies.variable(
     schema,
     int_values,
     bool_values,
+    date_values,
 )
 data_strategy = data_strategies.data(
-    patient_classes, event_classes, schema, int_values, bool_values
+    patient_classes, event_classes, schema, int_values, bool_values, date_values
 )
 settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 100))),
