@@ -303,6 +303,11 @@ def test_unsupported_date_operations(lhs, op, rhs):
         # Test addition of Durations
         (days(10), "+", days(5), days(15)),
         (months(10), "+", months(5), months(15)),
+        (years(10), "+", years(5), years(15)),
+        # Test subtraction of Durations
+        (days(10), "-", days(5), days(5)),
+        (months(10), "-", months(5), months(5)),
+        (years(10), "-", years(5), years(5)),
     ],
 )
 def test_static_date_operations(lhs, op, rhs, expected):
@@ -354,3 +359,25 @@ def test_ehrql_date_operations(lhs, op, rhs, expected_type):
     else:
         assert False
     assert isinstance(result, expected_type)
+
+
+@pytest.mark.parametrize(
+    "lhs,op,rhs",
+    [
+        (days(10), "+", months(10)),
+        (days(10), "-", months(10)),
+        (days(10), "+", years(10)),
+        (days(10), "-", years(10)),
+        (months(10), "+", years(10)),
+        (months(10), "-", years(10)),
+    ],
+)
+def test_incompatible_duration_operations(lhs, op, rhs):
+    with pytest.raises(TypeError):
+        if op == "+":
+            result = lhs + rhs
+        elif op == "-":
+            result = lhs - rhs
+        else:
+            assert False
+        assert not result
