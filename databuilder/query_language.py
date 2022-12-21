@@ -415,7 +415,11 @@ class Duration:
 
     def __add__(self, other):
         other = parse_date_if_str(other)
-        if isinstance(other, datetime.date):
+        if not isinstance(other, datetime.date):
+            return NotImplemented
+
+        if isinstance(self.value, int):
+            # If `value` is static we can perfom the date arithmetic ourselves
             if self.units is Duration.Units.DAYS:
                 return date_utils.date_add_days(other, self.value)
             elif self.units is Duration.Units.MONTHS:
@@ -425,7 +429,9 @@ class Duration:
             else:
                 assert False
         else:
-            return NotImplemented
+            # Otherwise we wrap the date up as a Series and let the method in
+            # DateFunctions handle the addition
+            return _to_series(other).__add__(self)
 
     def __radd__(self, other):
         return self.__add__(other)
@@ -517,6 +523,16 @@ def _convert(arg):
     # Otherwise it's a static value and needs to be put in a query model Value wrapper
     else:
         return qm.Value(arg)
+
+
+def _to_series(value):
+    """
+    Return `value` as an ehrQL series
+
+    If it's already an ehrQL series this is a no-op; if it's a static value it will get
+    wrapped in a Series of the appropriate type.
+    """
+    return _wrap(_convert(value))
 
 
 # FRAME TYPES
