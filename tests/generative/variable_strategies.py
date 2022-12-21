@@ -18,6 +18,7 @@ from databuilder.query_model.nodes import (
     has_one_row_per_patient,
     node_types,
 )
+from tests.lib.query_model_utils import get_all_operations
 
 # Here follows a set of recursive strategies for constructing valid query model graphs.
 #
@@ -28,7 +29,7 @@ from databuilder.query_model.nodes import (
 # provide the constructor arguments (using the strategy corresponding to the types of the arguments).
 #
 # So each concrete node type appears in two places: in its own strategy and in the strategy of its immediate
-# supertype. And each abstract type appears in its own strategy, in the strategy of its immediate supertype and in
+# supertype**. And each abstract type appears in its own strategy, in the strategy of its immediate supertype and in
 # the strategies of any concrete nodes which have a constructor argument of that abstract type.
 #
 # When we invoke the strategy of an abstract type, it tugs at a thread that runs down through the type hierarchy
@@ -51,7 +52,15 @@ from databuilder.query_model.nodes import (
 #   constructing the query model objects using a special-purpose strategy `qm_builds`, which can discard invalid
 #   instances. There is an unexplored optimization avenue here: make the strategies more specific to include type
 #   and/or domain, so that we don't discard so many examples.
-from tests.lib.query_model_utils import get_all_operations
+#
+# **Note that most concrete strategies that take a series as an argument, and that series is an abstract `series`
+#   which can be of any type. However, strategies that require a date-type series as one or more arguments, such
+#   as date arithmetic operations, take a `date_series` strategy, which ensures that they only receive a
+#   series of the correct type. This limits the number of rejected examples, and therefore reduces the number of
+#   examples that need to be run in order to cover all nodes in the generative tests.
+#   This does mean that any concrete strategy that takes a date series now needs to appear in three places; its own
+#   strategy, and that of its two immediate supertypes (i.e. `unknown_dimension_series` and
+#   `unknown_dimension_date_series`)
 
 
 def variable(
@@ -69,6 +78,14 @@ def variable(
             unknown_dimension_series,
             definitely_one_row_patient_series,
             definitely_many_rows_per_patient_series,
+        )
+    )
+
+    date_series = st.deferred(
+        lambda: st.one_of(
+            unknown_dimension_date_series,
+            definitely_one_row_patient_date_series,
+            definitely_many_rows_per_patient_date_series,
         )
     )
 
@@ -105,6 +122,14 @@ def variable(
         )
     )
 
+    definitely_one_row_patient_date_series = st.deferred(
+        lambda: st.one_of(
+            date_value,
+            min_,
+            max_,
+        )
+    )
+
     many_rows_per_patient_series = st.deferred(
         lambda: st.one_of(
             unknown_dimension_series.filter(has_many_rows_per_patient),
@@ -115,6 +140,7 @@ def variable(
     # We don't currently have any examples of this type, but it's included here for consistency
     # and to make it clear where it fits in.
     definitely_many_rows_per_patient_series = st.deferred(lambda: st.one_of())
+    definitely_many_rows_per_patient_date_series = st.deferred(lambda: st.one_of())
 
     unknown_dimension_series = st.deferred(
         lambda: st.one_of(
@@ -142,6 +168,15 @@ def variable(
             date_difference_in_years,
             date_difference_in_months,
             date_difference_in_days,
+        )
+    )
+
+    unknown_dimension_date_series = st.deferred(
+        lambda: st.one_of(
+            select_date_column,
+            date_add_years,
+            date_add_months,
+            date_add_days,
             to_first_of_year,
             to_first_of_month,
         )
@@ -150,6 +185,7 @@ def variable(
     sorted_frame = st.deferred(lambda: st.one_of(sort))
 
     value = qm_builds(Value, st.one_of(int_values, bool_values, date_values))
+    date_value = qm_builds(Value, st.one_of(date_values))
 
     select_table = qm_builds(
         SelectTable,
@@ -163,6 +199,13 @@ def variable(
     )
     select_column = qm_builds(
         SelectColumn, frame, st.sampled_from(list(schema.column_names))
+    )
+    select_date_column = qm_builds(
+        SelectColumn,
+        frame,
+        st.sampled_from(
+            [name for name, type_ in schema.column_types if type_.__name__ == "date"]
+        ),
     )
 
     filter_ = qm_builds(Filter, many_rows_per_patient_frame, series)
@@ -199,19 +242,23 @@ def variable(
     subtract = qm_builds(Function.Subtract, series, series)
     multiply = qm_builds(Function.Multiply, series, series)
 
-    date_add_years = qm_builds(Function.DateAddYears, series, series)
-    date_add_months = qm_builds(Function.DateAddMonths, series, series)
-    date_add_days = qm_builds(Function.DateAddDays, series, series)
-    year_from_date = qm_builds(Function.YearFromDate, series)
-    month_from_date = qm_builds(Function.MonthFromDate, series)
-    day_from_date = qm_builds(Function.DayFromDate, series)
-    date_difference_in_years = qm_builds(Function.DateDifferenceInYears, series, series)
-    date_difference_in_months = qm_builds(
-        Function.DateDifferenceInMonths, series, series
+    date_add_years = qm_builds(Function.DateAddYears, date_series, series)
+    date_add_months = qm_builds(Function.DateAddMonths, date_series, series)
+    date_add_days = qm_builds(Function.DateAddDays, date_series, series)
+    year_from_date = qm_builds(Function.YearFromDate, date_series)
+    month_from_date = qm_builds(Function.MonthFromDate, date_series)
+    day_from_date = qm_builds(Function.DayFromDate, date_series)
+    date_difference_in_years = qm_builds(
+        Function.DateDifferenceInYears, date_series, date_series
     )
-    date_difference_in_days = qm_builds(Function.DateDifferenceInDays, series, series)
-    to_first_of_year = qm_builds(Function.ToFirstOfYear, series)
-    to_first_of_month = qm_builds(Function.ToFirstOfMonth, series)
+    date_difference_in_months = qm_builds(
+        Function.DateDifferenceInMonths, date_series, date_series
+    )
+    date_difference_in_days = qm_builds(
+        Function.DateDifferenceInDays, date_series, date_series
+    )
+    to_first_of_year = qm_builds(Function.ToFirstOfYear, date_series)
+    to_first_of_month = qm_builds(Function.ToFirstOfMonth, date_series)
 
     assert_complete_coverage()
 
