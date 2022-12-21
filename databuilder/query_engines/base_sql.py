@@ -217,6 +217,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_subtract(self, node):
         return operators.sub(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
+    @get_sql.register(Function.Multiply)
+    def get_sql_multiply(self, node):
+        return operators.mul(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
     @get_sql.register(Function.CastToInt)
     def get_sql_cast_to_int(self, node):
         return sqlalchemy.cast(self.get_expr(node.source), sqlalchemy.Integer)

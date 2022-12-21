@@ -130,6 +130,7 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
             or_,
             add,
             subtract,
+            multiply,
         )
     )
 
@@ -183,6 +184,7 @@ def variable(patient_tables, event_tables, schema, int_values, bool_values):
     negate = qm_builds(Function.Negate, series)
     add = qm_builds(Function.Add, series, series)
     subtract = qm_builds(Function.Subtract, series, series)
+    multiply = qm_builds(Function.Multiply, series, series)
 
     assert_complete_coverage()
 

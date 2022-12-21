@@ -239,6 +239,12 @@ class NumericFunctions(ComparableFunctions):
     def __rsub__(self, other):
         return other + -self
 
+    def __mul__(self, other):
+        return _apply(qm.Function.Multiply, self, other)
+
+    def __rmul__(self, other):
+        return self * other
+
     def as_int(self):
         return _apply(qm.Function.CastToInt, self)
 
