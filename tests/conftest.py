@@ -78,7 +78,7 @@ def mssql_database(containers, show_delayed_warning):
 def spark_database(containers, show_delayed_warning):
     with show_delayed_warning(3, "Downloading and starting Spark Docker image"):
         database = make_spark_database(containers)
-        wait_for_database(database, timeout=15)
+        wait_for_database(database, timeout=20)
     yield database
 
 
