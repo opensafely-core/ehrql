@@ -22,6 +22,8 @@ schema = TableSchema(
     b2=Column(bool),
     d1=Column(datetime.date),
     d2=Column(datetime.date),
+    f1=Column(float),
+    f2=Column(float),
 )
 (
     patient_classes,
@@ -36,6 +38,7 @@ bool_values = st.booleans()
 date_values = st.dates(
     min_value=datetime.date(1900, 1, 1), max_value=datetime.date(2100, 12, 31)
 )
+float_values = st.floats(min_value=0.0, max_value=11.0, width=16, allow_infinity=False)
 
 
 variable_strategy = variable_strategies.variable(
@@ -45,9 +48,16 @@ variable_strategy = variable_strategies.variable(
     int_values,
     bool_values,
     date_values,
+    float_values,
 )
 data_strategy = data_strategies.data(
-    patient_classes, event_classes, schema, int_values, bool_values, date_values
+    patient_classes,
+    event_classes,
+    schema,
+    int_values,
+    bool_values,
+    date_values,
+    float_values,
 )
 settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 100))),
