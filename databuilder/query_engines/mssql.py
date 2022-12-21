@@ -4,6 +4,7 @@ import secrets
 import sqlalchemy
 import structlog
 from sqlalchemy.schema import CreateIndex, DropTable
+from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
 
 from databuilder import sqlalchemy_types
@@ -42,7 +43,16 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         assert part in {"YEAR", "MONTH", "DAY"}
         return SQLFunction(part, date, type_=sqlalchemy_types.Integer)
 
+    def cast_if_literal(self, date):
+        # DATEADD will turn string literal dates into datetimes, which is not what we
+        # want, so if it's a string literal, explictly cast it to a Date first.
+        # see https://learn.microsoft.com/en-us/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-ver16#return-types
+        if isinstance(date, BindParameter):
+            return sqlalchemy.cast(date, sqlalchemy_types.Date)
+        return date
+
     def date_add_days(self, date, num_days):
+        date = self.cast_if_literal(date)
         return SQLFunction(
             "DATEADD",
             sqlalchemy.text("day"),
@@ -52,6 +62,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         )
 
     def date_add_months(self, date, num_months):
+        date = self.cast_if_literal(date)
         new_date = SQLFunction(
             "DATEADD",
             sqlalchemy.text("month"),
