@@ -1,3 +1,5 @@
+from datetime import date
+
 import hypothesis as hyp
 import hypothesis.strategies as st
 
@@ -10,12 +12,12 @@ max_num_patient_records = max_patient_id  # <= max_patient_id, hasn't been fine-
 max_num_event_records = max_patient_id  # could be anything, hasn't been fine-tuned
 
 
-def record(class_, id_strategy, schema, int_values, bool_values):
+def record(class_, id_strategy, schema, int_values, bool_values, date_values):
     # We don't construct the actual objects here because it's easier to extract stats for the generated data if we
     # pass around simple objects.
     columns = {patient_id_column: id_strategy}
     for name, type_ in schema.column_types:
-        type_strategy = {int: int_values, bool: bool_values}[type_]
+        type_strategy = {int: int_values, bool: bool_values, date: date_values}[type_]
         columns[name] = type_strategy
 
     return st.builds(dict, type=st.just(class_), **columns)
@@ -33,16 +35,16 @@ def concat(draw, *list_strategies):
 patient_ids = st.integers(min_value=1, max_value=max_patient_id)
 
 
-def event_records(class_, schema, int_values, bool_values):
+def event_records(class_, schema, int_values, bool_values, date_values):
     return st.lists(
-        record(class_, patient_ids, schema, int_values, bool_values),
+        record(class_, patient_ids, schema, int_values, bool_values, date_values),
         min_size=0,
         max_size=max_num_event_records,
     )
 
 
 @st.composite
-def patient_records(draw, class_, schema, int_values, bool_values):
+def patient_records(draw, class_, schema, int_values, bool_values, date_values):
     # This strategy ensures that the patient ids are unique. We need to maintain the state to ensure that uniqueness
     # inside the strategy itself so that we can ensure the tests are idempotent as Hypothesis requires. That means that
     # this strategy must be called once only for a given table in a given test.
@@ -53,15 +55,23 @@ def patient_records(draw, class_, schema, int_values, bool_values):
         id_ = draw_(patient_ids)
         hyp.assume(id_ not in used_ids)
         used_ids.append(id_)
-        return draw(record(class_, st.just(id_), schema, int_values, bool_values))
+        return draw(
+            record(class_, st.just(id_), schema, int_values, bool_values, date_values)
+        )
 
     return draw(
         st.lists(one_patient_record(), min_size=0, max_size=max_num_patient_records)
     )
 
 
-def data(patient_classes, event_classes, schema, int_values, bool_values):
+def data(patient_classes, event_classes, schema, int_values, bool_values, date_values):
     return concat(
-        *[patient_records(c, schema, int_values, bool_values) for c in patient_classes],
-        *[event_records(c, schema, int_values, bool_values) for c in event_classes]
+        *[
+            patient_records(c, schema, int_values, bool_values, date_values)
+            for c in patient_classes
+        ],
+        *[
+            event_records(c, schema, int_values, bool_values, date_values)
+            for c in event_classes
+        ]
     )
