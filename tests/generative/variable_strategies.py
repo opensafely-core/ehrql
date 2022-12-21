@@ -53,7 +53,7 @@ from tests.lib.query_model_utils import get_all_operations
 #   instances. There is an unexplored optimization avenue here: make the strategies more specific to include type
 #   and/or domain, so that we don't discard so many examples.
 #
-# **Note that most concrete strategies that take a series as an argument, and that series is an abstract `series`
+# **Note that most concrete strategies take a series as an argument, and that series is an abstract `series`
 #   which can be of any type. However, strategies that require a date-type series as one or more arguments, such
 #   as date arithmetic operations, take a `date_series` strategy, which ensures that they only receive a
 #   series of the correct type. This limits the number of rejected examples, and therefore reduces the number of
