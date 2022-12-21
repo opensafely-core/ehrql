@@ -133,6 +133,17 @@ def variable(
             add,
             subtract,
             multiply,
+            date_add_years,
+            date_add_months,
+            date_add_days,
+            year_from_date,
+            month_from_date,
+            day_from_date,
+            date_difference_in_years,
+            date_difference_in_months,
+            date_difference_in_days,
+            to_first_of_year,
+            to_first_of_month,
         )
     )
 
@@ -188,6 +199,20 @@ def variable(
     subtract = qm_builds(Function.Subtract, series, series)
     multiply = qm_builds(Function.Multiply, series, series)
 
+    date_add_years = qm_builds(Function.DateAddYears, series, series)
+    date_add_months = qm_builds(Function.DateAddMonths, series, series)
+    date_add_days = qm_builds(Function.DateAddDays, series, series)
+    year_from_date = qm_builds(Function.YearFromDate, series)
+    month_from_date = qm_builds(Function.MonthFromDate, series)
+    day_from_date = qm_builds(Function.DayFromDate, series)
+    date_difference_in_years = qm_builds(Function.DateDifferenceInYears, series, series)
+    date_difference_in_months = qm_builds(
+        Function.DateDifferenceInMonths, series, series
+    )
+    date_difference_in_days = qm_builds(Function.DateDifferenceInDays, series, series)
+    to_first_of_year = qm_builds(Function.ToFirstOfYear, series)
+    to_first_of_month = qm_builds(Function.ToFirstOfMonth, series)
+
     assert_complete_coverage()
 
     # Variables must be single values which have been reduced to the patient level. We also need to ensure that they
@@ -222,17 +247,6 @@ known_missing_operations = {
     Function.StringContains,
     Function.CastToFloat,
     Function.CastToInt,
-    Function.DateAddYears,
-    Function.DateAddMonths,
-    Function.DateAddDays,
-    Function.YearFromDate,
-    Function.MonthFromDate,
-    Function.DayFromDate,
-    Function.DateDifferenceInYears,
-    Function.DateDifferenceInMonths,
-    Function.DateDifferenceInDays,
-    Function.ToFirstOfYear,
-    Function.ToFirstOfMonth,
 }
 
 

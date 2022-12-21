@@ -1,5 +1,5 @@
+import datetime
 import os
-from datetime import date
 
 import hypothesis as hyp
 import hypothesis.strategies as st
@@ -16,8 +16,8 @@ schema = TableSchema(
     i2=Column(int),
     b1=Column(bool),
     b2=Column(bool),
-    d1=Column(date),
-    d2=Column(date),
+    d1=Column(datetime.date),
+    d2=Column(datetime.date),
 )
 (
     patient_classes,
@@ -29,7 +29,9 @@ schema = TableSchema(
 # Use the same strategies for values both for query generation and data generation.
 int_values = st.integers(min_value=0, max_value=10)
 bool_values = st.booleans()
-date_values = st.dates(min_value=date(1900, 1, 1), max_value=date(2100, 12, 31))
+date_values = st.dates(
+    min_value=datetime.date(1900, 1, 1), max_value=datetime.date(2100, 12, 31)
+)
 
 
 variable_strategy = variable_strategies.variable(
