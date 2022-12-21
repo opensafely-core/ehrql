@@ -32,7 +32,7 @@ from databuilder.query_model.nodes import (
     Value,
 )
 
-patients_schema = TableSchema(date_of_birth=Column(date))
+patients_schema = TableSchema(date_of_birth=Column(date), i=Column(int))
 patients = PatientFrame(SelectPatientTable("patients", patients_schema))
 events_schema = TableSchema(event_date=Column(date))
 events = EventFrame(SelectTable("coded_events", events_schema))
@@ -333,6 +333,14 @@ def test_static_date_operations(lhs, op, rhs, expected):
         ((patients.date_of_birth - "2020-01-01").days, "+", 1, IntPatientSeries),
         ((patients.date_of_birth - "2020-01-01").months, "+", 1, IntPatientSeries),
         ((patients.date_of_birth - "2020-01-01").years, "+", 1, IntPatientSeries),
+        # Test with a "dynamic" duration
+        (patients.date_of_birth, "+", days(patients.i), DatePatientSeries),
+        (patients.date_of_birth, "+", months(patients.i), DatePatientSeries),
+        (patients.date_of_birth, "+", years(patients.i), DatePatientSeries),
+        # Test with a dynamic duration and a static date
+        (date(2020, 1, 1), "+", days(patients.i), DatePatientSeries),
+        (date(2020, 1, 1), "+", months(patients.i), DatePatientSeries),
+        (date(2020, 1, 1), "+", years(patients.i), DatePatientSeries),
     ],
 )
 def test_ehrql_date_operations(lhs, op, rhs, expected_type):
