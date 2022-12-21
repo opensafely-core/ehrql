@@ -165,6 +165,8 @@ def variable(
             add,
             subtract,
             multiply,
+            cast_to_int,
+            cast_to_float,
             date_add_years,
             date_add_months,
             date_add_days,
@@ -250,6 +252,9 @@ def variable(
     subtract = qm_builds(Function.Subtract, series, series)
     multiply = qm_builds(Function.Multiply, series, series)
 
+    cast_to_int = qm_builds(Function.CastToInt, series)
+    cast_to_float = qm_builds(Function.CastToFloat, series)
+
     date_add_years = qm_builds(Function.DateAddYears, date_series, series)
     date_add_months = qm_builds(Function.DateAddMonths, date_series, series)
     date_add_days = qm_builds(Function.DateAddDays, date_series, series)
@@ -300,8 +305,6 @@ known_missing_operations = {
     Case,
     Function.In,
     Function.StringContains,
-    Function.CastToFloat,
-    Function.CastToInt,
 }
 
 
