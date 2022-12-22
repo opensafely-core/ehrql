@@ -415,11 +415,9 @@ class Duration:
 
     def __add__(self, other):
         other = parse_date_if_str(other)
-        if not isinstance(other, datetime.date):
-            return NotImplemented
-
-        if isinstance(self.value, int):
-            # If `value` is static we can perfom the date arithmetic ourselves
+        if isinstance(self.value, int) and isinstance(other, datetime.date):
+            # If we're adding a static duration to a static date we can perfom the date
+            # arithmetic ourselves
             if self.units is Duration.Units.DAYS:
                 return date_utils.date_add_days(other, self.value)
             elif self.units is Duration.Units.MONTHS:
@@ -428,10 +426,19 @@ class Duration:
                 return date_utils.date_add_years(other, self.value)
             else:
                 assert False
-        else:
-            # Otherwise we wrap the date up as a Series and let the method in
-            # DateFunctions handle the addition
+        elif isinstance(other, datetime.date):
+            # If we're adding a dynamic duration to a static date, we have to wrap the
+            # date up as a Series and let the method in DateFunctions handle it
             return _to_series(other).__add__(self)
+        elif isinstance(other, Duration) and self.units == other.units:
+            # Durations with the same units can be added
+            return Duration(units=self.units, value=(self.value + other.value))
+        else:
+            # Nothing else is handled
+            return NotImplemented
+
+    def __sub__(self, other):
+        return self.__add__(other.__neg__())
 
     def __radd__(self, other):
         return self.__add__(other)
