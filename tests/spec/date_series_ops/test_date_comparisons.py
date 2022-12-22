@@ -183,3 +183,145 @@ def test_is_not_in_strings(spec_test):
             4: None,
         },
     )
+
+
+table_data_for_between_tests = {
+    p: """
+          |     d1
+        --+------------
+        1 | 2010-01-01
+        2 | 2010-01-02
+        3 | 2010-01-03
+        4 | 2010-01-04
+        5 | 2010-01-05
+        6 |
+        """,
+}
+
+
+def test_is_between_dates(spec_test):
+    table_data = table_data_for_between_tests
+    spec_test(
+        table_data,
+        p.d1.is_between(date(2010, 1, 2), date(2010, 1, 4)),
+        {
+            1: False,
+            2: False,
+            3: True,
+            4: False,
+            5: False,
+            6: None,
+        },
+    )
+
+
+def test_is_on_or_between_dates(spec_test):
+    table_data = table_data_for_between_tests
+    spec_test(
+        table_data,
+        p.d1.is_on_or_between(date(2010, 1, 2), date(2010, 1, 4)),
+        {
+            1: False,
+            2: True,
+            3: True,
+            4: True,
+            5: False,
+            6: None,
+        },
+    )
+
+
+def test_is_between_strings(spec_test):
+    table_data = table_data_for_between_tests
+    spec_test(
+        table_data,
+        p.d1.is_between("2010-01-02", "2010-01-04"),
+        {
+            1: False,
+            2: False,
+            3: True,
+            4: False,
+            5: False,
+            6: None,
+        },
+    )
+
+
+def test_is_on_or_between_strings(spec_test):
+    table_data = table_data_for_between_tests
+    spec_test(
+        table_data,
+        p.d1.is_on_or_between("2010-01-02", "2010-01-04"),
+        {
+            1: False,
+            2: True,
+            3: True,
+            4: True,
+            5: False,
+            6: None,
+        },
+    )
+
+
+def test_is_between_dates_backwards(spec_test):
+    table_data = table_data_for_between_tests
+    spec_test(
+        table_data,
+        p.d1.is_between(date(2010, 1, 4), date(2010, 1, 2)),
+        {
+            1: False,
+            2: False,
+            3: False,
+            4: False,
+            5: False,
+            6: None,
+        },
+    )
+
+
+def test_is_on_or_between_dates_backwards(spec_test):
+    table_data = table_data_for_between_tests
+    spec_test(
+        table_data,
+        p.d1.is_on_or_between(date(2010, 1, 4), date(2010, 1, 2)),
+        {
+            1: False,
+            2: False,
+            3: False,
+            4: False,
+            5: False,
+            6: None,
+        },
+    )
+
+
+def test_is_between_strings_backwards(spec_test):
+    table_data = table_data_for_between_tests
+    spec_test(
+        table_data,
+        p.d1.is_between("2010-01-04", "2010-01-02"),
+        {
+            1: False,
+            2: False,
+            3: False,
+            4: False,
+            5: False,
+            6: None,
+        },
+    )
+
+
+def test_is_on_or_between_strings_backwards(spec_test):
+    table_data = table_data_for_between_tests
+    spec_test(
+        table_data,
+        p.d1.is_on_or_between("2010-01-04", "2010-01-02"),
+        {
+            1: False,
+            2: False,
+            3: False,
+            4: False,
+            5: False,
+            6: None,
+        },
+    )
