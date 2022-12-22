@@ -28,8 +28,8 @@ def null():
 
 def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patient):
     """
-    Given a SQLAlchemy ORM "declarative base" class, a table name and a schema, return
-    an ORM class with the schema of that table
+    Given a SQLAlchemy ORM "declarative base" class, a table name and a TableSchema,
+    return a ORM class with the appropriate columns
     """
     attributes = {"__tablename__": table_name}
 
@@ -54,7 +54,7 @@ def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patien
 def orm_class_from_qm_table(base_class, qm_table):
     """
     Given a SQLAlchemy ORM "declarative base" class and a QM table, return an ORM
-    class with the schema of that table
+    class with the appropriate columns
     """
     return orm_class_from_schema(
         base_class, qm_table.name, qm_table.schema, has_one_row_per_patient(qm_table)
@@ -64,7 +64,7 @@ def orm_class_from_qm_table(base_class, qm_table):
 def orm_class_from_ql_table(base_class, table):
     """
     Given a SQLAlchemy ORM "declarative base" class and a QL table, return an ORM
-    class with the schema of that table
+    class with the appropriate columns
     """
     return orm_class_from_qm_table(base_class, table.qm_node)
 
@@ -84,7 +84,7 @@ def orm_classes_from_ql_table_namespace(namespace):
 
 def orm_classes_from_qm_tables(qm_tables):
     """
-    Given a list of Query Model tables, return a list of corresponding ORM instances
+    Given a list of Query Model tables, return a list of corresponding ORM classes
     """
     Base = declarative_base()
     return [orm_class_from_qm_table(Base, table) for table in qm_tables]
