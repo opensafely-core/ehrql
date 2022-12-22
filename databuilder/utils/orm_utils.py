@@ -1,5 +1,6 @@
 import csv
 import datetime
+import functools
 from contextlib import ExitStack
 from types import SimpleNamespace
 
@@ -88,6 +89,56 @@ def orm_classes_from_qm_tables(qm_tables):
     """
     Base = declarative_base()
     return [orm_class_from_qm_table(Base, table) for table in qm_tables]
+
+
+def make_orm_models(*args):
+    """
+    Takes one or many dicts like:
+        {
+            patients: [dict(patient_id=1, sex="male")],
+            events: [
+                dict(patient_id=1, code="abc"),
+                dict(patient_id=1, code="xyz"),
+            ]
+        }
+
+    Where the keys are tables (either ehrQL tables or query model tables) and the values
+    are lists of rows. Yields a sequence of ORM model instances.
+    """
+    # Merge the supplied dicts so we can get the full set of tables used upfront
+    combined = {}
+    for table_data in args:
+        for table, rows in table_data.items():
+            combined.setdefault(table, []).extend(rows)
+    orm_classes = orm_classes_from_tables(combined.keys())
+    for table, rows in combined.items():
+        table_name = table.qm_node.name if isinstance(table, BaseFrame) else table.name
+        orm_class = orm_classes[table_name]
+        yield from (orm_class(**row) for row in rows)
+
+
+def orm_classes_from_tables(tables):
+    """
+    Takes an iterable of tables (either ehrQL tables or query model tables) and returns
+    a dict mapping table names to ORM classes
+    """
+    qm_tables = frozenset(
+        table.qm_node if isinstance(table, BaseFrame) else table for table in tables
+    )
+    return _orm_classes_from_qm_tables(qm_tables)
+
+
+# Apply caching so that when large numbers of tests use the same tables we aren't
+# constantly recreating ORM classes
+@functools.cache
+def _orm_classes_from_qm_tables(qm_tables: frozenset):
+    Base = declarative_base()
+    return {
+        table.name: orm_class_from_schema(
+            Base, table.name, table.schema, has_one_row_per_patient(table)
+        )
+        for table in qm_tables
+    }
 
 
 def table_has_one_row_per_patient(table):
