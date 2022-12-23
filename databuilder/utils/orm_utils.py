@@ -2,7 +2,6 @@ import csv
 import datetime
 import functools
 from contextlib import ExitStack
-from types import SimpleNamespace
 
 import sqlalchemy
 from sqlalchemy.orm import declarative_base
@@ -50,45 +49,6 @@ def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patien
     class_name = table_name.title().replace("_", "")
 
     return type(class_name, (base_class,), attributes)
-
-
-def orm_class_from_qm_table(base_class, qm_table):
-    """
-    Given a SQLAlchemy ORM "declarative base" class and a QM table, return an ORM
-    class with the appropriate columns
-    """
-    return orm_class_from_schema(
-        base_class, qm_table.name, qm_table.schema, has_one_row_per_patient(qm_table)
-    )
-
-
-def orm_class_from_ql_table(base_class, table):
-    """
-    Given a SQLAlchemy ORM "declarative base" class and a QL table, return an ORM
-    class with the appropriate columns
-    """
-    return orm_class_from_qm_table(base_class, table.qm_node)
-
-
-def orm_classes_from_ql_table_namespace(namespace):
-    """
-    Given a namespace containing QL tables, return a namespace where each QL table is
-    mapped to an equivalent ORM class
-    """
-    Base = declarative_base()
-    orm_classes = {"Base": Base}
-    for attr, value in vars(namespace).items():
-        if isinstance(value, BaseFrame):
-            orm_classes[attr] = orm_class_from_ql_table(Base, value)
-    return SimpleNamespace(**orm_classes)
-
-
-def orm_classes_from_qm_tables(qm_tables):
-    """
-    Given a list of Query Model tables, return a list of corresponding ORM classes
-    """
-    Base = declarative_base()
-    return [orm_class_from_qm_table(Base, table) for table in qm_tables]
 
 
 def make_orm_models(*args):
