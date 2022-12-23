@@ -9,6 +9,7 @@ from databuilder.query_model.nodes import (
     SelectColumn,
     SelectPatientTable,
     SelectTable,
+    TableSchema,
     Value,
     get_input_nodes,
     get_root_frame,
@@ -71,14 +72,30 @@ class TableInfo:
     """
 
     name: str
+    schema: TableSchema
     has_one_row_per_patient: bool
     columns: dict[str, ColumnInfo] = dataclasses.field(default_factory=dict)
 
-    # Act enough like a `query_model.TableSchema` that we can use this class with the
-    # `orm_utils` factory functions
-    @property
-    def column_types(self):
-        return [(name, column.type) for name, column in self.columns.items()]
+    @classmethod
+    def from_table(cls, table):
+        return cls(
+            name=table.name,
+            schema=table.schema,
+            has_one_row_per_patient=isinstance(table, SelectPatientTable),
+        )
+
+    def get_table_node(self):
+        """
+        Return a query model table node whose schema contains just the subset of the
+        original schema which is actually used in the query
+        """
+        cls = {False: SelectTable, True: SelectPatientTable}[
+            self.has_one_row_per_patient
+        ]
+        schema = TableSchema(
+            **{name: self.schema.get_column(name) for name in self.columns.keys()}
+        )
+        return cls(self.name, schema=schema)
 
 
 @dataclasses.dataclass
@@ -99,10 +116,7 @@ class QueryInfo:
 
         tables = {
             # Create a TableInfo object …
-            table.name: TableInfo(
-                name=table.name,
-                has_one_row_per_patient=isinstance(table, SelectPatientTable),
-            )
+            table.name: TableInfo.from_table(table)
             # … for every table used in the query (sorted for consistency)
             for table in sort_by_name(
                 by_type[SelectTable] | by_type[SelectPatientTable]
