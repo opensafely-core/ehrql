@@ -704,6 +704,16 @@ class Series:
         return instance._select_column(self.name)
 
 
+def get_tables_from_namespace(namespace):
+    """
+    Get all query model SelectTable/SelectPatientTable objects referenced by any Frames
+    contained in `namespace`
+    """
+    for attr, value in vars(namespace).items():
+        if isinstance(value, BaseFrame):
+            yield attr, value.qm_node
+
+
 # CASE EXPRESSION FUNCTIONS
 #
 

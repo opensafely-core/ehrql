@@ -2,7 +2,7 @@ import re
 
 import sqlalchemy
 
-from databuilder.query_language import BaseFrame
+from databuilder.query_language import get_tables_from_namespace
 from databuilder.sqlalchemy_types import type_from_python_type
 
 
@@ -149,13 +149,3 @@ class DefaultBackend:
                 for (name, type_) in schema.column_types
             ],
         )
-
-
-def get_tables_from_namespace(namespace):
-    """
-    Get all query model SelectTable/SelectPatientTable objects referenced by any Frames
-    contained in `namespace`
-    """
-    for attr, value in vars(namespace).items():
-        if isinstance(value, BaseFrame):
-            yield attr, value.qm_node
