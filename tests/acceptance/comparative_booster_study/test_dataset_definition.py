@@ -33,13 +33,10 @@ def _tpp_orm_metadata():
     return first_orm_class.metadata
 
 
-def test_dataset_definition_against_tpp_backend(request, engine):
-    if engine.query_engine_class is not TPPBackend.query_engine_class:
-        pytest.skip("TPPBackend is only designed for one query engine")
-
+def test_dataset_definition_against_tpp_backend(mssql_engine):
     # In contract to `_tpp_orm_metadata` above, this creates the schema as it actualy
     # exists in the TPP database, and therefore requires the `TPPBackend` to translate
     # it appropriately
-    engine.setup(metadata=tpp_schema.Base.metadata)
-    results = engine.extract(dataset, backend=TPPBackend())
+    mssql_engine.setup(metadata=tpp_schema.Base.metadata)
+    results = mssql_engine.extract(dataset, backend=TPPBackend())
     assert results == []
