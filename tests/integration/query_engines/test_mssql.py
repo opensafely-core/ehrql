@@ -6,7 +6,6 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.future.engine import Connection
 from sqlalchemy.sql import Select
 
-from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_model.nodes import (
     AggregateByPatient,
     Column,
@@ -14,10 +13,9 @@ from databuilder.query_model.nodes import (
     SelectPatientTable,
     TableSchema,
 )
-from databuilder.utils.orm_utils import orm_classes_from_tables
 
 
-def test_get_results_using_temporary_database(mssql_database):
+def test_get_results_using_temporary_database(mssql_engine):
     temp_database_name = "temp_tables"
 
     # Define a simple query and load some test data
@@ -26,14 +24,13 @@ def test_get_results_using_temporary_database(mssql_database):
         population=AggregateByPatient.Exists(patient_table),
         i=SelectColumn(patient_table, "i"),
     )
-    patients = orm_classes_from_tables([patient_table])["patients"]
-    mssql_database.setup(
-        patients(patient_id=1, i=10),
-        patients(patient_id=2, i=20),
-    )
-    query_engine = MSSQLQueryEngine(
-        mssql_database.host_url(),
-        config=dict(TEMP_DATABASE_NAME=temp_database_name),
+    mssql_engine.populate(
+        {
+            patient_table: [
+                dict(patient_id=1, i=10),
+                dict(patient_id=2, i=20),
+            ]
+        }
     )
 
     with wrap_select_queries() as select, mock.patch("time.sleep") as sleep:
@@ -44,9 +41,15 @@ def test_get_results_using_temporary_database(mssql_database):
             None,
         ]
 
-        results = query_engine.get_results(variable_definitions)
+        results = mssql_engine.extract_qm(
+            variable_definitions,
+            config=dict(TEMP_DATABASE_NAME=temp_database_name),
+        )
 
-        assert list(results) == [(1, 10), (2, 20)]
+        assert results == [
+            {"patient_id": 1, "i": 10},
+            {"patient_id": 2, "i": 20},
+        ]
         assert select.call_count == 3
         # We expect to sleep after each failure
         assert sleep.call_count == 2
@@ -56,7 +59,7 @@ def test_get_results_using_temporary_database(mssql_database):
     # Check that we were actually using the temporary database
     assert temp_database_name in str(query)
     # Check that the table we were querying has now been cleaned up
-    with mssql_database.engine().connect() as conn:
+    with mssql_engine.sqlalchemy_engine().connect() as conn:
         with pytest.raises(ProgrammingError, match="Invalid object name"):
             conn.execute(query)
 
