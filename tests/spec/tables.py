@@ -1,10 +1,7 @@
 import datetime
 
-import sqlalchemy.orm
-
 from databuilder.codes import SNOMEDCTCode
 from databuilder.tables import EventFrame, PatientFrame, Series, table
-from databuilder.utils.orm_utils import orm_class_from_ql_table
 
 
 @table
@@ -41,7 +38,3 @@ class event_level_table(EventFrame):
 # Define short aliases for terser tests
 p = patient_level_table
 e = event_level_table
-
-Base = sqlalchemy.orm.declarative_base()
-PatientLevelTable = orm_class_from_ql_table(Base, patient_level_table)
-EventLevelTable = orm_class_from_ql_table(Base, event_level_table)
