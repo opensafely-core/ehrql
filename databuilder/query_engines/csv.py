@@ -4,7 +4,7 @@ from databuilder.query_engines.in_memory import InMemoryQueryEngine
 from databuilder.query_engines.in_memory_database import InMemoryDatabase
 from databuilder.query_model.nodes import get_table_nodes
 from databuilder.utils.orm_utils import (
-    orm_classes_from_qm_tables,
+    orm_classes_from_tables,
     read_orm_models_from_csv_directory,
 )
 
@@ -26,10 +26,10 @@ class CSVQueryEngine(InMemoryQueryEngine):
         # Given the variables supplied determine the tables used and create
         # corresponding ORM classes
         table_nodes = get_table_nodes(*variable_definitions.values())
-        orm_classes = orm_classes_from_qm_tables(table_nodes)
+        orm_classes = orm_classes_from_tables(table_nodes)
         # Populate the database using CSV files in the supplied directory
         input_data = read_orm_models_from_csv_directory(
-            Path(self.csv_directory), orm_classes
+            Path(self.csv_directory), orm_classes.values()
         )
         self.dsn.setup(input_data)
 
