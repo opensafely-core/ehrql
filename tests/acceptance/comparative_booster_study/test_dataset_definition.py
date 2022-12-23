@@ -1,5 +1,3 @@
-import pytest
-
 from databuilder.backends.tpp import TPPBackend
 from databuilder.query_language import get_tables_from_namespace
 from databuilder.tables.beta import tpp
@@ -9,17 +7,10 @@ from tests.lib import tpp_schema
 from .dataset_definition import dataset
 
 
-def test_dataset_definition(engine):
-    # This test may not look like much but it confirms that the database schema can be
-    # created and that the dataset definition can be evaluated and compiled into valid
-    # SQL which runs without error against that schema, so it's not quite as trivial as
-    # it looks
-    if engine.name == "spark":
-        pytest.skip("spark tests are too slow")
-    if engine.name == "sqlite":
-        pytest.xfail("SQLite engine can't handle more than 64 variables")
-    engine.setup(metadata=_tpp_orm_metadata())
-    results = engine.extract(dataset)
+def test_dataset_definition(in_memory_engine):
+    # Rapid test that the dataset definition can be evaluated without error
+    in_memory_engine.setup(metadata=_tpp_orm_metadata())
+    results = in_memory_engine.extract(dataset)
     assert results == []
 
 
@@ -34,9 +25,9 @@ def _tpp_orm_metadata():
 
 
 def test_dataset_definition_against_tpp_backend(mssql_engine):
-    # In contract to `_tpp_orm_metadata` above, this creates the schema as it actualy
-    # exists in the TPP database, and therefore requires the `TPPBackend` to translate
-    # it appropriately
+    # This test may not look like much but it confirms that the dataset definition can
+    # be evaluated and compiled into valid SQL which runs without error against the TPP
+    # schema via the TPP backend, so it's not quite as trivial as it looks
     mssql_engine.setup(metadata=tpp_schema.Base.metadata)
     results = mssql_engine.extract(dataset, backend=TPPBackend())
     assert results == []

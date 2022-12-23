@@ -12,7 +12,9 @@ class events(EventFrame):
     value = Series(int)
 
 
-def test_create_sequential_variables(engine):
+def test_create_sequential_variables(in_memory_engine):
+    engine = in_memory_engine
+
     engine.populate(
         {events: [dict(patient_id=1, date=date(2020, n * 2, 1)) for n in range(1, 5)]},
         {events: [dict(patient_id=2, date=date(2020, n * 3, 1)) for n in range(1, 4)]},
@@ -43,7 +45,9 @@ def test_create_sequential_variables(engine):
     ]
 
 
-def test_create_sequential_variables_with_different_sort_column(engine):
+def test_create_sequential_variables_with_different_sort_column(in_memory_engine):
+    engine = in_memory_engine
+
     engine.populate(
         {
             events: [
