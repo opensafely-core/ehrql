@@ -4,7 +4,6 @@ from unittest import mock
 import pytest
 from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.future.engine import Connection
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import Select
 
 from databuilder.query_engines.mssql import MSSQLQueryEngine
@@ -15,7 +14,7 @@ from databuilder.query_model.nodes import (
     SelectPatientTable,
     TableSchema,
 )
-from databuilder.utils.orm_utils import orm_class_from_qm_table
+from databuilder.utils.orm_utils import orm_classes_from_tables
 
 
 def test_get_results_using_temporary_database(mssql_database):
@@ -27,7 +26,7 @@ def test_get_results_using_temporary_database(mssql_database):
         population=AggregateByPatient.Exists(patient_table),
         i=SelectColumn(patient_table, "i"),
     )
-    patients = orm_class_from_qm_table(declarative_base(), patient_table)
+    patients = orm_classes_from_tables([patient_table])["patients"]
     mssql_database.setup(
         patients(patient_id=1, i=10),
         patients(patient_id=2, i=20),
