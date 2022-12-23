@@ -41,7 +41,8 @@ class BaseBackend:
 
     @classmethod
     def validate_against_table_namespace(cls, table_namespace):
-        for attr, table in get_tables_from_namespace(table_namespace):
+        for attr, ql_table in get_tables_from_namespace(table_namespace):
+            table = ql_table.qm_node
             if table.name not in cls.tables:
                 raise ValidationError(
                     f"{cls} does not implement table '{table.name}' from "

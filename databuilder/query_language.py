@@ -706,12 +706,11 @@ class Series:
 
 def get_tables_from_namespace(namespace):
     """
-    Get all query model SelectTable/SelectPatientTable objects referenced by any Frames
-    contained in `namespace`
+    Yield all ehrQL tables contained in `namespace`
     """
     for attr, value in vars(namespace).items():
         if isinstance(value, BaseFrame):
-            yield attr, value.qm_node
+            yield attr, value
 
 
 # CASE EXPRESSION FUNCTIONS
