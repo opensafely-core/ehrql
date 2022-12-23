@@ -1,8 +1,9 @@
 import pytest
 
 from databuilder.backends.tpp import TPPBackend
+from databuilder.query_language import get_tables_from_namespace
 from databuilder.tables.beta import tpp
-from databuilder.utils.orm_utils import orm_classes_from_ql_table_namespace
+from databuilder.utils.orm_utils import orm_classes_from_tables
 from tests.lib import tpp_schema
 
 from .dataset_definition import dataset
@@ -17,16 +18,28 @@ def test_dataset_definition(engine):
         pytest.skip("spark tests are too slow")
     if engine.name == "sqlite":
         pytest.xfail("SQLite engine can't handle more than 64 variables")
-    orm_classes = orm_classes_from_ql_table_namespace(tpp)
-    engine.setup(metadata=orm_classes.Base.metadata)
+    engine.setup(metadata=_tpp_orm_metadata())
     results = engine.extract(dataset)
     assert results == []
+
+
+def _tpp_orm_metadata():
+    # Return a SQLAlchemy MetaData object which contains references to all the tables in
+    # the logical TPP schema (i.e. the schema we present in ehrQL)
+    orm_classes = orm_classes_from_tables(
+        table for _, table in get_tables_from_namespace(tpp)
+    )
+    first_orm_class = list(orm_classes.values())[0]
+    return first_orm_class.metadata
 
 
 def test_dataset_definition_against_tpp_backend(request, engine):
     if engine.query_engine_class is not TPPBackend.query_engine_class:
         pytest.skip("TPPBackend is only designed for one query engine")
 
+    # In contract to `_tpp_orm_metadata` above, this creates the schema as it actualy
+    # exists in the TPP database, and therefore requires the `TPPBackend` to translate
+    # it appropriately
     engine.setup(metadata=tpp_schema.Base.metadata)
     results = engine.extract(dataset, backend=TPPBackend())
     assert results == []
