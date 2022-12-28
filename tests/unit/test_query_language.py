@@ -7,6 +7,7 @@ from databuilder.query_language import (
     Dataset,
     DateDifference,
     DateEventSeries,
+    DateFunctions,
     DatePatientSeries,
     EventFrame,
     IntEventSeries,
@@ -387,12 +388,9 @@ def test_incompatible_duration_operations(lhs, op, rhs):
 @pytest.mark.parametrize(
     "fn_name",
     [
-        "is_after",
-        "is_before",
-        "is_on_or_after",
-        "is_on_or_before",
-        "is_between",
-        "is_on_or_between",
+        k
+        for k, v in DateFunctions.__dict__.items()
+        if callable(v) and not k.startswith("__")
     ],
 )
 def test_ehrql_date_string_equivalence(fn_name):
