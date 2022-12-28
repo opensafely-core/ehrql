@@ -1,4 +1,5 @@
 from datetime import date
+from inspect import signature
 
 import pytest
 
@@ -384,17 +385,17 @@ def test_incompatible_duration_operations(lhs, op, rhs):
 
 
 @pytest.mark.parametrize(
-    "fn_name, n_other",
+    "fn_name",
     [
-        ("is_after", 1),
-        ("is_before", 1),
-        ("is_on_or_after", 1),
-        ("is_on_or_before", 1),
-        ("is_between", 2),
-        ("is_on_or_between", 2),
+        "is_after",
+        "is_before",
+        "is_on_or_after",
+        "is_on_or_before",
+        "is_between",
+        "is_on_or_between",
     ],
 )
-def test_ehrql_date_string_equivalence(fn_name, n_other):
+def test_ehrql_date_string_equivalence(fn_name):
     date_str = "2000-01-01"
     date_date = date(2000, 1, 1)
 
@@ -403,6 +404,7 @@ def test_ehrql_date_string_equivalence(fn_name, n_other):
         d = Series(date)
 
     f = getattr(p.d, fn_name)
-    date_args = [date_date for i in range(n_other)]
-    str_args = [date_str for i in range(n_other)]
+    n_params = len(signature(f).parameters)
+    date_args = [date_date for i in range(n_params)]
+    str_args = [date_str for i in range(n_params)]
     assert f(*date_args).qm_node == f(*str_args).qm_node
