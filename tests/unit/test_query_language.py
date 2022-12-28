@@ -394,7 +394,7 @@ def test_incompatible_duration_operations(lhs, op, rhs):
         ("is_on_or_between", 2),
     ],
 )
-def test_ehrql_date_string_behaviour(fn_name, n_other):
+def test_ehrql_date_string_equivalence(fn_name, n_other):
     date_str = "2000-01-01"
     date_date = date(2000, 1, 1)
 
