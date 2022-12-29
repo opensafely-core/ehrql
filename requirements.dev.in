@@ -14,14 +14,10 @@ flake8-no-pep420
 hypothesis
 interrogate
 isort
-networkx
-pandas-stubs
 pip-tools
 pre-commit
 pydocstyle[toml]
 pytest
 pytest-cov
-pytest-freezegun
 pytest-mock
-pytest-subtests
 pyupgrade

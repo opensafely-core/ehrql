@@ -116,9 +116,7 @@ pandas==1.4.3 \
     --hash=sha256:d5ebc990bd34f4ac3c73a2724c2dcc9ee7bf1ce6cf08e87bb25c6ad33507e318 \
     --hash=sha256:d6c0106415ff1a10c326c49bc5dd9ea8b9897a6ca0c8688eb9c30ddec49535ef \
     --hash=sha256:e48fbb64165cda451c06a0f9e4c7a16b534fcabd32546d531b3c240ce2844112
-    # via
-    #   databricks-sql-connector
-    #   opensafely-databuilder (pyproject.toml)
+    # via databricks-sql-connector
 pyarrow==8.0.0 \
     --hash=sha256:03a10daad957970e914920b793f6a49416699e791f4c827927fd4e4d892a5d16 \
     --hash=sha256:15511ce2f50343f3fd5e9f7c30e4d004da9134e9597e93e9c96c3985928cbe82 \
