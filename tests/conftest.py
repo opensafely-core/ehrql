@@ -66,20 +66,56 @@ def containers():
     yield Containers()
 
 
+# Database fixtures {
+
+# These fixtures come in pairs.  For each database, there is a session-scoped fixture,
+# which performs any setup, and there is a function-scoped fixture, which reuses the
+# fixture returned by the session-scoped fixture.
+#
+# In most cases, we will want the function-scoped fixture, as this will allow post-test
+# teardown.  However, the generative tests require a session-scoped fixture.
+
+
 @pytest.fixture(scope="session")
-def mssql_database(containers, show_delayed_warning):
+def in_memory_sqlite_database_with_session_scope():
+    return InMemorySQLiteDatabase()
+
+
+@pytest.fixture(scope="function")
+def in_memory_sqlite_database(in_memory_sqlite_database_with_session_scope):
+    database = in_memory_sqlite_database_with_session_scope
+    yield database
+
+
+@pytest.fixture(scope="session")
+def mssql_database_with_session_scope(containers, show_delayed_warning):
     with show_delayed_warning(3, "Downloading and starting MSSQL Docker image"):
         database = make_mssql_database(containers)
         wait_for_database(database)
+    return database
+
+
+@pytest.fixture(scope="function")
+def mssql_database(mssql_database_with_session_scope):
+    database = mssql_database_with_session_scope
     yield database
 
 
 @pytest.fixture(scope="session")
-def spark_database(containers, show_delayed_warning):
+def spark_database_with_session_scope(containers, show_delayed_warning):
     with show_delayed_warning(3, "Downloading and starting Spark Docker image"):
         database = make_spark_database(containers)
         wait_for_database(database, timeout=20)
+    return database
+
+
+@pytest.fixture(scope="function")
+def spark_database(spark_database_with_session_scope):
+    database = spark_database_with_session_scope
     yield database
+
+
+# }
 
 
 class QueryEngineFixture:
@@ -113,35 +149,33 @@ class QueryEngineFixture:
         return self.query_engine_class(self.database.host_url()).engine
 
 
-@pytest.fixture(scope="session")
-def in_memory_sqlite_database():
-    return InMemorySQLiteDatabase()
-
-
 QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql", "spark")
 
 
-def engine_factory(request, engine_name):
-    # We dynamically request fixtures rather than making them arguments in the usual way
-    # so that we only start the database containers we actually need for the test run
-    fixture = request.getfixturevalue
-
+def engine_factory(request, engine_name, with_session_scope=False):
     if engine_name == "in_memory":
         return QueryEngineFixture(engine_name, InMemoryDatabase(), InMemoryQueryEngine)
-    elif engine_name == "sqlite":
-        return QueryEngineFixture(
-            engine_name, fixture("in_memory_sqlite_database"), SQLiteQueryEngine
-        )
+
+    if engine_name == "sqlite":
+        database_fixture_name = "in_memory_sqlite_database"
+        query_engine_class = SQLiteQueryEngine
     elif engine_name == "mssql":
-        return QueryEngineFixture(
-            engine_name, fixture("mssql_database"), MSSQLQueryEngine
-        )
+        database_fixture_name = "mssql_database"
+        query_engine_class = MSSQLQueryEngine
     elif engine_name == "spark":
-        return QueryEngineFixture(
-            engine_name, fixture("spark_database"), SparkQueryEngine
-        )
+        database_fixture_name = "spark_database"
+        query_engine_class = SparkQueryEngine
     else:
         assert False
+
+    if with_session_scope:
+        database_fixture_name = f"{database_fixture_name}_with_session_scope"
+
+    # We dynamically request fixtures rather than making them arguments in the usual way
+    # so that we only start the database containers we actually need for the test run
+    database = request.getfixturevalue(database_fixture_name)
+
+    return QueryEngineFixture(engine_name, database, query_engine_class)
 
 
 @pytest.fixture(params=QUERY_ENGINE_NAMES)
