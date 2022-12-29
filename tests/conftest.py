@@ -72,7 +72,7 @@ def containers():
 # which performs any setup, and there is a function-scoped fixture, which reuses the
 # fixture returned by the session-scoped fixture.
 #
-# In most cases, we will want the function-scoped fixture, as this will allow post-test
+# In most cases, we will want the function-scoped fixture, as this allows post-test
 # teardown.  However, the generative tests require a session-scoped fixture.
 
 
@@ -85,6 +85,7 @@ def in_memory_sqlite_database_with_session_scope():
 def in_memory_sqlite_database(in_memory_sqlite_database_with_session_scope):
     database = in_memory_sqlite_database_with_session_scope
     yield database
+    database.teardown()
 
 
 @pytest.fixture(scope="session")
@@ -99,6 +100,7 @@ def mssql_database_with_session_scope(containers, show_delayed_warning):
 def mssql_database(mssql_database_with_session_scope):
     database = mssql_database_with_session_scope
     yield database
+    database.teardown()
 
 
 @pytest.fixture(scope="session")
@@ -113,6 +115,7 @@ def spark_database_with_session_scope(containers, show_delayed_warning):
 def spark_database(spark_database_with_session_scope):
     database = spark_database_with_session_scope
     yield database
+    database.teardown()
 
 
 # }
@@ -126,6 +129,9 @@ class QueryEngineFixture:
 
     def setup(self, *items, metadata=None):
         return self.database.setup(*items, metadata=metadata)
+
+    def teardown(self):
+        return self.database.teardown()
 
     def extract(self, dataset, **engine_kwargs):
         variables = compile(dataset)

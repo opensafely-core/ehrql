@@ -28,12 +28,5 @@ def test_dataset_definition_against_tpp_backend(request, engine):
         pytest.skip("TPPBackend is only designed for one query engine")
 
     engine.setup(metadata=tpp_schema.Base.metadata)
-    # This is a workaroud for an awkwardness in our test setup process which I don't
-    # have time to fix properly now. See:
-    # https://github.com/opensafely-core/databuilder/issues/656
-    request.addfinalizer(
-        lambda: tpp_schema.Base.metadata.drop_all(engine.database.engine())
-    )
-
     results = engine.extract(dataset, backend=TPPBackend())
     assert results == []

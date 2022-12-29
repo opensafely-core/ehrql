@@ -47,6 +47,7 @@ class DbDetails:
         self.db_name = db_name
         self.query = query
         self.temp_db = temp_db
+        self.metadata = None
 
     def container_url(self):
         return self._url(self.host_from_container, self.port_from_container)
@@ -95,7 +96,7 @@ class DbDetails:
             assert False, "No source of metadata"
         assert all(item.metadata is metadata for item in input_data)
 
-        metadata.drop_all(engine)
+        self.metadata = metadata
         metadata.create_all(engine)
         session.bulk_save_objects(input_data)
 
@@ -104,6 +105,10 @@ class DbDetails:
                 sqlalchemy.text(f"CREATE DATABASE IF NOT EXISTS {self.temp_db}")
             )
         session.commit()
+
+    def teardown(self):
+        if self.metadata is not None:
+            self.metadata.drop_all(self.engine())
 
 
 def wait_for_database(database, timeout=10):

@@ -33,6 +33,10 @@ class InMemoryDatabase:
         for sqla_table, items in sqla_table_to_items.items():
             self.tables[sqla_table.name] = self.build_table(sqla_table, items)
 
+    def teardown(self):
+        # no-op
+        pass
+
     def build_table(self, sqla_table, items):
         col_names = [col.name for col in sqla_table.columns]
         if table_has_one_row_per_patient(sqla_table):

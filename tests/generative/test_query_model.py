@@ -99,8 +99,11 @@ def run_test(query_engines, data, variable):
 
 
 def run_with(engine, instances, variables):
-    engine.setup(instances, metadata=sqla_metadata)
-    return engine.extract_qm(variables)
+    try:
+        engine.setup(instances, metadata=sqla_metadata)
+        return engine.extract_qm(variables)
+    finally:
+        engine.teardown()
 
 
 def instantiate(data):
