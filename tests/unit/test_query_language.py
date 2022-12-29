@@ -405,4 +405,9 @@ def test_ehrql_date_string_equivalence(fn_name):
     n_params = len(signature(f).parameters)
     date_args = [date_date for i in range(n_params)]
     str_args = [date_str for i in range(n_params)]
+
+    if "in" in fn_name:
+        date_args = [date_args]
+        str_args = [str_args]
+
     assert f(*date_args).qm_node == f(*str_args).qm_node
