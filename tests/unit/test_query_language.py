@@ -388,31 +388,40 @@ def test_incompatible_duration_operations(lhs, op, rhs):
 
 @pytest.mark.parametrize(
     "fn_name",
-    {
-        k
-        for k, v in DateFunctions.__dict__.items()
-        if callable(v) and "add_" not in k and "sub_" not in k
-    }
-    | {
-        k
-        for k, v in BaseSeries.__dict__.items()
-        if callable(v) and "__" not in k and "map" not in k
+    (
+        {k for k, v in DateFunctions.__dict__.items() if callable(v)}
+        | {
+            k
+            for k, v in BaseSeries.__dict__.items()
+            # exclude dunder methods as lots inherited from dataclass
+            # which don't fit the test pattern below
+            if callable(v) and not k.startswith("__")
+        }
+    )
+    # exclude date arithmetic as returned DateDifference doesn't have a qm_node
+    - {
+        "__add__",
+        "__sub__",
+        "__radd__",
+        "__rsub__",
     },
 )
 def test_ehrql_date_string_equivalence(fn_name):
-    date_str = "2000-01-01"
-    date_date = date(2000, 1, 1)
-
     @table
     class p(PatientFrame):
         d = Series(date)
 
     f = getattr(p.d, fn_name)
     n_params = len(signature(f).parameters)
-    date_args = [date_date for i in range(n_params)]
-    str_args = [date_str for i in range(n_params)]
+    date_args = [date(2000, 1, 1) for i in range(n_params)]
+    str_args = ["2000-01-01" for i in range(n_params)]
 
-    if "in" in fn_name:
+    if fn_name == "map_values":
+        date_args = {d: "a" for d in date_args}
+        str_args = {s: "a" for s in str_args}
+
+    # avoid over-unpacking iterable params
+    if fn_name in ["is_in", "is_not_in", "map_values"]:
         date_args = [date_args]
         str_args = [str_args]
 
