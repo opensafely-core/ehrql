@@ -4,6 +4,7 @@ from inspect import signature
 import pytest
 
 from databuilder.query_language import (
+    BaseSeries,
     Dataset,
     DateDifference,
     DateEventSeries,
@@ -387,11 +388,16 @@ def test_incompatible_duration_operations(lhs, op, rhs):
 
 @pytest.mark.parametrize(
     "fn_name",
-    [
+    {
         k
         for k, v in DateFunctions.__dict__.items()
-        if callable(v) and not k.startswith("__")
-    ],
+        if callable(v) and "add_" not in k and "sub_" not in k
+    }
+    | {
+        k
+        for k, v in BaseSeries.__dict__.items()
+        if callable(v) and "__" not in k and "map" not in k
+    },
 )
 def test_ehrql_date_string_equivalence(fn_name):
     date_str = "2000-01-01"
