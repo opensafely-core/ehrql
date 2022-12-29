@@ -328,6 +328,12 @@ class DateFunctions(ComparableFunctions):
     def is_on_or_between(self, start, end):
         return (self >= start) & (self <= end)
 
+    def if_null_then(self, other):
+        return case(
+            when(self.is_not_null()).then(self),
+            default=parse_date_if_str(other),
+        )
+
     def __lt__(self, other):
         other = parse_date_if_str(other)
         return _apply(qm.Function.LT, self, other)
