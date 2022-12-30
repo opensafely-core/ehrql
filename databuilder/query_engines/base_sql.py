@@ -251,7 +251,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def string_replace(self, value, pattern, replacement):
         return SQLFunction(
-            "REPLACE", value, pattern, replacement, type=sqlalchemy_types.String
+            "REPLACE", value, pattern, replacement, type_=sqlalchemy_types.String
         )
 
     @get_sql.register(Function.YearFromDate)
