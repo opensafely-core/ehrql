@@ -101,6 +101,7 @@ filterwarnings = [
     "ignore::DeprecationWarning:docker.utils.utils:52",
     "ignore::DeprecationWarning:docker.utils.utils:53",
     "ignore::DeprecationWarning:pyhive.common:248",
+    "ignore::DeprecationWarning:pyhive.sqlalchemy_hive:20",
 ]
 env = [
     # Enable deprecation warnings for SQLAlchemy 2.0. See:
