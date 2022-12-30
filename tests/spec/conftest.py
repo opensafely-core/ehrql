@@ -11,7 +11,9 @@ from databuilder.query_model.nodes import get_series_type
 def spec_test(request, engine):
 
     # Test that we can insert the data, run the query, and get the expected results
-    def run_test_execute(table_data, series, expected_results, population=None):
+    def run_test_execute(
+        table_data, series, expected_results, population=None, codelists=None
+    ):
         # Populate database tables.
         engine.populate(
             {
