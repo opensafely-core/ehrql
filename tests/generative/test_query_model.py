@@ -58,7 +58,7 @@ def query_engines(request):
     # engine and so returns them one at a time, this fixture constructs and returns all
     # the engines together at once
     return {
-        name: engine_factory(request, name)
+        name: engine_factory(request, name, with_session_scope=True)
         for name in QUERY_ENGINE_NAMES
         # The Spark engine is still too slow to run generative tests against
         if name != "spark"
@@ -99,8 +99,11 @@ def run_test(query_engines, data, variable):
 
 
 def run_with(engine, instances, variables):
-    engine.setup(instances, metadata=sqla_metadata)
-    return engine.extract_qm(variables)
+    try:
+        engine.setup(instances, metadata=sqla_metadata)
+        return engine.extract_qm(variables)
+    finally:
+        engine.teardown()
 
 
 def instantiate(data):
