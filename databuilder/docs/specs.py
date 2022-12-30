@@ -104,6 +104,9 @@ def build_paragraph(paragraph_id, test_fn):
     # Extract descriptive docstring if any
     text = inspect.getdoc(test_fn)
 
+    # Convert codelists to simplified serialisable representation
+    codelists = parse_codelists(capturer.codelists)
+
     return concatenate_optional_text(
         {
             "id": paragraph_id,
@@ -111,6 +114,7 @@ def build_paragraph(paragraph_id, test_fn):
             "tables": tables,
             "series": series,
             "output": output,
+            "codelists": codelists,
         },
         text,
     )
@@ -219,6 +223,18 @@ def parse_table(s):
     return [[token.strip() for token in line.split("|")] for line in [header] + rows]
 
 
+def parse_codelists(codelists):
+    if codelists:
+        return [
+            {
+                "name": k,
+                "system": list(v.codes)[0].__doc__,
+                "codes": [c.value for c in v.codes],
+            }
+            for k, v in codelists.items()
+        ]
+
+
 def convert_output_value(value):
     """Make output value suitable for displaying in table.
 
@@ -249,3 +265,4 @@ class ArgCapturer:
         self.series = series
         self.expected_output = expected_output
         self.set_population = population is not None
+        self.codelists = codelists
