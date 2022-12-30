@@ -6,30 +6,23 @@ from databuilder.ehrql import Dataset
 from databuilder.query_language import compile
 from databuilder.query_model.nodes import get_series_type
 
-from . import tables
-
 
 @pytest.fixture(params=["execute", "dump_sql"])
 def spec_test(request, engine):
 
     # Test that we can insert the data, run the query, and get the expected results
     def run_test_execute(table_data, series, expected_results, population=None):
-        # Create SQLAlchemy model instances for each row of each table in table_data.
-        input_data = []
-        for table, s in table_data.items():
-            model = {
-                tables.p: tables.PatientLevelTable,
-                tables.e: tables.EventLevelTable,
-            }[table]
-            schema = table.qm_node.schema
-            input_data.extend(model(**row) for row in parse_table(schema, s))
-
         # Populate database tables.
-        engine.setup(*input_data)
+        engine.populate(
+            {
+                table: parse_table(table.qm_node.schema, s)
+                for table, s in table_data.items()
+            }
+        )
 
         # Create a Dataset with the specified population and a single variable which is
         # the series under test.
-        dataset = make_dataset(population)
+        dataset = make_dataset(table_data, population)
         dataset.v = series
 
         # If we're expecting floats then we want only approximate equality to account
@@ -52,7 +45,7 @@ def spec_test(request, engine):
     def run_test_dump_sql(table_data, series, expected_results, population=None):
         # Create a Dataset with the specified population and a single variable which is
         # the series under test.
-        dataset = make_dataset(population)
+        dataset = make_dataset(table_data, population)
         dataset.v = series
 
         # Check that we can generate SQL without error
@@ -70,11 +63,13 @@ def spec_test(request, engine):
         assert False
 
 
-def make_dataset(population=None):
+def make_dataset(table_data, population=None):
     # To reduce noise in the tests we provide a default population which contains all
-    # patients in tables p and e
+    # patients in any tables referenced in the data
     if population is None:
-        population = tables.p.exists_for_patient() | tables.e.exists_for_patient()
+        population = False
+        for table in table_data.keys():
+            population = table.exists_for_patient() | population
     dataset = Dataset()
     dataset.set_population(population)
     return dataset

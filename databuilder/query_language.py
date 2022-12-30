@@ -704,6 +704,15 @@ class Series:
         return instance._select_column(self.name)
 
 
+def get_tables_from_namespace(namespace):
+    """
+    Yield all ehrQL tables contained in `namespace`
+    """
+    for attr, value in vars(namespace).items():
+        if isinstance(value, BaseFrame):
+            yield attr, value
+
+
 # CASE EXPRESSION FUNCTIONS
 #
 

@@ -13,6 +13,7 @@ from databuilder.query_engines.mssql import MSSQLQueryEngine
 from databuilder.query_engines.spark import SparkQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import compile
+from databuilder.utils.orm_utils import make_orm_models
 
 from .lib.databases import (
     InMemorySQLiteDatabase,
@@ -133,6 +134,9 @@ class QueryEngineFixture:
     def teardown(self):
         return self.database.teardown()
 
+    def populate(self, *args):
+        return self.setup(make_orm_models(*args))
+
     def extract(self, dataset, **engine_kwargs):
         variables = compile(dataset)
         return self.extract_qm(variables, **engine_kwargs)
@@ -187,6 +191,16 @@ def engine_factory(request, engine_name, with_session_scope=False):
 @pytest.fixture(params=QUERY_ENGINE_NAMES)
 def engine(request):
     return engine_factory(request, request.param)
+
+
+@pytest.fixture
+def mssql_engine(request):
+    return engine_factory(request, "mssql")
+
+
+@pytest.fixture
+def in_memory_engine(request):
+    return engine_factory(request, "in_memory")
 
 
 @pytest.fixture(scope="session")

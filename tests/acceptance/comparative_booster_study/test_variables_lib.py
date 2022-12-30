@@ -1,37 +1,29 @@
 from datetime import date
-from types import SimpleNamespace
-
-import pytest
-import sqlalchemy.orm
 
 from databuilder.ehrql import Dataset
 from databuilder.query_language import EventFrame, Series, table
-from databuilder.utils.orm_utils import orm_class_from_ql_table
 
 from .variables_lib import create_sequential_variables
 
 
-@pytest.fixture
-def schema():
-    @table
-    class events(EventFrame):
-        date = Series(date)
-        value = Series(int)
-
-    Event = orm_class_from_ql_table(sqlalchemy.orm.declarative_base(), events)
-    return SimpleNamespace(events=events, Event=Event)
+@table
+class events(EventFrame):
+    date = Series(date)
+    value = Series(int)
 
 
-def test_create_sequential_variables(engine, schema):
-    engine.setup(
-        [schema.Event(patient_id=1, date=date(2020, n * 2, 1)) for n in range(1, 5)],
-        [schema.Event(patient_id=2, date=date(2020, n * 3, 1)) for n in range(1, 4)],
+def test_create_sequential_variables(in_memory_engine):
+    engine = in_memory_engine
+
+    engine.populate(
+        {events: [dict(patient_id=1, date=date(2020, n * 2, 1)) for n in range(1, 5)]},
+        {events: [dict(patient_id=2, date=date(2020, n * 3, 1)) for n in range(1, 4)]},
     )
 
     dataset = Dataset()
-    dataset.set_population(schema.events.exists_for_patient())
+    dataset.set_population(events.exists_for_patient())
 
-    frame = schema.events.take(schema.events.date.is_on_or_after("2020-04-01"))
+    frame = events.take(events.date.is_on_or_after("2020-04-01"))
     create_sequential_variables(
         dataset, "date_{n}", frame, column="date", num_variables=3
     )
@@ -53,22 +45,28 @@ def test_create_sequential_variables(engine, schema):
     ]
 
 
-def test_create_sequential_variables_with_different_sort_column(engine, schema):
-    engine.setup(
-        [
-            schema.Event(patient_id=1, date=date(2020, n * 2, 1), value=n)
-            for n in range(1, 5)
-        ],
-        [
-            schema.Event(patient_id=2, date=date(2020, n * 3, 1), value=n)
-            for n in range(1, 4)
-        ],
+def test_create_sequential_variables_with_different_sort_column(in_memory_engine):
+    engine = in_memory_engine
+
+    engine.populate(
+        {
+            events: [
+                dict(patient_id=1, date=date(2020, n * 2, 1), value=n)
+                for n in range(1, 5)
+            ]
+        },
+        {
+            events: [
+                dict(patient_id=2, date=date(2020, n * 3, 1), value=n)
+                for n in range(1, 4)
+            ]
+        },
     )
 
     dataset = Dataset()
-    dataset.set_population(schema.events.exists_for_patient())
+    dataset.set_population(events.exists_for_patient())
 
-    frame = schema.events.take(schema.events.date.is_on_or_after("2020-04-01"))
+    frame = events.take(events.date.is_on_or_after("2020-04-01"))
     create_sequential_variables(
         dataset, "value_{n}", frame, column="value", sort_column="date", num_variables=3
     )

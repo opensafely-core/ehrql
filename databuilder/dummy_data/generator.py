@@ -4,12 +4,11 @@ import time
 from datetime import date, timedelta
 
 import structlog
-from sqlalchemy.orm import declarative_base
 
 from databuilder.dummy_data.query_info import QueryInfo
 from databuilder.query_engines.in_memory import InMemoryQueryEngine
 from databuilder.query_engines.in_memory_database import InMemoryDatabase
-from databuilder.utils.orm_utils import orm_class_from_schema
+from databuilder.utils.orm_utils import orm_classes_from_tables
 
 log = structlog.getLogger()
 
@@ -112,16 +111,10 @@ class DummyPatientGenerator:
 
         self.query_info = QueryInfo.from_variable_definitions(variable_definitions)
         # Create ORM classes for each of the tables used in the dataset definition
-        Base = declarative_base()
-        self.orm_classes = {
-            table_info.name: orm_class_from_schema(
-                Base,
-                table_info.name,
-                table_info,
-                table_info.has_one_row_per_patient,
-            )
+        self.orm_classes = orm_classes_from_tables(
+            table_info.get_table_node()
             for table_info in self.query_info.tables.values()
-        }
+        )
 
     def get_patient_data_for_population_condition(self, patient_id):
         # Generate data for just those tables needed for determining whether the patient
