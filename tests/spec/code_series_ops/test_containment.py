@@ -27,7 +27,7 @@ def test_is_in(spec_test):
             3: True,
             4: None,
         },
-        codelists=[codelist],
+        codelists={"Test SNOMED-CT Codelist": codelist},
     )
 
 
@@ -42,7 +42,7 @@ def test_is_not_in(spec_test):
             3: False,
             4: None,
         },
-        codelists=[codelist],
+        codelists={"Test SNOMED-CT Codelist": codelist},
     )
 
 
@@ -67,5 +67,5 @@ def test_is_in_codelist_csv(spec_test):
             3: True,
             4: None,
         },
-        codelists=[codelist],
+        codelists={"Test SNOMED-CT Codelist": codelist},
     )
