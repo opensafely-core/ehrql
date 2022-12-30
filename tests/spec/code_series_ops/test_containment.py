@@ -17,28 +17,32 @@ table_data = {
 
 
 def test_is_in(spec_test):
+    codelist = [SNOMEDCTCode("abc"), SNOMEDCTCode("ghi")]
     spec_test(
         table_data,
-        p.c1.is_in([SNOMEDCTCode("abc"), SNOMEDCTCode("ghi")]),
+        p.c1.is_in(codelist),
         {
             1: True,
             2: False,
             3: True,
             4: None,
         },
+        codelists=[codelist],
     )
 
 
 def test_is_not_in(spec_test):
+    codelist = [SNOMEDCTCode("abc"), SNOMEDCTCode("ghi")]
     spec_test(
         table_data,
-        p.c1.is_not_in([SNOMEDCTCode("abc"), SNOMEDCTCode("ghi")]),
+        p.c1.is_not_in(codelist),
         {
             1: False,
             2: True,
             3: False,
             4: None,
         },
+        codelists=[codelist],
     )
 
 
@@ -63,4 +67,5 @@ def test_is_in_codelist_csv(spec_test):
             3: True,
             4: None,
         },
+        codelists=[codelist],
     )
