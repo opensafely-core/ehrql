@@ -498,7 +498,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         row_number = subquery_columns[-1]
 
         # Select the first row for each patient according to the above row numbering
-        partitioned_query = sqlalchemy.select(output_columns).where(row_number == 1)
+        partitioned_query = sqlalchemy.select(*output_columns).where(row_number == 1)
 
         return self.reify_query(partitioned_query)
 
