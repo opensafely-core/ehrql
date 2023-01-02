@@ -19,5 +19,6 @@ pre-commit
 pydocstyle[toml]
 pytest
 pytest-cov
+pytest-env
 pytest-mock
 pyupgrade

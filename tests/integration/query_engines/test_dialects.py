@@ -11,12 +11,10 @@ def test_case_statement(engine):
         pytest.skip("SQLAlchemy dialect tests do not apply to the in-memory engine")
 
     case_statement = sqlalchemy.case(
-        [
-            (sqlalchemy.literal(1) == 0, "foo"),
-            (sqlalchemy.literal(1) == 1, "bar"),
-        ]
+        (sqlalchemy.literal(1) == 0, "foo"),
+        (sqlalchemy.literal(1) == 1, "bar"),
     )
     query = sqlalchemy.select(case_statement.label("output"))
     with engine.sqlalchemy_engine().connect() as conn:
         results = list(conn.execute(query))
-    assert results[0]["output"] == "bar"
+    assert results[0].output == "bar"

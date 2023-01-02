@@ -251,7 +251,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def string_replace(self, value, pattern, replacement):
         return SQLFunction(
-            "REPLACE", value, pattern, replacement, type=sqlalchemy_types.String
+            "REPLACE", value, pattern, replacement, type_=sqlalchemy_types.String
         )
 
     @get_sql.register(Function.YearFromDate)
@@ -498,7 +498,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         row_number = subquery_columns[-1]
 
         # Select the first row for each patient according to the above row numbering
-        partitioned_query = sqlalchemy.select(output_columns).where(row_number == 1)
+        partitioned_query = sqlalchemy.select(*output_columns).where(row_number == 1)
 
         return self.reify_query(partitioned_query)
 
@@ -544,14 +544,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @cached_property
     def engine(self):
-        engine_url = sqlalchemy.engine.make_url(self.dsn)
-        # Hardcode the specific SQLAlchemy dialect we want to use: this is the
-        # dialect the query engine will have been written for and tested with and we
-        # don't want to allow global config changes to alter this
-        engine_url._get_entrypoint = lambda: self.sqlalchemy_dialect
+        # Insert the specific SQLAlchemy dialect we want to use into the dialect
+        # registry: this is the dialect the query engine will have been written for and
+        # tested with and we don't want to allow global config changes to alter this
+        dialect_name = self.sqlalchemy_dialect.__name__
+        sqlalchemy.dialects.registry.impls[dialect_name] = self.sqlalchemy_dialect
+        engine_url = sqlalchemy.engine.make_url(self.dsn).set(drivername=dialect_name)
         engine = sqlalchemy.create_engine(engine_url, future=True)
         # The above relies on abusing SQLAlchemy internals so it's possible it will
-        # break in future -- we want to know immediately if it does
+        # break in future — we want to know immediately if it does
         assert isinstance(engine.dialect, self.sqlalchemy_dialect)
         return engine
 

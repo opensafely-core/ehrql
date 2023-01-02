@@ -62,7 +62,7 @@ def select_all(request, mssql_database):
         mssql_database.setup(*input_data)
         with mssql_database.engine().connect() as connection:
             results = connection.execute(select_all_query)
-            return [dict(row) for row in results]
+            return [row._asdict() for row in results]
 
     return _select_all
 
