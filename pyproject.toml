@@ -102,3 +102,8 @@ filterwarnings = [
     "ignore::DeprecationWarning:docker.utils.utils:53",
     "ignore::DeprecationWarning:pyhive.common:248",
 ]
+env = [
+    # Enable deprecation warnings for SQLAlchemy 2.0. See:
+    # https://docs.sqlalchemy.org/en/14/changelog/migration_20.html#migration-to-2-0-step-two-turn-on-removedin20warnings
+    "SQLALCHEMY_WARN_20=1",
+]
