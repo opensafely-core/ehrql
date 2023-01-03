@@ -91,12 +91,20 @@ class BaseSeries:
             "such as 'a < b < c'.)"
         )
 
+    @staticmethod
+    def _cast(value):
+        # Series have the opportunity to cast arguments to their methods e.g. to convert
+        # ISO date strings to date objects. By default, this is a no-op.
+        return value
+
     # These are the basic operations that apply to any series regardless of type or
     # dimension
     def __eq__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.EQ, self, other)
 
     def __ne__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.NE, self, other)
 
     def is_null(self):
@@ -106,10 +114,12 @@ class BaseSeries:
         return self.is_null().__invert__()
 
     def is_in(self, other):
-        # The query model requires an immutable Set type for containment queries, but
-        # that's a bit user-unfriendly so we accept other types here and convert them
-        if isinstance(other, (tuple, list, set)):
-            other = frozenset(other)
+        # For iterable arguments, apply any necessary casting and convert to the
+        # immutable Set type required by the query model. We don't accept arbitrary
+        # iterables here because too many types in Python are iterable and there's the
+        # potential for confusion amongst the less experienced of our users.
+        if isinstance(other, (tuple, list, set, frozenset)):
+            other = frozenset(map(self._cast, other))
         return _apply(qm.Function.In, self, other)
 
     def is_not_in(self, other):
@@ -128,7 +138,7 @@ class BaseSeries:
     def if_null_then(self, other):
         return case(
             when(self.is_not_null()).then(self),
-            default=other,
+            default=self._cast(other),
         )
 
 
@@ -158,9 +168,11 @@ class BoolFunctions:
         return _apply(qm.Function.Not, self)
 
     def __and__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.And, self, other)
 
     def __or__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.Or, self, other)
 
 
@@ -178,15 +190,19 @@ class BoolPatientSeries(BoolFunctions, PatientSeries):
 
 class ComparableFunctions:
     def __lt__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.LT, self, other)
 
     def __le__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.LE, self, other)
 
     def __ge__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.GE, self, other)
 
     def __gt__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.GT, self, other)
 
 
@@ -204,6 +220,7 @@ class ComparableAggregations:
 
 class StrFunctions(ComparableFunctions):
     def contains(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.StringContains, self, other)
 
 
@@ -228,18 +245,21 @@ class NumericFunctions(ComparableFunctions):
         return _apply(qm.Function.Negate, self)
 
     def __add__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.Add, self, other)
 
     def __radd__(self, other):
         return self + other
 
     def __sub__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.Subtract, self, other)
 
     def __rsub__(self, other):
         return other + -self
 
     def __mul__(self, other):
+        other = self._cast(other)
         return _apply(qm.Function.Multiply, self, other)
 
     def __rmul__(self, other):
@@ -285,6 +305,10 @@ def parse_date_if_str(value):
 
 
 class DateFunctions(ComparableFunctions):
+    @staticmethod
+    def _cast(value):
+        return parse_date_if_str(value)
+
     @property
     def year(self):
         return _apply(qm.Function.YearFromDate, self)
@@ -296,6 +320,12 @@ class DateFunctions(ComparableFunctions):
     @property
     def day(self):
         return _apply(qm.Function.DayFromDate, self)
+
+    def to_first_of_year(self):
+        return _apply(qm.Function.ToFirstOfYear, self)
+
+    def to_first_of_month(self):
+        return _apply(qm.Function.ToFirstOfMonth, self)
 
     def is_before(self, other):
         return self.__lt__(other)
@@ -309,50 +339,11 @@ class DateFunctions(ComparableFunctions):
     def is_on_or_after(self, other):
         return self.__ge__(other)
 
-    def is_in(self, other):
-        # The query model requires an immutable Set type for containment queries, but
-        # that's a bit user-unfriendly so we accept other types here and convert them
-        # whilst parsing any ISO date strings in the collection
-        other = frozenset(map(parse_date_if_str, other))
-        return _apply(qm.Function.In, self, other)
-
-    def to_first_of_year(self):
-        return _apply(qm.Function.ToFirstOfYear, self)
-
-    def to_first_of_month(self):
-        return _apply(qm.Function.ToFirstOfMonth, self)
-
     def is_between(self, start, end):
         return (self > start) & (self < end)
 
     def is_on_or_between(self, start, end):
         return (self >= start) & (self <= end)
-
-    def if_null_then(self, other):
-        return case(
-            when(self.is_not_null()).then(self),
-            default=parse_date_if_str(other),
-        )
-
-    def __lt__(self, other):
-        other = parse_date_if_str(other)
-        return _apply(qm.Function.LT, self, other)
-
-    def __le__(self, other):
-        other = parse_date_if_str(other)
-        return _apply(qm.Function.LE, self, other)
-
-    def __ge__(self, other):
-        other = parse_date_if_str(other)
-        return _apply(qm.Function.GE, self, other)
-
-    def __gt__(self, other):
-        other = parse_date_if_str(other)
-        return _apply(qm.Function.GT, self, other)
-
-    def __eq__(self, other):
-        other = parse_date_if_str(other)
-        return _apply(qm.Function.EQ, self, other)
 
     def __add__(self, other):
         if isinstance(other, Duration):
@@ -371,16 +362,16 @@ class DateFunctions(ComparableFunctions):
         return self.__add__(other)
 
     def __sub__(self, other):
-        other = parse_date_if_str(other)
+        other = self._cast(other)
         if isinstance(other, Duration):
-            return self.__add__(Duration(other.value.__neg__(), other.units))
+            return self.__add__(other.__neg__())
         elif isinstance(other, (datetime.date, DateEventSeries, DatePatientSeries)):
             return DateDifference(self, other)
         else:
             return NotImplemented
 
     def __rsub__(self, other):
-        other = parse_date_if_str(other)
+        other = self._cast(other)
         if isinstance(other, (datetime.date, DateEventSeries, DatePatientSeries)):
             return DateDifference(other, self)
         else:
