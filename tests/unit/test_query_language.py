@@ -386,8 +386,7 @@ def test_incompatible_duration_operations(lhs, op, rhs):
         assert not result
 
 
-@pytest.mark.parametrize(
-    "fn_name",
+fn_names = sorted(
     (
         {k for k, v in DateFunctions.__dict__.items() if callable(v)}
         | {
@@ -406,6 +405,9 @@ def test_incompatible_duration_operations(lhs, op, rhs):
         "__rsub__",
     },
 )
+
+
+@pytest.mark.parametrize("fn_name", fn_names)
 def test_ehrql_date_string_equivalence(fn_name):
     @table
     class p(PatientFrame):
