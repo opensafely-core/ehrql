@@ -30,7 +30,7 @@ def pytest_collection_modifyitems(session, config, items):  # pragma: no cover
     which database is used by the test.
 
     This lets us use pytest-xdist to distribute tests across three processes leading to
-    a moderate speed-up, via `pytest --dist loadgroup -n 3`.
+    a moderate speed-up, via `pytest -n3`.
 
     The "proper" way to distribute tests with pytest-xdist is by adding the xdist_group
     mark.  However, this is very hard to do dynamically (because of our use of

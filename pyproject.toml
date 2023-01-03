@@ -89,7 +89,7 @@ add_ignore = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--tb=native --strict-markers"
+addopts = "--tb=native --strict-markers --dist=loadgroup"
 testpaths = ["tests"]
 markers = [
     "integration: tests that use a container (mostly databases)",
