@@ -91,15 +91,8 @@ add_ignore = [
 [tool.pytest.ini_options]
 addopts = "--tb=native --strict-markers"
 testpaths = ["tests"]
-markers = [
-    "integration: tests that use a container (mostly databases)",
-    "spark: tests that use a Spark database (and therefore tend to be very slow)",
-]
 filterwarnings = [
     "ignore::DeprecationWarning:past.builtins.misc:45",
-    "ignore::DeprecationWarning:pytest_freezegun:17",
-    "ignore::DeprecationWarning:docker.utils.utils:52",
-    "ignore::DeprecationWarning:docker.utils.utils:53",
     "ignore::DeprecationWarning:pyhive.common:248",
     "ignore::DeprecationWarning:pyhive.sqlalchemy_hive:20",
 ]
