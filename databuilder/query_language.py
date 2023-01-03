@@ -297,6 +297,12 @@ class DateFunctions(ComparableFunctions):
     def day(self):
         return _apply(qm.Function.DayFromDate, self)
 
+    def to_first_of_year(self):
+        return _apply(qm.Function.ToFirstOfYear, self)
+
+    def to_first_of_month(self):
+        return _apply(qm.Function.ToFirstOfMonth, self)
+
     def is_before(self, other):
         return self.__lt__(other)
 
@@ -315,12 +321,6 @@ class DateFunctions(ComparableFunctions):
         # whilst parsing any ISO date strings in the collection
         other = frozenset(map(parse_date_if_str, other))
         return _apply(qm.Function.In, self, other)
-
-    def to_first_of_year(self):
-        return _apply(qm.Function.ToFirstOfYear, self)
-
-    def to_first_of_month(self):
-        return _apply(qm.Function.ToFirstOfMonth, self)
 
     def is_between(self, start, end):
         return (self > start) & (self < end)
