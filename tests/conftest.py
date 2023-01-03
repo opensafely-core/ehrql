@@ -25,8 +25,9 @@ from .lib.docker import Containers
 from .lib.study import Study
 
 
-def pytest_collection_modifyitems(session, config, items):
-    """Add a group identifier to each test item, based on which database is used by the test.
+def pytest_collection_modifyitems(session, config, items):  # pragma: no cover
+    """If running with pytest-xdist, add a group identifier to each test item, based on
+    which database is used by the test.
 
     This lets us use pytest-xdist to distribute tests across three processes leading to
     a moderate speed-up, via `pytest --dist loadgroup -n 3`.
@@ -37,6 +38,12 @@ def pytest_collection_modifyitems(session, config, items):
     during test collection.  Later, pytest-xdist will use the group identifier to
     distribute tests to workers.
     """
+
+    if "PYTEST_XDIST_WORKER" not in os.environ:
+        # Modifying test item identifiers makes it harder to copy and paste identifiers
+        # from failing outputs, so it only makes sense to do so if we're running tests
+        # with pytest-xdist.
+        return
 
     slow_database_names = ["mssql", "spark"]
 
