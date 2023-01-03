@@ -20,4 +20,5 @@ pydocstyle[toml]
 pytest
 pytest-cov
 pytest-mock
+pytest-xdist
 pyupgrade

@@ -25,6 +25,43 @@ from .lib.docker import Containers
 from .lib.study import Study
 
 
+def pytest_collection_modifyitems(session, config, items):
+    """Add a group identifier to each test item, based on which database is used by the test.
+
+    This lets us use pytest-xdist to distribute tests across three processes leading to
+    a moderate speed-up, via `pytest --dist loadgroup -n 3`.
+
+    The "proper" way to distribute tests with pytest-xdist is by adding the xdist_group
+    mark.  However, this is very hard to do dynamically (because of our use of
+    request.getfixturevalue) so it is less invasive to add a group identifier here,
+    during test collection.  Later, pytest-xdist will use the group identifier to
+    distribute tests to workers.
+    """
+
+    slow_database_names = ["mssql", "spark"]
+
+    for item in items:
+        group = "other"
+
+        if "engine" in item.fixturenames:
+            database_name = item.callspec.params["engine"]
+            if database_name in slow_database_names:
+                group = database_name
+
+        else:
+            found_database_in_fixtures = False
+            for database_name in slow_database_names:
+                if any(
+                    database_name in fixture_name for fixture_name in item.fixturenames
+                ):
+                    group = database_name
+                    # Check that tests do not use multiple fixtures for slow databases.
+                    assert not found_database_in_fixtures
+                    found_database_in_fixtures = True
+
+        item._nodeid = f"{item.nodeid}@{group}"
+
+
 # Fail the build if we see any warnings.
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     if terminalreporter.stats.get("warnings"):  # pragma: no cover
