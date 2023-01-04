@@ -1,14 +1,18 @@
 import datetime
+import itertools
 import os
 
 import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
+import sqlalchemy.exc
 
 from databuilder.query_model.nodes import Column, TableSchema, count_nodes, node_types
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
+
+IGNORE_RESULT = object()
 
 # To simplify data generation, all tables have the same schema.
 schema = TableSchema(
@@ -68,9 +72,9 @@ def query_engines(request):
 @hyp.given(variable=variable_strategy, data=data_strategy)
 @hyp.settings(**settings)
 def test_query_model(query_engines, variable, data, recorder):
-    recorder(variable, data)
+    recorder.record_inputs(variable, data)
     tune_inputs(variable)
-    run_test(query_engines, data, variable)
+    run_test(query_engines, data, variable, recorder)
 
 
 def tune_inputs(variable):
@@ -79,7 +83,7 @@ def tune_inputs(variable):
     hyp.target(len(node_types(variable)), label="number of node types")
 
 
-def run_test(query_engines, data, variable):
+def run_test(query_engines, data, variable, recorder):
     instances = instantiate(data)
     variables = {
         "population": all_patients_query,
@@ -91,18 +95,34 @@ def run_test(query_engines, data, variable):
         for name, engine in query_engines.items()
     ]
 
-    first_name, first_results = results[0]
-    for other_name, other_results in results[1:]:
+    recorder.record_results(
+        len(results), len([r for r in results if r is IGNORE_RESULT])
+    )
+
+    for first, second in itertools.combinations(results, 2):
+        first_name, first_results = first
+        second_name, second_results = second
+
+        # Sometimes we hit test cases where one engine is known to have problems; skip them.
+        if IGNORE_RESULT in [first_results, second_results]:
+            continue  # pragma: no cover
+
         assert (
-            first_results == other_results
-        ), f"Mismatch between {first_name} and {other_name}"
+            first_results == second_results
+        ), f"Mismatch between {first_name} and {second_name}"
 
 
 def run_with(engine, instances, variables):
     try:
         engine.setup(instances, metadata=sqla_metadata)
         return engine.extract_qm(variables)
-    finally:
+    except sqlalchemy.exc.OperationalError as e:  # pragma: no cover
+        # MSSQL can only accept 10 levels of CASE nesting. The variable strategy will sometimes
+        # generate queries that exceed that limit.
+        if "Case expressions may only be nested to level 10" in str(e):
+            return IGNORE_RESULT
+        raise
+    finally:  # pragma: no cover
         engine.teardown()
 
 
