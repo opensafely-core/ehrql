@@ -53,18 +53,27 @@ def apply_transforms(variables):
     #    we use customized versions of those containers which ignore the __eq__() and
     #    __hash__() implementations provided by dataclasses.
     variables = copy.deepcopy(variables)
-
     nodes = all_nodes_from_variables(variables)
     reverse_index = build_reverse_index(nodes)
 
-    rewrite_sorts(nodes, reverse_index)
+    transforms = [
+        (PickOneRowPerPatient, rewrite_sorts),
+    ]
+
+    for type_, transform in transforms:
+        apply_transform(type_, transform, nodes, reverse_index)
 
     variables = copy.deepcopy(variables)  # see comment above
-
     return variables
 
 
-def rewrite_sorts(nodes, reverse_index):
+def apply_transform(type_, transform, nodes, reverse_index):
+    for node in nodes:
+        if isinstance(node, type_):
+            transform(node, reverse_index)
+
+
+def rewrite_sorts(node, reverse_index):
     """
     Frames are sorted in order to then pick the first or last row for a patient. Multiple sorts
     may be applied to give the desired results. Once a single row has been picked, one ore more
@@ -110,17 +119,13 @@ def rewrite_sorts(nodes, reverse_index):
     * We introduce an arbitrary order for the additional sorts (lexically by column name) to ensure
       that their order itself is deterministic.
     """
-    for node in nodes:
-        if not isinstance(node, PickOneRowPerPatient):
-            continue
+    # What columns are select from this patient frame?
+    selected_column_names = {
+        c.name for c in reverse_index[node] if isinstance(c, SelectColumn)
+    }
 
-        # What columns are select from this patient frame?
-        selected_column_names = {
-            c.name for c in reverse_index[node] if isinstance(c, SelectColumn)
-        }
-
-        add_columns_to_pick(node, selected_column_names)
-        add_extra_sorts(node, selected_column_names)
+    add_columns_to_pick(node, selected_column_names)
+    add_extra_sorts(node, selected_column_names)
 
 
 def add_columns_to_pick(node, selected_column_names):
