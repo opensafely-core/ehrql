@@ -15,14 +15,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: "actions/setup-python@v4"
+      - uses: opensafely-core/setup-action@v1
         with:
+          install-just: true
           python-version: "3.9"
-      - name: Install just
-        run: |
-          mkdir -p ~/.local/bin
-          curl -L https://github.com/casey/just/releases/download/1.9.0/just-1.9.0-x86_64-unknown-linux-musl.tar.gz \
-           | tar -xzf - --directory ~/.local/bin just
       - name: Login to databricks
         run: |
             echo -e \
