@@ -21,4 +21,5 @@ pytest
 pytest-cov
 pytest-env
 pytest-mock
+pytest-xdist
 pyupgrade
