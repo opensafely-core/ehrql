@@ -69,20 +69,21 @@ def show_input_summary(observed_inputs):  # pragma: no cover
 
 
 def show_variables_summary(observed_inputs):  # pragma: no cover
-    observed_variables = observed_inputs.variables
-    print(f"\n{len(observed_variables)} unique queries")
-    counts = [count_nodes(example) for example in observed_variables]
-    count_histo = histogram(counts)
+    print(f"\n{len(observed_inputs.variables)} unique queries")
+
+    counts = [count_nodes(example) for example in observed_inputs.variables]
     print("\nwith this node count distribution")
-    for count, num in count_histo:
+    for count, num in histogram(counts):
         print(f"{count:3}\t{num}")
-    if observed_variables:
+
+    if observed_inputs.variables:
         print("\nlargest query")
-        by_size = sorted(observed_variables, key=lambda v: count_nodes(v))
+        by_size = sorted(observed_inputs.variables, key=lambda v: count_nodes(v))
         pprint.pprint(by_size[-1])
+
     all_node_types = [
         type_.__name__
-        for variable in observed_variables
+        for variable in observed_inputs.variables
         for type_ in node_types(variable)
     ]
     type_histo = histogram(all_node_types)
@@ -94,10 +95,10 @@ def show_variables_summary(observed_inputs):  # pragma: no cover
 def show_records_summary(observed_inputs):  # pragma: no cover
     observed_records = observed_inputs.records
     print(f"\n{len(observed_records)} unique datasets")
+
     record_counts = [len(records) for records in observed_records]
-    record_count_histo = histogram(record_counts)
     print("\nwith this size distribution")
-    for count, num in record_count_histo:
+    for count, num in histogram(record_counts):
         print(f"{count:3}\t{num}")
 
 
