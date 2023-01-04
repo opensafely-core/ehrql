@@ -10,10 +10,10 @@ from databuilder.query_model.nodes import count_nodes, node_types
 from . import variable_strategies
 
 
-class ObservedInputs:
+class Recorder:
     _inputs = set()
 
-    def record(self, variable, data):
+    def record_inputs(self, variable, data):
         hashable_data = frozenset(self._hashable(item) for item in data)
         self._inputs.add((variable, hashable_data))
 
@@ -44,46 +44,46 @@ class ObservedInputs:
 
 @pytest.fixture(scope="session")
 def recorder(request):  # pragma: no cover
-    observed_inputs = ObservedInputs()
+    recorder_ = Recorder()
 
-    yield observed_inputs.record
+    yield recorder_.record_inputs
 
     if "GENTEST_COMPREHENSIVE" in os.environ:
-        check_comprehensive(observed_inputs)
+        check_comprehensive(recorder_)
 
     if "GENTEST_DEBUG" in os.environ:
         with output_enabled(request):
-            show_input_summary(observed_inputs)
+            show_input_summary(recorder_)
 
 
-def check_comprehensive(observed_inputs):  # pragma: no cover
-    operations_seen = {o for v in observed_inputs.variables for o in node_types(v)}
+def check_comprehensive(recorder):  # pragma: no cover
+    operations_seen = {o for v in recorder.variables for o in node_types(v)}
     variable_strategies.assert_includes_all_operations(operations_seen)
 
 
-def show_input_summary(observed_inputs):  # pragma: no cover
+def show_input_summary(recorder):  # pragma: no cover
     print()
-    print(f"\n{len(observed_inputs.unique_inputs)} unique input combinations")
-    show_variables_summary(observed_inputs)
-    show_records_summary(observed_inputs)
+    print(f"\n{len(recorder.unique_inputs)} unique input combinations")
+    show_variables_summary(recorder)
+    show_records_summary(recorder)
 
 
-def show_variables_summary(observed_inputs):  # pragma: no cover
-    print(f"\n{len(observed_inputs.variables)} unique queries")
+def show_variables_summary(recorder):  # pragma: no cover
+    print(f"\n{len(recorder.variables)} unique queries")
 
-    counts = [count_nodes(example) for example in observed_inputs.variables]
+    counts = [count_nodes(example) for example in recorder.variables]
     print("\nwith this node count distribution")
     for count, num in histogram(counts):
         print(f"{count:3}\t{num}")
 
-    if observed_inputs.variables:
+    if recorder.variables:
         print("\nlargest query")
-        by_size = sorted(observed_inputs.variables, key=lambda v: count_nodes(v))
+        by_size = sorted(recorder.variables, key=lambda v: count_nodes(v))
         pprint.pprint(by_size[-1])
 
     all_node_types = [
         type_.__name__
-        for variable in observed_inputs.variables
+        for variable in recorder.variables
         for type_ in node_types(variable)
     ]
     type_histo = histogram(all_node_types)
@@ -92,8 +92,8 @@ def show_variables_summary(observed_inputs):  # pragma: no cover
         print(f"{type_:25}{num}")
 
 
-def show_records_summary(observed_inputs):  # pragma: no cover
-    observed_records = observed_inputs.records
+def show_records_summary(recorder):  # pragma: no cover
+    observed_records = recorder.records
     print(f"\n{len(observed_records)} unique datasets")
 
     record_counts = [len(records) for records in observed_records]
