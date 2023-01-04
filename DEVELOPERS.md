@@ -253,24 +253,6 @@ To do this:
 If using Community Edition, you will need to follow the instructions the command outputs to complete the cleanup process, as we cannot fully automate it from the cli.
 
 
-### Checking `no cover` Removal
-We have a number of lines omitted from test coverage using `pragma: no cover`.
-We'd like to know when they get test coverage.
-
-To do so we have a scheduled workflow which removes that string from coverage's omitted lines config and runs the tests.
-It parses the test output for the coverage section and compares it to the existing `no-cover.txt` to look for changes.
-It's scheduled to run on the first day of each month.
-
-#### How to fix a failure
-When this workflow fails it will print the changes to the action logs via `git-diff`.
-Hopefully this shows where the changes are, making them fixable.
-
-You can easily recreate the output locally by removing/commenting out the `pragma: no cover` line from the `exclude_lines` section of `[tool.coverage.report]` in `pyproject.toml`.
-
-The ideal path for fixing an error is to remove some `pragma: no cover` comments.
-However, it's not clear how stable this process is yet and it's fairly low priority so feel free to update the `no-cover.txt` and move on.
-
-
 ### Static Type Checking
 We previously used [mypy](https://mypy.readthedocs.io/en/stable/) and type annotations to perform correctness checking of the code base.
 However, we made the decision to remove this stack after finding it was not a good fit for large parts of the code base.
