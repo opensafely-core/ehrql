@@ -72,7 +72,7 @@ def query_engines(request):
 @hyp.given(variable=variable_strategy, data=data_strategy)
 @hyp.settings(**settings)
 def test_query_model(query_engines, variable, data, recorder):
-    recorder(variable, data)
+    recorder.record_inputs(variable, data)
     tune_inputs(variable)
     run_test(query_engines, data, variable)
 

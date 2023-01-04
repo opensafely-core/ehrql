@@ -46,7 +46,7 @@ class Recorder:
 def recorder(request):  # pragma: no cover
     recorder_ = Recorder()
 
-    yield recorder_.record_inputs
+    yield recorder_
 
     if "GENTEST_COMPREHENSIVE" in os.environ:
         check_comprehensive(recorder_)
