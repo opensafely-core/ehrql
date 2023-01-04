@@ -11,7 +11,7 @@ from databuilder.query_engines.in_memory_database import (
 )
 from databuilder.query_model import nodes as qm
 from databuilder.query_model.transforms import apply_transforms
-from databuilder.utils import date_utils
+from databuilder.utils import date_utils, math_utils
 
 T = True
 F = False
@@ -234,6 +234,12 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
     def visit_Multiply(self, node):
         return self.visit_binary_op_with_null(node, operator.mul)
+
+    def visit_TrueDivide(self, node):
+        return self.visit_binary_op_with_null(node, math_utils.truediv)
+
+    def visit_FloorDivide(self, node):
+        return self.visit_binary_op_with_null(node, math_utils.floordiv)
 
     def visit_CastToInt(self, node):
         return self.visit_unary_op_with_null(node, int)

@@ -1230,7 +1230,7 @@ returns the following patient series:
 ## 8 Operations on integer series
 
 
-### 8.1 Arithmetic operations
+### 8.1 Arithmetic operations without division
 
 
 #### 8.1.1 Negate

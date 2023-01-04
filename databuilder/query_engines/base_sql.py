@@ -220,6 +220,25 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_multiply(self, node):
         return operators.mul(self.get_expr(node.lhs), self.get_expr(node.rhs))
 
+    @get_sql.register(Function.TrueDivide)
+    def get_sql_truedivide(self, node):
+        lhs = self.get_expr(node.lhs)
+        rhs = self.get_expr(node.rhs)
+        # To ensure TrueDiv behaviour cast one to float if both args are ints
+        if isinstance(lhs.type, sqlalchemy_types.Integer) and isinstance(
+            rhs.type, sqlalchemy_types.Integer
+        ):
+            lhs = sqlalchemy.cast(lhs, sqlalchemy.Float)
+        return self.truedivide(lhs, rhs)
+
+    def truedivide(self, lhs, rhs):
+        return lhs / rhs
+
+    @get_sql.register(Function.FloorDivide)
+    def get_sql_floordivide(self, node):
+        float_result = self.get_sql_truedivide(node)
+        return sqlalchemy.cast(SQLFunction("FLOOR", float_result), sqlalchemy.Integer)
+
     @get_sql.register(Function.CastToInt)
     def get_sql_cast_to_int(self, node):
         return sqlalchemy.cast(self.get_expr(node.source), sqlalchemy.Integer)

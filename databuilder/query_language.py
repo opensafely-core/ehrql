@@ -268,6 +268,20 @@ class NumericFunctions(ComparableFunctions):
     def __rmul__(self, other):
         return self * other
 
+    def __truediv__(self, other):
+        other = self._cast(other)
+        return _apply(qm.Function.TrueDivide, self, other)
+
+    def __rtruediv__(self, other):
+        return self / other
+
+    def __floordiv__(self, other):
+        other = self._cast(other)
+        return _apply(qm.Function.FloorDivide, self, other)
+
+    def __rfloordiv__(self, other):
+        return self // other
+
     def as_int(self):
         return _apply(qm.Function.CastToInt, self)
 
