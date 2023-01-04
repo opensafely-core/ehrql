@@ -61,10 +61,16 @@ def recorder(request):  # pragma: no cover
         with output_enabled(request):
             show_input_summary(recorder_)
 
+    check_not_too_many_ignored_errors(recorder_)
+
 
 def check_comprehensive(recorder):  # pragma: no cover
     operations_seen = {o for v in recorder.variables for o in node_types(v)}
     variable_strategies.assert_includes_all_operations(operations_seen)
+
+
+def check_not_too_many_ignored_errors(recorder):
+    assert recorder.num_ignored_errors / recorder.num_results <= 0.01
 
 
 def show_input_summary(recorder):  # pragma: no cover
