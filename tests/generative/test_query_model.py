@@ -74,7 +74,7 @@ def query_engines(request):
 def test_query_model(query_engines, variable, data, recorder):
     recorder.record_inputs(variable, data)
     tune_inputs(variable)
-    run_test(query_engines, data, variable)
+    run_test(query_engines, data, variable, recorder)
 
 
 def tune_inputs(variable):
@@ -83,7 +83,7 @@ def tune_inputs(variable):
     hyp.target(len(node_types(variable)), label="number of node types")
 
 
-def run_test(query_engines, data, variable):
+def run_test(query_engines, data, variable, recorder):
     instances = instantiate(data)
     variables = {
         "population": all_patients_query,
@@ -94,6 +94,10 @@ def run_test(query_engines, data, variable):
         (name, run_with(engine, instances, variables))
         for name, engine in query_engines.items()
     ]
+
+    recorder.record_results(
+        len(results), len([r for r in results if r is IGNORE_RESULT])
+    )
 
     for first, second in itertools.combinations(results, 2):
         first_name, first_results = first

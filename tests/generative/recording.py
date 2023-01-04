@@ -12,10 +12,16 @@ from . import variable_strategies
 
 class Recorder:
     _inputs = set()
+    num_results = 0
+    num_ignored_errors = 0
 
     def record_inputs(self, variable, data):
         hashable_data = frozenset(self._hashable(item) for item in data)
         self._inputs.add((variable, hashable_data))
+
+    def record_results(self, total_count, error_count):
+        self.num_results += total_count
+        self.num_ignored_errors += error_count
 
     @property
     def variables(self):  # pragma: no cover
@@ -100,6 +106,8 @@ def show_records_summary(recorder):  # pragma: no cover
     print("\nwith this size distribution")
     for count, num in histogram(record_counts):
         print(f"{count:3}\t{num}")
+
+    print(f"\n{recorder.num_ignored_errors} errors ignored")
 
 
 def histogram(samples):  # pragma: no cover
