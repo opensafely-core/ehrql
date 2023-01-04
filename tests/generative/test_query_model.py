@@ -1,13 +1,23 @@
 import datetime
 import itertools
 import os
+import re
 
 import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
 import sqlalchemy.exc
 
-from databuilder.query_model.nodes import Column, TableSchema, count_nodes, node_types
+from databuilder.query_model.nodes import (
+    Column,
+    Function,
+    SelectColumn,
+    SelectPatientTable,
+    TableSchema,
+    Value,
+    count_nodes,
+    node_types,
+)
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
@@ -87,18 +97,52 @@ def test_query_model(query_engines, variable, data, recorder):
     run_test(query_engines, data, variable, recorder)
 
 
+@pytest.mark.parametrize(
+    "operation,rhs",
+    [
+        (Function.DateAddYears, -2000),  # year=0
+        (Function.DateAddYears, -3000),  # year=-1000
+        (Function.DateAddYears, 8000),  # year = 10000
+        (Function.DateAddMonths, -3000 * 12),
+        (Function.DateAddMonths, 8000 * 12),
+        (Function.DateAddDays, -3000 * 365),
+        (Function.DateAddDays, 8000 * 365),
+    ],
+)
+def test_handle_date_errors(query_engines, operation, rhs, recorder):
+    data = [
+        {
+            "type": data_setup.P0,
+            "patient_id": 1,
+            "d1": datetime.date(2000, 1, 1),
+        }
+    ]
+    variable = operation(
+        lhs=SelectColumn(
+            source=SelectPatientTable(name="p0", schema=schema), name="d1"
+        ),
+        rhs=Value(rhs),
+    )
+    run_error_test(query_engines, data, variable)
+
+
 def tune_inputs(variable):
     # Encourage Hypothesis to maximize the number and type of nodes
     hyp.target(count_nodes(variable), label="number of nodes")
     hyp.target(len(node_types(variable)), label="number of node types")
 
 
-def run_test(query_engines, data, variable, recorder):
+def setup_test(data, variable):
     instances = instantiate(data)
     variables = {
         "population": all_patients_query,
         "v": variable,
     }
+    return instances, variables
+
+
+def run_test(query_engines, data, variable, recorder):
+    instances, variables = setup_test(data, variable)
 
     results = [
         (name, run_with(engine, instances, variables))
@@ -122,14 +166,46 @@ def run_test(query_engines, data, variable, recorder):
         ), f"Mismatch between {first_name} and {second_name}"
 
 
+def run_error_test(query_engines, data, variable):
+    instances, variables = setup_test(data, variable)
+    for name, engine in query_engines.items():
+        try:
+            run_with(engine, instances, variables)
+        except Exception as e:  # pragma: no cover
+            assert False, f"{name} engine encountered an error: {e}"
+
+
+IGNORED_ERRORS = [
+    # MSSQL can only accept 10 levels of CASE nesting. The variable strategy will sometimes
+    # generate queries that exceed that limit.
+    ".+Case expressions may only be nested to level 10.+",
+    # OUT-OF-RANGE DATES
+    # The variable strategy will sometimes result in date operations that contruct
+    # invalid dates (e.g. a large positive or negative integer in a DateAddYears operation
+    # may result in a date with a year that is outside of the allowed range)
+    # The different query engines report errors from out-of-range dates in different ways:
+    # mssql
+    ".+Cannot construct data type date.*",  # DateAddYears, with an invalid calculated year
+    ".+Adding a value to a 'date' column caused an overflow.+",  # DateAddMonths, resulting in an invalid date
+    # sqlite
+    "Couldn't parse date string",
+    # in-memory engine
+    "year -?\\d+ is out of range",  # DateAddYears, with an invalid calculated year
+    "date value out of range",  # DateAddMonths, resulting in an invalid date
+]
+IGNORED_ERROR_REGEX = re.compile("|".join(IGNORED_ERRORS))
+
+
 def run_with(engine, instances, variables):
     try:
         engine.setup(instances, metadata=sqla_metadata)
         return engine.extract_qm(variables)
-    except sqlalchemy.exc.OperationalError as e:  # pragma: no cover
-        # MSSQL can only accept 10 levels of CASE nesting. The variable strategy will sometimes
-        # generate queries that exceed that limit.
-        if "Case expressions may only be nested to level 10" in str(e):
+    except (
+        sqlalchemy.exc.OperationalError,
+        ValueError,
+        OverflowError,
+    ) as e:  # pragma: no cover
+        if IGNORED_ERROR_REGEX.match(str(e)):
             return IGNORE_RESULT
         raise
     finally:  # pragma: no cover
