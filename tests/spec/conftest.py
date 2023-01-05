@@ -44,7 +44,9 @@ def spec_test(request, engine):
         assert all([r[1] is None or isinstance(r[1], variable_type) for r in results])
 
     # Test that we can generate SQL with literal parmeters for debugging purposes
-    def run_test_dump_sql(table_data, series, expected_results, population=None):
+    def run_test_dump_sql(
+        table_data, series, expected_results, population=None, codelists=None
+    ):
         # Create a Dataset with the specified population and a single variable which is
         # the series under test.
         dataset = make_dataset(table_data, population)
