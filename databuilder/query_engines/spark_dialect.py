@@ -18,7 +18,7 @@ from sqlalchemy.sql.compiler import DDLCompiler, IdentifierPreparer
 from sqlalchemy.sql.expression import ClauseElement, Executable, cast
 
 
-class CreateTemporaryViewAs(Executable, ClauseElement):
+class CreateTemporaryViewAs(Executable, ClauseElement):  # pragma: cover-spark-only
     inherit_cache = True
 
     def __init__(self, table, query):
@@ -30,14 +30,14 @@ class CreateTemporaryViewAs(Executable, ClauseElement):
 
 
 @compiles(CreateTemporaryViewAs)
-def visit_create_temporary_view_as(element, compiler, **kw):
+def visit_create_temporary_view_as(element, compiler, **kw):  # pragma: cover-spark-only
     return "CREATE TEMPORARY VIEW {} AS {}".format(
         compiler.process(element.table, asfrom=True, **kw),
         compiler.process(element.query, **kw),
     )
 
 
-class SparkDate(sqlalchemy.types.TypeDecorator):
+class SparkDate(sqlalchemy.types.TypeDecorator):  # pragma: cover-spark-only
     cache_ok = True
     impl = sqlalchemy.types.Date
     text_type = sqlalchemy.types.Text()
@@ -76,7 +76,7 @@ class SparkDate(sqlalchemy.types.TypeDecorator):
         return literal_processor(value_str)
 
 
-class SparkDateTime(sqlalchemy.types.TypeDecorator):
+class SparkDateTime(sqlalchemy.types.TypeDecorator):  # pragma: cover-spark-only
     cache_ok = True
     impl = sqlalchemy.types.DateTime
 
@@ -90,7 +90,7 @@ class SparkDateTime(sqlalchemy.types.TypeDecorator):
         return cast(bindvalue, type_=self)
 
 
-class SparkDDLCompiler(DDLCompiler):
+class SparkDDLCompiler(DDLCompiler):  # pragma: cover-spark-only
     def visit_primary_key_constraint(self, constraint, **kw):
         """
         Prevent SQLAlchemy from trying to create PRIMARY KEY constraints, which
@@ -106,7 +106,7 @@ class SparkDDLCompiler(DDLCompiler):
         return ""
 
 
-class SparkTypeCompiler(HiveTypeCompiler):
+class SparkTypeCompiler(HiveTypeCompiler):  # pragma: cover-spark-only
     def visit_DATE(self, type_):
         """
         For some reason pyhive treats DATE as TIMESTAMP, as it does for
@@ -118,7 +118,7 @@ class SparkTypeCompiler(HiveTypeCompiler):
         return "DATE"
 
 
-class SparkIdentifierPreparer(IdentifierPreparer):
+class SparkIdentifierPreparer(IdentifierPreparer):  # pragma: cover-spark-only
     """
     pyhive quotes all identifiers, whether they're reserved words or not. This
     makes some already tricky to read SQL even harder to read, so we just use
@@ -132,7 +132,7 @@ class SparkIdentifierPreparer(IdentifierPreparer):
         super().__init__(dialect, initial_quote="`", escape_quote="`")
 
 
-class SparkDialect(HiveHTTPDialect):
+class SparkDialect(HiveHTTPDialect):  # pragma: cover-spark-only
     """Customisation of the base pyhive Sqlalchemy dialect.
 
     Some customisations are generic Spark SQL fixes that we want to handle
@@ -272,7 +272,7 @@ class SparkDialect(HiveHTTPDialect):
         return result
 
 
-class ConnectionWrapper:
+class ConnectionWrapper:  # pragma: cover-spark-only
     """
     When running in "future" mode SQLAlchemy connections will no longer execute
     raw SQL strings. Instead these must be explictly wrapped up as "text" query

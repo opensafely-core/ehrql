@@ -100,7 +100,7 @@ class DbDetails:
         metadata.create_all(engine)
         session.bulk_save_objects(input_data)
 
-        if self.temp_db is not None:
+        if self.temp_db is not None:  # pragma: cover-spark-only
             session.execute(
                 sqlalchemy.text(f"CREATE DATABASE IF NOT EXISTS {self.temp_db}")
             )
@@ -179,14 +179,14 @@ def run_mssql(container_name, containers, password, mssql_port):  # pragma: no c
     )
 
 
-def make_spark_database(containers):
+def make_spark_database(containers):  # pragma: cover-spark-only
     if "DATABRICKS_URL" in os.environ:  # pragma: no cover
         return make_databricks_database()
     else:
         return make_spark_container_database(containers)
 
 
-def make_spark_container_database(containers):
+def make_spark_container_database(containers):  # pragma: cover-spark-only
     container_name = "databuilder-spark"
     # This is the default anyway, but better to be explicit
     spark_port = 10001

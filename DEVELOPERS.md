@@ -60,11 +60,11 @@ For example:
 just test tests/integration/backends/test_tpp.py
 ```
 
-Since we have many tests that are parameterized across multiple databases and the Spark database tests are very slow, test commands which run such parameterized tests have a variant that skips the Spark tests.
-These are much faster and should be used unless you're specifically working on Spark.
-For example:
+Since the Spark tests are currently very slow we have variants of these test commands which exclude them (by adding a `-k 'not spark` pytest argument).
+Unless you are specifically working on Spark you should be using these variants.
+In particular you can run the full CI tests, including the coverage and documentation checks, but without the Spark tests using:
 ```
-just test-spec-no-spark
+just test-all-no-spark
 ```
 
 There are further notes on using `pytest` in the wiki here:

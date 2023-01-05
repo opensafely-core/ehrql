@@ -189,7 +189,8 @@ test-generative *ARGS: devenv
     $BIN/python -m pytest tests/generative {{ ARGS }}
 
 # Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
-test-all *ARGS: devenv generate-docs
+# (The `@` prefix means that the script is echoed first for debugging purposes.)
+@test-all *ARGS: devenv generate-docs
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -200,10 +201,12 @@ test-all *ARGS: devenv generate-docs
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
         --hypothesis-seed=1234 \
-        tests \
         {{ ARGS }}
     $BIN/python -m pytest --doctest-modules databuilder
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
+
+# Run the CI tests (including coverage checks) but without the slow Spark tests
+test-all-no-spark *ARGS: (test-all '-k "not spark"' ARGS)
 
 # run scripts/dbx
 dbx *ARGS:
