@@ -227,11 +227,10 @@ def parse_codelists(codelists):
     if codelists:
         return [
             {
-                "name": k,
-                "system": list(v.codes)[0].__doc__,
-                "codes": [c.value for c in v.codes],
+                "system": list(codelist.codes)[0].__doc__,
+                "codes": [c.value for c in codelist.codes],
             }
-            for k, v in codelists.items()
+            for codelist in codelists
         ]
 
 
