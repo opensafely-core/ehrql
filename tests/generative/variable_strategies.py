@@ -64,7 +64,13 @@ from tests.lib.query_model_utils import get_all_operations
 
 
 def variable(
-    patient_tables, event_tables, schema, int_values, bool_values, date_values
+    patient_tables,
+    event_tables,
+    schema,
+    int_values,
+    bool_values,
+    date_values,
+    float_values,
 ):
     frame = st.deferred(
         lambda: st.one_of(
@@ -159,6 +165,8 @@ def variable(
             add,
             subtract,
             multiply,
+            cast_to_int,
+            cast_to_float,
             date_add_years,
             date_add_months,
             date_add_days,
@@ -184,7 +192,9 @@ def variable(
 
     sorted_frame = st.deferred(lambda: st.one_of(sort))
 
-    value = qm_builds(Value, st.one_of(int_values, bool_values, date_values))
+    value = qm_builds(
+        Value, st.one_of(int_values, bool_values, date_values, float_values)
+    )
     date_value = qm_builds(Value, st.one_of(date_values))
 
     select_table = qm_builds(
@@ -242,6 +252,9 @@ def variable(
     subtract = qm_builds(Function.Subtract, series, series)
     multiply = qm_builds(Function.Multiply, series, series)
 
+    cast_to_int = qm_builds(Function.CastToInt, series)
+    cast_to_float = qm_builds(Function.CastToFloat, series)
+
     date_add_years = qm_builds(Function.DateAddYears, date_series, series)
     date_add_months = qm_builds(Function.DateAddMonths, date_series, series)
     date_add_days = qm_builds(Function.DateAddDays, date_series, series)
@@ -292,8 +305,6 @@ known_missing_operations = {
     Case,
     Function.In,
     Function.StringContains,
-    Function.CastToFloat,
-    Function.CastToInt,
 }
 
 
