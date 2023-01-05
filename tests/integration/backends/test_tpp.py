@@ -10,6 +10,7 @@ from tests.lib.tpp_schema import (
     APCS,
     EC,
     APCS_Der,
+    Appointment,
     CodedEvent,
     CodedEventSnomed,
     EC_Diagnosis,
@@ -424,6 +425,25 @@ def test_hospital_admissions(select_all):
             "patient_classification": "X",
             "days_in_critical_care": 5,
         }
+    ]
+
+
+@register_test_for(tpp.appointments)
+def test_appointments(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        Appointment(
+            Patient_ID=1,
+            BookedDate="2021-01-01T09:00:00",
+            StartDate="2021-01-01T09:00:00",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "booked_date": date(2021, 1, 1),
+            "start_date": date(2021, 1, 1),
+        },
     ]
 
 

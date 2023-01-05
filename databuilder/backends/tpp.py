@@ -192,3 +192,13 @@ class TPPBackend(BaseBackend):
             ON apcs.APCS_Ident = der.APCS_Ident
         """
     )
+
+    appointments = QueryTable(
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                CAST(BookedDate AS date) AS booked_date,
+                CAST(StartDate AS date) AS start_date
+            FROM Appointment
+        """
+    )
