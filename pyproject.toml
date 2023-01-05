@@ -39,6 +39,9 @@ Source = "https://github.com/opensafely-core/databuilder"
 
 [tool.coverage.run]
 branch = true
+plugins = [
+    "coverage_conditional_plugin",
+]
 
 [tool.coverage.report]
 fail_under = 100
@@ -58,6 +61,10 @@ exclude_lines = [
 omit = [
     "databuilder/docs/__main__.py",
 ]
+
+[tool.coverage.coverage_conditional_plugin.rules]
+# We disable Spark coverage if we spot "not spark" in the pytest arguments
+cover-spark-only = "'not spark' in sys.argv"
 
 [tool.coverage.html]
 

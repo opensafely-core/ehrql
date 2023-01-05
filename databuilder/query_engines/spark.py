@@ -7,7 +7,7 @@ from databuilder.query_engines.spark_dialect import CreateTemporaryViewAs, Spark
 from databuilder.utils.sqlalchemy_query_utils import GeneratedTable
 
 
-class SparkQueryEngine(BaseSQLQueryEngine):
+class SparkQueryEngine(BaseSQLQueryEngine):  # pragma: cover-spark-only
     sqlalchemy_dialect = SparkDialect
 
     def date_difference_in_days(self, end, start):

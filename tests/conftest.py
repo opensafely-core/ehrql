@@ -149,7 +149,9 @@ def mssql_database(mssql_database_with_session_scope):
 
 
 @pytest.fixture(scope="session")
-def spark_database_with_session_scope(containers, show_delayed_warning):
+def spark_database_with_session_scope(
+    containers, show_delayed_warning
+):  # pragma: cover-spark-only
     with show_delayed_warning(3, "Downloading and starting Spark Docker image"):
         database = make_spark_database(containers)
         wait_for_database(database, timeout=20)
@@ -157,7 +159,7 @@ def spark_database_with_session_scope(containers, show_delayed_warning):
 
 
 @pytest.fixture(scope="function")
-def spark_database(spark_database_with_session_scope):
+def spark_database(spark_database_with_session_scope):  # pragma: cover-spark-only
     database = spark_database_with_session_scope
     yield database
     database.teardown()
@@ -216,7 +218,7 @@ def engine_factory(request, engine_name, with_session_scope=False):
     elif engine_name == "mssql":
         database_fixture_name = "mssql_database"
         query_engine_class = MSSQLQueryEngine
-    elif engine_name == "spark":
+    elif engine_name == "spark":  # pragma: cover-spark-only
         database_fixture_name = "spark_database"
         query_engine_class = SparkQueryEngine
     else:

@@ -4,7 +4,7 @@ from sqlalchemy.sql.visitors import iterate
 from databuilder.query_engines.spark_dialect import CreateTemporaryViewAs
 
 
-def test_create_temporary_view_as():
+def test_create_temporary_view_as():  # pragma: cover-spark-only
     table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
     query = sqlalchemy.select(table.c.bar).where(table.c.bar > 1)
     target_table = sqlalchemy.table("test")
@@ -16,7 +16,7 @@ def test_create_temporary_view_as():
     )
 
 
-def test_create_temporary_view_as_can_be_iterated():
+def test_create_temporary_view_as_can_be_iterated():  # pragma: cover-spark-only
     # If we don't define the `get_children()` method on `CreateTemporaryViewAs` we won't
     # get an error when attempting to iterate the resulting element structure: it will
     # just act as a leaf node. But as we rely heavily on query introspection we need to
