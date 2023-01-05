@@ -201,7 +201,6 @@ test-generative *ARGS: devenv
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
         --hypothesis-seed=1234 \
-        tests \
         {{ ARGS }}
     $BIN/python -m pytest --doctest-modules databuilder
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
