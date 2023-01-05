@@ -105,8 +105,8 @@ def test_query_model(query_engines, variable, data, recorder):
         (Function.DateAddYears, 8000),  # year = 10000
         (Function.DateAddMonths, -3000 * 12),
         (Function.DateAddMonths, 8000 * 12),
-        (Function.DateAddDays, -3000 * 365),
-        (Function.DateAddDays, 8000 * 365),
+        (Function.DateAddDays, -3000 * 366),
+        (Function.DateAddDays, 8000 * 366),
     ],
 )
 def test_handle_date_errors(query_engines, operation, rhs, recorder):
@@ -178,35 +178,46 @@ def run_error_test(query_engines, data, variable):
 IGNORED_ERRORS = [
     # MSSQL can only accept 10 levels of CASE nesting. The variable strategy will sometimes
     # generate queries that exceed that limit.
-    ".+Case expressions may only be nested to level 10.+",
+    (
+        sqlalchemy.exc.OperationalError,
+        re.compile(".+Case expressions may only be nested to level 10.+"),
+    ),
     # OUT-OF-RANGE DATES
     # The variable strategy will sometimes result in date operations that contruct
     # invalid dates (e.g. a large positive or negative integer in a DateAddYears operation
     # may result in a date with a year that is outside of the allowed range)
     # The different query engines report errors from out-of-range dates in different ways:
     # mssql
-    ".+Cannot construct data type date.*",  # DateAddYears, with an invalid calculated year
-    ".+Adding a value to a 'date' column caused an overflow.+",  # DateAddMonths, resulting in an invalid date
+    (
+        sqlalchemy.exc.OperationalError,
+        re.compile(".+Cannot construct data type date.+"),
+    ),  # DateAddYears, with an invalid calculated year
+    (
+        sqlalchemy.exc.OperationalError,
+        re.compile(".+Adding a value to a 'date' column caused an overflow.+"),
+    ),  # DateAddMonths, resulting in an invalid date
     # sqlite
-    "Couldn't parse date string",
+    (ValueError, re.compile("Couldn't parse date string")),
     # in-memory engine
-    "year -?\\d+ is out of range",  # DateAddYears, with an invalid calculated year
-    "date value out of range",  # DateAddMonths, resulting in an invalid date
+    (
+        ValueError,
+        re.compile("year -?\\d+ is out of range"),
+    ),  # DateAddYears, with an invalid calculated year
+    (
+        OverflowError,
+        re.compile("date value out of range"),
+    ),  # DateAddMonths, resulting in an invalid date
 ]
-IGNORED_ERROR_REGEX = re.compile("|".join(IGNORED_ERRORS))
 
 
 def run_with(engine, instances, variables):
     try:
         engine.setup(instances, metadata=sqla_metadata)
         return engine.extract_qm(variables)
-    except (
-        sqlalchemy.exc.OperationalError,
-        ValueError,
-        OverflowError,
-    ) as e:  # pragma: no cover
-        if IGNORED_ERROR_REGEX.match(str(e)):
-            return IGNORE_RESULT
+    except Exception as e:  # pragma: no cover
+        for ignored_error_type, ignored_error_regex in IGNORED_ERRORS:
+            if type(e) == ignored_error_type and ignored_error_regex.match(str(e)):
+                return IGNORE_RESULT
         raise
     finally:  # pragma: no cover
         engine.teardown()
