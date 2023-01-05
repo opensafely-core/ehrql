@@ -167,12 +167,19 @@ def run_test(query_engines, data, variable, recorder):
 
 
 def run_error_test(query_engines, data, variable):
+    """
+    Runs a test with input that is expected to raise an error in some way which is
+    expected to be handled. If an exception is raised and handled within the test
+    function, the result will be an `IGNORE_RESULT` object.  If the bad input is
+    handled within the query engine itself, the result will contain a None value.
+    e.g. attempting to add 8000 years to 2000-01-01 results in a date that is outside
+    of the valid range (max 9999-12-31).  The sqlite engine returns None for this,
+    all other engines raise an Exception that we catch and ignore.
+    """
     instances, variables = setup_test(data, variable)
-    for name, engine in query_engines.items():
-        try:
-            run_with(engine, instances, variables)
-        except Exception as e:  # pragma: no cover
-            assert False, f"{name} engine encountered an error: {e}"
+    for _, engine in query_engines.items():
+        result = run_with(engine, instances, variables)
+        assert result in [IGNORE_RESULT, [{"patient_id": 1, "v": None}]]
 
 
 IGNORED_ERRORS = [
