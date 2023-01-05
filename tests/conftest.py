@@ -87,10 +87,10 @@ def show_delayed_warning(request):
     already taken more than N seconds.
     """
 
-    def show_warning(message):
+    def show_warning(message):  # pragma: no cover
         capturemanager = request.config.pluginmanager.getplugin("capturemanager")
         # No need to display anything if output is not being captured
-        if capturemanager.is_capturing():  # pragma: no branch
+        if capturemanager.is_capturing():
             with capturemanager.global_and_fixture_disabled():
                 print(f"\n => {message} ...")
 
