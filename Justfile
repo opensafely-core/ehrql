@@ -205,6 +205,9 @@ test-generative *ARGS: devenv
     $BIN/python -m pytest --doctest-modules databuilder
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
 
+# Run the CI tests (including coverage checks) but without the slow Spark tests
+test-all-no-spark *ARGS: (test-all '-k "not spark"' ARGS)
+
 # run scripts/dbx
 dbx *ARGS:
     @$BIN/python scripts/dbx {{ ARGS }}
