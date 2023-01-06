@@ -16,6 +16,7 @@ __all__ = [
     "occupation_on_covid_vaccine_record",
     "emergency_care_attendances",
     "hospital_admissions",
+    "appointments",
 ]
 
 
@@ -143,3 +144,9 @@ class hospital_admissions(EventFrame):
     all_diagnoses = Series(str)
     patient_classification = Series(str)
     days_in_critical_care = Series(int)
+
+
+@table
+class appointments(EventFrame):
+    booked_date = Series(datetime.date)
+    start_date = Series(datetime.date)
