@@ -369,7 +369,7 @@ def test_any_type_acts_as_an_escape_hatch():
     class SomePublicOperation(Series):
         value: set[Any]
 
-    with pytest.raises(TypeError, match=r"Sets must be of homogeneous type"):
+    with pytest.raises(TypeValidationError, match=r"Sets must be of homogeneous type"):
         SomePublicOperation(value=mixed_set)
 
     # Confirm that we can nevertheless use such a value as long as we don't care what
