@@ -609,7 +609,12 @@ def validate_types(node):
         # are no ints sitting around to be checked). So the standard, "isinstance()",
         # approach to type checking doesn't work. There may well be a more elegant
         # alternative approach here, but this works for now.
-        typespec = get_typespec(value)
+        try:
+            # sets and mappings require that their items are of homogenous types, and
+            # raise a TypeError during the conversion to type specification.
+            typespec = get_typespec(value)
+        except TypeError as e:
+            raise TypeValidationError(str(e)) from e
         if not type_matches(typespec, target_typespec, typevar_context):
             # Try to make errors a bit more helpful by resolving TypeVars if we can.
             # This means that if validation fails because e.g. `T` has been bound to

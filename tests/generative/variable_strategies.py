@@ -176,6 +176,7 @@ def variable(
             date_difference_in_years,
             date_difference_in_months,
             date_difference_in_days,
+            case,
         )
     )
 
@@ -273,6 +274,12 @@ def variable(
     to_first_of_year = qm_builds(Function.ToFirstOfYear, date_series)
     to_first_of_month = qm_builds(Function.ToFirstOfMonth, date_series)
 
+    case = qm_builds(
+        Case,
+        st.dictionaries(series, series, min_size=1, max_size=3),
+        st.one_of(st.none(), series),
+    )
+
     assert_complete_coverage()
 
     # Variables must be single values which have been reduced to the patient level. We also need to ensure that they
@@ -302,7 +309,6 @@ included_operations = set()
 
 known_missing_operations = {
     AggregateByPatient.CombineAsSet,
-    Case,
     Function.In,
     Function.StringContains,
 }
