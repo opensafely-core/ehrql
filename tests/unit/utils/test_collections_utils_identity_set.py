@@ -1,6 +1,11 @@
 from databuilder.utils.collections_utils import IdentitySet
 
 
+def test_repr():
+    s = IdentitySet([1, 2, 3])
+    assert eval(repr(s)) == s
+
+
 def test_empty_means_empty():
     assert len(IdentitySet()) == 0
 

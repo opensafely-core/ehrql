@@ -3,6 +3,11 @@ from pytest import raises
 from databuilder.utils.collections_utils import DefaultIdentityDict, IdentityDict
 
 
+def test_repr():
+    s = IdentityDict(a=1, b=2, c=3)
+    assert eval(repr(s)) == s
+
+
 def test_empty_means_empty():
     assert len(IdentityDict()) == 0
 

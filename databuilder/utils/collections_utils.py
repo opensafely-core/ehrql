@@ -30,7 +30,7 @@ class IdentitySet(MutableSet):
     def __iter__(self):
         return (ref.referent for ref in self._set)
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self):
         return f"{type(self).__name__}({list(self)})"
 
 
@@ -62,7 +62,7 @@ class IdentityDict(MutableMapping):
     def __iter__(self):
         return (ref.referent for ref in self._dict)
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self):
         return f"{type(self).__name__}({list(self.items())})"
 
 
