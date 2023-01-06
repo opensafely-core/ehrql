@@ -366,7 +366,7 @@ def has_one_row_per_patient(node):
     return get_domain(node) == Domain.PATIENT
 
 
-def has_many_rows_per_patient(node):  # pragma: no cover
+def has_many_rows_per_patient(node):
     return not has_one_row_per_patient(node)
 
 
