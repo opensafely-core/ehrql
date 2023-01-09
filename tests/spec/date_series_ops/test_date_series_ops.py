@@ -132,19 +132,24 @@ def test_add_months(spec_test):
     #
     #       The smallest y such that `(y - x).months == N`
     #
-    #  2. It is what SQLite does.
+    #  2. It is what SQLite does *in most cases*.  SQLite rolls over to the first of the next
+    #     month, except in the case of the last days of February, where the rolled-over date
+    #     from 30/31 Feb becomes 02/03 March.
     #
     # Other databases take different approachs so we have to work around their behaviour
-    # in their respective query engines.
+    # in their respective query engines, and in the SQLite engine for the end of February
+    # behaviour.
     table_data = {
         p: """
           |     d1     | i1
-        --+------------+-----
+        ---+------------+-----
         1 | 2003-01-29 |  1
         2 | 2004-01-29 |  1
-        3 | 2003-01-29 | -1
-        4 | 2000-10-31 |  11
-        5 | 2000-10-31 | -11
+        3 | 2003-01-31 |  1
+        4 | 2004-01-31 |  1
+        5 | 2004-03-31 | -1
+        6 | 2000-10-31 |  11
+        7 | 2000-10-31 | -11
         """,
     }
     spec_test(
@@ -153,9 +158,11 @@ def test_add_months(spec_test):
         {
             1: date(2003, 3, 1),
             2: date(2004, 2, 29),
-            3: date(2002, 12, 29),
-            4: date(2001, 10, 1),
-            5: date(1999, 12, 1),
+            3: date(2003, 3, 1),
+            4: date(2004, 3, 1),
+            5: date(2004, 3, 1),
+            6: date(2001, 10, 1),
+            7: date(1999, 12, 1),
         },
     )
 
