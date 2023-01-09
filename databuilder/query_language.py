@@ -667,6 +667,24 @@ def get_table_schema_from_class(cls):
     return qm.TableSchema(**schema)
 
 
+# Defines a PatientFrame along with the data it contains. Takes a list (or
+# any iterable) of row tuples of the form:
+#
+#    (patient_id, column_1_in_schema, column_2_in_schema, ...)
+#
+def table_from_rows(rows):
+    def decorator(cls):
+        if cls.__bases__ != (PatientFrame,):
+            raise SchemaError("`@table_from_rows` can only be used with `PatientFrame`")
+        qm_node = qm.InlinePatientTable(
+            rows=qm.IterWrapper(rows),
+            schema=get_table_schema_from_class(cls),
+        )
+        return cls(qm_node)
+
+    return decorator
+
+
 # A descriptor which will return the appropriate type of series depending on the type of
 # frame it belongs to i.e. a PatientSeries subclass for PatientFrames and an EventSeries
 # subclass for EventFrames. This lets schema authors use a consistent syntax when

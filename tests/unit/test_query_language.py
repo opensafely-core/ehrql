@@ -22,11 +22,13 @@ from databuilder.query_language import (
     days,
     months,
     table,
+    table_from_rows,
     years,
 )
 from databuilder.query_model.nodes import (
     Column,
     Function,
+    InlinePatientTable,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
@@ -248,6 +250,25 @@ def test_must_reference_instance_not_class():
 
     with pytest.raises(SchemaError, match="Missing `@table` decorator"):
         some_table.some_int
+
+
+def test_table_from_rows():
+    @table_from_rows([(1, 100), (2, 200)])
+    class some_table(PatientFrame):
+        some_int = Series(int)
+
+    assert isinstance(some_table, PatientFrame)
+    assert isinstance(some_table.qm_node, InlinePatientTable)
+
+
+def test_table_from_rows_only_accepts_patient_frame():
+    with pytest.raises(
+        SchemaError, match="`@table_from_rows` can only be used with `PatientFrame`"
+    ):
+
+        @table_from_rows([])
+        class some_table(EventFrame):
+            some_int = Series(int)
 
 
 def test_boolean_operators_raise_errors():
