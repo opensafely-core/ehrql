@@ -540,6 +540,13 @@ def test_apply_function_to_rows_and_values():
     )
 
 
+def test_apply_function_to_rows_and_values_with_different_key_order():
+    args = [Rows({1: 101, 2: 201}), 1000, Rows({2: 202, 1: 102})]
+    assert apply_function_to_rows_and_values(sum_, args) == Rows(
+        {1: (101 + 1000 + 102), 2: (201 + 1000 + 202)}
+    )
+
+
 def test_apply_function_with_no_event_columns():
     pc1 = PatientColumn.parse(
         """

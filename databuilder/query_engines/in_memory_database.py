@@ -461,7 +461,9 @@ def apply_function_to_rows_and_values(fn, args):
     # Check that every Rows instance has the same keys.  This is a sense check for any
     # test data, and not a check that the QM has provided two frames with the same
     # domain.
-    keys_list = [tuple(a) for a in args if isinstance(a, Rows)]
+    # Convert the keys for each Rows instance to a set first, in case the keys are sorted
+    # differently.
+    keys_list = [tuple(set(a)) for a in args if isinstance(a, Rows)]
     assert len(set(keys_list)) == 1
     keys = keys_list[0]
 
