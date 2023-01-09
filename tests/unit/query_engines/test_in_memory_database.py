@@ -1,3 +1,5 @@
+import pytest
+
 from databuilder.query_engines.in_memory_database import (
     EventColumn,
     EventTable,
@@ -538,6 +540,27 @@ def test_apply_function_to_rows_and_values():
     assert apply_function_to_rows_and_values(sum_, args) == Rows(
         {1: (101 + 1000 + 102), 2: (201 + 1000 + 202)}
     )
+
+
+@pytest.mark.parametrize(
+    "func_to_apply,extra_args",
+    [
+        (sum, [1000, -200]),
+        (min, [200]),
+        (max, [200, 300]),
+    ],
+)
+def test_apply_function_to_rows_and_values_with_different_key_order(
+    func_to_apply, extra_args
+):
+    def func(*args):
+        return func_to_apply(args)
+
+    same_order_args = [Rows({1: 101, 2: 201}), Rows({1: 102, 2: 202}), *extra_args]
+    diff_order_args = [Rows({1: 101, 2: 201}), Rows({2: 202, 1: 102}), *extra_args]
+    assert apply_function_to_rows_and_values(
+        func, same_order_args
+    ) == apply_function_to_rows_and_values(func, diff_order_args)
 
 
 def test_apply_function_with_no_event_columns():

@@ -462,7 +462,29 @@ def apply_function_to_rows_and_values(fn, args):
     # test data, and not a check that the QM has provided two frames with the same
     # domain.
     keys_list = [tuple(a) for a in args if isinstance(a, Rows)]
-    assert len(set(keys_list)) == 1
+    # Convert the keys to sets before checking each Rows instance has the same keys, in
+    # case the keys are sorted differently.
+    #
+    # In practice, this only happens when a function
+    # is being applied to Rows instances that represent columns from the same table, sorted
+    # differently, which isn't likely to happen outside of tests.
+    #
+    # e.g. given the following table `e`:
+    #
+    #      |  i1 |  i2 | s1
+    #    --+-----+-----+---
+    #    1 | 101 | 111 | b
+    #    1 | 102 | 112 | a
+    #    2 | 201 | 211 | b
+    #    2 | 202 | 212 | a
+    #
+    # `(e.i1 + e.sort_by(e.s1).i2).minimum_for_patient()` adds column i1 from the original
+    # table, to column i2 from the same table, sorted by s1 (which reverses the order for each
+    # patient). This is a valid operation; although the order of the keys differs, the key: value
+    # relationship is the same, so this doesn't impact the result of applying the function.
+    assert len({tuple({*keys}) for keys in keys_list}) == 1
+    # Use the first tuple from the keys_list for applying the function, so that results have a deterministic
+    # order.
     keys = keys_list[0]
 
     values = [a if isinstance(a, Rows) else {k: a for k in keys} for a in args]
