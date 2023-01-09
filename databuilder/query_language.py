@@ -650,16 +650,21 @@ def table(cls):
             "Schema class must subclass either `PatientFrame` or `EventFrame`"
         )
 
-    table_name = cls.__name__
+    qm_node = qm_class(
+        name=cls.__name__,
+        schema=get_table_schema_from_class(cls),
+    )
+    return cls(qm_node)
+
+
+def get_table_schema_from_class(cls):
     # Get all `Series` objects on the class and determine the schema from them
     schema = {
         series.name: qm.Column(series.type_, constraints=series.constraints)
         for series in vars(cls).values()
         if isinstance(series, Series)
     }
-
-    qm_node = qm_class(table_name, qm.TableSchema(**schema))
-    return cls(qm_node)
+    return qm.TableSchema(**schema)
 
 
 # A descriptor which will return the appropriate type of series depending on the type of
