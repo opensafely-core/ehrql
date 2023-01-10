@@ -650,16 +650,39 @@ def table(cls):
             "Schema class must subclass either `PatientFrame` or `EventFrame`"
         )
 
-    table_name = cls.__name__
+    qm_node = qm_class(
+        name=cls.__name__,
+        schema=get_table_schema_from_class(cls),
+    )
+    return cls(qm_node)
+
+
+def get_table_schema_from_class(cls):
     # Get all `Series` objects on the class and determine the schema from them
     schema = {
         series.name: qm.Column(series.type_, constraints=series.constraints)
         for series in vars(cls).values()
         if isinstance(series, Series)
     }
+    return qm.TableSchema(**schema)
 
-    qm_node = qm_class(table_name, qm.TableSchema(**schema))
-    return cls(qm_node)
+
+# Defines a PatientFrame along with the data it contains. Takes a list (or
+# any iterable) of row tuples of the form:
+#
+#    (patient_id, column_1_in_schema, column_2_in_schema, ...)
+#
+def table_from_rows(rows):
+    def decorator(cls):
+        if cls.__bases__ != (PatientFrame,):
+            raise SchemaError("`@table_from_rows` can only be used with `PatientFrame`")
+        qm_node = qm.InlinePatientTable(
+            rows=qm.IterWrapper(rows),
+            schema=get_table_schema_from_class(cls),
+        )
+        return cls(qm_node)
+
+    return decorator
 
 
 # A descriptor which will return the appropriate type of series depending on the type of
