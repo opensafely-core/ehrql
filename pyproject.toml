@@ -58,6 +58,7 @@ exclude_lines = [
 ]
 omit = [
     "databuilder/docs/__main__.py",
+    "tests/acceptance/external_studies/*",
 ]
 
 [tool.coverage.coverage_conditional_plugin.rules]
@@ -77,7 +78,15 @@ verbose = 1
 
 [tool.isort]
 profile = "black"
-skip_glob = [".direnv", "venv", ".venv"]
+skip_glob = [
+  ".direnv",
+  ".venv",
+  "venv",
+  "tests/acceptance/external_studies",
+]
+
+[tool.black]
+extend-exclude = "tests/acceptance/external_studies/.*"
 
 [tool.pydocstyle]
 convention = "google"
