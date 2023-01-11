@@ -89,6 +89,7 @@ def show_variables_summary(recorder):  # pragma: no cover
     print(f"\n{len(recorder.variables)} unique queries")
 
     counts = [count_nodes(example) for example in recorder.variables]
+    print(f"\nwith a total of {sum(counts)} nodes")
     print("\nwith this node count distribution")
     for count, num in histogram(counts):
         print(f"{count:3}\t{num}")
