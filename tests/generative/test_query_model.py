@@ -67,7 +67,6 @@ data_strategy = data_strategies.data(
 settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 100))),
     deadline=None,
-    suppress_health_check=[hyp.HealthCheck.filter_too_much, hyp.HealthCheck.too_slow],
 )
 
 
