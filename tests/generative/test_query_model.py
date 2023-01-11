@@ -185,7 +185,7 @@ IGNORED_ERRORS = [
         re.compile(".+Case expressions may only be nested to level 10.+"),
     ),
     # OUT-OF-RANGE DATES
-    # The variable strategy will sometimes result in date operations that contruct
+    # The variable strategy will sometimes result in date operations that construct
     # invalid dates (e.g. a large positive or negative integer in a DateAddYears operation
     # may result in a date with a year that is outside of the allowed range)
     # The different query engines report errors from out-of-range dates in different ways:

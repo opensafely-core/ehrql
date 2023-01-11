@@ -12,9 +12,9 @@ def test_data_strategy_examples_round_trip(example):
     """
     Examples produced by `data_strategy` contain references to classes dynamically
     generated in `data_setup` and we need to do some underhand stuff to make sure they
-    can be copy/pasted back into `@hypothesis.example()` and evalate correctly.
+    can be copy/pasted back into `@hypothesis.example()` and evaluate correctly.
 
-    We've broken this propery once without realising so this test ensures we don't do so
+    We've broken this properly once without realising so this test ensures we don't do so
     again.
     """
     hyp.assume(len(example) > 0)
