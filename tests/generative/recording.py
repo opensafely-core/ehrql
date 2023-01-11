@@ -1,6 +1,5 @@
 import contextlib
 import os
-import pprint
 from collections import defaultdict
 
 import pytest
@@ -93,11 +92,6 @@ def show_variables_summary(recorder):  # pragma: no cover
     print("\nwith this node count distribution")
     for count, num in histogram(counts):
         print(f"{count:3}\t{num}")
-
-    if recorder.variables:
-        print("\nlargest query")
-        by_size = sorted(recorder.variables, key=lambda v: count_nodes(v))
-        pprint.pprint(by_size[-1])
 
     all_node_types = [
         type_.__name__
