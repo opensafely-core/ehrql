@@ -1,3 +1,5 @@
+import datetime
+
 import hypothesis.errors
 import hypothesis.strategies as st
 
@@ -63,15 +65,7 @@ from tests.lib.query_model_utils import get_all_operations
 #   `unknown_dimension_date_series`)
 
 
-def variable(
-    patient_tables,
-    event_tables,
-    schema,
-    int_values,
-    bool_values,
-    date_values,
-    float_values,
-):
+def variable(patient_tables, event_tables, schema, value_strategies):
     frame = st.deferred(
         lambda: st.one_of(
             one_row_per_patient_frame,
@@ -193,10 +187,8 @@ def variable(
 
     sorted_frame = st.deferred(lambda: st.one_of(sort))
 
-    value = qm_builds(
-        Value, st.one_of(int_values, bool_values, date_values, float_values)
-    )
-    date_value = qm_builds(Value, st.one_of(date_values))
+    value = qm_builds(Value, st.one_of(value_strategies.values()))
+    date_value = qm_builds(Value, st.one_of(value_strategies[datetime.date]))
 
     select_table = qm_builds(
         SelectTable,

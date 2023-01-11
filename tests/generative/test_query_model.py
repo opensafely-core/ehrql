@@ -43,31 +43,26 @@ schema = TableSchema(
 ) = data_setup.setup(schema, num_patient_tables=2, num_event_tables=2)
 
 # Use the same strategies for values both for query generation and data generation.
-int_values = st.integers(min_value=0, max_value=10)
-bool_values = st.booleans()
-date_values = st.dates(
-    min_value=datetime.date(1900, 1, 1), max_value=datetime.date(2100, 12, 31)
-)
-float_values = st.floats(min_value=0.0, max_value=11.0, width=16, allow_infinity=False)
-
+value_strategies = {
+    int: st.integers(min_value=0, max_value=10),
+    bool: st.booleans(),
+    datetime.date: st.dates(
+        min_value=datetime.date(1900, 1, 1), max_value=datetime.date(2100, 12, 31)
+    ),
+    float: st.floats(min_value=0.0, max_value=11.0, width=16, allow_infinity=False),
+}
 
 variable_strategy = variable_strategies.variable(
     [c.__tablename__ for c in patient_classes],
     [c.__tablename__ for c in event_classes],
     schema,
-    int_values,
-    bool_values,
-    date_values,
-    float_values,
+    value_strategies,
 )
 data_strategy = data_strategies.data(
     patient_classes,
     event_classes,
     schema,
-    int_values,
-    bool_values,
-    date_values,
-    float_values,
+    value_strategies,
 )
 settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 100))),
