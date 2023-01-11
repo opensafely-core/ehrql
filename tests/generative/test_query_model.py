@@ -15,8 +15,6 @@ from databuilder.query_model.nodes import (
     SelectPatientTable,
     TableSchema,
     Value,
-    count_nodes,
-    node_types,
 )
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
@@ -87,7 +85,6 @@ def query_engines(request):
 @hyp.settings(**settings)
 def test_query_model(query_engines, variable, data, recorder):
     recorder.record_inputs(variable, data)
-    tune_inputs(variable)
     run_test(query_engines, data, variable, recorder)
 
 
@@ -118,12 +115,6 @@ def test_handle_date_errors(query_engines, operation, rhs, recorder):
         rhs=Value(rhs),
     )
     run_error_test(query_engines, data, variable)
-
-
-def tune_inputs(variable):
-    # Encourage Hypothesis to maximize the number and type of nodes
-    hyp.target(count_nodes(variable), label="number of nodes")
-    hyp.target(len(node_types(variable)), label="number of node types")
 
 
 def setup_test(data, variable):
