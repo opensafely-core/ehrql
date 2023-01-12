@@ -9,6 +9,7 @@ from databuilder.tables.beta import tpp
 from tests.lib.tpp_schema import (
     APCS,
     EC,
+    ONS_CIS,
     APCS_Der,
     Appointment,
     CodedEvent,
@@ -467,6 +468,23 @@ def test_household_memberships_2020(select_all):
             "patient_id": 1,
             "household_pseudo_id": 123,
             "household_size": 5,
+        },
+    ]
+
+
+@register_test_for(tpp.ons_cis)
+def test_ons_cis(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        ONS_CIS(
+            Patient_ID=1,
+            visit_date=date(2021, 10, 20),
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "visit_date": date(2021, 10, 20),
         },
     ]
 

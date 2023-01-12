@@ -178,3 +178,12 @@ class household_memberships_2020(PatientFrame):
 
     household_pseudo_id = Series(int)
     household_size = Series(int)
+
+
+@table
+class ons_cis(EventFrame):
+    """
+    ONS Covid Infection Survery
+    """
+
+    visit_date = Series(datetime.date)
