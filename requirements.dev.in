@@ -24,3 +24,7 @@ pytest-env
 pytest-mock
 pytest-xdist
 pyupgrade
+
+# docs
+mkdocs
+mkdocs-material

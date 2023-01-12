@@ -227,3 +227,6 @@ generate-docs OUTPUT_FILE="public_docs.json": devenv
 
 update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
+
+docs-serve: devenv
+    mkdocs serve

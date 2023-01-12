@@ -1,0 +1,10 @@
+site_name: OpenSAFELY Data Builder documentation
+repo_url: https://github.com/opensafely-core/databuilder
+docs_dir: userdocs
+
+nav:
+  - Home: index.md
+
+
+theme:
+  name: material
