@@ -214,3 +214,10 @@ class TPPBackend(BaseBackend):
             ON mb.Household_ID = hh.Household_ID
         """
     )
+
+    ons_cis = MappedTable(
+        source="ONS_CIS",
+        columns=dict(
+            visit_date="visit_date",
+        ),
+    )

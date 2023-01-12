@@ -263,6 +263,11 @@ class Patient(Base):
         back_populates="Patient",
         cascade="all, delete, delete-orphan",
     )
+    ONS_CIS = relationship(
+        "ONS_CIS",
+        back_populates="Patient",
+        cascade="all, delete, delete-orphan",
+    )
 
 
 class RegistrationHistory(Base):
@@ -933,6 +938,17 @@ class Therapeutics(Base):
     SOT02_onset_of_symptoms = Column(String)
     Count = Column(String)
     Der_LoadDate = Column(String)
+
+
+class ONS_CIS(Base):
+    __tablename__ = "ONS_CIS"
+
+    # fake pk to satisfy the ORM
+    pk = Column(Integer, primary_key=True)
+
+    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
+    Patient = relationship("Patient", back_populates="ONS_CIS")
+    visit_date = Column(Date)
 
 
 class UKRR(Base):
