@@ -28,6 +28,18 @@ EXTERNAL_STUDIES = {
         ],
         dataset_definition="analysis/dataset_definition.py",
     ),
+    "comparative-booster-ehrql-poc": dict(
+        repo="opensafely/comparative-booster-ehrql-poc",
+        branch="main",
+        file_globs=[
+            "analysis/codelists.py",
+            "analysis/dataset_definition.py",
+            "analysis/study-dates.json",
+            "analysis/variables_lib.py",
+            "codelists/*.csv",
+        ],
+        dataset_definition="analysis/dataset_definition.py",
+    ),
 }
 
 STUDY_DIR = Path(__file__).parent / "external_studies"
