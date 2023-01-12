@@ -1,0 +1,1439 @@
+code,term
+103075007,Humoral immune defect
+103682005,Subcutaneous panniculitic T-cell lymphoma
+103685007,Hepatosplenic gamma-delta cell lymphoma
+103686008,Intestinal T-cell lymphoma
+103688009,Acute myeloid leukemia with abnormal marrow eosinophils and inv(16)(p13q22) or t(16;16)(p13;q22)
+103689001,"Acute myeloid leukemia, minimal differentiation"
+103690005,Acute myeloid leukemia without maturation
+103691009,Acute myeloid leukemia with maturation
+105601003,Quantitative disorder of neutrophils
+10639003,Solitary plasmacytoma of bone
+10755671000119100,Human immunodeficiency virus in mother complicating childbirth
+1090241000000107,Angioimmunoblastic T-cell lymphoma with dysproteinaemia
+1091861000000100,"Follicular lymphoma, cutaneous follicle centre"
+1091891000000106,B-cell Hodgkin's lymphoma
+1091921000000103,B-cell non-Hodgkin's lymphoma
+109391009,Kaposi's sarcoma of lymph nodes
+109958007,Hematologic neoplasm of uncertain behavior
+109962001,Diffuse non-Hodgkin's lymphoma
+109964000,"Diffuse non-Hodgkin's lymphoma, undifferentiated"
+109965004,"Diffuse non-Hodgkin's lymphoma, lymphoblastic"
+109966003,"Diffuse non-Hodgkin's lymphoma, immunoblastic"
+109967007,"Diffuse non-Hodgkin's lymphoma, small cleaved cell"
+109968002,"Diffuse non-Hodgkin's lymphoma, small cell"
+109969005,"Diffuse non-Hodgkin's lymphoma, large cell"
+109970006,"Follicular non-Hodgkin's lymphoma, small cleaved cell"
+109971005,"Follicular non-Hodgkin's lymphoma, mixed small cleaved cell and large cell"
+109972003,"Follicular non-Hodgkin's lymphoma, large cell"
+109975001,T-zone lymphoma
+109976000,Lymphoepithelioid lymphoma
+109977009,Peripheral T-cell lymphoma
+109978004,T-cell lymphoma
+109979007,B-cell lymphoma
+109980005,Malignant immunoproliferative disease
+109985000,Immunoproliferative small intestinal disease
+109988003,Histiocytic sarcoma
+109989006,Multiple myeloma
+109991003,Acute myelofibrosis
+109993000,Chronic myeloproliferative disorder (clinical)
+109994006,Essential thrombocythemia
+109995007,Myelodysplastic syndrome
+109996008,"Myelodysplastic syndrome: Refractory anemia, without ringed sideroblasts, without excess blasts"
+109998009,Refractory anemia with ringed sideroblasts
+110000005,Refractory anemia with excess blasts in transformation
+110002002,Mast cell leukemia
+110004001,"Acute promyelocytic leukemia, FAB M3"
+110005000,"Acute myelomonocytic leukemia, FAB M4"
+110006004,Prolymphocytic leukemia
+110007008,Adult T-cell leukemia/lymphoma
+110459008,"Malignant lymphoma, metastatic"
+111001004,Gammopathy
+111037009,Basophilic hyperplasia
+111585004,Neutropenia associated with autoimmune disease
+111880001,Acute human immunodeficiency virus infection
+112687003,"Hodgkin lymphoma, lymphocyte depletion"
+115244002,Malignant lymphoma - category
+115245001,"Malignant lymphoma, follicular AND/OR nodular"
+115246000,Specified cutaneous AND/OR peripheral T cell lymphoma
+116691000119101,Marginal zone lymphoma of spleen
+116811000119106,Non-Hodgkin lymphoma of central nervous system metastatic to lymph node of lower limb
+116821000119104,Non-Hodgkin lymphoma of central nervous system metastatic to lymph node of upper limb
+116841000119105,Marginal zone lymphoma of lymph nodes of multiple sites
+116871000119103,Mantle cell lymphoma of lymph nodes of multiple sites
+117211000119105,Peripheral T-cell lymphoma of lymph nodes of multiple sites
+118599009,Hodgkin's disease
+118600007,Malignant lymphoma
+118601006,Non-Hodgkin's lymphoma
+118602004,Hodgkin's granuloma
+118605002,"Hodgkin lymphoma, nodular lymphocyte predominance"
+118606001,Hodgkin's sarcoma
+118607005,"Hodgkin lymphoma, lymphocyte-rich"
+118608000,"Hodgkin's disease, nodular sclerosis"
+118609008,"Hodgkin's disease, mixed cellularity"
+118610003,"Hodgkin's disease, lymphocytic depletion"
+118611004,Sézary's disease
+118612006,Malignant histiocytosis
+118613001,Hairy cell leukemia
+118614007,"Langerhans cell histiocytosis, disseminated"
+118615008,Malignant mast cell tumor
+118617000,Burkitt's lymphoma
+118618005,Mycosis fungoides
+118791000119106,Aplastic anemia caused by antineoplastic agent
+119249001,Agammaglobulinemia
+119250001,Hypogammaglobulinemia
+121131000119109,Chronic graft versus host disease after transplantation of bone marrow
+12281000132104,Relapsing acute myeloid leukemia
+12291000132102,Refractory acute myeloid leukemia
+12301000132103,Acute lymphoid leukemia relapse
+12311000132101,Refractory acute lymphoid leukemia
+12341000132100,"B-cell lymphoma, unclassifiable, with features intermediate between diffuse large B-cell lymphoma and Burkitt lymphoma"
+12351000132102,"B-cell lymphoma, unclassifiable, with features intermediate between diffuse large B-cell lymphoma and Hodgkin lymphoma"
+123777002,Autoimmune leukopenia
+124950009,Deficiency of immunoglobulin
+127034005,Pancytopenia
+127069007,Hemophagocytic syndrome
+127070008,Malignant histiocytic disorder
+127220001,Malignant lymphoma of lymph nodes
+127225006,Chronic myelomonocytic leukemia
+127388009,Hypergammaglobulinemia
+128623006,Myelodysplastic syndrome
+128798004,Composite Hodgkin and non-Hodgkin lymphoma
+128799007,"Hodgkin lymphoma, lymphocyte-rich"
+128800006,Primary effusion lymphoma
+128801005,Mediastinal large B-cell lymphoma
+128802003,Splenic marginal zone B-cell lymphoma
+128803008,Marginal zone B-cell lymphoma
+128805001,"Natural killer-/T-cell lymphoma, nasal and nasal-type"
+128806000,Precursor cell lymphoblastic lymphoma
+128807009,Precursor B-cell lymphoblastic lymphoma
+128808004,Precursor T-cell lymphoblastic lymphoma
+128809007,"Langerhans cell histiocytosis, no International Classification of Diseases for Oncology subtype"
+128812005,"Langerhans cell histiocytosis, disseminated"
+128813000,Histiocytic sarcoma
+128814006,Langerhans cell sarcoma
+128815007,Interdigitating dendritic cell sarcoma
+128816008,Follicular dendritic cell sarcoma
+128818009,Acute biphenotypic leukemia
+128819001,T-cell large granular lymphocytic leukemia
+128820007,"Prolymphocytic leukemia, B-cell type"
+128821006,"Prolymphocytic leukemia, T-cell type"
+128822004,Precursor cell lymphoblastic leukemia
+128823009,Precursor B-cell lymphoblastic leukemia
+128824003,Precursor T-cell lymphoblastic leukemia
+128825002,"Chronic myelogenous leukemia, BCR/ABL positive"
+128826001,"Atypical chronic myeloid leukemia, BCR/ABL negative"
+128827005,Acute myeloid leukemia with multilineage dysplasia
+128828000,"Acute myeloid leukemia, t(8;21) (q22;q22)"
+128829008,"Acute myeloid leukemia, 11q23 abnormalities"
+128830003,Therapy-related acute myeloid leukemia and myelodysplastic syndrome
+128832006,Juvenile myelomonocytic leukemia
+128833001,Aggressive natural killer-cell leukemia
+128834007,Chronic neutrophilic leukemia
+128836009,Refractory cytopenia with multilineage dysplasia
+128837000,Myelodysplastic syndrome with 5q- syndrome
+128838005,Therapy-related myelodysplastic syndrome
+128843003,Myelosclerosis with myeloid metaplasia
+128845005,Refractory anemia
+128846006,Refractory anemia with sideroblasts
+128847002,Refractory anemia with excess blasts
+128848007,Refractory anemia with excess blasts in transformation
+128875000,Primary cutaneous CD30 antigen positive large T-cell lymphoma
+128920006,Malignant histiocytosis
+128921005,"Plasmacytoma, extramedullary (not occurring in bone)"
+128922003,"Plasma cell leukemia, morphology"
+128923008,Prolymphocytic leukemia
+128924002,Mast cell leukemia
+128929007,Non-Hodgkin lymphoma - category
+128930002,Hodgkin lymphoma - category
+128931003,Leukemia - category
+128932005,Acute leukemia - category
+128933000,Chronic leukemia - category
+128934006,Myeloid leukemia - category
+128935007,Lymphoid leukemia - category
+129641006,Chronic benign neutropenia of childhood
+129642004,Chronic idiopathic immunoneutropenia in adults
+129643009,Chronic hypoplastic neutropenia
+129648000,Hypoalphaglobulinemia
+129649008,Hypobetaglobulinemia
+13048006,Orbital lymphoma
+133751000119102,Lymphoma of colon
+14024008,Humoral immunologic aplastic anemia
+14317002,"Acute myeloid leukemia, M6 type"
+14537002,"Hodgkin lymphoma, no International Classification of Diseases for Oncology subtype"
+15928141000119107,Cognitive impairment co-occurrent and due to human immunodeficiency virus infection
+165816005,Human immunodeficiency virus positive
+16623961000119100,Pancytopenia caused by immunosuppressant
+16893006,"Hodgkin lymphoma, lymphocyte depletion, diffuse fibrosis"
+17182001,Agranulocytosis
+17788007,"Acute myeloid leukemia, no International Classification of Diseases for Oncology subtype"
+183005,Autoimmune pancytopenia
+186706006,Human immunodeficiency virus infection constitutional disease
+186707002,Human immunodeficiency virus infection with neurological disease
+186708007,Human immunodeficiency virus infection with secondary clinical infectious disease
+188487008,Lymphosarcoma and reticulosarcoma
+188489006,"Reticulosarcoma of lymph nodes of head, face and neck"
+188492005,Reticulosarcoma of lymph nodes of axilla and upper limb
+188493000,Reticulosarcoma of lymph nodes of inguinal region and lower limb
+188498009,Lymphosarcoma
+188500005,"Lymphosarcoma of lymph nodes of head, face and neck"
+188501009,Lymphosarcoma of intrathoracic lymph nodes
+188502002,Lymphosarcoma of intra-abdominal lymph nodes
+188503007,Lymphosarcoma of lymph nodes of axilla and upper limb
+188504001,Lymphosarcoma of lymph nodes of inguinal region and lower limb
+188505000,Lymphosarcoma of intrapelvic lymph nodes
+188506004,Lymphosarcoma of spleen
+188507008,Lymphosarcoma of lymph nodes of multiple sites
+188510001,"Burkitt's lymphoma of lymph nodes of head, face and neck"
+188511002,Burkitt's lymphoma of intrathoracic lymph nodes
+188512009,Burkitt's lymphoma of intra-abdominal lymph nodes
+188513004,Burkitt's lymphoma of lymph nodes of axilla and upper limb
+188514005,Burkitt's lymphoma of lymph nodes of inguinal region and lower limb
+188515006,Burkitt's lymphoma of intrapelvic lymph nodes
+188516007,Burkitt's lymphoma of spleen
+188517003,Burkitt's lymphoma of lymph nodes of multiple sites
+188524002,Hodgkin's paragranuloma of intrathoracic lymph nodes
+188529007,Hodgkin's paragranuloma of intrapelvic lymph nodes
+188531003,Hodgkin's paragranuloma of lymph nodes of multiple sites
+188534006,"Hodgkin's granuloma of lymph nodes of head, face and neck"
+188536008,Hodgkin's granuloma of intra-abdominal lymph nodes
+188537004,Hodgkin's granuloma of lymph nodes of axilla and upper limb
+188538009,Hodgkin's granuloma of lymph nodes of inguinal region and lower limb
+188541000,Hodgkin's granuloma of lymph nodes of multiple sites
+188544008,"Hodgkin's sarcoma of lymph nodes of head, face and neck"
+188547001,Hodgkin's sarcoma of lymph nodes of axilla and upper limb
+188548006,Hodgkin's sarcoma of lymph nodes of inguinal region and lower limb
+188551004,Hodgkin's sarcoma of lymph nodes of multiple sites
+188554007,"Hodgkin's disease, lymphocytic-histiocytic predominance of lymph nodes of head, face and neck"
+188558005,"Hodgkin's disease, lymphocytic-histiocytic predominance of lymph nodes of axilla and upper limb"
+188559002,"Hodgkin's disease, lymphocytic-histiocytic predominance of lymph nodes of inguinal region and lower limb"
+188562004,"Hodgkin's disease, lymphocytic-histiocytic predominance of lymph nodes of multiple sites"
+188565002,"Hodgkin's disease, nodular sclerosis of lymph nodes of head, face and neck"
+188566001,"Hodgkin's disease, nodular sclerosis of intrathoracic lymph nodes"
+188567005,"Hodgkin's disease, nodular sclerosis of intra-abdominal lymph nodes"
+188568000,"Hodgkin's disease, nodular sclerosis of lymph nodes of axilla and upper limb"
+188569008,"Hodgkin's disease, nodular sclerosis of lymph nodes of inguinal region and lower limb"
+188570009,"Hodgkin's disease, nodular sclerosis of intrapelvic lymph nodes"
+188572001,"Hodgkin's disease, nodular sclerosis of lymph nodes of multiple sites"
+188575004,"Hodgkin's disease, mixed cellularity of lymph nodes of head, face and neck"
+188576003,"Hodgkin's disease, mixed cellularity of intrathoracic lymph nodes"
+188577007,"Hodgkin's disease, mixed cellularity of intra-abdominal lymph nodes"
+188578002,"Hodgkin's disease, mixed cellularity of lymph nodes of axilla and upper limb"
+188579005,"Hodgkin's disease, mixed cellularity of lymph nodes of inguinal region and lower limb"
+188580008,"Hodgkin's disease, mixed cellularity of intrapelvic lymph nodes"
+188582000,"Hodgkin's disease, mixed cellularity of lymph nodes of multiple sites"
+188585003,"Hodgkin's disease, lymphocytic depletion of lymph nodes of head, face and neck"
+188586002,"Hodgkin's disease, lymphocytic depletion of intrathoracic lymph nodes"
+188587006,"Hodgkin's disease, lymphocytic depletion of intra-abdominal lymph nodes"
+188589009,"Hodgkin's disease, lymphocytic depletion of lymph nodes of axilla and upper limb"
+188590000,"Hodgkin's disease, lymphocytic depletion of lymph nodes of inguinal region and lower limb"
+188591001,"Hodgkin's disease, lymphocytic depletion of intrapelvic lymph nodes"
+188592008,"Hodgkin's disease, lymphocytic depletion of spleen"
+188593003,"Hodgkin's disease, lymphocytic depletion of lymph nodes of multiple sites"
+188609000,"Nodular lymphoma of lymph nodes of head, face and neck"
+188612002,Nodular lymphoma of lymph nodes of axilla and upper limb
+188613007,Nodular lymphoma of lymph nodes of inguinal region and lower limb
+188627002,Mycosis fungoides of lymph nodes of multiple sites
+188630009,"Sézary's disease of lymph nodes of head, face and neck"
+188631008,Sézary's disease of intrathoracic lymph nodes
+188632001,Sézary's disease of intra-abdominal lymph nodes
+188633006,Sézary's disease of lymph nodes of axilla and upper limb
+188634000,Sézary's disease of lymph nodes of inguinal region and lower limb
+188635004,Sézary's disease of intrapelvic lymph nodes
+188637007,Sézary's disease of lymph nodes of multiple sites
+188640007,"Malignant histiocytosis of lymph nodes of head, face and neck"
+188641006,Malignant histiocytosis of lymph nodes of axilla and upper limb
+188642004,Malignant histiocytosis of lymph nodes of inguinal region and lower limb
+188645002,"Leukemic reticuloendotheliosis of lymph nodes of head, face and neck"
+188648000,Leukemic reticuloendotheliosis of lymph nodes of axilla and upper limb
+188649008,Leukemic reticuloendotheliosis of lymph nodes of inguinal region and lower limb
+188660004,Malignant mast cell tumors
+188662007,"Mast cell malignancy of lymph nodes of head, face and neck"
+188663002,Mast cell malignancy of intrathoracic lymph nodes
+188664008,Mast cell malignancy of intra-abdominal lymph nodes
+188665009,Mast cell malignancy of lymph nodes of axilla and upper limb
+188666005,Mast cell malignancy of lymph nodes of inguinal region and lower limb
+188667001,Mast cell malignancy of intrapelvic lymph nodes
+188668006,Mast cell malignancy of spleen
+188669003,Mast cell malignancy of lymph nodes of multiple sites
+188672005,Follicular non-Hodgkin's mixed small cleaved and large cell lymphoma
+188674006,Diffuse malignant lymphoma - small non-cleaved cell
+188675007,Malignant lymphoma - small cleaved cell
+188676008,Malignant lymphoma - mixed small and large cell
+188679001,Diffuse non-Hodgkin's lymphoma undifferentiated (diffuse)
+188691005,Malignant immunoproliferative small intestinal disease
+188718006,"Malignant plasma cell neoplasm, extramedullary plasmacytoma"
+188725004,Lymphoid leukemia
+188726003,Subacute lymphoid leukemia
+188728002,Aleukemic lymphoid leukemia
+188729005,Adult T-cell leukemia
+188732008,Myeloid leukemia
+188733003,Chronic eosinophilic leukemia
+188734009,Chronic neutrophilic leukemia
+188736006,Subacute myeloid leukemia
+188737002,Chloroma
+188738007,Granulocytic sarcoma
+188741003,Aleukemic myeloid leukemia
+188744006,Monocytic leukemia
+188745007,Chronic monocytic leukemia
+188746008,Subacute monocytic leukemia
+188748009,Aleukemic monocytic leukemia
+188754005,Megakaryocytic leukemia
+188768003,Myelomonocytic leukemia
+188770007,Subacute myelomonocytic leukemia
+189509003,"Refractory anemia without sideroblasts, so stated"
+189962004,"Malignant lymphoma, stem cell type"
+189982000,Reticulosarcoma morphology
+189984004,"Reticulosarcoma, pleomorphic cell type"
+189985003,"Reticulosarcoma, nodular"
+190030009,Compound leukemias
+190055003,Eosinophilic leukemia
+190955000,Histiocytosis X syndrome
+190986006,Antibody deficiency with near-normal immunoglobulins or with hyperimmunoglobulinemia
+191244003,Aplastic anemia due to chronic disease
+191246001,Aplastic anemia due to infection
+191247005,Aplastic anemia caused by radiation
+191248000,Aplastic anemia caused by toxic cause
+191255003,Transient acquired pure red cell aplasia
+191256002,Idiopathic aplastic anemia
+191338000,Primary splenic neutropenia
+191345000,Acquired neutropenia in newborn
+191347008,Cyclical neutropenia
+191358004,Hereditary eosinophilia
+191360002,Drug-induced eosinophilia
+1929004,"Non-Hodgkin lymphoma, no International Classification of Diseases for Oncology subtype"
+193206003,Persistent neonatal myasthenia gravis
+193207007,Juvenile or adult myasthenia gravis
+19340000,"Malignant lymphoma, lymphoplasmacytic"
+19944001,Autologous bone marrow transplant without purging
+20447006,Plasma cell dyscrasia with polyneuropathy
+209962000,Myeloma-associated amyloidosis
+213148006,Transplanted organ rejection
+21964009,"Malignant lymphoma, no International Classification of Diseases for Oncology subtype"
+22098000,Chronic idiopathic autoimmune hemolytic anemia
+22197008,Burkitt cell leukemia
+22331004,"Acute monocytic leukemia, morphology"
+228311000000103,Allograft of bone marrow from haploidentical donor
+230180003,Human immunodeficiency virus leukoencephalopathy
+230202002,Vacuolar myelopathy
+230598008,Neuropathy caused by human immunodeficiency virus
+230683002,Transient neonatal myasthenia
+230684008,Ocular myasthenia
+230685009,Myasthenia gravis associated with thymoma
+230686005,Generalized myasthenia
+230687001,Myopathy in myasthenia gravis
+232075002,Lymphoma of retina
+234331007,Syngeneic bone marrow transplant
+234332000,T-cell depleted allogeneic bone marrow graft
+234333005,Imperfect T-cell depleted allogeneic bone marrow graft
+234334004,Allogeneic related bone marrow transplant
+234335003,Allogeneic unrelated bone marrow transplant
+234336002,Hemopoietic stem cell transplant
+234367000,Pancytopenia with pancreatitis
+234370001,"Pure red cell aplasia, acquired"
+234376007,Acquired red cell aplasia
+234416002,X-linked hypogammaglobulinemia
+234423001,Chronic benign neutropenia
+234424007,Metabolic neutropenia
+234425008,Autoimmune neutropenia
+234513007,Post-splenectomy leukocytosis
+234519006,Bone marrow transplant rejection
+234520000,Bone marrow transplant failure
+234532001,Immunodeficiency disorder
+234535004,Selective immunoglobulin dysfunction
+234557006,Anti-polysaccharide antibody deficiency
+234562007,Anti-protein antibody deficiency
+234563002,Anti-staphylococcal antibody deficiency
+234576008,Chronic familial neutropenia
+234603007,Complement 3 deficiency
+234646005,Graft-versus-host disease
+235009000,Human immunodeficiency virus-associated periodontitis
+235726002,Human immunodeficiency virus enteropathy
+236406007,Acquired immune deficiency syndrome-related nephropathy
+236512004,Leukemic infiltrate of kidney
+236513009,Lymphoma of kidney
+236585005,De novo transplant disease
+23719005,Transplantation of bone marrow
+238931006,Eosinophilic cellulitis
+239297008,Lymphomatoid granulomatosis of lung
+239910001,Toxic oil syndrome
+239940004,Lymphomatoid granulomatosis
+240103002,Human immunodeficiency virus myopathy
+240486003,Parvoviral aplastic crisis
+240531002,African Burkitt's lymphoma
+24072005,"Acute leukemia, morphology, including blast cell OR undifferentiated leukemia"
+247860002,Familial neutropenia
+248693006,Chronic idiopathic neutropenia
+24974008,Myelokathexis
+25109007,Lymphopenic agammaglobulinemia - short-limbed dwarfism syndrome
+254792006,Proliferating angioendotheliomatosis
+25502009,Episodic lymphocytopenia
+255048006,"Tumor of lymphoid, hemopoietic and related tissue"
+255101006,Sézary disease of skin
+255102004,Angioendotheliomatosis
+255191003,Localized malignant reticulohistiocytoma
+267459007,Deficiencies of humoral immunity
+267460002,Congenital hypogammaglobulinemia
+267524009,Constitutional aplastic anemia with malformation
+267527002,Aplastic anemia due to drugs
+267540007,Neutropenia caused by irradiation
+269295009,Transplanted organ failure
+269475001,"Malignant tumor of lymphoid, hemopoietic AND/OR related tissue"
+269476000,Nodular lymphoma
+274905008,"Malignant lymphoma - lymphocytic, intermediate differentiation"
+275523003,Pancytopenia-dysmelia
+275524009,Immunoproliferative neoplasm
+276628009,Chloramphenicol-induced neutropenia
+276665006,Congenital acquired immune deficiency syndrome
+276666007,Congenital human immunodeficiency virus positive status syndrome
+276811008,Gastric lymphoma
+276815004,Lymphoma of intestine
+276836002,Primary cerebral lymphoma
+277473004,B-cell chronic lymphocytic leukemia
+277474005,B-cell chronic lymphocytic leukemia variant
+277545003,T-cell chronic lymphocytic leukemia
+277549009,Chronic lymphocytic prolymphocytic leukemia syndrome
+277550009,Richter's syndrome
+277551008,Splenic lymphoma with villous lymphocytes
+277567002,T-cell prolymphocytic leukemia
+277568007,Hairy cell leukemia variant
+277569004,Large granular lymphocytic leukemia
+277570003,Lymphoma with spill
+277571004,B-cell acute lymphoblastic leukemia
+277572006,Precursor B-cell acute lymphoblastic leukemia
+277573001,Common acute lymphoblastic leukemia
+277574007,Null cell acute lymphoblastic leukemia
+277575008,T-cell acute lymphoblastic leukemia
+277579002,Light chain myeloma
+277580004,Non-secretory myeloma
+277587001,Juvenile chronic myeloid leukemia
+277589003,Atypical chronic myeloid leukemia
+277597005,Myelodysplastic syndrome with isolated del(5q)
+277601005,Acute monoblastic leukemia
+277602003,Acute megakaryoblastic leukemia
+277604002,Acute eosinophilic leukemia
+277606000,Lymphoreticular tumor
+277609007,"Hodgkin's disease, lymphocytic predominance - diffuse"
+277610002,"Hodgkin's disease, nodular sclerosis - lymphocytic predominance"
+277611003,"Hodgkin's disease, nodular sclerosis - mixed cellularity"
+277612005,"Hodgkin's disease, nodular sclerosis - lymphocytic depletion"
+277613000,Cutaneous/peripheral T-cell lymphoma
+277614006,Prethymic and thymic T-cell lymphoma/leukemia
+277615007,Low grade B-cell lymphoma
+277616008,Diffuse low grade B-cell lymphoma
+277617004,High grade B-cell lymphoma
+277618009,Follicular low grade B-cell lymphoma
+277619001,B-cell prolymphocytic leukemia
+277622004,Mucosa-associated lymphoma
+277623009,Monocytoid B-cell lymphoma
+277624003,Follicular malignant lymphoma - mixed cell type
+277625002,Follicular malignant lymphoma - small cleaved cell
+277626001,Diffuse high grade B-cell lymphoma
+277627005,Nodular high grade B-cell lymphoma
+277628000,Diffuse malignant lymphoma - large cleaved cell
+277629008,Diffuse malignant lymphoma - large non-cleaved cell
+277632006,Diffuse malignant lymphoma - centroblastic polymorphic
+277637000,Large cell anaplastic lymphoma
+277641001,Follicular malignant lymphoma - large cell
+277642008,Low grade T-cell lymphoma
+277643003,High grade T-cell lymphoma
+277651000,Peripheral T-cell lymphoma - pleomorphic small cell
+277653002,Peripheral T-cell lymphoma - pleomorphic medium and large cell
+277654008,Enteropathy-associated T-cell lymphoma
+277664004,Malignant lymphoma of testis
+278051002,Malignant lymphoma of thyroid gland
+278052009,Malignant lymphoma of breast
+278189009,Hypergranular promyelocytic leukemia
+278256002,Cord cell transfusion
+278257006,Peripheral blood stem cell graft
+278453007,Acute biphenotypic leukemia
+28054005,"Cutaneous T-cell lymphoma, no International Classification of Diseases for Oncology subtype"
+281388009,Human immunodeficiency virus-related sclerosing cholangitis
+284681000000100,Syngeneic peripheral blood stem cell transplant
+285420006,Immunoglobulin A myeloma
+285421005,Immunoglobulin G myeloma
+285422003,Immunoglobulin D myeloma
+285581000000102,Transplantation of stem cells
+285769009,Acute promyelocytic leukemia - hypogranular variant
+285776004,Intermediate grade B-cell lymphoma
+285839005,Acute myelomonocytic leukemia - eosinophilic variant
+28950004,"Acute promyelocytic leukemia, t(15;17)(q22;q11-12)"
+28975000,Constitutional aplastic anemia
+29120000,Eosinophilic colitis
+302841002,Malignant lymphoma - small lymphocytic
+302842009,Diffuse malignant lymphoma - centroblastic
+302845006,"Nodular malignant lymphoma, lymphocytic - well differentiated"
+302848008,"Nodular malignant lymphoma, lymphocytic - intermediate differentiation"
+302855005,Subacute leukemia
+302856006,Aleukemic leukemia
+303011007,Neutropenic disorder
+303017006,"Malignant lymphoma, convoluted cell type"
+303055001,"Malignant lymphoma, follicular center cell"
+303056000,"Malignant lymphoma, follicular center cell, cleaved"
+303057009,"Malignant lymphoma, follicular center cell, non-cleaved"
+306058006,Aplastic anemia
+307340003,Monosomy 7 syndrome
+307341004,Atypical hairy cell leukemia
+307592006,Basophilic leukemia
+307617006,Neutrophilic leukemia
+307622006,Prolymphocytic lymphosarcoma
+307623001,Malignant lymphoma - lymphoplasmacytic
+307624007,Diffuse malignant lymphoma - centroblastic-centrocytic
+307625008,Malignant lymphoma - centrocytic
+307633009,"Hodgkin's disease, lymphocytic depletion, diffuse fibrosis"
+307634003,"Hodgkin's disease, lymphocytic depletion, reticular type"
+307635002,"Hodgkin's disease, nodular sclerosis - cellular phase"
+307636001,"Malignant lymphoma, mixed lymphocytic-histiocytic, nodular"
+307637005,"Malignant lymphoma, centroblastic-centrocytic, follicular"
+307646004,"Malignant lymphoma, lymphocytic, poorly differentiated, nodular"
+307647008,"Malignant lymphoma, centroblastic type, follicular"
+307649006,Microglioma
+307650006,Histiocytic medullary reticulosis
+307651005,Myelosclerosis with myeloid metaplasia
+308121000,Follicular non-Hodgkin's lymphoma
+30962008,Acute myelomonocytic leukemia
+30981000,Secondary eosinophilia
+313427003,Lambda light chain myeloma
+314922006,B-cell lymphoma morphology
+314923001,Low grade B-cell lymphoma morphology
+314924007,Follicular low grade B-cell lymphoma morphology
+314925008,High grade B-cell lymphoma morphology
+314926009,T-cell lymphoma morphology
+314927000,High grade T-cell lymphoma morphology
+314929002,Diffuse low grade B-cell lymphoma morphology
+314930007,Low grade T-cell lymphoma morphology
+314931006,Nodular high grade B-cell lymphoma morphology
+314934003,Diffuse high grade B-cell lymphoma morphology
+315019000,Human immunodeficiency virus infection with aseptic meningitis
+3172003,"Peripheral T-cell lymphoma, no International Classification of Diseases for Oncology subtype"
+31839002,"Myasthenia gravis, adult form"
+320150004,Idiopathic eosinophilia
+32092008,Toxic neutropenia
+32280000,"Lymphoid leukemia, no International Classification of Diseases for Oncology subtype"
+328301000119102,Pancytopenia due to antineoplastic chemotherapy
+328611000119105,Adult pulmonary Langerhans cell histiocytosis
+350951000119101,B-cell lymphoma of intra-abdominal lymph nodes
+351211000119104,B-cell lymphoma of lymph nodes of multiple sites
+352251000119109,Small lymphocytic B-cell lymphoma of lymph nodes of multiple sites
+352411000119109,Small lymphocytic B-cell lymphoma of intra-abdominal lymph nodes
+352791000119108,Non-Hodgkin's lymphoma of lymph nodes of multiple sites
+35287006,"Myeloid sarcoma, morphology"
+354851000119101,Follicular non-Hodgkin's lymphoma of lymph nodes of multiple sites
+359631009,"Acute myeloid leukemia, minimal differentiation, FAB M0"
+359640008,"Acute myeloid leukemia without maturation, FAB M1"
+359648001,"Acute myeloid leukemia with maturation, FAB M2"
+363138005,Hereditary disorder of immune system
+363153002,Immune system transplantation
+367542003,Pulmonary eosinophilia
+370388006,Patient immunocompromised
+370391006,Patient immunosuppressed
+371012000,"Acute lymphoblastic leukemia, transitional pre-B-cell"
+371134001,"Malignant lymphoma, large cell, polymorphous, immunoblastic"
+373168002,Reticulosarcoma
+373381004,"Myelodysplastic syndrome, no International Classification of Diseases for Oncology subtype"
+37810007,"Myeloid leukemia, no International Classification of Diseases for Oncology subtype"
+378841000000102,Allograft of bone marrow from unmatched unrelated donor
+38970002,Doan-Wright syndrome
+3902000,Non dose-related drug-induced neutropenia
+39086001,"Hodgkin lymphoma, nodular sclerosis, cellular phase"
+393573009,Hypereosinophilic syndrome
+397009000,Mast cell malignancy
+397011009,Mast cell malignancy of lymph nodes
+397338009,Refractory anemia with excess blasts I
+397339001,Refractory anemia with excess blasts II
+397340004,Acute myeloid leukemia with recurrent genetic abnormality
+397341000,Acute myeloid leukemia with multilineage dysplasia following a myelodysplastic syndrome or myelodysplastic syndrome/myeloproliferative disorder
+397342007,Acute myeloid leukemia with multilineage dysplasia without antecedent myelodysplastic syndrome
+397343002,"Therapy-related acute myeloid leukemia and myelodysplastic syndrome, alkylating agent-related type"
+397344008,"Therapy-related acute myeloid leukemia and myelodysplastic syndrome, topoisomerase type II inhibitor-related type"
+397345009,Acute leukemia of ambiguous lineage
+397349003,Nodal marginal zone B-cell lymphoma
+397350003,Extranodal marginal zone B-cell lymphoma of mucosa-associated lymphoid tissue
+397352006,"Primary cutaneous anaplastic large T-cell lymphoma, CD30-positive"
+397355008,"Dendritic cell sarcoma, no International Classification of Diseases for Oncology subtype"
+397400006,Burkitt lymphoma/leukemia
+397467006,"Follicular lymphoma, cutaneous follicle center sub-type"
+397468001,"Follicular lymphoma, diffuse follicle center sub-type, grade 1"
+397469009,"Follicular lymphoma, diffuse follicle center cell sub-type, grade 2"
+397763006,Human immunodeficiency virus encephalopathy
+39795003,Hand-Schüller-Christian disease
+398055000,T-lymphocyte deficiency
+398271008,Predominantly T-cell defect
+398293003,Cellular immune defect
+398329009,Human immunodeficiency virus encephalitis
+398623004,Refractory anemia with excess blasts
+399648005,Intravascular large B-cell lymphoma
+400001003,Primary cutaneous lymphoma
+400122007,Primary cutaneous T-cell lymphoma
+402355000,Acute graft-versus-host disease
+402356004,Chronic graft-versus-host disease
+402404006,Episodic angioedema with eosinophilia
+402879006,T-cell leukemic infiltration of skin
+402880009,Primary cutaneous large T-cell lymphoma
+402881008,Primary cutaneous B-cell lymphoma
+402882001,Hodgkin's disease affecting skin
+404106004,Lymphomatoid papulosis with Hodgkin's disease
+404107008,Patch/plaque stage mycosis fungoides
+404108003,Poikilodermatous mycosis fungoides
+404109006,Follicular mucinosis type mycosis fungoides
+40411000,"Follicular lymphoma, grade 3"
+404110001,Hypomelanotic mycosis fungoides
+404111002,Lymphomatoid papulosis-associated mycosis fungoides
+404112009,Granulomatous mycosis fungoides
+404113004,Tumor stage mycosis fungoides
+404114005,Erythrodermic mycosis fungoides
+404115006,Bullous mycosis fungoides
+404116007,Mycosis fungoides with systemic infiltration
+404117003,Spongiotic mycosis fungoides
+404118008,Syringotropic mycosis fungoides
+404119000,Pagetoid reticulosis
+404120006,Localized pagetoid reticulosis
+404121005,Generalized pagetoid reticulosis
+404122003,Leukemic infiltration of skin (chronic T-cell lymphocytic leukemia)
+404123008,Leukemic infiltration of skin (T-cell prolymphocytic leukemia)
+404124002,Leukemic infiltration of skin (T-cell lymphoblastic leukemia)
+404126000,CD-30 positive pleomorphic large T-cell cutaneous lymphoma
+404127009,CD-30 positive T-immunoblastic cutaneous lymphoma
+404128004,CD-30 negative cutaneous T-cell lymphoma
+404129007,CD-30 negative anaplastic large T-cell cutaneous lymphoma
+404130002,CD-30 negative pleomorphic large T-cell cutaneous lymphoma
+404131003,CD-30 negative T-immunoblastic cutaneous lymphoma
+404133000,Subcutaneous panniculitic cutaneous T-cell lymphoma
+404134006,Anaplastic large T-cell systemic malignant lymphoma
+404135007,Angiocentric natural killer/T-cell malignant lymphoma involving skin
+404136008,Aggressive natural killer-cell leukemia involving skin
+404137004,Precursor B-cell lymphoblastic lymphoma involving skin
+404138009,Small lymphocytic B-cell lymphoma involving skin
+404139001,Leukemic infiltration of skin in hairy-cell leukemia
+404140004,Primary cutaneous marginal zone B-cell lymphoma
+404141000,Primary cutaneous immunocytoma
+404142007,Primary cutaneous plasmacytoma
+404143002,Primary cutaneous follicular center B-cell lymphoma
+404144008,Primary cutaneous diffuse large cell B-cell lymphoma
+404145009,Primary cutaneous anaplastic large cell B-cell lymphoma
+404147001,Follicular center B-cell lymphoma (nodal/systemic with skin involvement)
+404148006,Diffuse large B-cell lymphoma (nodal/systemic with skin involvement)
+404149003,"Lymphoplasmacytic B-cell lymphoma, nodal/systemic with skin involvement"
+404150003,Mantle cell B-cell lymphoma (nodal/systemic with skin involvement)
+404151004,Leukemic infiltration of skin in myeloid leukemia
+404152006,Leukemic infiltration of skin in acute myeloid leukemia
+404153001,Leukemic infiltration of skin in chronic myeloid leukemia
+404154007,Leukemic infiltration of skin in monocytic leukemia
+404155008,Granulocytic sarcoma affecting skin
+404156009,Leukemic infiltration of skin
+404157000,Specific skin infiltration in Hodgkin's disease
+404160007,Langerhans cell histiocytosis - Hashimoto-Pritzker type
+404169008,Malignant histiocytosis involving skin
+404171008,Mastocytoma
+404172001,Mast cell leukemia affecting skin
+405631006,Pediatric human immunodeficiency virus infection
+40780007,Human immunodeficiency virus I infection
+409089005,Febrile neutropenia
+413389003,Accelerated phase chronic myeloid leukemia
+413440007,Acute lymphoblastic leukemia - category
+413441006,"Acute monocytic leukemia, FAB M5b"
+413442004,Acute monocytic/monoblastic leukemia
+413443009,Acute myeloid leukemia - category
+413527004,"Anaplastic large cell lymphoma, T/Null cell, primary systemic type"
+413537009,Angioimmunoblastic T-cell lymphoma
+413565006,Aplastic anemia associated with metabolic alteration
+413566007,Aplastic anemia associated with pancreatitis
+413567003,Aplastic anemia associated with pregnancy
+413587002,Smoldering myeloma
+413656006,Blastic phase chronic myeloid leukemia
+413834006,Chronic disease of immune function
+413836008,Chronic eosinophilic leukemia
+413840004,Chronic lymphoid leukemia - category
+413841000,Chronic myeloid leukemia - category
+413842007,Chronic myeloid leukemia in lymphoid blast crisis
+413843002,Chronic myeloid leukemia in myeloid blast crisis
+413847001,Chronic phase chronic myeloid leukemia
+413990004,Diffuse large B-cell lymphoma - category
+414029004,Disorder of immune function
+414166008,"Extranodal natural killer/T-cell lymphoma, nasal type"
+414553000,Kappa light chain myeloma
+414644002,Malignant hematopoietic neoplasm
+414645001,Malignant histiocytic neoplasm - category
+414653009,Mast cell neoplasm
+414780005,Mucosa-associated lymphoid tissue lymphoma of orbit
+414785000,Multiple solitary plasmacytomas
+414825006,Neoplasm of hematopoietic cell type
+414850009,Neutrophilia
+414927004,Ocular myasthenia with strabismus
+415005004,Panleukopenia
+415110002,Plasma cell myeloma/plasmacytoma
+415111003,Plasma cell neoplasm
+415112005,Plasmacytoma
+415113000,Plasmacytoma - category
+415283002,Refractory anemia with excess blasts-1
+415284008,Refractory anemia with excess blasts-2
+415285009,Refractory cytopenia with multilineage dysplasia
+415286005,Refractory cytopenia with multilineage dysplasia and ringed sideroblasts
+415287001,Relapsing chronic myeloid leukemia
+41529000,"Hodgkin lymphoma, mixed cellularity"
+416729007,Neutropenia associated with acquired immunodeficiency syndrome
+417152008,Langerhans cell histiocytosis of lung
+417672002,Granulocytopenic disorder
+41814009,Neutropenia with dysgranulopoiesis
+418265009,Primary cutaneous B-cell lymphoma - category
+418628003,Follicular mycosis fungoides
+418789003,Primary cutaneous plasmacytoma
+419018000,Primary cutaneous large T-cell lymphoma - category
+419094004,Immunodeficiency-associated Burkitt's lymphoma
+419283005,Primary cutaneous T-cell lymphoma - category
+419386004,Pagetoid reticulosis
+419392005,Primary cutaneous lymphoma
+419455006,Disorder characterized by eosinophilia
+419586003,"Primary cutaneous T-cell lymphoma, large cell, CD30-negative"
+419662008,Primary cutaneous follicle center cell lymphoma
+419770008,Endemic Burkitt's lymphoma
+419879004,Atypical Burkitt's lymphoma
+420028002,Primary cutaneous marginal zone B-cell lymphoma
+420063007,Sporadic Burkitt's lymphoma
+420244003,Encephalitis associated with acquired immunodeficiency syndrome
+420281004,Skin rash associated with acquired immunodeficiency syndrome
+420302007,Reticulosarcoma associated with acquired immunodeficiency syndrome
+420308006,Retinal vascular changes associated with acquired immunodeficiency syndrome
+420321004,Intestinal malabsorption associated with acquired immunodeficiency syndrome
+420384005,Hematopoietic system disease associated with acquired immunodeficiency syndrome
+420395004,Acute endocarditis associated with acquired immunodeficiency syndrome
+420403001,Pneumocystosis associated with acquired immunodeficiency syndrome
+420452002,Myelopathy associated with acquired immunodeficiency syndrome
+420519005,Malignant lymphoma of the eye region
+420524008,Kaposi's sarcoma associated with acquired immunodeficiency syndrome
+420543008,Anemia associated with acquired immunodeficiency syndrome
+420544002,Bacterial pneumonia associated with acquired immunodeficiency syndrome
+420549007,Salivary gland disease associated with acquired immunodeficiency syndrome
+420554003,Progressive multifocal leukoencephalopathy associated with acquired immunodeficiency syndrome
+420614009,Organic dementia associated with acquired immunodeficiency syndrome
+420658009,Radiculitis associated with acquired immunodeficiency syndrome
+420687005,Ill-defined intestinal infection associated with acquired immunodeficiency syndrome
+420691000,Nutritional deficiency associated with acquired immunodeficiency syndrome
+420718004,Central nervous system demyelinating disease associated with acquired immunodeficiency syndrome
+420721002,Acquired immunodeficiency syndrome-associated disorder
+420764009,Salmonella infection associated with acquired immunodeficiency syndrome
+420774007,Organic brain syndrome associated with acquired immunodeficiency syndrome
+420787001,Pneumococcal pneumonia associated with acquired immunodeficiency syndrome
+420788006,Intraocular non-Hodgkin malignant lymphoma
+420801006,Malaise associated with acquired immunodeficiency syndrome
+420818005,Mycobacteriosis associated with acquired immunodeficiency syndrome
+420877009,Dermatomycosis associated with acquired immunodeficiency syndrome
+420890002,Precursor T cell lymphoblastic leukemia/lymphoblastic lymphoma
+420900006,Fatigue associated with acquired immunodeficiency syndrome
+420938005,Subacute endocarditis associated with acquired immunodeficiency syndrome
+420945005,Histoplasmosis associated with acquired immunodeficiency syndrome
+421020000,Microsporidiosis associated with acquired immunodeficiency syndrome
+421023003,Presenile dementia associated with acquired immunodeficiency syndrome
+421047005,Candidiasis of lung associated with acquired immunodeficiency syndrome
+421077004,Disseminated candidiasis associated with acquired immunodeficiency syndrome
+421102007,Aplastic anemia associated with acquired immunodeficiency syndrome
+421230000,Hepatomegaly associated with acquired immunodeficiency syndrome
+421246008,Precursor T-cell lymphoblastic lymphoma
+421272004,Subacute myocarditis associated with acquired immunodeficiency syndrome
+421283008,Primary lymphoma of brain associated with acquired immunodeficiency syndrome
+421312009,Agranulocytosis associated with acquired immunodeficiency syndrome
+421315006,Myelitis associated with acquired immunodeficiency syndrome
+421394009,Skin disorder associated with acquired immunodeficiency syndrome
+421403008,Cryptococcosis associated with acquired immunodeficiency syndrome
+421415007,Subacute adenoviral encephalitis associated with acquired immunodeficiency syndrome
+421418009,Mature T-cell AND/OR natural killer cell neoplasm
+421431004,Nocardiosis associated with acquired immunodeficiency syndrome
+421454008,Infectious gastroenteritis associated with acquired immunodeficiency syndrome
+421460008,Retinopathy associated with acquired immunodeficiency syndrome
+421508002,Viral pneumonia associated with acquired immunodeficiency syndrome
+421529006,Dementia associated with acquired immunodeficiency syndrome
+421571007,Tuberculosis associated with acquired immunodeficiency syndrome
+421597001,Polyneuropathy associated with acquired immunodeficiency syndrome
+421660003,Failure to thrive in infant associated with acquired immunodeficiency syndrome
+421671002,Pneumonia associated with acquired immunodeficiency syndrome
+421695000,Abnormal weight loss associated with acquired immunodeficiency syndrome
+421696004,Precursor T-cell neoplasm
+421706001,Blindness associated with acquired immunodeficiency syndrome
+421708000,Infective arthritis associated with acquired immunodeficiency syndrome
+421710003,Candidiasis of mouth associated with acquired immunodeficiency syndrome
+421766003,Thrombocytopenia associated with acquired immunodeficiency syndrome
+421827003,Encephalopathy associated with acquired immunodeficiency syndrome
+421851008,Acquired hemolytic anemia associated with acquired immunodeficiency syndrome
+421874007,Respiratory disorder associated with acquired immunodeficiency syndrome
+421883002,Strongyloidiasis associated with acquired immunodeficiency syndrome
+421929001,Myocarditis associated with acquired immunodeficiency syndrome
+421983003,Noninfectious gastroenteritis associated with acquired immunodeficiency syndrome
+421998001,Central nervous disorder associated with acquired immunodeficiency syndrome
+422003001,Cachexia associated with acquired immunodeficiency syndrome
+422012004,Neuritis associated with acquired immunodeficiency syndrome
+422089004,Encephalomyelitis associated with acquired immunodeficiency syndrome
+422127002,Herpes zoster associated with acquired immunodeficiency syndrome
+422136003,Neuralgia associated with acquired immunodeficiency syndrome
+422172005,T-cell AND/OR natural killer-cell neoplasm
+422177004,Dyspnea associated with acquired immunodeficiency syndrome
+422189002,Low vision associated with acquired immunodeficiency syndrome
+422194002,Hyperhidrosis associated with acquired immunodeficiency syndrome
+422282000,Malignant neoplasm associated with acquired immunodeficiency syndrome
+422337001,Coccidioidomycosis associated with acquired immunodeficiency syndrome
+422853008,Lymphoma of retroperitoneal space
+423294001,Idiopathic hypereosinophilic syndrome
+423486005,Disseminated eosinophilic collagen disease
+425333006,Myeloproliferative disorder
+425563003,Grafting of cord blood to bone marrow
+425657001,Osteosclerotic myeloma
+425688002,Philadelphia chromosome-positive acute lymphoblastic leukemia
+425749006,Subacute myeloid leukemia in remission
+425835006,Disorder of immune reconstitution
+425843001,Allogeneic peripheral blood stem cell transplant
+425869007,"Acute promyelocytic leukemia, FAB M3, in remission"
+425941003,Precursor B-cell acute lymphoblastic leukemia in remission
+425983008,Autologous peripheral blood stem cell transplant
+426071002,Hodgkin's disease in remission
+426124006,"Acute myeloid leukemia with maturation, FAB M2, in remission"
+426217000,Aleukemic leukemia in remission
+426248008,Aleukemic lymphoid leukemia in remission
+426336007,Solitary osseous myeloma
+426370008,Subacute lymphoid leukemia in remission
+426425001,Allograft of bone marrow from sibling donor
+426642002,"Erythroleukemia, FAB M6 in remission"
+426800001,Febrile granulocytopenia
+426885008,"Hodgkin's disease, lymphocytic depletion of lymph nodes of head"
+426955004,Philadelphia chromosome-positive acute lymphoblastic leukemia
+427056005,Subacute leukemia in remission
+427141003,Malignant lymphoma in remission
+427245000,Febrile leukopenia
+427374007,Immunoproliferative neoplasm in remission
+427423003,Allograft of bone marrow from matched unrelated donor
+427615008,Allograft of cord blood to bone marrow
+427642009,T-cell acute lymphoblastic leukemia in remission
+427658007,"Acute myelomonocytic leukemia, FAB M4, in remission"
+428103008,Disorder of transplanted bone marrow
+429054002,Disorder related to transplantation
+429450002,Disorder related to bone marrow transplantation
+429490004,Disorder affecting transplanted structure
+430338009,Smoldering chronic lymphocytic leukemia
+43355006,Eosinopenia
+43858000,Secondary aplastic anemia
+43985008,"Hodgkin lymphoma, nodular sclerosis, grade 2"
+440422002,Asymptomatic multiple myeloma
+441313008,Indolent multiple myeloma
+441559006,Mantle cell lymphoma of spleen
+441962003,Large cell lymphoma of intrapelvic lymph nodes
+442134007,Hepatitis B associated with Human immunodeficiency virus infection
+442537007,Non-Hodgkin lymphoma associated with Human immunodeficiency virus infection
+442557006,Grafting of bone marrow using allograft from unmatched unrelated donor
+443487006,Mantle cell lymphoma
+444597005,Extranodal marginal zone lymphoma of mucosa-associated lymphoid tissue of stomach
+444910004,Primary mediastinal (thymic) large B-cell lymphoma
+444911000,Acute myeloid leukemia with t(9:11)(p22;q23); MLLT3-MLL
+445105005,Blastic plasmacytoid dendritic cell neoplasm
+445227008,Juvenile myelomonocytic leukemia
+445269007,Extranodal marginal zone B-cell lymphoma of mucosa-associated lymphoid tissue
+445406001,Hepatosplenic T-cell lymphoma
+445448008,Acute myeloid leukemia with myelodysplasia-related changes
+445738007,Myelodysplastic/myeloproliferative disease
+445757003,Allogeneic bone marrow transplantation without purging
+445925008,Lymphomatous infiltration
+445945000,Infectious disease associated with acquired immune deficiency syndrome
+446253009,Allogeneic bone marrow transplantation with purging
+446643000,Sarcoma of dendritic cells (accessory cells)
+446688004,Leukemic infiltration
+447100004,Marginal zone lymphoma
+447596005,"Myelodysplastic/myeloproliferative neoplasm, unclassifiable"
+447656001,Lymphoma of pylorus of stomach
+447658000,Lymphoma of fundus of stomach
+447766003,Lymphoma of pyloric antrum of stomach
+447805007,Lymphoma of greater curvature of stomach
+447806008,Lymphoma of cardia of stomach
+447989004,Non-Hodgkin's lymphoma of extranodal site
+448212009,Anaplastic lymphoma kinase negative anaplastic large cell lymphoma
+448213004,Diffuse non-Hodgkin's lymphoma of prostate
+448217003,Follicular non-Hodgkin's lymphoma of prostate
+448220006,Non-Hodgkin's lymphoma of bone
+448231003,Follicular non-Hodgkin's lymphoma of nose
+448254007,Non-Hodgkin's lymphoma of central nervous system
+448269008,Lymphoma of lesser curvature of stomach
+448317000,Follicular non-Hodgkin's lymphoma of soft tissue
+448319002,Diffuse non-Hodgkin's lymphoma of nasopharynx
+448354009,Non-Hodgkin's lymphoma of intestine
+448371005,Non-Hodgkin's lymphoma of nasopharynx
+448372003,Non-Hodgkin's lymphoma of lung
+448376000,Non-Hodgkin's lymphoma of ovary
+448384001,Non-Hodgkin's lymphoma of nose
+448386004,Non-Hodgkin's lymphoma of oral cavity
+448387008,Non-Hodgkin's lymphoma of testis
+448447004,Non-Hodgkin's lymphoma of skin
+448465000,Diffuse non-Hodgkin's lymphoma of testis
+448468003,Diffuse non-Hodgkin's lymphoma of oral cavity
+448553002,Lymphoma of pelvis
+448555009,Lymphoma of body of stomach
+448560008,Diffuse non-Hodgkin's lymphoma of extranodal site
+448561007,Follicular non-Hodgkin's lymphoma of extranodal site
+448607004,Diffuse non-Hodgkin's lymphoma of uterine cervix
+448609001,Diffuse non-Hodgkin's lymphoma of ovary
+448663003,Diffuse non-Hodgkin's lymphoma of stomach
+448666006,Follicular non-Hodgkin's lymphoma of bone
+448672006,Follicular non-Hodgkin's lymphoma of lung
+448709005,Non-Hodgkin's lymphoma of stomach
+448738008,Non-Hodgkin's lymphoma of soft tissue
+448774004,Non-Hodgkin's lymphoma of uterine cervix
+448865007,Follicular non-Hodgkin's lymphoma of skin
+448867004,Diffuse non-Hodgkin's lymphoma of lung
+448995000,Follicular non-Hodgkin's lymphoma of central nervous system
+449053004,Lymphoma of lower esophagus
+449058008,Follicular non-Hodgkin's lymphoma of tonsil
+449059000,Follicular non-Hodgkin's lymphoma of uterine cervix
+449063007,Follicular non-Hodgkin's lymphoma of oral cavity
+449065000,Diffuse non-Hodgkin's lymphoma of nose
+449072004,Lymphoma of gastrointestinal tract
+449074003,Lymphoma of small intestine
+449075002,Lymphoma of cardioesophageal junction
+449108003,Philadelphia chromosome positive chronic myelogenous leukemia
+449173006,Diffuse non-Hodgkin's lymphoma of tonsil
+449176003,Diffuse non-Hodgkin's lymphoma of intestine
+449177007,Diffuse non-Hodgkin's lymphoma of bone
+449216004,Diffuse non-Hodgkin's lymphoma of soft tissue
+449217008,Diffuse non-Hodgkin's lymphoma of skin
+449218003,Lymphoma of sigmoid colon
+449219006,Follicular non-Hodgkin's lymphoma of nasopharynx
+449220000,Diffuse follicle center lymphoma
+449221001,Diffuse non-Hodgkin's lymphoma of central nervous system
+449222008,Follicular non-Hodgkin's lymphoma of stomach
+449292003,Non-Hodgkin's lymphoma of tonsil
+449307001,Follicular non-Hodgkin's lymphoma of ovary
+449318001,Non-Hodgkin's lymphoma of prostate
+449386007,Philadelphia chromosome negative chronic myelogenous leukemia
+449418000,Follicular non-Hodgkin's lymphoma of testis
+449419008,Follicular non-Hodgkin's lymphoma of intestine
+450907007,Hydroa vacciniforme-like lymphoma
+450908002,Primary cutaneous gamma-delta T-cell lymphoma
+450909005,Plasmablastic lymphoma
+450910000,Anaplastic lymphoma kinase positive large B-cell lymphoma
+450911001,Large B-cell lymphoma arising in human herpesvirus type 8 associated multicentric Castleman disease
+450912008,Fibroblastic reticular cell tumor
+450913003,Mixed phenotype acute leukemia
+450914009,Mixed phenotype acute leukemia with t(9;22)(q34;q11.2); BCR-ABL1
+450915005,Mixed phenotype acute leukemia with t(v;11q23); MLL rearranged
+450916006,Mixed phenotype acute leukemia with myeloid and B-cell lymphoid phenotypes
+450917002,Mixed phenotype acute leukemia with myeloid and T-cell lymphoid phenotypes
+450920005,B lymphoblastic leukemia / lymphoma - category
+450928003,Acute myeloid leukemia with t(6;9)(p23;q34); DEK-NUP214
+450929006,Acute myeloid leukemia with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1
+450935006,Myeloid leukemia associated with Down Syndrome
+450937003,Acute myeloid leukemia (megakaryoblastic) with t(1;22)(p13;q13); RBM15-MKL1
+450940003,Myeloid or lymphoid neoplasm with alpha-type platelet-derived growth factor receptor gene rearrangement
+450945008,Refractory cytopenia with unilineage dysplasia
+450946009,Refractory neutropenia
+450947000,Refractory thrombocytopenia
+450949002,"B lymphoblastic leukemia lymphoma, no International Classification of Diseases for Oncology subtype"
+450950002,B lymphoblastic leukemia lymphoma with t(9;22)(q34;q11.2); BCR-ABL1
+450951003,B lymphoblastic leukemia lymphoma with t(v;11q23); MLL rearranged
+450952005,B lymphoblastic leukemia lymphoma with t(12;21)(p13;q22); TEL-AML1 (ETV6-RUNX1)
+450953000,B lymphoblastic leukemia lymphoma with hyperdiploidy
+450954006,B lymphoblastic leukemia lymphoma with hypodiploidy (Hypodiploid ALL)
+450955007,B lymphoblastic leukemia lymphoma with t(5;14)(q31;q32); IL3-IGH
+450956008,B lymphoblastic leukemia lymphoma with t(1;19)(q23;p13.3); E2A-PBX1 (TCF3-PBX1)
+450958009,"Malignant lymphoma, diffuse large B-cell, immunoblastic"
+450959001,T-cell/histiocyte rich large B-cell lymphoma
+45572000,"Hodgkin lymphoma, nodular sclerosis, grade 1"
+46280001,Autologous bone marrow transplant with purging
+46359005,Neutropenia associated with infectious disease
+46732000,"Malignant lymphoma, large B-cell, diffuse, no International Classification of Diseases for Oncology subtype"
+46744002,"Follicular lymphoma, grade 1"
+46923007,Hodgkin sarcoma [obs]
+47318007,Drug-induced neutropenia
+48794007,Human immunodeficiency virus infection with infectious mononucleosis-like syndrome
+48813009,Lymphocytopenia
+4950009,Sézary's disease
+50102004,"Malignant lymphoma, mixed small and large cell, diffuse"
+50220002,Cellular immunologic aplastic anemia
+51092000,B-cell chronic lymphocytic leukemia/small lymphocytic lymphoma
+52079000,Congenital human immunodeficiency virus infection
+52220008,"Acute megakaryoblastic leukemia, morphology"
+52248008,"Hodgkin lymphoma, nodular sclerosis"
+52967002,Myelofibrosis
+53237008,"Anaplastic large cell lymphoma, T cell and Null cell type"
+54087003,Hairy cell leukemia
+54097007,White blood cell disorder
+55020008,"Follicular lymphoma, grade 2"
+55051001,"Myasthenia gravis, juvenile form"
+55150002,Follicular lymphoma
+55444004,Transient neonatal neutropenia
+55907008,Acquired aplastic anemia
+55921005,"Multiple myeloma, no International Classification of Diseases for Oncology subtype"
+56478004,Leukemoid reaction
+56918001,Dose-related drug-induced neutropenia
+58390007,Allogeneic bone marrow transplantation
+5876000,Acquired pancytopenia
+58776007,Autologous bone marrow transplant
+58961005,Lethal midline granuloma
+61291000119103,Disorder of central nervous system co-occurrent and due to acute lymphoid leukemia in remission
+61301000119102,Disorder of central nervous system co-occurrent and due to acute lymphoid leukemia
+63364005,"Chronic myelogenous leukemia, no International Classification of Diseases for Oncology subtype"
+64249002,Allergic eosinophilia
+64575004,"Malignant lymphoma, small lymphocytic"
+65399007,Langerhans cell histiocytosis
+65623009,Immune neutropenia
+67023009,Lymphocytosis
+69077002,Acute basophilic leukemia
+697922003,Pulmonary hypertension in Langerhans cell histiocytosis
+697965002,Cholangitis associated with acquired immunodeficiency syndrome
+698075004,Syngeneic peripheral blood stem cell transplantation
+698646006,Acute monoblastic leukemia in remission
+699293000,Ischemic myelofibrosis
+699537002,Polyostotic sclerosing histiocytosis
+699657009,Hepatosplenic gamma-delta cell lymphoma
+699818003,T-cell large granular lymphocytic leukemia
+702446006,Core binding factor acute myeloid leukemia
+702476004,Therapy-related myelodysplastic syndrome
+702785000,Large cell anaplastic lymphoma T cell and Null cell type
+702786004,Follicular non-Hodgkin's lymphoma diffuse follicle center sub-type grade 1
+702977001,Follicular non-Hodgkin's lymphoma diffuse follicle center cell sub-type grade 2
+703387000,Acute myeloid leukemia with normal karyotype
+70349007,Pseudoneutrophilia
+703626001,"Anaplastic large cell lymphoma, T/Null cell, primary systemic type"
+703817002,Refractory anemia with ring sideroblasts associated with marked thrombocytosis
+703818007,Acute monoblastic and monocytic leukemia
+703819004,Acute myeloid leukemia with mutation of CCAAT enhancer binding protein alpha gene
+703820005,Acute myeloid leukemia with mutated NPM1
+703821009,T lymphoblastic leukemia/lymphoma
+703822002,Indeterminate dendritic cell tumor
+705061009,Childhood myelodysplastic syndrome
+70600005,"Hodgkin lymphoma, nodular lymphocyte predominance"
+707431006,Langerhans cell histiocytosis of diaper area
+707432004,Langerhans cell histiocytosis of skin
+709115004,Transplantation of autologous hematopoietic stem cell
+709471005,Periodontitis co-occurrent with leukemia
+709535007,Periodontitis co-occurrent with infantile genetic agranulocytosis
+709608008,Periodontitis co-occurrent with acquired neutropenia
+710926008,Periodontitis co-occurrent with familial neutropenia
+710927004,Periodontitis co-occurrent with cyclical neutropenia
+71109004,"Hodgkin lymphoma, lymphocyte depletion, reticular"
+711429001,Transplantation of autologous progenitor cell
+713260006,Subacute adenoviral encephalitis co-occurrent with human immunodeficiency virus infection
+713275003,Splenomegaly co-occurrent with human immunodeficiency virus infection
+713278001,Neuralgia co-occurrent with human immunodeficiency virus infection
+713297001,Candidiasis of esophagus co-occurrent with human immunodeficiency virus infection
+713298006,Heart disease co-occurrent with human immunodeficiency virus infection
+713299003,Disorder of eye proper co-occurrent with human immunodeficiency virus infection
+713300006,Disorder of gastrointestinal tract co-occurrent with human immunodeficiency virus infection
+713316008,Eruption of skin co-occurrent with human immunodeficiency virus infection
+713318009,Myocarditis co-occurrent with human immunodeficiency virus infection
+713320007,Radiculitis co-occurrent with human immunodeficiency virus infection
+713325002,Primary cerebral lymphoma co-occurrent with human immunodeficiency virus infection
+713339002,Infection caused by Strongyloides co-occurrent with human immunodeficiency virus infection
+713340000,Disorder of skin co-occurrent with human immunodeficiency virus infection
+713341001,Myelitis co-occurrent with human immunodeficiency virus infection
+713342008,Infection caused by Salmonella co-occurrent with human immunodeficiency virus infection
+713349004,Anemia co-occurrent with human immunodeficiency virus infection
+713445006,Disseminated infection caused by Strongyloides co-occurrent with human immunodeficiency virus infection
+713446007,Chronic infection caused by herpes simplex virus co-occurrent with human immunodeficiency virus infection
+713483007,Reticulosarcoma co-occurrent with human immunodeficiency virus infection
+713484001,Disorder of respiratory system co-occurrent with human immunodeficiency virus infection
+713487008,Progressive multifocal leukoencephalopathy co-occurrent with human immunodeficiency virus infection
+713488003,Presenile dementia co-occurrent with human immunodeficiency virus infection
+713489006,Polyneuropathy co-occurrent with human immunodeficiency virus infection
+713490002,Infection caused by Pneumocystis co-occurrent with human immunodeficiency virus infection
+713491003,Organic brain syndrome co-occurrent with human immunodeficiency virus infection
+713497004,Candidiasis of mouth co-occurrent with human immunodeficiency virus infection
+713503007,Disorder of spinal cord co-occurrent with human immunodeficiency virus infection
+713504001,Disorder of kidney co-occurrent with human immunodeficiency virus infection
+713505000,Gastrointestinal malabsorption syndrome co-occurrent with human immunodeficiency virus infection
+713506004,Neuritis co-occurrent with human immunodeficiency virus infection
+713507008,Lymphadenopathy co-occurrent with human immunodeficiency virus infection
+713508003,Aplastic anemia co-occurrent with human immunodeficiency virus infection
+713510001,Enlargement of liver co-occurrent with human immunodeficiency virus infection
+713511002,Acute endocarditis co-occurrent with human immunodeficiency virus infection
+713516007,Primary effusion lymphoma
+713523008,Cardiomyopathy co-occurrent with human immunodeficiency virus infection
+713526000,Recurrent bacterial pneumonia co-occurrent with human immunodeficiency virus infection
+713527009,Disorder of peripheral nervous system co-occurrent with human immunodeficiency virus infection
+713530002,Agranulocytosis co-occurrent with human immunodeficiency virus infection
+713531003,Visual impairment co-occurrent with human immunodeficiency virus infection
+713532005,Infective arthritis co-occurrent with human immunodeficiency virus infection
+713533000,Acquired hemolytic anemia co-occurrent with human immunodeficiency virus infection
+713543002,Demyelinating disease of central nervous system co-occurrent with human immunodeficiency virus infection
+713544008,Bacterial pneumonia co-occurrent with human immunodeficiency virus infection
+713545009,Infection caused by Nocardia co-occurrent with human immunodeficiency virus infection
+713546005,Isosporiasis co-occurrent with human immunodeficiency virus infection
+713570009,Infectious gastroenteritis co-occurrent with human immunodeficiency virus infection
+713571008,Disorder of central nervous system co-occurrent with human immunodeficiency virus infection
+713572001,Malignant neoplastic disease co-occurrent with human immunodeficiency virus infection
+713695001,Nephrotic syndrome co-occurrent with human immunodeficiency virus infection
+713696000,Renal failure syndrome co-occurrent with human immunodeficiency virus infection
+713718006,Diffuse non-Hodgkin immunoblastic lymphoma co-occurrent with human immunodeficiency virus infection
+713722001,Infection caused by Cytomegalovirus co-occurrent with human immunodeficiency virus infection
+713729005,Infection caused by Coccidia co-occurrent with human immunodeficiency virus infection
+713730000,Infection caused by herpes simplex virus co-occurrent with human immunodeficiency virus infection
+713731001,Pyrexia of unknown origin co-occurrent with human immunodeficiency virus infection
+713732008,Infection caused by Aspergillus co-occurrent with human immunodeficiency virus infection
+713733003,Infection caused by herpes zoster virus co-occurrent with human immunodeficiency virus infection
+713734009,Infection caused by Dermatophyte co-occurrent with human immunodeficiency virus infection
+713742005,Human immunodeficiency virus antibody positive
+713844000,Dementia co-occurrent with human immunodeficiency virus infection
+713845004,Infection caused by Cryptosporidium co-occurrent with human immunodeficiency virus infection
+713880000,Opportunistic mycosis co-occurrent with human immunodeficiency virus infection
+713881001,Infection caused by Microsporidia co-occurrent with human immunodeficiency virus infection
+713887002,Focal segmental glomerulosclerosis co-occurrent with human immunodeficiency virus infection
+713897006,Burkitt lymphoma co-occurrent with human immunodeficiency virus infection
+713910008,Antibody mediated acquired pure red cell aplasia caused by erythropoiesis stimulating agent
+713964006,Multidermatomal infection caused by Herpes zoster co-occurrent with human immunodeficiency virus infection
+713967004,Disseminated atypical infection caused by Mycobacterium co-occurrent with human immunodeficiency virus infection
+714251006,Philadelphia chromosome-negative precursor B-cell acute lymphoblastic leukemia
+714463003,Primary effusion lymphoma co-occurrent with infection caused by Human herpesvirus 8
+714464009,Immune reconstitution inflammatory syndrome caused by human immunodeficiency virus infection
+715664005,Interdigitating dendritic cell sarcoma
+715950008,Anaplastic lymphoma kinase positive large B-cell lymphoma
+716788007,Epstein-Barr virus positive diffuse large B-cell lymphoma of elderly
+716789004,Epstein-Barr virus positive diffuse large B-cell lymphoma of elderly
+71692003,Leukoerythroblastotic reaction
+718200007,Primary pulmonary lymphoma
+718882006,X-linked severe congenital neutropenia
+719156006,X-linked intellectual disability with hypogammaglobulinemia and progressive neurological deterioration syndrome
+71922006,Immune defect
+719522009,Infection of upper respiratory tract caused by Candida co-occurrent with human immunodeficiency virus infection
+719789000,Human immunodeficiency virus 2 antibody positive and Human immunodeficiency virus 1 antibody cross-reactivity
+721166000,Human immunodeficiency virus complicating pregnancy childbirth and the puerperium
+721301004,Myeloid and lymphoid neoplasm with fibroblast growth factor receptor 1 abnormality
+721302006,Refractory anemia with ringed sideroblasts associated with marked thrombocytosis
+721303001,Refractory neutropenia
+721304007,Refractory thrombocytopenia
+721305008,Acute myeloid leukemia due to recurrent genetic abnormality
+721306009,Therapy related acute myeloid leukemia and myelodysplastic syndrome
+721308005,Acute leukemia of ambiguous lineage
+721310007,Aggressive natural killer-cell leukemia
+721311006,Systemic Epstein-Barr virus positive T-cell lymphoproliferative disease of childhood
+721313009,Indeterminate dendritic cell neoplasm
+721314003,Fibroblastic reticular cell neoplasm
+721555001,Follicular lymphoma of small intestine
+721762007,Adult T-cell leukemia/lymphoma of skin
+722067005,Severe combined immunodeficiency with hypereosinophilia
+722557007,Parkinsonism due to human immunodeficiency virus infection
+722795004,Meningeal leukemia
+722953004,B-cell lymphoma unclassifiable with features intermediate between Burkitt lymphoma and diffuse large B-cell lymphoma
+722954005,B-cell lymphoma unclassifiable with features intermediate between classical Hodgkin lymphoma and diffuse large B-cell lymphoma
+722955006,Chronic lymphoproliferative disorder of natural killer cells
+722957003,Reactive plasmacytic hyperplasia post-transplant lymphoproliferative disorder
+722958008,Infectious mononucleosis-like post-transplant lymphoproliferative disorder
+723889003,B lymphoblastic leukemia lymphoma with t(9:22) (q34;q11.2); BCR-ABL 1
+724642009,Myeloid neoplasm associated with beta-type platelet-derived growth factor receptor gene rearrangement
+724644005,Myeloid leukemia co-occurrent with Down syndrome
+724645006,T-cell histiocyte rich large B-cell lymphoma
+724647003,Diffuse large B-cell lymphoma co-occurrent with chronic inflammation caused by Epstein-Barr virus
+724648008,Plasmablastic lymphoma
+724649000,Langerhans cell sarcoma
+724650000,Primary follicular dendritic cell sarcoma
+725137007,"Neutropenia, monocytopenia, deafness syndrome"
+725390002,Acute myeloid leukemia with t(8;16)(p11;p13) translocation
+725391003,Acute myeloid leukemia with t(8;16)(p11;p13) translocation
+725437002,Chronic lymphocytic leukemia genetic mutation variant
+72621000119104,Human immunodeficiency virus (HIV) II infection category B1
+72631000119101,Human immunodeficiency virus (HIV) II infection category B2
+726721002,Nodal marginal zone B-cell lymphoma
+733598001,Acute myeloid leukemia with t(6;9)(p23;q34) translocation
+733627006,Primary cutaneous gamma-delta-positive T-cell lymphoma
+733834006,Invasive carcinoma of uterine cervix co-occurrent with human immunodeficiency virus infection
+733835007,Extrapulmonary tuberculosis co-occurrent with human immunodeficiency virus infection
+733860007,Pediatric nodal marginal zone lymphoma
+733895005,Primary cutaneous CD8 positive aggressive epidermotropic cytotoxic T-cell lymphoma
+733917002,Pediatric follicular lymphoma
+734066005,Diffuse large B-cell lymphoma of central nervous system
+734067001,Splenic diffuse red pulp small B-cell lymphoma
+734076008,Diffuse large B-cell lymphoma associated with chronic inflammation
+734141009,Splenic B-cell lymphoma
+734142002,B-cell lymphoma with features intermediate between diffuse large B-cell lymphoma and Burkitt lymphoma
+734522002,Acute myeloid leukemia with FMS-like tyrosine kinase-3 mutation
+734524001,Acute myeloid leukemia with FMS-like tyrosine kinase-3 mutation
+735332000,Primary cutaneous diffuse large cell B-cell lymphoma of lower extremity
+735439008,Constitutional eosinopenia
+735440005,Acquired eosinopenia
+735442002,Acquired eosinophilia
+735443007,Acquired lymphocytopenia
+735521001,Human immunodeficiency virus World Health Organization 2007 stage 1 co-occurrent with tuberculosis
+735522008,Human immunodeficiency virus World Health Organization 2007 stage 1 co-occurrent with malaria
+735523003,Human immunodeficiency virus World Health Organization 2007 stage 2 co-occurrent with tuberculosis
+735524009,Human immunodeficiency virus World Health Organization 2007 stage 2 co-occurrent with malaria
+735525005,Human immunodeficiency virus World Health Organization 2007 stage 3 co-occurrent with tuberculosis
+735526006,Human immunodeficiency virus World Health Organization 2007 stage 3 co-occurrent with malaria
+735527002,Human immunodeficiency virus World Health Organization 2007 stage 4 co-occurrent with tuberculosis
+735528007,Human immunodeficiency virus World Health Organization 2007 stage 4 co-occurrent with malaria
+736024007,Pancytopenia caused by medication
+736322001,Pediatric follicular lymphoma
+737223000,Dendritic cell neoplasm
+737224006,Histiocytic neoplasm
+738527001,Myeloid and/or lymphoid neoplasm associated with platelet derived growth factor receptor alpha rearrangement
+738770003,Anaplastic lymphoma kinase positive anaplastic large cell lymphoma
+739301006,Osteoporosis co-occurrent and due to multiple myeloma
+74189002,Hodgkin granuloma [obs]
+74654000,Mantle cell lymphoma
+762315004,Therapy related acute myeloid leukemia due to and following administration of antineoplastic agent
+762690000,Classical Hodgkin lymphoma
+762691001,Classical Hodgkin lymphoma
+763309005,Acute myeloid leukemia with nucleophosmin 1 somatic mutation
+763477007,Primary lymphoma of conjunctiva
+763666008,Splenic marginal zone B-cell lymphoma
+763719001,Hydroa vacciniforme-like lymphoma
+763796007,Megakaryoblastic acute myeloid leukemia with t(1;22)(p13;q13)
+763884007,Splenic diffuse red pulp small B-cell lymphoma
+764855007,Acute myeloid leukemia with CCAAT/enhancer binding protein alpha somatic mutation
+764940002,Inherited acute myeloid leukemia
+765136002,Primary cutaneous CD8 positive aggressive epidermotropic cytotoxic T-cell lymphoma
+765328000,Classic mycosis fungoides
+765748009,Adult pure red cell aplasia
+766045006,Acute myeloid leukemia and myelodysplastic syndrome related to alkylating agent
+766046007,Acute myeloid leukemia and myelodysplastic syndrome related to topoisomerase type 2 inhibitor
+766048008,Acute myeloid leukemia and myelodysplastic syndrome related to radiation
+766935007,Primary bone lymphoma
+767263007,22q11.2 deletion syndrome
+76762001,Eosinophilic myopathy
+767658000,Neutropenia due to and following chemotherapy
+76981000119106,Human immunodeficiency virus (HIV) infection category B1
+76991000119109,Human immunodeficiency virus (HIV) infection category B2
+770596007,Rippling muscle disease with myasthenia gravis
+77084001,Immunologic aplastic anemia
+770942003,Kostmann syndrome
+770947009,Autosomal dominant severe congenital neutropenia
+771119002,Infection caused by Coccidia co-occurrent with acquired immunodeficiency syndrome
+771126002,Infection caused by Toxoplasma gondii co-occurrent with acquired immunodeficiency syndrome
+771127006,Infection caused by Isospora co-occurrent with acquired immunodeficiency syndrome
+772126000,Poikiloderma with neutropenia
+773537001,Differentiation syndrome due to and following chemotherapy co-occurrent with acute promyelocytic leukemia
+773646003,Phospholipase C gamma 2 associated antibody deficiency and immune dysregulation
+773730002,Osteopetrosis hypogammaglobulinemia syndrome
+77381001,Burkitt lymphoma
+773995001,Primary cutaneous anaplastic large cell lymphoma
+77430005,Adult T-cell leukemia/lymphoma
+77461000119109,Myasthenia gravis with exacerbation
+77471000119103,Myasthenia gravis without exacerbation
+778004006,Autoinflammation phospholipase C gamma 2 associated antibody deficiency and immune dysregulation
+780817000,Undifferentiated myeloproliferative disease
+780844005,Acute myeloid leukemia with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1
+783017000,Acute myeloid leukemia with BCR-ABL1
+783058007,Autosomal recessive severe congenital neutropenia due to glucose-6-phosphatase catalytic subunit 3 deficiency
+783199003,Autosomal recessive severe congenital neutropenia due to jagunal homolog 1 deficiency
+783200000,Autosomal recessive severe congenital neutropenia due to C-X-C motif chemokine receptor 2 deficiency
+783201001,Autosomal recessive severe congenital neutropenia due to colony stimulating factor 3 receptor deficiency
+783205005,Alopecia antibody deficiency
+783220004,Burkitt-like lymphoma with 11q aberration
+783263001,Acute myeloid leukemia with mutated RUNX1
+783541009,Breast implant–associated anaplastic large-cell lymphoma
+783565007,Indolent T-cell lymphoproliferative disorder of gastrointestinal tract
+783615009,Erythropoietic uroporphyria associated with myeloid malignancy
+783744003,B-lymphoblastic leukemia lymphoma BCR-ABL1-like
+78378009,Isoimmune neutropenia
+784551004,Follicular T-cell lymphoma
+785825000,B lymphoblastic leukemia lymphoma with intrachromosomal amplification of chromosome 21
+786909001,High grade B-cell lymphoma with MYC and BCL2 and/or BCL6 rearrangements
+786960000,Large B-cell lymphoma with interferon regulatory factor 4 rearrangement
+787036009,Monomorphic epitheliotropic intestinal T-cell lymphoma
+787198005,Primary cutaneous acral CD8 positive T-cell lymphoma
+787565006,Diffuse large B-cell lymphoma activated B-cell subtype
+787594004,Diffuse large B-cell lymphoma germinal centre B-cell subtype
+787941004,Myeloid and/or lymphoid neoplasm with pericentriolar material 1-janus kinase 2
+788674000,Primary cutaneous CD4 positive small/medium T-cell lymphoproliferative disorder
+788740009,Acute myeloid leukemia with biallelic mutation of CCAAT enhancer binding protein alpha gene
+788874003,B-cell prolymphocytic leukemia in remission
+788972003,Juvenile myelomonocytic leukemia in remission
+789435006,Myelodysplastic syndrome with ring sideroblasts and multilineage dysplasia
+789689004,Malignant lymphomatoid granulomatosis
+789690008,Malignant lymphomatoid granulomatosis of lung
+79019005,Human immunodeficiency virus II infection
+79336007,Familial eosinophilia
+79369007,Complication of transplanted pancreas
+80191000119101,Symptomatic human immunodeficiency virus I infection
+80570006,Acute panmyelosis with myelofibrosis
+80976008,Myasthenic crisis
+81000119104,Symptomatic human immunodeficiency virus infection
+815121000000102,Follicular lymphoma grade 3a
+815131000000100,Follicular lymphoma grade 3b
+815361000000107,Acute myeloid leukaemia with 11q23 abnormality
+820601000000103,Refractory anaemia with multilineage dysplasia
+82178003,Neonatal myasthenia gravis
+830057003,Relapsing classical Hodgkin lymphoma
+835009,Angioimmunoblastic T-cell lymphoma
+836276000,Hodgkin sarcoma
+836277009,Hodgkin granuloma
+836486002,Lymphomatous infiltrate of kidney
+838340006,B lymphoblastic leukemia lymphoma with t(5;14)(q31;q32); IL3-IGH
+838341005,B lymphoblastic leukemia lymphoma with t(v;11q23); MLL rearranged
+838342003,B lymphoblastic leukemia lymphoma with t(12;21) (p13;q22); TEL/AML1 (ETV6-RUNX1)
+838343008,B lymphoblastic leukemia lymphoma with t(1;19)(Q23;P13.3); E2A-PBX1 (TCF3/PBX1)
+838344002,B lymphoblastic leukemia lymphoma with hypodiploidy
+838346000,B lymphoblastic leukemia lymphoma with hyperdiploidy
+838355002,Acute myeloid leukemia with inv(16)(p13.1q22) or t(16;16)(p13.1;q22) CBFB-MYH11
+838377003,Chronic hepatitis C co-occurrent with human immunodeficiency virus infection
+83980004,Impaired phagocytosis
+840423002,Diffuse large B-cell lymphoma of small intestine
+840424008,Diffuse large B-cell lymphoma of stomach
+840442003,Encephalitis caused by human immunodeficiency virus type 2
+840498003,Encephalitis caused by human immunodeficiency virus type 1
+847481000000109,Follicular lymphoma grade 1
+847631000000107,Follicular lymphoma grade 2
+847651000000100,Follicular lymphoma grade 3
+847691000000108,Follicular lymphoma grade 3a
+847701000000108,Follicular lymphoma grade 3b
+847741000000106,Diffuse large B-cell lymphoma
+860824009,Eosinophilia due to infectious disease
+860827002,Eosinopenia due to infectious disease
+863741000000108,Clinical stage A chronic lymphocytic leukaemia
+863761000000109,Clinical stage B chronic lymphocytic leukaemia
+863781000000100,Clinical stage C chronic lymphocytic leukaemia
+86406008,Human immunodeficiency virus infection
+866084002,Lymphopenia due to infection
+866098005,Large B-cell lymphoma arising in HHV8-associated multicentric Castleman disease
+866109006,Lymphocytic hypereosinophilic syndrome
+866901000000103,Eosinophilic bronchitis
+87117006,Human immunodeficiency virus infection with acute lymphadenitis
+871540009,Myelofibrosis due to and following polycythemia vera
+871541008,Myelofibrosis due to and following essential thrombocythemia
+87163000,"Leukemia, no International Classification of Diseases for Oncology subtype"
+89655007,Congenital neutropenia
+90120004,Mycosis fungoides
+90681000119107,Asymptomatic human immunodeficiency virus A1 infection
+90691000119105,Asymptomatic human immunodeficiency virus A2 infection
+91637004,Myasthenia gravis
+91854005,Acute leukemia in remission
+91855006,"Acute leukemia, disease"
+91856007,Acute lymphoid leukemia in remission
+91857003,"Acute lymphoid leukemia, disease"
+91858008,Acute monocytic leukemia in remission
+91860005,Acute myeloid leukemia in remission
+91861009,"Acute myeloid leukemia, disease"
+91947003,Asymptomatic human immunodeficiency virus infection
+91948008,Asymptomatic human immunodeficiency virus infection in pregnancy
+92511007,Burkitt's tumor of lymph nodes of axilla AND/OR upper limb
+92512000,"Burkitt's tumor of lymph nodes of head, face AND/OR neck"
+92513005,Burkitt's tumor of lymph nodes of inguinal region AND/OR lower limb
+92516002,Burkitt's tumor of extranodal AND/OR solid organ site
+92811003,Chronic leukemia in remission
+92812005,"Chronic leukemia, disease"
+92813000,Chronic lymphoid leukemia in remission
+92814006,"Chronic lymphoid leukemia, disease"
+92817004,Chronic myeloid leukemia in remission
+92818009,"Chronic myeloid leukemia, disease"
+93133006,Letterer-Siwe disease of intra-abdominal lymph nodes
+93134000,Letterer-Siwe disease of intrapelvic lymph nodes
+93135004,Letterer-Siwe disease of intrathoracic lymph nodes
+93136003,Letterer-Siwe disease of lymph nodes of axilla AND/OR upper limb
+93137007,"Letterer-Siwe disease of lymph nodes of head, face AND/OR neck"
+93138002,Letterer-Siwe disease of lymph nodes of inguinal region AND/OR lower limb
+93139005,Letterer-Siwe disease of lymph nodes of multiple sites
+93140007,Letterer-Siwe disease of spleen
+93141006,Letterer-Siwe disease of extranodal AND/OR solid organ site
+93142004,Leukemia in remission
+93143009,"Leukemia, disease"
+93144003,Leukemic reticuloendotheliosis of intra-abdominal lymph nodes
+93145002,Leukemic reticuloendotheliosis of intrapelvic lymph nodes
+93146001,Leukemic reticuloendotheliosis of intrathoracic lymph nodes
+93150008,Leukemic reticuloendotheliosis of lymph nodes of multiple sites
+93151007,Hairy cell leukemia of spleen
+93152000,Leukemic reticuloendotheliosis of extranodal AND/OR solid organ site
+93169003,Lymphoid leukemia in remission
+93182006,Malignant histiocytosis of intra-abdominal lymph nodes
+93183001,Malignant histiocytosis of intrapelvic lymph nodes
+93184007,Malignant histiocytosis of intrathoracic lymph nodes
+93185008,Malignant histiocytosis of lymph nodes of axilla AND/OR upper limb
+93186009,"Malignant histiocytosis of lymph nodes of head, face AND/OR neck"
+93187000,Malignant histiocytosis of lymph nodes of inguinal region AND/OR lower limb
+93188005,Malignant histiocytosis of lymph nodes of multiple sites
+93189002,Malignant histiocytosis of spleen
+93190006,Malignant histiocytosis of extranodal AND/OR solid organ site
+93191005,Malignant lymphoma of intra-abdominal lymph nodes
+93192003,Malignant lymphoma of intrapelvic lymph nodes
+93193008,Malignant lymphoma of intrathoracic lymph nodes
+93194002,Malignant lymphoma of lymph nodes of axilla AND/OR upper limb
+93195001,"Malignant lymphoma of lymph nodes of head, face AND/OR neck"
+93196000,Malignant lymphoma of lymph nodes of inguinal region AND/OR lower limb
+93197009,Malignant lymphoma of lymph nodes of multiple sites
+93198004,Malignant lymphoma of spleen
+93199007,Malignant lymphoma of extranodal AND/OR solid organ site
+93200005,Malignant mast cell tumor of intra-abdominal lymph nodes
+93201009,Malignant mast cell tumor of intrapelvic lymph nodes
+93202002,Malignant mast cell tumor of intrathoracic lymph nodes
+93203007,Malignant mast cell tumor of lymph nodes of axilla AND/OR upper limb
+93204001,"Malignant mast cell tumor of lymph nodes of head, face AND/OR neck"
+93205000,Malignant mast cell tumor of lymph nodes of inguinal region AND/OR lower limb
+93451002,"Erythroleukemia, FAB M6"
+93487009,"Hodgkin's disease, lymphocytic depletion of lymph nodes of axilla AND/OR upper limb"
+93488004,"Hodgkin's disease, lymphocytic depletion of lymph nodes of head, face AND/OR neck"
+93489007,"Hodgkin's disease, lymphocytic depletion of lymph nodes of inguinal region AND/OR lower limb"
+93492006,"Hodgkin's disease, lymphocytic depletion of extranodal AND/OR solid organ site"
+93493001,"Hodgkin's disease, lymphocytic-histiocytic predominance of intra-abdominal lymph nodes"
+93494007,"Hodgkin's disease, lymphocytic-histiocytic predominance of intrapelvic lymph nodes"
+93495008,"Hodgkin's disease, lymphocytic-histiocytic predominance of intrathoracic lymph nodes"
+93496009,"Hodgkin's disease, lymphocytic-histiocytic predominance of lymph nodes of axilla AND/OR upper limb"
+93497000,"Hodgkin's disease, lymphocytic-histiocytic predominance of lymph nodes of head, face AND/OR neck"
+93498005,"Hodgkin's disease, lymphocytic-histiocytic predominance of lymph nodes of inguinal region AND/OR lower limb"
+93500006,"Hodgkin's disease, lymphocytic-histiocytic predominance of spleen"
+93501005,"Hodgkin's disease, lymphocytic-histiocytic predominance of extranodal AND/OR solid organ site"
+93505001,"Hodgkin's disease, mixed cellularity of lymph nodes of axilla AND/OR upper limb"
+93506000,"Hodgkin's disease, mixed cellularity of lymph nodes of head, face AND/OR neck"
+93507009,"Hodgkin's disease, mixed cellularity of lymph nodes of inguinal region AND/OR lower limb"
+93509007,"Hodgkin's disease, mixed cellularity of spleen"
+93510002,"Hodgkin's disease, mixed cellularity of extranodal AND/OR solid organ site"
+93514006,"Hodgkin's disease, nodular sclerosis of lymph nodes of axilla AND/OR upper limb"
+93515007,"Hodgkin's disease, nodular sclerosis of lymph nodes of head, face AND/OR neck"
+93516008,"Hodgkin's disease, nodular sclerosis of lymph nodes of inguinal region AND/OR lower limb"
+93518009,"Hodgkin's disease, nodular sclerosis of spleen"
+93519001,"Hodgkin's disease, nodular sclerosis of extranodal AND/OR solid organ site"
+93520007,Hodgkin's disease of intra-abdominal lymph nodes
+93521006,Hodgkin's disease of intrapelvic lymph nodes
+93522004,Hodgkin's disease of intrathoracic lymph nodes
+93523009,Hodgkin's disease of lymph nodes of axilla AND/OR upper limb
+93524003,"Hodgkin's disease of lymph nodes of head, face AND/OR neck"
+93525002,Hodgkin's disease of lymph nodes of inguinal region AND/OR lower limb
+93526001,Hodgkin's disease of lymph nodes of multiple sites
+93527005,Hodgkin's disease of spleen
+93528000,Hodgkin's disease of extranodal AND/OR solid organ site
+93530003,Hodgkin's granuloma of intrapelvic lymph nodes
+93531004,Hodgkin's granuloma of intrathoracic lymph nodes
+93532006,Hodgkin's granuloma of lymph nodes of axilla AND/OR upper limb
+93533001,"Hodgkin's granuloma of lymph nodes of head, face AND/OR neck"
+93534007,Hodgkin's granuloma of lymph nodes of inguinal region AND/OR lower limb
+93536009,Hodgkin's granuloma of spleen
+93537000,Hodgkin's granuloma of extranodal AND/OR solid organ site
+93541001,Hodgkin's paragranuloma of lymph nodes of axilla AND/OR upper limb
+93542008,"Hodgkin's paragranuloma of lymph nodes of head, face AND/OR neck"
+93543003,Hodgkin's paragranuloma of lymph nodes of inguinal region AND/OR lower limb
+93546006,Hodgkin's paragranuloma of extranodal AND/OR solid organ site
+93547002,Hodgkin's sarcoma of intra-abdominal lymph nodes
+93548007,Hodgkin's sarcoma of intrapelvic lymph nodes
+93549004,Hodgkin's sarcoma of intrathoracic lymph nodes
+93550004,Hodgkin's sarcoma of lymph nodes of axilla AND/OR upper limb
+93551000,"Hodgkin's sarcoma of lymph nodes of head, face AND/OR neck"
+93552007,Hodgkin's sarcoma of lymph nodes of inguinal region AND/OR lower limb
+93554008,Hodgkin's sarcoma of spleen
+93555009,Hodgkin's sarcoma of extranodal AND/OR solid organ site
+94148006,Megakaryocytic leukemia in remission
+943041000000105,Human immunodeficiency virus disease resulting in haematological and immunological abnormalities
+94686001,Mixed cell type lymphosarcoma of intra-abdominal lymph nodes
+94687005,Mixed cell type lymphosarcoma of intrapelvic lymph nodes
+94688000,Mixed cell type lymphosarcoma of intrathoracic lymph nodes
+94690004,"Mixed cell type lymphosarcoma of lymph nodes of head, face, and neck"
+94704006,Multiple myeloma in remission
+94707004,Mycosis fungoides of intra-abdominal lymph nodes
+94708009,Mycosis fungoides of intrapelvic lymph nodes
+94709001,Mycosis fungoides of intrathoracic lymph nodes
+94710006,Mycosis fungoides of lymph nodes of axilla AND/OR upper limb
+94711005,"Mycosis fungoides of lymph nodes of head, face AND/OR neck"
+94712003,Mycosis fungoides of lymph nodes of inguinal region AND/OR lower limb
+94714002,Mycosis fungoides of spleen
+94715001,Mycosis fungoides of extranodal AND/OR solid organ site
+94716000,Myeloid leukemia in remission
+94718004,Myeloid sarcoma in remission
+94719007,"Myeloid sarcoma, disease"
+95186006,Nodular lymphoma of intra-abdominal lymph nodes
+95187002,Nodular lymphoma of intrapelvic lymph nodes
+95188007,Nodular lymphoma of intrathoracic lymph nodes
+95192000,Nodular lymphoma of lymph nodes of multiple sites
+95193005,Nodular lymphoma of spleen
+95194004,Nodular lymphoma of extranodal AND/OR solid organ site
+95209008,Plasma cell leukemia in remission
+95210003,"Plasma cell leukemia, disease"
+95224004,Reticulosarcoma of intra-abdominal lymph nodes
+95225003,Reticulosarcoma of intrapelvic lymph nodes
+95226002,Reticulosarcoma of intrathoracic lymph nodes
+95230004,Reticulosarcoma of lymph nodes of multiple sites
+95231000,Reticulosarcoma of spleen
+95260009,"Sézary's disease of lymph nodes of head, face AND/OR neck"
+95261008,Sézary's disease of lymph nodes of inguinal region AND/OR lower limb
+95263006,Sézary's disease of spleen
+95264000,Sézary's disease of extranodal AND/OR solid organ site
+95416007,Eosinophilia myalgia syndrome
+95733001,Eosinophilic keratitis
+95892003,Persistent generalized lymphadenopathy

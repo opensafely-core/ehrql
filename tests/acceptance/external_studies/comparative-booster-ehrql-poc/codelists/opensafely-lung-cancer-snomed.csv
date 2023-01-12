@@ -1,0 +1,599 @@
+id,name,active,notes
+187862007,Malignant neoplasm of upper lobe of lung (disorder),y,direct mapping
+112677002,Bronchiolo-alveolar adenocarcinoma (morphologic abnormality),y,direct mapping
+363493006,Malignant tumor of bronchus (disorder),y,direct mapping
+372111007,"Carcinoma of lower lobe, bronchus or lung (disorder)",y,direct mapping
+315006004,Metastasis from malignant tumor of lung (disorder),y,direct mapping
+372065009,Malignant neoplasm of main bronchus (disorder),y,direct mapping
+109378008,"Mesothelioma (malignant, clinical disorder) (disorder)",y,direct mapping
+449308006,Malignant neoplasm of visceral pleura (disorder),y,direct mapping
+254632001,Small cell carcinoma of lung (disorder),y,direct mapping
+128632008,Non-small cell carcinoma (morphologic abnormality),y,direct mapping
+254633006,Oat cell carcinoma of lung (disorder),y,direct mapping
+93827000,Primary malignant neoplasm of hilus of lung (disorder),y,direct mapping
+187868006,"Malignant neoplasm of lower lobe, bronchus or lung (disorder)",y,direct mapping
+254620000,Squamous cell carcinoma of trachea (disorder),y,direct mapping
+254619006,Adenoid cystic carcinoma of trachea (disorder),y,direct mapping
+314954002,Local recurrence of malignant tumor of lung (disorder),y,direct mapping
+269464000,"Malignant neoplasm of upper lobe, bronchus or lung (disorder)",y,direct mapping
+239297008,Lymphomatoid granulomatosis of the lung (disorder),y,direct mapping
+278065000,Pancoast's syndrome (disorder),y,direct mapping
+187853005,Malignant neoplasm of cartilage of trachea (disorder),y,direct mapping
+1090881000000100,Malignant neoplasm of bronchus or lung (disorder),y,direct mapping
+187865009,Malignant neoplasm of middle lobe bronchus (disorder),y,direct mapping
+253003009,Carcinoid bronchial adenoma (disorder),y,direct mapping
+449067008,Malignant neoplasm of parietal pleura (disorder),y,direct mapping
+711414003,Primary clear cell adenocarcinoma of lung (disorder),y,direct mapping
+254634000,Squamous cell carcinoma of lung (disorder),y,direct mapping
+313356004,Squamous cell carcinoma of bronchus in right middle lobe (disorder),y,direct mapping
+254627002,Carcinoid tumor of lung (disorder),y,direct mapping
+187857006,Malignant neoplasm of carina of bronchus (disorder),y,direct mapping
+109371002,Overlapping malignant neoplasm of bronchus and lung (disorder),y,direct mapping
+254629004,Large cell carcinoma of lung (disorder),y,direct mapping
+93880001,Primary malignant neoplasm of lung (disorder),y,direct mapping
+363432004,Malignant tumor of trachea (disorder),y,direct mapping
+254645002,Malignant mesothelioma of pleura (disorder),y,direct mapping
+254635004,Epithelioid hemangioendothelioma of lung (disorder),y,direct mapping
+449096009,Malignant neoplasm of respiratory system (disorder),y,direct mapping
+187869003,Malignant neoplasm of lower lobe bronchus (disorder),y,direct mapping
+187854004,Malignant neoplasm of mucosa of trachea (disorder),y,direct mapping
+233940007,Pulmonary tumor embolism (disorder),y,direct mapping
+5958006,"Small cell carcinoma, intermediate cell (morphologic abnormality)",y,direct mapping
+74042001,"Small cell carcinoma, fusiform cell (morphologic abnormality)",y,direct mapping
+43149009,Pulmonary blastoma (morphologic abnormality),y,direct mapping
+313354001,Squamous cell carcinoma of bronchus in left upper lobe (disorder),y,direct mapping
+254638002,Pancoast tumor (disorder),y,direct mapping
+313353007,Squamous cell carcinoma of bronchus in left lower lobe (disorder),y,direct mapping
+254625005,Malignant tumor of lung parenchyma (disorder),y,direct mapping
+448993007,Malignant epithelial neoplasm of lung (disorder),y,direct mapping
+187861000,Malignant neoplasm of upper lobe bronchus (disorder),y,direct mapping
+187864008,"Malignant neoplasm of middle lobe, bronchus or lung (disorder)",y,direct mapping
+36310008,Alveolar adenocarcinoma (morphologic abnormality),y,direct mapping
+76817009,Oat cell carcinoma (morphologic abnormality),y,direct mapping
+254622008,Squamous cell carcinoma of bronchus (disorder),y,direct mapping
+363433009,Malignant tumor of pleura (disorder),y,direct mapping
+254626006,Adenocarcinoma of lung (disorder),y,direct mapping
+254628007,Carcinoma of lung parenchyma (disorder),y,direct mapping
+254631008,Giant cell carcinoma of lung (disorder),y,direct mapping
+372136001,"Carcinoma of upper lobe, bronchus or lung (disorder)",y,direct mapping
+313355000,Squamous cell carcinoma of bronchus in right lower lobe (disorder),y,direct mapping
+430621000,Malignant neoplasm of lower respiratory tract (disorder),y,direct mapping
+254637007,Non-small cell lung cancer (disorder),y,direct mapping
+21326004,Combined small cell carcinoma (morphologic abnormality),y,direct mapping
+363358000,Malignant tumor of lung (disorder),y,direct mapping
+187870002,Malignant neoplasm of lower lobe of lung (disorder),y,direct mapping
+187866005,Malignant neoplasm of middle lobe of lung (disorder),y,direct mapping
+93734005,Primary malignant neoplasm of bronchus (disorder),y,direct mapping
+313357008,Squamous cell carcinoma of bronchus in right upper lobe (disorder),y,direct mapping
+372135002,"Primary malignant neoplasm of upper lobe, bronchus or lung (disorder)",y,descendant of concept mapped from leaf
+254503007,Malignant tumor of inferior surface of soft palate (disorder),y,descendant of concept mapped from leaf
+94102002,Primary malignant neoplasm of tonsillar fossa (disorder),y,descendant of concept mapped from leaf
+109856007,Malignant mesothelioma of mesentery (disorder),y,descendant of concept mapped from leaf
+187844003,Malignant neoplasm of cricoid cartilage (disorder),y,descendant of concept mapped from leaf
+109369002,Overlapping malignant neoplasm of larynx (disorder),y,descendant of concept mapped from leaf
+425048006,"Non-small cell carcinoma of lung, TNM stage 2 (disorder)",y,descendant of concept mapped from leaf
+363423001,Malignant tumor of nasal septum (disorder),y,descendant of concept mapped from leaf
+707389001,Primary clear cell squamous cell carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+109383000,Malignant mesothelioma of pericardium (disorder),y,descendant of concept mapped from leaf
+93772000,Primary malignant neoplasm of diaphragm (disorder),y,descendant of concept mapped from leaf
+424970000,"Large cell carcinoma of lung, TNM stage 3 (disorder)",y,descendant of concept mapped from leaf
+707358000,Primary squamous cell carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+94232001,Secondary malignant neoplasm of bronchus of right upper lobe (disorder),y,descendant of concept mapped from leaf
+93687001,Primary malignant neoplasm of base of tongue (disorder),y,descendant of concept mapped from leaf
+707337006,Primary adenocarcinoma of accessory sinus (disorder),y,descendant of concept mapped from leaf
+254639005,Carcinoma in situ of lung parenchyma (disorder),y,descendant of concept mapped from leaf
+187830009,Malignant neoplasm of nasal conchae (disorder),y,descendant of concept mapped from leaf
+707587000,Primary carcinoma ex pleomorphic adenoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+707672001,Pleuropulmonary blastoma type II (disorder),y,descendant of concept mapped from leaf
+254435009,Carcinoma of soft palate (disorder),y,descendant of concept mapped from leaf
+372103002,Carcinoma of glottis (disorder),y,descendant of concept mapped from leaf
+363376007,Malignant tumor of base of tongue (disorder),y,descendant of concept mapped from leaf
+94238002,Secondary malignant neoplasm of carina (disorder),y,descendant of concept mapped from leaf
+422541001,Undifferentiated carcinoma of nasopharynx (disorder),y,descendant of concept mapped from leaf
+94679009,Secondary malignant neoplasm of vocal cord (disorder),y,descendant of concept mapped from leaf
+707451005,Primary adenocarcinoma of lung (disorder),y,descendant of concept mapped from leaf
+94067008,Primary malignant neoplasm of sphenoidal sinus (disorder),y,descendant of concept mapped from leaf
+707409003,Primary acinar cell carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+424132000,"Non-small cell carcinoma of lung, TNM stage 1 (disorder)",y,descendant of concept mapped from leaf
+707580003,Primary basaloid carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+93739000,Primary malignant neoplasm of carina (disorder),y,descendant of concept mapped from leaf
+363400004,Malignant tumor of postcricoid region (disorder),y,descendant of concept mapped from leaf
+707487003,Primary giant cell carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+707345001,Primary carcinoma of accessory sinus (disorder),y,descendant of concept mapped from leaf
+94523002,Secondary malignant neoplasm of right middle lobe of lung (disorder),y,descendant of concept mapped from leaf
+363377003,Malignant tumor of lingual tonsil (disorder),y,descendant of concept mapped from leaf
+707670009,Pleuropulmonary blastoma (disorder),y,descendant of concept mapped from leaf
+94656008,Secondary malignant neoplasm of upper respiratory tract (disorder),y,descendant of concept mapped from leaf
+94334003,Secondary malignant neoplasm of hypopharynx (disorder),y,descendant of concept mapped from leaf
+189815007,Pulmonary blastoma (disorder),y,descendant of concept mapped from leaf
+254436005,Carcinoma of uvula (disorder),y,descendant of concept mapped from leaf
+707494000,Primary verrucous carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+254520006,Malignant tumor of infrahyoid epiglottis (disorder),y,descendant of concept mapped from leaf
+707471001,Primary clear cell adenocarcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+707703001,Primary squamous cell carcinoma of postcricoid region (disorder),y,descendant of concept mapped from leaf
+94118008,Primary malignant neoplasm of upper respiratory tract (disorder),y,descendant of concept mapped from leaf
+722529000,Primary malignant epithelial neoplasm of nasopharynx (disorder),y,descendant of concept mapped from leaf
+363430007,Malignant tumor of subglottis (disorder),y,descendant of concept mapped from leaf
+707388009,Primary squamous cell carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+94170009,Secondary malignant neoplasm of anterior wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+707353009,Primary squamous cell carcinoma of accessory sinus (disorder),y,descendant of concept mapped from leaf
+109855006,Malignant mesothelioma of pelvic peritoneum (disorder),y,descendant of concept mapped from leaf
+707538002,Primary squamous cell carcinoma of vallecula (disorder),y,descendant of concept mapped from leaf
+363397008,Malignant tumor of roof of nasopharynx (disorder),y,descendant of concept mapped from leaf
+707705008,Nonkeratinizing carcinoma of the nasopharynx (disorder),y,descendant of concept mapped from leaf
+363487003,Malignant tumor of aryepiglottic fold - laryngeal aspect (disorder),y,descendant of concept mapped from leaf
+93729006,Primary malignant neoplasm of bronchus of left lower lobe (disorder),y,descendant of concept mapped from leaf
+707475005,Primary adenocarcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+109854005,Malignant mesothelioma of parietal peritoneum (disorder),y,descendant of concept mapped from leaf
+707349007,Primary carcinoma of frontal sinus (disorder),y,descendant of concept mapped from leaf
+423464009,Squamous cell carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+707342003,Primary adenocarcinoma of ethmoidal sinus (disorder),y,descendant of concept mapped from leaf
+303012000,Malignant tumor of posterior wall of hypopharynx (disorder),y,descendant of concept mapped from leaf
+707427000,Primary verrucous carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+67811000119102,"Primary small cell malignant neoplasm of lung, TNM stage 1 (disorder)",y,descendant of concept mapped from leaf
+187716008,Malignant tumor of Waldeyer's ring (disorder),y,descendant of concept mapped from leaf
+363388009,Malignant tumor of soft palate (disorder),y,descendant of concept mapped from leaf
+254509006,Malignant tumor of anterior commissure (disorder),y,descendant of concept mapped from leaf
+707628004,Overlapping squamous cell carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+93868009,Primary malignant neoplasm of lingual tonsil (disorder),y,descendant of concept mapped from leaf
+93732009,Primary malignant neoplasm of bronchus of right middle lobe (disorder),y,descendant of concept mapped from leaf
+422758009,Carcinoma of nasal meatus (disorder),y,descendant of concept mapped from leaf
+707583001,Primary adenosquamous carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+372141009,Carcinoma of vocal cord (disorder),y,descendant of concept mapped from leaf
+721607006,Primary undifferentiated carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+110013004,Overlapping malignant neoplasm of tonsil (disorder),y,descendant of concept mapped from leaf
+94272005,Secondary malignant neoplasm of diaphragm (disorder),y,descendant of concept mapped from leaf
+67841000119103,"Primary small cell malignant neoplasm of lung, TNM stage 4 (disorder)",y,descendant of concept mapped from leaf
+363401000,Malignant tumor of pyriform fossa (disorder),y,descendant of concept mapped from leaf
+94142007,Primary malignant neoplasm of vomer (disorder),y,descendant of concept mapped from leaf
+707344002,Primary adenocarcinoma of sphenoidal sinus (disorder),y,descendant of concept mapped from leaf
+707403002,Primary fetal adenocarcinoma of lung (disorder),y,descendant of concept mapped from leaf
+93662008,Primary malignant neoplasm of adenoid (disorder),y,descendant of concept mapped from leaf
+707704007,Primary squamous cell carcinoma of pyriform sinus (disorder),y,descendant of concept mapped from leaf
+274085008,Tonsil carcinoma (disorder),y,descendant of concept mapped from leaf
+94155008,Secondary malignant neoplasm of accessory sinus (disorder),y,descendant of concept mapped from leaf
+1078931000119107,Primary adenocarcinoma of lower lobe of right lung (disorder),y,descendant of concept mapped from leaf
+423600008,"Large cell carcinoma of lung, TNM stage 4 (disorder)",y,descendant of concept mapped from leaf
+93816002,Primary malignant neoplasm of glottis (disorder),y,descendant of concept mapped from leaf
+707383000,Primary mucinous cystadenocarcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+707454002,Primary basaloid squamous cell carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+94367004,Secondary malignant neoplasm of laryngeal aspect of interarytenoid fold (disorder),y,descendant of concept mapped from leaf
+15956181000119102,Secondary adenocarcinoma of bilateral lungs (disorder),y,descendant of concept mapped from leaf
+698288007,Malignant melanoma of maxillary sinus (disorder),y,descendant of concept mapped from leaf
+187692001,Malignant tumor of nasopharynx (disorder),y,descendant of concept mapped from leaf
+363426009,Malignant tumor of ethmoid sinus (disorder),y,descendant of concept mapped from leaf
+707489000,Primary spindle cell squamous cell carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+93848003,Primary malignant neoplasm of junctional zone of tongue (disorder),y,descendant of concept mapped from leaf
+707590006,Primary acinar cell carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+707421004,Primary undifferentiated carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+242862004,Secondary malignant neoplasm of nasopharyngeal wall (disorder),y,descendant of concept mapped from leaf
+94680007,Secondary malignant neoplasm of vomer (disorder),y,descendant of concept mapped from leaf
+449248000,Nasopharyngeal carcinoma (disorder),y,descendant of concept mapped from leaf
+707407001,Primary signet ring cell carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+707411007,Primary papillary adenocarcinoma of lung (disorder),y,descendant of concept mapped from leaf
+93948004,Primary malignant neoplasm of parietal pleura (disorder),y,descendant of concept mapped from leaf
+93659005,Primary malignant neoplasm of accessory sinus (disorder),y,descendant of concept mapped from leaf
+423295000,"Squamous cell carcinoma of lung, TNM stage 1 (disorder)",y,descendant of concept mapped from leaf
+707391009,Primary papillary squamous cell carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+109366009,Overlapping malignant neoplasm of accessory sinuses (disorder),y,descendant of concept mapped from leaf
+448990005,Malignant epithelial neoplasm of nasal cavity (disorder),y,descendant of concept mapped from leaf
+7391000119103,Primary adenoid cystic carcinoma of nasopharynx (disorder),y,descendant of concept mapped from leaf
+703230006,Non-small cell lung cancer without mutation in epidermal growth factor receptor (disorder),y,descendant of concept mapped from leaf
+683991000119103,Extensive stage primary small cell carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+707360003,Primary lymphoepithelial carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+707591005,Primary mucoepidermoid carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+707377003,Primary signet ring cell carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+371994002,Primary malignant neoplasm of laryngeal aspect of aryepiglottic fold (disorder),y,descendant of concept mapped from leaf
+187702003,Malignant tumor of nasopharyngeal soft palate surface (disorder),y,descendant of concept mapped from leaf
+363488008,Malignant tumor of false cord (disorder),y,descendant of concept mapped from leaf
+448868009,Malignant neoplasm of lateral wall of oropharynx (disorder),y,descendant of concept mapped from leaf
+363422006,Malignant tumor of nasal cavity (disorder),y,descendant of concept mapped from leaf
+707595001,Primary mucinous cystadenocarcinoma of lung (disorder),y,descendant of concept mapped from leaf
+698285005,Malignant melanoma of ethmoid sinus (disorder),y,descendant of concept mapped from leaf
+733844008,Neuroendocrine type combined small cell carcinoma (morphologic abnormality),y,descendant of concept mapped from leaf
+94581003,Secondary malignant neoplasm of soft palate (disorder),y,descendant of concept mapped from leaf
+372112000,"Primary malignant neoplasm of middle lobe, bronchus or lung (disorder)",y,descendant of concept mapped from leaf
+94376006,Secondary malignant neoplasm of left upper lobe of lung (disorder),y,descendant of concept mapped from leaf
+285605009,Metastasis to pleura of unknown primary (disorder),y,descendant of concept mapped from leaf
+707584007,Primary lymphoepithelial carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+707357005,Primary squamous cell carcinoma of laryngeal cartilage (disorder),y,descendant of concept mapped from leaf
+707484005,Primary adenoid squamous cell carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+707395000,Primary adenocarcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+707384006,Primary solid carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+423121009,"Non-small cell carcinoma of lung, TNM stage 4 (disorder)",y,descendant of concept mapped from leaf
+707455001,Primary papillary squamous cell carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+707397008,Primary basal cell adenocarcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+707385007,Primary undifferentiated carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+187675005,Malignant tumor of tonsillar pillar (disorder),y,descendant of concept mapped from leaf
+93830007,Primary malignant neoplasm of hypopharyngeal aspect of interarytenoid fold (disorder),y,descendant of concept mapped from leaf
+94104001,Primary malignant neoplasm of trachea (disorder),y,descendant of concept mapped from leaf
+93992002,Primary malignant neoplasm of right middle lobe of lung (disorder),y,descendant of concept mapped from leaf
+1078881000119102,Primary adenocarcinoma of lower lobe of left lung (disorder),y,descendant of concept mapped from leaf
+707453008,Primary clear cell squamous cell carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+109853004,Malignant mesothelioma of peritoneum (disorder),y,descendant of concept mapped from leaf
+94677006,Secondary malignant neoplasm of vestibule of nose (disorder),y,descendant of concept mapped from leaf
+94140004,Primary malignant neoplasm of visceral pleura (disorder),y,descendant of concept mapped from leaf
+353741000119106,Secondary malignant neoplasm of left lung (disorder),y,descendant of concept mapped from leaf
+372105009,Carcinoma of supraglottis (disorder),y,descendant of concept mapped from leaf
+707425008,Primary adenoid squamous cell carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+94333009,Secondary malignant neoplasm of hypopharyngeal aspect of interarytenoid fold (disorder),y,descendant of concept mapped from leaf
+423318000,Adenoid cystic carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+93730001,Primary malignant neoplasm of bronchus of left upper lobe (disorder),y,descendant of concept mapped from leaf
+707354003,Primary squamous cell carcinoma of maxillary sinus (disorder),y,descendant of concept mapped from leaf
+707464006,Primary myoepithelial carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+93933005,Primary malignant neoplasm of oropharynx (disorder),y,descendant of concept mapped from leaf
+94399005,Secondary malignant neoplasm of main bronchus (disorder),y,descendant of concept mapped from leaf
+94368009,Secondary malignant neoplasm of laryngeal commissure (disorder),y,descendant of concept mapped from leaf
+94458003,Secondary malignant neoplasm of tonsil (disorder),y,descendant of concept mapped from leaf
+707674000,Primary malignant epithelial neoplasm of trachea (disorder),y,descendant of concept mapped from leaf
+94329002,Secondary malignant neoplasm of hilus of lung (disorder),y,descendant of concept mapped from leaf
+707582006,Primary spindle cell squamous cell carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+187685006,Malignant neoplasm of junctional region of epiglottis (disorder),y,descendant of concept mapped from leaf
+707423001,Primary basaloid carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+187831008,Malignant tumor of nasal vestibule (disorder),y,descendant of concept mapped from leaf
+423468007,"Squamous cell carcinoma of lung, TNM stage 2 (disorder)",y,descendant of concept mapped from leaf
+707627009,Primary salivary gland type carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+707479004,Primary adenocarcinoma of subglottis (disorder),y,descendant of concept mapped from leaf
+707529004,Overlapping squamous cell carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+363399006,Malignant tumor of hypopharynx (disorder),y,descendant of concept mapped from leaf
+94372008,Secondary malignant neoplasm of lateral wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+707457009,Primary spindle cell carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+94607007,Secondary malignant neoplasm of subglottis (disorder),y,descendant of concept mapped from leaf
+94078000,Primary malignant neoplasm of superior wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+94370000,Secondary malignant neoplasm of larynx (disorder),y,descendant of concept mapped from leaf
+721605003,Primary squamous cell carcinoma of overlapping lesion of accessory sinuses (disorder),y,descendant of concept mapped from leaf
+93971002,Primary malignant neoplasm of posterior wall of oropharynx (disorder),y,descendant of concept mapped from leaf
+1078961000119104,Primary adenocarcinoma of upper lobe of right lung (disorder),y,descendant of concept mapped from leaf
+94231008,Secondary malignant neoplasm of bronchus of right middle lobe (disorder),y,descendant of concept mapped from leaf
+1078901000119100,Primary adenocarcinoma of upper lobe of left lung (disorder),y,descendant of concept mapped from leaf
+285604008,Metastasis to lung of unknown primary (disorder),y,descendant of concept mapped from leaf
+722530005,Primary squamous cell carcinoma of pharyngeal tonsil (disorder),y,descendant of concept mapped from leaf
+698044008,Malignant melanoma of palatine arch (disorder),y,descendant of concept mapped from leaf
+94166001,Secondary malignant neoplasm of anterior aspect of epiglottis (disorder),y,descendant of concept mapped from leaf
+93882009,Primary malignant neoplasm of main bronchus (disorder),y,descendant of concept mapped from leaf
+449254004,Malignant epithelial neoplasm of pharynx (disorder),y,descendant of concept mapped from leaf
+94373003,Secondary malignant neoplasm of lateral wall of oropharynx (disorder),y,descendant of concept mapped from leaf
+424938000,"Large cell carcinoma of lung, TNM stage 1 (disorder)",y,descendant of concept mapped from leaf
+371995001,Primary malignant neoplasm of larynx (disorder),y,descendant of concept mapped from leaf
+408648004,Squamous cell carcinoma of epiglottis (disorder),y,descendant of concept mapped from leaf
+94375005,Secondary malignant neoplasm of left lower lobe of lung (disorder),y,descendant of concept mapped from leaf
+94473002,Secondary malignant neoplasm of parietal pleura (disorder),y,descendant of concept mapped from leaf
+94507002,Secondary malignant neoplasm of pyriform sinus (disorder),y,descendant of concept mapped from leaf
+707408006,Primary small cell non-keratinizing squamous cell carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+18121000119104,Primary squamous cell carcinoma of palatine tonsil (disorder),y,descendant of concept mapped from leaf
+707579001,Primary basaloid squamous cell carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+707406005,Primary mucoepidermoid carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+697993003,Undifferentiated carcinoma of nasal sinus (disorder),y,descendant of concept mapped from leaf
+363506007,Malignant tumor of nasal sinuses (disorder),y,descendant of concept mapped from leaf
+707392002,Primary giant cell carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+94129007,Primary malignant neoplasm of uvula (disorder),y,descendant of concept mapped from leaf
+15956381000119100,Adenocarcinoma of right lung (disorder),y,descendant of concept mapped from leaf
+94233006,Secondary malignant neoplasm of bronchus (disorder),y,descendant of concept mapped from leaf
+187644001,Malignant tumor of junctional zone of tongue (disorder),y,descendant of concept mapped from leaf
+93787005,Primary malignant neoplasm of ethmoidal sinus (disorder),y,descendant of concept mapped from leaf
+448214005,Malignant epithelial neoplasm of oropharynx (disorder),y,descendant of concept mapped from leaf
+440173001,Nonsquamous nonsmall cell neoplasm of lung (disorder),y,descendant of concept mapped from leaf
+723182009,Primary squamous cell carcinoma of nasal cavity (disorder),y,descendant of concept mapped from leaf
+707426009,Primary papillary squamous cell carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+363392002,Malignant tumor of oropharynx (disorder),y,descendant of concept mapped from leaf
+707686002,Primary squamous cell carcinoma of posterior wall of hypopharynx (disorder),y,descendant of concept mapped from leaf
+722527003,Primary malignant neuroendocrine neoplasm of bronchus (disorder),y,descendant of concept mapped from leaf
+254526000,Malignant tumor of laryngeal ventricle (disorder),y,descendant of concept mapped from leaf
+707399006,Primary papillary adenocarcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+93966009,Primary malignant neoplasm of pleura (disorder),y,descendant of concept mapped from leaf
+255075004,Malignant tumor of lateral nasal wall (disorder),y,descendant of concept mapped from leaf
+353561000119103,Secondary malignant neoplasm of right lung (disorder),y,descendant of concept mapped from leaf
+94639000,Secondary malignant neoplasm of tonsillar fossa (disorder),y,descendant of concept mapped from leaf
+724060008,Malignant neoplasm of right upper lobe of lung (disorder),y,descendant of concept mapped from leaf
+440527006,Primary squamous cell carcinoma of naris (disorder),y,descendant of concept mapped from leaf
+187683004,Malignant neoplasm of glossoepiglottic fold (disorder),y,descendant of concept mapped from leaf
+707586009,Primary myoepithelial carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+187698002,Malignant tumor of opening of auditory tube (disorder),y,descendant of concept mapped from leaf
+707673006,Pleuropulmonary blastoma type III (disorder),y,descendant of concept mapped from leaf
+372110008,"Primary malignant neoplasm of lower lobe, bronchus or lung (disorder)",y,descendant of concept mapped from leaf
+408649007,Squamous cell carcinoma of pharynx (disorder),y,descendant of concept mapped from leaf
+94678001,Secondary malignant neoplasm of visceral pleura (disorder),y,descendant of concept mapped from leaf
+707458004,Primary pleomorphic carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+94495003,Secondary malignant neoplasm of postcricoid region (disorder),y,descendant of concept mapped from leaf
+94498001,Secondary malignant neoplasm of posterior wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+187842004,Malignant tumor of supraglottis (disorder),y,descendant of concept mapped from leaf
+67831000119107,"Primary small cell malignant neoplasm of lung, TNM stage 3 (disorder)",y,descendant of concept mapped from leaf
+241861008,Metastatic malignant neoplasm to nasopharynx (disorder),y,descendant of concept mapped from leaf
+94318001,Secondary malignant neoplasm of glottis (disorder),y,descendant of concept mapped from leaf
+722827008,Primary synovial sarcoma of respiratory organ (disorder),y,descendant of concept mapped from leaf
+707532001,Primary squamous cell carcinoma of posterior wall of oropharynx (disorder),y,descendant of concept mapped from leaf
+94158005,Secondary malignant neoplasm of adenoid (disorder),y,descendant of concept mapped from leaf
+93784003,Primary malignant neoplasm of epiglottis (disorder),y,descendant of concept mapped from leaf
+94358004,Secondary malignant neoplasm of junctional region of epiglottis (disorder),y,descendant of concept mapped from leaf
+94366008,Secondary malignant neoplasm of laryngeal aspect of aryepiglottic fold (disorder),y,descendant of concept mapped from leaf
+1090231000000103,Malignant neoplasm of respiratory tract (disorder),y,descendant of concept mapped from leaf
+372120003,Carcinoma of main bronchus (disorder),y,descendant of concept mapped from leaf
+724056005,Malignant neoplasm of lower lobe of right lung (disorder),y,descendant of concept mapped from leaf
+449417005,Malignant epithelial neoplasm of nasal septum (disorder),y,descendant of concept mapped from leaf
+372030009,Primary malignant neoplasm of vocal cord (disorder),y,descendant of concept mapped from leaf
+94515004,Secondary malignant neoplasm of respiratory tract (disorder),y,descendant of concept mapped from leaf
+698011002,Keratinizing squamous cell carcinoma of nasopharynx (disorder),y,descendant of concept mapped from leaf
+426964009,"Non-small cell lung cancer, positive for epidermal growth factor receptor expression (disorder)",y,descendant of concept mapped from leaf
+94144008,Primary malignant neoplasm of Waldeyer's ring (disorder),y,descendant of concept mapped from leaf
+93831006,Primary malignant neoplasm of hypopharynx (disorder),y,descendant of concept mapped from leaf
+363389001,Malignant tumor of uvula (disorder),y,descendant of concept mapped from leaf
+707697002,Primary squamous cell carcinoma of hypopharyngeal aspect of aryepiglottic fold (disorder),y,descendant of concept mapped from leaf
+448372003,Non-Hodgkin's lymphoma of lung (disorder),y,descendant of concept mapped from leaf
+733144006,Malignant epithelial neoplasm of bronchus (disorder),y,descendant of concept mapped from leaf
+93862005,Primary malignant neoplasm of lateral wall of oropharynx (disorder),y,descendant of concept mapped from leaf
+94613003,Secondary malignant neoplasm of superior wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+448672006,Follicular non-Hodgkin's lymphoma of lung (disorder),y,descendant of concept mapped from leaf
+718200007,Primary pulmonary lymphoma (disorder),y,descendant of concept mapped from leaf
+707593008,Primary salivary gland-type tumour of oropharynx (disorder),y,descendant of concept mapped from leaf
+722511005,Primary rhabdomyosarcoma of respiratory organ (disorder),y,descendant of concept mapped from leaf
+94103007,Primary malignant neoplasm of tonsillar pillar (disorder),y,descendant of concept mapped from leaf
+94075002,Primary malignant neoplasm of subglottis (disorder),y,descendant of concept mapped from leaf
+94640003,Secondary malignant neoplasm of tonsillar pillar (disorder),y,descendant of concept mapped from leaf
+707491008,Primary lymphoepithelial carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+363398003,Malignant tumor of lateral wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+363427000,Malignant tumor of frontal sinus (disorder),y,descendant of concept mapped from leaf
+449292003,Non-Hodgkin's lymphoma of tonsil (disorder),y,descendant of concept mapped from leaf
+94332004,Secondary malignant neoplasm of hypopharyngeal aspect of aryepiglottic fold (disorder),y,descendant of concept mapped from leaf
+363486007,Malignant tumor of vocal cord (disorder),y,descendant of concept mapped from leaf
+93986008,Primary malignant neoplasm of respiratory tract (disorder),y,descendant of concept mapped from leaf
+187681002,Malignant neoplasm of anterior epiglottis (disorder),y,descendant of concept mapped from leaf
+94391008,Secondary malignant neoplasm of lung (disorder),y,descendant of concept mapped from leaf
+709031009,Malignant neoplasm of superior wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+372104008,Carcinoma of subglottis (disorder),y,descendant of concept mapped from leaf
+94369001,Secondary malignant neoplasm of laryngeal surface of epiglottis (disorder),y,descendant of concept mapped from leaf
+449058008,Follicular non-Hodgkin's lymphoma of tonsil (disorder),y,descendant of concept mapped from leaf
+94049001,Primary malignant neoplasm of soft palate (disorder),y,descendant of concept mapped from leaf
+187694000,Malignant tumor of adenoid (disorder),y,descendant of concept mapped from leaf
+707422006,Primary spindle cell squamous cell carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+707398003,Primary polymorphous low grade adenocarcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+707588005,Primary epithelial-myoepithelial carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+707466008,Primary adenoid cystic carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+707386008,Primary acinar cell carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+271943005,Carcinoma of base of tongue (disorder),y,descendant of concept mapped from leaf
+707467004,Primary salivary gland type carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+363507003,Malignant neoplasm of pharynx (disorder),y,descendant of concept mapped from leaf
+363425008,Malignant tumor of maxillary sinus (disorder),y,descendant of concept mapped from leaf
+707469001,Primary non-mucinous bronchiolo-alveolar carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+254530002,Malignant tumor of parapharyngeal space (disorder),y,descendant of concept mapped from leaf
+722510006,Primary rhabdomyosarcoma of pharynx (disorder),y,descendant of concept mapped from leaf
+363395000,Malignant tumor of vallecula (disorder),y,descendant of concept mapped from leaf
+449066004,Malignant neoplasm of upper respiratory tract (disorder),y,descendant of concept mapped from leaf
+707452003,Primary mucinous adenocarcinoma of lung (disorder),y,descendant of concept mapped from leaf
+187688008,Malignant tumor of posterior wall of oropharynx (disorder),y,descendant of concept mapped from leaf
+724058006,Malignant neoplasm of upper lobe of left lung (disorder),y,descendant of concept mapped from leaf
+707346000,Primary carcinoma of ethmoidal sinus (disorder),y,descendant of concept mapped from leaf
+735450006,Primary malignant neuroepitheliomatous neoplasm of nasal cavity (disorder),y,descendant of concept mapped from leaf
+448665005,Malignant epithelial neoplasm of hypopharynx (disorder),y,descendant of concept mapped from leaf
+94670008,Secondary malignant neoplasm of vallecula (disorder),y,descendant of concept mapped from leaf
+707348004,Primary carcinoma of sphenoidal sinus (disorder),y,descendant of concept mapped from leaf
+94296000,Secondary malignant neoplasm of false vocal cord (disorder),y,descendant of concept mapped from leaf
+255119002,Lymphangitis carcinomatosa (disorder),y,descendant of concept mapped from leaf
+94139001,Primary malignant neoplasm of vestibule of nose (disorder),y,descendant of concept mapped from leaf
+187701005,Malignant neoplasm of floor of nasopharynx (disorder),y,descendant of concept mapped from leaf
+255074000,Malignant tumor of nasal cavity and nasopharynx (disorder),y,descendant of concept mapped from leaf
+707575007,Primary squamous cell carcinoma of supraglottis (disorder),y,descendant of concept mapped from leaf
+254517003,Malignant tumor of suprahyoid epiglottis (disorder),y,descendant of concept mapped from leaf
+187682009,"Malignant neoplasm of epiglottis, free border (disorder)",y,descendant of concept mapped from leaf
+93967000,Primary malignant neoplasm of postcricoid region (disorder),y,descendant of concept mapped from leaf
+275490009,Carcinoma of tongue base - dorsal surface (disorder),y,descendant of concept mapped from leaf
+707473003,Primary mucinous adenocarcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+707470000,Primary mucinous bronchiolo-alveolar carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+363431006,Malignant tumor of laryngeal cartilage (disorder),y,descendant of concept mapped from leaf
+187693006,Malignant tumor of posterior wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+93674007,Primary malignant neoplasm of anterior wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+707359008,Primary squamous cell carcinoma of ethmoidal sinus (disorder),y,descendant of concept mapped from leaf
+707596000,Primary carcinosarcoma of lung (disorder),y,descendant of concept mapped from leaf
+722528008,Primary malignant neuroendocrine neoplasm of lung (disorder),y,descendant of concept mapped from leaf
+371988005,Primary malignant neoplasm of false vocal cord (disorder),y,descendant of concept mapped from leaf
+372113005,"Carcinoma of middle lobe, bronchus or lung (disorder)",y,descendant of concept mapped from leaf
+254513004,Malignant tumor of posterior commissure (disorder),y,descendant of concept mapped from leaf
+109858008,Malignant mesothelioma of omentum (disorder),y,descendant of concept mapped from leaf
+94616006,Secondary malignant neoplasm of supraglottis (disorder),y,descendant of concept mapped from leaf
+402503002,Basal cell carcinoma of nasal columella (disorder),y,descendant of concept mapped from leaf
+93670003,Primary malignant neoplasm of anterior aspect of epiglottis (disorder),y,descendant of concept mapped from leaf
+707664003,Primary squamous cell carcinoma of glottis (disorder),y,descendant of concept mapped from leaf
+94493005,Secondary malignant neoplasm of pleura (disorder),y,descendant of concept mapped from leaf
+12240951000119107,Squamous cell carcinoma of left lung (disorder),y,descendant of concept mapped from leaf
+93918002,Primary malignant neoplasm of nasal concha (disorder),y,descendant of concept mapped from leaf
+707465007,Primary mucoepidermoid carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+721560002,Primary adenocarcinoma of nasal cavity (disorder),y,descendant of concept mapped from leaf
+285598005,Metastasis to trachea of unknown primary (disorder),y,descendant of concept mapped from leaf
+698040004,Malignant melanoma of nasal cavity (disorder),y,descendant of concept mapped from leaf
+707581004,Primary papillary squamous cell carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+67821000119109,"Primary small cell malignant neoplasm of lung, TNM stage 2 (disorder)",y,descendant of concept mapped from leaf
+707356001,Primary squamous cell carcinoma of frontal sinus (disorder),y,descendant of concept mapped from leaf
+707535004,Primary squamous cell carcinoma of lateral wall of oropharynx (disorder),y,descendant of concept mapped from leaf
+698048006,Undifferentiated nonkeratinizing squamous cell carcinoma of nasopharynx (disorder),y,descendant of concept mapped from leaf
+94132005,Primary malignant neoplasm of vallecula (disorder),y,descendant of concept mapped from leaf
+448371005,Non-Hodgkin's lymphoma of nasopharynx (disorder),y,descendant of concept mapped from leaf
+707343008,Primary adenocarcinoma of frontal sinus (disorder),y,descendant of concept mapped from leaf
+109832008,Overlapping malignant neoplasm of oropharynx (disorder),y,descendant of concept mapped from leaf
+707430007,Overlapping squamous cell carcinoma of laryngeal cartilage (disorder),y,descendant of concept mapped from leaf
+707394001,Primary spindle cell carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+94228007,Secondary malignant neoplasm of bronchus of left lower lobe (disorder),y,descendant of concept mapped from leaf
+707539005,Primary adenoid cystic carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+94524008,Secondary malignant neoplasm of right upper lobe of lung (disorder),y,descendant of concept mapped from leaf
+93917007,Primary malignant neoplasm of nasal cavity (disorder),y,descendant of concept mapped from leaf
+94230009,Secondary malignant neoplasm of bronchus of right lower lobe (disorder),y,descendant of concept mapped from leaf
+187708004,Malignant tumor aryepiglottic fold - hypopharyngeal aspect (disorder),y,descendant of concept mapped from leaf
+707592003,Primary infiltrating duct carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+94310008,Secondary malignant neoplasm of frontal sinus (disorder),y,descendant of concept mapped from leaf
+109390005,Kaposi's sarcoma of lung (disorder),y,descendant of concept mapped from leaf
+422691006,Squamous cell carcinoma of nasopharynx (disorder),y,descendant of concept mapped from leaf
+93731002,Primary malignant neoplasm of bronchus of right lower lobe (disorder),y,descendant of concept mapped from leaf
+94499009,Secondary malignant neoplasm of posterior wall of oropharynx (disorder),y,descendant of concept mapped from leaf
+707492001,Primary squamous cell carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+405822008,Squamous cell carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+707400004,Primary mucinous adenocarcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+94080006,Primary malignant neoplasm of supraglottis (disorder),y,descendant of concept mapped from leaf
+93808006,Primary malignant neoplasm of frontal sinus (disorder),y,descendant of concept mapped from leaf
+707671008,Pleuropulmonary blastoma type I (disorder),y,descendant of concept mapped from leaf
+187700006,Malignant tumor of anterior wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+707472008,Primary papillary adenocarcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+724059003,Malignant neoplasm of lower lobe of left lung (disorder),y,descendant of concept mapped from leaf
+93968005,Primary malignant neoplasm of posterior hypopharyngeal wall (disorder),y,descendant of concept mapped from leaf
+707410008,Primary solid carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+723301009,Squamous non-small cell lung cancer (disorder),y,descendant of concept mapped from leaf
+12240991000119102,Squamous cell carcinoma of right lung (disorder),y,descendant of concept mapped from leaf
+707429002,Overlapping squamous cell carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+707378008,Primary myoepithelial carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+93864006,Primary malignant neoplasm of lower lobe of left lung (disorder),y,descendant of concept mapped from leaf
+187843009,Malignant neoplasm of arytenoid cartilage (disorder),y,descendant of concept mapped from leaf
+722672002,Primary squamous cell carcinoma of base of tongue (disorder),y,descendant of concept mapped from leaf
+707482009,Primary papillary squamous cell carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+109374005,Overlapping malignant neoplasm of mediastinum and pleura (disorder),y,descendant of concept mapped from leaf
+707350007,Malignant melanoma of accessory sinus (disorder),y,descendant of concept mapped from leaf
+707585008,Primary squamous cell carcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+94641004,Secondary malignant neoplasm of trachea (disorder),y,descendant of concept mapped from leaf
+94002000,Primary malignant neoplasm of septum of nose (disorder),y,descendant of concept mapped from leaf
+707576008,Primary squamous cell carcinoma of subglottis (disorder),y,descendant of concept mapped from leaf
+94379004,Secondary malignant neoplasm of lingual tonsil (disorder),y,descendant of concept mapped from leaf
+187846001,Malignant neoplasm of thyroid cartilage (disorder),y,descendant of concept mapped from leaf
+703549009,"Small cell carcinoma, hypercalcemic type (morphologic abnormality)",y,descendant of concept mapped from leaf
+94454001,Secondary malignant neoplasm of oropharynx (disorder),y,descendant of concept mapped from leaf
+707396004,Primary oxyphilic adenocarcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+94522007,Secondary malignant neoplasm of right lower lobe of lung (disorder),y,descendant of concept mapped from leaf
+422968005,"Non-small cell carcinoma of lung, TNM stage 3 (disorder)",y,descendant of concept mapped from leaf
+94496002,Secondary malignant neoplasm of posterior hypopharyngeal wall (disorder),y,descendant of concept mapped from leaf
+707401000,Primary clear cell adenocarcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+109368005,Overlapping malignant neoplasm of hypopharynx (disorder),y,descendant of concept mapped from leaf
+93961004,Primary malignant neoplasm of pharynx (disorder),y,descendant of concept mapped from leaf
+707379000,Primary mucoepidermoid carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+93857009,Primary malignant neoplasm of laryngeal commissure (disorder),y,descendant of concept mapped from leaf
+707486007,Primary basaloid carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+707660007,Primary giant cell carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+94436000,Secondary malignant neoplasm of nasal cavity (disorder),y,descendant of concept mapped from leaf
+448867004,Diffuse non-Hodgkin's lymphoma of lung (disorder),y,descendant of concept mapped from leaf
+733358002,Primary squamous cell carcinoma of respiratory system (disorder),y,descendant of concept mapped from leaf
+109370001,Primary malignant neoplasm of laryngeal cartilage (disorder),y,descendant of concept mapped from leaf
+93991009,Primary malignant neoplasm of right lower lobe of lung (disorder),y,descendant of concept mapped from leaf
+707528007,Primary squamous cell carcinoma of nasopharynx (disorder),y,descendant of concept mapped from leaf
+94599006,Secondary malignant neoplasm of sphenoidal sinus (disorder),y,descendant of concept mapped from leaf
+372020000,Primary malignant neoplasm of tonsil (disorder),y,descendant of concept mapped from leaf
+707481002,Primary basaloid squamous cell carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+422886007,Olfactory neuroblastoma (disorder),y,descendant of concept mapped from leaf
+707339009,Primary adenocarcinoma of maxillary sinus (disorder),y,descendant of concept mapped from leaf
+94229004,Secondary malignant neoplasm of bronchus of left upper lobe (disorder),y,descendant of concept mapped from leaf
+423050000,"Large cell carcinoma of lung, TNM stage 2 (disorder)",y,descendant of concept mapped from leaf
+276975007,Carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+93861003,Primary malignant neoplasm of lateral wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+94682004,Secondary malignant neoplasm of Waldeyer's ring (disorder),y,descendant of concept mapped from leaf
+93993007,Primary malignant neoplasm of upper lobe of right lung (disorder),y,descendant of concept mapped from leaf
+448319002,Diffuse non-Hodgkin's lymphoma of nasopharynx (disorder),y,descendant of concept mapped from leaf
+187838002,"Malignant neoplasm, overlapping lesion of accessory sinuses (disorder)",y,descendant of concept mapped from leaf
+722673007,Primary squamous cell carcinoma of lingual tonsil (disorder),y,descendant of concept mapped from leaf
+94359007,Secondary malignant neoplasm of junctional zone of tongue (disorder),y,descendant of concept mapped from leaf
+707662004,Primary basaloid squamous cell carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+187845002,Malignant neoplasm of cuneiform cartilage (disorder),y,descendant of concept mapped from leaf
+93978008,Primary malignant neoplasm of pyriform sinus (disorder),y,descendant of concept mapped from leaf
+707347009,Primary carcinoma of maxillary sinus (disorder),y,descendant of concept mapped from leaf
+707405009,Primary adenosquamous carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+109367000,Overlapping malignant neoplasm of nasopharynx (disorder),y,descendant of concept mapped from leaf
+363394001,Malignant tumor of tonsillar fossa (disorder),y,descendant of concept mapped from leaf
+93865007,Primary malignant neoplasm of upper lobe of left lung (disorder),y,descendant of concept mapped from leaf
+707485006,Primary adenosquamous carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+721606002,Primary adenocarcinoma of overlapping lesion of accessory sinuses (disorder),y,descendant of concept mapped from leaf
+707424007,Primary adenosquamous cell carcinoma of larynx (disorder),y,descendant of concept mapped from leaf
+707362006,Malignant melanoma of sphenoidal sinus (disorder),y,descendant of concept mapped from leaf
+94184004,Secondary malignant neoplasm of base of tongue (disorder),y,descendant of concept mapped from leaf
+449219006,Follicular non-Hodgkin's lymphoma of nasopharynx (disorder),y,descendant of concept mapped from leaf
+707456000,Primary undifferentiated carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+240163000,Malignant neoplasm of nasopharyngeal wall (disorder),y,descendant of concept mapped from leaf
+722425009,Reactive oxygen species 1 positive non-small cell lung cancer (disorder),y,descendant of concept mapped from leaf
+707589002,Primary cystadenocarcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+425376008,"Squamous cell carcinoma of lung, TNM stage 4 (disorder)",y,descendant of concept mapped from leaf
+93858004,Primary malignant neoplasm of laryngeal surface of epiglottis (disorder),y,descendant of concept mapped from leaf
+707468009,Primary mixed mucinous and non-mucinous bronchiolo-alveolar carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+94534004,Secondary malignant neoplasm of septum of nose (disorder),y,descendant of concept mapped from leaf
+707393007,Primary adenosquamous carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+449173006,Diffuse non-Hodgkin's lymphoma of tonsil (disorder),y,descendant of concept mapped from leaf
+94437009,Secondary malignant neoplasm of nasal concha (disorder),y,descendant of concept mapped from leaf
+15956341000119105,Adenocarcinoma of left lung (disorder),y,descendant of concept mapped from leaf
+285603002,Metastasis to bronchus of unknown primary (disorder),y,descendant of concept mapped from leaf
+707380002,Primary salivary gland type carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+94667009,Secondary malignant neoplasm of uvula (disorder),y,descendant of concept mapped from leaf
+254478004,Malignant tumor of inferior turbinate (disorder),y,descendant of concept mapped from leaf
+707537007,Primary squamous cell carcinoma of anterior surface of epiglottis (disorder),y,descendant of concept mapped from leaf
+707355002,Primary squamous cell carcinoma of sphenoidal sinus (disorder),y,descendant of concept mapped from leaf
+707402007,Primary adenocarcinoma of oropharynx (disorder),y,descendant of concept mapped from leaf
+726653000,Malignant carcinoid tumor of bronchus (disorder),y,descendant of concept mapped from leaf
+363429002,Malignant tumor of larynx (disorder),y,descendant of concept mapped from leaf
+707390005,Primary basaloid squamous cell carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+94406009,Secondary malignant neoplasm of maxillary sinus (disorder),y,descendant of concept mapped from leaf
+703228009,Non-small cell lung cancer with mutation in epidermal growth factor receptor (disorder),y,descendant of concept mapped from leaf
+707460002,Primary pseudosarcomatous carcinoma of lung (disorder),y,descendant of concept mapped from leaf
+94288005,Secondary malignant neoplasm of ethmoidal sinus (disorder),y,descendant of concept mapped from leaf
+187841006,Malignant tumor of glottis (disorder),y,descendant of concept mapped from leaf
+403889000,Verrucous carcinoma of oral cavity (disorder),y,descendant of concept mapped from leaf
+707493006,Primary lymphoepithelial carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+61471000119100,Basal cell carcinoma of naris (disorder),y,descendant of concept mapped from leaf
+254484001,Malignant tumor of posterior margin of nasal septum and choanae (disorder),y,descendant of concept mapped from leaf
+448509007,Transglottic malignant neoplasm of larynx (disorder),y,descendant of concept mapped from leaf
+254459004,Malignant tumor of anterior pillar of fauces (disorder),y,descendant of concept mapped from leaf
+254423005,Carcinoma of lingual tonsil (disorder),y,descendant of concept mapped from leaf
+363393007,Malignant tumor of tonsil (disorder),y,descendant of concept mapped from leaf
+93733004,Primary malignant neoplasm of bronchus of right upper lobe (disorder),y,descendant of concept mapped from leaf
+707404008,Primary mixed subtype adenocarcinoma of lung (disorder),y,descendant of concept mapped from leaf
+109384006,"Overlapping malignant neoplasm of heart, mediastinum and pleura (disorder)",y,descendant of concept mapped from leaf
+94488007,Secondary malignant neoplasm of pharynx (disorder),y,descendant of concept mapped from leaf
+733345003,Primary squamous cell carcinoma of pharynx (disorder),y,descendant of concept mapped from leaf
+425230006,"Squamous cell carcinoma of lung, TNM stage 3 (disorder)",y,descendant of concept mapped from leaf
+93889000,Primary malignant neoplasm of maxillary sinus (disorder),y,descendant of concept mapped from leaf
+187631006,Malignant neoplasm of base of tongue dorsal surface (disorder),y,descendant of concept mapped from leaf
+707495004,Primary squamous cell adenoid carcinoma of trachea (disorder),y,descendant of concept mapped from leaf
+94284007,Secondary malignant neoplasm of epiglottis (disorder),y,descendant of concept mapped from leaf
+363428005,Malignant tumor of sphenoid sinus (disorder),y,descendant of concept mapped from leaf
+254481009,Malignant tumor of middle turbinate (disorder),y,descendant of concept mapped from leaf
+707490009,Primary verrucous carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+423106003,Adenocarcinoma of nasopharynx (disorder),y,descendant of concept mapped from leaf
+427038005,"Non-small cell lung cancer, negative for epidermal growth factor receptor expression (disorder)",y,descendant of concept mapped from leaf
+187709007,Malignant neoplasm of posterior pharynx (disorder),y,descendant of concept mapped from leaf
+1661000119106,Metastasis to lung from adenocarcinoma (disorder),y,descendant of concept mapped from leaf
+93970001,Primary malignant neoplasm of posterior wall of nasopharynx (disorder),y,descendant of concept mapped from leaf
+187697007,Malignant tumor of pharyngeal recess (disorder),y,descendant of concept mapped from leaf
+707483004,Primary undifferentiated carcinoma of hypopharynx (disorder),y,descendant of concept mapped from leaf
+93829002,Primary malignant neoplasm of hypopharyngeal aspect of aryepiglottic fold (disorder),y,descendant of concept mapped from leaf
+707361004,Malignant melanoma of frontal sinus (disorder),y,descendant of concept mapped from leaf
+566551000000105,Malignant neoplasm of oropharynx NOS (disorder),n,via Query Table
+479031000000103,"[X]Malignant neoplasm of bronchus or lung, unspecified (disorder)",n,via Query Table
+557101000000105,"Malignant neoplasm of lower lobe, bronchus or lung NOS (disorder)",n,via Query Table
+397641000000107,[X]Malignant neoplasm of respiratory and intrathoracic organs (disorder),n,via Query Table
+550101000000109,Malignant neoplasm of trachea NOS (disorder),n,via Query Table
+566531000000103,"Malignant neoplasm of oropharynx, other specified sites (disorder)",n,via Query Table
+190110008,"[X]Mesothelioma, unspecified (disorder)",n,via Query Table
+559881000000101,Malignant neoplasm of anterior wall of nasopharynx NOS (disorder),n,via Query Table
+557091000000102,"Malignant neoplasm of middle lobe, bronchus or lung NOS (disorder)",n,via Query Table
+550081000000103,"Malignant neoplasm of larynx, other specified site (disorder)",n,via Query Table
+634591000000105,Malignant neoplasm of laryngeal cartilage NOS (disorder),n,via Query Table
+875391000000109,Non-small cell carcinoma,n,via Query Table
+439161000000107,[X]Secondary malignant neoplasm of other and unspecified respiratory organs (disorder),n,via Query Table
+561481000000106,Malignant neoplasm of tonsillar fossa NOS (disorder),n,via Query Table
+573621000000103,Malignant neoplasm of pharynx unspecified (disorder),n,via Query Table
+559871000000103,Malignant neoplasm of lateral wall of nasopharynx NOS (disorder),n,via Query Table
+550111000000106,Malignant neoplasm of main bronchus NOS (disorder),n,via Query Table
+561471000000109,Malignant neoplasm tonsil NOS (disorder),n,via Query Table
+666541000000104,Malignant neoplasm of nasal cavities NOS (disorder),n,via Query Table
+559181000000106,Malignant neoplasm of posterior wall of nasopharynx NOS (disorder),n,via Query Table
+269567005,Ca trachea/bronchus/lung NOS (disorder),n,via Query Table
+455771000000103,[X]Malignant neoplasm of ill-defined sites within the respiratory system (disorder),n,via Query Table
+254630009,Clear cell carcinoma of lung (disorder),n,via Query Table
+863141000000107,Non-small cell carcinoma (morphologic abnormality),n,via Query Table
+254523008,Malignant tumor of arytenoid (disorder),n,via Query Table
+390391000000109,"[X]Mesothelioma, unspecified (disorder)",n,via Query Table
+190096000,[X]Malignant neoplasm of ill-defined sites within the respiratory system (disorder),n,via Query Table
+691161000000101,Ca larynx - NOS (disorder),n,via Query Table
+542031000000104,Malignant neoplasm of nasopharynx NOS (disorder),n,via Query Table
+431561000000103,(Mesothelioma of lung) or ([X]mesothelioma of other sites),n,via Query Table
+566521000000100,Malignant neoplasm of anterior epiglottis NOS (disorder),n,via Query Table
+534671000000104,Malignant neoplasm of fixed part of tongue NOS (disorder),n,via Query Table
+557131000000104,Malignant neoplasm of pleura NOS (disorder),n,via Query Table
+187852000,"Malignant neoplasm of trachea, bronchus and lung (disorder)",n,via Query Table
+557081000000104,"Malignant neoplasm of upper lobe, bronchus or lung NOS (disorder)",n,via Query Table
+550091000000101,Malignant neoplasm of larynx NOS (disorder),n,via Query Table
+190091005,[X]Malignant neoplasm of respiratory and intrathoracic organs (disorder),n,via Query Table
+657371000000107,Malignant neoplasm of epiglottis NOS (disorder),n,via Query Table
+534781000000105,Malignant neoplasm of hypopharynx NOS (disorder),n,via Query Table
+566541000000107,Malignant neoplasm of other specified site of oropharynx NOS (disorder),n,via Query Table
+373627005,Bronchioloalveolar carcinoma (disorder),n,via Query Table
+190145000,[X]Secondary malignant neoplasm of other and unspecified respiratory organs (disorder),n,via Query Table
+557121000000101,Malignant neoplasm of other specified pleura (disorder),n,via Query Table
