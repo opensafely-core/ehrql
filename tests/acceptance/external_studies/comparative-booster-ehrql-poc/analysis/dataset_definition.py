@@ -4,9 +4,9 @@ from pathlib import Path
 from databuilder.ehrql import Dataset, case, days, when
 from databuilder.tables.beta import tpp as schema
 
-from . import codelists
-from .codelists import combine_codelists
-from .variables_lib import (
+import codelists
+from codelists import combine_codelists
+from variables_lib import (
     address_as_of,
     age_as_of,
     create_sequential_variables,

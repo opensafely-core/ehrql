@@ -1,5 +1,5 @@
 [flake8]
-exclude = .direnv,.venv,venv
+exclude = .direnv,.venv,venv,tests/acceptance/external_studies
 extend-select = \
     W504  # match black&PEP8 putting binary operators after new lines
 ignore = \

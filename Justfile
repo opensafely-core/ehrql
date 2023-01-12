@@ -224,3 +224,6 @@ databricks-test *ARGS: devenv databricks-env
 generate-docs OUTPUT_FILE="public_docs.json": devenv
     $BIN/python -m databuilder.docs > {{ OUTPUT_FILE }}
     echo "Generated data for documentation."
+
+update-external-studies: devenv
+    $BIN/python -m tests.acceptance.update_external_studies

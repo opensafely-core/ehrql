@@ -2,7 +2,7 @@ from pathlib import Path
 
 from databuilder.codes import REGISTRY, Codelist, codelist_from_csv
 
-CODELIST_DIR = Path(__file__).parent / "codelists"
+CODELIST_DIR = Path(__file__).parents[1] / "codelists"
 
 
 # These functions will eventually be replaced by features built in to Data Builder's
