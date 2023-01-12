@@ -214,6 +214,9 @@ class DummyPatientGenerator:
             # Generate appropriately formatted Middle Layer Super Output Area codes
             if column_info.name == "msoa_code":
                 return f"E02{self.rnd.randrange(0, 8000):06d}"
+            # Generate appropriately formatted STP codes
+            if column_info.name == "practice_stp":
+                return f"E54{self.rnd.randrange(0, 99):06d}"
             # A random ASCII string is unlikely to be very useful here, but it at least
             # makes it a bit clearer what the issue is (that we don't know enough about
             # the column to generate anything more helpful) rather than the blank string
