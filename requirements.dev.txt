@@ -259,6 +259,7 @@ mkdocs==1.4.2 \
     # via
     #   -r requirements.dev.in
     #   mkdocs-material
+    #   mkdocs-table-reader-plugin
 mkdocs-material==9.0.3 \
     --hash=sha256:918fe38f504ca397b388b6c45445c22cb9acab61f00ade78d5f3edf299b6c9df \
     --hash=sha256:cedbbf84e156370489907d3c5b79999fcf6563f61a96965ec4c2513d303fa706
@@ -269,6 +270,10 @@ mkdocs-material-extensions==1.1.1 \
     # via mkdocs-material
 mkdocs-opensafely-databuilder @ https://github.com/opensafely-core/mkdocs-opensafely-databuilder/archive/99f9f3ec5025d5cf9030cafb1189576a4ebf6a7c.zip \
     --hash=sha256:011613b325ee9b10aec31a652c5b00a39995f2e50a5df7a5f2bf5f2c78897f49
+    # via -r requirements.dev.in
+mkdocs-table-reader-plugin==1.2 \
+    --hash=sha256:7a15949aca8d877d3d72e1245d0e28f4cbd90def64256afe6041c4580a98a690 \
+    --hash=sha256:aac8ae904cab5e748e02ec756879c3e85379c25eff5bb823690a4a3fa5a34d37
     # via -r requirements.dev.in
 more-itertools==8.13.0 \
     --hash=sha256:a42901a0a5b169d925f6f217cd5a190e32ef54360905b9c39ee7db5313bfec0f \
@@ -282,6 +287,32 @@ nodeenv==1.7.0 \
     --hash=sha256:27083a7b96a25f2f5e1d8cb4b6317ee8aeda3bdd121394e5ac54e498028a042e \
     --hash=sha256:e0e7f7dfb85fc5394c6fe1e8fa98131a2473e04311a45afb6508f7cf1836fa2b
     # via pre-commit
+numpy==1.23.0 \
+    --hash=sha256:092f5e6025813e64ad6d1b52b519165d08c730d099c114a9247c9bb635a2a450 \
+    --hash=sha256:196cd074c3f97c4121601790955f915187736f9cf458d3ee1f1b46aff2b1ade0 \
+    --hash=sha256:1c29b44905af288b3919803aceb6ec7fec77406d8b08aaa2e8b9e63d0fe2f160 \
+    --hash=sha256:2b2da66582f3a69c8ce25ed7921dcd8010d05e59ac8d89d126a299be60421171 \
+    --hash=sha256:5043bcd71fcc458dfb8a0fc5509bbc979da0131b9d08e3d5f50fb0bbb36f169a \
+    --hash=sha256:58bfd40eb478f54ff7a5710dd61c8097e169bc36cc68333d00a9bcd8def53b38 \
+    --hash=sha256:79a506cacf2be3a74ead5467aee97b81fca00c9c4c8b3ba16dbab488cd99ba10 \
+    --hash=sha256:94b170b4fa0168cd6be4becf37cb5b127bd12a795123984385b8cd4aca9857e5 \
+    --hash=sha256:97a76604d9b0e79f59baeca16593c711fddb44936e40310f78bfef79ee9a835f \
+    --hash=sha256:98e8e0d8d69ff4d3fa63e6c61e8cfe2d03c29b16b58dbef1f9baa175bbed7860 \
+    --hash=sha256:ac86f407873b952679f5f9e6c0612687e51547af0e14ddea1eedfcb22466babd \
+    --hash=sha256:ae8adff4172692ce56233db04b7ce5792186f179c415c37d539c25de7298d25d \
+    --hash=sha256:bd3fa4fe2e38533d5336e1272fc4e765cabbbde144309ccee8675509d5cd7b05 \
+    --hash=sha256:d0d2094e8f4d760500394d77b383a1b06d3663e8892cdf5df3c592f55f3bff66 \
+    --hash=sha256:d54b3b828d618a19779a84c3ad952e96e2c2311b16384e973e671aa5be1f6187 \
+    --hash=sha256:d6ca8dabe696c2785d0c8c9b0d8a9b6e5fdbe4f922bde70d57fa1a2848134f95 \
+    --hash=sha256:d8cc87bed09de55477dba9da370c1679bd534df9baa171dd01accbb09687dac3 \
+    --hash=sha256:f0f18804df7370571fb65db9b98bf1378172bd4e962482b857e612d1fec0f53e \
+    --hash=sha256:f1d88ef79e0a7fa631bb2c3dda1ea46b32b1fe614e10fedd611d3d5398447f2f \
+    --hash=sha256:f9c3fc2adf67762c9fe1849c859942d23f8d3e0bee7b5ed3d4a9c3eeb50a2f07 \
+    --hash=sha256:fc431493df245f3c627c0c05c2bd134535e7929dbe2e602b80e42bf52ff760bc \
+    --hash=sha256:fe8b9683eb26d2c4d5db32cd29b38fdcf8381324ab48313b5b69088e0e355379
+    # via
+    #   -c requirements.prod.txt
+    #   pandas
 oauthlib==3.2.1 \
     --hash=sha256:1565237372795bf6ee3e5aba5e2a85bd5a65d0e2aa5c628b9a97b7d7a0da3721 \
     --hash=sha256:88e912ca1ad915e1dcc1c06fc9259d19de8deacd6fd17cc2df266decc2e49066
@@ -295,6 +326,31 @@ packaging==21.3 \
     #   docker
     #   mkdocs
     #   pytest
+pandas==1.4.3 \
+    --hash=sha256:07238a58d7cbc8a004855ade7b75bbd22c0db4b0ffccc721556bab8a095515f6 \
+    --hash=sha256:0daf876dba6c622154b2e6741f29e87161f844e64f84801554f879d27ba63c0d \
+    --hash=sha256:16ad23db55efcc93fa878f7837267973b61ea85d244fc5ff0ccbcfa5638706c5 \
+    --hash=sha256:1d9382f72a4f0e93909feece6fef5500e838ce1c355a581b3d8f259839f2ea76 \
+    --hash=sha256:24ea75f47bbd5574675dae21d51779a4948715416413b30614c1e8b480909f81 \
+    --hash=sha256:2893e923472a5e090c2d5e8db83e8f907364ec048572084c7d10ef93546be6d1 \
+    --hash=sha256:2ff7788468e75917574f080cd4681b27e1a7bf36461fe968b49a87b5a54d007c \
+    --hash=sha256:41fc406e374590a3d492325b889a2686b31e7a7780bec83db2512988550dadbf \
+    --hash=sha256:48350592665ea3cbcd07efc8c12ff12d89be09cd47231c7925e3b8afada9d50d \
+    --hash=sha256:605d572126eb4ab2eadf5c59d5d69f0608df2bf7bcad5c5880a47a20a0699e3e \
+    --hash=sha256:6dfbf16b1ea4f4d0ee11084d9c026340514d1d30270eaa82a9f1297b6c8ecbf0 \
+    --hash=sha256:6f803320c9da732cc79210d7e8cc5c8019aad512589c910c66529eb1b1818230 \
+    --hash=sha256:721a3dd2f06ef942f83a819c0f3f6a648b2830b191a72bbe9451bcd49c3bd42e \
+    --hash=sha256:755679c49460bd0d2f837ab99f0a26948e68fa0718b7e42afbabd074d945bf84 \
+    --hash=sha256:78b00429161ccb0da252229bcda8010b445c4bf924e721265bec5a6e96a92e92 \
+    --hash=sha256:958a0588149190c22cdebbc0797e01972950c927a11a900fe6c2296f207b1d6f \
+    --hash=sha256:a3924692160e3d847e18702bb048dc38e0e13411d2b503fecb1adf0fcf950ba4 \
+    --hash=sha256:d51674ed8e2551ef7773820ef5dab9322be0828629f2cbf8d1fc31a0c4fed640 \
+    --hash=sha256:d5ebc990bd34f4ac3c73a2724c2dcc9ee7bf1ce6cf08e87bb25c6ad33507e318 \
+    --hash=sha256:d6c0106415ff1a10c326c49bc5dd9ea8b9897a6ca0c8688eb9c30ddec49535ef \
+    --hash=sha256:e48fbb64165cda451c06a0f9e4c7a16b534fcabd32546d531b3c240ce2844112
+    # via
+    #   -c requirements.prod.txt
+    #   mkdocs-table-reader-plugin
 pathspec==0.9.0 \
     --hash=sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a \
     --hash=sha256:e564499435a2673d586f6b2130bb5b95f04a3ba06f81b8f895b651a3c76aabb1
@@ -388,6 +444,13 @@ python-dateutil==2.8.2 \
     # via
     #   -c requirements.prod.txt
     #   ghp-import
+    #   pandas
+pytz==2022.1 \
+    --hash=sha256:1e760e2fe6a8163bc0b3d9a19c4f84342afa0a2affebfaa84b01b978a02ecaa7 \
+    --hash=sha256:e68985985296d9a66a881eb3193b0906246245294a881e7c8afe623866ac6a5c
+    # via
+    #   -c requirements.prod.txt
+    #   pandas
 pyupgrade==3.3.1 \
     --hash=sha256:3b93641963df022d605c78aeae4b5956a5296ea24701eafaef9c487527b77e60 \
     --hash=sha256:f88bce38b0ba92c2a9a5063c8629e456e8d919b67d2d42c7ecab82ff196f9813
@@ -428,6 +491,7 @@ pyyaml==6.0 \
     --hash=sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5
     # via
     #   mkdocs
+    #   mkdocs-table-reader-plugin
     #   pre-commit
     #   pyyaml-env-tag
 pyyaml-env-tag==0.1 \
@@ -559,6 +623,7 @@ tabulate==0.8.10 \
     # via
     #   databricks-cli
     #   interrogate
+    #   mkdocs-table-reader-plugin
 tokenize-rt==4.2.1 \
     --hash=sha256:08a27fa032a81cf45e8858d0ac706004fcd523e8463415ddf1442be38e204ea8 \
     --hash=sha256:0d4f69026fed520f8a1e0103aa36c406ef4661417f20ca643f913e33531b3b94

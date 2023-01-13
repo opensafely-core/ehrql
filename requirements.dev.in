@@ -29,3 +29,4 @@ pyupgrade
 mkdocs
 mkdocs-material
 https://github.com/opensafely-core/mkdocs-opensafely-databuilder/archive/99f9f3ec5025d5cf9030cafb1189576a4ebf6a7c.zip#mkdocs-opensafely-databuilder
+mkdocs-table-reader-plugin
