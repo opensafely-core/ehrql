@@ -15,8 +15,6 @@ from databuilder.query_model.nodes import (
     SelectPatientTable,
     TableSchema,
     Value,
-    count_nodes,
-    node_types,
 )
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
@@ -43,36 +41,30 @@ schema = TableSchema(
 ) = data_setup.setup(schema, num_patient_tables=2, num_event_tables=2)
 
 # Use the same strategies for values both for query generation and data generation.
-int_values = st.integers(min_value=0, max_value=10)
-bool_values = st.booleans()
-date_values = st.dates(
-    min_value=datetime.date(1900, 1, 1), max_value=datetime.date(2100, 12, 31)
-)
-float_values = st.floats(min_value=0.0, max_value=11.0, width=16, allow_infinity=False)
-
+value_strategies = {
+    int: st.integers(min_value=0, max_value=10),
+    bool: st.booleans(),
+    datetime.date: st.dates(
+        min_value=datetime.date(1900, 1, 1), max_value=datetime.date(2100, 12, 31)
+    ),
+    float: st.floats(min_value=0.0, max_value=11.0, width=16, allow_infinity=False),
+}
 
 variable_strategy = variable_strategies.variable(
     [c.__tablename__ for c in patient_classes],
     [c.__tablename__ for c in event_classes],
     schema,
-    int_values,
-    bool_values,
-    date_values,
-    float_values,
+    value_strategies,
 )
 data_strategy = data_strategies.data(
     patient_classes,
     event_classes,
     schema,
-    int_values,
-    bool_values,
-    date_values,
-    float_values,
+    value_strategies,
 )
 settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 100))),
     deadline=None,
-    suppress_health_check=[hyp.HealthCheck.filter_too_much, hyp.HealthCheck.too_slow],
 )
 
 
@@ -93,7 +85,6 @@ def query_engines(request):
 @hyp.settings(**settings)
 def test_query_model(query_engines, variable, data, recorder):
     recorder.record_inputs(variable, data)
-    tune_inputs(variable)
     run_test(query_engines, data, variable, recorder)
 
 
@@ -124,12 +115,6 @@ def test_handle_date_errors(query_engines, operation, rhs, recorder):
         rhs=Value(rhs),
     )
     run_error_test(query_engines, data, variable)
-
-
-def tune_inputs(variable):
-    # Encourage Hypothesis to maximize the number and type of nodes
-    hyp.target(count_nodes(variable), label="number of nodes")
-    hyp.target(len(node_types(variable)), label="number of node types")
 
 
 def setup_test(data, variable):
@@ -190,7 +175,7 @@ IGNORED_ERRORS = [
         re.compile(".+Case expressions may only be nested to level 10.+"),
     ),
     # OUT-OF-RANGE DATES
-    # The variable strategy will sometimes result in date operations that contruct
+    # The variable strategy will sometimes result in date operations that construct
     # invalid dates (e.g. a large positive or negative integer in a DateAddYears operation
     # may result in a date with a year that is outside of the allowed range)
     # The different query engines report errors from out-of-range dates in different ways:
