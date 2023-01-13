@@ -45,4 +45,4 @@ There are three steps to extract data on cohorts:
 
      This features enable the same dataset definition to be used in multiple backends.
 
----8<-- 'includes/glossary.md'
+!!! parent_snippet:'includes/glossary.md'

@@ -48,4 +48,4 @@ Every example here consists of:
 
 !!! specs
 
----8<-- 'includes/glossary.md'
+!!! parent_snippet:'includes/glossary.md'

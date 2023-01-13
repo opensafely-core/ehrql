@@ -104,4 +104,4 @@ If you are a new data provider, [please contact our technical team to
 discuss integration with Data Builder and
 OpenSAFELY](../../how-to-get-help.md#data-providers).
 
----8<-- 'includes/glossary.md'
+!!! parent_snippet:'includes/glossary.md'

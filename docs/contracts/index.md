@@ -245,4 +245,4 @@ associated table:
     improved and extended, while offering backwards compatibility and
     stability for researchers and data providers.
 
----8<-- 'includes/glossary.md'
+!!! parent_snippet:'includes/glossary.md'

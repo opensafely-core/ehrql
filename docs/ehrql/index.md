@@ -21,7 +21,7 @@ It also specifies a single characteristic of the population; namely, each patien
 You can find out more about ehrQL in [the tutorial][] and [the examples][].
 For in-depth technical documentation, there is also [the reference][].
 
----8<-- 'includes/glossary.md'
+!!! parent_snippet:'includes/glossary.md'
 
 [the examples]: examples.md
 [the reference]: reference.md

@@ -62,4 +62,4 @@ The `Cohort()` class (imported above) is used to define both the data population
 
 For a more indepth technical explanation of how this works, see [explaining the query engine](query-engine-explanation.md).
 
----8<-- 'includes/glossary.md'
+!!! parent_snippet:'includes/glossary.md'
