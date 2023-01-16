@@ -8,6 +8,7 @@ import structlog
 from databuilder.dummy_data.query_info import QueryInfo
 from databuilder.query_engines.in_memory import InMemoryQueryEngine
 from databuilder.query_engines.in_memory_database import InMemoryDatabase
+from databuilder.tables import Constraint
 from databuilder.utils.orm_utils import orm_classes_from_tables
 
 log = structlog.getLogger()
@@ -168,7 +169,7 @@ class DummyPatientGenerator:
         # Apply any FirstOfMonth constraints
         for key, value in row.items():
             if key in table_info.columns:
-                if table_info.columns[key].has_first_of_month_constraint:
+                if table_info.columns[key].get_constraint(Constraint.FirstOfMonth):
                     row[key] = value.replace(day=1)
         return [row]
 
@@ -233,7 +234,7 @@ class DummyPatientGenerator:
             # Clip to the available time range
             event_date = max(event_date, self.events_start)
             # Apply any FirstOfMonth constraints
-            if column_info.has_first_of_month_constraint:
+            if column_info.get_constraint(Constraint.FirstOfMonth):
                 event_date = event_date.replace(day=1)
             return event_date
         else:

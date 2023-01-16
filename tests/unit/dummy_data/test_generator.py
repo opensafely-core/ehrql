@@ -110,7 +110,7 @@ def test_dummy_data_generator_timeout_with_no_results(patched_time):
 
 @pytest.mark.parametrize("type_", [bool, int, float, str, datetime.date])
 def test_dummy_patient_generator_get_random_value(dummy_patient_generator, type_):
-    column_info = ColumnInfo(name="test", categories=None, type=type_)
+    column_info = ColumnInfo(name="test", type=type_)
     value = dummy_patient_generator.get_random_value(column_info)
     assert isinstance(value, type_)
 
@@ -118,9 +118,8 @@ def test_dummy_patient_generator_get_random_value(dummy_patient_generator, type_
 def test_get_random_value_on_first_of_month(dummy_patient_generator):
     column_info = ColumnInfo(
         name="test",
-        categories=None,
         type=datetime.date,
-        has_first_of_month_constraint=True,
+        constraints=(Constraint.FirstOfMonth(),),
     )
     value = dummy_patient_generator.get_random_value(column_info)
     assert value.day == 1
