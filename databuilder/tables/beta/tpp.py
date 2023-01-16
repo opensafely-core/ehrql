@@ -2,7 +2,7 @@ import datetime
 
 from databuilder.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
 from databuilder.contracts.universal import patients
-from databuilder.tables import EventFrame, Series, table
+from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 __all__ = [
     "patients",
@@ -34,7 +34,24 @@ class practice_registrations(EventFrame):
     end_date = Series(datetime.date)
     practice_pseudo_id = Series(int)
     practice_stp = Series(str)
-    practice_nuts1_region_name = Series(str)
+    practice_nuts1_region_name = Series(
+        str,
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "East Midlands",
+                    "East of England",
+                    "London",
+                    "North East",
+                    "North West",
+                    "South East",
+                    "South West",
+                    "West Midlands",
+                    "Yorkshire and the Humber",
+                ]
+            ),
+        ],
+    )
 
 
 @table
@@ -150,3 +167,23 @@ class hospital_admissions(EventFrame):
 class appointments(EventFrame):
     booked_date = Series(datetime.date)
     start_date = Series(datetime.date)
+
+
+@table
+class household_memberships_2020(PatientFrame):
+    """
+    Inferred household membership as of 2020-02-01, as determined by TPP using an as yet
+    undocumented algorithm
+    """
+
+    household_pseudo_id = Series(int)
+    household_size = Series(int)
+
+
+@table
+class ons_cis(EventFrame):
+    """
+    ONS Covid Infection Survery
+    """
+
+    visit_date = Series(datetime.date)

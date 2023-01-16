@@ -202,3 +202,22 @@ class TPPBackend(BaseBackend):
             FROM Appointment
         """
     )
+
+    household_memberships_2020 = QueryTable(
+        """
+            SELECT
+                mb.Patient_ID AS patient_id,
+                hh.Household_ID AS household_pseudo_id,
+                hh.HouseholdSize AS household_size
+            FROM HouseholdMember AS mb
+            LEFT JOIN Household AS hh
+            ON mb.Household_ID = hh.Household_ID
+        """
+    )
+
+    ons_cis = MappedTable(
+        source="ONS_CIS",
+        columns=dict(
+            visit_date="visit_date",
+        ),
+    )
