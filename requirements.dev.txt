@@ -212,6 +212,10 @@ pep517==0.12.0 \
     --hash=sha256:931378d93d11b298cf511dd634cf5ea4cb249a28ef84160b3247ee9afb4e8ab0 \
     --hash=sha256:dd884c326898e2c6e11f9e0b64940606a93eb10ea022a2e067959f3a110cf161
     # via build
+pip==22.1.2 \
+    --hash=sha256:6d55b27e10f506312894a87ccc59f280136bad9061719fac9101bdad5a6bce69 \
+    --hash=sha256:a3edacb89022ef5258bf61852728bf866632a394da837ca49eb4303635835f17
+    # via pip-tools
 pip-tools==6.10.0 \
     --hash=sha256:57ac98392548f5ca96c2831927deec3035efe81ff476e3c744bd474ca9c6a1f2 \
     --hash=sha256:7f9f7356052db6942b5aaabc8eba29983591ca0ad75affbf2f0a25d9361be624
@@ -254,9 +258,9 @@ pyparsing==3.0.9 \
     --hash=sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb \
     --hash=sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc
     # via packaging
-pytest==7.2.0 \
-    --hash=sha256:892f933d339f068883b6fd5a459f03d85bfcb355e4981e146d2c7616c21fef71 \
-    --hash=sha256:c4014eb40e10f11f355ad4e3c2fb2c6c6d1919c73f3b5a433de4708202cade59
+pytest==7.2.1 \
+    --hash=sha256:c7c6ca206e93355074ae32f7403e8ea12163b1163c976fee7d4d84027c162be5 \
+    --hash=sha256:d45e0952f3727241918b8fd0f376f5ff6b301cc0777c6f9a556935c92d8a7d42
     # via
     #   -r requirements.dev.in
     #   pytest-cov
@@ -324,6 +328,12 @@ requests==2.28.1 \
     # via
     #   databricks-cli
     #   docker
+setuptools==63.1.0 \
+    --hash=sha256:16923d366ced322712c71ccb97164d07472abeecd13f3a6c283f6d5d26722793 \
+    --hash=sha256:db3b8e2f922b2a910a29804776c643ea609badb6a32c4bcc226fd4fd902cce65
+    # via
+    #   nodeenv
+    #   pip-tools
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
@@ -388,15 +398,3 @@ zipp==3.11.0 \
     --hash=sha256:83a28fcb75844b5c0cdaf5aa4003c2d728c77e05f5aeabe8e95e56727005fbaa \
     --hash=sha256:a7a22e05929290a67401440b39690ae6563279bced5f314609d9d03798f56766
     # via importlib-metadata
-
-# The following packages are considered to be unsafe in a requirements file:
-pip==22.1.2 \
-    --hash=sha256:6d55b27e10f506312894a87ccc59f280136bad9061719fac9101bdad5a6bce69 \
-    --hash=sha256:a3edacb89022ef5258bf61852728bf866632a394da837ca49eb4303635835f17
-    # via pip-tools
-setuptools==63.1.0 \
-    --hash=sha256:16923d366ced322712c71ccb97164d07472abeecd13f3a6c283f6d5d26722793 \
-    --hash=sha256:db3b8e2f922b2a910a29804776c643ea609badb6a32c4bcc226fd4fd902cce65
-    # via
-    #   nodeenv
-    #   pip-tools
