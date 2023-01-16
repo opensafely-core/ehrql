@@ -50,6 +50,14 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     #
     # This strategy then chooses an arbitrary concrete series that respects the constraints imposed
     # by the passed type and frame.
+    #
+    # A note on frames and domains:
+    #
+    #     When we pass `frame` as an argument to a series strategy function, the intended semantics
+    #     are always "construct a series that is _consistent_ with this frame". It's always
+    #     permitted to return a one-row-per-patient series, because such series can always be
+    #     composed a many-rows-per-patient series; so there are series strategy functions that,
+    #     always or sometimes, ignore the frame argument.
     @st.composite
     def series(draw, type_, frame):
         class DomainConstraint:
