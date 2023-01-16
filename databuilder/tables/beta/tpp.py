@@ -33,7 +33,10 @@ class practice_registrations(EventFrame):
     start_date = Series(datetime.date)
     end_date = Series(datetime.date)
     practice_pseudo_id = Series(int)
-    practice_stp = Series(str)
+    practice_stp = Series(
+        str,
+        constraints=[Constraint.Regex("E540000[0-9]{2}")],
+    )
     practice_nuts1_region_name = Series(
         str,
         constraints=[
@@ -98,7 +101,10 @@ class addresses(EventFrame):
     address_type = Series(int)
     rural_urban_classification = Series(int)
     imd_rounded = Series(int)
-    msoa_code = Series(str)
+    msoa_code = Series(
+        str,
+        constraints=[Constraint.Regex("E020[0-9]{5}")],
+    )
     has_postcode = Series(bool)
     # Is the address potentially a match for a care home? (Using TPP's algorithm)
     care_home_is_potential_match = Series(bool)

@@ -133,18 +133,6 @@ def test_get_random_str(dummy_patient_generator):
     assert len(lengths) > 1, "strings are all the same length"
 
 
-def test_get_random_msoa_code(dummy_patient_generator):
-    column_info = ColumnInfo(name="msoa_code", type=str)
-    value = dummy_patient_generator.get_random_value(column_info)
-    assert re.match(r"E020[0-9]{5}", value)
-
-
-def test_get_random_practice_stp(dummy_patient_generator):
-    column_info = ColumnInfo(name="practice_stp", type=str)
-    value = dummy_patient_generator.get_random_value(column_info)
-    assert re.match(r"E540000[0-9]{2}", value)
-
-
 def test_get_random_str_with_regex(dummy_patient_generator):
     column_info = ColumnInfo(
         name="test",

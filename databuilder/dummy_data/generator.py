@@ -217,12 +217,6 @@ class DummyPatientGenerator:
             # TODO: As is this
             return self.rnd.random() * 100
         elif column_info.type is str:
-            # Generate appropriately formatted Middle Layer Super Output Area codes
-            if column_info.name == "msoa_code":
-                return f"E02{self.rnd.randrange(0, 8000):06d}"
-            # Generate appropriately formatted STP codes
-            if column_info.name == "practice_stp":
-                return f"E54{self.rnd.randrange(0, 99):06d}"
             # If the column must match a regex then generate matching strings
             if regex_constraint := column_info.get_constraint(Constraint.Regex):
                 generator = get_regex_generator(regex_constraint.regex)
