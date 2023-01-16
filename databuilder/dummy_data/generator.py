@@ -1,3 +1,4 @@
+import functools
 import random
 import string
 import time
@@ -10,11 +11,15 @@ from databuilder.query_engines.in_memory import InMemoryQueryEngine
 from databuilder.query_engines.in_memory_database import InMemoryDatabase
 from databuilder.tables import Constraint
 from databuilder.utils.orm_utils import orm_classes_from_tables
+from databuilder.utils.regex_utils import create_regex_generator
 
 log = structlog.getLogger()
 
 
 CHARS = string.ascii_letters + string.digits + ".-+_"
+
+# Use caching to avoid constantly re-creating the generators
+get_regex_generator = functools.cache(create_regex_generator)
 
 
 class DummyDataGenerator:
@@ -218,6 +223,10 @@ class DummyPatientGenerator:
             # Generate appropriately formatted STP codes
             if column_info.name == "practice_stp":
                 return f"E54{self.rnd.randrange(0, 99):06d}"
+            # If the column must match a regex then generate matching strings
+            if regex_constraint := column_info.get_constraint(Constraint.Regex):
+                generator = get_regex_generator(regex_constraint.regex)
+                return generator(self.rnd)
             # A random ASCII string is unlikely to be very useful here, but it at least
             # makes it a bit clearer what the issue is (that we don't know enough about
             # the column to generate anything more helpful) rather than the blank string

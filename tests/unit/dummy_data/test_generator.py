@@ -145,6 +145,17 @@ def test_get_random_practice_stp(dummy_patient_generator):
     assert re.match(r"E540000[0-9]{2}", value)
 
 
+def test_get_random_str_with_regex(dummy_patient_generator):
+    column_info = ColumnInfo(
+        name="test",
+        type=str,
+        constraints=(Constraint.Regex("AB[X-Z]{5}"),),
+    )
+    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    assert len(set(values)) > 1, "strings are all identical"
+    assert all(re.match(r"AB[X-Z]{5}", value) for value in values)
+
+
 @pytest.fixture(scope="module")
 def dummy_patient_generator():
     dataset = Dataset()
