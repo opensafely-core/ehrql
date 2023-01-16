@@ -1,5 +1,7 @@
 import dataclasses
 
+from databuilder.utils.regex_utils import validate_regex
+
 
 class BaseConstraint:
     def __init_subclass__(cls, **kwargs):
@@ -28,6 +30,16 @@ class Constraint:
 
     class FirstOfMonth(BaseConstraint):
         description = "Must be the first day of a month"
+
+    class Regex(BaseConstraint):
+        regex: str
+
+        def __post_init__(self):
+            validate_regex(self.regex)
+
+        @property
+        def description(self):
+            return f"Must match the regular expression: {self.regex!r}"
 
 
 @dataclasses.dataclass(frozen=True)
