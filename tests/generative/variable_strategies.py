@@ -79,7 +79,10 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             gt: ({bool}, DomainConstraint.ANY),
             le: ({bool}, DomainConstraint.ANY),
             ge: ({bool}, DomainConstraint.ANY),
+            negate: ({int, float}, DomainConstraint.ANY),
             add: ({int, float}, DomainConstraint.ANY),
+            subtract: ({int, float}, DomainConstraint.ANY),
+            multiply: ({int, float}, DomainConstraint.ANY),
             count: ({int}, DomainConstraint.PATIENT),
         }
         series_types = series_constraints.keys()
@@ -156,8 +159,22 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         return draw(binary_operation(type_, frame, Function.GE))
 
     @st.composite
+    def negate(draw, type_, frame):
+        return Function.Negate(
+            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
+        )
+
+    @st.composite
     def add(draw, type_, frame):
         return draw(binary_operation(type_, frame, Function.Add))
+
+    @st.composite
+    def subtract(draw, type_, frame):
+        return draw(binary_operation(type_, frame, Function.Subtract))
+
+    @st.composite
+    def multiply(draw, type_, frame):
+        return draw(binary_operation(type_, frame, Function.Multiply))
 
     def count(_type, _frame):
         return st.builds(AggregateByPatient.Count, any_frame())
@@ -254,9 +271,6 @@ known_missing_operations = {
     AggregateByPatient.Min,
     AggregateByPatient.Exists,
     AggregateByPatient.Sum,
-    Function.Negate,
-    Function.Subtract,
-    Function.Multiply,
     Function.CastToFloat,
     Function.CastToInt,
     Function.YearFromDate,
