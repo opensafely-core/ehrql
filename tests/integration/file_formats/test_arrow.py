@@ -27,6 +27,6 @@ def test_write_dataset_arrow(tmp_path):
     assert output_columns == list(column_specs.keys())
     assert output_rows == results
     assert categories == ["M", "F", "I"]
-    assert index_type == pyarrow.uint8()
+    assert index_type == pyarrow.int8()
     assert table.column("patient_id").type == pyarrow.int64()
     assert table.column("year_of_birth").type == pyarrow.uint16()

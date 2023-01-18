@@ -65,7 +65,11 @@ def get_field_and_convertor(name, spec):
         type_ = PYARROW_TYPE_MAP[spec.type]()
 
     if spec.categories is not None:
-        index_type = smallest_int_type_for_range(0, len(spec.categories) - 1)
+        # Although pyarrow.dictionary indices can obviously never be negative we use
+        # `-1` as the minimum below so we always get a signed type; this is because
+        # Pandas can't read dictionaries with unsigned index types. See:
+        # https://github.com/opensafely-core/databuilder/issues/945
+        index_type = smallest_int_type_for_range(-1, len(spec.categories) - 1)
         value_type = type_
         type_ = pyarrow.dictionary(index_type, value_type, ordered=True)
         column_to_pyarrow = make_column_to_pyarrow_with_categories(
