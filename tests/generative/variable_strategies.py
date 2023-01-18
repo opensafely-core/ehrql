@@ -157,10 +157,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     @st.composite
     def add(draw, type_, frame):
-        return Function.Add(
-            draw(series(type_, draw(one_row_per_patient_frame_or(frame)))),
-            draw(series(type_, draw(one_row_per_patient_frame_or(frame)))),
-        )
+        return draw(binary_operation(type_, frame, Function.Add))
 
     def count(_type, _frame):
         return st.builds(AggregateByPatient.Count, any_frame())
