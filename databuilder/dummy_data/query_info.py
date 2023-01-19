@@ -1,9 +1,9 @@
 import dataclasses
 from collections import defaultdict
 from functools import cached_property
-from typing import Optional
 
 from databuilder.query_model.nodes import (
+    Column,
     Constraint,
     Function,
     SelectColumn,
@@ -24,33 +24,18 @@ class ColumnInfo:
 
     name: str
     type: type  # NOQA: A003
-    categories: Optional[tuple] = None
-    has_first_of_month_constraint: bool = False
+    constraints: tuple = ()
     values_used: set = dataclasses.field(default_factory=set)
 
     @classmethod
     def from_column(cls, name, column):
-        # Get type
         type_ = column.type_
         if hasattr(type_, "_primitive_type"):
             type_ = type_._primitive_type()
-        # Get categories
-        cat_constraint = column.get_constraint_by_type(Constraint.Categorical)
-        if cat_constraint is not None:
-            categories = cat_constraint.values
-        else:
-            categories = None
-        # Get date constraints
-        has_first_of_month_constraint = bool(
-            column.get_constraint_by_type(Constraint.FirstOfMonth)
-        )
-        # Construct
-        return cls(
-            name=name,
-            type=type_,
-            categories=categories,
-            has_first_of_month_constraint=has_first_of_month_constraint,
-        )
+        return cls(name, type_, constraints=tuple(column.constraints))
+
+    def __post_init__(self):
+        self._constraints_by_type = {type(c): c for c in self.constraints}
 
     def record_value(self, value):
         if hasattr(value, "_to_primitive_type"):
@@ -59,10 +44,14 @@ class ColumnInfo:
 
     @cached_property
     def choices(self):
-        if self.categories is not None:
-            return self.categories
+        cat_constraint = self.get_constraint(Constraint.Categorical)
+        if cat_constraint is not None:
+            return cat_constraint.values
         else:
             return sorted(self.values_used)
+
+    def get_constraint(self, type_):
+        return self._constraints_by_type.get(type_)
 
 
 @dataclasses.dataclass
@@ -72,7 +61,6 @@ class TableInfo:
     """
 
     name: str
-    schema: TableSchema
     has_one_row_per_patient: bool
     columns: dict[str, ColumnInfo] = dataclasses.field(default_factory=dict)
 
@@ -80,7 +68,6 @@ class TableInfo:
     def from_table(cls, table):
         return cls(
             name=table.name,
-            schema=table.schema,
             has_one_row_per_patient=isinstance(table, SelectPatientTable),
         )
 
@@ -93,7 +80,10 @@ class TableInfo:
             self.has_one_row_per_patient
         ]
         schema = TableSchema(
-            **{name: self.schema.get_column(name) for name in self.columns.keys()}
+            **{
+                col_info.name: Column(col_info.type, constraints=col_info.constraints)
+                for col_info in self.columns.values()
+            }
         )
         return cls(self.name, schema=schema)
 

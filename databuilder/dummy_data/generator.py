@@ -1,3 +1,4 @@
+import functools
 import random
 import string
 import time
@@ -8,12 +9,17 @@ import structlog
 from databuilder.dummy_data.query_info import QueryInfo
 from databuilder.query_engines.in_memory import InMemoryQueryEngine
 from databuilder.query_engines.in_memory_database import InMemoryDatabase
+from databuilder.tables import Constraint
 from databuilder.utils.orm_utils import orm_classes_from_tables
+from databuilder.utils.regex_utils import create_regex_generator
 
 log = structlog.getLogger()
 
 
 CHARS = string.ascii_letters + string.digits + ".-+_"
+
+# Use caching to avoid constantly re-creating the generators
+get_regex_generator = functools.cache(create_regex_generator)
 
 
 class DummyDataGenerator:
@@ -168,7 +174,7 @@ class DummyPatientGenerator:
         # Apply any FirstOfMonth constraints
         for key, value in row.items():
             if key in table_info.columns:
-                if table_info.columns[key].has_first_of_month_constraint:
+                if table_info.columns[key].get_constraint(Constraint.FirstOfMonth):
                     row[key] = value.replace(day=1)
         return [row]
 
@@ -211,12 +217,10 @@ class DummyPatientGenerator:
             # TODO: As is this
             return self.rnd.random() * 100
         elif column_info.type is str:
-            # Generate appropriately formatted Middle Layer Super Output Area codes
-            if column_info.name == "msoa_code":
-                return f"E02{self.rnd.randrange(0, 8000):06d}"
-            # Generate appropriately formatted STP codes
-            if column_info.name == "practice_stp":
-                return f"E54{self.rnd.randrange(0, 99):06d}"
+            # If the column must match a regex then generate matching strings
+            if regex_constraint := column_info.get_constraint(Constraint.Regex):
+                generator = get_regex_generator(regex_constraint.regex)
+                return generator(self.rnd)
             # A random ASCII string is unlikely to be very useful here, but it at least
             # makes it a bit clearer what the issue is (that we don't know enough about
             # the column to generate anything more helpful) rather than the blank string
@@ -233,7 +237,7 @@ class DummyPatientGenerator:
             # Clip to the available time range
             event_date = max(event_date, self.events_start)
             # Apply any FirstOfMonth constraints
-            if column_info.has_first_of_month_constraint:
+            if column_info.get_constraint(Constraint.FirstOfMonth):
                 event_date = event_date.replace(day=1)
             return event_date
         else:

@@ -110,7 +110,7 @@ def test_dummy_data_generator_timeout_with_no_results(patched_time):
 
 @pytest.mark.parametrize("type_", [bool, int, float, str, datetime.date])
 def test_dummy_patient_generator_get_random_value(dummy_patient_generator, type_):
-    column_info = ColumnInfo(name="test", categories=None, type=type_)
+    column_info = ColumnInfo(name="test", type=type_)
     value = dummy_patient_generator.get_random_value(column_info)
     assert isinstance(value, type_)
 
@@ -118,12 +118,12 @@ def test_dummy_patient_generator_get_random_value(dummy_patient_generator, type_
 def test_get_random_value_on_first_of_month(dummy_patient_generator):
     column_info = ColumnInfo(
         name="test",
-        categories=None,
         type=datetime.date,
-        has_first_of_month_constraint=True,
+        constraints=(Constraint.FirstOfMonth(),),
     )
-    value = dummy_patient_generator.get_random_value(column_info)
-    assert value.day == 1
+    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    assert len(set(values)) > 1, "dates are all identical"
+    assert all(value.day == 1 for value in values)
 
 
 def test_get_random_str(dummy_patient_generator):
@@ -133,16 +133,15 @@ def test_get_random_str(dummy_patient_generator):
     assert len(lengths) > 1, "strings are all the same length"
 
 
-def test_get_random_msoa_code(dummy_patient_generator):
-    column_info = ColumnInfo(name="msoa_code", type=str)
-    value = dummy_patient_generator.get_random_value(column_info)
-    assert re.match(r"E020[0-9]{5}", value)
-
-
-def test_get_random_practice_stp(dummy_patient_generator):
-    column_info = ColumnInfo(name="practice_stp", type=str)
-    value = dummy_patient_generator.get_random_value(column_info)
-    assert re.match(r"E540000[0-9]{2}", value)
+def test_get_random_str_with_regex(dummy_patient_generator):
+    column_info = ColumnInfo(
+        name="test",
+        type=str,
+        constraints=(Constraint.Regex("AB[X-Z]{5}"),),
+    )
+    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    assert len(set(values)) > 1, "strings are all identical"
+    assert all(re.match(r"AB[X-Z]{5}", value) for value in values)
 
 
 @pytest.fixture(scope="module")

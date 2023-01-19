@@ -5,7 +5,6 @@ from databuilder.codes import CTV3Code
 from databuilder.dummy_data.query_info import ColumnInfo, QueryInfo, TableInfo
 from databuilder.ehrql import Dataset, days
 from databuilder.query_language import compile
-from databuilder.query_model.table_schema import Column, TableSchema
 from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
@@ -13,7 +12,12 @@ from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, tab
 class patients(PatientFrame):
     date_of_birth = Series(datetime.date)
     sex = Series(
-        str, constraints=[Constraint.Categorical(["male", "female", "intersex"])]
+        str,
+        constraints=[
+            Constraint.Categorical(
+                ["male", "female", "intersex"],
+            )
+        ],
     )
 
 
@@ -36,41 +40,25 @@ def test_query_info_from_variable_definitions():
         tables={
             "events": TableInfo(
                 name="events",
-                schema=TableSchema(
-                    date=Column(datetime.date),
-                    code=Column(CTV3Code),
-                ),
                 has_one_row_per_patient=False,
                 columns={},
             ),
             "patients": TableInfo(
                 name="patients",
-                schema=TableSchema(
-                    date_of_birth=Column(datetime.date),
-                    sex=Column(
-                        str,
-                        constraints=(
-                            Constraint.Categorical(
-                                values=("male", "female", "intersex")
-                            ),
-                        ),
-                    ),
-                ),
                 has_one_row_per_patient=True,
                 columns={
                     "date_of_birth": ColumnInfo(
                         name="date_of_birth",
                         type=datetime.date,
-                        categories=None,
-                        has_first_of_month_constraint=False,
-                        values_used=set(),
                     ),
                     "sex": ColumnInfo(
                         name="sex",
                         type=str,
-                        categories=("male", "female", "intersex"),
-                        has_first_of_month_constraint=False,
-                        values_used=set(),
+                        constraints=(
+                            Constraint.Categorical(
+                                values=("male", "female", "intersex")
+                            ),
+                        ),
                     ),
                 },
             ),

@@ -4,6 +4,7 @@ import re
 import pytest
 
 from databuilder.query_model.table_schema import Column, Constraint, TableSchema
+from databuilder.utils.regex_utils import RegexError
 
 
 def test_table_schema_equality():
@@ -92,6 +93,19 @@ def test_categorical_constraint_casts_lists_to_tuple():
 
 def test_categorical_constraint_description():
     assert Constraint.Categorical([1, 2, 3]).description == "Must be one of: 1, 2, 3"
+
+
+def test_regex_constraint_description():
+    assert (
+        Constraint.Regex("ABC[0-9]").description
+        == "Must match the regular expression: 'ABC[0-9]'"
+    )
+
+
+def test_regex_constraint_validates_regex():
+    with pytest.raises(RegexError, match="unsupported"):
+        # This regex is valid but not supported by our generator code
+        Constraint.Regex("(?i:TEST)")
 
 
 def test_column_casts_constraint_lists_to_tuple():
