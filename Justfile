@@ -229,4 +229,4 @@ update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
 
 docs-serve: devenv
-    mkdocs serve
+    BACKEND_DOCS_FILE=docs/public_docs.json mkdocs serve
