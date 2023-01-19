@@ -6,6 +6,7 @@ on:
   workflow_run:
     workflows:
       - CI
+      - Check documentation
     branches:
       - main
     types:
