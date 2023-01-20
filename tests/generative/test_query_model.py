@@ -146,9 +146,21 @@ def run_test(query_engines, data, variable, recorder):
         if IGNORE_RESULT in [first_results, second_results]:
             continue  # pragma: no cover
 
-        assert (
-            first_results == second_results
-        ), f"Mismatch between {first_name} and {second_name}"
+        # If the results contain floats then we want only approximate equality to account
+        # for rounding differences
+        if any(
+            isinstance(v, float)
+            for res in [*first_results, *second_results]
+            for v in res.values()
+        ):
+            for i, result in enumerate(first_results):
+                assert result == pytest.approx(
+                    second_results[i], rel=1e-5
+                ), f"Mismatch between {first_name} and {second_name}"
+        else:
+            assert (
+                first_results == second_results
+            ), f"Mismatch between {first_name} and {second_name}"
 
 
 def run_error_test(query_engines, data, variable):
