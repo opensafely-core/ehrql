@@ -69,21 +69,22 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         series_constraints = {
             value: ({int, float, bool, datetime.date}, DomainConstraint.PATIENT),
             select_column: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
+            exists: ({bool}, DomainConstraint.PATIENT),
+            count: ({int}, DomainConstraint.PATIENT),
             is_null: ({bool}, DomainConstraint.ANY),
+            not_: ({bool}, DomainConstraint.ANY),
+            negate: ({int, float}, DomainConstraint.ANY),
             eq: ({bool}, DomainConstraint.ANY),
             ne: ({bool}, DomainConstraint.ANY),
-            not_: ({bool}, DomainConstraint.ANY),
             and_: ({bool}, DomainConstraint.ANY),
             or_: ({bool}, DomainConstraint.ANY),
             lt: ({bool}, DomainConstraint.ANY),
             gt: ({bool}, DomainConstraint.ANY),
             le: ({bool}, DomainConstraint.ANY),
             ge: ({bool}, DomainConstraint.ANY),
-            negate: ({int, float}, DomainConstraint.ANY),
             add: ({int, float}, DomainConstraint.ANY),
             subtract: ({int, float}, DomainConstraint.ANY),
             multiply: ({int, float}, DomainConstraint.ANY),
-            count: ({int}, DomainConstraint.PATIENT),
         }
         series_types = series_constraints.keys()
 
@@ -107,10 +108,28 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         column_names = [n for n, t in schema.column_types if t == type_]
         return st.builds(SelectColumn, st.just(frame), st.sampled_from(column_names))
 
+    def exists(_type, _frame):
+        return st.builds(AggregateByPatient.Exists, any_frame())
+
+    def count(_type, _frame):
+        return st.builds(AggregateByPatient.Count, any_frame())
+
     @st.composite
     def is_null(draw, _type, frame):
         type_ = draw(any_type())
         return Function.IsNull(
+            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
+        )
+
+    @st.composite
+    def not_(draw, type_, frame):
+        return Function.Not(
+            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
+        )
+
+    @st.composite
+    def negate(draw, type_, frame):
+        return Function.Negate(
             draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
         )
 
@@ -123,12 +142,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def ne(draw, _type, frame):
         type_ = draw(any_type())
         return draw(binary_operation(type_, frame, Function.NE))
-
-    @st.composite
-    def not_(draw, type_, frame):
-        return Function.Not(
-            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
-        )
 
     @st.composite
     def and_(draw, type_, frame):
@@ -159,12 +172,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         return draw(binary_operation(type_, frame, Function.GE))
 
     @st.composite
-    def negate(draw, type_, frame):
-        return Function.Negate(
-            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
-        )
-
-    @st.composite
     def add(draw, type_, frame):
         return draw(binary_operation(type_, frame, Function.Add))
 
@@ -175,9 +182,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     @st.composite
     def multiply(draw, type_, frame):
         return draw(binary_operation(type_, frame, Function.Multiply))
-
-    def count(_type, _frame):
-        return st.builds(AggregateByPatient.Count, any_frame())
 
     @st.composite
     def binary_operation(draw, type_, frame, operator_func):
@@ -269,7 +273,6 @@ known_missing_operations = {
     PickOneRowPerPatient,
     AggregateByPatient.Max,
     AggregateByPatient.Min,
-    AggregateByPatient.Exists,
     AggregateByPatient.Sum,
     Function.CastToFloat,
     Function.CastToInt,
