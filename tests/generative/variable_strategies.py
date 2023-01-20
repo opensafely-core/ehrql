@@ -73,6 +73,11 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             count: ({int}, DomainConstraint.PATIENT),
             is_null: ({bool}, DomainConstraint.ANY),
             not_: ({bool}, DomainConstraint.ANY),
+            year_from_date: ({int}, DomainConstraint.ANY),
+            month_from_date: ({int}, DomainConstraint.ANY),
+            day_from_date: ({int}, DomainConstraint.ANY),
+            to_first_of_year: ({datetime.date}, DomainConstraint.ANY),
+            to_first_of_month: ({datetime.date}, DomainConstraint.ANY),
             negate: ({int, float}, DomainConstraint.ANY),
             eq: ({bool}, DomainConstraint.ANY),
             ne: ({bool}, DomainConstraint.ANY),
@@ -125,6 +130,36 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def not_(draw, type_, frame):
         return Function.Not(
             draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
+        )
+
+    @st.composite
+    def year_from_date(draw, _type, frame):
+        return Function.YearFromDate(
+            draw(series(datetime.date, draw(one_row_per_patient_frame_or(frame))))
+        )
+
+    @st.composite
+    def month_from_date(draw, _type, frame):
+        return Function.MonthFromDate(
+            draw(series(datetime.date, draw(one_row_per_patient_frame_or(frame))))
+        )
+
+    @st.composite
+    def day_from_date(draw, _type, frame):
+        return Function.DayFromDate(
+            draw(series(datetime.date, draw(one_row_per_patient_frame_or(frame))))
+        )
+
+    @st.composite
+    def to_first_of_year(draw, _type, frame):
+        return Function.ToFirstOfYear(
+            draw(series(datetime.date, draw(one_row_per_patient_frame_or(frame))))
+        )
+
+    @st.composite
+    def to_first_of_month(draw, _type, frame):
+        return Function.ToFirstOfMonth(
+            draw(series(datetime.date, draw(one_row_per_patient_frame_or(frame))))
         )
 
     @st.composite
@@ -276,11 +311,6 @@ known_missing_operations = {
     AggregateByPatient.Sum,
     Function.CastToFloat,
     Function.CastToInt,
-    Function.YearFromDate,
-    Function.MonthFromDate,
-    Function.DayFromDate,
-    Function.ToFirstOfYear,
-    Function.ToFirstOfMonth,
     Function.DateAddYears,
     Function.DateAddMonths,
     Function.DateAddDays,
