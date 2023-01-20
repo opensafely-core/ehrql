@@ -93,6 +93,9 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             date_add_years: ({datetime.date}, DomainConstraint.ANY),
             date_add_months: ({datetime.date}, DomainConstraint.ANY),
             date_add_days: ({datetime.date}, DomainConstraint.ANY),
+            date_difference_in_years: ({int}, DomainConstraint.ANY),
+            date_difference_in_months: ({int}, DomainConstraint.ANY),
+            date_difference_in_days: ({int}, DomainConstraint.ANY),
         }
         series_types = series_constraints.keys()
 
@@ -240,6 +243,24 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         )
 
     @st.composite
+    def date_difference_in_years(draw, type_, frame):
+        return draw(
+            binary_operation(datetime.date, frame, Function.DateDifferenceInYears)
+        )
+
+    @st.composite
+    def date_difference_in_months(draw, type_, frame):
+        return draw(
+            binary_operation(datetime.date, frame, Function.DateDifferenceInMonths)
+        )
+
+    @st.composite
+    def date_difference_in_days(draw, type_, frame):
+        return draw(
+            binary_operation(datetime.date, frame, Function.DateDifferenceInDays)
+        )
+
+    @st.composite
     def binary_operation(draw, type_, frame, operator_func):
         # A strategy for operations that take lhs and rhs arguments of the
         # same type
@@ -338,9 +359,6 @@ known_missing_operations = {
     AggregateByPatient.Sum,
     Function.CastToFloat,
     Function.CastToInt,
-    Function.DateDifferenceInYears,
-    Function.DateDifferenceInMonths,
-    Function.DateDifferenceInDays,
 }
 
 
