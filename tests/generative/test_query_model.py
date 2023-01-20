@@ -135,7 +135,7 @@ def run_test(query_engines, data, variable, recorder):
     ]
 
     recorder.record_results(
-        len(results), len([r for r in results if r is IGNORE_RESULT])
+        len(results), len([r for (_, r) in results if r is IGNORE_RESULT])
     )
 
     for first, second in itertools.combinations(results, 2):
