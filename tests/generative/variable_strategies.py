@@ -90,6 +90,9 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             add: ({int, float}, DomainConstraint.ANY),
             subtract: ({int, float}, DomainConstraint.ANY),
             multiply: ({int, float}, DomainConstraint.ANY),
+            date_add_years: ({datetime.date}, DomainConstraint.ANY),
+            date_add_months: ({datetime.date}, DomainConstraint.ANY),
+            date_add_days: ({datetime.date}, DomainConstraint.ANY),
         }
         series_types = series_constraints.keys()
 
@@ -219,11 +222,35 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         return draw(binary_operation(type_, frame, Function.Multiply))
 
     @st.composite
+    def date_add_years(draw, type_, frame):
+        return draw(
+            binary_operation_with_types(type_, int, frame, Function.DateAddYears)
+        )
+
+    @st.composite
+    def date_add_months(draw, type_, frame):
+        return draw(
+            binary_operation_with_types(type_, int, frame, Function.DateAddMonths)
+        )
+
+    @st.composite
+    def date_add_days(draw, type_, frame):
+        return draw(
+            binary_operation_with_types(type_, int, frame, Function.DateAddDays)
+        )
+
+    @st.composite
     def binary_operation(draw, type_, frame, operator_func):
         # A strategy for operations that take lhs and rhs arguments of the
         # same type
-        lhs = draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
-        rhs = draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
+        return draw(binary_operation_with_types(type_, type_, frame, operator_func))
+
+    @st.composite
+    def binary_operation_with_types(draw, lhs_type, rhs_type, frame, operator_func):
+        # A strategy for operations that take lhs and rhs arguments with specified lhs
+        # and rhs types (which may be different)
+        lhs = draw(series(lhs_type, draw(one_row_per_patient_frame_or(frame))))
+        rhs = draw(series(rhs_type, draw(one_row_per_patient_frame_or(frame))))
         return operator_func(lhs, rhs)
 
     def any_type():
@@ -311,9 +338,6 @@ known_missing_operations = {
     AggregateByPatient.Sum,
     Function.CastToFloat,
     Function.CastToInt,
-    Function.DateAddYears,
-    Function.DateAddMonths,
-    Function.DateAddDays,
     Function.DateDifferenceInYears,
     Function.DateDifferenceInMonths,
     Function.DateDifferenceInDays,
