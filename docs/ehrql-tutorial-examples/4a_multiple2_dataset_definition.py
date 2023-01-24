@@ -1,4 +1,4 @@
-from databuilder.ehrql import Dataset
+from databuilder.ehrql import Dataset, days
 from databuilder.tables.examples.tutorial import hospitalisations, patients
 
 dataset = Dataset()
@@ -24,5 +24,5 @@ first_hospitalisation_in_range = hospitalisations_in_range.sort_by(
     hospitalisations.date
 ).first_for_patient()
 dataset.last_day_of_month_before_first_hospitalisation = (
-    first_hospitalisation_in_range.date.to_first_of_month().subtract_days(1)
+    first_hospitalisation_in_range.date.to_first_of_month() - days(1)
 )
