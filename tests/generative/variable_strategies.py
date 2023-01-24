@@ -247,8 +247,31 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def binary_operation_with_types(draw, lhs_type, rhs_type, frame, operator_func):
         # A strategy for operations that take lhs and rhs arguments with specified lhs
         # and rhs types (which may be different)
-        lhs = draw(series(lhs_type, draw(one_row_per_patient_frame_or(frame))))
-        rhs = draw(series(rhs_type, draw(one_row_per_patient_frame_or(frame))))
+
+        # we can combine this frame with a series drawn from:
+        # - a new one-row-per-patient-frame
+        # - this frame itself
+        # If it's already a one-row-per-patient-frame, it uses the database, so can
+        # be combined with a value or a series
+        # If it's not a one-row-per-patient-frame, avoid combining with a value so we
+        # don't end up with operations that don't hit the database
+        other_frame = draw(st.one_of(one_row_per_patient_frame(), st.just(frame)))
+        if is_one_row_per_patient_frame(other_frame):
+            other_strategy = draw(st.sampled_from([value, series]))
+        else:
+            other_strategy = series
+
+        # Pick the order of the lhs and rhs from the two frames and associated strategies
+        lhs_frame, lhs_strategy = draw(
+            st.sampled_from([(frame, series), (other_frame, other_strategy)])
+        )
+        if lhs_frame == frame:
+            rhs_frame, rhs_strategy = other_frame, other_strategy
+        else:
+            rhs_frame, rhs_strategy = frame, series
+        lhs = draw(lhs_strategy(lhs_type, lhs_frame))
+        rhs = draw(rhs_strategy(rhs_type, rhs_frame))
+
         return operator_func(lhs, rhs)
 
     def any_type():
@@ -281,12 +304,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         for _ in range(draw(st.integers(min_value=0, max_value=6))):
             source = draw(filter_(source))
         return source
-
-    def one_row_per_patient_frame_or(frame):
-        if is_one_row_per_patient_frame(frame):
-            return st.just(frame)
-        # Order matters: "simpler" first (see header comment)
-        return st.one_of(one_row_per_patient_frame(), st.just(frame))
 
     def select_table():
         return st.builds(SelectTable, st.sampled_from(event_tables), st.just(schema))
