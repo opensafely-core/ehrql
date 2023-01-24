@@ -9,7 +9,6 @@ from databuilder.tables.beta import tpp
 from tests.lib.tpp_schema import (
     APCS,
     EC,
-    ONS_CIS,
     APCS_Der,
     Appointment,
     CodedEvent,
@@ -20,6 +19,7 @@ from tests.lib.tpp_schema import (
     HouseholdMember,
     MedicationDictionary,
     MedicationIssue,
+    ONS_CIS_New,
     ONSDeaths,
     Organisation,
     Patient,
@@ -476,7 +476,7 @@ def test_household_memberships_2020(select_all):
 def test_ons_cis(select_all):
     results = select_all(
         Patient(Patient_ID=1),
-        ONS_CIS(
+        ONS_CIS_New(
             Patient_ID=1,
             visit_date=date(2021, 10, 20),
         ),

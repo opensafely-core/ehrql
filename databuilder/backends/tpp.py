@@ -216,7 +216,7 @@ class TPPBackend(BaseBackend):
     )
 
     ons_cis = MappedTable(
-        source="ONS_CIS",
+        source="ONS_CIS_New",
         columns=dict(
             visit_date="visit_date",
         ),

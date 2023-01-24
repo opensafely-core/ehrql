@@ -263,8 +263,8 @@ class Patient(Base):
         back_populates="Patient",
         cascade="all, delete, delete-orphan",
     )
-    ONS_CIS = relationship(
-        "ONS_CIS",
+    ONS_CIS_New = relationship(
+        "ONS_CIS_New",
         back_populates="Patient",
         cascade="all, delete, delete-orphan",
     )
@@ -940,14 +940,14 @@ class Therapeutics(Base):
     Der_LoadDate = Column(String)
 
 
-class ONS_CIS(Base):
-    __tablename__ = "ONS_CIS"
+class ONS_CIS_New(Base):
+    __tablename__ = "ONS_CIS_New"
 
     # fake pk to satisfy the ORM
     pk = Column(Integer, primary_key=True)
 
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="ONS_CIS")
+    Patient = relationship("Patient", back_populates="ONS_CIS_New")
     visit_date = Column(Date)
 
 
