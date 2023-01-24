@@ -235,9 +235,14 @@ docs-serve: devenv
 docs-test: devenv
     #!/usr/bin/env bash
     set -euo pipefail
-    # Use xargs here over find with the -exec option.
-    # xargs produces a non-exit error code when command it runs fails.
-    find docs/snippets/ -type f -name "*.py" -print0 | xargs -0 -n 1 "$BIN"/python
+    for f in ./docs/snippets/*.py; do
+      if [[ -z "${PYTHONPATH:-}" ]]
+      then
+        PYTHONPATH="{{justfile_directory()}}" "$BIN"/python "$f"
+      else
+        PYTHONPATH="${PYTHONPATH}:{{justfile_directory()}}" "$BIN"/python "$f"
+      fi
+    done
 
 # Run the dataset definitions.
 docs-check-dataset-definitions: devenv
