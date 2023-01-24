@@ -22,7 +22,7 @@ jobs:
           cache-dependency-path: requirements.*.txt
 
       - name: Check public docs are up-to-date
-        run: docs-check-public-docs-are-current
+        run: just docs-check-public-docs-are-current
 
       - name: Check snippets work
         run: just docs-test
