@@ -253,7 +253,7 @@ To do this:
 If using Community Edition, you will need to follow the instructions the command outputs to complete the cleanup process, as we cannot fully automate it from the cli.
 
 
-### Static Type Checking
+## Static Type Checking
 We previously used [mypy](https://mypy.readthedocs.io/en/stable/) and type annotations to perform correctness checking of the code base.
 However, we made the decision to remove this stack after finding it was not a good fit for large parts of the code base.
 
@@ -264,7 +264,7 @@ And developers should feel free to use them wherever this aids clarity vs a docs
 Dataclasses have also retained their annotations to avoid initialising all fields with None.
 
 
-### Generating data for documentation
+## Generating data for documentation
 
 Some Data Builder [documentation](https://github.com/opensafely/documentation) is generated from code in this repo.
 
