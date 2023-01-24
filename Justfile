@@ -221,9 +221,83 @@ databricks-test *ARGS: devenv databricks-env
     export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
     just test {{ ARGS }}
 
-generate-docs OUTPUT_FILE="public_docs.json": devenv
+generate-docs OUTPUT_FILE="docs/public_docs.json": devenv
     $BIN/python -m databuilder.docs > {{ OUTPUT_FILE }}
     echo "Generated data for documentation."
 
 update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
+
+docs-serve: devenv
+    BACKEND_DOCS_FILE=docs/public_docs.json mkdocs serve
+
+# Run the snippet tests
+docs-test: devenv
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Use xargs here over find with the -exec option.
+    # xargs produces a non-exit error code when command it runs fails.
+    find docs/snippets/ -type f -name "*.py" -print0 | xargs -0 -n 1 "$BIN"/python
+
+# Run the dataset definitions.
+docs-check-dataset-definitions: devenv
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    for f in ./docs/ehrql-tutorial-examples/*dataset_definition.py; do
+      # By convention, we name dataset definition as: IDENTIFIER_DATASOURCENAME_dataset_definition.py
+      DATASOURCENAME=`echo "$f" | cut -d'_' -f2`
+      $BIN/python -m databuilder generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/"
+    done
+
+
+# Check the dataset definition outputs are current
+docs-check-dataset-definitions-outputs-are-current: devenv
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # https://stackoverflow.com/questions/3878624/how-do-i-programmatically-determine-if-there-are-uncommitted-changes
+    # git diff --exit-code won't pick up untracked files, which we also want to check for.
+    if [[ -z $(git status --porcelain ./docs/ehrql-tutorial-examples/outputs/; git clean -nd ./docs/ehrql-tutorial-examples/outputs/) ]]
+    then
+      echo "Dataset definition outputs directory is current and free of other files/directories."
+    else
+      echo "Dataset definition outputs contains files/directories not in the repository."
+      exit 1
+    fi
+
+
+docs-build-dataset-definitions-outputs: devenv
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    for f in ./docs/ehrql-tutorial-examples/*dataset_definition.py; do
+      # By convention, we name dataset definition as: IDENTIFIER_DATASOURCENAME_dataset_definition.py
+      DATASOURCENAME=`echo "$f" | cut -d'_' -f2`
+      FILENAME="$(basename "$f" .py).csv"
+      $BIN/python -m databuilder generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/" --output "./docs/ehrql-tutorial-examples/outputs/$FILENAME"
+    done
+
+# Requires OpenSAFELY CLI and Docker installed.
+# Runs all actions in the `project.yaml`
+docs-build-dataset-definitions-outputs-docker-project:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Instead of entering the directory, We could use opensafely --project-dir
+    # But we would end up with a metadata directory in this directory then.
+    cd "./docs/ehrql-tutorial-examples"
+    opensafely run run_all --force-run-dependencies
+
+
+# Check the dataset public docs are current
+docs-check-public-docs-are-current: generate-docs
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if [[ -z $(git diff ./docs/public_docs.json) ]]
+    then
+      echo "public_docs.json is current."
+    else
+      echo "public_docs.json is not current; run `just generate-docs` to update."
+      exit 1
+    fi

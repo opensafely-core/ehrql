@@ -1,0 +1,26 @@
+site_name: OpenSAFELY Data Builder documentation
+repo_url: https://github.com/opensafely-core/databuilder
+docs_dir: docs
+
+nav:
+  - Home: toc.md
+  - Quick Start: quick-start.md
+
+
+theme:
+  name: material
+
+
+watch:
+  - docs
+
+
+plugins:
+  - mkdocs-opensafely-databuilder
+  - table-reader:
+      base_path: "docs_dir"
+
+
+markdown_extensions:
+  - pymdownx.snippets:
+      base_path: docs

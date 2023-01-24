@@ -1,0 +1,43 @@
+---
+name: Check documentation
+
+on:
+  workflow_dispatch:
+  # push:
+  #     branches:
+  #       - main
+  # pull_request:
+
+jobs:
+  documentation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+          python-version: "3.9"
+          cache-dependency-path: requirements.*.txt
+
+      - name: Check public docs are up-to-date
+        run: docs-check-public-docs-are-current
+
+      - name: Check snippets work
+        run: just docs-test
+
+      - name: Check dataset definitions run with Python installed Data Builder
+        run: just docs-check-dataset-definitions
+
+      - name: Check dataset definition outputs are up-to-date
+        run: just docs-check-dataset-definitions-outputs-are-current
+
+      - name: Install OpenSAFELY CLI
+        run: pip install opensafely
+
+      - name: Check dataset definitions outputs can be built with OpenSAFELY CLI project.yaml
+        run: just docs-build-dataset-definitions-outputs-docker-project
+
+      - name: Check dataset definition outputs are up-to-date
+        run: just docs-check-dataset-definitions-outputs-are-current

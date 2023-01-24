@@ -100,12 +100,12 @@ htmlcov
 .venv/
 venv/
 
-# Docs
-public_docs.json
-
 # Planning artifacts
 story-dependencies.png
 
 # Build/test byproducts
 cache/
 .hypothesis
+
+# MkDocs output
+site/
