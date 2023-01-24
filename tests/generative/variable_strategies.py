@@ -247,20 +247,27 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         # A strategy for operations that take lhs and rhs arguments with specified lhs
         # and rhs types (which may be different)
 
-        # we can combine this frame with a series drawn from:
-        # - a new one-row-per-patient-frame
-        # - this frame itself
-        # If it's already a one-row-per-patient-frame, it uses the database, so can
-        # be combined with a value or a series
-        # If it's not a one-row-per-patient-frame, avoid combining with a value so we
-        # don't end up with operations that don't hit the database
+        # A binary operation has 2 inputs, which are
+        # 1) A series drawn from the specified frame
+        # 2) one of:
+        #    a) A series drawn from the specified frame
+        #    b) A series drawn from a one-row-per-patient-frame
+        #    c) A Value
+
+        # Define other_frame and other_series (#2 above)
+        # pick either a one-row-per-patient-frame or this frame
         other_frame = draw(st.one_of(one_row_per_patient_frame(), st.just(frame)))
         if is_one_row_per_patient_frame(other_frame):
+            # if other_frame is patient-level, the input will either be a value or a
+            # series drawn from other_frame
             other_strategy = draw(st.sampled_from([value, series]))
         else:
+            # if other_frame is event-level, the input will be a series drawn from the
+            # other_frame
             other_strategy = series
 
-        # Pick the order of the lhs and rhs from the two frames and associated strategies
+        # Pick the order of the lhs and rhs inputs built from the two frames and
+        # associated strategies
         lhs_frame, lhs_strategy = draw(
             st.sampled_from([(frame, series), (other_frame, other_strategy)])
         )
