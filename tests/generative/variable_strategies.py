@@ -128,51 +128,28 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     @st.composite
     def is_null(draw, _type, frame):
         type_ = draw(any_type())
-        return Function.IsNull(
-            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
-        )
+        return Function.IsNull(draw(series(type_, frame)))
 
-    @st.composite
-    def not_(draw, type_, frame):
-        return Function.Not(
-            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
-        )
+    def not_(type_, frame):
+        return st.builds(Function.Not, series(type_, frame))
 
-    @st.composite
-    def year_from_date(draw, _type, frame):
-        return Function.YearFromDate(
-            draw(series(datetime.date, draw(one_row_per_patient_frame_or(frame))))
-        )
+    def year_from_date(_type, frame):
+        return st.builds(Function.YearFromDate, series(datetime.date, frame))
 
-    @st.composite
-    def month_from_date(draw, _type, frame):
-        return Function.MonthFromDate(
-            draw(series(datetime.date, draw(one_row_per_patient_frame_or(frame))))
-        )
+    def month_from_date(_type, frame):
+        return st.builds(Function.MonthFromDate, series(datetime.date, frame))
 
-    @st.composite
-    def day_from_date(draw, _type, frame):
-        return Function.DayFromDate(
-            draw(series(datetime.date, draw(one_row_per_patient_frame_or(frame))))
-        )
+    def day_from_date(_type, frame):
+        return st.builds(Function.DayFromDate, series(datetime.date, frame))
 
-    @st.composite
-    def to_first_of_year(draw, _type, frame):
-        return Function.ToFirstOfYear(
-            draw(series(datetime.date, draw(one_row_per_patient_frame_or(frame))))
-        )
+    def to_first_of_year(_type, frame):
+        return st.builds(Function.ToFirstOfYear, series(datetime.date, frame))
 
-    @st.composite
-    def to_first_of_month(draw, _type, frame):
-        return Function.ToFirstOfMonth(
-            draw(series(datetime.date, draw(one_row_per_patient_frame_or(frame))))
-        )
+    def to_first_of_month(_type, frame):
+        return st.builds(Function.ToFirstOfMonth, series(datetime.date, frame))
 
-    @st.composite
-    def negate(draw, type_, frame):
-        return Function.Negate(
-            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
-        )
+    def negate(type_, frame):
+        return st.builds(Function.Negate, series(type_, frame))
 
     @st.composite
     def eq(draw, _type, frame):
