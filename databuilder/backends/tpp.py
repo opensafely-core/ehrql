@@ -219,5 +219,8 @@ class TPPBackend(BaseBackend):
         source="ONS_CIS_New",
         columns=dict(
             visit_date="visit_date",
+            visit_num="visit_num",
+            nhs_data_share="nhs_data_share",
+            last_linkage_dt="last_linkage_dt",
         ),
     )
