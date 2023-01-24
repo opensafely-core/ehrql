@@ -264,7 +264,13 @@ And developers should feel free to use them wherever this aids clarity vs a docs
 Dataclasses have also retained their annotations to avoid initialising all fields with None.
 
 
-## Generating data for documentation
+## Documentation
+
+The documentation in this repository forms part of the main [OpenSAFELY documentation](https://github.com/opensafely/documentation).
+
+It can also be built as a standalone documentation site with MkDocs to preview content changes.
+
+### Generating data for documentation
 
 Some Data Builder [documentation](https://github.com/opensafely/documentation) is generated from code in this repo.
 
@@ -276,3 +282,38 @@ An intermediate step generates a JSON file (`public_docs.json`) containing the d
 To generate this file, run:
 
     just generate-docs
+
+### Making changes to the dataset definition snippets
+
+These snippets are separate from the tutorial examples in `databuilder/ehrql-tutorial-examples`.
+There is a separate README in that directory that explains how those tutorial examples work.
+We may eventually unify the tutorial examples with the snippet
+so that all example code is checked in the same way.
+
+Edit the python modules in the `databuilder/snippets` directory.
+
+Examples are included in the markdown files using the [pymdown snippet notation](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/#snippets-notation).
+
+Each of the snippets sections in each snippet Python source file are bounded by markers:
+
+```python
+# --8<-- [start:print]
+print("hello world")
+# --8<-- [end:print]
+```
+
+If this example was stored as `databuilder/snippets/hello.py`,
+then it could be included in the documentation Markdown source via:
+
+````
+```python
+;--8<-- 'databuilder/snippets/hello.py:print'
+```
+````
+
+## Updating Data Builder backend, contract and reference documentation
+
+If a new Data Builder version is released that updates Data Builder's backend, contract and reference documentation,
+there should be an automated pull request opened in the documentation repository to keep it synchronised.
+
+See the [documentation repository's installation notes](https://github.com/opensafely/documentation/blob/main/INSTALL.md).
