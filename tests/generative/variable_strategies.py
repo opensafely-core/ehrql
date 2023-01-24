@@ -67,7 +67,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
         # Order matters: "simpler" first (see header comment)
         series_constraints = {
-            value: ({int, float, bool, datetime.date}, DomainConstraint.PATIENT),
             select_column: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
             exists: ({bool}, DomainConstraint.PATIENT),
             count: ({int}, DomainConstraint.PATIENT),
