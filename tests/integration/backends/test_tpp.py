@@ -489,7 +489,7 @@ def test_ons_cis(select_all):
             "patient_id": 1,
             "visit_date": date(2021, 10, 20),
             "visit_num": 1,
-            "nhs_data_share": 1,
+            "is_opted_out_of_nhs_data_share": True,
             "last_linkage_dt": date(2022, 8, 15),
         },
     ]

@@ -220,7 +220,7 @@ class TPPBackend(BaseBackend):
         columns=dict(
             visit_date="visit_date",
             visit_num="visit_num",
-            nhs_data_share="nhs_data_share",
+            is_opted_out_of_nhs_data_share="nhs_data_share",
             last_linkage_dt="last_linkage_dt",
         ),
     )
