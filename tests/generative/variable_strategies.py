@@ -160,13 +160,11 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         type_ = draw(any_type())
         return draw(binary_operation(type_, frame, Function.NE))
 
-    @st.composite
-    def and_(draw, type_, frame):
-        return draw(binary_operation(type_, frame, Function.And))
+    def and_(type_, frame):
+        return binary_operation(type_, frame, Function.And)
 
-    @st.composite
-    def or_(draw, type_, frame):
-        return draw(binary_operation(type_, frame, Function.Or))
+    def or_(type_, frame):
+        return binary_operation(type_, frame, Function.Or)
 
     @st.composite
     def lt(draw, _type, frame):
@@ -188,59 +186,37 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         type_ = draw(comparable_type())
         return draw(binary_operation(type_, frame, Function.GE))
 
-    @st.composite
-    def add(draw, type_, frame):
-        return draw(binary_operation(type_, frame, Function.Add))
+    def add(type_, frame):
+        return binary_operation(type_, frame, Function.Add)
 
-    @st.composite
-    def subtract(draw, type_, frame):
-        return draw(binary_operation(type_, frame, Function.Subtract))
+    def subtract(type_, frame):
+        return binary_operation(type_, frame, Function.Subtract)
 
-    @st.composite
-    def multiply(draw, type_, frame):
-        return draw(binary_operation(type_, frame, Function.Multiply))
+    def multiply(type_, frame):
+        return binary_operation(type_, frame, Function.Multiply)
 
-    @st.composite
-    def date_add_years(draw, type_, frame):
-        return draw(
-            binary_operation_with_types(type_, int, frame, Function.DateAddYears)
-        )
+    def date_add_years(type_, frame):
+        return binary_operation_with_types(type_, int, frame, Function.DateAddYears)
 
-    @st.composite
-    def date_add_months(draw, type_, frame):
-        return draw(
-            binary_operation_with_types(type_, int, frame, Function.DateAddMonths)
-        )
+    def date_add_months(type_, frame):
+        return binary_operation_with_types(type_, int, frame, Function.DateAddMonths)
 
-    @st.composite
-    def date_add_days(draw, type_, frame):
-        return draw(
-            binary_operation_with_types(type_, int, frame, Function.DateAddDays)
-        )
+    def date_add_days(type_, frame):
+        return binary_operation_with_types(type_, int, frame, Function.DateAddDays)
 
-    @st.composite
-    def date_difference_in_years(draw, type_, frame):
-        return draw(
-            binary_operation(datetime.date, frame, Function.DateDifferenceInYears)
-        )
+    def date_difference_in_years(type_, frame):
+        return binary_operation(datetime.date, frame, Function.DateDifferenceInYears)
 
-    @st.composite
-    def date_difference_in_months(draw, type_, frame):
-        return draw(
-            binary_operation(datetime.date, frame, Function.DateDifferenceInMonths)
-        )
+    def date_difference_in_months(type_, frame):
+        return binary_operation(datetime.date, frame, Function.DateDifferenceInMonths)
 
-    @st.composite
-    def date_difference_in_days(draw, type_, frame):
-        return draw(
-            binary_operation(datetime.date, frame, Function.DateDifferenceInDays)
-        )
+    def date_difference_in_days(type_, frame):
+        return binary_operation(datetime.date, frame, Function.DateDifferenceInDays)
 
-    @st.composite
-    def binary_operation(draw, type_, frame, operator_func):
+    def binary_operation(type_, frame, operator_func):
         # A strategy for operations that take lhs and rhs arguments of the
         # same type
-        return draw(binary_operation_with_types(type_, type_, frame, operator_func))
+        return binary_operation_with_types(type_, type_, frame, operator_func)
 
     @st.composite
     def binary_operation_with_types(draw, lhs_type, rhs_type, frame, operator_func):
