@@ -268,7 +268,13 @@ Dataclasses have also retained their annotations to avoid initialising all field
 
 The documentation in this repository forms part of the main [OpenSAFELY documentation](https://github.com/opensafely/documentation).
 
-It can also be built as a standalone documentation site with MkDocs to preview content changes.
+It can also be built as a standalone documentation site with MkDocs to preview content changes, by running:
+
+    just docs-serve
+
+:warning: The documentation will look considerably different from OpenSAFELY's.
+We aim to improve this in future.
+See the [relevant issue](https://github.com/opensafely-core/databuilder/issues/978).
 
 ### Generating data for documentation
 
