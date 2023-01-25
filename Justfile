@@ -280,7 +280,7 @@ docs-build-dataset-definitions-outputs: devenv
       # By convention, we name dataset definition as: IDENTIFIER_DATASOURCENAME_dataset_definition.py
       DATASOURCENAME=`echo "$f" | cut -d'_' -f2`
       FILENAME="$(basename "$f" .py).csv"
-      $BIN/python -m databuilder generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/" --output "./docs/ehrql-tutorial-examples/outputs/$FILENAME"
+      "$BIN"/python -m databuilder generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/" --output "./docs/ehrql-tutorial-examples/outputs/$FILENAME"
     done
 
 # Requires OpenSAFELY CLI and Docker installed.
