@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 
 from databuilder.dummy_data.generator import DummyDataGenerator, DummyPatientGenerator
-from databuilder.dummy_data.query_info import ColumnInfo
+from databuilder.dummy_data.query_info import ColumnInfo, TableInfo
 from databuilder.ehrql import Dataset
 from databuilder.query_language import compile
 from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, table
@@ -142,6 +142,30 @@ def test_get_random_str_with_regex(dummy_patient_generator):
     values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
     assert len(set(values)) > 1, "strings are all identical"
     assert all(re.match(r"AB[X-Z]{5}", value) for value in values)
+
+
+def test_rows_for_patients_with_first_of_month_constraint(dummy_patient_generator):
+    table_info = TableInfo(
+        name="patients",
+        has_one_row_per_patient=True,
+        columns={
+            # No `FirstOfMonth` constraint applied to non-nullable `date_of_birth`
+            "date_of_birth": ColumnInfo("date_of_birth", datetime.date, constraints=()),
+            # `FirstOfMonth` constraint applied to nullable `date_of_death`
+            "date_of_death": ColumnInfo(
+                "date_of_death", datetime.date, constraints=(Constraint.FirstOfMonth(),)
+            ),
+        },
+    )
+    rows = []
+    for _ in range(10):
+        dummy_patient_generator.generate_patient_facts()
+        rows.extend(dummy_patient_generator.rows_for_patients(table_info))
+    assert len(rows) == 10
+    # Assert constraints are respected
+    assert all(r["date_of_birth"] is not None for r in rows)
+    assert any(r["date_of_birth"].day != 1 for r in rows)  # pragma: no branch
+    assert all(r["date_of_death"] is None or r["date_of_death"].day == 1 for r in rows)
 
 
 @pytest.fixture(scope="module")
