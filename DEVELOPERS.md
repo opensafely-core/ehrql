@@ -301,7 +301,7 @@ To generate this file, run:
 
 ### Updating the main OpenSAFELY documentation repository
 
-:warning: Currently, changes made to the documentation in Data Builder's repository will bedeployed whenever any pull request in the main [documentation](https://github.com/opensafely/documentation) repository is next merged.
+:warning: Currently, changes made to the documentation in Data Builder's repository will be deployed whenever any pull request in the main [documentation](https://github.com/opensafely/documentation) repository is next merged.
 
 We intend to implement automated deployment
 which redeploys the documentation whenever a new version of Data Builder is published;
