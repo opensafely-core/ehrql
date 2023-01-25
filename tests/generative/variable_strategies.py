@@ -251,32 +251,29 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         # 1) A series drawn from the specified frame
         # 2) one of:
         #    a) A series drawn from the specified frame
-        #    b) A series drawn from a one-row-per-patient-frame
-        #    c) A Value
+        #    b) A series drawn from any one-row-per-patient-frame
+        #    c) A series that is a Value
 
-        # Define other_frame and other_series (#2 above)
-        # pick either a one-row-per-patient-frame or this frame
+        # first pick an "other" input series (i.e. #2 above), either a value series
+        # or a series drawn from a frame
+        other_series = draw(st.sampled_from([value, series]))
+        # Now pick a frame for the series to be drawn from
+        # The other frame will either be a new one-row-per-patient-frame or this frame
+        # (Note if the other_series is a value, the frame will be ignored)
         other_frame = draw(st.one_of(one_row_per_patient_frame(), st.just(frame)))
-        if is_one_row_per_patient_frame(other_frame):
-            # if other_frame is patient-level, the input will either be a value or a
-            # series drawn from other_frame
-            other_strategy = draw(st.sampled_from([value, series]))
-        else:
-            # if other_frame is event-level, the input will be a series drawn from the
-            # other_frame
-            other_strategy = series
 
         # Pick the order of the lhs and rhs inputs built from the two frames and
         # associated strategies
-        lhs_frame, lhs_strategy = draw(
-            st.sampled_from([(frame, series), (other_frame, other_strategy)])
+        lhs_frame, lhs_input, rhs_frame, rhs_input = draw(
+            st.sampled_from(
+                [
+                    (frame, series, other_frame, other_series),
+                    (other_frame, other_series, frame, series),
+                ]
+            )
         )
-        if lhs_frame == frame:
-            rhs_frame, rhs_strategy = other_frame, other_strategy
-        else:
-            rhs_frame, rhs_strategy = frame, series
-        lhs = draw(lhs_strategy(lhs_type, lhs_frame))
-        rhs = draw(rhs_strategy(rhs_type, rhs_frame))
+        lhs = draw(lhs_input(lhs_type, lhs_frame))
+        rhs = draw(rhs_input(rhs_type, rhs_frame))
 
         return operator_func(lhs, rhs)
 
