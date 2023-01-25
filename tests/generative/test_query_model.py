@@ -135,7 +135,7 @@ def run_test(query_engines, data, variable, recorder):
     ]
 
     recorder.record_results(
-        len(results), len([r for r in results if r is IGNORE_RESULT])
+        len(results), len([r for (_, r) in results if r is IGNORE_RESULT])
     )
 
     for first, second in itertools.combinations(results, 2):
@@ -186,6 +186,9 @@ IGNORED_ERRORS = [
         sqlalchemy.exc.OperationalError,
         re.compile(".+Case expressions may only be nested to level 10.+"),
     ),
+    # SQLite raises a parser stack overflow error if the variable strategy generates queries
+    # that result in many nested queries
+    (sqlalchemy.exc.OperationalError, re.compile(".+parser stack overflow")),
     # OUT-OF-RANGE DATES
     # The variable strategy will sometimes result in date operations that construct
     # invalid dates (e.g. a large positive or negative integer in a DateAddYears operation

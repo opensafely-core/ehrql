@@ -598,7 +598,7 @@ def count_nodes(tree):  # pragma: no cover
     return len(all_nodes(tree))
 
 
-def node_types(tree):
+def node_types(tree):  # pragma: no cover
     return [type(node) for node in all_nodes(tree)]
 
 

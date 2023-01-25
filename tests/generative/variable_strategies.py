@@ -13,7 +13,6 @@ from databuilder.query_model.nodes import (
     SelectTable,
     Sort,
     Value,
-    node_types,
 )
 from tests.lib.query_model_utils import get_all_operations
 
@@ -67,12 +66,16 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
         # Order matters: "simpler" first (see header comment)
         series_constraints = {
-            value: ({int, float, bool, datetime.date}, DomainConstraint.PATIENT),
             select_column: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
             exists: ({bool}, DomainConstraint.PATIENT),
             count: ({int}, DomainConstraint.PATIENT),
             is_null: ({bool}, DomainConstraint.ANY),
             not_: ({bool}, DomainConstraint.ANY),
+            year_from_date: ({int}, DomainConstraint.ANY),
+            month_from_date: ({int}, DomainConstraint.ANY),
+            day_from_date: ({int}, DomainConstraint.ANY),
+            to_first_of_year: ({datetime.date}, DomainConstraint.ANY),
+            to_first_of_month: ({datetime.date}, DomainConstraint.ANY),
             negate: ({int, float}, DomainConstraint.ANY),
             eq: ({bool}, DomainConstraint.ANY),
             ne: ({bool}, DomainConstraint.ANY),
@@ -85,6 +88,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             add: ({int, float}, DomainConstraint.ANY),
             subtract: ({int, float}, DomainConstraint.ANY),
             multiply: ({int, float}, DomainConstraint.ANY),
+            date_add_years: ({datetime.date}, DomainConstraint.ANY),
+            date_add_months: ({datetime.date}, DomainConstraint.ANY),
+            date_add_days: ({datetime.date}, DomainConstraint.ANY),
+            date_difference_in_years: ({int}, DomainConstraint.ANY),
+            date_difference_in_months: ({int}, DomainConstraint.ANY),
+            date_difference_in_days: ({int}, DomainConstraint.ANY),
         }
         series_types = series_constraints.keys()
 
@@ -117,21 +126,28 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     @st.composite
     def is_null(draw, _type, frame):
         type_ = draw(any_type())
-        return Function.IsNull(
-            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
-        )
+        return Function.IsNull(draw(series(type_, frame)))
 
-    @st.composite
-    def not_(draw, type_, frame):
-        return Function.Not(
-            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
-        )
+    def not_(type_, frame):
+        return st.builds(Function.Not, series(type_, frame))
 
-    @st.composite
-    def negate(draw, type_, frame):
-        return Function.Negate(
-            draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
-        )
+    def year_from_date(_type, frame):
+        return st.builds(Function.YearFromDate, series(datetime.date, frame))
+
+    def month_from_date(_type, frame):
+        return st.builds(Function.MonthFromDate, series(datetime.date, frame))
+
+    def day_from_date(_type, frame):
+        return st.builds(Function.DayFromDate, series(datetime.date, frame))
+
+    def to_first_of_year(_type, frame):
+        return st.builds(Function.ToFirstOfYear, series(datetime.date, frame))
+
+    def to_first_of_month(_type, frame):
+        return st.builds(Function.ToFirstOfMonth, series(datetime.date, frame))
+
+    def negate(type_, frame):
+        return st.builds(Function.Negate, series(type_, frame))
 
     @st.composite
     def eq(draw, _type, frame):
@@ -143,13 +159,11 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         type_ = draw(any_type())
         return draw(binary_operation(type_, frame, Function.NE))
 
-    @st.composite
-    def and_(draw, type_, frame):
-        return draw(binary_operation(type_, frame, Function.And))
+    def and_(type_, frame):
+        return binary_operation(type_, frame, Function.And)
 
-    @st.composite
-    def or_(draw, type_, frame):
-        return draw(binary_operation(type_, frame, Function.Or))
+    def or_(type_, frame):
+        return binary_operation(type_, frame, Function.Or)
 
     @st.composite
     def lt(draw, _type, frame):
@@ -171,24 +185,71 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         type_ = draw(comparable_type())
         return draw(binary_operation(type_, frame, Function.GE))
 
-    @st.composite
-    def add(draw, type_, frame):
-        return draw(binary_operation(type_, frame, Function.Add))
+    def add(type_, frame):
+        return binary_operation(type_, frame, Function.Add)
 
-    @st.composite
-    def subtract(draw, type_, frame):
-        return draw(binary_operation(type_, frame, Function.Subtract))
+    def subtract(type_, frame):
+        return binary_operation(type_, frame, Function.Subtract)
 
-    @st.composite
-    def multiply(draw, type_, frame):
-        return draw(binary_operation(type_, frame, Function.Multiply))
+    def multiply(type_, frame):
+        return binary_operation(type_, frame, Function.Multiply)
 
-    @st.composite
-    def binary_operation(draw, type_, frame, operator_func):
+    def date_add_years(type_, frame):
+        return binary_operation_with_types(type_, int, frame, Function.DateAddYears)
+
+    def date_add_months(type_, frame):
+        return binary_operation_with_types(type_, int, frame, Function.DateAddMonths)
+
+    def date_add_days(type_, frame):
+        return binary_operation_with_types(type_, int, frame, Function.DateAddDays)
+
+    def date_difference_in_years(type_, frame):
+        return binary_operation(datetime.date, frame, Function.DateDifferenceInYears)
+
+    def date_difference_in_months(type_, frame):
+        return binary_operation(datetime.date, frame, Function.DateDifferenceInMonths)
+
+    def date_difference_in_days(type_, frame):
+        return binary_operation(datetime.date, frame, Function.DateDifferenceInDays)
+
+    def binary_operation(type_, frame, operator_func):
         # A strategy for operations that take lhs and rhs arguments of the
         # same type
-        lhs = draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
-        rhs = draw(series(type_, draw(one_row_per_patient_frame_or(frame))))
+        return binary_operation_with_types(type_, type_, frame, operator_func)
+
+    @st.composite
+    def binary_operation_with_types(draw, lhs_type, rhs_type, frame, operator_func):
+        # A strategy for operations that take lhs and rhs arguments with specified lhs
+        # and rhs types (which may be different)
+
+        # A binary operation has 2 inputs, which are
+        # 1) A series drawn from the specified frame
+        # 2) one of:
+        #    a) A series drawn from the specified frame
+        #    b) A series drawn from any one-row-per-patient-frame
+        #    c) A series that is a Value
+
+        # first pick an "other" input series (i.e. #2 above), either a value series
+        # or a series drawn from a frame
+        other_series = draw(st.sampled_from([value, series]))
+        # Now pick a frame for the series to be drawn from
+        # The other frame will either be a new one-row-per-patient-frame or this frame
+        # (Note if the other_series is a value, the frame will be ignored)
+        other_frame = draw(st.one_of(one_row_per_patient_frame(), st.just(frame)))
+
+        # Pick the order of the lhs and rhs inputs built from the two frames and
+        # associated strategies
+        lhs_frame, lhs_input, rhs_frame, rhs_input = draw(
+            st.sampled_from(
+                [
+                    (frame, series, other_frame, other_series),
+                    (other_frame, other_series, frame, series),
+                ]
+            )
+        )
+        lhs = draw(lhs_input(lhs_type, lhs_frame))
+        rhs = draw(rhs_input(rhs_type, rhs_frame))
+
         return operator_func(lhs, rhs)
 
     def any_type():
@@ -222,12 +283,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             source = draw(filter_(source))
         return source
 
-    def one_row_per_patient_frame_or(frame):
-        if is_one_row_per_patient_frame(frame):
-            return st.just(frame)
-        # Order matters: "simpler" first (see header comment)
-        return st.one_of(one_row_per_patient_frame(), st.just(frame))
-
     def select_table():
         return st.builds(SelectTable, st.sampled_from(event_tables), st.just(schema))
 
@@ -257,7 +312,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def valid_variable(draw):
         type_ = draw(any_type())
         frame = draw(one_row_per_patient_frame())
-        return draw(series(type_, frame).filter(uses_the_database))
+        return draw(series(type_, frame))
 
     return valid_variable()
 
@@ -276,17 +331,6 @@ known_missing_operations = {
     AggregateByPatient.Sum,
     Function.CastToFloat,
     Function.CastToInt,
-    Function.YearFromDate,
-    Function.MonthFromDate,
-    Function.DayFromDate,
-    Function.ToFirstOfYear,
-    Function.ToFirstOfMonth,
-    Function.DateAddYears,
-    Function.DateAddMonths,
-    Function.DateAddDays,
-    Function.DateDifferenceInYears,
-    Function.DateDifferenceInMonths,
-    Function.DateDifferenceInDays,
 }
 
 
@@ -302,11 +346,6 @@ def assert_includes_all_operations(operations):  # pragma: no cover
     assert (
         not unexpected_present
     ), f"unexpectedly seen operations: {[o.__name__ for o in unexpected_present]}"
-
-
-def uses_the_database(v):
-    database_uses = [SelectPatientTable, SelectTable]
-    return any(t in database_uses for t in node_types(v))
 
 
 def is_one_row_per_patient_frame(frame):
