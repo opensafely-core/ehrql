@@ -283,6 +283,14 @@ To generate this file, run:
 
     just generate-docs
 
+### Updating the main OpenSAFELY documentation repository
+
+:warning: Currently, changes made to the documentation in Data Builder's repository will bedeployed whenever any pull request in the main [documentation](https://github.com/opensafely/documentation) repository is next merged.
+
+We intend to implement automated deployment
+which redeploys the documentation whenever a new version of Data Builder is published;
+see the [relevant issue](https://github.com/opensafely/documentation/issues/1108).
+
 ### Making changes to the dataset definition snippets
 
 These snippets are separate from the tutorial examples in `databuilder/ehrql-tutorial-examples`.
@@ -310,10 +318,3 @@ then it could be included in the documentation Markdown source via:
 ;--8<-- 'databuilder/snippets/hello.py:print'
 ```
 ````
-
-## Updating Data Builder backend, contract and reference documentation
-
-If a new Data Builder version is released that updates Data Builder's backend, contract and reference documentation,
-there should be an automated pull request opened in the documentation repository to keep it synchronised.
-
-See the [documentation repository's installation notes](https://github.com/opensafely/documentation/blob/main/INSTALL.md).
