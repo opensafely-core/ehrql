@@ -13,7 +13,6 @@ from databuilder.query_model.nodes import (
     SelectTable,
     Sort,
     Value,
-    node_types,
 )
 from tests.lib.query_model_utils import get_all_operations
 
@@ -313,7 +312,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def valid_variable(draw):
         type_ = draw(any_type())
         frame = draw(one_row_per_patient_frame())
-        return draw(series(type_, frame).filter(uses_the_database))
+        return draw(series(type_, frame))
 
     return valid_variable()
 
@@ -347,11 +346,6 @@ def assert_includes_all_operations(operations):  # pragma: no cover
     assert (
         not unexpected_present
     ), f"unexpectedly seen operations: {[o.__name__ for o in unexpected_present]}"
-
-
-def uses_the_database(v):
-    database_uses = [SelectPatientTable, SelectTable]
-    return any(t in database_uses for t in node_types(v))
 
 
 def is_one_row_per_patient_frame(frame):
