@@ -315,6 +315,6 @@ then it could be included in the documentation Markdown source via:
 
 ````
 ```python
-;--8<-- 'databuilder/snippets/hello.py:print'
+--8<-- 'databuilder/snippets/hello.py:print'
 ```
 ````
