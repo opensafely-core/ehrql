@@ -31,7 +31,5 @@ class patients(PatientFrame):
         datetime.date,
         description=(
             "Patient's year and month of death, provided in format YYYY-MM-01. "
-            "The day will always be the first of the month."
         ),
-        constraints=[Constraint.FirstOfMonth()],
     )
