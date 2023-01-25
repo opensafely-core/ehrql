@@ -276,6 +276,16 @@ It can also be built as a standalone documentation site with MkDocs to preview c
 We aim to improve this in future.
 See the [relevant issue](https://github.com/opensafely-core/databuilder/issues/978).
 
+### Using includes from the parent documentation
+
+The most likely use case is including the `glossary.md` from the parent documentation.
+
+To do so, use a slightly different snippet syntax:
+
+```
+!!! parent_snippet:'includes/glossary.md'
+```
+
 ### Generating data for documentation
 
 Some Data Builder [documentation](https://github.com/opensafely/documentation) is generated from code in this repo.
