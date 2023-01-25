@@ -229,7 +229,7 @@ update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
 
 docs-serve: devenv
-    BACKEND_DOCS_FILE=docs/public_docs.json mkdocs serve
+    BACKEND_DOCS_FILE=docs/public_docs.json "$BIN"/mkdocs serve
 
 # Run the snippet tests
 docs-test: devenv
@@ -280,7 +280,7 @@ docs-build-dataset-definitions-outputs: devenv
       # By convention, we name dataset definition as: IDENTIFIER_DATASOURCENAME_dataset_definition.py
       DATASOURCENAME=`echo "$f" | cut -d'_' -f2`
       FILENAME="$(basename "$f" .py).csv"
-      $BIN/python -m databuilder generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/" --output "./docs/ehrql-tutorial-examples/outputs/$FILENAME"
+      "$BIN"/python -m databuilder generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/" --output "./docs/ehrql-tutorial-examples/outputs/$FILENAME"
     done
 
 # Requires OpenSAFELY CLI and Docker installed.

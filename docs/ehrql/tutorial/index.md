@@ -182,7 +182,7 @@ To run this dataset definition with Data Builder,
     In general, the command to run a dataset defintion looks like:
 
     ```
-    opensafely exec databuilder:v0 generate-dataset "IDENTIFIER_DATASOURCENAME_dataset_definition.py --dummy-tables "example-data/DATASOURCENAME/" --output "outputs.csv"
+    opensafely exec databuilder:v0 generate-dataset "IDENTIFIER_DATASOURCENAME_dataset_definition.py" --dummy-tables "example-data/DATASOURCENAME/" --output "outputs.csv"
     ```
 
     You need to substitute `DATASOURCENAME` with the appropriate dataset name,

@@ -253,7 +253,7 @@ To do this:
 If using Community Edition, you will need to follow the instructions the command outputs to complete the cleanup process, as we cannot fully automate it from the cli.
 
 
-### Static Type Checking
+## Static Type Checking
 We previously used [mypy](https://mypy.readthedocs.io/en/stable/) and type annotations to perform correctness checking of the code base.
 However, we made the decision to remove this stack after finding it was not a good fit for large parts of the code base.
 
@@ -263,6 +263,28 @@ And developers should feel free to use them wherever this aids clarity vs a docs
 
 Dataclasses have also retained their annotations to avoid initialising all fields with None.
 
+
+## Documentation
+
+The documentation in this repository forms part of the main [OpenSAFELY documentation](https://github.com/opensafely/documentation).
+
+It can also be built as a standalone documentation site with MkDocs to preview content changes, by running:
+
+    just docs-serve
+
+:warning: The documentation will look considerably different from OpenSAFELY's.
+We aim to improve this in future.
+See the [relevant issue](https://github.com/opensafely-core/databuilder/issues/978).
+
+### Using includes from the parent documentation
+
+The most likely use case is including the `glossary.md` from the parent documentation.
+
+To do so, use a slightly different snippet syntax:
+
+```
+!!! parent_snippet:'includes/glossary.md'
+```
 
 ### Generating data for documentation
 
@@ -276,3 +298,39 @@ An intermediate step generates a JSON file (`public_docs.json`) containing the d
 To generate this file, run:
 
     just generate-docs
+
+### Updating the main OpenSAFELY documentation repository
+
+:warning: Currently, changes made to the documentation in Data Builder's repository will be deployed whenever any pull request in the main [documentation](https://github.com/opensafely/documentation) repository is next merged.
+
+We intend to implement automated deployment
+which redeploys the documentation whenever a new version of Data Builder is published;
+see the [relevant issue](https://github.com/opensafely/documentation/issues/1108).
+
+### Making changes to the dataset definition snippets
+
+These snippets are separate from the tutorial examples in `databuilder/ehrql-tutorial-examples`.
+There is a separate README in that directory that explains how those tutorial examples work.
+We may eventually unify the tutorial examples with the snippet
+so that all example code is checked in the same way.
+
+Edit the python modules in the `databuilder/snippets` directory.
+
+Examples are included in the markdown files using the [pymdown snippet notation](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/#snippets-notation).
+
+Each of the snippets sections in each snippet Python source file are bounded by markers:
+
+```python
+# --8<-- [start:print]
+print("hello world")
+# --8<-- [end:print]
+```
+
+If this example was stored as `databuilder/snippets/hello.py`,
+then it could be included in the documentation Markdown source via:
+
+````
+```python
+--8<-- 'databuilder/snippets/hello.py:print'
+```
+````
