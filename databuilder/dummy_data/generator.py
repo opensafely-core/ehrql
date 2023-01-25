@@ -173,7 +173,7 @@ class DummyPatientGenerator:
         }
         # Apply any FirstOfMonth constraints
         for key, value in row.items():
-            if key in table_info.columns:
+            if key in table_info.columns and value is not None:
                 if table_info.columns[key].get_constraint(Constraint.FirstOfMonth):
                     row[key] = value.replace(day=1)
         return [row]
