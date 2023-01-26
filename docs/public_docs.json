@@ -832,7 +832,7 @@
           "columns": [
             {
               "name": "date_of_birth",
-              "description": "Patient's year and month of birth, provided in format YYYY-MM-01. The day will always be the first of the month.",
+              "description": "Patient's date of birth, rounded to first of month",
               "type": "date",
               "constraints": [
                 "Must be the first day of a month",
@@ -841,7 +841,7 @@
             },
             {
               "name": "sex",
-              "description": "Patient's sex as defined by the options: male, female, intersex, unknown.",
+              "description": "Patient's sex",
               "type": "str",
               "constraints": [
                 "Must have a value",
@@ -850,11 +850,9 @@
             },
             {
               "name": "date_of_death",
-              "description": "Patient's year and month of death, provided in format YYYY-MM-01. The day will always be the first of the month.",
+              "description": "Patient's date of death",
               "type": "date",
-              "constraints": [
-                "Must be the first day of a month"
-              ]
+              "constraints": []
             }
           ]
         },
@@ -1059,7 +1057,7 @@
           "columns": [
             {
               "name": "date_of_birth",
-              "description": "Patient's year and month of birth, provided in format YYYY-MM-01. The day will always be the first of the month.",
+              "description": "Patient's date of birth, rounded to first of month",
               "type": "date",
               "constraints": [
                 "Must be the first day of a month",
@@ -1068,7 +1066,7 @@
             },
             {
               "name": "sex",
-              "description": "Patient's sex as defined by the options: male, female, intersex, unknown.",
+              "description": "Patient's sex",
               "type": "str",
               "constraints": [
                 "Must have a value",
@@ -1077,11 +1075,9 @@
             },
             {
               "name": "date_of_death",
-              "description": "Patient's year and month of death, provided in format YYYY-MM-01. The day will always be the first of the month.",
+              "description": "Patient's date of death",
               "type": "date",
-              "constraints": [
-                "Must be the first day of a month"
-              ]
+              "constraints": []
             }
           ]
         },
@@ -1119,7 +1115,7 @@
       "columns": [
         {
           "name": "date_of_birth",
-          "description": "Patient's year and month of birth, provided in format YYYY-MM-01. The day will always be the first of the month.",
+          "description": "Patient's date of birth, rounded to first of month",
           "type": "date",
           "constraints": [
             "Must be the first day of a month",
@@ -1128,7 +1124,7 @@
         },
         {
           "name": "sex",
-          "description": "Patient's sex as defined by the options: male, female, intersex, unknown.",
+          "description": "Patient's sex",
           "type": "str",
           "constraints": [
             "Must have a value",
@@ -1137,11 +1133,9 @@
         },
         {
           "name": "date_of_death",
-          "description": "Patient's year and month of death, provided in format YYYY-MM-01. The day will always be the first of the month.",
+          "description": "Patient's date of death",
           "type": "date",
-          "constraints": [
-            "Must be the first day of a month"
-          ]
+          "constraints": []
         }
       ],
       "contract_support": []
