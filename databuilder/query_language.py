@@ -608,10 +608,14 @@ class EventFrame(BaseFrame):
 
 class SortedEventFrame(BaseFrame):
     def take(self, series):
+        # Filter a SortedEventFrame by returning a new SortedEventFrame with the filter and
+        # the existing sort conditions applied
         return SortedEventFrame(
-            qm.Filter(
-                source=self.qm_node,
-                condition=_convert(series),
+            qm.Sort(
+                source=qm.Filter(
+                    source=self.qm_node.source, condition=_convert(series)
+                ),
+                sort_by=self.qm_node.sort_by,
             )
         )
 
