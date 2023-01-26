@@ -1,6 +1,6 @@
 site_name: OpenSAFELY Data Builder documentation
 repo_url: https://github.com/opensafely-core/databuilder
-docs_dir: docs/mkdocs
+docs_dir: mkdocs
 
 nav:
   - Home: toc.md
@@ -12,7 +12,7 @@ theme:
 
 
 watch:
-  - docs/mkdocs
+  - mkdocs
 
 
 plugins:
