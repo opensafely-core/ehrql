@@ -207,7 +207,7 @@ class Sort(ManyRowsPerPatientFrame):
 
 
 class PickOneRowPerPatient(OneRowPerPatientFrame):
-    source: Sort
+    source: ManyRowsPerPatientFrame
     position: Position
 
 

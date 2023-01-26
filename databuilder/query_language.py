@@ -607,6 +607,14 @@ class EventFrame(BaseFrame):
 
 
 class SortedEventFrame(BaseFrame):
+    def take(self, series):
+        return SortedEventFrame(
+            qm.Filter(
+                source=self.qm_node,
+                condition=_convert(series),
+            )
+        )
+
     def first_for_patient(self):
         return PatientFrame(
             qm.PickOneRowPerPatient(
