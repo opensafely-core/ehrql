@@ -49,14 +49,14 @@ We will use a simple dataset definition that we have already seen.
 ???+ example "Dataset definition: `1a_minimal_dataset_definition.py`"
 
     ```python title="1a_minimal_dataset_definition.py"
-    ---8<-- "../ehrql-tutorial-examples/1a_minimal_dataset_definition.py"
+    ---8<-- "ehrql-tutorial-examples/1a_minimal_dataset_definition.py"
     ```
 
 ### The `minimal` data source
 
 ???+ example "Data table: `minimal/patients.csv`"
 
-    {{ read_csv('../ehrql-tutorial-examples/example-data/minimal/patients.csv') }}
+    {{ read_csv('ehrql-tutorial-examples/example-data/minimal/patients.csv') }}
 
 ### The `project.yaml`
 
@@ -67,7 +67,7 @@ Using Data Builder in a `project.yaml` is much like working with other OpenSAFEL
 ???+ example "Project pipeline: `project.yaml`"
 
     ```yaml
-    ---8<-- "../ehrql-tutorial-examples/project.yaml"
+    ---8<-- "ehrql-tutorial-examples/project.yaml"
     ```
 
 ### Running the `project.yaml`
