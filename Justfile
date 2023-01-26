@@ -190,7 +190,7 @@ test-generative *ARGS: devenv
 
 # Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
 # (The `@` prefix means that the script is echoed first for debugging purposes.)
-@test-all *ARGS: devenv generate-docs
+@test-all *ARGS: devenv docs-generate
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -221,7 +221,7 @@ databricks-test *ARGS: devenv databricks-env
     export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
     just test {{ ARGS }}
 
-generate-docs OUTPUT_FILE="docs/public_docs.json": devenv
+docs-generate OUTPUT_FILE="docs/public_docs.json": devenv
     $BIN/python -m databuilder.docs > {{ OUTPUT_FILE }}
     echo "Generated data for documentation."
 
@@ -295,7 +295,7 @@ docs-build-dataset-definitions-outputs-docker-project:
 
 
 # Check the dataset public docs are current
-docs-check-public-docs-are-current: generate-docs
+docs-check-public-docs-are-current: docs-generate
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -303,6 +303,6 @@ docs-check-public-docs-are-current: generate-docs
     then
       echo "public_docs.json is current."
     else
-      echo "public_docs.json is not current; run `just generate-docs` to update."
+      echo "public_docs.json is not current; run `just docs-generate` to update."
       exit 1
     fi

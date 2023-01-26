@@ -297,7 +297,7 @@ An intermediate step generates a JSON file (`public_docs.json`) containing the d
 
 To generate this file, run:
 
-    just generate-docs
+    just docs-generate
 
 ### Updating the main OpenSAFELY documentation repository
 
