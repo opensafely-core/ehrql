@@ -721,6 +721,24 @@
               "description": "",
               "type": "date",
               "constraints": []
+            },
+            {
+              "name": "visit_num",
+              "description": "",
+              "type": "int",
+              "constraints": []
+            },
+            {
+              "name": "is_opted_out_of_nhs_data_share",
+              "description": "",
+              "type": "bool",
+              "constraints": []
+            },
+            {
+              "name": "last_linkage_dt",
+              "description": "",
+              "type": "date",
+              "constraints": []
             }
           ]
         },

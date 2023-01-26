@@ -17,6 +17,7 @@ __all__ = [
     "emergency_care_attendances",
     "hospital_admissions",
     "appointments",
+    "ons_cis",
 ]
 
 
@@ -193,3 +194,6 @@ class ons_cis(EventFrame):
     """
 
     visit_date = Series(datetime.date)
+    visit_num = Series(int)
+    is_opted_out_of_nhs_data_share = Series(bool)
+    last_linkage_dt = Series(datetime.date)
