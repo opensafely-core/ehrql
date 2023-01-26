@@ -229,7 +229,7 @@ update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
 
 docs-serve: devenv
-    BACKEND_DOCS_FILE=docs/public_docs.json "$BIN"/mkdocs serve -f "docs/mkdocs.yml"
+    BACKEND_DOCS_FILE=docs/public_docs.json "$BIN"/mkdocs serve
 
 # Run the snippet tests
 docs-test: devenv
