@@ -17,9 +17,7 @@ watch:
 
 plugins:
   - mkdocs-opensafely-databuilder
-  - table-reader:
-      base_path: "docs_dir"
-
+  - table-reader
 
 markdown_extensions:
   - pymdownx.snippets:
