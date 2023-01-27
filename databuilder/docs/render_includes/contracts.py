@@ -15,7 +15,6 @@ def render_contracts(contracts_data):
     outputs = []
 
     for contract in contracts_data:
-
         hierarchy = [h.title() for h in contract["hierarchy"]]
         name = "/".join([*hierarchy, contract["name"]])
         docstring = "\n".join(contract["docstring"])

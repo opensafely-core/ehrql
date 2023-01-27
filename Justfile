@@ -221,14 +221,14 @@ databricks-test *ARGS: devenv databricks-env
     export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
     just test {{ ARGS }}
 
-generate-docs OUTPUT_FILE="docs/public_docs.json": devenv
-    $BIN/python -m databuilder.docs > {{ OUTPUT_FILE }}
-    echo "Generated data for documentation."
+generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
+    $BIN/python -m databuilder.docs {{ OUTPUT_DIR }}
+    echo "Generated data for documentation in {{ OUTPUT_DIR }}"
 
 update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
 
-docs-serve: devenv
+docs-serve: devenv generate-docs
     BACKEND_DOCS_FILE=docs/public_docs.json "$BIN"/mkdocs serve
 
 # Run the snippet tests
