@@ -286,7 +286,9 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     # consistent with the source.
     def any_frame():
         # Order matters: "simpler" first (see header comment)
-        return st.one_of(one_row_per_patient_frame(), many_rows_per_patient_frame())
+        return st.one_of(
+            one_row_per_patient_frame(), many_rows_per_patient_frame(), sorted_frame()
+        )
 
     def one_row_per_patient_frame():
         return select_patient_table()
@@ -297,6 +299,11 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         for _ in range(draw(st.integers(min_value=0, max_value=6))):
             source = draw(filter_(source))
         return source
+
+    @st.composite
+    def sorted_frame(draw):
+        source = draw(many_rows_per_patient_frame())
+        return draw(sort(source))
 
     def select_table():
         return st.builds(SelectTable, st.sampled_from(event_tables), st.just(schema))
@@ -310,6 +317,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def filter_(draw, source):
         condition = draw(series(bool, draw(ancestor_of(source))))
         return Filter(source, condition)
+
+    @st.composite
+    def sort(draw, source):
+        type_ = draw(comparable_type())
+        sort_by = draw(series(type_, source))
+        return Sort(source, sort_by)
 
     @st.composite
     def ancestor_of(draw, frame):
@@ -339,7 +352,6 @@ known_missing_operations = {
     Function.StringContains,
 } | {
     Case,
-    Sort,
     PickOneRowPerPatient,
     AggregateByPatient.Max,
     AggregateByPatient.Min,
