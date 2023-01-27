@@ -21,8 +21,8 @@ jobs:
           python-version: "3.9"
           cache-dependency-path: requirements.*.txt
 
-      - name: Check public docs are up-to-date
-        run: just docs-check-public-docs-are-current
+      - name: Check generated docs are up-to-date
+        run: just docs-check-generated-docs-are-current
 
       - name: Check snippets work
         run: just docs-test
