@@ -70,6 +70,9 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             select_column: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
             exists: ({bool}, DomainConstraint.PATIENT),
             count: ({int}, DomainConstraint.PATIENT),
+            min_: (comparable_types(), DomainConstraint.PATIENT),
+            max_: (comparable_types(), DomainConstraint.PATIENT),
+            sum_: ({int, float}, DomainConstraint.PATIENT),
             is_null: ({bool}, DomainConstraint.ANY),
             not_: ({bool}, DomainConstraint.ANY),
             year_from_date: ({int}, DomainConstraint.ANY),
@@ -126,6 +129,22 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def count(_type, _frame):
         return st.builds(AggregateByPatient.Count, any_frame())
 
+    def min_(type_, _frame):
+        return aggregation_operation(type_, AggregateByPatient.Min)
+
+    def max_(type_, _frame):
+        return aggregation_operation(type_, AggregateByPatient.Max)
+
+    def sum_(type_, _frame):
+        return aggregation_operation(type_, AggregateByPatient.Sum)
+
+    @st.composite
+    def aggregation_operation(draw, type_, aggregation):
+        # An aggregation operation that returns a patient frame but takes a
+        # series drawn from a many-rows-per-patient frame
+        frame = draw(many_rows_per_patient_frame())
+        return aggregation(draw(series(type_, frame)))
+
     @st.composite
     def is_null(draw, _type, frame):
         type_ = draw(any_type())
@@ -180,22 +199,22 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     @st.composite
     def lt(draw, _type, frame):
-        type_ = draw(comparable_type())
+        type_ = draw(any_comparable_type())
         return draw(binary_operation(type_, frame, Function.LT))
 
     @st.composite
     def gt(draw, _type, frame):
-        type_ = draw(comparable_type())
+        type_ = draw(any_comparable_type())
         return draw(binary_operation(type_, frame, Function.GT))
 
     @st.composite
     def le(draw, _type, frame):
-        type_ = draw(comparable_type())
+        type_ = draw(any_comparable_type())
         return draw(binary_operation(type_, frame, Function.LE))
 
     @st.composite
     def ge(draw, _type, frame):
-        type_ = draw(comparable_type())
+        type_ = draw(any_comparable_type())
         return draw(binary_operation(type_, frame, Function.GE))
 
     def add(type_, frame):
@@ -271,8 +290,11 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def any_numeric_type():
         return st.sampled_from([int, float])
 
-    def comparable_type():
-        return st.sampled_from(list(set(value_strategies.keys()) - {bool}))
+    def comparable_types():
+        return set(value_strategies.keys()) - {bool}
+
+    def any_comparable_type():
+        return st.sampled_from(list(comparable_types()))
 
     # Frame strategies
     #
@@ -332,7 +354,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     @st.composite
     def sort(draw, source):
-        type_ = draw(comparable_type())
+        type_ = draw(any_comparable_type())
         sort_by = draw(series(type_, draw(ancestor_of(source))))
         return Sort(source, sort_by)
 
@@ -364,9 +386,6 @@ known_missing_operations = {
     Function.StringContains,
 } | {
     Case,
-    AggregateByPatient.Max,
-    AggregateByPatient.Min,
-    AggregateByPatient.Sum,
 }
 
 
