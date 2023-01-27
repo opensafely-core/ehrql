@@ -76,6 +76,8 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             day_from_date: ({int}, DomainConstraint.ANY),
             to_first_of_year: ({datetime.date}, DomainConstraint.ANY),
             to_first_of_month: ({datetime.date}, DomainConstraint.ANY),
+            cast_to_float: ({float}, DomainConstraint.ANY),
+            cast_to_int: ({int}, DomainConstraint.ANY),
             negate: ({int, float}, DomainConstraint.ANY),
             eq: ({bool}, DomainConstraint.ANY),
             ne: ({bool}, DomainConstraint.ANY),
@@ -145,6 +147,16 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     def to_first_of_month(_type, frame):
         return st.builds(Function.ToFirstOfMonth, series(datetime.date, frame))
+
+    @st.composite
+    def cast_to_float(draw, _type, frame):
+        type_ = draw(any_numeric_type())
+        return Function.CastToFloat(draw(series(type_, frame)))
+
+    @st.composite
+    def cast_to_int(draw, type_, frame):
+        type_ = draw(any_numeric_type())
+        return Function.CastToInt(draw(series(type_, frame)))
 
     def negate(type_, frame):
         return st.builds(Function.Negate, series(type_, frame))
@@ -255,6 +267,9 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def any_type():
         return st.sampled_from(list(value_strategies.keys()))
 
+    def any_numeric_type():
+        return st.sampled_from([int, float])
+
     def comparable_type():
         return st.sampled_from(list(set(value_strategies.keys()) - {bool}))
 
@@ -329,8 +344,6 @@ known_missing_operations = {
     AggregateByPatient.Max,
     AggregateByPatient.Min,
     AggregateByPatient.Sum,
-    Function.CastToFloat,
-    Function.CastToInt,
 }
 
 
