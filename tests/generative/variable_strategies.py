@@ -127,6 +127,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             date_difference_in_years: ({int}, DomainConstraint.ANY),
             date_difference_in_months: ({int}, DomainConstraint.ANY),
             date_difference_in_days: ({int}, DomainConstraint.ANY),
+            case: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
         }
         series_types = series_constraints.keys()
 
@@ -276,6 +277,17 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     def date_difference_in_days(type_, frame):
         return binary_operation(datetime.date, frame, Function.DateDifferenceInDays)
+
+    @st.composite
+    def case(draw, type_, frame):
+        # case takes a mapping argument which is a dict where:
+        #   - keys are a bool series
+        #   - values are either a series or Value of `type_`
+        # It also takes a default, which can be None or a Value or series of `type_`
+        values = st.one_of(value(type_, frame), series(type_, frame))
+        mapping = st.dictionaries(series(bool, frame), values, min_size=1, max_size=3)
+        default = st.one_of(st.none(), value(type_, frame), series(type_, frame))
+        return Case(draw(mapping), draw(default))
 
     def binary_operation(type_, frame, operator_func, allow_value=True):
         # A strategy for operations that take lhs and rhs arguments of the
@@ -428,13 +440,10 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     return valid_variable()
 
 
-# The second set is a temporary list of node types not covered by the new query generation approach.
 known_missing_operations = {
     AggregateByPatient.CombineAsSet,
     Function.In,
     Function.StringContains,
-} | {
-    Case,
 }
 
 
