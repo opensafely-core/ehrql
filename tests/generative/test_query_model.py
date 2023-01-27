@@ -189,6 +189,15 @@ IGNORED_ERRORS = [
     # SQLite raises a parser stack overflow error if the variable strategy generates queries
     # that result in many nested queries
     (sqlalchemy.exc.OperationalError, re.compile(".+parser stack overflow")),
+    # mssql raises this error when the number of identifiers and constants contained in a single
+    # expression is > 65,535.
+    # https://learn.microsoft.com/en-US/sql/relational-databases/errors-events/mssqlserver-8632-database-engine-error?view=sql-server-ver16
+    # The variable strategy may produce this when it stacks many date operations on top of one
+    # another.  It's unlikely a real query would produce this.
+    (
+        sqlalchemy.exc.OperationalError,
+        re.compile(".+Internal error: An expression services limit has been reached.+"),
+    ),
     # OUT-OF-RANGE DATES
     # The variable strategy will sometimes result in date operations that construct
     # invalid dates (e.g. a large positive or negative integer in a DateAddYears operation
