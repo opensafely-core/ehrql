@@ -8,6 +8,7 @@ from databuilder.query_model.nodes import (
     Filter,
     Function,
     PickOneRowPerPatient,
+    Position,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
@@ -287,7 +288,10 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def any_frame():
         # Order matters: "simpler" first (see header comment)
         return st.one_of(
-            one_row_per_patient_frame(), many_rows_per_patient_frame(), sorted_frame()
+            one_row_per_patient_frame(),
+            many_rows_per_patient_frame(),
+            sorted_frame(),
+            pick_one_row_per_patient_frame(),
         )
 
     def one_row_per_patient_frame():
@@ -304,6 +308,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def sorted_frame(draw):
         source = draw(many_rows_per_patient_frame())
         return draw(sort(source))
+
+    @st.composite
+    def pick_one_row_per_patient_frame(draw):
+        source = draw(sorted_frame())
+        sort_order = draw(st.sampled_from([Position.FIRST, Position.LAST]))
+        return PickOneRowPerPatient(source, sort_order)
 
     def select_table():
         return st.builds(SelectTable, st.sampled_from(event_tables), st.just(schema))
@@ -352,7 +362,6 @@ known_missing_operations = {
     Function.StringContains,
 } | {
     Case,
-    PickOneRowPerPatient,
     AggregateByPatient.Max,
     AggregateByPatient.Min,
     AggregateByPatient.Sum,
@@ -374,4 +383,4 @@ def assert_includes_all_operations(operations):  # pragma: no cover
 
 
 def is_one_row_per_patient_frame(frame):
-    return isinstance(frame, SelectPatientTable)
+    return isinstance(frame, (SelectPatientTable, PickOneRowPerPatient))
