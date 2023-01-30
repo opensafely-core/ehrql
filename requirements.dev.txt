@@ -186,9 +186,9 @@ interrogate==1.5.0 \
     --hash=sha256:a4ccc5cbd727c74acc98dee6f5e79ef264c0bcfa66b68d4e123069b2af89091a \
     --hash=sha256:b6f325f0aa84ac3ac6779d8708264d366102226c5af7d69058cecffcff7a6d6c
     # via -r requirements.dev.in
-isort==5.11.4 \
-    --hash=sha256:6db30c5ded9815d813932c04c2f85a360bcdd35fed496f4d8f35495ef0a261b6 \
-    --hash=sha256:c033fd0edb91000a7f09527fe5c75321878f98322a77ddcc81adbd83724afb7b
+isort==5.12.0 \
+    --hash=sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504 \
+    --hash=sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6
     # via -r requirements.dev.in
 jinja2==3.1.2 \
     --hash=sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852 \
