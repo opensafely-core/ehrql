@@ -359,13 +359,13 @@ pep517==0.12.0 \
     --hash=sha256:931378d93d11b298cf511dd634cf5ea4cb249a28ef84160b3247ee9afb4e8ab0 \
     --hash=sha256:dd884c326898e2c6e11f9e0b64940606a93eb10ea022a2e067959f3a110cf161
     # via build
-pip==22.1.2 \
-    --hash=sha256:6d55b27e10f506312894a87ccc59f280136bad9061719fac9101bdad5a6bce69 \
-    --hash=sha256:a3edacb89022ef5258bf61852728bf866632a394da837ca49eb4303635835f17
+pip==22.3.1 \
+    --hash=sha256:65fd48317359f3af8e593943e6ae1506b66325085ea64b706a998c6e83eeaf38 \
+    --hash=sha256:908c78e6bc29b676ede1c4d57981d490cb892eb45cd8c214ab6298125119e077
     # via pip-tools
-pip-tools==6.10.0 \
-    --hash=sha256:57ac98392548f5ca96c2831927deec3035efe81ff476e3c744bd474ca9c6a1f2 \
-    --hash=sha256:7f9f7356052db6942b5aaabc8eba29983591ca0ad75affbf2f0a25d9361be624
+pip-tools==6.12.1 \
+    --hash=sha256:88efb7b29a923ffeac0713e6f23ef8529cc6175527d42b93f73756cc94387293 \
+    --hash=sha256:f0c0c0ec57b58250afce458e2e6058b1f30a4263db895b7d72fd6311bf1dc6f7
     # via -r requirements.dev.in
 platformdirs==2.5.2 \
     --hash=sha256:027d8e83a2d7de06bbac4e5ef7e023c02b863d7ea5d079477e722bb41ab25788 \
@@ -594,13 +594,13 @@ requests==2.28.1 \
     # via
     #   databricks-cli
     #   docker
+    #   mkdocs-material
 setuptools==63.1.0 \
     --hash=sha256:16923d366ced322712c71ccb97164d07472abeecd13f3a6c283f6d5d26722793 \
     --hash=sha256:db3b8e2f922b2a910a29804776c643ea609badb6a32c4bcc226fd4fd902cce65
     # via
     #   nodeenv
     #   pip-tools
-    #   mkdocs-material
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
