@@ -260,9 +260,9 @@ mkdocs==1.4.2 \
     #   -r requirements.dev.in
     #   mkdocs-material
     #   mkdocs-table-reader-plugin
-mkdocs-material==9.0.3 \
-    --hash=sha256:918fe38f504ca397b388b6c45445c22cb9acab61f00ade78d5f3edf299b6c9df \
-    --hash=sha256:cedbbf84e156370489907d3c5b79999fcf6563f61a96965ec4c2513d303fa706
+mkdocs-material==9.0.8 \
+    --hash=sha256:03f8a2249627efb91a57d9f4a4e298d2d61d6e65fe2a864cc5961dc540bdd540 \
+    --hash=sha256:268e7aab0b8585352400b4e93bfe4efd0ca213005d7bae1a0ec69b7ded205fcd
     # via -r requirements.dev.in
 mkdocs-material-extensions==1.1.1 \
     --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
@@ -405,9 +405,9 @@ pyjwt==2.4.0 \
     --hash=sha256:72d1d253f32dbd4f5c88eaf1fdc62f3a19f676ccbadb9dbc5d07e951b2b26daf \
     --hash=sha256:d42908208c699b3b973cbeb01a969ba6a96c821eefb1c5bfe4c390c01d67abba
     # via databricks-cli
-pymdown-extensions==9.9 \
-    --hash=sha256:0f8fb7b74a37a61cc34e90b2c91865458b713ec774894ffad64353a5fce85cfc \
-    --hash=sha256:ac698c15265680db5eb13cd4342abfcde2079ac01e5486028f47a1b41547b859
+pymdown-extensions==9.9.2 \
+    --hash=sha256:c3d804eb4a42b85bafb5f36436342a5ad38df03878bb24db8855a4aa8b08b765 \
+    --hash=sha256:ebb33069bafcb64d5f5988043331d4ea4929325dc678a6bcf247ddfcf96499f8
     # via mkdocs-material
 pyparsing==3.0.9 \
     --hash=sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb \
@@ -594,13 +594,13 @@ requests==2.28.1 \
     # via
     #   databricks-cli
     #   docker
+    #   mkdocs-material
 setuptools==63.1.0 \
     --hash=sha256:16923d366ced322712c71ccb97164d07472abeecd13f3a6c283f6d5d26722793 \
     --hash=sha256:db3b8e2f922b2a910a29804776c643ea609badb6a32c4bcc226fd4fd902cce65
     # via
     #   nodeenv
     #   pip-tools
-    #   mkdocs-material
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
