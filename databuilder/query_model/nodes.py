@@ -378,9 +378,15 @@ class Case(Series[T]):
     default: Optional[Series[T]] = None
 
     def __hash__(self):
-        # `cases` is a dict and so not hashable by default, but we treat it as
-        # immutable once created so we're fine to make it hashable
-        return hash((tuple(self.cases.items()), self.default))
+        # `cases` is a dict and so not naturally hashable, but we treat it as immutable.
+        # The specfic hash used below is based on a recommendation by Raymond Hettinger.
+        # It's almost certainly unnecessary to include the values and default in the
+        # hash, but given that it's all cached anyway we may as well save ourselves the
+        # trouble of thinking about it. See:
+        # https://stackoverflow.com/a/16162138
+        return hash(
+            (frozenset(self.cases), frozenset(self.cases.values()), self.default)
+        )
 
 
 # TODO: We don't currently support Join in the DSL or the Query Engine but this is the
