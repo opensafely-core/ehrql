@@ -9,6 +9,7 @@ from typing import Any, Optional, TypeVar
 
 from databuilder.codes import BaseCode
 from databuilder.query_model.table_schema import Column, Constraint, TableSchema
+from databuilder.utils.functools_utils import cached_method
 from databuilder.utils.typing_utils import get_typespec, get_typevars, type_matches
 
 # The below classes and functions are the public API surface of the query model
@@ -106,6 +107,12 @@ class Node:
     def __init_subclass__(cls, **kwargs):
         # All nodes in the query model are frozen dataclasses
         dataclasses.dataclass(cls, frozen=True)
+        # Calculating the hash of an object requires recursively calculating the hashes
+        # of its children. In a deeply nested query graph this can take some time and,
+        # given how frequently `__hash__()` is called, this can end up completely
+        # dominating Data Builder's execution time. Given that these are immutable
+        # objects we can cache the hash value instead of recalcuting it each time.
+        cls.__hash__ = cached_method(cls.__hash__)
 
     def __post_init__(self):
         # validate the things which have to be checked dynamically
