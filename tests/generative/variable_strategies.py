@@ -290,12 +290,10 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         return st.one_of(
             one_row_per_patient_frame(),
             many_rows_per_patient_frame(),
-            sorted_frame(),
-            pick_one_row_per_patient_frame(),
         )
 
     def one_row_per_patient_frame():
-        return select_patient_table()
+        return st.one_of(select_patient_table(), pick_one_row_per_patient_frame())
 
     @st.composite
     def many_rows_per_patient_frame(draw):
@@ -306,8 +304,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     @st.composite
     def sorted_frame(draw):
+        # select a table which may already have been filtered
         source = draw(many_rows_per_patient_frame())
-        return draw(sort(source))
+        # Now apply 1-3 sorts
+        for _ in range(draw(st.integers(min_value=1, max_value=3))):
+            source = draw(sort(source))
+        return source
 
     @st.composite
     def pick_one_row_per_patient_frame(draw):
@@ -331,7 +333,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     @st.composite
     def sort(draw, source):
         type_ = draw(comparable_type())
-        sort_by = draw(series(type_, source))
+        sort_by = draw(series(type_, draw(ancestor_of(source))))
         return Sort(source, sort_by)
 
     @st.composite
