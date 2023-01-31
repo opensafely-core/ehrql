@@ -1,3 +1,4 @@
+import graphlib
 import re
 
 import sqlalchemy
@@ -67,43 +68,31 @@ def get_setup_and_cleanup_queries(query):
     GeneratedTables in the correct order for execution.
     """
     # GeneratedTables can be arbitrarily nested in that their setup queries can
-    # themselves contain references to GeneratedTables and so on. So we need to
-    # recursively unpack these, taking note of a number of subtleties:
+    # themselves contain references to GeneratedTables and so on. We need to
+    # recursively unpack these and get them in the right order so that each query is
+    # only executed after its dependencies have been executed.
     #
-    #  1. We need to keep track of what level of nesting each table is at. The setup
-    #     queries for the most deeply nested tables must be run first so they exist by
-    #     the time queries for their dependant tables get run.
-    #
-    #  2. The same table can occur at multiple levels of nesting so we need to track the
-    #     highest level for each table.
-    #
-    #  3. By construction there can be no cycles in this graph *except* that each
-    #     table's setup queries will contain a reference to itself (as part of a "create
-    #     this table" statement). This means we need to keep track of which tables we've
-    #     seen on each given branch to avoid looping.
-    #
-    queries = [(query, 0, set())]
-    table_levels = {}
-    while queries:
-        next_query, level, seen = queries.pop(0)
-        for table in get_generated_tables(next_query):
-            if table in seen:
-                continue
-            # We may end up setting this multiple times, but if so we'll set the highest
-            # level last, which is what we want
-            table_levels[table] = level
-            # Add all of the table's setup and cleanup queries to the stack to be checked
-            queries.extend(
-                (query, level + 1, seen | {table})
-                for query in [*table.setup_queries, *table.cleanup_queries]
-            )
+    # Fortunately, Python's graphlib can do most of the work for us here. We just to
+    # give it a sequence of pairs of tables (A, B) indicating that A depends on B and it
+    # returns a suitable ordering over the tables.
+    sorter = graphlib.TopologicalSorter()
+    for parent_table, table in get_generated_table_dependencies(query):
+        # A parent_table of None indicates a root table (i.e. one with no dependants) so
+        # we record its existence without specifying any dependencies
+        if parent_table is None:
+            sorter.add(table)
+        # An oddity of the GeneratedTable class is that instances generally hold a
+        # reference to themselves: one of the setup queries for table X will often be
+        # "create a table with the structure given by X". We ignore this apparent
+        # (though not actual) circularity.
+        elif parent_table is table:
+            pass
+        # Otherwise we record the dependency between the two tables
+        else:
+            sorter.add(parent_table, table)
 
-    # Sort tables in reverse order by level
-    tables = sorted(
-        table_levels.keys(),
-        key=table_levels.__getitem__,
-        reverse=True,
-    )
+    # Tim Peters requests that you hold his beer ...
+    tables = list(sorter.static_order())
 
     setup_queries = flatten_iter(t.setup_queries for t in tables)
     # Concatenate cleanup queries into one list, but in reverse order to that which we
@@ -115,9 +104,32 @@ def get_setup_and_cleanup_queries(query):
     return setup_queries, cleanup_queries
 
 
+def get_generated_table_dependencies(query, parent_table=None, seen_tables=None):
+    """
+    Recursively find all GeneratedTable objects referenced by `query` and yield as pairs
+    of dependencies:
+
+        table_X, table_Y_which_is_referenced_by_X
+
+    Note that the same table may appear multiple times in this sequence.
+    """
+    if seen_tables is None:
+        seen_tables = set()
+
+    for table in get_generated_tables(query):
+        yield parent_table, table
+        # Don't recurse into the same table twice
+        if table not in seen_tables:
+            seen_tables.add(table)
+            for child_query in [*table.setup_queries, *table.cleanup_queries]:
+                yield from get_generated_table_dependencies(
+                    child_query, parent_table=table, seen_tables=seen_tables
+                )
+
+
 def get_generated_tables(clause):
     """
-    Return any GeneratedTable objects referenced by a SQLAlchemy ClauseElement
+    Return any GeneratedTable objects directly referenced by a SQLAlchemy ClauseElement
     """
     return [elem for elem in iterate(clause) if isinstance(elem, GeneratedTable)]
 
