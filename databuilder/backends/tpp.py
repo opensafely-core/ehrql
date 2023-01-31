@@ -224,3 +224,28 @@ class TPPBackend(BaseBackend):
             last_linkage_dt="last_linkage_dt",
         ),
     )
+
+    isaric = QueryTable(
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                age,
+                "age.factor" AS age_factor,
+                calc_age,
+                sex,
+                ethnic,
+                corona_ieorres,
+                coriona_ieorres2,
+                coriona_ieorres3,
+                inflammatory_mss,
+                covid19_vaccine,
+                covid19_vaccined,
+                covid19_vaccined_nk,
+                hostdat,
+                readm_cov19,
+                hooccur,
+                hostdat_transfer,
+                hostdat_transfernk
+            FROM ISARIC_New
+        """
+    )

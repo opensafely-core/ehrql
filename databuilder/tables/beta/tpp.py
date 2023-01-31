@@ -18,6 +18,7 @@ __all__ = [
     "hospital_admissions",
     "appointments",
     "ons_cis",
+    "isaric",
 ]
 
 
@@ -197,3 +198,38 @@ class ons_cis(EventFrame):
     visit_num = Series(int)
     is_opted_out_of_nhs_data_share = Series(bool)
     last_linkage_dt = Series(datetime.date)
+
+
+@table
+class isaric(EventFrame):
+    """
+    A subset of the ISARIC data.
+
+    These columns are deliberately all taken as strings while in a preliminary phase.
+    They will later change to more appropriate data types.
+    """
+
+    # Demographics
+    age = Series(str, description="Age")
+    age_factor = Series(str)
+    calc_age = Series(str)
+    sex = Series(str)
+    ethnic = Series(str)
+
+    # Clinical
+    corona_ieorres = Series(str)
+    coriona_ieorres2 = Series(str)
+    coriona_ieorres3 = Series(str)
+    inflammatory_mss = Series(str)
+
+    # Vaccination
+    covid19_vaccine = Series(str)
+    covid19_vaccined = Series(str)
+    covid19_vaccined_nk = Series(str)
+
+    # Admission
+    hostdat = Series(str)
+    readm_cov19 = Series(str)
+    hooccur = Series(str)
+    hostdat_transfer = Series(str)
+    hostdat_transfernk = Series(str)

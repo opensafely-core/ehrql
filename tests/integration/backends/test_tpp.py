@@ -17,6 +17,7 @@ from tests.lib.tpp_schema import (
     HealthCareWorker,
     Household,
     HouseholdMember,
+    ISARIC_New,
     MedicationDictionary,
     MedicationIssue,
     ONS_CIS_New,
@@ -491,6 +492,55 @@ def test_ons_cis(select_all):
             "visit_num": 1,
             "is_opted_out_of_nhs_data_share": True,
             "last_linkage_dt": date(2022, 8, 15),
+        },
+    ]
+
+
+@register_test_for(tpp.isaric)
+def test_isaric(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        ISARIC_New(
+            Patient_ID=1,
+            age="TODO",
+            age_factor="TODO",
+            calc_age="TODO",
+            sex="TODO",
+            ethnic="TODO",
+            corona_ieorres="TODO",
+            coriona_ieorres2="TODO",
+            coriona_ieorres3="TODO",
+            inflammatory_mss="TODO",
+            covid19_vaccine="TODO",
+            covid19_vaccined="TODO",
+            covid19_vaccined_nk="TODO",
+            hostdat="TODO",
+            readm_cov19="TODO",
+            hooccur="TODO",
+            hostdat_transfer="TODO",
+            hostdat_transfernk="TODO",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "age": "TODO",
+            "age_factor": "TODO",
+            "calc_age": "TODO",
+            "sex": "TODO",
+            "ethnic": "TODO",
+            "corona_ieorres": "TODO",
+            "coriona_ieorres2": "TODO",
+            "coriona_ieorres3": "TODO",
+            "inflammatory_mss": "TODO",
+            "covid19_vaccine": "TODO",
+            "covid19_vaccined": "TODO",
+            "covid19_vaccined_nk": "TODO",
+            "hostdat": "TODO",
+            "readm_cov19": "TODO",
+            "hooccur": "TODO",
+            "hostdat_transfer": "TODO",
+            "hostdat_transfernk": "TODO",
         },
     ]
 

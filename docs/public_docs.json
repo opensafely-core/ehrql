@@ -675,6 +675,119 @@
           ]
         },
         {
+          "name": "isaric",
+          "docstring": [
+            "A subset of the ISARIC data.",
+            "",
+            "These columns are deliberately all taken as strings while in a preliminary phase.",
+            "They will late change to more appropriate data types."
+          ],
+          "columns": [
+            {
+              "name": "age",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "age_factor",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "calc_age",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "sex",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "ethnic",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "corona_ieorres",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "coriona_ieorres2",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "coriona_ieorres3",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "inflammatory_mss",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "covid19_vaccine",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "covid19_vaccined",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "covid19_vaccined_nk",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "hostdat",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "readm_cov19",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "hooccur",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "hostdat_transfer",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "hostdat_transfernk",
+              "description": "",
+              "type": "str",
+              "constraints": []
+            }
+          ]
+        },
+        {
           "name": "medications",
           "docstring": [],
           "columns": [
