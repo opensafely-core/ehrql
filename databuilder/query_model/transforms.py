@@ -41,13 +41,14 @@ class QueryGraphRewriter:
 
     def __init__(self):
         self.replacements = {}
+        self.cache = {}
 
     def replace(self, target_node, new_node):
         self.replacements[target_node] = new_node
 
     def rewrite(self, obj, replacing=frozenset()):
         if isinstance(obj, Node):
-            return self.rewrite_node(obj, replacing)
+            return self.rewrite_node_with_cache(obj, replacing)
         elif isinstance(obj, dict):
             # Dicts need rewriting because they may contain references to other nodes
             return {
@@ -60,6 +61,14 @@ class QueryGraphRewriter:
         else:
             # Any other values in the query graph we return unchanged
             return obj
+
+    def rewrite_node_with_cache(self, node, replacing):
+        # Avoid rewriting identical sections of the graph multiple times
+        new_node = self.cache.get(node)
+        if new_node is None:
+            new_node = self.rewrite_node(node, replacing)
+            self.cache[node] = new_node
+        return new_node
 
     def rewrite_node(self, node, replacing):
         if node in self.replacements and node not in replacing:
