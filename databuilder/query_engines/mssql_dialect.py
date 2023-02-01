@@ -3,7 +3,7 @@ import datetime
 import sqlalchemy.types
 from sqlalchemy.dialects.mssql.pymssql import MSDialect_pymssql
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import ClauseElement, Executable
+from sqlalchemy.sql.expression import ClauseElement, Executable, cast
 
 
 # MS-SQL can misinterpret ISO dates, depending on its localisation settings so
@@ -40,6 +40,16 @@ class _MSSQLDateTimeBase:
         # Use the Text literal processor to quote and escape that string
         literal_processor = self.text_type.literal_processor(dialect)
         return literal_processor(value)
+
+    def bind_expression(self, bindvalue):
+        # Wrap any bound parameters in an explicit CAST to their intended type. MSSQL
+        # (or at least the connection library we're using) doesn't let us pass in dates
+        # as dates but insists on converting them to strings. Mostly this is harmless as
+        # MSSQL can tell from the context that a date is required, but not always (see
+        # issues below). Explicit CASTing ensures that they're always treated as dates.
+        # https://github.com/opensafely-core/databuilder/pull/889
+        # https://github.com/opensafely-core/databuilder/issues/998
+        return cast(bindvalue, type_=self)
 
 
 class MSSQLDate(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
