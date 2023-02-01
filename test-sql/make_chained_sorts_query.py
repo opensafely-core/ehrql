@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-events = 26
+events = 52
 
 
 print(
@@ -15,22 +15,20 @@ SELECT *
 INTO [#tmp_0]
 FROM (
   SELECT anon_2.patient_id AS patient_id,
-    anon_2.visit_num AS visit_num,
-    anon_2.visit_date AS visit_date,
-    anon_2.nhs_data_share AS nhs_data_share,
-    anon_2.last_linkage_dt AS last_linkage_dt
+    anon_2.booked_date AS booked_date,
+    anon_2.start_date AS start_date,
+    anon_2.organisation_id AS organisation_id
   FROM (
-    SELECT [ONS_CIS_New].[Patient_ID] AS patient_id,
-      [ONS_CIS_New].visit_num AS visit_num,
-      [ONS_CIS_New].visit_date AS visit_date,
-      [ONS_CIS_New].nhs_data_share AS nhs_data_share,
-      [ONS_CIS_New].last_linkage_dt AS last_linkage_dt,
+    SELECT [Appointment].[Patient_ID] AS patient_id,
+      [Appointment].BookedDate AS booked_date,
+      [Appointment].StartDate AS start_date,
+      [Appointment].Organisation_ID AS organisation_id,
       row_number() OVER (
-        PARTITION BY [ONS_CIS_New].[Patient_ID] ORDER BY [ONS_CIS_New].visit_date
+        PARTITION BY [Appointment].[Patient_ID] ORDER BY [Appointment].BookedDate
         ) AS anon_3
-    FROM [ONS_CIS_New]
-    WHERE [ONS_CIS_New].visit_date >= '20200124'
-      AND [ONS_CIS_New].visit_date <= '20220331'
+    FROM [Appointment]
+    WHERE [Appointment].BookedDate >= '20210601'
+      AND [Appointment].BookedDate <= '20221231'
     ) AS anon_2
   WHERE anon_2.anon_3 = 1
   ) AS anon_1;
@@ -50,24 +48,23 @@ for n in range(1, events):
     INTO [{table}]
     FROM (
       SELECT anon_2.patient_id AS patient_id,
-        anon_2.nhs_data_share AS nhs_data_share,
-        anon_2.visit_num AS visit_num,
-        anon_2.visit_date AS visit_date,
-        anon_2.last_linkage_dt AS last_linkage_dt
+        anon_2.booked_date AS booked_date,
+        anon_2.start_date AS start_date,
+        anon_2.organisation_id AS organisation_id
       FROM (
-        SELECT [ONS_CIS_New].[Patient_ID] AS patient_id,
-          [ONS_CIS_New].nhs_data_share AS nhs_data_share,
-          [ONS_CIS_New].visit_num AS visit_num,
-          [ONS_CIS_New].visit_date AS visit_date,
-          [ONS_CIS_New].last_linkage_dt AS last_linkage_dt,
+        SELECT [Appointment].[Patient_ID] AS patient_id,
+          [Appointment].BookedDate AS booked_date,
+          [Appointment].StartDate AS start_date,
+          [Appointment].Organisation_ID AS organisation_id,
           row_number() OVER (
-            PARTITION BY [ONS_CIS_New].[Patient_ID] ORDER BY [ONS_CIS_New].visit_date
+            PARTITION BY [Appointment].[Patient_ID] ORDER BY [Appointment].BookedDate
             ) AS anon_3
-        FROM [ONS_CIS_New]
-        LEFT OUTER JOIN [{prev_table}] ON [{prev_table}].patient_id = [ONS_CIS_New].[Patient_ID]
-        WHERE [ONS_CIS_New].visit_date > [{prev_table}].visit_date
+        FROM [Appointment]
+        LEFT OUTER JOIN [{prev_table}] ON [{prev_table}].patient_id = [Appointment].[Patient_ID]
+        WHERE [Appointment].BookedDate > [{prev_table}].booked_date
+          AND [Appointment].BookedDate <= '20221231'
         ) AS anon_2
-      WHERE anon_2.anon_3 = 1
+          WHERE anon_2.anon_3 = 1
       ) AS anon_1;
 
     CREATE CLUSTERED INDEX [ix_{table}_patient_id] ON [{table}] (patient_id);
@@ -78,22 +75,8 @@ for n in range(1, events):
 
 print(
     """
-SELECT *
-INTO [#pop]
-FROM (
-  SELECT DISTINCT [ONS_CIS_New].[Patient_ID] AS patient_id
-  FROM [ONS_CIS_New]
-  WHERE [ONS_CIS_New].visit_date >= '20200124'
-    AND [ONS_CIS_New].visit_date <= '20220331'
-  ) AS anon_1;
-
-"""
-)
-
-print(
-    """
 SELECT * INTO [#results] FROM (
-  SELECT [#pop].patient_id AS patient_id,
+  SELECT Patient.Patient_ID AS patient_id,
 """
 )
 
@@ -101,25 +84,23 @@ for n in range(events):
     comma = "," if n < events - 1 else ""
     print(
         f"""
-    [#tmp_{n}].visit_date AS visit_date_{n},
-    [#tmp_{n}].visit_num AS visit_num_{n},
-    [#tmp_{n}].last_linkage_dt AS last_linkage_dt_{n},
-    [#tmp_{n}].nhs_data_share AS is_opted_out_of_nhs_data_share_{n}{comma}
+    [#tmp_{n}].start_date AS start_date_{n},
+    [#tmp_{n}].booked_date AS booked_date_{n},
+    [#tmp_{n}].organisation_id AS organisation_id_{n}{comma}
     """
     )
 
 print(
     """
-  FROM [#pop]
+  FROM Patient
 """
 )
 
 for n in range(events):
-    print(f"  LEFT OUTER JOIN [#tmp_{n}] ON [#tmp_{n}].patient_id = [#pop].patient_id")
+    print(f"  LEFT OUTER JOIN [#tmp_{n}] ON [#tmp_{n}].patient_id = Patient.Patient_ID")
 
 print(
     """
-  WHERE [#pop].patient_id IS NOT NULL
 ) t;
 """
 )
