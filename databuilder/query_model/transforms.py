@@ -13,7 +13,7 @@ maintain separation of three types of concern:
 The transformations applied here are all about efficient execution, and therefore we
 want to keep them separate from the core query model classes.
 """
-import copy
+from collections import defaultdict
 from typing import Any
 
 from databuilder.query_model.nodes import (
@@ -27,9 +27,8 @@ from databuilder.query_model.nodes import (
     get_input_nodes,
     get_series_type,
     get_sorts,
-    validate_node,
 )
-from databuilder.utils.collections_utils import DefaultIdentityDict, IdentitySet
+from databuilder.query_model.query_graph_rewriter import QueryGraphRewriter
 
 
 class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):
@@ -41,18 +40,10 @@ class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):
 
 
 def apply_transforms(variables):
-    # For algorithmic ease we're going to be mutating the query objects. Since the QM
-    # graph is a notionally immutable structure consisting of "frozen" dataclasses, we need
-    # to do that carefully. In particular:
-    #
-    # 1. We copy the data that is passed in so that callers don't observe side-effects.
-    # 2. We copy the results on the way out to rectify the state of containers that depend
-    #    on object hashes which may have changed unexpectedly (specifically the frozenset used
-    #    to hold selected columns).
-    # 3. When we store QM nodes in equality/hash-sensitive containers during this manipulation
-    #    we use customized versions of those containers which ignore the __eq__() and
-    #    __hash__() implementations provided by dataclasses.
-    variables = copy.deepcopy(variables)
+    # Note that we're currently sharing `rewriter`, `nodes` and `reverse_index` across
+    # transforms. While we only have one this is obviously fine! It _might_ be OK as we
+    # add more depending on whether they're commutative but we should be careful here
+    # and might decide we want to restructure things to keep the transforms independent.
     nodes = all_nodes_from_variables(variables)
     reverse_index = build_reverse_index(nodes)
 
@@ -60,20 +51,20 @@ def apply_transforms(variables):
         (PickOneRowPerPatient, rewrite_sorts),
     ]
 
+    rewriter = QueryGraphRewriter()
     for type_, transform in transforms:
-        apply_transform(type_, transform, nodes, reverse_index)
+        apply_transform(rewriter, type_, transform, nodes, reverse_index)
 
-    variables = copy.deepcopy(variables)  # see comment above
-    return variables
+    return rewriter.rewrite(variables)
 
 
-def apply_transform(type_, transform, nodes, reverse_index):
+def apply_transform(rewriter, type_, transform, nodes, reverse_index):
     for node in nodes:
         if isinstance(node, type_):
-            transform(node, reverse_index)
+            transform(rewriter, node, reverse_index)
 
 
-def rewrite_sorts(node, reverse_index):
+def rewrite_sorts(rewriter, node, reverse_index):
     """
     Frames are sorted in order to then pick the first or last row for a patient. Multiple sorts
     may be applied to give the desired results. Once a single row has been picked, one ore more
@@ -124,20 +115,25 @@ def rewrite_sorts(node, reverse_index):
         c.name for c in reverse_index[node] if isinstance(c, SelectColumn)
     }
 
-    add_columns_to_pick(node, selected_column_names)
-    add_extra_sorts(node, selected_column_names)
+    add_columns_to_pick(rewriter, node, selected_column_names)
+    add_extra_sorts(rewriter, node, selected_column_names)
 
 
-def add_columns_to_pick(node, selected_column_names):
+def add_columns_to_pick(rewriter, node, selected_column_names):
     selected_columns = frozenset(
         SelectColumn(node.source, c) for c in selected_column_names
     )
-    force_setattr(node, "__class__", PickOneRowPerPatientWithColumns)
-    force_setattr(node, "selected_columns", selected_columns)
-    validate_node(node)  # check we haven't broken any invariants
+    rewriter.replace(
+        node,
+        PickOneRowPerPatientWithColumns(
+            source=node.source,
+            position=node.position,
+            selected_columns=selected_columns,
+        ),
+    )
 
 
-def add_extra_sorts(node, selected_column_names):
+def add_extra_sorts(rewriter, node, selected_column_names):
     all_sorts = get_sorts(node.source)
     # Add at the bottom of the stack
     lowest_sort = all_sorts[0]
@@ -147,8 +143,13 @@ def add_extra_sorts(node, selected_column_names):
             source=lowest_sort.source,
             sort_by=make_sortable(SelectColumn(lowest_sort.source, column)),
         )
-        force_setattr(lowest_sort, "source", new_sort)
-        validate_node(lowest_sort)  # check we haven't broken any invariants
+        rewriter.replace(
+            lowest_sort,
+            Sort(
+                source=new_sort,
+                sort_by=lowest_sort.sort_by,
+            ),
+        )
         lowest_sort = new_sort
 
 
@@ -174,7 +175,7 @@ def make_sortable(col):
 
 
 def all_nodes_from_variables(variables):
-    nodes = IdentitySet()  # see comment in apply_transforms()
+    nodes = set()
     for query in variables.values():
         query_nodes = all_nodes(query)
         for query_node in query_nodes:
@@ -183,13 +184,8 @@ def all_nodes_from_variables(variables):
 
 
 def build_reverse_index(nodes):
-    reverse_index = DefaultIdentityDict(IdentitySet)
+    reverse_index = defaultdict(set)
     for n in nodes:
         for i in get_input_nodes(n):
             reverse_index[i].add(n)
     return reverse_index
-
-
-# We can't modify attributes on frozen dataclass instances in the normal way, so we have
-# to use this
-force_setattr = object.__setattr__

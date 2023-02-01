@@ -9,6 +9,7 @@ from typing import Any, Optional, TypeVar
 
 from databuilder.codes import BaseCode
 from databuilder.query_model.table_schema import Column, Constraint, TableSchema
+from databuilder.utils.functools_utils import cached_method
 from databuilder.utils.typing_utils import get_typespec, get_typevars, type_matches
 
 # The below classes and functions are the public API surface of the query model
@@ -106,6 +107,12 @@ class Node:
     def __init_subclass__(cls, **kwargs):
         # All nodes in the query model are frozen dataclasses
         dataclasses.dataclass(cls, frozen=True)
+        # Calculating the hash of an object requires recursively calculating the hashes
+        # of its children. In a deeply nested query graph this can take some time and,
+        # given how frequently `__hash__()` is called, this can end up completely
+        # dominating Data Builder's execution time. Given that these are immutable
+        # objects we can cache the hash value instead of recalcuting it each time.
+        cls.__hash__ = cached_method(cls.__hash__)
 
     def __post_init__(self):
         # validate the things which have to be checked dynamically
@@ -371,9 +378,15 @@ class Case(Series[T]):
     default: Optional[Series[T]] = None
 
     def __hash__(self):
-        # `cases` is a dict and so not hashable by default, but we treat it as
-        # immutable once created so we're fine to make it hashable
-        return hash((tuple(self.cases.items()), self.default))
+        # `cases` is a dict and so not naturally hashable, but we treat it as immutable.
+        # The specfic hash used below is based on a recommendation by Raymond Hettinger.
+        # It's almost certainly unnecessary to include the values and default in the
+        # hash, but given that it's all cached anyway we may as well save ourselves the
+        # trouble of thinking about it. See:
+        # https://stackoverflow.com/a/16162138
+        return hash(
+            (frozenset(self.cases), frozenset(self.cases.values()), self.default)
+        )
 
 
 # TODO: We don't currently support Join in the DSL or the Query Engine but this is the

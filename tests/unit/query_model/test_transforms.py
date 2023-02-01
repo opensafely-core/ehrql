@@ -301,5 +301,54 @@ def test_sorts_by_derived_value_handled_correctly():
     assert transform(variable) == expected
 
 
+def test_identical_operations_are_not_transformed_differently():
+    # Query model nodes are intended to be value objects: that is equality is determined
+    # by value, not identity and equal objects should be intersubstitutable. Approaches
+    # to query transformation which involve mutation can violate this principle and
+    # treat equal but non-identical nodes differently. This tests for a specific
+    # instance of this problem.
+    events = SelectTable(
+        "events",
+        TableSchema(i1=Column(int), i2=Column(int)),
+    )
+    # Construct two equal but non-identical sort-and-picks
+    first_by_i1_v1 = PickOneRowPerPatient(
+        Sort(events, SelectColumn(events, "i1")), position=Position.FIRST
+    )
+    first_by_i1_v2 = PickOneRowPerPatient(
+        Sort(events, SelectColumn(events, "i1")), position=Position.FIRST
+    )
+
+    # Select different columns from each one
+    variables = dict(
+        i1=SelectColumn(first_by_i1_v1, "i1"),
+        i2=SelectColumn(first_by_i1_v2, "i2"),
+    )
+
+    # We expect i2 to be added at the bottom of the stack of sorts
+    by_i2_then_i1 = Sort(
+        source=Sort(source=events, sort_by=SelectColumn(source=events, name="i2")),
+        sort_by=SelectColumn(source=events, name="i1"),
+    )
+    # We expect the selected columns to include both i1 and i2
+    pick_with_columns = PickOneRowPerPatientWithColumns(
+        source=by_i2_then_i1,
+        position=Position.FIRST,
+        selected_columns=frozenset(
+            {
+                SelectColumn(by_i2_then_i1, "i1"),
+                SelectColumn(by_i2_then_i1, "i2"),
+            }
+        ),
+    )
+
+    expected = dict(
+        i1=SelectColumn(source=pick_with_columns, name="i1"),
+        i2=SelectColumn(source=pick_with_columns, name="i2"),
+    )
+
+    assert apply_transforms(variables) == expected
+
+
 def transform(variable):
     return apply_transforms({"v": variable})["v"]

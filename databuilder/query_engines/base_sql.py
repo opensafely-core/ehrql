@@ -61,12 +61,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         `get_setup_and_cleanup_queries` on the query object.
         """
         variable_definitions = apply_transforms(variable_definitions)
-        population_definition = variable_definitions.pop("population")
         variable_expressions = {
             name: self.get_expr(definition)
             for name, definition in variable_definitions.items()
+            if name != "population"
         }
-        population_expression = self.get_predicate(population_definition)
+        population_expression = self.get_predicate(variable_definitions["population"])
         query = self.select_patient_id_for_population(population_expression)
         query = query.add_columns(
             *[expr.label(name) for name, expr in variable_expressions.items()]
