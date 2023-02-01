@@ -7,7 +7,6 @@ __all__ = ["patients"]
 
 @table
 class patients(PatientFrame):
-
     date_of_birth = Series(
         datetime.date,
         description="Patient's date of birth, rounded to first of month",

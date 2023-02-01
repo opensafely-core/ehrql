@@ -99,7 +99,6 @@ def create_row_parser(headers, column_specs):
 
 
 def create_column_parser(headers, name, spec):
-
     if spec.type in (int, float, str):
         convertor = spec.type
     elif spec.type is datetime.date:

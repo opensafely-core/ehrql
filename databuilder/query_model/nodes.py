@@ -248,7 +248,6 @@ class AggregateByPatient:
 # any of its inputs has many-rows-per-patient then its output will too. Below are all
 # available functions (using a class as a namespace).
 class Function:
-
     # Comparison
     class EQ(Series[bool]):
         lhs: Series[T]

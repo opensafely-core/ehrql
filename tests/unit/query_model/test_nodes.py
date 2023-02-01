@@ -150,6 +150,7 @@ def test_inline_patient_table():
 # TEST DOMAIN VALIDATION
 #
 
+
 # The simple, happy case: combining series derived directly from the same frame
 def test_combining_series_from_same_frame_is_ok():
     events = SelectTable(

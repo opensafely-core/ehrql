@@ -410,7 +410,6 @@ class DateDifference:
 
 @dataclasses.dataclass
 class Duration:
-
     Units = enum.Enum("Units", ["DAYS", "MONTHS", "YEARS"])
 
     value: Union[int, IntEventSeries, IntPatientSeries]

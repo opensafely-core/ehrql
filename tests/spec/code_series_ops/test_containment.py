@@ -43,7 +43,6 @@ def test_is_not_in(spec_test):
 
 
 def test_is_in_codelist_csv(spec_test):
-
     codelist = codelist_from_csv_lines(
         [
             "code",

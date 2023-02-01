@@ -14,7 +14,6 @@ __all__ = [
 
 @table
 class patients(PatientFrame):
-
     date_of_birth = Series(
         datetime.date,
         description=(

@@ -2,7 +2,6 @@ from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 
 
 class SQLiteDialect(SQLiteDialect_pysqlite):
-
     supports_statement_cache = True
 
     # Use the `named` parameter placeholder style for consistency with other dialects.

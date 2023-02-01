@@ -41,7 +41,6 @@ log = structlog.getLogger()
 
 
 class BaseSQLQueryEngine(BaseQueryEngine):
-
     sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
 
     intermediate_table_prefix = "cte_"

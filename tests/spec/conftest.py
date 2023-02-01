@@ -9,7 +9,6 @@ from databuilder.query_model.nodes import get_series_type
 
 @pytest.fixture(params=["execute", "dump_sql"])
 def spec_test(request, engine):
-
     # Test that we can insert the data, run the query, and get the expected results
     def run_test_execute(table_data, series, expected_results, population=None):
         # Populate database tables.
