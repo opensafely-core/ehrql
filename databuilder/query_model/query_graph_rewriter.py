@@ -20,6 +20,10 @@ class QueryGraphRewriter:
         return self._rewrite(obj, self.replacements)
 
     def _rewrite(self, obj, replacements):
+        # Shortcut when there's no remaining work to be done
+        if not replacements:
+            return obj
+
         if isinstance(obj, qm.Value):
             # We always return Values unchanged. It doesn't make much sense to, e.g.
             # replace all the occurences of 4 in a query with 5. And by handling these
