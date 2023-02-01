@@ -17,7 +17,6 @@ table_data = {
 
 
 def test_map_codes_to_categories(spec_test):
-
     codelist = codelist_from_csv_lines(
         [
             "code,my_categorisation",

@@ -59,7 +59,6 @@ class MSSQLDateTime(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
 
 
 class MSSQLDialect(MSDialect_pymssql):
-
     supports_statement_cache = True
 
     colspecs = MSDialect_pymssql.colspecs | {

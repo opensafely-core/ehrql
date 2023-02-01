@@ -62,5 +62,5 @@ def patient_records(draw, class_, schema, value_strategies):
 def data(patient_classes, event_classes, schema, value_strategies):
     return concat(
         *[patient_records(c, schema, value_strategies) for c in patient_classes],
-        *[event_records(c, schema, value_strategies) for c in event_classes]
+        *[event_records(c, schema, value_strategies) for c in event_classes],
     )

@@ -240,7 +240,7 @@ class SparkDialect(HiveHTTPDialect):  # pragma: cover-spark-only
         # Filter out empty rows and comment
         rows = [row for row in rows if row[0] and row[0] != "# col_name"]
         result = []
-        for (col_name, col_type, _comment) in rows:
+        for col_name, col_type, _comment in rows:
             # Note: this next line is the only change from pyhive's verion of
             # this function as of 2021-11-29.
             #
