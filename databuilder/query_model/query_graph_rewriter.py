@@ -17,7 +17,14 @@ class QueryGraphRewriter:
         self.replacements[target_node] = new_node
 
     def rewrite(self, obj, replacing=frozenset()):
-        if isinstance(obj, qm.Node):
+        if isinstance(obj, qm.Value):
+            # We always return Values unchanged. It doesn't make much sense to, e.g.
+            # replace all the occurences of 4 in a query with 5. And by handling these
+            # explicitly we don't have to exhaustively list the types of object a Value
+            # can contain.
+            return obj
+        elif isinstance(obj, qm.Node):
+            # This is where most the work gets done
             return self.rewrite_node_with_cache(obj, replacing)
         elif isinstance(obj, dict):
             # Dicts need rewriting because they may contain references to other nodes
@@ -28,9 +35,11 @@ class QueryGraphRewriter:
         elif isinstance(obj, frozenset):
             # As do frozensets
             return frozenset(self.rewrite(v, replacing) for v in obj)
-        else:
-            # Any other values in the query graph we return unchanged
+        elif isinstance(obj, (str, qm.Position, qm.TableSchema, qm.IterWrapper)):
+            # Other expected types we return unchanged
             return obj
+        else:
+            assert False, f"Unhandled value: {obj}"
 
     def rewrite_node_with_cache(self, node, replacing):
         # Avoid rewriting identical sections of the graph multiple times
