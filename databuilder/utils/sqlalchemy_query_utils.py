@@ -1,3 +1,4 @@
+import collections
 import graphlib
 import re
 
@@ -9,7 +10,6 @@ from sqlalchemy.sql.elements import (
     UnaryExpression,
     operators,
 )
-from sqlalchemy.sql.visitors import iterate
 
 
 def is_predicate(clause):
@@ -131,7 +131,7 @@ def get_generated_tables(clause):
     """
     Return any GeneratedTable objects directly referenced by a SQLAlchemy ClauseElement
     """
-    return [elem for elem in iterate(clause) if isinstance(elem, GeneratedTable)]
+    return [elem for elem in iterate_unique(clause) if isinstance(elem, GeneratedTable)]
 
 
 def flatten_iter(nested_iters):
@@ -195,3 +195,40 @@ def yield_params_as_literals(compiled, dialect):
         literal_processor = dialect_impl.literal_processor(dialect)
         # Yield the string literal with its key
         yield key, literal_processor(value)
+
+
+def iterate_unique(clause):
+    """
+    Iterate over all unique query elements referenced by `clause`
+
+    This is almost a verbatim copy of `sqlalchemy.sql.visitors.iterate()` with the
+    difference that this keeps track of which elements have already been seen and avoids
+    recursing into them again. For certain query structures this can make a huge
+    difference to how long it takes to retrieve all the elements.
+
+    Original code from:
+    https://github.com/sqlalchemy/sqlalchemy/blob/rel_2_0_0/lib/sqlalchemy/sql/visitors.py#L829-L867
+
+    Copyright (C) 2005-2023 the SQLAlchemy authors and contributors
+
+    This function is part of SQLAlchemy and is released under the MIT License:
+    https://www.opensource.org/licenses/mit-license.php
+    """
+    yield clause
+    children = clause.get_children()
+
+    if not children:
+        return
+
+    stack = collections.deque([children])
+    seen = set()
+    while stack:
+        t_iterator = stack.popleft()
+        for t in t_iterator:
+            # Some SQLAlchemy objects overload equality so they aren't safe to use
+            # directly in sets but we can track them by ID
+            key = id(t)
+            if key not in seen:
+                seen.add(key)
+                yield t
+                stack.append(t.get_children())
