@@ -225,27 +225,25 @@ class TPPBackend(BaseBackend):
         ),
     )
 
-    isaric_raw = QueryTable(
-        """
-            SELECT
-                Patient_ID AS patient_id,
-                age,
-                "age.factor" AS age_factor,
-                calc_age,
-                sex,
-                ethnic,
-                corona_ieorres,
-                coriona_ieorres2,
-                coriona_ieorres3,
-                inflammatory_mss,
-                covid19_vaccine,
-                covid19_vaccined,
-                covid19_vaccined_nk,
-                hostdat,
-                readm_cov19,
-                hooccur,
-                hostdat_transfer,
-                hostdat_transfernk
-            FROM ISARIC_New
-        """
+    isaric_raw = MappedTable(
+        source="ISARIC_New",
+        columns=dict(
+            age="age",
+            age_factor="age.factor",
+            calc_age="calc_age",
+            sex="sex",
+            ethnic="ethnic",
+            corona_ieorres="corona_ieorres",
+            coriona_ieorres2="coriona_ieorres2",
+            coriona_ieorres3="coriona_ieorres3",
+            inflammatory_mss="inflammatory_mss",
+            covid19_vaccine="covid19_vaccine",
+            covid19_vaccined="covid19_vaccined",
+            covid19_vaccined_nk="covid19_vaccined_nk",
+            hostdat="hostdat",
+            readm_cov19="readm_cov19",
+            hooccur="hooccur",
+            hostdat_transfer="hostdat_transfer",
+            hostdat_transfernk="hostdat_transfernk",
+        ),
     )
