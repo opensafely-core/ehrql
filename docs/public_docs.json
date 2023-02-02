@@ -675,7 +675,7 @@
           ]
         },
         {
-          "name": "isaric",
+          "name": "isaric_raw",
           "docstring": [
             "A subset of the ISARIC data.",
             "",

@@ -18,7 +18,7 @@ __all__ = [
     "hospital_admissions",
     "appointments",
     "ons_cis",
-    "isaric",
+    "isaric_raw",
 ]
 
 
@@ -201,7 +201,7 @@ class ons_cis(EventFrame):
 
 
 @table
-class isaric(EventFrame):
+class isaric_raw(EventFrame):
     """
     A subset of the ISARIC data.
 

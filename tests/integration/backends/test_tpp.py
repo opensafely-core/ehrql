@@ -496,8 +496,8 @@ def test_ons_cis(select_all):
     ]
 
 
-@register_test_for(tpp.isaric)
-def test_isaric(select_all):
+@register_test_for(tpp.isaric_raw)
+def test_isaric_raw(select_all):
     results = select_all(
         Patient(Patient_ID=1),
         ISARIC_New(

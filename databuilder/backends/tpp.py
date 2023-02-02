@@ -225,7 +225,7 @@ class TPPBackend(BaseBackend):
         ),
     )
 
-    isaric = QueryTable(
+    isaric_raw = QueryTable(
         """
             SELECT
                 Patient_ID AS patient_id,
