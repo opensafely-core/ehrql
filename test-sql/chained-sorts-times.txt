@@ -1,0 +1,525 @@
+
+ SQL Server Execution Times:
+   CPU time = 623319 ms,  elapsed time = 209822 ms.
+
+(21351049 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 23296 ms,  elapsed time = 6721 ms.
+SQL Server parse and compile time: 
+   CPU time = 409 ms, elapsed time = 1449 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1402931 ms,  elapsed time = 284707 ms.
+
+(19204056 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 22099 ms,  elapsed time = 6348 ms.
+SQL Server parse and compile time: 
+   CPU time = 391 ms, elapsed time = 1427 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1510681 ms,  elapsed time = 282105 ms.
+
+(17306967 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 20207 ms,  elapsed time = 13100 ms.
+SQL Server parse and compile time: 
+   CPU time = 393 ms, elapsed time = 1499 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1348778 ms,  elapsed time = 236685 ms.
+
+(15669205 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 17578 ms,  elapsed time = 6249 ms.
+SQL Server parse and compile time: 
+   CPU time = 376 ms, elapsed time = 1446 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1542201 ms,  elapsed time = 247574 ms.
+
+(14198443 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 17972 ms,  elapsed time = 6865 ms.
+SQL Server parse and compile time: 
+   CPU time = 282 ms, elapsed time = 1477 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1461821 ms,  elapsed time = 243922 ms.
+
+(12876901 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 13987 ms,  elapsed time = 6069 ms.
+SQL Server parse and compile time: 
+   CPU time = 358 ms, elapsed time = 1367 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1159331 ms,  elapsed time = 240699 ms.
+
+(11681455 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 13435 ms,  elapsed time = 5838 ms.
+SQL Server parse and compile time: 
+   CPU time = 376 ms, elapsed time = 1408 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1092697 ms,  elapsed time = 214318 ms.
+
+(10605192 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 12407 ms,  elapsed time = 5384 ms.
+SQL Server parse and compile time: 
+   CPU time = 362 ms, elapsed time = 1361 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1028280 ms,  elapsed time = 197865 ms.
+
+(9629025 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 12234 ms,  elapsed time = 5464 ms.
+SQL Server parse and compile time: 
+   CPU time = 422 ms, elapsed time = 1333 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1189966 ms,  elapsed time = 214154 ms.
+
+(8745729 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 9849 ms,  elapsed time = 4871 ms.
+SQL Server parse and compile time: 
+   CPU time = 406 ms, elapsed time = 1291 ms.
+
+ SQL Server Execution Times:
+   CPU time = 906699 ms,  elapsed time = 176382 ms.
+
+(7947054 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 7564 ms,  elapsed time = 2677 ms.
+SQL Server parse and compile time: 
+   CPU time = 357 ms, elapsed time = 1231 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1549692 ms,  elapsed time = 147763 ms.
+
+(7224083 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 6386 ms,  elapsed time = 3319 ms.
+SQL Server parse and compile time: 
+   CPU time = 470 ms, elapsed time = 1233 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1676351 ms,  elapsed time = 139865 ms.
+
+(6570386 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 6593 ms,  elapsed time = 2694 ms.
+SQL Server parse and compile time: 
+   CPU time = 250 ms, elapsed time = 1377 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1753389 ms,  elapsed time = 141963 ms.
+
+(5979671 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 7314 ms,  elapsed time = 3029 ms.
+SQL Server parse and compile time: 
+   CPU time = 341 ms, elapsed time = 1134 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1622361 ms,  elapsed time = 108388 ms.
+
+(5446424 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 5673 ms,  elapsed time = 1332 ms.
+SQL Server parse and compile time: 
+   CPU time = 455 ms, elapsed time = 709 ms.
+
+ SQL Server Execution Times:
+   CPU time = 527672 ms,  elapsed time = 43665 ms.
+
+(4964156 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 8061 ms,  elapsed time = 993 ms.
+SQL Server parse and compile time: 
+   CPU time = 311 ms, elapsed time = 311 ms.
+
+ SQL Server Execution Times:
+   CPU time = 495078 ms,  elapsed time = 38485 ms.
+
+(4528252 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 5563 ms,  elapsed time = 858 ms.
+SQL Server parse and compile time: 
+   CPU time = 238 ms, elapsed time = 395 ms.
+
+ SQL Server Execution Times:
+   CPU time = 461639 ms,  elapsed time = 37829 ms.
+
+(4132583 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3979 ms,  elapsed time = 1562 ms.
+SQL Server parse and compile time: 
+   CPU time = 220 ms, elapsed time = 1129 ms.
+
+ SQL Server Execution Times:
+   CPU time = 432935 ms,  elapsed time = 34818 ms.
+
+(3774813 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3076 ms,  elapsed time = 1894 ms.
+SQL Server parse and compile time: 
+   CPU time = 265 ms, elapsed time = 885 ms.
+
+ SQL Server Execution Times:
+   CPU time = 411046 ms,  elapsed time = 39101 ms.
+
+(3451128 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 4237 ms,  elapsed time = 787 ms.
+SQL Server parse and compile time: 
+   CPU time = 298 ms, elapsed time = 391 ms.
+
+ SQL Server Execution Times:
+   CPU time = 375658 ms,  elapsed time = 56345 ms.
+
+(3158524 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3265 ms,  elapsed time = 2385 ms.
+SQL Server parse and compile time: 
+   CPU time = 192 ms, elapsed time = 192 ms.
+
+ SQL Server Execution Times:
+   CPU time = 358236 ms,  elapsed time = 39405 ms.
+
+(2891812 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 5046 ms,  elapsed time = 794 ms.
+SQL Server parse and compile time: 
+   CPU time = 173 ms, elapsed time = 208 ms.
+
+ SQL Server Execution Times:
+   CPU time = 334969 ms,  elapsed time = 41047 ms.
+
+(2650708 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3857 ms,  elapsed time = 2435 ms.
+SQL Server parse and compile time: 
+   CPU time = 329 ms, elapsed time = 1060 ms.
+
+ SQL Server Execution Times:
+   CPU time = 327684 ms,  elapsed time = 59150 ms.
+
+(2432076 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 2705 ms,  elapsed time = 2625 ms.
+SQL Server parse and compile time: 
+   CPU time = 282 ms, elapsed time = 643 ms.
+
+ SQL Server Execution Times:
+   CPU time = 312794 ms,  elapsed time = 68361 ms.
+
+(2232624 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 4098 ms,  elapsed time = 634 ms.
+SQL Server parse and compile time: 
+   CPU time = 93 ms, elapsed time = 93 ms.
+
+ SQL Server Execution Times:
+   CPU time = 285108 ms,  elapsed time = 46941 ms.
+
+(2052283 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 2392 ms,  elapsed time = 1222 ms.
+SQL Server parse and compile time: 
+   CPU time = 142 ms, elapsed time = 912 ms.
+
+ SQL Server Execution Times:
+   CPU time = 273040 ms,  elapsed time = 56975 ms.
+
+(1887889 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3445 ms,  elapsed time = 2203 ms.
+SQL Server parse and compile time: 
+   CPU time = 248 ms, elapsed time = 599 ms.
+
+ SQL Server Execution Times:
+   CPU time = 253752 ms,  elapsed time = 46134 ms.
+
+(1738275 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3264 ms,  elapsed time = 2338 ms.
+SQL Server parse and compile time: 
+   CPU time = 187 ms, elapsed time = 453 ms.
+
+ SQL Server Execution Times:
+   CPU time = 239718 ms,  elapsed time = 41997 ms.
+
+(1601714 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 2705 ms,  elapsed time = 1854 ms.
+SQL Server parse and compile time: 
+   CPU time = 222 ms, elapsed time = 222 ms.
+
+ SQL Server Execution Times:
+   CPU time = 215000 ms,  elapsed time = 23292 ms.
+
+(1477010 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3518 ms,  elapsed time = 488 ms.
+SQL Server parse and compile time: 
+   CPU time = 84 ms, elapsed time = 84 ms.
+
+ SQL Server Execution Times:
+   CPU time = 203831 ms,  elapsed time = 31482 ms.
+
+(1363359 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3092 ms,  elapsed time = 458 ms.
+SQL Server parse and compile time: 
+   CPU time = 93 ms, elapsed time = 93 ms.
+
+ SQL Server Execution Times:
+   CPU time = 189817 ms,  elapsed time = 26156 ms.
+
+(1259878 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3140 ms,  elapsed time = 638 ms.
+SQL Server parse and compile time: 
+   CPU time = 143 ms, elapsed time = 143 ms.
+
+ SQL Server Execution Times:
+   CPU time = 184209 ms,  elapsed time = 30570 ms.
+
+(1165377 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3293 ms,  elapsed time = 884 ms.
+SQL Server parse and compile time: 
+   CPU time = 204 ms, elapsed time = 204 ms.
+
+ SQL Server Execution Times:
+   CPU time = 169186 ms,  elapsed time = 28321 ms.
+
+(1079747 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 1874 ms,  elapsed time = 1932 ms.
+SQL Server parse and compile time: 
+   CPU time = 221 ms, elapsed time = 335 ms.
+
+ SQL Server Execution Times:
+   CPU time = 159859 ms,  elapsed time = 20713 ms.
+
+(999817 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 2546 ms,  elapsed time = 616 ms.
+SQL Server parse and compile time: 
+   CPU time = 129 ms, elapsed time = 129 ms.
+
+ SQL Server Execution Times:
+   CPU time = 149816 ms,  elapsed time = 13899 ms.
+
+(926905 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 1624 ms,  elapsed time = 2017 ms.
+SQL Server parse and compile time: 
+   CPU time = 252 ms, elapsed time = 322 ms.
+
+ SQL Server Execution Times:
+   CPU time = 143939 ms,  elapsed time = 21839 ms.
+
+(860251 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3228 ms,  elapsed time = 459 ms.
+SQL Server parse and compile time: 
+   CPU time = 72 ms, elapsed time = 72 ms.
+
+ SQL Server Execution Times:
+   CPU time = 131352 ms,  elapsed time = 12211 ms.
+
+(799055 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 1986 ms,  elapsed time = 761 ms.
+SQL Server parse and compile time: 
+   CPU time = 137 ms, elapsed time = 137 ms.
+
+ SQL Server Execution Times:
+   CPU time = 126895 ms,  elapsed time = 11050 ms.
+
+(742922 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3425 ms,  elapsed time = 1064 ms.
+SQL Server parse and compile time: 
+   CPU time = 144 ms, elapsed time = 144 ms.
+
+ SQL Server Execution Times:
+   CPU time = 123910 ms,  elapsed time = 23247 ms.
+
+(690737 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 1858 ms,  elapsed time = 944 ms.
+SQL Server parse and compile time: 
+   CPU time = 97 ms, elapsed time = 97 ms.
+
+ SQL Server Execution Times:
+   CPU time = 110951 ms,  elapsed time = 12819 ms.
+
+(642771 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 2768 ms,  elapsed time = 630 ms.
+SQL Server parse and compile time: 
+   CPU time = 91 ms, elapsed time = 91 ms.
+
+ SQL Server Execution Times:
+   CPU time = 107732 ms,  elapsed time = 11793 ms.
+
+(598590 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 2767 ms,  elapsed time = 613 ms.
+SQL Server parse and compile time: 
+   CPU time = 62 ms, elapsed time = 62 ms.
+
+ SQL Server Execution Times:
+   CPU time = 101036 ms,  elapsed time = 11624 ms.
+
+(557855 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 1901 ms,  elapsed time = 822 ms.
+SQL Server parse and compile time: 
+   CPU time = 78 ms, elapsed time = 78 ms.
+
+ SQL Server Execution Times:
+   CPU time = 94100 ms,  elapsed time = 8102 ms.
+
+(520285 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 1720 ms,  elapsed time = 500 ms.
+SQL Server parse and compile time: 
+   CPU time = 66 ms, elapsed time = 66 ms.
+
+ SQL Server Execution Times:
+   CPU time = 89732 ms,  elapsed time = 7408 ms.
+
+(485711 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3100 ms,  elapsed time = 824 ms.
+SQL Server parse and compile time: 
+   CPU time = 70 ms, elapsed time = 70 ms.
+
+ SQL Server Execution Times:
+   CPU time = 82275 ms,  elapsed time = 7982 ms.
+
+(453711 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 2281 ms,  elapsed time = 601 ms.
+SQL Server parse and compile time: 
+   CPU time = 79 ms, elapsed time = 79 ms.
+
+ SQL Server Execution Times:
+   CPU time = 81110 ms,  elapsed time = 5334 ms.
+
+(424131 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 1499 ms,  elapsed time = 676 ms.
+SQL Server parse and compile time: 
+   CPU time = 110 ms, elapsed time = 110 ms.
+
+ SQL Server Execution Times:
+   CPU time = 76642 ms,  elapsed time = 5510 ms.
+
+(396748 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 1798 ms,  elapsed time = 701 ms.
+SQL Server parse and compile time: 
+   CPU time = 86 ms, elapsed time = 86 ms.
+
+ SQL Server Execution Times:
+   CPU time = 71684 ms,  elapsed time = 7279 ms.
+
+(371272 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 1405 ms,  elapsed time = 1083 ms.
+SQL Server parse and compile time: 
+   CPU time = 82 ms, elapsed time = 82 ms.
+
+ SQL Server Execution Times:
+   CPU time = 70534 ms,  elapsed time = 9381 ms.
+
+(347722 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 1655 ms,  elapsed time = 1162 ms.
+SQL Server parse and compile time: 
+   CPU time = 186 ms, elapsed time = 186 ms.
+
+ SQL Server Execution Times:
+   CPU time = 67732 ms,  elapsed time = 10269 ms.
+
+(326244 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 3172 ms,  elapsed time = 634 ms.
+SQL Server parse and compile time: 
+   CPU time = 72 ms, elapsed time = 72 ms.
+
+ SQL Server Execution Times:
+   CPU time = 62704 ms,  elapsed time = 3463 ms.
+
+(306374 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 2262 ms,  elapsed time = 406 ms.
+SQL Server parse and compile time: 
+   CPU time = 844 ms, elapsed time = 937 ms.
+
+ SQL Server Execution Times:
+   CPU time = 1885391 ms,  elapsed time = 3509848 ms.
+
+(33902054 rows affected)
