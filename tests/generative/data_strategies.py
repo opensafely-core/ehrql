@@ -1,4 +1,3 @@
-import hypothesis as hyp
 import hypothesis.strategies as st
 
 # Data generation strategies are complicated by the need for patient ids in patient tables to
@@ -45,14 +44,16 @@ def patient_records(draw, class_, schema, value_strategies):
     # This strategy ensures that the patient ids are unique. We need to maintain the state to ensure that uniqueness
     # inside the strategy itself so that we can ensure the tests are idempotent as Hypothesis requires. That means that
     # this strategy must be called once only for a given table in a given test.
-    used_ids = []
+
+    # patients IDs are a permutation of the unique integers representing all possible patient IDs,
+    # between 1 and max_patient_id.  We pop these one at a time to create patient records, so
+    # somewhere between 0 and all of them will be used in the patient_records strategy
+    patient_ids = draw(st.permutations(list(range(1, max_patient_id + 1))))
 
     @st.composite
     def one_patient_record(draw_):
-        id_ = draw_(patient_ids)
-        hyp.assume(id_ not in used_ids)
-        used_ids.append(id_)
-        return draw(record(class_, st.just(id_), schema, value_strategies))
+        id_ = patient_ids.pop()
+        return draw_(record(class_, st.just(id_), schema, value_strategies))
 
     return draw(
         st.lists(one_patient_record(), min_size=0, max_size=max_num_patient_records)

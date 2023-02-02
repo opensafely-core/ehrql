@@ -8,6 +8,7 @@ from databuilder.query_model.nodes import (
     Filter,
     Function,
     PickOneRowPerPatient,
+    Position,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
@@ -286,10 +287,13 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     # consistent with the source.
     def any_frame():
         # Order matters: "simpler" first (see header comment)
-        return st.one_of(one_row_per_patient_frame(), many_rows_per_patient_frame())
+        return st.one_of(
+            one_row_per_patient_frame(),
+            many_rows_per_patient_frame(),
+        )
 
     def one_row_per_patient_frame():
-        return select_patient_table()
+        return st.one_of(select_patient_table(), pick_one_row_per_patient_frame())
 
     @st.composite
     def many_rows_per_patient_frame(draw):
@@ -297,6 +301,21 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         for _ in range(draw(st.integers(min_value=0, max_value=6))):
             source = draw(filter_(source))
         return source
+
+    @st.composite
+    def sorted_frame(draw):
+        # select a table which may already have been filtered
+        source = draw(many_rows_per_patient_frame())
+        # Now apply 1-3 sorts
+        for _ in range(draw(st.integers(min_value=1, max_value=3))):
+            source = draw(sort(source))
+        return source
+
+    @st.composite
+    def pick_one_row_per_patient_frame(draw):
+        source = draw(sorted_frame())
+        sort_order = draw(st.sampled_from([Position.FIRST, Position.LAST]))
+        return PickOneRowPerPatient(source, sort_order)
 
     def select_table():
         return st.builds(SelectTable, st.sampled_from(event_tables), st.just(schema))
@@ -310,6 +329,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def filter_(draw, source):
         condition = draw(series(bool, draw(ancestor_of(source))))
         return Filter(source, condition)
+
+    @st.composite
+    def sort(draw, source):
+        type_ = draw(comparable_type())
+        sort_by = draw(series(type_, draw(ancestor_of(source))))
+        return Sort(source, sort_by)
 
     @st.composite
     def ancestor_of(draw, frame):
@@ -339,8 +364,6 @@ known_missing_operations = {
     Function.StringContains,
 } | {
     Case,
-    Sort,
-    PickOneRowPerPatient,
     AggregateByPatient.Max,
     AggregateByPatient.Min,
     AggregateByPatient.Sum,
@@ -362,4 +385,4 @@ def assert_includes_all_operations(operations):  # pragma: no cover
 
 
 def is_one_row_per_patient_frame(frame):
-    return isinstance(frame, SelectPatientTable)
+    return isinstance(frame, (SelectPatientTable, PickOneRowPerPatient))
