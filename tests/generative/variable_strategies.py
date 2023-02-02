@@ -140,7 +140,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     @st.composite
     def aggregation_operation(draw, type_, aggregation):
-        # An aggregation operation that returns a patient frame but takes a
+        # An aggregation operation that returns a patient series but takes a
         # series drawn from a many-rows-per-patient frame
         frame = draw(many_rows_per_patient_frame())
         return aggregation(draw(series(type_, frame)))
