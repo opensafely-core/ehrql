@@ -103,6 +103,9 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         }
         series_types = series_constraints.keys()
 
+        if draw.__self__.depth > 75:
+            return draw(select_column(type_, frame))
+
         def constraints_match(series_type):
             type_constraint, domain_constraint = series_constraints[series_type]
             return (
@@ -314,13 +317,17 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             many_rows_per_patient_frame(),
         )
 
-    def one_row_per_patient_frame():
-        return st.one_of(select_patient_table(), pick_one_row_per_patient_frame())
+    @st.composite
+    def one_row_per_patient_frame(draw):
+        if draw.__self__.depth > 75:
+            return draw(select_patient_table())
+        return draw(st.one_of(select_patient_table(), pick_one_row_per_patient_frame()))
 
     @st.composite
     def many_rows_per_patient_frame(draw):
+        max_filters = 6 if draw.__self__.depth <= 75 else 0
         source = draw(select_table())
-        for _ in range(draw(st.integers(min_value=0, max_value=6))):
+        for _ in range(draw(st.integers(min_value=0, max_value=max_filters))):
             source = draw(filter_(source))
         return source
 
