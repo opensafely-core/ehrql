@@ -213,14 +213,26 @@ class isaric_raw(EventFrame):
     """
 
     # Demographics
-    age = Series(str, description="Age")
-    age_factor = Series(str, description="TODO")
+    age = Series(
+        str,
+        description="Age",
+    )
+    age_factor = Series(
+        str,
+        description="TODO",
+    )
     calc_age = Series(
         str,
         description="Calculated age (comparing date of birth with date of enrolment). May be inaccurate if a date of February 29 is used.",
     )
-    sex = Series(str, description="Sex at birth.")
-    ethnic = Series(str, description="Ethnic group.")
+    sex = Series(
+        str,
+        description="Sex at birth.",
+    )
+    ethnic = Series(
+        str,
+        description="Ethnic group.",
+    )
 
     # Clinical
     corona_ieorres = Series(
@@ -235,7 +247,8 @@ class isaric_raw(EventFrame):
         description="Proven or high likelihood of infection with pathogen of public health interest.",
     )
     coriona_ieorres3 = Series(
-        str, description="Proven infection with pathogen of public health interest."
+        str,
+        description="Proven infection with pathogen of public health interest.",
     )
     inflammatory_mss = Series(
         str,
@@ -248,19 +261,32 @@ class isaric_raw(EventFrame):
         description="Has the patient received a Covid-19 vaccine (open label licenced product)?",
     )
     covid19_vaccined = Series(
-        str, description="Date first vaccine given (Covid-19) if known."
+        str,
+        description="Date first vaccine given (Covid-19) if known.",
     )
     covid19_vaccined_nk = Series(
-        str, description="First vaccine given (Covid-19) but date not known."
+        str,
+        description="First vaccine given (Covid-19) but date not known.",
     )
 
     # Admission
-    hostdat = Series(str, description="Admission date at this facility.")
-    readm_cov19 = Series(
-        str, description="Is the patient being readmitted with Covid-19?"
+    hostdat = Series(
+        str,
+        description="Admission date at this facility.",
     )
-    hooccur = Series(str, description="Transfer from other facility?")
-    hostdat_transfer = Series(str, description="Admission date at previous facility.")
+    readm_cov19 = Series(
+        str,
+        description="Is the patient being readmitted with Covid-19?",
+    )
+    hooccur = Series(
+        str,
+        description="Transfer from other facility?",
+    )
+    hostdat_transfer = Series(
+        str,
+        description="Admission date at previous facility.",
+    )
     hostdat_transfernk = Series(
-        str, description="Admission date at previous facility not known."
+        str,
+        description="Admission date at previous facility not known.",
     )
