@@ -1,5 +1,8 @@
 from databuilder.query_model import nodes as qm
 
+# Replace with `from types import NoneType` in 3.10
+NoneType = type(None)
+
 
 class QueryGraphRewriter:
     """
@@ -42,7 +45,9 @@ class QueryGraphRewriter:
         elif isinstance(obj, frozenset):
             # As do frozensets
             return frozenset(self._rewrite(v, replacements) for v in obj)
-        elif isinstance(obj, (str, qm.Position, qm.TableSchema, qm.IterWrapper)):
+        elif isinstance(
+            obj, (NoneType, str, qm.Position, qm.TableSchema, qm.IterWrapper)
+        ):
             # Other expected types we return unchanged
             return obj
         else:
