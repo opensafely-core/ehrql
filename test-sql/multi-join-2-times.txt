@@ -1,0 +1,15 @@
+
+ SQL Server Execution Times:
+   CPU time = 1145670 ms,  elapsed time = 398913 ms.
+
+(265808659 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 713345 ms,  elapsed time = 57782 ms.
+SQL Server parse and compile time: 
+   CPU time = 8951 ms, elapsed time = 10444 ms.
+
+ SQL Server Execution Times:
+   CPU time = 6628584 ms,  elapsed time = 1744361 ms.
+
+(33902054 rows affected)

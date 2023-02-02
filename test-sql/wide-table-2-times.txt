@@ -1,0 +1,16 @@
+
+ SQL Server Execution Times:
+   CPU time = 2703012 ms,  elapsed time = 1092566 ms.
+Warning: Null value is eliminated by an aggregate or other SET operation.
+
+(21351049 rows affected)
+
+ SQL Server Execution Times:
+   CPU time = 632687 ms,  elapsed time = 144143 ms.
+SQL Server parse and compile time: 
+   CPU time = 16 ms, elapsed time = 36 ms.
+
+ SQL Server Execution Times:
+   CPU time = 745329 ms,  elapsed time = 4877883 ms.
+
+(33902054 rows affected)
