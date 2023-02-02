@@ -675,6 +675,122 @@
           ]
         },
         {
+          "name": "isaric_raw",
+          "docstring": [
+            "A subset of the ISARIC data.",
+            "",
+            "These columns are deliberately all taken as strings while in a preliminary phase.",
+            "They will later change to more appropriate data types.",
+            "",
+            "Descriptions taken from:",
+            "https://github.com/isaric4c/wiki/blob/d6b87d59a277cf2f6deedeb5e8c1a970dbb970a3/ISARIC/CCP_REDCap_ISARIC_data_dictionary_codebook.pdf"
+          ],
+          "columns": [
+            {
+              "name": "age",
+              "description": "Age",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "age_factor",
+              "description": "TODO",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "calc_age",
+              "description": "Calculated age (comparing date of birth with date of enrolment). May be inaccurate if a date of February 29 is used.",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "sex",
+              "description": "Sex at birth.",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "ethnic",
+              "description": "Ethnic group.",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "corona_ieorres",
+              "description": "Suspected or proven infection with pathogen of public health interest.",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "coriona_ieorres2",
+              "description": "Proven or high likelihood of infection with pathogen of public health interest.",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "coriona_ieorres3",
+              "description": "Proven infection with pathogen of public health interest.",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "inflammatory_mss",
+              "description": "Adult or child who meets case definition for inflammatory multi-system syndrome (MIS-C/MIS-A).",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "covid19_vaccine",
+              "description": "Has the patient received a Covid-19 vaccine (open label licenced product)?",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "covid19_vaccined",
+              "description": "Date first vaccine given (Covid-19) if known.",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "covid19_vaccined_nk",
+              "description": "First vaccine given (Covid-19) but date not known.",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "hostdat",
+              "description": "Admission date at this facility.",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "readm_cov19",
+              "description": "Is the patient being readmitted with Covid-19?",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "hooccur",
+              "description": "Transfer from other facility?",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "hostdat_transfer",
+              "description": "Admission date at previous facility.",
+              "type": "str",
+              "constraints": []
+            },
+            {
+              "name": "hostdat_transfernk",
+              "description": "Admission date at previous facility not known.",
+              "type": "str",
+              "constraints": []
+            }
+          ]
+        },
+        {
           "name": "medications",
           "docstring": [],
           "columns": [

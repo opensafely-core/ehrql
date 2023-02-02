@@ -18,6 +18,7 @@ __all__ = [
     "hospital_admissions",
     "appointments",
     "ons_cis",
+    "isaric_raw",
 ]
 
 
@@ -197,3 +198,95 @@ class ons_cis(EventFrame):
     visit_num = Series(int)
     is_opted_out_of_nhs_data_share = Series(bool)
     last_linkage_dt = Series(datetime.date)
+
+
+@table
+class isaric_raw(EventFrame):
+    """
+    A subset of the ISARIC data.
+
+    These columns are deliberately all taken as strings while in a preliminary phase.
+    They will later change to more appropriate data types.
+
+    Descriptions taken from:
+    https://github.com/isaric4c/wiki/blob/d6b87d59a277cf2f6deedeb5e8c1a970dbb970a3/ISARIC/CCP_REDCap_ISARIC_data_dictionary_codebook.pdf
+    """
+
+    # Demographics
+    age = Series(
+        str,
+        description="Age",
+    )
+    age_factor = Series(
+        str,
+        description="TODO",
+    )
+    calc_age = Series(
+        str,
+        description="Calculated age (comparing date of birth with date of enrolment). May be inaccurate if a date of February 29 is used.",
+    )
+    sex = Series(
+        str,
+        description="Sex at birth.",
+    )
+    ethnic = Series(
+        str,
+        description="Ethnic group.",
+    )
+
+    # Clinical
+    corona_ieorres = Series(
+        str,
+        description="Suspected or proven infection with pathogen of public health interest.",
+    )
+    # Note the coriona spelling here (compared with corona_ieorres).
+    # The difference exists both in the TPP ISARIC_New database table,
+    # and the ISARIC data dictionary.
+    coriona_ieorres2 = Series(
+        str,
+        description="Proven or high likelihood of infection with pathogen of public health interest.",
+    )
+    coriona_ieorres3 = Series(
+        str,
+        description="Proven infection with pathogen of public health interest.",
+    )
+    inflammatory_mss = Series(
+        str,
+        description="Adult or child who meets case definition for inflammatory multi-system syndrome (MIS-C/MIS-A).",
+    )
+
+    # Vaccination
+    covid19_vaccine = Series(
+        str,
+        description="Has the patient received a Covid-19 vaccine (open label licenced product)?",
+    )
+    covid19_vaccined = Series(
+        str,
+        description="Date first vaccine given (Covid-19) if known.",
+    )
+    covid19_vaccined_nk = Series(
+        str,
+        description="First vaccine given (Covid-19) but date not known.",
+    )
+
+    # Admission
+    hostdat = Series(
+        str,
+        description="Admission date at this facility.",
+    )
+    readm_cov19 = Series(
+        str,
+        description="Is the patient being readmitted with Covid-19?",
+    )
+    hooccur = Series(
+        str,
+        description="Transfer from other facility?",
+    )
+    hostdat_transfer = Series(
+        str,
+        description="Admission date at previous facility.",
+    )
+    hostdat_transfernk = Series(
+        str,
+        description="Admission date at previous facility not known.",
+    )

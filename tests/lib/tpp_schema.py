@@ -268,6 +268,11 @@ class Patient(Base):
         back_populates="Patient",
         cascade="all, delete, delete-orphan",
     )
+    ISARIC_New = relationship(
+        "ISARIC_New",
+        back_populates="Patient",
+        cascade="all, delete, delete-orphan",
+    )
 
 
 class RegistrationHistory(Base):
@@ -970,6 +975,37 @@ class UKRR(Base):
     mod_prev = Column(String)
     creat = Column(Integer)
     eGFR_ckdepi = Column(Float)
+
+
+class ISARIC_New(Base):
+    __tablename__ = "ISARIC_New"
+
+    # fake pk to satisfy the ORM
+    pk = Column(Integer, primary_key=True)
+
+    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
+    Patient = relationship("Patient", back_populates="ISARIC_New")
+
+    age = Column(String)
+    age_factor = Column("age.factor", String)
+    calc_age = Column(String)
+    sex = Column(String)
+    ethnic = Column(String)
+
+    corona_ieorres = Column(String)
+    coriona_ieorres2 = Column(String)
+    coriona_ieorres3 = Column(String)
+    inflammatory_mss = Column(String)
+
+    covid19_vaccine = Column(String)
+    covid19_vaccined = Column(String)
+    covid19_vaccined_nk = Column(String)
+
+    hostdat = Column(String)
+    readm_cov19 = Column(String)
+    hooccur = Column(String)
+    hostdat_transfer = Column(String)
+    hostdat_transfernk = Column(String)
 
 
 class BuildProgress(Base):
