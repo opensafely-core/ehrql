@@ -17,11 +17,11 @@ table_data = {
 def test_map_values(spec_test):
     spec_test(
         table_data,
-        p.i1.map_values({101: "a", 201: "b", 301: "a"}),
+        p.i1.map_values({101: "a", 201: "b", 301: "a"}, default="c"),
         {
             1: "a",
             2: "b",
             3: "a",
-            4: None,
+            4: "c",
         },
     )

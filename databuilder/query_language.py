@@ -125,7 +125,7 @@ class BaseSeries:
     def is_not_in(self, other):
         return self.is_in(other).__invert__()
 
-    def map_values(self, mapping):
+    def map_values(self, mapping, default=None):
         """
         Accepts a dictionary mapping one set of values to another and applies that
         mapping to the series
@@ -134,7 +134,8 @@ class BaseSeries:
             *[
                 when(self == from_value).then(to_value)
                 for from_value, to_value in mapping.items()
-            ]
+            ],
+            default=default,
         )
 
     def if_null_then(self, other):
@@ -471,8 +472,8 @@ def years(value):
 
 
 class CodeFunctions:
-    def to_category(self, categorisation):
-        return self.map_values(categorisation)
+    def to_category(self, categorisation, default=None):
+        return self.map_values(categorisation, default=default)
 
 
 class CodeEventSeries(CodeFunctions, EventSeries):
