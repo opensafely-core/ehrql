@@ -130,10 +130,12 @@ class BaseSeries:
         Accepts a dictionary mapping one set of values to another and applies that
         mapping to the series
         """
-        cases = _DictArg(
-            (self == from_value, to_value) for from_value, to_value in mapping.items()
+        return case(
+            *[
+                when(self == from_value).then(to_value)
+                for from_value, to_value in mapping.items()
+            ]
         )
-        return _apply(qm.Case, cases)
 
     def if_null_then(self, other):
         return case(
