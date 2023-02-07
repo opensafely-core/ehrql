@@ -4,7 +4,7 @@ from databuilder.tables.beta.tpp import patients
 
 dataset = Dataset()
 year = patients.date_of_birth.year
-dataset.set_population(year >= 1900)
+dataset.set_population(year >= 1940)
 dataset.year = year
 """
 

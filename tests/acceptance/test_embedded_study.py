@@ -15,6 +15,7 @@ from tests.lib.tpp_schema import patient
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
 def test_generate_dataset(study, mssql_database, extension):
     mssql_database.setup(
+        patient(dob=datetime(1934, 5, 5)),
         patient(dob=datetime(1943, 5, 5)),
         patient(dob=datetime(1999, 5, 5)),
     )
