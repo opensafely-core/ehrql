@@ -244,6 +244,11 @@ def mssql_engine(request):
     return engine_factory(request, "mssql")
 
 
+@pytest.fixture
+def in_memory_engine(request):
+    return engine_factory(request, "in_memory")
+
+
 @pytest.fixture(scope="session")
 def databuilder_image(show_delayed_warning):
     project_dir = Path(databuilder.__file__).parents[1]
