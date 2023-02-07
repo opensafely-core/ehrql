@@ -107,3 +107,130 @@ def test_practice_registrations_for_patient_on(in_memory_engine):
         {"patient_id": 4, "practice_pseudo_id": 456},
         {"patient_id": 5, "practice_pseudo_id": 789},
     ]
+
+
+def test_addresses_for_patient_on(in_memory_engine):
+    in_memory_engine.populate(
+        # Simple case: successive addresses
+        {
+            tpp.addresses: [
+                dict(
+                    patient_id=1,
+                    address_id=100,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2005, 1, 1),
+                ),
+                dict(
+                    patient_id=1,
+                    address_id=101,
+                    start_date=date(2005, 1, 1),
+                    end_date=date(2015, 1, 1),
+                ),
+                dict(
+                    patient_id=1,
+                    address_id=102,
+                    start_date=date(2015, 1, 1),
+                    end_date=date(2020, 1, 1),
+                ),
+            ]
+        },
+        # Address with NULL end date
+        {
+            tpp.addresses: [
+                dict(
+                    patient_id=2,
+                    address_id=103,
+                    start_date=date(2000, 1, 1),
+                    end_date=None,
+                ),
+            ]
+        },
+        # Overlapping: choose address with postcode
+        {
+            tpp.addresses: [
+                dict(
+                    patient_id=3,
+                    address_id=104,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2015, 1, 1),
+                    has_postcode=False,
+                ),
+                dict(
+                    patient_id=3,
+                    address_id=105,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2015, 1, 1),
+                    has_postcode=True,
+                ),
+            ]
+        },
+        # Overlapping: choose most recent
+        {
+            tpp.addresses: [
+                dict(
+                    patient_id=4,
+                    address_id=106,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2015, 1, 1),
+                ),
+                dict(
+                    patient_id=4,
+                    address_id=107,
+                    start_date=date(2005, 1, 1),
+                    end_date=date(2015, 1, 1),
+                ),
+            ]
+        },
+        # Overlapping: choose longest
+        {
+            tpp.addresses: [
+                dict(
+                    patient_id=5,
+                    address_id=108,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2012, 1, 1),
+                ),
+                dict(
+                    patient_id=5,
+                    address_id=109,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2015, 1, 1),
+                ),
+            ]
+        },
+        # Tie-break: choose largest address ID
+        {
+            tpp.addresses: [
+                dict(
+                    patient_id=6,
+                    address_id=110,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2015, 1, 1),
+                    has_postcode=True,
+                ),
+                dict(
+                    patient_id=6,
+                    address_id=111,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2015, 1, 1),
+                    has_postcode=True,
+                ),
+            ]
+        },
+    )
+
+    address = tpp.addresses.for_patient_on("2010-01-01")
+
+    dataset = Dataset()
+    dataset.set_population(tpp.addresses.exists_for_patient())
+    dataset.address_id = address.address_id
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {"patient_id": 1, "address_id": 101},
+        {"patient_id": 2, "address_id": 103},
+        {"patient_id": 3, "address_id": 105},
+        {"patient_id": 4, "address_id": 107},
+        {"patient_id": 5, "address_id": 109},
+        {"patient_id": 6, "address_id": 111},
+    ]
