@@ -8,7 +8,6 @@ attrs==21.4.0 \
     --hash=sha256:2d27e3784d7a565d36ab851fe94887c5eccd6a463168875832a1be79c82828b4 \
     --hash=sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd
     # via
-    #   flake8-implicit-str-concat
     #   hypothesis
     #   interrogate
     #   pytest
@@ -160,9 +159,9 @@ flake8-builtins==2.1.0 \
     --hash=sha256:12ff1ee96dd4e1f3141141ee6c45a5c7d3b3c440d0949e9b8d345c42b39c51d4 \
     --hash=sha256:469e8f03d6d0edf4b1e62b6d5a97dce4598592c8a13ec8f0952e7a185eba50a1
     # via -r requirements.dev.in
-flake8-implicit-str-concat==0.3.0 \
-    --hash=sha256:a89ebc50567790fb7b83e032ed4014ae0db70e35d89e269c3323967135023600 \
-    --hash=sha256:c0e6ae227e46238e4c87844091f8072892caeccd3bb266576a7d449eadbf53a0
+flake8-implicit-str-concat==0.4.0 \
+    --hash=sha256:b6acf233afee943dc1802ef4bc242a19f0419fac9943739e235d3f2aaf616361 \
+    --hash=sha256:b91805a3e0ff30ae2890830548478af25c79a4a579ec402a6ba3538043dff60c
     # via -r requirements.dev.in
 flake8-no-pep420==2.3.0 \
     --hash=sha256:1b965a18508ac7842de288740aa43627d3a5bb2be64f7d5d70d55cb691c3de84 \
