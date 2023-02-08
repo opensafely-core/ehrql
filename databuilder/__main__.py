@@ -62,6 +62,11 @@ def main(args, environ=None):
     add_generate_measures(subparsers, environ)
     add_test_connection(subparsers, environ)
 
+    if "--" in args:
+        # We rewrite sys.argv so that any command line arguments following a -- are
+        # available to users in dataset definition.
+        sys.argv = ["databuilder"] + args[args.index("--") + 1 :]
+        args = args[: args.index("--")]
     kwargs = vars(parser.parse_args(args))
     function = kwargs.pop("function")
 
