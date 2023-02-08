@@ -19,6 +19,9 @@ from databuilder.query_model.nodes import (
 )
 from tests.lib.query_model_utils import get_all_operations
 
+SERIES_MAX_DEPTH = int(environ.get("GENTEST_SERIES_MAX_DEPTH", 30))
+TABLE_MAX_DEPTH = int(environ.get("GENTEST_TABLE_MAX_DEPTH", 75))
+
 # This module defines a set of recursive Hypothesis strategies for generating query model graphs.
 #
 # There are a few points where we deliberate order the types that we choose from, with the
@@ -78,13 +81,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     # The defaults are therefore set, somewhat arbitrarily, to 30 for series and 75 for tables.
 
     def depth_exceeded(max_depth=None):
-        max_depth = max_depth or environ.get("GENTEST_SERIES_MAX_DEPTH", 30)
+        max_depth = max_depth or SERIES_MAX_DEPTH
         ctx = current_build_context()
         return ctx.data.depth > max_depth
 
     def table_depth_exceeded():
-        max_depth = environ.get("GENTEST_TABLE_MAX_DEPTH", 75)
-        return depth_exceeded(max_depth)
+        return depth_exceeded(TABLE_MAX_DEPTH)
 
     @st.composite
     def series(draw, type_, frame):

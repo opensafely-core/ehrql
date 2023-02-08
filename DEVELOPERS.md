@@ -112,9 +112,7 @@ GENTEST_COMPREHENSIVE=t GENTEST_EXAMPLES=300 just test-generative
 (But note that you need something like 300 examples to have any chance of this passing.)
 
 Hypothesis can generate query graphs that are very deeply nested; after 100 draws in a test example, hypothesis will return the example as invalid.  In order to avoid this, the
-variable strategies check for a maximum depth and return a terminal node if the maximum depth is exceeded (A `SelectColumn` node for a series strategy, and a `SelectTable` or `SelectPatientTable` for a table strategy). The max depth defaults to 30 for series
-strategies and 75 for table strategies.  These can be overridden with environment
-variables `GENTEST_SERIES_MAX_DEPTH` and `GENTEST_TABLE_MAX_DEPTH` respectively.
+variable strategies check for a maximum depth and return a terminal node if the maximum depth is exceeded (A `SelectColumn` node for a series strategy, and a `SelectTable` or `SelectPatientTable` for a table strategy). The max depth defaults to 30 and can be overridden with environment variable `GENTEST_MAX_DEPTH`.
 
 ### Writing tests
 
