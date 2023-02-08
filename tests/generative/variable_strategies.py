@@ -1,6 +1,8 @@
 import datetime
+from os import environ
 
 import hypothesis.strategies as st
+from hypothesis.control import current_build_context
 
 from databuilder.query_model.nodes import (
     AggregateByPatient,
@@ -58,8 +60,37 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     #     permitted to return a one-row-per-patient series, because such series can always be
     #     composed a many-rows-per-patient series; so there are series strategy functions that,
     #     always or sometimes, ignore the frame argument.
+
+    # Max depth
+    #
+    # The depth_exceeded functions force hypothesis to return a terminating node if the current
+    # test depth is too deep.
+    # Otherwise, the generated graph can continue forever, and will eventually hit the
+    # hypothesis limit (100) and will be abandoned. This results in too many invalid examples,
+    # which triggers the too-many-filters healthcheck.
+    #
+    # If the max limit is set high - e.g. if we always let it go to 100 and then return our
+    # default terminating node, generating the examples takes a really long time.
+    #
+    # Setting the depth at which a table strategy bails too low means that hypothesis takes
+    # too long to shrink examples.
+    #
+    # The defaults are therefore set, somewhat arbitrarily, to 30 for series and 75 for tables.
+
+    def depth_exceeded(max_depth=None):
+        max_depth = max_depth or environ.get("GENTEST_SERIES_MAX_DEPTH", 30)
+        ctx = current_build_context()
+        return ctx.data.depth > max_depth
+
+    def table_depth_exceeded():
+        max_depth = environ.get("GENTEST_TABLE_MAX_DEPTH", 75)
+        return depth_exceeded(max_depth)
+
     @st.composite
     def series(draw, type_, frame):
+        if depth_exceeded():  # pragma: no cover
+            return draw(select_column(type_, frame))
+
         class DomainConstraint:
             PATIENT = (True,)
             NON_PATIENT = (False,)
@@ -293,12 +324,19 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         )
 
     def one_row_per_patient_frame():
+        if table_depth_exceeded():  # pragma: no cover
+            return select_patient_table()
         return st.one_of(select_patient_table(), pick_one_row_per_patient_frame())
 
+    def many_rows_per_patient_frame():
+        if table_depth_exceeded():  # pragma: no cover
+            return select_table()
+        return st.one_of(select_table(), filtered_table())
+
     @st.composite
-    def many_rows_per_patient_frame(draw):
+    def filtered_table(draw):
         source = draw(select_table())
-        for _ in range(draw(st.integers(min_value=0, max_value=6))):
+        for _ in range(draw(st.integers(min_value=1, max_value=6))):
             source = draw(filter_(source))
         return source
 
