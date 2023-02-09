@@ -221,15 +221,15 @@ databricks-test *ARGS: devenv databricks-env
     export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
     just test {{ ARGS }}
 
-generate-docs OUTPUT_FILE="docs/public_docs.json": devenv
-    $BIN/python -m databuilder.docs > {{ OUTPUT_FILE }}
-    echo "Generated data for documentation."
+generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
+    $BIN/python -m databuilder.docs {{ OUTPUT_DIR }}
+    echo "Generated data for documentation in {{ OUTPUT_DIR }}"
 
 update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
 
-docs-serve: devenv
-    BACKEND_DOCS_FILE=docs/public_docs.json "$BIN"/mkdocs serve
+docs-serve: devenv generate-docs
+    "$BIN"/mkdocs serve
 
 # Run the snippet tests
 docs-test: devenv
@@ -295,14 +295,16 @@ docs-build-dataset-definitions-outputs-docker-project:
 
 
 # Check the dataset public docs are current
-docs-check-public-docs-are-current: generate-docs
+docs-check-generated-docs-are-current: generate-docs
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [[ -z $(git diff ./docs/public_docs.json) ]]
+    # https://stackoverflow.com/questions/3878624/how-do-i-programmatically-determine-if-there-are-uncommitted-changes
+    # git diff --exit-code won't pick up untracked files, which we also want to check for.
+    if [[ -z $(git status --porcelain ./docs/includes/generated_docs/; git clean -nd ./docs/includes/generated_docs/) ]]
     then
-      echo "public_docs.json is current."
+      echo "Generated docs directory is current and free of other files/directories."
     else
-      echo "public_docs.json is not current; run `just generate-docs` to update."
+      echo "Generated docs directory contains files/directories not in the repository."
       exit 1
     fi

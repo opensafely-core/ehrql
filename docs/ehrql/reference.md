@@ -46,6 +46,6 @@ Every example here consists of:
 !!! note
     The examples here are automatically generated from [Data Builder's specification tests](https://github.com/opensafely-core/databuilder/tree/main/tests/spec).
 
-!!! specs
+---8<-- 'includes/generated_docs/specs.md'
 
 !!! parent_snippet:'includes/glossary.md'

@@ -1,6 +1,8 @@
-import json
+import sys
+from pathlib import Path
 
-from . import generate_docs
+from . import generate_docs, render
 
 if __name__ == "__main__":
-    print(json.dumps(generate_docs(), indent=2))
+    output_dir = sys.argv[1]
+    render(generate_docs(), Path(output_dir))

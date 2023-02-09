@@ -9,12 +9,12 @@ This page lists the OpenSAFELY Contracts implemented by each available
 backend.
 
 ## TPP
-!!! backend:TPPBackend
+---8<-- 'includes/generated_docs/TPPBackend.md'
 
 ## Databricks
-!!! backend:DatabricksBackend
+---8<-- 'includes/generated_docs/DatabricksBackend.md'
 
 ## Graphnet
-!!! backend:GraphnetBackend
+---8<-- 'includes/generated_docs/GraphnetBackend.md'
 
 !!! parent_snippet:'includes/glossary.md'
