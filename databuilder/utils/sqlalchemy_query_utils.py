@@ -232,3 +232,11 @@ def iterate_unique(clause):
                 seen.add(key)
                 yield t
                 stack.append(t.get_children())
+
+
+def expr_has_type(expr, type_):
+    if isinstance(expr.type, type_):
+        return True
+    if hasattr(expr.type, "impl") and isinstance(expr.type.impl, type_):
+        return True
+    return False

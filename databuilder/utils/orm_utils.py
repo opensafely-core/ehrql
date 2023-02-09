@@ -9,6 +9,7 @@ from sqlalchemy.orm import declarative_base
 from databuilder.query_language import BaseFrame
 from databuilder.query_model.nodes import has_one_row_per_patient
 from databuilder.sqlalchemy_types import Integer, type_from_python_type
+from databuilder.utils.sqlalchemy_query_utils import expr_has_type
 
 SYNTHETIC_PRIMARY_KEY = "row_id"
 
@@ -127,31 +128,23 @@ def read_value(value, field):
     # Treat the empty string as NULL
     if value == "":
         return None
-    if _has_type(field, sqlalchemy.Boolean):
+    if expr_has_type(field, sqlalchemy.Boolean):
         if value == "T":
             return True
         elif value == "F":
             return False
         else:
             raise ValueError(f"invalid boolean '{value}', must be 'T' or 'F'")
-    elif _has_type(field, sqlalchemy.Date):
+    elif expr_has_type(field, sqlalchemy.Date):
         return datetime.date.fromisoformat(value)
-    elif _has_type(field, sqlalchemy.Float):
+    elif expr_has_type(field, sqlalchemy.Float):
         return float(value)
-    elif _has_type(field, sqlalchemy.Integer):
+    elif expr_has_type(field, sqlalchemy.Integer):
         return int(value)
-    elif _has_type(field, sqlalchemy.String):
+    elif expr_has_type(field, sqlalchemy.String):
         return value
     else:
         assert False
-
-
-def _has_type(field, type_):
-    if isinstance(field.type, type_):
-        return True
-    if hasattr(field.type, "impl") and isinstance(field.type.impl, type_):
-        return True
-    return False
 
 
 def write_orm_models_to_csv_directory(directory, models):
@@ -194,7 +187,7 @@ def orm_csv_writer(fileobj, orm_class):
 def format_value(value, field):
     # The CSV library will implicitly format most types correctly as strings, but
     # doesn't handle booleans as we'd like
-    if _has_type(field, sqlalchemy.Boolean):
+    if expr_has_type(field, sqlalchemy.Boolean):
         if value is True:
             return "T"
         elif value is False:
