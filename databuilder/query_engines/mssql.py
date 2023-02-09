@@ -16,6 +16,7 @@ from databuilder.utils.sqlalchemy_exec_utils import (
 )
 from databuilder.utils.sqlalchemy_query_utils import (
     GeneratedTable,
+    expr_has_type,
     get_setup_and_cleanup_queries,
 )
 
@@ -28,6 +29,13 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
     # The `#` prefix is an MSSQL-ism which automatically makes the tables session-scoped
     # temporary tables
     intermediate_table_prefix = "#tmp_"
+
+    def calculate_mean(self, sql_expr):
+        # Unlike other DBMSs, MSSQL will return an integer as the mean of integers so we
+        # have to explicitly cast to float
+        if not expr_has_type(sql_expr, sqlalchemy_types.Float):
+            sql_expr = sqlalchemy.cast(sql_expr, sqlalchemy_types.Float)
+        return sqlalchemy.func.avg(sql_expr, type_=sqlalchemy_types.Float)
 
     def date_difference_in_days(self, end, start):
         return SQLFunction(

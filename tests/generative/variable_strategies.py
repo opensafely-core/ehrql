@@ -99,6 +99,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             min_: (comparable_types(), DomainConstraint.PATIENT),
             max_: (comparable_types(), DomainConstraint.PATIENT),
             sum_: ({int, float}, DomainConstraint.PATIENT),
+            mean: ({float}, DomainConstraint.PATIENT),
             is_null: ({bool}, DomainConstraint.ANY),
             not_: ({bool}, DomainConstraint.ANY),
             year_from_date: ({int}, DomainConstraint.ANY),
@@ -163,6 +164,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     def sum_(type_, _frame):
         return aggregation_operation(type_, AggregateByPatient.Sum)
+
+    @st.composite
+    def mean(draw, _type, _frame):
+        type_ = draw(any_numeric_type())
+        frame = draw(many_rows_per_patient_frame())
+        return AggregateByPatient.Mean(draw(series(type_, frame)))
 
     @st.composite
     def aggregation_operation(draw, type_, aggregation):

@@ -405,6 +405,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_max(self, node):
         return self.aggregate_series_by_patient(node.source, sqlalchemy.func.max)
 
+    @get_sql.register(AggregateByPatient.Mean)
+    def get_sql_mean(self, node):
+        return self.aggregate_series_by_patient(node.source, self.calculate_mean)
+
+    def calculate_mean(self, sql_expr):
+        # Unlike `sum/min/max` the `avg` function doesn't automatically acquire the
+        # correct return type
+        return sqlalchemy.func.avg(sql_expr, type_=sqlalchemy_types.Float)
+
     # `Exists` and `Count` are Frame-level (rather than Series-level) aggregations and
     # so have a different implementation. They can operate on both many- and
     # one-row-per-patient frames, and they are never NULL valued.

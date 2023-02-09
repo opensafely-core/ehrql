@@ -601,6 +601,63 @@ returns the following patient series:
 
 
 
+### 4.3 Mean aggregation
+
+
+#### 4.3.1 Mean for patient integer
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|f1 |
+| - | - | - |
+| 1|1|1.1 |
+| 1|2|2.1 |
+| 1|3|3.1 |
+| 2|| |
+| 2|2|2.1 |
+| 2|3|3.1 |
+| 3|| |
+
+```
+e.i1.mean_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2.0 |
+| 2|2.5 |
+| 3| |
+
+
+
+#### 4.3.2 Mean for patient float
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|f1 |
+| - | - | - |
+| 1|1|1.1 |
+| 1|2|2.1 |
+| 1|3|3.1 |
+| 2|| |
+| 2|2|2.1 |
+| 2|3|3.1 |
+| 3|| |
+
+```
+e.f1.mean_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2.1 |
+| 2|2.6 |
+| 3| |
+
+
+
 ## 5 Combining series
 
 
