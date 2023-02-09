@@ -19,8 +19,7 @@ from databuilder.query_model.nodes import (
 )
 from tests.lib.query_model_utils import get_all_operations
 
-SERIES_MAX_DEPTH = int(environ.get("GENTEST_SERIES_MAX_DEPTH", 30))
-TABLE_MAX_DEPTH = int(environ.get("GENTEST_TABLE_MAX_DEPTH", 75))
+MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH", 30))
 
 # This module defines a set of recursive Hypothesis strategies for generating query model graphs.
 #
@@ -73,20 +72,14 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     # which triggers the too-many-filters healthcheck.
     #
     # If the max limit is set high - e.g. if we always let it go to 100 and then return our
-    # default terminating node, generating the examples takes a really long time.
+    # default terminating node, generating the examples takes a really long time.  Setting it
+    # too low means that hypothesis takes too long to shrink examples.
     #
-    # Setting the depth at which a table strategy bails too low means that hypothesis takes
-    # too long to shrink examples.
-    #
-    # The defaults are therefore set, somewhat arbitrarily, to 30 for series and 75 for tables.
+    # The default is therefore set, somewhat arbitrarily, to 30.
 
-    def depth_exceeded(max_depth=None):
-        max_depth = max_depth or SERIES_MAX_DEPTH
+    def depth_exceeded():
         ctx = current_build_context()
-        return ctx.data.depth > max_depth
-
-    def table_depth_exceeded():
-        return depth_exceeded(TABLE_MAX_DEPTH)
+        return ctx.data.depth > MAX_DEPTH
 
     @st.composite
     def series(draw, type_, frame):
@@ -326,12 +319,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         )
 
     def one_row_per_patient_frame():
-        if table_depth_exceeded():  # pragma: no cover
+        if depth_exceeded():  # pragma: no cover
             return select_patient_table()
         return st.one_of(select_patient_table(), pick_one_row_per_patient_frame())
 
     def many_rows_per_patient_frame():
-        if table_depth_exceeded():  # pragma: no cover
+        if depth_exceeded():  # pragma: no cover
             return select_table()
         return st.one_of(select_table(), filtered_table())
 
