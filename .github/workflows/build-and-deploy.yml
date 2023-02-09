@@ -99,7 +99,7 @@ jobs:
           echo "MINOR=$MINOR"
           echo "PATCH=$PATCH"
 
-          echo "$MAJOR.$MINOR.$PATCH" > databuilder/VERSION
+          echo "$PATCH" > databuilder/VERSION
 
           DOCKER_BUILDKIT=1 docker build . --file Dockerfile \
             --target databuilder \
