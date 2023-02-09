@@ -122,6 +122,7 @@ def evaluate_combine_as_set(node):
 @evaluate.register(AggregateByPatient.Min)
 @evaluate.register(AggregateByPatient.Max)
 @evaluate.register(AggregateByPatient.Sum)
+@evaluate.register(AggregateByPatient.Mean)
 def evaluate_aggregation(node):
     return None
 

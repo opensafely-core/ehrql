@@ -1,4 +1,5 @@
 import operator
+import statistics
 from collections import namedtuple
 
 from databuilder.query_engines.base import BaseQueryEngine
@@ -133,6 +134,10 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_Sum(self, node):
         col = self.visit(node.source)
         return col.aggregate_values(sum, default=None)
+
+    def visit_Mean(self, node):
+        col = self.visit(node.source)
+        return col.aggregate_values(statistics.fmean, default=None)
 
     def visit_CombineAsSet(self, node):
         assert False

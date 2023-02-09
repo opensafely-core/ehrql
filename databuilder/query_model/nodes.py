@@ -241,6 +241,9 @@ class AggregateByPatient:
     class Sum(AggregatedSeries[Numeric]):
         source: Series[Numeric]
 
+    class Mean(AggregatedSeries[float]):
+        source: Series[Numeric]
+
     # This is an unusual aggregation in that while it collapses multiple values per patient
     # down to a single value per patient (as all aggregations must) the value it
     # produces is a set-like object containing all of its input values. This enables

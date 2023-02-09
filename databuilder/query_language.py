@@ -279,6 +279,9 @@ class NumericAggregations(ComparableAggregations):
     def sum_for_patient(self):
         return _apply(qm.AggregateByPatient.Sum, self)
 
+    def mean_for_patient(self):
+        return _apply(qm.AggregateByPatient.Mean, self)
+
 
 class IntEventSeries(NumericFunctions, NumericAggregations, EventSeries):
     _type = int
