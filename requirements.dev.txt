@@ -144,10 +144,6 @@ filelock==3.7.1 \
     --hash=sha256:37def7b658813cda163b56fc564cdc75e86d338246458c4c28ae84cabefa2404 \
     --hash=sha256:3a0fd85166ad9dbab54c9aec96737b744106dc5f15c0b09a6744a445299fcf04
     # via virtualenv
-first==2.0.2 \
-    --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
-    --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf
-    # via mkdocs-opensafely-databuilder
 flake8==6.0.0 \
     --hash=sha256:3833794e27ff64ea4e9cf5d410082a8b97ff1a06c16aa3d2027339cd0f1195c7 \
     --hash=sha256:c61007e76655af75e6785a931f452915b371dc48f56efd765247c8fe68f2b181
@@ -171,9 +167,9 @@ ghp-import==2.1.0 \
     --hash=sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619 \
     --hash=sha256:9c535c4c61193c2df8871222567d7fd7e5014d835f97dc7b7439069e2413d343
     # via mkdocs
-hypothesis==6.67.1 \
-    --hash=sha256:7abb4361d796ae6432d1c0b22a514210a2a19cb0d85efca8463e619a80f3132c \
-    --hash=sha256:947839d8b5fd24d9b4d1e41ee10f7285d023f49f3b318519bf110fa9e5f3154e
+hypothesis==6.68.0 \
+    --hash=sha256:064a5bf7a98cbdfa3589d8934a2c548524c6d108bfa368ec5ed8b09caa526108 \
+    --hash=sha256:8cfa1de15271debb2750545a460e58e3e84527d94157f38ab9309826953572f3
     # via -r requirements.dev.in
 identify==2.5.1 \
     --hash=sha256:0dca2ea3e4381c435ef9c33ba100a78a9b40c0bab11189c7cf121f75815efeaa \
