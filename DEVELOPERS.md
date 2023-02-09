@@ -293,11 +293,16 @@ Some Data Builder [documentation](https://github.com/opensafely/documentation) i
 See the [spec tests docs](tests/spec/README.md) for further information on writing tests that
 contribute to the ehrQL docs.
 
-An intermediate step generates a JSON file (`public_docs.json`) containing the data needed to generate the documentation.
+An intermediate step generates the markdown files that are included in the documentation.
 
 To generate this file, run:
 
     just generate-docs
+
+This generates the markdown files in `docs/includes/generated_docs`.
+
+Note that it is currently a developer's responsibility to update the generated docs in a PR if required. There
+is a CI step that will check that the documentation is up to date.
 
 ### Updating the main OpenSAFELY documentation repository
 
