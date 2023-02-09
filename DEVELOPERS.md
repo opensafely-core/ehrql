@@ -71,6 +71,21 @@ There are further notes on using `pytest` in the wiki here:
 https://github.com/opensafely-core/databuilder/wiki/Tips-for-using-pytest
 
 
+#### Parallelised tests
+
+To make the tests run faster,
+we use the [pytest-xdist plugin](https://github.com/pytest-dev/pytest-xdist) which can run tests in parallel.
+
+This is usually beneficial,
+but it is incompatible with [use of the PDB debugger](https://github.com/opensafely-core/databuilder/issues/941) during a test run.
+To disable pytest-xdist, add `--dist no` to the `just` test recipe invocation.
+
+For example:
+
+```
+just test-all-no-spark --dist no --pdb
+```
+
 #### Generative tests
 
 The generative tests use Hypothesis to generate variable definitions (in the query model) and test data.
