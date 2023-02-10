@@ -35,10 +35,15 @@ def spec_test(request, engine):
         assert len(results) == len(results_dict), "Duplicate patient IDs found"
         assert results_dict == expected_results
 
-        # assert types are as expected
+        # Assert types are as expected
         variables = compile(dataset)
         variable_type = get_series_type(variables["v"])
-        assert all([r[1] is None or isinstance(r[1], variable_type) for r in results])
+        for patient_id, value in results_dict.items():
+            if value is not None:
+                assert isinstance(value, variable_type), (
+                    f"Expected {variable_type} got {type(value)} in "
+                    f"result {{{patient_id}: {value}}}"
+                )
 
     # Test that we can generate SQL with literal parmeters for debugging purposes
     def run_test_dump_sql(table_data, series, expected_results, population=None):
