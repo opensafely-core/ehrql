@@ -24,9 +24,13 @@ def spec_test(request, engine):
         dataset = make_dataset(table_data, population)
         dataset.v = series
 
-        # If we're expecting floats then we want only approximate equality to account
+        # Get the type according to the query model
+        variables = compile(dataset)
+        variable_type = get_series_type(variables["v"])
+
+        # If we're comparing floats then we want only approximate equality to account
         # for rounding differences
-        if any(isinstance(v, float) for v in expected_results.values()):
+        if variable_type is float:
             expected_results = pytest.approx(expected_results, rel=1e-5)
 
         # Extract data, and check it's as expected.
@@ -36,8 +40,6 @@ def spec_test(request, engine):
         assert results_dict == expected_results
 
         # Assert types are as expected
-        variables = compile(dataset)
-        variable_type = get_series_type(variables["v"])
         for patient_id, value in results_dict.items():
             if value is not None:
                 assert isinstance(value, variable_type), (
