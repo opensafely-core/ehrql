@@ -501,19 +501,15 @@ def validate_input_domains(node):
             raise DomainMismatchError(
                 f"Attempt to combine series with domain:\n{series_domain}"
                 f"\nWith frame with domain:\n{frame_domain}"
-                f"\nIn node:\n{node}"
             )
     else:
         non_patient_domains = get_input_domains(node) - {Domain.PATIENT}
         if len(non_patient_domains) > 1:
             raise DomainMismatchError(
                 f"Attempt to combine unrelated domains:\n{non_patient_domains}"
-                f"\nIn node:\n{node}"
             )
         if isinstance(node, AggregatedSeries) and len(non_patient_domains) == 0:
-            raise DomainMismatchError(
-                f"Attempt to aggregate one-row-per-patient series\nIn node:\n{node}"
-            )
+            raise DomainMismatchError("Attempt to aggregate one-row-per-patient series")
 
 
 @dataclasses.dataclass(frozen=True)
@@ -674,7 +670,6 @@ def validate_types(node):
             raise TypeValidationError(
                 f"{node.__class__.__name__}.{field.name} requires '{resolved_typespec}'"
                 f" but got '{typespec}'"
-                f"\nIn node:\n{node}"
             )
 
 
