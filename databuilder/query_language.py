@@ -286,17 +286,33 @@ class NumericAggregations(ComparableAggregations):
 class IntEventSeries(NumericFunctions, NumericAggregations, EventSeries):
     _type = int
 
+    @staticmethod
+    def _cast(value):
+        return int(value)
+
 
 class IntPatientSeries(NumericFunctions, PatientSeries):
     _type = int
+
+    @staticmethod
+    def _cast(value):
+        return int(value)
 
 
 class FloatEventSeries(NumericFunctions, NumericAggregations, EventSeries):
     _type = float
 
+    @staticmethod
+    def _cast(value):
+        return float(value)
+
 
 class FloatPatientSeries(NumericFunctions, PatientSeries):
     _type = float
+
+    @staticmethod
+    def _cast(value):
+        return float(value)
 
 
 # DATE SERIES

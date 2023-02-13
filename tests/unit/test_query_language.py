@@ -37,7 +37,9 @@ from databuilder.query_model.nodes import (
     Value,
 )
 
-patients_schema = TableSchema(date_of_birth=Column(date), i=Column(int))
+patients_schema = TableSchema(
+    date_of_birth=Column(date), i=Column(int), f=Column(float)
+)
 patients = PatientFrame(SelectPatientTable("patients", patients_schema))
 events_schema = TableSchema(event_date=Column(date))
 events = EventFrame(SelectTable("coded_events", events_schema))
@@ -177,6 +179,14 @@ class TestDateSeries:
         assert_produces(
             DateEventSeries(qm_date_series).year, Function.YearFromDate(qm_date_series)
         )
+
+
+def test_automatic_cast_to_float():
+    patients.f > 10
+
+
+def test_automatic_cast_to_int():
+    patients.i > 10.0
 
 
 def test_is_in():
