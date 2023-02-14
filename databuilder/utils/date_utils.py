@@ -35,7 +35,13 @@ def date_difference_in_years(end, start):
 
 
 def date_add_days(date, num_days):
+    assert_valid_num_days(num_days)
     return date + datetime.timedelta(days=num_days)
+
+
+def assert_valid_num_days(num_days):
+    if abs(num_days) > 999999999:
+        raise ValueError(f"Number of days {num_days} is out of range")
 
 
 def assert_valid_year(year):
