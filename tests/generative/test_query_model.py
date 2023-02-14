@@ -198,6 +198,23 @@ IGNORED_ERRORS = [
         sqlalchemy.exc.OperationalError,
         re.compile(".+Internal error: An expression services limit has been reached.+"),
     ),
+    # ARITHMETIC OVERFLOW ERRORS
+    # mssql raises this error if an operation results in an integer bigger than the max INT value
+    # or a float outside of the max range
+    # https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver16
+    # https://learn.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-ver16#remarks
+    # https://github.com/opensafely-core/databuilder/issues/1034
+    (
+        sqlalchemy.exc.OperationalError,
+        re.compile(
+            ".+Arithmetic overflow error converting expression to data type [int|float].+"
+        ),
+    ),  # arithmetic operations that result in an out-of-range int or floar
+    (
+        sqlalchemy.exc.OperationalError,
+        re.compile(".+Arithmetic overflow error for type int.+"),
+    ),  # attempting to convert a valid float to an out-of-range int
+    #
     # OUT-OF-RANGE DATES
     # The variable strategy will sometimes result in date operations that construct
     # invalid dates (e.g. a large positive or negative integer in a DateAddYears operation
