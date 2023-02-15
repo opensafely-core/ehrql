@@ -5,12 +5,16 @@ import pytest
 
 from databuilder.query_language import (
     BaseSeries,
+    BoolEventSeries,
+    BoolPatientSeries,
     Dataset,
     DateDifference,
     DateEventSeries,
     DateFunctions,
     DatePatientSeries,
     EventFrame,
+    FloatEventSeries,
+    FloatPatientSeries,
     IntEventSeries,
     IntPatientSeries,
     PatientFrame,
@@ -41,7 +45,7 @@ patients_schema = TableSchema(
     date_of_birth=Column(date), i=Column(int), f=Column(float)
 )
 patients = PatientFrame(SelectPatientTable("patients", patients_schema))
-events_schema = TableSchema(event_date=Column(date))
+events_schema = TableSchema(event_date=Column(date), i=Column(int), f=Column(float))
 events = EventFrame(SelectTable("coded_events", events_schema))
 
 
@@ -181,12 +185,31 @@ class TestDateSeries:
         )
 
 
-def test_automatic_cast_to_float():
-    patients.f > 10
-
-
-def test_automatic_cast_to_int():
-    patients.i > 10.0
+@pytest.mark.parametrize(
+    "lhs,op,rhs,expected_type",
+    [
+        (patients.i, "+", 10.0, IntPatientSeries),
+        (patients.f, "-", 10, FloatPatientSeries),
+        (patients.i, ">", 10.0, BoolPatientSeries),
+        (patients.f, "<", 10, BoolPatientSeries),
+        (events.i, "+", 10.0, IntEventSeries),
+        (events.f, "-", 10, FloatEventSeries),
+        (events.i, ">", 10.0, BoolEventSeries),
+        (events.f, "<", 10, BoolEventSeries),
+    ],
+)
+def test_automatic_cast(lhs, op, rhs, expected_type):
+    if op == "+":
+        result = lhs + rhs
+    elif op == "-":
+        result = lhs - rhs
+    elif op == ">":
+        result = lhs > rhs
+    elif op == "<":
+        result = lhs < rhs
+    else:
+        assert False
+    assert isinstance(result, expected_type)
 
 
 def test_is_in():
