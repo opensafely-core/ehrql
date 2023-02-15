@@ -98,6 +98,10 @@ def test_query_model(query_engines, variable, data, recorder):
         (Function.DateAddMonths, 8000 * 12),
         (Function.DateAddDays, -3000 * 366),
         (Function.DateAddDays, 8000 * 366),
+        (
+            Function.DateAddDays,
+            1500000000,
+        ),  # triggers python overflow error with timedelta
     ],
 )
 def test_handle_date_errors(query_engines, operation, rhs, recorder):
@@ -219,6 +223,10 @@ IGNORED_ERRORS = [
         ValueError,
         re.compile("year -?\\d+ is out of range"),
     ),  # DateAddYears, with an invalid calculated year
+    (
+        ValueError,
+        re.compile("Number of days -?\\d+ is out of range"),
+    ),  # DateAddDays, with a number of days out of the valid range
     (
         OverflowError,
         re.compile("date value out of range"),
