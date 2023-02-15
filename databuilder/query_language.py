@@ -244,6 +244,12 @@ class StrPatientSeries(StrFunctions, PatientSeries):
 
 
 class NumericFunctions(ComparableFunctions):
+    @staticmethod
+    def _cast(value):
+        if isinstance(value, float):
+            return int(value)
+        return value
+
     def __neg__(self):
         return _apply(qm.Function.Negate, self)
 
@@ -286,33 +292,27 @@ class NumericAggregations(ComparableAggregations):
 class IntEventSeries(NumericFunctions, NumericAggregations, EventSeries):
     _type = int
 
-    @staticmethod
-    def _cast(value):
-        return int(value)
-
 
 class IntPatientSeries(NumericFunctions, PatientSeries):
     _type = int
 
+
+class FloatFunctions(NumericFunctions):
     @staticmethod
     def _cast(value):
-        return int(value)
+        if isinstance(value, int):
+            return float(value)
+        if isinstance(value, IntEventSeries, IntPatientSeries):
+            return value.as_float()
+        return value
 
 
-class FloatEventSeries(NumericFunctions, NumericAggregations, EventSeries):
+class FloatEventSeries(FloatFunctions, NumericAggregations, EventSeries):
     _type = float
 
-    @staticmethod
-    def _cast(value):
-        return float(value)
 
-
-class FloatPatientSeries(NumericFunctions, PatientSeries):
+class FloatPatientSeries(FloatFunctions, PatientSeries):
     _type = float
-
-    @staticmethod
-    def _cast(value):
-        return float(value)
 
 
 # DATE SERIES
