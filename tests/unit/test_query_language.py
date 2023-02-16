@@ -192,6 +192,8 @@ class TestDateSeries:
         (patients.f, "<", 10, BoolPatientSeries),
         (events.f, "-", 10, FloatEventSeries),
         (events.f, "<", 10, BoolEventSeries),
+        (events.f, "<", 10, BoolEventSeries),
+        (events.f, "<", 10.0, BoolEventSeries),
     ],
 )
 def test_automatic_cast(lhs, op, rhs, expected_type):
