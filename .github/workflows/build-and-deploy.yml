@@ -1,18 +1,13 @@
 name: Build and publish image
 
 on:
-  create:
-  workflow_dispatch:
-  workflow_run:
-    workflows:
-      - CI
-    branches:
-      - main
-    types:
-      - completed
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build-and-publish-docker-image:
+    if: ${{ github.event.base_ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     env:
       image: ghcr.io/opensafely-core/databuilder
@@ -22,75 +17,10 @@ jobs:
           # Required to get previous tags
           fetch-depth: 0
 
-      # Find the latest tag by fetching the first 20 tags in descending date order,
-      # and finding the first one that starts with "v"
-      - name: Get latest version tag
-        id: latest-version-tag
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const query = `query($owner:String!, $name:String!) {
-              repository(owner:$owner, name:$name) {
-                refs(refPrefix: "refs/tags/", first: 20, orderBy: {field: TAG_COMMIT_DATE, direction: DESC}) {
-                  edges {
-                    node {
-                      name
-                      target {
-                        oid
-                        ... on Tag {
-                          message
-                          commitUrl
-                          tagger {
-                            name
-                            email
-                            date
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }`;
-            const variables = {
-              owner: context.repo.owner,
-              name: context.repo.repo,
-            }
-            const result = await github.graphql(query, variables)
-            console.log(result.repository.refs.edges)
-            const latestVersionTagEdge = result.repository.refs.edges.find(
-              tag => tag.node.name.startsWith("v")
-              )
-            console.log(latestVersionTagEdge)
-            if(latestVersionTagEdge){
-              return latestVersionTagEdge.node.name
-            } else {
-              return "no-tag-found"
-            }
-          result-encoding: string
-
-      - name: Previous commit
-        id: previoustagcommit
-        # if we are on a tag, should look like `v0.6.0`
-        # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
-        run: echo ::set-output name=tag_describe::`git describe --tags`
-
-      - name: Verify whether we are on a tagged version commit, allows us to short-circuit this workflow
-        id: taggedcommit
-        if: ${{ steps.previoustagcommit.outputs.tag_describe == steps.latest-version-tag.outputs.result }}
-        run: echo ::set-output name=tag::'y'
-
-      # Verify that 'Get latest version tag' returned a version tag
-      - name: Fail if no version tag found
-        if: ${{ steps.latest-version-tag.outputs.result == 'no-tag-found' }}
-        run: |
-          /bin/false
-
       # This relies on the tag having a version of the form vX.Y.Z
       - name: Build image
-        if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
         run: |
-          PATCH="${{ steps.latest-version-tag.outputs.result }}"
+          PATCH="${{ github.ref_name }}"
           MAJOR="${PATCH%%.*}"
           MINOR="${PATCH%.*}"
 
@@ -107,10 +37,8 @@ jobs:
             --tag ${{ env.image }}:$PATCH
 
       - name: Log into GitHub Container Registry
-        if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
         run: docker login https://ghcr.io -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push images to GitHub Container Registry
-        if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
         run: |
           docker push --all-tags ${{ env.image }}
