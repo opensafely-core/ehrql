@@ -32,3 +32,13 @@ jobs:
 
       - name: Check dataset definition outputs are up-to-date
         run: just docs-check-dataset-definitions-outputs-are-current
+
+      # This check becomes somewhat redundant if we fix up the Cloudflare Pages preview
+      # to work with Dependabot, because the deployment will also do the build.
+      # See https://github.com/opensafely/documentation/issues/930 which documents this problem.
+      #
+      # However, for any PR, Cloudflare Pages previews sometimes fail for mysterious reasons,
+      # and this requires logging into Cloudflare Pages to inspect.
+      # So it is perhaps useful to distinguish a Cloudflare failure with an actual issue.
+      - name: Check docs build
+        run: just docs-build
