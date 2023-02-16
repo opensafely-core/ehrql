@@ -291,11 +291,22 @@ class IntPatientSeries(NumericFunctions, PatientSeries):
     _type = int
 
 
-class FloatEventSeries(NumericFunctions, NumericAggregations, EventSeries):
+class FloatFunctions(NumericFunctions):
+    @staticmethod
+    def _cast(value):
+        """
+        Casting int literals to floats. We dont support casting to float for IntSeries.
+        """
+        if isinstance(value, int):
+            return float(value)
+        return value
+
+
+class FloatEventSeries(FloatFunctions, NumericAggregations, EventSeries):
     _type = float
 
 
-class FloatPatientSeries(NumericFunctions, PatientSeries):
+class FloatPatientSeries(FloatFunctions, PatientSeries):
     _type = float
 
 

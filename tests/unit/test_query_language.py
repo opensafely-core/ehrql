@@ -5,12 +5,16 @@ import pytest
 
 from databuilder.query_language import (
     BaseSeries,
+    BoolEventSeries,
+    BoolPatientSeries,
     Dataset,
     DateDifference,
     DateEventSeries,
     DateFunctions,
     DatePatientSeries,
     EventFrame,
+    FloatEventSeries,
+    FloatPatientSeries,
     IntEventSeries,
     IntPatientSeries,
     PatientFrame,
@@ -37,9 +41,11 @@ from databuilder.query_model.nodes import (
     Value,
 )
 
-patients_schema = TableSchema(date_of_birth=Column(date), i=Column(int))
+patients_schema = TableSchema(
+    date_of_birth=Column(date), i=Column(int), f=Column(float)
+)
 patients = PatientFrame(SelectPatientTable("patients", patients_schema))
-events_schema = TableSchema(event_date=Column(date))
+events_schema = TableSchema(event_date=Column(date), f=Column(float))
 events = EventFrame(SelectTable("coded_events", events_schema))
 
 
@@ -177,6 +183,32 @@ class TestDateSeries:
         assert_produces(
             DateEventSeries(qm_date_series).year, Function.YearFromDate(qm_date_series)
         )
+
+
+@pytest.mark.parametrize(
+    "lhs,op,rhs,expected_type",
+    [
+        (patients.f, "-", 10, FloatPatientSeries),
+        (patients.f, "+", 10, FloatPatientSeries),
+        (patients.f, "<", 10, BoolPatientSeries),
+        (events.f, "-", 10, FloatEventSeries),
+        (events.f, "<", 10, BoolEventSeries),
+        (events.f, ">", 10, BoolEventSeries),
+        (events.f, "<", 10.0, BoolEventSeries),
+    ],
+)
+def test_automatic_cast(lhs, op, rhs, expected_type):
+    if op == "+":
+        result = lhs + rhs
+    elif op == "-":
+        result = lhs - rhs
+    elif op == ">":
+        result = lhs > rhs
+    elif op == "<":
+        result = lhs < rhs
+    else:
+        assert False
+    assert isinstance(result, expected_type)
 
 
 def test_is_in():
