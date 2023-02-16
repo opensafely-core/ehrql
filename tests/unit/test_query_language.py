@@ -189,10 +189,11 @@ class TestDateSeries:
     "lhs,op,rhs,expected_type",
     [
         (patients.f, "-", 10, FloatPatientSeries),
+        (patients.f, "+", 10, FloatPatientSeries),
         (patients.f, "<", 10, BoolPatientSeries),
         (events.f, "-", 10, FloatEventSeries),
         (events.f, "<", 10, BoolEventSeries),
-        (events.f, "<", 10, BoolEventSeries),
+        (events.f, ">", 10, BoolEventSeries),
         (events.f, "<", 10.0, BoolEventSeries),
     ],
 )
