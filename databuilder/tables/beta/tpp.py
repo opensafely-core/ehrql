@@ -58,6 +58,23 @@ class practice_registrations(EventFrame):
         ],
     )
 
+    def for_patient_on(self, date):
+        """
+        Return each patient's practice registration as it was on the supplied date.
+
+        Where a patient is registered with multiple practices we prefer the most recent
+        registration and then, if there are multiple of these, the one with the longest
+        duration. If there's stil an exact tie we choose arbitrarily based on the
+        practice ID.
+        """
+        spanning_regs = self.take(self.start_date <= date).drop(self.end_date < date)
+        ordered_regs = spanning_regs.sort_by(
+            self.start_date,
+            self.end_date,
+            self.practice_pseudo_id,
+        )
+        return ordered_regs.last_for_patient()
+
 
 @table
 class ons_deaths(EventFrame):
