@@ -35,7 +35,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         # have to explicitly cast to float
         if not expr_has_type(sql_expr, sqlalchemy_types.Float):
             sql_expr = sqlalchemy.cast(sql_expr, sqlalchemy_types.Float)
-        return sqlalchemy.func.avg(sql_expr, type_=sqlalchemy_types.Float)
+        return SQLFunction("AVG", sql_expr, type_=sqlalchemy_types.Float)
 
     def date_difference_in_days(self, end, start):
         return SQLFunction(
