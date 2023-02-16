@@ -45,7 +45,7 @@ patients_schema = TableSchema(
     date_of_birth=Column(date), i=Column(int), f=Column(float)
 )
 patients = PatientFrame(SelectPatientTable("patients", patients_schema))
-events_schema = TableSchema(event_date=Column(date), i=Column(int), f=Column(float))
+events_schema = TableSchema(event_date=Column(date), f=Column(float))
 events = EventFrame(SelectTable("coded_events", events_schema))
 
 
