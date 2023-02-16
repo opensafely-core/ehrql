@@ -194,8 +194,12 @@ class TPPBackend(BaseBackend):
     )
 
     appointments = QueryTable(
+        # WARNING: There are duplicate rows in the Appointment table, so we add DISTINCT
+        # to remove them from this query. When they are removed from the Appointment
+        # table, then we will remove DISTINCT from this query.
         """
-            SELECT
+            SELECT DISTINCT
+                Appointment_ID AS appointment_id,
                 Patient_ID AS patient_id,
                 CAST(BookedDate AS date) AS booked_date,
                 CAST(StartDate AS date) AS start_date
