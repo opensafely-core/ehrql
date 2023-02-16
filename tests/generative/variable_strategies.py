@@ -225,10 +225,10 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         return draw(binary_operation(type_, frame, Function.NE))
 
     def and_(type_, frame):
-        return binary_operation(type_, frame, Function.And)
+        return binary_operation(type_, frame, Function.And, allow_value=False)
 
     def or_(type_, frame):
-        return binary_operation(type_, frame, Function.Or)
+        return binary_operation(type_, frame, Function.Or, allow_value=False)
 
     @st.composite
     def lt(draw, _type, frame):
@@ -277,13 +277,17 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def date_difference_in_days(type_, frame):
         return binary_operation(datetime.date, frame, Function.DateDifferenceInDays)
 
-    def binary_operation(type_, frame, operator_func):
+    def binary_operation(type_, frame, operator_func, allow_value=True):
         # A strategy for operations that take lhs and rhs arguments of the
         # same type
-        return binary_operation_with_types(type_, type_, frame, operator_func)
+        return binary_operation_with_types(
+            type_, type_, frame, operator_func, allow_value=allow_value
+        )
 
     @st.composite
-    def binary_operation_with_types(draw, lhs_type, rhs_type, frame, operator_func):
+    def binary_operation_with_types(
+        draw, lhs_type, rhs_type, frame, operator_func, allow_value=True
+    ):
         # A strategy for operations that take lhs and rhs arguments with specified lhs
         # and rhs types (which may be different)
 
@@ -293,10 +297,15 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         #    a) A series drawn from the specified frame
         #    b) A series drawn from any one-row-per-patient-frame
         #    c) A series that is a Value
+        #       For certain operations, Value is not allowed;  Specifically, for boolean operations
+        #       i.e. and/or which take two boolean series as inputs, we exclude operations that would
+        #       use True/False constant Values.  These are unlikely to be seen in the wild, and cause
+        #       particularly nonsensical Case statements in generative test examples.
 
-        # first pick an "other" input series (i.e. #2 above), either a value series
+        # first pick an "other" input series (i.e. #2 above), either a value series (if allowed)
         # or a series drawn from a frame
-        other_series = draw(st.sampled_from([value, series]))
+        series_options = [value, series] if allow_value else [series]
+        other_series = draw(st.sampled_from(series_options))
         # Now pick a frame for the series to be drawn from
         # The other frame will either be a new one-row-per-patient-frame or this frame
         # (Note if the other_series is a value, the frame will be ignored)
