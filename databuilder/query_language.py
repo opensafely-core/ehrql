@@ -244,12 +244,6 @@ class StrPatientSeries(StrFunctions, PatientSeries):
 
 
 class NumericFunctions(ComparableFunctions):
-    @staticmethod
-    def _cast(value):
-        if isinstance(value, float):
-            return int(value)
-        return value
-
     def __neg__(self):
         return _apply(qm.Function.Negate, self)
 
@@ -300,10 +294,11 @@ class IntPatientSeries(NumericFunctions, PatientSeries):
 class FloatFunctions(NumericFunctions):
     @staticmethod
     def _cast(value):
+        """
+        Casting int literals to floats. We dont support casting to float for IntSeries.
+        """
         if isinstance(value, int):
             return float(value)
-        if isinstance(value, IntEventSeries, IntPatientSeries):
-            return value.as_float()
         return value
 
 

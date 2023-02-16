@@ -188,13 +188,9 @@ class TestDateSeries:
 @pytest.mark.parametrize(
     "lhs,op,rhs,expected_type",
     [
-        (patients.i, "+", 10.0, IntPatientSeries),
         (patients.f, "-", 10, FloatPatientSeries),
-        (patients.i, ">", 10.0, BoolPatientSeries),
         (patients.f, "<", 10, BoolPatientSeries),
-        (events.i, "+", 10.0, IntEventSeries),
         (events.f, "-", 10, FloatEventSeries),
-        (events.i, ">", 10.0, BoolEventSeries),
         (events.f, "<", 10, BoolEventSeries),
     ],
 )
