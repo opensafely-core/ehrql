@@ -42,6 +42,21 @@ jobs:
         with:
           failure-threshold: error
 
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: opensafely-core/setup-action@v1
+      with:
+        install-just: true
+        python-version: "3.9"
+    - name: Install package
+      run: pip install .
+
+    - name: Build Docker image
+      run: just build-databuilder
+
   tag-new-version:
     # This uses `conventional commits` to generate tags.  A full list
     # of valid prefixes is here:
@@ -52,29 +67,18 @@ jobs:
     # BREAKING CHANGE in footer -> major release
     #
     # anything else (docs, refactor, etc) does not create a release
-    needs: [check, test]
-    runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.tag.outputs.new_version }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Bump version and push tag
-        id: tag
-        uses: mathieudutour/github-tag-action@981ffb2cc3f2b684b2bfd8ee17bc8d781368ba60
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: false
-          release_branches: main
-
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - uses: opensafely-core/setup-action@v1
-      with:
-        python-version: "3.9"
-    - name: Install package
-      run: pip install .
+      needs: [check, test, build]
+      runs-on: ubuntu-latest
+      outputs:
+        tag: ${{ steps.tag.outputs.new_version }}
+      steps:
+        - uses: actions/checkout@v3
+          with:
+            fetch-depth: 0
+        - name: Bump version and push tag
+          id: tag
+          uses: mathieudutour/github-tag-action@981ffb2cc3f2b684b2bfd8ee17bc8d781368ba60
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            default_bump: false
+            release_branches: main
