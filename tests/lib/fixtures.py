@@ -4,7 +4,7 @@ from databuilder.tables.beta.tpp import patients
 
 dataset = Dataset()
 year = patients.date_of_birth.year
-dataset.set_population(year >= 1900)
+dataset.set_population(year >= 1940)
 dataset.year = year
 """
 
@@ -30,4 +30,19 @@ from databuilder.tables.beta.tpp import patients
 
 # Odd construction is required to get an error that comes from inside library code.
 dataset.column = patients.date_of_birth.year + (patients.sex.is_null())
+"""
+
+parameterised_dataset_definition = """
+from argparse import ArgumentParser
+from databuilder.ehrql import Dataset
+from databuilder.tables.beta.tpp import patients
+
+parser = ArgumentParser()
+parser.add_argument("--year", type=int)
+args = parser.parse_args()
+
+dataset = Dataset()
+year = patients.date_of_birth.year
+dataset.set_population(year >= args.year)
+dataset.year = year
 """

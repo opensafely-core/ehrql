@@ -7,6 +7,7 @@ from tests.lib.fixtures import (
     invalid_dataset_attribute_dataset_definition,
     invalid_dataset_query_model_error_definition,
     no_dataset_attribute_dataset_definition,
+    parameterised_dataset_definition,
     trivial_dataset_definition,
 )
 from tests.lib.tpp_schema import patient
@@ -15,6 +16,7 @@ from tests.lib.tpp_schema import patient
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
 def test_generate_dataset(study, mssql_database, extension):
     mssql_database.setup(
+        patient(dob=datetime(1934, 5, 5)),
         patient(dob=datetime(1943, 5, 5)),
         patient(dob=datetime(1999, 5, 5)),
     )
@@ -31,6 +33,41 @@ def test_generate_dataset(study, mssql_database, extension):
 
     assert len(results) == len(expected)
     assert {r["year"] for r in results} == set(expected)
+
+
+def test_parameterised_dataset_definition(study, mssql_database):
+    mssql_database.setup(
+        patient(dob=datetime(1934, 5, 5)),
+        patient(dob=datetime(1943, 5, 5)),
+        patient(dob=datetime(1999, 5, 5)),
+    )
+
+    study.setup_from_string(parameterised_dataset_definition)
+    study.generate(
+        mssql_database,
+        "databuilder.backends.tpp.TPPBackend",
+        user_args={"year": "1940"},
+    )
+    results = study.results()
+
+    expected = ["1943", "1999"]
+
+    assert len(results) == len(expected)
+    assert {r["year"] for r in results} == set(expected)
+
+
+def test_parameterised_dataset_definition_with_bad_param(study, mssql_database, capsys):
+    study.setup_from_string(parameterised_dataset_definition)
+    with pytest.raises(SystemExit):
+        study.generate(
+            mssql_database,
+            "databuilder.backends.tpp.TPPBackend",
+            user_args={"ear": "1940"},
+        )
+    assert (
+        "dataset.py: error: unrecognized arguments: --ear 1940"
+        in capsys.readouterr().err
+    )
 
 
 def test_dump_dataset_sql_happy_path(study, mssql_database):

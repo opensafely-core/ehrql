@@ -2,6 +2,8 @@ import dataclasses
 from pathlib import Path
 from unittest import mock
 
+import pytest
+
 from databuilder.main import generate_dataset, get_query_engine, open_output_file
 
 
@@ -23,7 +25,14 @@ class DummyBackend:
     query_engine_class = DummyQueryEngine
 
 
-def test_generate_dataset_dsn_arg():
+@pytest.fixture
+def mock_load_and_compile():
+    m = "databuilder.main"
+    with mock.patch(f"{m}.load_dataset_definition"), mock.patch(f"{m}.compile"):
+        yield
+
+
+def test_generate_dataset_dsn_arg(mock_load_and_compile):
     with mock.patch("databuilder.main.generate_dataset_with_dsn") as p:
         generate_dataset(
             Path("dataset_definition.py"),
@@ -36,7 +45,7 @@ def test_generate_dataset_dsn_arg():
         p.assert_called_once()
 
 
-def test_generate_dataset_dummy_data_file_arg():
+def test_generate_dataset_dummy_data_file_arg(mock_load_and_compile):
     with mock.patch("databuilder.main.pass_dummy_data") as p:
         generate_dataset(
             Path("dataset_definition.py"),
@@ -46,7 +55,7 @@ def test_generate_dataset_dummy_data_file_arg():
         p.assert_called_once()
 
 
-def test_generate_dataset_no_data_args():
+def test_generate_dataset_no_data_args(mock_load_and_compile):
     with mock.patch("databuilder.main.generate_dataset_with_dummy_data") as p:
         generate_dataset(Path("dataset_definition.py"), Path("results.csv"))
         p.assert_called_once()

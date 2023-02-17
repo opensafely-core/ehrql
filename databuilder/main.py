@@ -39,10 +39,15 @@ def generate_dataset(
     dummy_tables_path=None,
     dummy_data_file=None,
     environ=None,
+    user_args=(),
 ):
+    log.info(f"Compiling dataset definition from {str(definition_file)}")
+    dataset_definition = load_dataset_definition(definition_file, user_args)
+    variable_definitions = compile(dataset_definition)
+
     if dsn:
         generate_dataset_with_dsn(
-            definition_file,
+            variable_definitions,
             dataset_file,
             dsn,
             backend_class=backend_class,
@@ -50,19 +55,17 @@ def generate_dataset(
             environ=environ or {},
         )
     elif dummy_data_file:
-        pass_dummy_data(definition_file, dataset_file, dummy_data_file)
+        pass_dummy_data(variable_definitions, dataset_file, dummy_data_file)
     else:
         generate_dataset_with_dummy_data(
-            definition_file, dataset_file, dummy_tables_path
+            variable_definitions, dataset_file, dummy_tables_path
         )
 
 
 def generate_dataset_with_dsn(
-    definition_file, dataset_file, dsn, backend_class, query_engine_class, environ
+    variable_definitions, dataset_file, dsn, backend_class, query_engine_class, environ
 ):
-    log.info(f"Generating dataset for {str(definition_file)}")
-    dataset_definition = load_dataset_definition(definition_file)
-    variable_definitions = compile(dataset_definition)
+    log.info("Generating dataset")
     column_specs = get_column_specs(variable_definitions)
 
     query_engine = get_query_engine(
@@ -82,11 +85,9 @@ def generate_dataset_with_dsn(
 
 
 def generate_dataset_with_dummy_data(
-    definition_file, dataset_file, dummy_tables_path=None
+    variable_definitions, dataset_file, dummy_tables_path=None
 ):
-    log.info(f"Generating dummy dataset for {str(definition_file)}")
-    dataset_definition = load_dataset_definition(definition_file)
-    variable_definitions = compile(dataset_definition)
+    log.info("Generating dummy dataset")
     column_specs = get_column_specs(variable_definitions)
 
     if dummy_tables_path:
@@ -101,9 +102,9 @@ def generate_dataset_with_dummy_data(
     write_dataset(dataset_file, results, column_specs)
 
 
-def create_dummy_tables(definition_file, dummy_tables_path):
+def create_dummy_tables(definition_file, dummy_tables_path, user_args):
     log.info(f"Creating dummy data tables for {str(definition_file)}")
-    dataset_definition = load_dataset_definition(definition_file)
+    dataset_definition = load_dataset_definition(definition_file, user_args)
     variable_definitions = compile(dataset_definition)
     generator = DummyDataGenerator(variable_definitions)
     dummy_tables = generator.get_data()
@@ -112,11 +113,9 @@ def create_dummy_tables(definition_file, dummy_tables_path):
     write_orm_models_to_csv_directory(dummy_tables_path, dummy_tables)
 
 
-def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
-    log.info(f"Propagating dummy data {dummy_data_file} for {str(definition_file)}")
+def pass_dummy_data(variable_definitions, dataset_file, dummy_data_file):
+    log.info(f"Propagating dummy data from {dummy_data_file}")
 
-    dataset_definition = load_dataset_definition(definition_file)
-    variable_definitions = compile(dataset_definition)
     column_specs = get_column_specs(variable_definitions)
 
     validate_file_types_match(dummy_data_file, dataset_file)
@@ -127,11 +126,11 @@ def pass_dummy_data(definition_file, dataset_file, dummy_data_file):
 
 
 def dump_dataset_sql(
-    definition_file, output_file, backend_class, query_engine_class, environ
+    definition_file, output_file, backend_class, query_engine_class, environ, user_args
 ):
     log.info(f"Generating SQL for {str(definition_file)}")
 
-    dataset_definition = load_dataset_definition(definition_file)
+    dataset_definition = load_dataset_definition(definition_file, user_args)
     query_engine = get_query_engine(
         None,
         backend_class,
@@ -198,7 +197,7 @@ def get_query_engine(
 
 
 def generate_measures(
-    definition_file, input_file, output_file
+    definition_file, input_file, output_file, user_args
 ):  # pragma: no cover (measures not implemented)
     raise NotImplementedError
 
@@ -213,8 +212,8 @@ def test_connection(backend_class, url, environ):
     print("SUCCESS")
 
 
-def load_dataset_definition(definition_file):
-    module = load_module(definition_file)
+def load_dataset_definition(definition_file, user_args):
+    module = load_module(definition_file, user_args)
     try:
         dataset = module.dataset
     except AttributeError:
@@ -228,7 +227,7 @@ def load_dataset_definition(definition_file):
     return dataset
 
 
-def load_module(module_path):
+def load_module(module_path, user_args=()):
     # Taken from the official recipe for importing a module from a file path:
     # https://docs.python.org/3.9/library/importlib.html#importing-a-source-file-directly
     spec = importlib.util.spec_from_file_location(module_path.stem, module_path)
@@ -238,6 +237,10 @@ def load_module(module_path):
     # library modules from that directory
     original_sys_path = sys.path.copy()
     sys.path.insert(0, str(module_path.parent.absolute()))
+    # Temporarily modify `sys.argv` so it contains any user-supplied arguments and
+    # generally looks as it would had you run: `python script.py some args --here`
+    original_sys_argv = sys.argv.copy()
+    sys.argv = [str(module_path), *user_args]
     try:
         spec.loader.exec_module(module)
         return module
@@ -246,3 +249,4 @@ def load_module(module_path):
         raise CommandError(f"Failed to import '{module_path}':\n\n{traceback}")
     finally:
         sys.path = original_sys_path
+        sys.argv = original_sys_argv

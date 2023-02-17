@@ -59,8 +59,13 @@ class Study:
             "--output",
             str(dataset),
         ]
+        user_args = kwargs.pop("user_args", None)
         for key, value in kwargs.items():
             args.extend([f"--{key.replace('_' , '-')}", value])
+        if user_args is not None:
+            args.append("--")
+            for key, value in user_args.items():
+                args.extend([f"--{key.replace('_' , '-')}", value])
         return args
 
     def dump_dataset_sql(self):

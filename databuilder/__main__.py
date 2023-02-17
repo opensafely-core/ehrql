@@ -40,6 +40,14 @@ def entrypoint():
 def main(args, environ=None):
     environ = environ or {}
 
+    # We allow users to pass arbitrary arguments to dataset definition modules, but they
+    # must be seperated from any databuilder arguments by the string `--`
+    if "--" in args:
+        user_args = args[args.index("--") + 1 :]
+        args = args[: args.index("--")]
+    else:
+        user_args = []
+
     init_logging()
 
     parser = ArgumentParser(
@@ -56,11 +64,11 @@ def main(args, environ=None):
     )
 
     subparsers = parser.add_subparsers(help="sub-command help")
-    add_generate_dataset(subparsers, environ)
-    add_dump_dataset_sql(subparsers, environ)
-    add_create_dummy_tables(subparsers, environ)
-    add_generate_measures(subparsers, environ)
-    add_test_connection(subparsers, environ)
+    add_generate_dataset(subparsers, environ, user_args)
+    add_dump_dataset_sql(subparsers, environ, user_args)
+    add_create_dummy_tables(subparsers, environ, user_args)
+    add_generate_measures(subparsers, environ, user_args)
+    add_test_connection(subparsers, environ, user_args)
 
     kwargs = vars(parser.parse_args(args))
     function = kwargs.pop("function")
@@ -72,10 +80,11 @@ def main(args, environ=None):
         sys.exit(1)
 
 
-def add_generate_dataset(subparsers, environ):
+def add_generate_dataset(subparsers, environ, user_args):
     parser = subparsers.add_parser("generate-dataset", help="Generate a dataset")
     parser.set_defaults(function=generate_dataset)
     parser.set_defaults(environ=environ)
+    parser.set_defaults(user_args=user_args)
     parser.add_argument(
         "--output",
         help=(
@@ -108,7 +117,7 @@ def add_generate_dataset(subparsers, environ):
     add_common_dataset_arguments(parser, environ)
 
 
-def add_dump_dataset_sql(subparsers, environ):
+def add_dump_dataset_sql(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "dump-dataset-sql",
         help=(
@@ -118,6 +127,7 @@ def add_dump_dataset_sql(subparsers, environ):
     )
     parser.set_defaults(function=dump_dataset_sql)
     parser.set_defaults(environ=environ)
+    parser.set_defaults(user_args=user_args)
     parser.add_argument(
         "--output",
         help="SQL output file (outputs to console by default)",
@@ -150,12 +160,13 @@ def add_common_dataset_arguments(parser, environ):
     )
 
 
-def add_create_dummy_tables(subparsers, environ):
+def add_create_dummy_tables(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "create-dummy-tables",
         help=("Write dummy data tables as CSV ready for customisation"),
     )
     parser.set_defaults(function=create_dummy_tables)
+    parser.set_defaults(user_args=user_args)
     parser.add_argument(
         "definition_file",
         help="The path of the file where the dataset is defined",
@@ -169,11 +180,12 @@ def add_create_dummy_tables(subparsers, environ):
     )
 
 
-def add_generate_measures(subparsers, environ):
+def add_generate_measures(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "generate-measures", help="Generate measures from a dataset"
     )
     parser.set_defaults(function=generate_measures)
+    parser.set_defaults(user_args=user_args)
     parser.add_argument(
         "--input",
         help="Path and filename (or pattern) of the input file(s)",
@@ -194,7 +206,7 @@ def add_generate_measures(subparsers, environ):
     )
 
 
-def add_test_connection(subparsers, environ):
+def add_test_connection(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "test-connection", help="test the database connection configuration"
     )
