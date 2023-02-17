@@ -53,6 +53,6 @@ def test_external_study(name):
     # think this is sufficient for these tests which are intended to ensure we don't
     # accidentally break the API. If we're unable to execute a valid query, that's a
     # separate class of problem for which we need separate tests.
-    dataset = load_dataset_definition(dataset_def_path)
+    dataset = load_dataset_definition(dataset_def_path, user_args=())
     variable_definitions = compile(dataset)
     assert variable_definitions

@@ -65,7 +65,7 @@ def test_parameterised_dataset_definition_with_bad_param(study, mssql_database, 
             user_args={"ear": "1940"},
         )
     assert (
-        "databuilder: error: unrecognized arguments: --ear 1940"
+        "dataset.py: error: unrecognized arguments: --ear 1940"
         in capsys.readouterr().err
     )
 
