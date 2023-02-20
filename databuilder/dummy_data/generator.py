@@ -190,7 +190,7 @@ class DummyPatientGenerator:
 
     def empty_rows(self, table_info):
         # Generate a small handful of events for event-level tables
-        max_rows = 1 if table_info.has_one_row_per_patient else 8
+        max_rows = 1 if table_info.has_one_row_per_patient else 16
         row_count = self.rnd.randrange(max_rows + 1)
         return [{} for _ in range(row_count)]
 
