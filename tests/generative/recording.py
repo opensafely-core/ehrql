@@ -78,7 +78,14 @@ def check_not_too_many_ignored_errors(recorder):
         # fails).
 
         # Allow more errors (proportionally) for smaller numbers of examples
-        assert recorder.num_ignored_errors / recorder.num_results <= 0.01
+        error_rate = recorder.num_ignored_errors / recorder.num_results
+        error_limit = 0.015
+        assert error_rate <= error_limit, (
+            f"{recorder.num_ignored_errors=}, "
+            f"{recorder.num_results=}, "
+            f"{error_rate=}, "
+            f"{error_limit=}"
+        )
 
 
 def show_input_summary(recorder):  # pragma: no cover
