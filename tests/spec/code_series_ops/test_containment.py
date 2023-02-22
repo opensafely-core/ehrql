@@ -6,11 +6,11 @@ title = "Testing for containment using codes"
 
 table_data = {
     p: """
-          |  c1
-        --+-----
-        1 | abc
-        2 | def
-        3 | ghi
+          |   c1
+        --+--------
+        1 | 123000
+        2 | 456000
+        3 | 789000
         4 |
         """,
 }
@@ -19,7 +19,7 @@ table_data = {
 def test_is_in(spec_test):
     spec_test(
         table_data,
-        p.c1.is_in([SNOMEDCTCode("abc"), SNOMEDCTCode("ghi")]),
+        p.c1.is_in([SNOMEDCTCode("123000"), SNOMEDCTCode("789000")]),
         {
             1: True,
             2: False,
@@ -32,7 +32,7 @@ def test_is_in(spec_test):
 def test_is_not_in(spec_test):
     spec_test(
         table_data,
-        p.c1.is_not_in([SNOMEDCTCode("abc"), SNOMEDCTCode("ghi")]),
+        p.c1.is_not_in([SNOMEDCTCode("123000"), SNOMEDCTCode("789000")]),
         {
             1: False,
             2: True,
@@ -46,8 +46,8 @@ def test_is_in_codelist_csv(spec_test):
     codelist = codelist_from_csv_lines(
         [
             "code",
-            "abc",
-            "ghi",
+            "123000",
+            "789000",
         ],
         column="code",
         system="snomedct",

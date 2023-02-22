@@ -30,7 +30,9 @@ def test_get_column_specs():
             category=Column(
                 SNOMEDCTCode,
                 constraints=[
-                    Constraint.Categorical([SNOMEDCTCode("abc"), SNOMEDCTCode("def")])
+                    Constraint.Categorical(
+                        [SNOMEDCTCode("123000"), SNOMEDCTCode("456000")]
+                    )
                 ],
             ),
         ),
@@ -46,7 +48,9 @@ def test_get_column_specs():
         "patient_id": ColumnSpec(type=int, nullable=False, categories=None),
         "dob": ColumnSpec(type=datetime.date, nullable=True, categories=None),
         "code": ColumnSpec(type=str, nullable=True, categories=None),
-        "category": ColumnSpec(type=str, nullable=True, categories=("abc", "def")),
+        "category": ColumnSpec(
+            type=str, nullable=True, categories=("123000", "456000")
+        ),
     }
 
 
