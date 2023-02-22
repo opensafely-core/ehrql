@@ -500,6 +500,12 @@ def years(value):
 
 
 class CodeFunctions:
+    def _cast(self, value):
+        if isinstance(value, str):
+            return self._type(value)
+        else:
+            return value
+
     def to_category(self, categorisation, default=None):
         return self.map_values(categorisation, default=default)
 

@@ -494,3 +494,21 @@ def test_code_series_instances_have_correct_type_attribute():
     assert isinstance(p.code, CodePatientSeries)
     # But it knows the specfic coding system type it wraps
     assert p.code._type is SNOMEDCTCode
+
+
+def test_strings_are_cast_to_codes():
+    @table
+    class p(PatientFrame):
+        code = Series(SNOMEDCTCode)
+
+    eq_series = p.code == "123000"
+    assert eq_series.qm_node.rhs == Value(SNOMEDCTCode("123000"))
+
+    is_in_series = p.code.is_in(["456000", "789000"])
+    assert is_in_series.qm_node.rhs == Value(
+        frozenset({SNOMEDCTCode("456000"), SNOMEDCTCode("789000")})
+    )
+
+    # Test invalid codes are rejected
+    with pytest.raises(ValueError, match="Invalid SNOMEDCTCode"):
+        p.code == "abc"
