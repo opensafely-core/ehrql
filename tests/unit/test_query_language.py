@@ -1,3 +1,5 @@
+import csv
+import secrets
 from datetime import date
 from inspect import signature
 
@@ -28,6 +30,7 @@ from databuilder.query_language import (
     days,
     months,
     table,
+    table_from_file,
     table_from_rows,
     weeks,
     years,
@@ -317,6 +320,67 @@ def test_table_from_rows_only_accepts_patient_frame():
 
         @table_from_rows([])
         class some_table(EventFrame):
+            some_int = Series(int)
+
+
+def test_table_from_file(tmp_path):
+    rows = [(1, 100), (2, 200)]
+    csv_path = tmp_path / "test.csv"
+    with csv_path.open("w") as f:
+        writer = csv.writer(f)
+        writer.writerow(("patient_id", "n"))
+        writer.writerows(rows)
+
+    @table_from_file(csv_path)
+    class some_table(PatientFrame):
+        some_int = Series(int)
+
+    assert isinstance(some_table, PatientFrame)
+    assert isinstance(some_table.qm_node, InlinePatientTable)
+
+
+def test_table_from_file_only_accepts_patient_frame():
+    with pytest.raises(
+        SchemaError,
+        match="`@table_from_file` can only be used with `PatientFrame`",
+    ):
+
+        @table_from_file([])
+        class some_table(EventFrame):
+            some_int = Series(int)
+
+
+def test_table_from_file_only_accepts_known_filetypes(tmp_path):
+    # create empty file with unrecognised extension
+    bad_file_extension_path = tmp_path / "foo.xyz"
+    with bad_file_extension_path.open("w") as f:
+        f.write("")
+
+    with pytest.raises(
+        ValueError, match=r"Only csv\(.gz\) and arrow files may be loaded into tables"
+    ):
+
+        @table_from_file(bad_file_extension_path)
+        class some_table(PatientFrame):
+            some_int = Series(int)
+
+
+def test_table_from_file_raises_error_on_unknown_path(tmp_path):
+    # randomly-generated path to a nonexistant csv file
+    nonexistent_path = tmp_path / (secrets.token_hex() + ".csv")
+
+    with pytest.raises(ValueError, match=f"{nonexistent_path} not found"):
+
+        @table_from_file(nonexistent_path)
+        class some_table(PatientFrame):
+            some_int = Series(int)
+
+
+def test_table_from_file_raises_error_on_empty_path():
+    with pytest.raises(ValueError, match="Path to table must be supplied"):
+
+        @table_from_file("")
+        class some_table(PatientFrame):
             some_int = Series(int)
 
 

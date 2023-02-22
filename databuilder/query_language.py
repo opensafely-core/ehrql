@@ -6,7 +6,9 @@ from collections import ChainMap
 from typing import Union
 
 from databuilder.codes import BaseCode
+from databuilder.file_formats import arrow, csv
 from databuilder.query_model import nodes as qm
+from databuilder.query_model.column_specs import ColumnSpec
 from databuilder.query_model.nodes import get_series_type, has_one_row_per_patient
 from databuilder.query_model.population_validation import validate_population_definition
 from databuilder.utils import date_utils
@@ -745,6 +747,51 @@ def table_from_rows(rows):
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
             raise SchemaError("`@table_from_rows` can only be used with `PatientFrame`")
+        qm_node = qm.InlinePatientTable(
+            rows=qm.IterWrapper(rows),
+            schema=get_table_schema_from_class(cls),
+        )
+        return cls(qm_node)
+
+    return decorator
+
+
+# Defines a PatientFrame along with the data it contains. Takes a path to
+# a file (feather, csv, csv.gz) with rows of the form:
+#
+#    (patient_id, column_1_in_schema, column_2_in_schema, ...)
+#
+def table_from_file(path):
+    def decorator(cls):
+        if cls.__bases__ != (PatientFrame,):
+            raise SchemaError("`@table_from_file` can only be used with `PatientFrame`")
+
+        if path == "":
+            raise ValueError("Path to table must be supplied")
+
+        if not path.exists():
+            raise ValueError(f"{path} not found")
+
+        schema = get_table_schema_from_class(cls)
+        column_specs = {"patient_id": ColumnSpec(type=int)} | {
+            name: ColumnSpec(
+                type=col_type,
+                categories=schema.get_column_categories(name),
+            )
+            for name, col_type in dict(schema.column_types).items()
+        }
+
+        if path.suffix == ".csv":
+            rows = csv.read_dataset_csv(path, column_specs)
+        elif path.suffix == ".gz" and path.stem.endswith("csv"):
+            rows = csv.read_dataset_csv_gz(path, column_specs)
+        elif path.suffix == ".feather":
+            arrow.validate_dataset_arrow(path, column_specs)
+            arrow_table = arrow.get_table_from_file(path)
+            rows = [tuple(r.values()) for r in arrow_table.to_pylist()]
+        else:
+            raise ValueError("Only csv(.gz) and arrow files may be loaded into tables")
+
         qm_node = qm.InlinePatientTable(
             rows=qm.IterWrapper(rows),
             schema=get_table_schema_from_class(cls),

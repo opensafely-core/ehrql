@@ -196,3 +196,9 @@ def get_first_record_batch_from_file(filename):
     with pyarrow.OSFile(str(filename), "rb") as f:
         with pyarrow.ipc.open_file(f) as reader:
             return reader.get_batch(0)
+
+
+def get_table_from_file(filename):
+    with pyarrow.memory_map(str(filename), "rb") as f:
+        with pyarrow.ipc.open_file(f) as reader:
+            return reader.read_all()
