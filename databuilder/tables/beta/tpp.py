@@ -290,3 +290,9 @@ class isaric_raw(EventFrame):
         str,
         description="Admission date at previous facility not known.",
     )
+
+    dsstdat = Series(str)
+    cestdat = Series(str)
+    dsstdtc = Series(str)
+    covid19_vaccine2d = Series(str)
+    covid19_vaccine3d = Series(str)

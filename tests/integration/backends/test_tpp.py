@@ -519,6 +519,11 @@ def test_isaric_raw(select_all):
             hooccur="TODO",
             hostdat_transfer="TODO",
             hostdat_transfernk="TODO",
+            dsstdat="TODO",
+            cestdat="TODO",
+            dsstdtc="TODO",
+            covid19_vaccine2d="TODO",
+            covid19_vaccine3d="TODO",
         ),
     )
     assert results == [
@@ -541,6 +546,11 @@ def test_isaric_raw(select_all):
             "hooccur": "TODO",
             "hostdat_transfer": "TODO",
             "hostdat_transfernk": "TODO",
+            "dsstdat": "TODO",
+            "cestdat": "TODO",
+            "dsstdtc": "TODO",
+            "covid19_vaccine2d": "TODO",
+            "covid19_vaccine3d": "TODO",
         },
     ]
 

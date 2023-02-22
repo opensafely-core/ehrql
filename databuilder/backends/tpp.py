@@ -249,7 +249,12 @@ class TPPBackend(BaseBackend):
                 readm_cov19,
                 hooccur,
                 hostdat_transfer,
-                hostdat_transfernk
+                hostdat_transfernk,
+                dsstdat,
+                cestdat,
+                dsstdtc,
+                covid19_vaccine2d,
+                covid19_vaccine3d
             FROM ISARIC_New
         """
     )

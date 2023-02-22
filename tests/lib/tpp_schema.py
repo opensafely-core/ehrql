@@ -1007,6 +1007,12 @@ class ISARIC_New(Base):
     hostdat_transfer = Column(String)
     hostdat_transfernk = Column(String)
 
+    dsstdat = Column(String)
+    cestdat = Column(String)
+    dsstdtc = Column(String)
+    covid19_vaccine2d = Column(String)
+    covid19_vaccine3d = Column(String)
+
 
 class BuildProgress(Base):
     __tablename__ = "BuildProgress"
