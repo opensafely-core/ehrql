@@ -243,18 +243,18 @@ class TPPBackend(BaseBackend):
                 coriona_ieorres3,
                 inflammatory_mss,
                 covid19_vaccine,
-                covid19_vaccined,
+                CAST(covid19_vaccined AS DATE) as covid19_vaccined,
                 covid19_vaccined_nk,
-                hostdat,
+                CAST(hostdat AS DATE) as hostdat,
                 readm_cov19,
                 hooccur,
-                hostdat_transfer,
+                CAST(hostdat_transfer AS DATE) as hostdat_transfer,
                 hostdat_transfernk,
-                dsstdat,
-                cestdat,
-                dsstdtc,
-                covid19_vaccine2d,
-                covid19_vaccine3d
+                CAST(dsstdat AS DATE) as dsstdat,
+                CAST(cestdat AS DATE) as cestdat,
+                CAST(dsstdtc AS DATE) as dsstdtc,
+                CAST(covid19_vaccine2d AS DATE) as covid19_vaccine2d,
+                CAST(covid19_vaccine3d AS DATE) as covid19_vaccine3d
             FROM ISARIC_New
         """
     )

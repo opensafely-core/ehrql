@@ -998,20 +998,20 @@ class ISARIC_New(Base):
     inflammatory_mss = Column(String)
 
     covid19_vaccine = Column(String)
-    covid19_vaccined = Column(String)
+    covid19_vaccined = Column(Date)
     covid19_vaccined_nk = Column(String)
 
-    hostdat = Column(String)
+    hostdat = Column(Date)
     readm_cov19 = Column(String)
     hooccur = Column(String)
-    hostdat_transfer = Column(String)
+    hostdat_transfer = Column(Date)
     hostdat_transfernk = Column(String)
 
-    dsstdat = Column(String)
-    cestdat = Column(String)
-    dsstdtc = Column(String)
-    covid19_vaccine2d = Column(String)
-    covid19_vaccine3d = Column(String)
+    dsstdat = Column(Date)
+    cestdat = Column(Date)
+    dsstdtc = Column(Date)
+    covid19_vaccine2d = Column(Date)
+    covid19_vaccine3d = Column(Date)
 
 
 class BuildProgress(Base):

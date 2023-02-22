@@ -261,7 +261,7 @@ class isaric_raw(EventFrame):
         description="Has the patient received a Covid-19 vaccine (open label licenced product)?",
     )
     covid19_vaccined = Series(
-        str,
+        datetime.date,
         description="Date first vaccine given (Covid-19) if known.",
     )
     covid19_vaccined_nk = Series(
@@ -271,7 +271,7 @@ class isaric_raw(EventFrame):
 
     # Admission
     hostdat = Series(
-        str,
+        datetime.date,
         description="Admission date at this facility.",
     )
     readm_cov19 = Series(
@@ -283,7 +283,7 @@ class isaric_raw(EventFrame):
         description="Transfer from other facility?",
     )
     hostdat_transfer = Series(
-        str,
+        datetime.date,
         description="Admission date at previous facility.",
     )
     hostdat_transfernk = Series(
@@ -291,8 +291,8 @@ class isaric_raw(EventFrame):
         description="Admission date at previous facility not known.",
     )
 
-    dsstdat = Series(str)
-    cestdat = Series(str)
-    dsstdtc = Series(str)
-    covid19_vaccine2d = Series(str)
-    covid19_vaccine3d = Series(str)
+    dsstdat = Series(datetime.date)
+    cestdat = Series(datetime.date)
+    dsstdtc = Series(datetime.date)
+    covid19_vaccine2d = Series(datetime.date)
+    covid19_vaccine3d = Series(datetime.date)
