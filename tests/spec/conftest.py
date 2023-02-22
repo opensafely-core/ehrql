@@ -3,8 +3,6 @@ import datetime
 import pytest
 
 from databuilder.ehrql import Dataset
-from databuilder.query_language import compile
-from databuilder.query_model.nodes import get_series_type
 
 
 @pytest.fixture(params=["execute", "dump_sql"])
@@ -24,13 +22,9 @@ def spec_test(request, engine):
         dataset = make_dataset(table_data, population)
         dataset.v = series
 
-        # Get the type according to the query model
-        variables = compile(dataset)
-        variable_type = get_series_type(variables["v"])
-
         # If we're comparing floats then we want only approximate equality to account
         # for rounding differences
-        if variable_type is float:
+        if series._type is float:
             expected_results = pytest.approx(expected_results, rel=1e-5)
 
         # Extract data, and check it's as expected.
@@ -42,8 +36,8 @@ def spec_test(request, engine):
         # Assert types are as expected
         for patient_id, value in results_dict.items():
             if value is not None:
-                assert isinstance(value, variable_type), (
-                    f"Expected {variable_type} got {type(value)} in "
+                assert isinstance(value, series._type), (
+                    f"Expected {series._type} got {type(value)} in "
                     f"result {{{patient_id}: {value}}}"
                 )
 
