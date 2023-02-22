@@ -525,6 +525,7 @@ def _wrap(qm_node):
     is_patient_level = has_one_row_per_patient(qm_node)
     try:
         cls = REGISTERED_TYPES[type_, is_patient_level]
+        return cls(qm_node)
     except KeyError:
         # If we don't have a match for exactly this type then we should have one for a
         # superclass
@@ -535,7 +536,9 @@ def _wrap(qm_node):
         ]
         assert len(matches) == 1
         cls = matches[0]
-    return cls(qm_node)
+        wrapped = cls(qm_node)
+        wrapped._type = type_
+        return wrapped
 
 
 def _apply(qm_cls, *args):

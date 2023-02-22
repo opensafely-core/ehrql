@@ -3,10 +3,12 @@ from inspect import signature
 
 import pytest
 
+from databuilder.codes import SNOMEDCTCode
 from databuilder.query_language import (
     BaseSeries,
     BoolEventSeries,
     BoolPatientSeries,
+    CodePatientSeries,
     Dataset,
     DateDifference,
     DateEventSeries,
@@ -481,3 +483,14 @@ def test_ehrql_date_string_equivalence(fn_name):
         str_args = [str_args]
 
     assert f(*date_args).qm_node == f(*str_args).qm_node
+
+
+def test_code_series_instances_have_correct_type_attribute():
+    @table
+    class p(PatientFrame):
+        code = Series(SNOMEDCTCode)
+
+    # The series itself is a generic "BaseCode" series
+    assert isinstance(p.code, CodePatientSeries)
+    # But it knows the specfic coding system type it wraps
+    assert p.code._type is SNOMEDCTCode
