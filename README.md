@@ -1,5 +1,5 @@
 # OpenSAFELY Data Builder
-
+ 
 This tool supports the authoring of OpenSAFELY-compliant research, by:
 
 * Allowing developers to provide dummy data via a CSV file. They can then use this as
