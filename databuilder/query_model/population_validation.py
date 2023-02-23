@@ -13,7 +13,7 @@ from databuilder.query_model.nodes import (
     get_series_type,
     has_one_row_per_patient,
 )
-from databuilder.utils import date_utils
+from databuilder.utils import date_utils, math_utils
 
 
 def validate_population_definition(population):
@@ -212,6 +212,8 @@ register_op(Function.GE)(operator.ge)
 register_op(Function.Add)(operator.add)
 register_op(Function.Subtract)(operator.sub)
 register_op(Function.Multiply)(operator.mul)
+register_op(Function.TrueDivide)(math_utils.truediv)
+register_op(Function.FloorDivide)(math_utils.floordiv)
 register_op(Function.CastToInt)(int)
 register_op(Function.CastToFloat)(float)
 register_op(Function.StringContains)(operator.contains)

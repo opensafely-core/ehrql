@@ -121,6 +121,8 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             add: ({int, float}, DomainConstraint.ANY),
             subtract: ({int, float}, DomainConstraint.ANY),
             multiply: ({int, float}, DomainConstraint.ANY),
+            truediv: ({float}, DomainConstraint.ANY),
+            floordiv: ({int}, DomainConstraint.ANY),
             date_add_years: ({datetime.date}, DomainConstraint.ANY),
             date_add_months: ({datetime.date}, DomainConstraint.ANY),
             date_add_days: ({datetime.date}, DomainConstraint.ANY),
@@ -259,6 +261,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     def multiply(type_, frame):
         return binary_operation(type_, frame, Function.Multiply)
+
+    def truediv(type_, frame):
+        return binary_operation(type_, frame, Function.TrueDivide)
+
+    def floordiv(type_, frame):
+        return binary_operation(type_, frame, Function.FloorDivide)
 
     def date_add_years(type_, frame):
         return binary_operation_with_types(type_, int, frame, Function.DateAddYears)

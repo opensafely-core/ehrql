@@ -31,6 +31,7 @@ from databuilder.query_model.transforms import (
 )
 from databuilder.utils.functools_utils import singledispatchmethod_with_cache
 from databuilder.utils.sqlalchemy_query_utils import (
+    expr_has_type,
     get_setup_and_cleanup_queries,
     is_predicate,
 )
@@ -219,6 +220,25 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql.register(Function.Multiply)
     def get_sql_multiply(self, node):
         return operators.mul(self.get_expr(node.lhs), self.get_expr(node.rhs))
+
+    @get_sql.register(Function.TrueDivide)
+    def get_sql_truedivide(self, node):
+        lhs = self.get_expr(node.lhs)
+        rhs = self.get_expr(node.rhs)
+        # To ensure TrueDiv behaviour cast one to float if both args are ints
+        if not expr_has_type(lhs, sqlalchemy_types.Float) and not expr_has_type(
+            rhs, sqlalchemy_types.Float
+        ):
+            lhs = sqlalchemy.cast(lhs, sqlalchemy.Float)
+        return self.truedivide(lhs, rhs)
+
+    def truedivide(self, lhs, rhs):
+        return lhs / rhs
+
+    @get_sql.register(Function.FloorDivide)
+    def get_sql_floordivide(self, node):
+        float_result = self.get_sql_truedivide(node)
+        return sqlalchemy.cast(SQLFunction("FLOOR", float_result), sqlalchemy.Integer)
 
     @get_sql.register(Function.CastToInt)
     def get_sql_cast_to_int(self, node):

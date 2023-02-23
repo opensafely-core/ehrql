@@ -1,6 +1,6 @@
 from ..tables import p
 
-title = "Arithmetic operations"
+title = "Arithmetic operations without division"
 
 table_data = {
     p: """

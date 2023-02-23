@@ -46,6 +46,10 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             type_=sqlalchemy_types.Integer,
         )
 
+    def truedivide(self, lhs, rhs):
+        rhs_null_if_zero = SQLFunction("NULLIF", rhs, 0.0, type_=sqlalchemy.Float)
+        return lhs / rhs_null_if_zero
+
     def get_date_part(self, date, part):
         assert part in {"YEAR", "MONTH", "DAY"}
         return SQLFunction(part, date, type_=sqlalchemy_types.Integer)
