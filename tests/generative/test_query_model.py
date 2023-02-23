@@ -32,6 +32,8 @@ schema = TableSchema(
     d2=Column(datetime.date),
     f1=Column(float),
     f2=Column(float),
+    s1=Column(str),
+    s2=Column(str),
 )
 (
     patient_classes,
@@ -48,6 +50,7 @@ value_strategies = {
         min_value=datetime.date(1900, 1, 1), max_value=datetime.date(2100, 12, 31)
     ),
     float: st.floats(min_value=0.0, max_value=11.0, width=16, allow_infinity=False),
+    str: st.text(alphabet=["a", "b", "c"], min_size=0, max_size=3),
 }
 
 variable_strategy = variable_strategies.variable(
