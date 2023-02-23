@@ -10,6 +10,7 @@ table_data = {
         2 |  -1 |   2
         3 |  -4 |   3
         4 |     | 201
+        5 |   5 |   0
         """,
 }
 
@@ -23,6 +24,7 @@ def test_truedivide(spec_test):
             2: -1 / 2,
             3: -4 / 3,
             4: None,
+            5: None,
         },
     )
 
@@ -36,11 +38,12 @@ def test_truedivide_by_constant(spec_test):
             2: -1 / 10,
             3: -4 / 10,
             4: None,
+            5: 5 / 10,
         },
     )
 
 
-def test_rtruedivide_by_constant(spec_test):
+def test_truedivide_constant_by_series(spec_test):
     spec_test(
         table_data,
         10 / p.i1,
@@ -49,19 +52,7 @@ def test_rtruedivide_by_constant(spec_test):
             2: -1 / 10,
             3: -4 / 10,
             4: None,
-        },
-    )
-
-
-def test_truedivide_by_zero(spec_test):
-    spec_test(
-        table_data,
-        p.i1 / 0,
-        {
-            1: None,
-            2: None,
-            3: None,
-            4: None,
+            5: 5 / 10,
         },
     )
 
@@ -75,6 +66,7 @@ def test_floordivide(spec_test):
             2: -1 // 2,
             3: -4 // 3,
             4: None,
+            5: None,
         },
     )
 
@@ -88,11 +80,12 @@ def test_floordivide_by_constant(spec_test):
             2: -1 // 10,
             3: -4 // 10,
             4: None,
+            5: 5 // 10,
         },
     )
 
 
-def test_rfloordivide_by_constant(spec_test):
+def test_floordivide_constant_by_series(spec_test):
     spec_test(
         table_data,
         10 // p.i1,
@@ -101,18 +94,6 @@ def test_rfloordivide_by_constant(spec_test):
             2: -1 // 10,
             3: -4 // 10,
             4: None,
-        },
-    )
-
-
-def test_floordivide_by_zero(spec_test):
-    spec_test(
-        table_data,
-        p.i1 // 0,
-        {
-            1: None,
-            2: None,
-            3: None,
-            4: None,
+            5: 5 // 10,
         },
     )
