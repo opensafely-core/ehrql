@@ -112,6 +112,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             negate: ({int, float}, DomainConstraint.ANY),
             eq: ({bool}, DomainConstraint.ANY),
             ne: ({bool}, DomainConstraint.ANY),
+            string_contains: ({bool}, DomainConstraint.ANY),
             and_: ({bool}, DomainConstraint.ANY),
             or_: ({bool}, DomainConstraint.ANY),
             lt: ({bool}, DomainConstraint.ANY),
@@ -224,6 +225,9 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def ne(draw, _type, frame):
         type_ = draw(any_type())
         return draw(binary_operation(type_, frame, Function.NE))
+
+    def string_contains(_type, frame):
+        return binary_operation(str, frame, Function.StringContains)
 
     def and_(type_, frame):
         return binary_operation(type_, frame, Function.And, allow_value=False)
@@ -443,7 +447,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 known_missing_operations = {
     AggregateByPatient.CombineAsSet,
     Function.In,
-    Function.StringContains,
 }
 
 
