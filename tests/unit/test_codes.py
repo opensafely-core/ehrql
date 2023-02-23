@@ -109,6 +109,22 @@ def test_codelist_from_csv_lines_with_categories():
     }
 
 
+def test_codelist_from_csv_lines_without_system():
+    csv_lines = [
+        "CodeID,foo",
+        "abc00,",
+        "def00,",
+        # Check codes are trimmed
+        "ghi00 ,",
+        # Check blanks are ignored
+        "  ,"
+        # Check duplicates are ignored
+        " def00,",
+    ]
+    codelist = codelist_from_csv_lines(csv_lines, column="CodeID")
+    assert codelist == ["abc00", "def00", "ghi00"]
+
+
 @pytest.mark.parametrize(
     "cls,value",
     [

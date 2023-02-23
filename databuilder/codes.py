@@ -140,35 +140,42 @@ class Codelist:
                 setattr(self, name, category_map)
 
 
-def codelist_from_csv(filename, column, system):
+def codelist_from_csv(filename, column, system=None):
     filename = Path(filename)
     if not filename.exists():
         raise CodelistError(f"No CSV file at {filename}")
     with filename.open("r") as f:
-        return codelist_from_csv_lines(f, column, system)
+        return codelist_from_csv_lines(f, column, system=system)
 
 
-def codelist_from_csv_lines(lines, column, system):
-    try:
-        code_class = REGISTRY[system]
-    except KeyError:
-        raise CodelistError(
-            f"No system matching '{system}', allowed are: "
-            f"{', '.join(REGISTRY.keys())}"
-        )
+def codelist_from_csv_lines(lines, column, system=None):
+    if system is None:
+        code_class = str
+    else:
+        try:
+            code_class = REGISTRY[system]
+        except KeyError:
+            raise CodelistError(
+                f"No system matching '{system}', allowed are: "
+                f"{', '.join(REGISTRY.keys())}"
+            )
     # `restval` ensures we never get None instead of string, so `.strip()` will
     # never blow up
     reader = csv.DictReader(iter(lines), restval="")
     if column not in reader.fieldnames:
         raise CodelistError(f"No column '{column}' in CSV")
-    codes = set()
+    codes = []
     # We treat every other column in the CSV as being a mapping from codes to categories
     category_maps = {name: {} for name in reader.fieldnames if name != column}
     for row in reader:
         code_str = row[column].strip()
         if code_str:
             code = code_class(code_str)
-            codes.add(code)
+            codes.append(code)
             for name, category_map in category_maps.items():
                 category_map[code] = row[name].strip()
-    return Codelist(codes, category_maps)
+    if system is None:
+        # Remove duplicates while retaining order
+        return list(dict.fromkeys(codes))
+    else:
+        return Codelist(set(codes), category_maps)
