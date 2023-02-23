@@ -93,7 +93,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
         # Order matters: "simpler" first (see header comment)
         series_constraints = {
-            select_column: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
+            select_column: (value_strategies.keys(), DomainConstraint.ANY),
             exists: ({bool}, DomainConstraint.PATIENT),
             count: ({int}, DomainConstraint.PATIENT),
             min_: (comparable_types(), DomainConstraint.PATIENT),
