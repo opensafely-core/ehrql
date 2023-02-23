@@ -291,8 +291,26 @@ class isaric_raw(EventFrame):
         description="Admission date at previous facility not known.",
     )
 
-    dsstdat = Series(datetime.date)
-    cestdat = Series(datetime.date)
-    dsstdtc = Series(datetime.date)
-    covid19_vaccine2d = Series(datetime.date)
-    covid19_vaccine3d = Series(datetime.date)
+    dsstdat = Series(
+        datetime.date,
+        description="Date of enrolment.",
+    )
+    cestdat = Series(
+        datetime.date,
+        description="Onset date of first/earliest symptom.",
+    )
+    dsstdtc = Series(
+        datetime.date,
+        description="Outcome date.",
+    )
+    covid19_vaccine2d = Series(
+        datetime.date,
+        description="Date second vaccine given (Covid-19) if known.",
+    )
+    covid19_vaccine3d = Series(
+        datetime.date,
+        # The current version of the data dictionary on GitHub is from 2022,
+        # and does not include this variable.
+        # The description is a reasonable guess.
+        description="TO BE CONFIRMED WITH DATA SOURCE: Date third vaccine given (Covid-19) if known.",
+    )
