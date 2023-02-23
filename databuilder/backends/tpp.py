@@ -238,23 +238,23 @@ class TPPBackend(BaseBackend):
                 calc_age,
                 sex,
                 ethnic,
+                covid19_vaccine,
+                CAST(covid19_vaccined AS DATE) as covid19_vaccined,
+                CAST(covid19_vaccine2d AS DATE) as covid19_vaccine2d,
+                CAST(covid19_vaccine3d AS DATE) as covid19_vaccine3d,
+                covid19_vaccined_nk,
                 corona_ieorres,
                 coriona_ieorres2,
                 coriona_ieorres3,
                 inflammatory_mss,
-                covid19_vaccine,
-                CAST(covid19_vaccined AS DATE) as covid19_vaccined,
-                covid19_vaccined_nk,
+                CAST(cestdat AS DATE) as cestdat,
                 CAST(hostdat AS DATE) as hostdat,
-                readm_cov19,
                 hooccur,
                 CAST(hostdat_transfer AS DATE) as hostdat_transfer,
                 hostdat_transfernk,
+                readm_cov19,
                 CAST(dsstdat AS DATE) as dsstdat,
-                CAST(cestdat AS DATE) as cestdat,
-                CAST(dsstdtc AS DATE) as dsstdtc,
-                CAST(covid19_vaccine2d AS DATE) as covid19_vaccine2d,
-                CAST(covid19_vaccine3d AS DATE) as covid19_vaccine3d
+                CAST(dsstdtc AS DATE) as dsstdtc
             FROM ISARIC_New
         """
     )

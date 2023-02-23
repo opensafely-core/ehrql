@@ -234,6 +234,31 @@ class isaric_raw(EventFrame):
         description="Ethnic group.",
     )
 
+    # Vaccination
+    covid19_vaccine = Series(
+        str,
+        description="Has the patient received a Covid-19 vaccine (open label licenced product)?",
+    )
+    covid19_vaccined = Series(
+        datetime.date,
+        description="Date first vaccine given (Covid-19) if known.",
+    )
+    covid19_vaccine2d = Series(
+        datetime.date,
+        description="Date second vaccine given (Covid-19) if known.",
+    )
+    covid19_vaccine3d = Series(
+        datetime.date,
+        # The current version of the data dictionary on GitHub is from 2022,
+        # and does not include this variable.
+        # The description is a reasonable guess.
+        description="TO BE CONFIRMED WITH DATA SOURCE: Date third vaccine given (Covid-19) if known.",
+    )
+    covid19_vaccined_nk = Series(
+        str,
+        description="First vaccine given (Covid-19) but date not known.",
+    )
+
     # Clinical
     corona_ieorres = Series(
         str,
@@ -254,29 +279,15 @@ class isaric_raw(EventFrame):
         str,
         description="Adult or child who meets case definition for inflammatory multi-system syndrome (MIS-C/MIS-A).",
     )
-
-    # Vaccination
-    covid19_vaccine = Series(
-        str,
-        description="Has the patient received a Covid-19 vaccine (open label licenced product)?",
-    )
-    covid19_vaccined = Series(
+    cestdat = Series(
         datetime.date,
-        description="Date first vaccine given (Covid-19) if known.",
-    )
-    covid19_vaccined_nk = Series(
-        str,
-        description="First vaccine given (Covid-19) but date not known.",
+        description="Onset date of first/earliest symptom.",
     )
 
     # Admission
     hostdat = Series(
         datetime.date,
         description="Admission date at this facility.",
-    )
-    readm_cov19 = Series(
-        str,
-        description="Is the patient being readmitted with Covid-19?",
     )
     hooccur = Series(
         str,
@@ -290,27 +301,15 @@ class isaric_raw(EventFrame):
         str,
         description="Admission date at previous facility not known.",
     )
-
+    readm_cov19 = Series(
+        str,
+        description="Is the patient being readmitted with Covid-19?",
+    )
     dsstdat = Series(
         datetime.date,
         description="Date of enrolment.",
     )
-    cestdat = Series(
-        datetime.date,
-        description="Onset date of first/earliest symptom.",
-    )
     dsstdtc = Series(
         datetime.date,
         description="Outcome date.",
-    )
-    covid19_vaccine2d = Series(
-        datetime.date,
-        description="Date second vaccine given (Covid-19) if known.",
-    )
-    covid19_vaccine3d = Series(
-        datetime.date,
-        # The current version of the data dictionary on GitHub is from 2022,
-        # and does not include this variable.
-        # The description is a reasonable guess.
-        description="TO BE CONFIRMED WITH DATA SOURCE: Date third vaccine given (Covid-19) if known.",
     )
