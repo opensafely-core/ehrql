@@ -169,6 +169,7 @@ class hospital_admissions(EventFrame):
     all_diagnoses = Series(str)
     patient_classification = Series(str)
     days_in_critical_care = Series(int)
+    primary_diagnoses = Series(str)
 
 
 @table
