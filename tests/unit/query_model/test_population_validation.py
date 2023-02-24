@@ -8,17 +8,14 @@ from databuilder.query_model.nodes import (
     SelectColumn,
     SelectPatientTable,
     SelectTable,
-    Series,
     TableSchema,
     Value,
 )
 from databuilder.query_model.population_validation import (
     EmptyQueryEngine,
     ValidationError,
-    evaluate,
     validate_population_definition,
 )
-from tests.lib.query_model_utils import get_all_operations
 
 
 def test_rejects_non_series():
@@ -205,17 +202,3 @@ cases = [
 def test_series_evaluates_true(expected, query):
     result = EmptyQueryEngine(None).series_evaluates_true(query)
     assert result == expected, f"Expected {expected}, got {result} in:\n{query}"
-
-
-# TEST EVALUTE DEFINITION IS EXHAUSTIVE
-#
-# Test that the `evaluate()` single dispatch function is exhaustively defined so we
-# can't forget to update it if we add a new query model operation.
-#
-@pytest.mark.parametrize(
-    "operation", [op for op in get_all_operations() if issubclass(op, Series)]
-)
-def test_evaluate_function_defined_for(operation):
-    default = evaluate.dispatch(object)
-    function = evaluate.dispatch(operation)
-    assert function != default, f"No `evaluate()` implementation for {operation}"
