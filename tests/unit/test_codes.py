@@ -23,13 +23,17 @@ def test_codelist_from_csv(tmp_path):
         def00,
         """
     csv_file.write_text(textwrap.dedent(csv_text.strip()))
-    codelist = codelist_from_csv(csv_file, "CodeID", "ctv3")
+    codelist = codelist_from_csv(csv_file, column="CodeID", system="ctv3")
     assert codelist.codes == {CTV3Code("abc00"), CTV3Code("def00")}
 
 
 def test_codelist_from_csv_missing_file(tmp_path):
     with pytest.raises(CodelistError, match="no_file_here.csv"):
-        codelist_from_csv(tmp_path / "no_file_here.csv", "CodeID", "ctv3")
+        codelist_from_csv(
+            tmp_path / "no_file_here.csv",
+            column="CodeID",
+            system="ctv3",
+        )
 
 
 def test_codelist_from_csv_lines():
@@ -44,7 +48,11 @@ def test_codelist_from_csv_lines():
         # Check duplicates are ignored
         " def00,",
     ]
-    codelist = codelist_from_csv_lines(csv_lines, "CodeID", "ctv3")
+    codelist = codelist_from_csv_lines(
+        csv_lines,
+        column="CodeID",
+        system="ctv3",
+    )
     assert codelist.codes == {CTV3Code("abc00"), CTV3Code("def00"), CTV3Code("ghi00")}
 
 
@@ -54,7 +62,11 @@ def test_codelist_from_csv_lines_missing_column():
         "abc00",
     ]
     with pytest.raises(CodelistError, match="no_col_here"):
-        codelist_from_csv_lines(csv_lines, "no_col_here", "ctv3")
+        codelist_from_csv_lines(
+            csv_lines,
+            column="no_col_here",
+            system="ctv3",
+        )
 
 
 def test_codelist_from_csv_lines_unknown_system():
@@ -63,7 +75,11 @@ def test_codelist_from_csv_lines_unknown_system():
         "abc00",
     ]
     with pytest.raises(CodelistError, match="not_a_real_system"):
-        codelist_from_csv_lines(csv_lines, "CodeID", "not_a_real_system")
+        codelist_from_csv_lines(
+            csv_lines,
+            column="CodeID",
+            system="not_a_real_system",
+        )
 
 
 def test_codelist_from_csv_lines_with_categories():
@@ -74,7 +90,11 @@ def test_codelist_from_csv_lines_with_categories():
         "ghi00 ,789",
         ",",
     ]
-    codelist = codelist_from_csv_lines(csv_lines, "CodeID", "ctv3")
+    codelist = codelist_from_csv_lines(
+        csv_lines,
+        column="CodeID",
+        system="ctv3",
+    )
     # Sensibly named category is accessible as an attribute
     assert codelist.cat1 == {
         CTV3Code("abc00"): "123",
