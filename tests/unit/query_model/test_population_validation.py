@@ -157,7 +157,7 @@ cases = [
     ),
     (
         True,
-        Function.In(Value(10), Value({30, 20, 10})),
+        Function.In(Value(10), Value(frozenset([30, 20, 10]))),
     ),
     (
         None,
