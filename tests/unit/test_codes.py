@@ -125,6 +125,52 @@ def test_codelist_from_csv_lines_without_system():
     assert codelist == ["abc00", "def00", "ghi00"]
 
 
+def test_codelist_from_csv_lines_with_category_column():
+    csv_lines = [
+        "CodeID,Cat1",
+        "abc00,foo",
+        "def00,bar",
+        "ghi00,",
+    ]
+    codelist = codelist_from_csv_lines(
+        csv_lines,
+        column="CodeID",
+        category_column="Cat1",
+    )
+    assert codelist == {
+        "abc00": "foo",
+        "def00": "bar",
+        "ghi00": "",
+    }
+
+
+def test_codelist_from_csv_lines_with_missing_category_column():
+    csv_lines = [
+        "CodeID,Cat1",
+        "abc00,foo",
+    ]
+    with pytest.raises(CodelistError, match="no_col_here"):
+        codelist_from_csv_lines(
+            csv_lines,
+            column="CodeID",
+            category_column="no_col_here",
+        )
+
+
+def test_codelist_from_csv_lines_combining_system_and_category_column():
+    csv_lines = [
+        "CodeID,Cat1",
+        "abc00,foo",
+    ]
+    with pytest.raises(CodelistError, match="cannot be supplied together"):
+        codelist_from_csv_lines(
+            csv_lines,
+            column="CodeID",
+            system="ctv3",
+            category_column="Cat1",
+        )
+
+
 @pytest.mark.parametrize(
     "cls,value",
     [
