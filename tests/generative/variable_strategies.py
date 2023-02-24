@@ -93,7 +93,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
         # Order matters: "simpler" first (see header comment)
         series_constraints = {
-            select_column: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
+            select_column: (value_strategies.keys(), DomainConstraint.ANY),
             exists: ({bool}, DomainConstraint.PATIENT),
             count: ({int}, DomainConstraint.PATIENT),
             min_: (comparable_types(), DomainConstraint.PATIENT),
@@ -112,6 +112,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             negate: ({int, float}, DomainConstraint.ANY),
             eq: ({bool}, DomainConstraint.ANY),
             ne: ({bool}, DomainConstraint.ANY),
+            string_contains: ({bool}, DomainConstraint.ANY),
             and_: ({bool}, DomainConstraint.ANY),
             or_: ({bool}, DomainConstraint.ANY),
             lt: ({bool}, DomainConstraint.ANY),
@@ -226,6 +227,9 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def ne(draw, _type, frame):
         type_ = draw(any_type())
         return draw(binary_operation(type_, frame, Function.NE))
+
+    def string_contains(_type, frame):
+        return binary_operation(str, frame, Function.StringContains)
 
     def and_(type_, frame):
         return binary_operation(type_, frame, Function.And, allow_value=False)
@@ -451,7 +455,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 known_missing_operations = {
     AggregateByPatient.CombineAsSet,
     Function.In,
-    Function.StringContains,
 }
 
 
