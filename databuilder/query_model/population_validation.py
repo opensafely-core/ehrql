@@ -2,6 +2,8 @@ import dataclasses
 import operator
 from functools import singledispatch
 
+from databuilder.query_engines.in_memory import InMemoryQueryEngine
+from databuilder.query_engines.in_memory_database import EventTable, PatientTable
 from databuilder.query_model.nodes import (
     AggregateByPatient,
     Case,
@@ -73,17 +75,42 @@ def validate_population_definition(population):
     # define a universe of patients and so should not be allowed even if we could
     # reliably interpret it.
     #
-    # To determine whether a population definition meets this criterion we walk the tree
-    # of query model nodes and for each operation which would normally involve fetching
-    # data we substitute the result of that operation when given no data (this is often,
-    # but not always, NULL). The end result of the process will be either True, False or
-    # NULL. It is definitions which return True here that we reject.
-    if evaluate(population) is True:
+    # To determine whether a population definition meets this criterion we evaluate it
+    # against a variant of the InMemoryQueryEngine which acts as if all its tables are
+    # empty. Definitions which evaluate True under these circumstances must be rejected.
+    if EmptyQueryEngine(None).series_evaluates_true(population):
         # TODO: Wording could do with more thought here
         raise ValidationError(
             "population definition must not evaluate as True for NULL inputs"
         )
     return True
+
+
+class EmptyQueryEngine(InMemoryQueryEngine):
+    """
+    Uses the in-memory query engine to model a database where all referenced tables are
+    assumed to exist but are empty. We can then test whether a given series would
+    evaluate True under these circumstances.
+    """
+
+    # We exploit the fact that the in-memory engine tracks which patients exist
+    # independently of the tables they are in; so we can pretend we have a single
+    # patient in our "universe" despite all tables being empty.
+    @property
+    def all_patients(self):
+        return {1}
+
+    def series_evaluates_true(self, series):
+        results = self.get_results({"population": series})
+        return bool(list(results))
+
+    def visit_SelectTable(self, node):
+        column_names = ["patient_id", "row_id", *node.schema.column_names]
+        return EventTable.from_records(column_names, row_records=[])
+
+    def visit_SelectPatientTable(self, node):
+        column_names = ["patient_id", *node.schema.column_names]
+        return PatientTable.from_records(column_names, row_records=[])
 
 
 @singledispatch
