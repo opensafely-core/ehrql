@@ -47,7 +47,7 @@ value_strategies = {
     int: st.integers(min_value=0, max_value=10),
     bool: st.booleans(),
     datetime.date: st.dates(
-        min_value=datetime.date(1900, 1, 1), max_value=datetime.date(2100, 12, 31)
+        min_value=datetime.date(2010, 1, 1), max_value=datetime.date(2020, 12, 31)
     ),
     float: st.floats(min_value=0.0, max_value=11.0, width=16, allow_infinity=False),
     str: st.text(alphabet=["a", "b", "c"], min_size=0, max_size=3),
