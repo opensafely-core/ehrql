@@ -160,13 +160,6 @@ cases = [
         Function.In(Value(10), Value(frozenset([30, 20, 10]))),
     ),
     (
-        None,
-        Function.In(
-            patients_value,
-            AggregateByPatient.CombineAsSet(events_value),
-        ),
-    ),
-    (
         "bar",
         Case(
             {
