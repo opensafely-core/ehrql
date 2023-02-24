@@ -13,6 +13,7 @@ from databuilder.query_model.nodes import (
     Value,
 )
 from databuilder.query_model.population_validation import (
+    EmptyQueryEngine,
     ValidationError,
     evaluate,
     validate_population_definition,
@@ -59,7 +60,7 @@ def test_rejects_basic_unreasonable_population():
         validate_population_definition(not_died)
 
 
-# TEST EVALUATE FUNCTION
+# TEST SERIES EVALUATION AGAINST EMPTY DATABASE
 #
 
 patients = SelectPatientTable("patients", schema=TableSchema(value=Column(int)))
@@ -100,7 +101,7 @@ cases = [
         Function.IsNull(AggregateByPatient.Max(events_value)),
     ),
     (
-        None,
+        False,
         # events.v.max_for_patient() > 100
         Function.GT(
             AggregateByPatient.Max(events_value),
@@ -116,7 +117,7 @@ cases = [
         ),
     ),
     (
-        None,
+        False,
         # patients.v == 100 | (patients.v <= 20)
         Function.Or(
             Function.EQ(patients_value, Value(100)),
@@ -148,7 +149,7 @@ cases = [
         ),
     ),
     (
-        None,
+        False,
         # patients.v == 1 & events.v.sum_for_patient() == 2
         Function.And(
             Function.EQ(patients_value, Value(1)),
@@ -160,27 +161,27 @@ cases = [
         Function.In(Value(10), Value(frozenset([30, 20, 10]))),
     ),
     (
-        "bar",
+        True,
         Case(
             {
-                Function.EQ(patients_value, Value(1)): Value("foo"),
-                Function.EQ(Value(1), Value(1)): Value("bar"),
+                Function.EQ(patients_value, Value(1)): Value(False),
+                Function.EQ(Value(1), Value(1)): Value(True),
             },
             default=None,
         ),
     ),
     (
-        "baz",
+        True,
         Case(
             {
-                Function.EQ(patients_value, Value(1)): Value("foo"),
-                Function.EQ(patients_value, Value(2)): Value("bar"),
+                Function.EQ(patients_value, Value(1)): Value(False),
+                Function.EQ(patients_value, Value(2)): Value(False),
             },
-            default=Value("baz"),
+            default=Value(True),
         ),
     ),
     (
-        None,
+        False,
         Case(
             {
                 Function.EQ(patients_value, Value(1)): Value("foo"),
@@ -201,8 +202,8 @@ cases = [
 
 
 @pytest.mark.parametrize("expected,query", cases)
-def test_evaluate(expected, query):
-    result = evaluate(query)
+def test_series_evaluates_true(expected, query):
+    result = EmptyQueryEngine(None).series_evaluates_true(query)
     assert result == expected, f"Expected {expected}, got {result} in:\n{query}"
 
 
