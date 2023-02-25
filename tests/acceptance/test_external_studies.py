@@ -46,9 +46,10 @@ STUDY_DIR = Path(__file__).parent / "external_studies"
 
 
 @pytest.mark.parametrize("name", EXTERNAL_STUDIES.keys())
-def test_external_study(name):
+def test_external_study(name, monkeypatch):
     study_path = STUDY_DIR / name
     dataset_def_path = study_path / EXTERNAL_STUDIES[name]["dataset_definition"]
+    monkeypatch.chdir(study_path)
     # Test that we can compile the dataset definition to a valid query model graph. I
     # think this is sufficient for these tests which are intended to ensure we don't
     # accidentally break the API. If we're unable to execute a valid query, that's a
