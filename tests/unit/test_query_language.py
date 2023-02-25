@@ -509,6 +509,12 @@ def test_strings_are_cast_to_codes():
         frozenset({SNOMEDCTCode("456000"), SNOMEDCTCode("789000")})
     )
 
+    mapping = {"456000": "foo", "789000": "bar"}
+    mapped_series = p.code.is_in(mapping)
+    assert mapped_series.qm_node.rhs == Value(
+        frozenset({SNOMEDCTCode("456000"), SNOMEDCTCode("789000")})
+    )
+
     # Test invalid codes are rejected
     with pytest.raises(ValueError, match="Invalid SNOMEDCTCode"):
         p.code == "abc"
