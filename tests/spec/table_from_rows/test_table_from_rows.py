@@ -1,5 +1,3 @@
-import pytest
-
 from databuilder.tables import PatientFrame, Series, table_from_rows
 
 from ..tables import p
@@ -17,7 +15,6 @@ table_data = {
 }
 
 
-@pytest.mark.xfail
 def test_table_from_rows(spec_test):
     inline_data = [
         (1, 100),

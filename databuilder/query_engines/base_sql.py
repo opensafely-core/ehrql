@@ -3,6 +3,7 @@ from functools import cached_property
 import sqlalchemy
 import sqlalchemy.engine.interfaces
 import structlog
+from sqlalchemy.schema import CreateIndex, CreateTable
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
@@ -13,6 +14,7 @@ from databuilder.query_model.nodes import (
     Case,
     Filter,
     Function,
+    InlinePatientTable,
     Position,
     SelectColumn,
     SelectPatientTable,
@@ -28,8 +30,10 @@ from databuilder.query_model.transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )
+from databuilder.sqlalchemy_types import TYPE_MAP
 from databuilder.utils.functools_utils import singledispatchmethod_with_cache
 from databuilder.utils.sqlalchemy_query_utils import (
+    GeneratedTable,
     get_setup_and_cleanup_queries,
     is_predicate,
 )
@@ -526,6 +530,26 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return self.reify_query(partitioned_query)
 
+    @get_table.register(InlinePatientTable)
+    def get_table_inline_patient_table(self, node):
+        table_name = f"{self.intermediate_table_prefix}{node.name}"
+        columns = [
+            sqlalchemy.Column(name, TYPE_MAP[col_type])
+            for name, col_type in [("patient_id", int)] + node.schema.column_types
+        ]
+        table = GeneratedTable(table_name, sqlalchemy.MetaData(), *columns)
+
+        table.setup_queries = [
+            CreateTable(table),
+            CreateIndex(sqlalchemy.Index(None, table.c["patient_id"])),
+        ] + [
+            sqlalchemy.insert(table).values(
+                dict(zip(["patient_id"] + node.schema.column_names, r))
+            )
+            for r in node.rows
+        ]
+        return table
+
     def reify_query(self, query):
         """
         By "reify" we just mean turning a SELECT query into something that can function
@@ -557,12 +581,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         results_query = self.get_query(variable_definitions)
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
         with self.engine.connect() as connection:
-            assert not setup_queries, "Support these once tests exercise them"
+            for i, setup_query in enumerate(setup_queries, start=1):
+                log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
+                connection.execute(setup_query)
 
             log.info("Fetching results")
             yield from connection.execute(results_query)
 
-            assert not cleanup_queries, "Support these once tests exercise them"
+            for i, cleanup_query in enumerate(cleanup_queries, start=1):
+                log.info(f"Running cleanup query {i:03} / {len(cleanup_queries):03}")
+                connection.execute(cleanup_query)
 
     @cached_property
     def engine(self):

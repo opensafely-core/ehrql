@@ -196,6 +196,7 @@ class InlinePatientTable(OneRowPerPatientFrame):
     #
     rows: Iterable[tuple]
     schema: TableSchema
+    name: str
 
 
 class SelectColumn(Series):

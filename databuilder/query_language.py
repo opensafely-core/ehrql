@@ -767,6 +767,7 @@ def table_from_rows(rows):
         qm_node = qm.InlinePatientTable(
             rows=qm.IterWrapper(rows),
             schema=get_table_schema_from_class(cls),
+            name=cls.__name__,
         )
         return cls(qm_node)
 
