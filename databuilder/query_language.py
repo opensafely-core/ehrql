@@ -118,7 +118,7 @@ class BaseSeries:
         # immutable Set type required by the query model. We don't accept arbitrary
         # iterables here because too many types in Python are iterable and there's the
         # potential for confusion amongst the less experienced of our users.
-        if isinstance(other, (tuple, list, set, frozenset)):
+        if isinstance(other, (tuple, list, set, frozenset, dict)):
             other = frozenset(map(self._cast, other))
         return _apply(qm.Function.In, self, other)
 
@@ -500,6 +500,12 @@ def years(value):
 
 
 class CodeFunctions:
+    def _cast(self, value):
+        if isinstance(value, str):
+            return self._type(value)
+        else:
+            return value
+
     def to_category(self, categorisation, default=None):
         return self.map_values(categorisation, default=default)
 
@@ -525,6 +531,7 @@ def _wrap(qm_node):
     is_patient_level = has_one_row_per_patient(qm_node)
     try:
         cls = REGISTERED_TYPES[type_, is_patient_level]
+        return cls(qm_node)
     except KeyError:
         # If we don't have a match for exactly this type then we should have one for a
         # superclass
@@ -535,7 +542,9 @@ def _wrap(qm_node):
         ]
         assert len(matches) == 1
         cls = matches[0]
-    return cls(qm_node)
+        wrapped = cls(qm_node)
+        wrapped._type = type_
+        return wrapped
 
 
 def _apply(qm_cls, *args):

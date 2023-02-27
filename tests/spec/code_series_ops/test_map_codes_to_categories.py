@@ -6,11 +6,11 @@ title = "Test mapping codes to categories using a categorised codelist"
 
 table_data = {
     p: """
-          |  c1
-        --+-----
-        1 | abc
-        2 | def
-        3 | ghi
+          |   c1
+        --+--------
+        1 | 123000
+        2 | 456000
+        3 | 789000
         4 |
         """,
 }
@@ -20,8 +20,8 @@ def test_map_codes_to_categories(spec_test):
     codelist = codelist_from_csv_lines(
         [
             "code,my_categorisation",
-            "abc,cat1",
-            "ghi,cat2",
+            "123000,cat1",
+            "789000,cat2",
         ],
         column="code",
         system="snomedct",

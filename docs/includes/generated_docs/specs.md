@@ -1453,13 +1453,13 @@ This example makes use of a patient-level table named `p` containing the followi
 
 | patient|c1 |
 | - | - |
-| 1|abc |
-| 2|def |
-| 3|ghi |
+| 1|123000 |
+| 2|456000 |
+| 3|789000 |
 | 4| |
 
 ```
-p.c1.is_in([SNOMEDCTCode("abc"), SNOMEDCTCode("ghi")])
+p.c1.is_in([SNOMEDCTCode("123000"), SNOMEDCTCode("789000")])
 ```
 returns the following patient series:
 
@@ -1478,13 +1478,13 @@ This example makes use of a patient-level table named `p` containing the followi
 
 | patient|c1 |
 | - | - |
-| 1|abc |
-| 2|def |
-| 3|ghi |
+| 1|123000 |
+| 2|456000 |
+| 3|789000 |
 | 4| |
 
 ```
-p.c1.is_not_in([SNOMEDCTCode("abc"), SNOMEDCTCode("ghi")])
+p.c1.is_not_in([SNOMEDCTCode("123000"), SNOMEDCTCode("789000")])
 ```
 returns the following patient series:
 
@@ -1503,9 +1503,9 @@ This example makes use of a patient-level table named `p` containing the followi
 
 | patient|c1 |
 | - | - |
-| 1|abc |
-| 2|def |
-| 3|ghi |
+| 1|123000 |
+| 2|456000 |
+| 3|789000 |
 | 4| |
 
 ```
@@ -1531,9 +1531,9 @@ This example makes use of a patient-level table named `p` containing the followi
 
 | patient|c1 |
 | - | - |
-| 1|abc |
-| 2|def |
-| 3|ghi |
+| 1|123000 |
+| 2|456000 |
+| 3|789000 |
 | 4| |
 
 ```
