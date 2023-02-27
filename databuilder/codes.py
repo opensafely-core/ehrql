@@ -51,10 +51,6 @@ class OPCS4Code(BaseCode, system_id="opcs4"):
     "OPCS-4"
 
 
-class Read2Code(BaseCode, system_id="readv2"):
-    "Read V2"
-
-
 class SNOMEDCTCode(BaseCode, system_id="snomedct"):
     "SNOMED CT"
 
