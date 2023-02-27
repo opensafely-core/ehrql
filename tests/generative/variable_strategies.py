@@ -113,6 +113,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             eq: ({bool}, DomainConstraint.ANY),
             ne: ({bool}, DomainConstraint.ANY),
             string_contains: ({bool}, DomainConstraint.ANY),
+            in_: ({bool}, DomainConstraint.ANY),
             and_: ({bool}, DomainConstraint.ANY),
             or_: ({bool}, DomainConstraint.ANY),
             lt: ({bool}, DomainConstraint.ANY),
@@ -230,6 +231,14 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     def string_contains(_type, frame):
         return binary_operation(str, frame, Function.StringContains)
+
+    @st.composite
+    def in_(draw, _type, frame):
+        type_ = draw(any_type())
+        values = Value(
+            frozenset(draw(st.sets(value_strategies[type_], min_size=1, max_size=3)))
+        )
+        return Function.In(draw(series(type_, frame)), values)
 
     def and_(type_, frame):
         return binary_operation(type_, frame, Function.And, allow_value=False)
@@ -454,7 +463,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
 known_missing_operations = {
     AggregateByPatient.CombineAsSet,
-    Function.In,
 }
 
 
