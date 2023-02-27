@@ -13,11 +13,16 @@ from databuilder.utils.itertools_utils import iter_flatten
 MSSQL_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/mssql"
 
 
-# Register our modified PyHive SQLAlchemy dialect
+# Register our modified SQLAlchemy dialects
 registry.register(
     "spark.pyhive.opensafely",
     "databuilder.query_engines.spark_dialect",
     "SparkDialect",
+)
+registry.register(
+    "sqlite.pysqlite.opensafely",
+    "databuilder.query_engines.sqlite_dialect",
+    "SQLiteDialect",
 )
 
 
@@ -280,7 +285,7 @@ class InMemorySQLiteDatabase(DbDetails):
         super().__init__(
             db_name=db_name,
             protocol="sqlite",
-            driver="pysqlite",
+            driver="pysqlite+opensafely",
             host_from_container=None,
             port_from_container=None,
             host_from_host=None,

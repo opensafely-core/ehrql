@@ -27,6 +27,11 @@ dependencies = [
   "thrift",
   # Databricks specific connector
   "databricks-sql-connector",
+
+  # Gives us isolation from the system version of SQLite and means we don't
+  # need to worry about e.g. some versions of SQLite missing the `FLOOR`
+  # function.
+  "pysqlite-binary",
 ]
 
 [project.scripts]

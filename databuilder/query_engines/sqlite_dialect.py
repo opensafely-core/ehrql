@@ -1,3 +1,4 @@
+import pysqlite3
 from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 
 
@@ -8,6 +9,11 @@ class SQLiteDialect(SQLiteDialect_pysqlite):
     # SQLite supports this alongside several others:
     # https://docs.python.org/3/library/sqlite3.html#sqlite3.paramstyle
     default_paramstyle = "named"
+
+    @classmethod
+    def dbapi(csl):
+        # Use pysqlite3's bundled SQLite rather than the system version
+        return pysqlite3.dbapi2
 
     def do_on_connect(self, connection):
         # Set the per-connection flag which makes LIKE queries case-sensitive
