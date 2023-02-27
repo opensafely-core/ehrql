@@ -27,6 +27,7 @@ from databuilder.query_language import (
     months,
     table,
     table_from_rows,
+    weeks,
     years,
 )
 from databuilder.query_model.nodes import (
@@ -346,6 +347,7 @@ def test_unsupported_date_operations(lhs, op, rhs):
     [
         # Test each type of Duration constructor
         ("2020-01-01", "+", days(10), date(2020, 1, 11)),
+        ("2020-01-01", "+", weeks(1), date(2020, 1, 8)),
         ("2020-01-01", "+", months(10), date(2020, 11, 1)),
         ("2020-01-01", "+", years(10), date(2030, 1, 1)),
         # Order reversed
@@ -358,10 +360,12 @@ def test_unsupported_date_operations(lhs, op, rhs):
         (date(2020, 1, 1), "-", years(10), date(2010, 1, 1)),
         # Test addition of Durations
         (days(10), "+", days(5), days(15)),
+        (weeks(10), "+", weeks(5), weeks(15)),
         (months(10), "+", months(5), months(15)),
         (years(10), "+", years(5), years(15)),
         # Test subtraction of Durations
         (days(10), "-", days(5), days(5)),
+        (weeks(10), "-", weeks(5), weeks(5)),
         (months(10), "-", months(5), months(5)),
         (years(10), "-", years(5), years(5)),
     ],
@@ -381,6 +385,7 @@ def test_static_date_operations(lhs, op, rhs, expected):
     [
         # Test each type of Duration constructor
         (patients.date_of_birth, "+", days(10), DatePatientSeries),
+        (patients.date_of_birth, "+", weeks(10), DatePatientSeries),
         (patients.date_of_birth, "+", months(10), DatePatientSeries),
         (patients.date_of_birth, "+", years(10), DatePatientSeries),
         # Order reversed
@@ -395,14 +400,17 @@ def test_static_date_operations(lhs, op, rhs, expected):
         (date(2020, 1, 1), "-", patients.date_of_birth, DateDifference),
         # DateDifference attributes
         ((patients.date_of_birth - "2020-01-01").days, "+", 1, IntPatientSeries),
+        ((patients.date_of_birth - "2020-01-01").weeks, "+", 1, IntPatientSeries),
         ((patients.date_of_birth - "2020-01-01").months, "+", 1, IntPatientSeries),
         ((patients.date_of_birth - "2020-01-01").years, "+", 1, IntPatientSeries),
         # Test with a "dynamic" duration
         (patients.date_of_birth, "+", days(patients.i), DatePatientSeries),
+        (patients.date_of_birth, "+", weeks(patients.i), DatePatientSeries),
         (patients.date_of_birth, "+", months(patients.i), DatePatientSeries),
         (patients.date_of_birth, "+", years(patients.i), DatePatientSeries),
         # Test with a dynamic duration and a static date
         (date(2020, 1, 1), "+", days(patients.i), DatePatientSeries),
+        (date(2020, 1, 1), "+", weeks(patients.i), DatePatientSeries),
         (date(2020, 1, 1), "+", months(patients.i), DatePatientSeries),
         (date(2020, 1, 1), "+", years(patients.i), DatePatientSeries),
     ],
