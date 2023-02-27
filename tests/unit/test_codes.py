@@ -23,17 +23,13 @@ def test_codelist_from_csv(tmp_path):
         def00,
         """
     csv_file.write_text(textwrap.dedent(csv_text.strip()))
-    codelist = codelist_from_csv(csv_file, column="CodeID", system="ctv3")
-    assert codelist.codes == {CTV3Code("abc00"), CTV3Code("def00")}
+    codelist = codelist_from_csv(csv_file, column="CodeID")
+    assert codelist == ["abc00", "def00"]
 
 
 def test_codelist_from_csv_missing_file(tmp_path):
     with pytest.raises(CodelistError, match="no_file_here.csv"):
-        codelist_from_csv(
-            tmp_path / "no_file_here.csv",
-            column="CodeID",
-            system="ctv3",
-        )
+        codelist_from_csv(tmp_path / "no_file_here.csv", column="CodeID")
 
 
 def test_codelist_from_csv_lines():
@@ -48,12 +44,8 @@ def test_codelist_from_csv_lines():
         # Check duplicates are ignored
         " def00,",
     ]
-    codelist = codelist_from_csv_lines(
-        csv_lines,
-        column="CodeID",
-        system="ctv3",
-    )
-    assert codelist.codes == {CTV3Code("abc00"), CTV3Code("def00"), CTV3Code("ghi00")}
+    codelist = codelist_from_csv_lines(csv_lines, column="CodeID")
+    assert codelist == ["abc00", "def00", "ghi00"]
 
 
 def test_codelist_from_csv_lines_missing_column():
@@ -62,67 +54,7 @@ def test_codelist_from_csv_lines_missing_column():
         "abc00",
     ]
     with pytest.raises(CodelistError, match="no_col_here"):
-        codelist_from_csv_lines(
-            csv_lines,
-            column="no_col_here",
-            system="ctv3",
-        )
-
-
-def test_codelist_from_csv_lines_unknown_system():
-    csv_lines = [
-        "CodeID",
-        "abc00",
-    ]
-    with pytest.raises(CodelistError, match="not_a_real_system"):
-        codelist_from_csv_lines(
-            csv_lines,
-            column="CodeID",
-            system="not_a_real_system",
-        )
-
-
-def test_codelist_from_csv_lines_with_categories():
-    csv_lines = [
-        "CodeID,cat1,__str__",
-        "abc00,123,foo",
-        "def00,456,bar,",
-        "ghi00 ,789",
-        ",",
-    ]
-    codelist = codelist_from_csv_lines(
-        csv_lines,
-        column="CodeID",
-        system="ctv3",
-    )
-    # Sensibly named category is accessible as an attribute
-    assert codelist.cat1 == {
-        CTV3Code("abc00"): "123",
-        CTV3Code("def00"): "456",
-        CTV3Code("ghi00"): "789",
-    }
-    # Poorly named category is still accessible via the dictionary
-    assert codelist.category_maps["__str__"] == {
-        CTV3Code("abc00"): "foo",
-        CTV3Code("def00"): "bar",
-        CTV3Code("ghi00"): "",
-    }
-
-
-def test_codelist_from_csv_lines_without_system():
-    csv_lines = [
-        "CodeID,foo",
-        "abc00,",
-        "def00,",
-        # Check codes are trimmed
-        "ghi00 ,",
-        # Check blanks are ignored
-        "  ,"
-        # Check duplicates are ignored
-        " def00,",
-    ]
-    codelist = codelist_from_csv_lines(csv_lines, column="CodeID")
-    assert codelist == ["abc00", "def00", "ghi00"]
+        codelist_from_csv_lines(csv_lines, column="no_col_here")
 
 
 def test_codelist_from_csv_lines_with_category_column():
@@ -154,20 +86,6 @@ def test_codelist_from_csv_lines_with_missing_category_column():
             csv_lines,
             column="CodeID",
             category_column="no_col_here",
-        )
-
-
-def test_codelist_from_csv_lines_combining_system_and_category_column():
-    csv_lines = [
-        "CodeID,Cat1",
-        "abc00,foo",
-    ]
-    with pytest.raises(CodelistError, match="cannot be supplied together"):
-        codelist_from_csv_lines(
-            csv_lines,
-            column="CodeID",
-            system="ctv3",
-            category_column="Cat1",
         )
 
 
