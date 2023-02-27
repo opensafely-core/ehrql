@@ -131,6 +131,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             date_difference_in_months: ({int}, DomainConstraint.ANY),
             date_difference_in_days: ({int}, DomainConstraint.ANY),
             case: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
+            in_: ({bool}, DomainConstraint.ANY),
         }
         series_types = series_constraints.keys()
 
@@ -149,6 +150,11 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     def value(type_, _frame):
         return st.builds(Value, value_strategies[type_])
+
+    @st.composite
+    def set_(draw, type_, frame):
+        set_strategy = draw(st.sets(value_strategies[type_], min_size=1, max_size=3))
+        return Value(set_strategy)
 
     def select_column(type_, frame):
         column_names = [n for n, t in schema.column_types if t == type_]
@@ -204,6 +210,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     def to_first_of_month(_type, frame):
         return st.builds(Function.ToFirstOfMonth, series(datetime.date, frame))
+
+    @st.composite
+    def in_(draw, _type, frame):
+        type_ = draw(any_type())
+        rhs = draw(set_(type_, frame))
+        return Function.In(draw(series(type_, frame)), rhs)
 
     @st.composite
     def cast_to_float(draw, _type, frame):
@@ -454,7 +466,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
 known_missing_operations = {
     AggregateByPatient.CombineAsSet,
-    Function.In,
 }
 
 
