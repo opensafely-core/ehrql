@@ -431,6 +431,10 @@ class DateDifference:
         return _apply(qm.Function.DateDifferenceInDays, self.lhs, self.rhs)
 
     @property
+    def weeks(self):
+        return self.days // 7
+
+    @property
     def months(self):
         return _apply(qm.Function.DateDifferenceInMonths, self.lhs, self.rhs)
 
@@ -485,6 +489,10 @@ class Duration:
 
 def days(value):
     return Duration(value, Duration.Units.DAYS)
+
+
+def weeks(value):
+    return days(value * 7)
 
 
 def months(value):
