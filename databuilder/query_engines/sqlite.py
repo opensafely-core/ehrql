@@ -1,4 +1,5 @@
 import sqlalchemy
+from sqlalchemy.schema import CreateIndex
 from sqlalchemy.sql.functions import Function as SQLFunction
 
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
@@ -77,3 +78,15 @@ class SQLiteQueryEngine(BaseSQLQueryEngine):
 
     def to_first_of_month(self, date):
         return SQLFunction("DATE", date, "start of month", type_=sqlalchemy.Date)
+
+    def get_temporary_table_setup_and_cleanup_queries(self, table):
+        (
+            setup_queries,
+            cleanup_queries,
+        ) = super().get_temporary_table_setup_and_cleanup_queries(table)
+
+        setup_queries.append(
+            CreateIndex(sqlalchemy.Index(None, table.c["patient_id"])),
+        )
+
+        return (setup_queries, cleanup_queries)

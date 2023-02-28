@@ -1,9 +1,11 @@
+import datetime
+import secrets
 from functools import cached_property
 
 import sqlalchemy
 import sqlalchemy.engine.interfaces
 import structlog
-from sqlalchemy.schema import CreateIndex, CreateTable
+from sqlalchemy.schema import CreateTable, DropTable
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
@@ -530,24 +532,39 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return self.reify_query(partitioned_query)
 
+    def get_temporary_table_setup_and_cleanup_queries(self, table):
+        setup_queries = [CreateTable(table)]
+        cleanup_queries = [DropTable(table)]
+        return (setup_queries, cleanup_queries)
+
+    def get_unique_timestamped_table_name(self, table_name="results"):
+        timestamp = datetime.datetime.utcnow()
+        token = secrets.token_hex(6)
+        return f"{table_name}_{timestamp:%Y%m%d_%H%M}_{token}"
+
     @get_table.register(InlinePatientTable)
     def get_table_inline_patient_table(self, node):
-        table_name = f"{self.intermediate_table_prefix}{node.name}"
+        table_name = f"{self.intermediate_table_prefix}{self.get_unique_timestamped_table_name(node.name)}"
         columns = [
             sqlalchemy.Column(name, TYPE_MAP[col_type])
             for name, col_type in [("patient_id", int)] + node.schema.column_types
         ]
+
         table = GeneratedTable(table_name, sqlalchemy.MetaData(), *columns)
 
-        table.setup_queries = [
-            CreateTable(table),
-            CreateIndex(sqlalchemy.Index(None, table.c["patient_id"])),
-        ] + [
+        (
+            setup_queries,
+            cleanup_queries,
+        ) = self.get_temporary_table_setup_and_cleanup_queries(table)
+
+        table.setup_queries = setup_queries + [
             sqlalchemy.insert(table).values(
                 dict(zip(["patient_id"] + node.schema.column_names, r))
             )
             for r in node.rows
         ]
+        table.cleanup_queries = cleanup_queries
+
         return table
 
     def reify_query(self, query):

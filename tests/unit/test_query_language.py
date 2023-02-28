@@ -198,7 +198,8 @@ class TestIntEventSeries:
 class TestDateSeries:
     def test_year(self):
         assert_produces(
-            DateEventSeries(qm_date_series).year, Function.YearFromDate(qm_date_series)
+            DateEventSeries(qm_date_series).year,
+            Function.YearFromDate(qm_date_series),
         )
 
 
@@ -231,7 +232,8 @@ def test_automatic_cast(lhs, op, rhs, expected_type):
 def test_is_in():
     int_series = IntEventSeries(qm_int_series)
     assert_produces(
-        int_series.is_in([1, 2]), Function.In(qm_int_series, Value(frozenset([1, 2])))
+        int_series.is_in([1, 2]),
+        Function.In(qm_int_series, Value(frozenset([1, 2]))),
     )
 
 
@@ -312,7 +314,8 @@ def test_table_from_rows():
 
 def test_table_from_rows_only_accepts_patient_frame():
     with pytest.raises(
-        SchemaError, match="`@table_from_rows` can only be used with `PatientFrame`"
+        SchemaError,
+        match="`@table_from_rows` can only be used with `PatientFrame`",
     ):
 
         @table_from_rows([])
@@ -415,10 +418,30 @@ def test_static_date_operations(lhs, op, rhs, expected):
         ("2020-01-01", "-", patients.date_of_birth, DateDifference),
         (date(2020, 1, 1), "-", patients.date_of_birth, DateDifference),
         # DateDifference attributes
-        ((patients.date_of_birth - "2020-01-01").days, "+", 1, IntPatientSeries),
-        ((patients.date_of_birth - "2020-01-01").weeks, "+", 1, IntPatientSeries),
-        ((patients.date_of_birth - "2020-01-01").months, "+", 1, IntPatientSeries),
-        ((patients.date_of_birth - "2020-01-01").years, "+", 1, IntPatientSeries),
+        (
+            (patients.date_of_birth - "2020-01-01").days,
+            "+",
+            1,
+            IntPatientSeries,
+        ),
+        (
+            (patients.date_of_birth - "2020-01-01").weeks,
+            "+",
+            1,
+            IntPatientSeries,
+        ),
+        (
+            (patients.date_of_birth - "2020-01-01").months,
+            "+",
+            1,
+            IntPatientSeries,
+        ),
+        (
+            (patients.date_of_birth - "2020-01-01").years,
+            "+",
+            1,
+            IntPatientSeries,
+        ),
         # Test with a "dynamic" duration
         (patients.date_of_birth, "+", days(patients.i), DatePatientSeries),
         (patients.date_of_birth, "+", weeks(patients.i), DatePatientSeries),

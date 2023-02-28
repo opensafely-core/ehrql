@@ -136,6 +136,7 @@ def test_inline_patient_table():
             ]
         ),
         schema=TableSchema(i=Column(int)),
+        name="t",
     )
     # Check that the table node is still hashable even though the iterable hidden by the
     # `IterWrapper` is mutable

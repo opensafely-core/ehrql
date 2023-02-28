@@ -1,6 +1,3 @@
-import datetime
-import secrets
-
 import sqlalchemy
 import structlog
 from sqlalchemy.schema import CreateIndex, DropTable
@@ -137,9 +134,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         # us to continue retrieving results after an interrupted connection
         if temp_database_name:
             # As the table is not session-scoped it needs a unique name
-            timestamp = datetime.datetime.utcnow()
-            token = secrets.token_hex(6)
-            table_name = f"results_{timestamp:%Y%m%d_%H%M}_{token}"
+            table_name = self.get_unique_timestamped_table_name()
             # The `schema` variable below is actually a multi-part identifier of the
             # form `<database-name>.<schema>`. We don't really care about the schema
             # here, we just want to use whatever is the default schema for the database.
@@ -212,6 +207,21 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             for n, cleanup_query in enumerate(cleanup_queries, start=1):
                 log.info(f"Running cleanup query {n:03} / {len(cleanup_queries):03}")
                 connection.execute(cleanup_query)
+
+    def get_temporary_table_setup_and_cleanup_queries(self, table):
+        (
+            setup_queries,
+            cleanup_queries,
+        ) = super().get_temporary_table_setup_and_cleanup_queries(table)
+
+        setup_queries.append(
+            CreateIndex(
+                sqlalchemy.Index(None, table.c["patient_id"], mssql_clustered=True)
+            ),
+        )
+
+        cleanup_queries = []
+        return (setup_queries, cleanup_queries)
 
 
 def temporary_table_from_query(table_name, query, index_col=0, schema=None):

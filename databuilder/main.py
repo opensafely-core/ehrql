@@ -154,14 +154,18 @@ def get_sql_strings(query_engine, variable_definitions):
     dialect = query_engine.sqlalchemy_dialect()
     sql_strings = []
 
-    for n, query in enumerate(setup_queries, start=1):
+    for i, query in enumerate(setup_queries, start=1):
         sql = clause_as_str(query, dialect)
-        sql_strings.append(f"-- Setup query {n:03} / {len(setup_queries):03}\n{sql}")
+        sql_strings.append(f"-- Setup query {i:03} / {len(setup_queries):03}\n{sql}")
 
     sql = clause_as_str(results_query, dialect)
     sql_strings.append(f"-- Results query\n{sql}")
 
-    assert not cleanup_queries, "Support these once tests exercise them"
+    for i, query in enumerate(cleanup_queries, start=1):
+        sql = clause_as_str(query, dialect)
+        sql_strings.append(
+            f"-- Cleanup query {i:03} / {len(cleanup_queries):03}\n{sql}"
+        )
 
     return sql_strings
 

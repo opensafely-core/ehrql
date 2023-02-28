@@ -755,6 +755,14 @@ def get_table_schema_from_class(cls):
     return qm.TableSchema(**schema)
 
 
+def _inline_patient_table_from_rows(cls, rows):
+    return qm.InlinePatientTable(
+        rows=qm.IterWrapper(rows),
+        schema=get_table_schema_from_class(cls),
+        name=cls.__name__,
+    )
+
+
 # Defines a PatientFrame along with the data it contains. Takes a list (or
 # any iterable) of row tuples of the form:
 #
@@ -764,11 +772,7 @@ def table_from_rows(rows):
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
             raise SchemaError("`@table_from_rows` can only be used with `PatientFrame`")
-        qm_node = qm.InlinePatientTable(
-            rows=qm.IterWrapper(rows),
-            schema=get_table_schema_from_class(cls),
-            name=cls.__name__,
-        )
+        qm_node = _inline_patient_table_from_rows(cls, rows)
         return cls(qm_node)
 
     return decorator
