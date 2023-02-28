@@ -1,19 +1,11 @@
-import dataclasses
-import operator
-from functools import singledispatch
-
+from databuilder.query_engines.in_memory import InMemoryQueryEngine
+from databuilder.query_engines.in_memory_database import EventTable, PatientTable
 from databuilder.query_model.nodes import (
-    AggregateByPatient,
-    Case,
-    Function,
-    SelectColumn,
     Series,
     ValidationError,
-    Value,
     get_series_type,
     has_one_row_per_patient,
 )
-from databuilder.utils import date_utils, math_utils
 
 
 def validate_population_definition(population):
@@ -73,12 +65,10 @@ def validate_population_definition(population):
     # define a universe of patients and so should not be allowed even if we could
     # reliably interpret it.
     #
-    # To determine whether a population definition meets this criterion we walk the tree
-    # of query model nodes and for each operation which would normally involve fetching
-    # data we substitute the result of that operation when given no data (this is often,
-    # but not always, NULL). The end result of the process will be either True, False or
-    # NULL. It is definitions which return True here that we reject.
-    if evaluate(population) is True:
+    # To determine whether a population definition meets this criterion we evaluate it
+    # against a variant of the InMemoryQueryEngine which acts as if all its tables are
+    # empty. Definitions which evaluate True under these circumstances must be rejected.
+    if EmptyQueryEngine(None).series_evaluates_true(population):
         # TODO: Wording could do with more thought here
         raise ValidationError(
             "population definition must not evaluate as True for NULL inputs"
@@ -86,134 +76,28 @@ def validate_population_definition(population):
     return True
 
 
-@singledispatch
-def evaluate(node):
+class EmptyQueryEngine(InMemoryQueryEngine):
     """
-    Given a Series node, return the value it would take if all its inputs were NULL
+    Uses the in-memory query engine to model a database where all referenced tables are
+    assumed to exist but are empty. We can then test whether a given series would
+    evaluate True under these circumstances.
     """
-    assert False, f"Unhandled node type: {type(node)}"
 
+    # We exploit the fact that the in-memory engine tracks which patients exist
+    # independently of the tables they are in; so we can pretend we have a single
+    # patient in our "universe" despite all tables being empty.
+    @property
+    def all_patients(self):
+        return {1}
 
-@evaluate.register(Value)
-def evaluate_value(node):
-    return node.value
+    def series_evaluates_true(self, series):
+        results = self.get_results({"population": series})
+        return bool(list(results))
 
+    def visit_SelectTable(self, node):
+        column_names = ["patient_id", "row_id", *node.schema.column_names]
+        return EventTable.from_records(column_names, row_records=[])
 
-@evaluate.register(SelectColumn)
-def evaluate_select_column(node):
-    return None
-
-
-@evaluate.register(AggregateByPatient.Exists)
-def evaluate_exists(node):
-    return False
-
-
-@evaluate.register(AggregateByPatient.Count)
-def evaluate_count(node):
-    return 0
-
-
-@evaluate.register(AggregateByPatient.CombineAsSet)
-def evaluate_combine_as_set(node):
-    return ()
-
-
-@evaluate.register(AggregateByPatient.Min)
-@evaluate.register(AggregateByPatient.Max)
-@evaluate.register(AggregateByPatient.Sum)
-@evaluate.register(AggregateByPatient.Mean)
-def evaluate_aggregation(node):
-    return None
-
-
-@evaluate.register(Function.IsNull)
-def evaluate_is_null(node):
-    return evaluate(node.source) is None
-
-
-@evaluate.register(Function.And)
-def evaluate_and(node):
-    lhs = evaluate(node.lhs)
-    rhs = evaluate(node.rhs)
-    if lhs is True and rhs is True:
-        return True
-    elif lhs is False or rhs is False:
-        return False
-    else:
-        return None
-
-
-@evaluate.register(Function.Or)
-def evaluate_or(node):
-    lhs = evaluate(node.lhs)
-    rhs = evaluate(node.rhs)
-    if lhs is True or rhs is True:
-        return True
-    elif lhs is False and rhs is False:
-        return False
-    else:
-        return None
-
-
-@evaluate.register(Case)
-def evaluate_case(node):
-    for condition, value in node.cases.items():
-        if evaluate(condition) is True:
-            return evaluate(value)
-    if node.default is not None:
-        return evaluate(node.default)
-
-
-def register_op(cls):
-    """
-    Handle registration for any operations with the default NULL behaviour, which is
-    that they return NULL if any of their arguments are NULL
-    """
-    getters = [operator.attrgetter(field.name) for field in dataclasses.fields(cls)]
-
-    def register(function):
-        @evaluate.register(cls)
-        def apply(node):
-            args = [evaluate(get_arg(node)) for get_arg in getters]
-            if any(arg is None for arg in args):
-                return None
-            return function(*args)
-
-        return apply
-
-    return register
-
-
-@register_op(Function.In)
-def in_(lhs, rhs):
-    return operator.contains(rhs, lhs)
-
-
-register_op(Function.YearFromDate)(date_utils.year_from_date)
-register_op(Function.MonthFromDate)(date_utils.month_from_date)
-register_op(Function.DayFromDate)(date_utils.day_from_date)
-register_op(Function.DateDifferenceInDays)(date_utils.date_difference_in_days)
-register_op(Function.DateDifferenceInMonths)(date_utils.date_difference_in_months)
-register_op(Function.DateDifferenceInYears)(date_utils.date_difference_in_years)
-register_op(Function.DateAddDays)(date_utils.date_add_days)
-register_op(Function.DateAddMonths)(date_utils.date_add_months)
-register_op(Function.DateAddYears)(date_utils.date_add_years)
-register_op(Function.ToFirstOfYear)(date_utils.to_first_of_year)
-register_op(Function.ToFirstOfMonth)(date_utils.to_first_of_month)
-register_op(Function.Not)(operator.not_)
-register_op(Function.Negate)(operator.neg)
-register_op(Function.EQ)(operator.eq)
-register_op(Function.NE)(operator.ne)
-register_op(Function.LT)(operator.lt)
-register_op(Function.LE)(operator.le)
-register_op(Function.GT)(operator.gt)
-register_op(Function.GE)(operator.ge)
-register_op(Function.Add)(operator.add)
-register_op(Function.Subtract)(operator.sub)
-register_op(Function.Multiply)(operator.mul)
-register_op(Function.TrueDivide)(math_utils.truediv)
-register_op(Function.FloorDivide)(math_utils.floordiv)
-register_op(Function.CastToInt)(int)
-register_op(Function.CastToFloat)(float)
-register_op(Function.StringContains)(operator.contains)
+    def visit_SelectPatientTable(self, node):
+        column_names = ["patient_id", *node.schema.column_names]
+        return PatientTable.from_records(column_names, row_records=[])

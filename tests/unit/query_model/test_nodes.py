@@ -416,7 +416,7 @@ def test_any_type_acts_as_an_escape_hatch():
     # them in the type checking system, which is already "cleverer" than anyone would
     # like. This test ensures that `Any` can be used as an escape hatch.
 
-    mixed_set = {1, 2.0, "three"}
+    mixed_set = frozenset({1, 2.0, "three"})
 
     # Confirm that we can't validate heterogeneous sets
     class SomePublicOperation(Series):
@@ -438,3 +438,8 @@ def test_comparisons_between_value_nodes_are_strict():
     assert Value(10) != Value(10.0)
     assert Value(1) != Value(True)
     assert Value(10) != 10
+
+
+def test_unhashable_arguments_are_rejected():
+    with pytest.raises(TypeError):
+        Value({1, 2, 3})
