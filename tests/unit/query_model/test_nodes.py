@@ -5,6 +5,7 @@ from typing import Any
 
 import pytest
 
+from databuilder.codes import CTV3Code, SNOMEDCTCode
 from databuilder.query_model.nodes import (
     AggregateByPatient,
     Case,
@@ -375,6 +376,26 @@ def test_cannot_compare_date_and_int():
     date = SelectColumn(events, "date")
     with pytest.raises(TypeValidationError):
         Function.EQ(date, Value(2000))
+
+
+def test_comparisons_between_codes_are_ok():
+    ctv3_events = SelectTable("ctv3_events", schema=TableSchema(code=Column(CTV3Code)))
+    code = SelectColumn(ctv3_events, "code")
+    assert Function.EQ(code, Value(CTV3Code("abc00")))
+
+
+def test_attempts_to_mix_coding_systems_are_rejected():
+    ctv3_events = SelectTable("ctv3_events", schema=TableSchema(code=Column(CTV3Code)))
+    code = SelectColumn(ctv3_events, "code")
+    with pytest.raises(TypeValidationError):
+        Function.EQ(code, Value(SNOMEDCTCode("123000")))
+
+
+def test_attempts_to_mix_codes_and_strings_are_rejected():
+    ctv3_events = SelectTable("ctv3_events", schema=TableSchema(code=Column(CTV3Code)))
+    code = SelectColumn(ctv3_events, "code")
+    with pytest.raises(TypeValidationError):
+        Function.EQ(code, Value("abc00"))
 
 
 def test_cannot_define_operation_returning_any_type(queries):
