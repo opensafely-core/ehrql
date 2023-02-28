@@ -24,12 +24,12 @@ def test_map_codes_to_categories(spec_test):
             "789000,cat2",
         ],
         column="code",
-        system="snomedct",
+        category_column="my_categorisation",
     )
 
     spec_test(
         table_data,
-        p.c1.to_category(codelist.my_categorisation),
+        p.c1.to_category(codelist),
         {
             1: "cat1",
             2: None,
