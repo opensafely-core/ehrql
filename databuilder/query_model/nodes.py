@@ -435,6 +435,11 @@ def get_series_type(series):
 
 
 def validate_node(node):
+    # Check that the node is hashable
+    try:
+        hash(node)
+    except TypeError as e:
+        raise TypeError("Node arguments must be hashable types") from e
     # Check that the types supplied match the types specified
     validate_types(node)
     # As well as types we need to validate the "domain constraint" which specifies how
