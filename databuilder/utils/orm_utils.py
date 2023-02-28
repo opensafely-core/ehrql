@@ -6,7 +6,6 @@ from contextlib import ExitStack
 import sqlalchemy
 from sqlalchemy.orm import declarative_base
 
-from databuilder.query_language import BaseFrame
 from databuilder.query_model.nodes import has_one_row_per_patient
 from databuilder.sqlalchemy_types import Integer, type_from_python_type
 from databuilder.utils.sqlalchemy_query_utils import expr_has_type
@@ -73,7 +72,7 @@ def make_orm_models(*args):
             combined.setdefault(table, []).extend(rows)
     orm_classes = orm_classes_from_tables(combined.keys())
     for table, rows in combined.items():
-        table_name = table.qm_node.name if isinstance(table, BaseFrame) else table.name
+        table_name = table.qm_node.name if hasattr(table, "qm_node") else table.name
         orm_class = orm_classes[table_name]
         yield from (orm_class(**row) for row in rows)
 
@@ -84,7 +83,7 @@ def orm_classes_from_tables(tables):
     a dict mapping table names to ORM classes
     """
     qm_tables = frozenset(
-        table.qm_node if isinstance(table, BaseFrame) else table for table in tables
+        table.qm_node if hasattr(table, "qm_node") else table for table in tables
     )
     return _orm_classes_from_qm_tables(qm_tables)
 
