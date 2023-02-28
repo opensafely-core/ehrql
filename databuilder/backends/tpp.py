@@ -230,25 +230,32 @@ class TPPBackend(BaseBackend):
         ),
     )
 
-    isaric_raw = MappedTable(
-        source="ISARIC_New",
-        columns=dict(
-            age="age",
-            age_factor="age.factor",
-            calc_age="calc_age",
-            sex="sex",
-            ethnic="ethnic",
-            corona_ieorres="corona_ieorres",
-            coriona_ieorres2="coriona_ieorres2",
-            coriona_ieorres3="coriona_ieorres3",
-            inflammatory_mss="inflammatory_mss",
-            covid19_vaccine="covid19_vaccine",
-            covid19_vaccined="covid19_vaccined",
-            covid19_vaccined_nk="covid19_vaccined_nk",
-            hostdat="hostdat",
-            readm_cov19="readm_cov19",
-            hooccur="hooccur",
-            hostdat_transfer="hostdat_transfer",
-            hostdat_transfernk="hostdat_transfernk",
-        ),
+    isaric_raw = QueryTable(
+        """
+            SELECT
+                Patient_ID as patient_id,
+                age,
+                "age.factor" AS age_factor,
+                calc_age,
+                sex,
+                ethnic,
+                covid19_vaccine,
+                CAST(covid19_vaccined AS DATE) as covid19_vaccined,
+                CAST(covid19_vaccine2d AS DATE) as covid19_vaccine2d,
+                CAST(covid19_vaccine3d AS DATE) as covid19_vaccine3d,
+                covid19_vaccined_nk,
+                corona_ieorres,
+                coriona_ieorres2,
+                coriona_ieorres3,
+                inflammatory_mss,
+                CAST(cestdat AS DATE) as cestdat,
+                CAST(hostdat AS DATE) as hostdat,
+                hooccur,
+                CAST(hostdat_transfer AS DATE) as hostdat_transfer,
+                hostdat_transfernk,
+                readm_cov19,
+                CAST(dsstdat AS DATE) as dsstdat,
+                CAST(dsstdtc AS DATE) as dsstdtc
+            FROM ISARIC_New
+        """
     )
