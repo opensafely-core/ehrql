@@ -22,7 +22,7 @@ jobs:
 
       - name: Create a Pull Request if there are any changes
         id: create_pr
-        uses: peter-evans/create-pull-request@2b011faafdcbc9ceb11414d64d0573f37c774b04
+        uses: peter-evans/create-pull-request@2b011faafdcbc9ceb11414d64d0573f37c774b04 # v4.2.3
         with:
           add-paths: tests/acceptance/external_studies/*
           branch: bot/update-external-studies
@@ -34,7 +34,7 @@ jobs:
       # The PR will still require manual approval, this just reduces it to a one-click process
       - name: Enable automerge
         if: steps.create_pr.outputs.pull-request-operation == 'created'
-        uses: peter-evans/enable-pull-request-automerge@60812ab1c2c6c6a8932b4d6e059becafaf386256
+        uses: peter-evans/enable-pull-request-automerge@60812ab1c2c6c6a8932b4d6e059becafaf386256 # v2.3.0
         with:
           pull-request-number: ${{ steps.create_pr.outputs.pull-request-number }}
           merge-method: squash
