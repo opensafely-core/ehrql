@@ -33,3 +33,11 @@ def test_enforces_minimum_server_version(mssql_engine, monkeypatch):
     monkeypatch.setattr(MSSQLDialect, "minimum_server_version", (999999,))
     with pytest.raises(RuntimeError, match=r"we require at least \(999999,\)"):
         mssql_engine.sqlalchemy_engine().connect()
+
+
+def test_float_literals_have_correct_type(mssql_engine):
+    sum_literal = sqlalchemy.func.sum(0.5)
+    query = sqlalchemy.select(sum_literal + 0.25)
+    with mssql_engine.sqlalchemy_engine().connect() as conn:
+        results = list(conn.execute(query))
+    assert results[0][0] == 0.75

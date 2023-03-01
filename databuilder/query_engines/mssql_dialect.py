@@ -69,12 +69,29 @@ class MSSQLDateTime(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
     format_str = "%Y-%m-%dT%H:%M:%S"
 
 
+# MS-SQL can interpret values that we intend to be floats as Decimals, which
+# can result in results with unexpectedly truncated precision.
+# https://github.com/opensafely-core/databuilder/issues/1065
+# https://learn.microsoft.com/en-us/sql/t-sql/data-types/precision-scale-and-length-transact-sql
+class MSSQLFloat(sqlalchemy.types.TypeDecorator):
+    impl = sqlalchemy.types.Float
+    cache_ok = True
+
+    def bind_expression(self, bindvalue):
+        # Wrap any bound parameters in an explicit CAST to their intended type.
+        # This ensures that any float-like numbers are always cast to
+        # floats, otherwise MSSQL will sometimes make a best-guess and return a
+        # Decimal type, which behaves differently to other engine.
+        return cast(bindvalue, type_=self)
+
+
 class MSSQLDialect(MSDialect_pymssql):
     supports_statement_cache = True
 
     colspecs = MSDialect_pymssql.colspecs | {
         sqlalchemy.types.Date: MSSQLDate,
         sqlalchemy.types.DateTime: MSSQLDateTime,
+        sqlalchemy.types.Float: MSSQLFloat,
     }
 
     # The base MSSQL dialect generates different SQL depending on the version of SQL

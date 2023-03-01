@@ -74,3 +74,14 @@ def _str(expression):
         compile_kwargs={"literal_binds": True},
     )
     return str(compiled).strip()
+
+
+def test_mssql_float_type():
+    float_col = sqlalchemy.Column("float_col", sqlalchemy_types.Float())
+    # explicitly casts floats
+    assert _str(float_col == 0.75) == "float_col = CAST(0.75 AS FLOAT)"
+    assert _str(float_col == None) == "float_col IS NULL"  # noqa: E711
+    assert (
+        _str(sqlalchemy.sql.case((float_col > 0.5, 0.1), else_=0.75))
+        == "CASE WHEN (float_col > CAST(0.5 AS FLOAT)) THEN CAST(0.1 AS FLOAT) ELSE CAST(0.75 AS FLOAT) END"
+    )
