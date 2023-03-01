@@ -76,6 +76,22 @@ EXTERNAL_STUDIES = {
             "analysis/dataset_definition_longcovid_prevaccine.py",
         ],
     ),
+    "qof-diabetes": dict(
+        repo="opensafely/qof-diabetes",
+        branch="main",
+        file_globs=[
+            "analysis/dataset_definition_*.py",
+            "analysis/dm_dataset.py",
+            "analysis/codelists.py",
+            "analysis/variable_lib_helper.py",
+            "codelists/*.csv",
+        ],
+        dataset_definitions=[
+            "analysis/dataset_definition_dm017.py",
+            "analysis/dataset_definition_dm020.py",
+            "analysis/dataset_definition_dm021.py",
+        ],
+    ),
 }
 
 STUDY_DIR = Path(__file__).parent / "external_studies"
