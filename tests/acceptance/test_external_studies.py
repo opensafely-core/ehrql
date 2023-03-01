@@ -27,7 +27,7 @@ EXTERNAL_STUDIES = {
         file_globs=[
             "analysis/dataset_definition.py",
         ],
-        dataset_definition="analysis/dataset_definition.py",
+        dataset_definitions=["analysis/dataset_definition.py"],
     ),
     "comparative-booster-ehrql-poc": dict(
         repo="opensafely/comparative-booster-ehrql-poc",
@@ -39,7 +39,7 @@ EXTERNAL_STUDIES = {
             "analysis/variables_lib.py",
             "codelists/*.csv",
         ],
-        dataset_definition="analysis/dataset_definition.py",
+        dataset_definitions=["analysis/dataset_definition.py"],
     ),
     "ons-cis-validation": dict(
         repo="opensafely/cis-pop-validation-ehrql",
@@ -50,7 +50,7 @@ EXTERNAL_STUDIES = {
             "analysis/variable_lib.py",
             "codelists/*.csv",
         ],
-        dataset_definition="analysis/dataset_definition.py",
+        dataset_definitions=["analysis/dataset_definition.py"],
     ),
     "ons-mental-health": dict(
         repo="opensafely/MH_pandemic",
@@ -58,7 +58,23 @@ EXTERNAL_STUDIES = {
         file_globs=[
             "analysis/dataset_definition_ons_cis_new.py",
         ],
-        dataset_definition="analysis/dataset_definition_ons_cis_new.py",
+        dataset_definitions=["analysis/dataset_definition_ons_cis_new.py"],
+    ),
+    "openprompt-long-covid-vaccines": dict(
+        repo="opensafely/openprompt-vaccine-long-covid",
+        branch="main",
+        file_globs=[
+            "analysis/dataset_definition*.py",
+            "analysis/datasets.py",
+            "analysis/codelists.py",
+            "codelists/*.csv",
+            "analysis/variable_lib.py",
+        ],
+        dataset_definitions=[
+            "analysis/dataset_definition_cases.py",
+            "analysis/dataset_definition_controls.py",
+            "analysis/dataset_definition_longcovid_prevaccine.py",
+        ],
     ),
 }
 
@@ -82,12 +98,13 @@ def reset_module_namespace():
 def test_external_study(name, monkeypatch, reset_module_namespace):
     # clear_module_namespace()
     study_path = STUDY_DIR / name
-    dataset_def_path = study_path / EXTERNAL_STUDIES[name]["dataset_definition"]
-    monkeypatch.chdir(study_path)
-    # Test that we can compile the dataset definition to a valid query model graph. I
-    # think this is sufficient for these tests which are intended to ensure we don't
-    # accidentally break the API. If we're unable to execute a valid query, that's a
-    # separate class of problem for which we need separate tests.
-    dataset = load_dataset_definition(dataset_def_path, user_args=())
-    variable_definitions = compile(dataset)
-    assert variable_definitions
+    for dataset_def in EXTERNAL_STUDIES[name]["dataset_definitions"]:
+        dataset_def_path = study_path / dataset_def
+        monkeypatch.chdir(study_path)
+        # Test that we can compile the dataset definition to a valid query model graph. I
+        # think this is sufficient for these tests which are intended to ensure we don't
+        # accidentally break the API. If we're unable to execute a valid query, that's a
+        # separate class of problem for which we need separate tests.
+        dataset = load_dataset_definition(dataset_def_path, user_args=())
+        variable_definitions = compile(dataset)
+        assert variable_definitions
