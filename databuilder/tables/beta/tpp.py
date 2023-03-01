@@ -230,9 +230,45 @@ class isaric_raw(EventFrame):
         str,
         description="Sex at birth.",
     )
-    ethnic = Series(
+    ethnic___1 = Series(
         str,
-        description="Ethnic group.",
+        description="Ethnic group: Arab.",
+    )
+    ethnic___2 = Series(
+        str,
+        description="Ethnic group: Black.",
+    )
+    ethnic___3 = Series(
+        str,
+        description="Ethnic group: East Asian.",
+    )
+    ethnic___4 = Series(
+        str,
+        description="Ethnic group: South Asian.",
+    )
+    ethnic___5 = Series(
+        str,
+        description="Ethnic group: West Asian.",
+    )
+    ethnic___6 = Series(
+        str,
+        description="Ethnic group: Latin American.",
+    )
+    ethnic___7 = Series(
+        str,
+        description="Ethnic group: White.",
+    )
+    ethnic___8 = Series(
+        str,
+        description="Ethnic group: Aboriginal/First Nations.",
+    )
+    ethnic___9 = Series(
+        str,
+        description="Ethnic group: Other.",
+    )
+    ethnic___10 = Series(
+        str,
+        description="Ethnic group: N/A.",
     )
 
     # Vaccination
