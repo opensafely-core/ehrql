@@ -35,7 +35,16 @@ jobs:
           base: main
           commit-message: "chore: Update `external_studies` test code"
           title: "Update `external_studies` test code"
-          body: ""
+          body: |
+            To get tests to run on this PR there's an odd workflow:
+             - Approve it
+             - Close it
+             - Re-open it
+             - Re-enable automerge
+
+            You can read more on why this is needed in the `create-pull-request` [docs][1].
+
+            [1]: https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
 
       # The PR will still require manual approval, this just reduces it to a one-click process
       - name: Enable automerge
