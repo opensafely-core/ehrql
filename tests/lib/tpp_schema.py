@@ -1004,7 +1004,6 @@ class ISARIC_New(Base):
     covid19_vaccine = Column(String)
     covid19_vaccined = Column(Date)
     covid19_vaccine2d = Column(Date)
-    covid19_vaccine3d = Column(Date)
     covid19_vaccined_nk = Column(String)
 
     corona_ieorres = Column(String)
