@@ -1537,7 +1537,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4| |
 
 ```
-p.c1.to_category(codelist.my_categorisation)
+p.c1.to_category(codelist)
 ```
 returns the following patient series:
 

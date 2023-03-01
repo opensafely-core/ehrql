@@ -50,7 +50,6 @@ def test_is_in_codelist_csv(spec_test):
             "789000",
         ],
         column="code",
-        system="snomedct",
     )
 
     spec_test(
