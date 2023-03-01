@@ -1,6 +1,8 @@
 default_language_version:
   python: python3.9
 
+exclude: tests/acceptance/external_studies/
+
 repos:
   - repo: https://github.com/psf/black
     rev: 23.1.0
