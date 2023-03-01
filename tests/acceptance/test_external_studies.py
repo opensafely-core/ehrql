@@ -92,6 +92,21 @@ EXTERNAL_STUDIES = {
             "analysis/dataset_definition_dm021.py",
         ],
     ),
+    "openprompt-long-covid-economics": dict(
+        repo="opensafely/openprompt_health_utilisation",
+        branch="main",
+        file_globs=[
+            "analysis/dataset_definition_*.py",
+            "analysis/codelists.py",
+            "analysis/variables.py",
+            "codelists/*.csv",
+        ],
+        dataset_definitions=[
+            "analysis/dataset_definition_lc_gp_list.py",
+            "analysis/dataset_definition_exp_lc.py",
+            "analysis/dataset_definition_comparator_large.py",
+        ],
+    ),
 }
 
 STUDY_DIR = Path(__file__).parent / "external_studies"
