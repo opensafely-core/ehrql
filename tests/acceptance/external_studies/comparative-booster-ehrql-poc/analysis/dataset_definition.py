@@ -3,9 +3,6 @@ from pathlib import Path
 
 from databuilder.ehrql import Dataset, case, days, when
 from databuilder.tables.beta import tpp as schema
-
-import codelists
-from codelists import combine_codelists
 from variables_lib import (
     address_as_of,
     age_as_of,
@@ -17,6 +14,8 @@ from variables_lib import (
     most_recent_bmi,
     practice_registration_as_of,
 )
+
+import codelists
 
 dataset = Dataset()
 
@@ -174,7 +173,7 @@ dataset.ethnicity = (
     events.take(events.ctv3_code.is_in(codelists.ethnicity))
     .sort_by(events.date)
     .last_for_patient()
-    .ctv3_code.to_category(codelists.ethnicity.Grouping_6)
+    .ctv3_code.to_category(codelists.ethnicity)
 )
 
 # I haven't translated the `with_ethnicity_from_sus` query below because all the logic
@@ -253,11 +252,9 @@ dataset.care_home_code = has_prior_event(codelists.carehome)
 
 primary_care_covid_events = events.take(
     events.ctv3_code.is_in(
-        combine_codelists(
-            codelists.covid_primary_care_code,
-            codelists.covid_primary_care_positive_test,
-            codelists.covid_primary_care_sequelae,
-        )
+        codelists.covid_primary_care_code
+        + codelists.covid_primary_care_positive_test
+        + codelists.covid_primary_care_sequelae
     )
 )
 
@@ -464,10 +461,7 @@ dataset.hhld_imdef_dat = last_prior_event(codelists.hhld_imdef).date
 
 
 dataset.cancer = has_prior_event(
-    combine_codelists(
-        codelists.cancer_nonhaem_snomed,
-        codelists.cancer_haem_snomed,
-    ),
+    codelists.cancer_nonhaem_snomed + codelists.cancer_haem_snomed,
     where=events.date.is_after(baseline_date - days(int(3 * 365.25))),
 )
 
