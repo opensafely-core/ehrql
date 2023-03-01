@@ -266,6 +266,25 @@ class TPPBackend(BaseBackend):
                 CASE
                     WHEN hostdat != 'NA' THEN CONVERT(DATE, hostdat, 23)
                 END AS hostdat,
+                chrincard,
+                hypertension_mhyn,
+                chronicpul_mhyn,
+                asthma_mhyn,
+                renal_mhyn,
+                mildliver,
+                modliv,
+                chronicneu_mhyn,
+                malignantneo_mhyn,
+                chronichaemo_mhyn,
+                aidshiv_mhyn,
+                obesity_mhyn,
+                diabetes_type_mhyn,
+                diabetescom_mhyn,
+                diabetes_mhyn,
+                rheumatologic_mhyn,
+                dementia_mhyn,
+                malnutrition_mhyn,
+                smoking_mhyn,
                 hooccur,
                 CASE
                     WHEN hostdat_transfer != 'NA' THEN CONVERT(DATE, hostdat_transfer, 23)

@@ -354,6 +354,84 @@ class isaric_raw(EventFrame):
         description="Onset date of first/earliest symptom.",
     )
 
+    # Clinical characteristics
+    chrincard = Series(
+        str,
+        description="Chronic cardiac disease, including congenital heart disease (not hypertension).",
+    )
+    hypertension_mhyn = Series(
+        str,
+        description="Hypertension (physician diagnosed).",
+    )
+    chronicpul_mhyn = Series(
+        str,
+        description="Chronic pulmonary disease (not asthma).",
+    )
+    asthma_mhyn = Series(
+        str,
+        description="Asthma (physician diagnosed).",
+    )
+    renal_mhyn = Series(
+        str,
+        description="Chronic kidney disease.",
+    )
+    mildliver = Series(
+        str,
+        description="Mild liver disease.",
+    )
+    modliv = Series(
+        str,
+        description="Moderate or severe liver disease",
+    )
+    chronicneu_mhyn = Series(
+        str,
+        description="Chronic neurological disorder.",
+    )
+    malignantneo_mhyn = Series(
+        str,
+        description="Malignant neoplasm.",
+    )
+    chronichaemo_mhyn = Series(
+        str,
+        description="Chronic haematologic disease.",
+    )
+    aidshiv_mhyn = Series(
+        str,
+        description="AIDS/HIV.",
+    )
+    obesity_mhyn = Series(
+        str,
+        description="Obesity (as defined by clinical staff).",
+    )
+    diabetes_type_mhyn = Series(
+        str,
+        description="Diabetes and type.",
+    )
+    diabetescom_mhyn = Series(
+        str,
+        description="Diabetes with complications.",
+    )
+    diabetes_mhyn = Series(
+        str,
+        description="Diabetes without complications.",
+    )
+    rheumatologic_mhyn = Series(
+        str,
+        description="Rheumatologic disorder.",
+    )
+    dementia_mhyn = Series(
+        str,
+        description="Dementia.",
+    )
+    malnutrition_mhyn = Series(
+        str,
+        description="Malnutrition.",
+    )
+    smoking_mhyn = Series(
+        str,
+        description="Smoking.",
+    )
+
     # Admission
     hostdat = Series(
         datetime.date,
