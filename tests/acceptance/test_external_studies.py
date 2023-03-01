@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import pytest
@@ -51,13 +52,35 @@ EXTERNAL_STUDIES = {
         ],
         dataset_definition="analysis/dataset_definition.py",
     ),
+    "ons-mental-health": dict(
+        repo="opensafely/MH_pandemic",
+        branch="main",
+        file_globs=[
+            "analysis/dataset_definition_ons_cis_new.py",
+        ],
+        dataset_definition="analysis/dataset_definition_ons_cis_new.py",
+    ),
 }
 
 STUDY_DIR = Path(__file__).parent / "external_studies"
 
 
+@pytest.fixture
+def reset_module_namespace():
+    """
+    Studies often use the same names for modules (e.g. codelists.py, variables_lib.py)
+    Ensure that we clean up the module namespace after each external study test.
+    """
+    original_modules = set(sys.modules.keys())
+    yield
+    new_modules = set(sys.modules.keys()) - original_modules
+    for key in new_modules:
+        del sys.modules[key]
+
+
 @pytest.mark.parametrize("name", EXTERNAL_STUDIES.keys())
-def test_external_study(name, monkeypatch):
+def test_external_study(name, monkeypatch, reset_module_namespace):
+    # clear_module_namespace()
     study_path = STUDY_DIR / name
     dataset_def_path = study_path / EXTERNAL_STUDIES[name]["dataset_definition"]
     monkeypatch.chdir(study_path)
