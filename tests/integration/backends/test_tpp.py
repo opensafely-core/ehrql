@@ -534,7 +534,7 @@ def test_isaric_raw(select_all):
             hostdat_transfernk="TODO",
             readm_cov19="TODO",
             dsstdat="2022-01-05",
-            dsstdtc="2022-01-20",
+            dsstdtc="NA",
         ),
     )
     assert results == [
@@ -569,7 +569,7 @@ def test_isaric_raw(select_all):
             "hostdat_transfernk": "TODO",
             "readm_cov19": "TODO",
             "dsstdat": date(2022, 1, 5),
-            "dsstdtc": date(2022, 1, 20),
+            "dsstdtc": None,
         },
     ]
 
