@@ -284,13 +284,6 @@ class isaric_raw(EventFrame):
         datetime.date,
         description="Date second vaccine given (Covid-19) if known.",
     )
-    covid19_vaccine3d = Series(
-        datetime.date,
-        # The current version of the data dictionary on GitHub is from 2022,
-        # and does not include this variable.
-        # The description is a reasonable guess.
-        description="TO BE CONFIRMED WITH DATA SOURCE: Date third vaccine given (Covid-19) if known.",
-    )
     covid19_vaccined_nk = Series(
         str,
         description="First vaccine given (Covid-19) but date not known.",

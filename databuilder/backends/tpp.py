@@ -251,7 +251,6 @@ class TPPBackend(BaseBackend):
                 covid19_vaccine,
                 CAST(covid19_vaccined AS DATE) as covid19_vaccined,
                 CAST(covid19_vaccine2d AS DATE) as covid19_vaccine2d,
-                CAST(covid19_vaccine3d AS DATE) as covid19_vaccine3d,
                 covid19_vaccined_nk,
                 corona_ieorres,
                 coriona_ieorres2,
