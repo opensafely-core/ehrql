@@ -3,7 +3,7 @@ import datetime
 import enum
 from typing import Union
 
-from databuilder.codes import BaseCode, Codelist
+from databuilder.codes import BaseCode
 from databuilder.query_model import nodes as qm
 from databuilder.query_model.nodes import get_series_type, has_one_row_per_patient
 from databuilder.query_model.population_validation import validate_population_definition
@@ -574,9 +574,6 @@ def _convert(arg):
     # If it's an ehrQL series then get the wrapped query model node
     elif isinstance(arg, BaseSeries):
         return arg.qm_node
-    # If it's a Codelist extract the set of codes and put it in a Value wrapper
-    elif isinstance(arg, Codelist):  # pragma: no cover
-        return qm.Value(frozenset(arg.codes))
     # Otherwise it's a static value and needs to be put in a query model Value wrapper
     else:
         return qm.Value(arg)
