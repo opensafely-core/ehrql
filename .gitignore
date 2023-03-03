@@ -109,3 +109,6 @@ cache/
 
 # MkDocs output
 site/
+
+# tutorial examples metadata (generated when running tutorial actions in docker)
+docs/ehrql-tutorial-examples/metadata/

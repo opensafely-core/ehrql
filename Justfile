@@ -308,3 +308,22 @@ docs-check-generated-docs-are-current: generate-docs
       echo "Generated docs directory contains files/directories not in the repository."
       exit 1
     fi
+
+
+docs-update-tutorial-databuilder-version:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if [ -z ${TOKEN+x}]
+    then
+      echo "TOKEN env variable is required (a PAT with the packages:read permission)"
+      exit 1
+    fi
+
+    # find latest major version
+    latest_version=$(curl -H "Authorization: Bearer $TOKEN" \
+    https://api.github.com/orgs/opensafely-core/packages/container/databuilder/versions?per_page=1 \
+    | jq -r '.[0].metadata.container.tags[-1]')
+
+    # replace latest version in tutorial project.yaml
+    sed -Ei "s/v[0-9]\b/${latest_version}/g" docs/ehrql-tutorial-examples/project.yaml
