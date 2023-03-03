@@ -2,6 +2,7 @@ import datetime
 
 from databuilder.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
 from databuilder.contracts.universal import patients
+from databuilder.ehrql import case, when
 from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 __all__ = [
@@ -57,6 +58,23 @@ class practice_registrations(EventFrame):
             ),
         ],
     )
+
+    def for_patient_on(self, date):
+        """
+        Return each patient's practice registration as it was on the supplied date.
+
+        Where a patient is registered with multiple practices we prefer the most recent
+        registration and then, if there are multiple of these, the one with the longest
+        duration. If there's stil an exact tie we choose arbitrarily based on the
+        practice ID.
+        """
+        spanning_regs = self.take(self.start_date <= date).drop(self.end_date < date)
+        ordered_regs = spanning_regs.sort_by(
+            self.start_date,
+            self.end_date,
+            self.practice_pseudo_id,
+        )
+        return ordered_regs.last_for_patient()
 
 
 @table
@@ -114,6 +132,28 @@ class addresses(EventFrame):
     # they're represented in the data
     care_home_requires_nursing = Series(bool)
     care_home_does_not_require_nursing = Series(bool)
+
+    def for_patient_on(self, date):
+        """
+        Return each patient's registered address as it was on the supplied date.
+
+        Where there are multiple registered addresses we prefer any which have a known
+        postcode (though we never have access to this postcode) as this is used by TPP
+        to cross-reference other data associated with the address, such as the MSOA or
+        index of multiple deprevation.
+
+        Where there are multiple of these we prefer the most recently registered address
+        and then, if there are multiple of these, the one with the longest duration. If
+        there's stil an exact tie we choose arbitrarily based on the address ID.
+        """
+        spanning_addrs = self.take(self.start_date <= date).drop(self.end_date < date)
+        ordered_addrs = spanning_addrs.sort_by(
+            case(when(self.has_postcode).then(1), default=0),
+            self.start_date,
+            self.end_date,
+            self.address_id,
+        )
+        return ordered_addrs.last_for_patient()
 
 
 @table
