@@ -82,3 +82,22 @@ def test_validate_dataset_category_mismatch(tmp_path, extension):
 
     with pytest.raises(ValidationError, match=errors[extension]):
         validate_dataset(filename, column_specs_2)
+
+
+@pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
+def test_write_dataset_rejects_unexpected_category(tmp_path, extension):
+    filename = tmp_path / f"dataset{extension}"
+    column_specs_1 = {
+        "patient_id": ColumnSpec(int),
+        "category": ColumnSpec(str, categories=("a", "b")),
+    }
+    results = [
+        (123, "a"),
+        (456, "bad_category"),
+    ]
+
+    # Different file formats may raise different exception classes here, but the
+    # important thing is that they raise some kind of error and don't just write out
+    # invalid data
+    with pytest.raises(Exception, match="bad_category"):
+        write_dataset(filename, results, column_specs_1)

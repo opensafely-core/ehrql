@@ -40,12 +40,17 @@ def create_row_formatter(column_specs):
 def create_column_formatter(spec):
     # Most types naturally format themselves as we'd like in CSV
     if spec.type in (int, float, str, datetime.date):
-        return identity
+        formatter = identity
     # But we need special handling for booleans
     elif spec.type is bool:
-        return format_bool
+        formatter = format_bool
     else:
         assert False, f"Unhandled type: {spec.type}"
+
+    if spec.categories is not None:
+        formatter = validate_categories(formatter, spec.categories)
+
+    return formatter
 
 
 def identity(value):
