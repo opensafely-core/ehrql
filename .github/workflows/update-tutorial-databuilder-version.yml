@@ -1,0 +1,66 @@
+---
+name: "Create PR to update databuilder image version in ehrql tutorial"
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - CI
+      - Check documentation
+      - Build and publish image
+    branches:
+      - main
+    types:
+      - completed
+
+jobs:
+  create_tutorial_version_pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+          python-version: "3.9"
+
+      - name: Install opensafely
+        run: pip install opensafely
+
+      - name: Update databuilder image version in tutorial project.yaml
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: just docs-update-tutorial-databuilder-version
+
+      - name: Check dataset definitions outputs can be built with OpenSAFELY CLI project.yaml
+        run: just docs-build-dataset-definitions-outputs-docker-project
+
+      - name: Create a Pull Request if there are any changes
+        id: create_pr
+        uses: peter-evans/create-pull-request@2b011faafdcbc9ceb11414d64d0573f37c774b04 # v4.2.3
+        with:
+          add-paths: |
+            docs/ehrql-tutorial-examples/project.yaml
+            docs/ehrql-tutorial-examples/outputs/*
+          branch: bot/update-tutorial-version
+          base: main
+          commit-message: "chore: Update databuilder version in tutorial project.yaml"
+          title: "Update databuilder version in tutorial project.yaml"
+          body: |
+            To get tests to run on this PR there's an odd workflow:
+             - Approve it
+             - Close it
+             - Re-open it
+             - Re-enable automerge
+
+            You can read more on why this is needed in the `create-pull-request` [docs][1].
+
+            [1]: https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
+
+      # The PR will still require manual approval, this just reduces it to a one-click process
+      - name: Enable automerge
+        if: steps.create_pr.outputs.pull-request-operation == 'created'
+        uses: peter-evans/enable-pull-request-automerge@60812ab1c2c6c6a8932b4d6e059becafaf386256 # v2.3.0
+        with:
+          pull-request-number: ${{ steps.create_pr.outputs.pull-request-number }}
+          merge-method: squash
