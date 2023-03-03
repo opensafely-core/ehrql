@@ -20,7 +20,8 @@ class TPPBackend(BaseBackend):
                     WHEN Sex = 'M' THEN 'male'
                     WHEN Sex = 'F' THEN 'female'
                     WHEN Sex = 'I' THEN 'intersex'
-                    ELSE 'unknown'
+                    WHEN Sex = 'U' THEN 'unknown'
+                    ELSE Sex
                 END AS sex,
                 CASE
                     WHEN DateOfDeath != '99991231' THEN DateOfDeath

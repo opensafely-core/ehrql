@@ -79,12 +79,13 @@ def test_patients(select_all):
         Patient(Patient_ID=2, DateOfBirth="2020-01-01", Sex="F"),
         Patient(Patient_ID=3, DateOfBirth="2020-01-01", Sex="I"),
         Patient(Patient_ID=4, DateOfBirth="2020-01-01", Sex="U"),
-        Patient(Patient_ID=5, DateOfBirth="2020-01-01", Sex=""),
+        Patient(Patient_ID=5, DateOfBirth="2020-01-01", Sex="unexpected_value"),
+        Patient(Patient_ID=6, DateOfBirth="2020-01-01", Sex=None),
         Patient(
-            Patient_ID=6, DateOfBirth="2000-01-01", Sex="M", DateOfDeath="2020-01-01"
+            Patient_ID=7, DateOfBirth="2000-01-01", Sex="M", DateOfDeath="2020-01-01"
         ),
         Patient(
-            Patient_ID=7, DateOfBirth="2000-01-01", Sex="M", DateOfDeath="9999-12-31"
+            Patient_ID=8, DateOfBirth="2000-01-01", Sex="M", DateOfDeath="9999-12-31"
         ),
     )
     assert results == [
@@ -115,17 +116,23 @@ def test_patients(select_all):
         {
             "patient_id": 5,
             "date_of_birth": date(2020, 1, 1),
-            "sex": "unknown",
+            "sex": "unexpected_value",
             "date_of_death": None,
         },
         {
             "patient_id": 6,
+            "date_of_birth": date(2020, 1, 1),
+            "sex": None,
+            "date_of_death": None,
+        },
+        {
+            "patient_id": 7,
             "date_of_birth": date(2000, 1, 1),
             "sex": "male",
             "date_of_death": date(2020, 1, 1),
         },
         {
-            "patient_id": 7,
+            "patient_id": 8,
             "date_of_birth": date(2000, 1, 1),
             "sex": "male",
             "date_of_death": None,
