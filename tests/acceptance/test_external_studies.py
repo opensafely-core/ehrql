@@ -40,6 +40,17 @@ EXTERNAL_STUDIES = {
         ],
         dataset_definition="analysis/dataset_definition.py",
     ),
+    "ons-cis-validation": dict(
+        repo="opensafely/cis-pop-validation-ehrql",
+        branch="main",
+        file_globs=[
+            "analysis/codelists_ehrql.py",
+            "analysis/dataset_definition.py",
+            "analysis/variable_lib.py",
+            "codelists/*.csv",
+        ],
+        dataset_definition="analysis/dataset_definition.py",
+    ),
 }
 
 STUDY_DIR = Path(__file__).parent / "external_studies"
