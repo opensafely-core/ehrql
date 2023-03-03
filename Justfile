@@ -95,7 +95,7 @@ check: devenv
     $BIN/flake8
     $BIN/pyupgrade --py39-plus --keep-percent-format \
         $(find databuilder -name "*.py" -type f) \
-        $(find tests -name "*.py" -type f)
+        $(find tests -not -path 'tests/acceptance/external_studies/*' -name "*.py" -type f)
     just docstrings
     docker pull hadolint/hadolint
     docker run --rm -i hadolint/hadolint < Dockerfile

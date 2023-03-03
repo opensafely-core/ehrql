@@ -1,0 +1,44 @@
+CTV3ID,CTV3PreferredTermDesc,CTV3Source
+F3710,Polyneuropathy in disseminated lupus erythematosus,CTV3Map_Code_And_Term
+F3961,Myopathy due to disseminated lupus erythematosus,CTV3Map_Code_And_Term
+F4D33,Discoid lupus eyelid,CTV3Map_Code_And_Term
+H57y4,Lung disease with systemic lupus erythematosus,CTV3Map_Code_And_Term
+K01x4,(Nephr synd in system lupus erythemat) or (lupus nephritis],High_Level_SNOMED
+M154.,Lupus erythematosus,CTV3Map_Code_And_Term
+M1540,Lupus erythematosus chronicus,CTV3Map_Code_And_Term
+M1541,Discoid lupus erythematosus,CTV3Map_Code_And_Term
+M1542,Lupus erythematosus migrans,CTV3Map_Code_And_Term
+M1543,Lupus erythematosus nodularis,CTV3Map_Code_And_Term
+M1544,Lupus erythematosus profundus,CTV3Map_Code_And_Term
+M1545,Lupus erythematosus tumidus,CTV3Map_Code_And_Term
+M1546,Lupus erythematosus unguium mutilans,CTV3Map_Code_And_Term
+M154z,Lupus erythematosus NOS,CTV3Map_Code_And_Term
+Myu78,[X]Other local lupus erythematosus,CTV3_Children
+N000.,Systemic lupus erythematosus,CTV3Map_Code_And_Term
+N0002,Drug-induced systemic lupus erythematosus,CTV3Map_Code_And_Term
+N000z,Systemic lupus erythematosus NOS,CTV3Map_Code_And_Term
+Nyu43,[X]Other forms of systemic lupus erythematosus,CTV3Map_Code_And_Term
+X00Dx,Cerebral lupus,CTV3Map_Code_And_Term
+X00Dx,Cerebral lupus,CTV3Map_Code_Only
+X30Kn,Lupus nephritis - WHO Class I,CTV3_Children
+X30Ko,Lupus nephritis - WHO Class II,CTV3_Children
+X30Kp,Lupus nephritis - WHO Class III,CTV3_Children
+X30Kq,Lupus nephritis - WHO Class IV,CTV3_Children
+X30Kr,Lupus nephritis - WHO Class V,CTV3_Children
+X30Ks,Lupus nephritis - WHO Class VI,CTV3_Children
+X50Ew,Lupus erythematosus and erythema multiforme-like syndrome,CTV3_Children
+X50Ex,Chronic discoid lupus erythematosus,CTV3_Children
+X50Ez,Chilblain lupus erythematosus,CTV3_Children
+X704W,Limited lupus erythematosus,CTV3_Children
+X704X,Systemic lupus erythematosus with organ/system involvement,CTV3Map_Code_And_Term
+X704a,Lupus panniculitis,CTV3_Children
+X704b,Bullous systemic lupus erythematosus,CTV3_Children
+X704c,Systemic lupus erythematosus with multisystem involvement,CTV3_Children
+X704d,Cutaneous lupus erythematosus,CTV3_Children
+X704g,Neonatal lupus erythematosus,CTV3Map_Code_And_Term
+X704h,Subacute cutaneous lupus erythematosus,CTV3Map_Code_And_Term
+XE0da,Lupus nephritis,CTV3Map_Code_And_Term
+XE0da,Lupus nephritis,CTV3Map_Code_Only
+XM197,[EDTA] Lupus erythematosus associated with renal failure,CTV3_Children
+XaBE1,Renal tubulo-interstitial disord in systemic lupus erythemat,CTV3Map_Code_And_Term
+XaC1J,Systemic lupus erythematosus with pericarditis,CTV3Map_Code_And_Term
