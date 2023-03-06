@@ -41,6 +41,12 @@ def test_codelist_from_csv_missing_file(path_type):
         codelist_from_csv(path_type(missing_file), column="CodeID")
 
 
+def test_codelist_from_csv_missing_file_hint(path_type):
+    bad_path = Path(__file__) / "bad\file.csv"
+    with pytest.raises(CodelistError, match="backslash"):
+        codelist_from_csv(path_type(bad_path), column="CodeID")
+
+
 def test_codelist_from_csv_lines():
     csv_lines = [
         "CodeID,foo",

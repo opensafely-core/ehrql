@@ -110,7 +110,18 @@ class DMDCode(BaseCode):
 def codelist_from_csv(filename, *, column, category_column=None):
     filename = Path(filename)
     if not filename.exists():
-        raise CodelistError(f"No CSV file at {filename}")
+        # If the character which comes after the backslash in the string literal happens
+        # to form a valid escape sequence then no backslash will appear in the compiled
+        # string. Checking the repr for backslashes has false positives (e.g. a tab
+        # character will trigger it) but that seems OK in this context.
+        if "\\" in repr(filename):
+            hint = (
+                "\n\n"
+                "HINT: Use forward slash (/) instead of backslash (\\) in file paths"
+            )
+        else:
+            hint = ""
+        raise CodelistError(f"No CSV file at {filename}{hint}")
     with filename.open("r") as f:
         return codelist_from_csv_lines(
             f, column=column, category_column=category_column
