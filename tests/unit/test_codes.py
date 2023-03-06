@@ -35,9 +35,10 @@ def test_codelist_from_csv(path_type, tmp_path):
     assert codelist == ["abc00", "def00"]
 
 
-def test_codelist_from_csv_missing_file(path_type, tmp_path):
+def test_codelist_from_csv_missing_file(path_type):
+    missing_file = Path(__file__) / "no_file_here.csv"
     with pytest.raises(CodelistError, match="no_file_here.csv"):
-        codelist_from_csv(path_type(tmp_path / "no_file_here.csv"), column="CodeID")
+        codelist_from_csv(path_type(missing_file), column="CodeID")
 
 
 def test_codelist_from_csv_lines():
