@@ -314,16 +314,23 @@ docs-update-tutorial-databuilder-version:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [ -z ${TOKEN+x}]
+    package="opensafely-core/databuilder"
+
+    if [ -z ${GITHUB_TOKEN+x} ]
     then
-      echo "TOKEN env variable is required (a PAT with the packages:read permission)"
-      exit 1
+        token="$(
+        curl --silent \
+            "https://ghcr.io/token?scope=repository:$package:pull&service=ghcr.io" \
+        | jq -r '.token'
+        )"
+    else
+        token="$(echo $GITHUB_TOKEN | base64)"
     fi
 
-    # find latest major version
-    latest_version=$(curl -H "Authorization: Bearer $TOKEN" \
-    https://api.github.com/orgs/opensafely-core/packages/container/databuilder/versions?per_page=1 \
-    | jq -r '.[0].metadata.container.tags[-1]')
+    latest_version=$(curl --silent --header "Authorization: Bearer $token" \
+      "https://ghcr.io/v2/$package/tags/list" \
+      | jq -r '.tags | map(select(test("^v\\d+$"))) | max_by(. | ltrimstr("v") | tonumber)'
+    )
 
     # replace latest version in tutorial project.yaml
     sed -Ei "s/v[0-9]\b/${latest_version}/g" docs/ehrql-tutorial-examples/project.yaml
