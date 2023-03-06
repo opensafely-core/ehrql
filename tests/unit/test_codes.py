@@ -1,4 +1,5 @@
 import textwrap
+from pathlib import Path
 
 import pytest
 
@@ -15,7 +16,14 @@ from databuilder.codes import (
 )
 
 
-def test_codelist_from_csv(tmp_path):
+# `codelist_from_csv` can take either a string or `pathlib.Path` and we want to check
+# that we handle both correctly
+@pytest.fixture(params=[str, Path])
+def path_type(request):
+    return request.param
+
+
+def test_codelist_from_csv(path_type, tmp_path):
     csv_file = tmp_path / "codes.csv"
     csv_text = """
         CodeID,foo
@@ -23,13 +31,20 @@ def test_codelist_from_csv(tmp_path):
         def00,
         """
     csv_file.write_text(textwrap.dedent(csv_text.strip()))
-    codelist = codelist_from_csv(csv_file, column="CodeID")
+    codelist = codelist_from_csv(path_type(csv_file), column="CodeID")
     assert codelist == ["abc00", "def00"]
 
 
-def test_codelist_from_csv_missing_file(tmp_path):
+def test_codelist_from_csv_missing_file(path_type):
+    missing_file = Path(__file__) / "no_file_here.csv"
     with pytest.raises(CodelistError, match="no_file_here.csv"):
-        codelist_from_csv(tmp_path / "no_file_here.csv", column="CodeID")
+        codelist_from_csv(path_type(missing_file), column="CodeID")
+
+
+def test_codelist_from_csv_missing_file_hint(path_type):
+    bad_path = Path(__file__) / "bad\file.csv"
+    with pytest.raises(CodelistError, match="backslash"):
+        codelist_from_csv(path_type(bad_path), column="CodeID")
 
 
 def test_codelist_from_csv_lines():
