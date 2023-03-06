@@ -125,17 +125,22 @@ def reset_module_namespace():
         del sys.modules[key]
 
 
-@pytest.mark.parametrize("name", EXTERNAL_STUDIES.keys())
-def test_external_study(name, monkeypatch, reset_module_namespace):
-    # clear_module_namespace()
-    study_path = STUDY_DIR / name
-    for dataset_def in EXTERNAL_STUDIES[name]["dataset_definitions"]:
-        dataset_def_path = study_path / dataset_def
-        monkeypatch.chdir(study_path)
-        # Test that we can compile the dataset definition to a valid query model graph. I
-        # think this is sufficient for these tests which are intended to ensure we don't
-        # accidentally break the API. If we're unable to execute a valid query, that's a
-        # separate class of problem for which we need separate tests.
-        dataset = load_dataset_definition(dataset_def_path, user_args=())
-        variable_definitions = compile(dataset)
-        assert variable_definitions
+@pytest.mark.parametrize(
+    "study_name,dataset_def",
+    [
+        (study_name, dataset_def)
+        for (study_name, config) in EXTERNAL_STUDIES.items()
+        for dataset_def in config["dataset_definitions"]
+    ],
+)
+def test_external_study(study_name, dataset_def, monkeypatch, reset_module_namespace):
+    study_path = STUDY_DIR / study_name
+    dataset_def_path = study_path / dataset_def
+    monkeypatch.chdir(study_path)
+    # Test that we can compile the dataset definition to a valid query model graph. I
+    # think this is sufficient for these tests which are intended to ensure we don't
+    # accidentally break the API. If we're unable to execute a valid query, that's a
+    # separate class of problem for which we need separate tests.
+    dataset = load_dataset_definition(dataset_def_path, user_args=())
+    variable_definitions = compile(dataset)
+    assert variable_definitions
