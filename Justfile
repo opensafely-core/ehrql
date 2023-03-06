@@ -308,3 +308,29 @@ docs-check-generated-docs-are-current: generate-docs
       echo "Generated docs directory contains files/directories not in the repository."
       exit 1
     fi
+
+
+docs-update-tutorial-databuilder-version:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    package="opensafely-core/databuilder"
+
+    if [ -z ${GITHUB_TOKEN+x} ]
+    then
+        token="$(
+        curl --silent \
+            "https://ghcr.io/token?scope=repository:$package:pull&service=ghcr.io" \
+        | jq -r '.token'
+        )"
+    else
+        token="$(echo $GITHUB_TOKEN | base64)"
+    fi
+
+    latest_version=$(curl --silent --header "Authorization: Bearer $token" \
+      "https://ghcr.io/v2/$package/tags/list" \
+      | jq -r '.tags | map(select(test("^v\\d+$"))) | max_by(. | ltrimstr("v") | tonumber)'
+    )
+
+    # replace latest version in tutorial project.yaml
+    sed -Ei "s/v[0-9]\b/${latest_version}/g" docs/ehrql-tutorial-examples/project.yaml
