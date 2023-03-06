@@ -1,5 +1,6 @@
 import contextlib
 import sys
+import warnings
 from pathlib import Path
 
 import pytest
@@ -146,6 +147,9 @@ def test_external_study(study_name, dataset_def):
         # variables_lib.py) Ensure that we clean up the module namespace after each
         # external study test.
         stack.enter_context(reset_module_namespace())
+        # Usually we treat warnings as errors, but we want to ignore them in user code
+        stack.enter_context(warnings.catch_warnings())
+        warnings.simplefilter("ignore")
         # Import the dataset (most of the validation work happens here)
         dataset = load_dataset_definition(dataset_def_path, user_args=())
     # Test that we can compile the dataset definition to a valid query model graph. I
