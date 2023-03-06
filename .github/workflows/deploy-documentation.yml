@@ -1,0 +1,29 @@
+---
+name: "Trigger a deploy of opensafely documentation site"
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    branches:
+      - main
+    types:
+      - completed
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Trigger documentation deploy
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.DOCS_WRITE_TOKEN }}
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: 'opensafely',
+              repo: 'documentation',
+              workflow_id: 'pages-deployment.yml',
+              ref: 'main'
+            });
