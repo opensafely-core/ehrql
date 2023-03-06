@@ -1,3 +1,4 @@
+import contextlib
 import sys
 from pathlib import Path
 
@@ -112,17 +113,19 @@ EXTERNAL_STUDIES = {
 STUDY_DIR = Path(__file__).parent / "external_studies"
 
 
-@pytest.fixture
+@contextlib.contextmanager
 def reset_module_namespace():
     """
     Studies often use the same names for modules (e.g. codelists.py, variables_lib.py)
     Ensure that we clean up the module namespace after each external study test.
     """
     original_modules = set(sys.modules.keys())
-    yield
-    new_modules = set(sys.modules.keys()) - original_modules
-    for key in new_modules:
-        del sys.modules[key]
+    try:
+        yield
+    finally:
+        new_modules = set(sys.modules.keys()) - original_modules
+        for key in new_modules:
+            del sys.modules[key]
 
 
 @pytest.mark.parametrize(
@@ -133,14 +136,20 @@ def reset_module_namespace():
         for dataset_def in config["dataset_definitions"]
     ],
 )
-def test_external_study(study_name, dataset_def, monkeypatch, reset_module_namespace):
+def test_external_study(study_name, dataset_def):
     study_path = STUDY_DIR / study_name
     dataset_def_path = study_path / dataset_def
-    monkeypatch.chdir(study_path)
+    with contextlib.ExitStack() as stack:
+        # Studies often use project-relative paths so ensure these resolve correctly
+        stack.enter_context(pytest.MonkeyPatch.context()).chdir(study_path)
+        # Studies often use the same names for modules (e.g. codelists.py,
+        # variables_lib.py) Ensure that we clean up the module namespace after each
+        # external study test.
+        stack.enter_context(reset_module_namespace())
+        # Import the dataset (most of the validation work happens here)
+        dataset = load_dataset_definition(dataset_def_path, user_args=())
     # Test that we can compile the dataset definition to a valid query model graph. I
     # think this is sufficient for these tests which are intended to ensure we don't
     # accidentally break the API. If we're unable to execute a valid query, that's a
     # separate class of problem for which we need separate tests.
-    dataset = load_dataset_definition(dataset_def_path, user_args=())
-    variable_definitions = compile(dataset)
-    assert variable_definitions
+    assert compile(dataset)
