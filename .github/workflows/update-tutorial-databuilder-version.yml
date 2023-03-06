@@ -1,12 +1,10 @@
 ---
-name: "Create PR to update databuilder image version in ehrql tutorial"
+name: "Update and test ehrql tutorial"
 
 on:
   workflow_dispatch:
   workflow_run:
     workflows:
-      - CI
-      - Check documentation
       - Build and publish image
     branches:
       - main
@@ -15,6 +13,7 @@ on:
 
 jobs:
   create_tutorial_version_pr:
+    if: ${{ (github.event.workflow_run.conclusion == 'success') || (github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
 
     steps:
