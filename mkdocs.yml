@@ -3,8 +3,8 @@ repo_url: https://github.com/opensafely-core/databuilder
 docs_dir: docs
 
 nav:
-  - Home: toc.md
-  - Quick Start: quick-start.md
+  - Home: index.md
+  - Table of Contents: toc.md
 
 
 theme:
