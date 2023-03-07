@@ -21,5 +21,22 @@ plugins:
 
 
 markdown_extensions:
+  - pymdownx.details
   - pymdownx.snippets:
       base_path: docs
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: "🔗"
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.keys
+  - admonition
+  - footnotes
+  - abbr
+  - md_in_html
