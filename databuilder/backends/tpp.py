@@ -250,12 +250,10 @@ class TPPBackend(BaseBackend):
                 ethnic___10,
                 covid19_vaccine,
                 CASE
-                    WHEN covid19_vaccined = 'NA' THEN null
-                    ELSE CAST(covid19_vaccined AS DATE)
+                    WHEN covid19_vaccined != 'NA' THEN CONVERT(DATE, covid19_vaccined, 23)
                 END AS covid19_vaccined,
                 CASE
-                    WHEN covid19_vaccine2d = 'NA' THEN null
-                    ELSE CAST(covid19_vaccine2d AS DATE)
+                    WHEN covid19_vaccine2d != 'NA' THEN CONVERT(DATE, covid19_vaccine2d, 23)
                 END AS covid19_vaccine2d,
                 covid19_vaccined_nk,
                 corona_ieorres,
@@ -263,27 +261,22 @@ class TPPBackend(BaseBackend):
                 coriona_ieorres3,
                 inflammatory_mss,
                 CASE
-                    WHEN cestdat = 'NA' THEN null
-                    ELSE CAST(cestdat AS DATE)
+                    WHEN cestdat != 'NA' THEN CONVERT(DATE, cestdat, 23)
                 END AS cestdat,
                 CASE
-                    WHEN hostdat = 'NA' THEN null
-                    ELSE CAST(hostdat AS DATE)
+                    WHEN hostdat != 'NA' THEN CONVERT(DATE, hostdat, 23)
                 END AS hostdat,
                 hooccur,
                 CASE
-                    WHEN hostdat_transfer = 'NA' THEN null
-                    ELSE CAST(hostdat_transfer AS DATE)
+                    WHEN hostdat_transfer != 'NA' THEN CONVERT(DATE, hostdat_transfer, 23)
                 END AS hostdat_transfer,
                 hostdat_transfernk,
                 readm_cov19,
                 CASE
-                    WHEN dsstdat = 'NA' THEN null
-                    ELSE CAST(dsstdat AS DATE)
+                    WHEN dsstdat != 'NA' THEN CONVERT(DATE, dsstdat, 23)
                 END AS dsstdat,
                 CASE
-                    WHEN dsstdtc = 'NA' THEN null
-                    ELSE CAST(dsstdtc AS DATE)
+                    WHEN dsstdtc != 'NA' THEN CONVERT(DATE, dsstdtc, 23)
                 END AS dsstdtc
             FROM ISARIC_New
         """
