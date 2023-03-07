@@ -249,21 +249,35 @@ class TPPBackend(BaseBackend):
                 ethnic___9,
                 ethnic___10,
                 covid19_vaccine,
-                CAST(covid19_vaccined AS DATE) as covid19_vaccined,
-                CAST(covid19_vaccine2d AS DATE) as covid19_vaccine2d,
+                CASE
+                    WHEN covid19_vaccined != 'NA' THEN CONVERT(DATE, covid19_vaccined, 23)
+                END AS covid19_vaccined,
+                CASE
+                    WHEN covid19_vaccine2d != 'NA' THEN CONVERT(DATE, covid19_vaccine2d, 23)
+                END AS covid19_vaccine2d,
                 covid19_vaccined_nk,
                 corona_ieorres,
                 coriona_ieorres2,
                 coriona_ieorres3,
                 inflammatory_mss,
-                CAST(cestdat AS DATE) as cestdat,
-                CAST(hostdat AS DATE) as hostdat,
+                CASE
+                    WHEN cestdat != 'NA' THEN CONVERT(DATE, cestdat, 23)
+                END AS cestdat,
+                CASE
+                    WHEN hostdat != 'NA' THEN CONVERT(DATE, hostdat, 23)
+                END AS hostdat,
                 hooccur,
-                CAST(hostdat_transfer AS DATE) as hostdat_transfer,
+                CASE
+                    WHEN hostdat_transfer != 'NA' THEN CONVERT(DATE, hostdat_transfer, 23)
+                END AS hostdat_transfer,
                 hostdat_transfernk,
                 readm_cov19,
-                CAST(dsstdat AS DATE) as dsstdat,
-                CAST(dsstdtc AS DATE) as dsstdtc
+                CASE
+                    WHEN dsstdat != 'NA' THEN CONVERT(DATE, dsstdat, 23)
+                END AS dsstdat,
+                CASE
+                    WHEN dsstdtc != 'NA' THEN CONVERT(DATE, dsstdtc, 23)
+                END AS dsstdtc
             FROM ISARIC_New
         """
     )
