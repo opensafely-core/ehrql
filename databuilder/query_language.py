@@ -34,14 +34,22 @@ class Dataset:
     def __init__(self):
         object.__setattr__(self, "variables", {})
 
-    def set_population(self, population):
+    def set_population(self, population):  # pragma: no cover
+        warnings.warn(
+            "Use `define_population` instead of `set_population`",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.define_population(population)
+
+    def define_population(self, population):
         validate_population_definition(population.qm_node)
         self.variables["population"] = population
 
     def __setattr__(self, name, value):
         if name == "population":
             raise AttributeError(
-                "Cannot set variable 'population'; use set_population() instead"
+                "Cannot set variable 'population'; use define_population() instead"
             )
         if name in self.variables:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
