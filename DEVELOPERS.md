@@ -34,7 +34,8 @@ example `just test-unit`).
 
 ### Running tests
 
-To run all tests, as they're run in CI (with code coverage):
+To run all tests, as they're run in CI (with code coverage, and the comprehensive
+check for [generative tests](#generative-tests)):
 ```
 just test-all
 ```
@@ -77,7 +78,7 @@ The generative tests use Hypothesis to generate variable definitions (in the que
 They then execute the resulting dataset definitions using both the SQLite query engine and the in-memory one,
 and check that the results are the same.
 
-The GHAs use a fixed seed and run only a small number of tests,
+The GHAs use a fixed seed and run 200 examples, which is enough to ensure that all nodes are covered.  By default, tests run with `just test ...` or `pytest` use only 10 examples
 to check that the infrastructure is basically working and avoid build flakiness due to finding new failure cases.
 
 To get the benefit of the generative tests you need to run them at larger scale on your own dev box.
@@ -89,7 +90,8 @@ GENTEST_EXAMPLES=10000 just test-generative
 
 This generates 10k examples and takes ten or fifteen minutes to run.
 When developing this, I (Ben) only ever saw one problem that took more than 10k examples to uncover, so that's pretty good as a check.
-We should schedule longer runs from time to time to make sure that we're not missing anything.
+
+A scheduled GHA runs overnight with 40,000 examples to make sure that we're not missing anything.
 
 You can get Hypothesis to dump statistics at the end of the run with `--hypothesis-show-statistics`,
 or (more usefully) dump some of our own statistics about the generated data and queries by setting `GENTEST_DEBUG=t`.
@@ -106,10 +108,11 @@ To help with this there is an optional assertion that the generative tests have 
 To enable this assertion set `GENTEST_COMPREHENSIVE=t`, like this:
 
 ```
-GENTEST_COMPREHENSIVE=t GENTEST_EXAMPLES=300 just test-generative
+GENTEST_COMPREHENSIVE=t GENTEST_EXAMPLES=200 just test-generative
 ```
 
-(But note that you need something like 300 examples to have any chance of this passing.)
+Note that you need approximately 200 examples to have any chance of this passing.
+`just test-all` runs with these parameters (unless passed a different value for `GENTEST_EXAMPLES`).
 
 Hypothesis can generate query graphs that are very deeply nested; after 100 draws in a test example, hypothesis will return the example as invalid.  In order to avoid this, the
 variable strategies check for a maximum depth and return a terminal node if the maximum depth is exceeded (A `SelectColumn` node for a series strategy, and a `SelectTable` or `SelectPatientTable` for a table strategy). The max depth defaults to 30 and can be overridden with environment variable `GENTEST_MAX_DEPTH`.
