@@ -22,7 +22,7 @@ def on_page_markdown(markdown, page, **kwargs):
     This allows docs imported from other repos (e.g. databuilder) to reference snippets
     in the parent docs, such as the glossary.
     """
-    parent_snippets = set(re.findall(r"!!! parent_snippet:.+$", markdown))
+    parent_snippets = set(re.findall(r"!!! parent_snippet:.+\n", markdown))
     for parent_snippet in parent_snippets:
         markdown = markdown.replace(
             parent_snippet,
