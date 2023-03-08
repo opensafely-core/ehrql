@@ -47,7 +47,7 @@ class Recorder:
         return tuple(copy.values())
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def recorder(request):  # pragma: no cover
     recorder_ = Recorder()
 

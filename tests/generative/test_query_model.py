@@ -107,7 +107,7 @@ def test_query_model(query_engines, variable, data, recorder):
         ),  # triggers python overflow error with timedelta
     ],
 )
-def test_handle_date_errors(query_engines, operation, rhs, recorder):
+def test_handle_date_errors(query_engines, operation, rhs):
     data = [
         {
             "type": data_setup.P0,
