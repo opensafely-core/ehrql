@@ -1,0 +1,42 @@
+on: [push]
+
+jobs:
+  deploy:
+
+    permissions:
+      contents: read
+      deployments: write
+
+    runs-on: ubuntu-latest
+
+    name: Deploy to Cloudflare Pages
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install Python and just
+        uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+          python-version: '3.9'
+
+      - name: Check docs are current
+        run: just docs-check-generated-docs-are-current
+
+      - name: Build site
+        run: just docs-build
+
+      - name: Add a version file
+        run: echo ${{ github.sha }} > site/version.html
+
+      - name: Publish
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        uses: cloudflare/pages-action@c2ad89679f0dee1ff4bcf9b8bbe1cf52d176cb29  # v1.3.0
+        with:
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_DIRECT_UPLOAD_API_TOKEN }}
+          directory: "site"
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          projectName: "databuilder-docs"

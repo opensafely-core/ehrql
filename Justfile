@@ -228,8 +228,13 @@ generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
 update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
 
-docs-serve: devenv generate-docs
-    "$BIN"/mkdocs serve
+# Run the documentation server: to configure the port, append: ---dev-addr localhost:<port>
+docs-serve *ARGS: devenv generate-docs
+    "$BIN"/mkdocs serve {{ ARGS }}
+
+# Build the documentation
+docs-build *ARGS: devenv generate-docs
+    "$BIN"/mkdocs build {{ ARGS }}
 
 # Run the snippet tests
 docs-test: devenv
