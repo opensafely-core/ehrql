@@ -194,8 +194,9 @@ test-generative *ARGS: devenv
     #!/usr/bin/env bash
     set -euo pipefail
 
+    examples=${GENTEST_EXAMPLES:-200}
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
-    $BIN/python -m pytest \
+    GENTEST_EXAMPLES=$examples GENTEST_COMPREHENSIVE=t $BIN/python -m pytest \
         --cov=databuilder \
         --cov=tests \
         --cov-report=html \
