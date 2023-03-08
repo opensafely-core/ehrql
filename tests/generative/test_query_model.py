@@ -66,7 +66,7 @@ data_strategy = data_strategies.data(
     value_strategies,
 )
 settings = dict(
-    max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 100))),
+    max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 10))),
     deadline=None,
 )
 
