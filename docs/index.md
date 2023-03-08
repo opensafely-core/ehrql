@@ -47,8 +47,8 @@ Data Builder allows researchers to provide their own dummy data to
 use to develop their analytical code against.
 
 !!! Note
-There is work in progress to add the functionality to generate dummy data
-from the dataset definition. This is currently in development.
+    There is work in progress to add the functionality to generate dummy data
+    from the dataset definition. This is currently in development.
 
 ## Why Data Builder was created
 For researchers familiar with OpenSAFELY, there is naturally a question as

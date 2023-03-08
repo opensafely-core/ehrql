@@ -1,25 +1,57 @@
+# NOTE: This mkdocs.yml contains the minimum config required to run
+# databuilder's docs locally.  These docs do not run in isolation in production.
+#
+# In production, the databuilder docs are pulled into and built with the main docs at
+# https://github.com/opensafely/documentation
+#
+# The contents of this mkdocs.yml are ignore in the production build.
+#
 site_name: OpenSAFELY Data Builder documentation
 repo_url: https://github.com/opensafely-core/databuilder
 docs_dir: docs
 
 nav:
-  - Home: toc.md
-  - Quick Start: quick-start.md
-
+  - Home: index.md
+  - Table of Contents: toc.md
 
 theme:
   name: material
 
-
 watch:
   - docs
-
 
 plugins:
   - table-reader:
       base_path: "docs_dir"
 
 
+# WARNING!
+# This markdown_extensions config (with the exception of the snippets base_path) is duplicated
+# from the mkdocs.yml in the parent repo (https://github.com/opensafely/documentation) in order
+# to build local docs with similar styling. If any changes/additions are needed, ensure they are
+# made in the parent repo also.
 markdown_extensions:
+  - pymdownx.details
   - pymdownx.snippets:
       base_path: docs
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: "🔗"
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.keys
+  - admonition
+  - footnotes
+  - abbr
+  - md_in_html
+
+# This hook adds some clarifying studying around snippets that will be incorporated
+# from the parent repo, and is relevant for local development only.
+hooks:
+  - hooks/parent_snippets.py
