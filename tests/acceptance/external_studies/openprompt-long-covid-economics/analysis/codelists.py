@@ -29,6 +29,7 @@ lc_codelists_combined = (
 ethnicity = codelist_from_csv(
     "codelists/opensafely-ethnicity.csv",
     column="Code",
+    category_column="Grouping_6",
 )
 
 # 3. Mental issues:
@@ -46,3 +47,24 @@ hosp_covid = codelist_from_csv(
   "codelists/opensafely-covid-identification.csv",
   column="icd10_code"
 )
+
+# 4. Cancer codelist
+lung_cancer = codelist_from_csv(
+    "codelists/opensafely-lung-cancer.csv",
+    column="CTV3ID",
+)
+
+other_cancer = codelist_from_csv(
+    "codelists/opensafely-cancer-excluding-lung-and-haematological.csv",
+    column="CTV3ID",    
+)
+
+haema_cancer = codelist_from_csv(
+    "codelists/opensafely-haematological-cancer.csv",
+    column="CTV3ID",        
+)
+cancer_all_combined__codelist = (
+    lung_cancer 
+    + other_cancer
+    + haema_cancer
+) # combined cancer codelists
