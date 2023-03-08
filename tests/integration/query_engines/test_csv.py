@@ -48,7 +48,7 @@ def test_csv_query_engine(tmp_path):
         events.expected_missing.is_null()
     ).count_for_patient()
 
-    dataset.set_population(patients.exists_for_patient())
+    dataset.define_population(patients.exists_for_patient())
     variable_definitions = compile(dataset)
 
     query_engine = CSVQueryEngine(tmp_path)

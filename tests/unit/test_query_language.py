@@ -55,7 +55,7 @@ events = EventFrame(SelectTable("coded_events", events_schema))
 def test_dataset():
     year_of_birth = patients.date_of_birth.year
     dataset = Dataset()
-    dataset.set_population(year_of_birth <= 2000)
+    dataset.define_population(year_of_birth <= 2000)
     dataset.year_of_birth = year_of_birth
 
     assert dataset.year_of_birth is year_of_birth
@@ -81,7 +81,7 @@ def test_dataset():
 
 def test_dataset_preserves_variable_order():
     dataset = Dataset()
-    dataset.set_population(patients.exists_for_patient())
+    dataset.define_population(patients.exists_for_patient())
     dataset.foo = patients.date_of_birth.year
     dataset.baz = patients.date_of_birth.year + 100
     dataset.bar = patients.date_of_birth.year - 100

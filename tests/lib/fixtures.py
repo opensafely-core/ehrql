@@ -4,7 +4,7 @@ from databuilder.tables.beta.tpp import patients
 
 dataset = Dataset()
 year = patients.date_of_birth.year
-dataset.set_population(year >= 1940)
+dataset.define_population(year >= 1940)
 dataset.year = year
 """
 
@@ -14,7 +14,7 @@ from databuilder.tables.beta.tpp import patients
 
 my_dataset = Dataset()
 year = patients.date_of_birth.year
-my_dataset.set_population(year >= 1900)
+my_dataset.define_population(year >= 1900)
 """
 
 invalid_dataset_attribute_dataset_definition = """
@@ -43,6 +43,6 @@ args = parser.parse_args()
 
 dataset = Dataset()
 year = patients.date_of_birth.year
-dataset.set_population(year >= args.year)
+dataset.define_population(year >= args.year)
 dataset.year = year
 """

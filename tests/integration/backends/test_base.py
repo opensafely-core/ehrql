@@ -100,7 +100,7 @@ def test_query_table(engine):
 
 def _extract(engine, series):
     dataset = Dataset()
-    dataset.set_population(
+    dataset.define_population(
         patients.exists_for_patient() | covid_tests.exists_for_patient()
     )
     dataset.v = series

@@ -132,19 +132,21 @@ def test_get_title_for_test_fn(test_fn, title):
             ['p.d1.is_before("2000-01-20"),', "population=p.b1"],
             0,
             True,
-            'p.d1.is_before("2000-01-20")\nset_population(p.b1)',
+            'p.d1.is_before("2000-01-20")\ndefine_population(p.b1)',
         ),
         (
             # incomplete population definition; this should also never happen
             ['p.d1.is_before("2000-01-20"),', 'population=p.d2.is_before("2000-01-'],
             0,
             True,
-            'p.d1.is_before("2000-01-20")\nset_population(p.d2.is_before("2000-01-)',
+            'p.d1.is_before("2000-01-20")\ndefine_population(p.d2.is_before("2000-01-)',
         ),
     ],
 )
 def test_get_series_code(source_lines, source_index, includes_population, expected):
     assert (
-        get_series_code(source_lines, source_index, set_population=includes_population)
+        get_series_code(
+            source_lines, source_index, define_population=includes_population
+        )
         == expected
     )

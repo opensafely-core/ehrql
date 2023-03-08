@@ -39,23 +39,23 @@ def test_generate_docs():
         for section in spec["sections"]
         for paragraph in section["paragraphs"]
     ]
-    # Split the series string into its series and set_population components, if necessary
+    # Split the series string into its series and define_population components, if necessary
     # assert that each component string has no leading whitespace for the first and last lines,
     # and other lines have a multiple of 4 spaces
     for series in all_series:
         series_lines = series.split("\n")
         population_lines = []
-        set_population_index = next(
+        define_population_index = next(
             (
                 i
                 for i, line in enumerate(series_lines)
-                if line.startswith("set_population")
+                if line.startswith("define_population")
             ),
             None,
         )
-        if set_population_index:
-            population_lines = series_lines[set_population_index:]
-            series_lines = series_lines[:set_population_index]
+        if define_population_index:
+            population_lines = series_lines[define_population_index:]
+            series_lines = series_lines[:define_population_index]
 
         for lines_list in [series_lines, population_lines]:
             for i, line in enumerate(lines_list):

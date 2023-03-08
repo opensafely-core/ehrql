@@ -36,7 +36,7 @@ class events(EventFrame):
 def test_dummy_data_generator():
     # Define a basic dataset
     dataset = Dataset()
-    dataset.set_population(practice_registrations.exists_for_patient())
+    dataset.define_population(practice_registrations.exists_for_patient())
     dataset.date_of_birth = patients.date_of_birth
     dataset.date_of_death = patients.date_of_death
     dataset.sex = patients.sex
@@ -74,7 +74,7 @@ def test_dummy_data_generator():
 @mock.patch("databuilder.dummy_data.generator.time")
 def test_dummy_data_generator_timeout_with_some_results(patched_time):
     dataset = Dataset()
-    dataset.set_population(patients.exists_for_patient())
+    dataset.define_population(patients.exists_for_patient())
 
     variable_definitions = compile(dataset)
     generator = DummyDataGenerator(variable_definitions)
@@ -94,7 +94,7 @@ def test_dummy_data_generator_timeout_with_some_results(patched_time):
 def test_dummy_data_generator_timeout_with_no_results(patched_time):
     # Define a dataset with a condition no patient can match
     dataset = Dataset()
-    dataset.set_population(patients.sex != patients.sex)
+    dataset.define_population(patients.sex != patients.sex)
 
     variable_definitions = compile(dataset)
     generator = DummyDataGenerator(variable_definitions)
@@ -171,7 +171,7 @@ def test_rows_for_patients_with_first_of_month_constraint(dummy_patient_generato
 @pytest.fixture(scope="module")
 def dummy_patient_generator():
     dataset = Dataset()
-    dataset.set_population(patients.exists_for_patient())
+    dataset.define_population(patients.exists_for_patient())
     variable_definitions = compile(dataset)
     generator = DummyPatientGenerator(variable_definitions, random_seed="abc")
     generator.generate_patient_facts()

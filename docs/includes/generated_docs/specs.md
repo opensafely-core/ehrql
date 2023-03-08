@@ -2546,7 +2546,7 @@ returns the following patient series:
 
 ### 13.1 Defining a population
 
-`set_population` is used to limit the population from which data is extracted.
+`define_population` is used to limit the population from which data is extracted.
 
 
 
@@ -2563,7 +2563,7 @@ This example makes use of a patient-level table named `p` containing the followi
 
 ```
 p.i1
-set_population(~p.b1)
+define_population(~p.b1)
 ```
 returns the following patient series:
 
@@ -2595,7 +2595,7 @@ This example makes use of a patient-level table named `p` and an event-level tab
 
 ```
 e.exists_for_patient()
-set_population(p.i1 > 0)
+define_population(p.i1 > 0)
 ```
 returns the following patient series:
 
@@ -2620,7 +2620,7 @@ This example makes use of a patient-level table named `p` containing the followi
 
 ```
 p.i1
-set_population(
+define_population(
     case(
         when(p.i1 <= 8).then(True),
         when(p.i1 > 8).then(False),
