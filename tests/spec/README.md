@@ -60,7 +60,7 @@ spec test uses the `spec_test` fixture, which has the following components:
 ```
 spec_test(
     table_data,                          # a dict (see below) defining the tables in the test database
-    e.take(e.b1).i1.sum_for_patient(),   # the ehrQL code being tested
+    e.where(e.b1).i1.sum_for_patient(),   # the ehrQL code being tested
     {                                    # expected results
         1: (101 + 102),
         2: 201,
@@ -112,7 +112,7 @@ expected to return a Series.
 
 e.g. in the table data above, to get the sum of the `i1` column where `b1` is True:
 
-```e.take(e.b1).i1.sum_for_patient()```
+```e.where(e.b1).i1.sum_for_patient()```
 
 ### Expected results
 

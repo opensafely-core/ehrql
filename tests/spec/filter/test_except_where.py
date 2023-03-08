@@ -3,7 +3,7 @@ from ..tables import e
 title = "Excluding rows"
 
 
-def test_drop_with_column(spec_test):
+def test_except_where_with_column(spec_test):
     table_data = {
         e: """
               |  i1 |  b1
@@ -21,7 +21,7 @@ def test_drop_with_column(spec_test):
 
     spec_test(
         table_data,
-        e.drop(e.b1).i1.sum_for_patient(),
+        e.except_where(e.b1).i1.sum_for_patient(),
         {
             1: 103,
             2: (202 + 203),
@@ -30,7 +30,7 @@ def test_drop_with_column(spec_test):
     )
 
 
-def test_drop_with_expr(spec_test):
+def test_except_where_with_expr(spec_test):
     table_data = {
         e: """
               |  i1 |  i2
@@ -47,7 +47,7 @@ def test_drop_with_expr(spec_test):
 
     spec_test(
         table_data,
-        e.drop((e.i1 + e.i2) < 413).i1.sum_for_patient(),
+        e.except_where((e.i1 + e.i2) < 413).i1.sum_for_patient(),
         {
             1: None,
             2: (202 + 203),
@@ -56,7 +56,7 @@ def test_drop_with_expr(spec_test):
     )
 
 
-def test_drop_with_constant_true(spec_test):
+def test_except_where_with_constant_true(spec_test):
     table_data = {
         e: """
               |  i1
@@ -69,7 +69,7 @@ def test_drop_with_constant_true(spec_test):
 
     spec_test(
         table_data,
-        e.drop(True).count_for_patient(),
+        e.except_where(True).count_for_patient(),
         {
             1: 0,
             2: 0,
@@ -77,7 +77,7 @@ def test_drop_with_constant_true(spec_test):
     )
 
 
-def test_drop_with_constant_false(spec_test):
+def test_except_where_with_constant_false(spec_test):
     table_data = {
         e: """
               |  i1
@@ -90,7 +90,7 @@ def test_drop_with_constant_false(spec_test):
 
     spec_test(
         table_data,
-        e.drop(False).count_for_patient(),
+        e.except_where(False).count_for_patient(),
         {
             1: 2,
             2: 1,

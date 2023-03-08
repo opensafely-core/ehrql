@@ -42,7 +42,7 @@ def test_dummy_data_generator():
     dataset.sex = patients.sex
 
     last_event = (
-        events.take(events.code.is_in(["abc", "def"]))
+        events.where(events.code.is_in(["abc", "def"]))
         .sort_by(events.date)
         .last_for_patient()
     )

@@ -52,22 +52,22 @@ def test_build_section():
         assert False, "expected paragraph ids not found"
 
 
-def test_take_with_expr():
+def test_where_with_expr():
     pass
 
 
-test_take_with_expr.title = "Take rows that match an expression"
+test_where_with_expr.title = "Find rows where an expression is matched"
 
 
-def test_take_with_constant_true():
+def test_where_with_constant_true():
     pass
 
 
 @pytest.mark.parametrize(
     "test_fn,title",
     [
-        (test_take_with_expr, "Take rows that match an expression"),
-        (test_take_with_constant_true, "Take with constant true"),
+        (test_where_with_expr, "Find rows where an expression is matched"),
+        (test_where_with_constant_true, "Where with constant true"),
     ],
 )
 def test_get_title_for_test_fn(test_fn, title):

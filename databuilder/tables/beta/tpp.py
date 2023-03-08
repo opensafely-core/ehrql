@@ -68,7 +68,9 @@ class practice_registrations(EventFrame):
         duration. If there's stil an exact tie we choose arbitrarily based on the
         practice ID.
         """
-        spanning_regs = self.take(self.start_date <= date).drop(self.end_date < date)
+        spanning_regs = self.where(self.start_date <= date).except_where(
+            self.end_date < date
+        )
         ordered_regs = spanning_regs.sort_by(
             self.start_date,
             self.end_date,
@@ -146,7 +148,9 @@ class addresses(EventFrame):
         and then, if there are multiple of these, the one with the longest duration. If
         there's stil an exact tie we choose arbitrarily based on the address ID.
         """
-        spanning_addrs = self.take(self.start_date <= date).drop(self.end_date < date)
+        spanning_addrs = self.where(self.start_date <= date).except_where(
+            self.end_date < date
+        )
         ordered_addrs = spanning_addrs.sort_by(
             case(when(self.has_postcode).then(1), default=0),
             self.start_date,

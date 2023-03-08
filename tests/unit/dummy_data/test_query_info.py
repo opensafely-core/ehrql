@@ -72,15 +72,15 @@ def test_query_info_records_values():
     dataset = Dataset()
     dataset.set_population(events.exists_for_patient())
     # Simple equality comparison
-    dataset.q1 = events.take(events.code == CTV3Code("abc00")).exists_for_patient()
+    dataset.q1 = events.where(events.code == CTV3Code("abc00")).exists_for_patient()
     # String contains
     dataset.q2 = patients.sex.contains("ale")
     # Set contains
-    dataset.q3 = events.take(
+    dataset.q3 = events.where(
         events.code.is_in([CTV3Code("def00"), CTV3Code("ghi00")])
     ).exists_for_patient()
     # Equality comparison where the column is not selected directly from the table
-    old = events.take(events.date < "2000-01-01")
+    old = events.where(events.date < "2000-01-01")
     dataset.q4 = old.sort_by(old.date).first_for_patient().code == CTV3Code("jkl00")
 
     variable_definitions = compile(dataset)

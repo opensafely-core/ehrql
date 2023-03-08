@@ -101,7 +101,7 @@ def test_render_specs():
                                     ["3", "302", "F"],
                                 ]
                             },
-                            "series": "e.take(e.b1).i1.sum_for_patient()",
+                            "series": "e.where(e.b1).i1.sum_for_patient()",
                             "output": [["1", "203"], ["2", "201"], ["3", ""]],
                         }
                     ],
@@ -128,7 +128,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|302|F |
 
 ```
-e.take(e.b1).i1.sum_for_patient()
+e.where(e.b1).i1.sum_for_patient()
 ```
 returns the following patient series:
 
@@ -241,7 +241,7 @@ def test_specs_with_additional_text():
                                     ["3", "302", "F"],
                                 ]
                             },
-                            "series": "e.take(e.b1).i1.sum_for_patient()",
+                            "series": "e.where(e.b1).i1.sum_for_patient()",
                             "output": [["1", "203"], ["2", "201"], ["3", ""]],
                         }
                     ],
@@ -271,7 +271,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|302|F |
 
 ```
-e.take(e.b1).i1.sum_for_patient()
+e.where(e.b1).i1.sum_for_patient()
 ```
 returns the following patient series:
 

@@ -93,7 +93,7 @@ def test_query_table(engine):
         NegativeResult(patient_id=1, date=datetime.date(2020, 7, 1)),
     )
     results = _extract(
-        engine, covid_tests.take(covid_tests.positive == 1).date.maximum_for_patient()
+        engine, covid_tests.where(covid_tests.positive == 1).date.maximum_for_patient()
     )
     assert results == {1: datetime.date(2020, 6, 1)}
 
