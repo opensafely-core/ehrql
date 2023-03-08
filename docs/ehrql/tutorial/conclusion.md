@@ -146,7 +146,7 @@ Some ideas for inspiration:
   Try modifying `2a_multiple_dataset_definition.py`:
     * Can you use `count_for_patient()`
       to include the number of prescriptions for each patient?
-    * Can you use `take()` along with `count_for_patient()`
+    * Can you use `where()` along with `count_for_patient()`
       to count the number of prescriptions for one particular code of your choice?
 * …
 

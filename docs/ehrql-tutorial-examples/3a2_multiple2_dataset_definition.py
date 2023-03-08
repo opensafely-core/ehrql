@@ -17,6 +17,6 @@ imd_has_increased = latest_imd > earliest_imd
 
 # This population is set so that we always select all patients.
 population = patients.exists_for_patient()
-dataset.set_population(population)
+dataset.define_population(population)
 
 dataset.imd_has_increased = imd_has_increased
