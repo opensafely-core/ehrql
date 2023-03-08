@@ -1,6 +1,7 @@
 import dataclasses
 import datetime
 import enum
+import warnings
 from typing import Union
 
 from databuilder.codes import BaseCode
@@ -618,7 +619,11 @@ class PatientFrame(BaseFrame):
 
 
 class EventFrame(BaseFrame):
-    def take(self, series):
+    def take(self, series):  # pragma: no cover
+        warnings.warn("Use `where` instead of `take`", DeprecationWarning, stacklevel=2)
+        return self.where(series)
+
+    def where(self, series):
         return EventFrame(
             qm.Filter(
                 source=self.qm_node,
@@ -626,7 +631,13 @@ class EventFrame(BaseFrame):
             )
         )
 
-    def drop(self, series):
+    def drop(self, series):  # pragma: no cover
+        warnings.warn(
+            "Use `except_where` instead of `drop`", DeprecationWarning, stacklevel=2
+        )
+        return self.except_where(series)
+
+    def except_where(self, series):
         return EventFrame(
             qm.Filter(
                 source=self.qm_node,
