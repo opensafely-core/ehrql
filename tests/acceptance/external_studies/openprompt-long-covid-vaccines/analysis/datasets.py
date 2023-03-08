@@ -34,9 +34,9 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     registrations = practice_registrations \
         .take(practice_registrations.start_date <= study_start_date - days(minimum_registration)) \
         .drop(practice_registrations.end_date <= study_start_date)
-        # 08/02 - because we are using .drop instaed of .take we are not dropping people with NULL start date
-        # it is possible that null start date is a data quality problem. 
-        # So to keep consistent with other devs and cohort_extractor. Switch to a .take and therefore drop null start daters 
+# 08/02 - because we are using .drop instaed of .take we are not dropping people with NULL start date
+# it is possible that null start date is a data quality problem.
+# So to keep consistent with other devs and cohort_extractor. Switch to a .take and therefore drop null start daters
 
     # get the number of registrations in this period to exclude anyone with >1 in the `set_population` later
     registrations_number = registrations.count_for_patient()
@@ -46,9 +46,9 @@ def add_common_variables(dataset, study_start_date, end_date, population):
         .sort_by(practice_registrations.start_date).last_for_patient()
 
     # need to find out if they had a hospitalisation for covid and censor then
-    # note (18/01): needs looking at before I can use it. 
+    # note (18/01): needs looking at before I can use it.
     # hospitalised = hospital_admissions.take(hospital_admissions.all_diagnoses.contains(codelists.covidhosp))
-    # then add into the end_date definition below (or as a secondary end date for sensitivity analysis?)     
+    # then add into the end_date definition below (or as a secondary end date for sensitivity analysis?)
 
     dataset.pt_start_date = case(
         when(registration.start_date + days(minimum_registration) > study_start_date).then(registration.start_date + days(minimum_registration)),
@@ -93,7 +93,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     dataset.first_covid_hosp = covid_hospitalisations \
         .sort_by(covid_hospitalisations.admission_date) \
         .first_for_patient().admission_date
-    
+
     dataset.all_covid_hosp = covid_hospitalisations \
         .drop(covid_hospitalisations.admission_date >= end_date - days(covid_to_longcovid_lag)) \
         .count_for_patient()
@@ -108,11 +108,15 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     )
 
     # Vaccines from the vaccines schema
+    # only take one record per day to remove duplication
     all_vacc = vaccinations \
         .take(vaccinations.date < end_date - days(vaccine_to_longcovid_lag)) \
         .take(vaccinations.target_disease == "SARS-2 CORONAVIRUS")
 
-    dataset.no_prev_vacc = all_vacc.count_for_patient()
+    # this will be replaced with distinct_count_for_patient() once it is developed
+    dataset.no_prev_vacc = all_vacc \
+        .sort_by(vaccinations.date) \
+        .count_for_patient()
     dataset.date_last_vacc = all_vacc.sort_by(all_vacc.date).last_for_patient().date
     dataset.last_vacc_gap = (dataset.pt_end_date - dataset.date_last_vacc).days
 
@@ -120,13 +124,12 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     create_sequential_variables(
       dataset,
       "covid_vacc_{n}_vacc_tab",
-      num_variables=5,
+      num_variables=6,
       events=all_vacc,
       column="date"
     )
 
     # EXCLUSION criteria - gather these all here to remain consistent with the protocol
-    
-    population = population & (registrations_number == 1) & (dataset.age <= 100) & (dataset.age >= 16) # will remove missing age 
+    population = population & (registrations_number == 1) & (dataset.age <= 100) & (dataset.age >= 16)  # will remove missing age
 
     dataset.set_population(population)

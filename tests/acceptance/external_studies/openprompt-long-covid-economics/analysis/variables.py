@@ -1,3 +1,4 @@
+from datetime import date
 from databuilder.ehrql import days, case, when
 from databuilder.tables.beta.tpp import (
     clinical_events,
@@ -11,6 +12,11 @@ from databuilder.tables.beta.tpp import (
 )
 from databuilder.codes import ICD10Code
 from codelists import *
+import operator
+from functools import reduce
+
+
+study_start_date = date(2020, 11, 1)
 
 # Function codes for extracting monthly GP visit
 def add_visits(dataset, from_date, num_months):
@@ -42,6 +48,9 @@ def add_visits(dataset, from_date, num_months):
 
 
 # Function codes for extracting hospitalisation records
+def any_of(conditions):
+    return reduce(operator.or_, conditions)
+
 def hospitalisation_diagnosis_matches(admissions, codelist):
   code_strings = set()
   for code in codelist:
@@ -68,3 +77,9 @@ def hospitalisation_diagnosis_matches(admissions, codelist):
   ]
   return admissions.take(any_of(conditions))
 
+
+# Function for extracting clinical factors
+def clinical_ctv3_matches(gpevent, codelist):
+    gpevent.take((gpevent.date <=study_start_date) & gpevent.ctv3_code.is_in(gpevent)) \
+      .sort_by(gpevent.date).last_for_patient()
+    return gpevent.last_for_patient()
