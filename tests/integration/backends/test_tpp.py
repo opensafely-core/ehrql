@@ -582,6 +582,331 @@ def test_isaric_raw_dates(select_all):
     ]
 
 
+@register_test_for(tpp.isaric_raw)
+def test_isaric_raw_clinical_variables(select_all):
+    isaric_patient_keys = frozenset(tpp.isaric_raw.qm_node.schema.column_names)
+
+    patient_1 = dict.fromkeys(isaric_patient_keys, None)
+    patient_1 |= {
+        "Patient_ID": 1,
+        "chrincard": "YES",
+        "hypertension_mhyn": "YES",
+        "chronicpul_mhyn": "YES",
+        "asthma_mhyn": "YES",
+        "renal_mhyn": "YES",
+        "mildliver": "YES",
+        "modliv": "YES",
+        "chronicneu_mhyn": "YES",
+        "malignantneo_mhyn": "YES",
+        "chronichaemo_mhyn": "YES",
+        "aidshiv_mhyn": "YES",
+        "obesity_mhyn": "YES",
+        "diabetescom_mhyn": "YES",
+        "diabetes_mhyn": "YES",
+        "rheumatologic_mhyn": "YES",
+        "dementia_mhyn": "YES",
+        "malnutrition_mhyn": "YES",
+    }
+    patient_1_results = dict.fromkeys(isaric_patient_keys, None)
+    patient_1_results |= {
+        "patient_id": 1,
+        "chrincard": "YES",
+        "hypertension_mhyn": "YES",
+        "chronicpul_mhyn": "YES",
+        "asthma_mhyn": "YES",
+        "renal_mhyn": "YES",
+        "mildliver": "YES",
+        "modliv": "YES",
+        "chronicneu_mhyn": "YES",
+        "malignantneo_mhyn": "YES",
+        "chronichaemo_mhyn": "YES",
+        "aidshiv_mhyn": "YES",
+        "obesity_mhyn": "YES",
+        "diabetescom_mhyn": "YES",
+        "diabetes_mhyn": "YES",
+        "rheumatologic_mhyn": "YES",
+        "dementia_mhyn": "YES",
+        "malnutrition_mhyn": "YES",
+    }
+    patient_2 = dict.fromkeys(isaric_patient_keys, None)
+    patient_2 |= {
+        "Patient_ID": 2,
+        "chrincard": "NO",
+        "hypertension_mhyn": "NO",
+        "chronicpul_mhyn": "NO",
+        "asthma_mhyn": "NO",
+        "renal_mhyn": "NO",
+        "mildliver": "NO",
+        "modliv": "NO",
+        "chronicneu_mhyn": "NO",
+        "malignantneo_mhyn": "NO",
+        "chronichaemo_mhyn": "NO",
+        "aidshiv_mhyn": "NO",
+        "obesity_mhyn": "NO",
+        "diabetescom_mhyn": "NO",
+        "diabetes_mhyn": "NO",
+        "rheumatologic_mhyn": "NO",
+        "dementia_mhyn": "NO",
+        "malnutrition_mhyn": "NO",
+    }
+    patient_2_results = dict.fromkeys(isaric_patient_keys, None)
+    patient_2_results |= {
+        "patient_id": 2,
+        "chrincard": "NO",
+        "hypertension_mhyn": "NO",
+        "chronicpul_mhyn": "NO",
+        "asthma_mhyn": "NO",
+        "renal_mhyn": "NO",
+        "mildliver": "NO",
+        "modliv": "NO",
+        "chronicneu_mhyn": "NO",
+        "malignantneo_mhyn": "NO",
+        "chronichaemo_mhyn": "NO",
+        "aidshiv_mhyn": "NO",
+        "obesity_mhyn": "NO",
+        "diabetescom_mhyn": "NO",
+        "diabetes_mhyn": "NO",
+        "rheumatologic_mhyn": "NO",
+        "dementia_mhyn": "NO",
+        "malnutrition_mhyn": "NO",
+    }
+    patient_3 = dict.fromkeys(isaric_patient_keys, None)
+    patient_3 |= {
+        "Patient_ID": 3,
+        "chrincard": "Unknown",
+        "hypertension_mhyn": "Unknown",
+        "chronicpul_mhyn": "Unknown",
+        "asthma_mhyn": "Unknown",
+        "renal_mhyn": "Unknown",
+        "mildliver": "Unknown",
+        "modliv": "Unknown",
+        "chronicneu_mhyn": "Unknown",
+        "malignantneo_mhyn": "Unknown",
+        "chronichaemo_mhyn": "Unknown",
+        "aidshiv_mhyn": "Unknown",
+        "obesity_mhyn": "Unknown",
+        "diabetescom_mhyn": "Unknown",
+        "diabetes_mhyn": "Unknown",
+        "rheumatologic_mhyn": "Unknown",
+        "dementia_mhyn": "Unknown",
+        "malnutrition_mhyn": "Unknown",
+    }
+    patient_3_results = dict.fromkeys(isaric_patient_keys, None)
+    patient_3_results |= {
+        "patient_id": 3,
+        "chrincard": "Unknown",
+        "hypertension_mhyn": "Unknown",
+        "chronicpul_mhyn": "Unknown",
+        "asthma_mhyn": "Unknown",
+        "renal_mhyn": "Unknown",
+        "mildliver": "Unknown",
+        "modliv": "Unknown",
+        "chronicneu_mhyn": "Unknown",
+        "malignantneo_mhyn": "Unknown",
+        "chronichaemo_mhyn": "Unknown",
+        "aidshiv_mhyn": "Unknown",
+        "obesity_mhyn": "Unknown",
+        "diabetescom_mhyn": "Unknown",
+        "diabetes_mhyn": "Unknown",
+        "rheumatologic_mhyn": "Unknown",
+        "dementia_mhyn": "Unknown",
+        "malnutrition_mhyn": "Unknown",
+    }
+    patient_4 = dict.fromkeys(isaric_patient_keys, None)
+    patient_4 |= {
+        "Patient_ID": 4,
+        "chrincard": "NA",
+        "hypertension_mhyn": "NA",
+        "chronicpul_mhyn": "NA",
+        "asthma_mhyn": "NA",
+        "renal_mhyn": "NA",
+        "mildliver": "NA",
+        "modliv": "NA",
+        "chronicneu_mhyn": "NA",
+        "malignantneo_mhyn": "NA",
+        "chronichaemo_mhyn": "NA",
+        "aidshiv_mhyn": "NA",
+        "obesity_mhyn": "NA",
+        "diabetescom_mhyn": "NA",
+        "diabetes_mhyn": "NA",
+        "rheumatologic_mhyn": "NA",
+        "dementia_mhyn": "NA",
+        "malnutrition_mhyn": "NA",
+    }
+    patient_4_results = dict.fromkeys(isaric_patient_keys, None)
+    patient_4_results |= {
+        "patient_id": 4,
+        "chrincard": "NO",
+        "hypertension_mhyn": "NO",
+        "chronicpul_mhyn": "NO",
+        "asthma_mhyn": "NO",
+        "renal_mhyn": "NO",
+        "mildliver": "NO",
+        "modliv": "NO",
+        "chronicneu_mhyn": "NO",
+        "malignantneo_mhyn": "NO",
+        "chronichaemo_mhyn": "NO",
+        "aidshiv_mhyn": "NO",
+        "obesity_mhyn": "NO",
+        "diabetescom_mhyn": "NO",
+        "diabetes_mhyn": "NO",
+        "rheumatologic_mhyn": "NO",
+        "dementia_mhyn": "NO",
+        "malnutrition_mhyn": "NO",
+    }
+    patient_5 = dict.fromkeys(isaric_patient_keys, None)
+    patient_5 |= {
+        "Patient_ID": 5,
+        "chrincard": "YES",
+        "hypertension_mhyn": "NO",
+        "chronicpul_mhyn": "Unknown",
+        "asthma_mhyn": "NA",
+        "renal_mhyn": "YES",
+        "mildliver": "NO",
+        "modliv": "Unknown",
+        "chronicneu_mhyn": "NA",
+        "malignantneo_mhyn": "YES",
+        "chronichaemo_mhyn": "NO",
+        "aidshiv_mhyn": "Unknown",
+        "obesity_mhyn": "NA",
+        "diabetescom_mhyn": "YES",
+        "diabetes_mhyn": "NO",
+        "rheumatologic_mhyn": "Unknown",
+        "dementia_mhyn": "NA",
+        "malnutrition_mhyn": "YES",
+    }
+    patient_5_results = dict.fromkeys(isaric_patient_keys, None)
+    patient_5_results |= {
+        "patient_id": 5,
+        "chrincard": "YES",
+        "hypertension_mhyn": "NO",
+        "chronicpul_mhyn": "Unknown",
+        "asthma_mhyn": "NO",
+        "renal_mhyn": "YES",
+        "mildliver": "NO",
+        "modliv": "Unknown",
+        "chronicneu_mhyn": "NO",
+        "malignantneo_mhyn": "YES",
+        "chronichaemo_mhyn": "NO",
+        "aidshiv_mhyn": "Unknown",
+        "obesity_mhyn": "NO",
+        "diabetescom_mhyn": "YES",
+        "diabetes_mhyn": "NO",
+        "rheumatologic_mhyn": "Unknown",
+        "dementia_mhyn": "NO",
+        "malnutrition_mhyn": "YES",
+    }
+    patient_6 = dict.fromkeys(isaric_patient_keys, None)
+    patient_6 |= {
+        "Patient_ID": 6,
+        "diabetes_type_mhyn": "No",
+        "smoking_mhyn": "Yes",
+    }
+    patient_6_results = dict.fromkeys(isaric_patient_keys, None)
+    patient_6_results |= {
+        "patient_id": 6,
+        "diabetes_type_mhyn": "No",
+        "smoking_mhyn": "Yes",
+    }
+    patient_7 = dict.fromkeys(isaric_patient_keys, None)
+    patient_7 |= {
+        "Patient_ID": 7,
+        "diabetes_type_mhyn": "1",
+        "smoking_mhyn": "Never Smoked",
+    }
+    patient_7_results = dict.fromkeys(isaric_patient_keys, None)
+    patient_7_results |= {
+        "patient_id": 7,
+        "diabetes_type_mhyn": "1",
+        "smoking_mhyn": "Never Smoked",
+    }
+    patient_8 = dict.fromkeys(isaric_patient_keys, None)
+    patient_8 |= {
+        "Patient_ID": 8,
+        "diabetes_type_mhyn": "2",
+        "smoking_mhyn": "Former Smoker",
+    }
+    patient_8_results = dict.fromkeys(isaric_patient_keys, None)
+    patient_8_results |= {
+        "patient_id": 8,
+        "diabetes_type_mhyn": "2",
+        "smoking_mhyn": "Former Smoker",
+    }
+    patient_8 = dict.fromkeys(isaric_patient_keys, None)
+    patient_8 |= {
+        "Patient_ID": 8,
+        "diabetes_type_mhyn": "N/K",
+        "smoking_mhyn": "N/K",
+    }
+    patient_8_results = dict.fromkeys(isaric_patient_keys, None)
+    patient_8_results |= {
+        "patient_id": 8,
+        "diabetes_type_mhyn": "N/K",
+        "smoking_mhyn": "N/K",
+    }
+    patient_9 = dict.fromkeys(isaric_patient_keys, None)
+    patient_9 |= {
+        "Patient_ID": 9,
+        "diabetes_type_mhyn": "N/K",
+        "smoking_mhyn": "N/K",
+    }
+    patient_9_results = dict.fromkeys(isaric_patient_keys, None)
+    patient_9_results |= {
+        "patient_id": 9,
+        "diabetes_type_mhyn": "N/K",
+        "smoking_mhyn": "N/K",
+    }
+    results = select_all(
+        Patient(Patient_ID=1),
+        Patient(Patient_ID=2),
+        Patient(Patient_ID=3),
+        Patient(Patient_ID=4),
+        Patient(Patient_ID=5),
+        Patient(Patient_ID=6),
+        Patient(Patient_ID=7),
+        Patient(Patient_ID=8),
+        Patient(Patient_ID=9),
+        ISARIC_New(
+            **patient_1,
+        ),
+        ISARIC_New(
+            **patient_2,
+        ),
+        ISARIC_New(
+            **patient_3,
+        ),
+        ISARIC_New(
+            **patient_4,
+        ),
+        ISARIC_New(
+            **patient_5,
+        ),
+        ISARIC_New(
+            **patient_6,
+        ),
+        ISARIC_New(
+            **patient_7,
+        ),
+        ISARIC_New(
+            **patient_8,
+        ),
+        ISARIC_New(
+            **patient_9,
+        ),
+    )
+    assert results == [
+        patient_1_results,
+        patient_2_results,
+        patient_3_results,
+        patient_4_results,
+        patient_5_results,
+        patient_6_results,
+        patient_7_results,
+        patient_8_results,
+        patient_9_results,
+    ]
+
+
 def test_registered_tests_are_exhaustive():
     for name, table in vars(tpp).items():
         if not isinstance(table, BaseFrame):
