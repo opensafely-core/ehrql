@@ -17,7 +17,7 @@ def tests_patients_age_on(in_memory_engine):
     )
 
     dataset = Dataset()
-    dataset.set_population(patients.exists_for_patient())
+    dataset.define_population(patients.exists_for_patient())
     dataset.age_2010 = patients.age_on("2010-01-01")
     results = in_memory_engine.extract(dataset)
 

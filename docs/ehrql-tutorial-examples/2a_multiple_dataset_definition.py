@@ -4,7 +4,7 @@ from databuilder.tables.examples.tutorial import patients, prescriptions
 dataset = Dataset()
 
 year_of_birth = patients.date_of_birth.year
-dataset.set_population(year_of_birth >= 2000)
+dataset.define_population(year_of_birth >= 2000)
 
 dataset.sex = patients.sex
 dataset.most_recent_dmd_code = (

@@ -4,7 +4,7 @@ from ..tables import e, p
 
 title = "Defining a population"
 text = """
-`set_population` is used to limit the population from which data is extracted.
+`define_population` is used to limit the population from which data is extracted.
 """
 
 

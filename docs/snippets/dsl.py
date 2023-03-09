@@ -16,7 +16,7 @@
 #     .filter(practice_registrations.date_end >= index_date)
 #     .exists_for_patient()
 # )
-# cohort.set_population(registered)
+# cohort.define_population(registered)
 
 # cohort.code = (
 #     clinical_events.sort_by(clinical_events.date)

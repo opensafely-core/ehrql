@@ -2,8 +2,8 @@
 
 contents = {
     "filter": [
-        "test_take",
-        "test_drop",
+        "test_where",
+        "test_except_where",
     ],
     "sort_and_pick": [
         "test_sort_by_column_and_pick",

@@ -482,7 +482,7 @@ def validate_input_domains(node):
     #    As an example, we reject this erhQL construction because the per-patient
     #    cardinality of the first argument to `+` may be lower than that of the second:
     #
-    #        e.take(e.b).i + e.i
+    #        e.where(e.b).i + e.i
     #
     # * Many-rows-per-patient frames can be combined with many-rows-per-patient series
     #   derived from the same underlying table, as long as any filters applied to each
@@ -494,7 +494,7 @@ def validate_input_domains(node):
     #
     #   That means that filters and sorts can be expressed tersely in ehrQL, like this:
     #
-    #       events.filter(events.code == "foo").filter(events.date >= start_date)
+    #       events.where(events.code == "foo").where(events.date >= start_date)
     #
     # We enforce this by modelling domains as a hierarchy. At the root is the patient
     # domain, each table has an unique domain descending from this, and each filter

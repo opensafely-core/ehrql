@@ -99,7 +99,7 @@ def build_paragraph(paragraph_id, test_fn):
     # Check that the next line is as expected.
     assert source_lines[ix + 1] == "        table_data,"
 
-    series = get_series_code(source_lines, ix + 2, capturer.set_population)
+    series = get_series_code(source_lines, ix + 2, capturer.define_population)
 
     # Extract descriptive docstring if any
     text = inspect.getdoc(test_fn)
@@ -116,7 +116,7 @@ def build_paragraph(paragraph_id, test_fn):
     )
 
 
-def get_series_code(source_lines, series_index, set_population=False):
+def get_series_code(source_lines, series_index, define_population=False):
     """
     Extract the definition of the series from the test function.
     """
@@ -143,7 +143,7 @@ def get_series_code(source_lines, series_index, set_population=False):
                 break
     series = "\n".join(series_lines).strip().removesuffix(",")
 
-    if set_population:
+    if define_population:
         # If this test set a custom population, we need to parse the rest of the lines for
         # the population definition
         population_lines = []
@@ -163,10 +163,10 @@ def get_series_code(source_lines, series_index, set_population=False):
         if len(population_lines) > 1:
             indent = " " * 4
             population = f"\n{indent}".join(population_lines).strip().removesuffix(",")
-            population = f"set_population(\n{indent}{population}\n)"
+            population = f"define_population(\n{indent}{population}\n)"
         else:
             population = (
-                f"set_population({population_lines[0].strip().removesuffix(',')})"
+                f"define_population({population_lines[0].strip().removesuffix(',')})"
             )
         series = f"{series}\n{population}"
     return series
@@ -246,4 +246,4 @@ class ArgCapturer:
         self.table_data = table_data
         self.series = series
         self.expected_output = expected_output
-        self.set_population = population is not None
+        self.define_population = population is not None

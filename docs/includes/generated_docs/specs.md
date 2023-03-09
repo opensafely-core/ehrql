@@ -4,7 +4,7 @@
 ### 1.1 Including rows
 
 
-#### 1.1.1 Take with column
+#### 1.1.1 Where with column
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -20,7 +20,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|302|F |
 
 ```
-e.take(e.b1).i1.sum_for_patient()
+e.where(e.b1).i1.sum_for_patient()
 ```
 returns the following patient series:
 
@@ -32,7 +32,7 @@ returns the following patient series:
 
 
 
-#### 1.1.2 Take with expr
+#### 1.1.2 Where with expr
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -47,7 +47,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|301| |
 
 ```
-e.take((e.i1 + e.i2) < 413).i1.sum_for_patient()
+e.where((e.i1 + e.i2) < 413).i1.sum_for_patient()
 ```
 returns the following patient series:
 
@@ -59,7 +59,7 @@ returns the following patient series:
 
 
 
-#### 1.1.3 Take with constant true
+#### 1.1.3 Where with constant true
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -70,7 +70,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|201 |
 
 ```
-e.take(True).count_for_patient()
+e.where(True).count_for_patient()
 ```
 returns the following patient series:
 
@@ -81,7 +81,7 @@ returns the following patient series:
 
 
 
-#### 1.1.4 Take with constant false
+#### 1.1.4 Where with constant false
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -92,7 +92,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|201 |
 
 ```
-e.take(False).count_for_patient()
+e.where(False).count_for_patient()
 ```
 returns the following patient series:
 
@@ -103,7 +103,7 @@ returns the following patient series:
 
 
 
-#### 1.1.5 Chain multiple takes
+#### 1.1.5 Chain multiple wheres
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -114,7 +114,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 1|3|F |
 
 ```
-e.take(e.i1 >= 2).take(e.b1).i1.sum_for_patient()
+e.where(e.i1 >= 2).where(e.b1).i1.sum_for_patient()
 ```
 returns the following patient series:
 
@@ -127,7 +127,7 @@ returns the following patient series:
 ### 1.2 Excluding rows
 
 
-#### 1.2.1 Drop with column
+#### 1.2.1 Except where with column
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -143,7 +143,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|302|T |
 
 ```
-e.drop(e.b1).i1.sum_for_patient()
+e.except_where(e.b1).i1.sum_for_patient()
 ```
 returns the following patient series:
 
@@ -155,7 +155,7 @@ returns the following patient series:
 
 
 
-#### 1.2.2 Drop with expr
+#### 1.2.2 Except where with expr
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -170,7 +170,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|301| |
 
 ```
-e.drop((e.i1 + e.i2) < 413).i1.sum_for_patient()
+e.except_where((e.i1 + e.i2) < 413).i1.sum_for_patient()
 ```
 returns the following patient series:
 
@@ -182,7 +182,7 @@ returns the following patient series:
 
 
 
-#### 1.2.3 Drop with constant true
+#### 1.2.3 Except where with constant true
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -193,7 +193,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|201 |
 
 ```
-e.drop(True).count_for_patient()
+e.except_where(True).count_for_patient()
 ```
 returns the following patient series:
 
@@ -204,7 +204,7 @@ returns the following patient series:
 
 
 
-#### 1.2.4 Drop with constant false
+#### 1.2.4 Except where with constant false
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -215,7 +215,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|201 |
 
 ```
-e.drop(False).count_for_patient()
+e.except_where(False).count_for_patient()
 ```
 returns the following patient series:
 
@@ -2546,7 +2546,7 @@ returns the following patient series:
 
 ### 13.1 Defining a population
 
-`set_population` is used to limit the population from which data is extracted.
+`define_population` is used to limit the population from which data is extracted.
 
 
 
@@ -2563,7 +2563,7 @@ This example makes use of a patient-level table named `p` containing the followi
 
 ```
 p.i1
-set_population(~p.b1)
+define_population(~p.b1)
 ```
 returns the following patient series:
 
@@ -2595,7 +2595,7 @@ This example makes use of a patient-level table named `p` and an event-level tab
 
 ```
 e.exists_for_patient()
-set_population(p.i1 > 0)
+define_population(p.i1 > 0)
 ```
 returns the following patient series:
 
@@ -2620,7 +2620,7 @@ This example makes use of a patient-level table named `p` containing the followi
 
 ```
 p.i1
-set_population(
+define_population(
     case(
         when(p.i1 <= 8).then(True),
         when(p.i1 > 8).then(False),

@@ -8,7 +8,7 @@ When working with ehrQL, there are two distinct kinds of tables:
     Do we continue to use "one row"/"many rows"
     or event-level/patient-level?
 
-The table passed to `set_population` must be a patient-level table with a single Boolean column.
+The table passed to `define_population` must be a patient-level table with a single Boolean column.
 This table then defines which patients are included in the final dataset.
 
 !!! todo

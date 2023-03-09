@@ -52,22 +52,22 @@ def test_build_section():
         assert False, "expected paragraph ids not found"
 
 
-def test_take_with_expr():
+def test_where_with_expr():
     pass
 
 
-test_take_with_expr.title = "Take rows that match an expression"
+test_where_with_expr.title = "Find rows where an expression is matched"
 
 
-def test_take_with_constant_true():
+def test_where_with_constant_true():
     pass
 
 
 @pytest.mark.parametrize(
     "test_fn,title",
     [
-        (test_take_with_expr, "Take rows that match an expression"),
-        (test_take_with_constant_true, "Take with constant true"),
+        (test_where_with_expr, "Find rows where an expression is matched"),
+        (test_where_with_constant_true, "Where with constant true"),
     ],
 )
 def test_get_title_for_test_fn(test_fn, title):
@@ -132,19 +132,21 @@ def test_get_title_for_test_fn(test_fn, title):
             ['p.d1.is_before("2000-01-20"),', "population=p.b1"],
             0,
             True,
-            'p.d1.is_before("2000-01-20")\nset_population(p.b1)',
+            'p.d1.is_before("2000-01-20")\ndefine_population(p.b1)',
         ),
         (
             # incomplete population definition; this should also never happen
             ['p.d1.is_before("2000-01-20"),', 'population=p.d2.is_before("2000-01-'],
             0,
             True,
-            'p.d1.is_before("2000-01-20")\nset_population(p.d2.is_before("2000-01-)',
+            'p.d1.is_before("2000-01-20")\ndefine_population(p.d2.is_before("2000-01-)',
         ),
     ],
 )
 def test_get_series_code(source_lines, source_index, includes_population, expected):
     assert (
-        get_series_code(source_lines, source_index, set_population=includes_population)
+        get_series_code(
+            source_lines, source_index, define_population=includes_population
+        )
         == expected
     )

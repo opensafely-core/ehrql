@@ -44,9 +44,11 @@ def test_csv_query_engine(tmp_path):
     dataset.sex = patients.sex
     dataset.total_score = events.score.sum_for_patient()
     # Check that missing columns end up NULL
-    dataset.missing = events.take(events.expected_missing.is_null()).count_for_patient()
+    dataset.missing = events.where(
+        events.expected_missing.is_null()
+    ).count_for_patient()
 
-    dataset.set_population(patients.exists_for_patient())
+    dataset.define_population(patients.exists_for_patient())
     variable_definitions = compile(dataset)
 
     query_engine = CSVQueryEngine(tmp_path)

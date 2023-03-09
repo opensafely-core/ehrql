@@ -71,7 +71,7 @@ def make_dataset(table_data, population=None):
         for table in table_data.keys():
             population = table.exists_for_patient() | population
     dataset = Dataset()
-    dataset.set_population(population)
+    dataset.define_population(population)
     return dataset
 
 

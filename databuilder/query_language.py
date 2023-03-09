@@ -1,6 +1,7 @@
 import dataclasses
 import datetime
 import enum
+import warnings
 from typing import Union
 
 from databuilder.codes import BaseCode
@@ -33,14 +34,22 @@ class Dataset:
     def __init__(self):
         object.__setattr__(self, "variables", {})
 
-    def set_population(self, population):
+    def set_population(self, population):  # pragma: no cover
+        warnings.warn(
+            "Use `define_population` instead of `set_population`",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.define_population(population)
+
+    def define_population(self, population):
         validate_population_definition(population.qm_node)
         self.variables["population"] = population
 
     def __setattr__(self, name, value):
         if name == "population":
             raise AttributeError(
-                "Cannot set variable 'population'; use set_population() instead"
+                "Cannot set variable 'population'; use define_population() instead"
             )
         if name in self.variables:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
@@ -618,7 +627,11 @@ class PatientFrame(BaseFrame):
 
 
 class EventFrame(BaseFrame):
-    def take(self, series):
+    def take(self, series):  # pragma: no cover
+        warnings.warn("Use `where` instead of `take`", DeprecationWarning, stacklevel=2)
+        return self.where(series)
+
+    def where(self, series):
         return EventFrame(
             qm.Filter(
                 source=self.qm_node,
@@ -626,7 +639,13 @@ class EventFrame(BaseFrame):
             )
         )
 
-    def drop(self, series):
+    def drop(self, series):  # pragma: no cover
+        warnings.warn(
+            "Use `except_where` instead of `drop`", DeprecationWarning, stacklevel=2
+        )
+        return self.except_where(series)
+
+    def except_where(self, series):
         return EventFrame(
             qm.Filter(
                 source=self.qm_node,

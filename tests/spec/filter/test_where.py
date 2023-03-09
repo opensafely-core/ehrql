@@ -3,7 +3,7 @@ from ..tables import e
 title = "Including rows"
 
 
-def test_take_with_column(spec_test):
+def test_where_with_column(spec_test):
     table_data = {
         e: """
               |  i1 |  b1
@@ -21,7 +21,7 @@ def test_take_with_column(spec_test):
 
     spec_test(
         table_data,
-        e.take(e.b1).i1.sum_for_patient(),
+        e.where(e.b1).i1.sum_for_patient(),
         {
             1: (101 + 102),
             2: 201,
@@ -30,7 +30,7 @@ def test_take_with_column(spec_test):
     )
 
 
-def test_take_with_expr(spec_test):
+def test_where_with_expr(spec_test):
     table_data = {
         e: """
               |  i1 |  i2
@@ -47,7 +47,7 @@ def test_take_with_expr(spec_test):
 
     spec_test(
         table_data,
-        e.take((e.i1 + e.i2) < 413).i1.sum_for_patient(),
+        e.where((e.i1 + e.i2) < 413).i1.sum_for_patient(),
         {
             1: (101 + 102 + 103),
             2: 201,
@@ -56,7 +56,7 @@ def test_take_with_expr(spec_test):
     )
 
 
-def test_take_with_constant_true(spec_test):
+def test_where_with_constant_true(spec_test):
     table_data = {
         e: """
               |  i1
@@ -69,7 +69,7 @@ def test_take_with_constant_true(spec_test):
 
     spec_test(
         table_data,
-        e.take(True).count_for_patient(),
+        e.where(True).count_for_patient(),
         {
             1: 2,
             2: 1,
@@ -77,7 +77,7 @@ def test_take_with_constant_true(spec_test):
     )
 
 
-def test_take_with_constant_false(spec_test):
+def test_where_with_constant_false(spec_test):
     table_data = {
         e: """
               |  i1
@@ -90,7 +90,7 @@ def test_take_with_constant_false(spec_test):
 
     spec_test(
         table_data,
-        e.take(False).count_for_patient(),
+        e.where(False).count_for_patient(),
         {
             1: 0,
             2: 0,
@@ -98,7 +98,7 @@ def test_take_with_constant_false(spec_test):
     )
 
 
-def test_chain_multiple_takes(spec_test):
+def test_chain_multiple_wheres(spec_test):
     table_data = {
         e: """
               | i1 | b1
@@ -111,7 +111,7 @@ def test_chain_multiple_takes(spec_test):
 
     spec_test(
         table_data,
-        e.take(e.i1 >= 2).take(e.b1).i1.sum_for_patient(),
+        e.where(e.i1 >= 2).where(e.b1).i1.sum_for_patient(),
         {
             1: 2,
         },

@@ -7,7 +7,7 @@ start_date = "2020-03-01"
 final_date = "2020-05-31"
 
 date_of_birth = patients.date_of_birth
-hospitalisations_in_range = hospitalisations.take(
+hospitalisations_in_range = hospitalisations.where(
     hospitalisations.date.is_on_or_after(start_date)
     & hospitalisations.date.is_before(final_date)
 )
@@ -15,7 +15,7 @@ hospitalisations_in_range = hospitalisations.take(
 population = (date_of_birth < "2000-01-01") & (
     hospitalisations_in_range.exists_for_patient()
 )
-dataset.set_population(population)
+dataset.define_population(population)
 
 dataset.sex = patients.sex
 dataset.year_of_birth = patients.date_of_birth.year

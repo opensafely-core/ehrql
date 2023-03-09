@@ -96,7 +96,7 @@ def test_practice_registrations_for_patient_on(in_memory_engine):
     reg = tpp.practice_registrations.for_patient_on("2010-01-01")
 
     dataset = Dataset()
-    dataset.set_population(tpp.practice_registrations.exists_for_patient())
+    dataset.define_population(tpp.practice_registrations.exists_for_patient())
     dataset.practice_pseudo_id = reg.practice_pseudo_id
     results = in_memory_engine.extract(dataset)
 
@@ -222,7 +222,7 @@ def test_addresses_for_patient_on(in_memory_engine):
     address = tpp.addresses.for_patient_on("2010-01-01")
 
     dataset = Dataset()
-    dataset.set_population(tpp.addresses.exists_for_patient())
+    dataset.define_population(tpp.addresses.exists_for_patient())
     dataset.address_id = address.address_id
     results = in_memory_engine.extract(dataset)
 
