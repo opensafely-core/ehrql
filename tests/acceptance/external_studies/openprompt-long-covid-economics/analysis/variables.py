@@ -80,6 +80,6 @@ def hospitalisation_diagnosis_matches(admissions, codelist):
 
 # Function for extracting clinical factors
 def clinical_ctv3_matches(gpevent, codelist):
-    gpevent.take((gpevent.date <=study_start_date) & gpevent.ctv3_code.is_in(gpevent)) \
+    gp_dx = gpevent.take((gpevent.date <=study_start_date) & gpevent.ctv3_code.is_in(codelist)) \
       .sort_by(gpevent.date).last_for_patient()
-    return gpevent.last_for_patient()
+    return gp_dx
