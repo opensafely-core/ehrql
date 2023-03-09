@@ -358,78 +358,99 @@ class isaric_raw(EventFrame):
     chrincard = Series(
         str,
         description="Chronic cardiac disease, including congenital heart disease (not hypertension).",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     hypertension_mhyn = Series(
         str,
         description="Hypertension (physician diagnosed).",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     chronicpul_mhyn = Series(
         str,
         description="Chronic pulmonary disease (not asthma).",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     asthma_mhyn = Series(
         str,
         description="Asthma (physician diagnosed).",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     renal_mhyn = Series(
         str,
         description="Chronic kidney disease.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     mildliver = Series(
         str,
         description="Mild liver disease.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     modliv = Series(
         str,
         description="Moderate or severe liver disease",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     chronicneu_mhyn = Series(
         str,
         description="Chronic neurological disorder.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     malignantneo_mhyn = Series(
         str,
         description="Malignant neoplasm.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     chronichaemo_mhyn = Series(
         str,
         description="Chronic haematologic disease.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     aidshiv_mhyn = Series(
         str,
         description="AIDS/HIV.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     obesity_mhyn = Series(
         str,
         description="Obesity (as defined by clinical staff).",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     diabetes_type_mhyn = Series(
         str,
         description="Diabetes and type.",
+        constraints=[Constraint.Categorical(["NO", "1", "2", "N/K"])],
     )
     diabetescom_mhyn = Series(
         str,
         description="Diabetes with complications.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     diabetes_mhyn = Series(
         str,
         description="Diabetes without complications.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     rheumatologic_mhyn = Series(
         str,
         description="Rheumatologic disorder.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     dementia_mhyn = Series(
         str,
         description="Dementia.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     malnutrition_mhyn = Series(
         str,
         description="Malnutrition.",
+        constraints=[Constraint.Categorical(["YES", "NO", "Unknown"])],
     )
     smoking_mhyn = Series(
         str,
         description="Smoking.",
+        constraints=[
+            Constraint.Categorical(["Yes", "Never Smoked", "Former Smoker", "N/K"])
+        ],
     )
 
     # Admission
