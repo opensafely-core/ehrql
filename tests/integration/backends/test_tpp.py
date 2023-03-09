@@ -505,7 +505,7 @@ def test_isaric_raw(select_all):
         Patient(Patient_ID=1),
         Patient(Patient_ID=2),
         Patient(Patient_ID=3),
-        # Test with all valid dates.
+        # Test date extraction with all valid date strings.
         ISARIC_New(
             Patient_ID=1,
             age="TODO",
@@ -558,7 +558,7 @@ def test_isaric_raw(select_all):
             dsstdat="2022-01-05",
             dsstdtc="2022-01-20",
         ),
-        # Test with all invalid dates.
+        # Test date extraction with all "NA" strings as dates.
         ISARIC_New(
             Patient_ID=2,
             age="TODO",
@@ -592,7 +592,7 @@ def test_isaric_raw(select_all):
             dsstdat="NA",
             dsstdtc="NA",
         ),
-        # Test with a mixture of valid and invalid dates.
+        # Test date extraction with a mixture of valid and "NA" date strings.
         ISARIC_New(
             Patient_ID=3,
             age="TODO",
