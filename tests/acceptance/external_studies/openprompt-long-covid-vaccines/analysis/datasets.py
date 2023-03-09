@@ -129,6 +129,16 @@ def add_common_variables(dataset, study_start_date, end_date, population):
       column="date"
     )
 
+    # Find the product name for each vaccine episode - will use this to check if they have all been the same or mixed types in analysis
+    # Note - only checking for first 3 vaccines in this step
+    create_sequential_variables(
+      dataset,
+      "covid_vacc_{n}_manufacturer_tab",
+      num_variables=3,
+      events=all_vacc,
+      column="product_name"
+    )
+
     # EXCLUSION criteria - gather these all here to remain consistent with the protocol
     population = population & (registrations_number == 1) & (dataset.age <= 100) & (dataset.age >= 16)  # will remove missing age
 

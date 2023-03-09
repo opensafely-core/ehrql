@@ -7,7 +7,7 @@ from databuilder.tables.beta import tpp as schema
 #######################################################################################
 
 start_date = '2020-01-24'
-end_date = '2022-03-31'
+end_date = '2022-10-19'
 n_visits = 26
 
 dataset = Dataset()
