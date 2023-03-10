@@ -2,8 +2,8 @@ import contextlib
 from unittest import mock
 
 import pytest
+from sqlalchemy.engine import Connection
 from sqlalchemy.exc import OperationalError, ProgrammingError
-from sqlalchemy.future.engine import Connection
 from sqlalchemy.sql import Select
 
 from databuilder.query_model.nodes import (
