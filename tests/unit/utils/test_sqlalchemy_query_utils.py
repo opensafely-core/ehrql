@@ -133,37 +133,28 @@ def test_clause_as_str():
     assert query_str == "SELECT foo.bar \nFROM foo \nWHERE foo.bar > 100"
 
 
-def test_clause_as_str_with_create_index_on_sqlite():
-    # This test confirms the presence of a SQLAlchemy bug which we have to work around
-    # in `clause_as_str` by compiling the query twice: once without the
-    # `render_postcompile` argument, and then again with the argument if it's needed. If
-    # the bug gets fixed we want to know so that we can remove the workaround.
+# The below tests exercise obscure corners of SQLAlchemy which used to have bugs that we
+# had to workaroud. These have been fixed in SQLAlchemy 2 but we retain the tests for
+# their warm fuzzy value.
 
+
+def test_clause_as_str_with_create_index_on_sqlite():
+    # Setting `literal_binds=True` (as we do in `clause_as_str()`) while compiling
+    # CreateIndex used to blow up with a TypeError in the SQLite dialect. We confirm
+    # that this is no longer the case.
     table = sqlalchemy.Table("foo", sqlalchemy.MetaData(), sqlalchemy.Column("bar"))
     index = sqlalchemy.Index(None, table.c.bar)
     create_index = sqlalchemy.schema.CreateIndex(index)
     dialect = SQLiteDialect_pysqlite(paramstyle="named")
 
-    # Passing `compile_kwargs` while compiling CreateIndex to a string blows up with a
-    # TypeError in the SQLite dialect. I think this is just a bug in an infrequently
-    # exercised corner SQLAlchemy as most of the equivalent methods in other dialects
-    # accept `**kwargs`.
-    with pytest.raises(
-        TypeError, match="unexpected keyword argument 'render_postcompile'"
-    ):
-        create_index.compile(
-            dialect=dialect, compile_kwargs={"render_postcompile": True}
-        )
-
-    # Check that our function compiles the query correctly
     query_str = clause_as_str(create_index, dialect)
     assert query_str == "CREATE INDEX ix_foo_bar ON foo (bar)"
 
 
 def test_clause_as_str_with_expanding_bindparameter_and_bind_expression():
-    # This test confirms the presence of a SQLAlchemy bug which we have to work around
-    # in `clause_as_str`. If this gets fixed we want to know so that we can remove all
-    # the hand-rolled parameter interpolation.
+    # This exercises an obscure corner of SQLAlchemy which used to be buggy: using
+    # "literal_binds" to compile a clause which combines expanding BindParameters with a
+    # bind expression.
 
     # Create a custom type with a "bind_expression", see:
     # https://docs.sqlalchemy.org/en/14/core/type_api.html#sqlalchemy.types.TypeEngine.bind_expression
@@ -200,13 +191,13 @@ def test_clause_as_str_with_expanding_bindparameter_and_bind_expression():
         str(contains_expr.compile(compile_kwargs={"render_postcompile": True}))
         == "tbl.col IN (upper(:col_1_1), upper(:col_1_2))"
     )
-    # But attempting to compile this using string literals triggers an error
-    with pytest.raises(
-        AttributeError, match="'NoneType' object has no attribute 'group'"
-    ):
-        contains_expr.compile(compile_kwargs={"literal_binds": True})
 
-    # However our `clause_to_str` functions renders it as expected
+    # Attempting to compile it with parameters replaced by string literals used to blow
+    # up with:
+    #
+    #     AttributeError("'NoneType' object has no attribute 'group'")
+    #
+    # We confirm it no longer does.
     compiled = clause_as_str(contains_expr, DefaultDialect())
     assert compiled == "tbl.col IN (upper('abc'), upper('def'))"
 
@@ -217,8 +208,8 @@ def test_clause_as_string_with_repeated_expanding_bindparameter():
     table = sqlalchemy.Table(
         "tbl",
         sqlalchemy.MetaData(),
-        sqlalchemy.Column("col_1"),
-        sqlalchemy.Column("col_2"),
+        sqlalchemy.Column("col_1", sqlalchemy.Integer()),
+        sqlalchemy.Column("col_2", sqlalchemy.Integer()),
     )
     multi_valued = sqlalchemy.literal([1, 2])
     clause = table.c.col_1.in_(multi_valued) | table.c.col_2.in_(multi_valued)
