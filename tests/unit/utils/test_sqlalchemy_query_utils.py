@@ -171,7 +171,7 @@ def test_clause_as_str_with_expanding_bindparameter_and_bind_expression():
         impl = sqlalchemy.types.String
         cache_ok = True
 
-        # This means that every time we reference of value of this type it gets wrapped
+        # This means that every time we reference a value of this type it gets wrapped
         # in a function call
         def bind_expression(self, bindvalue):
             return sqlalchemy.func.upper(bindvalue)
@@ -209,3 +209,18 @@ def test_clause_as_str_with_expanding_bindparameter_and_bind_expression():
     # However our `clause_to_str` functions renders it as expected
     compiled = clause_as_str(contains_expr, DefaultDialect())
     assert compiled == "tbl.col IN (upper('abc'), upper('def'))"
+
+
+def test_clause_as_string_with_repeated_expanding_bindparameter():
+    # Previously we would blow up with a KeyError when the same "expanding" (i.e.
+    # multi-valued) BindParameter was used more than once within a query
+    table = sqlalchemy.Table(
+        "tbl",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("col_1"),
+        sqlalchemy.Column("col_2"),
+    )
+    multi_valued = sqlalchemy.literal([1, 2])
+    clause = table.c.col_1.in_(multi_valued) | table.c.col_2.in_(multi_valued)
+    compiled = clause_as_str(clause, DefaultDialect())
+    assert compiled == "tbl.col_1 IN (1, 2) OR tbl.col_2 IN (1, 2)"
