@@ -141,6 +141,16 @@ You should follow these guidelines and raise it with the rest of the team for di
 Contrary to practice in some quarters we allow disk access by **unit** tests because it doesn't seem to cause any significant slow-down in those tests at the moment.
 We'll keep this under review.
 
+#### Logging in tests
+
+Logging is very verbose and is turned off by default in tests.  To turn it on, set the
+environment variable `LOG_SQL=1` and pass the `-s` option to turn
+off log capture in pytest.
+
+```
+LOG_SQL=1 just test-all -s
+```
+
 ### Codebase structure
 
 The files for test categories that target individual modules (for example **unit** and **integration** tests) are organized into roughly the same directory structure as the `databuilder` package itself.
@@ -173,7 +183,8 @@ just remove-database-containers
 
 ### Displaying SQL queries
 
-Set the environment variable `LOG_SQL=1` (or anything non-empty) to get all SQL queries logged to the console.
+Set the environment variable `LOG_SQL=1` (or anything non-empty) to get all SQL queries logged to the console.  To get SQL queries in [test runs](#logging-in-tests), also use `-s` to turn
+off log capture in pytest.
 
 ## macOS / Bash
 
