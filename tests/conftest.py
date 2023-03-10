@@ -10,7 +10,6 @@ from databuilder.main import get_sql_strings
 from databuilder.query_engines.in_memory import InMemoryQueryEngine
 from databuilder.query_engines.in_memory_database import InMemoryDatabase
 from databuilder.query_engines.mssql import MSSQLQueryEngine
-from databuilder.query_engines.spark import SparkQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import compile
 from databuilder.utils.orm_utils import make_orm_models
@@ -18,7 +17,6 @@ from databuilder.utils.orm_utils import make_orm_models
 from .lib.databases import (
     InMemorySQLiteDatabase,
     make_mssql_database,
-    make_spark_database,
     wait_for_database,
 )
 from .lib.docker import Containers
@@ -45,7 +43,7 @@ def pytest_collection_modifyitems(session, config, items):  # pragma: no cover
         # with pytest-xdist.
         return
 
-    slow_database_names = ["mssql", "spark"]
+    slow_database_names = ["mssql"]
 
     for item in items:
         group = "other"
@@ -148,23 +146,6 @@ def mssql_database(mssql_database_with_session_scope):
     database.teardown()
 
 
-@pytest.fixture(scope="session")
-def spark_database_with_session_scope(
-    containers, show_delayed_warning
-):  # pragma: cover-spark-only
-    with show_delayed_warning(3, "Downloading and starting Spark Docker image"):
-        database = make_spark_database(containers)
-        wait_for_database(database, timeout=20)
-    return database
-
-
-@pytest.fixture(scope="function")
-def spark_database(spark_database_with_session_scope):  # pragma: cover-spark-only
-    database = spark_database_with_session_scope
-    yield database
-    database.teardown()
-
-
 # }
 
 
@@ -205,7 +186,7 @@ class QueryEngineFixture:
         return self.query_engine_class(self.database.host_url()).engine
 
 
-QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql", "spark")
+QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql")
 
 
 def engine_factory(request, engine_name, with_session_scope=False):
@@ -218,9 +199,6 @@ def engine_factory(request, engine_name, with_session_scope=False):
     elif engine_name == "mssql":
         database_fixture_name = "mssql_database"
         query_engine_class = MSSQLQueryEngine
-    elif engine_name == "spark":  # pragma: cover-spark-only
-        database_fixture_name = "spark_database"
-        query_engine_class = SparkQueryEngine
     else:
         assert False
 

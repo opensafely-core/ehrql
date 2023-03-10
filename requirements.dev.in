@@ -5,8 +5,6 @@
 # pip-compile --generate-hashes --output-file=requirements.dev.txt requirements.dev.in
 
 black
-coverage-conditional-plugin
-databricks-cli
 docker
 flake8
 flake8-builtins

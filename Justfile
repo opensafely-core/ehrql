@@ -102,8 +102,6 @@ check: devenv
 
 # ensure our public facing docstrings exist so we can build docs from them
 docstrings: devenv
-    $BIN/pydocstyle databuilder/backends/databricks.py
-    $BIN/pydocstyle databuilder/backends/graphnet.py
     $BIN/pydocstyle databuilder/backends/tpp.py
 
     # only enforce classes are documented for the public facing docs
@@ -134,7 +132,6 @@ build-databuilder-for-os-cli: build-databuilder
 # tear down the persistent docker containers we create to run tests again
 remove-database-containers:
     docker rm --force databuilder-mssql
-    docker rm --force databuilder-spark
 
 # open an interactive SQL Server shell running against MSSQL
 connect-to-mssql:
@@ -147,10 +144,6 @@ connect-to-mssql:
 # Run all or some pytest tests. Optional args are passed to pytest, including the path of tests to run.
 test *ARGS="tests": devenv
     $BIN/python -m pytest {{ ARGS }}
-
-# Run all or some pytest tests, excluding spark tests which are slow. Optional args are passed to pytest, including the path of tests to run.
-test-no-spark *ARGS="tests": devenv
-    $BIN/python -m pytest -k "not spark" {{ ARGS }}
 
 # Run the acceptance tests only. Optional args are passed to pytest.
 test-acceptance *ARGS: devenv
@@ -171,10 +164,6 @@ test-integration *ARGS: devenv
 # Run the spec tests only. Optional args are passed to pytest.
 test-spec *ARGS: devenv
     $BIN/python -m pytest tests/spec {{ ARGS }}
-
-# Run the spec tests only, excluding spark tests which are slow. Optional args are passed to pytest.
-test-spec-no-spark *ARGS: devenv
-    $BIN/python -m pytest tests/spec -k "not spark" {{ ARGS }}
 
 # Run the unit tests only. Optional args are passed to pytest.
 test-unit *ARGS: devenv
@@ -205,22 +194,6 @@ test-generative *ARGS: devenv
         {{ ARGS }}
     $BIN/python -m pytest --doctest-modules databuilder
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
-
-# Run the CI tests (including coverage checks) but without the slow Spark tests
-test-all-no-spark *ARGS: (test-all '-k "not spark"' ARGS)
-
-# run scripts/dbx
-dbx *ARGS:
-    @$BIN/python scripts/dbx {{ ARGS }}
-
-# ensure a working databricks cluster is set up and running
-databricks-env: devenv
-    $BIN/python scripts/dbx start --wait --timeout 180
-
-databricks-test *ARGS: devenv databricks-env
-    #!/usr/bin/env bash
-    export DATABRICKS_URL="$($BIN/python scripts/dbx url)"
-    just test {{ ARGS }}
 
 generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
     $BIN/python -m databuilder.docs {{ OUTPUT_DIR }}

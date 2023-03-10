@@ -8,7 +8,6 @@ def test_driver_in_container(run_in_container, engine):
 
     backends = {
         "mssql": "databuilder.backends.tpp.TPPBackend",
-        "spark": "databuilder.backends.databricks.DatabricksBackend",
     }
 
     if engine.name not in backends:
