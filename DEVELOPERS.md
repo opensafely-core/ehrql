@@ -229,7 +229,7 @@ To do so, use a slightly different snippet syntax:
 
 ### Generating data for documentation
 
-Some Data Builder [documentation](https://github.com/opensafely/documentation) is generated from code in this repo.
+Some Data Builder documentation is generated from code in this repo.
 
 See the [spec tests docs](tests/spec/README.md) for further information on writing tests that
 contribute to the ehrQL docs.
@@ -254,7 +254,7 @@ Merges to the main branch in this repo trigger a [deployment of the main OpenSAF
 ### Making changes to the dataset definition snippets
 
 These snippets are separate from the tutorial examples in `docs/ehrql-tutorial-examples`.
-There is a separate README in that directory that explains how those tutorial examples work.
+See [below](#ehrql-tutorial-examples) for documentation on how the tutorial examples work.
 We may eventually unify the tutorial examples with the snippet
 so that all example code is checked in the same way.
 
@@ -278,3 +278,75 @@ then it could be included in the documentation Markdown source via:
 --8<-- 'databuilder/snippets/hello.py:print'
 ```
 ````
+
+### ehrQL tutorial examples
+
+docs/ehrql-tutorial-examples is a collection of:
+
+* dataset definitions
+* example data
+* outputs from the dataset definitions run against the example data
+
+used in the ehrQL tutorials.
+
+#### Adding a new example
+
+Refer to existing ehrQL tutorial pages to see the current layout that we use.
+
+The current process for adding a new example is:
+
+1. Create a new dataset and add it to the [`example-data`](docs/ehrql-tutorial-examples/example-data/) directory,
+2. Write the dataset definition and add it to the [`ehrql-tutorial-examples`](docs/ehrql-tutorial-examples/).
+   See the [ehrQL tutorial introduction](docs/ehrql/tutorial/index.md#using-data-builders-command-line-interface)
+   for an explanation of the filename convention.
+3. Build the dataset definition outputs
+   (see below),
+   then add and commit the new files stored in the [`outputs`](docs/ehrql-tutorial-examples/outputs/) directory to the repository.
+4. Use a dataset definition in the relevant documentation page's Markdown file:
+   ````
+   ```python title="$YOUR_DATASET_DEFINITION_FILENAME"
+   ---8<-- "ehrql-tutorial-examples/$YOUR_DATASET_DEFINITION_FILENAME"
+   ```
+   ````
+5. Use the `read_csv` feature of the [table-reader plugin](https://github.com/timvink/mkdocs-table-reader-plugin)
+   in the relevant documentation page's Markdown file:
+   to include the input and output CSVs as nicely formatted tables.
+
+   You will need one `read_csv` entry for each CSV.
+
+   Use the `keep_default_na=False` option to include blank table cells
+   instead of the text `nan`.
+
+#### Building dataset definition outputs
+
+The easiest way is via the relevant `just` recipe.
+
+```
+just docs-build-dataset-definitions-outputs
+```
+
+#### Updating content
+
+A GitHub Actions workflow checks that the dataset definition outputs are current.
+
+If you modify existing example data or dataset definitions,
+make sure that you:
+
+* Commit the files you have directly changed.
+* Rebuild the output CSVs and commit those if they have changed.
+* Review all documentation pages that use the files you have edited,
+  and check if any explanatory text requires amending as a result of your changes.
+
+
+### Keeping the version of databulder used for the tutorial examples in sync
+
+The version of the databuilder image used for the tutorials is specified in the tutorial's
+[`project.yaml`](docs/ehrql-tutorial-examples/project.yaml).  We reference the image by
+major version only (e.g. `v0`), so the `project.yaml` file itself only needs to be
+updated rarely.  However, whenever a new image is built, it could have an impact on the
+tutorial examples and their outputs.
+
+After a merge to main, a Github Action runs to [update and test the tutorial examples](https://github.com/opensafely-core/databuilder/actions/workflows/update-tutorial-databuilder-version.yml).
+If the image has changed major version, this will replace the version in the `project.yaml`. It
+will also run the tutorial project via the OpenSAFELY CLI, which will generate the tutorial
+output files.  If there are any changes, it will open a pull request in this repo.
