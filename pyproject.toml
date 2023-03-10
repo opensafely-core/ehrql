@@ -99,8 +99,3 @@ filterwarnings = [
     "ignore::DeprecationWarning:pyhive.common:248",
     "ignore::DeprecationWarning:pyhive.sqlalchemy_hive:20",
 ]
-env = [
-    # Enable deprecation warnings for SQLAlchemy 2.0. See:
-    # https://docs.sqlalchemy.org/en/14/changelog/migration_20.html#migration-to-2-0-step-two-turn-on-removedin20warnings
-    "SQLALCHEMY_WARN_20=1",
-]
