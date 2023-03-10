@@ -209,9 +209,13 @@ It can also be built as a standalone documentation site with MkDocs to preview c
 
     just docs-serve
 
-:warning: The documentation will look considerably different from OpenSAFELY's.
-We aim to improve this in future.
-See the [relevant issue](https://github.com/opensafely-core/databuilder/issues/978).
+:warning: The documentation will look slightly different from OpenSAFELY's.  Relative links to
+sections of the main documentation outside of the /data-builder sections will not work (although
+a scheduled [Github Action](https://github.com/opensafely-core/databuilder/actions/workflows/check-docs-links.yml) runs overnight to check them).
+
+We may be able to improve this later, depending on the behaviour of the mkdocs plugin that
+we use: see https://github.com/opensafely-core/databuilder/issues/1126
+
 
 ### Using includes from the parent documentation
 
@@ -238,25 +242,23 @@ To generate this file, run:
 
 This generates the markdown files in `docs/includes/generated_docs`.
 
-Note that it is currently a developer's responsibility to update the generated docs in a PR if required. There
-is a CI step that will check that the documentation is up to date.
+This command runs as a pre-commit hook and will fail if there are any changes to the
+generated markdown files.  It is a developer's responsibility to update the generated docs in
+their PR if required. There is also a CI step that will check that the documentation is up to
+date.
 
 ### Updating the main OpenSAFELY documentation repository
 
-:warning: Currently, changes made to the documentation in Data Builder's repository will be deployed whenever any pull request in the main [documentation](https://github.com/opensafely/documentation) repository is next merged.
-
-We intend to implement automated deployment
-which redeploys the documentation whenever a new version of Data Builder is published;
-see the [relevant issue](https://github.com/opensafely/documentation/issues/1108).
+Merges to the main branch in this repo trigger a [deployment of the main OpenSAFELY documentation via a Github Action](https://github.com/opensafely-core/databuilder/actions/workflows/deploy-documentation.yml).
 
 ### Making changes to the dataset definition snippets
 
-These snippets are separate from the tutorial examples in `databuilder/ehrql-tutorial-examples`.
+These snippets are separate from the tutorial examples in `docs/ehrql-tutorial-examples`.
 There is a separate README in that directory that explains how those tutorial examples work.
 We may eventually unify the tutorial examples with the snippet
 so that all example code is checked in the same way.
 
-Edit the python modules in the `databuilder/snippets` directory.
+Edit the python modules in the `docs/snippets` directory.
 
 Examples are included in the markdown files using the [pymdown snippet notation](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/#snippets-notation).
 
@@ -268,7 +270,7 @@ print("hello world")
 # --8<-- [end:print]
 ```
 
-If this example was stored as `databuilder/snippets/hello.py`,
+If this example was stored as `docs/snippets/hello.py`,
 then it could be included in the documentation Markdown source via:
 
 ````
