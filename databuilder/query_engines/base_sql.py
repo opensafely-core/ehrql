@@ -559,11 +559,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         results_query = self.get_query(variable_definitions)
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
         with self.engine.connect() as connection:
-            for n, setup_query in enumerate(
-                setup_queries, start=1
-            ):  # pragma: cover-spark-only
-                log.info(f"Running setup query {n:03} / {len(setup_queries):03}")
-                connection.execute(setup_query)
+            assert not setup_queries, "Support these once tests exercise them"
 
             log.info("Fetching results")
             yield from connection.execute(results_query)

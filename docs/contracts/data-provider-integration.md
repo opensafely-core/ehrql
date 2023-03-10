@@ -95,7 +95,6 @@ Supporting a new backend in Data Builder has two requirements:
     Currently, Data Builder has the following query engines:
 
     * Microsoft SQL Server
-    * Apache Spark.
 
     Support for another data store will require adding a new query
     engine.

@@ -9,10 +9,6 @@ from databuilder.ehrql import Dataset
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 from databuilder.tables import EventFrame, PatientFrame, Series, table
 
-# Generate an integer sequence to use as default IDs. Normally you'd rely on the DBMS to
-# provide these, but we need to support DBMSs like Spark which don't have this feature.
-next_id = iter(range(1, 2**63)).__next__
-
 Base = sqlalchemy.orm.declarative_base()
 
 
@@ -54,21 +50,21 @@ class TestBackend(BaseBackend):
 
 class PatientRecord(Base):
     __tablename__ = "patient_record"
-    pk = sqlalchemy.Column(sqlalchemy_types.Integer, primary_key=True, default=next_id)
+    pk = sqlalchemy.Column(sqlalchemy_types.Integer, primary_key=True)
     PatientId = sqlalchemy.Column(sqlalchemy_types.Integer)
     DoB = sqlalchemy.Column(sqlalchemy_types.Date)
 
 
 class PositiveResult(Base):
     __tablename__ = "positive_result"
-    pk = sqlalchemy.Column(sqlalchemy_types.Integer, primary_key=True, default=next_id)
+    pk = sqlalchemy.Column(sqlalchemy_types.Integer, primary_key=True)
     patient_id = sqlalchemy.Column(sqlalchemy_types.Integer)
     date = sqlalchemy.Column(sqlalchemy_types.Date)
 
 
 class NegativeResult(Base):
     __tablename__ = "negative_result"
-    pk = sqlalchemy.Column(sqlalchemy_types.Integer, primary_key=True, default=next_id)
+    pk = sqlalchemy.Column(sqlalchemy_types.Integer, primary_key=True)
     patient_id = sqlalchemy.Column(sqlalchemy_types.Integer)
     date = sqlalchemy.Column(sqlalchemy_types.Date)
 

@@ -12,7 +12,6 @@ def get_sibling_subclasses(cls):
     include:
 
         databuilder.backends.tpp.TPPBackend
-        databuilder.backends.graphet.GraphnetBackend
         ...
 
     This is useful for tests and for generating documentation, but isn't intended for

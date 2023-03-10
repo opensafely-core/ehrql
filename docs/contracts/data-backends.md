@@ -11,10 +11,4 @@ backend.
 ## TPP
 ---8<-- 'includes/generated_docs/TPPBackend.md'
 
-## Databricks
----8<-- 'includes/generated_docs/DatabricksBackend.md'
-
-## Graphnet
----8<-- 'includes/generated_docs/GraphnetBackend.md'
-
 !!! parent_snippet:'includes/glossary.md'

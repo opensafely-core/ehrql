@@ -79,8 +79,6 @@ def query_engines(request):
     return {
         name: engine_factory(request, name, with_session_scope=True)
         for name in QUERY_ENGINE_NAMES
-        # The Spark engine is still too slow to run generative tests against
-        if name != "spark"
     }
 
 

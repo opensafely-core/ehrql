@@ -12,19 +12,6 @@ from databuilder.utils.sqlalchemy_query_utils import expr_has_type
 
 SYNTHETIC_PRIMARY_KEY = "row_id"
 
-# Generate an integer sequence to use as default IDs. Normally you'd rely on the DBMS to
-# provide these, but we need to support DBMSs like Spark which don't have this feature.
-next_id = iter(range(1, 2**63)).__next__
-
-
-# We need each NULL-able column to have an explicit default of NULL. Without this,
-# SQLAlchemy will just omit empty columns from the INSERT. That's fine for most DBMSs
-# but Spark needs every column in the table to be specified, even if it just has a NULL
-# value. Note: we have to use a callable returning `None` here because if we use `None`
-# directly SQLAlchemy interprets this is "there is no default".
-def null():
-    return None
-
 
 def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patient):
     """
@@ -37,14 +24,10 @@ def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patien
         attributes["patient_id"] = sqlalchemy.Column(Integer, primary_key=True)
     else:
         attributes["patient_id"] = sqlalchemy.Column(Integer, nullable=False)
-        attributes[SYNTHETIC_PRIMARY_KEY] = sqlalchemy.Column(
-            Integer, primary_key=True, default=next_id
-        )
+        attributes[SYNTHETIC_PRIMARY_KEY] = sqlalchemy.Column(Integer, primary_key=True)
 
     for col_name, type_ in schema.column_types:
-        attributes[col_name] = sqlalchemy.Column(
-            type_from_python_type(type_), default=null
-        )
+        attributes[col_name] = sqlalchemy.Column(type_from_python_type(type_))
 
     class_name = table_name.title().replace("_", "")
 
