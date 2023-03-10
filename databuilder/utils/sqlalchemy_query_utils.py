@@ -186,15 +186,21 @@ def clause_as_str(clause, dialect):
 
 
 def yield_params_as_literals(compiled, dialect):
-    for key, value in compiled.params.items():
-        # Get the type of the BindParameter object corresponding to each param
-        param_type = compiled.binds[key].type
-        # Get the implemention of this type for the supplied dialect
-        dialect_impl = param_type.dialect_impl(dialect)
+    param_keys = set(compiled.params)
+    for key, param in compiled.binds.items():
+        # Due to (waves hands) something about the way multi-valued parameters are
+        # handled we end up with "expanding-but-not-yet-expanded" BindParameters here.
+        # We can spot these by the fact that they don't have a corresponding entry in
+        # `params`.  We can safely ignore them: it's only the expanded versions of the
+        # parameters that we want.
+        if key not in param_keys:
+            continue
+        # Get the implemention of the type of this parameter for the supplied dialect
+        dialect_impl = param.type.dialect_impl(dialect)
         # Get the processor which turns values of this type into string literals
         literal_processor = dialect_impl.literal_processor(dialect)
         # Yield the string literal with its key
-        yield key, literal_processor(value)
+        yield key, literal_processor(param.value)
 
 
 def iterate_unique(clause):
