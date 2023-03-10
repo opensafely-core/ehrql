@@ -30,14 +30,22 @@ def test_mssql_date_types():
     )
     assert _str(date_col == None) == "date_col IS NULL"  # noqa: E711
     assert _str(datetime_col == None) == "datetime_col IS NULL"  # noqa: E711
-    with pytest.raises(ValueError):
+
+    with pytest.raises(sqlalchemy.exc.CompileError) as e:
         _str(date_col > "2021")
-    with pytest.raises(ValueError):
+    assert isinstance(e.value.__cause__, ValueError)
+
+    with pytest.raises(sqlalchemy.exc.CompileError) as e:
         _str(datetime_col == "2021-08")
-    with pytest.raises(TypeError):
+    assert isinstance(e.value.__cause__, ValueError)
+
+    with pytest.raises(sqlalchemy.exc.CompileError) as e:
         _str(date_col > 2021)
-    with pytest.raises(TypeError):
+    assert isinstance(e.value.__cause__, TypeError)
+
+    with pytest.raises(sqlalchemy.exc.CompileError) as e:
         _str(datetime_col == 2021)
+    assert isinstance(e.value.__cause__, TypeError)
 
 
 def test_select_star_into():
