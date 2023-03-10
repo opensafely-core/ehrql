@@ -11,7 +11,7 @@ class SQLiteDialect(SQLiteDialect_pysqlite):
     default_paramstyle = "named"
 
     @classmethod
-    def dbapi(csl):
+    def import_dbapi(cls):
         # Use pysqlite3's bundled SQLite rather than the system version
         return pysqlite3.dbapi2
 
