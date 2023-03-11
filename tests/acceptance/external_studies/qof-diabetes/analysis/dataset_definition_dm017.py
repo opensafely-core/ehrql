@@ -24,5 +24,6 @@ dataset.dm_reg_r2 = get_dm_reg_r2(dataset)
 # Define select rule 2
 has_dm_reg_select_r2 = dataset.dm_reg_r1 & ~dataset.dm_reg_r2
 
-# Apply business rules to set population
-dataset.set_population(has_registration & has_dm_reg_select_r2)
+
+# Apply business rules to define population
+dataset.define_population(has_registration & has_dm_reg_select_r2)

@@ -32,11 +32,11 @@ vaccine_to_longcovid_lag = covid_to_longcovid_lag + vaccine_effective_lag
 def add_common_variables(dataset, study_start_date, end_date, population):
     # practice registration selection
     registrations = practice_registrations \
-        .take(practice_registrations.start_date <= study_start_date - days(minimum_registration)) \
-        .drop(practice_registrations.end_date <= study_start_date)
-# 08/02 - because we are using .drop instaed of .take we are not dropping people with NULL start date
+        .where(practice_registrations.start_date <= study_start_date - days(minimum_registration)) \
+        .except_where(practice_registrations.end_date <= study_start_date)
+# 08/02 - because we are using .except_where instaed of .where we are not dropping people with NULL start date
 # it is possible that null start date is a data quality problem.
-# So to keep consistent with other devs and cohort_extractor. Switch to a .take and therefore drop null start daters
+# So to keep consistent with other devs and cohort_extractor. Switch to a .where and therefore drop null start daters
 
     # get the number of registrations in this period to exclude anyone with >1 in the `set_population` later
     registrations_number = registrations.count_for_patient()
@@ -47,7 +47,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
 
     # need to find out if they had a hospitalisation for covid and censor then
     # note (18/01): needs looking at before I can use it.
-    # hospitalised = hospital_admissions.take(hospital_admissions.all_diagnoses.contains(codelists.covidhosp))
+    # hospitalised = hospital_admissions.where(hospital_admissions.all_diagnoses.contains(codelists.covidhosp))
     # then add into the end_date definition below (or as a secondary end date for sensitivity analysis?)
 
     dataset.pt_start_date = case(
@@ -70,21 +70,21 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     dataset.death_date = patients.date_of_death
 
     # Ethnicity in 6 categories
-    dataset.ethnicity = clinical_events.take(clinical_events.ctv3_code.is_in(codelists.ethnicity)) \
+    dataset.ethnicity = clinical_events.where(clinical_events.ctv3_code.is_in(codelists.ethnicity)) \
         .sort_by(clinical_events.date) \
         .last_for_patient() \
         .ctv3_code.to_category(codelists.ethnicity)
 
     # covid tests
     dataset.latest_test_before_diagnosis = sgss_covid_all_tests \
-        .take(sgss_covid_all_tests.is_positive) \
-        .drop(sgss_covid_all_tests.specimen_taken_date >= end_date - days(covid_to_longcovid_lag)) \
+        .where(sgss_covid_all_tests.is_positive) \
+        .except_where(sgss_covid_all_tests.specimen_taken_date >= end_date - days(covid_to_longcovid_lag)) \
         .sort_by(sgss_covid_all_tests.specimen_taken_date).last_for_patient().specimen_taken_date
 
     dataset.all_test_positive = sgss_covid_all_tests \
-        .take(sgss_covid_all_tests.is_positive) \
-        .drop(sgss_covid_all_tests.specimen_taken_date <= study_start_date) \
-        .drop(sgss_covid_all_tests.specimen_taken_date >= end_date - days(covid_to_longcovid_lag)) \
+        .where(sgss_covid_all_tests.is_positive) \
+        .except_where(sgss_covid_all_tests.specimen_taken_date <= study_start_date) \
+        .except_where(sgss_covid_all_tests.specimen_taken_date >= end_date - days(covid_to_longcovid_lag)) \
         .count_for_patient()
 
     # covid hospitalisation
@@ -95,7 +95,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
         .first_for_patient().admission_date
 
     dataset.all_covid_hosp = covid_hospitalisations \
-        .drop(covid_hospitalisations.admission_date >= end_date - days(covid_to_longcovid_lag)) \
+        .except_where(covid_hospitalisations.admission_date >= end_date - days(covid_to_longcovid_lag)) \
         .count_for_patient()
 
     # vaccine code
@@ -103,15 +103,15 @@ def add_common_variables(dataset, study_start_date, end_date, population):
       dataset,
       "covid_vacc_{n}_adm",
       num_variables=5,
-      events=clinical_events.take(clinical_events.snomedct_code.is_in(codelists.vac_adm_combine)),
+      events=clinical_events.where(clinical_events.snomedct_code.is_in(codelists.vac_adm_combine)),
       column="date"
     )
 
     # Vaccines from the vaccines schema
     # only take one record per day to remove duplication
     all_vacc = vaccinations \
-        .take(vaccinations.date < end_date - days(vaccine_to_longcovid_lag)) \
-        .take(vaccinations.target_disease == "SARS-2 CORONAVIRUS")
+        .where(vaccinations.date < end_date - days(vaccine_to_longcovid_lag)) \
+        .where(vaccinations.target_disease == "SARS-2 CORONAVIRUS")
 
     # this will be replaced with distinct_count_for_patient() once it is developed
     dataset.no_prev_vacc = all_vacc \
@@ -142,4 +142,4 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     # EXCLUSION criteria - gather these all here to remain consistent with the protocol
     population = population & (registrations_number == 1) & (dataset.age <= 100) & (dataset.age >= 16)  # will remove missing age
 
-    dataset.set_population(population)
+    dataset.define_population(population)

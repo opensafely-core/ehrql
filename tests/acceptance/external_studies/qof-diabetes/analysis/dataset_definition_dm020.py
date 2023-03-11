@@ -64,8 +64,8 @@ has_dm020_select_r10 = (
     & ~dataset.dm020_r10
 )
 
-# Apply business rules to set population
-dataset.set_population(
+# Apply business rules to define population
+dataset.define_population(
     # Registration status
     has_registration
     # Business rules for DM_REG

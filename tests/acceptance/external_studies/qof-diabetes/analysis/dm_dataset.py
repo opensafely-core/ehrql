@@ -32,7 +32,7 @@ def make_dm_dataset(index_date: date):
     dataset = Dataset()
 
     # Extract prior events for further use in variable definitions below
-    prior_events = clinical_events.take(
+    prior_events = clinical_events.where(
         clinical_events.date.is_on_or_before(index_date)
     )
 
@@ -113,7 +113,7 @@ def make_dm_dataset(index_date: date):
     # DMINVITE2_DAT: Date of the earliest invitation for a diabetes review
     # recorded at least 7 days after the first invitation and up to and
     # including the achievement date.
-    dminvite2_events = dminvite_events.take(
+    dminvite2_events = dminvite_events.where(
         dminvite_events.date.is_after(dataset.dminvite1_dat + days(7))
     )
     dataset.dminvite2_dat = (

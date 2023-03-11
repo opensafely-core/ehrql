@@ -16,7 +16,7 @@ def create_sequential_variables(
     sort_column = sort_column or column
     for index in range(num_variables):
         next_event = events.sort_by(getattr(events, sort_column)).first_for_patient()
-        events = events.take(
+        events = events.where(
             getattr(events, sort_column) > getattr(next_event, sort_column)
         )
         variable_name = variable_name_template.format(n=index + 1)
@@ -25,7 +25,7 @@ def create_sequential_variables(
 
 def _registrations_overlapping_period(start_date, end_date):
     regs = schema.practice_registrations
-    return regs.take(
+    return regs.where(
         regs.start_date.is_on_or_before(start_date)
         & (regs.end_date.is_after(end_date) | regs.end_date.is_null())
     )
@@ -56,7 +56,7 @@ def date_deregistered_from_all_supported_practices():
 
 def address_as_of(date):
     addr = schema.addresses
-    active = addr.take(
+    active = addr.where(
         addr.start_date.is_on_or_before(date)
         & (addr.end_date.is_after(date) | addr.end_date.is_null())
     )
@@ -89,9 +89,9 @@ def most_recent_bmi(*, minimum_age_at_measurement, where=True):
         # This captures just explicitly recorded BMI observations rather than attempting
         # to calculate it from height and weight measurements. Investigation has shown
         # this to have no real benefit it terms of coverage or accuracy.
-        events.take(events.ctv3_code == CTV3Code("22K.."))
-        .take(events.date >= age_threshold)
-        .take(where)
+        events.where(events.ctv3_code == CTV3Code("22K.."))
+        .where(events.date >= age_threshold)
+        .where(where)
         .sort_by(events.date)
         .last_for_patient()
     )
@@ -102,7 +102,7 @@ def emergency_care_diagnosis_matches(emergency_care_attendances, codelist):
         getattr(emergency_care_attendances, column_name).is_in(codelist)
         for column_name in [f"diagnosis_{i:02d}" for i in range(1, 25)]
     ]
-    return emergency_care_attendances.take(any_of(conditions))
+    return emergency_care_attendances.where(any_of(conditions))
 
 
 def hospitalisation_diagnosis_matches(admissions, codelist):
@@ -131,4 +131,4 @@ def hospitalisation_diagnosis_matches(admissions, codelist):
         admissions.all_diagnoses.contains(code_str)
         for code_str in code_strings
     ]
-    return admissions.take(any_of(conditions))
+    return admissions.where(any_of(conditions))
