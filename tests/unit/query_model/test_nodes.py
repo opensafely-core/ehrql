@@ -356,12 +356,6 @@ def test_domain_get_node_fails_for_patient_domain():
 #
 
 
-def test_cannot_pick_row_from_unsorted_table():
-    events = SelectTable("events", EVENTS_SCHEMA)
-    with pytest.raises(TypeValidationError):
-        PickOneRowPerPatient(events, Position.FIRST)  # type: ignore
-
-
 def test_cannot_sort_by_non_comparable_type():
     events = SelectTable("events", EVENTS_SCHEMA)
     bool_column = SelectColumn(events, "flag")
@@ -443,3 +437,22 @@ def test_comparisons_between_value_nodes_are_strict():
     assert Value(10) != Value(10.0)
     assert Value(1) != Value(True)
     assert Value(10) != 10
+
+
+# TEST SORTING
+#
+
+
+def test_cannot_pick_row_from_unsorted_table():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    with pytest.raises(TypeValidationError):
+        PickOneRowPerPatient(events, Position.FIRST)
+
+
+def test_can_pick_row_from_sorted_and_filtered_table():
+    events = SelectTable("events", EVENTS_SCHEMA)
+    date = SelectColumn(events, "date")
+    code = SelectColumn(events, "code")
+    sorted_by_date = Sort(events, date)
+    filtered_by_code = Filter(sorted_by_date, Function.EQ(code, Value("abc123")))
+    assert PickOneRowPerPatient(filtered_by_code, Position.FIRST)

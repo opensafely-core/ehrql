@@ -214,7 +214,7 @@ class Sort(ManyRowsPerPatientFrame):
 
 
 class PickOneRowPerPatient(OneRowPerPatientFrame):
-    source: Sort
+    source: ManyRowsPerPatientFrame
     position: Position
 
 
@@ -445,6 +445,10 @@ def validate_node(node):
     # As well as types we need to validate the "domain constraint" which specifies how
     # Frames and Series, potentially drawn from different tables, can be combined
     validate_input_domains(node)
+    # PickOneRowPerPatient can only be used on sorted frames
+    if isinstance(node, PickOneRowPerPatient):
+        if not is_sorted(node.source):
+            raise TypeValidationError("PickOneRowPerPatient.source must be sorted")
 
 
 class ValidationError(Exception):
@@ -607,6 +611,30 @@ def get_input_nodes_for_case(node):
     if node.default is not None:
         inputs.append(node.default)
     return inputs
+
+
+# SORTEDNESS
+#
+
+
+@singledispatch
+def is_sorted(frame):
+    assert False, f"Unhandled node type: {type(frame)}"
+
+
+@is_sorted.register(SelectTable)
+def is_sorted_select_table(frame):
+    return False
+
+
+@is_sorted.register(Sort)
+def is_sorted_sort(frame):
+    return True
+
+
+@is_sorted.register(Filter)
+def is_sorted_filter(frame):
+    return is_sorted(frame.source)
 
 
 def all_nodes(tree):
