@@ -3,7 +3,6 @@ import datetime
 import pytest
 import sqlalchemy
 
-from databuilder import sqlalchemy_types
 from databuilder.backends.base import BaseBackend, MappedTable, QueryTable
 from databuilder.ehrql import Dataset
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
@@ -50,23 +49,23 @@ class TestBackend(BaseBackend):
 
 class PatientRecord(Base):
     __tablename__ = "patient_record"
-    pk = sqlalchemy.Column(sqlalchemy_types.Integer, primary_key=True)
-    PatientId = sqlalchemy.Column(sqlalchemy_types.Integer)
-    DoB = sqlalchemy.Column(sqlalchemy_types.Date)
+    pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    PatientId = sqlalchemy.Column(sqlalchemy.Integer)
+    DoB = sqlalchemy.Column(sqlalchemy.Date)
 
 
 class PositiveResult(Base):
     __tablename__ = "positive_result"
-    pk = sqlalchemy.Column(sqlalchemy_types.Integer, primary_key=True)
-    patient_id = sqlalchemy.Column(sqlalchemy_types.Integer)
-    date = sqlalchemy.Column(sqlalchemy_types.Date)
+    pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    patient_id = sqlalchemy.Column(sqlalchemy.Integer)
+    date = sqlalchemy.Column(sqlalchemy.Date)
 
 
 class NegativeResult(Base):
     __tablename__ = "negative_result"
-    pk = sqlalchemy.Column(sqlalchemy_types.Integer, primary_key=True)
-    patient_id = sqlalchemy.Column(sqlalchemy_types.Integer)
-    date = sqlalchemy.Column(sqlalchemy_types.Date)
+    pk = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    patient_id = sqlalchemy.Column(sqlalchemy.Integer)
+    date = sqlalchemy.Column(sqlalchemy.Date)
 
 
 def test_mapped_table(engine):

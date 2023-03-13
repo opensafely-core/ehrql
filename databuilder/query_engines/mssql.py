@@ -6,7 +6,6 @@ import structlog
 from sqlalchemy.schema import CreateIndex, DropTable
 from sqlalchemy.sql.functions import Function as SQLFunction
 
-from databuilder import sqlalchemy_types
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 from databuilder.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
 from databuilder.utils.sqlalchemy_exec_utils import (
@@ -33,9 +32,9 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
     def calculate_mean(self, sql_expr):
         # Unlike other DBMSs, MSSQL will return an integer as the mean of integers so we
         # have to explicitly cast to float
-        if not expr_has_type(sql_expr, sqlalchemy_types.Float):
-            sql_expr = sqlalchemy.cast(sql_expr, sqlalchemy_types.Float)
-        return SQLFunction("AVG", sql_expr, type_=sqlalchemy_types.Float)
+        if not expr_has_type(sql_expr, sqlalchemy.Float):
+            sql_expr = sqlalchemy.cast(sql_expr, sqlalchemy.Float)
+        return SQLFunction("AVG", sql_expr, type_=sqlalchemy.Float)
 
     def date_difference_in_days(self, end, start):
         return SQLFunction(
@@ -43,7 +42,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             sqlalchemy.text("day"),
             start,
             end,
-            type_=sqlalchemy_types.Integer,
+            type_=sqlalchemy.Integer,
         )
 
     def truedivide(self, lhs, rhs):
@@ -52,7 +51,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
 
     def get_date_part(self, date, part):
         assert part in {"YEAR", "MONTH", "DAY"}
-        return SQLFunction(part, date, type_=sqlalchemy_types.Integer)
+        return SQLFunction(part, date, type_=sqlalchemy.Integer)
 
     def date_add_days(self, date, num_days):
         return SQLFunction(
@@ -60,7 +59,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             sqlalchemy.text("day"),
             num_days,
             date,
-            type_=sqlalchemy_types.Date,
+            type_=sqlalchemy.Date,
         )
 
     def date_add_months(self, date, num_months):
@@ -69,7 +68,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             sqlalchemy.text("month"),
             num_months,
             date,
-            type_=sqlalchemy_types.Date,
+            type_=sqlalchemy.Date,
         )
         # In cases of day-of-month overflow, MSSQL clips to the end of the month rather
         # than rolling over to the first of the next month as want it to, so we detect
@@ -93,7 +92,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             self.get_date_part(date, "YEAR") + num_years,
             self.get_date_part(date, "MONTH"),
             1,
-            type_=sqlalchemy_types.Date,
+            type_=sqlalchemy.Date,
         )
         # Then add on the number of days we're offset from the start of the month which
         # has the effect of rolling 29 Feb over to 1 Mar as we want
@@ -105,7 +104,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             self.get_date_part(date, "YEAR"),
             1,
             1,
-            type_=sqlalchemy_types.Date,
+            type_=sqlalchemy.Date,
         )
 
     def to_first_of_month(self, date):
@@ -114,7 +113,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             self.get_date_part(date, "YEAR"),
             self.get_date_part(date, "MONTH"),
             1,
-            type_=sqlalchemy_types.Date,
+            type_=sqlalchemy.Date,
         )
 
     def reify_query(self, query):

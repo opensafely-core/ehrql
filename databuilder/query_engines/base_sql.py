@@ -7,7 +7,6 @@ from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
 
-from databuilder import sqlalchemy_types
 from databuilder.backends.base import DefaultBackend
 from databuilder.query_model.nodes import (
     AggregateByPatient,
@@ -226,8 +225,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         lhs = self.get_expr(node.lhs)
         rhs = self.get_expr(node.rhs)
         # To ensure TrueDiv behaviour cast one to float if both args are ints
-        if not expr_has_type(lhs, sqlalchemy_types.Float) and not expr_has_type(
-            rhs, sqlalchemy_types.Float
+        if not expr_has_type(lhs, sqlalchemy.Float) and not expr_has_type(
+            rhs, sqlalchemy.Float
         ):
             lhs = sqlalchemy.cast(lhs, sqlalchemy.Float)
         return self.truedivide(lhs, rhs)
@@ -270,7 +269,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def string_replace(self, value, pattern, replacement):
         return SQLFunction(
-            "REPLACE", value, pattern, replacement, type_=sqlalchemy_types.String
+            "REPLACE", value, pattern, replacement, type_=sqlalchemy.String
         )
 
     @get_sql.register(Function.YearFromDate)
@@ -430,7 +429,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return self.aggregate_series_by_patient(node.source, self.calculate_mean)
 
     def calculate_mean(self, sql_expr):
-        return SQLFunction("AVG", sql_expr, type_=sqlalchemy_types.Float)
+        return SQLFunction("AVG", sql_expr, type_=sqlalchemy.Float)
 
     # `Exists` and `Count` are Frame-level (rather than Series-level) aggregations and
     # so have a different implementation. They can operate on both many- and

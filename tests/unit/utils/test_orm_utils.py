@@ -5,13 +5,7 @@ import pytest
 import sqlalchemy
 from sqlalchemy.orm import declarative_base
 
-from databuilder.sqlalchemy_types import (
-    TYPE_MAP,
-    Date,
-    Integer,
-    String,
-    type_from_python_type,
-)
+from databuilder.sqlalchemy_types import TYPE_MAP, type_from_python_type
 from databuilder.utils.orm_utils import (
     orm_csv_writer,
     read_orm_models_from_csv_lines,
@@ -39,7 +33,7 @@ def test_read_orm_models_from_csv_lines(
 
     class Model(declarative_base()):
         __tablename__ = "test"
-        pk = sqlalchemy.Column(Integer(), primary_key=True)
+        pk = sqlalchemy.Column(sqlalchemy.Integer(), primary_key=True)
         value = sqlalchemy.Column(column_type)
 
     csv_lines = ["value", csv_value]
@@ -67,15 +61,15 @@ def test_write_orm_models_to_csv_directory(tmp_path):
 
     class Patient(Base):
         __tablename__ = "patients"
-        patient_id = sqlalchemy.Column(Integer(), primary_key=True)
-        date_of_birth = sqlalchemy.Column(Date())
+        patient_id = sqlalchemy.Column(sqlalchemy.Integer(), primary_key=True)
+        date_of_birth = sqlalchemy.Column(sqlalchemy.Date())
 
     class Event(Base):
         __tablename__ = "events"
-        row_id = sqlalchemy.Column(Integer(), primary_key=True)
-        patient_id = sqlalchemy.Column(Integer())
-        date = sqlalchemy.Column(Date())
-        code = sqlalchemy.Column(String())
+        row_id = sqlalchemy.Column(sqlalchemy.Integer(), primary_key=True)
+        patient_id = sqlalchemy.Column(sqlalchemy.Integer())
+        date = sqlalchemy.Column(sqlalchemy.Date())
+        code = sqlalchemy.Column(sqlalchemy.String())
 
     models = [
         Patient(patient_id=1, date_of_birth=datetime.date(2000, 1, 1)),
@@ -115,8 +109,8 @@ def test_orm_csv_writer(type_, expected_csv, value):
 
     class Model(declarative_base()):
         __tablename__ = "test"
-        row_id = sqlalchemy.Column(Integer(), primary_key=True)
-        patient_id = sqlalchemy.Column(Integer())
+        row_id = sqlalchemy.Column(sqlalchemy.Integer(), primary_key=True)
+        patient_id = sqlalchemy.Column(sqlalchemy.Integer())
         value = sqlalchemy.Column(column_type)
 
     fileobj = StringIO()

@@ -1,8 +1,8 @@
 import datetime
 
 import pytest
+from sqlalchemy import types
 
-from databuilder import sqlalchemy_types as types
 from databuilder.codes import CTV3Code
 from databuilder.sqlalchemy_types import type_from_python_type
 
