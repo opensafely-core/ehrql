@@ -8,8 +8,8 @@ from databuilder.tables.beta import tpp as schema
 
 def has_matching_event(events, codelist, where=True):
     return (
-        events.take(where)
-        .take(events.snomedct_code.is_in(codelist))
+        events.where(where)
+        .where(events.snomedct_code.is_in(codelist))
         .exists_for_patient()
     )
 
@@ -32,7 +32,7 @@ def died_as_of(date):
 
 def address_as_of(date):
     addr = schema.addresses
-    active = addr.take(
+    active = addr.where(
         addr.start_date.is_on_or_before(date)
         & (addr.end_date.is_after(date) | addr.end_date.is_null())
     )
@@ -56,7 +56,7 @@ def address_as_of(date):
 
 def _registrations_overlapping_period(start_date, end_date):
     regs = schema.practice_registrations
-    return regs.take(
+    return regs.where(
         regs.start_date.is_on_or_before(start_date)
         & (regs.end_date.is_after(end_date) | regs.end_date.is_null())
     )
@@ -72,7 +72,7 @@ def emergency_care_diagnosis_matches(emergency_care_attendances, codelist):
         getattr(emergency_care_attendances, column_name).is_in(codelist)
         for column_name in [f"diagnosis_{i:02d}" for i in range(1, 25)]
     ]
-    return emergency_care_attendances.take(any_of(conditions))
+    return emergency_care_attendances.where(any_of(conditions))
 
 
 def hospitalisation_diagnosis_matches(admissions, codelist):
@@ -101,4 +101,4 @@ def hospitalisation_diagnosis_matches(admissions, codelist):
         admissions.all_diagnoses.contains(code_string)
         for code_string in code_strings
     ]
-    return admissions.take(any_of(conditions))
+    return admissions.where(any_of(conditions))

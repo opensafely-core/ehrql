@@ -22,7 +22,7 @@ study_start_date = date(2020, 11, 1)
 def add_visits(dataset, from_date, num_months):
     # Number of GP visits within `num_months` of `from_date`
     num_visits = appointments \
-        .take((appointments.start_date >= from_date) &
+        .where((appointments.start_date >= from_date) &
               (appointments.start_date <= (from_date + days(num_months * 30)))) \
         .count_for_patient()
     setattr(dataset, f"gp_visit_m{num_months}", num_visits)
@@ -31,7 +31,7 @@ def add_visits(dataset, from_date, num_months):
 # def add_ae_visits(dataset, from_date, num_months):
 #     # Number of A&E visits within `num_months` of `from_date`
 #     num_visits = emergency_care_attendances \
-#         .take((emergency_care_attendances.arrival_date >= from_date) &
+#         .where((emergency_care_attendances.arrival_date >= from_date) &
 #               (emergency_care_attendances.arrival_date  <= (from_date + days(num_months * 30)))) \
 #         .count_for_patient()
 #     setattr(dataset, f"gp_visit_m{num_months}", num_visits)
@@ -41,7 +41,7 @@ def add_visits(dataset, from_date, num_months):
 # def add_hos_visits(dataset, from_date, num_months):
 #     # Number of Hospitalisation within `num_months` of `from_date`
 #     num_visits = appointments \
-#         .take((hospital_admissions.admission_date >= from_date) &
+#         .where((hospital_admissions.admission_date >= from_date) &
 #               (hospital_admissions.discharge_date  <= (from_date + days(num_months * 30)))) \
 #         .count_for_patient()
 #     setattr(dataset, f"gp_visit_m{num_months}", num_visits)
@@ -75,11 +75,12 @@ def hospitalisation_diagnosis_matches(admissions, codelist):
     admissions.all_diagnoses.contains(code_string)
     for code_string in code_strings
   ]
-  return admissions.take(any_of(conditions))
+  return admissions.where(any_of(conditions))
 
 
 # Function for extracting clinical factors
 def clinical_ctv3_matches(gpevent, codelist):
-    gp_dx = gpevent.take((gpevent.date <=study_start_date) & gpevent.ctv3_code.is_in(codelist)) \
+    gp_dx = (gpevent.where((gpevent.date < study_start_date) & gpevent.ctv3_code.is_in(codelist))
       .sort_by(gpevent.date).last_for_patient()
+    )
     return gp_dx

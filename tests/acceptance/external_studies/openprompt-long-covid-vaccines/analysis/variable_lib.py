@@ -10,8 +10,8 @@ import codelists
 
 def has_prior_event(prior_events, codelist, where=True):
   return (
-    prior_events.take(where)
-    .take(prior_events.snomedct_code.is_in(codelist))
+    prior_events.where(where)
+    .where(prior_events.snomedct_code.is_in(codelist))
     .exists_for_patient()
   )
 
@@ -36,7 +36,7 @@ def has_died(date):
 
 def address_as_of(date):
   addr = schema.addresses
-  active = addr.take(
+  active = addr.where(
     addr.start_date.is_on_or_before(date)
     & (addr.end_date.is_after(date) | addr.end_date.is_null())
   )
@@ -58,7 +58,7 @@ def address_as_of(date):
 
 def _registrations_overlapping_period(start_date, end_date):
   regs = schema.practice_registrations
-  return regs.take(
+  return regs.where(
     regs.start_date.is_on_or_before(start_date)
     & (regs.end_date.is_after(end_date) | regs.end_date.is_null())
   )
@@ -74,7 +74,7 @@ def emergency_care_diagnosis_matches(emergency_care_attendances, codelist):
     getattr(emergency_care_attendances, column_name).is_in(codelist)
     for column_name in [f"diagnosis_{i:02d}" for i in range(1, 25)]
   ]
-  return emergency_care_attendances.take(any_of(conditions))
+  return emergency_care_attendances.where(any_of(conditions))
 
 
 def hospitalisation_diagnosis_matches(admissions, codelist):
@@ -103,7 +103,7 @@ def hospitalisation_diagnosis_matches(admissions, codelist):
     admissions.all_diagnoses.contains(code_string)
     for code_string in code_strings
   ]
-  return admissions.take(any_of(conditions))
+  return admissions.where(any_of(conditions))
 
 def create_sequential_variables(
     dataset, variable_name_template, events, column, num_variables, sort_column=None
@@ -111,13 +111,13 @@ def create_sequential_variables(
     sort_column = sort_column or column
     for index in range(num_variables):
         next_event = events.sort_by(getattr(events, sort_column)).first_for_patient()
-        events = events.take(
+        events = events.where(
             getattr(events, sort_column) > getattr(next_event, sort_column)
         )
         variable_name = variable_name_template.format(n=index + 1)
         setattr(dataset, variable_name, getattr(next_event, column))
 
 def long_covid_events_during(start, end):
-  return schema.clinical_events.take(schema.clinical_events.date >= start) \
-    .take(schema.clinical_events.date <= end) \
-    .take(schema.clinical_events.snomedct_code.is_in(codelists.long_covid_combine))
+  return schema.clinical_events.where(schema.clinical_events.date >= start) \
+    .where(schema.clinical_events.date <= end) \
+    .where(schema.clinical_events.snomedct_code.is_in(codelists.long_covid_combine))

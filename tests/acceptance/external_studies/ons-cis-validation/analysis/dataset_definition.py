@@ -37,7 +37,7 @@ hospital_admission_methods = [
 
 # COMBINE CODELISTS
 # Containing primary care covid events
-primary_care_covid_events = clinical_events.take(
+primary_care_covid_events = clinical_events.where(
     clinical_events.ctv3_code.is_in(
         codelists_ehrql.covid_primary_care_code
         + codelists_ehrql.covid_primary_care_positive_test
@@ -58,8 +58,8 @@ dataset = Dataset()
 ###############################################################################
 
 address = address_as_of(index_date)
-prior_events = clinical_events.take(clinical_events.date.is_on_or_before(index_date))
-prior_tests = sgss_covid_all_tests.take(
+prior_events = clinical_events.where(clinical_events.date.is_on_or_before(index_date))
+prior_tests = sgss_covid_all_tests.where(
     sgss_covid_all_tests.specimen_taken_date.is_on_or_before(index_date)
 )
 
@@ -70,7 +70,7 @@ prior_tests = sgss_covid_all_tests.take(
 # Demographic variables
 dataset.sex = patients.sex
 dataset.age = age_as_of(index_date)
-dataset.has_died = ons_deaths.take(ons_deaths.date <= index_date).exists_for_patient()
+dataset.has_died = ons_deaths.where(ons_deaths.date <= index_date).exists_for_patient()
 
 # TPP care home flag
 dataset.care_home_tpp = address.care_home_is_potential_match.if_null_then(False)
@@ -97,12 +97,12 @@ dataset.region = practice_reg.practice_nuts1_region_name
 ###############################################################################
 
 # Positive COVID test
-dataset.postest_01 = prior_tests.take(
+dataset.postest_01 = prior_tests.where(
     (prior_tests.specimen_taken_date == index_date) & (prior_tests.is_positive)
 ).exists_for_patient()
 
 # Positive case identification
-dataset.primary_care_covid_case_01 = primary_care_covid_events.take(
+dataset.primary_care_covid_case_01 = primary_care_covid_events.where(
     (clinical_events.date == index_date)
 ).exists_for_patient()
 
@@ -111,15 +111,15 @@ dataset.covidemergency_01 = (
     emergency_care_diagnosis_matches(
         emergency_care_attendances, codelists_ehrql.covid_emergency
     )
-    .take(emergency_care_attendances.arrival_date == index_date)
+    .where(emergency_care_attendances.arrival_date == index_date)
     .exists_for_patient()
 )
 
 # COVID hospital admission
 dataset.covidadmitted_01 = (
     hospitalisation_diagnosis_matches(hospital_admissions, codelists_ehrql.covid_icd10)
-    .take(hospital_admissions.admission_date == index_date)
-    .take(hospital_admissions.admission_method.is_in(hospital_admission_methods))
+    .where(hospital_admissions.admission_date == index_date)
+    .where(hospital_admissions.admission_method.is_in(hospital_admission_methods))
     .exists_for_patient()
 )
 
@@ -137,14 +137,14 @@ dataset.any_infection_or_disease_01 = (
 ###############################################################################
 
 # Positive COVID test
-dataset.postest_14 = prior_tests.take(
+dataset.postest_14 = prior_tests.where(
     (prior_tests.specimen_taken_date >= (index_date - timedelta(days=13)))
     & (prior_tests.specimen_taken_date <= index_date)
     & (prior_tests.is_positive)
 ).exists_for_patient()
 
 # Positive case identification
-dataset.primary_care_covid_case_14 = primary_care_covid_events.take(
+dataset.primary_care_covid_case_14 = primary_care_covid_events.where(
     (clinical_events.date >= (index_date - timedelta(days=13)))
     & (clinical_events.date <= index_date)
 ).exists_for_patient()
@@ -154,7 +154,7 @@ dataset.covidemergency_14 = (
     emergency_care_diagnosis_matches(
         emergency_care_attendances, codelists_ehrql.covid_emergency
     )
-    .take(
+    .where(
         (emergency_care_attendances.arrival_date >= (index_date - timedelta(days=13)))
         & (emergency_care_attendances.arrival_date <= index_date)
     )
@@ -164,11 +164,11 @@ dataset.covidemergency_14 = (
 # COVID hospital admission
 dataset.covidadmitted_14 = (
     hospitalisation_diagnosis_matches(hospital_admissions, codelists_ehrql.covid_icd10)
-    .take(
+    .where(
         (hospital_admissions.admission_date >= (index_date - timedelta(days=13)))
         & (hospital_admissions.admission_date <= index_date)
     )
-    .take(hospital_admissions.admission_method.is_in(hospital_admission_methods))
+    .where(hospital_admissions.admission_method.is_in(hospital_admission_methods))
     .exists_for_patient()
 )
 
@@ -186,12 +186,12 @@ dataset.any_infection_or_disease_14 = (
 ###############################################################################
 
 # Positive COVID test
-dataset.postest_ever = prior_tests.take(
+dataset.postest_ever = prior_tests.where(
     (prior_tests.specimen_taken_date <= index_date) & (prior_tests.is_positive)
 ).exists_for_patient()
 
 # Positive case identification
-dataset.primary_care_covid_case_ever = primary_care_covid_events.take(
+dataset.primary_care_covid_case_ever = primary_care_covid_events.where(
     (clinical_events.date <= index_date)
 ).exists_for_patient()
 
@@ -200,15 +200,15 @@ dataset.covidemergency_ever = (
     emergency_care_diagnosis_matches(
         emergency_care_attendances, codelists_ehrql.covid_emergency
     )
-    .take((emergency_care_attendances.arrival_date <= index_date))
+    .where((emergency_care_attendances.arrival_date <= index_date))
     .exists_for_patient()
 )
 
 # COVID hospital admission
 dataset.covidadmitted_ever = (
     hospitalisation_diagnosis_matches(hospital_admissions, codelists_ehrql.covid_icd10)
-    .take((hospital_admissions.admission_date <= index_date))
-    .take(hospital_admissions.admission_method.is_in(hospital_admission_methods))
+    .where((hospital_admissions.admission_date <= index_date))
+    .where(hospital_admissions.admission_method.is_in(hospital_admission_methods))
     .exists_for_patient()
 )
 
@@ -235,7 +235,7 @@ has_no_care_home_status = ~(dataset.care_home_tpp | dataset.care_home_code)
 # Apply dataset restrictions and define study population
 ###############################################################################
 
-dataset.set_population(
+dataset.define_population(
     has_practice_reg
     & has_sex_f_or_m
     & has_age_between_2_and_120

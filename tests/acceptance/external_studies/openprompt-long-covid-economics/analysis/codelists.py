@@ -82,3 +82,38 @@ copd = codelist_from_csv(
     "codelists/opensafely-chronic-respiratory-disease.csv",
     column = "CTV3ID",
 )
+
+organ_transplant_code = codelist_from_csv(
+    "codelists/opensafely-solid-organ-transplantation.csv",
+    column = "CTV3ID",
+)
+
+chronic_cardiac_diseases_code = codelist_from_csv(
+    "codelists/opensafely-chronic-cardiac-disease.csv",
+    column = "CTV3ID",    
+)
+
+chronic_liver_disease_code = codelist_from_csv(
+    "codelists/opensafely-chronic-liver-disease.csv",
+    column = "CTV3ID",        
+)
+
+stroke_code = codelist_from_csv(
+    "codelists/opensafely-stroke-updated.csv",
+    column = "CTV3ID",
+)
+
+dementia_code = codelist_from_csv(
+    "codelists/opensafely-dementia.csv",
+    column = "CTV3ID",
+)
+
+other_neuro_code = codelist_from_csv(
+    "codelists/opensafely-other-neurological-conditions.csv",
+    column = "CTV3ID",
+)
+
+ra_sle_psoriasis_code = codelist_from_csv(
+    "codelists/opensafely-ra-sle-psoriasis.csv",
+    column = "CTV3ID",
+)

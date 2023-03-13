@@ -32,8 +32,8 @@ dataset = Dataset()
 
 # practice registration selection
 registrations = practice_registrations \
-    .drop(practice_registrations.start_date > study_start_date - days(minimum_registration)) \
-    .drop(practice_registrations.end_date <= study_start_date)
+    .except_where(practice_registrations.start_date > study_start_date - days(minimum_registration)) \
+    .except_where(practice_registrations.end_date <= study_start_date)
 # get the number of registrations in this period to exclude anyone with >1 in the `set_population` later
 registrations_number = registrations.count_for_patient()
 
@@ -47,8 +47,8 @@ dataset.uts = case(
 )
 
 # long covid code
-first_lc_dx = clinical_events.take(clinical_events.snomedct_code.is_in(codelists.long_covid_combine)) \
-  .take(clinical_events.date >= start_of_omicron_epoch + days(covid_to_longcovid_lag)) \
+first_lc_dx = clinical_events.where(clinical_events.snomedct_code.is_in(codelists.long_covid_combine)) \
+  .where(clinical_events.date >= start_of_omicron_epoch + days(covid_to_longcovid_lag)) \
   .sort_by(clinical_events.date).first_for_patient()
 
 # set study end date for everyone 
@@ -57,14 +57,14 @@ end_date = "2022-11-01"
 
 # covid tests
 dataset.latest_test_before_diagnosis = sgss_covid_all_tests \
-    .take(sgss_covid_all_tests.is_positive) \
-    .drop(sgss_covid_all_tests.specimen_taken_date >= first_lc_dx.date - days(30)) \
+    .where(sgss_covid_all_tests.is_positive) \
+    .except_where(sgss_covid_all_tests.specimen_taken_date >= first_lc_dx.date - days(30)) \
     .sort_by(sgss_covid_all_tests.specimen_taken_date).last_for_patient().specimen_taken_date
 
 dataset.all_test_positive = sgss_covid_all_tests \
-    .take(sgss_covid_all_tests.is_positive) \
-    .drop(sgss_covid_all_tests.specimen_taken_date <= study_start_date) \
-    .drop(sgss_covid_all_tests.specimen_taken_date >= first_lc_dx.date - days(covid_to_longcovid_lag)) \
+    .where(sgss_covid_all_tests.is_positive) \
+    .except_where(sgss_covid_all_tests.specimen_taken_date <= study_start_date) \
+    .except_where(sgss_covid_all_tests.specimen_taken_date >= first_lc_dx.date - days(covid_to_longcovid_lag)) \
     .count_for_patient()
 
 # Demographic variables
@@ -76,10 +76,10 @@ dataset.imd = address_as_of(study_start_date).imd_rounded
 
 # Ethnicity in 6 categories
 dataset.ethnicity = (
-    clinical_events.take(clinical_events.ctv3_code.is_in(codelists.ethnicity))
+    clinical_events.where(clinical_events.ctv3_code.is_in(codelists.ethnicity))
     .sort_by(clinical_events.date)
     .last_for_patient()
-    .ctv3_code.to_category(codelists.ethnicity.Grouping_6)
+    .ctv3_code.to_category(codelists.ethnicity)
 )
 
 # vaccine code
@@ -87,19 +87,19 @@ create_sequential_variables(
   dataset,
   "covid_vax_{n}_adm",
   num_variables=5,
-  events=clinical_events.take(clinical_events.snomedct_code.is_in(codelists.vac_adm_combine)),
+  events=clinical_events.where(clinical_events.snomedct_code.is_in(codelists.vac_adm_combine)),
   column="date"
 )
 
 # Vaccines from the vaccines schema
 all_vacc =  vaccinations \
-  .take(vaccinations.date < first_lc_dx.date - days(vaccine_to_longcovid_lag)) \
-  .take(vaccinations.target_disease == "SARS-2 CORONAVIRUS")
+  .where(vaccinations.date < first_lc_dx.date - days(vaccine_to_longcovid_lag)) \
+  .where(vaccinations.target_disease == "SARS-2 CORONAVIRUS")
 dataset.no_prev_vacc = all_vacc.count_for_patient()
 dataset.date_last_vacc = all_vacc.sort_by(all_vacc.date).last_for_patient().date
 
 # set pop and define vars
-dataset.set_population(registrations_number == 1)  # when run this then 50% don't have registration as default? Dataset has 500 rows from expectation = 1000
+dataset.define_population(registrations_number == 1)  # when run this then 50% don't have registration as default? Dataset has 500 rows from expectation = 1000
 dataset.first_lc_dx = first_lc_dx.date
 
 # Next bits of code
