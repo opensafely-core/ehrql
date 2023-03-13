@@ -217,6 +217,42 @@ We may be able to improve this later, depending on the behaviour of the mkdocs p
 we use: see https://github.com/opensafely-core/databuilder/issues/1126
 
 
+### Structure
+
+Databuilder documentation is located in the [docs](docs/) directory.  Local configuration is
+specified in the `mkdocs.yml` located at the repo root.
+
+The `docs/` directory contains some files which are generated from the databuilder code and from
+other documentation files.  Specifically these are files at:
+
+ - [docs/includes/generated_docs/](docs/includes/generated_docs/)
+ - [docs/ehrql-tutorial-examples/outputs/](docs/ehrql-tutorial-examples/outputs/)
+
+The process for generating these files is described below.
+
+When the main OpenSAFELY documentation is built, it imports the databuilder `docs/` directory
+and builds it within the main documentation site. This assumes that all generated documentation
+has been updated already (see below for a description of pre-commit hooks and Github Actions
+that mechanisms that check this happens).
+
+#### Process for updating databuilder documentation
+
+1. Developer makes changes to documentation files or code/tests that generate documentation
+2. Changes committed; pre-commit hook ensures generated docs are up-to-date
+3. PR opened; CI:
+      - ensures generated docs are up to date
+      - tests tutorial snippets
+      - checks tutorial dataset definitions run successfully
+      - check tutorial outputs are current
+3. PR merged; CI:
+      - triggers a deploy of the main OpenSAFELY documentation site
+      - checks if the major version of the databuilder image has changed and updates it in the
+        tutorial project.yaml
+      - runs all tutorial dataset definitions with OpenSAFELY CLI
+      - if the project.yaml or tutorial outputs have changed, opens a PR for the changes
+4. On a schedule (nightly), CI:
+      - checks all the documentation links are valid
+
 ### Using includes from the parent documentation
 
 The most likely use case is including the `glossary.md` from the parent documentation.
