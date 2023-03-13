@@ -111,6 +111,11 @@ def test_queries_are_hashable(queries):
         assert hash(query) is not None
 
 
+def test_unhashable_arguments_are_rejected():
+    with pytest.raises(TypeError):
+        Value({1, 2, 3})
+
+
 # We don't _have_ to maintain this property, but it's quite a convenient one to have and
 # if we're going to break it then let's at least do so deliberately
 def test_query_reprs_round_trip(queries):
@@ -438,8 +443,3 @@ def test_comparisons_between_value_nodes_are_strict():
     assert Value(10) != Value(10.0)
     assert Value(1) != Value(True)
     assert Value(10) != 10
-
-
-def test_unhashable_arguments_are_rejected():
-    with pytest.raises(TypeError):
-        Value({1, 2, 3})
