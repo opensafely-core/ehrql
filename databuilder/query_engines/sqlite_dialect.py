@@ -5,11 +5,6 @@ from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 class SQLiteDialect(SQLiteDialect_pysqlite):
     supports_statement_cache = True
 
-    # Use the `named` parameter placeholder style for consistency with other dialects.
-    # SQLite supports this alongside several others:
-    # https://docs.python.org/3/library/sqlite3.html#sqlite3.paramstyle
-    default_paramstyle = "named"
-
     @classmethod
     def import_dbapi(cls):
         # Use pysqlite3's bundled SQLite rather than the system version
