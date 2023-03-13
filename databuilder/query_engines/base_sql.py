@@ -7,7 +7,6 @@ from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
 
-from databuilder import sqlalchemy_types
 from databuilder.backends.base import DefaultBackend
 from databuilder.query_model.nodes import (
     AggregateByPatient,
@@ -31,7 +30,6 @@ from databuilder.query_model.transforms import (
 )
 from databuilder.utils.functools_utils import singledispatchmethod_with_cache
 from databuilder.utils.sqlalchemy_query_utils import (
-    expr_has_type,
     get_setup_and_cleanup_queries,
     is_predicate,
 )
@@ -226,8 +224,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         lhs = self.get_expr(node.lhs)
         rhs = self.get_expr(node.rhs)
         # To ensure TrueDiv behaviour cast one to float if both args are ints
-        if not expr_has_type(lhs, sqlalchemy_types.Float) and not expr_has_type(
-            rhs, sqlalchemy_types.Float
+        if not isinstance(lhs.type, sqlalchemy.Float) and not isinstance(
+            rhs.type, sqlalchemy.Float
         ):
             lhs = sqlalchemy.cast(lhs, sqlalchemy.Float)
         return self.truedivide(lhs, rhs)
@@ -270,7 +268,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def string_replace(self, value, pattern, replacement):
         return SQLFunction(
-            "REPLACE", value, pattern, replacement, type_=sqlalchemy_types.String
+            "REPLACE", value, pattern, replacement, type_=sqlalchemy.String
         )
 
     @get_sql.register(Function.YearFromDate)
@@ -430,7 +428,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         return self.aggregate_series_by_patient(node.source, self.calculate_mean)
 
     def calculate_mean(self, sql_expr):
-        return SQLFunction("AVG", sql_expr, type_=sqlalchemy_types.Float)
+        return SQLFunction("AVG", sql_expr, type_=sqlalchemy.Float)
 
     # `Exists` and `Count` are Frame-level (rather than Series-level) aggregations and
     # so have a different implementation. They can operate on both many- and
@@ -574,7 +572,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         dialect_name = self.sqlalchemy_dialect.__name__
         sqlalchemy.dialects.registry.impls[dialect_name] = self.sqlalchemy_dialect
         engine_url = sqlalchemy.engine.make_url(self.dsn).set(drivername=dialect_name)
-        engine = sqlalchemy.create_engine(engine_url, future=True)
+        engine = sqlalchemy.create_engine(engine_url)
         # The above relies on abusing SQLAlchemy internals so it's possible it will
         # break in future — we want to know immediately if it does
         assert isinstance(engine.dialect, self.sqlalchemy_dialect)

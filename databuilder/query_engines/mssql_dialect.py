@@ -21,26 +21,19 @@ class _MSSQLDateTimeBase:
         Convert a Python value to a form suitable for passing as a parameter to
         the database connector
         """
-        if value is None:
-            # TODO: test this branch
-            return None  # pragma: no cover
-        # We accept ISO formated strings as well
-        if isinstance(value, str):
-            value = self.date_type.fromisoformat(value)
-        if not isinstance(value, self.date_type):
-            raise TypeError(f"Expected {self.date_type} or str got: {value!r}")
+        assert isinstance(value, self.date_type)
         return value.strftime(self.format_str)
 
-    def process_literal_param(self, value, dialect):
-        """
-        Convert a Python value into an escaped string suitable for
-        interpolating directly into an SQL string
-        """
-        # Use the above method to convert to a string first
-        value = self.process_bind_param(value, dialect)
-        # Use the Text literal processor to quote and escape that string
-        literal_processor = self.text_type.literal_processor(dialect)
-        return literal_processor(value)
+    def literal_processor(self, dialect):
+        text_processor = self.text_type.literal_processor(dialect)
+
+        def processor(value):
+            # Use the bind param method above to convert to a string first
+            value = self.process_bind_param(value, dialect)
+            # Use the Text literal processor to quote and escape that string
+            return text_processor(value)
+
+        return processor
 
     def bind_expression(self, bindvalue):
         # Wrap any bound parameters in an explicit CAST to their intended type. MSSQL

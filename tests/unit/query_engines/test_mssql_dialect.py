@@ -1,10 +1,8 @@
 import datetime
 
-import pytest
 import sqlalchemy
 from sqlalchemy.sql.visitors import iterate
 
-from databuilder import sqlalchemy_types
 from databuilder.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
 
 
@@ -13,13 +11,8 @@ def test_mssql_date_types():
     # inputs are SQLAlchemy expressions I don't know how to do this without
     # constructing the column objects outside of the test, which I don't really
     # want to do.
-    date_col = sqlalchemy.Column("date_col", sqlalchemy_types.Date())
-    datetime_col = sqlalchemy.Column("datetime_col", sqlalchemy_types.DateTime())
-    assert _str(date_col > "2021-08-03") == "date_col > CAST('20210803' AS DATE)"
-    assert (
-        _str(datetime_col < "2021-03-23")
-        == "datetime_col < CAST('2021-03-23T00:00:00' AS DATETIME)"
-    )
+    date_col = sqlalchemy.Column("date_col", sqlalchemy.Date())
+    datetime_col = sqlalchemy.Column("datetime_col", sqlalchemy.DateTime())
     assert (
         _str(date_col == datetime.date(2021, 5, 15))
         == "date_col = CAST('20210515' AS DATE)"
@@ -30,14 +23,6 @@ def test_mssql_date_types():
     )
     assert _str(date_col == None) == "date_col IS NULL"  # noqa: E711
     assert _str(datetime_col == None) == "datetime_col IS NULL"  # noqa: E711
-    with pytest.raises(ValueError):
-        _str(date_col > "2021")
-    with pytest.raises(ValueError):
-        _str(datetime_col == "2021-08")
-    with pytest.raises(TypeError):
-        _str(date_col > 2021)
-    with pytest.raises(TypeError):
-        _str(datetime_col == 2021)
 
 
 def test_select_star_into():
@@ -77,7 +62,7 @@ def _str(expression):
 
 
 def test_mssql_float_type():
-    float_col = sqlalchemy.Column("float_col", sqlalchemy_types.Float())
+    float_col = sqlalchemy.Column("float_col", sqlalchemy.Float())
     # explicitly casts floats
     assert _str(float_col == 0.75) == "float_col = CAST(0.75 AS FLOAT)"
     assert _str(float_col == None) == "float_col IS NULL"  # noqa: E711

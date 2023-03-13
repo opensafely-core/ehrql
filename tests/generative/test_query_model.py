@@ -235,7 +235,8 @@ IGNORED_ERRORS = [
         re.compile(".+Adding a value to a 'date' column caused an overflow.+"),
     ),  # DateAddMonths, resulting in an invalid date
     # sqlite
-    (ValueError, re.compile("Couldn't parse date string")),
+    # Note the leading `-` below: ISO format doesn't handle BC dates
+    (ValueError, re.compile(r"Invalid isoformat string: '-\d\d\d\d-\d\d-\d\d'")),
     # in-memory engine
     (
         ValueError,

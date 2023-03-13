@@ -57,8 +57,7 @@ class DbDetails:
     def engine(self, dialect=None, **kwargs):
         url = self._url(self.host_from_host, self.port_from_host, include_driver=True)
         engine_url = sqlalchemy.engine.make_url(url)
-        # We always want the "future" API
-        engine = sqlalchemy.create_engine(engine_url, future=True, **kwargs)
+        engine = sqlalchemy.create_engine(engine_url, **kwargs)
         return engine
 
     def _url(self, host, port, include_driver=False):
