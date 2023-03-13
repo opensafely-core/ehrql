@@ -8,7 +8,6 @@ from sqlalchemy.orm import declarative_base
 
 from databuilder.query_model.nodes import has_one_row_per_patient
 from databuilder.sqlalchemy_types import type_from_python_type
-from databuilder.utils.sqlalchemy_query_utils import expr_has_type
 
 SYNTHETIC_PRIMARY_KEY = "row_id"
 
@@ -114,20 +113,20 @@ def read_value(value, field):
     # Treat the empty string as NULL
     if value == "":
         return None
-    if expr_has_type(field, sqlalchemy.Boolean):
+    if isinstance(field.type, sqlalchemy.Boolean):
         if value == "T":
             return True
         elif value == "F":
             return False
         else:
             raise ValueError(f"invalid boolean '{value}', must be 'T' or 'F'")
-    elif expr_has_type(field, sqlalchemy.Date):
+    elif isinstance(field.type, sqlalchemy.Date):
         return datetime.date.fromisoformat(value)
-    elif expr_has_type(field, sqlalchemy.Float):
+    elif isinstance(field.type, sqlalchemy.Float):
         return float(value)
-    elif expr_has_type(field, sqlalchemy.Integer):
+    elif isinstance(field.type, sqlalchemy.Integer):
         return int(value)
-    elif expr_has_type(field, sqlalchemy.String):
+    elif isinstance(field.type, sqlalchemy.String):
         return value
     else:
         assert False
@@ -173,7 +172,7 @@ def orm_csv_writer(fileobj, orm_class):
 def format_value(value, field):
     # The CSV library will implicitly format most types correctly as strings, but
     # doesn't handle booleans as we'd like
-    if expr_has_type(field, sqlalchemy.Boolean):
+    if isinstance(field.type, sqlalchemy.Boolean):
         if value is True:
             return "T"
         elif value is False:

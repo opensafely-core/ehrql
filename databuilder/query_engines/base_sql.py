@@ -30,7 +30,6 @@ from databuilder.query_model.transforms import (
 )
 from databuilder.utils.functools_utils import singledispatchmethod_with_cache
 from databuilder.utils.sqlalchemy_query_utils import (
-    expr_has_type,
     get_setup_and_cleanup_queries,
     is_predicate,
 )
@@ -225,8 +224,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         lhs = self.get_expr(node.lhs)
         rhs = self.get_expr(node.rhs)
         # To ensure TrueDiv behaviour cast one to float if both args are ints
-        if not expr_has_type(lhs, sqlalchemy.Float) and not expr_has_type(
-            rhs, sqlalchemy.Float
+        if not isinstance(lhs.type, sqlalchemy.Float) and not isinstance(
+            rhs.type, sqlalchemy.Float
         ):
             lhs = sqlalchemy.cast(lhs, sqlalchemy.Float)
         return self.truedivide(lhs, rhs)

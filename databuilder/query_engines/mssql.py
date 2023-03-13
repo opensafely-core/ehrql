@@ -15,7 +15,6 @@ from databuilder.utils.sqlalchemy_exec_utils import (
 )
 from databuilder.utils.sqlalchemy_query_utils import (
     GeneratedTable,
-    expr_has_type,
     get_setup_and_cleanup_queries,
 )
 
@@ -32,7 +31,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
     def calculate_mean(self, sql_expr):
         # Unlike other DBMSs, MSSQL will return an integer as the mean of integers so we
         # have to explicitly cast to float
-        if not expr_has_type(sql_expr, sqlalchemy.Float):
+        if not isinstance(sql_expr.type, sqlalchemy.Float):
             sql_expr = sqlalchemy.cast(sql_expr, sqlalchemy.Float)
         return SQLFunction("AVG", sql_expr, type_=sqlalchemy.Float)
 
