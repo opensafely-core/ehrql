@@ -1,6 +1,5 @@
 import datetime
 
-import pytest
 import sqlalchemy
 from sqlalchemy.sql.visitors import iterate
 
@@ -14,11 +13,6 @@ def test_mssql_date_types():
     # want to do.
     date_col = sqlalchemy.Column("date_col", sqlalchemy.Date())
     datetime_col = sqlalchemy.Column("datetime_col", sqlalchemy.DateTime())
-    assert _str(date_col > "2021-08-03") == "date_col > CAST('20210803' AS DATE)"
-    assert (
-        _str(datetime_col < "2021-03-23")
-        == "datetime_col < CAST('2021-03-23T00:00:00' AS DATETIME)"
-    )
     assert (
         _str(date_col == datetime.date(2021, 5, 15))
         == "date_col = CAST('20210515' AS DATE)"
@@ -29,22 +23,6 @@ def test_mssql_date_types():
     )
     assert _str(date_col == None) == "date_col IS NULL"  # noqa: E711
     assert _str(datetime_col == None) == "datetime_col IS NULL"  # noqa: E711
-
-    with pytest.raises(sqlalchemy.exc.CompileError) as e:
-        _str(date_col > "2021")
-    assert isinstance(e.value.__cause__, ValueError)
-
-    with pytest.raises(sqlalchemy.exc.CompileError) as e:
-        _str(datetime_col == "2021-08")
-    assert isinstance(e.value.__cause__, ValueError)
-
-    with pytest.raises(sqlalchemy.exc.CompileError) as e:
-        _str(date_col > 2021)
-    assert isinstance(e.value.__cause__, TypeError)
-
-    with pytest.raises(sqlalchemy.exc.CompileError) as e:
-        _str(datetime_col == 2021)
-    assert isinstance(e.value.__cause__, TypeError)
 
 
 def test_select_star_into():

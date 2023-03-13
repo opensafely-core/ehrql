@@ -21,14 +21,7 @@ class _MSSQLDateTimeBase:
         Convert a Python value to a form suitable for passing as a parameter to
         the database connector
         """
-        if value is None:
-            # TODO: test this branch
-            return None  # pragma: no cover
-        # We accept ISO formated strings as well
-        if isinstance(value, str):
-            value = self.date_type.fromisoformat(value)
-        if not isinstance(value, self.date_type):
-            raise TypeError(f"Expected {self.date_type} or str got: {value!r}")
+        assert isinstance(value, self.date_type)
         return value.strftime(self.format_str)
 
     def literal_processor(self, dialect):
