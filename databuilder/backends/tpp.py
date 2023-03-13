@@ -266,6 +266,76 @@ class TPPBackend(BaseBackend):
                 CASE
                     WHEN hostdat != 'NA' THEN CONVERT(DATE, hostdat, 23)
                 END AS hostdat,
+                CASE
+                    WHEN chrincard IN ('YES', 'NO', 'Unknown') THEN chrincard
+                    WHEN chrincard = 'NA' THEN 'NO'
+                END AS chrincard,
+                CASE
+                    WHEN hypertension_mhyn IN ('YES', 'NO', 'Unknown') THEN hypertension_mhyn
+                    WHEN hypertension_mhyn = 'NA' THEN 'NO'
+                END AS hypertension_mhyn,
+                CASE
+                    WHEN chronicpul_mhyn IN ('YES', 'NO', 'Unknown') THEN chronicpul_mhyn
+                    WHEN chronicpul_mhyn = 'NA' THEN 'NO'
+                END AS chronicpul_mhyn,
+                CASE
+                    WHEN asthma_mhyn IN ('YES', 'NO', 'Unknown') THEN asthma_mhyn
+                    WHEN asthma_mhyn = 'NA' THEN 'NO'
+                END AS asthma_mhyn,
+                CASE
+                    WHEN renal_mhyn IN ('YES', 'NO', 'Unknown') THEN renal_mhyn
+                    WHEN renal_mhyn = 'NA' THEN 'NO'
+                END AS renal_mhyn,
+                CASE
+                    WHEN mildliver IN ('YES', 'NO', 'Unknown') THEN mildliver
+                    WHEN mildliver = 'NA' THEN 'NO'
+                END AS mildliver,
+                CASE
+                    WHEN modliv IN ('YES', 'NO', 'Unknown') THEN modliv
+                    WHEN modliv = 'NA' THEN 'NO'
+                END AS modliv,
+                CASE
+                    WHEN chronicneu_mhyn IN ('YES', 'NO', 'Unknown') THEN chronicneu_mhyn
+                    WHEN chronicneu_mhyn = 'NA' THEN 'NO'
+                END AS chronicneu_mhyn,
+                CASE
+                    WHEN malignantneo_mhyn IN ('YES', 'NO', 'Unknown') THEN malignantneo_mhyn
+                    WHEN malignantneo_mhyn = 'NA' THEN 'NO'
+                END AS malignantneo_mhyn,
+                CASE
+                    WHEN chronichaemo_mhyn IN ('YES', 'NO', 'Unknown') THEN chronichaemo_mhyn
+                    WHEN chronichaemo_mhyn = 'NA' THEN 'NO'
+                END AS chronichaemo_mhyn,
+                CASE
+                    WHEN aidshiv_mhyn IN ('YES', 'NO', 'Unknown') THEN aidshiv_mhyn
+                    WHEN aidshiv_mhyn = 'NA' THEN 'NO'
+                END AS aidshiv_mhyn,
+                CASE
+                    WHEN obesity_mhyn IN ('YES', 'NO', 'Unknown') THEN obesity_mhyn
+                    WHEN obesity_mhyn = 'NA' THEN 'NO'
+                END AS obesity_mhyn,
+                diabetes_type_mhyn,
+                CASE
+                    WHEN diabetescom_mhyn IN ('YES', 'NO', 'Unknown') THEN diabetescom_mhyn
+                    WHEN diabetescom_mhyn = 'NA' THEN 'NO'
+                END AS diabetescom_mhyn,
+                CASE
+                    WHEN diabetes_mhyn IN ('YES', 'NO', 'Unknown') THEN diabetes_mhyn
+                    WHEN diabetes_mhyn = 'NA' THEN 'NO'
+                END AS diabetes_mhyn,
+                CASE
+                    WHEN rheumatologic_mhyn IN ('YES', 'NO', 'Unknown') THEN rheumatologic_mhyn
+                    WHEN rheumatologic_mhyn = 'NA' THEN 'NO'
+                END AS rheumatologic_mhyn,
+                CASE
+                    WHEN dementia_mhyn IN ('YES', 'NO', 'Unknown') THEN dementia_mhyn
+                    WHEN dementia_mhyn = 'NA' THEN 'NO'
+                END AS dementia_mhyn,
+                CASE
+                    WHEN malnutrition_mhyn IN ('YES', 'NO', 'Unknown') THEN malnutrition_mhyn
+                    WHEN malnutrition_mhyn = 'NA' THEN 'NO'
+                END AS malnutrition_mhyn,
+                smoking_mhyn,
                 hooccur,
                 CASE
                     WHEN hostdat_transfer != 'NA' THEN CONVERT(DATE, hostdat_transfer, 23)
