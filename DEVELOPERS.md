@@ -374,7 +374,7 @@ make sure that you:
   and check if any explanatory text requires amending as a result of your changes.
 
 
-### Keeping the version of databulder used for the tutorial examples in sync
+### Syncing the databuilder Docker image version with the tutorial examples
 
 The version of the databuilder image used for the tutorials is specified in the tutorial's
 [`project.yaml`](docs/ehrql-tutorial-examples/project.yaml).  We reference the image by
