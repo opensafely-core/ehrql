@@ -44,12 +44,26 @@ from databuilder.query_model.nodes import (
     Value,
 )
 
+
+@table
+class patients(PatientFrame):
+    date_of_birth = Series(date)
+    i = Series(int)
+    f = Series(float)
+
+
 patients_schema = TableSchema(
     date_of_birth=Column(date), i=Column(int), f=Column(float)
 )
-patients = PatientFrame(SelectPatientTable("patients", patients_schema))
+
+
+@table
+class events(EventFrame):
+    event_date = Series(date)
+    f = Series(float)
+
+
 events_schema = TableSchema(event_date=Column(date), f=Column(float))
-events = EventFrame(SelectTable("coded_events", events_schema))
 
 
 def test_dataset():
@@ -526,3 +540,30 @@ def test_strings_are_cast_to_codes():
     # Test invalid codes are rejected
     with pytest.raises(ValueError, match="Invalid SNOMEDCTCode"):
         p.code == "abc"
+
+
+def test_frame_classes_are_preserved():
+    @table
+    class e(EventFrame):
+        start_date = Series(date)
+
+        def after_2020(self):
+            return self.where(self.start_date > "2020-01-01")
+
+    # Check that the helper method is preserved through `where`
+    filtered_frame = e.where(e.start_date > "1990-01-01")
+    assert isinstance(filtered_frame.after_2020(), EventFrame)
+
+    # Check that the helper method is preserved through `sort_by`
+    sorted_frame = e.sort_by(e.start_date)
+    assert isinstance(sorted_frame.after_2020(), EventFrame)
+
+    # Check that helper method is not available on patient frame
+    latest_event = sorted_frame.last_for_patient()
+    assert not hasattr(latest_event, "after_2020")
+
+    # Check that column is still available. We're using `dir()` here to confirm that the
+    # column is explicitly defined on the object and is available as an auto-complete
+    # suggestion. Using `hasattr()` wouldn't tell us whether the attribute was only
+    # available via a magic `__getattr__` method.
+    assert "start_date" in dir(latest_event)
