@@ -388,6 +388,59 @@ returns the following patient series:
 
 
 
+### 2.4 Mixing the order of `sort_by` and `where` operations
+
+
+#### 2.4.1 Sort by before where
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2 |
+| - | - | - |
+| 1|101|1 |
+| 1|102|2 |
+| 1|103|2 |
+| 2|203|1 |
+| 2|202|2 |
+| 2|201|2 |
+
+```
+e.sort_by(e.i1).where(e.i1 > 102).first_for_patient().i1
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|103 |
+| 2|201 |
+
+
+
+#### 2.4.2 Sort by interleaved with where
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2 |
+| - | - | - |
+| 1|101|1 |
+| 1|102|2 |
+| 1|103|2 |
+| 2|203|1 |
+| 2|202|2 |
+| 2|201|2 |
+
+```
+e.sort_by(e.i1).where(e.i2 > 1).sort_by(e.i2).first_for_patient().i1
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|102 |
+| 2|201 |
+
+
+
 ## 3 Aggregating event and patient frames
 
 
