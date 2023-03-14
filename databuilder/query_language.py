@@ -1,7 +1,9 @@
 import dataclasses
 import datetime
 import enum
+import functools
 import warnings
+from collections import ChainMap
 from typing import Union
 
 from databuilder.codes import BaseCode
@@ -606,12 +608,6 @@ class BaseFrame:
     def __init__(self, qm_node):
         self.qm_node = qm_node
 
-    def __getattr__(self, name):
-        if not name.startswith("__"):
-            return self._select_column(name)
-        else:
-            raise AttributeError(f"object has no attribute {name!r}")
-
     def _select_column(self, name):
         return _wrap(qm.SelectColumn(source=self.qm_node, name=name))
 
@@ -666,12 +662,14 @@ class EventFrame(BaseFrame):
                 source=qm_node,
                 sort_by=_convert(series),
             )
-        return SortedEventFrame(qm_node)
+        cls = make_sorted_event_frame_class(self.__class__)
+        return cls(qm_node)
 
 
-class SortedEventFrame(EventFrame):
+class SortedEventFrameMethods:
     def first_for_patient(self):
-        return PatientFrame(
+        cls = make_patient_frame_class(self.__class__)
+        return cls(
             qm.PickOneRowPerPatient(
                 position=qm.Position.FIRST,
                 source=self.qm_node,
@@ -679,12 +677,39 @@ class SortedEventFrame(EventFrame):
         )
 
     def last_for_patient(self):
-        return PatientFrame(
+        cls = make_patient_frame_class(self.__class__)
+        return cls(
             qm.PickOneRowPerPatient(
                 position=qm.Position.LAST,
                 source=self.qm_node,
             )
         )
+
+
+@functools.cache
+def make_sorted_event_frame_class(cls):
+    """
+    Given a class return a subclass which has the SortedEventFrameMethods
+    """
+    if issubclass(cls, SortedEventFrameMethods):
+        return cls
+    else:
+        return type(cls.__name__, (SortedEventFrameMethods, cls), {})
+
+
+@functools.cache
+def make_patient_frame_class(cls):
+    """
+    Given an EventFrame subclass return a PatientFrame subclass with the same columns as
+    the original frame
+    """
+    # Because `Series` is a descriptor we can't access the column objects via class
+    # attributes without invoking the descriptor: instead, we have to access them using
+    # `vars()`. But `vars()` only gives us attributes defined directly on the class, not
+    # inherited ones. So we reproduced the inheritance behaviour using `ChainMap`.
+    attrs = ChainMap(*[vars(base) for base in cls.__mro__])
+    columns = {key: value for key, value in attrs.items() if isinstance(value, Series)}
+    return type(cls.__name__, (PatientFrame,), columns)
 
 
 # FRAME CONSTRUCTOR ENTRYPOINTS
