@@ -279,7 +279,7 @@ To generate this file, run:
 This generates the markdown files in `docs/includes/generated_docs`.
 
 This command runs as a pre-commit hook and will fail if there are any changes to the
-generated markdown files.  It is a developer's responsibility to update the generated docs in
+generated markdown files. It is a developer's responsibility to update the generated docs in
 their PR if required. There is also a CI step that will check that the documentation is up to
 date.
 
