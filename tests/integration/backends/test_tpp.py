@@ -193,12 +193,19 @@ def test_practice_registrations(select_all):
 def test_ons_deaths(select_all):
     results = select_all(
         Patient(Patient_ID=1),
-        ONSDeaths(Patient_ID=1, dod="2022-01-01", ICD10001="abc", ICD10002="def"),
+        ONSDeaths(
+            Patient_ID=1,
+            dod="2022-01-01",
+            Place_of_occurrence="Care Home",
+            ICD10001="abc",
+            ICD10002="def",
+        ),
     )
     assert results == [
         {
             "patient_id": 1,
             "date": date(2022, 1, 1),
+            "place": "Care Home",
             "cause_of_death_01": "abc",
             "cause_of_death_02": "def",
             "cause_of_death_03": None,

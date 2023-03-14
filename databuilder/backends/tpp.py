@@ -65,6 +65,7 @@ class TPPBackend(BaseBackend):
         source="ONS_Deaths",
         columns=dict(
             date="dod",
+            place="Place_of_occurrence",
             **{f"cause_of_death_{i:02d}": f"ICD100{i:02d}" for i in range(1, 16)},
         ),
     )
