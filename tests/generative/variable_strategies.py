@@ -408,11 +408,16 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     @st.composite
     def sorted_frame(draw):
-        # select a table which may already have been filtered
-        source = draw(many_rows_per_patient_frame())
-        # Now apply 1-3 sorts
-        for _ in range(draw(st.integers(min_value=1, max_value=3))):
-            source = draw(sort(source))
+        # Decide how many Sorts and Filters (if any) we're going to apply
+        num_sorts = draw(st.integers(min_value=1, max_value=3))
+        num_filters = draw(st.integers(min_value=0, max_value=6))
+        # Mix up the order of operations
+        operations = [filter_] * num_filters + [sort] * num_sorts
+        shuffled_operations = draw(st.permutations(operations))
+        # Pick a table and apply the operations
+        source = draw(select_table())
+        for operation in shuffled_operations:
+            source = draw(operation(source))
         return source
 
     @st.composite

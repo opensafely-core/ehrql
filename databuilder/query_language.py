@@ -632,7 +632,7 @@ class EventFrame(BaseFrame):
         return self.where(series)
 
     def where(self, series):
-        return EventFrame(
+        return self.__class__(
             qm.Filter(
                 source=self.qm_node,
                 condition=_convert(series),
@@ -646,7 +646,7 @@ class EventFrame(BaseFrame):
         return self.except_where(series)
 
     def except_where(self, series):
-        return EventFrame(
+        return self.__class__(
             qm.Filter(
                 source=self.qm_node,
                 condition=qm.Function.Or(
@@ -669,7 +669,7 @@ class EventFrame(BaseFrame):
         return SortedEventFrame(qm_node)
 
 
-class SortedEventFrame(BaseFrame):
+class SortedEventFrame(EventFrame):
     def first_for_patient(self):
         return PatientFrame(
             qm.PickOneRowPerPatient(
