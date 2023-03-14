@@ -209,7 +209,7 @@ It can also be built as a standalone documentation site with MkDocs to preview c
 
     just docs-serve
 
-:warning: The documentation will look slightly different from OpenSAFELY's.  Relative links to
+:warning: The documentation will look slightly different from OpenSAFELY's. Relative links to
 sections of the main documentation outside of the /data-builder sections will not work (although
 a scheduled [Github Action](https://github.com/opensafely-core/databuilder/actions/workflows/check-docs-links.yml) runs overnight to check them).
 
