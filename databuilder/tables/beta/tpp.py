@@ -82,6 +82,21 @@ class practice_registrations(EventFrame):
 @table
 class ons_deaths(EventFrame):
     date = Series(datetime.date)
+    place = Series(
+        str,
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Care Home",
+                    "Elsewhere",
+                    "Home",
+                    "Hospice",
+                    "Hospital",
+                    "Other communal establishment",
+                ]
+            ),
+        ],
+    )
     # TODO: Revisit this when we have support for multi-valued fields
     cause_of_death_01 = Series(ICD10Code)
     cause_of_death_02 = Series(ICD10Code)
