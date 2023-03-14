@@ -219,7 +219,7 @@ we use: see https://github.com/opensafely-core/databuilder/issues/1126
 
 ### Structure
 
-Databuilder documentation is located in the [docs](docs/) directory.  Local configuration is
+Databuilder documentation is located in the [docs](docs/) directory. Local configuration is
 specified in the `mkdocs.yml` located at the repo root.
 
 The `docs/` directory contains some files which are generated from the databuilder code and from
