@@ -223,7 +223,7 @@ Databuilder documentation is located in the [docs](docs/) directory.  Local conf
 specified in the `mkdocs.yml` located at the repo root.
 
 The `docs/` directory contains some files which are generated from the databuilder code and from
-other documentation files.  Specifically these are files at:
+other documentation files. Specifically these are files at:
 
  - [docs/includes/generated_docs/](docs/includes/generated_docs/)
  - [docs/ehrql-tutorial-examples/outputs/](docs/ehrql-tutorial-examples/outputs/)
