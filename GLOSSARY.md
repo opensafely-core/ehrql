@@ -29,15 +29,18 @@ Data about the health of the patients in a population, stored electronically (i.
 **Measure.**
 A quotient (a numerator divided by a denominator) for a given time interval and period (e.g. each month for a year).
 
+**Query**
+A graph of connected Query Model objects.
+
 **Query Engine.**
-Takes a query (a graph of connected Query Model objects), connects to a database, and returns the corresponding data. Usually this will be a relational database speaking some dialect of SQL. But it doesn't have to be.
+Takes a Query, connects to a database, and returns the corresponding data. Usually this will be a relational database speaking some dialect of SQL. But it doesn't have to be.
 
 **Query Language.**
 A programming language designed for querying a data store.
 For example, ehrQL.
 
 **Query Model.**
-The core data structure by which Data Builder represents a query. It is responsible for defining the semantics of all the operations we support on the data, and for ensuring that only semantically valid queries can be constructed. When a user writes ehrQL this constructs a graph of Query Model objects that are then passed to a Query Engine for execution. This provides a clear boundary between the syntactic surface of ehrQL (where expressiveness and user convenience are paramount) and the underlying semantics.
+The core data structure by which Data Builder represents a Query. It is responsible for defining the semantics of all the operations we support on the data, and for ensuring that only semantically valid queries can be constructed. When a user writes ehrQL this constructs a Query that is then passed to a Query Engine for execution. This provides a clear boundary between the syntactic surface of ehrQL (where expressiveness and user convenience are paramount) and the underlying semantics.
 
 **ehrQL Table**
 Describes the structure and types of some EHR data. User's can write queries against this data using ehrQL.
