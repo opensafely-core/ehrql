@@ -209,9 +209,49 @@ It can also be built as a standalone documentation site with MkDocs to preview c
 
     just docs-serve
 
-:warning: The documentation will look considerably different from OpenSAFELY's.
-We aim to improve this in future.
-See the [relevant issue](https://github.com/opensafely-core/databuilder/issues/978).
+:warning: The documentation will look slightly different from OpenSAFELY's. Relative links to
+sections of the main documentation outside of the /data-builder sections will not work (although
+a scheduled [Github Action](https://github.com/opensafely-core/databuilder/actions/workflows/check-docs-links.yml) runs overnight to check them).
+
+We may be able to improve this later, depending on the behaviour of the mkdocs plugin that
+we use: see https://github.com/opensafely-core/databuilder/issues/1126
+
+
+### Structure
+
+Databuilder documentation is located in the [docs](docs/) directory. Local configuration is
+specified in the `mkdocs.yml` located at the repo root.
+
+The `docs/` directory contains some files which are generated from the databuilder code and from
+other documentation files. Specifically these are files at:
+
+ - [docs/includes/generated_docs/](docs/includes/generated_docs/)
+ - [docs/ehrql-tutorial-examples/outputs/](docs/ehrql-tutorial-examples/outputs/)
+
+The process for generating these files is described below.
+
+When the main OpenSAFELY documentation is built, it imports the databuilder `docs/` directory
+and builds it within the main documentation site. This assumes that all generated documentation
+has been updated already (see below for a description of pre-commit hooks and Github Actions
+that mechanisms that check this happens).
+
+#### Process for updating databuilder documentation
+
+1. Developer makes changes to documentation files or code/tests that generate documentation
+2. Changes committed; pre-commit hook ensures generated docs are up-to-date
+3. PR opened; CI:
+      - ensures generated docs are up to date
+      - tests tutorial snippets
+      - checks tutorial dataset definitions run successfully
+      - check tutorial outputs are current
+3. PR merged; CI:
+      - triggers a deploy of the main OpenSAFELY documentation site
+      - checks if the major version of the databuilder image has changed and updates it in the
+        tutorial project.yaml
+      - runs all tutorial dataset definitions with OpenSAFELY CLI
+      - if the project.yaml or tutorial outputs have changed, opens a PR for the changes
+4. On a schedule (nightly), CI:
+      - checks all the documentation links are valid
 
 ### Using includes from the parent documentation
 
@@ -225,7 +265,7 @@ To do so, use a slightly different snippet syntax:
 
 ### Generating data for documentation
 
-Some Data Builder [documentation](https://github.com/opensafely/documentation) is generated from code in this repo.
+Some Data Builder documentation is generated from code in this repo.
 
 See the [spec tests docs](tests/spec/README.md) for further information on writing tests that
 contribute to the ehrQL docs.
@@ -238,25 +278,23 @@ To generate this file, run:
 
 This generates the markdown files in `docs/includes/generated_docs`.
 
-Note that it is currently a developer's responsibility to update the generated docs in a PR if required. There
-is a CI step that will check that the documentation is up to date.
+This command runs as a pre-commit hook and will fail if there are any changes to the
+generated markdown files. It is a developer's responsibility to update the generated docs in
+their PR if required. There is also a CI step that will check that the documentation is up to
+date.
 
 ### Updating the main OpenSAFELY documentation repository
 
-:warning: Currently, changes made to the documentation in Data Builder's repository will be deployed whenever any pull request in the main [documentation](https://github.com/opensafely/documentation) repository is next merged.
-
-We intend to implement automated deployment
-which redeploys the documentation whenever a new version of Data Builder is published;
-see the [relevant issue](https://github.com/opensafely/documentation/issues/1108).
+Merges to the main branch in this repo trigger a [deployment of the main OpenSAFELY documentation via a Github Action](https://github.com/opensafely-core/databuilder/actions/workflows/deploy-documentation.yml).
 
 ### Making changes to the dataset definition snippets
 
-These snippets are separate from the tutorial examples in `databuilder/ehrql-tutorial-examples`.
-There is a separate README in that directory that explains how those tutorial examples work.
+These snippets are separate from the tutorial examples in `docs/ehrql-tutorial-examples`.
+See [below](#ehrql-tutorial-examples) for documentation on how the tutorial examples work.
 We may eventually unify the tutorial examples with the snippet
 so that all example code is checked in the same way.
 
-Edit the python modules in the `databuilder/snippets` directory.
+Edit the python modules in the `docs/snippets` directory.
 
 Examples are included in the markdown files using the [pymdown snippet notation](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/#snippets-notation).
 
@@ -268,7 +306,7 @@ print("hello world")
 # --8<-- [end:print]
 ```
 
-If this example was stored as `databuilder/snippets/hello.py`,
+If this example was stored as `docs/snippets/hello.py`,
 then it could be included in the documentation Markdown source via:
 
 ````
@@ -276,3 +314,75 @@ then it could be included in the documentation Markdown source via:
 --8<-- 'databuilder/snippets/hello.py:print'
 ```
 ````
+
+### ehrQL tutorial examples
+
+docs/ehrql-tutorial-examples is a collection of:
+
+* dataset definitions
+* example data
+* outputs from the dataset definitions run against the example data
+
+used in the ehrQL tutorials.
+
+#### Adding a new example
+
+Refer to existing ehrQL tutorial pages to see the current layout that we use.
+
+The current process for adding a new example is:
+
+1. Create a new dataset and add it to the [`example-data`](docs/ehrql-tutorial-examples/example-data/) directory,
+2. Write the dataset definition and add it to the [`ehrql-tutorial-examples`](docs/ehrql-tutorial-examples/).
+   See the [ehrQL tutorial introduction](docs/ehrql/tutorial/index.md#using-data-builders-command-line-interface)
+   for an explanation of the filename convention.
+3. Build the dataset definition outputs
+   (see below),
+   then add and commit the new files stored in the [`outputs`](docs/ehrql-tutorial-examples/outputs/) directory to the repository.
+4. Use a dataset definition in the relevant documentation page's Markdown file:
+   ````
+   ```python title="$YOUR_DATASET_DEFINITION_FILENAME"
+   ---8<-- "ehrql-tutorial-examples/$YOUR_DATASET_DEFINITION_FILENAME"
+   ```
+   ````
+5. Use the `read_csv` feature of the [table-reader plugin](https://github.com/timvink/mkdocs-table-reader-plugin)
+   in the relevant documentation page's Markdown file:
+   to include the input and output CSVs as nicely formatted tables.
+
+   You will need one `read_csv` entry for each CSV.
+
+   Use the `keep_default_na=False` option to include blank table cells
+   instead of the text `nan`.
+
+#### Building dataset definition outputs
+
+The easiest way is via the relevant `just` recipe.
+
+```
+just docs-build-dataset-definitions-outputs
+```
+
+#### Updating content
+
+A GitHub Actions workflow checks that the dataset definition outputs are current.
+
+If you modify existing example data or dataset definitions,
+make sure that you:
+
+* Commit the files you have directly changed.
+* Rebuild the output CSVs and commit those if they have changed.
+* Review all documentation pages that use the files you have edited,
+  and check if any explanatory text requires amending as a result of your changes.
+
+
+### Syncing the databuilder Docker image version with the tutorial examples
+
+The version of the databuilder image used for the tutorials is specified in the tutorial's
+[`project.yaml`](docs/ehrql-tutorial-examples/project.yaml).  We reference the image by
+major version only (e.g. `v0`), so the `project.yaml` file itself only needs to be
+updated rarely.  However, whenever a new image is built, it could have an impact on the
+tutorial examples and their outputs.
+
+After a merge to main, a Github Action runs to [update and test the tutorial examples](https://github.com/opensafely-core/databuilder/actions/workflows/update-tutorial-databuilder-version.yml).
+If the image has changed major version, this will replace the version in the `project.yaml`. It
+will also run the tutorial project via the OpenSAFELY CLI, which will generate the tutorial
+output files.  If there are any changes, it will open a pull request in this repo.
