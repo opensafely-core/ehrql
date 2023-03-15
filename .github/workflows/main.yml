@@ -113,6 +113,6 @@ jobs:
           id: tag
           uses: mathieudutour/github-tag-action@981ffb2cc3f2b684b2bfd8ee17bc8d781368ba60
           with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
+            github_token: ${{ secrets.TRIGGER_TAG_BUILD_TOKEN }}
             default_bump: false
             release_branches: main
