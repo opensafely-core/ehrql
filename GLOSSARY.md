@@ -30,7 +30,7 @@ Data about the health of the patients in a population, stored electronically (i.
 A quotient (a numerator divided by a denominator) for a given time interval and period (e.g. each month for a year).
 
 **Query Engine.**
-Takes a query (a graph of connected Query Model objects), connects to a database and returns the corresponding data. Usually this will be a relational database speaking some dialect of SQL. But it doesn't have to be.
+Takes a query (a graph of connected Query Model objects), connects to a database, and returns the corresponding data. Usually this will be a relational database speaking some dialect of SQL. But it doesn't have to be.
 
 **Query Language.**
 A programming language designed for querying a data store.
