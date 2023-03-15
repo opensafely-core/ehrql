@@ -51,13 +51,13 @@ When a user writes ehrQL this constructs a Query that is then passed to a Query 
 This provides a clear boundary between the syntactic surface of ehrQL (where expressiveness and user convenience are paramount) and the underlying semantics.
 
 **ehrQL Table**
-Describes the structure and types of some EHR data.
-User's can write queries against this data using ehrQL.
+The table structure we present to the user.
+User's can write queries against this table structure using ehrQL.
 
 **Database Table**
-Table in the SQL sense as stored in the database of an EHR provider.
-These are not directly exposed to users.
-Users interact with ehrQL Tables and their queries are translated into queries against Database Tables by a Backend.
+The table structure in an EHR provider's database.
+We do not present this table structure to the user.
+Instead, the user interacts with ehrQL Tables; their queries are translated into queries against this table structure by a Backend.
 
 **`variable_definitions`.**
 Found throughout the Data Builder codebase, the Query Model equivalent of a Dataset Definition.
