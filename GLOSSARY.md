@@ -7,10 +7,6 @@ Each Backend is specific to an EHR provider and a Query Engine, which tells Data
 
 A Backend is not required in order to connect to a database. If the structure of the database tables exactly matches the structure of the ehrQL tables then there is no translation to be done. In that case, we can query the database just be specifying the appropriate Query Engine.
 
-**Contract.**
-A specification for a collection of EHR data.
-A Contract is fulfilled by a Table.
-
 **Dataset Definition.**
 Describes, using ehrQL, the EHR data to extract from a Backend.
 
