@@ -19,10 +19,10 @@ For example, ehrQL is a DSL;
 it is a programming language designed for the specific application domain of EHR data.
 
 **Dummy Data.**
-Randomly-generated data used as a substitute for the EHR data when generating a dataset from a Dataset Definition.
+Randomly-generated data used as a substitute for EHR data when generating a dataset from a Dataset Definition.
 
 **ehrQL.**
-The Electronic Health Records Query Language, pronounced  err-kul (or *Hercule* as in Poirot, if you're feeling continental).
+The Electronic Health Records Query Language, pronounced *err-kul* (or *Hercule*, as in Poirot, if you're feeling continental).
 A Domain-Specific Language (DSL) for EHR data.
 It consists of the classes, methods, and functions that are used in Dataset Definitions.
 
@@ -40,7 +40,7 @@ Takes a Query, connects to an EHR provider's database, and returns the correspon
 Usually, the database will be relational and will speak SQL.
 
 **Query Language.**
-A programming language designed for querying a data store.
+A programming language designed for querying a database.
 For example, ehrQL.
 
 **Query Model.**
