@@ -3,12 +3,12 @@
 **Backend.**
 A class that translates between the table structure we present to the user (the ehrQL Tables) and the table structure in an EHR provider's database (the Database Tables).
 
-Each Backend is specific to an EHR provider and a Query Engine, which tells Data Builder how to talk to the kind of database used by the EHR provider.
-For instance, the TPP backend uses the MSSQLQueryEngine, which knows how to connect to Microsoft SQL Server and speak Transact-SQL to it.
+Each Backend is specific to an EHR provider and a Query Engine.
+For example, the TPP backend is specific to TPP (an EHR provider) and the MSSQLQueryEngine.
 
-A Backend is not required in order to connect to a database.
-If the structure of the database tables exactly matches the structure of the ehrQL tables, then there is no translation to be done.
-In that case, we can query the database just be specifying the appropriate Query Engine.
+A Backend is not required in order to connect to an EHR provider's database.
+If the structure of the Database Tables exactly matches the structure of the ehrQL Tables, then no translation is required.
+In this case, we query the EHR provider's database by specifying the appropriate Query Engine.
 
 **Dataset Definition.**
 Describes, using ehrQL, the EHR data to extract from a Backend.
@@ -36,9 +36,8 @@ A quotient (a numerator divided by a denominator) for a given time interval and 
 A graph of connected Query Model objects.
 
 **Query Engine.**
-Takes a Query, connects to a database, and returns the corresponding data.
-Usually this will be a relational database speaking some dialect of SQL.
-But it doesn't have to be.
+Takes a Query, connects to an EHR provider's database, and returns the corresponding data.
+Usually, the database will be relational and will speak SQL.
 
 **Query Language.**
 A programming language designed for querying a data store.
