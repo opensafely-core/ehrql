@@ -45,9 +45,10 @@ For example, ehrQL.
 
 **Query Model.**
 The core data structure by which Data Builder represents a Query.
-It is responsible for defining the semantics of all the operations we support on the data, and for ensuring that only semantically valid queries can be constructed.
-When a user writes ehrQL this constructs a Query that is then passed to a Query Engine for execution.
-This provides a clear boundary between the syntactic surface of ehrQL (where expressiveness and user convenience are paramount) and the underlying semantics.
+The Query Model is responsible for defining the semantics of the operations we support on the data, and for ensuring that only semantically valid queries can be constructed.
+
+When the user writes ehrQL, a Query is constructed and passed to a Query Engine for execution.
+Consequently, there is a clear boundary between ehrQL, where expressiveness and convenience are paramount, and the Query Model, where semantics are paramount.
 
 **ehrQL Table**
 The table structure we present to the user.
