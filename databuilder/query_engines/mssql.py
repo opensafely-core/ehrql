@@ -178,8 +178,8 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         autocommit_engine = self.engine.execution_options(isolation_level="AUTOCOMMIT")
 
         with ReconnectableConnection(autocommit_engine) as connection:
-            for n, setup_query in enumerate(setup_queries, start=1):
-                log.info(f"Running setup query {n:03} / {len(setup_queries):03}")
+            for i, setup_query in enumerate(setup_queries, start=1):
+                log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
                 connection.execute(setup_query)
 
             # Re-establishing the database connection after an error allows us to
@@ -209,8 +209,8 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 log=log.info,
             )
 
-            for n, cleanup_query in enumerate(cleanup_queries, start=1):
-                log.info(f"Running cleanup query {n:03} / {len(cleanup_queries):03}")
+            for i, cleanup_query in enumerate(cleanup_queries, start=1):
+                log.info(f"Running cleanup query {i:03} / {len(cleanup_queries):03}")
                 connection.execute(cleanup_query)
 
 
