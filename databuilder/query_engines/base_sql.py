@@ -15,6 +15,7 @@ from databuilder.query_model.nodes import (
     Case,
     Filter,
     Function,
+    InlinePatientTable,
     Position,
     SelectColumn,
     SelectPatientTable,
@@ -30,8 +31,10 @@ from databuilder.query_model.transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )
+from databuilder.sqlalchemy_types import type_from_python_type
 from databuilder.utils.functools_utils import singledispatchmethod_with_cache
 from databuilder.utils.sqlalchemy_query_utils import (
+    GeneratedTable,
     get_setup_and_cleanup_queries,
     is_predicate,
 )
@@ -538,6 +541,32 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return self.reify_query(partitioned_query)
 
+    @get_table.register(InlinePatientTable)
+    def get_table_inline_patient_table(self, node):
+        # All tables have an implied `patient_id` column which is not explicitly
+        # included in the schema
+        column_types = [("patient_id", int)] + node.schema.column_types
+        columns = [
+            sqlalchemy.Column(name, type_from_python_type(col_type))
+            for name, col_type in column_types
+        ]
+        return self.create_inline_patient_table(columns, node.rows)
+
+    def create_inline_patient_table(self, columns, rows):
+        table_name = f"inline_data_{self.get_next_id()}"
+        table = GeneratedTable(
+            table_name,
+            sqlalchemy.MetaData(),
+            *columns,
+            prefixes=["TEMPORARY"],
+        )
+        table.setup_queries = [
+            sqlalchemy.schema.CreateTable(table),
+            *[table.insert().values(row) for row in rows],
+            sqlalchemy.schema.CreateIndex(sqlalchemy.Index(None, table.c[0])),
+        ]
+        return table
+
     def reify_query(self, query):
         """
         By "reify" we just mean turning a SELECT query into something that can function
@@ -565,7 +594,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         results_query = self.get_query(variable_definitions)
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
         with self.engine.connect() as connection:
-            assert not setup_queries, "Support these once tests exercise them"
+            for i, setup_query in enumerate(setup_queries, start=1):
+                log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
+                connection.execute(setup_query)
 
             log.info("Fetching results")
             yield from connection.execute(results_query)
