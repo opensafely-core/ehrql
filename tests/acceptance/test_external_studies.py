@@ -100,13 +100,18 @@ EXTERNAL_STUDIES = {
         file_globs=[
             "analysis/dataset_definition_*.py",
             "analysis/codelists.py",
+            "analysis/outcomes_health_use.py",
             "analysis/variables.py",
             "codelists/*.csv",
         ],
+        dummy_files=[
+            "output/dataset_lc_gp_list.csv",
+        ],
         dataset_definitions=[
             "analysis/dataset_definition_lc_gp_list.py",
-            "analysis/dataset_definition_exp_lc.py",
+            "analysis/dataset_definition_unmatched_exp_lc.py",
             "analysis/dataset_definition_comparator_large.py",
+            "analysis/dataset_definition_unmatched_comparator.py",
         ],
     ),
 }
