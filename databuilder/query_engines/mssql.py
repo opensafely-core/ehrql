@@ -1,6 +1,3 @@
-import datetime
-import secrets
-
 import sqlalchemy
 import structlog
 from sqlalchemy.schema import CreateIndex, DropTable
@@ -23,10 +20,6 @@ log = structlog.getLogger()
 
 class MSSQLQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = MSSQLDialect
-
-    # The `#` prefix is an MSSQL-ism which automatically makes the tables session-scoped
-    # temporary tables
-    intermediate_table_prefix = "#tmp_"
 
     def calculate_mean(self, sql_expr):
         # Unlike other DBMSs, MSSQL will return an integer as the mean of integers so we
@@ -116,8 +109,12 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         )
 
     def reify_query(self, query):
+        # The `#` prefix is an MSSQL-ism which automatically makes the tables
+        # session-scoped temporary tables
         return temporary_table_from_query(
-            self.next_intermediate_table_name(), query, index_col="patient_id"
+            table_name=f"#tmp_{self.get_next_id()}",
+            query=query,
+            index_col="patient_id",
         )
 
     def get_query(self, variable_definitions):
@@ -137,9 +134,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         # us to continue retrieving results after an interrupted connection
         if temp_database_name:
             # As the table is not session-scoped it needs a unique name
-            timestamp = datetime.datetime.utcnow()
-            token = secrets.token_hex(6)
-            table_name = f"results_{timestamp:%Y%m%d_%H%M}_{token}"
+            table_name = f"results_{self.global_unique_id}"
             # The `schema` variable below is actually a multi-part identifier of the
             # form `<database-name>.<schema>`. We don't really care about the schema
             # here, we just want to use whatever is the default schema for the database.

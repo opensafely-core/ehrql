@@ -1,3 +1,5 @@
+import datetime
+import secrets
 from functools import cached_property
 
 import sqlalchemy
@@ -42,13 +44,23 @@ log = structlog.getLogger()
 class BaseSQLQueryEngine(BaseQueryEngine):
     sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
 
-    intermediate_table_prefix = "cte_"
-    intermediate_table_count = 0
+    global_unique_id: str
+    counter = 0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.backend:
             self.backend = DefaultBackend()
+        # Supporting generating globally unique names – the timestamp is not strictly
+        # necessary but can help with debugging and manual cleanup
+        self.global_unique_id = (
+            f"{datetime.datetime.utcnow():%Y%m%d_%H%M}_{secrets.token_hex(6)}"
+        )
+
+    def get_next_id(self):
+        # Support generating names unique within this session
+        self.counter += 1
+        return self.counter
 
     def get_query(self, variable_definitions):
         """
@@ -533,11 +545,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         e.g. using `.alias()` to make a sub-query, using `.cte()` to make a Common Table
         Expression, or writing the results of the query to a temporary table.
         """
-        return query.cte(name=self.next_intermediate_table_name())
-
-    def next_intermediate_table_name(self):
-        self.intermediate_table_count += 1
-        return f"{self.intermediate_table_prefix}{self.intermediate_table_count}"
+        return query.cte(name=f"cte_{self.get_next_id()}")
 
     def get_select_query_for_node_domain(self, node):
         """
