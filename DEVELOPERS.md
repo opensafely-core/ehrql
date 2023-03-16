@@ -216,6 +216,13 @@ a scheduled [Github Action](https://github.com/opensafely-core/databuilder/actio
 We may be able to improve this later, depending on the behaviour of the mkdocs plugin that
 we use: see https://github.com/opensafely-core/databuilder/issues/1126
 
+### Documentation redirects
+
+These are handled in the main [OpenSAFELY documentation repository](https://github.com/opensafely/documentation).
+If you need to redirect URLs —
+and this should be fairly infrequent —
+make any changes to the `_redirects` file in the main documentation repository,
+and test them in a preview there.
 
 ### Structure
 
