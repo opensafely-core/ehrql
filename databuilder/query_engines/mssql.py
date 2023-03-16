@@ -117,6 +117,22 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             index_col="patient_id",
         )
 
+    def create_inline_patient_table(self, columns, rows):
+        table_name = f"#inline_data_{self.get_next_id()}"
+        table = GeneratedTable(
+            table_name,
+            sqlalchemy.MetaData(),
+            *columns,
+        )
+        table.setup_queries = [
+            sqlalchemy.schema.CreateTable(table),
+            *[table.insert().values(row) for row in rows],
+            sqlalchemy.schema.CreateIndex(
+                sqlalchemy.Index(None, table.c[0], mssql_clustered=True)
+            ),
+        ]
+        return table
+
     def get_query(self, variable_definitions):
         results_query = super().get_query(variable_definitions)
         # Write results to a temporary table and select them from there. This allows us
