@@ -68,7 +68,7 @@ https://github.com/opensafely-core/databuilder/wiki/Tips-for-using-pytest
 #### Generative tests
 
 The generative tests use Hypothesis to generate variable definitions (in the query model) and test data.
-They then execute the resulting dataset definitions using both the SQLite query engine and the in-memory one,
+They then execute the resulting dataset definitions using the MSSQL, SQLite and in-memory query engines,
 and check that the results are the same.
 
 The GHAs use a fixed seed and run 200 examples, which is enough to ensure that all nodes are covered.  By default, tests run with `just test ...` or `pytest` use only 10 examples
@@ -109,6 +109,8 @@ Note that you need approximately 200 examples to have any chance of this passing
 
 Hypothesis can generate query graphs that are very deeply nested; after 100 draws in a test example, hypothesis will return the example as invalid.  In order to avoid this, the
 variable strategies check for a maximum depth and return a terminal node if the maximum depth is exceeded (A `SelectColumn` node for a series strategy, and a `SelectTable` or `SelectPatientTable` for a table strategy). The max depth defaults to 30 and can be overridden with environment variable `GENTEST_MAX_DEPTH`.
+
+See the [generative tests documentation](tests/generative/README.md) for more details.
 
 ### Writing tests
 
