@@ -19,6 +19,7 @@ __all__ = [
     "Value",
     "SelectTable",
     "SelectPatientTable",
+    "InlinePatientTable",
     "SelectColumn",
     "Filter",
     "Sort",
