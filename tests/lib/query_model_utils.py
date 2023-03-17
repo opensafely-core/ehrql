@@ -25,7 +25,7 @@ def is_operation(cls):  # pragma: no cover
 
 
 def iterate_query_model_namespace():  # pragma: no cover
-    "Yield every public thing in the query_model module"
-    yield from [getattr(query_model, name) for name in query_model.__all__]
+    "Yield every value in the query_model module"
+    yield from vars(query_model).values()
     yield from vars(query_model.Function).values()
     yield from vars(query_model.AggregateByPatient).values()

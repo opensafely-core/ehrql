@@ -9,6 +9,7 @@ from databuilder.query_model.nodes import (
     Case,
     Filter,
     Function,
+    InlinePatientTable,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -468,6 +469,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
 known_missing_operations = {
     AggregateByPatient.CombineAsSet,
+    InlinePatientTable,
 }
 
 
