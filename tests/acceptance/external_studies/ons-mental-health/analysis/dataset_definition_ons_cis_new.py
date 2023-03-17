@@ -13,14 +13,14 @@ n_visits = 26
 dataset = Dataset()
 
 #######################################################################################
-# Set population
+# Define population
 # Filter ONS CIS table to visit dates between the study start and end dates (inclusive) 
 # and set the population to only patients who have at least one visit date in study date
 # range
 #######################################################################################
 
-ons_cis = schema.ons_cis.take(schema.ons_cis.visit_date.is_on_or_between(start_date, end_date))
-dataset.set_population(ons_cis.exists_for_patient())
+ons_cis = schema.ons_cis.where(schema.ons_cis.visit_date.is_on_or_between(start_date, end_date))
+dataset.define_population(ons_cis.exists_for_patient())
 
 #######################################################################################
 # Define variables
@@ -41,7 +41,7 @@ def get_sequential_events(events, num_events, column_name):
         # One each iteration through this loop, we first filter the events to only those
         # LATER than the previous_date found
         if previous_date is not None:
-            later_events = events.take(sort_column > previous_date)
+            later_events = events.where(sort_column > previous_date)
         else:
             later_events = events
         # Now we sort the events and get the first one

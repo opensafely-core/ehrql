@@ -2,7 +2,6 @@ import dataclasses
 import datetime
 import enum
 import functools
-import warnings
 from collections import ChainMap
 from typing import Union
 
@@ -35,14 +34,6 @@ class _DictArg(list):
 class Dataset:
     def __init__(self):
         object.__setattr__(self, "variables", {})
-
-    def set_population(self, population):  # pragma: no cover
-        warnings.warn(
-            "Use `define_population` instead of `set_population`",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.define_population(population)
 
     def define_population(self, population):
         validate_population_definition(population.qm_node)
@@ -623,10 +614,6 @@ class PatientFrame(BaseFrame):
 
 
 class EventFrame(BaseFrame):
-    def take(self, series):  # pragma: no cover
-        warnings.warn("Use `where` instead of `take`", DeprecationWarning, stacklevel=2)
-        return self.where(series)
-
     def where(self, series):
         return self.__class__(
             qm.Filter(
@@ -634,12 +621,6 @@ class EventFrame(BaseFrame):
                 condition=_convert(series),
             )
         )
-
-    def drop(self, series):  # pragma: no cover
-        warnings.warn(
-            "Use `except_where` instead of `drop`", DeprecationWarning, stacklevel=2
-        )
-        return self.except_where(series)
 
     def except_where(self, series):
         return self.__class__(
