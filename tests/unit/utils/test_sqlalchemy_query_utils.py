@@ -5,6 +5,7 @@ from sqlalchemy.engine.default import DefaultDialect
 
 from databuilder.utils.sqlalchemy_query_utils import (
     GeneratedTable,
+    InsertMany,
     clause_as_str,
     get_setup_and_cleanup_queries,
     is_predicate,
@@ -131,6 +132,43 @@ def test_clause_as_str():
     query = sqlalchemy.select(table.c.bar).where(table.c.bar > 100)
     query_str = clause_as_str(query, DefaultDialect())
     assert query_str == "SELECT foo.bar \nFROM foo \nWHERE foo.bar > 100"
+
+
+def test_clause_as_str_with_insert_many():
+    table = sqlalchemy.Table(
+        "t",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("i", sqlalchemy.Integer()),
+        sqlalchemy.Column("s", sqlalchemy.String()),
+    )
+    statement = InsertMany(
+        table,
+        [
+            (1, "a"),
+            (2, "b"),
+            (3, "c"),
+        ],
+    )
+
+    query_str = clause_as_str(statement, DefaultDialect())
+    assert query_str == (
+        "INSERT INTO t (i, s) VALUES (1, 'a');\n"
+        "INSERT INTO t (i, s) VALUES (2, 'b');\n"
+        "INSERT INTO t (i, s) VALUES (3, 'c')"
+    )
+
+
+def test_get_setup_and_cleanup_queries_with_insert_many():
+    # Confirm that the InsertMany class acts enough like a SQLAlchemy ClauseElement for
+    # our setup/cleanup code to work with it
+    table = sqlalchemy.Table(
+        "t",
+        sqlalchemy.MetaData(),
+        sqlalchemy.Column("i", sqlalchemy.Integer()),
+    )
+    statement = InsertMany(table, rows=[])
+    setup_cleanup = get_setup_and_cleanup_queries(statement)
+    assert setup_cleanup == ([], [])
 
 
 # The below tests exercise obscure corners of SQLAlchemy which used to have bugs that we
