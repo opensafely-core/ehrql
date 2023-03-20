@@ -144,7 +144,7 @@ def make_mssql_database(containers):
         port_from_container=mssql_port,
         host_from_host="localhost",
         port_from_host=host_mssql_port,
-        username="SA",
+        username="sa",
         password=password,
         db_name="test",
     )
@@ -163,6 +163,8 @@ def run_mssql(container_name, containers, password, mssql_port):  # pragma: no c
             "SA_PASSWORD": password,
             "ACCEPT_EULA": "Y",
             "MSSQL_TCP_PORT": str(mssql_port),
+            # Make all string comparisons case-sensitive across all databases
+            "MSSQL_COLLATION": "SQL_Latin1_General_CP1_CS_AS",
         },
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",

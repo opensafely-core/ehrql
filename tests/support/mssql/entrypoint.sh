@@ -16,7 +16,7 @@ if [ "$1" = '/opt/mssql/bin/sqlservr' ]; then
         timeout=20
         limit="$((SECONDS + timeout))"
         # Run the setup script to create the DB and the schema in the DB
-        until /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "Your_password123!" -d master -i /mssql/setup.sql; do
+        until /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "Your_password123!" -d master -i /mssql/setup.sql; do
           # Wait a bit for SQL Server to start. SQL Server's process
           # doesn't provide a clever way to check if it's up or not, and
           # it needs to be up before we can import the application
