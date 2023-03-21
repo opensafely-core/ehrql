@@ -19,8 +19,9 @@ from the same inputs.
 ## Terminology
 
 We are used to thinking about query model things such as `Series` as representing a concrete column
-in a table. The generative tests require a mental shift from thinking in terms of `strategies` - i.e.
-a `series` strategy is a recipe for defining a `Series`, rather than a `Series` itself.
+in a table. The generative tests require a mental shift from thinking in terms of concrete objects to
+thinking in terms of  `strategies` - i.e. a `value` strategy is a recipe for generating a `Value`,
+rather than a `Value` itself.
 
 ### Building strategies
 
