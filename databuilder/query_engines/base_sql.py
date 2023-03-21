@@ -35,6 +35,7 @@ from databuilder.sqlalchemy_types import type_from_python_type
 from databuilder.utils.functools_utils import singledispatchmethod_with_cache
 from databuilder.utils.sqlalchemy_query_utils import (
     GeneratedTable,
+    InsertMany,
     get_setup_and_cleanup_queries,
     is_predicate,
 )
@@ -562,7 +563,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         )
         table.setup_queries = [
             sqlalchemy.schema.CreateTable(table),
-            *[table.insert().values(row) for row in rows],
+            InsertMany(table, rows),
             sqlalchemy.schema.CreateIndex(sqlalchemy.Index(None, table.c[0])),
         ]
         return table
