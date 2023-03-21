@@ -151,6 +151,7 @@ with the tables, schema and value strategies as described above.
 
 `variable` defines lots of inner functions, each of which returns a strategy for creating the
 thing it is named for, not the thing itself.
+For example, the `value` inner function returns a strategy for creating `Value` objects, and not a `Value` object itself.
 
 A valid variable is a `Series`, chosen by selecting a type (one of the types in `value_strategies`) and a frame
 that the variable must be consistent with (with one row per patient, because we require that any
