@@ -16,6 +16,30 @@ produced by the query engines, and we assume that the engines are sufficiently d
 implementation that it is a sufficient test to check that they always produce the same results
 from the same inputs.
 
+## Background
+
+The most difficult part of the generative tests is teaching Hypothesis how to construct queries
+out of query model objects. The query model has various constraints or validation rules which tell
+you, given a particular object, what sort of operations you can apply to it and what other kinds of
+object you can combine it with.
+
+One way of trying to produce valid queries is just to generate lots of different objects, try sticking
+them together and reject any structures that are invalid. This is what we did at first. It has the benefit
+of being simple, but as the number of different types in the query model grows it becomes harder and harder
+to randomly generate valid examples and eventually it stops working altogether.
+
+The approach we take now involves, effectively, applying the query model validation rules backwards. We start
+by deciding on the sort of object we want to end up with e.g. a Series of one-row-per-patient integers. Then
+we ask, given we've got this object, what sorts of operation could validly produce an object like that? We
+then get Hypothesis to pick one. That operation in turn requires other inputs and so, again, we ask what
+sorts of operation could validly produce it and get Hypothesis to pick one. This process repeats until we
+reach a "terminal node" i.e. an operation which doesn't require any inputs. (And if Hypothesis doesn't
+naturally give us a terminal node after reaching a certain depth, we force it to choose one.)
+
+This is very efficient at generating large and complex queries for testing. But applying the validation rules
+backwards is fundamentally quite a mind-stretching exercise so don't be surprised if it takes a little while
+for everything to fall into place.
+
 ## Terminology
 
 We are used to thinking about query model things such as `Series` as representing a concrete column
