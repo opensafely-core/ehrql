@@ -243,7 +243,7 @@ where `patient_table` has been chosen via `one_row_per_patient_frame()`:
         def constraints_match(s):
             ...
 
-        # find possible series stratgeies that match contraints, and choose one
+        # find possible series strategies that match constraints, and choose one
         possible_series = [s for s in series_types if constraints_match(s)]
         series_strategy = draw(st.sampled_from(possible_series))
 
