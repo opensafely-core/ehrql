@@ -198,17 +198,16 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
 Let's take a closer look at the elements of the `valid_variable`.
 
-`type_` is a strategy for choosing a type, sampled from the types used as the keys for
-`value_strategies`:
+`type_` is a type, drawn using the `any_type()` strategy, that chooses one of the types used as the keys for `value_strategies`:
 ```
     def any_type():
         return st.sampled_from(list(value_strategies.keys()))
 ```
 
-`frame` is a strategy for choosing a frame with one row per patient. That could be a
-simple patient table (picked from one of the two `SelectPatientTable` nodes defined by our data
-strategies), or a `PickOneRowPerPatient` node, which is the result of a number of sorting and
-filtering operations.
+`frame` is a frame with one row per patient, drawn using the `one_row_per_patient_frame()`
+strategy. That could be a simple patient table (picked from one of the two
+`SelectPatientTable` nodes defined by our data strategies), or a `PickOneRowPerPatient`
+node, which is the result of a number of sorting and filtering operations.
 
 Each of the sort and filter operations are themselves defined by strategies which require a
 series to sort/filter on, so a frame strategy can quickly become deeply nested. The nesting
@@ -286,7 +285,7 @@ that produces an int series, so `count` is the only possible strategy that match
 will draw from the `count` strategy.
 
 Note that the `type_` and `frame` are always passed on as arguments to the selected series
-strategy, and each individual series operation strategy has the same function signature.
+strategy, so that all series operation strategies have the same function signature.
 However, whether they are actually used depends on the individual strategy.
 
 For individual series strategies, it's important to remember that the `type_` argument they
