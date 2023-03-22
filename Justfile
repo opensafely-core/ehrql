@@ -135,7 +135,7 @@ remove-database-containers:
 
 # open an interactive SQL Server shell running against MSSQL
 connect-to-mssql:
-    docker exec -it databuilder-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Your_password123!'
+    docker exec -it databuilder-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!'
 
 ###################################################################
 # Testing targets

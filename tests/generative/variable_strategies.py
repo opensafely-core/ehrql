@@ -10,6 +10,7 @@ from databuilder.query_model.nodes import (
     Filter,
     Function,
     InlinePatientTable,
+    IterWrapper,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -393,7 +394,11 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def one_row_per_patient_frame():
         if depth_exceeded():  # pragma: no cover
             return select_patient_table()
-        return st.one_of(select_patient_table(), pick_one_row_per_patient_frame())
+        return st.one_of(
+            select_patient_table(),
+            pick_one_row_per_patient_frame(),
+            inline_patient_table(),
+        )
 
     def many_rows_per_patient_frame():
         if depth_exceeded():  # pragma: no cover
@@ -436,6 +441,18 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         )
 
     @st.composite
+    def inline_patient_table(draw):
+        patient_ids = draw(st.lists(st.integers(1, 10), unique=True))
+        rows = [
+            (
+                patient_id,
+                *[draw(value_strategies[type_]) for name, type_ in schema.column_types],
+            )
+            for patient_id in patient_ids
+        ]
+        return InlinePatientTable(rows=IterWrapper(rows), schema=schema)
+
+    @st.composite
     def filter_(draw, source):
         condition = draw(series(bool, draw(ancestor_of(source))))
         return Filter(source, condition)
@@ -469,7 +486,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
 known_missing_operations = {
     AggregateByPatient.CombineAsSet,
-    InlinePatientTable,
 }
 
 

@@ -304,6 +304,13 @@ class InMemoryQueryEngine(BaseQueryEngine):
         arguments = [default, *[i for pair in cases for i in pair]]
         return apply_function(case_flattened, *arguments)
 
+    def visit_InlinePatientTable(self, node):
+        col_names = node.schema.column_names
+        return PatientTable.from_records(
+            col_names=["patient_id"] + col_names,
+            row_records=node.rows,
+        )
+
 
 def case_flattened(default, *cases):
     """

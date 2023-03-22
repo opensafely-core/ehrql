@@ -1,6 +1,3 @@
-import datetime
-import secrets
-
 import sqlalchemy
 import structlog
 from sqlalchemy.schema import CreateIndex, DropTable
@@ -15,6 +12,7 @@ from databuilder.utils.sqlalchemy_exec_utils import (
 )
 from databuilder.utils.sqlalchemy_query_utils import (
     GeneratedTable,
+    InsertMany,
     get_setup_and_cleanup_queries,
 )
 
@@ -23,10 +21,6 @@ log = structlog.getLogger()
 
 class MSSQLQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = MSSQLDialect
-
-    # The `#` prefix is an MSSQL-ism which automatically makes the tables session-scoped
-    # temporary tables
-    intermediate_table_prefix = "#tmp_"
 
     def calculate_mean(self, sql_expr):
         # Unlike other DBMSs, MSSQL will return an integer as the mean of integers so we
@@ -116,9 +110,29 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         )
 
     def reify_query(self, query):
+        # The `#` prefix is an MSSQL-ism which automatically makes the tables
+        # session-scoped temporary tables
         return temporary_table_from_query(
-            self.next_intermediate_table_name(), query, index_col="patient_id"
+            table_name=f"#tmp_{self.get_next_id()}",
+            query=query,
+            index_col="patient_id",
         )
+
+    def create_inline_patient_table(self, columns, rows):
+        table_name = f"#inline_data_{self.get_next_id()}"
+        table = GeneratedTable(
+            table_name,
+            sqlalchemy.MetaData(),
+            *columns,
+        )
+        table.setup_queries = [
+            sqlalchemy.schema.CreateTable(table),
+            InsertMany(table, rows),
+            sqlalchemy.schema.CreateIndex(
+                sqlalchemy.Index(None, table.c[0], mssql_clustered=True)
+            ),
+        ]
+        return table
 
     def get_query(self, variable_definitions):
         results_query = super().get_query(variable_definitions)
@@ -137,9 +151,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         # us to continue retrieving results after an interrupted connection
         if temp_database_name:
             # As the table is not session-scoped it needs a unique name
-            timestamp = datetime.datetime.utcnow()
-            token = secrets.token_hex(6)
-            table_name = f"results_{timestamp:%Y%m%d_%H%M}_{token}"
+            table_name = f"results_{self.global_unique_id}"
             # The `schema` variable below is actually a multi-part identifier of the
             # form `<database-name>.<schema>`. We don't really care about the schema
             # here, we just want to use whatever is the default schema for the database.
@@ -178,8 +190,8 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         autocommit_engine = self.engine.execution_options(isolation_level="AUTOCOMMIT")
 
         with ReconnectableConnection(autocommit_engine) as connection:
-            for n, setup_query in enumerate(setup_queries, start=1):
-                log.info(f"Running setup query {n:03} / {len(setup_queries):03}")
+            for i, setup_query in enumerate(setup_queries, start=1):
+                log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
                 connection.execute(setup_query)
 
             # Re-establishing the database connection after an error allows us to
@@ -209,8 +221,8 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 log=log.info,
             )
 
-            for n, cleanup_query in enumerate(cleanup_queries, start=1):
-                log.info(f"Running cleanup query {n:03} / {len(cleanup_queries):03}")
+            for i, cleanup_query in enumerate(cleanup_queries, start=1):
+                log.info(f"Running cleanup query {i:03} / {len(cleanup_queries):03}")
                 connection.execute(cleanup_query)
 
 

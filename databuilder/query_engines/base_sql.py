@@ -1,3 +1,5 @@
+import datetime
+import secrets
 from functools import cached_property
 
 import sqlalchemy
@@ -13,6 +15,7 @@ from databuilder.query_model.nodes import (
     Case,
     Filter,
     Function,
+    InlinePatientTable,
     Position,
     SelectColumn,
     SelectPatientTable,
@@ -28,8 +31,11 @@ from databuilder.query_model.transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )
+from databuilder.sqlalchemy_types import type_from_python_type
 from databuilder.utils.functools_utils import singledispatchmethod_with_cache
 from databuilder.utils.sqlalchemy_query_utils import (
+    GeneratedTable,
+    InsertMany,
     get_setup_and_cleanup_queries,
     is_predicate,
 )
@@ -42,13 +48,23 @@ log = structlog.getLogger()
 class BaseSQLQueryEngine(BaseQueryEngine):
     sqlalchemy_dialect: sqlalchemy.engine.interfaces.Dialect
 
-    intermediate_table_prefix = "cte_"
-    intermediate_table_count = 0
+    global_unique_id: str
+    counter = 0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.backend:
             self.backend = DefaultBackend()
+        # Supporting generating globally unique names – the timestamp is not strictly
+        # necessary but can help with debugging and manual cleanup
+        self.global_unique_id = (
+            f"{datetime.datetime.utcnow():%Y%m%d_%H%M}_{secrets.token_hex(6)}"
+        )
+
+    def get_next_id(self):
+        # Support generating names unique within this session
+        self.counter += 1
+        return self.counter
 
     def get_query(self, variable_definitions):
         """
@@ -526,6 +542,32 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         return self.reify_query(partitioned_query)
 
+    @get_table.register(InlinePatientTable)
+    def get_table_inline_patient_table(self, node):
+        # All tables have an implied `patient_id` column which is not explicitly
+        # included in the schema
+        column_types = [("patient_id", int)] + node.schema.column_types
+        columns = [
+            sqlalchemy.Column(name, type_from_python_type(col_type))
+            for name, col_type in column_types
+        ]
+        return self.create_inline_patient_table(columns, node.rows)
+
+    def create_inline_patient_table(self, columns, rows):
+        table_name = f"inline_data_{self.get_next_id()}"
+        table = GeneratedTable(
+            table_name,
+            sqlalchemy.MetaData(),
+            *columns,
+            prefixes=["TEMPORARY"],
+        )
+        table.setup_queries = [
+            sqlalchemy.schema.CreateTable(table),
+            InsertMany(table, rows),
+            sqlalchemy.schema.CreateIndex(sqlalchemy.Index(None, table.c[0])),
+        ]
+        return table
+
     def reify_query(self, query):
         """
         By "reify" we just mean turning a SELECT query into something that can function
@@ -533,11 +575,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         e.g. using `.alias()` to make a sub-query, using `.cte()` to make a Common Table
         Expression, or writing the results of the query to a temporary table.
         """
-        return query.cte(name=self.next_intermediate_table_name())
-
-    def next_intermediate_table_name(self):
-        self.intermediate_table_count += 1
-        return f"{self.intermediate_table_prefix}{self.intermediate_table_count}"
+        return query.cte(name=f"cte_{self.get_next_id()}")
 
     def get_select_query_for_node_domain(self, node):
         """
@@ -557,7 +595,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         results_query = self.get_query(variable_definitions)
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
         with self.engine.connect() as connection:
-            assert not setup_queries, "Support these once tests exercise them"
+            for i, setup_query in enumerate(setup_queries, start=1):
+                log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
+                connection.execute(setup_query)
 
             log.info("Fetching results")
             yield from connection.execute(results_query)

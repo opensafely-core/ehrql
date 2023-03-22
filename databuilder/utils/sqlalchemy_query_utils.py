@@ -71,7 +71,7 @@ def get_setup_and_cleanup_queries(query):
     # recursively unpack these and get them in the right order so that each query is
     # only executed after its dependencies have been executed.
     #
-    # Fortunately, Python's graphlib can do most of the work for us here. We just to
+    # Fortunately, Python's graphlib can do most of the work for us here. We just need to
     # give it a sequence of pairs of tables (A, B) indicating that A depends on B and it
     # returns a suitable ordering over the tables.
     sorter = graphlib.TopologicalSorter()
@@ -184,3 +184,51 @@ def iterate_unique(clause):
                 seen.add(key)
                 yield t
                 stack.append(t.get_children())
+
+
+class InsertMany:
+    """
+    Wraps up the query "insert this iterator of rows into this table" so that we can
+    execute it in the most efficient way possible, without the caller having to worry
+    about what that might be.
+
+    Acts enough like a SQLAlchemy ClauseElement for our purposes.
+    """
+
+    def __init__(self, table, rows):
+        self.table = table
+        self.rows = rows
+
+    def get_children(self):
+        return [self.table]
+
+    # Called when the clause is executed
+    def _execute_on_connection(self, connection, distilled_params, execution_options):
+        assert not distilled_params, "Cannot supply parameters to InsertMany clause"
+        # TODO: This is definitely _not_ the most efficient way possible to do these
+        # inserts, but the abstraction allows us to improve this later as needed.
+        # Relevant links on more efficient approaches:
+        # https://docs.sqlalchemy.org/en/20/core/connections.html#engine-insertmanyvalues
+        # https://docs.sqlalchemy.org/en/14/tutorial/dbapi_transactions.html#tutorial-multiple-parameters
+        insert_statement = self.table.insert()
+        for row in self.rows:
+            connection.execute(
+                insert_statement.values(row),
+                execution_options=execution_options,
+            )
+
+    def compile(self, *args, **kwargs):  # NOQA: A003
+        # We don't expect the SQL we compile when using `dump-dataset-sql` to be
+        # identical with the SQL we execute because the more efficient APIs like
+        # `executemany()` have no parallel in plain SQL-as-text. We just need to make
+        # sure that it does the same thing.
+        insert_statement = self.table.insert()
+        sql = []
+        for row in self.rows:
+            bound_insert = insert_statement.values(row)
+            compiled = bound_insert.compile(*args, **kwargs)
+            sql.append(str(compiled).strip())
+        # Note, we're returning a string here, rather than a CompiledSQL object. This
+        # works fine for our purposes. We can consider doing something more complicated
+        # if the need arises.
+        return ";\n".join(sql)
