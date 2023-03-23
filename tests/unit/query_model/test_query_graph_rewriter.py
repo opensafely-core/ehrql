@@ -65,3 +65,19 @@ def test_query_graph_rewriter_handles_case_without_default():
     assert new_graph == {
         "case": Case({is_negative: Value("valid")}, default=None),
     }
+
+
+def test_query_graph_rewriter_handles_replacing_node_with_value():
+    # The bug this exposes was only triggered when we had more than one replacement, so
+    # we need two columns
+    events = SelectTable("events", schema=TableSchema(i=Column(int), s=Column(str)))
+    col_i = SelectColumn(events, "i")
+    col_s = SelectColumn(events, "s")
+    graph = {"i": col_i, "s": col_s}
+
+    rewriter = QueryGraphRewriter()
+    rewriter.replace(col_i, Value(10))
+    rewriter.replace(col_s, Value("a"))
+    new_graph = rewriter.rewrite(graph)
+
+    assert new_graph == {"i": Value(10), "s": Value("a")}

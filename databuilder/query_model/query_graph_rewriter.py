@@ -62,21 +62,29 @@ class QueryGraphRewriter:
 
     def _rewrite_node(self, node, replacements):
         if node in replacements:
-            # Our replacments are often insertions e.g. given the following graph:
-            #
-            #     A -> B -> C
-            #
-            # We might want to replace B with X, where X wraps B:
-            #
-            #     A -> X -> B -> C
-            #
-            # To do this we need to make sure that while we're in the process of
-            # generating B's replacement we don't attempt to replace B _again_ in any
-            # downstream segments of the graph. We avoid this by removing any nodes
-            # we're in the process of replacing from the copy of the replacements dict
-            # which we pass down.
-            replacements = replacements.copy()
-            node = replacements.pop(node)
+            return self._replace_node(node, replacements)
+        else:
+            return self._rewrite_node_attributes(node, replacements)
+
+    def _replace_node(self, node, replacements):
+        # Our replacments are often insertions e.g. given the following graph:
+        #
+        #     A -> B -> C
+        #
+        # We might want to replace B with X, where X wraps B:
+        #
+        #     A -> X -> B -> C
+        #
+        # To do this we need to make sure that while we're in the process of
+        # generating B's replacement we don't attempt to replace B _again_ in any
+        # downstream segments of the graph. We avoid this by removing any nodes
+        # we're in the process of replacing from the copy of the replacements dict
+        # which we pass down.
+        replacements = replacements.copy()
+        node = replacements.pop(node)
+        return self._rewrite(node, replacements)
+
+    def _rewrite_node_attributes(self, node, replacements):
         attrs = {k: v for k, v in node.__dict__.items() if not k.startswith("_")}
         new_attrs = self._rewrite(attrs, replacements)
         # If nothing about the node has changed then return the original rather than
