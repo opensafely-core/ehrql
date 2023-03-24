@@ -101,7 +101,7 @@ class DbDetails:
             self.metadata.drop_all(self.engine())
 
 
-def wait_for_database(database, timeout=10):
+def wait_for_database(database, timeout=20):
     engine = database.engine()
 
     start = time.time()
