@@ -133,7 +133,9 @@ def in_memory_sqlite_database(in_memory_sqlite_database_with_session_scope):
 
 @pytest.fixture(scope="session")
 def mssql_database_with_session_scope(containers, show_delayed_warning):
-    with show_delayed_warning(3, "Downloading and starting MSSQL Docker image"):
+    with show_delayed_warning(
+        3, "Starting MSSQL Docker image (will download image on first run)"
+    ):
         database = make_mssql_database(containers)
         wait_for_database(database)
     return database
