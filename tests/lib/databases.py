@@ -160,7 +160,7 @@ def run_mssql(container_name, containers, password, mssql_port):  # pragma: no c
         # Choose an arbitrary free port to publish the MSSQL port on
         ports={mssql_port: None},
         environment={
-            "SA_PASSWORD": password,
+            "MSSQL_SA_PASSWORD": password,
             "ACCEPT_EULA": "Y",
             "MSSQL_TCP_PORT": str(mssql_port),
             # Make all string comparisons case-sensitive across all databases
