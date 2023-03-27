@@ -59,7 +59,4 @@ jobs:
       # The PR will still require manual approval, this just reduces it to a one-click process
       - name: Enable automerge
         if: steps.create_pr.outputs.pull-request-operation == 'created'
-        uses: peter-evans/enable-pull-request-automerge@684fed02ccc9b5eefcf7d40b65b3cd44255bd5bc # v2.5.0
-        with:
-          pull-request-number: ${{ steps.create_pr.outputs.pull-request-number }}
-          merge-method: squash
+        run: gh pr merge --merge --auto --squash ${{ steps.create_pr.outputs.pull-request-number }}
