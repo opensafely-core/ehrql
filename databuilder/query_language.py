@@ -9,7 +9,7 @@ from typing import Union
 from databuilder.codes import BaseCode
 from databuilder.file_formats import read_dataset, validate_dataset
 from databuilder.query_model import nodes as qm
-from databuilder.query_model.column_specs import ColumnSpec
+from databuilder.query_model.column_specs import get_column_specs_from_schema
 from databuilder.query_model.nodes import get_series_type, has_one_row_per_patient
 from databuilder.query_model.population_validation import validate_population_definition
 from databuilder.utils import date_utils
@@ -770,13 +770,7 @@ def table_from_file(path):
             raise SchemaError("`@table_from_file` can only be used with `PatientFrame`")
 
         schema = get_table_schema_from_class(cls)
-        column_specs = {"patient_id": ColumnSpec(type=int)} | {
-            name: ColumnSpec(
-                type=col_type,
-                categories=schema.get_column_categories(name),
-            )
-            for name, col_type in dict(schema.column_types).items()
-        }
+        column_specs = get_column_specs_from_schema(schema)
 
         validate_dataset(path, column_specs)
         rows = read_dataset(path, column_specs)
