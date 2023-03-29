@@ -473,12 +473,13 @@ fn_names = sorted(
             if callable(v) and not k.startswith("__")
         }
     )
-    # exclude date arithmetic as returned DateDifference doesn't have a qm_node
+    # Exclude methods which don't return an ehrQL series
     - {
         "__add__",
         "__sub__",
         "__radd__",
         "__rsub__",
+        "_cast",
     },
 )
 
