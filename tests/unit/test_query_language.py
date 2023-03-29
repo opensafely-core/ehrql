@@ -344,7 +344,7 @@ def test_table_from_file_only_accepts_patient_frame():
         match="`@table_from_file` can only be used with `PatientFrame`",
     ):
 
-        @table_from_file([])
+        @table_from_file("")
         class some_table(EventFrame):
             some_int = Series(int)
 
