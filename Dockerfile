@@ -24,13 +24,19 @@ WORKDIR /workspace
 RUN rm -f /etc/apt/apt.conf.d/docker-clean
 
 # Add Microsoft package archive for installing MSSQL tooling
+# Add deadsnakes PPA for installing new Python versions
 RUN --mount=type=cache,target=/var/cache/apt \
     /usr/lib/apt/apt-helper download-file \
         "https://packages.microsoft.com/keys/microsoft.asc" \
         /etc/apt/trusted.gpg.d/microsoft.asc && \
     /usr/lib/apt/apt-helper download-file \
       "https://packages.microsoft.com/config/ubuntu/20.04/prod.list" \
-      /etc/apt/sources.list.d/mssql-release.list
+      /etc/apt/sources.list.d/mssql-release.list && \
+    echo "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu focal main" \
+        > /etc/apt/sources.list.d/deadsnakes-ppa.list && \
+    /usr/lib/apt/apt-helper download-file \
+        'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776' \
+        /etc/apt/trusted.gpg.d/deadsnakes.asc
 
 # Install root dependencies, including python3.9
 COPY dependencies.txt /root/dependencies.txt
