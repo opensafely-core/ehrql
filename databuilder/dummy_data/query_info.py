@@ -136,20 +136,14 @@ class QueryInfo:
             # the column on the RHS) but there's no way to generate such constructions
             # using ehrQL so we only bother handling the "x == 1" orientation here.
             if not (isinstance(node.lhs, SelectColumn) and isinstance(node.rhs, Value)):
-                # NOTE: This `continue` is actually covered but due to a bug only fixed in
-                # Python 3.10 coverage can't follow it. See:
-                # https://github.com/nedbat/coveragepy/issues/198
-                continue  # pragma: no cover
+                continue
             column_info = column_info_by_column[node.lhs]
             column_info.record_value(node.rhs.value)
 
         # Record values used in containment comparisons
         for node in by_type[Function.In]:
             if not (isinstance(node.lhs, SelectColumn) and isinstance(node.rhs, Value)):
-                # NOTE: This `continue` is actually covered but due to a bug only fixed in
-                # Python 3.10 coverage can't follow it. See:
-                # https://github.com/nedbat/coveragepy/issues/198
-                continue  # pragma: no cover
+                continue
             column_info = column_info_by_column[node.lhs]
             for value in node.rhs.value:
                 column_info.record_value(value)
