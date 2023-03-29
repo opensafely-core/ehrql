@@ -23,9 +23,14 @@ WORKDIR /workspace
 # docker clean up that deletes that cache on every apt install
 RUN rm -f /etc/apt/apt.conf.d/docker-clean
 
-# Using apt-helper means we don't need to install curl or gpg
-RUN /usr/lib/apt/apt-helper download-file https://packages.microsoft.com/keys/microsoft.asc /etc/apt/trusted.gpg.d/microsoft.asc && \
-    /usr/lib/apt/apt-helper download-file https://packages.microsoft.com/config/ubuntu/20.04/prod.list /etc/apt/sources.list.d/mssql-release.list
+# Add Microsoft package archive for installing MSSQL tooling
+RUN --mount=type=cache,target=/var/cache/apt \
+    /usr/lib/apt/apt-helper download-file \
+        "https://packages.microsoft.com/keys/microsoft.asc" \
+        /etc/apt/trusted.gpg.d/microsoft.asc && \
+    /usr/lib/apt/apt-helper download-file \
+      "https://packages.microsoft.com/config/ubuntu/20.04/prod.list" \
+      /etc/apt/sources.list.d/mssql-release.list
 
 # Install root dependencies, including python3.9
 COPY dependencies.txt /root/dependencies.txt
