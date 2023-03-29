@@ -205,5 +205,3 @@ def read_dataset_arrow(filename, column_specs=None):
                 rb = reader.get_record_batch(i)
                 for j in range(0, rb.num_rows):
                     yield tuple(rb.take([j]).to_pylist()[0].values())
-
-            return reader.read_all()
