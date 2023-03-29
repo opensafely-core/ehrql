@@ -455,12 +455,11 @@ def test_ehrql_date_operations(lhs, op, rhs, expected_type):
 def test_incompatible_duration_operations(lhs, op, rhs):
     with pytest.raises(TypeError):
         if op == "+":
-            result = lhs + rhs
+            lhs + rhs
         elif op == "-":
-            result = lhs - rhs
+            lhs - rhs
         else:
             assert False
-        assert not result
 
 
 fn_names = sorted(
