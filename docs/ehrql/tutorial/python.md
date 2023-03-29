@@ -34,7 +34,7 @@ we will not give detailed instructions.
 
 You will need to:
 
-* have a suitable Python version installed (currently Python 3.9)
+* have a suitable Python version installed (currently Python 3.11)
 * configure a suitable virtual environment to run Data Builder
   for example with `conda` or `venv`
 * install the Data Builder package into that virtual environment;

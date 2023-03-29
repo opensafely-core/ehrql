@@ -20,7 +20,7 @@ jobs:
         uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: '3.9'
+          python-version: "3.11"
 
       - name: Check docs are current
         run: just docs-check-generated-docs-are-current

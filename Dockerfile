@@ -38,7 +38,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
         'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776' \
         /etc/apt/trusted.gpg.d/deadsnakes.asc
 
-# Install root dependencies, including python3.9
+# Install root dependencies, including Python
 COPY dependencies.txt /root/dependencies.txt
 # use space efficient utility from base image
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -57,7 +57,7 @@ RUN /root/docker-apt-install.sh /root/build-dependencies.txt
 # install everything in venv for isolation from system python libraries
 # hadolint ignore=DL3013,DL3042
 RUN --mount=type=cache,target=/root/.cache \
-    /usr/bin/python3.9 -m venv /opt/venv && \
+    /usr/bin/python3.11 -m venv /opt/venv && \
     /opt/venv/bin/python -m pip install -U pip setuptools wheel
 
 COPY requirements.prod.txt /root/requirements.prod.txt
