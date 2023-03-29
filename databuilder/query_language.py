@@ -3,6 +3,7 @@ import datetime
 import enum
 import functools
 from collections import ChainMap
+from pathlib import Path
 from typing import Union
 
 from databuilder.codes import BaseCode
@@ -762,6 +763,8 @@ def table_from_rows(rows):
 #    (patient_id, column_1_in_schema, column_2_in_schema, ...)
 #
 def table_from_file(path):
+    path = Path(path)
+
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
             raise SchemaError("`@table_from_file` can only be used with `PatientFrame`")
