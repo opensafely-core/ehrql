@@ -1,5 +1,4 @@
 import csv
-import secrets
 from datetime import date
 from inspect import signature
 
@@ -333,7 +332,7 @@ def test_table_from_file(tmp_path):
 
     @table_from_file(csv_path)
     class some_table(PatientFrame):
-        some_int = Series(int)
+        n = Series(int)
 
     assert isinstance(some_table, PatientFrame)
     assert isinstance(some_table.qm_node, InlinePatientTable)
@@ -347,40 +346,6 @@ def test_table_from_file_only_accepts_patient_frame():
 
         @table_from_file([])
         class some_table(EventFrame):
-            some_int = Series(int)
-
-
-def test_table_from_file_only_accepts_known_filetypes(tmp_path):
-    # create empty file with unrecognised extension
-    bad_file_extension_path = tmp_path / "foo.xyz"
-    with bad_file_extension_path.open("w") as f:
-        f.write("")
-
-    with pytest.raises(
-        ValueError, match=r"Only csv\(.gz\) and arrow files may be loaded into tables"
-    ):
-
-        @table_from_file(bad_file_extension_path)
-        class some_table(PatientFrame):
-            some_int = Series(int)
-
-
-def test_table_from_file_raises_error_on_unknown_path(tmp_path):
-    # randomly-generated path to a nonexistant csv file
-    nonexistent_path = tmp_path / (secrets.token_hex() + ".csv")
-
-    with pytest.raises(ValueError, match=f"{nonexistent_path} not found"):
-
-        @table_from_file(nonexistent_path)
-        class some_table(PatientFrame):
-            some_int = Series(int)
-
-
-def test_table_from_file_raises_error_on_empty_path():
-    with pytest.raises(ValueError, match="Path to table must be supplied"):
-
-        @table_from_file("")
-        class some_table(PatientFrame):
             some_int = Series(int)
 
 

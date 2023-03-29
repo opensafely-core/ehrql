@@ -4,7 +4,7 @@ import pytest
 from databuilder.file_formats.arrow import (
     batch_and_transpose,
     get_schema_and_convertor,
-    get_table_from_file,
+    read_dataset_arrow,
     smallest_int_type_for_range,
 )
 from databuilder.query_model.column_specs import ColumnSpec
@@ -72,7 +72,7 @@ def test_smallest_int_type_for_range_default():
     assert smallest_int_type_for_range(0, None) == pyarrow.int64()
 
 
-def test_get_table_from_file(tmp_path):
+def test_read_dataset_arrow(tmp_path):
     # test that feather file successfully round-trips
     file_data = [
         (1, 100),
@@ -84,6 +84,6 @@ def test_get_table_from_file(tmp_path):
     input_table = pyarrow.Table.from_pylist([dict(zip(columns, f)) for f in file_data])
     pyarrow.feather.write_feather(input_table, str(path), compression="zstd")
 
-    output_table = get_table_from_file(path)
+    lines = list(read_dataset_arrow(path))
 
-    assert input_table == output_table
+    assert lines == file_data

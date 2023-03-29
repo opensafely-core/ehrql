@@ -198,7 +198,12 @@ def get_first_record_batch_from_file(filename):
             return reader.get_batch(0)
 
 
-def get_table_from_file(filename):
+def read_dataset_arrow(filename, column_specs=None):
     with pyarrow.memory_map(str(filename), "rb") as f:
         with pyarrow.ipc.open_file(f) as reader:
+            for i in range(0, reader.num_record_batches):
+                rb = reader.get_record_batch(i)
+                for j in range(0, rb.num_rows):
+                    yield tuple(rb.take([j]).to_pylist()[0].values())
+
             return reader.read_all()

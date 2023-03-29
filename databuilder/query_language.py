@@ -6,7 +6,7 @@ from collections import ChainMap
 from typing import Union
 
 from databuilder.codes import BaseCode
-from databuilder.file_formats import arrow, csv
+from databuilder.file_formats import read_dataset, validate_dataset
 from databuilder.query_model import nodes as qm
 from databuilder.query_model.column_specs import ColumnSpec
 from databuilder.query_model.nodes import get_series_type, has_one_row_per_patient
@@ -766,12 +766,6 @@ def table_from_file(path):
         if cls.__bases__ != (PatientFrame,):
             raise SchemaError("`@table_from_file` can only be used with `PatientFrame`")
 
-        if path == "":
-            raise ValueError("Path to table must be supplied")
-
-        if not path.exists():
-            raise ValueError(f"{path} not found")
-
         schema = get_table_schema_from_class(cls)
         column_specs = {"patient_id": ColumnSpec(type=int)} | {
             name: ColumnSpec(
@@ -781,16 +775,8 @@ def table_from_file(path):
             for name, col_type in dict(schema.column_types).items()
         }
 
-        if path.suffix == ".csv":
-            rows = csv.read_dataset_csv(path, column_specs)
-        elif path.suffix == ".gz" and path.stem.endswith("csv"):
-            rows = csv.read_dataset_csv_gz(path, column_specs)
-        elif path.suffix == ".feather":
-            arrow.validate_dataset_arrow(path, column_specs)
-            arrow_table = arrow.get_table_from_file(path)
-            rows = [tuple(r.values()) for r in arrow_table.to_pylist()]
-        else:
-            raise ValueError("Only csv(.gz) and arrow files may be loaded into tables")
+        validate_dataset(path, column_specs)
+        rows = read_dataset(path, column_specs)
 
         qm_node = qm.InlinePatientTable(
             rows=qm.IterWrapper(rows),
