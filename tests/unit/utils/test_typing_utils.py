@@ -20,6 +20,7 @@ def test_get_typespec():
     assert get_typespec({1: {0.1, 0.2}, 2: {0.3, 0.4}}) == dict[int, set[float]]
     assert get_typespec({}) == dict[Any, Any]
     assert get_typespec(frozenset()) == frozenset[Any]
+    assert get_typespec(int) == type[int]
 
 
 def test_get_typespec_errors():
@@ -57,6 +58,13 @@ def test_type_matches_and_sets_typevar_with_any():
     ctx = {}
     assert type_matches(list[Any], list[T], ctx)
     assert ctx[T] == Any
+
+
+def test_type_matches_and_sets_typevar_with_class_type():
+    T = TypeVar("T")
+    ctx = {}
+    assert type_matches(type[int], type[T], ctx)
+    assert ctx[T] == int
 
 
 def test_type_matches_and_sets_typevar_with_any_and_concrete_type():

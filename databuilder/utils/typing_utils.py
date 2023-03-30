@@ -116,7 +116,11 @@ def get_typespec(value):
 
         get_typespec(1) == int
 
-    But this function knows how to destructure some container types so that e.g.
+    If `value` is a class rather than an instance we return a class type specification:
+
+        get_typespec(float) == type[float]
+
+    This function also knows how to destructure some container types so that e.g.
 
         get_typespec({1, 2, 3}) == Set[int]
 
@@ -128,7 +132,12 @@ def get_typespec(value):
         f"{type_} takes type arguments and so should register its own `get_typespec`"
         f" implementation"
     )
-    return type_
+    # If we've been passed a class rather than an instance then return a class type
+    # specification
+    if type_ is type:
+        return type[value]
+    else:
+        return type_
 
 
 @get_typespec.register(Set)
