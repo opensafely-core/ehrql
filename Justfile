@@ -29,6 +29,9 @@ _virtualenv:
     # create venv and upgrade pip
     test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
 
+    # Error if venv does not contain the version of Python we expect
+    test -e $BIN/$PYTHON_VERSION || { echo "Did not find $PYTHON_VERSION in $VIRTUAL_ENV (try deleting and letting it re-build)"; exit 1; }
+
     # ensure we have pip-tools so we can run pip-compile
     test -e $BIN/pip-compile || $PIP install pip-tools
 
