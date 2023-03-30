@@ -71,7 +71,7 @@ def test_table_from_file_csv_gz(spec_test, tmp_path):
 
 
 def test_table_from_file_feather(spec_test, tmp_path):
-    path = tmp_path / "test_table_from_file.feather"
+    path = tmp_path / "test_table_from_file.arrow"
 
     columns = ["patient_id", "n"]
     table = pyarrow.Table.from_pylist([dict(zip(columns, f)) for f in file_data])

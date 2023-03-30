@@ -24,7 +24,7 @@ FILE_FORMATS = {
 
 def write_dataset(filename, results, column_specs):
     extension = get_file_extension(filename)
-    writer = get_methods(extension)[0]
+    writer = FILE_FORMATS[extension][0]
     # We use None for stdout
     if filename is not None:
         filename.parent.mkdir(parents=True, exist_ok=True)
@@ -35,13 +35,15 @@ def validate_dataset(filename, column_specs):
     if not os.path.isfile(filename):
         raise FileNotFoundError(f"{filename} not found")
     extension = get_file_extension(filename)
-    validator = get_methods(extension)[1]
+    if extension not in FILE_FORMATS:
+        raise ValueError(f"Loading from {extension} files not supported")
+    validator = FILE_FORMATS[extension][1]
     validator(filename, column_specs)
 
 
 def read_dataset(filename, column_specs):
     extension = get_file_extension(filename)
-    reader = get_methods(extension)[2]
+    reader = FILE_FORMATS[extension][2]
     return reader(filename, column_specs)
 
 
@@ -63,11 +65,3 @@ def get_file_extension(filename):
         return "".join(filename.suffixes[-2:])
     else:
         return filename.suffix
-
-
-def get_methods(extension):
-    if extension == ".feather":
-        extension = ".arrow"
-    if extension not in FILE_FORMATS:
-        raise ValueError(f"Loading from {extension} files not supported")
-    return FILE_FORMATS[extension]

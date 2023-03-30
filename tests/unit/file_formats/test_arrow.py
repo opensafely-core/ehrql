@@ -73,12 +73,12 @@ def test_smallest_int_type_for_range_default():
 
 
 def test_read_dataset_arrow(tmp_path):
-    # test that feather file successfully round-trips
+    # test that arrow file successfully round-trips
     file_data = [
         (1, 100),
         (3, 300),
     ]
-    path = tmp_path / "input.feather"
+    path = tmp_path / "input.arrow"
 
     columns = ["patient_id", "n"]
     input_table = pyarrow.Table.from_pylist([dict(zip(columns, f)) for f in file_data])
