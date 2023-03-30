@@ -16,7 +16,7 @@ jobs:
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.9"
+          python-version: "3.11"
       - name: Check formatting, linting and import sorting
         run: just check
 
@@ -28,7 +28,7 @@ jobs:
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.9"
+          python-version: "3.11"
       - name: Run tests
         env:
           CI: 1
@@ -75,6 +75,6 @@ jobs:
     - uses: actions/checkout@v3
     - uses: opensafely-core/setup-action@v1
       with:
-        python-version: "3.9"
+        python-version: "3.11"
     - name: Install package
       run: pip install .

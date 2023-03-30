@@ -23,11 +23,22 @@ WORKDIR /workspace
 # docker clean up that deletes that cache on every apt install
 RUN rm -f /etc/apt/apt.conf.d/docker-clean
 
-# Using apt-helper means we don't need to install curl or gpg
-RUN /usr/lib/apt/apt-helper download-file https://packages.microsoft.com/keys/microsoft.asc /etc/apt/trusted.gpg.d/microsoft.asc && \
-    /usr/lib/apt/apt-helper download-file https://packages.microsoft.com/config/ubuntu/20.04/prod.list /etc/apt/sources.list.d/mssql-release.list
+# Add Microsoft package archive for installing MSSQL tooling
+# Add deadsnakes PPA for installing new Python versions
+RUN --mount=type=cache,target=/var/cache/apt \
+    /usr/lib/apt/apt-helper download-file \
+        "https://packages.microsoft.com/keys/microsoft.asc" \
+        /etc/apt/trusted.gpg.d/microsoft.asc && \
+    /usr/lib/apt/apt-helper download-file \
+      "https://packages.microsoft.com/config/ubuntu/20.04/prod.list" \
+      /etc/apt/sources.list.d/mssql-release.list && \
+    echo "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu focal main" \
+        > /etc/apt/sources.list.d/deadsnakes-ppa.list && \
+    /usr/lib/apt/apt-helper download-file \
+        'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776' \
+        /etc/apt/trusted.gpg.d/deadsnakes.asc
 
-# Install root dependencies, including python3.9
+# Install root dependencies, including Python
 COPY dependencies.txt /root/dependencies.txt
 # use space efficient utility from base image
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -46,7 +57,7 @@ RUN /root/docker-apt-install.sh /root/build-dependencies.txt
 # install everything in venv for isolation from system python libraries
 # hadolint ignore=DL3013,DL3042
 RUN --mount=type=cache,target=/root/.cache \
-    /usr/bin/python3.9 -m venv /opt/venv && \
+    /usr/bin/python3.11 -m venv /opt/venv && \
     /opt/venv/bin/python -m pip install -U pip setuptools wheel
 
 COPY requirements.prod.txt /root/requirements.prod.txt

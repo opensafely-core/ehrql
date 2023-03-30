@@ -1,5 +1,4 @@
-# Note: in Python 3.11 this has been renamed to `re._parser`
-import sre_parse as parser
+import re._parser as parser
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 

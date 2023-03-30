@@ -1,7 +1,6 @@
-from databuilder.query_model import nodes as qm
+from types import NoneType
 
-# Replace with `from types import NoneType` in 3.10
-NoneType = type(None)
+from databuilder.query_model import nodes as qm
 
 
 class QueryGraphRewriter:

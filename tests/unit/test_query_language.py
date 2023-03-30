@@ -455,12 +455,11 @@ def test_ehrql_date_operations(lhs, op, rhs, expected_type):
 def test_incompatible_duration_operations(lhs, op, rhs):
     with pytest.raises(TypeError):
         if op == "+":
-            result = lhs + rhs
+            lhs + rhs
         elif op == "-":
-            result = lhs - rhs
+            lhs - rhs
         else:
             assert False
-        assert not result
 
 
 fn_names = sorted(
@@ -474,12 +473,13 @@ fn_names = sorted(
             if callable(v) and not k.startswith("__")
         }
     )
-    # exclude date arithmetic as returned DateDifference doesn't have a qm_node
+    # Exclude methods which don't return an ehrQL series
     - {
         "__add__",
         "__sub__",
         "__radd__",
         "__rsub__",
+        "_cast",
     },
 )
 

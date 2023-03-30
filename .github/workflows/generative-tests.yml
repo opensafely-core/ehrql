@@ -15,7 +15,7 @@ jobs:
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
-          python-version: "3.9"
+          python-version: "3.11"
       - run: |
           GENTEST_EXAMPLES=40000 \
           GENTEST_COMPREHENSIVE=t \

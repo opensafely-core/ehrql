@@ -147,7 +147,7 @@ def test_external_study(study_name, dataset_def):
     dataset_def_path = study_path / dataset_def
     with contextlib.ExitStack() as stack:
         # Studies often use project-relative paths so ensure these resolve correctly
-        stack.enter_context(pytest.MonkeyPatch.context()).chdir(study_path)
+        stack.enter_context(contextlib.chdir(study_path))
         # Studies often use the same names for modules (e.g. codelists.py,
         # variables_lib.py) Ensure that we clean up the module namespace after each
         # external study test.
