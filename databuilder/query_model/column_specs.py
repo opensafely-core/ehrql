@@ -52,6 +52,17 @@ def get_column_specs(variable_definitions):
     return column_specs
 
 
+def get_column_specs_from_schema(schema):
+    column_specs = {"patient_id": ColumnSpec(type=int)} | {
+        name: ColumnSpec(
+            type=col_type,
+            categories=schema.get_column_categories(name),
+        )
+        for name, col_type in dict(schema.column_types).items()
+    }
+    return column_specs
+
+
 @singledispatch
 def get_categories(series):
     # As a default, we assume that operations destroy category information and then

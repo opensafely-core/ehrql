@@ -1,3 +1,4 @@
+import csv
 from datetime import date
 from inspect import signature
 
@@ -28,6 +29,7 @@ from databuilder.query_language import (
     days,
     months,
     table,
+    table_from_file,
     table_from_rows,
     weeks,
     years,
@@ -316,6 +318,33 @@ def test_table_from_rows_only_accepts_patient_frame():
     ):
 
         @table_from_rows([])
+        class some_table(EventFrame):
+            some_int = Series(int)
+
+
+def test_table_from_file(tmp_path):
+    rows = [(1, 100), (2, 200)]
+    csv_path = tmp_path / "test.csv"
+    with csv_path.open("w") as f:
+        writer = csv.writer(f)
+        writer.writerow(("patient_id", "n"))
+        writer.writerows(rows)
+
+    @table_from_file(csv_path)
+    class some_table(PatientFrame):
+        n = Series(int)
+
+    assert isinstance(some_table, PatientFrame)
+    assert isinstance(some_table.qm_node, InlinePatientTable)
+
+
+def test_table_from_file_only_accepts_patient_frame():
+    with pytest.raises(
+        SchemaError,
+        match="`@table_from_file` can only be used with `PatientFrame`",
+    ):
+
+        @table_from_file("")
         class some_table(EventFrame):
             some_int = Series(int)
 

@@ -3,10 +3,13 @@ import datetime
 import enum
 import functools
 from collections import ChainMap
+from pathlib import Path
 from typing import Union
 
 from databuilder.codes import BaseCode
+from databuilder.file_formats import read_dataset, validate_dataset
 from databuilder.query_model import nodes as qm
+from databuilder.query_model.column_specs import get_column_specs_from_schema
 from databuilder.query_model.nodes import get_series_type, has_one_row_per_patient
 from databuilder.query_model.population_validation import validate_population_definition
 from databuilder.utils import date_utils
@@ -745,6 +748,33 @@ def table_from_rows(rows):
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
             raise SchemaError("`@table_from_rows` can only be used with `PatientFrame`")
+        qm_node = qm.InlinePatientTable(
+            rows=qm.IterWrapper(rows),
+            schema=get_table_schema_from_class(cls),
+        )
+        return cls(qm_node)
+
+    return decorator
+
+
+# Defines a PatientFrame along with the data it contains. Takes a path to
+# a file (feather, csv, csv.gz) with rows of the form:
+#
+#    (patient_id, column_1_in_schema, column_2_in_schema, ...)
+#
+def table_from_file(path):
+    path = Path(path)
+
+    def decorator(cls):
+        if cls.__bases__ != (PatientFrame,):
+            raise SchemaError("`@table_from_file` can only be used with `PatientFrame`")
+
+        schema = get_table_schema_from_class(cls)
+        column_specs = get_column_specs_from_schema(schema)
+
+        validate_dataset(path, column_specs)
+        rows = read_dataset(path, column_specs)
+
         qm_node = qm.InlinePatientTable(
             rows=qm.IterWrapper(rows),
             schema=get_table_schema_from_class(cls),

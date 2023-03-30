@@ -1,4 +1,5 @@
 import datetime
+import gzip
 from io import StringIO
 
 import pytest
@@ -6,11 +7,54 @@ import pytest
 from databuilder.file_formats.csv import (
     ValidationError,
     create_column_parser,
+    read_dataset_csv,
+    read_dataset_csv_gz,
     read_dataset_csv_lines,
     write_dataset_csv_lines,
 )
 from databuilder.query_model.column_specs import ColumnSpec
 from databuilder.sqlalchemy_types import TYPE_MAP
+
+CSV_READ_PARAMS = (
+    "csv,error",
+    [
+        # Happy path (with allowed null)
+        (
+            "patient_id,age\n1,65\n2,",
+            None,
+        ),
+        # Null in non-nullable colum
+        (
+            "patient_id,age\n1,65\n,25",
+            "row 2: NULL value in non-nullable column 'patient_id'",
+        ),
+        # Wrong headers
+        (
+            "patient_id,oldness_score\n1,65",
+            "Missing columns",
+        ),
+        # Invalid type
+        (
+            "patient_id,age\n1,sixty",
+            "row 1: column 'age': invalid literal for int",
+        ),
+        # Too many columns
+        (
+            "patient_id,age\n1,65,0",
+            "row 1: expected 2 columns but got 3",
+        ),
+        # Too few columns
+        (
+            "patient_id,age\n1",
+            "row 1: expected 2 columns but got 1",
+        ),
+    ],
+)
+
+COLUMN_SPECS = {
+    "patient_id": ColumnSpec(int, nullable=False),
+    "age": ColumnSpec(int, nullable=True),
+}
 
 
 @pytest.mark.parametrize(
@@ -48,56 +92,49 @@ def test_write_dataset_csv_lines_params_are_exhaustive():
     assert set(types) == set(TYPE_MAP)
 
 
-@pytest.mark.parametrize(
-    "csv,error",
-    [
-        # Happy path (with allowed null)
-        (
-            "patient_id,age\n1,65\n2,",
-            None,
-        ),
-        # Null in non-nullable colum
-        (
-            "patient_id,age\n1,65\n,25",
-            "row 2: NULL value in non-nullable column 'patient_id'",
-        ),
-        # Wrong headers
-        (
-            "patient_id,oldness_score\n1,65",
-            "Missing columns",
-        ),
-        # Invalid type
-        (
-            "patient_id,age\n1,sixty",
-            "row 1: column 'age': invalid literal for int",
-        ),
-        # Too many columns
-        (
-            "patient_id,age\n1,65,0",
-            "row 1: expected 2 columns but got 3",
-        ),
-        # Too few columns
-        (
-            "patient_id,age\n1",
-            "row 1: expected 2 columns but got 1",
-        ),
-    ],
-)
-def test_read_dataset_csv_lines(csv, error):
-    specs = {
-        "patient_id": ColumnSpec(int, nullable=False),
-        "age": ColumnSpec(int, nullable=True),
-    }
-    csv_file = iter(csv.splitlines(keepends=True))
-
-    # ValidationErrors won't be raised until we consume the iterator
-    lines = read_dataset_csv_lines(csv_file, specs)
-
+def validate_test_csv(lines, error):
     if error is None:
         list(lines)
     else:
         with pytest.raises(ValidationError, match=error):
             list(lines)
+
+
+@pytest.mark.parametrize(*CSV_READ_PARAMS)
+def test_read_dataset_csv_lines(csv, error):
+    csv_file = iter(csv.splitlines(keepends=True))
+
+    # ValidationErrors won't be raised until we consume the iterator
+    lines = read_dataset_csv_lines(csv_file, COLUMN_SPECS)
+
+    validate_test_csv(lines, error)
+
+
+@pytest.mark.parametrize(*CSV_READ_PARAMS)
+def test_read_dataset_csv(csv, error, tmp_path):
+    # Use same test parameters and expectations as test_read_dataset_csv_lines()
+    # to ensure same results regardless of whether data read from string or file
+    csv_path = tmp_path / "input.csv"
+    with csv_path.open("w") as f:
+        f.write(csv)
+    # ValidationErrors won't be raised until we consume the iterator
+    lines = read_dataset_csv(csv_path, COLUMN_SPECS)
+
+    validate_test_csv(lines, error)
+
+
+@pytest.mark.parametrize(*CSV_READ_PARAMS)
+def test_read_dataset_csv_gz(csv, error, tmp_path):
+    # Use same test parameters and expectations as test_read_dataset_csv_lines()
+    # to ensure same results regardless of whether data read from string or file
+    csv_gz_path = tmp_path / "input.csv.gz"
+    with gzip.open(csv_gz_path, "wt", newline="", compresslevel=6) as f:
+        f.write(csv)
+
+    # ValidationErrors won't be raised until we consume the iterator
+    lines = read_dataset_csv_gz(csv_gz_path, COLUMN_SPECS)
+
+    validate_test_csv(lines, error)
 
 
 @pytest.mark.parametrize(
@@ -137,12 +174,7 @@ def test_read_dataset_csv_lines(csv, error):
         ),
         ("2021-2-2", ColumnSpec(datetime.date), None, "Invalid isoformat string"),
         # Categoricals
-        (
-            "foo",
-            ColumnSpec(str, categories=("foo", "bar")),
-            "foo",
-            None,
-        ),
+        ("foo", ColumnSpec(str, categories=("foo", "bar")), "foo", None),
         (
             "baz",
             ColumnSpec(str, categories=("foo", "bar")),

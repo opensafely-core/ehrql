@@ -72,6 +72,16 @@ def validate_dataset_csv_gz(filename, column_specs):
             pass
 
 
+def read_dataset_csv(filename, column_specs):
+    with filename.open(newline="") as f:
+        yield from read_dataset_csv_lines(f, column_specs)
+
+
+def read_dataset_csv_gz(filename, column_specs):
+    with gzip.open(filename, "rt", newline="") as f:
+        yield from read_dataset_csv_lines(f, column_specs)
+
+
 def read_dataset_csv_lines(lines, column_specs):
     reader = csv.reader(lines)
     headers = next(reader)
