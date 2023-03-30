@@ -92,7 +92,7 @@ upgrade env package="": _virtualenv
 
 
 # runs the format (black), sort (isort) and lint (flake8) checks but does not change any files
-check: devenv
+check *args: devenv
     $BIN/black --check .
     $BIN/isort --check-only --diff .
     $BIN/flake8
@@ -198,9 +198,9 @@ test-generative *ARGS: devenv
     $BIN/python -m pytest --doctest-modules databuilder
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
 
-generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
-    $BIN/python -m databuilder.docs {{ OUTPUT_DIR }}
-    echo "Generated data for documentation in {{ OUTPUT_DIR }}"
+generate-docs *args="docs/includes/generated_docs": devenv
+    $BIN/python -m databuilder.docs {{ args }}
+    echo "Generated data for documentation in {{ args }}"
 
 update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
