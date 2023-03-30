@@ -88,7 +88,7 @@ def type_matches(spec, target_spec, typevar_context):
             # operations very much harder since it allows operations like True + True => 2.
             return False
         return spec is not None and issubclass(spec, target_spec)
-    elif target_spec_origin is typing.Union:
+    elif target_spec_origin is typing.types.UnionType:
         # For union types we just need to match one of the arguments
         return any(
             type_matches(spec, arg, typevar_context)

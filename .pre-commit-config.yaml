@@ -4,29 +4,22 @@ default_language_version:
 exclude: tests/acceptance/external_studies/
 
 repos:
-  - repo: https://github.com/psf/black
-    rev: 23.1.0
+  - repo: local
     hooks:
-    - id: black
+    - id: check
+      name: check
+      entry: just check
+      language: system
+      types: [python]
+      require_serial: true
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-    - id: flake8
-      additional_dependencies:
-        - "flake8-builtins"
-        - "flake8-implicit-str-concat"
-        - "flake8-no-pep420"
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-    - id: isort
-
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.0
-    hooks:
-    -   id: pyupgrade
+    - id: check-docs
+      name: check-docs
+      entry: just precommit-generate-docs
+      language: system
+      types: [python]
+      always_run: true
+      require_serial: true
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0
@@ -41,12 +34,3 @@ repos:
       # --unsafe is a workaround for the use of !! in mkdocs.yml.
       args: [--unsafe]
     - id: detect-private-key
-
-  - repo: local
-    hooks:
-    - id: check-docs
-      name: check-docs
-      entry: scripts/check-docs.sh
-      language: script
-      types: [python]
-      always_run: true

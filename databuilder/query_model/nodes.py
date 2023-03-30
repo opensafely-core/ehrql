@@ -5,7 +5,7 @@ from datetime import date
 from enum import Enum
 from functools import cache, singledispatch
 from types import GenericAlias
-from typing import Any, Optional, TypeVar
+from typing import Any, TypeVar
 
 from databuilder.codes import BaseCode
 from databuilder.query_model.table_schema import Column, Constraint, TableSchema
@@ -386,7 +386,7 @@ class Function:
 
 class Case(Series[T]):
     cases: Mapping[Series[bool], Series[T]]
-    default: Optional[Series[T]] = None
+    default: Series[T] | None = None
 
     def __hash__(self):
         # `cases` is a dict and so not naturally hashable, but we treat it as immutable.
