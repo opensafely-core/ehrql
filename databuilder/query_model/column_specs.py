@@ -1,6 +1,6 @@
 import dataclasses
 from functools import singledispatch
-from typing import Optional, TypeVar
+from typing import TypeVar
 
 from databuilder.query_model.nodes import (
     AggregateByPatient,
@@ -18,9 +18,9 @@ T = TypeVar("T")
 class ColumnSpec:
     type: type[T]  # noqa: A003
     nullable: bool = True
-    categories: Optional[tuple[T]] = None
-    min_value: Optional[T] = None
-    max_value: Optional[T] = None
+    categories: tuple[T] | None = None
+    min_value: T | None = None
+    max_value: T | None = None
 
 
 def get_column_specs(variable_definitions):

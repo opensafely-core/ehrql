@@ -4,7 +4,6 @@ import enum
 import functools
 from collections import ChainMap
 from pathlib import Path
-from typing import Union
 
 from databuilder.codes import BaseCode
 from databuilder.file_formats import read_dataset, validate_dataset
@@ -428,8 +427,8 @@ class DatePatientSeries(DateFunctions, PatientSeries):
 
 @dataclasses.dataclass
 class DateDifference:
-    lhs: Union[datetime.date, DateEventSeries, DatePatientSeries]
-    rhs: Union[datetime.date, DateEventSeries, DatePatientSeries]
+    lhs: datetime.date | DateEventSeries | DatePatientSeries
+    rhs: datetime.date | DateEventSeries | DatePatientSeries
 
     @property
     def days(self):
@@ -452,7 +451,7 @@ class DateDifference:
 class Duration:
     Units = enum.Enum("Units", ["DAYS", "MONTHS", "YEARS"])
 
-    value: Union[int, IntEventSeries, IntPatientSeries]
+    value: int | IntEventSeries | IntPatientSeries
     units: Units
 
     def __add__(self, other):

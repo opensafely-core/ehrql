@@ -1,4 +1,4 @@
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 import pytest
 
@@ -39,7 +39,7 @@ def test_get_typespec_errors_on_unhandled_container_type():
 
 
 def test_type_matches():
-    assert type_matches(list[str], list[Union[int, str]], {})
+    assert type_matches(list[str], list[int | str], {})
     assert type_matches(dict[str, FileNotFoundError], dict[Any, OSError], {})
 
 
@@ -85,7 +85,7 @@ def test_type_matches_rejects_mismatch():
     assert not type_matches(list[str], list[int], {})
     assert not type_matches(tuple[int], list[int], {})
     assert not type_matches(list[str], list[Numeric], {})
-    assert not type_matches(list[float], list[Union[int, str]], {})
+    assert not type_matches(list[float], list[int | str], {})
     assert not type_matches(list, list[int], {})
     assert not type_matches(bool, Numeric, {})
 
