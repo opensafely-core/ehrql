@@ -123,7 +123,7 @@ class BaseSeries:
         # immutable Set type required by the query model. We don't accept arbitrary
         # iterables here because too many types in Python are iterable and there's the
         # potential for confusion amongst the less experienced of our users.
-        if isinstance(other, (tuple, list, set, frozenset, dict)):
+        if isinstance(other, tuple | list | set | frozenset | dict):
             other = frozenset(map(self._cast, other))
         return _apply(qm.Function.In, self, other)
 
@@ -401,14 +401,14 @@ class DateFunctions(ComparableFunctions):
         other = self._cast(other)
         if isinstance(other, Duration):
             return self.__add__(other.__neg__())
-        elif isinstance(other, (datetime.date, DateEventSeries, DatePatientSeries)):
+        elif isinstance(other, datetime.date | DateEventSeries | DatePatientSeries):
             return DateDifference(self, other)
         else:
             return NotImplemented
 
     def __rsub__(self, other):
         other = self._cast(other)
-        if isinstance(other, (datetime.date, DateEventSeries, DatePatientSeries)):
+        if isinstance(other, datetime.date | DateEventSeries | DatePatientSeries):
             return DateDifference(other, self)
         else:
             return NotImplemented

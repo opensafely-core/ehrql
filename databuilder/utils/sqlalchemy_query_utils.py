@@ -31,7 +31,7 @@ def is_predicate(clause):
     to other, but we need to know which is which so we can apply the appropriate
     conversion rules.
     """
-    if isinstance(clause, (BooleanClauseList, AsBoolean)):
+    if isinstance(clause, BooleanClauseList | AsBoolean):
         return True
     if isinstance(clause, BinaryExpression):
         return clause._is_implicitly_boolean

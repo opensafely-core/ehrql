@@ -505,4 +505,4 @@ def assert_includes_all_operations(operations):  # pragma: no cover
 
 
 def is_one_row_per_patient_frame(frame):
-    return isinstance(frame, (SelectPatientTable, PickOneRowPerPatient))
+    return isinstance(frame, SelectPatientTable | PickOneRowPerPatient)

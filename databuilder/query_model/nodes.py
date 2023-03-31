@@ -660,7 +660,7 @@ def get_table_nodes(*nodes):
     table_nodes = set()
     for node in nodes:
         for subnode in all_nodes(node):
-            if isinstance(subnode, (SelectTable, SelectPatientTable)):
+            if isinstance(subnode, SelectTable | SelectPatientTable):
                 table_nodes.add(subnode)
     return table_nodes
 
