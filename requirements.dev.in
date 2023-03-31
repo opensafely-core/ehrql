@@ -6,20 +6,15 @@
 
 black
 docker
-flake8
-flake8-builtins
-flake8-implicit-str-concat
-flake8-no-pep420
 hypothesis
-isort
 pip-tools
 pre-commit
-pydocstyle[toml]
+pydocstyle
 pytest
 pytest-cov
 pytest-mock
 pytest-xdist
-pyupgrade
+ruff
 toml
 
 # docs
