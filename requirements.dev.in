@@ -11,7 +11,6 @@ flake8-builtins
 flake8-implicit-str-concat
 flake8-no-pep420
 hypothesis
-interrogate
 isort
 pip-tools
 pre-commit
@@ -21,6 +20,7 @@ pytest-cov
 pytest-mock
 pytest-xdist
 pyupgrade
+toml
 
 # docs
 mkdocs
