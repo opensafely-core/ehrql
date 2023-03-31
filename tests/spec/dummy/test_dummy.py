@@ -1,5 +1,6 @@
 from ..tables import p
 
+
 title = "Dummy section for testing spec generation"
 text = "This section should not appear in the table of contents"
 

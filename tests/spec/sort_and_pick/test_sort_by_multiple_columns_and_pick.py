@@ -1,5 +1,6 @@
 from ..tables import e
 
+
 title = "Sort by more than one column and pick the first or last row for each patient"
 
 table_data = {

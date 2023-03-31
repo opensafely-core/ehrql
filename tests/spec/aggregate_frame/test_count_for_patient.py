@@ -1,5 +1,6 @@
 from ..tables import e, p
 
+
 title = "Counting the rows for each patient"
 
 table_data = {

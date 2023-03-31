@@ -2,6 +2,7 @@ from databuilder.codes import codelist_from_csv_lines
 
 from ..tables import p
 
+
 title = "Test mapping codes to categories using a categorised codelist"
 
 table_data = {

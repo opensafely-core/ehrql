@@ -2,6 +2,7 @@ from datetime import date
 
 from ..tables import p
 
+
 title = "Comparisons involving dates"
 
 table_data = {

@@ -13,6 +13,7 @@ from databuilder.query_model.nodes import get_series_type, has_one_row_per_patie
 from databuilder.query_model.population_validation import validate_population_definition
 from databuilder.utils import date_utils
 
+
 # This gets populated by the `__init_subclass__` methods of EventSeries and
 # PatientSeries. Its structure is:
 #

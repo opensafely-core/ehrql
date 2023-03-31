@@ -1,5 +1,6 @@
 from ..tables import p
 
+
 title = "Replace missing values"
 
 table_data = {

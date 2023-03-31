@@ -14,6 +14,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, relationship
 
+
 Base = declarative_base()
 rand = random.Random(12345)
 

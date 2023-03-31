@@ -3,6 +3,7 @@ import os
 
 import structlog
 
+
 pre_chain = [
     structlog.stdlib.add_log_level,
     structlog.stdlib.add_logger_name,

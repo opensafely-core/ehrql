@@ -7,6 +7,7 @@ import databuilder
 from databuilder.main import CommandError, load_module
 from databuilder.tables.beta import smoketest
 
+
 FIXTURES = Path(__file__).parents[2] / "fixtures" / "bad_dataset_definitions"
 
 

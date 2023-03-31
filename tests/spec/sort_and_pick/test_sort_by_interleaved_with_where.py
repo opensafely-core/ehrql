@@ -1,5 +1,6 @@
 from ..tables import e
 
+
 title = "Mixing the order of `sort_by` and `where` operations"
 
 table_data = {

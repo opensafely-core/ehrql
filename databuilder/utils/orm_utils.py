@@ -9,6 +9,7 @@ from sqlalchemy.orm import declarative_base
 from databuilder.query_model.nodes import has_one_row_per_patient
 from databuilder.sqlalchemy_types import type_from_python_type
 
+
 SYNTHETIC_PRIMARY_KEY = "row_id"
 
 

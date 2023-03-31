@@ -1,5 +1,6 @@
 from ..tables import e
 
+
 title = "Mean aggregation"
 
 table_data = {

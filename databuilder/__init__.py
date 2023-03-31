@@ -3,6 +3,7 @@ from pathlib import Path
 
 from databuilder.utils.log_utils import init_logging
 
+
 if os.getenv("LOG_SQL"):  # pragma: no cover
     # Logging is very verbose in tests, so we disable it  unless specifically requested
     # with the use of the `LOG_SQL` environment variable.

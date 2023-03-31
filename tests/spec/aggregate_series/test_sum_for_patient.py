@@ -1,5 +1,6 @@
 from ..tables import e
 
+
 title = "Sum aggregation"
 
 table_data = {

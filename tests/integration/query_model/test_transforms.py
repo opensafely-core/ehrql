@@ -8,6 +8,7 @@ from databuilder.query_model.nodes import (
     TableSchema,
 )
 
+
 events = SelectTable(
     "events",
     schema=TableSchema.from_primitives(i=int, b=bool),

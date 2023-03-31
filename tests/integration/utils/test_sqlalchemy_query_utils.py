@@ -3,6 +3,7 @@ import sqlalchemy
 
 from databuilder.utils.sqlalchemy_query_utils import InsertMany
 
+
 table = sqlalchemy.Table(
     "t",
     sqlalchemy.MetaData(),

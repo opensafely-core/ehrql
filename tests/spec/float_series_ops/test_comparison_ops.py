@@ -1,5 +1,6 @@
 from ..tables import p
 
+
 title = "Comparison operations"
 
 table_data = {

@@ -23,6 +23,7 @@ from databuilder.utils.sqlalchemy_query_utils import (
 )
 from databuilder.utils.traceback_utils import get_trimmed_traceback
 
+
 log = structlog.getLogger()
 
 

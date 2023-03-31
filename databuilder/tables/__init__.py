@@ -8,6 +8,7 @@ from databuilder.query_language import (
 )
 from databuilder.query_model.table_schema import Constraint
 
+
 __all__ = [
     "Constraint",
     "EventFrame",

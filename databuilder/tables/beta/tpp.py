@@ -5,6 +5,7 @@ from databuilder.contracts.universal import patients
 from databuilder.ehrql import case, when
 from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, table
 
+
 __all__ = [
     "patients",
     "vaccinations",

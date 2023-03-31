@@ -17,6 +17,7 @@ from .main import (
     test_connection,
 )
 
+
 QUERY_ENGINE_ALIASES = {
     "mssql": "databuilder.query_engines.mssql.MSSQLQueryEngine",
     "sqlite": "databuilder.query_engines.sqlite.SQLiteQueryEngine",

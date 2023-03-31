@@ -16,6 +16,7 @@ from databuilder.utils.sqlalchemy_query_utils import (
     get_setup_and_cleanup_queries,
 )
 
+
 log = structlog.getLogger()
 
 

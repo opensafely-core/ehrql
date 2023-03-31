@@ -2,6 +2,7 @@ import datetime
 
 from ..tables import p
 
+
 title = "Types usable in comparisons involving dates"
 
 table_data = {

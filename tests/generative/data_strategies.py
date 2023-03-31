@@ -1,5 +1,6 @@
 import hypothesis.strategies as st
 
+
 # Data generation strategies are complicated by the need for patient ids in patient tables to
 # be unique (see `patient_records()`).
 

@@ -1,5 +1,6 @@
 from ..tables import e
 
+
 title = "Picking the first or last row for each patient where a column contains NULLs"
 
 table_data = {

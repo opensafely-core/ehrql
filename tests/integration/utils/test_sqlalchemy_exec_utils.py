@@ -4,6 +4,7 @@ import sqlalchemy.orm
 
 from databuilder.utils.sqlalchemy_exec_utils import fetch_table_in_batches
 
+
 Base = sqlalchemy.orm.declarative_base()
 
 

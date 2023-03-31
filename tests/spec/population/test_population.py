@@ -2,6 +2,7 @@ from databuilder.ehrql import case, when
 
 from ..tables import e, p
 
+
 title = "Defining a population"
 text = """
 `define_population` is used to limit the population from which data is extracted.

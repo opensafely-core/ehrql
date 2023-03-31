@@ -21,6 +21,7 @@ from databuilder.query_model.nodes import (
 )
 from tests.lib.query_model_utils import get_all_operations
 
+
 MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH", 30))
 
 # This module defines a set of recursive Hypothesis strategies for generating query model graphs.

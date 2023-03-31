@@ -6,6 +6,7 @@ from databuilder.contracts.wip import (
     prescriptions,
 )
 
+
 __all__ = [
     "clinical_events",
     "hospitalisations",

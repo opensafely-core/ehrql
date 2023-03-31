@@ -8,6 +8,7 @@ from databuilder.tables import PatientFrame, Series, table_from_file
 
 from ..tables import p
 
+
 title = "Defining a table from a file"
 
 table_data = {
