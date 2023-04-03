@@ -121,7 +121,7 @@ def test_get_random_value_on_first_of_month(dummy_patient_generator):
         type=datetime.date,
         constraints=(Constraint.FirstOfMonth(),),
     )
-    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(100)]
     assert len(set(values)) > 1, "dates are all identical"
     assert all(value.day == 1 for value in values)
 
