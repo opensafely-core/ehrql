@@ -9,7 +9,6 @@ attrs==22.2.0 \
     --hash=sha256:c9227bfc2f01993c03f68db37d1d15c9690188323c067c641f1a35ca58185f99
     # via
     #   hypothesis
-    #   interrogate
     #   pytest
 black==23.1.0 \
     --hash=sha256:0052dba51dec07ed029ed61b18183942043e00008ec65d5028814afaab9a22fd \
@@ -132,15 +131,12 @@ click==8.1.3 \
     --hash=sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48
     # via
     #   black
-    #   interrogate
     #   mkdocs
     #   pip-tools
 colorama==0.4.6 \
     --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
     --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
-    # via
-    #   interrogate
-    #   mkdocs-material
+    # via mkdocs-material
 coverage[toml]==7.2.2 \
     --hash=sha256:006ed5582e9cbc8115d2e22d6d2144a0725db542f654d9d4fda86793832f873d \
     --hash=sha256:046936ab032a2810dcaafd39cc4ef6dd295df1a7cbead08fe996d4765fca9fe4 \
@@ -249,10 +245,6 @@ iniconfig==2.0.0 \
     --hash=sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3 \
     --hash=sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374
     # via pytest
-interrogate==1.5.0 \
-    --hash=sha256:a4ccc5cbd727c74acc98dee6f5e79ef264c0bcfa66b68d4e123069b2af89091a \
-    --hash=sha256:b6f325f0aa84ac3ac6779d8708264d366102226c5af7d69058cecffcff7a6d6c
-    # via -r requirements.dev.in
 isort==5.12.0 \
     --hash=sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504 \
     --hash=sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6
@@ -449,10 +441,6 @@ pre-commit==3.2.1 \
     --hash=sha256:a06a7fcce7f420047a71213c175714216498b49ebc81fe106f7716ca265f5bb6 \
     --hash=sha256:b5aee7d75dbba21ee161ba641b01e7ae10c5b91967ebf7b2ab0dfae12d07e1f1
     # via -r requirements.dev.in
-py==1.11.0 \
-    --hash=sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719 \
-    --hash=sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378
-    # via interrogate
 pycodestyle==2.10.0 \
     --hash=sha256:347187bdb476329d98f695c213d7295a846d1152ff4fe9bacb8a9590b8ee7053 \
     --hash=sha256:8a4eaf0d0495c7395bdab3589ac2db602797d76207242c17d470186815706610
@@ -673,9 +661,7 @@ sortedcontainers==2.4.0 \
 tabulate==0.9.0 \
     --hash=sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c \
     --hash=sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f
-    # via
-    #   interrogate
-    #   mkdocs-table-reader-plugin
+    # via mkdocs-table-reader-plugin
 tokenize-rt==5.0.0 \
     --hash=sha256:3160bc0c3e8491312d0485171dea861fc160a240f5f5766b72a1165408d10740 \
     --hash=sha256:c67772c662c6b3dc65edf66808577968fb10badfc2042e3027196bed4daf9e5a
@@ -683,7 +669,7 @@ tokenize-rt==5.0.0 \
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
-    # via interrogate
+    # via -r requirements.dev.in
 urllib3==1.26.15 \
     --hash=sha256:8a388717b9476f934a21484e8c8e61875ab60644d29b9b39e11e4b9dc1c6b305 \
     --hash=sha256:aa751d169e23c7479ce47a0cb0da579e3ede798f994f5816a74e4f4500dcea42

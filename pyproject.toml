@@ -54,12 +54,6 @@ omit = [
 [tool.flit.module]
 name = "databuilder"
 
-[tool.interrogate]
-fail-under = 0
-ignore-init-module = true
-omit-covered-files = true
-verbose = 1
-
 [tool.isort]
 profile = "black"
 skip_glob = [
