@@ -91,15 +91,14 @@ upgrade env package="": _virtualenv
     FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
 
 
-# runs the format (black), sort (isort) and lint (flake8) checks but does not change any files
-check *args: devenv
-    $BIN/black --check .
-    $BIN/isort --check-only --diff .
-    $BIN/flake8
-    $BIN/pyupgrade --py39-plus --keep-percent-format \
-        $(find databuilder -name "*.py" -type f) \
-        $(find tests -not -path 'tests/acceptance/external_studies/*' -name "*.py" -type f)
-    just docstrings
+black *args=".": devenv
+    $BIN/black --check {{ args }}
+
+ruff *args=".": devenv
+    $BIN/ruff {{ args }}
+
+# runs the various dev checks but does not change any files
+check *args: devenv black ruff docstrings
     docker pull hadolint/hadolint
     docker run --rm -i hadolint/hadolint < Dockerfile
 
@@ -113,7 +112,7 @@ docstrings: devenv
 # runs the format (black) and sort (isort) checks and fixes the files
 fix: devenv
     $BIN/black .
-    $BIN/isort .
+    $BIN/ruff --fix .
 
 
 # build the databuilder docker image

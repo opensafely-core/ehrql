@@ -1,5 +1,6 @@
 from ..tables import e, p
 
+
 title = "Determining whether a row exists for each patient"
 
 table_data = {

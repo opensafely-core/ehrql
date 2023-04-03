@@ -8,6 +8,7 @@ from databuilder.ehrql import Dataset
 from databuilder.query_engines.base_sql import BaseSQLQueryEngine
 from databuilder.tables import EventFrame, PatientFrame, Series, table
 
+
 Base = sqlalchemy.orm.declarative_base()
 
 

@@ -15,6 +15,7 @@ from databuilder.file_formats.csv import (
 from databuilder.query_model.column_specs import ColumnSpec
 from databuilder.sqlalchemy_types import TYPE_MAP
 
+
 CSV_READ_PARAMS = (
     "csv,error",
     [

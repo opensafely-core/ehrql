@@ -153,7 +153,7 @@ class QueryInfo:
         population_table_names = {
             node.name
             for node in walk_tree(variable_definitions["population"])
-            if isinstance(node, (SelectTable, SelectPatientTable))
+            if isinstance(node, SelectTable | SelectPatientTable)
         }
 
         other_table_names = tables.keys() - population_table_names

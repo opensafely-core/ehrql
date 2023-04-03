@@ -2,6 +2,7 @@ from databuilder.tables import PatientFrame, Series, table_from_rows
 
 from ..tables import p
 
+
 title = "Defining a table using inline data"
 
 table_data = {

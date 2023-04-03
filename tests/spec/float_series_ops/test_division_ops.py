@@ -1,5 +1,6 @@
 from ..tables import p
 
+
 title = "Arithmetic division operations"
 
 table_data = {

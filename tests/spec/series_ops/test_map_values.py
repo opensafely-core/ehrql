@@ -1,5 +1,6 @@
 from ..tables import p
 
+
 title = "Map from one set of values to another"
 
 table_data = {

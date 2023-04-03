@@ -4,6 +4,7 @@ from databuilder.ehrql import days, months, years
 
 from ..tables import p
 
+
 title = "Operations which apply to all series containing dates"
 
 table_data = {

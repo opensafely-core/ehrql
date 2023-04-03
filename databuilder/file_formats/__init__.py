@@ -15,6 +15,7 @@ from databuilder.file_formats.csv import (
 )
 from databuilder.file_formats.validation import ValidationError
 
+
 FILE_FORMATS = {
     ".arrow": (write_dataset_arrow, validate_dataset_arrow, read_dataset_arrow),
     ".csv": (write_dataset_csv, validate_dataset_csv, read_dataset_csv),

@@ -2,6 +2,7 @@ from databuilder.codes import SNOMEDCTCode, codelist_from_csv_lines
 
 from ..tables import p
 
+
 title = "Testing for containment using codes"
 
 table_data = {

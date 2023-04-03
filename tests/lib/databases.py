@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 from databuilder.utils.itertools_utils import iter_flatten
 
+
 MSSQL_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/mssql"
 
 

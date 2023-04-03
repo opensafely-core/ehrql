@@ -1,5 +1,6 @@
 from ..tables import e
 
+
 title = "Sort extends to all columns when underspecified to ensure that sort order is consistent"
 
 table_data = {

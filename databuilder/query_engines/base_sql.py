@@ -42,6 +42,7 @@ from databuilder.utils.sqlalchemy_query_utils import (
 
 from .base import BaseQueryEngine
 
+
 log = structlog.getLogger()
 
 

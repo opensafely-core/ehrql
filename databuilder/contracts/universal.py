@@ -2,6 +2,7 @@ import datetime
 
 from databuilder.tables import Constraint, PatientFrame, Series, table
 
+
 __all__ = ["patients"]
 
 

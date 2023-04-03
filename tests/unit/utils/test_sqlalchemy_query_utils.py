@@ -11,6 +11,7 @@ from databuilder.utils.sqlalchemy_query_utils import (
     is_predicate,
 )
 
+
 table = sqlalchemy.Table(
     "some_table",
     sqlalchemy.MetaData(),

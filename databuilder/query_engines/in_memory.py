@@ -13,6 +13,7 @@ from databuilder.query_model import nodes as qm
 from databuilder.query_model.transforms import apply_transforms
 from databuilder.utils import date_utils, math_utils
 
+
 T = True
 F = False
 N = None

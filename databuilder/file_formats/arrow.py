@@ -5,6 +5,7 @@ import pyarrow
 
 from databuilder.file_formats.validation import ValidationError, validate_headers
 
+
 PYARROW_TYPE_MAP = {
     bool: pyarrow.bool_,
     # Note ints are handled separately

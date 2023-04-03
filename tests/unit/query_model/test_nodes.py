@@ -31,6 +31,7 @@ from databuilder.query_model.nodes import (
     has_one_row_per_patient,
 )
 
+
 EVENTS_SCHEMA = TableSchema(
     date=Column(datetime.date), code=Column(str), flag=Column(bool)
 )

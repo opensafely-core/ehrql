@@ -8,6 +8,7 @@ import pytest
 from databuilder.main import load_dataset_definition
 from databuilder.query_language import compile
 
+
 # These tests specify dataset definitions in other repositories which we want to ensure
 # we don't accidentally break. In order to keep tests hermetic and deterministic, we
 # copy the study code into the repo and commit it (taking care to copy just the files

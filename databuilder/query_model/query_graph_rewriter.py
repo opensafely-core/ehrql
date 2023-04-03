@@ -45,7 +45,7 @@ class QueryGraphRewriter:
             # As do frozensets
             return frozenset(self._rewrite(v, replacements) for v in obj)
         elif isinstance(
-            obj, (NoneType, str, qm.Position, qm.TableSchema, qm.IterWrapper)
+            obj, NoneType | str | qm.Position | qm.TableSchema | qm.IterWrapper
         ):
             # Other expected types we return unchanged
             return obj

@@ -88,3 +88,44 @@ filterwarnings = [
     "ignore::DeprecationWarning:pyhive.common:248",
     "ignore::DeprecationWarning:pyhive.sqlalchemy_hive:20",
 ]
+
+[tool.ruff]
+line-length = 88
+exclude = [
+  ".direnv",
+  ".git",
+  ".github",
+  ".ipynb_checkpoints",
+  ".pytest_cache",
+  ".venv",
+  "__pycache__",
+  "coverage",
+  "docker",
+  "docs",
+  "htmlcov",
+  "tests/acceptance/external_studies/",
+  "venv",
+]
+extend-select = [
+  "A", # flake8-builtins
+  "I",  # isort
+  "INP",  # flake8-no-pep420
+  "ISC",  # flake8-implicit-str-concat
+  "UP",  # pyupgrade
+  "W",  # pycodestyle warning
+]
+extend-ignore = [
+  "E501"
+]
+
+[tool.ruff.isort]
+lines-after-imports = 2
+
+[tool.ruff.per-file-ignores]
+"scripts/create-schema.py" = ["INP001", "E402"]
+"scripts/dbx" = ["INP001"]
+"scripts/dbx-cleanup.py" = ["INP001", "F821"]
+"scripts/generate-dataset-sqlite.py" = ["INP001", "E402"]
+"scripts/parse_coverage_output.py" = ["INP001"]
+"docs/snippets/*" = ["E402"]
+"docs/ehrql-tutorial-examples/*" = ["INP001"]

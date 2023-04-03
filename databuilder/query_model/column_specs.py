@@ -11,6 +11,7 @@ from databuilder.query_model.nodes import (
     get_series_type,
 )
 
+
 T = TypeVar("T")
 
 

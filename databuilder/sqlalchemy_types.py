@@ -2,6 +2,7 @@ import datetime
 
 import sqlalchemy
 
+
 TYPE_MAP = {
     bool: sqlalchemy.Boolean,
     datetime.date: sqlalchemy.Date,

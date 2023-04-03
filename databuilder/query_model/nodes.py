@@ -12,6 +12,7 @@ from databuilder.query_model.table_schema import Column, Constraint, TableSchema
 from databuilder.utils.functools_utils import cached_method
 from databuilder.utils.typing_utils import get_typespec, get_typevars, type_matches
 
+
 # The below classes and functions are the public API surface of the query model
 __all__ = [
     "Node",
@@ -659,7 +660,7 @@ def get_table_nodes(*nodes):
     table_nodes = set()
     for node in nodes:
         for subnode in all_nodes(node):
-            if isinstance(subnode, (SelectTable, SelectPatientTable)):
+            if isinstance(subnode, SelectTable | SelectPatientTable):
                 table_nodes.add(subnode)
     return table_nodes
 

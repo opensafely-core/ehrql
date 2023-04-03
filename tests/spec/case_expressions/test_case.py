@@ -2,6 +2,7 @@ from databuilder.ehrql import case, when
 
 from ..tables import p
 
+
 title = "Logical case expressions"
 
 table_data = {

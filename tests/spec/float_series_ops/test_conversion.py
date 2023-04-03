@@ -1,5 +1,6 @@
 from ..tables import p
 
+
 title = "Convert a float value"
 
 table_data = {

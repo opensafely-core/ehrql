@@ -2,6 +2,7 @@ import datetime
 
 from databuilder.tables import EventFrame, Series, table
 
+
 ###
 # The following contracts have not been through any kind of assurance process!
 ###

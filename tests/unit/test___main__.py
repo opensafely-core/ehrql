@@ -8,6 +8,7 @@ from databuilder.__main__ import (
     query_engine_from_id,
 )
 
+
 # We just need any old existing file with a ".py" extension for testing purposes, its
 # contents are immaterial; this one will do
 DATASET_DEFINITON_PATH = __file__

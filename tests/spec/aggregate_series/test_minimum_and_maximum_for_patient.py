@@ -1,5 +1,6 @@
 from ..tables import e
 
+
 title = "Minimum and maximum aggregations"
 
 table_data = {

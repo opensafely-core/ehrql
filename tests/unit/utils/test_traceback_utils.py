@@ -2,6 +2,7 @@ import pytest
 
 from databuilder.utils.traceback_utils import get_trimmed_traceback, walk_traceback
 
+
 # NOTE
 #
 # These tests exist purely to exercise some edge cases of the module and keep coverage

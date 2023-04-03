@@ -7,6 +7,7 @@ import datetime
 
 from .. import Constraint, PatientFrame, Series, table
 
+
 __all__ = [
     "patients",
 ]

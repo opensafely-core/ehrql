@@ -33,6 +33,7 @@ from tests.lib.tpp_schema import (
     VaccinationReference,
 )
 
+
 REGISTERED_TABLES = set()
 
 

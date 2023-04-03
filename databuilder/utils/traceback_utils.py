@@ -1,6 +1,7 @@
 import traceback
 from pathlib import Path
 
+
 # Note that if this file is moved, this will need to be updated.
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 # We want the trailing slash here so we can use this with `str.startswith()`

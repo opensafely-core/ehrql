@@ -20,6 +20,7 @@ from databuilder.query_model.nodes import (
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
 
+
 IGNORE_RESULT = object()
 
 # To simplify data generation, all tables have the same schema.
