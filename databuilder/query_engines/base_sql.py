@@ -601,7 +601,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 connection.execute(setup_query)
 
             log.info("Fetching results")
-            yield from connection.execute(results_query)
+            cursor_result = connection.execute(results_query)
+            try:
+                yield from cursor_result
+            except Exception:  # pragma: no cover
+                # If we hit an error part way through fetching results then we should
+                # close the cursor to make it clear we're not going to be fetching any
+                # more (only really relevant for the in-memory SQLite tests, but good
+                # hygiene in any case)
+                cursor_result.close()
+                raise
 
             assert not cleanup_queries, "Support these once tests exercise them"
 
