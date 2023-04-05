@@ -94,9 +94,10 @@ def build_paragraph(paragraph_id, test_fn):
     source_lines = inspect.getsource(test_fn).splitlines()
 
     # Find the line the source where spec_test is called.
-    for ix, l in enumerate(source_lines):
+    ix = 0
+    for i, l in enumerate(source_lines):
         if re.match(r"\s+spec_test\(", l):
-            break
+            ix = i
 
     # Check that the next line is as expected.
     assert re.match(r"\s+table_data", source_lines[ix + 1])
