@@ -94,10 +94,12 @@ def build_paragraph(paragraph_id, test_fn):
     source_lines = inspect.getsource(test_fn).splitlines()
 
     # Find the line the source where spec_test is called.
-    ix = source_lines.index("    spec_test(")
+    for ix, l in enumerate(source_lines):
+        if re.match(r"\s+spec_test\(", l):
+            break
 
     # Check that the next line is as expected.
-    assert source_lines[ix + 1] == "        table_data,"
+    assert re.match(r"\s+table_data", source_lines[ix + 1])
 
     series = get_series_code(source_lines, ix + 2, capturer.define_population)
 

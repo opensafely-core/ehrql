@@ -2689,13 +2689,88 @@ returns the following patient series:
 
 
 
-## 14 Defining a table using inline data
+## 14 Defining a table from a file
 
 
-### 14.1 Defining a table using inline data
+### 14.1 Defining a table from a file
 
 
-#### 14.1.1 Table from rows
+#### 14.1.1 Table from csv file
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|10 |
+| 2|20 |
+| 3|30 |
+
+```
+p.i1 + t.n
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|110 |
+| 2| |
+| 3|330 |
+
+
+
+#### 14.1.2 Table from csv gz file
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|10 |
+| 2|20 |
+| 3|30 |
+
+```
+p.i1 + t.n
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|110 |
+| 2| |
+| 3|330 |
+
+
+
+#### 14.1.3 Table from arrow file
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|10 |
+| 2|20 |
+| 3|30 |
+
+```
+p.i1 + t.n
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|110 |
+| 2| |
+| 3|330 |
+
+
+
+## 15 Defining a table using inline data
+
+
+### 15.1 Defining a table using inline data
+
+
+#### 15.1.1 Table from rows
 
 This example makes use of a patient-level table named `p` containing the following data:
 
