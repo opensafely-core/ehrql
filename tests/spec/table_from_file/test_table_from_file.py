@@ -34,7 +34,7 @@ def test_table_from_file_csv(spec_test, tmp_path):
         writer.writerow(["patient_id", "n"])
         writer.writerows(file_data)
 
-    @table_from_file(str(path))
+    @table_from_file(path)
     class t(PatientFrame):
         n = Series(int)
 
