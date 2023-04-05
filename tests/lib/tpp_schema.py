@@ -288,8 +288,8 @@ class RegistrationHistory(Base):
     Patient = relationship(
         "Patient", back_populates="RegistrationHistory", cascade="all, delete"
     )
-    StartDate = Column(Date)
-    EndDate = Column(Date)
+    StartDate = Column(DateTime)
+    EndDate = Column(DateTime)
 
 
 class Organisation(Base):

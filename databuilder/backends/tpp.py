@@ -50,8 +50,8 @@ class TPPBackend(BaseBackend):
         """
             SELECT
                 reg.Patient_ID AS patient_id,
-                reg.StartDate AS start_date,
-                reg.EndDate AS end_date,
+                CAST(reg.StartDate AS date) AS start_date,
+                CAST(reg.EndDate AS date) AS end_date,
                 org.Organisation_ID AS practice_pseudo_id,
                 org.STPCode AS practice_stp,
                 org.Region AS practice_nuts1_region_name
