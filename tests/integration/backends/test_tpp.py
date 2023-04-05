@@ -61,7 +61,13 @@ def select_all(request, mssql_database):
 
     qm_table = ql_table.qm_node
     sql_table = TPPBackend().get_table_expression(qm_table.name, qm_table.schema)
-    columns = [column.label(column.key) for column in sql_table.columns]
+    columns = [
+        # Using `type_coerce(..., None)` like this strips the type information from the
+        # SQLAlchemy column meaning we get back the type that the column actually is in
+        # database, not the type we've told SQLAlchemy it is.
+        sqlalchemy.type_coerce(column, None).label(column.key)
+        for column in sql_table.columns
+    ]
     select_all_query = sqlalchemy.select(*columns)
 
     def _select_all(*input_data):
