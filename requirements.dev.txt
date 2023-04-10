@@ -302,9 +302,9 @@ mkdocs==1.4.2 \
     #   -r requirements.dev.in
     #   mkdocs-material
     #   mkdocs-table-reader-plugin
-mkdocs-material==9.1.5 \
-    --hash=sha256:744519bca52b1e8fe7c2e80e15ed59baf8948111ec763ae6ae629c409bd16d6e \
-    --hash=sha256:981e1ef0250e2fbcc23610e9b20e5f242fe1f808079b9bcfbb6c49aa2999343c
+mkdocs-material==9.1.6 \
+    --hash=sha256:2e555152f9771646bfa62dc78a86052876183eff69ce30db03a33e85702b21fc \
+    --hash=sha256:f2eb1d40db89da9922944833c1387207408f8937e1c2b46ab86e0c8f170b71e0
     # via -r requirements.dev.in
 mkdocs-material-extensions==1.1.1 \
     --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
