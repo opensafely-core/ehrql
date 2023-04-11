@@ -105,33 +105,32 @@ had_matching_event = event.exists_for_patient()
 # These are static methods which just live on `Measures` for the sake of convenience and
 # keeping the namespace clean.
 
-intervals = Measures.by_month(start="2020-12-01", end="2021-04-01")
 
-measures = Measures()
-
-measures.define_measure(
-    id="total",
+# To reduce repetition, default values which will be shared across multiple measures can
+# be supplied to the `Measures()` constructor
+measures = Measures(
     # Numerator can be any boolean or integer PatientSeries
     numerator=had_matching_event,
     # Denominator can also be any boolean or integer PatientSeries. The denominator
     # functions like `Dataset.define_population()` so only patients appearing in the
     # denominator can appear in the numerator.
     denominator=population,
+    # This can be any list of start/end date pairs – they don't have to be regular
+    # or contiguous
+    intervals=Measures.by_month(start="2020-12-01", end="2021-04-01"),
+)
+
+measures.define_measure(
+    id="total",
     # I'm not wild about the use of `dict` here but I can't think of a better
     # syntactic solution.
     group_by=dict(
         age_band=age_band,
     ),
-    # This can be any list of start/end date pairs – they don't have to be regular
-    # or contiguous
-    intervals=intervals,
 )
 
 measures.define_measure(
     id="event_code",
-    numerator=had_matching_event,
-    # All these measures use the same denominator but they don't have to
-    denominator=population,
     # The only restriction on `group_by` is that where multiple measures use the
     # same column name they must also share the same column definition. This allows
     # us to combine all the measures in a single output file, and I don't think is
@@ -140,28 +139,20 @@ measures.define_measure(
         age_band=age_band,
         event_code=event.snomedct_code,
     ),
-    # Likewise, all these measures use the same intervals, but they don't have to
-    intervals=intervals,
 )
 
 measures.define_measure(
     id="practice",
-    numerator=had_matching_event,
-    denominator=population,
     group_by=dict(
         age_band=age_band,
         practice=practice.practice_pseudo_id,
     ),
-    intervals=intervals,
 )
 
 measures.define_measure(
-    id="practice",
-    numerator=had_matching_event,
-    denominator=population,
+    id="region",
     group_by=dict(
         age_band=age_band,
         region=practice.nuts1_region_name,
     ),
-    intervals=intervals,
 )
