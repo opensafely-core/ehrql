@@ -1,9 +1,7 @@
-import csv
-import gzip
+from pathlib import Path
 
-import pyarrow
-from pyarrow.feather import write_feather
-
+from databuilder.file_formats import FILE_FORMATS, write_dataset
+from databuilder.query_model.column_specs import ColumnSpec
 from databuilder.tables import PatientFrame, Series, table_from_file
 
 from ..tables import p
@@ -21,20 +19,25 @@ table_data = {
         """,
 }
 
-file_data = [
-    (1, 100),
-    (3, 300),
-]
+FIXTURE_DIR = Path(__file__).parent
 
 
-def test_table_from_file_csv(spec_test, tmp_path):
-    path = tmp_path / "test_table_from_file.csv"
-    with path.open("w") as f:
-        writer = csv.writer(f)
-        writer.writerow(["patient_id", "n"])
-        writer.writerows(file_data)
+def write_fixture_files():  # pragma: no cover
+    """
+    python -c 'from tests.spec.table_from_file.test_table_from_file import write_fixture_files; write_fixture_files()'
+    """
+    file_data = [
+        (1, 100),
+        (3, 300),
+    ]
+    column_specs = {"patient_id": ColumnSpec(int), "n": ColumnSpec(int)}
+    for extension in FILE_FORMATS.keys():
+        filename = FIXTURE_DIR / f"test_file{extension}"
+        write_dataset(filename, file_data, column_specs)
 
-    @table_from_file(str(path))
+
+def test_table_from_file_csv(spec_test):
+    @table_from_file(FIXTURE_DIR / "test_file.csv")
     class t(PatientFrame):
         n = Series(int)
 
@@ -49,14 +52,8 @@ def test_table_from_file_csv(spec_test, tmp_path):
     )
 
 
-def test_table_from_file_csv_gz(spec_test, tmp_path):
-    path = tmp_path / "test_table_from_file.csv.gz"
-    with gzip.open(path, "wt", newline="", compresslevel=6) as f:
-        writer = csv.writer(f)
-        writer.writerow(["patient_id", "n"])
-        writer.writerows(file_data)
-
-    @table_from_file(path)
+def test_table_from_file_csv_gz(spec_test):
+    @table_from_file(FIXTURE_DIR / "test_file.csv.gz")
     class t(PatientFrame):
         n = Series(int)
 
@@ -71,14 +68,8 @@ def test_table_from_file_csv_gz(spec_test, tmp_path):
     )
 
 
-def test_table_from_file_feather(spec_test, tmp_path):
-    path = tmp_path / "test_table_from_file.arrow"
-
-    columns = ["patient_id", "n"]
-    table = pyarrow.Table.from_pylist([dict(zip(columns, f)) for f in file_data])
-    write_feather(table, str(path), compression="zstd")
-
-    @table_from_file(path)
+def test_table_from_file_feather(spec_test):
+    @table_from_file(FIXTURE_DIR / "test_file.arrow")
     class t(PatientFrame):
         n = Series(int)
 
