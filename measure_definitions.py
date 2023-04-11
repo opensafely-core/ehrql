@@ -1,19 +1,11 @@
-from databuilder.ehrql import case, when
-
-# I'm importing from a separate `measures` module here, but I think there's an argument
-# that this should all be importable from the `ehrql` namespace
-from databuilder.measures import (
-    INTERVAL_END_DATE,
-    INTERVAL_START_DATE,
-    Intervals,
-    Measure,
-)
+from databuilder.ehrql import Measures, case, when
 from databuilder.tables.beta.tpp import (
     clinical_events,
     ons_deaths,
     patients,
     practice_registrations,
 )
+
 
 # Note that the INTERVAL_START_DATE/INTERVAL_END_DATE values are ehrQL parameters (or
 # placeholders). From the point of view of the rest of ehrQL they are just
@@ -31,11 +23,13 @@ from databuilder.tables.beta.tpp import (
 # DEMOGRAPHICS
 #
 
-practice = practice_registrations.for_patient_on(INTERVAL_START_DATE)
+practice = practice_registrations.for_patient_on(Measures.INTERVAL_START_DATE)
 
-has_died = ons_deaths.where(ons_deaths.date <= INTERVAL_START_DATE).exists_for_patient()
+has_died = ons_deaths.where(
+    ons_deaths.date <= Measures.INTERVAL_START_DATE
+).exists_for_patient()
 
-age = patients.age_on(INTERVAL_START_DATE)
+age = patients.age_on(Measures.INTERVAL_START_DATE)
 
 age_band = case(
     when((age >= 0) & (age <= 4)).then("0-4"),
@@ -86,7 +80,11 @@ codelist = [
 e = clinical_events
 event = (
     e.where(e.snomedct_code.is_in(codelist))
-    .where(e.date.is_on_or_between(INTERVAL_START_DATE, INTERVAL_END_DATE))
+    .where(
+        e.date.is_on_or_between(
+            Measures.INTERVAL_START_DATE, Measures.INTERVAL_END_DATE
+        )
+    )
     .sort_by(e.date)
     .first_for_patient()
 )
@@ -95,74 +93,75 @@ had_matching_event = event.exists_for_patient()
 
 # DATE RANGE
 #
-# The `Intervals` methods are helper functions which return a list of date pairs, being
-# the start and ends (inclusive) of the specified intervals e.g.
+# The `by_week`/`by_month`/`by_year` methods are helper functions which return a list of
+# date pairs, being the start and ends (inclusive) of the specified intervals e.g.
 #
-#     Intervals.weeks_between("2020-01-01", "2020-01-15") == [
+#     Measures.by_week(start="2020-01-01", end="2020-01-15") == [
 #         (date(2020,1,1), date(2020,1,7)),
 #         (date(2020,1,8), date(2020,1,14)),
 #         (date(2020,1,15), date(2020,1,21)),
 #     ]
 #
-# `Intervals` is just acting as a namespace here; it felt cleaner to me to keep these
-# together rather than having them as free floating functions. But I'm open to other
-# suggestions.
+# These are static methods which just live on `Measures` for the sake of convenience and
+# keeping the namespace clean.
 
-intervals = Intervals.months_between("2020-12-01", "2021-04-01")
+intervals = Measures.by_month(start="2020-12-01", end="2021-04-01")
 
+measures = Measures()
 
-measures = [
-    Measure(
-        id="total",
-        # Numerator can be any boolean or integer PatientSeries
-        numerator=had_matching_event,
-        # Denominator can also be any boolean or integer PatientSeries. The denominator
-        # functions like `Dataset.define_population()` so only patients appearing in the
-        # denominator can appear in the numerator.
-        denominator=population,
-        # I'm not wild about the use of `dict` here but I can't think of a better
-        # syntactic solution.
-        group_by=dict(
-            age_band=age_band,
-        ),
-        # This can be any list of start/end date pairs – they don't have to be regular
-        # or contiguous
-        intervals=intervals,
+measures.define_measure(
+    id="total",
+    # Numerator can be any boolean or integer PatientSeries
+    numerator=had_matching_event,
+    # Denominator can also be any boolean or integer PatientSeries. The denominator
+    # functions like `Dataset.define_population()` so only patients appearing in the
+    # denominator can appear in the numerator.
+    denominator=population,
+    # I'm not wild about the use of `dict` here but I can't think of a better
+    # syntactic solution.
+    group_by=dict(
+        age_band=age_band,
     ),
-    Measure(
-        id="event_code",
-        numerator=had_matching_event,
-        # All these measures use the same denominator but they don't have to
-        denominator=population,
-        # The only restriction on `group_by` is that where multiple measures use the
-        # same column name they must also share the same column definition. This allows
-        # us to combine all the measures in a single output file, and I don't think is
-        # too onerous a condition.
-        group_by=dict(
-            age_band=age_band,
-            event_code=event.snomedct_code,
-        ),
-        # Likewise, all these measures use the same intervals, but they don't have to
-        intervals=intervals,
+    # This can be any list of start/end date pairs – they don't have to be regular
+    # or contiguous
+    intervals=intervals,
+)
+
+measures.define_measure(
+    id="event_code",
+    numerator=had_matching_event,
+    # All these measures use the same denominator but they don't have to
+    denominator=population,
+    # The only restriction on `group_by` is that where multiple measures use the
+    # same column name they must also share the same column definition. This allows
+    # us to combine all the measures in a single output file, and I don't think is
+    # too onerous a condition.
+    group_by=dict(
+        age_band=age_band,
+        event_code=event.snomedct_code,
     ),
-    Measure(
-        id="practice",
-        numerator=had_matching_event,
-        denominator=population,
-        group_by=dict(
-            age_band=age_band,
-            practice=practice.practice_pseudo_id,
-        ),
-        intervals=intervals,
+    # Likewise, all these measures use the same intervals, but they don't have to
+    intervals=intervals,
+)
+
+measures.define_measure(
+    id="practice",
+    numerator=had_matching_event,
+    denominator=population,
+    group_by=dict(
+        age_band=age_band,
+        practice=practice.practice_pseudo_id,
     ),
-    Measure(
-        id="practice",
-        numerator=had_matching_event,
-        denominator=population,
-        group_by=dict(
-            age_band=age_band,
-            region=practice.nuts1_region_name,
-        ),
-        intervals=intervals,
+    intervals=intervals,
+)
+
+measures.define_measure(
+    id="practice",
+    numerator=had_matching_event,
+    denominator=population,
+    group_by=dict(
+        age_band=age_band,
+        region=practice.nuts1_region_name,
     ),
-]
+    intervals=intervals,
+)
