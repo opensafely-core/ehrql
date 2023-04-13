@@ -36,20 +36,7 @@ def get_column_specs(variable_definitions):
     for name, series in variable_definitions.items():
         if name == "population":
             continue
-        type_ = get_series_type(series)
-        categories = get_categories(series)
-        min_value, max_value = get_range(series)
-        if hasattr(type_, "_primitive_type"):
-            type_ = type_._primitive_type()
-            if categories:
-                categories = tuple(c._to_primitive_type() for c in categories)
-        column_specs[name] = ColumnSpec(
-            type_,
-            nullable=True,
-            categories=categories,
-            min_value=min_value,
-            max_value=max_value,
-        )
+        column_specs[name] = get_column_spec_from_series(series)
     return column_specs
 
 
@@ -62,6 +49,23 @@ def get_column_specs_from_schema(schema):
         for name, col_type in dict(schema.column_types).items()
     }
     return column_specs
+
+
+def get_column_spec_from_series(series):
+    type_ = get_series_type(series)
+    categories = get_categories(series)
+    min_value, max_value = get_range(series)
+    if hasattr(type_, "_primitive_type"):
+        type_ = type_._primitive_type()
+        if categories:
+            categories = tuple(c._to_primitive_type() for c in categories)
+    return ColumnSpec(
+        type_,
+        nullable=True,
+        categories=categories,
+        min_value=min_value,
+        max_value=max_value,
+    )
 
 
 @singledispatch
