@@ -24,16 +24,19 @@ get_regex_generator = functools.cache(create_regex_generator)
 
 
 class DummyDataGenerator:
-    # TODO: Make these user configurable. We're deliberately not doing this right now
-    # because we want to keep the API surface to zero in the early stages while we
-    # iterate on things.
-    population_size = 500
-    batch_size = 5000
-    random_seed = "BwRV3spP"
-    timeout = 60
-
-    def __init__(self, variable_definitions):
+    def __init__(
+        self,
+        variable_definitions,
+        population_size=500,
+        batch_size=5000,
+        random_seed="BwRV3spP",
+        timeout=60,
+    ):
         self.variable_definitions = variable_definitions
+        self.population_size = population_size
+        self.batch_size = batch_size
+        self.random_seed = random_seed
+        self.timeout = timeout
         self.patient_generator = DummyPatientGenerator(
             self.variable_definitions, self.random_seed
         )
