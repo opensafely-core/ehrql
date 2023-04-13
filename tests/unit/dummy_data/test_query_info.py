@@ -4,7 +4,14 @@ from databuilder.codes import CTV3Code
 from databuilder.dummy_data.query_info import ColumnInfo, QueryInfo, TableInfo
 from databuilder.ehrql import Dataset, days
 from databuilder.query_language import compile
-from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, table
+from databuilder.tables import (
+    Constraint,
+    EventFrame,
+    PatientFrame,
+    Series,
+    table,
+    table_from_rows,
+)
 
 
 @table
@@ -26,13 +33,21 @@ class events(EventFrame):
     code = Series(CTV3Code)
 
 
+@table_from_rows([])
+class inline_table(PatientFrame):
+    value = Series(int)
+
+
 def test_query_info_from_variable_definitions():
     dataset = Dataset()
     dataset.define_population(events.exists_for_patient())
     dataset.date_of_birth = patients.date_of_birth
     dataset.sex = patients.sex
-    variable_definitions = compile(dataset)
+    # We include this inline table in the dataset just to confirm that it is ignored by
+    # the query info inspection
+    dataset.value = inline_table.value
 
+    variable_definitions = compile(dataset)
     query_info = QueryInfo.from_variable_definitions(variable_definitions)
 
     assert query_info == QueryInfo(
