@@ -101,3 +101,6 @@ class EmptyQueryEngine(InMemoryQueryEngine):
     def visit_SelectPatientTable(self, node):
         column_names = ["patient_id", *node.schema.column_names]
         return PatientTable.from_records(column_names, row_records=[])
+
+    def visit_InlinePatientTable(self, node):
+        return self.visit_SelectPatientTable(node)

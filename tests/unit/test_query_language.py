@@ -1,10 +1,10 @@
-import csv
 from datetime import date
 from inspect import signature
 
 import pytest
 
 from databuilder.codes import SNOMEDCTCode
+from databuilder.file_formats import FILE_FORMATS, write_dataset
 from databuilder.query_language import (
     BaseSeries,
     BoolEventSeries,
@@ -34,6 +34,7 @@ from databuilder.query_language import (
     weeks,
     years,
 )
+from databuilder.query_model.column_specs import ColumnSpec
 from databuilder.query_model.nodes import (
     Column,
     Function,
@@ -322,20 +323,36 @@ def test_table_from_rows_only_accepts_patient_frame():
             some_int = Series(int)
 
 
-def test_table_from_file(tmp_path):
-    rows = [(1, 100), (2, 200)]
-    csv_path = tmp_path / "test.csv"
-    with csv_path.open("w") as f:
-        writer = csv.writer(f)
-        writer.writerow(("patient_id", "n"))
-        writer.writerows(rows)
+@pytest.mark.parametrize("file_extension", FILE_FORMATS)
+def test_table_from_file(file_extension, tmp_path):
+    file_data = [
+        (1, 100, "a", date(2021, 1, 1)),
+        (2, 200, "b", date(2022, 2, 2)),
+    ]
+    filename = tmp_path / f"test_file{file_extension}"
 
-    @table_from_file(csv_path)
+    column_specs = {
+        "patient_id": ColumnSpec(int),
+        "i": ColumnSpec(int),
+        "s": ColumnSpec(str),
+        "d": ColumnSpec(date),
+    }
+    write_dataset(filename, file_data, column_specs)
+
+    @table_from_file(filename)
     class some_table(PatientFrame):
-        n = Series(int)
+        i = Series(int)
+        s = Series(str)
+        d = Series(date)
 
     assert isinstance(some_table, PatientFrame)
     assert isinstance(some_table.qm_node, InlinePatientTable)
+    assert some_table.qm_node.schema.column_types == [
+        ("i", int),
+        ("s", str),
+        ("d", date),
+    ]
+    assert list(some_table.qm_node.rows) == file_data
 
 
 def test_table_from_file_only_accepts_patient_frame():
