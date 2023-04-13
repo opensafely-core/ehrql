@@ -6,6 +6,7 @@ from databuilder.query_model.nodes import (
     Column,
     Constraint,
     Function,
+    InlinePatientTable,
     SelectColumn,
     SelectPatientTable,
     SelectTable,
@@ -118,6 +119,13 @@ class QueryInfo:
         # For every column used in the query (sorted for consistency) …
         for column in sort_by_name(by_type[SelectColumn]):
             table = get_root_frame(column.source)
+            # We're only interested in "standard" tables here
+            if isinstance(table, InlinePatientTable):
+                continue
+            elif isinstance(table, SelectTable | SelectPatientTable):
+                pass
+            else:
+                assert False
             name = column.name
             table_info = tables[table.name]
             column_info = table_info.columns.get(name)

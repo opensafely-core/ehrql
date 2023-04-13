@@ -8,6 +8,7 @@ import hypothesis.strategies as st
 import pytest
 import sqlalchemy.exc
 
+from databuilder.dummy_data import DummyDataGenerator
 from databuilder.query_model.nodes import (
     Column,
     Function,
@@ -134,6 +135,12 @@ def setup_test(data, variable):
 
 def run_test(query_engines, data, variable, recorder):
     instances, variables = setup_test(data, variable)
+
+    # Test that we can successfully generate a minimal amount of dummy data
+    dummy_data_generator = DummyDataGenerator(
+        variables, population_size=1, batch_size=1, timeout=-1
+    )
+    assert len(dummy_data_generator.get_data()) > 0
 
     results = [
         (name, run_with(engine, instances, variables))
