@@ -111,7 +111,13 @@ def add_generate_dataset(subparsers, environ, user_args):
         type=Path,
         dest="dummy_tables_path",
     )
-    add_common_dataset_arguments(parser, environ)
+    parser.add_argument(
+        "definition_file",
+        help="The path of the file where the dataset is defined",
+        type=existing_python_file,
+        metavar="dataset_definition",
+    )
+    add_common_backend_arguments(parser, environ)
 
 
 def add_dump_dataset_sql(subparsers, environ, user_args):
@@ -131,16 +137,16 @@ def add_dump_dataset_sql(subparsers, environ, user_args):
         type=Path,
         dest="output_file",
     )
-    add_common_dataset_arguments(parser, environ)
-
-
-def add_common_dataset_arguments(parser, environ):
     parser.add_argument(
         "definition_file",
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
         metavar="dataset_definition",
     )
+    add_common_backend_arguments(parser, environ)
+
+
+def add_common_backend_arguments(parser, environ):
     parser.add_argument(
         "--query-engine",
         type=query_engine_from_id,
