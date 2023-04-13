@@ -500,6 +500,9 @@ def test_ons_cis(select_all):
             visit_num=1,
             last_linkage_dt=date(2022, 8, 15),
             nhs_data_share=1,
+            imd_decile_E=1,
+            imd_quartile_E=1,
+            rural_urban=1,
         ),
     )
     assert results == [
@@ -509,6 +512,9 @@ def test_ons_cis(select_all):
             "visit_num": 1,
             "is_opted_out_of_nhs_data_share": True,
             "last_linkage_dt": date(2022, 8, 15),
+            "imd_decile_e": 1,
+            "imd_quartile_e": 1,
+            "rural_urban": 1,
         },
     ]
 

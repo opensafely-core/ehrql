@@ -958,6 +958,9 @@ class ONS_CIS_New(Base):
     visit_num = Column(Integer)
     nhs_data_share = Column(Integer)
     last_linkage_dt = Column(Date)
+    imd_decile_E = Column(Integer)
+    imd_quartile_E = Column(Integer)
+    rural_urban = Column(Integer)
 
 
 class UKRR(Base):

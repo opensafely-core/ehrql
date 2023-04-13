@@ -293,6 +293,9 @@ class ons_cis(EventFrame):
     visit_num = Series(int)
     is_opted_out_of_nhs_data_share = Series(bool)
     last_linkage_dt = Series(datetime.date)
+    imd_decile_e = Series(int)
+    imd_quartile_e = Series(int)
+    rural_urban = Series(int)
 
 
 @table
