@@ -199,6 +199,12 @@ class InlinePatientTable(OneRowPerPatientFrame):
     rows: Iterable[tuple]
     schema: TableSchema
 
+    def __post_init__(self):
+        assert (
+            "patient_id" not in self.schema.column_names
+        ), "patient_id is implicitly included and must not be explicitly specified"
+        return super().__post_init__()
+
 
 class SelectColumn(Series):
     source: Frame
