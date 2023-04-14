@@ -80,18 +80,23 @@ class practice_registrations(EventFrame):
         constraints=[
             Constraint.Categorical(
                 [
-                    "East Midlands",
-                    "East of England",
-                    "London",
                     "North East",
                     "North West",
+                    "Yorkshire and The Humber",
+                    "East Midlands",
+                    "West Midlands",
+                    "East",
+                    "London",
                     "South East",
                     "South West",
-                    "West Midlands",
-                    "Yorkshire and the Humber",
                 ]
             ),
         ],
+        description=(
+            "Name of the NUTS level 1 region of England to which the practice belongs.\n"
+            "For more information see:\n"
+            "https://www.ons.gov.uk/methodology/geography/ukgeographies/eurostat"
+        ),
     )
 
     def for_patient_on(self, date):
