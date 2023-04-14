@@ -53,8 +53,8 @@ class TPPBackend(BaseBackend):
                 CAST(reg.StartDate AS date) AS start_date,
                 CAST(reg.EndDate AS date) AS end_date,
                 org.Organisation_ID AS practice_pseudo_id,
-                org.STPCode AS practice_stp,
-                org.Region AS practice_nuts1_region_name
+                NULLIF(org.STPCode, '') AS practice_stp,
+                NULLIF(org.Region, '') AS practice_nuts1_region_name
             FROM RegistrationHistory AS reg
             LEFT OUTER JOIN Organisation AS org
             ON reg.Organisation_ID = org.Organisation_ID

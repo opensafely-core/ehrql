@@ -177,11 +177,18 @@ def test_practice_registrations(select_all):
     results = select_all(
         Patient(Patient_ID=1),
         Organisation(Organisation_ID=2, STPCode="abc", Region="def"),
+        Organisation(Organisation_ID=3, STPCode="", Region=""),
         RegistrationHistory(
             Patient_ID=1,
             StartDate=date(2010, 1, 1),
             EndDate=date(2020, 1, 1),
             Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2020, 1, 1),
+            EndDate=date(2030, 1, 1),
+            Organisation_ID=3,
         ),
     )
     assert results == [
@@ -192,7 +199,15 @@ def test_practice_registrations(select_all):
             "practice_pseudo_id": 2,
             "practice_stp": "abc",
             "practice_nuts1_region_name": "def",
-        }
+        },
+        {
+            "patient_id": 1,
+            "start_date": date(2020, 1, 1),
+            "end_date": date(2030, 1, 1),
+            "practice_pseudo_id": 3,
+            "practice_stp": None,
+            "practice_nuts1_region_name": None,
+        },
     ]
 
 
