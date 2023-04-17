@@ -228,6 +228,9 @@ class TPPBackend(BaseBackend):
             visit_num="visit_num",
             is_opted_out_of_nhs_data_share="nhs_data_share",
             last_linkage_dt="last_linkage_dt",
+            imd_decile_e="imd_decile_E",
+            imd_quartile_e="imd_quartile_E",
+            rural_urban="rural_urban",
         ),
     )
 
