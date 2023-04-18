@@ -55,6 +55,10 @@ def validate_dataset(filename, column_specs):
 
 def read_dataset(filename, column_specs):
     extension = get_file_extension(filename)
+    if extension not in FILE_FORMATS:
+        raise ValidationError(f"Unsupported file type: {extension}")
+    if not os.path.isfile(filename):
+        raise ValidationError(f"Missing file: {filename}")
     reader = FILE_FORMATS[extension][2]
     return reader(filename, column_specs)
 
