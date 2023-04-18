@@ -38,6 +38,9 @@ def test_query_info_from_variable_definitions():
     dataset.define_population(events.exists_for_patient())
     dataset.date_of_birth = patients.date_of_birth
     dataset.sex = patients.sex
+    dataset.has_event = events.where(
+        events.code == CTV3Code("abc00")
+    ).exists_for_patient()
 
     variable_definitions = compile(dataset)
     query_info = QueryInfo.from_variable_definitions(variable_definitions)
@@ -47,7 +50,13 @@ def test_query_info_from_variable_definitions():
             "events": TableInfo(
                 name="events",
                 has_one_row_per_patient=False,
-                columns={},
+                columns={
+                    "code": ColumnInfo(
+                        name="code",
+                        type=str,
+                        values_used={"abc00"},
+                    )
+                },
             ),
             "patients": TableInfo(
                 name="patients",
@@ -75,27 +84,30 @@ def test_query_info_from_variable_definitions():
 
 
 def test_query_info_records_values():
+    @table
+    class test_table(PatientFrame):
+        value = Series(str)
+
     dataset = Dataset()
-    dataset.define_population(events.exists_for_patient())
-    # Simple equality comparison
-    dataset.q1 = events.where(events.code == CTV3Code("abc00")).exists_for_patient()
-    # String contains
-    dataset.q2 = patients.sex.contains("ale")
-    # Set contains
-    dataset.q3 = events.where(
-        events.code.is_in([CTV3Code("def00"), CTV3Code("ghi00")])
-    ).exists_for_patient()
-    # Equality comparison where the column is not selected directly from the table
-    old = events.where(events.date < "2000-01-01")
-    dataset.q4 = old.sort_by(old.date).first_for_patient().code == CTV3Code("jkl00")
+    dataset.define_population(test_table.exists_for_patient())
+    dataset.q1 = (
+        # NOTE: If we add examples here we should add the same examples to the inline
+        # patient table test below so we can check they are correctly handled in that
+        # context
+        (test_table.value == "a")
+        | test_table.value.is_in(["b", "c"])
+        | test_table.value.contains("d")
+    )
 
     variable_definitions = compile(dataset)
     query_info = QueryInfo.from_variable_definitions(variable_definitions)
-    sex_column_info = query_info.tables["patients"].columns["sex"]
-    code_column_info = query_info.tables["events"].columns["code"]
+    column_info = query_info.tables["test_table"].columns["value"]
 
-    assert sex_column_info.values_used == {"ale"}
-    assert code_column_info.values_used == {"abc00", "def00", "ghi00", "jkl00"}
+    assert column_info == ColumnInfo(
+        name="value",
+        type=str,
+        values_used={"a", "b", "c", "d"},
+    )
 
 
 def test_query_info_ignores_inline_patient_tables():
