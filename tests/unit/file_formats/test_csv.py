@@ -4,9 +4,9 @@ from io import StringIO
 import pytest
 
 from databuilder.file_formats.csv import (
+    CSVDatasetReader,
     ValidationError,
     create_column_parser,
-    read_dataset_csv_lines,
     write_dataset_csv_lines,
 )
 from databuilder.query_model.column_specs import ColumnSpec
@@ -88,16 +88,13 @@ def test_read_dataset_csv_lines(csv, error):
         "patient_id": ColumnSpec(int, nullable=False),
         "age": ColumnSpec(int, nullable=True),
     }
-    csv_file = iter(csv.splitlines(keepends=True))
-
-    # ValidationErrors won't be raised until we consume the iterator
-    lines = read_dataset_csv_lines(csv_file, specs)
+    csv_file = StringIO(csv)
 
     if error is None:
-        list(lines)
+        CSVDatasetReader(csv_file, specs).close()
     else:
         with pytest.raises(ValidationError, match=error):
-            list(lines)
+            CSVDatasetReader(csv_file, specs)
 
 
 @pytest.mark.parametrize(

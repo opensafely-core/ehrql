@@ -1,13 +1,12 @@
 import os
 
 from databuilder.file_formats.arrow import (
-    read_dataset_arrow,
+    ArrowDatasetReader,
     validate_dataset_arrow,
     write_dataset_arrow,
 )
 from databuilder.file_formats.csv import (
-    read_dataset_csv,
-    read_dataset_csv_gz,
+    CSVDatasetReader,
     validate_dataset_csv,
     validate_dataset_csv_gz,
     write_dataset_csv,
@@ -17,9 +16,21 @@ from databuilder.file_formats.validation import ValidationError
 
 
 FILE_FORMATS = {
-    ".arrow": (write_dataset_arrow, validate_dataset_arrow, read_dataset_arrow),
-    ".csv": (write_dataset_csv, validate_dataset_csv, read_dataset_csv),
-    ".csv.gz": (write_dataset_csv_gz, validate_dataset_csv_gz, read_dataset_csv_gz),
+    ".arrow": (
+        write_dataset_arrow,
+        validate_dataset_arrow,
+        ArrowDatasetReader,
+    ),
+    ".csv": (
+        write_dataset_csv,
+        validate_dataset_csv,
+        CSVDatasetReader.from_csv,
+    ),
+    ".csv.gz": (
+        write_dataset_csv_gz,
+        validate_dataset_csv_gz,
+        CSVDatasetReader.from_csv_gz,
+    ),
 }
 
 
