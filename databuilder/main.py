@@ -1,17 +1,11 @@
 import importlib.util
-import shutil
 import sys
 from contextlib import nullcontext
 
 import structlog
 
 from databuilder.dummy_data import DummyDataGenerator
-from databuilder.file_formats import (
-    read_dataset,
-    validate_dataset,
-    validate_file_types_match,
-    write_dataset,
-)
+from databuilder.file_formats import read_dataset, write_dataset
 from databuilder.query_engines.csv import CSVQueryEngine
 from databuilder.query_engines.sqlite import SQLiteQueryEngine
 from databuilder.query_language import Dataset, compile
@@ -115,18 +109,6 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args):
     dummy_tables_path.parent.mkdir(parents=True, exist_ok=True)
     log.info(f"Writing CSV files to {dummy_tables_path}")
     write_orm_models_to_csv_directory(dummy_tables_path, dummy_tables)
-
-
-def pass_dummy_data(variable_definitions, dataset_file, dummy_data_file):
-    log.info(f"Propagating dummy data from {dummy_data_file}")
-
-    column_specs = get_column_specs(variable_definitions)
-
-    validate_file_types_match(dummy_data_file, dataset_file)
-    validate_dataset(dummy_data_file, column_specs)
-
-    dataset_file.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(dummy_data_file, dataset_file)
 
 
 def dump_dataset_sql(

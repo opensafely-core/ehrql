@@ -4,11 +4,7 @@ import gzip
 import sys
 from contextlib import nullcontext
 
-from databuilder.file_formats.validation import (
-    ValidationError,
-    validate_columns,
-    validate_headers,
-)
+from databuilder.file_formats.validation import ValidationError, validate_columns
 
 
 def write_dataset_csv(filename, results, column_specs):
@@ -62,20 +58,6 @@ def format_bool(value):
     return "T" if value else "F"
 
 
-def validate_dataset_csv(filename, column_specs):
-    with open(filename, newline="") as f:
-        # Consume the generator to raise any errors
-        for _ in read_dataset_csv_lines(f, column_specs):
-            pass
-
-
-def validate_dataset_csv_gz(filename, column_specs):
-    with gzip.open(filename, "rt", newline="") as f:
-        # Consume the generator to raise any errors
-        for _ in read_dataset_csv_lines(f, column_specs):
-            pass
-
-
 class CSVDatasetReader:
     @classmethod
     def from_csv(cls, filename, column_specs):
@@ -121,18 +103,6 @@ class CSVDatasetReader:
 
     def __exit__(self, *exc_args):
         self.close()
-
-
-def read_dataset_csv_lines(lines, column_specs):
-    reader = csv.reader(lines)
-    headers = next(reader)
-    validate_headers(headers, list(column_specs.keys()))
-    row_parser = create_row_parser(headers, column_specs)
-    for n, row in enumerate(reader, start=1):
-        try:
-            yield row_parser(row)
-        except ValueError as e:
-            raise ValidationError(f"row {n}: {e}")
 
 
 def create_row_parser(headers, column_specs):

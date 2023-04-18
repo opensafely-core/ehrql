@@ -3,11 +3,7 @@ from itertools import islice
 
 import pyarrow
 
-from databuilder.file_formats.validation import (
-    ValidationError,
-    validate_columns,
-    validate_headers,
-)
+from databuilder.file_formats.validation import ValidationError, validate_columns
 
 
 PYARROW_TYPE_MAP = {
@@ -177,38 +173,6 @@ def batch_and_transpose(iterable, batch_size):
         return list(zip(*row_batch))
 
     return iter(next_transposed_batch, [])
-
-
-def validate_dataset_arrow(filename, column_specs):
-    target_schema, _ = get_schema_and_convertor(column_specs)
-    # Arrow enforces that all record batches have a consistent schema and that any
-    # categorical columns use the same dictionary, so we only need to get the first
-    # batch in order to validate
-    batch = get_first_record_batch_from_file(filename)
-    validate_headers(batch.schema.names, target_schema.names)
-    if not batch.schema.equals(target_schema):
-        # This isn't most user-friendly error message, but it will do for now
-        raise ValidationError(
-            f"File does not have expected schema\n\n"
-            f"Schema:\n{batch.schema.to_string()}\n\n"
-            f"Expected:\n{target_schema.to_string()}"
-        )
-    for name, spec in column_specs.items():
-        if spec.categories is None:
-            continue
-        column_categories = batch.column(name).dictionary.to_pylist()
-        if column_categories != list(spec.categories):
-            raise ValidationError(
-                f"Unexpected categories in column '{name}'\n"
-                f"Categories: {', '.join(column_categories)}\n"
-                f"Expected: {', '.join(spec.categories)}\n"
-            )
-
-
-def get_first_record_batch_from_file(filename):
-    with pyarrow.OSFile(str(filename), "rb") as f:
-        with pyarrow.ipc.open_file(f) as reader:
-            return reader.get_batch(0)
 
 
 class ArrowDatasetReader:
