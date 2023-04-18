@@ -33,19 +33,11 @@ class events(EventFrame):
     code = Series(CTV3Code)
 
 
-@table_from_rows([])
-class inline_table(PatientFrame):
-    value = Series(int)
-
-
 def test_query_info_from_variable_definitions():
     dataset = Dataset()
     dataset.define_population(events.exists_for_patient())
     dataset.date_of_birth = patients.date_of_birth
     dataset.sex = patients.sex
-    # We include this inline table in the dataset just to confirm that it is ignored by
-    # the query info inspection
-    dataset.value = inline_table.value
 
     variable_definitions = compile(dataset)
     query_info = QueryInfo.from_variable_definitions(variable_definitions)
@@ -104,6 +96,37 @@ def test_query_info_records_values():
 
     assert sex_column_info.values_used == {"ale"}
     assert code_column_info.values_used == {"abc00", "def00", "ghi00", "jkl00"}
+
+
+def test_query_info_ignores_inline_patient_tables():
+    # InlinePatientTable nodes are unusual from the point of view of dummy data because
+    # they come bundled with their own data (presumably based on dummy data generated
+    # further upstream in the data processing pipeline) so we don't need to generate any
+    # for them. This means that the QueryInfo class can, and should, ignore them.
+    @table_from_rows([])
+    class inline_table(PatientFrame):
+        value = Series(str)
+
+    dataset = Dataset()
+    dataset.define_population(events.exists_for_patient())
+    dataset.q1 = (
+        (inline_table.value == "a")
+        | inline_table.value.is_in(["b", "c"])
+        | inline_table.value.contains("d")
+    )
+
+    variable_definitions = compile(dataset)
+    query_info = QueryInfo.from_variable_definitions(variable_definitions)
+
+    assert query_info == QueryInfo(
+        tables={
+            "events": TableInfo(
+                name="events", has_one_row_per_patient=False, columns={}
+            )
+        },
+        population_table_names=["events"],
+        other_table_names=[],
+    )
 
 
 def test_query_info_ignores_complex_comparisons():
