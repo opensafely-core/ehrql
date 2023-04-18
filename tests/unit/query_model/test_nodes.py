@@ -143,7 +143,7 @@ def test_inline_patient_table():
     assert hash(inline_table)
 
     # Check that the repr still round-trips. To do this we have to compare the
-    # _contents_ of the iterators, rather than the identity of the wrappers.
+    # _contents_ of the iterables, rather than the identity of the wrappers.
     round_tripped = eval(repr(inline_table))
     assert list(round_tripped.rows) == list(inline_table.rows)
     assert round_tripped.schema == inline_table.schema
@@ -163,6 +163,15 @@ def test_inline_patient_table():
             rows=IterWrapper([(1)]),
             schema=TableSchema(patient_id=int),
         )
+
+
+def test_iterwrapper_rejects_iterators():
+    rows = [(1, 2), (3, 4)]
+    # IterWrapper accepts an iterable
+    assert IterWrapper(rows)
+    with pytest.raises(AssertionError):
+        # But rejects an iterator
+        IterWrapper(iter(rows))
 
 
 # TEST DOMAIN VALIDATION

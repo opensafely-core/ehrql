@@ -1,6 +1,6 @@
 import dataclasses
 import typing
-from collections.abc import Iterable, Mapping, Set
+from collections.abc import Iterable, Iterator, Mapping, Set
 from datetime import date
 from enum import Enum
 from functools import cache, singledispatch
@@ -75,6 +75,10 @@ class Position(Enum):
 # iterable of tuples which prevents the query model attempting to reach in any further.
 class IterWrapper(Iterable):
     def __init__(self, iterable: Iterable[tuple]):
+        # Ensure the wrapped object is iterable (i.e. has an `__iter__` method) but is
+        # not an iterator (i.e. has a `__next___` method). It's important that we're
+        # able to iterate over the object multiple times without consuming it.
+        assert isinstance(iterable, Iterable) and not isinstance(iterable, Iterator)
         self.iterable = iterable
 
     def __iter__(self):
