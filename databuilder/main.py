@@ -7,6 +7,7 @@ import structlog
 
 from databuilder.dummy_data import DummyDataGenerator
 from databuilder.file_formats import (
+    read_dataset,
     validate_dataset,
     validate_file_types_match,
     write_dataset,
@@ -55,11 +56,9 @@ def generate_dataset(
             query_engine_class=query_engine_class,
             environ=environ or {},
         )
-    elif dummy_data_file:
-        pass_dummy_data(variable_definitions, dataset_file, dummy_data_file)
     else:
         generate_dataset_with_dummy_data(
-            variable_definitions, dataset_file, dummy_tables_path
+            variable_definitions, dataset_file, dummy_data_file, dummy_tables_path
         )
 
 
@@ -86,12 +85,16 @@ def generate_dataset_with_dsn(
 
 
 def generate_dataset_with_dummy_data(
-    variable_definitions, dataset_file, dummy_tables_path=None
+    variable_definitions, dataset_file, dummy_data_file=None, dummy_tables_path=None
 ):
     log.info("Generating dummy dataset")
     column_specs = get_column_specs(variable_definitions)
 
-    if dummy_tables_path:
+    if dummy_data_file:
+        log.info(f"Reading dummy data from {dummy_data_file}")
+        reader = read_dataset(dummy_data_file, column_specs)
+        results = iter(reader)
+    elif dummy_tables_path:
         log.info(f"Reading CSV data from {dummy_tables_path}")
         query_engine = CSVQueryEngine(dummy_tables_path)
         results = query_engine.get_results(variable_definitions)

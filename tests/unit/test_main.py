@@ -46,7 +46,7 @@ def test_generate_dataset_dsn_arg(mock_load_and_compile):
 
 
 def test_generate_dataset_dummy_data_file_arg(mock_load_and_compile):
-    with mock.patch("databuilder.main.pass_dummy_data") as p:
+    with mock.patch("databuilder.main.generate_dataset_with_dummy_data") as p:
         generate_dataset(
             Path("dataset_definition.py"),
             Path("results.csv"),
