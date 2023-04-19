@@ -153,17 +153,6 @@ def test_inline_patient_table():
     i = SelectColumn(inline_table, "i")
     assert get_series_type(i) == int
 
-    # Check that attempting to construct an InlinePatientTable with an explicit definition
-    # for patient_id throws an error
-    with pytest.raises(
-        AssertionError,
-        match="patient_id is implicitly included and must not be explicitly specified",
-    ):
-        InlinePatientTable(
-            rows=IterWrapper([(1)]),
-            schema=TableSchema(patient_id=int),
-        )
-
 
 def test_iterwrapper_rejects_iterators():
     rows = [(1, 2), (3, 4)]

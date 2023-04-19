@@ -92,6 +92,11 @@ class TableSchema:
         return cls(**{name: Column(type_) for name, type_ in kwargs.items()})
 
     def __init__(self, **kwargs):
+        if "patient_id" in kwargs:
+            raise ValueError(
+                "`patient_id` is an implicitly included column on every table "
+                "and must not be explicitly specified"
+            )
         self.schema = kwargs
 
     def __eq__(self, other):

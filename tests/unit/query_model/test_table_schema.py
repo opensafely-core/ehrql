@@ -44,6 +44,17 @@ def test_from_primitives():
     assert t1 == t2
 
 
+def test_table_schema_rejects_patient_id_column():
+    with pytest.raises(
+        ValueError,
+        match=(
+            "`patient_id` is an implicitly included column on every table and"
+            " must not be explicitly specified"
+        ),
+    ):
+        TableSchema(patient_id=Column(int))
+
+
 def test_get_column():
     schema = TableSchema(i=Column(int))
     assert schema.get_column("i") == Column(int)
