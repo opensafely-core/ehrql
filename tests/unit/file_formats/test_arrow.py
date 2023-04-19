@@ -2,7 +2,6 @@ import pyarrow
 import pytest
 
 from databuilder.file_formats.arrow import (
-    ArrowDatasetReader,
     batch_and_transpose,
     get_schema_and_convertor,
     smallest_int_type_for_range,
@@ -70,22 +69,3 @@ def test_smallest_int_type_for_range(min_value, max_value, expected_width):
 def test_smallest_int_type_for_range_default():
     assert smallest_int_type_for_range(None, 0) == pyarrow.int64()
     assert smallest_int_type_for_range(0, None) == pyarrow.int64()
-
-
-def test_read_dataset_arrow(tmp_path):
-    # test that arrow file successfully round-trips
-    file_data = [
-        (1, 100),
-        (3, 300),
-    ]
-    path = tmp_path / "input.arrow"
-
-    columns = ["patient_id", "n"]
-    input_table = pyarrow.Table.from_pylist([dict(zip(columns, f)) for f in file_data])
-    pyarrow.feather.write_feather(input_table, str(path), compression="zstd")
-
-    column_specs = {"patient_id": ColumnSpec(int), "n": ColumnSpec(int)}
-    with ArrowDatasetReader(path, column_specs) as reader:
-        lines = list(reader)
-
-    assert lines == file_data
