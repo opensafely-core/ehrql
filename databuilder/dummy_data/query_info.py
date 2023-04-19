@@ -145,16 +145,16 @@ class QueryInfo:
             # using ehrQL so we only bother handling the "x == 1" orientation here.
             if not (isinstance(node.lhs, SelectColumn) and isinstance(node.rhs, Value)):
                 continue
-            column_info = column_info_by_column[node.lhs]
-            column_info.record_value(node.rhs.value)
+            if column_info := column_info_by_column.get(node.lhs):
+                column_info.record_value(node.rhs.value)
 
         # Record values used in containment comparisons
         for node in by_type[Function.In]:
             if not (isinstance(node.lhs, SelectColumn) and isinstance(node.rhs, Value)):
                 continue
-            column_info = column_info_by_column[node.lhs]
-            for value in node.rhs.value:
-                column_info.record_value(value)
+            if column_info := column_info_by_column.get(node.lhs):
+                for value in node.rhs.value:
+                    column_info.record_value(value)
 
         # Record which tables are used in determining population membership and which
         # are not
