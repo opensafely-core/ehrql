@@ -25,6 +25,16 @@ def test_mssql_date_types():
     assert _str(datetime_col == None) == "datetime_col IS NULL"  # noqa: E711
 
 
+def test_casts_to_date():
+    # This fails unless our MSSQL dialect sets the appropriate minimum server version.
+    # By default it will treat DATE as an alias for DATETIME. See:
+    # https://github.com/sqlalchemy/sqlalchemy/blob/rel_1_4_46/lib/sqlalchemy/dialects/mssql/base.py#L1623-L1627
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    clause = sqlalchemy.cast(table.c.bar, sqlalchemy.Date)
+    compiled = str(clause.compile(dialect=MSSQLDialect()))
+    assert compiled == "CAST(foo.bar AS DATE)"
+
+
 def test_select_star_into():
     table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
     query = sqlalchemy.select(table.c.bar).where(table.c.bar > 1)
