@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       image: ghcr.io/opensafely-core/databuilder
+      aliased_image: ghcr.io/opensafely-core/ehrql
     steps:
       - uses: actions/checkout@v3
         with:
@@ -104,7 +105,10 @@ jobs:
             --target databuilder \
             --tag ${{ env.image }}:$MAJOR \
             --tag ${{ env.image }}:$MINOR \
-            --tag ${{ env.image }}:$PATCH
+            --tag ${{ env.image }}:$PATCH \
+            --tag ${{ env.aliased_image }}:$MAJOR \
+            --tag ${{ env.aliased_image }}:$MINOR \
+            --tag ${{ env.aliased_image }}:$PATCH
 
       - name: Log into GitHub Container Registry
         if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
