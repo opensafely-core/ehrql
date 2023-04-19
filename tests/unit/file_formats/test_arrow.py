@@ -2,9 +2,9 @@ import pyarrow
 import pytest
 
 from databuilder.file_formats.arrow import (
+    ArrowDatasetReader,
     batch_and_transpose,
     get_schema_and_convertor,
-    read_dataset_arrow,
     smallest_int_type_for_range,
 )
 from databuilder.query_model.column_specs import ColumnSpec
@@ -84,6 +84,8 @@ def test_read_dataset_arrow(tmp_path):
     input_table = pyarrow.Table.from_pylist([dict(zip(columns, f)) for f in file_data])
     pyarrow.feather.write_feather(input_table, str(path), compression="zstd")
 
-    lines = list(read_dataset_arrow(path))
+    column_specs = {"patient_id": ColumnSpec(int), "n": ColumnSpec(int)}
+    with ArrowDatasetReader(path, column_specs) as reader:
+        lines = list(reader)
 
     assert lines == file_data

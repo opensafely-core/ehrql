@@ -6,7 +6,7 @@ from collections import ChainMap
 from pathlib import Path
 
 from databuilder.codes import BaseCode
-from databuilder.file_formats import read_dataset, validate_dataset
+from databuilder.file_formats import read_dataset
 from databuilder.query_model import nodes as qm
 from databuilder.query_model.column_specs import get_column_specs_from_schema
 from databuilder.query_model.nodes import get_series_type, has_one_row_per_patient
@@ -772,7 +772,6 @@ def table_from_file(path):
         schema = get_table_schema_from_class(cls)
         column_specs = get_column_specs_from_schema(schema)
 
-        validate_dataset(path, column_specs)
         rows = read_dataset(path, column_specs)
 
         qm_node = qm.InlinePatientTable(

@@ -4,7 +4,7 @@ import gzip
 import sys
 from contextlib import nullcontext
 
-from databuilder.file_formats.validation import ValidationError, validate_headers
+from databuilder.file_formats.validation import ValidationError, validate_columns
 
 
 def write_dataset_csv(filename, results, column_specs):
@@ -58,40 +58,51 @@ def format_bool(value):
     return "T" if value else "F"
 
 
-def validate_dataset_csv(filename, column_specs):
-    with open(filename, newline="") as f:
-        # Consume the generator to raise any errors
-        for _ in read_dataset_csv_lines(f, column_specs):
-            pass
+class CSVDatasetReader:
+    @classmethod
+    def from_csv(cls, filename, column_specs):
+        return cls(open(filename, newline=""), column_specs)
 
+    @classmethod
+    def from_csv_gz(cls, filename, column_specs):
+        return cls(gzip.open(filename, "rt", newline=""), column_specs)
 
-def validate_dataset_csv_gz(filename, column_specs):
-    with gzip.open(filename, "rt", newline="") as f:
-        # Consume the generator to raise any errors
-        for _ in read_dataset_csv_lines(f, column_specs):
-            pass
-
-
-def read_dataset_csv(filename, column_specs):
-    with filename.open(newline="") as f:
-        yield from read_dataset_csv_lines(f, column_specs)
-
-
-def read_dataset_csv_gz(filename, column_specs):
-    with gzip.open(filename, "rt", newline="") as f:
-        yield from read_dataset_csv_lines(f, column_specs)
-
-
-def read_dataset_csv_lines(lines, column_specs):
-    reader = csv.reader(lines)
-    headers = next(reader)
-    validate_headers(headers, list(column_specs.keys()))
-    row_parser = create_row_parser(headers, column_specs)
-    for n, row in enumerate(reader, start=1):
+    def __init__(self, fileobj, column_specs):
+        self.fileobj = fileobj
+        self.column_specs = column_specs
         try:
-            yield row_parser(row)
-        except ValueError as e:
-            raise ValidationError(f"row {n}: {e}")
+            self._validate_basic()
+        except ValidationError:
+            self.close()
+            raise
+
+    def _validate_basic(self):
+        # CSV being what it is we can't properly validate the types it contains without
+        # reading the entire thing, which we don't want do. So we read the first 10 rows
+        # in the hope that if there's a type mistmach it will show up here.
+        for _ in zip(self, range(10)):
+            pass
+
+    def __iter__(self):
+        self.fileobj.seek(0)
+        reader = csv.reader(self.fileobj)
+        headers = next(reader)
+        validate_columns(headers, self.column_specs.keys())
+        row_parser = create_row_parser(headers, self.column_specs)
+        for n, row in enumerate(reader, start=1):
+            try:
+                yield row_parser(row)
+            except ValueError as e:
+                raise ValidationError(f"row {n}: {e}")
+
+    def close(self):
+        self.fileobj.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc_args):
+        self.close()
 
 
 def create_row_parser(headers, column_specs):

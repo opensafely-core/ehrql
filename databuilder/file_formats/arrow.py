@@ -3,7 +3,7 @@ from itertools import islice
 
 import pyarrow
 
-from databuilder.file_formats.validation import ValidationError, validate_headers
+from databuilder.file_formats.validation import ValidationError, validate_columns
 
 
 PYARROW_TYPE_MAP = {
@@ -12,6 +12,14 @@ PYARROW_TYPE_MAP = {
     float: pyarrow.float64,
     str: pyarrow.string,
     datetime.date: pyarrow.date32,
+}
+
+PYARROW_TYPE_TEST_MAP = {
+    bool: pyarrow.types.is_boolean,
+    int: pyarrow.types.is_integer,
+    float: pyarrow.types.is_floating,
+    str: pyarrow.types.is_string,
+    datetime.date: pyarrow.types.is_date,
 }
 
 # When dumping a `pyarrow.Table` or `pandas.DataFrame` to disk, pyarrow takes care of
@@ -167,42 +175,65 @@ def batch_and_transpose(iterable, batch_size):
     return iter(next_transposed_batch, [])
 
 
-def validate_dataset_arrow(filename, column_specs):
-    target_schema, _ = get_schema_and_convertor(column_specs)
-    # Arrow enforces that all record batches have a consistent schema and that any
-    # categorical columns use the same dictionary, so we only need to get the first
-    # batch in order to validate
-    batch = get_first_record_batch_from_file(filename)
-    validate_headers(batch.schema.names, target_schema.names)
-    if not batch.schema.equals(target_schema):
-        # This isn't most user-friendly error message, but it will do for now
-        raise ValidationError(
-            f"File does not have expected schema\n\n"
-            f"Schema:\n{batch.schema.to_string()}\n\n"
-            f"Expected:\n{target_schema.to_string()}"
-        )
-    for name, spec in column_specs.items():
-        if spec.categories is None:
-            continue
-        column_categories = batch.column(name).dictionary.to_pylist()
-        if column_categories != list(spec.categories):
-            raise ValidationError(
-                f"Unexpected categories in column '{name}'\n"
-                f"Categories: {', '.join(column_categories)}\n"
-                f"Expected: {', '.join(spec.categories)}\n"
+class ArrowDatasetReader:
+    def __init__(self, filename, column_specs):
+        self.fileobj = pyarrow.memory_map(str(filename), "rb")
+        self.reader = pyarrow.ipc.open_file(self.fileobj)
+        self.column_specs = column_specs
+        self.columns = list(column_specs.keys())
+        try:
+            self._validate_basic()
+        except ValidationError:
+            self.close()
+            raise
+
+    def _validate_basic(self):
+        # Arrow enforces that all record batches have a consistent schema and that any
+        # categorical columns use the same dictionary, so we only need to get the first
+        # batch in order to validate
+        batch = self.reader.get_record_batch(0)
+        validate_columns(batch.schema.names, self.columns)
+        errors = []
+        for name, spec in self.column_specs.items():
+            column = batch.column(name)
+            if error := self._validate_column(name, column, spec):
+                errors.append(error)
+        if errors:
+            raise ValidationError("\n".join(errors))
+
+    def _validate_column(self, name, column, spec):
+        type_test = PYARROW_TYPE_TEST_MAP[spec.type]
+        column_type = column.type
+        if pyarrow.types.is_dictionary(column_type):
+            column_type = column_type.value_type
+        if not type_test(column_type):
+            return (
+                f"Type mismatch in column '{name}': "
+                f"expected {spec.type}, got {column.type}"
             )
+        if pyarrow.types.is_dictionary(column.type) and spec.categories is not None:
+            column_categories = column.dictionary.to_pylist()
+            if column_categories != list(spec.categories):
+                return (
+                    f"Unexpected categories in column '{name}'\n"
+                    f"  Categories: {', '.join(column_categories)}\n"
+                    f"  Expected: {', '.join(spec.categories)}\n"
+                )
 
+    def __iter__(self):
+        for i in range(self.reader.num_record_batches):
+            batch = self.reader.get_record_batch(i)
+            # Use `zip(*...)` to transpose from column-wise to row-wise
+            yield from zip(*(batch.column(name).to_pylist() for name in self.columns))
 
-def get_first_record_batch_from_file(filename):
-    with pyarrow.OSFile(str(filename), "rb") as f:
-        with pyarrow.ipc.open_file(f) as reader:
-            return reader.get_batch(0)
+    def close(self):
+        # `self.reader` does not need closing: it acts as a contextmanager, but its exit
+        # method is a no-op, see:
+        # https://github.com/apache/arrow/blob/1706b095/python/pyarrow/ipc.pxi#L1032-L1036
+        self.fileobj.close()
 
+    def __enter__(self):
+        return self
 
-def read_dataset_arrow(filename, column_specs=None):
-    with pyarrow.memory_map(str(filename), "rb") as f:
-        with pyarrow.ipc.open_file(f) as reader:
-            for i in range(0, reader.num_record_batches):
-                rb = reader.get_record_batch(i)
-                for j in range(0, rb.num_rows):
-                    yield tuple(rb.take([j]).to_pylist()[0].values())
+    def __exit__(self, *exc_args):
+        self.close()
