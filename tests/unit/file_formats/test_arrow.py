@@ -23,8 +23,8 @@ def test_get_schema_and_convertor(type_):
     assert pyarrow_batch[0].type == schema.field(0).type
 
 
-def test_batch_and_transponse():
-    results = [
+def test_batch_and_transpose():
+    row_wise = [
         (1, "a"),
         (2, "b"),
         (3, "c"),
@@ -34,8 +34,8 @@ def test_batch_and_transponse():
         (7, "g"),
         (8, "h"),
     ]
-    batched = batch_and_transpose(results, 3)
-    assert list(batched) == [
+    batched_column_wise = batch_and_transpose(row_wise, 3)
+    assert list(batched_column_wise) == [
         [(1, 2, 3), ("a", "b", "c")],
         [(4, 5, 6), ("d", "e", "f")],
         [(7, 8), ("g", "h")],
