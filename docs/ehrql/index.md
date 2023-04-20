@@ -15,7 +15,7 @@ It specifies a single criterion for selecting the population; namely, that the p
 It also specifies a single characteristic of the population; namely, each patient's year of birth.
 
 ```python
----8<-- 'snippets/ehrql.py:minimalehrql'
+---8<-- 'snippets/examples.py:minimalehrql'
 ```
 
 You can find out more about ehrQL in [the tutorial][] and [the examples][].

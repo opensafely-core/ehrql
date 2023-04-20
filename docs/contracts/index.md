@@ -37,7 +37,7 @@ data tables from OpenSAFELY backends. This minimal example code
 accesses the `date_of_birth` column in the `patients` data table:
 
 ```python
----8<-- 'snippets/ehrql.py:minimalehrqlimportpatients'
+---8<-- 'snippets/examples.py:minimalehrqlimportpatients'
 ```
 
 Dataset definitions are run using OpenSAFELY Data Builder. When running

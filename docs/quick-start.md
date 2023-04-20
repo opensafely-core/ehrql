@@ -48,7 +48,7 @@ on how to specify the dataset in the ehrQL sections. Below is the basic
 example.
 
 ```python
----8<-- 'snippets/ehrql.py:minimalehrql'
+---8<-- 'snippets/examples.py:minimalehrql'
 ```
 
 ### Add a dummy data file
