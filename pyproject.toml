@@ -61,10 +61,11 @@ skip_glob = [
   ".venv",
   "venv",
   "tests/acceptance/external_studies",
+  "tests/fixtures/bad_dataset_definitions",
 ]
 
 [tool.black]
-extend-exclude = "tests/acceptance/external_studies/.*"
+extend-exclude = "(tests/acceptance/external_studies/.*|tests/fixtures/bad_dataset_definitions/.*)"
 
 [tool.pydocstyle]
 convention = "google"
@@ -104,6 +105,7 @@ exclude = [
   "docs",
   "htmlcov",
   "tests/acceptance/external_studies/",
+  "tests/fixtures/bad_dataset_definitions",
   "venv",
 ]
 extend-select = [
