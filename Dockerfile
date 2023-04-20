@@ -127,3 +127,5 @@ FROM ehrql-base as ehrql
 # comment above
 COPY ehrql /app/ehrql
 RUN python -m compileall /app/ehrql
+COPY databuilder /app/databuilder
+RUN python -m compileall /app/databuilder
