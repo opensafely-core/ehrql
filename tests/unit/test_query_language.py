@@ -149,7 +149,12 @@ def test_cannot_define_variable_names_with_invalid_characters():
         setattr(Dataset(), "something!", patients.exists_for_patient())
 
 
-@pytest.mark.parametrize("name", ["foo", "Foo", "f", "f_oo", "1f", "f1"])
+def test_cannot_define_variable_names_starting_with_numbers():
+    with pytest.raises(AttributeError, match="alphanumeric"):
+        setattr(Dataset(), "1f", patients.exists_for_patient())
+
+
+@pytest.mark.parametrize("name", ["foo", "Foo", "f", "f_oo", "f1"])
 def test_allowed_variable_names(name):
     setattr(Dataset(), name, patients.exists_for_patient())
 
