@@ -134,6 +134,11 @@ def test_cannot_define_variable_called_variables():
         Dataset().variables = patients.exists_for_patient()
 
 
+def test_cannot_define_variable_names_starting_with_single_underscores():
+    with pytest.raises(AttributeError, match="underscore"):
+        Dataset()._something = patients.exists_for_patient()
+
+
 def test_cannot_define_variable_names_starting_with_double_underscores():
     with pytest.raises(AttributeError, match="underscore"):
         Dataset().__something = patients.exists_for_patient()
