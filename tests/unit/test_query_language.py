@@ -134,9 +134,29 @@ def test_cannot_define_variable_called_variables():
         Dataset().variables = patients.exists_for_patient()
 
 
+def test_cannot_define_variable_names_starting_with_single_underscores():
+    with pytest.raises(AttributeError, match="underscore"):
+        Dataset()._something = patients.exists_for_patient()
+
+
 def test_cannot_define_variable_names_starting_with_double_underscores():
     with pytest.raises(AttributeError, match="underscore"):
         Dataset().__something = patients.exists_for_patient()
+
+
+def test_cannot_define_variable_names_with_invalid_characters():
+    with pytest.raises(AttributeError, match="alphanumeric"):
+        setattr(Dataset(), "something!", patients.exists_for_patient())
+
+
+def test_cannot_define_variable_names_starting_with_numbers():
+    with pytest.raises(AttributeError, match="alphanumeric"):
+        setattr(Dataset(), "1f", patients.exists_for_patient())
+
+
+@pytest.mark.parametrize("name", ["foo", "Foo", "f", "f_oo", "f1"])
+def test_allowed_variable_names(name):
+    setattr(Dataset(), name, patients.exists_for_patient())
 
 
 def test_accessing_unassigned_variable_gives_helpful_error():

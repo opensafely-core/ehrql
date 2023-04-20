@@ -2,6 +2,7 @@ import dataclasses
 import datetime
 import enum
 import functools
+import re
 from collections import ChainMap
 from pathlib import Path
 
@@ -13,6 +14,8 @@ from databuilder.query_model.nodes import get_series_type, has_one_row_per_patie
 from databuilder.query_model.population_validation import validate_population_definition
 from databuilder.utils import date_utils
 
+
+VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
 
 # This gets populated by the `__init_subclass__` methods of EventSeries and
 # PatientSeries. Its structure is:
@@ -51,9 +54,9 @@ class Dataset:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
         if name == "variables":
             raise AttributeError("'variables' is not an allowed variable name")
-        if name.startswith("__"):
+        if not VALID_VARIABLE_NAME_RE.match(name):
             raise AttributeError(
-                f"Variable names must not start with underscores (you defined a variable '{name}')"
+                f"Variable names must start with a letter, and contain only alphanumeric characters and underscores (you defined a variable '{name}')"
             )
         if not isinstance(value, BaseSeries):
             raise TypeError(
