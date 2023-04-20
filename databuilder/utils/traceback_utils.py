@@ -14,21 +14,35 @@ def get_trimmed_traceback(exc, filename):
     We only want to show lines from a user's own code, and not lines from our library
     code.
     """
+    # Syntax errors are a special case because there's no first frame of user code
+    # (because Python was unable to get as far as executing it)
+    if isinstance(exc, SyntaxError) and exc.filename == filename:
+        first_user_frame = None
+    else:
+        first_user_frame = extract_user_frames_from_traceback(
+            exc.__traceback__, filename
+        )
+    return "".join(
+        traceback.format_exception(type(exc), value=exc, tb=first_user_frame)
+    )
+
+
+def extract_user_frames_from_traceback(tb, filename):
     first_user_frame = next(
-        tb for tb in walk_traceback(exc.__traceback__) if get_filename(tb) == filename
+        next_tb for next_tb in walk_traceback(tb) if get_filename(next_tb) == filename
     )
     # By construction, this iterator can never be exhausted so we need to tell Coverage
     # not to moan at us about it
     last_user_frame = next(  # pragma: no branch
-        tb for tb in walk_traceback(first_user_frame) if is_final_user_frame(tb)
+        next_tb
+        for next_tb in walk_traceback(first_user_frame)
+        if is_final_user_frame(next_tb)
     )
     # Truncate the traceback chain at the last user frame by NULLing the reference.
     # We're allowed to do this as `tb_next` is documented as writable, see:
     # https://docs.python.org/3/reference/datamodel.html#traceback-objects
     last_user_frame.tb_next = None
-    return "".join(
-        traceback.format_exception(type(exc), value=exc, tb=first_user_frame)
-    )
+    return first_user_frame
 
 
 def walk_traceback(tb):

@@ -41,3 +41,20 @@ def test_traceback_filtering_handles_relative_paths():
     message = r'Traceback \(most recent call last\):\n  File ".*bad_import\.py"'
     with pytest.raises(CommandError, match=message):
         load_module(relative_filename)
+
+
+def test_traceback_filtering_handles_syntax_errors():
+    filename = FIXTURES / "bad_syntax.py"
+    message = (
+        r"^"
+        f"Failed to import '{filename}':"
+        r"\s+"
+        f'File "{filename}", line 1'
+        r"\s+"
+        r"what even is a Python"
+        r"[\s\^]+"
+        r"SyntaxError: invalid syntax"
+        r"$"
+    )
+    with pytest.raises(CommandError, match=message):
+        load_module(filename)
