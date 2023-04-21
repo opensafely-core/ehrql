@@ -118,3 +118,4 @@ jobs:
         if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
         run: |
           docker push --all-tags ${{ env.image }}
+          docker push --all-tags ${{ env.aliased_image }}
