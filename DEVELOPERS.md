@@ -118,7 +118,7 @@ Please think carefully about how to test code that you are adding or changing.
 We think that test maintainability is a big risk for this system, so we're trying to be very deliberate about the kind of tests that we write.
 You should follow these guidelines and raise it with the rest of the team for discussion if you think that they are problematic.
 
-* _Major features in ehrQL or the ehrQL_ more widely should be motivated by a study used in an **acceptance** test.
+* _Major features in ehrQL_ should be motivated by a study used in an **acceptance** test.
   The number of such studies should be kept small in order that they don't be come a maintenance burden.
   The studies we use for the acceptance tests will need to be chosen carefully as representative of how we expect ehrQL to be used; they may be real studies or synthetic ones as appropriate.
 * All _erhQL features_ should be covered by **spec** tests.
