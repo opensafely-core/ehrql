@@ -230,7 +230,7 @@ def in_memory_engine(request):
 
 
 @pytest.fixture(scope="session")
-def databuilder_image(show_delayed_warning):
+def ehrql_image(show_delayed_warning):
     project_dir = Path(ehrql.__file__).parents[1]
     # Note different name from production image to avoid confusion
     image = "ehrql-dev"
@@ -247,5 +247,5 @@ def databuilder_image(show_delayed_warning):
 
 
 @pytest.fixture
-def study(tmp_path, containers, databuilder_image):
-    return Study(tmp_path, containers, databuilder_image)
+def study(tmp_path, containers, ehrql_image):
+    return Study(tmp_path, containers, ehrql_image)

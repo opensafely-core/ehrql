@@ -23,11 +23,11 @@ def test_traceback_ends_with_user_code():
     with pytest.raises(CommandError) as excinfo:
         load_module(filename)
     # We shouldn't have any references to ehrql code in the traceback
-    databuilder_root = str(Path(ehrql.__file__).parent)
-    assert not re.search(re.escape(databuilder_root), str(excinfo.value))
+    ehrql_root = str(Path(ehrql.__file__).parent)
+    assert not re.search(re.escape(ehrql_root), str(excinfo.value))
 
 
-def test_references_to_failed_imports_from_databuilder_are_not_stripped_out():
+def test_references_to_failed_imports_from_ehrql_are_not_stripped_out():
     filename = FIXTURES / "bad_import.py"
     with pytest.raises(CommandError) as excinfo:
         load_module(filename)
