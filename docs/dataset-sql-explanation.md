@@ -16,7 +16,7 @@ for the specific database.
 !!! note
 
     You can see the database query that a dataset definition will generate
-    via the `databuilder --dump-dataset-sql` command.
+    via the `ehrql --dump-dataset-sql` command.
 
     For the minimal example `1a_minimal_dataset_definition.py` above,
     the underlying SQL query generated is:

@@ -60,7 +60,7 @@ pip install git+https://github.com/opensafely-core/ehrql@main#egg=opensafely-ehr
 Make sure that you can run ehrQL's "help" command:
 
 ```
-databuilder --help
+ehrql --help
 ```
 
 If that command succeeds,
@@ -97,7 +97,7 @@ To run this dataset definition with ehrQL,
 2. Run this command:
 
    ```
-   databuilder generate-dataset "1a_minimal_dataset_definition.py" --dummy-tables "example-data/minimal/" --output "outputs.csv"
+   ehrql generate-dataset "1a_minimal_dataset_definition.py" --dummy-tables "example-data/minimal/" --output "outputs.csv"
    ```
 3. You should see ehrQL run without error
    and find the `outputs.csv` file in the `ehrql-tutorial-examples` directory
@@ -108,7 +108,7 @@ To run this dataset definition with ehrQL,
     In general, the command to run a dataset defintion looks like:
 
     ```
-    databuilder generate-dataset "IDENTIFIER_DATASOURCENAME_dataset_definition.py --dummy-tables "example-data/DATASOURCENAME/" --output "outputs.csv"
+    ehrql generate-dataset "IDENTIFIER_DATASOURCENAME_dataset_definition.py --dummy-tables "example-data/DATASOURCENAME/" --output "outputs.csv"
     ```
 
     You need to substitute `DATASOURCENAME` with the appropriate dataset name,

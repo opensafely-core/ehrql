@@ -115,18 +115,18 @@ fix: devenv
     $BIN/ruff --fix .
 
 
-# build the databuilder docker image
+# build the ehrql docker image
 build-ehrql:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    [[ -v CI ]] && echo "::group::Build databuilder (click to view)" || echo "Build databuilder"
+    [[ -v CI ]] && echo "::group::Build ehrql (click to view)" || echo "Build ehrql"
     DOCKER_BUILDKIT=1 docker build . -t ehrql-dev
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
 # Build a docker image that can then be used locally via the OpenSAFELY CLI. You must also change project.yaml
-# in the study you're running to specify `dev` as the `databuilder` version (like `run: ehrql:dev ...`).
+# in the study you're running to specify `dev` as the `ehrql` version (like `run: ehrql:dev ...`).
 build-ehrql-for-os-cli: build-ehrql
     docker tag ehrql-dev ghcr.io/opensafely-core/ehrql:dev
 
@@ -155,7 +155,7 @@ test-acceptance *ARGS: devenv
 test-backend-validation *ARGS: devenv
     $BIN/python -m pytest tests/backend_validation {{ ARGS }}
 
-# Run the databuilder-in-docker tests only. Optional args are passed to pytest.
+# Run the ehrql-in-docker tests only. Optional args are passed to pytest.
 test-docker *ARGS: devenv
     $BIN/python -m pytest tests/docker {{ ARGS }}
 

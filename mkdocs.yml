@@ -1,7 +1,7 @@
 # NOTE: This mkdocs.yml contains the minimum config required to run
 # ehrQL's docs locally.  These docs do not run in isolation in production.
 #
-# In production, the databuilder docs are pulled into and built with the main docs at
+# In production, the ehrql docs are pulled into and built with the main docs at
 # https://github.com/opensafely/documentation
 #
 # The contents of this mkdocs.yml are ignore in the production build.

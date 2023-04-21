@@ -112,11 +112,11 @@ The author may have also given additional context in natural language in various
 
 #### Finding existing dataset definitions
 
-Searching for `from databuilder` will probably help you find them,
+Searching for `from ehrql` will probably help you find them,
 since this is the start of a common `import` line
 used in dataset definitions.
 
-You can try this [GitHub search](https://github.com/search?q=org%3Aopensafely+-repo%3Aopensafely%2Fdocumentation+%22from+databuilder%22&type=Code):
+You can try this [GitHub search](https://github.com/search?q=org%3Aopensafely+-repo%3Aopensafely%2Fdocumentation+%22from+ehrql%22&type=Code):
 it searches the `opensafely` organisation
 for repositories containing that import.
 

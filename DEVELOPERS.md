@@ -148,11 +148,11 @@ LOG_SQL=1 just test-all -s
 
 ### Codebase structure
 
-The files for test categories that target individual modules (for example **unit** and **integration** tests) are organized into roughly the same directory structure as the `databuilder` package itself.
+The files for test categories that target individual modules (for example **unit** and **integration** tests) are organized into roughly the same directory structure as the `ehrql` package itself.
 
-Generally a module `databuilder.foo` will have a corresponding test file like `tests/unit/test_foo.py`.
-However we do not stick slavishly to this: where appropriate we may collapse tests for submodules like `databuilder.foo.{bar,bam}` into a single test file like `tests/unit/test_foo.py`,
-or break tests for a module like `databuilder.foo` into multiple test files like `tests/unit/foo/test_{one,another}_aspect.py`.
+Generally a module `ehrql.foo` will have a corresponding test file like `tests/unit/test_foo.py`.
+However we do not stick slavishly to this: where appropriate we may collapse tests for submodules like `ehrql.foo.{bar,bam}` into a single test file like `tests/unit/test_foo.py`,
+or break tests for a module like `ehrql.foo` into multiple test files like `tests/unit/foo/test_{one,another}_aspect.py`.
 
 Test categories that run against the ehrQL as a whole or against multiple components (for example **spec** and **acceptance** tests) have their own internal structure.
 
@@ -212,7 +212,7 @@ It can also be built as a standalone documentation site with MkDocs to preview c
     just docs-serve
 
 :warning: The documentation will look slightly different from OpenSAFELY's. Relative links to
-sections of the main documentation outside of the /data-builder sections will not work (although
+sections of the main documentation outside of the /ehrql sections will not work (although
 a scheduled [Github Action](https://github.com/opensafely-core/ehrql/actions/workflows/check-docs-links.yml) runs overnight to check them).
 
 We may be able to improve this later, depending on the behaviour of the mkdocs plugin that
@@ -228,10 +228,10 @@ and test them in a preview there.
 
 ### Structure
 
-Databuilder documentation is located in the [docs](docs/) directory. Local configuration is
+ehrQL documentation is located in the [docs](docs/) directory. Local configuration is
 specified in the `mkdocs.yml` located at the repo root.
 
-The `docs/` directory contains some files which are generated from the databuilder code and from
+The `docs/` directory contains some files which are generated from the ehrql code and from
 other documentation files. Specifically these are files at:
 
  - [docs/includes/generated_docs/](docs/includes/generated_docs/)
@@ -239,12 +239,12 @@ other documentation files. Specifically these are files at:
 
 The process for generating these files is described below.
 
-When the main OpenSAFELY documentation is built, it imports the databuilder `docs/` directory
+When the main OpenSAFELY documentation is built, it imports the ehrql `docs/` directory
 and builds it within the main documentation site. This assumes that all generated documentation
 has been updated already (see below for a description of pre-commit hooks and Github Actions
 that mechanisms that check this happens).
 
-#### Process for updating databuilder documentation
+#### Process for updating ehrql documentation
 
 1. Developer makes changes to documentation files or code/tests that generate documentation
 2. Changes committed; pre-commit hook ensures generated docs are up-to-date
@@ -255,7 +255,7 @@ that mechanisms that check this happens).
       - check tutorial outputs are current
 3. PR merged; CI:
       - triggers a deploy of the main OpenSAFELY documentation site
-      - checks if the major version of the databuilder image has changed and updates it in the
+      - checks if the major version of the ehrql image has changed and updates it in the
         tutorial project.yaml
       - runs all tutorial dataset definitions with OpenSAFELY CLI
       - if the project.yaml or tutorial outputs have changed, opens a PR for the changes
@@ -342,7 +342,7 @@ The current process for adding a new example is:
 
 1. Create a new dataset and add it to the [`example-data`](docs/ehrql-tutorial-examples/example-data/) directory,
 2. Write the dataset definition and add it to the [`ehrql-tutorial-examples`](docs/ehrql-tutorial-examples/).
-   See the [ehrQL tutorial introduction](docs/ehrql/tutorial/index.md#using-data-builders-command-line-interface)
+   See the [ehrQL tutorial introduction](docs/ehrql/tutorial/index.md#using-ehrqls-command-line-interface)
    for an explanation of the filename convention.
 3. Build the dataset definition outputs
    (see below),
@@ -383,9 +383,9 @@ make sure that you:
   and check if any explanatory text requires amending as a result of your changes.
 
 
-### Syncing the databuilder Docker image version with the tutorial examples
+### Syncing the ehrql Docker image version with the tutorial examples
 
-The version of the databuilder image used for the tutorials is specified in the tutorial's
+The version of the ehrql image used for the tutorials is specified in the tutorial's
 [`project.yaml`](docs/ehrql-tutorial-examples/project.yaml).  We reference the image by
 major version only (e.g. `v0`), so the `project.yaml` file itself only needs to be
 updated rarely.  However, whenever a new image is built, it could have an impact on the

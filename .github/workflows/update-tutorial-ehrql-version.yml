@@ -26,7 +26,7 @@ jobs:
       - name: Install opensafely
         run: pip install opensafely
 
-      - name: Update databuilder image version in tutorial project.yaml
+      - name: Update ehrql image version in tutorial project.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: just docs-update-tutorial-ehrql-version
@@ -43,8 +43,8 @@ jobs:
             docs/ehrql-tutorial-examples/outputs/*
           branch: bot/update-tutorial-version
           base: main
-          commit-message: "chore: Update databuilder version in tutorial project.yaml"
-          title: "Update databuilder version in tutorial project.yaml"
+          commit-message: "chore: Update ehrql version in tutorial project.yaml"
+          title: "Update ehrql version in tutorial project.yaml"
           body: |
             To get tests to run on this PR there's an odd workflow:
              - Approve it
