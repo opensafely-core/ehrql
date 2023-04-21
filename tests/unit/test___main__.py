@@ -65,7 +65,7 @@ def test_create_dummy_tables(mocker):
     argv = [
         "create-dummy-tables",
         DATASET_DEFINITON_PATH,
-        "dummy_data_tables",
+        "dummy_data_path",
     ]
     main(argv)
     patched.assert_called_once()
@@ -77,6 +77,17 @@ def test_generate_measures(mocker):
     argv = [
         "generate-measures",
         DATASET_DEFINITON_PATH,
+    ]
+    main(argv)
+    patched.assert_called_once()
+
+
+def test_run_sandbox(mocker):
+    # Verify that the runs_sandbox subcommand can be invoked.
+    patched = mocker.patch("ehrql.sandbox.run")
+    argv = [
+        "sandbox",
+        "dummy_data_path",
     ]
     main(argv)
     patched.assert_called_once()

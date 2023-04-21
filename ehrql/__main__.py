@@ -14,6 +14,7 @@ from .main import (
     dump_dataset_sql,
     generate_dataset,
     generate_measures,
+    run_sandbox,
     test_connection,
 )
 
@@ -62,6 +63,7 @@ def main(args, environ=None):
     add_dump_dataset_sql(subparsers, environ, user_args)
     add_create_dummy_tables(subparsers, environ, user_args)
     add_generate_measures(subparsers, environ, user_args)
+    add_run_sandbox(subparsers, environ, user_args)
     add_test_connection(subparsers, environ, user_args)
 
     kwargs = vars(parser.parse_args(args))
@@ -197,6 +199,17 @@ def add_generate_measures(subparsers, environ, user_args):
         help="The path of the file where the dataset is defined",
         type=existing_python_file,
         metavar="dataset_definition",
+    )
+
+
+def add_run_sandbox(subparsers, environ, user_args):
+    parser = subparsers.add_parser("sandbox", help="XXX")
+    parser.set_defaults(function=run_sandbox)
+    parser.set_defaults(environ=environ)
+    parser.add_argument(
+        "dummy_tables_path",
+        help="Path to directory of CSV files (one per table)",
+        type=Path,
     )
 
 
