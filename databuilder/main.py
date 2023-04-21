@@ -210,6 +210,10 @@ def load_dataset_definition(definition_file, user_args):
         raise CommandError(
             "'dataset' must be an instance of databuilder.ehrql.Dataset()"
         )
+    if not hasattr(dataset, "population"):
+        raise CommandError(
+            "A population has not been defined; define one with define_population()"
+        )
     return dataset
 
 
