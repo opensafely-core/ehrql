@@ -1,4 +1,4 @@
-from ehrql.ehrql import case, when
+from ehrql import case, when
 
 from ..tables import p
 

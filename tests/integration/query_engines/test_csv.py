@@ -1,4 +1,4 @@
-from ehrql.ehrql import Dataset
+from ehrql import Dataset
 from ehrql.query_engines.csv import CSVQueryEngine
 from ehrql.query_language import compile
 from ehrql.tables import EventFrame, PatientFrame, Series, table

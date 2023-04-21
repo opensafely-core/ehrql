@@ -2,7 +2,7 @@ import datetime
 
 from ehrql.codes import CTV3Code
 from ehrql.dummy_data.query_info import ColumnInfo, QueryInfo, TableInfo
-from ehrql.ehrql import Dataset, days
+from ehrql import Dataset, days
 from ehrql.query_language import compile
 from ehrql.tables import (
     Constraint,

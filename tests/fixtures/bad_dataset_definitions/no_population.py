@@ -1,3 +1,3 @@
-from ehrql.ehrql import Dataset
+from ehrql import Dataset
 
 dataset = Dataset()

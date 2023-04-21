@@ -90,7 +90,7 @@ def test_dump_dataset_sql_attribute_invalid(study, mssql_database, capsys):
     with pytest.raises(SystemExit):
         study.dump_dataset_sql()
     assert (
-        "'dataset' must be an instance of ehrql.ehrql.Dataset()"
+        "'dataset' must be an instance of ehrql.Dataset()"
         in capsys.readouterr().err
     )
 

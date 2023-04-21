@@ -1,4 +1,4 @@
-from ehrql.ehrql import Dataset, days
+from ehrql import Dataset, days
 from ehrql.tables.examples.tutorial import hospitalisations, patients
 
 dataset = Dataset()

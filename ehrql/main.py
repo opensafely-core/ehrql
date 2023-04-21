@@ -208,7 +208,7 @@ def load_dataset_definition(definition_file, user_args):
         )
     if not isinstance(dataset, Dataset):
         raise CommandError(
-            "'dataset' must be an instance of ehrql.ehrql.Dataset()"
+            "'dataset' must be an instance of ehrql.Dataset()"
         )
     if not hasattr(dataset, "population"):
         raise CommandError(

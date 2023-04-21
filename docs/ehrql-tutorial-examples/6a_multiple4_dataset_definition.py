@@ -1,4 +1,4 @@
-from ehrql.ehrql import Dataset
+from ehrql import Dataset
 from ehrql.tables.examples.tutorial import clinical_events, patients
 
 dataset = Dataset()

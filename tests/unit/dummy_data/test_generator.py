@@ -6,7 +6,7 @@ import pytest
 
 from ehrql.dummy_data.generator import DummyDataGenerator, DummyPatientGenerator
 from ehrql.dummy_data.query_info import ColumnInfo, TableInfo
-from ehrql.ehrql import Dataset
+from ehrql import Dataset
 from ehrql.query_language import compile
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 

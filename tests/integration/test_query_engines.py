@@ -3,7 +3,7 @@ from datetime import date
 
 import sqlalchemy
 
-from ehrql.ehrql import Dataset
+from ehrql import Dataset
 from ehrql.query_language import PatientFrame, Series, table_from_file
 from ehrql.query_model.nodes import Value
 from ehrql.tables.beta import tpp

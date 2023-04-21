@@ -4,7 +4,7 @@ import pytest
 import sqlalchemy
 
 from ehrql.backends.base import BaseBackend, MappedTable, QueryTable
-from ehrql.ehrql import Dataset
+from ehrql import Dataset
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 

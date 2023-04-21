@@ -1,6 +1,6 @@
 from datetime import date
 
-from ehrql.ehrql import days, months, years
+from ehrql import days, months, years
 
 from ..tables import p
 

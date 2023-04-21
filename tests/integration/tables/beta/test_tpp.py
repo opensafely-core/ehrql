@@ -1,6 +1,6 @@
 from datetime import date
 
-from ehrql.ehrql import Dataset
+from ehrql import Dataset
 from ehrql.tables.beta import tpp
 
 

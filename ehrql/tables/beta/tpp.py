@@ -1,7 +1,7 @@
 import datetime
 
 from ehrql.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
-from ehrql.ehrql import case, when
+from ehrql import case, when
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 

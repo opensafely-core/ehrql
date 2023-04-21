@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from ehrql.ehrql import Dataset
+from ehrql import Dataset
 
 
 @pytest.fixture(params=["execute", "dump_sql"])
