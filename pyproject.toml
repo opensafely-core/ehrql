@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-databuilder = "databuilder.__main__:entrypoint"
+databuilder = "ehrql.__main__:entrypoint"
 
 [project.urls]
 Home = "https://opensafely.org"
@@ -52,7 +52,7 @@ omit = [
 [tool.coverage.html]
 
 [tool.flit.module]
-name = "databuilder"
+name = "ehrql"
 
 [tool.isort]
 profile = "black"

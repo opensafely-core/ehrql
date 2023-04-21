@@ -170,7 +170,7 @@ test-spec *ARGS: devenv
 # Run the unit tests only. Optional args are passed to pytest.
 test-unit *ARGS: devenv
     $BIN/python -m pytest tests/unit {{ ARGS }}
-    $BIN/python -m pytest --doctest-modules databuilder
+    $BIN/python -m pytest --doctest-modules ehrql
 
 # Run the generative tests only. Optional args are passed to pytest.
 #
@@ -188,17 +188,17 @@ test-generative *ARGS: devenv
     examples=${GENTEST_EXAMPLES:-200}
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
     GENTEST_EXAMPLES=$examples GENTEST_COMPREHENSIVE=t $BIN/python -m pytest \
-        --cov=databuilder \
+        --cov=ehrql \
         --cov=tests \
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
         --hypothesis-seed=1234 \
         {{ ARGS }}
-    $BIN/python -m pytest --doctest-modules databuilder
+    $BIN/python -m pytest --doctest-modules ehrql
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
 
 generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
-    $BIN/python -m databuilder.docs {{ OUTPUT_DIR }}
+    $BIN/python -m ehrql.docs {{ OUTPUT_DIR }}
     echo "Generated data for documentation in {{ OUTPUT_DIR }}"
 
 precommit-generate-docs *args: generate-docs
@@ -235,7 +235,7 @@ docs-check-dataset-definitions: devenv
     for f in ./docs/ehrql-tutorial-examples/*dataset_definition.py; do
       # By convention, we name dataset definition as: IDENTIFIER_DATASOURCENAME_dataset_definition.py
       DATASOURCENAME=`echo "$f" | cut -d'_' -f2`
-      $BIN/python -m databuilder generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/"
+      $BIN/python -m ehrql generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/"
     done
 
 
@@ -263,7 +263,7 @@ docs-build-dataset-definitions-outputs: devenv
       # By convention, we name dataset definition as: IDENTIFIER_DATASOURCENAME_dataset_definition.py
       DATASOURCENAME=`echo "$f" | cut -d'_' -f2`
       FILENAME="$(basename "$f" .py).csv"
-      "$BIN"/python -m databuilder generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/" --output "./docs/ehrql-tutorial-examples/outputs/$FILENAME"
+      "$BIN"/python -m ehrql generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/" --output "./docs/ehrql-tutorial-examples/outputs/$FILENAME"
     done
 
 # Requires OpenSAFELY CLI and Docker installed.
