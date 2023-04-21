@@ -1,0 +1,4 @@
+patient_id,sex,ignored_column
+1,M,a
+2,F,b
+3,,
