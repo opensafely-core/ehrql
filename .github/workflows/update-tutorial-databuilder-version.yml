@@ -29,7 +29,7 @@ jobs:
       - name: Update databuilder image version in tutorial project.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: just docs-update-tutorial-databuilder-version
+        run: just docs-update-tutorial-ehrql-version
 
       - name: Check dataset definitions outputs can be built with OpenSAFELY CLI project.yaml
         run: just docs-build-dataset-definitions-outputs-docker-project

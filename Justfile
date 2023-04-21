@@ -116,7 +116,7 @@ fix: devenv
 
 
 # build the databuilder docker image
-build-databuilder:
+build-ehrql:
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -127,7 +127,7 @@ build-databuilder:
 
 # Build a docker image that can then be used locally via the OpenSAFELY CLI. You must also change project.yaml
 # in the study you're running to specify `dev` as the `databuilder` version (like `run: ehrql:dev ...`).
-build-databuilder-for-os-cli: build-databuilder
+build-ehrql-for-os-cli: build-ehrql
     docker tag ehrql-dev ghcr.io/opensafely-core/ehrql:dev
 
 
@@ -293,7 +293,7 @@ docs-check-generated-docs-are-current: generate-docs
     fi
 
 
-docs-update-tutorial-databuilder-version:
+docs-update-tutorial-ehrql-version:
     #!/usr/bin/env bash
     set -euo pipefail
 
