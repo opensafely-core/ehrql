@@ -3,8 +3,8 @@ import datetime
 import pytest
 import sqlalchemy
 
-from ehrql.backends.base import BaseBackend, MappedTable, QueryTable
 from ehrql import Dataset
+from ehrql.backends.base import BaseBackend, MappedTable, QueryTable
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 

@@ -22,9 +22,7 @@ def test_generate_dataset(study, mssql_database, extension):
     )
 
     study.setup_from_string(trivial_dataset_definition)
-    study.generate(
-        mssql_database, "ehrql.backends.tpp.TPPBackend", extension=extension
-    )
+    study.generate(mssql_database, "ehrql.backends.tpp.TPPBackend", extension=extension)
     results = study.results()
 
     expected = [1943, 1999]
@@ -89,10 +87,7 @@ def test_dump_dataset_sql_attribute_invalid(study, mssql_database, capsys):
     study.setup_from_string(invalid_dataset_attribute_dataset_definition)
     with pytest.raises(SystemExit):
         study.dump_dataset_sql()
-    assert (
-        "'dataset' must be an instance of ehrql.Dataset()"
-        in capsys.readouterr().err
-    )
+    assert "'dataset' must be an instance of ehrql.Dataset()" in capsys.readouterr().err
 
 
 def test_dump_dataset_sql_query_model_error(study, mssql_database, capsys):

@@ -48,18 +48,14 @@ def main(args, environ=None):
 
     init_logging()
 
-    parser = ArgumentParser(
-        prog="ehrql", description="Generate datasets in OpenSAFELY"
-    )
+    parser = ArgumentParser(prog="ehrql", description="Generate datasets in OpenSAFELY")
 
     def show_help(**kwargs):
         parser.print_help()
         parser.exit()
 
     parser.set_defaults(function=show_help)
-    parser.add_argument(
-        "--version", action="version", version=f"ehrql {__version__}"
-    )
+    parser.add_argument("--version", action="version", version=f"ehrql {__version__}")
 
     subparsers = parser.add_subparsers(help="sub-command help")
     add_generate_dataset(subparsers, environ, user_args)
