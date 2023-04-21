@@ -6,7 +6,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.sql import Select
 
-from databuilder.query_model.nodes import (
+from ehrql.query_model.nodes import (
     AggregateByPatient,
     Column,
     SelectColumn,

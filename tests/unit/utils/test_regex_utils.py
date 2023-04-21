@@ -2,7 +2,7 @@ import random
 
 import pytest
 
-from databuilder.utils import regex_utils
+from ehrql.utils import regex_utils
 
 
 @pytest.mark.parametrize(

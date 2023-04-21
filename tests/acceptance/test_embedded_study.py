@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from databuilder.file_formats import FILE_FORMATS, ValidationError
+from ehrql.file_formats import FILE_FORMATS, ValidationError
 from tests.lib.fixtures import (
     invalid_dataset_attribute_dataset_definition,
     invalid_dataset_query_model_error_definition,
@@ -22,9 +22,7 @@ def test_generate_dataset(study, mssql_database, extension):
     )
 
     study.setup_from_string(trivial_dataset_definition)
-    study.generate(
-        mssql_database, "databuilder.backends.tpp.TPPBackend", extension=extension
-    )
+    study.generate(mssql_database, "ehrql.backends.tpp.TPPBackend", extension=extension)
     results = study.results()
 
     expected = [1943, 1999]
@@ -45,7 +43,7 @@ def test_parameterised_dataset_definition(study, mssql_database):
     study.setup_from_string(parameterised_dataset_definition)
     study.generate(
         mssql_database,
-        "databuilder.backends.tpp.TPPBackend",
+        "ehrql.backends.tpp.TPPBackend",
         user_args={"year": "1940"},
     )
     results = study.results()
@@ -61,7 +59,7 @@ def test_parameterised_dataset_definition_with_bad_param(study, mssql_database, 
     with pytest.raises(SystemExit):
         study.generate(
             mssql_database,
-            "databuilder.backends.tpp.TPPBackend",
+            "ehrql.backends.tpp.TPPBackend",
             user_args={"ear": "1940"},
         )
     assert (
@@ -89,10 +87,7 @@ def test_dump_dataset_sql_attribute_invalid(study, mssql_database, capsys):
     study.setup_from_string(invalid_dataset_attribute_dataset_definition)
     with pytest.raises(SystemExit):
         study.dump_dataset_sql()
-    assert (
-        "'dataset' must be an instance of databuilder.ehrql.Dataset()"
-        in capsys.readouterr().err
-    )
+    assert "'dataset' must be an instance of ehrql.Dataset()" in capsys.readouterr().err
 
 
 def test_dump_dataset_sql_query_model_error(study, mssql_database, capsys):

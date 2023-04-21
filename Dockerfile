@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1.2
 #################################################
 #
-# Initial databuilder layer with just system dependencies installed.
+# Initial ehrQL layer with just system dependencies installed.
 #
 # hadolint ignore=DL3007
-FROM ghcr.io/opensafely-core/base-action:latest as databuilder-dependencies
+FROM ghcr.io/opensafely-core/base-action:latest as ehrql-dependencies
 
 
 # setup default env vars for all images
@@ -12,7 +12,7 @@ FROM ghcr.io/opensafely-core/base-action:latest as databuilder-dependencies
 ENV VIRTUAL_ENV=/opt/venv/ \
     PYTHONPATH=/app \
     PATH="/opt/venv/bin:/opt/mssql-tools/bin:$PATH" \
-    ACTION_EXEC=databuilder \
+    ACTION_EXEC=ehrql \
     PYTHONUNBUFFERED=True \
     PYTHONDONTWRITEBYTECODE=1
 
@@ -47,7 +47,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 #################################################
 #
 # Next, use the dependencies image to create an image to build dependencies
-FROM databuilder-dependencies as databuilder-builder
+FROM ehrql-dependencies as ehrql-builder
 
 # install build time dependencies
 COPY build-dependencies.txt /root/build-dependencies.txt
@@ -104,26 +104,28 @@ RUN --mount=type=cache,target=/root/.cache \
 ################################################
 #
 # A base image with the including the prepared venv and metadata.
-FROM databuilder-dependencies as databuilder-base
+FROM ehrql-dependencies as ehrql-base
 
 # Some static metadata for this specific image, as defined by:
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md#pre-defined-annotation-keys
 # The org.opensafely.action label is used by the jobrunner to indicate this is
 # an approved action image to run.
-LABEL org.opencontainers.image.title="databuilder" \
-      org.opencontainers.image.description="Data Builder action for opensafely.org" \
-      org.opencontainers.image.source="https://github.com/opensafely-core/databuilder" \
-      org.opensafely.action="databuilder"
+LABEL org.opencontainers.image.title="ehrql" \
+      org.opencontainers.image.description="ehrQL action for opensafely.org" \
+      org.opencontainers.image.source="https://github.com/opensafely-core/ehrql" \
+      org.opensafely.action="ehrql"
 
-COPY --from=databuilder-builder /opt/venv /opt/venv
+COPY --from=ehrql-builder /opt/venv /opt/venv
 
 
 ################################################
 #
 # Build the actual production image from the base
-FROM databuilder-base as databuilder
+FROM ehrql-base as ehrql
 
 # Copy app code. This will be automatically picked up by the virtualenv as per
 # comment above
+COPY ehrql /app/ehrql
+RUN python -m compileall /app/ehrql
 COPY databuilder /app/databuilder
 RUN python -m compileall /app/databuilder

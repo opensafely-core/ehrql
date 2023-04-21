@@ -5,7 +5,7 @@ import sqlalchemy
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 
-from databuilder.utils.sqlalchemy_exec_utils import (
+from ehrql.utils.sqlalchemy_exec_utils import (
     ReconnectableConnection,
     execute_with_retry_factory,
     fetch_table_in_batches,

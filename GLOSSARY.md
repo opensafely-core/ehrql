@@ -44,7 +44,7 @@ A programming language designed for querying a database.
 For example, ehrQL.
 
 **Query Model.**
-The core data structure by which Data Builder represents a Query.
+The core data structure by which ehrQL represents a Query.
 The Query Model is responsible for defining the semantics of the operations we support on the data, and for ensuring that only semantically valid queries can be constructed.
 
 When the user writes ehrQL, a Query is constructed and passed to a Query Engine for execution.
@@ -60,5 +60,5 @@ We do not present this table structure to the user.
 Instead, the user interacts with ehrQL Tables; their queries are translated into queries against this table structure by a Backend.
 
 **`variable_definitions`.**
-Found throughout the Data Builder codebase, the Query Model equivalent of a Dataset Definition.
+Found throughout the ehrQL codebase, the Query Model equivalent of a Dataset Definition.
 Specifically, a dictionary that maps column names to Query Model objects (plus a `population` key that defines the population).

@@ -8,8 +8,8 @@ import hypothesis.strategies as st
 import pytest
 import sqlalchemy.exc
 
-from databuilder.dummy_data import DummyDataGenerator
-from databuilder.query_model.nodes import (
+from ehrql.dummy_data import DummyDataGenerator
+from ehrql.query_model.nodes import (
     Column,
     Function,
     SelectColumn,
@@ -216,7 +216,7 @@ IGNORED_ERRORS = [
     # or a float outside of the max range
     # https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver16
     # https://learn.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-ver16#remarks
-    # https://github.com/opensafely-core/databuilder/issues/1034
+    # https://github.com/opensafely-core/ehrql/issues/1034
     (
         sqlalchemy.exc.OperationalError,
         re.compile(

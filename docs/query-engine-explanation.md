@@ -1,12 +1,12 @@
-## Technical introduction to Data Builder's query engine
+## Technical introduction to ehrQL's query engine
 
 !!! note
     This section is a technical explanation for experienced users who want
-    to understand more of how Data Builder works behind-the-scenes.
+    to understand more of how ehrQL works behind-the-scenes.
 
-    Understanding this section is not necessary to using Data Builder.
+    Understanding this section is not necessary to using ehrQL.
 
-Data Builder facilitates querying multiple different data backends,
+ehrQL facilitates querying multiple different data backends,
 without the researcher concerning themselves with the specific details
 of how that backend works.
 
@@ -14,17 +14,17 @@ There are three steps to extract data on cohorts:
 
 1. **Writing a definition**: A researcher writes a dataset definition.
 
-     The dataset definition is written in Data Builder's own *domain
+     The dataset definition is written in ehrQL's own *domain
      specific language*, ehrQL, which is built on Python.
 
 2. **Query transformation**: The researcher then loads that dataset
-   definition into Data Builder.
+   definition into ehrQL.
 
-     Provided the dataset definition is valid, Data Builder transforms
+     Provided the dataset definition is valid, ehrQL transforms
      the dataset definition into an internal representation of the
      query: the *query model*.
 
-3. **Query submission**: Data Builder then translates the query model
+3. **Query submission**: ehrQL then translates the query model
    into the appropriate query language for the data backend being
    accessed. If the study is running on the OpenSAFELY platform, queries
    will be submitted to live data backends.
@@ -40,7 +40,7 @@ There are three steps to extract data on cohorts:
      to get the data extraction results corresponding to the same underlying query.
 
      With ehrQL, the researcher does not need to write these multiple queries manually.
-     Data Builder automatically transforms the *single* dataset definition from ehrQL
+     ehrQL automatically transforms the *single* dataset definition from ehrQL
      into suitable queries for each compatible backend.
 
      This features enable the same dataset definition to be used in multiple backends.

@@ -104,10 +104,10 @@ check *args: devenv black ruff docstrings
 
 # ensure our public facing docstrings exist so we can build docs from them
 docstrings: devenv
-    $BIN/pydocstyle databuilder/backends/tpp.py
+    $BIN/pydocstyle ehrql/backends/tpp.py
 
     # only enforce classes are documented for the public facing docs
-    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 databuilder/contracts/wip.py
+    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 ehrql/contracts/wip.py
 
 # runs the format (black) and sort (isort) checks and fixes the files
 fix: devenv
@@ -115,29 +115,29 @@ fix: devenv
     $BIN/ruff --fix .
 
 
-# build the databuilder docker image
-build-databuilder:
+# build the ehrql docker image
+build-ehrql:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    [[ -v CI ]] && echo "::group::Build databuilder (click to view)" || echo "Build databuilder"
-    DOCKER_BUILDKIT=1 docker build . -t databuilder-dev
+    [[ -v CI ]] && echo "::group::Build ehrql (click to view)" || echo "Build ehrql"
+    DOCKER_BUILDKIT=1 docker build . -t ehrql-dev
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
 # Build a docker image that can then be used locally via the OpenSAFELY CLI. You must also change project.yaml
-# in the study you're running to specify `dev` as the `databuilder` version (like `run: databuilder:dev ...`).
-build-databuilder-for-os-cli: build-databuilder
-    docker tag databuilder-dev ghcr.io/opensafely-core/databuilder:dev
+# in the study you're running to specify `dev` as the `ehrql` version (like `run: ehrql:dev ...`).
+build-ehrql-for-os-cli: build-ehrql
+    docker tag ehrql-dev ghcr.io/opensafely-core/ehrql:dev
 
 
 # tear down the persistent docker containers we create to run tests again
 remove-database-containers:
-    docker rm --force databuilder-mssql
+    docker rm --force ehrql-mssql
 
 # open an interactive SQL Server shell running against MSSQL
 connect-to-mssql:
-    docker exec -it databuilder-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!'
+    docker exec -it ehrql-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!'
 
 ###################################################################
 # Testing targets
@@ -155,7 +155,7 @@ test-acceptance *ARGS: devenv
 test-backend-validation *ARGS: devenv
     $BIN/python -m pytest tests/backend_validation {{ ARGS }}
 
-# Run the databuilder-in-docker tests only. Optional args are passed to pytest.
+# Run the ehrql-in-docker tests only. Optional args are passed to pytest.
 test-docker *ARGS: devenv
     $BIN/python -m pytest tests/docker {{ ARGS }}
 
@@ -170,7 +170,7 @@ test-spec *ARGS: devenv
 # Run the unit tests only. Optional args are passed to pytest.
 test-unit *ARGS: devenv
     $BIN/python -m pytest tests/unit {{ ARGS }}
-    $BIN/python -m pytest --doctest-modules databuilder
+    $BIN/python -m pytest --doctest-modules ehrql
 
 # Run the generative tests only. Optional args are passed to pytest.
 #
@@ -188,17 +188,17 @@ test-generative *ARGS: devenv
     examples=${GENTEST_EXAMPLES:-200}
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
     GENTEST_EXAMPLES=$examples GENTEST_COMPREHENSIVE=t $BIN/python -m pytest \
-        --cov=databuilder \
+        --cov=ehrql \
         --cov=tests \
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
         --hypothesis-seed=1234 \
         {{ ARGS }}
-    $BIN/python -m pytest --doctest-modules databuilder
+    $BIN/python -m pytest --doctest-modules ehrql
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
 
 generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
-    $BIN/python -m databuilder.docs {{ OUTPUT_DIR }}
+    $BIN/python -m ehrql.docs {{ OUTPUT_DIR }}
     echo "Generated data for documentation in {{ OUTPUT_DIR }}"
 
 precommit-generate-docs *args: generate-docs
@@ -235,7 +235,7 @@ docs-check-dataset-definitions: devenv
     for f in ./docs/ehrql-tutorial-examples/*dataset_definition.py; do
       # By convention, we name dataset definition as: IDENTIFIER_DATASOURCENAME_dataset_definition.py
       DATASOURCENAME=`echo "$f" | cut -d'_' -f2`
-      $BIN/python -m databuilder generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/"
+      $BIN/python -m ehrql generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/"
     done
 
 
@@ -263,7 +263,7 @@ docs-build-dataset-definitions-outputs: devenv
       # By convention, we name dataset definition as: IDENTIFIER_DATASOURCENAME_dataset_definition.py
       DATASOURCENAME=`echo "$f" | cut -d'_' -f2`
       FILENAME="$(basename "$f" .py).csv"
-      "$BIN"/python -m databuilder generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/" --output "./docs/ehrql-tutorial-examples/outputs/$FILENAME"
+      "$BIN"/python -m ehrql generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/" --output "./docs/ehrql-tutorial-examples/outputs/$FILENAME"
     done
 
 # Requires OpenSAFELY CLI and Docker installed.
@@ -293,11 +293,11 @@ docs-check-generated-docs-are-current: generate-docs
     fi
 
 
-docs-update-tutorial-databuilder-version:
+docs-update-tutorial-ehrql-version:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    package="opensafely-core/databuilder"
+    package="opensafely-core/ehrql"
 
     if [ -z ${GITHUB_TOKEN+x} ]
     then

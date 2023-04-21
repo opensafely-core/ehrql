@@ -3,7 +3,7 @@ import sqlalchemy
 from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.engine.default import DefaultDialect
 
-from databuilder.utils.sqlalchemy_query_utils import (
+from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
     clause_as_str,

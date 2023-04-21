@@ -5,8 +5,8 @@ import pytest
 import sqlalchemy
 from sqlalchemy.orm import declarative_base
 
-from databuilder.sqlalchemy_types import TYPE_MAP, type_from_python_type
-from databuilder.utils.orm_utils import (
+from ehrql.sqlalchemy_types import TYPE_MAP, type_from_python_type
+from ehrql.utils.orm_utils import (
     orm_csv_writer,
     read_orm_models_from_csv_lines,
     read_value,

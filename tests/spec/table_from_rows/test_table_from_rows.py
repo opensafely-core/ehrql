@@ -1,4 +1,4 @@
-from databuilder.tables import PatientFrame, Series, table_from_rows
+from ehrql.tables import PatientFrame, Series, table_from_rows
 
 from ..tables import p
 

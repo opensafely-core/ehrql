@@ -1,4 +1,4 @@
-# OpenSAFELY Data Builder
+# OpenSAFELY ehrQL
 
 This tool supports the authoring of OpenSAFELY-compliant research, by:
 
@@ -7,7 +7,7 @@ This tool supports the authoring of OpenSAFELY-compliant research, by:
 * Providing the mechanism by which datasets are extracted from live
   database backends within the OpenSAFELY framework.
 
-:warning: Data Builder is still under development, but is
+:warning: ehrQL is still under development, but is
 eventually intended to be a replacement for the [OpenSAFELY Cohort
 Extractor](https://github.com/opensafely-core/cohort-extractor).
 
@@ -22,7 +22,7 @@ as described in the [documentation](https://docs.opensafely.org/getting-started/
 If running it directly, it should be run from within the research repository.
 To run the latest version via Docker and access its full help:
 
-    docker run --rm ghcr.io/opensafely-core/databuilder:v0 --help
+    docker run --rm ghcr.io/opensafely-core/ehrql:v0 --help
 
 # For developers
 

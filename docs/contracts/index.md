@@ -5,7 +5,7 @@
 ## OpenSAFELY Contracts are a clinical data specification
 
 An *OpenSAFELY Contract* is a core concept in the OpenSAFELY framework.
-Anyone using Data Builder should familiarise themselves with how
+Anyone using ehrQL should familiarise themselves with how
 Contracts work.
 
 This page describes:
@@ -22,7 +22,7 @@ particular clinical data domain.
 
     For developers working on OpenSAFELY integrations, you can also see
     how [each Contract is specified in Python
-    code](https://github.com/opensafely-core/databuilder/blob/main/databuilder/contracts/).
+    code](https://github.com/opensafely-core/ehrql/blob/main/ehrql/contracts/).
     **It is not necessary to understand the Contract's Python code to be
     able to use a Contract.**
 
@@ -37,10 +37,10 @@ data tables from OpenSAFELY backends. This minimal example code
 accesses the `date_of_birth` column in the `patients` data table:
 
 ```python
----8<-- 'snippets/ehrql.py:minimalehrqlimportpatients'
+---8<-- 'snippets/examples.py:minimalehrqlimportpatients'
 ```
 
-Dataset definitions are run using OpenSAFELY Data Builder. When running
+Dataset definitions are run using OpenSAFELY ehrQL. When running
 the dataset definition against live backends on the OpenSAFELY platform,
 the data requested will then be extracted.
 
@@ -103,12 +103,12 @@ that their backends will satisfy.
 All Contracts share the same:
 
 * Contract structure, made up of details about data columns
-* way of accessing associated tables in Data Builder via ehrQL
+* way of accessing associated tables in ehrQL via ehrQL
 
 ### Existing Contracts
 
 There will be several different Contracts available with the initial
-release of Data Builder. More Contracts will be added in future.
+release of ehrQL. More Contracts will be added in future.
 
 !!! warning
     Some backends might deviate slightly from the suggested OpenSAFELY
@@ -148,7 +148,7 @@ reference](reference.md) to see:
 * how that data should be interpreted
 
 !!! warning
-    The use of OpenSAFELY Contracts applies only when writing *dataset definitions* for Data Builder.
+    The use of OpenSAFELY Contracts applies only when writing *dataset definitions* for ehrQL.
 
     Contracts do not apply to [*study definitions*](../../study-def.md) written for
     our legacy cohort-extractor.
@@ -162,7 +162,7 @@ reference](reference.md) to see:
 Each OpenSAFELY Contract relates to a specific domain of health record
 data. The name of the Contract indicates the data domain covered by the
 Contract. Tables that satisfy these Contracts can be accessed in a
-dataset definition via [Data Builder's query language,
+dataset definition via [ehrQL's query language,
 ehrQL](../ehrql/index.md).
 
 An OpenSAFELY Contract provides the following information for each

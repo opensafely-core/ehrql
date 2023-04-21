@@ -1,6 +1,6 @@
 import pytest
 
-from databuilder.__main__ import (
+from ehrql.__main__ import (
     ArgumentTypeError,
     backend_from_id,
     import_string,
@@ -15,16 +15,16 @@ DATASET_DEFINITON_PATH = __file__
 
 
 def test_no_args(capsys):
-    # Verify that when databuilder is called without arguments, help text is shown.
+    # Verify that when ehrql is called without arguments, help text is shown.
     with pytest.raises(SystemExit):
         main([])
     captured = capsys.readouterr()
-    assert "usage: databuilder" in captured.out
+    assert "usage: ehrql" in captured.out
 
 
 def test_generate_dataset(mocker):
     # Verify that the generate_dataset subcommand can be invoked.
-    patched = mocker.patch("databuilder.__main__.generate_dataset")
+    patched = mocker.patch("ehrql.__main__.generate_dataset")
     argv = [
         "generate-dataset",
         DATASET_DEFINITON_PATH,
@@ -48,11 +48,11 @@ def test_generate_dataset_rejects_unknown_extension(capsys):
 
 def test_dump_dataset_sql(mocker):
     # Verify that the dump_dataset_sql subcommand can be invoked.
-    patched = mocker.patch("databuilder.__main__.dump_dataset_sql")
+    patched = mocker.patch("ehrql.__main__.dump_dataset_sql")
     argv = [
         "dump-dataset-sql",
         "--backend",
-        "databuilder.backends.tpp.TPPBackend",
+        "ehrql.backends.tpp.TPPBackend",
         DATASET_DEFINITON_PATH,
     ]
     main(argv)
@@ -61,7 +61,7 @@ def test_dump_dataset_sql(mocker):
 
 def test_create_dummy_tables(mocker):
     # Verify that the create_dummy_tables subcommand can be invoked.
-    patched = mocker.patch("databuilder.__main__.create_dummy_tables")
+    patched = mocker.patch("ehrql.__main__.create_dummy_tables")
     argv = [
         "create-dummy-tables",
         DATASET_DEFINITON_PATH,
@@ -73,7 +73,7 @@ def test_create_dummy_tables(mocker):
 
 def test_generate_measures(mocker):
     # Verify that the generate_measures subcommand can be invoked.
-    patched = mocker.patch("databuilder.__main__.generate_measures")
+    patched = mocker.patch("ehrql.__main__.generate_measures")
     argv = [
         "generate-measures",
         DATASET_DEFINITON_PATH,
@@ -112,7 +112,7 @@ def test_existing_python_file_unpythonic_file(capsys, tmp_path):
 
 
 def test_import_string():
-    assert import_string("databuilder.__main__.main") is main
+    assert import_string("ehrql.__main__.main") is main
 
 
 def test_import_string_not_a_dotted_path():

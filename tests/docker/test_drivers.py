@@ -7,7 +7,7 @@ def test_driver_in_container(run_in_container, engine):
         pytest.skip()
 
     backends = {
-        "mssql": "databuilder.backends.tpp.TPPBackend",
+        "mssql": "ehrql.backends.tpp.TPPBackend",
     }
 
     if engine.name not in backends:

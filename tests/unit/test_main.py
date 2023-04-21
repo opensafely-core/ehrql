@@ -4,7 +4,7 @@ from unittest import mock
 
 import pytest
 
-from databuilder.main import (
+from ehrql.main import (
     CommandError,
     generate_dataset,
     get_query_engine,
@@ -36,13 +36,13 @@ class DummyBackend:
 
 @pytest.fixture
 def mock_load_and_compile():
-    m = "databuilder.main"
+    m = "ehrql.main"
     with mock.patch(f"{m}.load_dataset_definition"), mock.patch(f"{m}.compile"):
         yield
 
 
 def test_generate_dataset_dsn_arg(mock_load_and_compile):
-    with mock.patch("databuilder.main.generate_dataset_with_dsn") as p:
+    with mock.patch("ehrql.main.generate_dataset_with_dsn") as p:
         generate_dataset(
             Path("dataset_definition.py"),
             Path("results.csv"),
@@ -55,7 +55,7 @@ def test_generate_dataset_dsn_arg(mock_load_and_compile):
 
 
 def test_generate_dataset_dummy_data_file_arg(mock_load_and_compile):
-    with mock.patch("databuilder.main.generate_dataset_with_dummy_data") as p:
+    with mock.patch("ehrql.main.generate_dataset_with_dummy_data") as p:
         generate_dataset(
             Path("dataset_definition.py"),
             Path("results.csv"),
@@ -65,7 +65,7 @@ def test_generate_dataset_dummy_data_file_arg(mock_load_and_compile):
 
 
 def test_generate_dataset_no_data_args(mock_load_and_compile):
-    with mock.patch("databuilder.main.generate_dataset_with_dummy_data") as p:
+    with mock.patch("ehrql.main.generate_dataset_with_dummy_data") as p:
         generate_dataset(Path("dataset_definition.py"), Path("results.csv"))
         p.assert_called_once()
 

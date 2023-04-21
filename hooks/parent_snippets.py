@@ -19,7 +19,7 @@ def on_page_markdown(markdown, page, **kwargs):
         !!! note "TO BE REPLACED IN FULL DOCS BUILD
             This snippet will be replaced in the main docs with the parent file 'includes/glossary.md'
 
-    This allows docs imported from other repos (e.g. databuilder) to reference snippets
+    This allows docs imported from other repos (e.g. ehrql) to reference snippets
     in the parent docs, such as the glossary.
     """
     parent_snippets = set(re.findall(r"!!! parent_snippet:.+\n", markdown))

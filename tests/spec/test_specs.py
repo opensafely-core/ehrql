@@ -1,6 +1,6 @@
 import pytest
 
-from databuilder.docs.specs import (
+from ehrql.docs.specs import (
     build_chapter,
     build_section,
     concatenate_optional_text,

@@ -3,9 +3,9 @@ from datetime import date
 import pytest
 import sqlalchemy
 
-from databuilder.backends.tpp import TPPBackend
-from databuilder.query_language import BaseFrame
-from databuilder.tables.beta import tpp
+from ehrql.backends.tpp import TPPBackend
+from ehrql.query_language import BaseFrame
+from ehrql.tables.beta import tpp
 from tests.lib.tpp_schema import (
     APCS,
     EC,

@@ -3,7 +3,7 @@ import datetime
 import sqlalchemy
 from sqlalchemy.sql.visitors import iterate
 
-from databuilder.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
+from ehrql.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
 
 
 def test_mssql_date_types():

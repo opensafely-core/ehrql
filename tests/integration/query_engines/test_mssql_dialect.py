@@ -3,7 +3,7 @@ import datetime
 import pytest
 import sqlalchemy
 
-from databuilder.query_engines.mssql_dialect import MSSQLDialect
+from ehrql.query_engines.mssql_dialect import MSSQLDialect
 
 
 def test_date_literals_have_correct_type(mssql_engine):

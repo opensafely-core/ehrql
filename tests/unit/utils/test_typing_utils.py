@@ -2,7 +2,7 @@ from typing import Any, TypeVar
 
 import pytest
 
-from databuilder.utils.typing_utils import get_typespec, get_typevars, type_matches
+from ehrql.utils.typing_utils import get_typespec, get_typevars, type_matches
 
 
 def test_get_typevars():

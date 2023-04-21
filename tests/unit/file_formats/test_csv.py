@@ -3,14 +3,14 @@ from io import StringIO
 
 import pytest
 
-from databuilder.file_formats.csv import (
+from ehrql.file_formats.csv import (
     CSVDatasetReader,
     ValidationError,
     create_column_parser,
     write_dataset_csv_lines,
 )
-from databuilder.query_model.column_specs import ColumnSpec
-from databuilder.sqlalchemy_types import TYPE_MAP
+from ehrql.query_model.column_specs import ColumnSpec
+from ehrql.sqlalchemy_types import TYPE_MAP
 
 
 @pytest.mark.parametrize(

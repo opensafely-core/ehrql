@@ -4,11 +4,11 @@ from unittest import mock
 
 import pytest
 
-from databuilder.dummy_data.generator import DummyDataGenerator, DummyPatientGenerator
-from databuilder.dummy_data.query_info import ColumnInfo, TableInfo
-from databuilder.ehrql import Dataset
-from databuilder.query_language import compile
-from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, table
+from ehrql import Dataset
+from ehrql.dummy_data.generator import DummyDataGenerator, DummyPatientGenerator
+from ehrql.dummy_data.query_info import ColumnInfo, TableInfo
+from ehrql.query_language import compile
+from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
 @table
@@ -71,7 +71,7 @@ def test_dummy_data_generator():
             assert isinstance(r.date, datetime.date)
 
 
-@mock.patch("databuilder.dummy_data.generator.time")
+@mock.patch("ehrql.dummy_data.generator.time")
 def test_dummy_data_generator_timeout_with_some_results(patched_time):
     dataset = Dataset()
     dataset.define_population(patients.exists_for_patient())
@@ -90,7 +90,7 @@ def test_dummy_data_generator_timeout_with_some_results(patched_time):
     assert len(data) == 6
 
 
-@mock.patch("databuilder.dummy_data.generator.time")
+@mock.patch("ehrql.dummy_data.generator.time")
 def test_dummy_data_generator_timeout_with_no_results(patched_time):
     # Define a dataset with a condition no patient can match
     dataset = Dataset()

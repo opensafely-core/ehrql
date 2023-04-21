@@ -31,7 +31,7 @@ OpenSAFELY project.
 ### Importing code building blocks
 
 At the start of the dataset definition, we first *import* some code from
-the Data Builder package. Put the following codeblock at the top of your
+the ehrQL package. Put the following codeblock at the top of your
 `dataset_definition.py` file:
 
 ```python
@@ -53,9 +53,9 @@ The `Cohort()` class (imported above) is used to define both the data population
 ## How do Dataset definitions work?
 1. **Dataset** is defined in the dataset definition
 2. **Query transformation**: The researcher then loads that dataset
-   definition into Data Builder. Provided the dataset definition is valid, Data Builder transforms
+   definition into ehrQL. Provided the dataset definition is valid, ehrQL transforms
    the dataset definition into an internal representation of the query called the *query model*.
-3. **Query submission**: Data Builder then translates the query model
+3. **Query submission**: ehrQL then translates the query model
    into the appropriate query language for the data backend being
    accessed. This means that the same dataset definition can be run against
    multiple backends which may have different structures or underlying software.

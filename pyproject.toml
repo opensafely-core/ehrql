@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "opensafely-databuilder"
+name = "opensafely-ehrql"
 description = ""
 version = "2+local"
 readme = "README.md"
@@ -21,12 +21,12 @@ dependencies = [
 ]
 
 [project.scripts]
-databuilder = "databuilder.__main__:entrypoint"
+ehrql = "ehrql.__main__:entrypoint"
 
 [project.urls]
 Home = "https://opensafely.org"
 Documentation = "https://docs.opensafely.org"
-Source = "https://github.com/opensafely-core/databuilder"
+Source = "https://github.com/opensafely-core/ehrql"
 
 [tool.coverage.run]
 branch = true
@@ -45,14 +45,14 @@ exclude_lines = [
     "raise NotImplementedError",
 ]
 omit = [
-    "databuilder/docs/__main__.py",
+    "ehrql/docs/__main__.py",
     "tests/acceptance/external_studies/*",
 ]
 
 [tool.coverage.html]
 
 [tool.flit.module]
-name = "databuilder"
+name = "ehrql"
 
 [tool.isort]
 profile = "black"

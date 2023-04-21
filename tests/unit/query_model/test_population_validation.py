@@ -1,6 +1,6 @@
 import pytest
 
-from databuilder.query_model.nodes import (
+from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
     Column,
@@ -11,7 +11,7 @@ from databuilder.query_model.nodes import (
     TableSchema,
     Value,
 )
-from databuilder.query_model.population_validation import (
+from ehrql.query_model.population_validation import (
     EmptyQueryEngine,
     ValidationError,
     validate_population_definition,

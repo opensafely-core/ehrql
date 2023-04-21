@@ -1,4 +1,4 @@
-from databuilder.query_model.nodes import Column, TableSchema
+from ehrql.query_model.nodes import Column, TableSchema
 
 from .conftest import parse_row, parse_table
 

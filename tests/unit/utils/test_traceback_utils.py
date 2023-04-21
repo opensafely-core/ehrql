@@ -1,6 +1,6 @@
 import pytest
 
-from databuilder.utils.traceback_utils import get_trimmed_traceback, walk_traceback
+from ehrql.utils.traceback_utils import get_trimmed_traceback, walk_traceback
 
 
 # NOTE

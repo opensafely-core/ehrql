@@ -1,7 +1,7 @@
 from datetime import date
 
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta import tpp
+from ehrql import Dataset
+from ehrql.tables.beta import tpp
 
 
 def tests_patients_age_on(in_memory_engine):

@@ -1,13 +1,13 @@
 import datetime
 
-from databuilder.codes import SNOMEDCTCode
-from databuilder.query_model.column_specs import (
+from ehrql.codes import SNOMEDCTCode
+from ehrql.query_model.column_specs import (
     ColumnSpec,
     get_categories,
     get_column_specs,
     get_range,
 )
-from databuilder.query_model.nodes import (
+from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
     Column,

@@ -1,13 +1,13 @@
 # NOTE: This mkdocs.yml contains the minimum config required to run
-# databuilder's docs locally.  These docs do not run in isolation in production.
+# ehrQL's docs locally.  These docs do not run in isolation in production.
 #
-# In production, the databuilder docs are pulled into and built with the main docs at
+# In production, the ehrql docs are pulled into and built with the main docs at
 # https://github.com/opensafely/documentation
 #
 # The contents of this mkdocs.yml are ignore in the production build.
 #
-site_name: OpenSAFELY Data Builder documentation
-repo_url: https://github.com/opensafely-core/databuilder
+site_name: OpenSAFELY ehrQL documentation
+repo_url: https://github.com/opensafely-core/ehrql
 docs_dir: docs
 
 nav:

@@ -24,14 +24,14 @@
 * [Dataset definition 5a](5a.md)
 * [Dataset definition 6a](6a.md)
 * [Dataset definition 7a](7a.md)
-* [Using ehrQL and Data Builder in an OpenSAFELY project](opensafely-project.md)
+* [Using ehrQL and ehrQL in an OpenSAFELY project](opensafely-project.md)
 * [Conclusion](conclusion.md)
 
 ## Audience
 
 This tutorial is aimed at:
 
-* **new users of Data Builder**
+* **new users of ehrQL**
   who wish to write dataset definitions
   to extract data from OpenSAFELY backends
 * **developers involved in operating data backends**
@@ -59,18 +59,18 @@ The tutorial is split into 7 sections that we recommend
 you work through sequentially. Each section builds on previous knowledge. Throughout the tutorial series, you will see optional explanations and reading, that you might
 want to explore at the time or afterwards.
 
-We recommend that you work through the tutorial by installing Data Builder, downloading the sample code, and
+We recommend that you work through the tutorial by installing ehrQL, downloading the sample code, and
 running the code on your machine.
 
 ### Learning objectives
 This tutorial series will introduce you to writing and running
-ehrQL queries with Data Builder.
+ehrQL queries with ehrQL.
 
 By the end of the tutorials, you will be able:
 
-* to install Data Builder
+* to install ehrQL
 * to write a dataset definition in ehrQL
-* to run a dataset definition with Data Builder
+* to run a dataset definition with ehrQL
 * to use electronic health record codelists in ehrQL
 * to perform queries via selecting, filtering and aggregation
 
@@ -79,12 +79,12 @@ Each tutorial section will have its own learning objectives.
 ## Installation
 
 To try running or modifying the examples in this tutorial,
-you will need to install Data Builder and have a text
+you will need to install ehrQL and have a text
 editor.
 
-### Installing Data Builder
+### Installing ehrQL
 
-Data Builder runs on Windows, macOS, and Linux either via:
+ehrQL runs on Windows, macOS, and Linux either via:
 
 * the OpenSAFELY CLI (recommended)
 * a manually installed Python package
@@ -95,11 +95,11 @@ The [OpenSAFELY CLI](../../../opensafely-cli.md) requires a working Docker insta
 If you do not already have the OpenSAFELY CLI installed,
 refer to the [instructions](../../../opensafely-cli.md).
 Once you have the OpenSAFELY CLI installed,
-you are ready to use Data Builder.
+you are ready to use ehrQL.
 
 #### Install via Python
 If you are unable to install Docker,
-you can try Data Builder via Python.
+you can try ehrQL via Python.
 
 A Python package install will still allow you to follow this tutorial,
 but will not allow you to run full OpenSAFELY projects.
@@ -164,16 +164,16 @@ There are two ways to run the tutorial code:
 OpenSAFELY projects get run)
 
 ### Run using `opensafely exec`
-To run this dataset definition with Data Builder,
+To run this dataset definition with ehrQL,
 
 1. In a terminal, enter the `ehrql-tutorial-examples` directory that you extracted
    from the sample data.
 2. Run this command:
 
    ```
-   opensafely exec databuilder:v0 generate-dataset "1a_minimal_dataset_definition.py" --dummy-tables "example-data/minimal/" --output "outputs.csv"
+   opensafely exec ehrql:v0 generate-dataset "1a_minimal_dataset_definition.py" --dummy-tables "example-data/minimal/" --output "outputs.csv"
    ```
-3. You should see Data Builder run without error
+3. You should see ehrQL run without error
    and find the `outputs.csv` file in the `ehrql-tutorial-examples` directory
    that you were working in.
 
@@ -182,7 +182,7 @@ To run this dataset definition with Data Builder,
     In general, the command to run a dataset defintion looks like:
 
     ```
-    opensafely exec databuilder:v0 generate-dataset "IDENTIFIER_DATASOURCENAME_dataset_definition.py" --dummy-tables "example-data/DATASOURCENAME/" --output "outputs.csv"
+    opensafely exec ehrql:v0 generate-dataset "IDENTIFIER_DATASOURCENAME_dataset_definition.py" --dummy-tables "example-data/DATASOURCENAME/" --output "outputs.csv"
     ```
 
     You need to substitute `DATASOURCENAME` with the appropriate dataset name,
@@ -200,7 +200,7 @@ file is run via the `opensafely run` command.
 
 For this tutorial, we have already defined individual actions in the `project.yaml` for each example, for convenience.
 
-To run this dataset definition with Data Builder:
+To run this dataset definition with ehrQL:
 
 1. In a terminal, enter the `ehrql-tutorial-examples` directory that you extracted from the sample data.
 

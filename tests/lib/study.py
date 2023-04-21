@@ -4,8 +4,8 @@ from pathlib import Path
 
 from pyarrow.feather import read_table
 
-from databuilder.__main__ import main
-from databuilder.file_formats import get_file_extension
+from ehrql.__main__ import main
+from ehrql.file_formats import get_file_extension
 
 
 class Study:
@@ -86,7 +86,7 @@ class Study:
         return [
             "dump-dataset-sql",
             "--backend",
-            "databuilder.backends.tpp.TPPBackend",
+            "ehrql.backends.tpp.TPPBackend",
             "--output",
             str(output),
             str(definition),

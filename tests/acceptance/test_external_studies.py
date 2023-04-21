@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from databuilder.main import load_dataset_definition
-from databuilder.query_language import compile
+from ehrql.main import load_dataset_definition
+from ehrql.query_language import compile
 
 
 # These tests specify dataset definitions in other repositories which we want to ensure
