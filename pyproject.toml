@@ -84,11 +84,6 @@ add_ignore = [
 [tool.pytest.ini_options]
 addopts = "--tb=native --strict-markers --dist=loadgroup"
 testpaths = ["tests"]
-filterwarnings = [
-    "ignore::DeprecationWarning:past.builtins.misc:45",
-    "ignore::DeprecationWarning:pyhive.common:248",
-    "ignore::DeprecationWarning:pyhive.sqlalchemy_hive:20",
-]
 
 [tool.ruff]
 line-length = 88
