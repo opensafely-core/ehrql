@@ -8,7 +8,7 @@
 # doesn't get out of sync with the original.
 
 [project]
-name = "opensafely-databuilder"
+name = "opensafely-ehrql"
 version = "2+local"
 
 [project.scripts]

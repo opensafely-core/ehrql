@@ -122,7 +122,7 @@ pyarrow==11.0.0 \
     --hash=sha256:e217d001e6389b20a6759392a5ec49d670757af80101ee6b5f2c8ff0172e02ca \
     --hash=sha256:f010ce497ca1b0f17a8243df3048055c0d18dcadbcc70895d5baf8921f753de5 \
     --hash=sha256:f12932e5a6feb5c58192209af1d2607d488cb1d404fbc038ac12ada60327fa34
-    # via opensafely-databuilder (pyproject.toml)
+    # via opensafely-ehrql (pyproject.toml)
 pymssql==2.2.7 \
     --hash=sha256:016d1f903b0bd9a7f094712668bcf9fa86ef305fba4b933d182c152043706191 \
     --hash=sha256:045029bed7cea6fcbc630e18f956f7ec6d1bde25c570019ff1f8f0e2b9abd5f0 \
@@ -185,7 +185,7 @@ pymssql==2.2.7 \
     --hash=sha256:ec7889c696f2cc27d17af86e21062d032d795bf81e48802820a69cfeb740667c \
     --hash=sha256:f26de948303c2146089c1a5f8c4c5c46e6fd21b8b6b550c19c1f056d87ab112d \
     --hash=sha256:ff95b910532ec7b02e4322231c117d3d6af0abab667e6fbf15442db873943045
-    # via opensafely-databuilder (pyproject.toml)
+    # via opensafely-ehrql (pyproject.toml)
 sqlalchemy==2.0.6 \
     --hash=sha256:1df00f280fcf7628379c6838d47ac6abd2319848cb02984af313de9243994db8 \
     --hash=sha256:1fd154847f2c77128e16757e3fd2028151aa8208dd3b9a5978918ea786a15312 \
@@ -228,11 +228,11 @@ sqlalchemy==2.0.6 \
     --hash=sha256:edc16c8e24605d0a7925afaf99dbcbdc3f98a2cdda4622f1ea34482cb3b91940 \
     --hash=sha256:f47709c98544384d390aed34046f0573df5725d22861c0cd0a5c151bc22eedff \
     --hash=sha256:ff10ad2d74a9a79c2984a2c709943e5362a1c898d8f3414815ea57515ae80c84
-    # via opensafely-databuilder (pyproject.toml)
+    # via opensafely-ehrql (pyproject.toml)
 structlog==22.3.0 \
     --hash=sha256:b403f344f902b220648fa9f286a23c0cc5439a5844d271fec40562dbadbc70ad \
     --hash=sha256:e7509391f215e4afb88b1b80fa3ea074be57a5a17d794bd436a5c949da023333
-    # via opensafely-databuilder (pyproject.toml)
+    # via opensafely-ehrql (pyproject.toml)
 typing-extensions==4.5.0 \
     --hash=sha256:5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb \
     --hash=sha256:fb33085c39dd998ac16d1431ebc293a8b3eedd00fd4a32de0ff79002c19511b4

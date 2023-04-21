@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "opensafely-databuilder"
+name = "opensafely-ehrql"
 description = ""
 version = "2+local"
 readme = "README.md"

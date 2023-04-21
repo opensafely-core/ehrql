@@ -44,7 +44,7 @@ You will need to:
 Install the latest version of Data Builder into your new virtual environment with `pip`
 
 ```
-pip install git+https://github.com/opensafely-core/ehrql@main#egg=opensafely-databuilder`
+pip install git+https://github.com/opensafely-core/ehrql@main#egg=opensafely-ehrql`
 ```
 
 !!! todo
