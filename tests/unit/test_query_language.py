@@ -107,6 +107,13 @@ def test_dataset_preserves_variable_order():
     assert variables == ["population", "foo", "baz", "bar"]
 
 
+def test_population_must_be_defined():
+    dataset = Dataset()
+    dataset.foo = patients.date_of_birth.year
+    with pytest.raises(AttributeError, match="population has not been defined"):
+        compile(dataset)
+
+
 def test_assign_population_variable():
     with pytest.raises(AttributeError, match="Cannot set variable 'population'"):
         Dataset().population = patients.exists_for_patient()
