@@ -14,7 +14,7 @@ may require some modification to work with `v2` of Data Builder.
 #### Specifying a Data Builder version to use
 
 With Data Builder, specify an [available
-version](https://github.com/opensafely-core/base-docker/pkgs/container/databuilder/versions)
+version](https://github.com/opensafely-core/base-docker/pkgs/container/ehrql/versions)
 in your `project.yaml`, in one of the following formats:
 
 * *major*, for example, `databuilder:v0`

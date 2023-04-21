@@ -343,7 +343,7 @@ produces an `Add` query model node, which takes two series as arguments, and ret
 It can return an int or a float, and the aruments can be either int or float, BUT they all must be
 the same.
 
-This is the definition of `Add` in [`query_model.nodes`](databuilder/query_model/nodes.py)
+This is the definition of `Add` in [`query_model.nodes`](ehrql/query_model/nodes.py)
 ```
 class Function:
 

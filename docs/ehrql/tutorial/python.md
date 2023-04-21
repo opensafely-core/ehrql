@@ -49,7 +49,7 @@ pip install git+https://github.com/opensafely-core/ehrql@main#egg=opensafely-dat
 
 !!! todo
     It's probably better to advocate installing the same version we're using to build the definitions.
-    This will be a tagged version in `databuilder/requirements.prod.in`.
+    This will be a tagged version in `ehrql/requirements.prod.in`.
 
 !!! todo
 

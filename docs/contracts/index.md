@@ -22,7 +22,7 @@ particular clinical data domain.
 
     For developers working on OpenSAFELY integrations, you can also see
     how [each Contract is specified in Python
-    code](https://github.com/opensafely-core/ehrql/blob/main/databuilder/contracts/).
+    code](https://github.com/opensafely-core/ehrql/blob/main/ehrql/contracts/).
     **It is not necessary to understand the Contract's Python code to be
     able to use a Contract.**
 

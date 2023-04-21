@@ -99,7 +99,7 @@ jobs:
           echo "MINOR=$MINOR"
           echo "PATCH=$PATCH"
 
-          echo "$PATCH" > databuilder/VERSION
+          echo "$PATCH" > ehrql/VERSION
 
           DOCKER_BUILDKIT=1 docker build . --file Dockerfile \
             --target databuilder \

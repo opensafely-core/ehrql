@@ -45,7 +45,7 @@ exclude_lines = [
     "raise NotImplementedError",
 ]
 omit = [
-    "databuilder/docs/__main__.py",
+    "ehrql/docs/__main__.py",
     "tests/acceptance/external_studies/*",
 ]
 

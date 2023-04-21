@@ -125,5 +125,5 @@ FROM databuilder-base as databuilder
 
 # Copy app code. This will be automatically picked up by the virtualenv as per
 # comment above
-COPY databuilder /app/databuilder
-RUN python -m compileall /app/databuilder
+COPY ehrql /app/ehrql
+RUN python -m compileall /app/ehrql

@@ -104,10 +104,10 @@ check *args: devenv black ruff docstrings
 
 # ensure our public facing docstrings exist so we can build docs from them
 docstrings: devenv
-    $BIN/pydocstyle databuilder/backends/tpp.py
+    $BIN/pydocstyle ehrql/backends/tpp.py
 
     # only enforce classes are documented for the public facing docs
-    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 databuilder/contracts/wip.py
+    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 ehrql/contracts/wip.py
 
 # runs the format (black) and sort (isort) checks and fixes the files
 fix: devenv

@@ -85,11 +85,11 @@ want, not how to access it.
 Supporting a new backend in Data Builder has two requirements:
 
 1. Data Builder must have a [query
-   engine](https://github.com/opensafely-core/ehrql/tree/main/databuilder/query_engines)
+   engine](https://github.com/opensafely-core/ehrql/tree/main/ehrql/query_engines)
    compatible with the backend.
 2. Data Builder must have code [describing how tables in the backend
    satisfy the supported OpenSAFELY
-   Contracts](https://github.com/opensafely-core/ehrql/tree/main/databuilder/backends).
+   Contracts](https://github.com/opensafely-core/ehrql/tree/main/ehrql/backends).
 
 !!! note
     Currently, Data Builder has the following query engines:
