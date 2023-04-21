@@ -4,7 +4,16 @@ from unittest import mock
 
 import pytest
 
-from databuilder.main import generate_dataset, get_query_engine, open_output_file
+from databuilder.main import (
+    CommandError,
+    generate_dataset,
+    get_query_engine,
+    load_dataset_definition,
+    open_output_file,
+)
+
+
+FIXTURES = Path(__file__).parents[1] / "fixtures" / "bad_dataset_definitions"
 
 
 @dataclasses.dataclass
@@ -122,3 +131,23 @@ def test_open_output_file_with_stdout(capsys):
     with open_output_file(None) as f:
         f.write("hello")
     assert capsys.readouterr().out == "hello"
+
+
+def test_load_dataset_definition_no_dataset():
+    filename = FIXTURES / "no_dataset.py"
+    with pytest.raises(CommandError, match="Did not find a variable called 'dataset'"):
+        load_dataset_definition(filename, user_args=())
+
+
+def test_load_dataset_definition_not_a_dataset():
+    filename = FIXTURES / "not_a_dataset.py"
+    with pytest.raises(
+        CommandError, match=r"'dataset' must be an instance of .*\.Dataset()"
+    ):
+        load_dataset_definition(filename, user_args=())
+
+
+def test_load_dataset_definition_no_population():
+    filename = FIXTURES / "no_population.py"
+    with pytest.raises(CommandError, match="A population has not been defined"):
+        load_dataset_definition(filename, user_args=())
