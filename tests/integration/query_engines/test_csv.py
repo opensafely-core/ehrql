@@ -1,7 +1,7 @@
-from databuilder.ehrql import Dataset
-from databuilder.query_engines.csv import CSVQueryEngine
-from databuilder.query_language import compile
-from databuilder.tables import EventFrame, PatientFrame, Series, table
+from ehrql.ehrql import Dataset
+from ehrql.query_engines.csv import CSVQueryEngine
+from ehrql.query_language import compile
+from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
 def test_csv_query_engine(tmp_path):

@@ -3,8 +3,8 @@ import re
 
 import pytest
 
-from databuilder.query_model.table_schema import Column, Constraint, TableSchema
-from databuilder.utils.regex_utils import RegexError
+from ehrql.query_model.table_schema import Column, Constraint, TableSchema
+from ehrql.utils.regex_utils import RegexError
 
 
 def test_table_schema_equality():

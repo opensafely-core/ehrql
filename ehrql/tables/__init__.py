@@ -1,4 +1,4 @@
-from databuilder.query_language import (
+from ehrql.query_language import (
     EventFrame,
     PatientFrame,
     Series,
@@ -6,7 +6,7 @@ from databuilder.query_language import (
     table_from_file,
     table_from_rows,
 )
-from databuilder.query_model.table_schema import Constraint
+from ehrql.query_model.table_schema import Constraint
 
 
 __all__ = [

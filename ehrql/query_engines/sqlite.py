@@ -1,8 +1,8 @@
 import sqlalchemy
 from sqlalchemy.sql.functions import Function as SQLFunction
 
-from databuilder.query_engines.base_sql import BaseSQLQueryEngine
-from databuilder.query_engines.sqlite_dialect import SQLiteDialect
+from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.query_engines.sqlite_dialect import SQLiteDialect
 
 
 class SQLiteQueryEngine(BaseSQLQueryEngine):

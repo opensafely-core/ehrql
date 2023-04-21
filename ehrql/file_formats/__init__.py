@@ -1,15 +1,15 @@
 import os
 
-from databuilder.file_formats.arrow import (
+from ehrql.file_formats.arrow import (
     ArrowDatasetReader,
     write_dataset_arrow,
 )
-from databuilder.file_formats.csv import (
+from ehrql.file_formats.csv import (
     CSVDatasetReader,
     write_dataset_csv,
     write_dataset_csv_gz,
 )
-from databuilder.file_formats.validation import ValidationError
+from ehrql.file_formats.validation import ValidationError
 
 
 FILE_FORMATS = {

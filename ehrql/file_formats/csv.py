@@ -4,7 +4,7 @@ import gzip
 import sys
 from contextlib import nullcontext
 
-from databuilder.file_formats.validation import ValidationError, validate_columns
+from ehrql.file_formats.validation import ValidationError, validate_columns
 
 
 def write_dataset_csv(filename, results, column_specs):

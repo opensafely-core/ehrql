@@ -1,7 +1,7 @@
-import databuilder.tables.beta.smoketest
-import databuilder.tables.beta.tpp
-from databuilder.backends.base import BaseBackend, MappedTable, QueryTable
-from databuilder.query_engines.mssql import MSSQLQueryEngine
+import ehrql.tables.beta.smoketest
+import ehrql.tables.beta.tpp
+from ehrql.backends.base import BaseBackend, MappedTable, QueryTable
+from ehrql.query_engines.mssql import MSSQLQueryEngine
 
 
 class TPPBackend(BaseBackend):
@@ -9,7 +9,7 @@ class TPPBackend(BaseBackend):
 
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
-    implements = [databuilder.tables.beta.tpp, databuilder.tables.beta.smoketest]
+    implements = [ehrql.tables.beta.tpp, ehrql.tables.beta.smoketest]
 
     patients = QueryTable(
         """

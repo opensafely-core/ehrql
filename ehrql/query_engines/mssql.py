@@ -3,14 +3,14 @@ import structlog
 from sqlalchemy.schema import CreateIndex, DropTable
 from sqlalchemy.sql.functions import Function as SQLFunction
 
-from databuilder.query_engines.base_sql import BaseSQLQueryEngine
-from databuilder.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
-from databuilder.utils.sqlalchemy_exec_utils import (
+from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
+from ehrql.utils.sqlalchemy_exec_utils import (
     ReconnectableConnection,
     execute_with_retry_factory,
     fetch_table_in_batches,
 )
-from databuilder.utils.sqlalchemy_query_utils import (
+from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
     get_setup_and_cleanup_queries,

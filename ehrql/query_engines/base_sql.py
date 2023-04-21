@@ -9,8 +9,8 @@ from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
 
-from databuilder.backends.base import DefaultBackend
-from databuilder.query_model.nodes import (
+from ehrql.backends.base import DefaultBackend
+from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
     Filter,
@@ -27,13 +27,13 @@ from databuilder.query_model.nodes import (
     get_table_and_filters,
     has_many_rows_per_patient,
 )
-from databuilder.query_model.transforms import (
+from ehrql.query_model.transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
 )
-from databuilder.sqlalchemy_types import type_from_python_type
-from databuilder.utils.functools_utils import singledispatchmethod_with_cache
-from databuilder.utils.sqlalchemy_query_utils import (
+from ehrql.sqlalchemy_types import type_from_python_type
+from ehrql.utils.functools_utils import singledispatchmethod_with_cache
+from ehrql.utils.sqlalchemy_query_utils import (
     GeneratedTable,
     InsertMany,
     get_setup_and_cleanup_queries,

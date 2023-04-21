@@ -1,6 +1,6 @@
-from databuilder.query_engines.in_memory import InMemoryQueryEngine
-from databuilder.query_engines.in_memory_database import EventTable, PatientTable
-from databuilder.query_model.nodes import (
+from ehrql.query_engines.in_memory import InMemoryQueryEngine
+from ehrql.query_engines.in_memory_database import EventTable, PatientTable
+from ehrql.query_model.nodes import (
     Series,
     ValidationError,
     get_series_type,

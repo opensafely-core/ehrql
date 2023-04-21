@@ -2,7 +2,7 @@ import dataclasses
 from collections import defaultdict
 from functools import cached_property
 
-from databuilder.query_model.nodes import (
+from ehrql.query_model.nodes import (
     Column,
     Constraint,
     Function,

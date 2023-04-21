@@ -4,19 +4,19 @@ from contextlib import nullcontext
 
 import structlog
 
-from databuilder.dummy_data import DummyDataGenerator
-from databuilder.file_formats import read_dataset, write_dataset
-from databuilder.query_engines.csv import CSVQueryEngine
-from databuilder.query_engines.sqlite import SQLiteQueryEngine
-from databuilder.query_language import Dataset, compile
-from databuilder.query_model.column_specs import get_column_specs
-from databuilder.utils.itertools_utils import eager_iterator
-from databuilder.utils.orm_utils import write_orm_models_to_csv_directory
-from databuilder.utils.sqlalchemy_query_utils import (
+from ehrql.dummy_data import DummyDataGenerator
+from ehrql.file_formats import read_dataset, write_dataset
+from ehrql.query_engines.csv import CSVQueryEngine
+from ehrql.query_engines.sqlite import SQLiteQueryEngine
+from ehrql.query_language import Dataset, compile
+from ehrql.query_model.column_specs import get_column_specs
+from ehrql.utils.itertools_utils import eager_iterator
+from ehrql.utils.orm_utils import write_orm_models_to_csv_directory
+from ehrql.utils.sqlalchemy_query_utils import (
     clause_as_str,
     get_setup_and_cleanup_queries,
 )
-from databuilder.utils.traceback_utils import get_trimmed_traceback
+from ehrql.utils.traceback_utils import get_trimmed_traceback
 
 
 log = structlog.getLogger()
@@ -208,7 +208,7 @@ def load_dataset_definition(definition_file, user_args):
         )
     if not isinstance(dataset, Dataset):
         raise CommandError(
-            "'dataset' must be an instance of databuilder.ehrql.Dataset()"
+            "'dataset' must be an instance of ehrql.ehrql.Dataset()"
         )
     if not hasattr(dataset, "population"):
         raise CommandError(

@@ -1,8 +1,8 @@
 import datetime
 
-from databuilder.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
-from databuilder.ehrql import case, when
-from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, table
+from ehrql.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
+from ehrql.ehrql import case, when
+from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
 __all__ = [

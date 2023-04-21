@@ -1,6 +1,6 @@
 import dataclasses
 
-from databuilder.utils.regex_utils import validate_regex
+from ehrql.utils.regex_utils import validate_regex
 
 
 class BaseConstraint:

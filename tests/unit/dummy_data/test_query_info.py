@@ -1,10 +1,10 @@
 import datetime
 
-from databuilder.codes import CTV3Code
-from databuilder.dummy_data.query_info import ColumnInfo, QueryInfo, TableInfo
-from databuilder.ehrql import Dataset, days
-from databuilder.query_language import compile
-from databuilder.tables import (
+from ehrql.codes import CTV3Code
+from ehrql.dummy_data.query_info import ColumnInfo, QueryInfo, TableInfo
+from ehrql.ehrql import Dataset, days
+from ehrql.query_language import compile
+from ehrql.tables import (
     Constraint,
     EventFrame,
     PatientFrame,

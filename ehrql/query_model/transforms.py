@@ -16,7 +16,7 @@ want to keep them separate from the core query model classes.
 from collections import defaultdict
 from typing import Any
 
-from databuilder.query_model.nodes import (
+from ehrql.query_model.nodes import (
     Case,
     Function,
     PickOneRowPerPatient,
@@ -28,7 +28,7 @@ from databuilder.query_model.nodes import (
     get_series_type,
     get_sorts,
 )
-from databuilder.query_model.query_graph_rewriter import QueryGraphRewriter
+from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
 
 
 class PickOneRowPerPatientWithColumns(PickOneRowPerPatient):

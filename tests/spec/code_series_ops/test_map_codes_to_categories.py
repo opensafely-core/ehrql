@@ -1,4 +1,4 @@
-from databuilder.codes import codelist_from_csv_lines
+from ehrql.codes import codelist_from_csv_lines
 
 from ..tables import p
 

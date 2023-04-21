@@ -1,5 +1,5 @@
-from databuilder.ehrql import Dataset, days
-from databuilder.tables.examples.tutorial import hospitalisations, patients
+from ehrql.ehrql import Dataset, days
+from ehrql.tables.examples.tutorial import hospitalisations, patients
 
 dataset = Dataset()
 

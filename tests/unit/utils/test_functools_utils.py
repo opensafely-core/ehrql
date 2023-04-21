@@ -2,7 +2,7 @@ import dataclasses
 
 import pytest
 
-from databuilder.utils.functools_utils import (
+from ehrql.utils.functools_utils import (
     cached_method,
     singledispatchmethod_with_cache,
 )

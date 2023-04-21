@@ -2,16 +2,16 @@ import operator
 import statistics
 from collections import namedtuple
 
-from databuilder.query_engines.base import BaseQueryEngine
-from databuilder.query_engines.in_memory_database import (
+from ehrql.query_engines.base import BaseQueryEngine
+from ehrql.query_engines.in_memory_database import (
     PatientColumn,
     PatientTable,
     apply_function,
     handle_null,
 )
-from databuilder.query_model import nodes as qm
-from databuilder.query_model.transforms import apply_transforms
-from databuilder.utils import date_utils, math_utils
+from ehrql.query_model import nodes as qm
+from ehrql.query_model.transforms import apply_transforms
+from ehrql.utils import date_utils, math_utils
 
 
 T = True

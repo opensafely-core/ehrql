@@ -1,6 +1,6 @@
 def build_hierarchy(contract):
     # get the contract's hierarchy without the contracts path prefix
-    hierarchy = contract.__module__.removeprefix("databuilder.contracts.")
+    hierarchy = contract.__module__.removeprefix("ehrql.contracts.")
 
     # split up on dots and let the docs plugin handle rendering
     return hierarchy.split(".")

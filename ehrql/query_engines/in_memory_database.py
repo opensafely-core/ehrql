@@ -7,8 +7,8 @@ See tests in test_database.py for comprehensive examples of how this all works.
 from collections import UserDict, defaultdict
 from dataclasses import dataclass
 
-from databuilder.utils.itertools_utils import iter_flatten
-from databuilder.utils.orm_utils import table_has_one_row_per_patient
+from ehrql.utils.itertools_utils import iter_flatten
+from ehrql.utils.orm_utils import table_has_one_row_per_patient
 
 
 class InMemoryDatabase:
@@ -384,7 +384,7 @@ class Rows(UserDict):
     def aggregate_values(self, fn, default):
         """Apply aggregation function to all non-null values.
 
-        See https://github.com/opensafely-core/databuilder/issues/465.
+        See https://github.com/opensafely-core/ehrql/issues/465.
         """
 
         filtered = [v for v in self.values() if v is not None]

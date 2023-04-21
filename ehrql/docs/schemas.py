@@ -1,8 +1,8 @@
 from collections import defaultdict
 
-from databuilder import tables
-from databuilder.query_language import BaseFrame, Series
-from databuilder.utils.module_utils import get_submodules
+from ehrql import tables
+from ehrql.query_language import BaseFrame, Series
+from ehrql.utils.module_utils import get_submodules
 
 from .common import reformat_docstring
 

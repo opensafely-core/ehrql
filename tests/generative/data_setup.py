@@ -1,10 +1,10 @@
-from databuilder.query_model.nodes import (
+from ehrql.query_model.nodes import (
     AggregateByPatient,
     Function,
     SelectPatientTable,
     SelectTable,
 )
-from databuilder.utils.orm_utils import orm_classes_from_tables
+from ehrql.utils.orm_utils import orm_classes_from_tables
 
 
 def setup(schema, num_patient_tables, num_event_tables):

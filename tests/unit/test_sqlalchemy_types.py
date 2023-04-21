@@ -3,8 +3,8 @@ import datetime
 import pytest
 from sqlalchemy import types
 
-from databuilder.codes import CTV3Code
-from databuilder.sqlalchemy_types import type_from_python_type
+from ehrql.codes import CTV3Code
+from ehrql.sqlalchemy_types import type_from_python_type
 
 
 @pytest.mark.parametrize(

@@ -1,6 +1,6 @@
 import pytest
 
-from databuilder.utils.itertools_utils import eager_iterator
+from ehrql.utils.itertools_utils import eager_iterator
 
 
 def test_eager_iterator():

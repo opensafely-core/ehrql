@@ -10,7 +10,7 @@ from sqlalchemy.sql.expression import ClauseElement, Executable, cast
 # MS-SQL can misinterpret ISO dates, depending on its localisation settings so
 # we need to use particular date formats which we know will be consistently
 # interpreted. We do this by defining custom SQLAlchemy types. See:
-# https://github.com/opensafely-core/databuilder/issues/92
+# https://github.com/opensafely-core/ehrql/issues/92
 # http://msdn.microsoft.com/en-us/library/ms180878.aspx
 # https://stackoverflow.com/a/25548626/559140
 class _MSSQLDateTimeBase:
@@ -43,8 +43,8 @@ class _MSSQLDateTimeBase:
         # as dates but insists on converting them to strings. Mostly this is harmless as
         # MSSQL can tell from the context that a date is required, but not always (see
         # issues below). Explicit CASTing ensures that they're always treated as dates.
-        # https://github.com/opensafely-core/databuilder/pull/889
-        # https://github.com/opensafely-core/databuilder/issues/998
+        # https://github.com/opensafely-core/ehrql/pull/889
+        # https://github.com/opensafely-core/ehrql/issues/998
         return cast(bindvalue, type_=self)
 
 
@@ -66,7 +66,7 @@ class MSSQLDateTime(_MSSQLDateTimeBase, sqlalchemy.types.TypeDecorator):
 
 # MS-SQL can interpret values that we intend to be floats as Decimals, which
 # can result in results with unexpectedly truncated precision.
-# https://github.com/opensafely-core/databuilder/issues/1065
+# https://github.com/opensafely-core/ehrql/issues/1065
 # https://learn.microsoft.com/en-us/sql/t-sql/data-types/precision-scale-and-length-transact-sql
 class MSSQLFloat(sqlalchemy.types.TypeDecorator):
     impl = sqlalchemy.types.Float

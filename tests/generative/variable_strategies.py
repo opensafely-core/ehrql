@@ -4,7 +4,7 @@ from os import environ
 import hypothesis.strategies as st
 from hypothesis.control import current_build_context
 
-from databuilder.query_model.nodes import (
+from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
     Filter,

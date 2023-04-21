@@ -1,6 +1,6 @@
 from types import NoneType
 
-from databuilder.query_model import nodes as qm
+from ehrql.query_model import nodes as qm
 
 
 class QueryGraphRewriter:

@@ -1,4 +1,4 @@
-from databuilder.codes import SNOMEDCTCode, codelist_from_csv_lines
+from ehrql.codes import SNOMEDCTCode, codelist_from_csv_lines
 
 from ..tables import p
 

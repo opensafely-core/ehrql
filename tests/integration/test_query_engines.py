@@ -3,10 +3,10 @@ from datetime import date
 
 import sqlalchemy
 
-from databuilder.ehrql import Dataset
-from databuilder.query_language import PatientFrame, Series, table_from_file
-from databuilder.query_model.nodes import Value
-from databuilder.tables.beta import tpp
+from ehrql.ehrql import Dataset
+from ehrql.query_language import PatientFrame, Series, table_from_file
+from ehrql.query_model.nodes import Value
+from ehrql.tables.beta import tpp
 
 
 def test_handles_degenerate_population(engine):

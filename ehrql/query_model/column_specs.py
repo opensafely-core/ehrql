@@ -2,7 +2,7 @@ import dataclasses
 from functools import singledispatch
 from typing import TypeVar
 
-from databuilder.query_model.nodes import (
+from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
     SelectColumn,

@@ -2,8 +2,8 @@ import re
 
 import sqlalchemy
 
-from databuilder.query_language import get_tables_from_namespace
-from databuilder.sqlalchemy_types import type_from_python_type
+from ehrql.query_language import get_tables_from_namespace
+from ehrql.sqlalchemy_types import type_from_python_type
 
 
 class ValidationError(Exception):

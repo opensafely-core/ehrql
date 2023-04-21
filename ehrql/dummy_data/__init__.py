@@ -1,4 +1,4 @@
-from databuilder.dummy_data.generator import DummyDataGenerator
+from ehrql.dummy_data.generator import DummyDataGenerator
 
 
 __all__ = ["DummyDataGenerator"]

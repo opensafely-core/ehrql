@@ -2,14 +2,14 @@ import datetime
 
 import pytest
 
-from databuilder.file_formats import (
+from ehrql.file_formats import (
     FILE_FORMATS,
     ValidationError,
     read_dataset,
     write_dataset,
 )
-from databuilder.query_model.column_specs import ColumnSpec
-from databuilder.sqlalchemy_types import TYPE_MAP
+from ehrql.query_model.column_specs import ColumnSpec
+from ehrql.sqlalchemy_types import TYPE_MAP
 
 
 TEST_FILE_SPECS = {

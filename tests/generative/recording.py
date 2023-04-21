@@ -4,7 +4,7 @@ from collections import defaultdict
 
 import pytest
 
-from databuilder.query_model.nodes import count_nodes, node_types
+from ehrql.query_model.nodes import count_nodes, node_types
 
 from . import variable_strategies
 

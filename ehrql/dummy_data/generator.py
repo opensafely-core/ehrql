@@ -6,12 +6,12 @@ from datetime import date, timedelta
 
 import structlog
 
-from databuilder.dummy_data.query_info import QueryInfo
-from databuilder.query_engines.in_memory import InMemoryQueryEngine
-from databuilder.query_engines.in_memory_database import InMemoryDatabase
-from databuilder.tables import Constraint
-from databuilder.utils.orm_utils import orm_classes_from_tables
-from databuilder.utils.regex_utils import create_regex_generator
+from ehrql.dummy_data.query_info import QueryInfo
+from ehrql.query_engines.in_memory import InMemoryQueryEngine
+from ehrql.query_engines.in_memory_database import InMemoryDatabase
+from ehrql.tables import Constraint
+from ehrql.utils.orm_utils import orm_classes_from_tables
+from ehrql.utils.regex_utils import create_regex_generator
 
 
 log = structlog.getLogger()

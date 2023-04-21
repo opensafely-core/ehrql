@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from databuilder.codes import (
+from ehrql.codes import (
     BNFCode,
     CodelistError,
     CTV3Code,

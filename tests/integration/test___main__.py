@@ -1,20 +1,20 @@
-from databuilder.__main__ import (
+from ehrql.__main__ import (
     BACKEND_ALIASES,
     QUERY_ENGINE_ALIASES,
     backend_from_id,
     main,
     query_engine_from_id,
 )
-from databuilder.backends.base import BaseBackend
-from databuilder.query_engines.base import BaseQueryEngine
-from databuilder.query_engines.base_sql import BaseSQLQueryEngine
-from databuilder.query_engines.in_memory import InMemoryQueryEngine
-from databuilder.utils.module_utils import get_sibling_subclasses
+from ehrql.backends.base import BaseBackend
+from ehrql.query_engines.base import BaseQueryEngine
+from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.query_engines.in_memory import InMemoryQueryEngine
+from ehrql.utils.module_utils import get_sibling_subclasses
 
 
 def test_test_connection(mssql_database, capsys):
     env = {
-        "BACKEND": "databuilder.backends.tpp.TPPBackend",
+        "BACKEND": "ehrql.backends.tpp.TPPBackend",
         "DATABASE_URL": mssql_database.host_url(),
     }
     argv = ["test-connection"]

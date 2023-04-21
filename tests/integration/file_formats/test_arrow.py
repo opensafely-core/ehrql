@@ -1,7 +1,7 @@
 import pyarrow.feather
 
-from databuilder.file_formats import write_dataset
-from databuilder.query_model.column_specs import ColumnSpec
+from ehrql.file_formats import write_dataset
+from ehrql.query_model.column_specs import ColumnSpec
 
 
 def test_write_dataset_arrow(tmp_path):

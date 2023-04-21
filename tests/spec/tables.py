@@ -1,7 +1,7 @@
 import datetime
 
-from databuilder.codes import SNOMEDCTCode
-from databuilder.tables import EventFrame, PatientFrame, Series, table
+from ehrql.codes import SNOMEDCTCode
+from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
 @table

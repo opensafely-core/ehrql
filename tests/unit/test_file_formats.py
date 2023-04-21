@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from databuilder.file_formats import ValidationError, get_file_extension, read_dataset
+from ehrql.file_formats import ValidationError, get_file_extension, read_dataset
 
 
 @pytest.mark.parametrize(

@@ -1,4 +1,4 @@
-from databuilder.query_model.nodes import (
+from ehrql.query_model.nodes import (
     Case,
     Column,
     Filter,
@@ -8,7 +8,7 @@ from databuilder.query_model.nodes import (
     TableSchema,
     Value,
 )
-from databuilder.query_model.query_graph_rewriter import QueryGraphRewriter
+from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
 
 
 def test_query_graph_rewriter():

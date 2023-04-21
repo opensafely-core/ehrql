@@ -1,6 +1,6 @@
 import dataclasses
 
-from databuilder.query_model import nodes as query_model
+from ehrql.query_model import nodes as query_model
 
 
 # These are only exercised during the long-running generative tests when

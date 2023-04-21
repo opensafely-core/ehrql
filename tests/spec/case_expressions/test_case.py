@@ -1,4 +1,4 @@
-from databuilder.ehrql import case, when
+from ehrql.ehrql import case, when
 
 from ..tables import p
 

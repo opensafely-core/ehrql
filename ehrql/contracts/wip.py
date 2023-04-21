@@ -1,6 +1,6 @@
 import datetime
 
-from databuilder.tables import EventFrame, Series, table
+from ehrql.tables import EventFrame, Series, table
 
 
 ###

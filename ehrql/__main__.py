@@ -4,9 +4,9 @@ import sys
 from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
-from databuilder import __version__
-from databuilder.file_formats import FILE_FORMATS, get_file_extension
-from databuilder.utils.log_utils import init_logging
+from ehrql import __version__
+from ehrql.file_formats import FILE_FORMATS, get_file_extension
+from ehrql.utils.log_utils import init_logging
 
 from .main import (
     CommandError,
@@ -19,14 +19,14 @@ from .main import (
 
 
 QUERY_ENGINE_ALIASES = {
-    "mssql": "databuilder.query_engines.mssql.MSSQLQueryEngine",
-    "sqlite": "databuilder.query_engines.sqlite.SQLiteQueryEngine",
-    "csv": "databuilder.query_engines.csv.CSVQueryEngine",
+    "mssql": "ehrql.query_engines.mssql.MSSQLQueryEngine",
+    "sqlite": "ehrql.query_engines.sqlite.SQLiteQueryEngine",
+    "csv": "ehrql.query_engines.csv.CSVQueryEngine",
 }
 
 
 BACKEND_ALIASES = {
-    "tpp": "databuilder.backends.tpp.TPPBackend",
+    "tpp": "ehrql.backends.tpp.TPPBackend",
 }
 
 
@@ -39,7 +39,7 @@ def main(args, environ=None):
     environ = environ or {}
 
     # We allow users to pass arbitrary arguments to dataset definition modules, but they
-    # must be seperated from any databuilder arguments by the string `--`
+    # must be seperated from any ehrql arguments by the string `--`
     if "--" in args:
         user_args = args[args.index("--") + 1 :]
         args = args[: args.index("--")]
@@ -49,7 +49,7 @@ def main(args, environ=None):
     init_logging()
 
     parser = ArgumentParser(
-        prog="databuilder", description="Generate datasets in OpenSAFELY"
+        prog="ehrql", description="Generate datasets in OpenSAFELY"
     )
 
     def show_help(**kwargs):
@@ -58,7 +58,7 @@ def main(args, environ=None):
 
     parser.set_defaults(function=show_help)
     parser.add_argument(
-        "--version", action="version", version=f"databuilder {__version__}"
+        "--version", action="version", version=f"ehrql {__version__}"
     )
 
     subparsers = parser.add_subparsers(help="sub-command help")

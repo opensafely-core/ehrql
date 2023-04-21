@@ -3,9 +3,9 @@ from inspect import signature
 
 import pytest
 
-from databuilder.codes import SNOMEDCTCode
-from databuilder.file_formats import FILE_FORMATS, write_dataset
-from databuilder.query_language import (
+from ehrql.codes import SNOMEDCTCode
+from ehrql.file_formats import FILE_FORMATS, write_dataset
+from ehrql.query_language import (
     BaseSeries,
     BoolEventSeries,
     BoolPatientSeries,
@@ -34,8 +34,8 @@ from databuilder.query_language import (
     weeks,
     years,
 )
-from databuilder.query_model.column_specs import ColumnSpec
-from databuilder.query_model.nodes import (
+from ehrql.query_model.column_specs import ColumnSpec
+from ehrql.query_model.nodes import (
     Column,
     Function,
     InlinePatientTable,

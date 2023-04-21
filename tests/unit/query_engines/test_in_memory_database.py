@@ -1,6 +1,6 @@
 import pytest
 
-from databuilder.query_engines.in_memory_database import (
+from ehrql.query_engines.in_memory_database import (
     EventColumn,
     EventTable,
     PatientColumn,

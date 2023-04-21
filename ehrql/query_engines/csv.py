@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from databuilder.query_engines.in_memory import InMemoryQueryEngine
-from databuilder.query_engines.in_memory_database import InMemoryDatabase
-from databuilder.query_model.nodes import get_table_nodes
-from databuilder.utils.orm_utils import (
+from ehrql.query_engines.in_memory import InMemoryQueryEngine
+from ehrql.query_engines.in_memory_database import InMemoryDatabase
+from ehrql.query_model.nodes import get_table_nodes
+from ehrql.utils.orm_utils import (
     orm_classes_from_tables,
     read_orm_models_from_csv_directory,
 )

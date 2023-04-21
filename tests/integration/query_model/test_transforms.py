@@ -1,4 +1,4 @@
-from databuilder.query_model.nodes import (
+from ehrql.query_model.nodes import (
     AggregateByPatient,
     PickOneRowPerPatient,
     Position,

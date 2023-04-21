@@ -1,8 +1,8 @@
-from databuilder.docs import generate_docs, render
-from databuilder.docs.common import reformat_docstring
-from databuilder.docs.render_includes.backends import render_backend
-from databuilder.docs.render_includes.contracts import render_contracts
-from databuilder.docs.render_includes.specs import render_specs
+from ehrql.docs import generate_docs, render
+from ehrql.docs.common import reformat_docstring
+from ehrql.docs.render_includes.backends import render_backend
+from ehrql.docs.render_includes.contracts import render_contracts
+from ehrql.docs.render_includes.specs import render_specs
 
 
 def test_reformat_docstring():

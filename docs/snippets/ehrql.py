@@ -1,12 +1,12 @@
 # --8<-- [start:minimalehrqlimportpatients]
-from databuilder.tables.beta.smoketest import patients
+from ehrql.tables.beta.smoketest import patients
 
 year_of_birth = patients.date_of_birth.year
 # --8<-- [end:minimalehrqlimportpatients]
 
 # --8<-- [start:minimalehrql]
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.smoketest import patients
+from ehrql.ehrql import Dataset
+from ehrql.tables.beta.smoketest import patients
 
 year_of_birth = patients.date_of_birth.year
 dataset = Dataset()

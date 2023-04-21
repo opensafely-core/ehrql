@@ -5,8 +5,8 @@ from typing import Any
 
 import pytest
 
-from databuilder.codes import CTV3Code, SNOMEDCTCode
-from databuilder.query_model.nodes import (
+from ehrql.codes import CTV3Code, SNOMEDCTCode
+from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
     Column,

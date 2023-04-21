@@ -1,6 +1,6 @@
 import datetime
 
-from databuilder.tables import Constraint, EventFrame, PatientFrame, Series, table
+from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
 __all__ = [

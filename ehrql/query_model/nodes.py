@@ -7,10 +7,10 @@ from functools import cache, singledispatch
 from types import GenericAlias
 from typing import Any, TypeVar
 
-from databuilder.codes import BaseCode
-from databuilder.query_model.table_schema import Column, Constraint, TableSchema
-from databuilder.utils.functools_utils import cached_method
-from databuilder.utils.typing_utils import get_typespec, get_typevars, type_matches
+from ehrql.codes import BaseCode
+from ehrql.query_model.table_schema import Column, Constraint, TableSchema
+from ehrql.utils.functools_utils import cached_method
+from ehrql.utils.typing_utils import get_typespec, get_typevars, type_matches
 
 
 # The below classes and functions are the public API surface of the query model

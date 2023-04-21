@@ -6,13 +6,13 @@ import re
 from collections import ChainMap
 from pathlib import Path
 
-from databuilder.codes import BaseCode
-from databuilder.file_formats import read_dataset
-from databuilder.query_model import nodes as qm
-from databuilder.query_model.column_specs import get_column_specs_from_schema
-from databuilder.query_model.nodes import get_series_type, has_one_row_per_patient
-from databuilder.query_model.population_validation import validate_population_definition
-from databuilder.utils import date_utils
+from ehrql.codes import BaseCode
+from ehrql.file_formats import read_dataset
+from ehrql.query_model import nodes as qm
+from ehrql.query_model.column_specs import get_column_specs_from_schema
+from ehrql.query_model.nodes import get_series_type, has_one_row_per_patient
+from ehrql.query_model.population_validation import validate_population_definition
+from ehrql.utils import date_utils
 
 
 VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")

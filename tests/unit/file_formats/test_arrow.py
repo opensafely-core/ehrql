@@ -1,13 +1,13 @@
 import pyarrow
 import pytest
 
-from databuilder.file_formats.arrow import (
+from ehrql.file_formats.arrow import (
     batch_and_transpose,
     get_schema_and_convertor,
     smallest_int_type_for_range,
 )
-from databuilder.query_model.column_specs import ColumnSpec
-from databuilder.sqlalchemy_types import TYPE_MAP
+from ehrql.query_model.column_specs import ColumnSpec
+from ehrql.sqlalchemy_types import TYPE_MAP
 
 
 # Check we can convert every type in TYPE_MAP to a pyarrow type

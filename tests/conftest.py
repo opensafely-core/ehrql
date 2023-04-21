@@ -5,14 +5,14 @@ from pathlib import Path
 
 import pytest
 
-import databuilder
-from databuilder.main import get_sql_strings
-from databuilder.query_engines.in_memory import InMemoryQueryEngine
-from databuilder.query_engines.in_memory_database import InMemoryDatabase
-from databuilder.query_engines.mssql import MSSQLQueryEngine
-from databuilder.query_engines.sqlite import SQLiteQueryEngine
-from databuilder.query_language import compile
-from databuilder.utils.orm_utils import make_orm_models
+import ehrql
+from ehrql.main import get_sql_strings
+from ehrql.query_engines.in_memory import InMemoryQueryEngine
+from ehrql.query_engines.in_memory_database import InMemoryDatabase
+from ehrql.query_engines.mssql import MSSQLQueryEngine
+from ehrql.query_engines.sqlite import SQLiteQueryEngine
+from ehrql.query_language import compile
+from ehrql.utils.orm_utils import make_orm_models
 
 from .lib.databases import (
     InMemorySQLiteDatabase,
@@ -231,9 +231,9 @@ def in_memory_engine(request):
 
 @pytest.fixture(scope="session")
 def databuilder_image(show_delayed_warning):
-    project_dir = Path(databuilder.__file__).parents[1]
+    project_dir = Path(ehrql.__file__).parents[1]
     # Note different name from production image to avoid confusion
-    image = "databuilder-dev"
+    image = "ehrql-dev"
     # We're deliberately choosing to shell out to the docker client here rather than use
     # the docker-py library to avoid possible difference in the build process (docker-py
     # doesn't seem to be particularly actively maintained)

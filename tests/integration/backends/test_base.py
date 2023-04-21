@@ -3,10 +3,10 @@ import datetime
 import pytest
 import sqlalchemy
 
-from databuilder.backends.base import BaseBackend, MappedTable, QueryTable
-from databuilder.ehrql import Dataset
-from databuilder.query_engines.base_sql import BaseSQLQueryEngine
-from databuilder.tables import EventFrame, PatientFrame, Series, table
+from ehrql.backends.base import BaseBackend, MappedTable, QueryTable
+from ehrql.ehrql import Dataset
+from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
 Base = sqlalchemy.orm.declarative_base()

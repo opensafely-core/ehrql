@@ -3,16 +3,16 @@ import datetime
 import pytest
 import sqlalchemy
 
-from databuilder.backends.base import (
+from ehrql.backends.base import (
     BaseBackend,
     DefaultBackend,
     MappedTable,
     QueryTable,
     ValidationError,
 )
-from databuilder.query_engines.base_sql import BaseSQLQueryEngine
-from databuilder.query_model.nodes import Column, TableSchema
-from databuilder.tables import PatientFrame, Series, table
+from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.query_model.nodes import Column, TableSchema
+from ehrql.tables import PatientFrame, Series, table
 
 
 class TestBackend(BaseBackend):

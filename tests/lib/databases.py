@@ -7,7 +7,7 @@ import sqlalchemy.exc
 from sqlalchemy.dialects import registry
 from sqlalchemy.orm import sessionmaker
 
-from databuilder.utils.itertools_utils import iter_flatten
+from ehrql.utils.itertools_utils import iter_flatten
 
 
 MSSQL_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/mssql"
@@ -16,7 +16,7 @@ MSSQL_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/mssql"
 # Register our modified SQLAlchemy dialects
 registry.register(
     "sqlite.pysqlite.opensafely",
-    "databuilder.query_engines.sqlite_dialect",
+    "ehrql.query_engines.sqlite_dialect",
     "SQLiteDialect",
 )
 
@@ -129,7 +129,7 @@ def wait_for_database(database, timeout=20):
 def make_mssql_database(containers):
     password = "Your_password123!"
 
-    container_name = "databuilder-mssql"
+    container_name = "ehrql-mssql"
     mssql_port = 1433
 
     if not containers.is_running(container_name):  # pragma: no cover

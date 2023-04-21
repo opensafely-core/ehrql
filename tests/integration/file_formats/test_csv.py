@@ -2,8 +2,8 @@ import gzip
 
 import pytest
 
-from databuilder.file_formats import write_dataset
-from databuilder.query_model.column_specs import ColumnSpec
+from ehrql.file_formats import write_dataset
+from ehrql.query_model.column_specs import ColumnSpec
 
 
 @pytest.mark.parametrize("basename", [None, "file.csv", "file.csv.gz"])
