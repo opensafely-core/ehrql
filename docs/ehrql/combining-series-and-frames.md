@@ -27,7 +27,7 @@ This one row/many rows distinction is particularly important in two contexts:
 2. **Composing ehrQL series and frames that contain data.**
    The permitted operations on series and frames depend on the rows per patient property.
 
-Data Builder checks the entire ehrQL query before submission to an OpenSAFELY backend.
+ehrQL checks the entire ehrQL query before submission to an OpenSAFELY backend.
 If you do make a coding mistake,
 the ehrQL you have written will not be submitted to a backend for query,
 and you will see an error.

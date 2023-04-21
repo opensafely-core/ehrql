@@ -1,6 +1,6 @@
-## What happens when Data Builder generates a dataset?
+## What happens when ehrQL generates a dataset?
 At this point, it might be useful to understand what
-Data Builder does when it generates a dataset.
+ehrQL does when it generates a dataset.
 
 1. The dataset definition is validated
    to ensure that the resulting database query would be valid.
@@ -10,7 +10,7 @@ Data Builder does when it generates a dataset.
 
 In writing a *dataset definition* then,
 what we are really writing is a *database query*.
-Data Builder transforms the dataset definition into the appropriate database query,
+ehrQL transforms the dataset definition into the appropriate database query,
 for the specific database.
 
 !!! note
@@ -38,7 +38,7 @@ That database might be:
 * an OpenSAFELY backend,
   when submitting jobs to OpenSAFELY
 
-There are two important implications of how this Data Builder's process works:
+There are two important implications of how this ehrQL's process works:
 
 1. **Queries do not have to be written in a specific query language tailored to a specific database.**
    The compatibility of a dataset definition depends only

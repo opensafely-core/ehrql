@@ -1,4 +1,4 @@
-# OpenSAFELY Data Builder
+# OpenSAFELY ehrQL
 
 This tool supports the authoring of OpenSAFELY-compliant research, by:
 
@@ -7,7 +7,7 @@ This tool supports the authoring of OpenSAFELY-compliant research, by:
 * Providing the mechanism by which datasets are extracted from live
   database backends within the OpenSAFELY framework.
 
-:warning: Data Builder is still under development, but is
+:warning: ehrQL is still under development, but is
 eventually intended to be a replacement for the [OpenSAFELY Cohort
 Extractor](https://github.com/opensafely-core/cohort-extractor).
 

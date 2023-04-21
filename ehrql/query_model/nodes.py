@@ -116,7 +116,7 @@ class Node:
         # Calculating the hash of an object requires recursively calculating the hashes
         # of its children. In a deeply nested query graph this can take some time and,
         # given how frequently `__hash__()` is called, this can end up completely
-        # dominating Data Builder's execution time. Given that these are immutable
+        # dominating ehrQL's execution time. Given that these are immutable
         # objects we can cache the hash value instead of recalcuting it each time.
         cls.__hash__ = cached_method(cls.__hash__)
 

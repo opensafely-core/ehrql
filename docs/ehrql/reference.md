@@ -44,7 +44,7 @@ Every example here consists of:
    to demonstrate the query's effect
 
 !!! note
-    The examples here are automatically generated from [Data Builder's specification tests](https://github.com/opensafely-core/ehrql/tree/main/tests/spec).
+    The examples here are automatically generated from [ehrQL's specification tests](https://github.com/opensafely-core/ehrql/tree/main/tests/spec).
 
 ---8<-- 'includes/generated_docs/specs.md'
 

@@ -1,4 +1,4 @@
-# Using Data Builder in an OpenSAFELY project
+# Using ehrQL in an OpenSAFELY project
 
 ---8<-- 'includes/data-builder-danger-header.md'
 
@@ -10,19 +10,19 @@
     However, more likely is that we favour `opensafely exec`
     and only discuss a simplistic `project.yaml` containing one dataset definition here.
 
-## The relationship between Data Builder and OpenSAFELY projects
+## The relationship between ehrQL and OpenSAFELY projects
 
 ### Learning objectives
 
 By the end of this tutorial, you should know how to:
 
-* Create an OpenSAFELY project that uses Data Builder.
+* Create an OpenSAFELY project that uses ehrQL.
 * Run that project to generate the dataset definition output.
 
-### Running Data Builder via an OpenSAFELY project
+### Running ehrQL via an OpenSAFELY project
 
 So far in this tutorial,
-we have run dataset definitions entirely via Data Builder.
+we have run dataset definitions entirely via ehrQL.
 
 This is fine for learning purposes in this tutorial.
 However, to run against an OpenSAFELY backend,
@@ -33,7 +33,7 @@ there are three steps:
 
 1. Create the dataset definition,
    as we have already covered in these tutorial examples.
-2. Create an OpenSAFELY project that uses Data Builder,
+2. Create an OpenSAFELY project that uses ehrQL,
    by writing a `project.yaml` file.
 3. Use the OpenSAFELY CLI to run that `project.yaml` file.
 
@@ -62,7 +62,7 @@ We will use a simple dataset definition that we have already seen.
 
 A `project.yaml` file configures how analytic code is run for OpenSAFELY projects.
 
-Using Data Builder in a `project.yaml` is much like working with other OpenSAFELY used by other OpenSAFELY actions.
+Using ehrQL in a `project.yaml` is much like working with other OpenSAFELY used by other OpenSAFELY actions.
 
 ???+ example "Project pipeline: `project.yaml`"
 
@@ -72,14 +72,14 @@ Using Data Builder in a `project.yaml` is much like working with other OpenSAFEL
 
 ### Running the `project.yaml`
 
-Running a `project.yaml` which contains a Data Builder action
+Running a `project.yaml` which contains a ehrQL action
 is much the same as for any other OpenSAFELY project.
 
 Use [`opensafely run`](../../../opensafely-cli.md/#run) to run the `project.yaml`:
 
 1. In your terminal, change directory to where you have the example `project.yaml` file.
 2. Run `opensafely run extract_1a_minimal_population`
-3. The OpenSAFELY CLI should run Data Builder with the dataset definition
+3. The OpenSAFELY CLI should run ehrQL with the dataset definition
    and you should find the output in the relative path shown under `outputs` in the `project.yaml`.
 
 ### Tutorial exercises
@@ -102,4 +102,4 @@ Use [`opensafely run`](../../../opensafely-cli.md/#run) to run the `project.yaml
        for one of the other dataset definitions we have covered in these tutorials?
     2. Try running that project
        and confirm that the outputs are the same
-       as running the dataset definition directly with Data Builder.
+       as running the dataset definition directly with ehrQL.

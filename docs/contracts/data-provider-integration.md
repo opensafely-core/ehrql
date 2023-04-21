@@ -69,30 +69,30 @@ If no existing Contract corresponds to the healthcare data domain that
 your data covers, [please contact our technical team to discuss how we
 can help](../../how-to-get-help.md#data-providers).
 
-## Integrating a data backend into OpenSAFELY Data Builder
+## Integrating a data backend into OpenSAFELY ehrQL
 
-[OpenSAFELY Data Builder](../index.md) is the software
+[OpenSAFELY ehrQL](../index.md) is the software
 component that researchers use to extract datasets of interest from
-healthcare data providers in OpenSAFELY. Data Builder is written in
+healthcare data providers in OpenSAFELY. ehrQL is written in
 Python.
 
-Data Builder abstracts the details of writing queries for researchers
+ehrQL abstracts the details of writing queries for researchers
 away. Researchers only need be concerned with specifying the data they
 want, not how to access it.
 
-### Data Builder integration requirements
+### ehrQL integration requirements
 
-Supporting a new backend in Data Builder has two requirements:
+Supporting a new backend in ehrQL has two requirements:
 
-1. Data Builder must have a [query
+1. ehrQL must have a [query
    engine](https://github.com/opensafely-core/ehrql/tree/main/ehrql/query_engines)
    compatible with the backend.
-2. Data Builder must have code [describing how tables in the backend
+2. ehrQL must have code [describing how tables in the backend
    satisfy the supported OpenSAFELY
    Contracts](https://github.com/opensafely-core/ehrql/tree/main/ehrql/backends).
 
 !!! note
-    Currently, Data Builder has the following query engines:
+    Currently, ehrQL has the following query engines:
 
     * Microsoft SQL Server
 
@@ -100,7 +100,7 @@ Supporting a new backend in Data Builder has two requirements:
     engine.
 
 If you are a new data provider, [please contact our technical team to
-discuss integration with Data Builder and
+discuss integration with ehrQL and
 OpenSAFELY](../../how-to-get-help.md#data-providers).
 
 !!! parent_snippet:'includes/glossary.md'

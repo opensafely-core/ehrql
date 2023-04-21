@@ -58,7 +58,7 @@ def get_filename(tb):
 
 def is_final_user_frame(tb):
     # Is this the last frame of user code before we either get to the end of the
-    # traceback or find ourselves inside Data Builder code?
+    # traceback or find ourselves inside ehrQL code?
     if tb.tb_next is None:
         return True
     else:

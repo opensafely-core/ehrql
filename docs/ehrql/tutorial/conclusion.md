@@ -6,7 +6,7 @@
 
 Thank you for taking the time to work through this tutorial.
 
-We hope that you found it useful and have the basic tools to start to work with Data Builder and OpenSAFELY.
+We hope that you found it useful and have the basic tools to start to work with ehrQL and OpenSAFELY.
 
 !!! todo
     Consider adding a call to action for feedback?
@@ -60,7 +60,7 @@ as reference for writing your own dataset definitions:
     * <https://github.com/opensafely/test-age-distribution>
 
 !!! todo
-    Can we point to real, working Data Builder examples here?
+    Can we point to real, working ehrQL examples here?
 
 ### Understanding real dataset definitions
 
@@ -78,7 +78,7 @@ as well as generally trying to understand what it does by following each line,
 you can use an inquistive approach to try and reasonabout it:
 
 * What is imported with the `import` lines?
-  * Are there Data Builder imports that you are not familiar with?
+  * Are there ehrQL imports that you are not familiar with?
   * Has the author used other libraries to help write their dataset definition?
 * Which data `tables` are being imported
   * Can you find details of these tables
@@ -128,7 +128,7 @@ for repositories containing that import.
     * is not trivially simple
 
     The [test-age-distribution](https://github.com/opensafely/test-age-distribution) is too simplistic,
-    but the vaccine effectiveness study in the Data Builder tests is probably too complex.
+    but the vaccine effectiveness study in the ehrQL tests is probably too complex.
 
 ### Experimenting with the tutorial data and dataset definitions
 

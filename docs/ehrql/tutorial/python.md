@@ -1,9 +1,9 @@
-# Installing Data Builder with Python
+# Installing ehrQL with Python
 
 ---8<-- 'includes/data-builder-danger-header.md'
 
 !!! warning
-    We recommend that you use Data Builder with the [OpenSAFELY CLI](../../../opensafely-cli.md)
+    We recommend that you use ehrQL with the [OpenSAFELY CLI](../../../opensafely-cli.md)
     as instructed in the [ehrQL tutorial](index.md).
 
 ## Limitations
@@ -16,8 +16,8 @@ This option is a fall back if:
 This installation option will allow you to run ehrQL dataset definitions only.
 You will not be able to run a full OpenSAFELY project via a [`project.yaml` pipeline](../../../actions-pipelines.md).
 
-If you are unable to run Data Builder via Docker,
-you can try installing Data Builder directly using Python.
+If you are unable to run ehrQL via Docker,
+you can try installing ehrQL directly using Python.
 
 As Python configurations vary between operating systems,
 and how users have Python configured,
@@ -35,13 +35,13 @@ we will not give detailed instructions.
 You will need to:
 
 * have a suitable Python version installed (currently Python 3.11)
-* configure a suitable virtual environment to run Data Builder
+* configure a suitable virtual environment to run ehrQL
   for example with `conda` or `venv`
-* install the Data Builder package into that virtual environment;
+* install the ehrQL package into that virtual environment;
 
 ## Installation
 
-Install the latest version of Data Builder into your new virtual environment with `pip`
+Install the latest version of ehrQL into your new virtual environment with `pip`
 
 ```
 pip install git+https://github.com/opensafely-core/ehrql@main#egg=opensafely-ehrql`
@@ -53,11 +53,11 @@ pip install git+https://github.com/opensafely-core/ehrql@main#egg=opensafely-ehr
 
 !!! todo
 
-    Are we going to ever publish Data Builder to PyPI?
+    Are we going to ever publish ehrQL to PyPI?
 
 ### Checking the installation
 
-Make sure that you can run Data Builder's "help" command:
+Make sure that you can run ehrQL's "help" command:
 
 ```
 databuilder --help
@@ -65,11 +65,11 @@ databuilder --help
 
 If that command succeeds,
 you should see some help text
-and Data Builder should be correctly installed.
+and ehrQL should be correctly installed.
 
-## Using Data Builder's command-line interface
+## Using ehrQL's command-line interface
 
-This section explains how to load dataset definitions into Data Builder.
+This section explains how to load dataset definitions into ehrQL.
 
 Each dataset definition used in this tutorial has a filename of the form:
 
@@ -90,7 +90,7 @@ The identifier associates the dataset definition with a specific tutorial page.
 
     Check how compatible this is cross-platform.
 
-To run this dataset definition with Data Builder,
+To run this dataset definition with ehrQL,
 
 1. In a terminal, enter the `ehrql-tutorial-examples` directory that you extracted
    from the sample data.
@@ -99,7 +99,7 @@ To run this dataset definition with Data Builder,
    ```
    databuilder generate-dataset "1a_minimal_dataset_definition.py" --dummy-tables "example-data/minimal/" --output "outputs.csv"
    ```
-3. You should see Data Builder run without error
+3. You should see ehrQL run without error
    and find the `outputs.csv` file in the `ehrql-tutorial-examples` directory
    that you were working in.
 

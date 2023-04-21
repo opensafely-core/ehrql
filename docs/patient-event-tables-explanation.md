@@ -81,7 +81,7 @@ However, there are subtleties that can arise
 when combining "many rows per patient" data
 to ensure a meaningful result is produced.
 
-For now, it is sufficient to know that Data Builder checks your ehrQL dataset definition for you,
+For now, it is sufficient to know that ehrQL checks your ehrQL dataset definition for you,
 before a query is submitted to any data backend.
 You will get an explicit error
 if you try to combine frames and series
@@ -97,7 +97,7 @@ you may wish to review the [more detailed explanation](ehrql/combining-series-an
 
 ### Mathematical operations on frames and series
 
-There are also more advanced ways to combine data with Data Builder,
+There are also more advanced ways to combine data with ehrQL,
 which we will not cover in this tutorial.
 
 !!! todo

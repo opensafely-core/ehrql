@@ -27,7 +27,7 @@ jobs:
       - name: Check snippets work
         run: just docs-test
 
-      - name: Check dataset definitions run with Python installed Data Builder
+      - name: Check dataset definitions run with Python installed ehrQL
         run: just docs-check-dataset-definitions
 
       - name: Check dataset definition outputs are up-to-date
