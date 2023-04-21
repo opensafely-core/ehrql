@@ -2,6 +2,7 @@ from pathlib import Path
 
 from ehrql import Dataset
 from ehrql.query_engines.csv import CSVQueryEngine
+from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.query_language import compile
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
@@ -41,3 +42,9 @@ def test_csv_query_engine():
         (2, "F", 15, 2),
         (3, None, None, 0),
     ]
+
+
+def test_csv_query_engine_evaluate():
+    query_engine = CSVQueryEngine(FIXTURES)
+    result = query_engine.evaluate(patients.sex)
+    assert result == PatientColumn({1: "M", 2: "F", 3: None})
