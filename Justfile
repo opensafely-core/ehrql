@@ -121,23 +121,23 @@ build-databuilder:
     set -euo pipefail
 
     [[ -v CI ]] && echo "::group::Build databuilder (click to view)" || echo "Build databuilder"
-    DOCKER_BUILDKIT=1 docker build . -t databuilder-dev
+    DOCKER_BUILDKIT=1 docker build . -t ehrql-dev
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
 # Build a docker image that can then be used locally via the OpenSAFELY CLI. You must also change project.yaml
-# in the study you're running to specify `dev` as the `databuilder` version (like `run: databuilder:dev ...`).
+# in the study you're running to specify `dev` as the `databuilder` version (like `run: ehrql:dev ...`).
 build-databuilder-for-os-cli: build-databuilder
-    docker tag databuilder-dev ghcr.io/opensafely-core/databuilder:dev
+    docker tag ehrql-dev ghcr.io/opensafely-core/ehrql:dev
 
 
 # tear down the persistent docker containers we create to run tests again
 remove-database-containers:
-    docker rm --force databuilder-mssql
+    docker rm --force ehrql-mssql
 
 # open an interactive SQL Server shell running against MSSQL
 connect-to-mssql:
-    docker exec -it databuilder-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!'
+    docker exec -it ehrql-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!'
 
 ###################################################################
 # Testing targets

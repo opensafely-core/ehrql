@@ -4,7 +4,7 @@
 # Initial databuilder layer with just system dependencies installed.
 #
 # hadolint ignore=DL3007
-FROM ghcr.io/opensafely-core/base-action:latest as databuilder-dependencies
+FROM ghcr.io/opensafely-core/base-action:latest as ehrql-dependencies
 
 
 # setup default env vars for all images
@@ -47,7 +47,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 #################################################
 #
 # Next, use the dependencies image to create an image to build dependencies
-FROM databuilder-dependencies as databuilder-builder
+FROM ehrql-dependencies as ehrql-builder
 
 # install build time dependencies
 COPY build-dependencies.txt /root/build-dependencies.txt
@@ -104,7 +104,7 @@ RUN --mount=type=cache,target=/root/.cache \
 ################################################
 #
 # A base image with the including the prepared venv and metadata.
-FROM databuilder-dependencies as databuilder-base
+FROM ehrql-dependencies as ehrql-base
 
 # Some static metadata for this specific image, as defined by:
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md#pre-defined-annotation-keys
@@ -115,13 +115,13 @@ LABEL org.opencontainers.image.title="databuilder" \
       org.opencontainers.image.source="https://github.com/opensafely-core/ehrql" \
       org.opensafely.action="databuilder"
 
-COPY --from=databuilder-builder /opt/venv /opt/venv
+COPY --from=ehrql-builder /opt/venv /opt/venv
 
 
 ################################################
 #
 # Build the actual production image from the base
-FROM databuilder-base as ehrql
+FROM ehrql-base as ehrql
 
 # Copy app code. This will be automatically picked up by the virtualenv as per
 # comment above
