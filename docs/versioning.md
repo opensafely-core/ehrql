@@ -17,9 +17,9 @@ With Data Builder, specify an [available
 version](https://github.com/opensafely-core/base-docker/pkgs/container/ehrql/versions)
 in your `project.yaml`, in one of the following formats:
 
-* *major*, for example, `databuilder:v0`
-* *minor*, for example, `databuilder:v0.1`
-* *patch*, for example, `databuilder:v0.1.2`
+* *major*, for example, `ehrql:v0`
+* *minor*, for example, `ehrql:v0.1`
+* *patch*, for example, `ehrql:v0.1.2`
 
 * By specifying a *patch* version, your code will use the same version
   of Data Builder.

@@ -171,7 +171,7 @@ To run this dataset definition with Data Builder,
 2. Run this command:
 
    ```
-   opensafely exec databuilder:v0 generate-dataset "1a_minimal_dataset_definition.py" --dummy-tables "example-data/minimal/" --output "outputs.csv"
+   opensafely exec ehrql:v0 generate-dataset "1a_minimal_dataset_definition.py" --dummy-tables "example-data/minimal/" --output "outputs.csv"
    ```
 3. You should see Data Builder run without error
    and find the `outputs.csv` file in the `ehrql-tutorial-examples` directory
@@ -182,7 +182,7 @@ To run this dataset definition with Data Builder,
     In general, the command to run a dataset defintion looks like:
 
     ```
-    opensafely exec databuilder:v0 generate-dataset "IDENTIFIER_DATASOURCENAME_dataset_definition.py" --dummy-tables "example-data/DATASOURCENAME/" --output "outputs.csv"
+    opensafely exec ehrql:v0 generate-dataset "IDENTIFIER_DATASOURCENAME_dataset_definition.py" --dummy-tables "example-data/DATASOURCENAME/" --output "outputs.csv"
     ```
 
     You need to substitute `DATASOURCENAME` with the appropriate dataset name,

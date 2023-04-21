@@ -54,7 +54,7 @@ actions:
 
   generate_dataset:
     run: >
-      databuilder:v0 generate_dataset
+      ehrql:v0 generate_dataset
        --dataset-definition analysis/dataset_definition.py
        --dummy-data-file dummy_data.csv
        --output output/dataset.csv
