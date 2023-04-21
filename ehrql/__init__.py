@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from ehrql.codes import codelist_from_csv
+from ehrql.query_language import Dataset, case, days, months, when, years
 from ehrql.utils.log_utils import init_logging
 
 
@@ -12,3 +14,14 @@ if os.getenv("LOG_SQL"):  # pragma: no cover
     init_logging()
 
 __version__ = Path(__file__).parent.joinpath("VERSION").read_text().strip()
+
+
+__all__ = [
+    "codelist_from_csv",
+    "Dataset",
+    "case",
+    "days",
+    "months",
+    "when",
+    "years",
+]
