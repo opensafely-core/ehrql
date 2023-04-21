@@ -4,6 +4,7 @@ from contextlib import nullcontext
 
 import structlog
 
+from ehrql import sandbox
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.file_formats import read_dataset, write_dataset
 from ehrql.query_engines.csv import CSVQueryEngine
@@ -186,6 +187,10 @@ def generate_measures(
     definition_file, input_file, output_file, user_args
 ):  # pragma: no cover (measures not implemented)
     raise NotImplementedError
+
+
+def run_sandbox(dummy_tables_path, environ):
+    sandbox.run(dummy_tables_path)
 
 
 def test_connection(backend_class, url, environ):

@@ -119,7 +119,7 @@ class PatientTable:
                     str(col[p]).ljust(width) for col in self.name_to_col.values()
                 )
             )
-        return "\n".join(lines)
+        return "\n".join(line.strip() for line in lines)
 
     def __getitem__(self, name):
         return self.name_to_col[name]
@@ -210,7 +210,7 @@ class EventTable:
                         str(col[p][k]).ljust(width) for col in self.name_to_col.values()
                     )
                 )
-        return "\n".join(lines)
+        return "\n".join(line.strip() for line in lines)
 
     def __getitem__(self, name):
         return self.name_to_col[name]

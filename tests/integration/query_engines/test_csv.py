@@ -1,45 +1,28 @@
+from pathlib import Path
+
 from ehrql import Dataset
 from ehrql.query_engines.csv import CSVQueryEngine
+from ehrql.query_engines.in_memory_database import PatientColumn
 from ehrql.query_language import compile
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
-def test_csv_query_engine(tmp_path):
-    tmp_path.joinpath("patients.csv").write_text(
-        "\n".join(
-            [
-                # Columns like `extra_column` which aren't in the schema should just be
-                # ignored
-                "patient_id,sex,extra_column",
-                "1,M,a",
-                "2,F,b",
-                "3,,",
-            ]
-        ),
-    )
-    tmp_path.joinpath("events.csv").write_text(
-        "\n".join(
-            [
-                "patient_id,score",
-                "1,2",
-                "1,3",
-                "1,4",
-                "2,5",
-                "2,10",
-            ]
-        ),
-    )
+FIXTURES = Path(__file__).parents[2] / "fixtures" / "csv_engine"
 
-    @table
-    class patients(PatientFrame):
-        sex = Series(str)
 
-    @table
-    class events(EventFrame):
-        score = Series(int)
-        # Columns in the schema which aren't in the CSV should just end up NULL
-        expected_missing = Series(bool)
+@table
+class patients(PatientFrame):
+    sex = Series(str)
 
+
+@table
+class events(EventFrame):
+    score = Series(int)
+    # Columns in the schema which aren't in the CSV should just end up NULL
+    expected_missing = Series(bool)
+
+
+def test_csv_query_engine():
     dataset = Dataset()
     dataset.sex = patients.sex
     dataset.total_score = events.score.sum_for_patient()
@@ -51,7 +34,7 @@ def test_csv_query_engine(tmp_path):
     dataset.define_population(patients.exists_for_patient())
     variable_definitions = compile(dataset)
 
-    query_engine = CSVQueryEngine(tmp_path)
+    query_engine = CSVQueryEngine(FIXTURES)
     results = query_engine.get_results(variable_definitions)
 
     assert list(results) == [
@@ -59,3 +42,9 @@ def test_csv_query_engine(tmp_path):
         (2, "F", 15, 2),
         (3, None, None, 0),
     ]
+
+
+def test_csv_query_engine_evaluate():
+    query_engine = CSVQueryEngine(FIXTURES)
+    result = query_engine.evaluate(patients.sex)
+    assert result == PatientColumn({1: "M", 2: "F", 3: None})
