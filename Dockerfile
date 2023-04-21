@@ -121,7 +121,7 @@ COPY --from=databuilder-builder /opt/venv /opt/venv
 ################################################
 #
 # Build the actual production image from the base
-FROM databuilder-base as databuilder
+FROM databuilder-base as ehrql
 
 # Copy app code. This will be automatically picked up by the virtualenv as per
 # comment above

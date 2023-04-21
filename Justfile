@@ -297,7 +297,7 @@ docs-update-tutorial-databuilder-version:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    package="opensafely-core/databuilder"
+    package="opensafely-core/ehrql"
 
     if [ -z ${GITHUB_TOKEN+x} ]
     then
