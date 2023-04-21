@@ -391,7 +391,7 @@ major version only (e.g. `v0`), so the `project.yaml` file itself only needs to 
 updated rarely.  However, whenever a new image is built, it could have an impact on the
 tutorial examples and their outputs.
 
-After a merge to main, a Github Action runs to [update and test the tutorial examples](https://github.com/opensafely-core/ehrql/actions/workflows/update-tutorial-databuilder-version.yml).
+After a merge to main, a Github Action runs to [update and test the tutorial examples](https://github.com/opensafely-core/ehrql/actions/workflows/update-tutorial-ehrql-version.yml).
 If the image has changed major version, this will replace the version in the `project.yaml`. It
 will also run the tutorial project via the OpenSAFELY CLI, which will generate the tutorial
 output files.  If there are any changes, it will open a pull request in this repo.
