@@ -112,7 +112,7 @@ FROM databuilder-dependencies as databuilder-base
 # an approved action image to run.
 LABEL org.opencontainers.image.title="databuilder" \
       org.opencontainers.image.description="Data Builder action for opensafely.org" \
-      org.opencontainers.image.source="https://github.com/opensafely-core/databuilder" \
+      org.opencontainers.image.source="https://github.com/opensafely-core/ehrql" \
       org.opensafely.action="databuilder"
 
 COPY --from=databuilder-builder /opt/venv /opt/venv

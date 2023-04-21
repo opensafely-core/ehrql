@@ -6,7 +6,7 @@ This page will be a reference for OpenSAFELY Contracts.
 
 It is likely that much or all of this content will be automatically
 generated from the [Data Builder contracts
-code](https://github.com/opensafely-core/databuilder/tree/main/databuilder/contracts).
+code](https://github.com/opensafely-core/ehrql/tree/main/databuilder/contracts).
 
 
 ---8<-- 'includes/generated_docs/contracts.md'

@@ -62,7 +62,7 @@ just test tests/integration/backends/test_tpp.py
 ```
 
 There are further notes on using `pytest` in the wiki here:
-https://github.com/opensafely-core/databuilder/wiki/Tips-for-using-pytest
+https://github.com/opensafely-core/ehrql/wiki/Tips-for-using-pytest
 
 
 #### Generative tests
@@ -213,10 +213,10 @@ It can also be built as a standalone documentation site with MkDocs to preview c
 
 :warning: The documentation will look slightly different from OpenSAFELY's. Relative links to
 sections of the main documentation outside of the /data-builder sections will not work (although
-a scheduled [Github Action](https://github.com/opensafely-core/databuilder/actions/workflows/check-docs-links.yml) runs overnight to check them).
+a scheduled [Github Action](https://github.com/opensafely-core/ehrql/actions/workflows/check-docs-links.yml) runs overnight to check them).
 
 We may be able to improve this later, depending on the behaviour of the mkdocs plugin that
-we use: see https://github.com/opensafely-core/databuilder/issues/1126
+we use: see https://github.com/opensafely-core/ehrql/issues/1126
 
 ### Documentation redirects
 
@@ -294,7 +294,7 @@ date.
 
 ### Updating the main OpenSAFELY documentation repository
 
-Merges to the main branch in this repo trigger a [deployment of the main OpenSAFELY documentation via a Github Action](https://github.com/opensafely-core/databuilder/actions/workflows/deploy-documentation.yml).
+Merges to the main branch in this repo trigger a [deployment of the main OpenSAFELY documentation via a Github Action](https://github.com/opensafely-core/ehrql/actions/workflows/deploy-documentation.yml).
 
 ### Making changes to the dataset definition snippets
 
@@ -391,7 +391,7 @@ major version only (e.g. `v0`), so the `project.yaml` file itself only needs to 
 updated rarely.  However, whenever a new image is built, it could have an impact on the
 tutorial examples and their outputs.
 
-After a merge to main, a Github Action runs to [update and test the tutorial examples](https://github.com/opensafely-core/databuilder/actions/workflows/update-tutorial-databuilder-version.yml).
+After a merge to main, a Github Action runs to [update and test the tutorial examples](https://github.com/opensafely-core/ehrql/actions/workflows/update-tutorial-databuilder-version.yml).
 If the image has changed major version, this will replace the version in the `project.yaml`. It
 will also run the tutorial project via the OpenSAFELY CLI, which will generate the tutorial
 output files.  If there are any changes, it will open a pull request in this repo.

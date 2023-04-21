@@ -25,7 +25,7 @@ we will not give detailed instructions.
 
 !!! warning
     This option may not work on Windows currently:
-    <https://github.com/opensafely-core/databuilder/issues/790>
+    <https://github.com/opensafely-core/ehrql/issues/790>
 
 !!! todo
     Can we fix that issue?
@@ -44,7 +44,7 @@ You will need to:
 Install the latest version of Data Builder into your new virtual environment with `pip`
 
 ```
-pip install git+https://github.com/opensafely-core/databuilder@main#egg=opensafely-databuilder`
+pip install git+https://github.com/opensafely-core/ehrql@main#egg=opensafely-databuilder`
 ```
 
 !!! todo

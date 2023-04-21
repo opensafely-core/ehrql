@@ -1,7 +1,7 @@
 !!! danger
 
     This page discusses the new [OpenSAFELY Data
-    Builder](https://github.com/opensafely-core/databuilder) for
+    Builder](https://github.com/opensafely-core/ehrql) for
     accessing OpenSAFELY data sources.
 
     **Use OpenSAFELY [cohort-extractor](https://github.com/opensafely-core/cohort-extractor), unless you are

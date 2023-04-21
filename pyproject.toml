@@ -26,7 +26,7 @@ databuilder = "ehrql.__main__:entrypoint"
 [project.urls]
 Home = "https://opensafely.org"
 Documentation = "https://docs.opensafely.org"
-Source = "https://github.com/opensafely-core/databuilder"
+Source = "https://github.com/opensafely-core/ehrql"
 
 [tool.coverage.run]
 branch = true

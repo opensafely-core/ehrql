@@ -7,7 +7,7 @@
 # The contents of this mkdocs.yml are ignore in the production build.
 #
 site_name: OpenSAFELY Data Builder documentation
-repo_url: https://github.com/opensafely-core/databuilder
+repo_url: https://github.com/opensafely-core/ehrql
 docs_dir: docs
 
 nav:
