@@ -12,4 +12,4 @@ name = "opensafely-databuilder"
 version = "2+local"
 
 [project.scripts]
-databuilder = "ehrql.__main__:entrypoint"
+ehrql = "ehrql.__main__:entrypoint"

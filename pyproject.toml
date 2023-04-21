@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-databuilder = "ehrql.__main__:entrypoint"
+ehrql = "ehrql.__main__:entrypoint"
 
 [project.urls]
 Home = "https://opensafely.org"

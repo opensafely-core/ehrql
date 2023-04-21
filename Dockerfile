@@ -12,7 +12,7 @@ FROM ghcr.io/opensafely-core/base-action:latest as databuilder-dependencies
 ENV VIRTUAL_ENV=/opt/venv/ \
     PYTHONPATH=/app \
     PATH="/opt/venv/bin:/opt/mssql-tools/bin:$PATH" \
-    ACTION_EXEC=databuilder \
+    ACTION_EXEC=ehrql \
     PYTHONUNBUFFERED=True \
     PYTHONDONTWRITEBYTECODE=1
 
