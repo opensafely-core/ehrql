@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.2
 #################################################
 #
-# Initial databuilder layer with just system dependencies installed.
+# Initial ehrQL layer with just system dependencies installed.
 #
 # hadolint ignore=DL3007
 FROM ghcr.io/opensafely-core/base-action:latest as ehrql-dependencies
@@ -110,10 +110,10 @@ FROM ehrql-dependencies as ehrql-base
 # https://github.com/opencontainers/image-spec/blob/master/annotations.md#pre-defined-annotation-keys
 # The org.opensafely.action label is used by the jobrunner to indicate this is
 # an approved action image to run.
-LABEL org.opencontainers.image.title="databuilder" \
-      org.opencontainers.image.description="Data Builder action for opensafely.org" \
+LABEL org.opencontainers.image.title="ehrql" \
+      org.opencontainers.image.description="ehrQL action for opensafely.org" \
       org.opencontainers.image.source="https://github.com/opensafely-core/ehrql" \
-      org.opensafely.action="databuilder"
+      org.opensafely.action="ehrql"
 
 COPY --from=ehrql-builder /opt/venv /opt/venv
 
