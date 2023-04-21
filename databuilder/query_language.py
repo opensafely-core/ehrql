@@ -75,7 +75,12 @@ class Dataset:
 
 
 def compile(dataset):  # noqa A003
-    return {k: v.qm_node for k, v in dataset.variables.items()}
+    compiled = {k: v.qm_node for k, v in dataset.variables.items()}
+    if "population" not in compiled:
+        raise AttributeError(
+            "A population has not been defined; define one with define_population()"
+        )
+    return compiled
 
 
 # BASIC SERIES TYPES
