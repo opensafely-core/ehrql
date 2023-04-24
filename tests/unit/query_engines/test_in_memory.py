@@ -13,7 +13,7 @@ class events(EventFrame):
 
 def test_pick_one_row_per_patient():
     # This test verifies that picking one row per patient works without first having
-    # applied QM transformations to all variables ina dataset.
+    # applied QM transformations to all variables in a dataset.
     database = InMemoryDatabase()
     database.setup(make_orm_models({events: [{"patient_id": 1, "date": "2023-01-01"}]}))
     engine = InMemoryQueryEngine(database)
