@@ -111,12 +111,15 @@ class InMemoryQueryEngine(BaseQueryEngine):
         sort_index = self.visit(node.sort_by).sort_index()
         return source.sort(sort_index)
 
-    def visit_PickOneRowPerPatientWithColumns(self, node):
+    def visit_PickOneRowPerPatient(self, node):
         ix = {
             qm.Position.FIRST: 0,
             qm.Position.LAST: -1,
         }[node.position]
         return self.visit(node.source).pick_at_index(ix)
+
+    def visit_PickOneRowPerPatientWithColumns(self, node):
+        return self.visit_PickOneRowPerPatient(node)
 
     def visit_Exists(self, node):
         return self.visit(node.source).exists()
