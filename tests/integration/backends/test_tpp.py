@@ -285,7 +285,6 @@ def test_medications(select_all):
             "patient_id": 1,
             "date": date(2020, 5, 15),
             "dmd_code": "xyz",
-            "multilex_code": "abc",
         }
     ]
 

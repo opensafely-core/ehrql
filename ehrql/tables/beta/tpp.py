@@ -167,7 +167,6 @@ class clinical_events(EventFrame):
 class medications(EventFrame):
     date = Series(datetime.date)
     dmd_code = Series(DMDCode)
-    multilex_code = Series(str)
 
 
 @table
