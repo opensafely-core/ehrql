@@ -166,14 +166,17 @@ class QueryEngineFixture:
     def populate(self, *args):
         return self.setup(make_orm_models(*args))
 
+    def query_engine(self, dsn=False, **engine_kwargs):
+        if dsn is False:
+            dsn = self.database.host_url()
+        return self.query_engine_class(dsn, **engine_kwargs)
+
     def extract(self, dataset, **engine_kwargs):
         variables = compile(dataset)
         return self.extract_qm(variables, **engine_kwargs)
 
     def extract_qm(self, variables, **engine_kwargs):
-        query_engine = self.query_engine_class(
-            self.database.host_url(), **engine_kwargs
-        )
+        query_engine = self.query_engine(**engine_kwargs)
         results = query_engine.get_results(variables)
         # We don't explicitly order the results and not all databases naturally
         # return in the same order
@@ -181,11 +184,11 @@ class QueryEngineFixture:
 
     def dump_dataset_sql(self, dataset, **engine_kwargs):
         variables = compile(dataset)
-        query_engine = self.query_engine_class(dsn=None, **engine_kwargs)
+        query_engine = self.query_engine(dsn=None, **engine_kwargs)
         return get_sql_strings(query_engine, variables)
 
     def sqlalchemy_engine(self):
-        return self.query_engine_class(self.database.host_url()).engine
+        return self.query_engine().engine
 
 
 QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql")
