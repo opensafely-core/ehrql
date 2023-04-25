@@ -18,6 +18,7 @@ __all__ = [
     "Node",
     "Series",
     "Value",
+    "Parameter",
     "SelectTable",
     "SelectPatientTable",
     "InlinePatientTable",
@@ -183,6 +184,13 @@ class Value(OneRowPerPatientSeries[T]):
                 return False
             return self.value == other.value
         return NotImplemented
+
+
+# `Parameter` is a placeholder for a value: it allows us to construct query "templates"
+# which can later be turned into queries by substituting in concrete values.
+class Parameter(OneRowPerPatientSeries[T]):
+    name: str
+    type: type[T]  # NOQA: A003
 
 
 class SelectTable(ManyRowsPerPatientFrame):

@@ -600,6 +600,15 @@ def _to_series(value):
     return _wrap(_convert(value))
 
 
+def Parameter(name, type_):
+    """
+    Return a parameter or placeholder series which can be used to construct a query
+    "template": a structure which can be turned into a query by substituing in concrete
+    values for any parameters it contains
+    """
+    return _wrap(qm.Parameter(name, type_))
+
+
 # FRAME TYPES
 #
 

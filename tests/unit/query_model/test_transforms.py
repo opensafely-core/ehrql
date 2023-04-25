@@ -5,6 +5,7 @@ from ehrql.query_model.nodes import (
     Column,
     Filter,
     Function,
+    Parameter,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -16,6 +17,7 @@ from ehrql.query_model.nodes import (
 from ehrql.query_model.transforms import (
     PickOneRowPerPatientWithColumns,
     apply_transforms,
+    substitute_parameters,
 )
 
 
@@ -352,3 +354,9 @@ def test_identical_operations_are_not_transformed_differently():
 
 def transform(variable):
     return apply_transforms({"v": variable})["v"]
+
+
+def test_substitute_parameters():
+    graph = {"value": Function.Add(Value(10), Parameter("i", int))}
+    transformed = substitute_parameters(graph, i=20)
+    assert transformed == {"value": Function.Add(Value(10), Value(20))}

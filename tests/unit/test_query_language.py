@@ -20,6 +20,7 @@ from ehrql.query_language import (
     FloatPatientSeries,
     IntEventSeries,
     IntPatientSeries,
+    Parameter,
     PatientFrame,
     SchemaError,
     Series,
@@ -660,3 +661,8 @@ def test_parse_date_if_str(value, expected):
 def test_parse_date_if_str_errors(value, error):
     with pytest.raises(ValueError, match=error):
         parse_date_if_str(value)
+
+
+def test_parameter():
+    series = Parameter("test_param", date)
+    assert isinstance(series, DatePatientSeries)
