@@ -1,32 +1,13 @@
 # OpenSAFELY ehrQL
 
-This tool supports the authoring of OpenSAFELY-compliant research, by:
+ehrQL is a Python-based query language for electronic health record (EHR) data.
+It has been designed for use with the OpenSAFELY platform.
 
-* Allowing developers to provide dummy data via a CSV file. They can then use this as
-  input data when developing analytic models.
-* Providing the mechanism by which datasets are extracted from live
-  database backends within the OpenSAFELY framework.
-
-:warning: ehrQL is still under development, but is
-eventually intended to be a replacement for the [OpenSAFELY Cohort
-Extractor](https://github.com/opensafely-core/cohort-extractor).
-
-It is designed to be run within an OpenSAFELY-compliant research
-repository, via Docker.  You can find a [template repository here](https://github.com/opensafely/research-template)
-and a [Getting Started guide](https://docs.opensafely.org/getting-started/) in the
-OpenSAFELY documentation to help you get your study repository set up.
-
-Normally it will be invoked via the [OpenSAFELY command line tool](https://github.com/opensafely-core/opensafely-cli),
-as described in the [documentation](https://docs.opensafely.org/getting-started/).
-
-If running it directly, it should be run from within the research repository.
-To run the latest version via Docker and access its full help:
-
-    docker run --rm ghcr.io/opensafely-core/ehrql:v0 --help
+Documentation currently lives in [this wiki](https://github.com/opensafely-core/ehrql/wiki/ehrql-documentation).
 
 # For developers
 
-Please see [the additional information](DEVELOPERS.md).
+See [DEVELOPERS.md](DEVELOPERS.md).
 
 There is also [a glossary](GLOSSARY.md) of terms used in the codebase.
 
