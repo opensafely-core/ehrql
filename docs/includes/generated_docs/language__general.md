@@ -84,3 +84,31 @@ be a dictionary mapping each code to its corresponding category. This can be pas
 to the [`to_category()`](#CodePatientSeries.to_category) method to map a series of
 codes to a series of categories.
 </div>
+
+
+
+<h4 class="attr-heading" id="maximum_of" data-toc-label="maximum_of" markdown>
+  <tt><strong>maximum_of</strong>(<em>*args</em>)</tt>
+</h4>
+<div markdown="block" class="indent">
+Return the maximum value of a collection of Series or Values, disregarding NULLs
+
+For example:
+```py
+latest_event_date = maximum_of(event_series_1.date, event_series_2.date, "2001-01-01")
+```
+</div>
+
+
+
+<h4 class="attr-heading" id="minimum_of" data-toc-label="minimum_of" markdown>
+  <tt><strong>minimum_of</strong>(<em>*args</em>)</tt>
+</h4>
+<div markdown="block" class="indent">
+Return the minimum value of a collection of Series or Values, disregarding NULLs
+
+For example:
+```py
+ealiest_event_date = minimum_of(event_series_1.date, event_series_2.date, "2001-01-01")
+```
+</div>
