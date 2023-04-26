@@ -7,6 +7,7 @@ from ehrql.query_engines.in_memory_database import (
     PatientColumn,
     PatientTable,
     apply_function,
+    disregard_null,
     handle_null,
 )
 from ehrql.query_model import nodes as qm
@@ -165,6 +166,14 @@ class InMemoryQueryEngine(BaseQueryEngine):
         rhs = self.visit(node.rhs)
         return apply_function(op, lhs, rhs)
 
+    def visit_nary_op(self, node, op):
+        sources = [*node.sources]
+        columns = [self.visit(s) for s in sources]
+        return apply_function(op, *columns)
+
+    def visit_nary_op_disregarding_null(self, node, op):
+        return self.visit_nary_op(node, disregard_null(op))
+
     def visit_binary_op_with_null(self, node, op):
         return self.visit_binary_op(node, handle_null(op))
 
@@ -321,6 +330,12 @@ class InMemoryQueryEngine(BaseQueryEngine):
             col_names=["patient_id"] + col_names,
             row_records=node.rows,
         )
+
+    def visit_MaximumOf(self, node):
+        return self.visit_nary_op_disregarding_null(node, max)
+
+    def visit_MinimumOf(self, node):
+        return self.visit_nary_op_disregarding_null(node, min)
 
 
 def case_flattened(default, *cases):

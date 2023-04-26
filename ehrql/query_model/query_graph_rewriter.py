@@ -41,9 +41,9 @@ class QueryGraphRewriter:
                 self._rewrite(k, replacements): self._rewrite(v, replacements)
                 for k, v in obj.items()
             }
-        elif isinstance(obj, frozenset):
-            # As do frozensets
-            return frozenset(self._rewrite(v, replacements) for v in obj)
+        elif isinstance(obj, frozenset | tuple):
+            # As do frozensets and tuples
+            return obj.__class__(self._rewrite(v, replacements) for v in obj)
         elif isinstance(
             obj, NoneType | str | qm.Position | qm.TableSchema | qm.IterWrapper
         ):

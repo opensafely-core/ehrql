@@ -1312,6 +1312,1026 @@ returns the following patient series:
 
 
 
+### 6.5 Minimum and maximum aggregations across Patient series
+
+
+#### 6.5.1 Maximum of two integer patient series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(p.i1, p.i2)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|112 |
+| 2|211 |
+| 3| |
+
+
+
+#### 6.5.2 Minimum of two integer patient series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(p.i1, p.i2)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|101 |
+| 2|211 |
+| 3| |
+
+
+
+#### 6.5.3 Minimum of two integer patient series and a value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(p.i1, p.i2, 150)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|101 |
+| 2|150 |
+| 3|150 |
+
+
+
+#### 6.5.4 Maximum of two integer patient series and a value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(p.i1, p.i2, 150)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|150 |
+| 2|211 |
+| 3|150 |
+
+
+
+#### 6.5.5 Minimum of two date patient series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(p.d1, p.d2)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2001-01-01 |
+| 2|2021-01-01 |
+| 3| |
+
+
+
+#### 6.5.6 Maximum of two date patient series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(p.d1, p.d2)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2012-12-12 |
+| 2|2021-01-01 |
+| 3| |
+
+
+
+#### 6.5.7 Minimum of two date patient series and datetime a value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(p.d1, p.d2, date(2015, 5, 5))
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2001-01-01 |
+| 2|2015-05-05 |
+| 3|2015-05-05 |
+
+
+
+#### 6.5.8 Maximum of two date patient series and datetime a value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(p.d1, p.d2, date(2015, 5, 5))
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2015-05-05 |
+| 2|2021-01-01 |
+| 3|2015-05-05 |
+
+
+
+#### 6.5.9 Minimum of two date patient series and string a value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(p.d1, p.d2, "2015-05-05")
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2001-01-01 |
+| 2|2015-05-05 |
+| 3|2015-05-05 |
+
+
+
+#### 6.5.10 Maximum of two date patient series and string a value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(p.d1, p.d2, "2015-05-05")
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2015-05-05 |
+| 2|2021-01-01 |
+| 3|2015-05-05 |
+
+
+
+#### 6.5.11 Maximum of two float patient series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(p.f1, p.f2)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.12 |
+| 2|2.11 |
+| 3| |
+
+
+
+#### 6.5.12 Minimum of two float patient series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(p.f1, p.f2)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.01 |
+| 2|2.11 |
+| 3| |
+
+
+
+#### 6.5.13 Minimum of two float patient series and a value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(p.f1, p.f2, 1.5)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.01 |
+| 2|1.5 |
+| 3|1.5 |
+
+
+
+#### 6.5.14 Maximum of two float patient series and a value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(p.f1, p.f2, 1.5)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.5 |
+| 2|2.11 |
+| 3|1.5 |
+
+
+
+#### 6.5.15 Maximum of two string patient series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(p.s1, p.s2)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|d |
+| 2|f |
+| 3| |
+
+
+
+#### 6.5.16 Minimum of two string patient series
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(p.s1, p.s2)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|a |
+| 2|f |
+| 3| |
+
+
+
+#### 6.5.17 Minimum of two string patient series and a value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(p.s1, p.s2, "e")
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|a |
+| 2|e |
+| 3|e |
+
+
+
+#### 6.5.18 Maximum of two string patient series and a value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(p.s1, p.s2, "e")
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|e |
+| 2|f |
+| 3|e |
+
+
+
+#### 6.5.19 Maximum of two integers all a values
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(1, 2, 3)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|3 |
+| 2|3 |
+| 3|3 |
+
+
+
+#### 6.5.20 Maximum of single value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(0)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|0 |
+| 2|0 |
+| 3|0 |
+
+
+
+#### 6.5.21 Minimum of single value
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(0)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|0 |
+| 2|0 |
+| 3|0 |
+
+
+
+### 6.6 Minimum and maximum aggregations across Event series
+
+
+#### 6.6.1 Maximum of two integer event series
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.i1, e.i2).maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|112 |
+| 2|211 |
+| 3| |
+
+
+
+#### 6.6.2 Minimum of two integer event series
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(e.i1, e.i2).minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|101 |
+| 2|211 |
+| 3| |
+
+
+
+#### 6.6.3 Minimum of two integer event series and a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(e.i1, e.i2, 150).minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|101 |
+| 2|150 |
+| 3|150 |
+
+
+
+#### 6.6.4 Maximum of two integer event series and a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.i1, e.i2, 150).maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|150 |
+| 2|211 |
+| 3|150 |
+
+
+
+#### 6.6.5 Minimum of two date event series
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(e.d1, e.d2).minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2001-01-01 |
+| 2|2021-01-01 |
+| 3| |
+
+
+
+#### 6.6.6 Maximum of two date event series
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.d1, e.d2).maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2012-12-12 |
+| 2|2021-01-01 |
+| 3| |
+
+
+
+#### 6.6.7 Minimum of two date event series and datetime a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(e.d1, e.d2, date(2015, 5, 5)).minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2001-01-01 |
+| 2|2015-05-05 |
+| 3|2015-05-05 |
+
+
+
+#### 6.6.8 Maximum of two date event series and datetime a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.d1, e.d2, date(2015, 5, 5)).maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2015-05-05 |
+| 2|2021-01-01 |
+| 3|2015-05-05 |
+
+
+
+#### 6.6.9 Minimum of two date event series and string a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(e.d1, e.d2, "2015-05-05").minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2001-01-01 |
+| 2|2015-05-05 |
+| 3|2015-05-05 |
+
+
+
+#### 6.6.10 Maximum of two date event series and string a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.d1, e.d2, "2015-05-05").maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2015-05-05 |
+| 2|2021-01-01 |
+| 3|2015-05-05 |
+
+
+
+#### 6.6.11 Maximum of two float event series
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.f1, e.f2).maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.12 |
+| 2|2.11 |
+| 3| |
+
+
+
+#### 6.6.12 Minimum of two float event series
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(e.f1, e.f2).minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.01 |
+| 2|2.11 |
+| 3| |
+
+
+
+#### 6.6.13 Minimum of two float event series and float a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(e.f1, e.f2, 1.5).minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.01 |
+| 2|1.5 |
+| 3|1.5 |
+
+
+
+#### 6.6.14 Maximum of two float event series and float a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.f1, e.f2, 1.5).maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.5 |
+| 2|2.11 |
+| 3|1.5 |
+
+
+
+#### 6.6.15 Minimum of two float event series and integer a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(e.f1, e.f2, 2).minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|1.01 |
+| 2|2 |
+| 3|2 |
+
+
+
+#### 6.6.16 Maximum of two float event series and integer a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.f1, e.f2, 2).maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2 |
+| 2|2.11 |
+| 3|2 |
+
+
+
+#### 6.6.17 Maximum of two string event series
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.s1, e.s2).maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|d |
+| 2|f |
+| 3| |
+
+
+
+#### 6.6.18 Minimum of two string event series
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(e.s1, e.s2).minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|a |
+| 2|f |
+| 3| |
+
+
+
+#### 6.6.19 Minimum of two string event series and a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+minimum_of(e.s1, e.s2, "e").minimum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|a |
+| 2|e |
+| 3|e |
+
+
+
+#### 6.6.20 Maximum of two string event series and a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.s1, e.s2, "e").maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|e |
+| 2|f |
+| 3|e |
+
+
+
+#### 6.6.21 Maximum of nested aggregate
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(
+    e.s1.count_distinct_for_patient(),
+    e.s2.count_distinct_for_patient(),
+)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2 |
+| 2|1 |
+| 3|0 |
+
+
+
+#### 6.6.22 Maximum of nested aggregate and column and a value
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
+| - | - | - | - | - | - | - | - | - |
+| 1|101|111|2001-01-01|2002-02-02|a|b|1.01|1.11 |
+| 1|102|112|2011-11-11|2012-12-12|c|d|1.02|1.12 |
+| 2||211||2021-01-01||f||2.11 |
+| 3|||||||| |
+
+```
+maximum_of(e.s1.count_distinct_for_patient(), e.i1, 1).maximum_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|102 |
+| 2|1 |
+| 3|1 |
+
+
+
 ## 7 Operations on boolean series
 
 

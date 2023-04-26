@@ -137,6 +137,8 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             date_difference_in_months: ({int}, DomainConstraint.ANY),
             date_difference_in_days: ({int}, DomainConstraint.ANY),
             case: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
+            maximum_of: (comparable_types(), DomainConstraint.ANY),
+            minimum_of: (comparable_types(), DomainConstraint.ANY),
         }
         series_types = series_constraints.keys()
 
@@ -369,6 +371,46 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         rhs = draw(rhs_input(rhs_type, rhs_frame))
 
         return operator_func(lhs, rhs)
+
+    @st.composite
+    def nary_operation_with_types(draw, frame, operator_func, series_type):
+        # A strategy for operations that take _n_ arguments which are expected to be
+        # the same type
+
+        # Decide how many arguments we want – we're intending to test the logic of the
+        # query engines, not their scaling properties so we don't need too many
+        num_args = draw(st.integers(1, 4))
+        # Pick out some arguments (identified by index) to be drawn from other frames
+        other_frame_args = draw(
+            st.lists(
+                # Draw a list of argument indices
+                st.integers(0, num_args - 1),
+                # Always leaving at least one argument to be drawn from the original
+                # frame
+                max_size=num_args - 1,
+                unique=True,
+            )
+        )
+        args = []
+        # Clauses below arranged in order of simplicity (as Hypothesis sees it)
+        for i in range(num_args):
+            if i not in other_frame_args:
+                arg = draw(series(series_type, frame))
+            else:
+                # If it's not drawn from the supplied frame then it should be either a
+                # value or a one-row-per-patient series
+                if not draw(st.booleans()):
+                    arg = draw(value(series_type, None))
+                else:
+                    arg = draw(series(series_type, draw(one_row_per_patient_frame())))
+            args.append(arg)
+        return operator_func(tuple(args))
+
+    def maximum_of(type_, frame):
+        return nary_operation_with_types(frame, Function.MaximumOf, type_)
+
+    def minimum_of(type_, frame):
+        return nary_operation_with_types(frame, Function.MinimumOf, type_)
 
     def any_type():
         return st.sampled_from(list(value_strategies.keys()))

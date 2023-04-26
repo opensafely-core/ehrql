@@ -345,6 +345,19 @@ def parse_date_if_str(value):
         return value
 
 
+def cast_all_arguments(args):
+    series_args = [arg for arg in args if isinstance(arg, BaseSeries)]
+    if series_args:
+        # Choose the first series arbitrarily, the type checker will enforce that they
+        # are all the same type in any case
+        cast = series_args[0]._cast
+        return tuple(map(cast, args))
+    else:
+        # This would only be the case if all the arguments were literals, which would be
+        # an unusual and pointless bit of ehrQL, but we should handle it without error
+        return args
+
+
 class DateFunctions(ComparableFunctions):
     @staticmethod
     def _cast(value):
@@ -604,6 +617,9 @@ def _apply(qm_cls, *args):
 
 
 def _convert(arg):
+    # Unpack tuple arguments
+    if isinstance(arg, tuple):
+        return tuple(_convert(a) for a in arg)
     # Unpack dictionary arguments
     if isinstance(arg, _DictArg):
         return {_convert(key): _convert(value) for key, value in arg}
@@ -887,3 +903,31 @@ def case(*when_thens, default=None):
         return _apply(qm.Case, cases)
     else:
         return _apply(qm.Case, cases, default)
+
+
+# HORIZONTAL AGGREGATION FUNCTIONS
+#
+def maximum_of(*args):
+    """
+    Return the maximum value of a collection of Series or Values, disregarding NULLs
+
+    For example:
+    ```py
+    latest_event_date = maximum_of(event_series_1.date, event_series_2.date, "2001-01-01")
+    ```
+    """
+    args = cast_all_arguments(args)
+    return _apply(qm.Function.MaximumOf, args)
+
+
+def minimum_of(*args):
+    """
+    Return the minimum value of a collection of Series or Values, disregarding NULLs
+
+    For example:
+    ```py
+    ealiest_event_date = minimum_of(event_series_1.date, event_series_2.date, "2001-01-01")
+    ```
+    """
+    args = cast_all_arguments(args)
+    return _apply(qm.Function.MinimumOf, args)

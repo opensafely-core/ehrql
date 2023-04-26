@@ -500,6 +500,18 @@ def handle_null(fn):
     return fn_with_null
 
 
+def disregard_null(fn):
+    def fn_diregarding_null(*values):
+        values = [v for v in values if v is not None]
+        if not values:
+            return None
+        if len(values) == 1:
+            return values[0]
+        return fn(*values)
+
+    return fn_diregarding_null
+
+
 def parse_value(value):
     value = value.strip()
     if value == "T":

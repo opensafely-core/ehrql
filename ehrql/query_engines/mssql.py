@@ -1,9 +1,10 @@
 import sqlalchemy
 import structlog
+from sqlalchemy import column, values
 from sqlalchemy.schema import CreateIndex, DropTable
 from sqlalchemy.sql.functions import Function as SQLFunction
 
-from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.query_engines.base_sql import BaseSQLQueryEngine, apply_patient_joins
 from ehrql.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
 from ehrql.utils.sqlalchemy_exec_utils import (
     ReconnectableConnection,
@@ -22,6 +23,18 @@ log = structlog.getLogger()
 
 class MSSQLQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = MSSQLDialect
+
+    # Use a CTE as the source for the aggregate query rather than a
+    # subquery in order to avoid the "Cannot perform an aggregate function
+    # on an expression containing an aggregate or a subquery" error
+    def aggregate_series_by_patient(self, source_node, aggregation_func):
+        query = self.get_select_query_for_node_domain(source_node)
+        from_subquery = query.add_columns(self.get_expr(source_node))
+        from_subquery = apply_patient_joins(from_subquery)
+        from_subquery = from_subquery.alias("aggregate_subquery")
+        query = sqlalchemy.select(from_subquery.columns[0])
+        aggregation_expr = aggregation_func(from_subquery.columns[1]).label("value")
+        return self.apply_sql_aggregation(query, aggregation_expr)
 
     def calculate_mean(self, sql_expr):
         # Unlike other DBMSs, MSSQL will return an integer as the mean of integers so we
@@ -225,6 +238,19 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             for i, cleanup_query in enumerate(cleanup_queries, start=1):
                 log.info(f"Running cleanup query {i:03} / {len(cleanup_queries):03}")
                 connection.execute(cleanup_query)
+
+    # implement the "table value constructor trick"
+    # https://stackoverflow.com/questions/71022/sql-max-of-multiple-columns/6871572#6871572
+    def get_aggregate_subquery(self, aggregate_function, columns, return_type):
+        v = values(column("aggregate", return_type), name="aggregate_values").data(
+            [(c,) for c in columns]
+        )
+        froms = set().union(*[c._from_objects for c in columns])
+        aggregated = sqlalchemy.select(
+            aggregate_function(v.c.aggregate)
+        ).scalar_subquery()
+        aggregated._from_objects = list(froms)
+        return aggregated
 
 
 def temporary_table_from_query(table_name, query, index_col=0, schema=None):

@@ -399,6 +399,13 @@ class Function:
         lhs: Series[T]
         rhs: Series[Set[T]]
 
+    # Horizontal Aggregation
+    class MinimumOf(Series[Comparable]):
+        sources: tuple[Series[Comparable]]
+
+    class MaximumOf(Series[Comparable]):
+        sources: tuple[Series[Comparable]]
+
 
 class Case(Series[T]):
     cases: Mapping[Series[bool], Series[T]]
@@ -628,6 +635,13 @@ def get_input_nodes_for_case(node):
     if node.default is not None:
         inputs.append(node.default)
     return inputs
+
+
+# Minimum/Maximum of functions contain their inputs inside a tuple
+@get_input_nodes.register(Function.MaximumOf)
+@get_input_nodes.register(Function.MinimumOf)
+def get_input_nodes_for_nary_function(node):
+    return [*node.sources]
 
 
 # SORTEDNESS
