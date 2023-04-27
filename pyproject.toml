@@ -54,16 +54,6 @@ omit = [
 [tool.flit.module]
 name = "ehrql"
 
-[tool.isort]
-profile = "black"
-skip_glob = [
-  ".direnv",
-  ".venv",
-  "venv",
-  "tests/acceptance/external_studies",
-  "tests/fixtures/bad_dataset_definitions",
-]
-
 [tool.black]
 extend-exclude = "(tests/acceptance/external_studies/.*|tests/fixtures/bad_dataset_definitions/.*)"
 
