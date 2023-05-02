@@ -1,3 +1,4 @@
+import ehrql.tables.beta.core
 import ehrql.tables.beta.smoketest
 import ehrql.tables.beta.tpp
 from ehrql.backends.base import BaseBackend, MappedTable, QueryTable
@@ -9,7 +10,11 @@ class TPPBackend(BaseBackend):
 
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
-    implements = [ehrql.tables.beta.tpp, ehrql.tables.beta.smoketest]
+    implements = [
+        ehrql.tables.beta.core,
+        ehrql.tables.beta.tpp,
+        ehrql.tables.beta.smoketest,
+    ]
 
     patients = QueryTable(
         """
