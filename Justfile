@@ -109,7 +109,7 @@ docstrings: devenv
     # only enforce classes are documented for the public facing docs
     $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 ehrql/contracts/wip.py
 
-# runs the format (black) and sort (isort) checks and fixes the files
+# runs the format (black) and other code linting (ruff) checks and fixes the files
 fix: devenv
     $BIN/black .
     $BIN/ruff --fix .
