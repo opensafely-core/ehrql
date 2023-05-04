@@ -1,4 +1,3 @@
-import random
 from datetime import datetime
 
 from sqlalchemy import (
@@ -16,12 +15,6 @@ from sqlalchemy.orm import declarative_base, relationship
 
 
 Base = declarative_base()
-rand = random.Random(12345)
-
-
-def patient(dob=None):
-    patient_id = rand.randint(1, 10**6)
-    return [Patient(Patient_ID=patient_id, DateOfBirth=dob)]
 
 
 class MedicationIssue(Base):

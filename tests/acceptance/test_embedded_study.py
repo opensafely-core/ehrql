@@ -10,15 +10,15 @@ from tests.lib.fixtures import (
     parameterised_dataset_definition,
     trivial_dataset_definition,
 )
-from tests.lib.tpp_schema import patient
+from tests.lib.tpp_schema import Patient
 
 
 @pytest.mark.parametrize("extension", list(FILE_FORMATS.keys()))
 def test_generate_dataset(study, mssql_database, extension):
     mssql_database.setup(
-        patient(dob=datetime(1934, 5, 5)),
-        patient(dob=datetime(1943, 5, 5)),
-        patient(dob=datetime(1999, 5, 5)),
+        Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
+        Patient(Patient_ID=2, DateOfBirth=datetime(1943, 5, 5)),
+        Patient(Patient_ID=3, DateOfBirth=datetime(1999, 5, 5)),
     )
 
     study.setup_from_string(trivial_dataset_definition)
@@ -35,9 +35,9 @@ def test_generate_dataset(study, mssql_database, extension):
 
 def test_parameterised_dataset_definition(study, mssql_database):
     mssql_database.setup(
-        patient(dob=datetime(1934, 5, 5)),
-        patient(dob=datetime(1943, 5, 5)),
-        patient(dob=datetime(1999, 5, 5)),
+        Patient(Patient_ID=1, DateOfBirth=datetime(1934, 5, 5)),
+        Patient(Patient_ID=2, DateOfBirth=datetime(1943, 5, 5)),
+        Patient(Patient_ID=3, DateOfBirth=datetime(1999, 5, 5)),
     )
 
     study.setup_from_string(parameterised_dataset_definition)
