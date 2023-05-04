@@ -75,7 +75,7 @@ class CodedEvent(Base):
     )
 
 
-class CodedEventSnomed(Base):
+class CodedEvent_SNOMED(Base):
     __tablename__ = "CodedEvent_SNOMED"
 
     Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
@@ -156,7 +156,7 @@ class Patient(Base):
         "CodedEvent", back_populates="Patient", cascade="all, delete, delete-orphan"
     )
     CodedEventsSnomed = relationship(
-        "CodedEventSnomed",
+        "CodedEvent_SNOMED",
         back_populates="Patient",
         cascade="all, delete, delete-orphan",
     )
@@ -164,7 +164,7 @@ class Patient(Base):
         "ICNARC", back_populates="Patient", cascade="all, delete, delete-orphan"
     )
     ONSDeath = relationship(
-        "ONSDeaths", back_populates="Patient", cascade="all, delete, delete-orphan"
+        "ONS_Deaths", back_populates="Patient", cascade="all, delete, delete-orphan"
     )
     CPNS = relationship(
         "CPNS", back_populates="Patient", cascade="all, delete, delete-orphan"
@@ -345,7 +345,7 @@ class ICNARC(Base):
     Ventilator = Column(Integer)
 
 
-class ONSDeaths(Base):
+class ONS_Deaths(Base):
     __tablename__ = "ONS_Deaths"
 
     # This column isn't in the actual database but SQLAlchemy gets a bit upset

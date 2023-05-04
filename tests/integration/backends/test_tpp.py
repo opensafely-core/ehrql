@@ -12,7 +12,7 @@ from tests.lib.tpp_schema import (
     APCS_Der,
     Appointment,
     CodedEvent,
-    CodedEventSnomed,
+    CodedEvent_SNOMED,
     EC_Diagnosis,
     HealthCareWorker,
     Household,
@@ -21,7 +21,7 @@ from tests.lib.tpp_schema import (
     MedicationDictionary,
     MedicationIssue,
     ONS_CIS_New,
-    ONSDeaths,
+    ONS_Deaths,
     Organisation,
     Patient,
     PatientAddress,
@@ -215,7 +215,7 @@ def test_practice_registrations(select_all):
 def test_ons_deaths(select_all):
     results = select_all(
         Patient(Patient_ID=1),
-        ONSDeaths(
+        ONS_Deaths(
             Patient_ID=1,
             dod="2022-01-01",
             Place_of_occurrence="Care Home",
@@ -246,7 +246,7 @@ def test_clinical_events(select_all):
             CTV3Code="xyz",
             NumericValue=0.5,
         ),
-        CodedEventSnomed(
+        CodedEvent_SNOMED(
             Patient_ID=1,
             ConsultationDate="2020-11-21T09:30:00",
             ConceptID="ijk",
