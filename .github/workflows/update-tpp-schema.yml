@@ -1,0 +1,52 @@
+---
+name: "Create PR to update `tests/lib/tpp_schema.py`"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  "05 1 * * *"
+
+jobs:
+  create_pr_to_update_tpp_schema:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+          python-version: "3.11"
+
+      - name: "Update `tpp_schema.py` from published database notebook"
+        run: just update-tpp-schema
+
+      # These are problematic (in particular the flake8 hook doesn't respect
+      # the `.flake8` config file) and unnecessary as all the checks will get
+      # run on the PR anyway
+      - name: Disable pre-commit hooks
+        run: git config core.hooksPath /dev/null
+
+      - name: "Create a Pull Request if there are any changes"
+        id: create_pr
+        uses: peter-evans/create-pull-request@5b4a9f6a9e2af26e5f02351490b90d01eb8ec1e5 # v5.0.0
+        with:
+          add-paths: tests/lib/tpp_schema.*
+          branch: bot/update-tpp-schema
+          base: main
+          commit-message: "Update `test/lib/tpp_schema.py`"
+          title: "Update `test/lib/tpp_schema.py`"
+          body: |
+            To get tests to run on this PR there's an odd workflow:
+             - Approve it
+             - Close it
+             - Re-open it
+             - Re-enable automerge
+
+            You can read more on why this is needed in the `create-pull-request` [docs][1].
+
+            [1]: https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
+
+      # The PR will still require manual approval, this just reduces it to a one-click process
+      - name: Enable automerge
+        if: steps.create_pr.outputs.pull-request-operation == 'created'
+        run: gh pr merge --merge --auto --squash ${{ steps.create_pr.outputs.pull-request-number }}

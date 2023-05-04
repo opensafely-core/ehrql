@@ -206,6 +206,14 @@ precommit-generate-docs *args: generate-docs
 update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
 
+update-tpp-schema: devenv
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo 'Fetching latest tpp_schema.csv'
+    $BIN/python -m tests.lib.update_tpp_schema fetch
+    echo 'Building new tpp_schema.py'
+    $BIN/python -m tests.lib.update_tpp_schema build
+
 # Run the documentation server: to configure the port, append: ---dev-addr localhost:<port>
 docs-serve *ARGS: devenv generate-docs
     "$BIN"/mkdocs serve {{ ARGS }}

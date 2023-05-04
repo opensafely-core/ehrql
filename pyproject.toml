@@ -47,6 +47,7 @@ exclude_lines = [
 omit = [
     "ehrql/docs/__main__.py",
     "tests/acceptance/external_studies/*",
+    "tests/lib/update_tpp_schema.py",
 ]
 
 [tool.coverage.html]
