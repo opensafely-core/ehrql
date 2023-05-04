@@ -1,1050 +1,3261 @@
-from datetime import datetime
-
-from sqlalchemy import (
-    NVARCHAR,
-    Boolean,
-    Column,
-    Date,
-    DateTime,
-    Float,
-    ForeignKey,
-    Integer,
-    String,
-)
-from sqlalchemy.orm import declarative_base, relationship
-
-
-Base = declarative_base()
-
-
-class MedicationIssue(Base):
-    __tablename__ = "MedicationIssue"
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="MedicationIssues")
-    Consultation_ID = Column(Integer)
-    MedicationIssue_ID = Column(Integer, primary_key=True)
-    RepeatMedication_ID = Column(Integer)
-    MultilexDrug_ID = Column(
-        NVARCHAR(length=20), ForeignKey("MedicationDictionary.MultilexDrug_ID")
-    )
-    MedicationDictionary = relationship(
-        "MedicationDictionary", back_populates="MedicationIssues", cascade="all, delete"
-    )
-    Dose = Column(String)
-    Quantity = Column(String)
-    StartDate = Column(DateTime)
-    EndDate = Column(DateTime)
-    MedicationStatus = Column(String)
-    ConsultationDate = Column(DateTime)
-
-
-class MedicationDictionary(Base):
-    __tablename__ = "MedicationDictionary"
-
-    MultilexDrug_ID = Column(NVARCHAR(length=20), primary_key=True)
-    MedicationIssues = relationship(
-        "MedicationIssue", back_populates="MedicationDictionary"
-    )
-    ProductId = Column(String)
-    FullName = Column(String)
-    RootName = Column(String)
-    PackDescription = Column(String)
-    Form = Column(String)
-    Strength = Column(String)
-    CompanyName = Column(String)
-    DMD_ID = Column(String(collation="Latin1_General_CI_AS"))
-
-
-class CodedEvent(Base):
-    __tablename__ = "CodedEvent"
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="CodedEvents", cascade="all, delete"
-    )
-    CodedEvent_ID = Column(Integer, primary_key=True)
-    CTV3Code = Column(String(collation="Latin1_General_BIN"))
-    NumericValue = Column(Float)
-    ConsultationDate = Column(DateTime)
-
-    CodedEventRange = relationship(
-        "CodedEventRange",
-        back_populates="CodedEvent",
-        cascade="all, delete, delete-orphan",
-    )
-
-
-class CodedEvent_SNOMED(Base):
-    __tablename__ = "CodedEvent_SNOMED"
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="CodedEventsSnomed", cascade="all, delete"
-    )
-    CodedEvent_ID = Column(Integer, primary_key=True)
-    NumericValue = Column(Float)
-    ConsultationDate = Column(DateTime)
-    ConceptID = Column(String(collation="Latin1_General_BIN"))
-    CodingSystem = Column(Integer)
-
-
-class CodedEventRange(Base):
-    __tablename__ = "CodedEventRange"
-
-    CodedEventRange_ID = Column(Integer, primary_key=True)
-
-    CodedEvent_ID = Column(Integer, ForeignKey(CodedEvent.CodedEvent_ID))
-    CodedEvent = relationship(
-        "CodedEvent", back_populates="CodedEventRange", cascade="all, delete"
-    )
-    # These bounds give the "reference range" for the test result in question
-    # Uses `-1` as a placeholder for NULL
-    LowerBound = Column(Float)
-    # Uses `-1` as a placeholder for NULL
-    UpperBound = Column(Float)
-    # Takes the following values:
-    # | Value | Meaning |
-    # |-------|---------|
-    # | 3     | ~       |
-    # | 4     | =       |
-    # | 5     | >=      |
-    # | 6     | >       |
-    # | 7     | <       |
-    # | 8     | <=      |
-    Comparator = Column(Integer)
-
-
-class Appointment(Base):
-    __tablename__ = "Appointment"
-
-    Appointment_ID = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="Appointments", cascade="all, delete"
-    )
-    Organisation_ID = Column(Integer, ForeignKey("Organisation.Organisation_ID"))
-    Organisation = relationship(
-        "Organisation", back_populates="Appointments", cascade="all, delete"
-    )
-    # The real table has various other datetime columns but we don't currently
-    # use them
-    SeenDate = Column(DateTime)
-    BookedDate = Column(DateTime)
-    StartDate = Column(DateTime)
-    # Status = Column(IntEnum(AppointmentStatus))
-
-
-class Patient(Base):
-    __tablename__ = "Patient"
-
-    Patient_ID = Column(Integer, primary_key=True)
-    DateOfBirth = Column(Date)
-    DateOfDeath = Column(Date)
-
-    Appointments = relationship(
-        "Appointment",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    MedicationIssues = relationship(
-        "MedicationIssue",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    CodedEvents = relationship(
-        "CodedEvent", back_populates="Patient", cascade="all, delete, delete-orphan"
-    )
-    CodedEventsSnomed = relationship(
-        "CodedEvent_SNOMED",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    ICNARC = relationship(
-        "ICNARC", back_populates="Patient", cascade="all, delete, delete-orphan"
-    )
-    ONSDeath = relationship(
-        "ONS_Deaths", back_populates="Patient", cascade="all, delete, delete-orphan"
-    )
-    CPNS = relationship(
-        "CPNS", back_populates="Patient", cascade="all, delete, delete-orphan"
-    )
-    RegistrationHistory = relationship(
-        "RegistrationHistory",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    Addresses = relationship(
-        "PatientAddress", back_populates="Patient", cascade="all, delete, delete-orphan"
-    )
-    Vaccinations = relationship(
-        "Vaccination", back_populates="Patient", cascade="all, delete, delete-orphan"
-    )
-    SGSS_Positives = relationship(
-        "SGSS_Positive", back_populates="Patient", cascade="all, delete, delete-orphan"
-    )
-    SGSS_Negatives = relationship(
-        "SGSS_Negative", back_populates="Patient", cascade="all, delete, delete-orphan"
-    )
-    SGSS_AllTests_Positives = relationship(
-        "SGSS_AllTests_Positive",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    SGSS_AllTests_Negatives = relationship(
-        "SGSS_AllTests_Negative",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    Sex = Column(String)
-    HouseholdMemberships = relationship(
-        "HouseholdMember",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    ECEpisodes = relationship(
-        "EC",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    ECDiagnoses = relationship(
-        "EC_Diagnosis",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    APCSEpisodes = relationship(
-        "APCS",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    APCS_DerEpisodes = relationship(
-        "APCS_Der",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    HighCostDrugs = relationship(
-        "HighCostDrugs",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    OPAEpisodes = relationship(
-        "OPA",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    OPA_Proc = relationship(
-        "OPA_Proc",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    DecisionSupportValue = relationship(
-        "DecisionSupportValue",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    HealthCareWorker = relationship(
-        "HealthCareWorker",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    Therapeutics = relationship(
-        "Therapeutics",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    UKRR = relationship(
-        "UKRR",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    ONS_CIS_New = relationship(
-        "ONS_CIS_New",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-    ISARIC_New = relationship(
-        "ISARIC_New",
-        back_populates="Patient",
-        cascade="all, delete, delete-orphan",
-    )
-
-
-class RegistrationHistory(Base):
-    __tablename__ = "RegistrationHistory"
-
-    Registration_ID = Column(Integer, primary_key=True)
-    Organisation_ID = Column(Integer, ForeignKey("Organisation.Organisation_ID"))
-    Organisation = relationship(
-        "Organisation", back_populates="RegistrationHistory", cascade="all, delete"
-    )
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="RegistrationHistory", cascade="all, delete"
-    )
-    StartDate = Column(DateTime)
-    EndDate = Column(DateTime)
-
-
-class Organisation(Base):
-    __tablename__ = "Organisation"
-
-    Organisation_ID = Column(Integer, primary_key=True)
-    GoLiveDate = Column(Date)
-    STPCode = Column(String)
-    MSOACode = Column(String)
-    RegistrationHistory = relationship(
-        "RegistrationHistory",
-        back_populates="Organisation",
-        cascade="all, delete, delete-orphan",
-    )
-    Region = Column(String)
-    Appointments = relationship(
-        "Appointment",
-        back_populates="Organisation",
-        cascade="all, delete, delete-orphan",
-    )
-    ClusterRandomisedTrial = relationship(
-        "ClusterRandomisedTrial",
-        back_populates="Organisation",
-    )
-    ClusterRandomisedTrialDetail = relationship(
-        "ClusterRandomisedTrialDetail",
-        back_populates="Organisation",
-    )
-
-
-class PatientAddress(Base):
-    __tablename__ = "PatientAddress"
-
-    PatientAddress_ID = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="Addresses", cascade="all, delete")
-    StartDate = Column(DateTime)
-    EndDate = Column(DateTime)
-    AddressType = Column(Integer)
-    RuralUrbanClassificationCode = Column(Integer)
-    ImdRankRounded = Column(Integer)
-    MSOACode = Column(String)
-    PotentialCareHomeAddress = relationship(
-        "PotentialCareHomeAddress",
-        back_populates="PatientAddress",
-        cascade="all, delete, delete-orphan",
-    )
-
-
-class ICNARC(Base):
-    __tablename__ = "ICNARC"
-
-    ICNARC_ID = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="ICNARC", cascade="all, delete")
-    IcuAdmissionDateTime = Column(DateTime)
-    OriginalIcuAdmissionDate = Column(Date)
-    BasicDays_RespiratorySupport = Column(Integer)
-    AdvancedDays_RespiratorySupport = Column(Integer)
-    Ventilator = Column(Integer)
-
-
-class ONS_Deaths(Base):
-    __tablename__ = "ONS_Deaths"
-
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="ONSDeath", cascade="all, delete")
-    Sex = Column(String)
-    ageinyrs = Column(Integer)
-    dod = Column(Date)
-    icd10u = Column(String)
-    ICD10001 = Column(String)
-    ICD10002 = Column(String)
-    ICD10003 = Column(String)
-    ICD10004 = Column(String)
-    ICD10005 = Column(String)
-    ICD10006 = Column(String)
-    ICD10007 = Column(String)
-    ICD10008 = Column(String)
-    ICD10009 = Column(String)
-    ICD10010 = Column(String)
-    ICD10011 = Column(String)
-    ICD10012 = Column(String)
-    ICD10013 = Column(String)
-    ICD10014 = Column(String)
-    ICD10015 = Column(String)
-    Place_of_occurrence = Column(String)
-
-
-class CPNS(Base):
-    __tablename__ = "CPNS"
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="CPNS", cascade="all, delete")
-    Id = Column(Integer, primary_key=True)
-    # LocationOfDeath                                                 ITU
-    # Sex                                                               M
-    # DateOfAdmission                                          2020-04-02
-    # DateOfSwabbed                                            2020-04-02
-    # DateOfResult                                             2020-04-03
-    # RelativesAware                                                    Y
-    # TravelHistory                                                 False
-    # RegionCode                                                      Y62
-    # RegionName                                               North West
-    # OrganisationCode                                                ABC
-    # OrganisationName                                Test Hospital Trust
-    # OrganisationTypeLot                                        Hospital
-    # RegionApproved                                                 True
-    # RegionalApprovedDate                                     2020-04-09
-    # NationalApproved                                               True
-    # NationalApprovedDate                                     2020-04-09
-    # PreExistingCondition                                          False
-    # Age                                                              57
-    DateOfDeath = Column(Date)
-    # snapDate                                                 2020-04-09
-    # HadLearningDisability                                            NK
-    # ReceivedTreatmentForMentalHealth                                 NK
-    # Der_Ethnic_Category_Description                                None
-    # Der_Latest_SUS_Attendance_Date_For_Ethnicity                   None
-    # Der_Source_Dataset_For_Ethnicty                                None
-
-
-class Vaccination(Base):
-    __tablename__ = "Vaccination"
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="Vaccinations", cascade="all, delete"
-    )
-    Vaccination_ID = Column(Integer, primary_key=True)
-    VaccinationDate = Column(DateTime)
-    VaccinationName = Column(String)
-    # We can't make this a foreign key because the corresponding column isn't
-    # unique.  Effectively, there's an implied but not existing VaccinationName
-    # table which has a many-one relation with Vaccination and a one-many
-    # relation with VaccinationReference.
-    VaccinationName_ID = Column(Integer)
-    VaccinationSchedulePart = Column(Integer)
-
-
-class VaccinationReference(Base):
-    __tablename__ = "VaccinationReference"
-
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-    # Note this is *not* unique because a single named vaccine product can
-    # target multiple diseases and therefore have multiple "contents"
-    VaccinationName_ID = Column(Integer)
-    VaccinationName = Column(String)
-    VaccinationContent = Column(String)
-
-
-class SGSS_Negative(Base):
-    __tablename__ = "SGSS_Negative"
-
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="SGSS_Negatives", cascade="all, delete"
-    )
-    # This column should only ever have this value
-    Organism_Species_Name = Column(String, default="NEGATIVE SARS-CoV-2 (COVID-19)")
-    Earliest_Specimen_Date = Column(Date)
-    Lab_Report_Date = Column(Date)
-
-    # Possible values: "OTHER", "PILLAR 2 TESTING"
-    Lab_Type = Column(String)
-
-    # Other columns in the table which we don't use:
-    #   Age_in_Years
-    #   Patient_Sex
-    #   County_Description
-    #   PostCode_Source
-
-
-class SGSS_Positive(Base):
-    __tablename__ = "SGSS_Positive"
-
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="SGSS_Positives", cascade="all, delete"
-    )
-    Organism_Species_Name = Column(String, default="SARS-CoV-2 CORONAVIRUS (Covid-19)")
-    Earliest_Specimen_Date = Column(Date)
-    Lab_Report_Date = Column(Date)
-
-    # Possible values: "OTHER", "PILLAR 2 TESTING"
-    Lab_Type = Column(String)
-
-    # SGTF: S gene target failure
-    # Possible values: "", "0", "1", "9"
-    # Definitions (from email from PHE)
-    #
-    #   1: Isolate with confirmed SGTF
-    #   Undetectable S gene; CT value (CH3) =0
-    #   Detectable ORF1ab gene; CT value (CH2) <=30 and >0
-    #   Detectable N gene; CT value (CH1) <=30 and >0
-    #
-    #   0: S gene detected
-    #   Detectable S gene (CH3>0)
-    #   Detectable y ORF1ab CT value (CH1) <=30 and >0
-    #   Detectable N gene CT value (CH2) <=30 and >0
-    #
-    #   9: Cannot be classified
-    #
-    #   Null are where the target is not S Gene. I think LFTs are currently
-    #   also coming across as 9 so will need to review those to null as well as
-    #   clearly this is a PCR only variable.
-    SGTF = Column(String)
-
-    # Possible values: "LFT_Only", "PCR_Only", "LFT_WithPCR"
-    CaseCategory = Column(String)
-
-    # Other columns in the table which we don't use:
-    #   Age_in_Years
-    #   Patient_Sex
-    #   County_Description
-    #   PostCode_Source
-
-
-# The SGSS_(Postive|Negative) tables above contain only the first positive test
-# for each patient whereas the AllTests tables below contain every positive
-# test.
-class SGSS_AllTests_Negative(Base):
-    __tablename__ = "SGSS_AllTests_Negative"
-
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="SGSS_AllTests_Negatives", cascade="all, delete"
-    )
-    # This column should only ever have this value
-    Organism_Species_Name = Column(String, default="NEGATIVE SARS-CoV-2 (COVID-19)")
-    Specimen_Date = Column(Date)
-    Lab_Report_Date = Column(Date)
-
-    # Possible values: "OTHER", "PILLAR 2 TESTING"
-    Lab_Type = Column(String)
-
-    # Possible values: NULL, "false", "true"
-    Symptomatic = Column(String)
-
-    # Possible values: "Pillar 1", "Pillar 2"
-    Pillar = Column(String)
-
-    # Possible values: NULL, "True"
-    LFT_Flag = Column(String)
-
-    # Other columns in the table which we don't use:
-    #   Age_in_Years
-    #   Patient_Sex
-    #   County_Description
-    #   PostCode_Source
-    #   Ethnic_Category_Desc
-
-
-class SGSS_AllTests_Positive(Base):
-    __tablename__ = "SGSS_AllTests_Positive"
-
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="SGSS_AllTests_Positives", cascade="all, delete"
-    )
-    Organism_Species_Name = Column(String, default="SARS-CoV-2 CORONAVIRUS (Covid-19)")
-    Specimen_Date = Column(Date)
-    Lab_Report_Date = Column(Date)
-
-    # Possible values: "OTHER"
-    Lab_Type = Column(String)
-
-    # Possible values: "N", "U", "Y"
-    Symptomatic = Column(String)
-
-    Variant = Column(String)
-    VariantDetectionMethod = Column(String)
-
-    # These columns are entirely NULL for some reason
-    Pillar = Column(String)
-    LFT_Flag = Column(String)
-
-    # See comment on SGTF column on `SGSS_Positive` above for details
-    SGTF = Column(String)
-
-    # Other columns in the table which we don't use:
-    #   Age_in_Years
-    #   Patient_Sex
-    #   County_Description
-    #   PostCode_Source
-    #   Ethnic_Category_Desc
-
-
-class PotentialCareHomeAddress(Base):
-    __tablename__ = "PotentialCareHomeAddress"
-
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    PatientAddress_ID = Column(Integer, ForeignKey("PatientAddress.PatientAddress_ID"))
-    PatientAddress = relationship(
-        "PatientAddress",
-        back_populates="PotentialCareHomeAddress",
-        cascade="all, delete",
-    )
-    # Conceptually these two are a single boolean column but they stored as
-    # separate string columns containing either a Y or an N as this directly
-    # reflects what's in the underlying data source
-    LocationRequiresNursing = Column(String)
-    LocationDoesNotRequireNursing = Column(String)
-
-
-class Household(Base):
-    __tablename__ = "Household"
-    Household_ID = Column(Integer, primary_key=True)
-    # Flag to indicate an entry of No Fixed Abode or Unknown
-    NFA_Unknown = Column(Boolean, default=False)
-    # CareHome (boolean) - not currently being used
-    Prison = Column(Boolean)
-    MixedSoftwareHousehold = Column(Boolean)
-    TppPercentage = Column(Integer)
-    HouseholdSize = Column(Integer)
-    MSOA = Column(String)
-    HouseholdMembers = relationship(
-        "HouseholdMember", back_populates="Household", cascade="all, delete"
-    )
-
-
-class HouseholdMember(Base):
-    __tablename__ = "HouseholdMember"
-    HouseholdMember_ID = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="HouseholdMemberships", cascade="all, delete"
-    )
-    Household_ID = Column(Integer, ForeignKey("Household.Household_ID"))
-    Household = relationship(
-        "Household", back_populates="HouseholdMembers", cascade="all, delete"
-    )
-
-
-class EC(Base):
-    __tablename__ = "EC"
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="ECEpisodes", cascade="all, delete"
-    )
-    EC_Ident = Column(Integer, primary_key=True)
-    Arrival_Date = Column(Date)
-    Discharge_Destination_SNOMED_CT = Column(String(collation="Latin1_General_CI_AS"))
-    Diagnoses = relationship(
-        "EC_Diagnosis", back_populates="EC", cascade="all, delete, delete-orphan"
-    )
-    Ethnic_Category = Column(String)
-
-
-class EC_Diagnosis(Base):
-    __tablename__ = "EC_Diagnosis"
-
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="ECDiagnoses", cascade="all, delete"
-    )
-    EC_Ident = Column(Integer, ForeignKey("EC.EC_Ident"))
-    EC = relationship("EC", back_populates="Diagnoses", cascade="all, delete")
-    EC_Diagnosis_01 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_02 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_03 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_04 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_05 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_06 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_07 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_08 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_09 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_10 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_11 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_12 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_13 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_14 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_15 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_16 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_17 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_18 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_19 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_20 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_21 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_22 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_23 = Column(String(collation="Latin1_General_CI_AS"))
-    EC_Diagnosis_24 = Column(String(collation="Latin1_General_CI_AS"))
+# This file is auto-generated: DO NOT EDIT IT
+#
+# To rebuild run:
+#
+#   python tests/lib/update_tpp_schema.py build
+#
+
+from sqlalchemy import types as t
+from sqlalchemy.orm import DeclarativeBase, mapped_column
+
+
+class Base(DeclarativeBase):
+    "Common base class to signal that models below belong to the same database"
 
 
 class APCS(Base):
     __tablename__ = "APCS"
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="APCSEpisodes", cascade="all, delete"
-    )
-    APCS_Ident = Column(Integer, primary_key=True)
-    APCS_Der = relationship("APCS_Der", uselist=False, back_populates="APCS")
-    Admission_Date = Column(Date)
-    Discharge_Date = Column(Date)
-    Der_Diagnosis_All = Column(String)
-    Der_Procedure_All = Column(String)
-    Ethnic_Group = Column(String)
-    Admission_Method = Column(String)
-    Source_of_Admission = Column(String)
-    Discharge_Destination = Column(String)
-    Patient_Classification = Column(String)
-    Der_Admit_Treatment_Function_Code = Column(String)
-    Administrative_Category = Column(String)
-    Duration_of_Elective_Wait = Column(String)
-    Der_Spell_LoS = Column(Integer)
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    APCS_Ident = mapped_column(t.BIGINT)
+    Administrative_Category = mapped_column(t.VARCHAR(2))
+    Admission_Date = mapped_column(t.Date)
+    Admission_Method = mapped_column(t.VARCHAR(2))
+    Carer_Support_Indicator = mapped_column(t.VARCHAR(1000))
+    Der_Activity_Month = mapped_column(t.VARCHAR(6))
+    Der_Admit_Treatment_Function_Code = mapped_column(t.VARCHAR(3))
+    Der_Diagnosis_All = mapped_column(t.VARCHAR(4000))
+    Der_Diagnosis_Count = mapped_column(t.Integer)
+    Der_Dischg_Treatment_Function_Code = mapped_column(t.VARCHAR(3))
+    Der_Financial_Year = mapped_column(t.VARCHAR(7))
+    Der_Procedure_All = mapped_column(t.VARCHAR(4000))
+    Der_Procedure_Count = mapped_column(t.Integer)
+    Der_Pseudo_Patient_Pathway_ID = mapped_column(t.BIGINT)
+    Der_Spell_LoS = mapped_column(t.Integer)
+    Discharge_Date = mapped_column(t.Date)
+    Discharge_Destination = mapped_column(t.VARCHAR(2))
+    Discharge_Method = mapped_column(t.VARCHAR(2))
+    Duration_of_Elective_Wait = mapped_column(t.Integer)
+    Ethnic_Group = mapped_column(t.VARCHAR(2))
+    Hospital_Spell_Duration = mapped_column(t.Integer)
+    Patient_Classification = mapped_column(t.VARCHAR(2))
+    Provider_Org_Code_Type = mapped_column(t.VARCHAR(5))
+    Source_of_Admission = mapped_column(t.VARCHAR(2))
+    Spell_Core_HRG_SUS = mapped_column(t.VARCHAR(10))
+    Spell_HRG_Version_No_SUS = mapped_column(t.VARCHAR(20))
+
+
+class APCS_Cost(Base):
+    __tablename__ = "APCS_Cost"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    APCS_Ident = mapped_column(t.BIGINT)
+    Grand_Total_Payment_MFF = mapped_column(t.REAL)
+    Tariff_Initial_Amount = mapped_column(t.REAL)
+    Tariff_Total_Payment = mapped_column(t.REAL)
 
 
 class APCS_Der(Base):
     __tablename__ = "APCS_Der"
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="APCS_DerEpisodes", cascade="all, delete"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    APCS_Ident = mapped_column(t.BIGINT)
+    Spell_Dominant_Procedure = mapped_column(t.VARCHAR(100))
+    Spell_LoS = mapped_column(t.VARCHAR(5))
+    Spell_Main_Specialty_Code = mapped_column(t.VARCHAR(3))
+    Spell_PbR_CC_Day = mapped_column(t.VARCHAR(4))
+    Spell_PbR_Rehab_Days = mapped_column(t.VARCHAR(4))
+    Spell_Primary_Diagnosis = mapped_column(t.VARCHAR(5))
+    Spell_RE30_Admit_Type = mapped_column(t.VARCHAR(1))
+    Spell_RE30_Indicator = mapped_column(t.VARCHAR(1))
+    Spell_Secondary_Diagnosis = mapped_column(t.VARCHAR(5))
+    Spell_Treatment_Function_Code = mapped_column(t.VARCHAR(3))
+
+
+class Appointment(Base):
+    __tablename__ = "Appointment"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Appointment_ID = mapped_column(t.BIGINT)
+    ArrivedDate = mapped_column(t.DateTime)
+    BookedDate = mapped_column(t.DateTime)
+    EndDate = mapped_column(t.DateTime)
+    FinishedDate = mapped_column(t.DateTime)
+    Organisation_ID = mapped_column(t.BIGINT)
+    SeenDate = mapped_column(t.DateTime)
+    StartDate = mapped_column(t.DateTime)
+    Status = mapped_column(t.Integer)
+
+
+class BuildInfo(Base):
+    __tablename__ = "BuildInfo"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    BuildDate = mapped_column(t.DateTime)
+    BuildDesc = mapped_column(t.VARCHAR(100))
+    BuildNumber = mapped_column(t.Integer)
+
+
+class CPNS(Base):
+    __tablename__ = "CPNS"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Age = mapped_column(t.Integer)
+    CovidTestResult = mapped_column(t.VARCHAR(100))
+    DateOfAdmission = mapped_column(t.Date)
+    DateOfDeath = mapped_column(t.Date)
+    DateOfResult = mapped_column(t.Date)
+    DateOfSwabbed = mapped_column(t.Date)
+    Der_Ethnic_Category_Description = mapped_column(t.VARCHAR(100))
+    Der_Latest_SUS_Attendance_Date_For_Ethnicity = mapped_column(t.VARCHAR(100))
+    Der_Source_Dataset_For_Ethnicty = mapped_column(t.VARCHAR(100))
+    DetainedUnderMHAct = mapped_column(t.Boolean)
+    HadLearningDisability = mapped_column(t.VARCHAR(10))
+    Id = mapped_column(t.BIGINT)
+    LearningDisabilityType = mapped_column(t.VARCHAR(100))
+    LocationOfDeath = mapped_column(t.VARCHAR(1000))
+    NHSworker = mapped_column(t.Boolean)
+    NationalApproved = mapped_column(t.VARCHAR(10))
+    NationalApprovedDate = mapped_column(t.Date)
+    OnDeathCertificateNotice = mapped_column(t.Boolean)
+    OrganisationTypeLot = mapped_column(t.VARCHAR(100))
+    PreExistingCondition = mapped_column(t.VARCHAR(10))
+    PreExistingConditionList = mapped_column(t.VARCHAR(4000))
+    ReceivedTreatmentForMentalHealth = mapped_column(t.VARCHAR(100))
+    RegionApproved = mapped_column(t.VARCHAR(10))
+    RegionCode = mapped_column(t.VARCHAR(10))
+    RegionName = mapped_column(t.VARCHAR(100))
+    RegionalApprovedDate = mapped_column(t.Date)
+    RelativesAware = mapped_column(t.VARCHAR(100))
+    Sex = mapped_column(t.VARCHAR(5))
+    TransferredFromAMentalHealthSetting = mapped_column(t.Boolean)
+    TransferredFromLearningDisabilityAutismSetting = mapped_column(t.Boolean)
+    TravelHistory = mapped_column(t.VARCHAR(10))
+    snapDate = mapped_column(t.Date)
+
+
+class CTV3Dictionary(Base):
+    __tablename__ = "CTV3Dictionary"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    CTV3Code = mapped_column(t.VARCHAR(50))
+    Description = mapped_column(t.VARCHAR(255))
+
+
+class CTV3Hierarchy(Base):
+    __tablename__ = "CTV3Hierarchy"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    ChildCTV3Code = mapped_column(t.VARCHAR(50))
+    ChildCTV3Description = mapped_column(t.VARCHAR(255))
+    ChildToParentDistance = mapped_column(t.Integer)
+    ParentCTV3Code = mapped_column(t.VARCHAR(50))
+    ParentCTV3Description = mapped_column(t.VARCHAR(255))
+
+
+class CodeCountIndicator(Base):
+    __tablename__ = "CodeCountIndicator"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    CTV3Code = mapped_column(t.VARCHAR(50))
+    CodeCountIndicator = mapped_column(t.Float)
+
+
+class CodedEvent(Base):
+    __tablename__ = "CodedEvent"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    CTV3Code = mapped_column(t.VARCHAR(50, collation="Latin1_General_BIN"))
+    CodedEvent_ID = mapped_column(t.BIGINT)
+    ConsultationDate = mapped_column(t.DateTime)
+    Consultation_ID = mapped_column(t.BIGINT)
+    NumericValue = mapped_column(t.REAL)
+
+
+class CodedEventRange(Base):
+    __tablename__ = "CodedEventRange"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.Integer)
+    CodedEventRange_ID = mapped_column(t.BIGINT)
+    CodedEvent_ID = mapped_column(t.BIGINT)
+    Comparator = mapped_column(t.SMALLINT)
+    Consultation_ID = mapped_column(t.BIGINT)
+    LowerBound = mapped_column(t.REAL)
+    UpperBound = mapped_column(t.REAL)
+
+
+class CodedEvent_SNOMED(Base):
+    __tablename__ = "CodedEvent_SNOMED"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    CodedEvent_ID = mapped_column(t.BIGINT)
+    CodingSystem = mapped_column(t.Integer)
+    ConceptID = mapped_column(t.VARCHAR(18))
+    ConsultationDate = mapped_column(t.DateTime)
+    NumericValue = mapped_column(t.REAL)
+
+
+class Consultation(Base):
+    __tablename__ = "Consultation"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    ConsultationDate = mapped_column(t.DateTime)
+    Consultation_ID = mapped_column(t.BIGINT)
+    Registration_ID = mapped_column(t.BIGINT)
+
+
+class DataDictionary(Base):
+    __tablename__ = "DataDictionary"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Code = mapped_column(t.VARCHAR(255))
+    Description = mapped_column(t.VARCHAR(1000))
+    Table = mapped_column(t.VARCHAR(1000))
+    Type = mapped_column(t.VARCHAR(255))
+
+
+class EC(Base):
+    __tablename__ = "EC"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Arrival_Date = mapped_column(t.Date)
+    Arrival_Time = mapped_column(t.Time)
+    DQ_Chief_Complaint_Completed = mapped_column(t.VARCHAR(5))
+    DQ_Chief_Complaint_Expected = mapped_column(t.VARCHAR(5))
+    DQ_Chief_Complaint_Valid = mapped_column(t.VARCHAR(5))
+    DQ_Primary_Diagnosis_Completed = mapped_column(t.VARCHAR(5))
+    DQ_Primary_Diagnosis_Expected = mapped_column(t.VARCHAR(5))
+    DQ_Primary_Diagnosis_Valid = mapped_column(t.VARCHAR(5))
+    Decision_To_Admit_Treatment_Function_Code = mapped_column(t.VARCHAR(3))
+    Der_Activity_Month = mapped_column(t.VARCHAR(6))
+    Der_EC_Diagnosis_All = mapped_column(t.VARCHAR(4000))
+    Der_EC_Investigation_All = mapped_column(t.VARCHAR(4000))
+    Der_EC_Treatment_All = mapped_column(t.VARCHAR(4000))
+    Der_Financial_Year = mapped_column(t.VARCHAR(7))
+    Discharge_Destination_SNOMED_CT = mapped_column(t.VARCHAR(20))
+    EC_Arrival_Mode_SNOMED_CT = mapped_column(t.VARCHAR(20))
+    EC_AttendanceCategory = mapped_column(t.VARCHAR(1))
+    EC_Attendance_Source_SNOMED_CT = mapped_column(t.VARCHAR(20))
+    EC_Chief_Complaint_SNOMED_CT = mapped_column(t.VARCHAR(20))
+    EC_Decision_To_Admit_Date = mapped_column(t.Date)
+    EC_Department_Type = mapped_column(t.VARCHAR(2))
+    EC_Ident = mapped_column(t.BIGINT)
+    EC_Injury_Date = mapped_column(t.Date)
+    Ethnic_Category = mapped_column(t.VARCHAR(1))
+    SUS_Final_Price = mapped_column(t.VARCHAR(5))
+    SUS_HRG_Code = mapped_column(t.VARCHAR(5))
+    SUS_Tariff = mapped_column(t.VARCHAR(5))
+
+
+class ECDS(Base):
+    __tablename__ = "ECDS"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Accessible_Information_Professional_Required_Code_Approved = mapped_column(
+        t.VARCHAR(5)
     )
-    APCS_Ident = Column(Integer, ForeignKey("APCS.APCS_Ident"), primary_key=True)
-    APCS = relationship("APCS", back_populates="APCS_Der")
-    Spell_Primary_Diagnosis = Column(String)
-    Spell_Secondary_Diagnosis = Column(String)
-    Spell_PbR_CC_Day = Column(String)
-
-
-class HighCostDrugs(Base):
-    __tablename__ = "HighCostDrugs"
-    # COLUMN_NAME	                    TYPE_NAME	PRECISION	LENGTH	IS_NULLABLE
-    # Patient_ID	                    bigint	    19	        8	    NO
-    # FinancialMonth	                varchar	    2	        2	    YES
-    # FinancialYear	                    varchar	    6	        6	    YES
-    # PersonAge	                        int	        10	        4	    YES
-    # PersonGender	                    int	        10	        4	    YES
-    # ActivityTreatmentFunctionCode	    varchar	    100	        100	    YES
-    # TherapeuticIndicationCode	        varchar	    1000	    1000	YES
-    # HighCostTariffExcludedDrugCode    varchar	    100	        100	    YES
-    # DrugName	                        varchar	    1000	    1000	YES
-    # RouteOfAdministration	            varchar	    100	        100	    YES
-    # DrugStrength	                    varchar	    1000	    1000	YES
-    # DrugVolume	                    varchar	    1000	    1000	YES
-    # DrugPackSize	                    varchar	    1000	    1000	YES
-    # DrugQuanitityOrWeightProportion	varchar	    1000	    1000	YES
-    # UnitOfMeasurement	                varchar	    100	        100	    YES
-    # DispensingRoute	                varchar	    100	        100	    YES
-    # HomeDeliveryCharge	            varchar	    100	        100	    YES
-    # TotalCost	                        varchar	    100	        100	    YES
-    # DerivedSNOMEDFromName	            varchar	    1000	    1000	YES
-    # DerivedVTM	                    varchar	    1000	    1000	YES
-    # DerivedVTMName	                varchar	    1000	    1000	YES
-
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="HighCostDrugs", cascade="all, delete"
+    Accessible_Information_Professional_Required_SNOMED_CT = mapped_column(
+        t.VARCHAR(18)
     )
-    DrugName = Column(String)
-    # String like "202021" for "Year April 2020 to March 2021"
-    FinancialYear = Column(String)
-    # April = "1", May="2", ... March="12"
-    FinancialMonth = Column(String)
+    Accommodation_Status_Code_Approved = mapped_column(t.VARCHAR(5))
+    Accommodation_Status_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    Age_At_Arrival = mapped_column(t.BIGINT)
+    Age_Range = mapped_column(t.VARCHAR(5))
+    Age_at_CDS_Activity_Date = mapped_column(t.BIGINT)
+    Arrival_Date = mapped_column(t.DateTime)
+    Arrival_Mode_Approved = mapped_column(t.VARCHAR(5))
+    Arrival_Month = mapped_column(t.BIGINT)
+    Arrival_Planned = mapped_column(t.VARCHAR(5))
+    Arrival_Time = mapped_column(t.VARCHAR(8))
+    Attendance_Source_Organisation = mapped_column(t.VARCHAR(9))
+    CDS_Activity_Date = mapped_column(t.Date)
+    CDS_Group_Indicator = mapped_column(t.BIGINT)
+    CDS_Interchange_Sender_Identity = mapped_column(t.VARCHAR(12))
+    CDS_Prime_Recipient_Identity = mapped_column(t.VARCHAR(12))
+    CDS_Type = mapped_column(t.VARCHAR(3))
+    Cancer_Registry = mapped_column(t.VARCHAR(5))
+    Clinical_Acuity_Code_Approved = mapped_column(t.VARCHAR(5))
+    Clinical_Chief_Complaint_Code_Approved = mapped_column(t.VARCHAR(5))
+    Clinical_Chief_Complaint_Extended_Code = mapped_column(t.VARCHAR(18))
+    Clinical_Chief_Complaint_Injury_Related = mapped_column(t.VARCHAR(5))
+    Clinical_Disease_Notification = mapped_column(t.VARCHAR(50))
+    Clinical_Injury_Activity_Status_Code_Approved = mapped_column(t.VARCHAR(5))
+    Clinical_Injury_Activity_Type_Code_Approved = mapped_column(t.VARCHAR(5))
+    Clinical_Injury_Intent_Code_Approved = mapped_column(t.VARCHAR(5))
+    Clinical_Injury_Place_Type_Approved = mapped_column(t.VARCHAR(5))
+    Clinical_Trial_Code = mapped_column(t.VARCHAR(50))
+    Commissioner_Code = mapped_column(t.VARCHAR(12))
+    DQ_Chief_Complaint_Completed = mapped_column(t.VARCHAR(5))
+    DQ_Chief_Complaint_Expected = mapped_column(t.VARCHAR(5))
+    DQ_Chief_Complaint_Valid = mapped_column(t.VARCHAR(5))
+    DQ_Primary_Diagnosis_Completed = mapped_column(t.VARCHAR(5))
+    DQ_Primary_Diagnosis_Expected = mapped_column(t.VARCHAR(5))
+    DQ_Primary_Diagnosis_Valid = mapped_column(t.VARCHAR(5))
+    Decision_To_Admit_Receiving_Site = mapped_column(t.VARCHAR(9))
+    Decision_To_Admit_Treatment_Function_Code = mapped_column(t.VARCHAR(8))
+    Der_AEA_Diagnosis_All = mapped_column(t.VARCHAR(200))
+    Der_AEA_Investigation_All = mapped_column(t.VARCHAR(200))
+    Der_AEA_Patient_Group = mapped_column(t.VARCHAR(2))
+    Der_AEA_Treatment_All = mapped_column(t.VARCHAR(200))
+    Der_Activity_Month = mapped_column(t.VARCHAR(6))
+    Der_Age_At_CDS_Activity_Date = mapped_column(t.Integer)
+    Der_Commissioner_Code = mapped_column(t.VARCHAR(5))
+    Der_Dupe_Flag = mapped_column(t.Integer)
+    Der_EC_Arrival_Date_Time = mapped_column(t.DateTime)
+    Der_EC_Departure_Date_Time = mapped_column(t.DateTime)
+    Der_EC_Diagnosis_All = mapped_column(t.VARCHAR(500))
+    Der_EC_Duration = mapped_column(t.Integer)
+    Der_EC_Investigation_All = mapped_column(t.VARCHAR(500))
+    Der_EC_Treatment_All = mapped_column(t.VARCHAR(500))
+    Der_Financial_Year = mapped_column(t.VARCHAR(7))
+    Der_Number_AEA_Diagnosis = mapped_column(t.Integer)
+    Der_Number_AEA_Investigation = mapped_column(t.Integer)
+    Der_Number_AEA_Treatment = mapped_column(t.Integer)
+    Der_Number_EC_Diagnosis = mapped_column(t.Integer)
+    Der_Number_EC_Investigation = mapped_column(t.Integer)
+    Der_Number_EC_Treatment = mapped_column(t.Integer)
+    Der_Provider_Code = mapped_column(t.VARCHAR(5))
+    Der_Provider_Site_Code = mapped_column(t.VARCHAR(5))
+    Der_Record_Type = mapped_column(t.VARCHAR(4))
+    DischargeDestinationApproved = mapped_column(t.VARCHAR(5))
+    Discharge_Destination_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    Discharge_Follow_Up_Approved = mapped_column(t.VARCHAR(5))
+    Discharge_Follow_Up_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    Discharge_Information_Given_Approved = mapped_column(t.VARCHAR(5))
+    Discharge_Information_Given_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_Acuity_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_Arrival_Mode_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_AttendanceCategory = mapped_column(t.VARCHAR(1))
+    EC_Attendance_Source_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_Chief_Complaint_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_Conclusion_Date = mapped_column(t.Date)
+    EC_Conclusion_Time = mapped_column(t.VARCHAR(8))
+    EC_Conclusion_Time_Since_Arrival = mapped_column(t.BIGINT)
+    EC_Decision_To_Admit_Date = mapped_column(t.Date)
+    EC_Decision_To_Admit_Time = mapped_column(t.VARCHAR(8))
+    EC_Decision_To_Admit_Time_Since_Arrival = mapped_column(t.BIGINT)
+    EC_Department_Type = mapped_column(t.VARCHAR(2))
+    EC_Departure_Date = mapped_column(t.Date)
+    EC_Departure_Time = mapped_column(t.VARCHAR(8))
+    EC_Departure_Time_Since_Arrival = mapped_column(t.BIGINT)
+    EC_Discharge_Status_Approved = mapped_column(t.VARCHAR(5))
+    EC_Discharge_Status_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_Ident = mapped_column(t.BIGINT)
+    EC_Initial_Assessment_Date = mapped_column(t.Date)
+    EC_Initial_Assessment_Time = mapped_column(t.VARCHAR(8))
+    EC_Initial_Assessment_Time_Since_Arrival = mapped_column(t.BIGINT)
+    EC_Injury_Activity_Status_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_Injury_Activity_Type_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_Injury_Date = mapped_column(t.Date)
+    EC_Injury_Intent_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_Injury_Mechanism_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_Injury_Time = mapped_column(t.VARCHAR(8))
+    EC_PCD_Indicator = mapped_column(t.Integer)
+    EC_Place_Of_Injury_Latitude = mapped_column(t.VARCHAR(10))
+    EC_Place_Of_Injury_Longitude = mapped_column(t.VARCHAR(10))
+    EC_Place_Of_Injury_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    EC_Seen_For_Treatment_Date = mapped_column(t.Date)
+    EC_Seen_For_Treatment_Time = mapped_column(t.VARCHAR(8))
+    EC_Seen_For_Treatment_Time_Since_Arrival = mapped_column(t.BIGINT)
+    Ethnic_Category = mapped_column(t.VARCHAR(1))
+    Exclusions = mapped_column(t.VARCHAR(100))
+    Finished_Indicator = mapped_column(t.BIGINT)
+    Fractional_Age_At_Arrival = mapped_column(t.Float)
+    HES_Age_At_Arrival = mapped_column(t.BIGINT)
+    HES_Age_At_Departure = mapped_column(t.BIGINT)
+    Index_Of_Multiple_Deprivation_Decile = mapped_column(t.VARCHAR(50))
+    Index_Of_Multiple_Deprivation_Decile_Description = mapped_column(t.VARCHAR(50))
+    Interpreter_Language_Code_Approved = mapped_column(t.VARCHAR(5))
+    Interpreter_Language_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    Month_of_Birth = mapped_column(t.VARCHAR(2))
+    NHS_Number_Is_Valid = mapped_column(t.VARCHAR(5))
+    NHS_Number_Status_Indicator_Code = mapped_column(t.VARCHAR(2))
+    Overseas_Visitor_Charging_Category = mapped_column(t.VARCHAR(1))
+    Patient_Type = mapped_column(t.VARCHAR(4))
+    Preferred_Spoken_Language_Code_Approved = mapped_column(t.VARCHAR(5))
+    Preferred_Spoken_Language_SNOMED_CT = mapped_column(t.VARCHAR(18))
+    Provider_Code = mapped_column(t.VARCHAR(12))
+    RTT_Period_End_Date = mapped_column(t.Date)
+    RTT_Period_Length = mapped_column(t.BIGINT)
+    RTT_Period_Start_Date = mapped_column(t.Date)
+    RTT_Period_Status = mapped_column(t.VARCHAR(2))
+    Reason_For_Access = mapped_column(t.VARCHAR(100))
+    Rural_Urban_Indicator = mapped_column(t.VARCHAR(1))
+    SNOMED_Version = mapped_column(t.VARCHAR(6))
+    SUS_Code_Cleaning_Applied = mapped_column(t.VARCHAR(5))
+    SUS_Costing_Period = mapped_column(t.VARCHAR(20))
+    SUS_Excluded = mapped_column(t.VARCHAR(5))
+    SUS_Final_Price = mapped_column(t.Numeric)
+    SUS_Grouper_Version = mapped_column(t.VARCHAR(8))
+    SUS_HRG_Code = mapped_column(t.VARCHAR(5))
+    SUS_MFAdjustment = mapped_column(t.Numeric)
+    SUS_MFF = mapped_column(t.VARCHAR(10))
+    SUS_Tariff = mapped_column(t.Numeric)
+    SUS_Tariff_Description = mapped_column(t.VARCHAR(10))
+    Sex = mapped_column(t.VARCHAR(5))
+    Site_Code_of_Treatment = mapped_column(t.VARCHAR(5))
+    Wait_Time_Measurement_Type = mapped_column(t.VARCHAR(2))
+    Withheld_Identity_Reason = mapped_column(t.VARCHAR(2))
+    Year_of_Birth = mapped_column(t.VARCHAR(4))
 
 
-class OPA(Base):
-    __tablename__ = "OPA"
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="OPAEpisodes", cascade="all, delete"
-    )
-    OPA_Ident = Column(Integer, primary_key=True)
-    Appointment_Date = Column(Date)
-    Attendance_Status = Column(String)
-    Ethnic_Category = Column(String)
-    First_Attendance = Column(String)
-    Treatment_Function_Code = Column(String)
-    Consultation_Medium_Used = Column(String)
+class ECDS_EC_Diagnoses(Base):
+    __tablename__ = "ECDS_EC_Diagnoses"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    OPA_Proc = relationship(
-        "OPA_Proc", back_populates="OPA", cascade="all, delete, delete-orphan"
-    )
+    Patient_ID = mapped_column(t.BIGINT)
+    DiagnosisCode = mapped_column(t.VARCHAR(50))
+    EC_Ident = mapped_column(t.BIGINT)
+    Ordinal = mapped_column(t.Integer)
 
 
-class OPA_Proc(Base):
-    __tablename__ = "OPA_Proc"
+class EC_AlcoholDrugInvolvement(Base):
+    __tablename__ = "EC_AlcoholDrugInvolvement"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="OPA_Proc")
-    OPA_Ident = Column(Integer, ForeignKey("OPA.OPA_Ident"), primary_key=True)
-    OPA = relationship(
-        "OPA",
-        back_populates="OPA_Proc",
-        cascade="all, delete, delete-orphan",
-        single_parent=True,
-    )
-    Primary_Procedure_Code = Column(String)
+    Patient_ID = mapped_column(t.BIGINT)
+    EC_Alcohol_Drug_Involvement_01 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_02 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_03 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_04 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_05 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_06 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_07 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_08 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_09 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_10 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_11 = mapped_column(t.VARCHAR(20))
+    EC_Alcohol_Drug_Involvement_12 = mapped_column(t.VARCHAR(20))
+    EC_Ident = mapped_column(t.BIGINT)
+    Is_Code_Approved_01 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_02 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_03 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_04 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_05 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_06 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_07 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_08 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_09 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_10 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_11 = mapped_column(t.VARCHAR(5))
+    Is_Code_Approved_12 = mapped_column(t.VARCHAR(5))
 
 
-class DecisionSupportValue(Base):
-    __tablename__ = "DecisionSupportValue"
+class EC_Comorbidities(Base):
+    __tablename__ = "EC_Comorbidities"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="DecisionSupportValue", cascade="all, delete"
-    )
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-    AlgorithmType = Column(Integer)
-    CalculationDateTime = Column(DateTime)
-    NumericValue = Column(Float)
+    Patient_ID = mapped_column(t.BIGINT)
+    Comorbidity_01 = mapped_column(t.VARCHAR(20))
+    Comorbidity_02 = mapped_column(t.VARCHAR(20))
+    Comorbidity_03 = mapped_column(t.VARCHAR(20))
+    Comorbidity_04 = mapped_column(t.VARCHAR(20))
+    Comorbidity_05 = mapped_column(t.VARCHAR(20))
+    Comorbidity_06 = mapped_column(t.VARCHAR(20))
+    Comorbidity_07 = mapped_column(t.VARCHAR(20))
+    Comorbidity_08 = mapped_column(t.VARCHAR(20))
+    Comorbidity_09 = mapped_column(t.VARCHAR(20))
+    Comorbidity_10 = mapped_column(t.VARCHAR(20))
+    Comorbidity_11 = mapped_column(t.VARCHAR(20))
+    Comorbidity_12 = mapped_column(t.VARCHAR(20))
+    Comorbidity_13 = mapped_column(t.VARCHAR(20))
+    Comorbidity_14 = mapped_column(t.VARCHAR(20))
+    Comorbidity_15 = mapped_column(t.VARCHAR(20))
+    Comorbidity_16 = mapped_column(t.VARCHAR(20))
+    Comorbidity_17 = mapped_column(t.VARCHAR(20))
+    Comorbidity_18 = mapped_column(t.VARCHAR(20))
+    Comorbidity_19 = mapped_column(t.VARCHAR(20))
+    Comorbidity_20 = mapped_column(t.VARCHAR(20))
+    Comorbidity_21 = mapped_column(t.VARCHAR(20))
+    Comorbidity_22 = mapped_column(t.VARCHAR(20))
+    Comorbidity_23 = mapped_column(t.VARCHAR(20))
+    Comorbidity_24 = mapped_column(t.VARCHAR(20))
+    EC_Ident = mapped_column(t.BIGINT)
+
+
+class EC_Cost(Base):
+    __tablename__ = "EC_Cost"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT)
+    Grand_Total_Payment_MFF = mapped_column(t.REAL)
+    Tariff_Total_Payment = mapped_column(t.REAL)
+
+
+class EC_Diagnosis(Base):
+    __tablename__ = "EC_Diagnosis"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    AEA_Diagnosis_01 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_02 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_03 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_04 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_05 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_06 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_07 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_08 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_09 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_10 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_11 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_12 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_13 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_14 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_15 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_16 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_17 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_18 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_19 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_20 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_21 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_22 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_23 = mapped_column(t.VARCHAR(100))
+    AEA_Diagnosis_24 = mapped_column(t.VARCHAR(100))
+    EC_Chief_Complaint_SNOMED_CT = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_01 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_02 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_03 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_04 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_05 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_06 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_07 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_08 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_09 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_10 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_11 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_12 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_13 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_14 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_15 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_16 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_17 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_18 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_19 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_20 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_21 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_22 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_23 = mapped_column(t.VARCHAR(20))
+    EC_Diagnosis_24 = mapped_column(t.VARCHAR(20))
+    EC_Ident = mapped_column(t.BIGINT)
+
+
+class EC_Investigation(Base):
+    __tablename__ = "EC_Investigation"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    AEA_Investigation_01 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_02 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_03 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_04 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_05 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_06 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_07 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_08 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_09 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_10 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_11 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_12 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_13 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_14 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_15 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_16 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_17 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_18 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_19 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_20 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_21 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_22 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_23 = mapped_column(t.VARCHAR(20))
+    AEA_Investigation_24 = mapped_column(t.VARCHAR(20))
+    EC_Ident = mapped_column(t.BIGINT)
+    EC_Investigation_01 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_02 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_03 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_04 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_05 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_06 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_07 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_08 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_09 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_10 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_11 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_12 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_13 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_14 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_15 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_16 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_17 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_18 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_19 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_20 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_21 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_22 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_23 = mapped_column(t.VARCHAR(20))
+    EC_Investigation_24 = mapped_column(t.VARCHAR(20))
+
+
+class EC_PatientMentalHealth(Base):
+    __tablename__ = "EC_PatientMentalHealth"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    EC_Ident = mapped_column(t.BIGINT)
+    MH_Classification_01 = mapped_column(t.VARCHAR(20))
+    MH_Classification_010 = mapped_column(t.VARCHAR(20))
+    MH_Classification_011 = mapped_column(t.VARCHAR(20))
+    MH_Classification_012 = mapped_column(t.VARCHAR(20))
+    MH_Classification_013 = mapped_column(t.VARCHAR(20))
+    MH_Classification_014 = mapped_column(t.VARCHAR(20))
+    MH_Classification_015 = mapped_column(t.VARCHAR(20))
+    MH_Classification_016 = mapped_column(t.VARCHAR(20))
+    MH_Classification_017 = mapped_column(t.VARCHAR(20))
+    MH_Classification_018 = mapped_column(t.VARCHAR(20))
+    MH_Classification_019 = mapped_column(t.VARCHAR(20))
+    MH_Classification_02 = mapped_column(t.VARCHAR(20))
+    MH_Classification_03 = mapped_column(t.VARCHAR(20))
+    MH_Classification_04 = mapped_column(t.VARCHAR(20))
+    MH_Classification_05 = mapped_column(t.VARCHAR(20))
+    MH_Classification_06 = mapped_column(t.VARCHAR(20))
+    MH_Classification_07 = mapped_column(t.VARCHAR(20))
+    MH_Classification_08 = mapped_column(t.VARCHAR(20))
+    MH_Classification_09 = mapped_column(t.VARCHAR(20))
+    MH_Classification_20 = mapped_column(t.VARCHAR(20))
+    MH_Classification_21 = mapped_column(t.VARCHAR(20))
+    MH_Classification_22 = mapped_column(t.VARCHAR(20))
+    MH_Classification_23 = mapped_column(t.VARCHAR(20))
+    MH_Classification_24 = mapped_column(t.VARCHAR(20))
+    MH_Expiry_Date_01 = mapped_column(t.Date)
+    MH_Expiry_Date_010 = mapped_column(t.Date)
+    MH_Expiry_Date_011 = mapped_column(t.Date)
+    MH_Expiry_Date_012 = mapped_column(t.Date)
+    MH_Expiry_Date_013 = mapped_column(t.Date)
+    MH_Expiry_Date_014 = mapped_column(t.Date)
+    MH_Expiry_Date_015 = mapped_column(t.Date)
+    MH_Expiry_Date_016 = mapped_column(t.Date)
+    MH_Expiry_Date_017 = mapped_column(t.Date)
+    MH_Expiry_Date_018 = mapped_column(t.Date)
+    MH_Expiry_Date_019 = mapped_column(t.Date)
+    MH_Expiry_Date_02 = mapped_column(t.Date)
+    MH_Expiry_Date_03 = mapped_column(t.Date)
+    MH_Expiry_Date_04 = mapped_column(t.Date)
+    MH_Expiry_Date_05 = mapped_column(t.Date)
+    MH_Expiry_Date_06 = mapped_column(t.Date)
+    MH_Expiry_Date_07 = mapped_column(t.Date)
+    MH_Expiry_Date_08 = mapped_column(t.Date)
+    MH_Expiry_Date_09 = mapped_column(t.Date)
+    MH_Expiry_Date_20 = mapped_column(t.Date)
+    MH_Expiry_Date_21 = mapped_column(t.Date)
+    MH_Expiry_Date_22 = mapped_column(t.Date)
+    MH_Expiry_Date_23 = mapped_column(t.Date)
+    MH_Expiry_Date_24 = mapped_column(t.Date)
+    MH_Start_Date_01 = mapped_column(t.Date)
+    MH_Start_Date_010 = mapped_column(t.Date)
+    MH_Start_Date_011 = mapped_column(t.Date)
+    MH_Start_Date_012 = mapped_column(t.Date)
+    MH_Start_Date_013 = mapped_column(t.Date)
+    MH_Start_Date_014 = mapped_column(t.Date)
+    MH_Start_Date_015 = mapped_column(t.Date)
+    MH_Start_Date_016 = mapped_column(t.Date)
+    MH_Start_Date_017 = mapped_column(t.Date)
+    MH_Start_Date_018 = mapped_column(t.Date)
+    MH_Start_Date_019 = mapped_column(t.Date)
+    MH_Start_Date_02 = mapped_column(t.Date)
+    MH_Start_Date_03 = mapped_column(t.Date)
+    MH_Start_Date_04 = mapped_column(t.Date)
+    MH_Start_Date_05 = mapped_column(t.Date)
+    MH_Start_Date_06 = mapped_column(t.Date)
+    MH_Start_Date_07 = mapped_column(t.Date)
+    MH_Start_Date_08 = mapped_column(t.Date)
+    MH_Start_Date_09 = mapped_column(t.Date)
+    MH_Start_Date_20 = mapped_column(t.Date)
+    MH_Start_Date_21 = mapped_column(t.Date)
+    MH_Start_Date_22 = mapped_column(t.Date)
+    MH_Start_Date_23 = mapped_column(t.Date)
+    MH_Start_Date_24 = mapped_column(t.Date)
+
+
+class EC_Treatment(Base):
+    __tablename__ = "EC_Treatment"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    AEA_Treatment_01 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_02 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_03 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_04 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_05 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_06 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_07 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_08 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_09 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_10 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_11 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_12 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_13 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_14 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_15 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_16 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_17 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_18 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_19 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_20 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_21 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_22 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_23 = mapped_column(t.VARCHAR(20))
+    AEA_Treatment_24 = mapped_column(t.VARCHAR(20))
+    EC_Ident = mapped_column(t.BIGINT)
+    EC_Treatment_01 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_02 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_03 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_04 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_05 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_06 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_07 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_08 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_09 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_10 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_11 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_12 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_13 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_14 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_15 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_16 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_17 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_18 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_19 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_20 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_21 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_22 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_23 = mapped_column(t.VARCHAR(20))
+    EC_Treatment_24 = mapped_column(t.VARCHAR(20))
 
 
 class HealthCareWorker(Base):
     __tablename__ = "HealthCareWorker"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="HealthCareWorker", cascade="all, delete"
-    )
-    # Only ever contains "Y" so redundant really
-    HealthCareWorker = Column(String)
+    Patient_ID = mapped_column(t.BIGINT)
+    HealthCareWorker = mapped_column(t.VARCHAR(10))
 
 
-class ClusterRandomisedTrial(Base):
-    """Represents relationships between cluster randomised trials and organisations."""
+class HighCostDrugs(Base):
+    __tablename__ = "HighCostDrugs"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    __tablename__ = "ClusterRandomisedTrial"
-
-    # This table's PK is probably a composite of Organisation_ID and TrialNumber (we
-    # assume that one organisation can be in one arm of one trial). However, MSSQL
-    # complains when we add `primary_key=True` to two columns. To make life easier, we
-    # use a column that isn't in the database.
-    pk = Column(Integer, primary_key=True)
-
-    Organisation_ID = Column(Integer, ForeignKey("Organisation.Organisation_ID"))
-    Organisation = relationship("Organisation", back_populates="ClusterRandomisedTrial")
-
-    TrialNumber = Column(
-        Integer, ForeignKey("ClusterRandomisedTrialReference.TrialNumber")
-    )
-    ClusterRandomisedTrialReference = relationship(
-        "ClusterRandomisedTrialReference", back_populates="ClusterRandomisedTrial"
-    )
-
-    TrialArm = Column(String)
-
-
-class ClusterRandomisedTrialDetail(Base):
-    """Represents mappings of properties to values."""
-
-    __tablename__ = "ClusterRandomisedTrialDetail"
-
-    # This table's PK is probably a composite of Organisation_ID, TrialNumber, and
-    # Property. However, MSSQL complains about Property's type. To make life easier, we
-    # use a column that isn't in the database.
-    pk = Column(Integer, primary_key=True)
-
-    TrialNumber = Column(
-        Integer, ForeignKey("ClusterRandomisedTrialReference.TrialNumber")
-    )
-    ClusterRandomisedTrialReference = relationship(
-        "ClusterRandomisedTrialReference", back_populates="ClusterRandomisedTrialDetail"
-    )
-
-    Organisation_ID = Column(Integer, ForeignKey("Organisation.Organisation_ID"))
-    Organisation = relationship(
-        "Organisation", back_populates="ClusterRandomisedTrialDetail"
-    )
-
-    Property = Column(String)
-    PropertyValue = Column(String)
+    Patient_ID = mapped_column(t.BIGINT)
+    ActivityTreatmentFunctionCode = mapped_column(t.VARCHAR(100))
+    DerivedSNOMEDFromName = mapped_column(t.VARCHAR(1000))
+    DerivedVTM = mapped_column(t.VARCHAR(1000))
+    DerivedVTMName = mapped_column(t.VARCHAR(1000))
+    DispensingRoute = mapped_column(t.VARCHAR(100))
+    DrugName = mapped_column(t.VARCHAR(1000))
+    DrugPackSize = mapped_column(t.VARCHAR(1000))
+    DrugQuanitityOrWeightProportion = mapped_column(t.VARCHAR(1000))
+    DrugStrength = mapped_column(t.VARCHAR(1000))
+    DrugVolume = mapped_column(t.VARCHAR(1000))
+    FinancialMonth = mapped_column(t.VARCHAR(2))
+    FinancialYear = mapped_column(t.VARCHAR(6))
+    HighCostTariffExcludedDrugCode = mapped_column(t.VARCHAR(100))
+    HomeDeliveryCharge = mapped_column(t.VARCHAR(100))
+    PersonAge = mapped_column(t.Integer)
+    PersonGender = mapped_column(t.Integer)
+    RouteOfAdministration = mapped_column(t.VARCHAR(100))
+    TherapeuticIndicationCode = mapped_column(t.VARCHAR(1000))
+    TotalCost = mapped_column(t.VARCHAR(100))
+    UnitOfMeasurement = mapped_column(t.VARCHAR(100))
 
 
-class ClusterRandomisedTrialReference(Base):
-    """Represents cluster randomised trial entities."""
+class Household(Base):
+    __tablename__ = "Household"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    __tablename__ = "ClusterRandomisedTrialReference"
-
-    TrialNumber = Column(Integer, primary_key=True)
-    ClusterRandomisedTrial = relationship(
-        "ClusterRandomisedTrial", back_populates="ClusterRandomisedTrialReference"
-    )
-    ClusterRandomisedTrialDetail = relationship(
-        "ClusterRandomisedTrialDetail", back_populates="ClusterRandomisedTrialReference"
-    )
-
-    TrialName = Column(String)
-    TrialDescription = Column(String)
-    CPMSNumber = Column(Integer)
+    CareHome = mapped_column(t.Boolean)
+    HouseholdSize = mapped_column(t.Integer)
+    Household_ID = mapped_column(t.BIGINT)
+    MSOA = mapped_column(t.VARCHAR(50))
+    MatchesUprnCount = mapped_column(t.Boolean)
+    MixedSoftwareHousehold = mapped_column(t.Boolean)
+    NFA_Unknown = mapped_column(t.Boolean)
+    Prison = mapped_column(t.Boolean)
+    TppPercentage = mapped_column(t.Integer)
 
 
-class Therapeutics(Base):
-    __tablename__ = "Therapeutics"
+class HouseholdMember(Base):
+    __tablename__ = "HouseholdMember"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    # This column isn't in the actual database but SQLAlchemy gets a bit upset
-    # if we don't give it a primary key
-    pk = Column(Integer, primary_key=True)
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship(
-        "Patient", back_populates="Therapeutics", cascade="all, delete"
-    )
-
-    # 'Casirivimab and imdevimab '[note trailing space], 'Molnupiravir', 'Remdesivir', 'sarilumab', 'Sotrovimab' , 'Tocilizumab'
-    Intervention = Column(String)
-
-    # 'hospital_onset', 'hospitalised_with', 'non_hospitalised'
-    COVID_indication = Column(String)
-
-    # 'Approved','Treatment Complete','Treatment Not Started','Treatment Stopped'
-    CurrentStatus = Column(String)
-    TreatmentStartDate = Column(String)
-    Received = Column(String)
-
-    # e.g. 'solid cancer', 'IMID',
-    # look consistent but can be a combination of 2 or more separated with ' and ' e.g. 'renal disease and IMID'
-    # sometimes also contains string "Patients with[ a]"
-    MOL1_high_risk_cohort = Column(String)
-    SOT02_risk_cohorts = Column(String)
-    CASIM05_risk_cohort = Column(String)
-
-    Region = Column(String)
-
-    # Other columns in the table which we add into the temp table (for removing duplicates) but
-    # don't use in queries:
-    AgeAtReceivedDate = Column(String)
-    FormName = Column(String)
-    MOL1_onset_of_symptoms = Column(String)
-    SOT02_onset_of_symptoms = Column(String)
-    Count = Column(String)
-    Der_LoadDate = Column(String)
+    Patient_ID = mapped_column(t.BIGINT)
+    HouseholdMember_ID = mapped_column(t.BIGINT)
+    Household_ID = mapped_column(t.BIGINT)
 
 
-class ONS_CIS_New(Base):
-    __tablename__ = "ONS_CIS_New"
+class ICD10Dictionary(Base):
+    __tablename__ = "ICD10Dictionary"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    # fake pk to satisfy the ORM
-    pk = Column(Integer, primary_key=True)
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="ONS_CIS_New")
-    visit_date = Column(Date)
-    visit_num = Column(Integer)
-    nhs_data_share = Column(Integer)
-    last_linkage_dt = Column(Date)
-    imd_decile_E = Column(Integer)
-    imd_quartile_E = Column(Integer)
-    rural_urban = Column(Integer)
+    Code = mapped_column(t.VARCHAR(4))
+    CodeDescription = mapped_column(t.VARCHAR(500))
+    ParentCode = mapped_column(t.CHAR(3))
+    ParentCodeDescription = mapped_column(t.VARCHAR(500))
 
 
-class UKRR(Base):
-    __tablename__ = "UKRR"
+class ICNARC(Base):
+    __tablename__ = "ICNARC"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    # fake pk to satisfy the ORM
-    pk = Column(Integer, primary_key=True)
-
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="UKRR")
-
-    dataset = Column(String)
-    renal_centre = Column(String)
-    rrt_start = Column(Date)
-    mod_start = Column(String)
-    mod_prev = Column(String)
-    creat = Column(Integer)
-    eGFR_ckdepi = Column(Float)
+    Patient_ID = mapped_column(t.BIGINT)
+    AP2score = mapped_column(t.Integer)
+    AdvancedDays_CardiovascularSupport = mapped_column(t.Integer)
+    AdvancedDays_RespiratorySupport = mapped_column(t.Integer)
+    BasicDays_CardiovascularSupport = mapped_column(t.Integer)
+    BasicDays_RespiratorySupport = mapped_column(t.Integer)
+    CalculatedAge = mapped_column(t.Integer)
+    DateOfDeath = mapped_column(t.DateTime)
+    EstimatedAge = mapped_column(t.Integer)
+    HRG = mapped_column(t.VARCHAR(50))
+    HighestLevelFirst24Hours = mapped_column(t.Integer)
+    HospitalAdmissionDate = mapped_column(t.DateTime)
+    HospitalDischargeDate = mapped_column(t.DateTime)
+    ICNARC_ID = mapped_column(t.BIGINT)
+    IMscore = mapped_column(t.Integer)
+    IcuAdmissionDateTime = mapped_column(t.DateTime)
+    IcuDischargeDateTime = mapped_column(t.DateTime)
+    Level0days = mapped_column(t.Integer)
+    Level1days = mapped_column(t.Integer)
+    Level2days = mapped_column(t.Integer)
+    Level3days = mapped_column(t.Integer)
+    OriginalHospitalAdmissionDate = mapped_column(t.DateTime)
+    OriginalIcuAdmissionDate = mapped_column(t.DateTime)
+    Sex = mapped_column(t.VARCHAR(10))
+    SupportDays_Dermatological = mapped_column(t.Integer)
+    SupportDays_Gastrointestinal = mapped_column(t.Integer)
+    SupportDays_Liver = mapped_column(t.Integer)
+    SupportDays_Neurological = mapped_column(t.Integer)
+    SupportDays_Renal = mapped_column(t.Integer)
+    TransferredIn = mapped_column(t.VARCHAR(10))
+    TransferredOut = mapped_column(t.VARCHAR(10))
+    UltimateHospitalDischargeDate = mapped_column(t.DateTime)
+    UltimateIcuDischargeDate = mapped_column(t.DateTime)
+    Ventilator = mapped_column(t.Integer)
+    ahsurv = mapped_column(t.Integer)
+    ausurv = mapped_column(t.Integer)
+    pfratio = mapped_column(t.REAL)
+    yhsurv = mapped_column(t.Integer)
+    yusurv = mapped_column(t.Integer)
 
 
 class ISARIC_New(Base):
     __tablename__ = "ISARIC_New"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    # fake pk to satisfy the ORM
-    pk = Column(Integer, primary_key=True)
+    Patient_ID = mapped_column(t.BIGINT)
+    abdopain_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    abdopain_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    adeno_mbcat = mapped_column(t.VARCHAR(1000))
+    adeno_mbcat_v2 = mapped_column(t.VARCHAR(1000))
+    adm_no_symp = mapped_column(t.VARCHAR(1000))
+    admission_diabp_vsorres = mapped_column(t.VARCHAR(1000))
+    admission_signs_and_symptoms_complete = mapped_column(t.VARCHAR(1000))
+    age = mapped_column(t.VARCHAR(1000))
+    age_factor = mapped_column("age.factor", t.VARCHAR(1000))
+    age_estimateyears = mapped_column(t.VARCHAR(1000))
+    age_estimateyearsu = mapped_column(t.VARCHAR(1000))
+    agedatyn = mapped_column(t.VARCHAR(1000))
+    ageusia_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    ageusia_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    aidshiv_mhyn = mapped_column(t.VARCHAR(1000))
+    aneamia_ceterm = mapped_column(t.VARCHAR(1000))
+    animal_erdat = mapped_column(t.VARCHAR(1000))
+    animal_erdat_2 = mapped_column(t.VARCHAR(1000))
+    animal_erterm = mapped_column(t.VARCHAR(1000))
+    animal_erterm_2 = mapped_column(t.VARCHAR(1000))
+    animal_eryn = mapped_column(t.VARCHAR(1000))
+    animal_eryn_2 = mapped_column(t.VARCHAR(1000))
+    anosmia_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    anosmia_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    antibiotic2_cmtrt = mapped_column(t.VARCHAR(1000))
+    antibiotic2_cmyn = mapped_column(t.VARCHAR(1000))
+    antibiotic3_cmtrt = mapped_column(t.VARCHAR(1000))
+    antibiotic3_cmyn = mapped_column(t.VARCHAR(1000))
+    antibiotic4_cmtrt = mapped_column(t.VARCHAR(1000))
+    antibiotic4_cmyn = mapped_column(t.VARCHAR(1000))
+    antibiotic5_cmtrt = mapped_column(t.VARCHAR(1000))
+    antibiotic5_cmyn = mapped_column(t.VARCHAR(1000))
+    antibiotic6_cmtrt = mapped_column(t.VARCHAR(1000))
+    antibiotic6_cmyn = mapped_column(t.VARCHAR(1000))
+    antibiotic7_cmtrt = mapped_column(t.VARCHAR(1000))
+    antibiotic7_cmyn = mapped_column(t.VARCHAR(1000))
+    antibiotic_cmtrt = mapped_column(t.VARCHAR(1000))
+    antibiotic_cmyn = mapped_column(t.VARCHAR(1000))
+    antifung_cmyn = mapped_column(t.VARCHAR(1000))
+    antifungal_cmtrt = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___1 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___10 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___11 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___12 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___2 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___3 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___4 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___5 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___6 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___7 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___8 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmtrt___9 = mapped_column(t.VARCHAR(1000))
+    antiviral_cmyn = mapped_column(t.VARCHAR(1000))
+    any_daily_fio2_21 = mapped_column(t.VARCHAR(1000))
+    any_daily_fio2_28 = mapped_column(t.VARCHAR(1000))
+    any_daily_hoterm = mapped_column(t.VARCHAR(1000))
+    any_daily_invasive_prtrt = mapped_column(t.VARCHAR(1000))
+    any_daily_nasaloxy_cmtrt = mapped_column(t.VARCHAR(1000))
+    any_daily_noninvasive_prtrt = mapped_column(t.VARCHAR(1000))
+    any_icu = mapped_column(t.VARCHAR(1000))
+    any_icu_hoterm = mapped_column(t.VARCHAR(1000))
+    any_invasive = mapped_column(t.VARCHAR(1000))
+    any_invasive_proccur = mapped_column(t.VARCHAR(1000))
+    any_noninvasive = mapped_column(t.VARCHAR(1000))
+    any_noninvasive_proccur = mapped_column(t.VARCHAR(1000))
+    any_oxygen = mapped_column(t.VARCHAR(1000))
+    any_oxygen_cmoccur = mapped_column(t.VARCHAR(1000))
+    any_oxygenhf_cmoccur = mapped_column(t.VARCHAR(1000))
+    any_trach = mapped_column(t.VARCHAR(1000))
+    anydat_day1 = mapped_column("anydat.day1", t.VARCHAR(1000))
+    anydat_disch = mapped_column("anydat.disch", t.VARCHAR(1000))
+    apdm_age = mapped_column(t.VARCHAR(1000))
+    aplb_lbmethod = mapped_column(t.VARCHAR(1000))
+    aplb_lbmethodoth = mapped_column(t.VARCHAR(1000))
+    aplb_lborres = mapped_column(t.VARCHAR(1000))
+    aplb_lborres_out = mapped_column(t.VARCHAR(1000))
+    aplb_lbperf = mapped_column(t.VARCHAR(1000))
+    aplb_lbperf_out = mapped_column(t.VARCHAR(1000))
+    apsc_brdisdat = mapped_column(t.VARCHAR(1000))
+    apsc_brfedind = mapped_column(t.VARCHAR(1000))
+    apsc_brfedindy = mapped_column(t.VARCHAR(1000))
+    apsc_dvageind = mapped_column(t.VARCHAR(1000))
+    apsc_gestout = mapped_column(t.VARCHAR(1000))
+    apsc_vcageind = mapped_column(t.VARCHAR(1000))
+    apvs_weight = mapped_column(t.VARCHAR(1000))
+    apvs_weightnk = mapped_column(t.VARCHAR(1000))
+    apvs_weightu = mapped_column(t.VARCHAR(1000))
+    ards_ceoccur = mapped_column(t.VARCHAR(1000))
+    ari = mapped_column(t.VARCHAR(1000))
+    arm = mapped_column(t.VARCHAR(1000))
+    arm_n = mapped_column(t.VARCHAR(1000))
+    arm_participant = mapped_column(t.VARCHAR(1000))
+    arrhythmia_ceterm = mapped_column(t.VARCHAR(1000))
+    asthma_mhyn = mapped_column(t.VARCHAR(1000))
+    asymptomatic = mapped_column(t.VARCHAR(1000))
+    avpu_vsorres_day1 = mapped_column("avpu_vsorres.day1", t.VARCHAR(1000))
+    avpu_vsorres_disch = mapped_column("avpu_vsorres.disch", t.VARCHAR(1000))
+    bact_mborres = mapped_column(t.VARCHAR(1000))
+    bacteraemia_ceterm = mapped_column(t.VARCHAR(1000))
+    bacteria_mborres = mapped_column(t.VARCHAR(1000))
+    bactpneu_ceoccur = mapped_column(t.VARCHAR(1000))
+    bleed_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    bleed_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    bleed_ceterm_v2 = mapped_column(t.VARCHAR(1000))
+    bleed_cetermy_v2 = mapped_column(t.VARCHAR(1000))
+    bleed_cetermy_v3 = mapped_column(t.VARCHAR(1000))
+    bloodgroup = mapped_column(t.VARCHAR(1000))
+    bronchio_ceterm = mapped_column(t.VARCHAR(1000))
+    calc_age = mapped_column(t.VARCHAR(1000))
+    cardiacarrest_ceterm = mapped_column(t.VARCHAR(1000))
+    cardiomyopathy_ceterm = mapped_column(t.VARCHAR(1000))
+    casiriv_cmtrt_first = mapped_column(t.VARCHAR(1000))
+    ccg = mapped_column(t.VARCHAR(1000))
+    cestdat = mapped_column(t.VARCHAR(1000))
+    chestpain_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    chestpain_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    chrincard = mapped_column(t.VARCHAR(1000))
+    chronic_ace_cmoccur = mapped_column(t.VARCHAR(1000))
+    chronic_arb_cmoccur = mapped_column(t.VARCHAR(1000))
+    chronic_nsaid_cmoccur = mapped_column(t.VARCHAR(1000))
+    chronichaemo_mhyn = mapped_column(t.VARCHAR(1000))
+    chronicneu_mhyn = mapped_column(t.VARCHAR(1000))
+    chronicpul_mhyn = mapped_column(t.VARCHAR(1000))
+    clinical_frailty = mapped_column(t.VARCHAR(1000))
+    clinicalpneu_mborres = mapped_column(t.VARCHAR(1000))
+    coagulo_ceterm = mapped_column(t.VARCHAR(1000))
+    comorb_none = mapped_column(t.VARCHAR(1000))
+    comorbidities_complete = mapped_column(t.VARCHAR(1000))
+    complications_complete = mapped_column(t.VARCHAR(1000))
+    complications_none = mapped_column(t.VARCHAR(1000))
+    confirmed_negative_pcr = mapped_column(t.VARCHAR(1000))
+    confirmed_negative_pcr_complete = mapped_column(t.VARCHAR(1000))
+    confusion_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    confusion_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    conjunct_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    conjunct_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    consent_ctu_dms_complete = mapped_column(t.VARCHAR(1000))
+    consent_daterec = mapped_column(t.VARCHAR(1000))
+    consent_given = mapped_column(t.VARCHAR(1000))
+    consent_mode___1 = mapped_column(t.VARCHAR(1000))
+    consent_mode___10 = mapped_column(t.VARCHAR(1000))
+    consent_mode___11 = mapped_column(t.VARCHAR(1000))
+    consent_mode___2 = mapped_column(t.VARCHAR(1000))
+    consent_mode___3 = mapped_column(t.VARCHAR(1000))
+    consent_mode___4 = mapped_column(t.VARCHAR(1000))
+    consent_mode___5 = mapped_column(t.VARCHAR(1000))
+    consent_mode___6 = mapped_column(t.VARCHAR(1000))
+    consent_mode___7 = mapped_column(t.VARCHAR(1000))
+    consent_mode___8 = mapped_column(t.VARCHAR(1000))
+    consent_mode___9 = mapped_column(t.VARCHAR(1000))
+    consent_optcondit___1 = mapped_column(t.VARCHAR(1000))
+    consent_optcondit___2 = mapped_column(t.VARCHAR(1000))
+    consent_optcondit___3 = mapped_column(t.VARCHAR(1000))
+    consent_optcondit___4 = mapped_column(t.VARCHAR(1000))
+    consent_phone = mapped_column(t.VARCHAR(1000))
+    conv_plasma_cmyn = mapped_column(t.VARCHAR(1000))
+    core_additional_information_complete = mapped_column(t.VARCHAR(4000))
+    coriona_ieorres2 = mapped_column(t.VARCHAR(1000))
+    coriona_ieorres3 = mapped_column(t.VARCHAR(1000))
+    corna_mbcat = mapped_column(t.VARCHAR(1000))
+    corna_mbcaty = mapped_column(t.VARCHAR(1000))
+    corona_ieorres = mapped_column(t.VARCHAR(1000))
+    coronaother_mborres = mapped_column(t.VARCHAR(1000))
+    corticost2_cmdose = mapped_column(t.VARCHAR(1000))
+    corticost2_cmroute = mapped_column(t.VARCHAR(1000))
+    corticost2_cmtrt = mapped_column(t.VARCHAR(1000))
+    corticost2_cmtrt_type = mapped_column(t.VARCHAR(1000))
+    corticost2_cmyn = mapped_column(t.VARCHAR(1000))
+    corticost3_cmdose = mapped_column(t.VARCHAR(1000))
+    corticost3_cmroute = mapped_column(t.VARCHAR(1000))
+    corticost3_cmtrt = mapped_column(t.VARCHAR(1000))
+    corticost3_cmtrt_type = mapped_column(t.VARCHAR(1000))
+    corticost3_cmyn = mapped_column(t.VARCHAR(1000))
+    corticost4_cmdose = mapped_column(t.VARCHAR(1000))
+    corticost4_cmroute = mapped_column(t.VARCHAR(1000))
+    corticost4_cmtrt = mapped_column(t.VARCHAR(1000))
+    corticost4_cmtrt_type = mapped_column(t.VARCHAR(1000))
+    corticost4_cmyn = mapped_column(t.VARCHAR(1000))
+    corticost5_cmdose = mapped_column(t.VARCHAR(1000))
+    corticost5_cmroute = mapped_column(t.VARCHAR(1000))
+    corticost5_cmtrt = mapped_column(t.VARCHAR(1000))
+    corticost5_cmtrt_type = mapped_column(t.VARCHAR(1000))
+    corticost5_cmyn = mapped_column(t.VARCHAR(1000))
+    corticost_cmdose = mapped_column(t.VARCHAR(1000))
+    corticost_cmroute = mapped_column(t.VARCHAR(1000))
+    corticost_cmtrt = mapped_column(t.VARCHAR(1000))
+    corticost_cmtrt_type = mapped_column(t.VARCHAR(1000))
+    corticost_cmyn = mapped_column(t.VARCHAR(1000))
+    cough = mapped_column(t.VARCHAR(1000))
+    cough_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    cough_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    coughhb_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    coughhb_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    coughsput_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    coughsput_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    country = mapped_column(t.VARCHAR(1000))
+    country_pcds_day1 = mapped_column("country_pcds.day1", t.VARCHAR(1000))
+    country_pcds_disch = mapped_column("country_pcds.disch", t.VARCHAR(1000))
+    cov19sars_mbyn_v2 = mapped_column(t.VARCHAR(1000))
+    covid19_new = mapped_column(t.VARCHAR(1000))
+    covid19_vaccine = mapped_column(t.VARCHAR(1000))
+    covid19_vaccine2d = mapped_column(t.VARCHAR(1000))
+    covid19_vaccine2d_nk = mapped_column(t.VARCHAR(1000))
+    covid19_vaccine_other_type = mapped_column(t.VARCHAR(1000))
+    covid19_vaccine_type = mapped_column(t.VARCHAR(1000))
+    covid19_vaccined = mapped_column(t.VARCHAR(1000))
+    covid19_vaccined_nk = mapped_column(t.VARCHAR(1000))
+    cryptogenic_ceterm = mapped_column(t.VARCHAR(1000))
+    daily_alt_lborres_day1 = mapped_column("daily_alt_lborres.day1", t.VARCHAR(1000))
+    daily_alt_lborres_disch = mapped_column("daily_alt_lborres.disch", t.VARCHAR(1000))
+    daily_alt_lbyn_day1 = mapped_column("daily_alt_lbyn.day1", t.VARCHAR(1000))
+    daily_alt_lbyn_disch = mapped_column("daily_alt_lbyn.disch", t.VARCHAR(1000))
+    daily_altop_lbyn_day1 = mapped_column("daily_altop_lbyn.day1", t.VARCHAR(1000))
+    daily_altop_lbyn_disch = mapped_column("daily_altop_lbyn.disch", t.VARCHAR(1000))
+    daily_aptt_lborres_day1 = mapped_column("daily_aptt_lborres.day1", t.VARCHAR(1000))
+    daily_aptt_lborres_disch = mapped_column(
+        "daily_aptt_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_aptt_lbyn_day1 = mapped_column("daily_aptt_lbyn.day1", t.VARCHAR(1000))
+    daily_aptt_lbyn_disch = mapped_column("daily_aptt_lbyn.disch", t.VARCHAR(1000))
+    daily_apttop_lborres_day1 = mapped_column(
+        "daily_apttop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_apttop_lborres_disch = mapped_column(
+        "daily_apttop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_ast_lborres_day1 = mapped_column("daily_ast_lborres.day1", t.VARCHAR(1000))
+    daily_ast_lborres_disch = mapped_column("daily_ast_lborres.disch", t.VARCHAR(1000))
+    daily_ast_lbyn_day1 = mapped_column("daily_ast_lbyn.day1", t.VARCHAR(1000))
+    daily_ast_lbyn_disch = mapped_column("daily_ast_lbyn.disch", t.VARCHAR(1000))
+    daily_astop_lborres_day1 = mapped_column(
+        "daily_astop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_astop_lborres_disch = mapped_column(
+        "daily_astop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_baseex_lborres_day1 = mapped_column(
+        "daily_baseex_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_baseex_lborres_disch = mapped_column(
+        "daily_baseex_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_baseex_lbyn_day1 = mapped_column("daily_baseex_lbyn.day1", t.VARCHAR(1000))
+    daily_baseex_lbyn_disch = mapped_column("daily_baseex_lbyn.disch", t.VARCHAR(1000))
+    daily_bil_lborres_day1 = mapped_column("daily_bil_lborres.day1", t.VARCHAR(1000))
+    daily_bil_lborres_disch = mapped_column("daily_bil_lborres.disch", t.VARCHAR(1000))
+    daily_bil_lborresu_day1 = mapped_column("daily_bil_lborresu.day1", t.VARCHAR(1000))
+    daily_bil_lborresu_disch = mapped_column(
+        "daily_bil_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_bil_lbyn_day1 = mapped_column("daily_bil_lbyn.day1", t.VARCHAR(1000))
+    daily_bil_lbyn_disch = mapped_column("daily_bil_lbyn.disch", t.VARCHAR(1000))
+    daily_bilop_lborres_day1 = mapped_column(
+        "daily_bilop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_bilop_lborres_disch = mapped_column(
+        "daily_bilop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_bun_lborres_day1 = mapped_column("daily_bun_lborres.day1", t.VARCHAR(1000))
+    daily_bun_lborres_disch = mapped_column("daily_bun_lborres.disch", t.VARCHAR(1000))
+    daily_bun_lborresu_day1 = mapped_column("daily_bun_lborresu.day1", t.VARCHAR(1000))
+    daily_bun_lborresu_disch = mapped_column(
+        "daily_bun_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_bun_lbyn_day1 = mapped_column("daily_bun_lbyn.day1", t.VARCHAR(1000))
+    daily_bun_lbyn_disch = mapped_column("daily_bun_lbyn.disch", t.VARCHAR(1000))
+    daily_bunop_lborres_day1 = mapped_column(
+        "daily_bunop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_bunop_lborres_disch = mapped_column(
+        "daily_bunop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_cpk_lby_day1 = mapped_column("daily_cpk_lby.day1", t.VARCHAR(1000))
+    daily_cpk_lby_disch = mapped_column("daily_cpk_lby.disch", t.VARCHAR(1000))
+    daily_cpk_lbyn_2_day1 = mapped_column("daily_cpk_lbyn_2.day1", t.VARCHAR(1000))
+    daily_cpk_lbyn_2_disch = mapped_column("daily_cpk_lbyn_2.disch", t.VARCHAR(1000))
+    daily_cpkop_lbyn_2_day1 = mapped_column("daily_cpkop_lbyn_2.day1", t.VARCHAR(1000))
+    daily_cpkop_lbyn_2_disch = mapped_column(
+        "daily_cpkop_lbyn_2.disch", t.VARCHAR(1000)
+    )
+    daily_creat_lborres_day1 = mapped_column(
+        "daily_creat_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_creat_lborres_disch = mapped_column(
+        "daily_creat_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_creat_lborresu_day1 = mapped_column(
+        "daily_creat_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_creat_lborresu_disch = mapped_column(
+        "daily_creat_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_creat_lbyn_day1 = mapped_column("daily_creat_lbyn.day1", t.VARCHAR(1000))
+    daily_creat_lbyn_disch = mapped_column("daily_creat_lbyn.disch", t.VARCHAR(1000))
+    daily_creatop_lborres_day1 = mapped_column(
+        "daily_creatop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_creatop_lborres_disch = mapped_column(
+        "daily_creatop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_crp_lborres_day1 = mapped_column("daily_crp_lborres.day1", t.VARCHAR(1000))
+    daily_crp_lborres_disch = mapped_column("daily_crp_lborres.disch", t.VARCHAR(1000))
+    daily_crp_lborresu_day1 = mapped_column("daily_crp_lborresu.day1", t.VARCHAR(1000))
+    daily_crp_lborresu_disch = mapped_column(
+        "daily_crp_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_crp_lbyn_day1 = mapped_column("daily_crp_lbyn.day1", t.VARCHAR(1000))
+    daily_crp_lbyn_disch = mapped_column("daily_crp_lbyn.disch", t.VARCHAR(1000))
+    daily_crpop_lborres_day1 = mapped_column(
+        "daily_crpop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_crpop_lborres_disch = mapped_column(
+        "daily_crpop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_dop5to15_cmtrt_day1 = mapped_column(
+        "daily_dop5to15_cmtrt.day1", t.VARCHAR(1000)
+    )
+    daily_dop5to15_cmtrt_disch = mapped_column(
+        "daily_dop5to15_cmtrt.disch", t.VARCHAR(1000)
+    )
+    daily_dopgr15_cmtrt_day1 = mapped_column(
+        "daily_dopgr15_cmtrt.day1", t.VARCHAR(1000)
+    )
+    daily_dopgr15_cmtrt_disch = mapped_column(
+        "daily_dopgr15_cmtrt.disch", t.VARCHAR(1000)
+    )
+    daily_dopless5_cmtrt_day1 = mapped_column(
+        "daily_dopless5_cmtrt.day1", t.VARCHAR(1000)
+    )
+    daily_dopless5_cmtrt_disch = mapped_column(
+        "daily_dopless5_cmtrt.disch", t.VARCHAR(1000)
+    )
+    daily_dsstdat_day1 = mapped_column("daily_dsstdat.day1", t.VARCHAR(1000))
+    daily_dsstdat_disch = mapped_column("daily_dsstdat.disch", t.VARCHAR(1000))
+    daily_ecmo_prtrt_day1 = mapped_column("daily_ecmo_prtrt.day1", t.VARCHAR(1000))
+    daily_ecmo_prtrt_disch = mapped_column("daily_ecmo_prtrt.disch", t.VARCHAR(1000))
+    daily_egfr_equation___1_day1 = mapped_column(
+        "daily_egfr_equation___1.day1", t.VARCHAR(1000)
+    )
+    daily_egfr_equation___1_disch = mapped_column(
+        "daily_egfr_equation___1.disch", t.VARCHAR(1000)
+    )
+    daily_egfr_equation___2_day1 = mapped_column(
+        "daily_egfr_equation___2.day1", t.VARCHAR(1000)
+    )
+    daily_egfr_equation___2_disch = mapped_column(
+        "daily_egfr_equation___2.disch", t.VARCHAR(1000)
+    )
+    daily_egfr_equation___3_day1 = mapped_column(
+        "daily_egfr_equation___3.day1", t.VARCHAR(1000)
+    )
+    daily_egfr_equation___3_disch = mapped_column(
+        "daily_egfr_equation___3.disch", t.VARCHAR(1000)
+    )
+    daily_egfr_equation___4_day1 = mapped_column(
+        "daily_egfr_equation___4.day1", t.VARCHAR(1000)
+    )
+    daily_egfr_equation___4_disch = mapped_column(
+        "daily_egfr_equation___4.disch", t.VARCHAR(1000)
+    )
+    daily_egfr_lborres_day1 = mapped_column("daily_egfr_lborres.day1", t.VARCHAR(1000))
+    daily_egfr_lborres_disch = mapped_column(
+        "daily_egfr_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_egfr_lbyn_day1 = mapped_column("daily_egfr_lbyn.day1", t.VARCHAR(1000))
+    daily_egfr_lbyn_disch = mapped_column("daily_egfr_lbyn.disch", t.VARCHAR(1000))
+    daily_egfrop_lborres_day1 = mapped_column(
+        "daily_egfrop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_egfrop_lborres_disch = mapped_column(
+        "daily_egfrop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_esr_lborres_day1 = mapped_column("daily_esr_lborres.day1", t.VARCHAR(1000))
+    daily_esr_lborres_disch = mapped_column("daily_esr_lborres.disch", t.VARCHAR(1000))
+    daily_esr_lbyn_day1 = mapped_column("daily_esr_lbyn.day1", t.VARCHAR(1000))
+    daily_esr_lbyn_disch = mapped_column("daily_esr_lbyn.disch", t.VARCHAR(1000))
+    daily_esrop_lbyn_day1 = mapped_column("daily_esrop_lbyn.day1", t.VARCHAR(1000))
+    daily_esrop_lbyn_disch = mapped_column("daily_esrop_lbyn.disch", t.VARCHAR(1000))
+    daily_ferr_lborres_day1 = mapped_column("daily_ferr_lborres.day1", t.VARCHAR(1000))
+    daily_ferr_lborres_disch = mapped_column(
+        "daily_ferr_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_ferr_lborresu_day1 = mapped_column(
+        "daily_ferr_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_ferr_lborresu_disch = mapped_column(
+        "daily_ferr_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_ferr_lbyn_day1 = mapped_column("daily_ferr_lbyn.day1", t.VARCHAR(1000))
+    daily_ferr_lbyn_disch = mapped_column("daily_ferr_lbyn.disch", t.VARCHAR(1000))
+    daily_ferrop_lbyn_day1 = mapped_column("daily_ferrop_lbyn.day1", t.VARCHAR(1000))
+    daily_ferrop_lbyn_disch = mapped_column("daily_ferrop_lbyn.disch", t.VARCHAR(1000))
+    daily_fi02_lbyn_day1 = mapped_column("daily_fi02_lbyn.day1", t.VARCHAR(1000))
+    daily_fi02_lbyn_disch = mapped_column("daily_fi02_lbyn.disch", t.VARCHAR(1000))
+    daily_fio2_combined_day1 = mapped_column(
+        "daily_fio2_combined.day1", t.VARCHAR(1000)
+    )
+    daily_fio2_combined_disch = mapped_column(
+        "daily_fio2_combined.disch", t.VARCHAR(1000)
+    )
+    daily_fio2_lborres_day1 = mapped_column("daily_fio2_lborres.day1", t.VARCHAR(1000))
+    daily_fio2_lborres_disch = mapped_column(
+        "daily_fio2_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_fio2b_lborres_day1 = mapped_column(
+        "daily_fio2b_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_fio2b_lborres_disch = mapped_column(
+        "daily_fio2b_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_fio2c_lborres_day1 = mapped_column(
+        "daily_fio2c_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_fio2c_lborres_disch = mapped_column(
+        "daily_fio2c_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_fio2c_lborres_converted_day1 = mapped_column(
+        "daily_fio2c_lborres_converted.day1", t.VARCHAR(1000)
+    )
+    daily_fio2c_lborres_converted_disch = mapped_column(
+        "daily_fio2c_lborres_converted.disch", t.VARCHAR(4000)
+    )
+    daily_form_complete_day1 = mapped_column(
+        "daily_form_complete.day1", t.VARCHAR(1000)
+    )
+    daily_form_complete_disch = mapped_column(
+        "daily_form_complete.disch", t.VARCHAR(1000)
+    )
+    daily_gcs_lbyn_day1 = mapped_column("daily_gcs_lbyn.day1", t.VARCHAR(1000))
+    daily_gcs_lbyn_disch = mapped_column("daily_gcs_lbyn.disch", t.VARCHAR(1000))
+    daily_gcs_vsorres_day1 = mapped_column("daily_gcs_vsorres.day1", t.VARCHAR(1000))
+    daily_gcs_vsorres_disch = mapped_column("daily_gcs_vsorres.disch", t.VARCHAR(1000))
+    daily_glucose_lborres_day1 = mapped_column(
+        "daily_glucose_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_glucose_lborres_disch = mapped_column(
+        "daily_glucose_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_glucose_lborresu_day1 = mapped_column(
+        "daily_glucose_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_glucose_lborresu_disch = mapped_column(
+        "daily_glucose_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_glucose_lbyn_day1 = mapped_column("daily_glucose_lbyn.day1", t.VARCHAR(1000))
+    daily_glucose_lbyn_disch = mapped_column(
+        "daily_glucose_lbyn.disch", t.VARCHAR(1000)
+    )
+    daily_glucoseop_lborres_day1 = mapped_column(
+        "daily_glucoseop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_glucoseop_lborres_disch = mapped_column(
+        "daily_glucoseop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_haematocrit_lborres_day1 = mapped_column(
+        "daily_haematocrit_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_haematocrit_lborres_disch = mapped_column(
+        "daily_haematocrit_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_haematocrit_lborresu_day1 = mapped_column(
+        "daily_haematocrit_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_haematocrit_lborresu_disch = mapped_column(
+        "daily_haematocrit_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_haematocrit_lbyn_day1 = mapped_column(
+        "daily_haematocrit_lbyn.day1", t.VARCHAR(1000)
+    )
+    daily_haematocrit_lbyn_disch = mapped_column(
+        "daily_haematocrit_lbyn.disch", t.VARCHAR(1000)
+    )
+    daily_hb_lborres_day1 = mapped_column("daily_hb_lborres.day1", t.VARCHAR(1000))
+    daily_hb_lborres_disch = mapped_column("daily_hb_lborres.disch", t.VARCHAR(1000))
+    daily_hb_lborresu_day1 = mapped_column("daily_hb_lborresu.day1", t.VARCHAR(1000))
+    daily_hb_lborresu_disch = mapped_column("daily_hb_lborresu.disch", t.VARCHAR(1000))
+    daily_hb_lbyn_day1 = mapped_column("daily_hb_lbyn.day1", t.VARCHAR(1000))
+    daily_hb_lbyn_disch = mapped_column("daily_hb_lbyn.disch", t.VARCHAR(1000))
+    daily_hba1c_lborres_day1 = mapped_column(
+        "daily_hba1c_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_hba1c_lborres_disch = mapped_column(
+        "daily_hba1c_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_hba1c_lborresd_day1 = mapped_column(
+        "daily_hba1c_lborresd.day1", t.VARCHAR(1000)
+    )
+    daily_hba1c_lborresd_disch = mapped_column(
+        "daily_hba1c_lborresd.disch", t.VARCHAR(1000)
+    )
+    daily_hba1c_lborresnk_day1 = mapped_column(
+        "daily_hba1c_lborresnk.day1", t.VARCHAR(1000)
+    )
+    daily_hba1c_lborresnk_disch = mapped_column(
+        "daily_hba1c_lborresnk.disch", t.VARCHAR(1000)
+    )
+    daily_hba1c_lborresu_day1 = mapped_column(
+        "daily_hba1c_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_hba1c_lborresu_disch = mapped_column(
+        "daily_hba1c_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_hba1cop_lborres_day1 = mapped_column(
+        "daily_hba1cop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_hba1cop_lborres_disch = mapped_column(
+        "daily_hba1cop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_hbop_lborres_day1 = mapped_column("daily_hbop_lborres.day1", t.VARCHAR(1000))
+    daily_hbop_lborres_disch = mapped_column(
+        "daily_hbop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_hco3_lborres_day1 = mapped_column("daily_hco3_lborres.day1", t.VARCHAR(1000))
+    daily_hco3_lborres_disch = mapped_column(
+        "daily_hco3_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_hco3_lborresu_day1 = mapped_column(
+        "daily_hco3_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_hco3_lborresu_disch = mapped_column(
+        "daily_hco3_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_hco3_lbyn_day1 = mapped_column("daily_hco3_lbyn.day1", t.VARCHAR(1000))
+    daily_hco3_lbyn_disch = mapped_column("daily_hco3_lbyn.disch", t.VARCHAR(1000))
+    daily_hoterm_day1 = mapped_column("daily_hoterm.day1", t.VARCHAR(1000))
+    daily_hoterm_disch = mapped_column("daily_hoterm.disch", t.VARCHAR(1000))
+    daily_inotrope_cmyn_day1 = mapped_column(
+        "daily_inotrope_cmyn.day1", t.VARCHAR(1000)
+    )
+    daily_inotrope_cmyn_disch = mapped_column(
+        "daily_inotrope_cmyn.disch", t.VARCHAR(1000)
+    )
+    daily_inr_lborres_day1 = mapped_column("daily_inr_lborres.day1", t.VARCHAR(1000))
+    daily_inr_lborres_disch = mapped_column("daily_inr_lborres.disch", t.VARCHAR(1000))
+    daily_inrop_lborres_day1 = mapped_column(
+        "daily_inrop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_inrop_lborres_disch = mapped_column(
+        "daily_inrop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_invasive_prtrt_day1 = mapped_column(
+        "daily_invasive_prtrt.day1", t.VARCHAR(1000)
+    )
+    daily_invasive_prtrt_disch = mapped_column(
+        "daily_invasive_prtrt.disch", t.VARCHAR(1000)
+    )
+    daily_lactate_lborres_day1 = mapped_column(
+        "daily_lactate_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_lactate_lborres_disch = mapped_column(
+        "daily_lactate_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_lactate_lborresu_day1 = mapped_column(
+        "daily_lactate_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_lactate_lborresu_disch = mapped_column(
+        "daily_lactate_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_lactate_lbyn_day1 = mapped_column("daily_lactate_lbyn.day1", t.VARCHAR(1000))
+    daily_lactate_lbyn_disch = mapped_column(
+        "daily_lactate_lbyn.disch", t.VARCHAR(1000)
+    )
+    daily_lactateop_lbyn_day1 = mapped_column(
+        "daily_lactateop_lbyn.day1", t.VARCHAR(1000)
+    )
+    daily_lactateop_lbyn_disch = mapped_column(
+        "daily_lactateop_lbyn.disch", t.VARCHAR(1000)
+    )
+    daily_lbdat_day1 = mapped_column("daily_lbdat.day1", t.VARCHAR(1000))
+    daily_lbdat_disch = mapped_column("daily_lbdat.disch", t.VARCHAR(1000))
+    daily_lbperf_day1 = mapped_column("daily_lbperf.day1", t.VARCHAR(1000))
+    daily_lbperf_disch = mapped_column("daily_lbperf.disch", t.VARCHAR(1000))
+    daily_ldh_lborres_day1 = mapped_column("daily_ldh_lborres.day1", t.VARCHAR(1000))
+    daily_ldh_lborres_disch = mapped_column("daily_ldh_lborres.disch", t.VARCHAR(1000))
+    daily_ldh_lbyn_day1 = mapped_column("daily_ldh_lbyn.day1", t.VARCHAR(1000))
+    daily_ldh_lbyn_disch = mapped_column("daily_ldh_lbyn.disch", t.VARCHAR(1000))
+    daily_ldhop_lborres_day1 = mapped_column(
+        "daily_ldhop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_ldhop_lborres_disch = mapped_column(
+        "daily_ldhop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_lymp_lborres_day1 = mapped_column("daily_lymp_lborres.day1", t.VARCHAR(1000))
+    daily_lymp_lborres_disch = mapped_column(
+        "daily_lymp_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_lymp_lborresu_day1 = mapped_column(
+        "daily_lymp_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_lymp_lborresu_disch = mapped_column(
+        "daily_lymp_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_lymp_lbyn_day1 = mapped_column("daily_lymp_lbyn.day1", t.VARCHAR(1000))
+    daily_lymp_lbyn_disch = mapped_column("daily_lymp_lbyn.disch", t.VARCHAR(1000))
+    daily_lympop_lbyn_day1 = mapped_column("daily_lympop_lbyn.day1", t.VARCHAR(1000))
+    daily_lympop_lbyn_disch = mapped_column("daily_lympop_lbyn.disch", t.VARCHAR(1000))
+    daily_meanart_lbyn_day1 = mapped_column("daily_meanart_lbyn.day1", t.VARCHAR(1000))
+    daily_meanart_lbyn_disch = mapped_column(
+        "daily_meanart_lbyn.disch", t.VARCHAR(1000)
+    )
+    daily_meanart_vsorres_day1 = mapped_column(
+        "daily_meanart_vsorres.day1", t.VARCHAR(1000)
+    )
+    daily_meanart_vsorres_disch = mapped_column(
+        "daily_meanart_vsorres.disch", t.VARCHAR(1000)
+    )
+    daily_nasaloxy_cmtrt_day1 = mapped_column(
+        "daily_nasaloxy_cmtrt.day1", t.VARCHAR(1000)
+    )
+    daily_nasaloxy_cmtrt_disch = mapped_column(
+        "daily_nasaloxy_cmtrt.disch", t.VARCHAR(1000)
+    )
+    daily_neuro_cmtrt_day1 = mapped_column("daily_neuro_cmtrt.day1", t.VARCHAR(1000))
+    daily_neuro_cmtrt_disch = mapped_column("daily_neuro_cmtrt.disch", t.VARCHAR(1000))
+    daily_neutro_lborres_day1 = mapped_column(
+        "daily_neutro_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_neutro_lborres_disch = mapped_column(
+        "daily_neutro_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_neutro_lborresu_day1 = mapped_column(
+        "daily_neutro_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_neutro_lborresu_disch = mapped_column(
+        "daily_neutro_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_neutro_lbyn_day1 = mapped_column("daily_neutro_lbyn.day1", t.VARCHAR(1000))
+    daily_neutro_lbyn_disch = mapped_column("daily_neutro_lbyn.disch", t.VARCHAR(1000))
+    daily_neutroop_lbyn_day1 = mapped_column(
+        "daily_neutroop_lbyn.day1", t.VARCHAR(1000)
+    )
+    daily_neutroop_lbyn_disch = mapped_column(
+        "daily_neutroop_lbyn.disch", t.VARCHAR(1000)
+    )
+    daily_nitritc_cmtrt_day1 = mapped_column(
+        "daily_nitritc_cmtrt.day1", t.VARCHAR(1000)
+    )
+    daily_nitritc_cmtrt_disch = mapped_column(
+        "daily_nitritc_cmtrt.disch", t.VARCHAR(1000)
+    )
+    daily_noninvasive_prtrt_day1 = mapped_column(
+        "daily_noninvasive_prtrt.day1", t.VARCHAR(1000)
+    )
+    daily_noninvasive_prtrt_disch = mapped_column(
+        "daily_noninvasive_prtrt.disch", t.VARCHAR(1000)
+    )
+    daily_other_prtrt_day1 = mapped_column("daily_other_prtrt.day1", t.VARCHAR(1000))
+    daily_other_prtrt_disch = mapped_column("daily_other_prtrt.disch", t.VARCHAR(1000))
+    daily_pao2_lborres_day1 = mapped_column("daily_pao2_lborres.day1", t.VARCHAR(1000))
+    daily_pao2_lborres_disch = mapped_column(
+        "daily_pao2_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_pao2_lborresu_day1 = mapped_column(
+        "daily_pao2_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_pao2_lborresu_disch = mapped_column(
+        "daily_pao2_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_pao2_lbspec_day1 = mapped_column("daily_pao2_lbspec.day1", t.VARCHAR(1000))
+    daily_pao2_lbspec_disch = mapped_column("daily_pao2_lbspec.disch", t.VARCHAR(1000))
+    daily_pao2_lbyn_day1 = mapped_column("daily_pao2_lbyn.day1", t.VARCHAR(1000))
+    daily_pao2_lbyn_disch = mapped_column("daily_pao2_lbyn.disch", t.VARCHAR(1000))
+    daily_pco2_lborres_day1 = mapped_column("daily_pco2_lborres.day1", t.VARCHAR(1000))
+    daily_pco2_lborres_disch = mapped_column(
+        "daily_pco2_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_pco2_lborresu_day1 = mapped_column(
+        "daily_pco2_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_pco2_lborresu_disch = mapped_column(
+        "daily_pco2_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_pco2_lbyn_day1 = mapped_column("daily_pco2_lbyn.day1", t.VARCHAR(1000))
+    daily_pco2_lbyn_disch = mapped_column("daily_pco2_lbyn.disch", t.VARCHAR(1000))
+    daily_ph_lborres_day1 = mapped_column("daily_ph_lborres.day1", t.VARCHAR(1000))
+    daily_ph_lborres_disch = mapped_column("daily_ph_lborres.disch", t.VARCHAR(1000))
+    daily_ph_lbyn_day1 = mapped_column("daily_ph_lbyn.day1", t.VARCHAR(1000))
+    daily_ph_lbyn_disch = mapped_column("daily_ph_lbyn.disch", t.VARCHAR(1000))
+    daily_plt_lborres_day1 = mapped_column("daily_plt_lborres.day1", t.VARCHAR(1000))
+    daily_plt_lborres_disch = mapped_column("daily_plt_lborres.disch", t.VARCHAR(1000))
+    daily_plt_lborresu_day1 = mapped_column("daily_plt_lborresu.day1", t.VARCHAR(1000))
+    daily_plt_lborresu_disch = mapped_column(
+        "daily_plt_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_plt_lbyn_day1 = mapped_column("daily_plt_lbyn.day1", t.VARCHAR(1000))
+    daily_plt_lbyn_disch = mapped_column("daily_plt_lbyn.disch", t.VARCHAR(1000))
+    daily_pltop_lborres_day1 = mapped_column(
+        "daily_pltop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_pltop_lborres_disch = mapped_column(
+        "daily_pltop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_potassium_lborres_day1 = mapped_column(
+        "daily_potassium_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_potassium_lborres_disch = mapped_column(
+        "daily_potassium_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_potassium_lborresu_day1 = mapped_column(
+        "daily_potassium_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_potassium_lborresu_disch = mapped_column(
+        "daily_potassium_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_potassium_lbyn_day1 = mapped_column(
+        "daily_potassium_lbyn.day1", t.VARCHAR(1000)
+    )
+    daily_potassium_lbyn_disch = mapped_column(
+        "daily_potassium_lbyn.disch", t.VARCHAR(1000)
+    )
+    daily_potassiumop_lborres_day1 = mapped_column(
+        "daily_potassiumop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_potassiumop_lborres_disch = mapped_column(
+        "daily_potassiumop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_procal_lborres_day1 = mapped_column(
+        "daily_procal_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_procal_lborres_disch = mapped_column(
+        "daily_procal_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_procal_lbyn_day1 = mapped_column("daily_procal_lbyn.day1", t.VARCHAR(1000))
+    daily_procal_lbyn_disch = mapped_column("daily_procal_lbyn.disch", t.VARCHAR(1000))
+    daily_procalop_lborres_day1 = mapped_column(
+        "daily_procalop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_procalop_lborres_disch = mapped_column(
+        "daily_procalop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_prone_cmtrt_day1 = mapped_column("daily_prone_cmtrt.day1", t.VARCHAR(1000))
+    daily_prone_cmtrt_disch = mapped_column("daily_prone_cmtrt.disch", t.VARCHAR(1000))
+    daily_prperf_day1 = mapped_column("daily_prperf.day1", t.VARCHAR(1000))
+    daily_prperf_disch = mapped_column("daily_prperf.disch", t.VARCHAR(1000))
+    daily_pt_inr_lbyn_day1 = mapped_column("daily_pt_inr_lbyn.day1", t.VARCHAR(1000))
+    daily_pt_inr_lbyn_disch = mapped_column("daily_pt_inr_lbyn.disch", t.VARCHAR(1000))
+    daily_pt_lborres_day1 = mapped_column("daily_pt_lborres.day1", t.VARCHAR(1000))
+    daily_pt_lborres_disch = mapped_column("daily_pt_lborres.disch", t.VARCHAR(1000))
+    daily_pt_lborres_add_inr_day1 = mapped_column(
+        "daily_pt_lborres_add_inr.day1", t.VARCHAR(1000)
+    )
+    daily_pt_lborres_add_inr_disch = mapped_column(
+        "daily_pt_lborres_add_inr.disch", t.VARCHAR(1000)
+    )
+    daily_ptop_lborres_day1 = mapped_column("daily_ptop_lborres.day1", t.VARCHAR(1000))
+    daily_ptop_lborres_disch = mapped_column(
+        "daily_ptop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_rr_day1 = mapped_column("daily_rr.day1", t.VARCHAR(1000))
+    daily_rr_disch = mapped_column("daily_rr.disch", t.VARCHAR(1000))
+    daily_rr_nk_day1 = mapped_column("daily_rr_nk.day1", t.VARCHAR(1000))
+    daily_rr_nk_disch = mapped_column("daily_rr_nk.disch", t.VARCHAR(1000))
+    daily_rrt_cmtrt_day1 = mapped_column("daily_rrt_cmtrt.day1", t.VARCHAR(1000))
+    daily_rrt_cmtrt_disch = mapped_column("daily_rrt_cmtrt.disch", t.VARCHAR(1000))
+    daily_sa02_lbyn_day1 = mapped_column("daily_sa02_lbyn.day1", t.VARCHAR(1000))
+    daily_sa02_lbyn_disch = mapped_column("daily_sa02_lbyn.disch", t.VARCHAR(1000))
+    daily_samples_day1 = mapped_column("daily_samples.day1", t.VARCHAR(1000))
+    daily_samples_disch = mapped_column("daily_samples.disch", t.VARCHAR(1000))
+    daily_samples_kitno_day1 = mapped_column(
+        "daily_samples_kitno.day1", t.VARCHAR(1000)
+    )
+    daily_samples_kitno_disch = mapped_column(
+        "daily_samples_kitno.disch", t.VARCHAR(1000)
+    )
+    daily_sao2_lborres_day1 = mapped_column("daily_sao2_lborres.day1", t.VARCHAR(1000))
+    daily_sao2_lborres_disch = mapped_column(
+        "daily_sao2_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_sodium_lborres_day1 = mapped_column(
+        "daily_sodium_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_sodium_lborres_disch = mapped_column(
+        "daily_sodium_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_sodium_lborresu_day1 = mapped_column(
+        "daily_sodium_lborresu.day1", t.VARCHAR(1000)
+    )
+    daily_sodium_lborresu_disch = mapped_column(
+        "daily_sodium_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_sodium_lbyn_day1 = mapped_column("daily_sodium_lbyn.day1", t.VARCHAR(1000))
+    daily_sodium_lbyn_disch = mapped_column("daily_sodium_lbyn.disch", t.VARCHAR(1000))
+    daily_sodiumop_lborres_day1 = mapped_column(
+        "daily_sodiumop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_sodiumop_lborres_disch = mapped_column(
+        "daily_sodiumop_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_temp_vsorres_day1 = mapped_column("daily_temp_vsorres.day1", t.VARCHAR(1000))
+    daily_temp_vsorres_disch = mapped_column(
+        "daily_temp_vsorres.disch", t.VARCHAR(1000)
+    )
+    daily_temp_vsorresnk_day1 = mapped_column(
+        "daily_temp_vsorresnk.day1", t.VARCHAR(1000)
+    )
+    daily_temp_vsorresnk_disch = mapped_column(
+        "daily_temp_vsorresnk.disch", t.VARCHAR(1000)
+    )
+    daily_temp_vsorresu_day1 = mapped_column(
+        "daily_temp_vsorresu.day1", t.VARCHAR(1000)
+    )
+    daily_temp_vsorresu_disch = mapped_column(
+        "daily_temp_vsorresu.disch", t.VARCHAR(1000)
+    )
+    daily_trach_prperf_day1 = mapped_column("daily_trach_prperf.day1", t.VARCHAR(1000))
+    daily_trach_prperf_disch = mapped_column(
+        "daily_trach_prperf.disch", t.VARCHAR(1000)
+    )
+    daily_urine_lborres_day1 = mapped_column(
+        "daily_urine_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_urine_lborres_disch = mapped_column(
+        "daily_urine_lborres.disch", t.VARCHAR(1000)
+    )
+    daily_urine_lbyn_day1 = mapped_column("daily_urine_lbyn.day1", t.VARCHAR(1000))
+    daily_urine_lbyn_disch = mapped_column("daily_urine_lbyn.disch", t.VARCHAR(1000))
+    daily_wbc_lborres_day1 = mapped_column("daily_wbc_lborres.day1", t.VARCHAR(1000))
+    daily_wbc_lborres_disch = mapped_column("daily_wbc_lborres.disch", t.VARCHAR(1000))
+    daily_wbc_lborresu_day1 = mapped_column("daily_wbc_lborresu.day1", t.VARCHAR(1000))
+    daily_wbc_lborresu_disch = mapped_column(
+        "daily_wbc_lborresu.disch", t.VARCHAR(1000)
+    )
+    daily_wbc_lbyn_day1 = mapped_column("daily_wbc_lbyn.day1", t.VARCHAR(1000))
+    daily_wbc_lbyn_disch = mapped_column("daily_wbc_lbyn.disch", t.VARCHAR(1000))
+    daily_wbcop_lborres_day1 = mapped_column(
+        "daily_wbcop_lborres.day1", t.VARCHAR(1000)
+    )
+    daily_wbcop_lborres_disch = mapped_column(
+        "daily_wbcop_lborres.disch", t.VARCHAR(1000)
+    )
+    dehydration_vsorres = mapped_column(t.VARCHAR(1000))
+    dementia_mhyn = mapped_column(t.VARCHAR(1000))
+    demographics_complete = mapped_column(t.VARCHAR(1000))
+    dexamethasone = mapped_column(t.VARCHAR(1000))
+    dexamethasone2 = mapped_column(t.VARCHAR(1000))
+    dexamethasone2_days = mapped_column(t.VARCHAR(1000))
+    dexamethasone2_dose = mapped_column(t.VARCHAR(1000))
+    dexamethasone2_freq = mapped_column(t.VARCHAR(1000))
+    dexamethasone2_other_freq = mapped_column(t.VARCHAR(1000))
+    dexamethasone2_route = mapped_column(t.VARCHAR(1000))
+    dexamethasone3 = mapped_column(t.VARCHAR(1000))
+    dexamethasone3_days = mapped_column(t.VARCHAR(1000))
+    dexamethasone3_dose = mapped_column(t.VARCHAR(1000))
+    dexamethasone3_freq = mapped_column(t.VARCHAR(1000))
+    dexamethasone3_other_freq = mapped_column(t.VARCHAR(1000))
+    dexamethasone3_route = mapped_column(t.VARCHAR(1000))
+    dexamethasone4 = mapped_column(t.VARCHAR(1000))
+    dexamethasone4_days = mapped_column(t.VARCHAR(1000))
+    dexamethasone4_dose = mapped_column(t.VARCHAR(1000))
+    dexamethasone4_freq = mapped_column(t.VARCHAR(1000))
+    dexamethasone4_other_freq = mapped_column(t.VARCHAR(1000))
+    dexamethasone4_route = mapped_column(t.VARCHAR(1000))
+    dexamethasone5 = mapped_column(t.VARCHAR(1000))
+    dexamethasone5_days = mapped_column(t.VARCHAR(1000))
+    dexamethasone5_dose = mapped_column(t.VARCHAR(1000))
+    dexamethasone5_freq = mapped_column(t.VARCHAR(1000))
+    dexamethasone5_other_freq = mapped_column(t.VARCHAR(1000))
+    dexamethasone5_route = mapped_column(t.VARCHAR(1000))
+    dexamethasone_days = mapped_column(t.VARCHAR(1000))
+    dexamethasone_dose = mapped_column(t.VARCHAR(1000))
+    dexamethasone_freq = mapped_column(t.VARCHAR(1000))
+    dexamethasone_other_freq = mapped_column(t.VARCHAR(1000))
+    dexamethasone_route = mapped_column(t.VARCHAR(1000))
+    diabetes_mhyn = mapped_column(t.VARCHAR(1000))
+    diabetes_type_mhyn = mapped_column(t.VARCHAR(1000))
+    diabetescom_mhyn = mapped_column(t.VARCHAR(1000))
+    diabp_vsyn = mapped_column(t.VARCHAR(1000))
+    diarrhoea_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    diarrhoea_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    diastolic_vsorres_day1 = mapped_column("diastolic_vsorres.day1", t.VARCHAR(1000))
+    diastolic_vsorres_disch = mapped_column("diastolic_vsorres.disch", t.VARCHAR(1000))
+    diastolic_vsyn_day1 = mapped_column("diastolic_vsyn.day1", t.VARCHAR(1000))
+    diastolic_vsyn_disch = mapped_column("diastolic_vsyn.disch", t.VARCHAR(1000))
+    dlvrdtc_rptestcd = mapped_column(t.VARCHAR(1000))
+    dlvrdtc_rptestcd_out = mapped_column(t.VARCHAR(1000))
+    dshosp = mapped_column(t.VARCHAR(1000))
+    dsstdat = mapped_column(t.VARCHAR(1000))
+    dsstdtc = mapped_column(t.VARCHAR(1000))
+    dsstdtc_v2 = mapped_column(t.VARCHAR(1000))
+    dsstdtc_v2_nk = mapped_column(t.VARCHAR(1000))
+    dsstdtcyn = mapped_column(t.VARCHAR(1000))
+    dsterm = mapped_column(t.VARCHAR(1000))
+    dsterm_v2 = mapped_column(t.VARCHAR(1000))
+    dvt_ceterm = mapped_column(t.VARCHAR(1000))
+    dyspnoe = mapped_column(t.VARCHAR(1000))
+    earpain_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    earpain_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    egestage_rptestcd = mapped_column(t.VARCHAR(1000))
+    endocarditis_aeterm = mapped_column(t.VARCHAR(1000))
+    erendat = mapped_column(t.VARCHAR(1000))
+    erendat_2 = mapped_column(t.VARCHAR(1000))
+    estgest = mapped_column(t.VARCHAR(1000))
+    ethnic___1 = mapped_column(t.VARCHAR(1000))
+    ethnic___10 = mapped_column(t.VARCHAR(1000))
+    ethnic___2 = mapped_column(t.VARCHAR(1000))
+    ethnic___3 = mapped_column(t.VARCHAR(1000))
+    ethnic___4 = mapped_column(t.VARCHAR(1000))
+    ethnic___5 = mapped_column(t.VARCHAR(1000))
+    ethnic___6 = mapped_column(t.VARCHAR(1000))
+    ethnic___7 = mapped_column(t.VARCHAR(1000))
+    ethnic___8 = mapped_column(t.VARCHAR(1000))
+    ethnic___9 = mapped_column(t.VARCHAR(1000))
+    ethnicity = mapped_column(t.VARCHAR(1000))
+    excorp_prdur = mapped_column(t.VARCHAR(1000))
+    excorp_still_on = mapped_column(t.VARCHAR(1000))
+    extracorp_prtrt = mapped_column(t.VARCHAR(1000))
+    fatigue_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    fatigue_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    fever = mapped_column(t.VARCHAR(1000))
+    fever_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    fever_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    final_outcome_complete = mapped_column(t.VARCHAR(1000))
+    flw_any_day1 = mapped_column("flw_any.day1", t.VARCHAR(1000))
+    flw_any_disch = mapped_column("flw_any.disch", t.VARCHAR(1000))
+    gastro_ceterm = mapped_column(t.VARCHAR(1000))
+    headache_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    headache_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    healthwork_erterm = mapped_column(t.VARCHAR(1000))
+    heartfailure_ceterm = mapped_column(t.VARCHAR(1000))
+    hodur = mapped_column(t.VARCHAR(1000))
+    hooccur = mapped_column(t.VARCHAR(1000))
+    hostdat = mapped_column(t.VARCHAR(1000))
+    hostdat_transfer = mapped_column(t.VARCHAR(1000))
+    hostdat_transfernk = mapped_column(t.VARCHAR(1000))
+    hosttim = mapped_column(t.VARCHAR(1000))
+    hr_vsorres = mapped_column(t.VARCHAR(1000))
+    hr_vsyn = mapped_column(t.VARCHAR(1000))
+    hyperglycemia_aeterm = mapped_column(t.VARCHAR(1000))
+    hypertension_mhyn = mapped_column(t.VARCHAR(1000))
+    hypoglycemia_ceterm = mapped_column(t.VARCHAR(1000))
+    icu_hoendat = mapped_column(t.VARCHAR(1000))
+    icu_hoendat2 = mapped_column(t.VARCHAR(1000))
+    icu_hoendat2_nk = mapped_column(t.VARCHAR(1000))
+    icu_hoendat3 = mapped_column(t.VARCHAR(1000))
+    icu_hoendat3_nk = mapped_column(t.VARCHAR(1000))
+    icu_hoendatnk = mapped_column(t.VARCHAR(1000))
+    icu_hostdat = mapped_column(t.VARCHAR(1000))
+    icu_hostdat2 = mapped_column(t.VARCHAR(1000))
+    icu_hostdat2_nk = mapped_column(t.VARCHAR(1000))
+    icu_hostdat3 = mapped_column(t.VARCHAR(1000))
+    icu_hostdat3_nk = mapped_column(t.VARCHAR(1000))
+    icu_hostdatnk = mapped_column(t.VARCHAR(1000))
+    icu_hostillin = mapped_column(t.VARCHAR(1000))
+    icu_hoterm = mapped_column(t.VARCHAR(1000))
+    icu_no = mapped_column(t.VARCHAR(1000))
+    il6_cmtrt = mapped_column(t.VARCHAR(1000))
+    il6_cmtrt_first = mapped_column(t.VARCHAR(1000))
+    il6_cmtrt_last = mapped_column(t.VARCHAR(1000))
+    il6_cmtrt_other = mapped_column(t.VARCHAR(1000))
+    imd_quintile = mapped_column(t.VARCHAR(1000))
+    immno_cmtrt = mapped_column(t.VARCHAR(1000))
+    inclusion_criteria_complete = mapped_column(t.VARCHAR(1000))
+    infect = mapped_column(t.VARCHAR(1000))
+    infect_cmtrt = mapped_column(t.VARCHAR(1000))
+    infectious_respiratory_disease_pathogen_diagnosis_complete = mapped_column(
+        t.VARCHAR(1000)
+    )
+    infectuk_mborres = mapped_column(t.VARCHAR(1000))
+    infiltrates_faorres_day1 = mapped_column(
+        "infiltrates_faorres.day1", t.VARCHAR(1000)
+    )
+    infiltrates_faorres_disch = mapped_column(
+        "infiltrates_faorres.disch", t.VARCHAR(1000)
+    )
+    inflammatory_mss = mapped_column(t.VARCHAR(1000))
+    influ_mbcat = mapped_column(t.VARCHAR(1000))
+    influ_mbyn = mapped_column(t.VARCHAR(1000))
+    influ_mbyn_v2 = mapped_column(t.VARCHAR(1000))
+    influenza_2021_vaccine = mapped_column(t.VARCHAR(1000))
+    influenza_2021_vaccined = mapped_column(t.VARCHAR(1000))
+    influenza_2021_vaccined_nk = mapped_column(t.VARCHAR(1000))
+    influother_mborres = mapped_column(t.VARCHAR(1000))
+    influothera_mborres = mapped_column(t.VARCHAR(1000))
+    inhalednit_cmtrt = mapped_column(t.VARCHAR(1000))
+    inotrop_cmtrt = mapped_column(t.VARCHAR(1000))
+    inotrope_cmdur = mapped_column(t.VARCHAR(1000))
+    inotrope_still_on = mapped_column(t.VARCHAR(1000))
+    interleukin_cmtrt = mapped_column(t.VARCHAR(1000))
+    interleukin_cmyn = mapped_column(t.VARCHAR(1000))
+    invasive_prdur = mapped_column(t.VARCHAR(1000))
+    invasive_proccur = mapped_column(t.VARCHAR(1000))
+    invasive_still_on = mapped_column(t.VARCHAR(1000))
+    ischaemia_ceterm = mapped_column(t.VARCHAR(1000))
+    jointpain_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    jointpain_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    labwork_erterm = mapped_column(t.VARCHAR(1000))
+    liverdysfunction_ceterm = mapped_column(t.VARCHAR(1000))
+    lowerchest_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    lowerchest_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    lymp_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    lymp_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    malignantneo_mhyn = mapped_column(t.VARCHAR(1000))
+    malnutrition_mhyn = mapped_column(t.VARCHAR(1000))
+    mbperf = mapped_column(t.VARCHAR(1000))
+    meningitis_ceterm = mapped_column(t.VARCHAR(1000))
+    mildliver = mapped_column(t.VARCHAR(1000))
+    modliv = mapped_column(t.VARCHAR(1000))
+    myalgia_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    myalgia_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    myocarditis_ceterm = mapped_column(t.VARCHAR(1000))
+    neuro_cmtrt = mapped_column(t.VARCHAR(1000))
+    neuro_comp = mapped_column(t.VARCHAR(1000))
+    nhs_region = mapped_column(t.VARCHAR(1000))
+    ni_site = mapped_column(t.VARCHAR(1000))
+    no_symptoms = mapped_column(t.VARCHAR(1000))
+    no_symptoms_v3 = mapped_column(t.VARCHAR(1000))
+    noncorona_expphi = mapped_column(t.VARCHAR(1000))
+    noninvasive_proccur = mapped_column(t.VARCHAR(1000))
+    obesity_mhyn = mapped_column(t.VARCHAR(1000))
+    offlabel_cmtrt = mapped_column(t.VARCHAR(1000))
+    offlabel_cmyn = mapped_column(t.VARCHAR(1000))
+    onset2admission = mapped_column(t.VARCHAR(1000))
+    onset_and_admission_complete = mapped_column(t.VARCHAR(1000))
+    othantiviral2_cmyn = mapped_column(t.VARCHAR(1000))
+    othantiviral3_cmtrt = mapped_column(t.VARCHAR(1000))
+    othantiviral3_cmyn = mapped_column(t.VARCHAR(1000))
+    othantiviral4_cmtrt = mapped_column(t.VARCHAR(1000))
+    othantiviral4_cmyn = mapped_column(t.VARCHAR(1000))
+    othantiviral5_cmtrt = mapped_column(t.VARCHAR(1000))
+    othantiviral5_cmyn = mapped_column(t.VARCHAR(1000))
+    othantiviral_cmtrt = mapped_column(t.VARCHAR(1000))
+    other_ceoccur = mapped_column(t.VARCHAR(1000))
+    other_ceterm = mapped_column(t.VARCHAR(4000))
+    other_cm = mapped_column(t.VARCHAR(1000))
+    other_cmoccur = mapped_column(t.VARCHAR(1000))
+    other_cmtrt = mapped_column(t.VARCHAR(1000))
+    other_cmyn = mapped_column(t.VARCHAR(1000))
+    other_ethnic = mapped_column(t.VARCHAR(1000))
+    other_mborres = mapped_column(t.VARCHAR(1000))
+    other_mbyn = mapped_column(t.VARCHAR(1000))
+    other_mhyn = mapped_column(t.VARCHAR(1000))
+    othhantiviral2_cmtrt = mapped_column(t.VARCHAR(1000))
+    outcome_complete = mapped_column(t.VARCHAR(1000))
+    oxy_vsorres = mapped_column(t.VARCHAR(1000))
+    oxy_vsorresu = mapped_column(t.VARCHAR(1000))
+    oxy_vsyn = mapped_column(t.VARCHAR(1000))
+    oxygen_cmoccur = mapped_column(t.VARCHAR(1000))
+    oxygen_proccur = mapped_column(t.VARCHAR(1000))
+    oxygen_proccur_v2 = mapped_column(t.VARCHAR(1000))
+    oxygenhf_cmoccur = mapped_column(t.VARCHAR(1000))
+    pancreat_ceterm = mapped_column(t.VARCHAR(1000))
+    participant_identification_number_pin_complete = mapped_column(t.VARCHAR(1000))
+    pcr_path_diag___0 = mapped_column(t.VARCHAR(1000))
+    pcr_path_diag___1 = mapped_column(t.VARCHAR(1000))
+    pcr_path_diag___10 = mapped_column(t.VARCHAR(1000))
+    pcr_path_diag___2 = mapped_column(t.VARCHAR(1000))
+    pcr_path_diag___3 = mapped_column(t.VARCHAR(1000))
+    pcr_path_diag___4 = mapped_column(t.VARCHAR(1000))
+    pcr_path_diag___5 = mapped_column(t.VARCHAR(1000))
+    pcr_path_diag___6 = mapped_column(t.VARCHAR(1000))
+    pcr_path_diago = mapped_column(t.VARCHAR(1000))
+    pleuraleff_ceterm = mapped_column(t.VARCHAR(1000))
+    pneumothorax_ceterm = mapped_column(t.VARCHAR(1000))
+    postpart_rptestcd = mapped_column(t.VARCHAR(1000))
+    postpart_rptestcd_out = mapped_column(t.VARCHAR(1000))
+    preadmission_treatment_complete = mapped_column(t.VARCHAR(1000))
+    pregout_rptestcd = mapped_column(t.VARCHAR(1000))
+    pregout_rptestcd_out = mapped_column(t.VARCHAR(1000))
+    pregyn_rptestcd = mapped_column(t.VARCHAR(1000))
+    prev_subjid = mapped_column(t.VARCHAR(1000))
+    prev_subjid_nk = mapped_column(t.VARCHAR(1000))
+    pronevent_prtrt = mapped_column(t.VARCHAR(1000))
+    pulmthromb_ceterm = mapped_column(t.VARCHAR(1000))
+    rash_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    rash_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    readm_cov19 = mapped_column(t.VARCHAR(1000))
+    readminreas = mapped_column(t.VARCHAR(1000))
+    readminreasnk = mapped_column(t.VARCHAR(1000))
+    reason_for_withdrawal = mapped_column(t.VARCHAR(1000))
+    recruitment = mapped_column(t.VARCHAR(1000))
+    reinf_antigen = mapped_column(t.VARCHAR(1000))
+    reinf_antigend = mapped_column(t.VARCHAR(1000))
+    reinf_asymptomatic = mapped_column(t.VARCHAR(1000))
+    reinf_cestdat = mapped_column(t.VARCHAR(1000))
+    reinf_pcr = mapped_column(t.VARCHAR(1000))
+    reinf_pcrd = mapped_column(t.VARCHAR(1000))
+    reinf_pre_adm_hosp = mapped_column(t.VARCHAR(1000))
+    reinf_pre_casiriv = mapped_column(t.VARCHAR(1000))
+    reinf_pre_chloro_hchlo = mapped_column(t.VARCHAR(1000))
+    reinf_pre_conv_plasma = mapped_column(t.VARCHAR(1000))
+    reinf_pre_dexameth = mapped_column(t.VARCHAR(1000))
+    reinf_pre_ecmo = mapped_column(t.VARCHAR(1000))
+    reinf_pre_hdu_icu = mapped_column(t.VARCHAR(1000))
+    reinf_pre_interferon = mapped_column(t.VARCHAR(1000))
+    reinf_pre_inv_vent = mapped_column(t.VARCHAR(1000))
+    reinf_pre_lopin_riton = mapped_column(t.VARCHAR(1000))
+    reinf_pre_oxygen = mapped_column(t.VARCHAR(1000))
+    reinf_pre_remdesivir = mapped_column(t.VARCHAR(1000))
+    reinf_pre_steroid = mapped_column(t.VARCHAR(1000))
+    reinf_pre_tociliz = mapped_column(t.VARCHAR(1000))
+    reinf_prev_enrol = mapped_column(t.VARCHAR(1000))
+    reinf_serology = mapped_column(t.VARCHAR(1000))
+    reinf_serologyd = mapped_column(t.VARCHAR(1000))
+    reinf_treat_none = mapped_column(t.VARCHAR(1000))
+    reinfection_form_complete = mapped_column(t.VARCHAR(1000))
+    remdes_cmtrt_first = mapped_column(t.VARCHAR(1000))
+    remdes_cmtrt_last = mapped_column(t.VARCHAR(1000))
+    remdesivir_day1 = mapped_column("remdesivir.day1", t.VARCHAR(1000))
+    remdesivir_disch = mapped_column("remdesivir.disch", t.VARCHAR(1000))
+    remdesivir_day_day1 = mapped_column("remdesivir_day.day1", t.VARCHAR(1000))
+    remdesivir_day_disch = mapped_column("remdesivir_day.disch", t.VARCHAR(1000))
+    remdesivir_last_dose_day1 = mapped_column(
+        "remdesivir_last_dose.day1", t.VARCHAR(1000)
+    )
+    remdesivir_last_dose_disch = mapped_column(
+        "remdesivir_last_dose.disch", t.VARCHAR(1000)
+    )
+    renal_mhyn = mapped_column(t.VARCHAR(1000))
+    renal_proccur = mapped_column(t.VARCHAR(1000))
+    renalinjury_ceterm = mapped_column(t.VARCHAR(1000))
+    research_samples_complete = mapped_column(t.VARCHAR(1000))
+    rhabdomyolsis_ceterm = mapped_column(t.VARCHAR(1000))
+    rheumatologic_mhyn = mapped_column(t.VARCHAR(1000))
+    rr_vsorres = mapped_column(t.VARCHAR(1000))
+    rr_vsyn = mapped_column(t.VARCHAR(1000))
+    rrt_prtrt = mapped_column(t.VARCHAR(1000))
+    rrt_still_on = mapped_column(t.VARCHAR(1000))
+    rrt_totdur = mapped_column(t.VARCHAR(1000))
+    rsv_mbcat = mapped_column(t.VARCHAR(1000))
+    rsv_mbcat_v2 = mapped_column(t.VARCHAR(1000))
+    runnynose_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    runnynose_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    sample_date = mapped_column(t.VARCHAR(1000))
+    sample_kit = mapped_column(t.VARCHAR(1000))
+    sample_obtained = mapped_column(t.VARCHAR(1000))
+    seizure_ceterm = mapped_column(t.VARCHAR(1000))
+    seizures_cecoccur_v2 = mapped_column(t.VARCHAR(1000))
+    seizures_cecoccur_v3 = mapped_column(t.VARCHAR(1000))
+    sex = mapped_column(t.VARCHAR(1000))
+    shortbreath_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    shortbreath_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    site_type = mapped_column(t.VARCHAR(1000))
+    siteid = mapped_column(t.VARCHAR(1000))
+    siteid_transfernk = mapped_column(t.VARCHAR(1000))
+    siteid_v2 = mapped_column(t.VARCHAR(1000))
+    siteid_v2_nk = mapped_column(t.VARCHAR(1000))
+    siteidnk = mapped_column(t.VARCHAR(1000))
+    siteyn = mapped_column(t.VARCHAR(1000))
+    siteyn_v2 = mapped_column(t.VARCHAR(1000))
+    siteyn_v3 = mapped_column(t.VARCHAR(1000))
+    skinulcers_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    skinulcers_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    smoking_mhyn = mapped_column(t.VARCHAR(1000))
+    smoking_mhyn_2levels = mapped_column(t.VARCHAR(1000))
+    sorethroat_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    sorethroat_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    status = mapped_column(t.VARCHAR(1000))
+    stercap_vsorres = mapped_column(t.VARCHAR(1000))
+    stercap_vsyn = mapped_column(t.VARCHAR(1000))
+    stroke_ceterm = mapped_column(t.VARCHAR(1000))
+    study_1_id = mapped_column(t.VARCHAR(1000))
+    study_1_name = mapped_column(t.VARCHAR(1000))
+    study_2 = mapped_column(t.VARCHAR(1000))
+    study_2_id = mapped_column(t.VARCHAR(1000))
+    study_2_name = mapped_column(t.VARCHAR(1000))
+    study_3 = mapped_column(t.VARCHAR(1000))
+    study_3_id = mapped_column(t.VARCHAR(1000))
+    study_3_name = mapped_column(t.VARCHAR(1000))
+    study_participation_complete = mapped_column(t.VARCHAR(1000))
+    subjid_transfer = mapped_column(t.VARCHAR(1000))
+    subjidcat = mapped_column(t.VARCHAR(1000))
+    subjidcat_transfer = mapped_column(t.VARCHAR(1000))
+    subjidcat_v2 = mapped_column(t.VARCHAR(1000))
+    suppds_qval = mapped_column(t.VARCHAR(1000))
+    suppds_qval_v2 = mapped_column(t.VARCHAR(1000))
+    supper_trcity = mapped_column(t.VARCHAR(1000))
+    supper_trcity_2 = mapped_column(t.VARCHAR(1000))
+    supper_trcntry = mapped_column(t.VARCHAR(1000))
+    supper_trcntry_2 = mapped_column(t.VARCHAR(1000))
+    surgefacil = mapped_column(t.VARCHAR(1000))
+    susp_reinf = mapped_column(t.VARCHAR(1000))
+    symptoms_epi_animal = mapped_column(t.VARCHAR(1000))
+    symptoms_epi_healthfac = mapped_column(t.VARCHAR(1000))
+    symptoms_epi_lab = mapped_column(t.VARCHAR(1000))
+    symptoms_epi_pathogen = mapped_column(t.VARCHAR(1000))
+    symptoms_epi_physical = mapped_column(t.VARCHAR(1000))
+    symptoms_epi_travel = mapped_column(t.VARCHAR(1000))
+    sysbp_vsorres = mapped_column(t.VARCHAR(1000))
+    sysbp_vsyn = mapped_column(t.VARCHAR(1000))
+    systolic_vsorres_day1 = mapped_column("systolic_vsorres.day1", t.VARCHAR(1000))
+    systolic_vsorres_disch = mapped_column("systolic_vsorres.disch", t.VARCHAR(1000))
+    systolic_vsyn_day1 = mapped_column("systolic_vsyn.day1", t.VARCHAR(1000))
+    systolic_vsyn_disch = mapped_column("systolic_vsyn.disch", t.VARCHAR(1000))
+    temp_vsorres = mapped_column(t.VARCHAR(1000))
+    temp_vsorresu = mapped_column(t.VARCHAR(1000))
+    temp_vsyn = mapped_column(t.VARCHAR(1000))
+    tiers_consent_complete = mapped_column(t.VARCHAR(1000))
+    tiers_faorres___1 = mapped_column(t.VARCHAR(1000))
+    tiers_faorres___2 = mapped_column(t.VARCHAR(1000))
+    tiers_faorres___3 = mapped_column(t.VARCHAR(1000))
+    tracheo_prtrt = mapped_column(t.VARCHAR(1000))
+    transfer_subjid = mapped_column(t.VARCHAR(1000))
+    travel_erterm = mapped_column(t.VARCHAR(1000))
+    travel_erterm_2 = mapped_column(t.VARCHAR(1000))
+    treatment_complete = mapped_column(t.VARCHAR(1000))
+    vaccine_covid_trial = mapped_column(t.VARCHAR(1000))
+    vaccine_covid_triald = mapped_column(t.VARCHAR(1000))
+    version_9_7 = mapped_column(t.VARCHAR(1000))
+    vomit_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    vomit_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    vrialpneu_ceoccur = mapped_column(t.VARCHAR(1000))
+    vulnerable_cancers = mapped_column(t.VARCHAR(1000))
+    vulnerable_copd = mapped_column(t.VARCHAR(1000))
+    vulnerable_immuno = mapped_column(t.VARCHAR(1000))
+    vulnerable_no_nk = mapped_column(t.VARCHAR(1000))
+    vulnerable_preg = mapped_column(t.VARCHAR(1000))
+    vulnerable_scid = mapped_column(t.VARCHAR(1000))
+    vulnerable_transplant = mapped_column(t.VARCHAR(1000))
+    wheeze_ceoccur_v2 = mapped_column(t.VARCHAR(1000))
+    wheeze_ceoccur_v3 = mapped_column(t.VARCHAR(1000))
+    withddat = mapped_column(t.VARCHAR(1000))
+    withdrawal_form_complete = mapped_column(t.VARCHAR(1000))
+    withdreas = mapped_column(t.VARCHAR(1000))
+    withdtype = mapped_column(t.VARCHAR(1000))
+    xray_prperf_day1 = mapped_column("xray_prperf.day1", t.VARCHAR(1000))
+    xray_prperf_disch = mapped_column("xray_prperf.disch", t.VARCHAR(1000))
 
-    Patient_ID = Column(Integer, ForeignKey("Patient.Patient_ID"))
-    Patient = relationship("Patient", back_populates="ISARIC_New")
 
-    age = Column(String)
-    age_factor = Column("age.factor", String)
-    calc_age = Column(String)
-    sex = Column(String)
-    ethnic___1 = Column(String)
-    ethnic___2 = Column(String)
-    ethnic___3 = Column(String)
-    ethnic___4 = Column(String)
-    ethnic___5 = Column(String)
-    ethnic___6 = Column(String)
-    ethnic___7 = Column(String)
-    ethnic___8 = Column(String)
-    ethnic___9 = Column(String)
-    ethnic___10 = Column(String)
+class LatestBuildTime(Base):
+    __tablename__ = "LatestBuildTime"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    covid19_vaccine = Column(String)
-    covid19_vaccined = Column(String)
-    covid19_vaccine2d = Column(String)
-    covid19_vaccined_nk = Column(String)
-
-    corona_ieorres = Column(String)
-    coriona_ieorres2 = Column(String)
-    coriona_ieorres3 = Column(String)
-    inflammatory_mss = Column(String)
-    cestdat = Column(String)
-    chrincard = Column(String)
-    hypertension_mhyn = Column(String)
-    chronicpul_mhyn = Column(String)
-    asthma_mhyn = Column(String)
-    renal_mhyn = Column(String)
-    mildliver = Column(String)
-    modliv = Column(String)
-    chronicneu_mhyn = Column(String)
-    malignantneo_mhyn = Column(String)
-    chronichaemo_mhyn = Column(String)
-    aidshiv_mhyn = Column(String)
-    obesity_mhyn = Column(String)
-    diabetes_type_mhyn = Column(String)
-    diabetescom_mhyn = Column(String)
-    diabetes_mhyn = Column(String)
-    rheumatologic_mhyn = Column(String)
-    dementia_mhyn = Column(String)
-    malnutrition_mhyn = Column(String)
-    smoking_mhyn = Column(String)
-
-    hostdat = Column(String)
-    hooccur = Column(String)
-    hostdat_transfer = Column(String)
-    hostdat_transfernk = Column(String)
-    readm_cov19 = Column(String)
-    dsstdat = Column(String)
-    dsstdtc = Column(String)
+    DtLatestBuild = mapped_column(t.DateTime)
 
 
-class BuildProgress(Base):
-    __tablename__ = "BuildProgress"
+class MPI(Base):
+    __tablename__ = "MPI"
+    _pk = mapped_column(t.Integer, primary_key=True)
 
-    # fake pk to satisfy the ORM
-    pk = Column(Integer, primary_key=True)
+    Patient_ID = mapped_column(t.BIGINT)
+    Birth_Month = mapped_column(t.VARCHAR(10))
+    Care_Home_Flag = mapped_column(t.VARCHAR(10))
+    Data_Source = mapped_column(t.VARCHAR(100))
+    DateFrom = mapped_column(t.Date)
+    DateTo = mapped_column(t.Date)
+    Date_Added = mapped_column(t.Date)
+    Death_Month = mapped_column(t.VARCHAR(10))
+    Gender = mapped_column(t.VARCHAR(1))
+    Latest_Flag = mapped_column(t.VARCHAR(10))
+    Living_Alone_Flag = mapped_column(t.VARCHAR(100))
+    Living_with_elderly_Flag = mapped_column(t.VARCHAR(100))
+    Living_with_young_Flag = mapped_column(t.VARCHAR(100))
+    OS_Property_Classification = mapped_column(t.VARCHAR(100))
+    Original_Posting_Date = mapped_column(t.Date)
+    Pseudo_parent_uprn = mapped_column(t.VARCHAR(200))
+    Pseudo_uprn = mapped_column(t.VARCHAR(200))
+    RP_of_Death = mapped_column(t.VARCHAR(10))
+    Rural_Urban_Classification = mapped_column(t.VARCHAR(100))
+    ServiceType = mapped_column(t.VARCHAR(100))
+    private_outdoor_space = mapped_column(t.VARCHAR(100))
+    private_outdoor_space_area = mapped_column(t.VARCHAR(100))
+    property_type = mapped_column(t.VARCHAR(100))
 
-    Event = Column(String)
-    BuildStart = Column(DateTime, default=datetime.utcnow)
-    EventStart = Column(DateTime, default=datetime.utcnow)
-    EventEnd = Column(DateTime, default="9999-12-31")
-    Duration = Column(Integer)
+
+class MSOA_PopulationEstimates_2019(Base):
+    __tablename__ = "MSOA_PopulationEstimates_2019"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Age_0 = mapped_column(t.Integer)
+    Age_1 = mapped_column(t.Integer)
+    Age_10 = mapped_column(t.Integer)
+    Age_11 = mapped_column(t.Integer)
+    Age_12 = mapped_column(t.Integer)
+    Age_13 = mapped_column(t.Integer)
+    Age_14 = mapped_column(t.Integer)
+    Age_15 = mapped_column(t.Integer)
+    Age_16 = mapped_column(t.Integer)
+    Age_17 = mapped_column(t.Integer)
+    Age_18 = mapped_column(t.Integer)
+    Age_19 = mapped_column(t.Integer)
+    Age_2 = mapped_column(t.Integer)
+    Age_20 = mapped_column(t.Integer)
+    Age_21 = mapped_column(t.Integer)
+    Age_22 = mapped_column(t.Integer)
+    Age_23 = mapped_column(t.Integer)
+    Age_24 = mapped_column(t.Integer)
+    Age_25 = mapped_column(t.Integer)
+    Age_26 = mapped_column(t.Integer)
+    Age_27 = mapped_column(t.Integer)
+    Age_28 = mapped_column(t.Integer)
+    Age_29 = mapped_column(t.Integer)
+    Age_3 = mapped_column(t.Integer)
+    Age_30 = mapped_column(t.Integer)
+    Age_31 = mapped_column(t.Integer)
+    Age_32 = mapped_column(t.Integer)
+    Age_33 = mapped_column(t.Integer)
+    Age_34 = mapped_column(t.Integer)
+    Age_35 = mapped_column(t.Integer)
+    Age_36 = mapped_column(t.Integer)
+    Age_37 = mapped_column(t.Integer)
+    Age_38 = mapped_column(t.Integer)
+    Age_39 = mapped_column(t.Integer)
+    Age_4 = mapped_column(t.Integer)
+    Age_40 = mapped_column(t.Integer)
+    Age_41 = mapped_column(t.Integer)
+    Age_42 = mapped_column(t.Integer)
+    Age_43 = mapped_column(t.Integer)
+    Age_44 = mapped_column(t.Integer)
+    Age_45 = mapped_column(t.Integer)
+    Age_46 = mapped_column(t.Integer)
+    Age_47 = mapped_column(t.Integer)
+    Age_48 = mapped_column(t.Integer)
+    Age_49 = mapped_column(t.Integer)
+    Age_5 = mapped_column(t.Integer)
+    Age_50 = mapped_column(t.Integer)
+    Age_51 = mapped_column(t.Integer)
+    Age_52 = mapped_column(t.Integer)
+    Age_53 = mapped_column(t.Integer)
+    Age_54 = mapped_column(t.Integer)
+    Age_55 = mapped_column(t.Integer)
+    Age_56 = mapped_column(t.Integer)
+    Age_57 = mapped_column(t.Integer)
+    Age_58 = mapped_column(t.Integer)
+    Age_59 = mapped_column(t.Integer)
+    Age_6 = mapped_column(t.Integer)
+    Age_60 = mapped_column(t.Integer)
+    Age_61 = mapped_column(t.Integer)
+    Age_62 = mapped_column(t.Integer)
+    Age_63 = mapped_column(t.Integer)
+    Age_64 = mapped_column(t.Integer)
+    Age_65 = mapped_column(t.Integer)
+    Age_66 = mapped_column(t.Integer)
+    Age_67 = mapped_column(t.Integer)
+    Age_68 = mapped_column(t.Integer)
+    Age_69 = mapped_column(t.Integer)
+    Age_7 = mapped_column(t.Integer)
+    Age_70 = mapped_column(t.Integer)
+    Age_71 = mapped_column(t.Integer)
+    Age_72 = mapped_column(t.Integer)
+    Age_73 = mapped_column(t.Integer)
+    Age_74 = mapped_column(t.Integer)
+    Age_75 = mapped_column(t.Integer)
+    Age_76 = mapped_column(t.Integer)
+    Age_77 = mapped_column(t.Integer)
+    Age_78 = mapped_column(t.Integer)
+    Age_79 = mapped_column(t.Integer)
+    Age_8 = mapped_column(t.Integer)
+    Age_80 = mapped_column(t.Integer)
+    Age_81 = mapped_column(t.Integer)
+    Age_82 = mapped_column(t.Integer)
+    Age_83 = mapped_column(t.Integer)
+    Age_84 = mapped_column(t.Integer)
+    Age_85 = mapped_column(t.Integer)
+    Age_86 = mapped_column(t.Integer)
+    Age_87 = mapped_column(t.Integer)
+    Age_88 = mapped_column(t.Integer)
+    Age_89 = mapped_column(t.Integer)
+    Age_9 = mapped_column(t.Integer)
+    Age_90_Plus = mapped_column(t.Integer)
+    Age_All = mapped_column(t.Integer)
+    LA_Code_2019 = mapped_column(t.VARCHAR(50))
+    LA_Code_2020 = mapped_column(t.VARCHAR(50))
+    MSOA_Code = mapped_column(t.VARCHAR(50))
+
+
+class MedicationDictionary(Base):
+    __tablename__ = "MedicationDictionary"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    CompanyName = mapped_column(t.VARCHAR(200))
+    DMD_ID = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
+    Form = mapped_column(t.VARCHAR(50))
+    FullName = mapped_column(t.VARCHAR(1000))
+    MultilexDrug_ID = mapped_column(t.VARCHAR(767))
+    PackDescription = mapped_column(t.VARCHAR(50))
+    ProductId = mapped_column(t.BIGINT)
+    RootName = mapped_column(t.VARCHAR(100))
+    Strength = mapped_column(t.VARCHAR(500))
+
+
+class MedicationIssue(Base):
+    __tablename__ = "MedicationIssue"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    ConsultationDate = mapped_column(t.DateTime)
+    Consultation_ID = mapped_column(t.BIGINT)
+    Dose = mapped_column(t.VARCHAR(255))
+    EndDate = mapped_column(t.DateTime)
+    MedicationIssue_ID = mapped_column(t.BIGINT)
+    MedicationStatus = mapped_column(t.Integer)
+    MultilexDrug_ID = mapped_column(t.VARCHAR(255))
+    Quantity = mapped_column(t.VARCHAR(255))
+    RepeatMedication_ID = mapped_column(t.BIGINT)
+    StartDate = mapped_column(t.DateTime)
+
+
+class MedicationRepeat(Base):
+    __tablename__ = "MedicationRepeat"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    ConsultationDate = mapped_column(t.DateTime)
+    Consultation_ID = mapped_column(t.BIGINT)
+    Dose = mapped_column(t.VARCHAR(255))
+    EndDate = mapped_column(t.DateTime)
+    MedicationRepeat_ID = mapped_column(t.BIGINT)
+    MedicationStatus = mapped_column(t.Integer)
+    MultilexDrug_ID = mapped_column(t.VARCHAR(255))
+    Quantity = mapped_column(t.VARCHAR(255))
+    StartDate = mapped_column(t.DateTime)
+
+
+class MedicationSensitivity(Base):
+    __tablename__ = "MedicationSensitivity"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.Integer)
+    ConsultationDate = mapped_column(t.DateTime)
+    Consultation_ID = mapped_column(t.BIGINT)
+    Ended = mapped_column(t.Boolean)
+    FormulationSpecific = mapped_column(t.Boolean)
+    MedicationSensitivity_ID = mapped_column(t.Integer)
+    MultilexDrug_ID = mapped_column(t.VARCHAR(100))
+    StartDate = mapped_column(t.DateTime)
+
+
+class ONS_CIS(Base):
+    __tablename__ = "ONS_CIS"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    SOC_occupation = mapped_column(t.VARCHAR(100))
+    age_at_visit = mapped_column(t.Integer)
+    contact_any_covid = mapped_column(t.Boolean)
+    contact_any_covid_dayssinceg = mapped_column(t.REAL)
+    contact_face_covering = mapped_column(t.Integer)
+    country = mapped_column(t.Integer)
+    covid_admitted = mapped_column(t.Boolean)
+    covid_date = mapped_column(t.Date)
+    covid_nhs_contact = mapped_column(t.Boolean)
+    covid_test_blood = mapped_column(t.Boolean)
+    covid_test_blood_neg_last_date = mapped_column(t.Date)
+    covid_test_blood_pos_first_date = mapped_column(t.Date)
+    covid_test_blood_result = mapped_column(t.Integer)
+    covid_test_swab = mapped_column(t.Boolean)
+    covid_test_swab_neg_last_date = mapped_column(t.Date)
+    covid_test_swab_pos_first_date = mapped_column(t.Date)
+    covid_test_swab_result = mapped_column(t.Integer)
+    covid_think_havehad = mapped_column(t.Boolean)
+    ct_mean = mapped_column(t.VARCHAR(100))
+    dataset = mapped_column(t.Integer)
+    dvhsize = mapped_column(t.Integer)
+    ethnicity = mapped_column(t.Integer)
+    geography_code = mapped_column(t.VARCHAR(100))
+    geography_name = mapped_column(t.VARCHAR(100))
+    gor9d = mapped_column(t.VARCHAR(100))
+    gor9d_surge = mapped_column(t.VARCHAR(100))
+    health_care_clean = mapped_column(t.Boolean)
+    health_conditions = mapped_column(t.Boolean)
+    health_conditions_impact = mapped_column(t.Integer)
+    hhsize = mapped_column(t.Integer)
+    imp_age = mapped_column(t.Integer)
+    imp_sex = mapped_column(t.VARCHAR(10))
+    n_participants = mapped_column(t.Integer)
+    patient_facing_clean = mapped_column(t.Integer)
+    received_ox_date = mapped_column(t.Date)
+    result_combined = mapped_column(t.VARCHAR(100))
+    result_mk = mapped_column(t.VARCHAR(100))
+    result_mk_date = mapped_column(t.Date)
+    result_tdi = mapped_column(t.VARCHAR(100))
+    samples_taken_date = mapped_column(t.Date)
+    school_year = mapped_column(t.VARCHAR(100))
+    self_isolating = mapped_column(t.Boolean)
+    self_isolating_v1 = mapped_column(t.Integer)
+    sex = mapped_column(t.VARCHAR(10))
+    smoke_ever_regularly = mapped_column(t.Boolean)
+    smoke_now_cigar = mapped_column(t.Boolean)
+    smoke_now_cigarettes = mapped_column(t.Boolean)
+    smoke_now_pipe = mapped_column(t.Boolean)
+    smoke_now_vape = mapped_column(t.Boolean)
+    surge_flag = mapped_column(t.Boolean)
+    sympt_covid_abdominal_pain = mapped_column(t.Boolean)
+    sympt_covid_any = mapped_column(t.Boolean)
+    sympt_covid_cough = mapped_column(t.Boolean)
+    sympt_covid_diarrhoea = mapped_column(t.Boolean)
+    sympt_covid_fatigue_weakness = mapped_column(t.Boolean)
+    sympt_covid_fever = mapped_column(t.Boolean)
+    sympt_covid_headache = mapped_column(t.Boolean)
+    sympt_covid_loss_of_smell = mapped_column(t.Boolean)
+    sympt_covid_loss_of_taste = mapped_column(t.Boolean)
+    sympt_covid_muscle_ache_myalgia = mapped_column(t.Boolean)
+    sympt_covid_nausea_vomiting = mapped_column(t.Boolean)
+    sympt_covid_shortness_of_breath = mapped_column(t.Boolean)
+    sympt_covid_sore_throat = mapped_column(t.Boolean)
+    sympt_now_abdominal_pain = mapped_column(t.Boolean)
+    sympt_now_any = mapped_column(t.Boolean)
+    sympt_now_cough = mapped_column(t.Boolean)
+    sympt_now_date = mapped_column(t.Date)
+    sympt_now_diarrhoea = mapped_column(t.Boolean)
+    sympt_now_fatigue_weakness = mapped_column(t.Boolean)
+    sympt_now_fever = mapped_column(t.Boolean)
+    sympt_now_headache = mapped_column(t.Boolean)
+    sympt_now_loss_of_smell = mapped_column(t.Boolean)
+    sympt_now_loss_of_taste = mapped_column(t.Boolean)
+    sympt_now_muscle_ache_myalgia = mapped_column(t.Boolean)
+    sympt_now_nausea_vomiting = mapped_column(t.Boolean)
+    sympt_now_shortness_of_breath = mapped_column(t.Boolean)
+    sympt_now_sore_throat = mapped_column(t.Boolean)
+    tenure_group = mapped_column(t.Integer)
+    think_have_covid_sympt_now = mapped_column(t.Boolean)
+    travel_abroad = mapped_column(t.Boolean)
+    travel_abroad_date = mapped_column(t.Date)
+    visit_date = mapped_column(t.Date)
+    visit_id = mapped_column(t.VARCHAR(100))
+    work_direct_contact_patients_etc = mapped_column(t.Boolean)
+    work_location = mapped_column(t.Integer)
+    work_outside_home_days = mapped_column(t.REAL)
+    work_sector = mapped_column(t.Integer)
+    work_social_distancing = mapped_column(t.Integer)
+    work_status = mapped_column(t.Integer)
+    work_status_clean = mapped_column(t.Integer)
+    work_status_v1 = mapped_column(t.Integer)
+    work_travel = mapped_column(t.Integer)
+
+
+class ONS_CIS_New(Base):
+    __tablename__ = "ONS_CIS_New"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    SOC_occupation = mapped_column(t.VARCHAR(100))
+    age_at_visit = mapped_column(t.Integer)
+    ageg = mapped_column(t.Integer)
+    ageg_7 = mapped_column(t.Integer)
+    ageg_small = mapped_column(t.Integer)
+    ageg_small2 = mapped_column(t.Integer)
+    ageg_sy = mapped_column(t.Integer)
+    any_evidence_sympt_around = mapped_column(t.Integer)
+    any_evidence_sympt_now = mapped_column(t.Integer)
+    assay_mabs = mapped_column(t.REAL)
+    assay_mabs_n = mapped_column(t.REAL)
+    contact_any_covid = mapped_column(t.Integer)
+    contact_any_covid_date = mapped_column(t.Date)
+    contact_any_covid_dayssinceg = mapped_column(t.Integer)
+    contact_any_covid_type = mapped_column(t.Integer)
+    contact_carehome = mapped_column(t.Integer)
+    contact_face_covering = mapped_column(t.Integer)
+    contact_face_covering_other = mapped_column(t.Integer)
+    contact_face_covering_workschool = mapped_column(t.Integer)
+    contact_hospital = mapped_column(t.Integer)
+    contact_known_covid = mapped_column(t.Integer)
+    contact_known_covid_date = mapped_column(t.Date)
+    contact_known_covid_type = mapped_column(t.Integer)
+    contact_other_in_hh_carehome = mapped_column(t.Integer)
+    contact_other_in_hh_hospital = mapped_column(t.Integer)
+    contact_participant_carehome = mapped_column(t.Integer)
+    contact_participant_hospital = mapped_column(t.Integer)
+    contact_physical_18_69y = mapped_column(t.Integer)
+    contact_physical_18y = mapped_column(t.Integer)
+    contact_physical_70y = mapped_column(t.Integer)
+    contact_social_dist_18_to_69 = mapped_column(t.Integer)
+    contact_social_dist_18y = mapped_column(t.Integer)
+    contact_social_dist_70y = mapped_column(t.Integer)
+    contact_suspect_covid = mapped_column(t.Integer)
+    contact_suspect_covid_date = mapped_column(t.Date)
+    contact_suspect_covid_type = mapped_column(t.Integer)
+    country = mapped_column(t.Integer)
+    covid_admitted = mapped_column(t.Integer)
+    covid_date = mapped_column(t.Date)
+    covid_nhs_contact = mapped_column(t.Integer)
+    covid_test_blood = mapped_column(t.Integer)
+    covid_test_blood_neg_last_date = mapped_column(t.Date)
+    covid_test_blood_pos_first_date = mapped_column(t.Date)
+    covid_test_blood_result = mapped_column(t.Integer)
+    covid_test_swab = mapped_column(t.Integer)
+    covid_test_swab_neg_last_date = mapped_column(t.Date)
+    covid_test_swab_pos_first_date = mapped_column(t.Date)
+    covid_test_swab_result = mapped_column(t.Integer)
+    covid_think_havehad = mapped_column(t.Integer)
+    ctMS2 = mapped_column(t.REAL)
+    ctMS2_result = mapped_column(t.Integer)
+    ctNgene = mapped_column(t.REAL)
+    ctNgene_result = mapped_column(t.Integer)
+    ctORF1ab = mapped_column(t.REAL)
+    ctORF1ab_result = mapped_column(t.Integer)
+    ctSgene = mapped_column(t.REAL)
+    ctSgene_result = mapped_column(t.Integer)
+    ct_mean = mapped_column(t.REAL)
+    ctpattern = mapped_column(t.Integer)
+    dataset = mapped_column(t.Integer)
+    dob_is_imputed = mapped_column(t.Integer)
+    ethnicity = mapped_column(t.Integer)
+    ethnicityg = mapped_column(t.Integer)
+    geography_code = mapped_column(t.VARCHAR(100))
+    geography_name = mapped_column(t.VARCHAR(100))
+    gor9d = mapped_column(t.Integer)
+    gor_name = mapped_column(t.Integer)
+    health_care_clean = mapped_column(t.Integer)
+    health_conditions = mapped_column(t.Integer)
+    health_conditions_impact = mapped_column(t.Integer)
+    hh_id_fake = mapped_column(t.Integer)
+    hhsize = mapped_column(t.Integer)
+    imd_decile_E = mapped_column(t.Integer)
+    imd_decile_NI = mapped_column(t.Integer)
+    imd_decile_S = mapped_column(t.Integer)
+    imd_decile_W = mapped_column(t.Integer)
+    imd_quartile_E = mapped_column(t.Integer)
+    imd_quartile_NI = mapped_column(t.Integer)
+    imd_quartile_S = mapped_column(t.Integer)
+    imd_quartile_W = mapped_column(t.Integer)
+    last_linkage_dt = mapped_column(t.Date)
+    long_covid_abdominal_pain = mapped_column(t.Integer)
+    long_covid_chest_pain = mapped_column(t.Integer)
+    long_covid_cough = mapped_column(t.Integer)
+    long_covid_diarrhoea = mapped_column(t.Integer)
+    long_covid_difficult_concentrate = mapped_column(t.Integer)
+    long_covid_fever = mapped_column(t.Integer)
+    long_covid_have_symptoms = mapped_column(t.Integer)
+    long_covid_headache = mapped_column(t.Integer)
+    long_covid_loss_of_appetite = mapped_column(t.Integer)
+    long_covid_loss_of_smell = mapped_column(t.Integer)
+    long_covid_loss_of_taste = mapped_column(t.Integer)
+    long_covid_low_mood_not_enjoying = mapped_column(t.Integer)
+    long_covid_memory_loss_confusion = mapped_column(t.Integer)
+    long_covid_muscle_ache = mapped_column(t.Integer)
+    long_covid_nausea_vomiting = mapped_column(t.Integer)
+    long_covid_palpitations = mapped_column(t.Integer)
+    long_covid_shortness_of_breath = mapped_column(t.Integer)
+    long_covid_sore_throat = mapped_column(t.Integer)
+    long_covid_trouble_sleeping = mapped_column(t.Integer)
+    long_covid_vertigo_dizziness = mapped_column(t.Integer)
+    long_covid_weakness_tiredness = mapped_column(t.Integer)
+    long_covid_worry_anxiety = mapped_column(t.Integer)
+    main_job_changed = mapped_column(t.Integer)
+    n_participants_corrected = mapped_column(t.Integer)
+    nhs_data_share = mapped_column(t.Integer)
+    opt_out_date = mapped_column(t.Date)
+    others_home_hours = mapped_column(t.Integer)
+    others_own_home_hours = mapped_column(t.Integer)
+    outside_shopping_only_times = mapped_column(t.Integer)
+    outside_shopping_social_times = mapped_column(t.Integer)
+    outside_socialising_only_times = mapped_column(t.Integer)
+    patient_facing_clean = mapped_column(t.Integer)
+    patient_facing_clean_ever = mapped_column(t.Integer)
+    pseudo_visit_id = mapped_column(t.VARBINARY(8000))
+    reason_for_withdrawal = mapped_column(t.Integer)
+    received_ox_date = mapped_column(t.Date)
+    reduce_activities_long_covid = mapped_column(t.Integer)
+    result_combined = mapped_column(t.Integer)
+    result_mk = mapped_column(t.Integer)
+    result_mk_date = mapped_column(t.Date)
+    result_tdi = mapped_column(t.Integer)
+    result_tdi_date = mapped_column(t.Date)
+    result_tdi_date_n = mapped_column(t.Date)
+    result_tdi_n = mapped_column(t.Integer)
+    rural_urban = mapped_column(t.Integer)
+    samples_taken_date = mapped_column(t.Date)
+    school_year = mapped_column(t.Integer)
+    self_isolating = mapped_column(t.Integer)
+    self_isolating_v1 = mapped_column(t.Integer)
+    sex = mapped_column(t.Integer)
+    sex_is_imputed = mapped_column(t.Integer)
+    smoke_ever_regularly = mapped_column(t.Integer)
+    smoke_now_cigar = mapped_column(t.Integer)
+    smoke_now_cigarettes = mapped_column(t.Integer)
+    smoke_now_hookah_shisha = mapped_column(t.Integer)
+    smoke_now_nothing = mapped_column(t.Integer)
+    smoke_now_pipe = mapped_column(t.Integer)
+    smoke_now_vape = mapped_column(t.Integer)
+    sympt_covid_abdominal_pain = mapped_column(t.Integer)
+    sympt_covid_any = mapped_column(t.Integer)
+    sympt_covid_cough = mapped_column(t.Integer)
+    sympt_covid_diarrhoea = mapped_column(t.Integer)
+    sympt_covid_fatigue_weakness = mapped_column(t.Integer)
+    sympt_covid_fever = mapped_column(t.Integer)
+    sympt_covid_headache = mapped_column(t.Integer)
+    sympt_covid_loss_of_smell = mapped_column(t.Integer)
+    sympt_covid_loss_of_taste = mapped_column(t.Integer)
+    sympt_covid_muscle_ache_myalgia = mapped_column(t.Integer)
+    sympt_covid_nausea_vomiting = mapped_column(t.Integer)
+    sympt_covid_shortness_of_breath = mapped_column(t.Integer)
+    sympt_covid_sore_throat = mapped_column(t.Integer)
+    sympt_now_abdominal_pain = mapped_column(t.Integer)
+    sympt_now_any = mapped_column(t.Integer)
+    sympt_now_any_orig = mapped_column(t.Integer)
+    sympt_now_cough = mapped_column(t.Integer)
+    sympt_now_count12 = mapped_column(t.Integer)
+    sympt_now_date = mapped_column(t.Date)
+    sympt_now_diarrhoea = mapped_column(t.Integer)
+    sympt_now_fatigue_weakness = mapped_column(t.Integer)
+    sympt_now_fever = mapped_column(t.Integer)
+    sympt_now_headache = mapped_column(t.Integer)
+    sympt_now_loss_of_smell = mapped_column(t.Integer)
+    sympt_now_loss_of_taste = mapped_column(t.Integer)
+    sympt_now_muscle_ache_myalgia = mapped_column(t.Integer)
+    sympt_now_nausea_vomiting = mapped_column(t.Integer)
+    sympt_now_shortness_of_breath = mapped_column(t.Integer)
+    sympt_now_sore_throat = mapped_column(t.Integer)
+    tenure_group = mapped_column(t.Integer)
+    think_have_covid_sympt_now = mapped_column(t.Integer)
+    travel_abroad = mapped_column(t.Integer)
+    travel_abroad_date = mapped_column(t.Date)
+    visit_date = mapped_column(t.Date)
+    visit_num = mapped_column(t.Integer)
+    visit_status = mapped_column(t.Integer)
+    visit_type = mapped_column(t.Integer)
+    withdrawn_participant = mapped_column(t.Integer)
+    work_direct_contact_patients_etc = mapped_column(t.Integer)
+    work_location = mapped_column(t.Integer)
+    work_outside_home_days = mapped_column(t.REAL)
+    work_sector = mapped_column(t.Integer)
+    work_social_distancing = mapped_column(t.Integer)
+    work_status = mapped_column(t.Integer)
+    work_status_clean = mapped_column(t.Integer)
+    work_status_v1 = mapped_column(t.Integer)
+    work_status_v2 = mapped_column(t.Integer)
+    work_travel = mapped_column(t.Integer)
+
+
+class ONS_CIS_New_Swab_Clearance(Base):
+    __tablename__ = "ONS_CIS_New_Swab_Clearance"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    PREVNEG = mapped_column(t.Integer)
+    WOFY57 = mapped_column(t.Integer)
+    age_at_visit = mapped_column(t.Integer)
+    ageg_small = mapped_column(t.Integer)
+    ageg_sy = mapped_column(t.Integer)
+    any_evidence_sympt_ARO = mapped_column(t.Integer)
+    any_lfdpos = mapped_column(t.Integer)
+    atrisk_date = mapped_column(t.Date)
+    check = mapped_column(t.Integer)
+    cis20_name = mapped_column(t.Integer)
+    cis20_samp = mapped_column(t.Integer)
+    clear_pattern = mapped_column(t.Integer)
+    count_pos_in_epi_updt = mapped_column(t.Integer)
+    country = mapped_column(t.Integer)
+    ct_mean_max = mapped_column(t.REAL)
+    ct_mean_min = mapped_column(t.REAL)
+    ctpattern_max = mapped_column(t.Integer)
+    ctpattern_min = mapped_column(t.Integer)
+    duration_intermittent = mapped_column(t.Integer)
+    epi_inf_type = mapped_column(t.Integer)
+    episode_updt = mapped_column(t.Integer)
+    ethnicity_wo = mapped_column(t.Integer)
+    ethnicityg = mapped_column(t.Integer)
+    ever_care_home_worker = mapped_column(t.Integer)
+    ever_lthc = mapped_column(t.Integer)
+    ever_lthc_disabled = mapped_column(t.Integer)
+    ever_personfacing_socialcare = mapped_column(t.Integer)
+    first_neg_date = mapped_column(t.Date)
+    first_pos_date = mapped_column(t.Date)
+    firstpos_test_no = mapped_column(t.Integer)
+    gor9d = mapped_column(t.Integer)
+    hh_enrol_date = mapped_column(t.Date)
+    hh_id_fake = mapped_column(t.Integer)
+    hhsize = mapped_column(t.Integer)
+    index_date_updt = mapped_column(t.Date)
+    intermittent = mapped_column(t.Integer)
+    last_pos_date = mapped_column(t.Date)
+    laua_name = mapped_column(t.Integer)
+    laua_samp = mapped_column(t.Integer)
+    lineage = mapped_column(t.VARCHAR(1000))
+    n_participants_corrected = mapped_column(t.Integer)
+    n_tests_in_epi = mapped_column(t.Integer)
+    next_lab_id = mapped_column(t.Integer)
+    other_in_hh = mapped_column(t.Integer)
+    pangolin = mapped_column(t.VARCHAR(1000))
+    patient_facing_clean_ever = mapped_column(t.Integer)
+    plot = mapped_column(t.REAL)
+    pospattern = mapped_column(t.VARCHAR(1000))
+    prev_neg_date = mapped_column(t.Date)
+    rgn_samp = mapped_column(t.Integer)
+    second_neg_date = mapped_column(t.Date)
+    sex = mapped_column(t.Integer)
+    smoke = mapped_column(t.Integer)
+    sympt_ARO_amn_source = mapped_column(t.Integer)
+    sympt_ARO_split = mapped_column(t.Integer)
+    testkit = mapped_column(t.VARCHAR(1000))
+    wofy53 = mapped_column(t.Integer)
+
+
+class ONS_CIS_New_Swab_Clearance_Pos_All(Base):
+    __tablename__ = "ONS_CIS_New_Swab_Clearance_Pos_All"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    PREVNEG = mapped_column(t.Integer)
+    WOFY68 = mapped_column(t.Integer)
+    age_at_visit = mapped_column(t.Integer)
+    ageg_small = mapped_column(t.Integer)
+    ageg_sy = mapped_column(t.Integer)
+    any_evidence_sympt_ARO = mapped_column(t.Integer)
+    any_lfdpos = mapped_column(t.Integer)
+    atrisk_date = mapped_column(t.Date)
+    check = mapped_column(t.Integer)
+    cis20_name = mapped_column(t.Integer)
+    cis20_samp = mapped_column(t.Integer)
+    clear_pattern = mapped_column(t.Integer)
+    count_pos_in_epi_updt = mapped_column(t.Integer)
+    country = mapped_column(t.Integer)
+    covid_test_swab_result = mapped_column(t.Integer)
+    ct_mean_max = mapped_column(t.REAL)
+    ct_mean_max_exc_tnt = mapped_column(t.REAL)
+    ct_mean_min = mapped_column(t.REAL)
+    ct_mean_min_exc_tnt = mapped_column(t.REAL)
+    ctpattern_max = mapped_column(t.Integer)
+    ctpattern_max_exc_tnt = mapped_column(t.Integer)
+    ctpattern_min = mapped_column(t.Integer)
+    ctpattern_min_exc_tnt = mapped_column(t.Integer)
+    duration_intermittent = mapped_column(t.Integer)
+    epi_inf_type = mapped_column(t.Integer)
+    episode_updt = mapped_column(t.Integer)
+    ethnicity_wo = mapped_column(t.Integer)
+    ethnicityg = mapped_column(t.Integer)
+    ever_care_home_worker = mapped_column(t.Integer)
+    ever_lthc = mapped_column(t.Integer)
+    ever_lthc_disabled = mapped_column(t.Integer)
+    ever_personfacing_socialcare = mapped_column(t.Integer)
+    first_neg_date = mapped_column(t.Date)
+    first_pos_date = mapped_column(t.Date)
+    first_pos_date_cis = mapped_column(t.Date)
+    firstpos_test_no = mapped_column(t.Integer)
+    gor9d = mapped_column(t.Integer)
+    hh_enrol_date = mapped_column(t.Date)
+    hh_id_fake = mapped_column(t.Integer)
+    hhsize = mapped_column(t.Integer)
+    index_date_updt = mapped_column(t.Date)
+    intermittent = mapped_column(t.Integer)
+    last_pos_date = mapped_column(t.Date)
+    laua_name = mapped_column(t.Integer)
+    laua_samp = mapped_column(t.Integer)
+    lineage = mapped_column(t.VARCHAR(1000))
+    n = mapped_column(t.Integer)
+    n_participants_corrected = mapped_column(t.Integer)
+    n_tests_in_epi = mapped_column(t.Integer)
+    next_lab_id = mapped_column(t.Integer)
+    other_in_hh = mapped_column(t.Integer)
+    pangolin = mapped_column(t.VARCHAR(1000))
+    patient_facing_clean_ever = mapped_column(t.Integer)
+    plot = mapped_column(t.REAL)
+    pospattern = mapped_column(t.VARCHAR(1000))
+    prev_neg_date = mapped_column(t.Date)
+    rgn_samp = mapped_column(t.Integer)
+    second_neg_date = mapped_column(t.Date)
+    sex = mapped_column(t.Integer)
+    smoke = mapped_column(t.Integer)
+    sympt_ARO_amn_source = mapped_column(t.Integer)
+    sympt_ARO_split = mapped_column(t.Integer)
+    testedfor = mapped_column(t.VARCHAR(1000))
+    testkit = mapped_column(t.VARCHAR(1000))
+    type_updt = mapped_column(t.Integer)
+    type_updt_tnt_minus_cis_days = mapped_column(t.Integer)
+    wofy60 = mapped_column(t.Integer)
+
+
+class ONS_CIS_New_Swab_Clearance_Pos_TnT(Base):
+    __tablename__ = "ONS_CIS_New_Swab_Clearance_Pos_TnT"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    PREVNEG = mapped_column(t.Integer)
+    WOFY68 = mapped_column(t.Integer)
+    age_at_visit = mapped_column(t.Integer)
+    ageg_small = mapped_column(t.Integer)
+    ageg_sy = mapped_column(t.Integer)
+    any_evidence_sympt_ARO = mapped_column(t.Integer)
+    any_lfdpos = mapped_column(t.Integer)
+    atrisk_date = mapped_column(t.Date)
+    check = mapped_column(t.Integer)
+    cis20_name = mapped_column(t.Integer)
+    cis20_samp = mapped_column(t.Integer)
+    clear_pattern = mapped_column(t.Integer)
+    count_pos_in_epi_updt = mapped_column(t.Integer)
+    country = mapped_column(t.Integer)
+    ct_mean_max = mapped_column(t.REAL)
+    ct_mean_max_exc_tnt = mapped_column(t.REAL)
+    ct_mean_min = mapped_column(t.REAL)
+    ct_mean_min_exc_tnt = mapped_column(t.REAL)
+    ctpattern_max = mapped_column(t.Integer)
+    ctpattern_max_exc_tnt = mapped_column(t.Integer)
+    ctpattern_min = mapped_column(t.Integer)
+    ctpattern_min_exc_tnt = mapped_column(t.Integer)
+    duration_intermittent = mapped_column(t.Integer)
+    epi_inf_type = mapped_column(t.Integer)
+    episode_updt = mapped_column(t.Integer)
+    ethnicity_wo = mapped_column(t.Integer)
+    ethnicityg = mapped_column(t.Integer)
+    ever_care_home_worker = mapped_column(t.Integer)
+    ever_lthc = mapped_column(t.Integer)
+    ever_lthc_disabled = mapped_column(t.Integer)
+    ever_personfacing_socialcare = mapped_column(t.Integer)
+    first_neg_date = mapped_column(t.Date)
+    first_pos_date = mapped_column(t.Date)
+    first_pos_date_cis = mapped_column(t.Date)
+    firstpos_test_no = mapped_column(t.Integer)
+    gor9d = mapped_column(t.Integer)
+    hh_enrol_date = mapped_column(t.Date)
+    hh_id_fake = mapped_column(t.Integer)
+    hhsize = mapped_column(t.Integer)
+    index_date_updt = mapped_column(t.Date)
+    intermittent = mapped_column(t.Integer)
+    last_pos_date = mapped_column(t.Date)
+    laua_name = mapped_column(t.Integer)
+    laua_samp = mapped_column(t.Integer)
+    lineage = mapped_column(t.VARCHAR(1000))
+    n = mapped_column(t.Integer)
+    n_participants_corrected = mapped_column(t.Integer)
+    n_tests_in_epi = mapped_column(t.Integer)
+    next_lab_id = mapped_column(t.Integer)
+    other_in_hh = mapped_column(t.Integer)
+    pangolin = mapped_column(t.VARCHAR(1000))
+    patient_facing_clean_ever = mapped_column(t.Integer)
+    plot = mapped_column(t.REAL)
+    pospattern = mapped_column(t.VARCHAR(1000))
+    prev_neg_date = mapped_column(t.Date)
+    rgn_samp = mapped_column(t.Integer)
+    second_neg_date = mapped_column(t.Date)
+    sex = mapped_column(t.Integer)
+    smoke = mapped_column(t.Integer)
+    sympt_ARO_amn_source = mapped_column(t.Integer)
+    sympt_ARO_split = mapped_column(t.Integer)
+    testedfor = mapped_column(t.VARCHAR(1000))
+    testkit = mapped_column(t.VARCHAR(1000))
+    type_updt = mapped_column(t.Integer)
+    type_updt_tnt_minus_cis_days = mapped_column(t.Integer)
+    wofy60 = mapped_column(t.Integer)
+
+
+class ONS_Deaths(Base):
+    __tablename__ = "ONS_Deaths"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    FIC10MEN1 = mapped_column(t.VARCHAR(100))
+    FIC10MEN10 = mapped_column(t.VARCHAR(100))
+    FIC10MEN11 = mapped_column(t.VARCHAR(100))
+    FIC10MEN12 = mapped_column(t.VARCHAR(100))
+    FIC10MEN13 = mapped_column(t.VARCHAR(100))
+    FIC10MEN14 = mapped_column(t.VARCHAR(100))
+    FIC10MEN15 = mapped_column(t.VARCHAR(100))
+    FIC10MEN2 = mapped_column(t.VARCHAR(100))
+    FIC10MEN3 = mapped_column(t.VARCHAR(100))
+    FIC10MEN4 = mapped_column(t.VARCHAR(100))
+    FIC10MEN5 = mapped_column(t.VARCHAR(100))
+    FIC10MEN6 = mapped_column(t.VARCHAR(100))
+    FIC10MEN7 = mapped_column(t.VARCHAR(100))
+    FIC10MEN8 = mapped_column(t.VARCHAR(100))
+    FIC10MEN9 = mapped_column(t.VARCHAR(100))
+    FIC10UND = mapped_column(t.VARCHAR(100))
+    ICD10001 = mapped_column(t.VARCHAR(100))
+    ICD10002 = mapped_column(t.VARCHAR(100))
+    ICD10003 = mapped_column(t.VARCHAR(100))
+    ICD10004 = mapped_column(t.VARCHAR(100))
+    ICD10005 = mapped_column(t.VARCHAR(100))
+    ICD10006 = mapped_column(t.VARCHAR(100))
+    ICD10007 = mapped_column(t.VARCHAR(100))
+    ICD10008 = mapped_column(t.VARCHAR(100))
+    ICD10009 = mapped_column(t.VARCHAR(100))
+    ICD10010 = mapped_column(t.VARCHAR(100))
+    ICD10011 = mapped_column(t.VARCHAR(100))
+    ICD10012 = mapped_column(t.VARCHAR(100))
+    ICD10013 = mapped_column(t.VARCHAR(100))
+    ICD10014 = mapped_column(t.VARCHAR(100))
+    ICD10015 = mapped_column(t.VARCHAR(100))
+    Place_of_occurrence = mapped_column(t.VARCHAR(1000))
+    ageinyrs = mapped_column(t.Integer)
+    dod = mapped_column(t.Date)
+    icd10u = mapped_column(t.VARCHAR(100))
+    sex = mapped_column(t.VARCHAR(10))
+
+
+class OPA(Base):
+    __tablename__ = "OPA"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Activity_Location_Type_Code = mapped_column(t.VARCHAR(5))
+    Administrative_Category = mapped_column(t.VARCHAR(2))
+    Appointment_Date = mapped_column(t.Date)
+    Attendance_Status = mapped_column(t.VARCHAR(2))
+    Clinic_Code = mapped_column(t.VARCHAR(100))
+    Consultation_Medium_Used = mapped_column(t.VARCHAR(2))
+    Der_Activity_Month = mapped_column(t.VARCHAR(100))
+    Der_Financial_Year = mapped_column(t.VARCHAR(100))
+    Ethnic_Category = mapped_column(t.VARCHAR(2))
+    First_Attendance = mapped_column(t.VARCHAR(2))
+    HRG_Code = mapped_column(t.VARCHAR(10))
+    HRG_Version_No = mapped_column(t.VARCHAR(10))
+    Main_Specialty_Code = mapped_column(t.VARCHAR(3))
+    Medical_Staff_Type_Seeing_Patient = mapped_column(t.VARCHAR(2))
+    MultiProf_Ind_Code = mapped_column(t.VARCHAR(2))
+    OPA_Ident = mapped_column(t.BIGINT)
+    OPA_Referral_Source = mapped_column(t.VARCHAR(2))
+    Operation_Status = mapped_column(t.VARCHAR(2))
+    Outcome_of_Attendance = mapped_column(t.VARCHAR(2))
+    Priority_Type = mapped_column(t.VARCHAR(2))
+    Provider_Code = mapped_column(t.VARCHAR(100))
+    Provider_Code_Type = mapped_column(t.VARCHAR(100))
+    Referral_Request_Received_Date = mapped_column(t.Date)
+    Treatment_Function_Code = mapped_column(t.VARCHAR(3))
+
+
+class OPA_Cost(Base):
+    __tablename__ = "OPA_Cost"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Grand_Total_Payment_MFF = mapped_column(t.REAL)
+    OPA_Ident = mapped_column(t.BIGINT)
+    Tariff_OPP = mapped_column(t.REAL)
+    Tariff_Total_Payment = mapped_column(t.REAL)
+
+
+class OPA_Diag(Base):
+    __tablename__ = "OPA_Diag"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    OPA_Ident = mapped_column(t.BIGINT)
+    Primary_Diagnosis_Code = mapped_column(t.VARCHAR(100))
+    Primary_Diagnosis_Code_Read = mapped_column(t.VARCHAR(5))
+    Secondary_Diagnosis_Code_1 = mapped_column(t.VARCHAR(100))
+    Secondary_Diagnosis_Code_1_Read = mapped_column(t.VARCHAR(5))
+
+
+class OPA_Proc(Base):
+    __tablename__ = "OPA_Proc"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    OPA_Ident = mapped_column(t.BIGINT)
+    Primary_Procedure_Code = mapped_column(t.VARCHAR(100))
+    Primary_Procedure_Code_Read = mapped_column(t.VARCHAR(5))
+    Procedure_Code_2 = mapped_column(t.VARCHAR(100))
+    Procedure_Code_2_Read = mapped_column(t.VARCHAR(5))
+
+
+class Organisation(Base):
+    __tablename__ = "Organisation"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    GoLiveDate = mapped_column(t.DateTime)
+    MSOACode = mapped_column(t.VARCHAR(150))
+    Organisation_ID = mapped_column(t.BIGINT)
+    Region = mapped_column(t.VARCHAR(255))
+    STPCode = mapped_column(t.VARCHAR(50))
+
+
+class Patient(Base):
+    __tablename__ = "Patient"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    DateOfBirth = mapped_column(t.Date)
+    DateOfDeath = mapped_column(t.Date)
+    Sex = mapped_column(t.CHAR(1))
+
+
+class PatientAddress(Base):
+    __tablename__ = "PatientAddress"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    AddressType = mapped_column(t.Integer)
+    EndDate = mapped_column(t.DateTime)
+    ImdRankRounded = mapped_column(t.Integer)
+    MSOACode = mapped_column(t.VARCHAR(150))
+    PatientAddress_ID = mapped_column(t.BIGINT)
+    RuralUrbanClassificationCode = mapped_column(t.Integer)
+    StartDate = mapped_column(t.DateTime)
+
+
+class PotentialCareHomeAddress(Base):
+    __tablename__ = "PotentialCareHomeAddress"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    LocationDoesNotRequireNursing = mapped_column(t.VARCHAR(5))
+    LocationRequiresNursing = mapped_column(t.VARCHAR(5))
+    PatientAddress_ID = mapped_column(t.BIGINT)
+
+
+class QOFClusterReference(Base):
+    __tablename__ = "QOFClusterReference"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    CTV3Code = mapped_column(t.VARCHAR(50))
+    ClusterName = mapped_column(t.VARCHAR(100))
+    ClusterType = mapped_column(t.VARCHAR(50))
+    Description = mapped_column(t.VARCHAR(255))
+
+
+class RegistrationHistory(Base):
+    __tablename__ = "RegistrationHistory"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    EndDate = mapped_column(t.DateTime)
+    Organisation_ID = mapped_column(t.BIGINT)
+    Registration_ID = mapped_column(t.BIGINT)
+    StartDate = mapped_column(t.DateTime)
+
+
+class SGSS_AllTests_Negative(Base):
+    __tablename__ = "SGSS_AllTests_Negative"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Age_In_Years = mapped_column(t.Integer)
+    County_Description = mapped_column(t.VARCHAR(50))
+    Ethnic_Category_Desc = mapped_column(t.VARCHAR(255))
+    LFT_Flag = mapped_column(t.VARCHAR(255))
+    Lab_Report_Date = mapped_column(t.Date)
+    Organism_Species_Name = mapped_column(t.VARCHAR(200))
+    Patient_Sex = mapped_column(t.VARCHAR(50))
+    Pillar = mapped_column(t.VARCHAR(255))
+    PostCode_Source = mapped_column(t.VARCHAR(50))
+    Specimen_Date = mapped_column(t.Date)
+    Symptomatic = mapped_column(t.VARCHAR(50))
+
+
+class SGSS_AllTests_Positive(Base):
+    __tablename__ = "SGSS_AllTests_Positive"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Age_In_Years = mapped_column(t.Integer)
+    County_Description = mapped_column(t.VARCHAR(50))
+    Ethnic_Category_Desc = mapped_column(t.VARCHAR(255))
+    LFT_Flag = mapped_column(t.VARCHAR(255))
+    Lab_Report_Date = mapped_column(t.Date)
+    Organism_Species_Name = mapped_column(t.VARCHAR(200))
+    Patient_Sex = mapped_column(t.VARCHAR(50))
+    Pillar = mapped_column(t.VARCHAR(255))
+    PostCode_Source = mapped_column(t.VARCHAR(50))
+    SGTF = mapped_column(t.VARCHAR(255))
+    Specimen_Date = mapped_column(t.Date)
+    Symptomatic = mapped_column(t.VARCHAR(50))
+    Variant = mapped_column(t.VARCHAR(255))
+    VariantDetectionMethod = mapped_column(t.VARCHAR(255))
+
+
+class SGSS_Negative(Base):
+    __tablename__ = "SGSS_Negative"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Age_In_Years = mapped_column(t.Integer)
+    County_Description = mapped_column(t.VARCHAR(50))
+    Earliest_Specimen_Date = mapped_column(t.Date)
+    Lab_Report_Date = mapped_column(t.Date)
+    Organism_Species_Name = mapped_column(t.VARCHAR(200))
+    Patient_Sex = mapped_column(t.VARCHAR(50))
+    PostCode_Source = mapped_column(t.VARCHAR(50))
+
+
+class SGSS_Positive(Base):
+    __tablename__ = "SGSS_Positive"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Age_In_Years = mapped_column(t.Integer)
+    CaseCategory = mapped_column(t.VARCHAR(50))
+    County_Description = mapped_column(t.VARCHAR(50))
+    Earliest_Specimen_Date = mapped_column(t.Date)
+    Lab_Report_Date = mapped_column(t.Date)
+    Organism_Species_Name = mapped_column(t.VARCHAR(200))
+    Patient_Sex = mapped_column(t.VARCHAR(50))
+    PostCode_Source = mapped_column(t.VARCHAR(50))
+    SGTF = mapped_column(t.VARCHAR(10))
+
+
+class Therapeutics(Base):
+    __tablename__ = "Therapeutics"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    AgeAtReceivedDate = mapped_column(t.Integer)
+    CASIM05_date_of_symptom_onset = mapped_column(t.VARCHAR(1000))
+    CASIM05_risk_cohort = mapped_column(t.VARCHAR(1000))
+    COVID_indication = mapped_column(t.VARCHAR(1000))
+    Count = mapped_column(t.Integer)
+    CurrentStatus = mapped_column(t.VARCHAR(1000))
+    Der_LoadDate = mapped_column(t.VARCHAR(1000))
+    Diagnosis = mapped_column(t.VARCHAR(1000))
+    FormName = mapped_column(t.VARCHAR(1000))
+    Intervention = mapped_column(t.VARCHAR(1000))
+    MOL1_high_risk_cohort = mapped_column(t.VARCHAR(1000))
+    MOL1_onset_of_symptoms = mapped_column(t.VARCHAR(1000))
+    Received = mapped_column(t.DateTime)
+    Region = mapped_column(t.VARCHAR(1000))
+    SOT02_onset_of_symptoms = mapped_column(t.VARCHAR(1000))
+    SOT02_risk_cohorts = mapped_column(t.VARCHAR(1000))
+    TreatmentStartDate = mapped_column(t.DateTime)
+
+
+class UKRR(Base):
+    __tablename__ = "UKRR"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    creat = mapped_column(t.REAL)
+    dataset = mapped_column(t.VARCHAR(1000))
+    eGFR_ckdepi = mapped_column(t.REAL)
+    mod_prev = mapped_column(t.VARCHAR(1000))
+    mod_start = mapped_column(t.VARCHAR(1000))
+    renal_centre = mapped_column(t.VARCHAR(1000))
+    rrt_start = mapped_column(t.Date)
+
+
+class UPRN(Base):
+    __tablename__ = "UPRN"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Care_Home_Flag = mapped_column(t.VARCHAR(100))
+    Pseudo_parent_uprn = mapped_column(t.VARCHAR(200))
+    Pseudo_uprn = mapped_column(t.VARCHAR(200))
+    Rural_Urban_Classification = mapped_column(t.VARCHAR(100))
+    ServiceType = mapped_column(t.VARCHAR(100))
+    Total_Pop = mapped_column(t.Integer)
+    _0to4 = mapped_column(t.Integer)
+    _10to14 = mapped_column(t.Integer)
+    _15to19 = mapped_column(t.Integer)
+    _20to24 = mapped_column(t.Integer)
+    _25to29 = mapped_column(t.Integer)
+    _30to34 = mapped_column(t.Integer)
+    _40to44 = mapped_column(t.Integer)
+    _45to49 = mapped_column(t.Integer)
+    _50to54 = mapped_column(t.Integer)
+    _55to59 = mapped_column(t.Integer)
+    _5to9 = mapped_column(t.Integer)
+    _60to64 = mapped_column(t.Integer)
+    _65to69 = mapped_column(t.Integer)
+    _70to74 = mapped_column(t.Integer)
+    _75to79 = mapped_column(t.Integer)
+    _80to84 = mapped_column(t.Integer)
+    _85Plus = mapped_column(t.Integer)
+    class_ = mapped_column("class", t.VARCHAR(100))
+    private_outdoor_space = mapped_column(t.VARCHAR(100))
+    private_outdoor_space_area = mapped_column(t.VARCHAR(100))
+    property_type = mapped_column(t.VARCHAR(100))
+
+
+class UnitDictionary(Base):
+    __tablename__ = "UnitDictionary"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    CTV3Code = mapped_column(t.VARCHAR(50))
+    DecimalPlaces = mapped_column(t.Integer)
+    LowerNormalBound = mapped_column(t.REAL)
+    Maximum = mapped_column(t.REAL)
+    Minimum = mapped_column(t.REAL)
+    UnitDictionary_ID = mapped_column(t.Integer)
+    Units = mapped_column(t.VARCHAR(50))
+    UpperNormalBound = mapped_column(t.REAL)
+
+
+class Vaccination(Base):
+    __tablename__ = "Vaccination"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    VaccinationDate = mapped_column(t.DateTime)
+    VaccinationName = mapped_column(t.VARCHAR(100))
+    VaccinationName_ID = mapped_column(t.BIGINT)
+    VaccinationSchedulePart = mapped_column(t.Integer)
+    Vaccination_ID = mapped_column(t.BIGINT)
+
+
+class VaccinationReference(Base):
+    __tablename__ = "VaccinationReference"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    VaccinationContent = mapped_column(t.VARCHAR(50))
+    VaccinationName = mapped_column(t.VARCHAR(100))
+    VaccinationName_ID = mapped_column(t.Integer)
+
+
+class WL_ClockStops(Base):
+    __tablename__ = "WL_ClockStops"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    ACTIVITY_TREATMENT_FUNCTION_CODE = mapped_column(t.VARCHAR(1000))
+    ADMISSION_METHOD_CODE_HOSPITAL_PROVIDER_SPELL = mapped_column(t.VARCHAR(1000))
+    Cancellation_Date = mapped_column(t.VARCHAR(1000))
+    Completed_Type = mapped_column(t.VARCHAR(1000))
+    DECISION_TO_ADMIT_DATE = mapped_column(t.VARCHAR(1000))
+    Date_Last_Attended = mapped_column(t.VARCHAR(1000))
+    Date_Of_Last_Priority_Review = mapped_column(t.VARCHAR(1000))
+    Diagnostic_Priority_Code = mapped_column(t.VARCHAR(1000))
+    Due_Date = mapped_column(t.VARCHAR(1000))
+    Inclusion_On_Cancer_Ptl = mapped_column(t.VARCHAR(1000))
+    Last_Dna_Date = mapped_column(t.VARCHAR(1000))
+    Local_Outcome_Of_Attendance = mapped_column(t.VARCHAR(1000))
+    Local_Rtt_Status_Code = mapped_column(t.VARCHAR(1000))
+    MAIN_SPECIALTY_CODE = mapped_column(t.VARCHAR(1000))
+    OPCS_Code = mapped_column(t.VARCHAR(1000))
+    OUTCOME_OF_ATTENDANCE_CODE = mapped_column(t.VARCHAR(1000))
+    Outpatient_Appointment_Date = mapped_column(t.VARCHAR(1000))
+    Outpatient_Future_Appointment_Date = mapped_column(t.VARCHAR(1000))
+    Outpatient_Priority_Code = mapped_column(t.VARCHAR(1000))
+    PRIORITY_TYPE_CODE = mapped_column(t.VARCHAR(1000))
+    PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER = mapped_column(
+        t.VARBINARY(8000)
+    )
+    PSEUDO_ORGANISATION_IDENTIFIER_CODE_OF_COMMISSIONER = mapped_column(
+        t.VARBINARY(8000)
+    )
+    PSEUDO_ORGANISATION_IDENTIFIER_CODE_OF_PROVIDER = mapped_column(t.VARBINARY(8000))
+    PSEUDO_ORGANISATION_SITE_IDENTIFIER_OF_TREATMENT = mapped_column(t.VARBINARY(8000))
+    PSEUDO_PATIENT_PATHWAY_IDENTIFIER = mapped_column(t.VARBINARY(8000))
+    Procedure_Priority_Code = mapped_column(t.VARCHAR(1000))
+    Pseudo_Referral_Identifier = mapped_column(t.VARBINARY(8000))
+    REFERRAL_TO_TREATMENT_PERIOD_END_DATE = mapped_column(t.VARCHAR(1000))
+    REFERRAL_TO_TREATMENT_PERIOD_START_DATE = mapped_column(t.VARCHAR(1000))
+    REFERRAL_TO_TREATMENT_PERIOD_STATUS = mapped_column(t.VARCHAR(1000))
+    Referral_Request_Received_Date = mapped_column(t.VARCHAR(1000))
+    SOURCE_OF_REFERRAL_FOR_OUTPATIENTS = mapped_column(t.VARCHAR(1000))
+    Tci_Date = mapped_column(t.VARCHAR(1000))
+    Waiting_List_Type = mapped_column(t.VARCHAR(1000))
+    Week_Ending_Date = mapped_column(t.VARCHAR(1000))
+
+
+class WL_Diagnostics(Base):
+    __tablename__ = "WL_Diagnostics"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    Diagnostic_Clock_Start_Date = mapped_column(t.VARCHAR(1000))
+    Diagnostic_Modality = mapped_column(t.VARCHAR(1000))
+    Diagnostic_Priority_Code = mapped_column(t.VARCHAR(1000))
+    Inclusion_On_Cancer_Ptl = mapped_column(t.VARCHAR(1000))
+    PRIORITY_TYPE_CODE = mapped_column(t.VARCHAR(1000))
+    PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER = mapped_column(
+        t.VARBINARY(8000)
+    )
+    PSEUDO_ORGANISATION_IDENTIFIER_CODE_OF_COMMISSIONER = mapped_column(
+        t.VARBINARY(8000)
+    )
+    PSEUDO_ORGANISATION_IDENTIFIER_CODE_OF_PROVIDER = mapped_column(t.VARBINARY(8000))
+    PSEUDO_ORGANISATION_SITE_IDENTIFIER_OF_TREATMENT = mapped_column(t.VARBINARY(8000))
+    PSEUDO_PATIENT_PATHWAY_IDENTIFIER = mapped_column(t.VARBINARY(8000))
+    Planned_Diagnostic_Due_Date = mapped_column(t.VARCHAR(1000))
+    Proposed_Procedure_Opcs_Code = mapped_column(t.VARCHAR(1000))
+    Pseudo_Referral_Identifier = mapped_column(t.VARBINARY(8000))
+    REFERRAL_TO_TREATMENT_PERIOD_END_DATE = mapped_column(t.VARCHAR(1000))
+    REFERRAL_TO_TREATMENT_PERIOD_START_DATE = mapped_column(t.VARCHAR(1000))
+    Waiting_List_Type = mapped_column(t.VARCHAR(1000))
+    Week_Ending_Date = mapped_column(t.VARCHAR(1000))
+
+
+class WL_OpenPathways(Base):
+    __tablename__ = "WL_OpenPathways"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+    ACTIVITY_TREATMENT_FUNCTION_CODE = mapped_column(t.VARCHAR(1000))
+    ADMISSION_METHOD_CODE_HOSPITAL_PROVIDER_SPELL = mapped_column(t.VARCHAR(1000))
+    Cancellation_Date = mapped_column(t.VARCHAR(1000))
+    Current_Pathway_Period_Start_Date = mapped_column(t.VARCHAR(1000))
+    DECISION_TO_ADMIT_DATE = mapped_column(t.VARCHAR(1000))
+    Date_Last_Attended = mapped_column(t.VARCHAR(1000))
+    Date_Of_Last_Priority_Review = mapped_column(t.VARCHAR(1000))
+    Diagnostic_Priority_Code = mapped_column(t.VARCHAR(1000))
+    Due_Date = mapped_column(t.VARCHAR(1000))
+    Inclusion_On_Cancer_Ptl = mapped_column(t.VARCHAR(1000))
+    Last_Dna_Date = mapped_column(t.VARCHAR(1000))
+    Local_Outcome_Of_Attendance = mapped_column(t.VARCHAR(1000))
+    Local_Rtt_Status_Code = mapped_column(t.VARCHAR(1000))
+    MAIN_SPECIALTY_CODE = mapped_column(t.VARCHAR(1000))
+    OUTCOME_OF_ATTENDANCE_CODE = mapped_column(t.VARCHAR(1000))
+    Outpatient_Appointment_Date = mapped_column(t.VARCHAR(1000))
+    Outpatient_Future_Appointment_Date = mapped_column(t.VARCHAR(1000))
+    Outpatient_Priority_Code = mapped_column(t.VARCHAR(1000))
+    PRIORITY_TYPE_CODE = mapped_column(t.VARCHAR(1000))
+    PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER = mapped_column(
+        t.VARBINARY(8000)
+    )
+    PSEUDO_ORGANISATION_IDENTIFIER_CODE_OF_COMMISSIONER = mapped_column(
+        t.VARBINARY(8000)
+    )
+    PSEUDO_ORGANISATION_IDENTIFIER_CODE_OF_PROVIDER = mapped_column(t.VARBINARY(8000))
+    PSEUDO_ORGANISATION_SITE_IDENTIFIER_OF_TREATMENT = mapped_column(t.VARBINARY(8000))
+    PSEUDO_PATIENT_PATHWAY_IDENTIFIER = mapped_column(t.VARBINARY(8000))
+    Procedure_Priority_Code = mapped_column(t.VARCHAR(1000))
+    Proposed_Procedure_Opcs_Code = mapped_column(t.VARCHAR(1000))
+    Pseudo_Referral_Identifier = mapped_column(t.VARBINARY(8000))
+    REFERRAL_REQUEST_RECEIVED_DATE = mapped_column(t.VARCHAR(1000))
+    REFERRAL_TO_TREATMENT_PERIOD_END_DATE = mapped_column(t.VARCHAR(1000))
+    REFERRAL_TO_TREATMENT_PERIOD_START_DATE = mapped_column(t.VARCHAR(1000))
+    REFERRAL_TO_TREATMENT_PERIOD_STATUS = mapped_column(t.VARCHAR(1000))
+    SOURCE_OF_REFERRAL = mapped_column(t.VARCHAR(1000))
+    Tci_Date = mapped_column(t.VARCHAR(1000))
+    Waiting_List_Type = mapped_column(t.VARCHAR(1000))
+    Week_Ending_Date = mapped_column(t.VARCHAR(1000))
+
+
+class YCodeToSnomedMapping(Base):
+    __tablename__ = "YCodeToSnomedMapping"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    SctConceptId = mapped_column(t.BIGINT)
+    YCode = mapped_column(t.VARCHAR(5))
