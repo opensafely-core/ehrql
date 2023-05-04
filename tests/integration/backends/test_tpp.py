@@ -296,8 +296,8 @@ def test_addresses(select_all):
         PatientAddress(
             Patient_ID=1,
             PatientAddress_ID=2,
-            StartDate="2000-01-01",
-            EndDate="2010-01-01",
+            StartDate="2000-01-01T10:10:00",
+            EndDate="2010-01-01T10:00:00",
             AddressType=3,
             RuralUrbanClassificationCode=4,
             ImdRankRounded=1000,
@@ -306,8 +306,8 @@ def test_addresses(select_all):
         PatientAddress(
             Patient_ID=1,
             PatientAddress_ID=3,
-            StartDate="2010-01-01",
-            EndDate="2020-01-01",
+            StartDate="2010-01-01T10:10:00",
+            EndDate="2020-01-01T10:10:00",
             AddressType=3,
             RuralUrbanClassificationCode=4,
             ImdRankRounded=2000,
@@ -316,8 +316,8 @@ def test_addresses(select_all):
         PatientAddress(
             Patient_ID=1,
             PatientAddress_ID=4,
-            StartDate="2010-01-01",
-            EndDate="2020-01-01",
+            StartDate="2010-01-01T10:10:00",
+            EndDate="2020-01-01T10:10:00",
             AddressType=3,
             RuralUrbanClassificationCode=4,
             ImdRankRounded=2000,
