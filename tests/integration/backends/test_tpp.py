@@ -445,7 +445,9 @@ def test_hospital_admissions(select_all):
             Patient_Classification="X",
         ),
         APCS_Der(
-            APCS_Ident=2, Spell_PbR_CC_Day="5", Spell_Primary_Diagnosis="A1;B1;C1"
+            APCS_Ident=2,
+            Spell_PbR_CC_Day="5",
+            Spell_Primary_Diagnosis="A1;B1",
         ),
     )
     assert results == [
@@ -458,7 +460,7 @@ def test_hospital_admissions(select_all):
             "all_diagnoses": "123;456;789",
             "patient_classification": "X",
             "days_in_critical_care": 5,
-            "primary_diagnoses": "A1;B1;C1",
+            "primary_diagnoses": "A1;B1",
         }
     ]
 
