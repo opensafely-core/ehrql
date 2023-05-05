@@ -250,7 +250,7 @@ def test_clinical_events(select_all):
             Patient_ID=1,
             ConsultationDate="2020-11-21T09:30:00",
             ConceptID="ijk",
-            NumericValue=1.2,
+            NumericValue=1.5,
         ),
     )
     assert results == [
@@ -266,7 +266,7 @@ def test_clinical_events(select_all):
             "date": date(2020, 11, 21),
             "snomedct_code": "ijk",
             "ctv3_code": None,
-            "numeric_value": 1.2,
+            "numeric_value": 1.5,
         },
     ]
 
