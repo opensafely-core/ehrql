@@ -1,11 +1,11 @@
 from datetime import datetime
 
 from tests.lib import fixtures
-from tests.lib.tpp_schema import patient
+from tests.lib.tpp_schema import Patient
 
 
 def test_generate_dataset_in_container(study, mssql_database):
-    mssql_database.setup(patient(dob=datetime(1943, 5, 5)))
+    mssql_database.setup(Patient(Patient_ID=1, DateOfBirth=datetime(1943, 5, 5)))
 
     study.setup_from_string(fixtures.trivial_dataset_definition)
     study.generate_in_docker(mssql_database, "ehrql.backends.tpp.TPPBackend")

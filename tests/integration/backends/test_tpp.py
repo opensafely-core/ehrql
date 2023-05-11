@@ -12,7 +12,7 @@ from tests.lib.tpp_schema import (
     APCS_Der,
     Appointment,
     CodedEvent,
-    CodedEventSnomed,
+    CodedEvent_SNOMED,
     EC_Diagnosis,
     HealthCareWorker,
     Household,
@@ -21,7 +21,7 @@ from tests.lib.tpp_schema import (
     MedicationDictionary,
     MedicationIssue,
     ONS_CIS_New,
-    ONSDeaths,
+    ONS_Deaths,
     Organisation,
     Patient,
     PatientAddress,
@@ -215,7 +215,7 @@ def test_practice_registrations(select_all):
 def test_ons_deaths(select_all):
     results = select_all(
         Patient(Patient_ID=1),
-        ONSDeaths(
+        ONS_Deaths(
             Patient_ID=1,
             dod="2022-01-01",
             Place_of_occurrence="Care Home",
@@ -246,11 +246,11 @@ def test_clinical_events(select_all):
             CTV3Code="xyz",
             NumericValue=0.5,
         ),
-        CodedEventSnomed(
+        CodedEvent_SNOMED(
             Patient_ID=1,
             ConsultationDate="2020-11-21T09:30:00",
             ConceptID="ijk",
-            NumericValue=1.2,
+            NumericValue=1.5,
         ),
     )
     assert results == [
@@ -266,7 +266,7 @@ def test_clinical_events(select_all):
             "date": date(2020, 11, 21),
             "snomedct_code": "ijk",
             "ctv3_code": None,
-            "numeric_value": 1.2,
+            "numeric_value": 1.5,
         },
     ]
 
@@ -296,8 +296,8 @@ def test_addresses(select_all):
         PatientAddress(
             Patient_ID=1,
             PatientAddress_ID=2,
-            StartDate="2000-01-01",
-            EndDate="2010-01-01",
+            StartDate="2000-01-01T10:10:00",
+            EndDate="2010-01-01T10:00:00",
             AddressType=3,
             RuralUrbanClassificationCode=4,
             ImdRankRounded=1000,
@@ -306,8 +306,8 @@ def test_addresses(select_all):
         PatientAddress(
             Patient_ID=1,
             PatientAddress_ID=3,
-            StartDate="2010-01-01",
-            EndDate="2020-01-01",
+            StartDate="2010-01-01T10:10:00",
+            EndDate="2020-01-01T10:10:00",
             AddressType=3,
             RuralUrbanClassificationCode=4,
             ImdRankRounded=2000,
@@ -316,8 +316,8 @@ def test_addresses(select_all):
         PatientAddress(
             Patient_ID=1,
             PatientAddress_ID=4,
-            StartDate="2010-01-01",
-            EndDate="2020-01-01",
+            StartDate="2010-01-01T10:10:00",
+            EndDate="2020-01-01T10:10:00",
             AddressType=3,
             RuralUrbanClassificationCode=4,
             ImdRankRounded=2000,
@@ -445,7 +445,9 @@ def test_hospital_admissions(select_all):
             Patient_Classification="X",
         ),
         APCS_Der(
-            APCS_Ident=2, Spell_PbR_CC_Day="5", Spell_Primary_Diagnosis="A1;B1;C1"
+            APCS_Ident=2,
+            Spell_PbR_CC_Day="5",
+            Spell_Primary_Diagnosis="A1;B1",
         ),
     )
     assert results == [
@@ -458,7 +460,7 @@ def test_hospital_admissions(select_all):
             "all_diagnoses": "123;456;789",
             "patient_classification": "X",
             "days_in_critical_care": 5,
-            "primary_diagnoses": "A1;B1;C1",
+            "primary_diagnoses": "A1;B1",
         }
     ]
 

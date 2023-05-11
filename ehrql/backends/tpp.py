@@ -113,8 +113,8 @@ class TPPBackend(BaseBackend):
             SELECT
                 addr.Patient_ID AS patient_id,
                 addr.PatientAddress_ID AS address_id,
-                addr.StartDate AS start_date,
-                addr.EndDate AS end_date,
+                CAST(addr.StartDate AS date) AS start_date,
+                CAST(addr.EndDate AS date) AS end_date,
                 addr.AddressType AS address_type,
                 addr.RuralUrbanClassificationCode AS rural_urban_classification,
                 addr.ImdRankRounded AS imd_rounded,
