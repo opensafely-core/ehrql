@@ -74,12 +74,12 @@ jobs:
         id: previoustagcommit
         # if we are on a tag, should look like `v0.6.0`
         # if we are not on a tag, should look like `v0.6.0-24-gbf6352d`
-        run: echo ::set-output name=tag_describe::`git describe --tags`
+        run: echo "tag_describe=`git describe --tags`" >> "$GITHUB_OUTPUT"
 
       - name: Verify whether we are on a tagged version commit, allows us to short-circuit this workflow
         id: taggedcommit
         if: ${{ steps.previoustagcommit.outputs.tag_describe == steps.latest-version-tag.outputs.result }}
-        run: echo ::set-output name=tag::'y'
+        run: echo "tag=y" >> "$GITHUB_OUTPUT"
 
       # Verify that 'Get latest version tag' returned a version tag
       - name: Fail if no version tag found
