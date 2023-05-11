@@ -207,4 +207,4 @@ if __name__ == "__main__":
     elif command == "build":
         build_schema()
     else:
-        raise RuntimeError(f"Unknown command: {command}")
+        raise RuntimeError(f"Unknown command: {command}; valid commands: fetch, build")
