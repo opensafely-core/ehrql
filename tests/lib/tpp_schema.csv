@@ -1,4 +1,11 @@
 DataSource,TableName,ColumnName,ColumnType,Precision,Scale,MaxLength,IsNullable
+Airmid,OpenPROMPT,CodedEvent_ID,varchar,0,0,50,False
+Airmid,OpenPROMPT,CodeSystemId,int,10,0,4,False
+Airmid,OpenPROMPT,ConceptId,varchar,0,0,50,True
+Airmid,OpenPROMPT,Consultation_ID,bigint,19,0,8,False
+Airmid,OpenPROMPT,ConsultationDate,datetime,23,3,8,False
+Airmid,OpenPROMPT,NumericValue,real,24,0,4,False
+Airmid,OpenPROMPT,Patient_ID,int,10,0,4,False
 ICNARC,ICNARC,AdvancedDays_CardiovascularSupport,int,10,0,4,True
 ICNARC,ICNARC,AdvancedDays_RespiratorySupport,int,10,0,4,True
 ICNARC,ICNARC,ahsurv,int,10,0,4,True
