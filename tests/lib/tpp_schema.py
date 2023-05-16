@@ -2892,6 +2892,19 @@ class OPA_Proc(Base):
     Procedure_Code_2_Read = mapped_column(t.VARCHAR(5))
 
 
+class OpenPROMPT(Base):
+    __tablename__ = "OpenPROMPT"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.Integer)
+    CodeSystemId = mapped_column(t.Integer)
+    CodedEvent_ID = mapped_column(t.VARCHAR(50))
+    ConceptId = mapped_column(t.VARCHAR(50))
+    ConsultationDate = mapped_column(t.DateTime)
+    Consultation_ID = mapped_column(t.BIGINT)
+    NumericValue = mapped_column(t.REAL)
+
+
 class Organisation(Base):
     __tablename__ = "Organisation"
     _pk = mapped_column(t.Integer, primary_key=True)
