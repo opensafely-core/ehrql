@@ -1,6 +1,8 @@
+import datetime
 from collections import defaultdict
 
 from ehrql.measures.measures import get_all_group_by_columns
+from ehrql.query_model.column_specs import ColumnSpec, get_column_spec_from_series
 from ehrql.query_model.nodes import Case, Function, Value, get_series_type
 from ehrql.query_model.transforms import substitute_parameters
 
@@ -30,6 +32,25 @@ def get_measure_results(query_engine, measures):
                 # particular measure doesn't use that group
                 *(group_dict.get(name) for name in all_group_by_columns),
             )
+
+
+def get_column_specs_for_measures(measures):
+    return {
+        "measure": ColumnSpec(
+            str,
+            categories=tuple(measure.name for measure in measures),
+            nullable=False,
+        ),
+        "interval_start": ColumnSpec(datetime.date, nullable=False),
+        "interval_end": ColumnSpec(datetime.date, nullable=False),
+        "ratio": ColumnSpec(float),
+        "numerator": ColumnSpec(int),
+        "denominator": ColumnSpec(int),
+        **{
+            name: get_column_spec_from_series(column)
+            for name, column in get_all_group_by_columns(measures).items()
+        },
+    }
 
 
 class MeasureCalculator:

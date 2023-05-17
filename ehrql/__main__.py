@@ -184,29 +184,48 @@ def add_create_dummy_tables(subparsers, environ, user_args):
 
 
 def add_generate_measures(subparsers, environ, user_args):
-    parser = subparsers.add_parser(
-        "generate-measures", help="Generate measures from a dataset"
-    )
+    parser = subparsers.add_parser("generate-measures", help="Generate measures")
     parser.set_defaults(function=generate_measures)
     parser.set_defaults(user_args=user_args)
-    parser.add_argument(
-        "--input",
-        help="Path and filename (or pattern) of the input file(s)",
-        type=Path,
-        dest="input_file",
-    )
+    parser.set_defaults(user_args=user_args)
     parser.add_argument(
         "--output",
-        help="Path and filename (or pattern) of the file(s) where the dataset will be written",
-        type=Path,
+        help=(
+            f"Path of the file where the measures will be written (console by default),"
+            f" supported formats: {', '.join(FILE_FORMATS)}"
+        ),
+        type=valid_output_path,
         dest="output_file",
     )
     parser.add_argument(
-        "definition_file",
-        help="The path of the file where the dataset is defined",
-        type=existing_python_file,
-        metavar="dataset_definition",
+        "--dsn",
+        help="Data Source Name: URL of remote database, or path to data on disk",
+        type=str,
+        default=environ.get("DATABASE_URL"),
     )
+    parser.add_argument(
+        "--dummy-tables",
+        help=(
+            "Path to directory of CSV files (one per table) to use when generating "
+            "dummy data"
+        ),
+        type=Path,
+        dest="dummy_tables_path",
+    )
+    parser.add_argument(
+        "--dummy-data-file",
+        help=(
+            "Provide dummy data from a file to be validated and used as the "
+            "measures output"
+        ),
+        type=Path,
+    )
+    parser.add_argument(
+        "definition_file",
+        help="Path of the file where measures are defined",
+        type=existing_python_file,
+    )
+    add_common_backend_arguments(parser, environ)
 
 
 def add_run_sandbox(subparsers, environ, user_args):

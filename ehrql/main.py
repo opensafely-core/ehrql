@@ -7,6 +7,12 @@ import structlog
 from ehrql import sandbox
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.file_formats import read_dataset, write_dataset
+from ehrql.measures import (
+    DummyMeasuresDataGenerator,
+    Measures,
+    get_column_specs_for_measures,
+    get_measure_results,
+)
 from ehrql.query_engines.csv import CSVQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_language import Dataset, compile
@@ -188,9 +194,72 @@ def get_query_engine(
 
 
 def generate_measures(
-    definition_file, input_file, output_file, user_args
-):  # pragma: no cover (measures not implemented)
-    raise NotImplementedError
+    definition_file,
+    output_file,
+    dsn=None,
+    backend_class=None,
+    query_engine_class=None,
+    dummy_tables_path=None,
+    dummy_data_file=None,
+    environ=None,
+    user_args=(),
+):
+    log.info(f"Compiling measure definitions from {str(definition_file)}")
+    measure_definitions = load_measure_definitions(definition_file, user_args)
+
+    if dsn:
+        generate_measures_with_dsn(
+            measure_definitions,
+            output_file,
+            dsn,
+            backend_class=backend_class,
+            query_engine_class=query_engine_class,
+            environ=environ or {},
+        )
+    else:
+        generate_measures_with_dummy_data(
+            measure_definitions, output_file, dummy_tables_path, dummy_data_file
+        )
+
+
+def generate_measures_with_dsn(
+    measure_definitions, output_file, dsn, backend_class, query_engine_class, environ
+):
+    log.info("Generating measures data")
+    column_specs = get_column_specs_for_measures(measure_definitions)
+
+    query_engine = get_query_engine(
+        dsn,
+        backend_class,
+        query_engine_class,
+        environ,
+        default_query_engine_class=CSVQueryEngine,
+    )
+    results = get_measure_results(query_engine, measure_definitions)
+    results = eager_iterator(results)
+    write_dataset(output_file, results, column_specs)
+
+
+def generate_measures_with_dummy_data(
+    measure_definitions, output_file, dummy_tables_path=None, dummy_data_file=None
+):
+    log.info("Generating dummy measures data")
+    column_specs = get_column_specs_for_measures(measure_definitions)
+
+    if dummy_data_file:
+        log.info(f"Reading dummy data from {dummy_data_file}")
+        reader = read_dataset(dummy_data_file, column_specs)
+        results = iter(reader)
+    elif dummy_tables_path:
+        log.info(f"Reading CSV data from {dummy_tables_path}")
+        query_engine = CSVQueryEngine(dummy_tables_path)
+        results = get_measure_results(query_engine, measure_definitions)
+    else:
+        results = DummyMeasuresDataGenerator(measure_definitions).get_results()
+
+    log.info("Calculating measures and writing results")
+    results = eager_iterator(results)
+    write_dataset(output_file, results, column_specs)
 
 
 def run_sandbox(dummy_tables_path, environ):
@@ -222,6 +291,21 @@ def load_dataset_definition(definition_file, user_args):
             "A population has not been defined; define one with define_population()"
         )
     return dataset
+
+
+def load_measure_definitions(definition_file, user_args):
+    module = load_module(definition_file, user_args)
+    try:
+        measures = module.measures
+    except AttributeError:
+        raise CommandError(
+            "Did not find a variable called 'measures' in measures definition file"
+        )
+    if not isinstance(measures, Measures):
+        raise CommandError("'measures' must be an instance of ehrql.Measures")
+    if len(measures) == 0:
+        raise CommandError("No measures defined")
+    return measures
 
 
 def load_module(module_path, user_args=()):
