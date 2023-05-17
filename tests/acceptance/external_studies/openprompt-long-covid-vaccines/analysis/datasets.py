@@ -6,6 +6,7 @@ from databuilder.tables.beta.tpp import (
   practice_registrations,
   clinical_events,
   vaccinations,
+  ons_deaths,
   sgss_covid_all_tests,
   hospital_admissions
 )
@@ -32,11 +33,7 @@ vaccine_to_longcovid_lag = covid_to_longcovid_lag + vaccine_effective_lag
 def add_common_variables(dataset, study_start_date, end_date, population):
     # practice registration selection
     registrations = practice_registrations \
-        .where(practice_registrations.start_date <= study_start_date - days(minimum_registration)) \
         .except_where(practice_registrations.end_date <= study_start_date)
-# 08/02 - because we are using .except_where instaed of .where we are not dropping people with NULL start date
-# it is possible that null start date is a data quality problem.
-# So to keep consistent with other devs and cohort_extractor. Switch to a .where and therefore drop null start daters
 
     # get the number of registrations in this period to exclude anyone with >1 in the `set_population` later
     registrations_number = registrations.count_for_patient()
@@ -44,11 +41,6 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     # need to get the start and end date of last registration only
     registration = registrations \
         .sort_by(practice_registrations.start_date).last_for_patient()
-
-    # need to find out if they had a hospitalisation for covid and censor then
-    # note (18/01): needs looking at before I can use it.
-    # hospitalised = hospital_admissions.where(hospital_admissions.all_diagnoses.contains(codelists.covidhosp))
-    # then add into the end_date definition below (or as a secondary end date for sensitivity analysis?)
 
     dataset.pt_start_date = case(
         when(registration.start_date + days(minimum_registration) > study_start_date).then(registration.start_date + days(minimum_registration)),
@@ -61,44 +53,75 @@ def add_common_variables(dataset, study_start_date, end_date, population):
         default=registration.end_date,
     )
 
-    # Demographic variables
+    # Demographic variables ------------------------------------------------------------
     dataset.sex = patients.sex
     dataset.age = age_as_of(study_start_date)
     dataset.has_died = has_died(study_start_date)
     dataset.msoa = address_as_of(study_start_date).msoa_code
+    dataset.practice_nuts = registration.practice_nuts1_region_name
     dataset.imd = address_as_of(study_start_date).imd_rounded
-    dataset.death_date = patients.date_of_death
 
-    # Ethnicity in 6 categories
+    # death ------------------------------------------------------------
+    dataset.death_date = patients.date_of_death
+    ons_deathdata = ons_deaths \
+        .sort_by(ons_deaths.date).last_for_patient()
+    dataset.ons_death_date = ons_deathdata.date
+
+    # Ethnicity in 6 categories ------------------------------------------------------------
     dataset.ethnicity = clinical_events.where(clinical_events.ctv3_code.is_in(codelists.ethnicity)) \
         .sort_by(clinical_events.date) \
         .last_for_patient() \
         .ctv3_code.to_category(codelists.ethnicity)
 
-    # covid tests
-    dataset.latest_test_before_diagnosis = sgss_covid_all_tests \
+    # covid tests ------------------------------------------------------------
+    positive_tests = sgss_covid_all_tests \
         .where(sgss_covid_all_tests.is_positive) \
-        .except_where(sgss_covid_all_tests.specimen_taken_date >= end_date - days(covid_to_longcovid_lag)) \
+        .except_where(sgss_covid_all_tests.specimen_taken_date >= dataset.pt_end_date - days(covid_to_longcovid_lag))
+
+    dataset.latest_test_before_diagnosis = positive_tests \
         .sort_by(sgss_covid_all_tests.specimen_taken_date).last_for_patient().specimen_taken_date
 
-    dataset.all_test_positive = sgss_covid_all_tests \
-        .where(sgss_covid_all_tests.is_positive) \
+    dataset.first_test_positive = positive_tests \
+        .sort_by(sgss_covid_all_tests.specimen_taken_date).first_for_patient().specimen_taken_date
+
+    dataset.all_test_positive = positive_tests \
+        .count_for_patient()
+
+    dataset.all_tests = sgss_covid_all_tests \
         .except_where(sgss_covid_all_tests.specimen_taken_date <= study_start_date) \
-        .except_where(sgss_covid_all_tests.specimen_taken_date >= end_date - days(covid_to_longcovid_lag)) \
+        .except_where(sgss_covid_all_tests.specimen_taken_date >= dataset.pt_end_date - days(covid_to_longcovid_lag)) \
         .count_for_patient()
 
-    # covid hospitalisation
+    # covid hospitalisation ------------------------------------------------------------
     covid_hospitalisations = hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_covid)
+    all_covid_hosp = covid_hospitalisations \
+        .except_where(covid_hospitalisations.admission_date >= dataset.pt_end_date - days(covid_to_longcovid_lag))
 
-    dataset.first_covid_hosp = covid_hospitalisations \
-        .sort_by(covid_hospitalisations.admission_date) \
-        .first_for_patient().admission_date
-
-    dataset.all_covid_hosp = covid_hospitalisations \
-        .except_where(covid_hospitalisations.admission_date >= end_date - days(covid_to_longcovid_lag)) \
+    dataset.all_covid_hosp = all_covid_hosp \
         .count_for_patient()
 
-    # vaccine code
+    first_covid_hosp = all_covid_hosp \
+        .sort_by(all_covid_hosp.admission_date) \
+        .first_for_patient()
+
+    dataset.first_covid_hosp = first_covid_hosp.admission_date
+    dataset.first_covid_discharge = first_covid_hosp.discharge_date
+    dataset.first_covid_critical = first_covid_hosp.days_in_critical_care > 0
+    dataset.first_covid_hosp_primary_dx = first_covid_hosp.primary_diagnoses.is_in(codelists.hosp_covid)
+
+    # Any covid identification ------------------------------------------------------------
+    primarycare_covid = clinical_events \
+        .where(clinical_events.ctv3_code.is_in(codelists.any_primary_care_code)) \
+        .except_where(clinical_events.date >= dataset.pt_end_date - days(covid_to_longcovid_lag))
+
+    dataset.latest_primarycare_covid = primarycare_covid \
+        .sort_by(primarycare_covid.date) \
+        .last_for_patient().date
+
+    dataset.total_primarycare_covid = primarycare_covid \
+        .count_for_patient()
+
+    # vaccine code - get date of first 5 doses ------------------------------------------------------------
     create_sequential_variables(
       dataset,
       "covid_vacc_{n}_adm",
@@ -110,7 +133,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     # Vaccines from the vaccines schema
     # only take one record per day to remove duplication
     all_vacc = vaccinations \
-        .where(vaccinations.date < end_date - days(vaccine_to_longcovid_lag)) \
+        .where(vaccinations.date < dataset.pt_end_date - days(vaccine_to_longcovid_lag)) \
         .where(vaccinations.target_disease == "SARS-2 CORONAVIRUS")
 
     # this will be replaced with distinct_count_for_patient() once it is developed
@@ -120,26 +143,149 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     dataset.date_last_vacc = all_vacc.sort_by(all_vacc.date).last_for_patient().date
     dataset.last_vacc_gap = (dataset.pt_end_date - dataset.date_last_vacc).days
 
-    # dataset.vacc_1 = all_vacc.sort_by(all_vacc.date).first_for_patient().date
-    create_sequential_variables(
-      dataset,
-      "covid_vacc_{n}_vacc_tab",
-      num_variables=6,
-      events=all_vacc,
-      column="date"
+    # Vaccines, create some mappings from vaccine product_names to general descriptors
+    product_to_mf = {
+        "COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)": "Pfizer",
+        "COVID-19 Vaccine Vaxzevria 0.5ml inj multidose vials (AstraZeneca)": "AstraZeneca",
+        "*": "Other"
+    }
+
+    product_to_mrna = {
+        "COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)": "mRNA",
+        "COVID-19 mRNA Vaccine Comirnaty Children 5-11yrs 10mcg/0.2ml dose con for disp for inj MDV (Pfizer)": "mRNA",
+        "COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)": "mRNA",
+        "Comirnaty COVID-19 mRNA Vacc ready to use 0.3ml in md vials": "mRNA",
+        "COVID-19 Vaccine Moderna (mRNA-1273.529) 50micrograms/0.25ml dose sol for in MOV": "mRNA",
+    }
+
+    # FIRST VACCINE DOSE ------------------------------------------------------------
+    # first vaccine dose was 8th December 2020
+    vaccine_dose_1 = all_vacc \
+        .where(all_vacc.date.is_after(datetime.date(2020, 12, 7))) \
+        .sort_by(all_vacc.date) \
+        .first_for_patient()
+    dataset.vaccine_dose_1_date = vaccine_dose_1.date
+    dataset.vaccine_dose_1_manufacturer = vaccine_dose_1.product_name.map_values(product_to_mf)
+    dataset.vaccine_dose_1_mrna = vaccine_dose_1.product_name.map_values(product_to_mrna)
+
+    # SECOND VACCINE DOSE ------------------------------------------------------------
+    # first recorded 2nd dose was 29th December 2020
+    # need a 19 day gap from first dose
+    vaccine_dose_2 = all_vacc \
+        .where(all_vacc.date.is_after(datetime.date(2020, 12, 28))) \
+        .where(all_vacc.date.is_after(dataset.vaccine_dose_1_date + days(19))) \
+        .sort_by(all_vacc.date) \
+        .first_for_patient()
+    dataset.vaccine_dose_2_date = vaccine_dose_2.date
+    dataset.vaccine_dose_2_manufacturer = vaccine_dose_2.product_name.map_values(product_to_mf)
+    dataset.vaccine_dose_2_mrna = vaccine_dose_2.product_name.map_values(product_to_mrna)
+
+    # BOOSTER VACCINE DOSE -----------------------------------------------------------
+    # first recorded booster dose was 2021-09-24
+    # need a 56 day gap from first dose (conservative)
+    vaccine_dose_3 = all_vacc \
+        .where(all_vacc.date.is_after(datetime.date(2021, 9, 23))) \
+        .where(all_vacc.date.is_after(dataset.vaccine_dose_2_date + days(56))) \
+        .sort_by(all_vacc.date) \
+        .first_for_patient()
+    dataset.vaccine_dose_3_date = vaccine_dose_3.date
+    dataset.vaccine_dose_3_manufacturer = vaccine_dose_3.product_name.map_values(product_to_mf)
+    dataset.vaccine_dose_3_mrna = vaccine_dose_3.product_name.map_values(product_to_mrna)
+
+    # first mRNA date ----------------------------------------------------------------
+    dataset.first_mrna_vaccine_date = case(
+        when(dataset.vaccine_dose_1_mrna.contains("mRNA")).then(dataset.vaccine_dose_1_date),
+        when(dataset.vaccine_dose_2_mrna.contains("mRNA")).then(dataset.vaccine_dose_2_date),
+        when(dataset.vaccine_dose_3_mrna.contains("mRNA")).then(dataset.vaccine_dose_3_date)
     )
 
-    # Find the product name for each vaccine episode - will use this to check if they have all been the same or mixed types in analysis
-    # Note - only checking for first 3 vaccines in this step
-    create_sequential_variables(
-      dataset,
-      "covid_vacc_{n}_manufacturer_tab",
-      num_variables=3,
-      events=all_vacc,
-      column="product_name"
-    )
+    # comorbidities ------------------------------------------------------------------
+    # We define baseline variables on the day _before_ the study date (start date = day of
+    # first possible booster vaccination)
+    baseline_date = dataset.pt_start_date - days(1)
+
+    prior_events = clinical_events.where(clinical_events.date.is_on_or_before(baseline_date))
+
+    def has_prior_event_ctv3(codelist, where=True):
+        return (
+            prior_events.where(where)
+            .where(prior_events.ctv3_code.is_in(codelist))
+            .sort_by(prior_events.date)
+            .last_for_patient().date
+        )
+
+    def has_prior_event_snomed(codelist, where=True):
+        return (
+            prior_events.where(where)
+            .where(prior_events.snomedct_code.is_in(codelist))
+            .exists_for_patient()
+        )
+
+    def has_prior_event_numeric(codelist, where=True):
+        prior_events_exists = prior_events.where(where) \
+            .where(prior_events.ctv3_code.is_in(codelist)) \
+            .exists_for_patient()
+        return (
+            case(
+                when(prior_events_exists).then(1),
+                when(~prior_events_exists).then(0)
+                )
+        )
+    dataset.diabetes_codes = has_prior_event_numeric(codelists.diabetes_codes)
+    dataset.haem_cancer_codes = has_prior_event_numeric(codelists.haem_cancer_codes)
+    dataset.lung_cancer_codes = has_prior_event_numeric(codelists.lung_cancer_codes)
+    dataset.other_cancer_codes = has_prior_event_numeric(codelists.other_cancer_codes)
+    dataset.asthma_codes = has_prior_event_numeric(codelists.asthma_codes)
+    dataset.chronic_cardiac_disease_codes = has_prior_event_numeric(codelists.chronic_cardiac_disease_codes)
+    dataset.chronic_liver_disease_codes = has_prior_event_numeric(codelists.chronic_liver_disease_codes)
+    dataset.chronic_respiratory_disease_codes = has_prior_event_numeric(codelists.chronic_respiratory_disease_codes)
+    dataset.other_neuro_codes = has_prior_event_numeric(codelists.other_neuro_codes)
+    dataset.stroke_gp_codes = has_prior_event_numeric(codelists.stroke_gp_codes)
+    dataset.dementia_codes = has_prior_event_numeric(codelists.dementia_codes)
+    dataset.ra_sle_psoriasis_codes = has_prior_event_numeric(codelists.ra_sle_psoriasis_codes)
+    dataset.psychosis_schizophrenia_bipolar_codes = has_prior_event_numeric(codelists.psychosis_schizophrenia_bipolar_codes)
+    dataset.permanent_immune_codes = has_prior_event_numeric(codelists.permanent_immune_codes)
+    dataset.temp_immune_codes = has_prior_event_numeric(codelists.temp_immune_codes)
+
+    dataset.comorbid_count = dataset.diabetes_codes + \
+        dataset.haem_cancer_codes + \
+        dataset.lung_cancer_codes + \
+        dataset.other_cancer_codes + \
+        dataset.asthma_codes + \
+        dataset.chronic_cardiac_disease_codes + \
+        dataset.chronic_liver_disease_codes + \
+        dataset.chronic_respiratory_disease_codes + \
+        dataset.other_neuro_codes + \
+        dataset.stroke_gp_codes + \
+        dataset.dementia_codes + \
+        dataset.ra_sle_psoriasis_codes + \
+        dataset.psychosis_schizophrenia_bipolar_codes + \
+        dataset.permanent_immune_codes + \
+        dataset.temp_immune_codes
+
+    # negative control outcome - hospital fractures -------------------------------
+    fracture_hospitalisations = hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_fractures)
+
+    dataset.first_fracture_hosp = fracture_hospitalisations \
+        .where(fracture_hospitalisations.admission_date.is_between(study_start_date, end_date)) \
+        .sort_by(fracture_hospitalisations.admission_date) \
+        .first_for_patient().admission_date
+
+    # care home flag ------------------------------------------------------------
+    dataset.care_home = address_as_of(dataset.pt_start_date) \
+        .care_home_is_potential_match.if_null_then(False)
+
+    dataset.care_home_nursing = address_as_of(dataset.pt_start_date) \
+        .care_home_requires_nursing.if_null_then(False)
+
+    dataset.care_home_code = has_prior_event_snomed(codelists.care_home_flag)
+
+    # shielding data ------------------------------------------------------------
+    dataset.highrisk_shield = has_prior_event_snomed(codelists.high_risk_shield)
+    dataset.lowrisk_shield = has_prior_event_snomed(codelists.low_risk_shield)
 
     # EXCLUSION criteria - gather these all here to remain consistent with the protocol
-    population = population & (registrations_number == 1) & (dataset.age <= 100) & (dataset.age >= 16)  # will remove missing age
+    # will remove missing age and anyone not male/female
+    population = population & (registrations_number == 1) & (dataset.age <= 100) & (dataset.age >= 18) & (dataset.sex.contains("male"))
 
     dataset.define_population(population)

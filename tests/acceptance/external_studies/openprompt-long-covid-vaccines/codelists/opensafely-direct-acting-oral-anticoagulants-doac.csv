@@ -1,0 +1,27 @@
+,type,id,bnf_code,nm,chemical
+34,amp,19506911000001105,0208020Z0BBAAAA,Eliquis 2.5mg tablets (Bristol-Myers Squibb Pharmaceuticals Ltd),Apixaban
+35,amp,21677511000001105,0208020Z0BBABAB,Eliquis 5mg tablets (Bristol-Myers Squibb Pharmaceuticals Ltd),Apixaban
+142,amp,29902111000001100,0208020AABBAAAA,Lixiana 15mg tablets (Daiichi Sankyo UK Ltd),Edoxaban
+143,amp,29902411000001105,0208020AABBABAB,Lixiana 30mg tablets (Daiichi Sankyo UK Ltd),Edoxaban
+144,amp,29902711000001104,0208020AABBACAC,Lixiana 60mg tablets (Daiichi Sankyo UK Ltd),Edoxaban
+173,amp,13505411000001109,0208020X0BBABAB,Pradaxa 110mg capsules (Boehringer Ingelheim Ltd),Dabigatran etexilate
+174,amp,19465811000001104,0208020X0BBACAC,Pradaxa 150mg capsules (Boehringer Ingelheim Ltd),Dabigatran etexilate
+175,amp,13504711000001102,0208020X0BBAAAA,Pradaxa 75mg capsules (Boehringer Ingelheim Ltd),Dabigatran etexilate
+301,amp,14237311000001106,0208020Y0BBAAAA,Xarelto 10mg tablets (Bayer Plc),Rivaroxaban
+302,amp,34793111000001102,0208020Y0BBAEAE,Xarelto 15mg / 20mg treatment initiation pack (Bayer Plc),Rivaroxaban
+303,amp,19840811000001107,0208020Y0BBABAB,Xarelto 15mg tablets (Bayer Plc),Rivaroxaban
+304,amp,27160311000001106,0208020Y0BBADAD,Xarelto 2.5mg tablets (Bayer Plc),Rivaroxaban
+305,amp,19841411000001101,0208020Y0BBACAC,Xarelto 20mg tablets (Bayer Plc),Rivaroxaban
+312,vmp,703907006,0208020Z0AAAAAA,Apixaban 2.5mg tablets,Apixaban
+313,vmp,703908001,0208020Z0AAABAB,Apixaban 5mg tablets,Apixaban
+321,vmp,13532811000001109,0208020X0AAABAB,Dabigatran etexilate 110mg capsules,Dabigatran etexilate
+322,vmp,19469811000001101,0208020X0AAACAC,Dabigatran etexilate 150mg capsules,Dabigatran etexilate
+323,vmp,13532911000001104,0208020X0AAAAAA,Dabigatran etexilate 75mg capsules,Dabigatran etexilate
+336,vmp,29903211000001100,0208020AAAAAAAA,Edoxaban 15mg tablets,Edoxaban
+337,vmp,29903311000001108,0208020AAAAABAB,Edoxaban 30mg tablets,Edoxaban
+338,vmp,29903411000001101,0208020AAAAACAC,Edoxaban 60mg tablets,Edoxaban
+386,vmp,14254711000001104,0208020Y0AAAAAA,Rivaroxaban 10mg tablets,Rivaroxaban
+387,vmp,19842111000001101,0208020Y0AAABAB,Rivaroxaban 15mg tablets,Rivaroxaban
+388,vmp,34819111000001102,0208020Y0AAAEAE,Rivaroxaban 15mg tablets and Rivaroxaban 20mg tablets,Rivaroxaban
+389,vmp,27810711000001104,0208020Y0AAADAD,Rivaroxaban 2.5mg tablets,Rivaroxaban
+390,vmp,19842211000001107,0208020Y0AAACAC,Rivaroxaban 20mg tablets,Rivaroxaban

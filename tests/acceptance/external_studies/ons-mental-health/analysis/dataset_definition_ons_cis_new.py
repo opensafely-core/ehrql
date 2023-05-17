@@ -63,3 +63,6 @@ for n, visit in enumerate(visits):
     setattr(dataset, f"visit_num_{n}", visit.visit_num)
     setattr(dataset, f"last_linkage_dt_{n}", visit.last_linkage_dt)
     setattr(dataset, f"is_opted_out_of_nhs_data_share_{n}", visit.is_opted_out_of_nhs_data_share)
+    setattr(dataset, f"imd_decile_e_{n}", visit.imd_decile_e)
+    setattr(dataset, f"imd_quartile_e_{n}", visit.imd_quartile_e)
+    setattr(dataset, f"rural_urban_{n}", visit.rural_urban)
