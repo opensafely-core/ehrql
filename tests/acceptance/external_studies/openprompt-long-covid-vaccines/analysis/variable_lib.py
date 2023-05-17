@@ -7,15 +7,6 @@ from databuilder.tables.beta import tpp as schema
 
 import codelists
 
-
-def has_prior_event(prior_events, codelist, where=True):
-  return (
-    prior_events.where(where)
-    .where(prior_events.snomedct_code.is_in(codelist))
-    .exists_for_patient()
-  )
-
-
 def any_of(conditions):
   return reduce(operator.or_, conditions)
 
@@ -105,6 +96,21 @@ def hospitalisation_diagnosis_matches(admissions, codelist):
   ]
   return admissions.where(any_of(conditions))
 
+
+def hospitalisation_primary_diagnosis_matches(admissions, codelist):
+  code_strings = set()
+  for code in codelist:
+    # Pass the string through the ICD10Code to constructor to validate that it has
+    # the expected format
+    code_string = ICD10Code(code)._to_primitive_type()
+    code_strings.add(code_string)
+  conditions = [
+    admissions.primary_diagnoses.contains(code_string)
+    for code_string in code_strings
+  ]
+  return admissions.where(any_of(conditions))
+
+
 def create_sequential_variables(
     dataset, variable_name_template, events, column, num_variables, sort_column=None
 ):
@@ -117,7 +123,14 @@ def create_sequential_variables(
         variable_name = variable_name_template.format(n=index + 1)
         setattr(dataset, variable_name, getattr(next_event, column))
 
+
 def long_covid_events_during(start, end):
-  return schema.clinical_events.where(schema.clinical_events.date >= start) \
-    .where(schema.clinical_events.date <= end) \
-    .where(schema.clinical_events.snomedct_code.is_in(codelists.long_covid_combine))
+    return schema.clinical_events.where(schema.clinical_events.date >= start) \
+      .where(schema.clinical_events.date <= end) \
+      .where(schema.clinical_events.snomedct_code.is_in(codelists.long_covid_combine))
+
+
+def long_covid_dx_during(start, end):
+    return schema.clinical_events.where(schema.clinical_events.date >= start) \
+      .where(schema.clinical_events.date <= end) \
+      .where(schema.clinical_events.snomedct_code.is_in(codelists.long_covid_nice_dx))

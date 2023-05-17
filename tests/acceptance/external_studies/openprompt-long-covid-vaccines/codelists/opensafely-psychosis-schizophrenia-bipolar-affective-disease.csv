@@ -1,0 +1,235 @@
+CTV3Code,Description
+E1...,Non-organic psychoses
+E10..,Schizophrenic disorders
+E100.,Simple schizophrenia
+E1000,Unspecified schizophrenia
+E1001,Subchronic schizophrenia
+E1002,Chronic schizophrenic
+E1003,Acute exacerbation of subchronic schizophrenia
+E1004,Acute exacerbation of chronic schizophrenia
+E1005,Schizophrenia in remission
+E100z,Simple schizophrenia NOS
+E101.,Hebephrenic schizophrenia
+E1010,Unspecified hebephrenic schizophrenia
+E1011,Subchronic hebephrenic schizophrenia
+E1012,Chronic hebephrenic schizophrenia
+E1013,Acute exacerbation of subchronic hebephrenic schizophrenia
+E1014,Acute exacerbation of chronic hebephrenic schizophrenia
+E1015,Hebephrenic schizophrenia in remission
+E101z,Hebephrenic schizophrenia NOS
+E102.,Catatonic schizophrenia
+E1020,Unspecified catatonic schizophrenia
+E1021,Subchronic catatonic schizophrenia
+E1022,Chronic catatonic schizophrenia
+E1023,Acute exacerbation of subchronic catatonic schizophrenia
+E1024,Acute exacerbation of chronic catatonic schizophrenia
+E1025,Catatonic schizophrenia in remission
+E102z,Catatonic schizophrenia NOS
+E103.,Paranoid schizophrenia
+E1030,Unspecified paranoid schizophrenia
+E1031,Subchronic paranoid schizophrenia
+E1032,Chronic paranoid schizophrenia
+E1033,Acute exacerbation of subchronic paranoid schizophrenia
+E1034,Acute exacerbation of chronic paranoid schizophrenia
+E1035,Paranoid schizophrenia in remission
+E103z,Paranoid schizophrenia NOS
+E105.,Latent schizophrenia
+E1050,Unspecified latent schizophrenia
+E1051,Subchronic latent schizophrenia
+E1052,Chronic latent schizophrenia
+E1053,Acute exacerbation of subchronic latent schizophrenia
+E1054,Acute exacerbation of chronic latent schizophrenia
+E1055,Latent schizophrenia in remission
+E105z,Latent schizophrenia NOS
+E106.,Residual schizophrenia
+E107.,Schizoaffective schizophrenia
+E1070,Unspecified schizoaffective schizophrenia
+E1071,Subchronic schizoaffective schizophrenia
+E1072,Chronic schizoaffective schizophrenia
+E1073,Acute exacerbation subchronic schizoaffective schizophrenia
+E1074,Acute exacerbation of chronic schizoaffective schizophrenia
+E1075,Schizoaffective schizophrenia in remission
+E107z,Schizoaffective schizophrenia NOS
+E10y.,Schizophrenia: [other] or [cenesthopathic]
+E10y0,Atypical schizophrenia
+E10y1,Cenesthopathic schizophrenia
+E10yz,Other schizophrenia NOS
+E10z.,Schizophrenia NOS
+E1100,"Single manic episode, unspecified"
+E1101,"Single manic episode, mild"
+E1102,"Single manic episode, moderate"
+E1103,"Single manic episode, severe without mention of psychosis"
+E1104,"Single manic episode, severe, with psychosis"
+E1105,Single manic episode in partial or unspecified remission
+E1106,Single manic episode in full remission
+E110z,"Manic disorder, single episode NOS"
+E111.,Recurrent manic episodes
+E1110,"Recurrent manic episodes, unspecified"
+E1111,"Recurrent manic episodes, mild"
+E1112,"Recurrent manic episodes, moderate"
+E1113,"Recurrent manic episodes, severe without mention psychosis"
+E1114,"Recurrent manic episodes, severe, with psychosis"
+E1115,"Recurrent manic episodes, partial or unspecified remission"
+E1116,"Recurrent manic episodes, in full remission"
+E111z,Recurrent manic episode NOS
+E1124,"Single major depressive episode, severe, with psychosis"
+E1134,"Recurrent major depressive episodes, severe, with psychosis"
+E114.,"Bipolar affective disorder, current episode manic"
+E1140,"Bipolar affective disorder, currently manic, unspecified"
+E1141,"Bipolar affective disorder, currently manic, mild"
+E1142,"Bipolar affective disorder, currently manic, moderate"
+E1143,"Bipolar affect disord, currently manic, severe, no psychosis"
+E1144,"Bipolar affect disord, currently manic,severe with psychosis"
+E1145,"Bipolar affect disord,currently manic, part/unspec remission"
+E1146,"Bipolar affective disorder, currently manic, full remission"
+E114z,"Bipolar affective disorder, currently manic, NOS"
+E115.,"Bipolar affective disorder, current episode depression"
+E1150,"Bipolar affective disorder, currently depressed, unspecified"
+E1151,"Bipolar affective disorder, currently depressed, mild"
+E1152,"Bipolar affective disorder, currently depressed, moderate"
+E1153,"Bipolar affect disord, now depressed, severe, no psychosis"
+E1154,"Bipolar affect disord, now depressed, severe with psychosis"
+E1156,"Bipolar affective disorder, now depressed, in full remission"
+E115z,"Bipolar affective disorder, currently depressed, NOS"
+E116.,Mixed bipolar affective disorder
+E1160,"Mixed bipolar affective disorder, unspecified"
+E1161,"Mixed bipolar affective disorder, mild"
+E1162,"Mixed bipolar affective disorder, moderate"
+E1163,"Mixed bipolar affective disorder, severe, without psychosis"
+E1164,"Mixed bipolar affective disorder, severe, with psychosis"
+E1165,"Mixed bipolar affective disorder, partial/unspec remission"
+E1166,"Mixed bipolar affective disorder, in full remission"
+E116z,"Mixed bipolar affective disorder, NOS"
+E117.,Unspecified bipolar affective disorder
+E1170,"Unspecified bipolar affective disorder, unspecified"
+E1171,"Unspecified bipolar affective disorder, mild"
+E1172,"Unspecified bipolar affective disorder, moderate"
+E1173,"Unspecified bipolar affective disorder, severe, no psychosis"
+E1174,"Unspecified bipolar affective disorder,severe with psychosis"
+E1176,"Unspecified bipolar affective disorder, in full remission"
+E117z,"Unspecified bipolar affective disorder, NOS"
+E11y.,Other and unspecified manic-depressive psychoses
+E11y0,Unspecified manic-depressive psychoses
+E11y1,Atypical manic disorder
+E11y3,Other mixed manic-depressive psychoses
+E11yz,Other and unspecified manic-depressive psychoses NOS
+E11z.,Other and unspecified affective psychoses
+E11z0,Unspecified affective psychoses NOS
+E11zz,Other affective psychosis NOS
+E120.,Simple paranoid state
+E121.,[Chronic paranoid psychosis] or [Sander's disease]
+E122.,Paraphrenia
+E123.,Shared paranoid disorder
+E12y0,Paranoia querulans
+E13..,Psychoses: [other nonorganic] or [reactive]
+E130.,Reactive depressive psychosis
+E131.,Acute hysterical psychosis
+E134.,Psychogenic paranoid psychosis
+E13y.,Other reactive psychoses
+E13y0,Psychogenic stupor
+E13y1,Brief reactive psychosis
+E13yz,Other reactive psychoses NOS
+E13z.,Psychosis: [nonorganic NOS] or [episode NOS]
+E1y..,Other specified non-organic psychoses
+E2122,Schizotypal personality disorder
+Eu2..,"[X]Schizophrenia, schizotypal and delusional disorders"
+Eu20.,Schizophrenia
+Eu202,[X](Cat schiz)(cat stupor)(schiz catalep)(schiz flex cerea)
+Eu203,[X]Undifferentiated schizophrenia
+Eu20y,[X](Schizophr:[cenes][oth])(schizo'form dis [& psychos] NOS)
+Eu20z,"[X]Schizophrenia, unspecified"
+Eu22y,[X](Oth pers delusion dis)(del dysm)(inv paranoid)(par quer)
+Eu22z,"[X]Persistent delusional disorder, unspecified"
+Eu230,"[X]Ac polym psych dis, no schiz (& [bouf del][cycl psychos])"
+Eu231,[X]Acute polymorphic psychot disord with symp of schizophren
+Eu232,[X]Ac schizophrenia-like psychot disord (& [named variants])
+Eu233,[X](Oth ac delusn psychot dis) or (psychogen paran psychos)
+Eu23y,[X]Other acute and transient psychotic disorders
+Eu23z,"[X]Ac trans psych dis, unsp (& [reac psychos (& brief NOS)])"
+Eu24.,Induced delusional disorder
+Eu25.,Schizoaffective disorder
+Eu252,[X](Mix schizoaff dis)(cycl schizo)(mix schiz/affect psych)
+Eu25y,[X]Other schizoaffective disorders
+Eu25z,"[X]Schizoaffective disorder, unspecified"
+Eu2z.,[X] Psychosis: [unspecified nonorganic] or [NOS]
+Eu30.,"[X]Manic episode (& [bipolar disord, single manic episode])"
+Eu301,[X]Mania without psychotic symptoms
+Eu302,[X](Mania+psych sym (& mood [congr][incong]))/(manic stupor)
+Eu30y,[X]Other manic episodes
+Eu30z,"[X] Mania: [episode, unspecified] or [NOS]"
+Eu310,"Bipolar affective disorder, current episode hypomanic"
+Eu311,[X]Bipolar affect disorder cur epi manic wout psychotic symp
+Eu312,[X]Bipolar affect disorder cur epi manic with psychotic symp
+Eu313,[X]Bipolar affect disorder cur epi mild or moderate depressn
+Eu314,"[X]Bipol aff disord, curr epis sev depress, no psychot symp"
+Eu316,"Bipolar affective disorder , current episode mixed"
+Eu317,"[X]Bipolar affective disorder, currently in remission"
+Eu31y,[X](Bipol affect disord:[II][other]) or (recur manic episod)
+Eu31z,"[X]Bipolar affective disorder, unspecified"
+Eu323,[X]Sev depress epis + psych symp:(& singl epis [named vars])
+Eu333,[X]Depress with psych sympt: [recurr: (named vars)][endogen]
+X00Qx,Psychotic episode NOS
+X00Qy,Reactive psychoses
+X00RU,Epileptic psychosis
+X00S6,Psychotic disorder
+X00S8,Post-schizophrenic depression
+X00SA,Persistent delusional disorder
+X00SC,Acute transient psychotic disorder
+X00SD,Schizophreniform disorder
+X00SJ,Mania
+X00SK,Manic stupor
+X00SL,Hypomania
+X00SM,Bipolar disorder
+X00SN,Bipolar II disorder
+X50GE,Cutaneous monosymptomatic delusional psychosis
+X50GF,Delusions of parasitosis
+X50GG,Delusions of infestation
+X50GH,Delusion of foul odour
+X50GJ,Delusional hyperhidrosis
+X761M,Schizophrenic prodrome
+XE1Xw,Acute schizophrenic episode
+XE1Xx,Other schizophrenia
+XE1Xz,"Manic disorder, single episode"
+XE1Y2,Chronic paranoid psychosis
+XE1Y3,Other non-organic psychoses
+XE1Y4,Acute paranoid reaction
+XE1Y5,Non-organic psychosis NOS
+XE1ZM,[X]Other schizophrenia
+XE1ZN,[X]Schizotypal disorder
+XE1ZO,Delusional disorder
+XE1ZP,[X]Other persistent delusional disorders
+XE1ZQ,[X]Acute polymorphic psychot disord without symp of schizoph
+XE1ZR,[X]Other acute predominantly delusional psychotic disorders
+XE1ZS,"[X]Acute and transient psychotic disorder, unspecified"
+XE1ZT,[X]Other non-organic psychotic disorders
+XE1ZU,[X]Unspecified nonorganic psychosis
+XE1ZV,[X]Mania with psychotic symptoms
+XE1ZW,"[X]Manic episode, unspecified"
+XE1ZX,[X]Other bipolar affective disorders
+XE1ZZ,[X]Severe depressive episode with psychotic symptoms
+XE1Ze,[X]Recurrent depress disorder cur epi severe with psyc symp
+XE1aM,Schizophrenic psychoses (& [paranoid schizophrenia])
+XE1aU,(Paranoid states) or (delusion: [paranoid] or [persecution])
+XE2b8,"Schizoaffective disorder, mixed type"
+XE2uT,"Schizoaffective disorder, manic type"
+XE2un,"Schizoaffective disorder, depressive type"
+XM1GG,Borderline schizophrenia
+XM1GH,Acute polymorphic psychotic disorder
+XSGon,Severe major depression with psychotic features
+Xa0lD,Involutional paranoid state
+Xa0lF,Delusional dysmorphophobia
+Xa0s9,Acute schizophrenia-like psychotic disorder
+Xa0tC,Late paraphrenia
+Xa1aD,Monosymptomatic hypochondriacal psychosis
+Xa1aF,Erotomania
+Xa1bS,Othello syndrome
+XaB5u,Bouffee delirante
+XaB5v,Cycloid psychosis
+XaB8j,Oneirophrenia
+XaB95,Other manic-depressive psychos
+XaK4Y,[X]Erotomania
+XaX52,Non-organic psychosis in remission
+XaX53,"Single major depress ep, severe with psych, psych in remissn"
+XaX54,"Recurr major depress ep, severe with psych, psych in remissn"
+XaY1Y,Bipolar I disorder
+XagU1,"Recurrent reactiv depressiv episodes, severe, with psychosis"

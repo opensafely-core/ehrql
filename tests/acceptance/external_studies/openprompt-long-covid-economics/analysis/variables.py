@@ -1,5 +1,5 @@
 from datetime import date
-from databuilder.ehrql import days, case, when
+from databuilder.ehrql import Dataset, days, case, when
 from databuilder.tables.beta.tpp import (
     clinical_events,
     appointments,
@@ -15,8 +15,13 @@ from codelists import *
 import operator
 from functools import reduce
 
-
+# temp zone for testing: -------
 study_start_date = date(2020, 11, 1)
+age = (study_start_date - patients.date_of_birth).years
+lc_dx = clinical_events.where(clinical_events.snomedct_code.is_in(lc_codelists_combined)) \
+    .sort_by(clinical_events.date) \
+    .first_for_patient()# had lc dx and dx dates
+# -----
 
 # Function codes for extracting monthly GP visit
 def add_visits(dataset, from_date, num_months):
@@ -27,24 +32,54 @@ def add_visits(dataset, from_date, num_months):
         .count_for_patient()
     setattr(dataset, f"gp_visit_m{num_months}", num_visits)
 
+# Function codes for historical GP visits
+def add_hx_visits(dataset, from_date, num_months):
+    # Number of GP visits within `num_months` of `from_date`
+    num_visits = appointments \
+        .where((appointments.start_date >= from_date) &
+              (appointments.start_date <= (from_date + days(num_months * 30)))) \
+        .count_for_patient()
+    setattr(dataset, f"hx_gp_visit_m{num_months}", num_visits)
+
+
+# # Function codes for hospitalisation visit counts：
+# Q: if a person stayed in a hospital for more than one month, is it one adm? 
+def add_hos_visits(dataset, from_date, num_months):
+    # Number of Hospitalisation within `num_months` of `from_date`
+    num_visits = hospital_admissions \
+        .where((hospital_admissions.admission_date >= from_date) &
+              (hospital_admissions.discharge_date  <= (from_date + days(num_months * 30)))) \
+        .count_for_patient()
+    setattr(dataset, f"hos_visit_m{num_months}", num_visits)
+
+# Historical hospital visit
+def add_hx_hos_visits(dataset, from_date, num_months):
+    # Number of Hospitalisation within `num_months` of `from_date`
+    num_visits = hospital_admissions \
+        .where((hospital_admissions.admission_date >= from_date) &
+              (hospital_admissions.discharge_date  <= (from_date + days(num_months * 30)))) \
+        .count_for_patient()
+    setattr(dataset, f"hx_hos_visit_m{num_months}", num_visits)
+
+
 # # Function codes for A&E visit counts
-# def add_ae_visits(dataset, from_date, num_months):
-#     # Number of A&E visits within `num_months` of `from_date`
-#     num_visits = emergency_care_attendances \
-#         .where((emergency_care_attendances.arrival_date >= from_date) &
-#               (emergency_care_attendances.arrival_date  <= (from_date + days(num_months * 30)))) \
-#         .count_for_patient()
-#     setattr(dataset, f"gp_visit_m{num_months}", num_visits)
+def add_ae_visits(dataset, from_date, num_months):
+    # Number of A&E visits within `num_months` of `from_date`
+    num_visits = emergency_care_attendances \
+        .where((emergency_care_attendances.arrival_date >= from_date) &
+              (emergency_care_attendances.arrival_date  <= (from_date + days(num_months * 30)))) \
+        .count_for_patient()
+    setattr(dataset, f"ae_visit_m{num_months}", num_visits)
 
+# Function codes for the historical A&E
+def add_hx_ae_visits(dataset, from_date, num_months):
+    # Number of A&E visits within `num_months` of `from_date`
+    num_visits = emergency_care_attendances \
+        .where((emergency_care_attendances.arrival_date >= from_date) &
+              (emergency_care_attendances.arrival_date  <= (from_date + days(num_months * 30)))) \
+        .count_for_patient()
+    setattr(dataset, f"hx_ae_visit_m{num_months}", num_visits)
 
-# # Function codes for hospitalisation visit counts need further testing
-# def add_hos_visits(dataset, from_date, num_months):
-#     # Number of Hospitalisation within `num_months` of `from_date`
-#     num_visits = appointments \
-#         .where((hospital_admissions.admission_date >= from_date) &
-#               (hospital_admissions.discharge_date  <= (from_date + days(num_months * 30)))) \
-#         .count_for_patient()
-#     setattr(dataset, f"gp_visit_m{num_months}", num_visits)
 
 
 # Function codes for extracting hospitalisation records
@@ -85,6 +120,7 @@ def clinical_ctv3_matches(gpevent, codelist):
     )
     return gp_dx
 
+
 # Create sequential variables for COVID-19 vaccine
 def create_sequential_variables(
     dataset, variable_name_template, events, column, num_variables, sort_column=None
@@ -97,3 +133,14 @@ def create_sequential_variables(
         )
         variable_name = variable_name_template.format(n=index + 1)
         setattr(dataset, variable_name, getattr(next_event, column))
+
+
+# # Temp: test generate data
+# dataset = Dataset()
+# dataset.define_population(age >= 18)
+# add_visits(dataset, lc_dx.date, num_months=1)
+# add_visits(dataset, lc_dx.date, num_months=2)
+# add_hos_visits(dataset, lc_dx.date, num_months=3)
+# add_hos_visits(dataset, lc_dx.date, num_months=4)
+# add_ae_visits(dataset, lc_dx.date, num_months=5)
+# add_ae_visits(dataset, lc_dx.date, num_months=6)
