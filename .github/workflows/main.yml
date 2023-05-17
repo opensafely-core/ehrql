@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf
+      - uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf #v3.1.0
         with:
           failure-threshold: error
 
@@ -52,6 +52,7 @@ jobs:
     # BREAKING CHANGE in footer -> major release
     #
     # anything else (docs, refactor, etc) does not create a release
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: [check, test]
     runs-on: ubuntu-latest
     outputs:
@@ -62,7 +63,7 @@ jobs:
           fetch-depth: 0
       - name: Bump version and push tag
         id: tag
-        uses: mathieudutour/github-tag-action@981ffb2cc3f2b684b2bfd8ee17bc8d781368ba60
+        uses: mathieudutour/github-tag-action@fcfbdceb3093f6d85a3b194740f8c6cec632f4e2 #v6.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: false
