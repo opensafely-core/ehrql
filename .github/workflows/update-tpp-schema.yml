@@ -33,6 +33,8 @@ jobs:
           add-paths: tests/lib/tpp_schema.*
           branch: bot/update-tpp-schema
           base: main
+          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
           commit-message: "Update `test/lib/tpp_schema.py`"
           title: "Update `test/lib/tpp_schema.py`"
           body: |

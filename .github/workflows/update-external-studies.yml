@@ -33,6 +33,8 @@ jobs:
           add-paths: tests/acceptance/external_studies/*
           branch: bot/update-external-studies
           base: main
+          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
           commit-message: "chore: Update `external_studies` test code"
           title: "Update `external_studies` test code"
           body: |

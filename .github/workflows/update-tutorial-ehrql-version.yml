@@ -43,6 +43,8 @@ jobs:
             docs/ehrql-tutorial-examples/outputs/*
           branch: bot/update-tutorial-version
           base: main
+          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+          committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
           commit-message: "chore: Update ehrql version in tutorial project.yaml"
           title: "Update ehrql version in tutorial project.yaml"
           body: |
