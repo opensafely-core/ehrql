@@ -43,6 +43,8 @@ jobs:
             docs/ehrql-tutorial-examples/outputs/*
           branch: bot/update-tutorial-version
           base: main
+          author: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
+          committer: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
           commit-message: "chore: Update ehrql version in tutorial project.yaml"
           title: "Update ehrql version in tutorial project.yaml"
           body: |
