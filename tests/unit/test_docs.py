@@ -74,6 +74,7 @@ def test_render(tmp_path):
         "specs.md",
         "contracts.md",
         "TPPBackend.md",
+        "EMISBackend.md",
     }
 
 
