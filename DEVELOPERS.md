@@ -181,7 +181,7 @@ just remove-database-containers
 Set the environment variable `LOG_SQL=1` (or anything non-empty) to get all SQL queries logged to the console.  To get SQL queries in [test runs](#logging-in-tests), also use `-s` to turn
 off log capture in pytest.
 
-## macOS / Bash
+## macOS
 
 Starting with version 4.0, Bash is licenced under GPLv3.
 Because of this, macOS still ships with version 3.2, which is incompatible with some scripts in this repository.
@@ -191,6 +191,22 @@ We recommend using [homebrew](https://brew.sh/) to install a more recent version
 brew install bash
 ```
 
+ehrQL uses SQLite's [Built-In Mathematical SQL Functions](https://sqlite.org/lang_mathfunc.html), such as `FLOOR(X)`.
+If you installed Python with the macOS or Windows installers,
+then these functions are enabled in the bundled SQLite.
+Congratulations!
+If you use pyenv -- or a tool that builds against system-SQLite -- to manage Python versions, however,
+then it should build against Homebrew-SQLite rather than system-SQLite.
+This is because these functions are enabled in the former but disabled in the latter.
+
+```bash
+brew install sqlite
+
+env PYTHON_CONFIGURE_OPTS="CPPFLAGS=-I$(brew --prefix)/include LDFLAGS=-L$(brew --prefix)/opt/sqlite/lib" pyenv install <version>
+```
+
+If pyenv builds against system-SQLite,
+then the spec tests will fail with `OperationalError: no such function: FLOOR`.
 
 ## Static Type Checking
 We previously used [mypy](https://mypy.readthedocs.io/en/stable/) and type annotations to perform correctness checking of the code base.
