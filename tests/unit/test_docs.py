@@ -1,6 +1,6 @@
 from ehrql.docs import generate_docs, render
 from ehrql.docs.common import reformat_docstring
-from ehrql.docs.render_includes.backends import render_backend
+from ehrql.docs.render_includes.backends_old import render_backend_old
 from ehrql.docs.render_includes.contracts import render_contracts
 from ehrql.docs.render_includes.specs import render_specs
 
@@ -332,7 +332,7 @@ Second line.
     assert render_contracts(contracts) == expected
 
 
-def test_render_backend():
+def test_render_backend_old():
     backends = [
         {
             "name": "DummyBackend1",
@@ -340,7 +340,7 @@ def test_render_backend():
         },
         {"name": "DummyBackend2", "contracts": ["some/path/DummyClass"]},
     ]
-    assert render_backend(backends[0]) == (
+    assert render_backend_old(backends[0]) == (
         """Contracts implemented:
 
 * [`Some/Path/DummyClass`](contracts-reference.md#somepathdummyclass)
@@ -348,7 +348,7 @@ def test_render_backend():
 """
     )
 
-    assert render_backend(backends[1]) == (
+    assert render_backend_old(backends[1]) == (
         """Contracts implemented:
 
 * [`some/path/DummyClass`](contracts-reference.md#somepathdummyclass)

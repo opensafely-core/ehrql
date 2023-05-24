@@ -6,7 +6,7 @@ Contracts implemented:
 """
 
 
-def render_backend(backend_data):
+def render_backend_old(backend_data):
     contracts = [
         (c, c.lower().replace("/", "")) for c in sorted(backend_data["contracts"])
     ]
