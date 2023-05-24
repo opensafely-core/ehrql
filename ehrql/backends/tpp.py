@@ -100,8 +100,7 @@ class TPPBackend(BaseBackend):
             SELECT
                 meds.Patient_ID AS patient_id,
                 CAST(meds.ConsultationDate AS date) AS date,
-                dict.DMD_ID AS dmd_code,
-                meds.MultilexDrug_ID AS multilex_code
+                dict.DMD_ID AS dmd_code
             FROM MedicationIssue AS meds
             LEFT JOIN MedicationDictionary AS dict
             ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
