@@ -8,6 +8,7 @@ from ehrql.query_engines.mssql import MSSQLQueryEngine
 class TPPBackend(BaseBackend):
     """Backend for working with data in TPP."""
 
+    display_name = "TPP"
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
     implements = [

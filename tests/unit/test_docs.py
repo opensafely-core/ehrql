@@ -22,7 +22,7 @@ def test_reformat_docstring():
 def test_generate_docs():
     data = generate_docs()
 
-    expected = {"TPPBackend"}
+    expected = {"EMIS", "TPP"}
     output = {b["name"] for b in data["backends"]}
     assert expected <= output
 

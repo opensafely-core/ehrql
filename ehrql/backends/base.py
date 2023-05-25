@@ -11,12 +11,14 @@ class ValidationError(Exception):
 
 
 class BaseBackend:
+    display_name = None
     query_engine_class = None
     patient_join_column = None
     tables = None
     implements = ()
 
     def __init_subclass__(cls, **kwargs):
+        assert cls.display_name is not None
         assert cls.query_engine_class is not None
         assert cls.patient_join_column is not None
 

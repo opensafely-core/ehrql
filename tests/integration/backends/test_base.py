@@ -25,6 +25,7 @@ class covid_tests(EventFrame):
 
 
 class TestBackend(BaseBackend):
+    display_name = "Test Backend"
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "patient_id"
 

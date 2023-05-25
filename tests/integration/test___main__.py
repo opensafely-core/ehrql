@@ -49,3 +49,8 @@ def test_all_backends_have_an_alias():
     for cls in get_sibling_subclasses(BaseBackend):
         name = f"{cls.__module__}.{cls.__name__}"
         assert name in BACKEND_ALIASES.values(), f"No alias defined for '{name}'"
+
+
+def test_all_backend_aliases_match_display_names():
+    for alias in BACKEND_ALIASES.keys():
+        assert backend_from_id(alias).display_name.lower() == alias

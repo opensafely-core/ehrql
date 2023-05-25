@@ -16,6 +16,7 @@ from ehrql.tables import PatientFrame, Series, table
 
 
 class TestBackend(BaseBackend):
+    display_name = "Test Backend"
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "PatientId"
 
@@ -106,6 +107,7 @@ class Schema:
 
 def test_backend_definition_is_allowed_extra_tables_and_columns():
     class TestBackend(BaseBackend):
+        display_name = "Test Backend"
         query_engine_class = BaseSQLQueryEngine
         patient_join_column = "patient_id"
         implements = [Schema]
@@ -124,6 +126,7 @@ def test_backend_definition_is_allowed_extra_tables_and_columns():
 
 def test_backend_definition_accepts_query_table():
     class TestBackend(BaseBackend):
+        display_name = "Test Backend"
         query_engine_class = BaseSQLQueryEngine
         patient_join_column = "patient_id"
         implements = [Schema]
@@ -139,6 +142,7 @@ def test_backend_definition_fails_if_missing_tables():
     with pytest.raises(ValidationError, match="does not implement table"):
 
         class TestBackend(BaseBackend):
+            display_name = "Test Backend"
             query_engine_class = BaseSQLQueryEngine
             patient_join_column = "patient_id"
             implements = [Schema]
@@ -153,6 +157,7 @@ def test_backend_definition_fails_if_missing_column():
     with pytest.raises(ValidationError, match="missing columns"):
 
         class TestBackend(BaseBackend):
+            display_name = "Test Backend"
             query_engine_class = BaseSQLQueryEngine
             patient_join_column = "patient_id"
             implements = [Schema]
@@ -167,6 +172,7 @@ def test_backend_definition_fails_if_query_table_missing_columns():
     with pytest.raises(ValidationError, match="SQL does not reference columns"):
 
         class TestBackend(BaseBackend):
+            display_name = "Test Backend"
             query_engine_class = BaseSQLQueryEngine
             patient_join_column = "patient_id"
             implements = [Schema]

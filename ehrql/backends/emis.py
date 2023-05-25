@@ -9,6 +9,7 @@ class EMISBackend(BaseBackend):
     NOTE: This is a PLACEHOLDER in advance of completing work on the EMISBackend
     """
 
+    display_name = "EMIS"
     # Obviously the completed backend will use a TrinoQueryEngine not SQLite
     query_engine_class = SQLiteQueryEngine
     patient_join_column = "patient_id"

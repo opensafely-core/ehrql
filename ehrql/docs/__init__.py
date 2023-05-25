@@ -27,7 +27,8 @@ def render(docs_data, output_dir):
 
     backends = docs_data["backends"]
     for backend_data in backends:
-        with open(output_dir / f"{backend_data['name']}.md", "w") as outfile:
+        name = backend_data["dotted_path"].rpartition(".")[2]
+        with open(output_dir / f"{name}.md", "w") as outfile:
             outfile.write(render_backend_old(backend_data))
 
     with open(output_dir / "specs.md", "w") as outfile:
