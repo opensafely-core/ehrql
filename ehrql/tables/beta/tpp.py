@@ -1,7 +1,7 @@
 import datetime
 
 from ehrql import case, when
-from ehrql.codes import SNOMEDCTCode
+from ehrql.codes import CTV3Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 from ehrql.tables.beta.core import clinical_events, medications, ons_deaths, patients
 
@@ -21,6 +21,7 @@ __all__ = [
     "appointments",
     "ons_cis",
     "isaric_raw",
+    "open_prompt",
 ]
 
 
@@ -458,4 +459,28 @@ class isaric_raw(EventFrame):
     dsstdtc = Series(
         datetime.date,
         description="Outcome date.",
+    )
+
+
+@table
+class open_prompt(EventFrame):
+    ctv3_code = Series(
+        CTV3Code,
+        description="The question, as a CTV3 code",
+    )
+    snomedct_code = Series(
+        SNOMEDCTCode,
+        description="The question, as a SNOMED CT code or None",
+    )
+    consultation_date = Series(
+        datetime.date,
+        description="The date the survey was administered",
+    )
+    consultation_id = Series(
+        int,
+        description="The ID of the survey",
+    )
+    numeric_value = Series(
+        float,
+        description="The response to the question",
     )
