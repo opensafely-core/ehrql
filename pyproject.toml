@@ -81,18 +81,18 @@ line-length = 88
 exclude = [
   ".direnv",
   ".git",
-  ".github",
+  ".github/",
   ".ipynb_checkpoints",
   ".pytest_cache",
-  ".venv",
+  ".venv/",
   "__pycache__",
-  "coverage",
-  "docker",
-  "docs",
-  "htmlcov",
+  "coverage/",
+  "docker/",
+  "docs/",
+  "htmlcov/",
   "tests/acceptance/external_studies/",
   "tests/fixtures/bad_dataset_definitions",
-  "venv",
+  "venv/",
 ]
 extend-select = [
   "A", # flake8-builtins
