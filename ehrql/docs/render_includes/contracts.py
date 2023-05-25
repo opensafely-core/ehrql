@@ -17,7 +17,7 @@ def render_contracts(contracts_data):
     for contract in contracts_data:
         hierarchy = [h.title() for h in contract["hierarchy"]]
         name = "/".join([*hierarchy, contract["name"]])
-        docstring = "\n".join(contract["docstring"])
+        docstring = contract["docstring"]
         columns = "\n".join(
             f"| {c['name']} | {c['description']} | {c['type']} | {', '.join(c['constraints']).capitalize()}. |"
             for c in contract["columns"]

@@ -10,15 +10,12 @@ def test_reformat_docstring():
     First line.
 
     Second line.
+        Indented
     """
 
     output = reformat_docstring(docstring)
 
-    expected = [
-        "First line.",
-        "",
-        "Second line.",
-    ]
+    expected = "First line.\n\nSecond line.\n    Indented"
     assert output == expected
 
 
@@ -289,7 +286,7 @@ def test_render_contracts():
             "name": "DummyClass",
             "hierarchy": ["some", "path"],
             "dotted_path": "dummy_module.DummyClass",
-            "docstring": ["Dummy docstring"],
+            "docstring": "Dummy docstring",
             "columns": [
                 {
                     "name": "patient_id",
@@ -304,7 +301,7 @@ def test_render_contracts():
             "name": "DummyClass2",
             "hierarchy": ["some", "path"],
             "dotted_path": "dummy_module2.DummyClass2",
-            "docstring": ["Dummy docstring2.", "", "Second line."],
+            "docstring": "Dummy docstring2.\n\nSecond line.",
             "columns": [],
             "backend_support": [],
         },
