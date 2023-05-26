@@ -20,7 +20,7 @@ from variables import (
 )
 
 study_start_date = date(2020, 11, 1)
-study_end_date = date(2023, 3, 31)
+study_end_date = date(2023, 1, 31)
 
 # age 
 age = (study_start_date - patients.date_of_birth).years

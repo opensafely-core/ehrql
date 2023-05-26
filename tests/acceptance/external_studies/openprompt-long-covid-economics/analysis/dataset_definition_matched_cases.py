@@ -68,7 +68,7 @@ all_vacc = vaccinations \
     .where(vaccinations.target_disease == "SARS-2 CORONAVIRUS") \
     .sort_by(vaccinations.date)
 
-c19_vaccine_number = all_vacc.count_for_patient()
+c19_vaccine_number = all_vacc.count_for_patient()  # some people may have more than one vaccine record on the same day.
 
 create_sequential_variables(
     dataset,

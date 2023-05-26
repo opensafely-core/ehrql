@@ -6,8 +6,7 @@ from datasets import (
     add_common_variables,
     study_start_date,
     study_end_date,
-    covid_to_longcovid_lag,
-    vaccine_to_longcovid_lag
+    covid_to_longcovid_lag
 )
 
 dataset = Dataset()
