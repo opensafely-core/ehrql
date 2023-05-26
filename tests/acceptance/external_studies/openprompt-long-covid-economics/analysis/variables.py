@@ -113,6 +113,17 @@ def hospitalisation_diagnosis_matches(admissions, codelist):
   return admissions.where(any_of(conditions))
 
 
+
+# Function for number of prescriptions
+def prescription_number(dataset, from_date, num_months):
+    # Number of prescriptions within `num_months` of `from_date`
+    num_pres = medications \
+        .where((medications.date >= from_date) &
+              (medications.date  <= (from_date + days(num_months * 30)))) \
+        .count_for_patient()
+    setattr(dataset, f"hx_ae_visit_m{num_months}", num_visits)
+
+
 # Function for extracting clinical factors
 def clinical_ctv3_matches(gpevent, codelist):
     gp_dx = (gpevent.where((gpevent.date < study_start_date) & gpevent.ctv3_code.is_in(codelist))

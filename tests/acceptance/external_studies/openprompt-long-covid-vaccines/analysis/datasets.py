@@ -133,7 +133,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     # Vaccines from the vaccines schema
     # only take one record per day to remove duplication
     all_vacc = vaccinations \
-        .where(vaccinations.date < dataset.pt_end_date - days(vaccine_to_longcovid_lag)) \
+        .where(vaccinations.date < dataset.pt_end_date) \
         .where(vaccinations.target_disease == "SARS-2 CORONAVIRUS")
 
     # this will be replaced with distinct_count_for_patient() once it is developed
@@ -146,17 +146,32 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     # Vaccines, create some mappings from vaccine product_names to general descriptors
     product_to_mf = {
         "COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)": "Pfizer",
-        "COVID-19 Vaccine Vaxzevria 0.5ml inj multidose vials (AstraZeneca)": "AstraZeneca",
-        "*": "Other"
+        "COVID-19 Vaccine Vaxzevria 0.5ml inj multidose vials (AstraZeneca)": "AstraZeneca"
     }
 
+    def vaccine_mfct(product_name):
+        return (
+            case(
+                when(product_name.is_not_null())
+                .then(product_name.map_values(product_to_mf, default="Other"))
+                )
+        )
+
     product_to_mrna = {
-        "COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)": "mRNA",
-        "COVID-19 mRNA Vaccine Comirnaty Children 5-11yrs 10mcg/0.2ml dose con for disp for inj MDV (Pfizer)": "mRNA",
-        "COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)": "mRNA",
-        "Comirnaty COVID-19 mRNA Vacc ready to use 0.3ml in md vials": "mRNA",
-        "COVID-19 Vaccine Moderna (mRNA-1273.529) 50micrograms/0.25ml dose sol for in MOV": "mRNA",
+        "COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)": True,
+        "COVID-19 mRNA Vaccine Comirnaty Children 5-11yrs 10mcg/0.2ml dose con for disp for inj MDV (Pfizer)": True,
+        "COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)": True,
+        "Comirnaty COVID-19 mRNA Vacc ready to use 0.3ml in md vials": True,
+        "COVID-19 Vaccine Moderna (mRNA-1273.529) 50micrograms/0.25ml dose sol for in MOV": True,
     }
+
+    def vaccine_mrna(product_name):
+        return (
+            case(
+                when(product_name.is_not_null())
+                .then(product_name.map_values(product_to_mrna, default=False))
+                )
+        )
 
     # FIRST VACCINE DOSE ------------------------------------------------------------
     # first vaccine dose was 8th December 2020
@@ -165,8 +180,8 @@ def add_common_variables(dataset, study_start_date, end_date, population):
         .sort_by(all_vacc.date) \
         .first_for_patient()
     dataset.vaccine_dose_1_date = vaccine_dose_1.date
-    dataset.vaccine_dose_1_manufacturer = vaccine_dose_1.product_name.map_values(product_to_mf)
-    dataset.vaccine_dose_1_mrna = vaccine_dose_1.product_name.map_values(product_to_mrna)
+    dataset.vaccine_dose_1_manufacturer = vaccine_mfct(vaccine_dose_1.product_name)
+    dataset.vaccine_dose_1_mrna = vaccine_mrna(vaccine_dose_1.product_name)
 
     # SECOND VACCINE DOSE ------------------------------------------------------------
     # first recorded 2nd dose was 29th December 2020
@@ -177,8 +192,8 @@ def add_common_variables(dataset, study_start_date, end_date, population):
         .sort_by(all_vacc.date) \
         .first_for_patient()
     dataset.vaccine_dose_2_date = vaccine_dose_2.date
-    dataset.vaccine_dose_2_manufacturer = vaccine_dose_2.product_name.map_values(product_to_mf)
-    dataset.vaccine_dose_2_mrna = vaccine_dose_2.product_name.map_values(product_to_mrna)
+    dataset.vaccine_dose_2_manufacturer = vaccine_mfct(vaccine_dose_2.product_name)
+    dataset.vaccine_dose_2_mrna = vaccine_mrna(vaccine_dose_2.product_name)
 
     # BOOSTER VACCINE DOSE -----------------------------------------------------------
     # first recorded booster dose was 2021-09-24
@@ -189,14 +204,19 @@ def add_common_variables(dataset, study_start_date, end_date, population):
         .sort_by(all_vacc.date) \
         .first_for_patient()
     dataset.vaccine_dose_3_date = vaccine_dose_3.date
-    dataset.vaccine_dose_3_manufacturer = vaccine_dose_3.product_name.map_values(product_to_mf)
-    dataset.vaccine_dose_3_mrna = vaccine_dose_3.product_name.map_values(product_to_mrna)
+    dataset.vaccine_dose_3_manufacturer = vaccine_mfct(vaccine_dose_3.product_name)
+    dataset.vaccine_dose_3_mrna = vaccine_mrna(vaccine_dose_3.product_name)
 
     # first mRNA date ----------------------------------------------------------------
     dataset.first_mrna_vaccine_date = case(
-        when(dataset.vaccine_dose_1_mrna.contains("mRNA")).then(dataset.vaccine_dose_1_date),
-        when(dataset.vaccine_dose_2_mrna.contains("mRNA")).then(dataset.vaccine_dose_2_date),
-        when(dataset.vaccine_dose_3_mrna.contains("mRNA")).then(dataset.vaccine_dose_3_date)
+        when(dataset.vaccine_dose_1_mrna).then(dataset.vaccine_dose_1_date),
+        when(dataset.vaccine_dose_2_mrna).then(dataset.vaccine_dose_2_date),
+        when(dataset.vaccine_dose_3_mrna).then(dataset.vaccine_dose_3_date)
+    )
+    dataset.first_non_mrna_vaccine_date = case(
+        when(~dataset.vaccine_dose_1_mrna).then(dataset.vaccine_dose_1_date),
+        when(~dataset.vaccine_dose_2_mrna).then(dataset.vaccine_dose_2_date),
+        when(~dataset.vaccine_dose_3_mrna).then(dataset.vaccine_dose_3_date)
     )
 
     # comorbidities ------------------------------------------------------------------
@@ -205,14 +225,6 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     baseline_date = dataset.pt_start_date - days(1)
 
     prior_events = clinical_events.where(clinical_events.date.is_on_or_before(baseline_date))
-
-    def has_prior_event_ctv3(codelist, where=True):
-        return (
-            prior_events.where(where)
-            .where(prior_events.ctv3_code.is_in(codelist))
-            .sort_by(prior_events.date)
-            .last_for_patient().date
-        )
 
     def has_prior_event_snomed(codelist, where=True):
         return (

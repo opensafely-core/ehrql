@@ -25,6 +25,7 @@ dataset.define_population(
     & (registrations_number == 1) 
     & registration.exists_for_patient() 
     & target_practices.exists_for_patient()
+    & patients.sex.contains("male")
 )
 dataset.age = age
 dataset.sex = patients.sex
