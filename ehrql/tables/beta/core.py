@@ -1,6 +1,6 @@
 import datetime
 
-from ehrql.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
+from ehrql.codes import DMDCode, ICD10Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
@@ -79,7 +79,6 @@ class ons_deaths(EventFrame):
 class clinical_events(EventFrame):
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
-    ctv3_code = Series(CTV3Code)
     numeric_value = Series(float)
 
 

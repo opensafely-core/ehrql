@@ -1,9 +1,9 @@
 import datetime
 
 from ehrql import case, when
-from ehrql.codes import SNOMEDCTCode
+from ehrql.codes import CTV3Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
-from ehrql.tables.beta.core import clinical_events, medications, ons_deaths, patients
+from ehrql.tables.beta.core import medications, ons_deaths, patients
 
 
 __all__ = [
@@ -22,6 +22,14 @@ __all__ = [
     "ons_cis",
     "isaric_raw",
 ]
+
+
+@table
+class clinical_events(EventFrame):
+    date = Series(datetime.date)
+    snomedct_code = Series(SNOMEDCTCode)
+    ctv3_code = Series(CTV3Code)
+    numeric_value = Series(float)
 
 
 @table
