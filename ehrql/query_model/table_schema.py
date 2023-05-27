@@ -20,16 +20,16 @@ class Constraint:
 
         @property
         def description(self):
-            return f"Must be one of: {', '.join(map(repr, self.values))}"
+            return f"Possible values: {', '.join(f'`{v}`' for v in self.values)}"
 
     class NotNull(BaseConstraint):
-        description = "Must have a value"
+        description = "Never `NULL`"
 
     class Unique(BaseConstraint):
-        description = "Must be unique"
+        description = "Always unique"
 
     class FirstOfMonth(BaseConstraint):
-        description = "Must be the first day of a month"
+        description = "Always the first day of a month"
 
     class Regex(BaseConstraint):
         regex: str
@@ -39,7 +39,7 @@ class Constraint:
 
         @property
         def description(self):
-            return f"Must match the regular expression: {self.regex!r}"
+            return f"Matches regular expression: `{self.regex}`"
 
 
 @dataclasses.dataclass(frozen=True)
