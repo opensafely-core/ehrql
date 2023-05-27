@@ -4,8 +4,8 @@
 
 | Column name | Description | Type | Constraints |
 | ----------- | ----------- | ---- | ----------- |
-| date_of_birth | Patient's date of birth, rounded to first of month | date | Must be the first day of a month, must have a value. |
-| sex | Patient's sex | str | Must have a value, must be one of: 'female', 'male', 'intersex', 'unknown'. |
+| date_of_birth | Patient's date of birth, rounded to first of month | date | Always the first day of a month, never `null`. |
+| sex | Patient's sex | str | Never `null`, possible values: `female`, `male`, `intersex`, `unknown`. |
 | date_of_death | Patient's date of death | date | . |
 
 
