@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from ehrql import tables
-from ehrql.query_language import BaseFrame, Series
+from ehrql.query_language import BaseFrame, PatientFrame, Series
 from ehrql.utils.module_utils import get_submodules
 
 from .common import reformat_docstring
@@ -18,11 +18,13 @@ def build_schemas(backends=()):
         docstring = reformat_docstring(module.__doc__)
         dotted_path = module.__name__
         hierarchy = dotted_path.removeprefix(f"{tables.__name__}.").split(".")
+        name = ".".join(hierarchy)
         implemented_by = [
-            backend_name for backend_name in module_name_to_backends[module.__name__]
+            backend_name for backend_name in module_name_to_backends[name]
         ]
 
         yield {
+            "name": name,
             "dotted_path": dotted_path,
             "hierarchy": hierarchy,
             "docstring": docstring,
@@ -55,6 +57,7 @@ def build_tables(module):
             "name": name,
             "docstring": docstring,
             "columns": columns,
+            "has_one_row_per_patient": isinstance(obj, PatientFrame),
         }
 
 

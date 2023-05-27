@@ -1,9 +1,12 @@
 import operator
+import shutil
 
 from .backends import build_backends
 from .contracts import build_contracts
+from .render_includes.backends import render_backends
 from .render_includes.backends_old import render_backend_old
 from .render_includes.contracts import render_contracts
+from .render_includes.schemas import render_schema, render_schema_index
 from .render_includes.specs import render_specs
 from .schemas import build_schemas
 from .specs import build_specs
@@ -24,6 +27,19 @@ def render(docs_data, output_dir):
     output_dir.mkdir(exist_ok=True, parents=True)
     with open(output_dir / "contracts.md", "w") as outfile:
         outfile.write(render_contracts(docs_data["contracts"]))
+
+    with open(output_dir / "backends.md", "w") as outfile:
+        outfile.write(render_backends(docs_data["backends"]))
+
+    with open(output_dir / "schemas.md", "w") as outfile:
+        outfile.write(render_schema_index(docs_data["schemas"]))
+
+    schema_dir = output_dir / "schemas"
+    shutil.rmtree(schema_dir, ignore_errors=True)
+    schema_dir.mkdir()
+    for schema_data in docs_data["schemas"]:
+        with open(schema_dir / f"{schema_data['name']}.md", "w") as outfile:
+            outfile.write(render_schema(schema_data))
 
     backends = docs_data["backends"]
     for backend_data in backends:

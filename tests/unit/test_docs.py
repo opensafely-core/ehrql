@@ -68,10 +68,13 @@ def test_render(tmp_path):
     assert not set(tmp_path.iterdir())
     render(generate_docs(), tmp_path)
     assert {pt.name for pt in tmp_path.iterdir()} == {
-        "specs.md",
+        "backends.md",
         "contracts.md",
-        "TPPBackend.md",
+        "schemas",
+        "schemas.md",
+        "specs.md",
         "EMISBackend.md",
+        "TPPBackend.md",
     }
 
 
