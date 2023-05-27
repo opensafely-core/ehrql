@@ -1,6 +1,9 @@
 """
-This is the minimal schema required to run the OpenSAFELY system smoke test.
-All backends should implement this schema.
+This tiny schema is used to write a [minimal dataset definition][smoketest_repo] that
+can function as a basic end-to-end test (or "smoke test") of the OpenSAFELY platform
+across all available backends.
+
+[smoketest_repo]: https://github.com/opensafely/test-age-distribution
 """
 
 import datetime

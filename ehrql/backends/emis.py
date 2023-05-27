@@ -6,7 +6,13 @@ from ehrql.query_engines.sqlite import SQLiteQueryEngine
 
 class EMISBackend(BaseBackend):
     """
-    NOTE: This is a PLACEHOLDER in advance of completing work on the EMISBackend
+    !!! warning
+        This is backend is still under development and is not ready for production use.
+
+    [EMIS Health](https://www.emishealth.com/) are the devlopers and operators of the
+    [EMIS Web](https://www.emishealth.com/products/emis-web) EHR platform. The ehrQL
+    EMIS backend provides access to primary care data from EMIS Web, plus data linked
+    from other sources.
     """
 
     display_name = "EMIS"
