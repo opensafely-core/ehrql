@@ -22,6 +22,7 @@ from tests.lib.tpp_schema import (
     MedicationIssue,
     ONS_CIS_New,
     ONS_Deaths,
+    OpenPROMPT,
     Organisation,
     Patient,
     PatientAddress,
@@ -940,6 +941,48 @@ def test_isaric_raw_clinical_variables(select_all):
         patient_7_results,
         patient_8_results,
         patient_9_results,
+    ]
+
+
+@register_test_for(tpp.open_prompt)
+def test_open_prompt(select_all):
+    results = select_all(
+        OpenPROMPT(
+            Patient_ID=1,
+            CodedEvent_ID="00000",
+            CodeSystemId=0,  # SNOMED CT
+            ConceptId="100000",
+            ConsultationDate="2023-01-01",
+            Consultation_ID=1,
+            NumericValue=1.0,
+        ),
+        OpenPROMPT(
+            Patient_ID=2,
+            CodedEvent_ID="Y0000",
+            CodeSystemId=2,  # CTV3 "Y"
+            ConceptId="Y0000",
+            ConsultationDate="2023-01-01",
+            Consultation_ID=2,
+            NumericValue=1.0,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "ctv3_code": "00000",
+            "snomedct_code": "100000",
+            "consultation_date": date(2023, 1, 1),
+            "consultation_id": 1,
+            "numeric_value": 1.0,
+        },
+        {
+            "patient_id": 2,
+            "ctv3_code": "Y0000",
+            "snomedct_code": None,
+            "consultation_date": date(2023, 1, 1),
+            "consultation_id": 2,
+            "numeric_value": 1.0,
+        },
     ]
 
 

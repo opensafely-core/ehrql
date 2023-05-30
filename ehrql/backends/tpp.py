@@ -359,3 +359,18 @@ class TPPBackend(BaseBackend):
             FROM ISARIC_New
         """
     )
+
+    open_prompt = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            CodedEvent_ID AS ctv3_code,
+            CASE
+                WHEN CodeSystemId = 0 THEN ConceptId
+            END AS snomedct_code,
+            CAST(ConsultationDate AS date) AS consultation_date,
+            Consultation_ID AS consultation_id,
+            NumericValue AS numeric_value
+        FROM OpenPROMPT
+    """
+    )
