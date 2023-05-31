@@ -51,7 +51,7 @@ class BNFCode(BaseCode):
 
 
 class CTV3Code(BaseCode):
-    "CTV3 (Read V3)"
+    "CTV3 (Read v3)"
 
     # Some of the CTV3 codes in the OpenCodelists coding system database (though not any
     # actually used in codelists) violate the below format, either by having a leading
@@ -93,15 +93,16 @@ class OPCS4Code(BaseCode):
 
 
 class SNOMEDCTCode(BaseCode):
-    "SNOMED CT"
+    "SNOMED-CT"
 
     # 6-18 digit number with no leading zeros
     # https://confluence.ihtsdotools.org/display/DOCRELFMT/6.1+SCTID+Data+Type
     regex = re.compile(r"[1-9][0-9]{5,17}")
 
 
+# Dictionary of Medicines and Devices
 class DMDCode(BaseCode):
-    "Dictionary of Medicines and Devices"
+    "dm+d"
 
     # Syntactically equivalent to SNOMED-CT
     regex = SNOMEDCTCode.regex
