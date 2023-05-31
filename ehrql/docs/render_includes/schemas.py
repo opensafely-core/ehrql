@@ -99,7 +99,7 @@ COLUMN_TEMPLATE = """\
     <code>{type}</code>
   </dt>
   <dd markdown="block">
-    {description_with_constraints}
+{description_with_constraints}
   </dd>
 </div>
 """

@@ -26,26 +26,32 @@ def generate_docs():
 def render(docs_data, output_dir):
     output_dir.mkdir(exist_ok=True, parents=True)
     with open(output_dir / "contracts.md", "w") as outfile:
-        outfile.write(render_contracts(docs_data["contracts"]))
+        outfile.write(fix_whitespace(render_contracts(docs_data["contracts"])))
 
     with open(output_dir / "backends.md", "w") as outfile:
-        outfile.write(render_backends(docs_data["backends"]))
+        outfile.write(fix_whitespace(render_backends(docs_data["backends"])))
 
     with open(output_dir / "schemas.md", "w") as outfile:
-        outfile.write(render_schema_index(docs_data["schemas"]))
+        outfile.write(fix_whitespace(render_schema_index(docs_data["schemas"])))
 
     schema_dir = output_dir / "schemas"
     shutil.rmtree(schema_dir, ignore_errors=True)
     schema_dir.mkdir()
     for schema_data in docs_data["schemas"]:
         with open(schema_dir / f"{schema_data['name']}.md", "w") as outfile:
-            outfile.write(render_schema(schema_data))
+            outfile.write(fix_whitespace(render_schema(schema_data)))
 
     backends = docs_data["backends"]
     for backend_data in backends:
         name = backend_data["dotted_path"].rpartition(".")[2]
         with open(output_dir / f"{name}.md", "w") as outfile:
-            outfile.write(render_backend_old(backend_data))
+            outfile.write(fix_whitespace(render_backend_old(backend_data)))
 
     with open(output_dir / "specs.md", "w") as outfile:
-        outfile.write(render_specs(docs_data["specs"]))
+        outfile.write(fix_whitespace(render_specs(docs_data["specs"])))
+
+
+def fix_whitespace(s):
+    # Our pre-commit hook doesn't like trailing whitespace but insists on a terminating
+    # newline at the end of the file
+    return s.rstrip() + "\n"
