@@ -474,6 +474,7 @@ class isaric_raw(EventFrame):
 class open_prompt(EventFrame):
     ctv3_code = Series(
         CTV3Code,
+        constraints=[Constraint.NotNull()],
         description="The question, as a CTV3 code",
     )
     snomedct_code = Series(
@@ -482,13 +483,16 @@ class open_prompt(EventFrame):
     )
     consultation_date = Series(
         datetime.date,
+        constraints=[Constraint.NotNull()],
         description="The date the survey was administered",
     )
     consultation_id = Series(
         int,
+        constraints=[Constraint.NotNull()],
         description="The ID of the survey",
     )
     numeric_value = Series(
         float,
+        constraints=[Constraint.NotNull()],
         description="The response to the question",
     )
