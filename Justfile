@@ -290,6 +290,7 @@ docs-check-generated-docs-are-current: generate-docs
       echo "Generated docs directory is current and free of other files/directories."
     else
       echo "Generated docs directory contains files/directories not in the repository."
+      git diff ./docs/includes/generated_docs/; git clean -n ./docs/includes/generated_docs/
       exit 1
     fi
 
