@@ -1,6 +1,8 @@
+import datetime
 from collections import defaultdict
 
 from ehrql import tables
+from ehrql.codes import BaseCode
 from ehrql.query_language import BaseFrame, PatientFrame, Series
 from ehrql.utils.module_utils import get_submodules
 
@@ -74,9 +76,21 @@ def build_column(name, series):
     return {
         "name": name,
         "description": series.description,
-        "type": series.type_.__name__,
+        "type": get_name_for_type(series.type_),
         "constraints": [c.description for c in series.constraints],
     }
+
+
+def get_name_for_type(type_):
+    if issubclass(type_, BaseCode):
+        return f"{type_.__doc__} code"
+    return {
+        bool: "boolean",
+        int: "integer",
+        float: "float",
+        str: "string",
+        datetime.date: "date",
+    }[type_]
 
 
 def sort_key(obj):
