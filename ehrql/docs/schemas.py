@@ -7,9 +7,13 @@ from ehrql.utils.module_utils import get_submodules
 from .common import reformat_docstring
 
 
+SORT_ORDER = {k: i for i, k in enumerate(["beta.tpp", "beta.core"])}
+
+
 def build_schemas(backends=()):
     module_name_to_backends = build_module_name_to_backend_map(backends)
 
+    schemas = []
     for module in get_submodules(tables):
         module_tables = list(build_tables(module))
         if not module_tables:
@@ -23,14 +27,19 @@ def build_schemas(backends=()):
             backend_name for backend_name in module_name_to_backends[name]
         ]
 
-        yield {
-            "name": name,
-            "dotted_path": dotted_path,
-            "hierarchy": hierarchy,
-            "docstring": docstring,
-            "implemented_by": implemented_by,
-            "tables": sorted(module_tables, key=lambda t: t["name"]),
-        }
+        schemas.append(
+            {
+                "name": name,
+                "dotted_path": dotted_path,
+                "hierarchy": hierarchy,
+                "docstring": docstring,
+                "implemented_by": implemented_by,
+                "tables": sorted(module_tables, key=lambda t: t["name"]),
+            }
+        )
+
+    schemas.sort(key=sort_key)
+    return schemas
 
 
 def build_module_name_to_backend_map(backends):
@@ -68,3 +77,8 @@ def build_column(name, series):
         "type": series.type_.__name__,
         "constraints": [c.description for c in series.constraints],
     }
+
+
+def sort_key(obj):
+    k = obj["name"]
+    return SORT_ORDER.get(k, float("+inf")), k
