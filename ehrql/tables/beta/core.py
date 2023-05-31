@@ -18,8 +18,8 @@ class patients(PatientFrame):
             'Specify how this has been determined, e.g. "sex at birth", or "current sex".'
         ),
         constraints=[
-            Constraint.NotNull(),
             Constraint.Categorical(["female", "male", "intersex", "unknown"]),
+            Constraint.NotNull(),
         ],
     )
     date_of_death = Series(
