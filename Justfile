@@ -98,16 +98,9 @@ ruff *args=".": devenv
     $BIN/ruff {{ args }}
 
 # runs the various dev checks but does not change any files
-check *args: devenv black ruff docstrings
+check *args: devenv black ruff
     docker pull hadolint/hadolint
     docker run --rm -i hadolint/hadolint < Dockerfile
-
-# ensure our public facing docstrings exist so we can build docs from them
-docstrings: devenv
-    $BIN/pydocstyle ehrql/backends/tpp.py
-
-    # only enforce classes are documented for the public facing docs
-    $BIN/pydocstyle --add-ignore=D102,D103,D105,D106 ehrql/contracts/wip.py
 
 # runs the format (black) and other code linting (ruff) checks and fixes the files
 fix: devenv

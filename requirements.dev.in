@@ -9,7 +9,6 @@ docker
 hypothesis
 pip-tools
 pre-commit
-pydocstyle
 pytest
 pytest-cov
 pytest-mock
