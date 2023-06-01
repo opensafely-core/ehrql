@@ -338,7 +338,10 @@ class FloatPatientSeries(FloatFunctions, PatientSeries):
 
 def parse_date_if_str(value):
     if isinstance(value, str):
-        return datetime.date.fromisoformat(value)
+        try:
+            return datetime.date.fromisoformat(value)
+        except ValueError as e:
+            raise ValueError(f"{e} in {value!r}")
     else:
         return value
 

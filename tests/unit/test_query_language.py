@@ -28,6 +28,7 @@ from ehrql.query_language import (
     compile,
     days,
     months,
+    parse_date_if_str,
     table,
     table_from_file,
     table_from_rows,
@@ -633,3 +634,29 @@ def test_frame_classes_are_preserved():
     # suggestion. Using `hasattr()` wouldn't tell us whether the attribute was only
     # available via a magic `__getattr__` method.
     assert "start_date" in dir(latest_event)
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        # Strings are parsed as dates
+        ("2021-03-04", date(2021, 3, 4)),
+        # Other types are passed through
+        (1.23, 1.23),
+        (b"abc", b"abc"),
+    ],
+)
+def test_parse_date_if_str(value, expected):
+    assert parse_date_if_str(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value,error",
+    [
+        ("1st March 2020", "Invalid isoformat string: '1st March 2020'"),
+        ("2021-02-29", "day is out of range for month in '2021-02-29'"),
+    ],
+)
+def test_parse_date_if_str_errors(value, error):
+    with pytest.raises(ValueError, match=error):
+        parse_date_if_str(value)
