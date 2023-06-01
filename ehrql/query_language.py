@@ -1,6 +1,5 @@
 import dataclasses
 import datetime
-import enum
 import functools
 import re
 from collections import ChainMap
@@ -387,27 +386,9 @@ class DateFunctions(ComparableFunctions):
     def is_on_or_between(self, start, end):
         return (self >= start) & (self <= end)
 
-    def __add__(self, other):
-        if isinstance(other, Duration):
-            if other.units is Duration.Units.DAYS:
-                return _apply(qm.Function.DateAddDays, self, other.value)
-            elif other.units is Duration.Units.MONTHS:
-                return _apply(qm.Function.DateAddMonths, self, other.value)
-            elif other.units is Duration.Units.YEARS:
-                return _apply(qm.Function.DateAddYears, self, other.value)
-            else:
-                assert False
-        else:
-            return NotImplemented
-
-    def __radd__(self, other):
-        return self.__add__(other)
-
     def __sub__(self, other):
         other = self._cast(other)
-        if isinstance(other, Duration):
-            return self.__add__(other.__neg__())
-        elif isinstance(other, datetime.date | DateEventSeries | DatePatientSeries):
+        if isinstance(other, datetime.date | DateEventSeries | DatePatientSeries):
             return DateDifference(self, other)
         else:
             return NotImplemented
@@ -456,31 +437,25 @@ class DateDifference:
 
 @dataclasses.dataclass
 class Duration:
-    Units = enum.Enum("Units", ["DAYS", "MONTHS", "YEARS"])
-
     value: int | IntEventSeries | IntPatientSeries
-    units: Units
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        assert cls._date_add_static is not None
+        assert cls._date_add_qm is not None
 
     def __add__(self, other):
         other = parse_date_if_str(other)
         if isinstance(self.value, int) and isinstance(other, datetime.date):
-            # If we're adding a static duration to a static date we can perfom the date
-            # arithmetic ourselves
-            if self.units is Duration.Units.DAYS:
-                return date_utils.date_add_days(other, self.value)
-            elif self.units is Duration.Units.MONTHS:
-                return date_utils.date_add_months(other, self.value)
-            elif self.units is Duration.Units.YEARS:
-                return date_utils.date_add_years(other, self.value)
-            else:
-                assert False
-        elif isinstance(other, datetime.date):
-            # If we're adding a dynamic duration to a static date, we have to wrap the
-            # date up as a Series and let the method in DateFunctions handle it
-            return _to_series(other).__add__(self)
-        elif isinstance(other, Duration) and self.units == other.units:
-            # Durations with the same units can be added
-            return Duration(units=self.units, value=(self.value + other.value))
+            # If both operands are static values we can perform the date arithmetic
+            # directly ourselves
+            return self._date_add_static(other, self.value)
+        elif isinstance(other, datetime.date | DateEventSeries | DatePatientSeries):
+            # Otherwise we create the appropriate query model construct
+            return _apply(self._date_add_qm, other, self.value)
+        elif isinstance(other, self.__class__):
+            # Durations of the same type can be added together
+            return self.__class__(self.value + other.value)
         else:
             # Nothing else is handled
             return NotImplemented
@@ -495,23 +470,26 @@ class Duration:
         return self.__neg__().__add__(other)
 
     def __neg__(self):
-        return Duration(self.value.__neg__(), self.units)
+        return self.__class__(self.value.__neg__())
 
 
-def days(value):
-    return Duration(value, Duration.Units.DAYS)
+class days(Duration):
+    _date_add_static = staticmethod(date_utils.date_add_days)
+    _date_add_qm = qm.Function.DateAddDays
+
+
+class months(Duration):
+    _date_add_static = staticmethod(date_utils.date_add_months)
+    _date_add_qm = qm.Function.DateAddMonths
+
+
+class years(Duration):
+    _date_add_static = staticmethod(date_utils.date_add_years)
+    _date_add_qm = qm.Function.DateAddYears
 
 
 def weeks(value):
     return days(value * 7)
-
-
-def months(value):
-    return Duration(value, Duration.Units.MONTHS)
-
-
-def years(value):
-    return Duration(value, Duration.Units.YEARS)
 
 
 # CODE SERIES
@@ -588,16 +566,6 @@ def _convert(arg):
     # Otherwise it's a static value and needs to be put in a query model Value wrapper
     else:
         return qm.Value(arg)
-
-
-def _to_series(value):
-    """
-    Return `value` as an ehrQL series
-
-    If it's already an ehrQL series this is a no-op; if it's a static value it will get
-    wrapped in a Series of the appropriate type.
-    """
-    return _wrap(_convert(value))
 
 
 def Parameter(name, type_):
