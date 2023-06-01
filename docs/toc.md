@@ -41,10 +41,3 @@
 ### Explainers
 
 * [Installing ehrQL with Python (not recommended, use OpenSAFELY CLI)](ehrql/tutorial/python.md)
-
-### OpenSAFELY Contracts
-
-* [OpenSAFELY Contracts introduction](contracts/index.md)
-* [OpenSAFELY Contracts reference](contracts/reference.md)
-* [OpenSAFELY data backends](contracts/data-backends.md)
-* [Guidance for data providers integrating into OpenSAFELY](contracts/data-provider-integration.md)

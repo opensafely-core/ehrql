@@ -28,9 +28,6 @@ def build_backends():
                 "file_path": relative_file_path(backend.__module__),
                 "docstring": reformat_docstring(backend.__doc__),
                 "implements": implements,
-                # TODO: Backends no longer implement individual contracts but we leave this
-                # empty list in place for now while we update the docs code which expects it
-                "contracts": [],
             }
         )
 

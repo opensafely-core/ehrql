@@ -1,7 +1,5 @@
 from ehrql.docs import generate_docs, render
 from ehrql.docs.common import reformat_docstring
-from ehrql.docs.render_includes.backends_old import render_backend_old
-from ehrql.docs.render_includes.contracts import render_contracts
 from ehrql.docs.render_includes.specs import render_specs
 
 
@@ -25,9 +23,6 @@ def test_generate_docs():
     expected = {"EMIS", "TPP"}
     output = {b["name"] for b in data["backends"]}
     assert expected <= output
-
-    names = {contract["name"] for contract in data["contracts"]}
-    assert "patients" in names
 
     # Find all series strings
     all_series = [
@@ -69,12 +64,9 @@ def test_render(tmp_path):
     render(generate_docs(), tmp_path)
     assert {pt.name for pt in tmp_path.iterdir()} == {
         "backends.md",
-        "contracts.md",
         "schemas",
         "schemas.md",
         "specs.md",
-        "EMISBackend.md",
-        "TPPBackend.md",
     }
 
 
@@ -279,78 +271,5 @@ returns the following patient series:
 | 1|203 |
 | 2|201 |
 | 3| |
-"""
-    )
-
-
-def test_render_contracts():
-    contracts = [
-        {
-            "name": "DummyClass",
-            "hierarchy": ["some", "path"],
-            "dotted_path": "dummy_module.DummyClass",
-            "docstring": "Dummy docstring",
-            "columns": [
-                {
-                    "name": "patient_id",
-                    "description": "a column description",
-                    "type": "PseudoPatientId",
-                    "constraints": ["Must have a value", "Must be unique"],
-                }
-            ],
-            "backend_support": [],
-        },
-        {
-            "name": "DummyClass2",
-            "hierarchy": ["some", "path"],
-            "dotted_path": "dummy_module2.DummyClass2",
-            "docstring": "Dummy docstring2.\n\nSecond line.",
-            "columns": [],
-            "backend_support": [],
-        },
-    ]
-    expected = """## Some/Path/DummyClass
-
-Dummy docstring
-
-| Column name | Description | Type | Constraints |
-| ----------- | ----------- | ---- | ----------- |
-| patient_id | a column description | PseudoPatientId | Must have a value, must be unique. |
-
-
-
-
-## Some/Path/DummyClass2
-
-Dummy docstring2.
-
-Second line.
-
-| Column name | Description | Type | Constraints |
-| ----------- | ----------- | ---- | ----------- |
-"""
-    assert render_contracts(contracts) == expected
-
-
-def test_render_backend_old():
-    backends = [
-        {
-            "name": "DummyBackend1",
-            "contracts": ["Some/Path/DummyClass", "Some/Path/DummyClass2"],
-        },
-        {"name": "DummyBackend2", "contracts": ["some/path/DummyClass"]},
-    ]
-    assert render_backend_old(backends[0]) == (
-        """Contracts implemented:
-
-* [`Some/Path/DummyClass`](contracts-reference.md#somepathdummyclass)
-* [`Some/Path/DummyClass2`](contracts-reference.md#somepathdummyclass2)
-"""
-    )
-
-    assert render_backend_old(backends[1]) == (
-        """Contracts implemented:
-
-* [`some/path/DummyClass`](contracts-reference.md#somepathdummyclass)
 """
     )
