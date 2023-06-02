@@ -55,7 +55,7 @@ you may find the following resources useful
 as reference for writing your own dataset definitions:
 
 * The [ehrQL reference](../reference.md)
-* The [Contracts reference](../../contracts/reference.md)
+* The [schema reference](../../schemas/)
 * Existing dataset definitions in the `opensafely` GitHub organisation
     * <https://github.com/opensafely/test-age-distribution>
 
@@ -82,7 +82,7 @@ you can use an inquistive approach to try and reasonabout it:
   * Has the author used other libraries to help write their dataset definition?
 * Which data `tables` are being imported
   * Can you find details of these tables
-    in the [Contracts reference](../../contracts/reference.md)?
+    in the [schema reference](../../schemas/)?
 * How has the author structured their dataset definition?
 * What criteria are used to select the population?
 * How are the variables that the author extracts for the population constructed?

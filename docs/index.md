@@ -21,8 +21,7 @@ With ehrQL:
 * **Researchers** can specify data they want to use in their research via a
   [*dataset definition*](dataset-definition.md).
 * **Data providers** can specify data they want to offer for research
-  via the [*OpenSAFELY Contracts*](contracts/index.md)
-  specification and implementation.
+  via an [*OpenSAFELY Backend*](backends/).
 
 ## Features
 ### Readable dataset definitions
@@ -71,8 +70,6 @@ feedback from researchers' use of cohort-extractor.
 ehrQL:
 
 * **Provides more expressive ways** for researchers to specify cohorts.
-* **Integrates external data providers more easily** by introducing
-  OpenSAFELY Contracts to provide specifications for data.
 * **Simplifies the implementation of new features** across multiple
   different data backends.
 
@@ -86,7 +83,7 @@ dataset definition:
 * ehrQL [quick start](quick-start.md)
 * Writing a [dataset definition](dataset-definition.md)
 * The [dataset definition language, ehrQL](ehrql/index.md)
-* The [OpenSAFELY Contracts](contracts/index.md) that define what data
+* The [schemas](schemas/) which define what data
   is available from the various OpenSAFELY data backends.
 
 ## ehrQL is still in development
