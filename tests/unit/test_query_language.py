@@ -666,3 +666,64 @@ def test_parse_date_if_str_errors(value, error):
 def test_parameter():
     series = Parameter("test_param", date)
     assert isinstance(series, DatePatientSeries)
+
+
+# The behaviour of `date_utils.generate_intervals` is covered more fully by its own unit
+# tests, we just need to test enough below to confirm that it's wired up correctly.
+
+
+@pytest.mark.parametrize(
+    "constructor,value,start_date,expected",
+    [
+        (
+            weeks,
+            1,
+            "2020-01-01",
+            [(date(2020, 1, 1), date(2020, 1, 7))],
+        ),
+        (
+            months,
+            1,
+            "2020-01-01",
+            [(date(2020, 1, 1), date(2020, 1, 31))],
+        ),
+        (
+            years,
+            1,
+            "2020-01-01",
+            [(date(2020, 1, 1), date(2020, 12, 31))],
+        ),
+    ],
+)
+def test_duration_starting_on(constructor, value, start_date, expected):
+    assert constructor(value).starting_on(start_date) == expected
+
+
+def test_duration_ending_on():
+    assert months(3).ending_on("2020-06-01") == [
+        (date(2020, 4, 1), date(2020, 4, 30)),
+        (date(2020, 5, 1), date(2020, 5, 31)),
+        (date(2020, 6, 1), date(2020, 6, 30)),
+    ]
+
+
+@pytest.mark.parametrize(
+    "value,start_date,error",
+    [
+        (
+            patients.i,
+            "2020-01-01",
+            r"weeks\.starting_on\(\) can only be used with a literal integer value, not an integer series",
+        ),
+        (
+            10,
+            patients.date_of_birth,
+            r"weeks\.starting_on\(\) can only be used with a literal date, not a date series",
+        ),
+    ],
+)
+def test_duration_generate_intervals_rejects_invalid_arguments(
+    value, start_date, error
+):
+    with pytest.raises(TypeError, match=error):
+        weeks(value).starting_on(start_date)

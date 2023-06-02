@@ -472,10 +472,40 @@ class Duration:
     def __neg__(self):
         return self.__class__(self.value.__neg__())
 
+    def starting_on(self, date):
+        return self._generate_intervals(date, self.value, "starting_on")
+
+    def ending_on(self, date):
+        return self._generate_intervals(date, -self.value, "ending_on")
+
+    @classmethod
+    def _generate_intervals(cls, date, value, method_name):
+        date = parse_date_if_str(date)
+        if not isinstance(date, datetime.date):
+            raise TypeError(
+                f"{cls.__name__}.{method_name}() can only be used with a literal "
+                f"date, not a date series"
+            )
+        if not isinstance(value, int):
+            raise TypeError(
+                f"{cls.__name__}.{method_name}() can only be used with a literal "
+                f"integer value, not an integer series"
+            )
+        return date_utils.generate_intervals(cls._date_add_static, date, value)
+
 
 class days(Duration):
     _date_add_static = staticmethod(date_utils.date_add_days)
     _date_add_qm = qm.Function.DateAddDays
+
+
+class weeks(Duration):
+    _date_add_static = staticmethod(date_utils.date_add_weeks)
+
+    @staticmethod
+    def _date_add_qm(date, num_weeks):
+        num_days = qm.Function.Multiply(num_weeks, qm.Value(7))
+        return qm.Function.DateAddDays(date, num_days)
 
 
 class months(Duration):
@@ -486,10 +516,6 @@ class months(Duration):
 class years(Duration):
     _date_add_static = staticmethod(date_utils.date_add_years)
     _date_add_qm = qm.Function.DateAddYears
-
-
-def weeks(value):
-    return days(value * 7)
 
 
 # CODE SERIES
