@@ -1,3 +1,7 @@
+"""
+This defines all the data (both primary care and externally linked) available in the TPP
+backend.
+"""
 import datetime
 
 from ehrql import case, when
@@ -70,7 +74,7 @@ class practice_registrations(EventFrame):
         description=(
             "Name of the NUTS level 1 region of England to which the practice belongs.\n"
             "For more information see:\n"
-            "https://www.ons.gov.uk/methodology/geography/ukgeographies/eurostat"
+            "<https://www.ons.gov.uk/methodology/geography/ukgeographies/eurostat>"
         ),
     )
 
@@ -205,7 +209,7 @@ class appointments(EventFrame):
 class household_memberships_2020(PatientFrame):
     """
     Inferred household membership as of 2020-02-01, as determined by TPP using an as yet
-    undocumented algorithm
+    undocumented algorithm.
     """
 
     household_pseudo_id = Series(int)
@@ -215,7 +219,7 @@ class household_memberships_2020(PatientFrame):
 @table
 class ons_cis(EventFrame):
     """
-    ONS Covid Infection Survery
+    Data from the ONS Covid Infection Survey.
     """
 
     visit_date = Series(datetime.date)
@@ -235,8 +239,9 @@ class isaric_raw(EventFrame):
     These columns are deliberately all taken as strings while in a preliminary phase.
     They will later change to more appropriate data types.
 
-    Descriptions taken from:
-    https://github.com/isaric4c/wiki/blob/d6b87d59a277cf2f6deedeb5e8c1a970dbb970a3/ISARIC/CCP_REDCap_ISARIC_data_dictionary_codebook.pdf
+    Descriptions taken from: [CCP_REDCap_ISARIC_data_dictionary_codebook.pdf][isaric_ddc_pdf]
+
+    [isaric_ddc_pdf]: https://github.com/isaric4c/wiki/blob/d6b87d59a277cf2f6deedeb5e8c1a970dbb970a3/ISARIC/CCP_REDCap_ISARIC_data_dictionary_codebook.pdf
     """
 
     # Demographics

@@ -33,6 +33,11 @@
 * [ehrQL examples](ehrql/examples.md)
 * [ehrQL reference](ehrql/reference.md)
 
+### Backends & Schemas
+
+ * [ehrQL backend reference](backends.md)
+ * [ehrQL schema reference](schemas.md)
+
 ### Explainers
 
 * [Installing ehrQL with Python (not recommended, use OpenSAFELY CLI)](ehrql/tutorial/python.md)

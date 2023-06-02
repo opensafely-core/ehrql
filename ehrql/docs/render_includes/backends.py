@@ -1,23 +1,27 @@
-backend_template = """
-Contracts implemented:
+BACKEND_TEMPLATE = """\
+## {name}
+<small class="subtitle">
+  <a href="https://github.com/opensafely-core/ehrql/blob/main/{file_path}">
+    <code>{dotted_path}</code>
+  </a>
+</small>
 
-{contracts}
+{docstring}
 
+This backend implements the following table schemas:
+
+{schema_list}
 """
 
 
-def render_backend(backend_data):
-    contracts = [
-        (c, c.lower().replace("/", "")) for c in sorted(backend_data["contracts"])
-    ]
-    contracts = "\n".join(
-        f"* [`{name}`](contracts-reference.md#{link})" for name, link in contracts
-    )
-
-    return (
-        backend_template.format(
-            name=backend_data["name"],
-            contracts=contracts,
-        ).strip()
-        + "\n"
+def render_backends(backend_data):
+    return "\n".join(
+        BACKEND_TEMPLATE.format(
+            **backend,
+            schema_list="\n".join(
+                f" * [{schema}](../schemas/{schema}/)"
+                for schema in backend["implements"]
+            ),
+        )
+        for backend in backend_data
     )

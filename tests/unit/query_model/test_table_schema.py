@@ -103,13 +103,16 @@ def test_categorical_constraint_casts_lists_to_tuple():
 
 
 def test_categorical_constraint_description():
-    assert Constraint.Categorical([1, 2, 3]).description == "Must be one of: 1, 2, 3"
+    assert (
+        Constraint.Categorical([1, 2, 3]).description
+        == "Possible values: `1`, `2`, `3`"
+    )
 
 
 def test_regex_constraint_description():
     assert (
         Constraint.Regex("ABC[0-9]").description
-        == "Must match the regular expression: 'ABC[0-9]'"
+        == "Matches regular expression: `ABC[0-9]`"
     )
 
 

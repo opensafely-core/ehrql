@@ -1,3 +1,6 @@
+"""
+This example schema is for use in the ehrQL tutorial.
+"""
 import datetime
 
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table

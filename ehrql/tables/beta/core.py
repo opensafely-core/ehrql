@@ -1,3 +1,12 @@
+"""
+This schema defines the core tables and columns which should be available in any backend
+providing primary care data, allowing dataset definitions written using this schema to
+run across multiple backends.
+
+!!! warning
+    This schema is very much still a work-in-progress while the EMIS backend remains
+    under developemnt.
+"""
 import datetime
 
 from ehrql.codes import DMDCode, ICD10Code, SNOMEDCTCode
@@ -8,23 +17,23 @@ from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 class patients(PatientFrame):
     date_of_birth = Series(
         datetime.date,
-        description="Patient's date of birth, rounded to first of month",
+        description="Patient's date of birth, rounded to first of month.",
         constraints=[Constraint.FirstOfMonth(), Constraint.NotNull()],
     )
     sex = Series(
         str,
-        description="Patient's sex",
+        description="Patient's sex.",
         implementation_notes_to_add_to_description=(
             'Specify how this has been determined, e.g. "sex at birth", or "current sex".'
         ),
         constraints=[
-            Constraint.NotNull(),
             Constraint.Categorical(["female", "male", "intersex", "unknown"]),
+            Constraint.NotNull(),
         ],
     )
     date_of_death = Series(
         datetime.date,
-        description="Patient's date of death",
+        description="Patient's date of death.",
     )
 
     def age_on(self, date):

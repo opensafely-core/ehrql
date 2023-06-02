@@ -6,8 +6,14 @@ from ehrql.query_engines.mssql import MSSQLQueryEngine
 
 
 class TPPBackend(BaseBackend):
-    """Backend for working with data in TPP."""
+    """
+    [TPP](https://tpp-uk.com/) are the developers and operators of the
+    [SystmOne](https://tpp-uk.com/products/) EHR platform. The ehrQL TPP backend
+    provides access to primary care data from SystmOne, plus data linked from other
+    sources.
+    """
 
+    display_name = "TPP"
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
     implements = [

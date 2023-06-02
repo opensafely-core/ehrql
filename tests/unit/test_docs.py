@@ -1,6 +1,6 @@
 from ehrql.docs import generate_docs, render
 from ehrql.docs.common import reformat_docstring
-from ehrql.docs.render_includes.backends import render_backend
+from ehrql.docs.render_includes.backends_old import render_backend_old
 from ehrql.docs.render_includes.contracts import render_contracts
 from ehrql.docs.render_includes.specs import render_specs
 
@@ -10,22 +10,19 @@ def test_reformat_docstring():
     First line.
 
     Second line.
+        Indented
     """
 
     output = reformat_docstring(docstring)
 
-    expected = [
-        "First line.",
-        "",
-        "Second line.",
-    ]
+    expected = "First line.\n\nSecond line.\n    Indented"
     assert output == expected
 
 
 def test_generate_docs():
     data = generate_docs()
 
-    expected = {"TPPBackend"}
+    expected = {"EMIS", "TPP"}
     output = {b["name"] for b in data["backends"]}
     assert expected <= output
 
@@ -71,10 +68,13 @@ def test_render(tmp_path):
     assert not set(tmp_path.iterdir())
     render(generate_docs(), tmp_path)
     assert {pt.name for pt in tmp_path.iterdir()} == {
-        "specs.md",
+        "backends.md",
         "contracts.md",
-        "TPPBackend.md",
+        "schemas",
+        "schemas.md",
+        "specs.md",
         "EMISBackend.md",
+        "TPPBackend.md",
     }
 
 
@@ -289,7 +289,7 @@ def test_render_contracts():
             "name": "DummyClass",
             "hierarchy": ["some", "path"],
             "dotted_path": "dummy_module.DummyClass",
-            "docstring": ["Dummy docstring"],
+            "docstring": "Dummy docstring",
             "columns": [
                 {
                     "name": "patient_id",
@@ -304,7 +304,7 @@ def test_render_contracts():
             "name": "DummyClass2",
             "hierarchy": ["some", "path"],
             "dotted_path": "dummy_module2.DummyClass2",
-            "docstring": ["Dummy docstring2.", "", "Second line."],
+            "docstring": "Dummy docstring2.\n\nSecond line.",
             "columns": [],
             "backend_support": [],
         },
@@ -332,7 +332,7 @@ Second line.
     assert render_contracts(contracts) == expected
 
 
-def test_render_backend():
+def test_render_backend_old():
     backends = [
         {
             "name": "DummyBackend1",
@@ -340,7 +340,7 @@ def test_render_backend():
         },
         {"name": "DummyBackend2", "contracts": ["some/path/DummyClass"]},
     ]
-    assert render_backend(backends[0]) == (
+    assert render_backend_old(backends[0]) == (
         """Contracts implemented:
 
 * [`Some/Path/DummyClass`](contracts-reference.md#somepathdummyclass)
@@ -348,7 +348,7 @@ def test_render_backend():
 """
     )
 
-    assert render_backend(backends[1]) == (
+    assert render_backend_old(backends[1]) == (
         """Contracts implemented:
 
 * [`some/path/DummyClass`](contracts-reference.md#somepathdummyclass)
