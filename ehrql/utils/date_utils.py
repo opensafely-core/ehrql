@@ -39,6 +39,10 @@ def date_add_days(date, num_days):
     return date + datetime.timedelta(days=num_days)
 
 
+def date_add_weeks(date, num_weeks):
+    return date_add_days(date, num_weeks * 7)
+
+
 def assert_valid_num_days(num_days):
     if abs(num_days) > 999999999:
         raise ValueError(f"Number of days {num_days} is out of range")
@@ -90,3 +94,13 @@ def to_first_of_year(date):
 
 def to_first_of_month(date):
     return date.replace(day=1)
+
+
+def generate_intervals(date_add_fn, base_date, count):
+    return [
+        (
+            date_add_fn(base_date, offset),
+            date_add_fn(base_date, offset + 1) - datetime.timedelta(days=1),
+        )
+        for offset in (range(count) if count >= 0 else range(1 + count, 1))
+    ]
