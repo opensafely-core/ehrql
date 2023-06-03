@@ -1,8 +1,9 @@
+import re
 from datetime import date
 
 import pytest
 
-from ehrql import Measures
+from ehrql import Measures, months
 from ehrql.measures.measures import Measure, ValidationError
 from ehrql.tables import PatientFrame, Series, table
 
@@ -177,6 +178,13 @@ def test_reserved_column_names_are_rejected():
         ([(1, 2)], "`intervals` must contain pairs of dates"),
         ([(date(2020, 1, 1),)], "`intervals` must contain pairs of dates"),
         ([(date(2021, 1, 1), date(2020, 1, 1))], "start date must be before end date"),
+        (
+            months(12),
+            re.escape(
+                "You must supply a date using `months(value=12).starting_on('<DATE>')`"
+                " or `months(value=12).ending_on('<DATE>')`"
+            ),
+        ),
     ],
 )
 def test_invalid_intervals_are_rejected(intervals, error):

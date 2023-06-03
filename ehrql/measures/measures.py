@@ -4,6 +4,7 @@ from collections import namedtuple
 
 from ehrql.query_language import (
     BoolPatientSeries,
+    Duration,
     IntPatientSeries,
     Parameter,
     PatientSeries,
@@ -146,6 +147,11 @@ class Measures:
     def _validate_intervals(self, intervals):
         if intervals is None:
             return
+        if isinstance(intervals, Duration):
+            raise ValidationError(
+                f"You must supply a date using `{intervals!r}.starting_on('<DATE>')`"
+                f" or `{intervals!r}.ending_on('<DATE>')`"
+            )
         if not isinstance(intervals, list):
             raise ValidationError(
                 f"`intervals` must be a list, got '{type(intervals)}': {intervals!r}"
