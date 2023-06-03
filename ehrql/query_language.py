@@ -386,6 +386,10 @@ class DateFunctions(ComparableFunctions):
     def is_on_or_between(self, start, end):
         return (self >= start) & (self <= end)
 
+    def is_during(self, interval):
+        start, end = interval
+        return self.is_on_or_between(start, end)
+
     def __sub__(self, other):
         other = self._cast(other)
         if isinstance(other, datetime.date | DateEventSeries | DatePatientSeries):

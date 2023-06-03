@@ -571,6 +571,9 @@ def test_ehrql_date_string_equivalence(fn_name):
     if fn_name in ["is_in", "is_not_in", "map_values"]:
         date_args = [date_args]
         str_args = [str_args]
+    if fn_name == "is_during":
+        date_args = [(date_args[0], date_args[0])]
+        str_args = [(str_args[0], str_args[0])]
 
     assert f(*date_args).qm_node == f(*str_args).qm_node
 
