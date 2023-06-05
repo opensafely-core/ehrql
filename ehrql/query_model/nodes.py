@@ -238,6 +238,9 @@ class AggregateByPatient:
     class Count(OneRowPerPatientSeries[int]):
         source: Frame
 
+    class CountDistinct(AggregatedSeries[int]):
+        source: Series[Any]
+
     class Min(AggregatedSeries[Comparable]):
         source: Series[Comparable]
 

@@ -127,6 +127,13 @@ class InMemoryQueryEngine(BaseQueryEngine):
     def visit_Count(self, node):
         return self.visit(node.source).count()
 
+    def visit_CountDistinct(self, node):
+        def count_distinct(series):
+            return len(set(series))
+
+        col = self.visit(node.source)
+        return col.aggregate_values(count_distinct, default=0)
+
     def visit_Min(self, node):
         col = self.visit(node.source)
         return col.aggregate_values(min, default=None)
