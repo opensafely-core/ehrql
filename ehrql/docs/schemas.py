@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from ehrql import tables
 from ehrql.codes import BaseCode
-from ehrql.query_language import BaseFrame, PatientFrame, Series
+from ehrql.query_language import BaseFrame, PatientFrame, get_all_series_from_class
 from ehrql.utils.module_utils import get_submodules
 
 from .common import reformat_docstring
@@ -59,16 +59,15 @@ def build_tables(module):
         cls = obj.__class__
         docstring = reformat_docstring(cls.__doc__)
         columns = [
-            build_column(attr.name, attr)
-            for attr in vars(cls).values()
-            if isinstance(attr, Series)
+            build_column(name, series)
+            for name, series in get_all_series_from_class(cls).items()
         ]
 
         yield {
             "name": name,
             "docstring": docstring,
             "columns": columns,
-            "has_one_row_per_patient": isinstance(obj, PatientFrame),
+            "has_one_row_per_patient": issubclass(cls, PatientFrame),
         }
 
 
