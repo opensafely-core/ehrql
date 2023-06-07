@@ -4,7 +4,6 @@ from functools import cached_property
 
 from ehrql.query_model.nodes import (
     Column,
-    Constraint,
     Function,
     InlinePatientTable,
     SelectColumn,
@@ -26,7 +25,7 @@ class ColumnInfo:
     name: str
     type: type  # NOQA: A003
     constraints: tuple = ()
-    values_used: set = dataclasses.field(default_factory=set)
+    _values_used: set = dataclasses.field(default_factory=set)
 
     @classmethod
     def from_column(cls, name, column):
@@ -41,15 +40,11 @@ class ColumnInfo:
     def record_value(self, value):
         if hasattr(value, "_to_primitive_type"):
             value = value._to_primitive_type()
-        self.values_used.add(value)
+        self._values_used.add(value)
 
     @cached_property
-    def choices(self):
-        cat_constraint = self.get_constraint(Constraint.Categorical)
-        if cat_constraint is not None:
-            return cat_constraint.values
-        else:
-            return sorted(self.values_used)
+    def values_used(self):
+        return sorted(self._values_used)
 
     def get_constraint(self, type_):
         return self._constraints_by_type.get(type_)
