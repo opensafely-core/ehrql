@@ -18,8 +18,9 @@ from ehrql.tables.examples.tutorial import (
 ## clinical_events
 
 TODO.
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="clinical_events.code">
     <strong>code</strong>
@@ -68,14 +69,17 @@ TODO.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## hospitalisations
 
 TODO.
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="hospitalisations.date">
     <strong>date</strong>
@@ -112,14 +116,17 @@ TODO.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## patient_address
 
 TODO.
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="patient_address.patientaddress_id">
     <strong>patientaddress_id</strong>
@@ -180,14 +187,17 @@ TODO.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>one row per patient</code></p>
 ## patients
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="patients.date_of_birth">
     <strong>date_of_birth</strong>
@@ -228,14 +238,17 @@ Patient's date of death
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## prescriptions
 
 TODO.
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="prescriptions.prescribed_dmd_code">
     <strong>prescribed_dmd_code</strong>
@@ -260,4 +273,5 @@ TODO.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>

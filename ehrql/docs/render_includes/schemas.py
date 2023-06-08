@@ -69,10 +69,13 @@ TABLE_TEMPLATE = """\
 ## {name}
 
 {docstring}
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 {column_descriptions}
-</dl>
+  </dl>
+</div>
+{helper_methods}
 """
 
 
@@ -86,6 +89,7 @@ def table_descriptions(tables):
                 if table["has_one_row_per_patient"]
                 else "many rows per patient"
             ),
+            helper_methods=helper_methods(table["name"], table["methods"]),
         )
         for table in tables
     )
@@ -119,4 +123,52 @@ def column_descriptions(table_name, columns):
 def description_with_constraints(column):
     return "\n".join(
         [column["description"], "", *[f" * {c}" for c in column["constraints"]]]
+    )
+
+
+HELPER_METHODS_TEMPLATE = """\
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Methods</div>
+  <dl markdown="block">
+{method_descriptions}
+  </dl>
+</div>
+"""
+
+
+def helper_methods(table_name, methods):
+    if not methods:
+        return ""
+    return HELPER_METHODS_TEMPLATE.format(
+        method_descriptions="\n".join(
+            [method_description(table_name, method) for method in methods]
+        )
+    )
+
+
+METHOD_DESCRIPTION_TEMPLATE = """\
+<div markdown="block">
+  <dt id="{method_id}">
+    <strong>{name}(</strong>{argument_list}<strong>)</strong>
+    <a class="headerlink" href="#{method_id}" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+{docstring}
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+{source}
+```
+    </details>
+  </dd>
+</div>
+"""
+
+
+def method_description(table_name, method):
+    return METHOD_DESCRIPTION_TEMPLATE.format(
+        **method,
+        method_id=f"{table_name}.{method['name']}",
+        argument_list=", ".join(method["arguments"]),
     )

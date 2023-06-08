@@ -30,8 +30,9 @@ from ehrql.tables.beta.tpp import (
 ## addresses
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="addresses.address_id">
     <strong>address_id</strong>
@@ -165,14 +166,58 @@ from ehrql.tables.beta.tpp import (
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Methods</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="addresses.for_patient_on">
+    <strong>for_patient_on(</strong>date<strong>)</strong>
+    <a class="headerlink" href="#addresses.for_patient_on" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Return each patient's registered address as it was on the supplied date.
+
+Where there are multiple registered addresses we prefer any which have a known
+postcode (though we never have access to this postcode) as this is used by TPP
+to cross-reference other data associated with the address, such as the MSOA or
+index of multiple deprevation.
+
+Where there are multiple of these we prefer the most recently registered address
+and then, if there are multiple of these, the one with the longest duration. If
+there's stil an exact tie we choose arbitrarily based on the address ID.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+spanning_addrs = addresses.where(addresses.start_date <= date).except_where(
+    addresses.end_date < date
+)
+ordered_addrs = spanning_addrs.sort_by(
+    case(when(addresses.has_postcode).then(1), default=0),
+    addresses.start_date,
+    addresses.end_date,
+    addresses.address_id,
+)
+return ordered_addrs.last_for_patient()
+
+```
+    </details>
+  </dd>
+</div>
+
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## appointments
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="appointments.booked_date">
     <strong>booked_date</strong>
@@ -197,14 +242,17 @@ from ehrql.tables.beta.tpp import (
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## clinical_events
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="clinical_events.date">
     <strong>date</strong>
@@ -253,14 +301,17 @@ from ehrql.tables.beta.tpp import (
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## emergency_care_attendances
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="emergency_care_attendances.id">
     <strong>id</strong>
@@ -585,14 +636,17 @@ from ehrql.tables.beta.tpp import (
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## hospital_admissions
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="hospital_admissions.id">
     <strong>id</strong>
@@ -689,15 +743,18 @@ from ehrql.tables.beta.tpp import (
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>one row per patient</code></p>
 ## household_memberships_2020
 
 Inferred household membership as of 2020-02-01, as determined by TPP using an as yet
 undocumented algorithm.
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="household_memberships_2020.household_pseudo_id">
     <strong>household_pseudo_id</strong>
@@ -722,7 +779,9 @@ undocumented algorithm.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## isaric_raw
@@ -735,8 +794,9 @@ They will later change to more appropriate data types.
 Descriptions taken from: [CCP_REDCap_ISARIC_data_dictionary_codebook.pdf][isaric_ddc_pdf]
 
 [isaric_ddc_pdf]: https://github.com/isaric4c/wiki/blob/d6b87d59a277cf2f6deedeb5e8c1a970dbb970a3/ISARIC/CCP_REDCap_ISARIC_data_dictionary_codebook.pdf
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="isaric_raw.age">
     <strong>age</strong>
@@ -1344,14 +1404,17 @@ Outcome date.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## medications
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="medications.date">
     <strong>date</strong>
@@ -1376,14 +1439,17 @@ Outcome date.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## occupation_on_covid_vaccine_record
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="occupation_on_covid_vaccine_record.is_healthcare_worker">
     <strong>is_healthcare_worker</strong>
@@ -1396,14 +1462,17 @@ Outcome date.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## ons_cis
 
 Data from the ONS Covid Infection Survey.
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="ons_cis.visit_date">
     <strong>visit_date</strong>
@@ -1488,14 +1557,17 @@ Data from the ONS Covid Infection Survey.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## ons_deaths
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="ons_deaths.date">
     <strong>date</strong>
@@ -1701,14 +1773,17 @@ Data from the ONS Covid Infection Survey.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## open_prompt
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="open_prompt.ctv3_code">
     <strong>ctv3_code</strong>
@@ -1773,14 +1848,17 @@ The response to the question
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>one row per patient</code></p>
 ## patients
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="patients.date_of_birth">
     <strong>date_of_birth</strong>
@@ -1821,14 +1899,45 @@ Patient's date of death.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Methods</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="patients.age_on">
+    <strong>age_on(</strong>date<strong>)</strong>
+    <a class="headerlink" href="#patients.age_on" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Patient's age as an integer, in whole elapsed calendar years, as it would be on
+the supplied date.
+
+Note that this takes no account of whether the patient is alive at the given
+date. In particular, it may return negative values if the date is before the
+patient's date of birth.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+return (date - patients.date_of_birth).years
+
+```
+    </details>
+  </dd>
+</div>
+
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## practice_registrations
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="practice_registrations.start_date">
     <strong>start_date</strong>
@@ -1893,14 +2002,53 @@ For more information see:
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Methods</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="practice_registrations.for_patient_on">
+    <strong>for_patient_on(</strong>date<strong>)</strong>
+    <a class="headerlink" href="#practice_registrations.for_patient_on" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Return each patient's practice registration as it was on the supplied date.
+
+Where a patient is registered with multiple practices we prefer the most recent
+registration and then, if there are multiple of these, the one with the longest
+duration. If there's stil an exact tie we choose arbitrarily based on the
+practice ID.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+spanning_regs = practice_registrations.where(practice_registrations.start_date <= date).except_where(
+    practice_registrations.end_date < date
+)
+ordered_regs = spanning_regs.sort_by(
+    practice_registrations.start_date,
+    practice_registrations.end_date,
+    practice_registrations.practice_pseudo_id,
+)
+return ordered_regs.last_for_patient()
+
+```
+    </details>
+  </dd>
+</div>
+
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## sgss_covid_all_tests
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="sgss_covid_all_tests.specimen_taken_date">
     <strong>specimen_taken_date</strong>
@@ -1925,14 +2073,17 @@ For more information see:
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## vaccinations
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="vaccinations.vaccination_id">
     <strong>vaccination_id</strong>
@@ -1981,4 +2132,5 @@ For more information see:
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>

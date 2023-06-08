@@ -23,8 +23,9 @@ from ehrql.tables.beta.core import (
 ## clinical_events
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="clinical_events.date">
     <strong>date</strong>
@@ -61,14 +62,17 @@ from ehrql.tables.beta.core import (
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## medications
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="medications.date">
     <strong>date</strong>
@@ -93,14 +97,17 @@ from ehrql.tables.beta.core import (
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## ons_deaths
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="ons_deaths.date">
     <strong>date</strong>
@@ -306,14 +313,17 @@ from ehrql.tables.beta.core import (
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>one row per patient</code></p>
 ## patients
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="patients.date_of_birth">
     <strong>date_of_birth</strong>
@@ -354,4 +364,33 @@ Patient's date of death.
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Methods</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="patients.age_on">
+    <strong>age_on(</strong>date<strong>)</strong>
+    <a class="headerlink" href="#patients.age_on" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Patient's age as an integer, in whole elapsed calendar years, as it would be on
+the supplied date.
+
+Note that this takes no account of whether the patient is alive at the given
+date. In particular, it may return negative values if the date is before the
+patient's date of birth.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+return (date - patients.date_of_birth).years
+
+```
+    </details>
+  </dd>
+</div>
+
+  </dl>
+</div>

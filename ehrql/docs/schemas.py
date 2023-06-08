@@ -1,9 +1,17 @@
 import datetime
-from collections import defaultdict
+import inspect
+import re
+from collections import ChainMap, defaultdict
 
 from ehrql import tables
 from ehrql.codes import BaseCode
-from ehrql.query_language import BaseFrame, PatientFrame, Series
+from ehrql.query_language import (
+    BaseFrame,
+    EventFrame,
+    PatientFrame,
+    get_all_series_from_class,
+)
+from ehrql.utils.inspect_utils import get_function_body
 from ehrql.utils.module_utils import get_submodules
 
 from .common import reformat_docstring
@@ -59,16 +67,16 @@ def build_tables(module):
         cls = obj.__class__
         docstring = reformat_docstring(cls.__doc__)
         columns = [
-            build_column(attr.name, attr)
-            for attr in vars(cls).values()
-            if isinstance(attr, Series)
+            build_column(name, series)
+            for name, series in get_all_series_from_class(cls).items()
         ]
 
         yield {
             "name": name,
             "docstring": docstring,
             "columns": columns,
-            "has_one_row_per_patient": isinstance(obj, PatientFrame),
+            "has_one_row_per_patient": issubclass(cls, PatientFrame),
+            "methods": build_table_methods(name, cls),
         }
 
 
@@ -78,6 +86,37 @@ def build_column(name, series):
         "description": series.description,
         "type": get_name_for_type(series.type_),
         "constraints": [c.description for c in series.constraints],
+    }
+
+
+def build_table_methods(table_name, cls):
+    base_methods = get_all_methods(EventFrame).keys()
+    return [
+        build_method(table_name, name, method)
+        for name, method in get_all_methods(cls).items()
+        if name not in base_methods
+    ]
+
+
+def get_all_methods(cls):
+    # We can't iterate the class attributes directly because that would invoke the
+    # `Series` descriptors, and we can't use `inspect.getmembers_static` because that
+    # loses the definition order which we want to retain
+    attrs = ChainMap(*[vars(base) for base in cls.__mro__])
+    return {key: value for key, value in attrs.items() if inspect.isfunction(value)}
+
+
+def build_method(table_name, name, method):
+    signature = inspect.signature(method)
+    arguments = list(signature.parameters.keys())
+    assert arguments[0] == "self"
+    return {
+        "name": name,
+        "docstring": reformat_docstring(method.__doc__),
+        "arguments": arguments[1:],
+        # Replace the `self` argument with the table name so the resulting code makes
+        # more sense in isolation
+        "source": re.sub(r"\bself\b", table_name, get_function_body(method)),
     }
 
 

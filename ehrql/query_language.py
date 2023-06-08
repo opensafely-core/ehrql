@@ -690,13 +690,20 @@ def make_patient_frame_class(cls):
     Given an EventFrame subclass return a PatientFrame subclass with the same columns as
     the original frame
     """
+    return type(cls.__name__, (PatientFrame,), get_all_series_from_class(cls))
+
+
+def get_all_series_from_class(cls):
     # Because `Series` is a descriptor we can't access the column objects via class
     # attributes without invoking the descriptor: instead, we have to access them using
     # `vars()`. But `vars()` only gives us attributes defined directly on the class, not
-    # inherited ones. So we reproduced the inheritance behaviour using `ChainMap`.
+    # inherited ones. So we reproduce the inheritance behaviour using `ChainMap`.
+    #
+    # This is _almost_ exactly what `inspect.getmembers_static` does except that returns
+    # attributes in lexical order whereas we want to return the original definition
+    # order.
     attrs = ChainMap(*[vars(base) for base in cls.__mro__])
-    columns = {key: value for key, value in attrs.items() if isinstance(value, Series)}
-    return type(cls.__name__, (PatientFrame,), columns)
+    return {key: value for key, value in attrs.items() if isinstance(value, Series)}
 
 
 # FRAME CONSTRUCTOR ENTRYPOINTS
@@ -736,8 +743,7 @@ def get_table_schema_from_class(cls):
     # Get all `Series` objects on the class and determine the schema from them
     schema = {
         series.name: qm.Column(series.type_, constraints=series.constraints)
-        for series in vars(cls).values()
-        if isinstance(series, Series)
+        for series in get_all_series_from_class(cls).values()
     }
     return qm.TableSchema(**schema)
 
