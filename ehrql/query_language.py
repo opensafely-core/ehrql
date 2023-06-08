@@ -159,8 +159,8 @@ class EventSeries(BaseSeries):
         # Register the series using its `_type` attribute
         REGISTERED_TYPES[cls._type, False] = cls
 
-    # If we end up with any type-agnostic aggregations (count non-null, maybe?) then
-    # they would be defined here as well
+    def count_distinct_for_patient(self):
+        return _apply(qm.AggregateByPatient.CountDistinct, self)
 
 
 class PatientSeries(BaseSeries):

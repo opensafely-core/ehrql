@@ -99,6 +99,7 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             select_column: (value_strategies.keys(), DomainConstraint.ANY),
             exists: ({bool}, DomainConstraint.PATIENT),
             count: ({int}, DomainConstraint.PATIENT),
+            count_distinct: ({int}, DomainConstraint.PATIENT),
             min_: (comparable_types(), DomainConstraint.PATIENT),
             max_: (comparable_types(), DomainConstraint.PATIENT),
             sum_: ({int, float}, DomainConstraint.PATIENT),
@@ -163,6 +164,12 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
     def count(_type, _frame):
         return st.builds(AggregateByPatient.Count, any_frame())
+
+    @st.composite
+    def count_distinct(draw, _type, _frame):
+        type_ = draw(any_type())
+        frame = draw(many_rows_per_patient_frame())
+        return AggregateByPatient.CountDistinct(draw(series(type_, frame)))
 
     def min_(type_, _frame):
         return aggregation_operation(type_, AggregateByPatient.Min)

@@ -5,6 +5,7 @@ from functools import cached_property
 import sqlalchemy
 import sqlalchemy.engine.interfaces
 import structlog
+from sqlalchemy import distinct
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
@@ -446,6 +447,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     def calculate_mean(self, sql_expr):
         return SQLFunction("AVG", sql_expr, type_=sqlalchemy.Float)
+
+    @get_sql.register(AggregateByPatient.CountDistinct)
+    def get_sql_count_distinct(self, node):
+        return sqlalchemy.func.coalesce(
+            self.aggregate_series_by_patient(node.source, self.count_distinct),
+            0,
+        )
+
+    def count_distinct(self, sql_expr):
+        return SQLFunction("COUNT", distinct(sql_expr), type_=sqlalchemy.Integer)
 
     # `Exists` and `Count` are Frame-level (rather than Series-level) aggregations and
     # so have a different implementation. They can operate on both many- and
