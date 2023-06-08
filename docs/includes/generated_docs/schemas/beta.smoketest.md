@@ -18,8 +18,9 @@ from ehrql.tables.beta.smoketest import (
 ## patients
 
 
-
-<dl markdown="block" class="schema-column-list">
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
 <div markdown="block">
   <dt id="patients.date_of_birth">
     <strong>date_of_birth</strong>
@@ -34,4 +35,5 @@ Patient's year and month of birth, provided in format YYYY-MM-01. The day will a
   </dd>
 </div>
 
-</dl>
+  </dl>
+</div>
