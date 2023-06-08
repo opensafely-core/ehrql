@@ -155,6 +155,12 @@ METHOD_DESCRIPTION_TEMPLATE = """\
   </dt>
   <dd markdown="block">
 {docstring}
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+{source}
+```
+    </details>
   </dd>
 </div>
 """

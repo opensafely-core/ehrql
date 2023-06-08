@@ -43,6 +43,29 @@ small.subtitle {
   margin-bottom: 0.5em;
 }
 
+.definition-list-wrapper details {
+  background-color: transparent;
+  border-color: var(--md-typeset-table-color);
+}
+
+.definition-list-wrapper summary {
+  background-color: transparent;
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+  padding-left: 0.6rem !important;
+}
+
+.definition-list-wrapper summary:before {
+  mask-image: none;
+  -webkit-mask-image: none;
+  background-color: transparent;
+  width: 0;
+}
+
+.definition-list-wrapper summary:after {
+  top: 0.325rem;
+}
+
 p.dimension-indicator {
   float: right;
   margin-top: 2em;

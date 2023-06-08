@@ -1,5 +1,6 @@
 import datetime
 import inspect
+import re
 from collections import ChainMap, defaultdict
 
 from ehrql import tables
@@ -10,6 +11,7 @@ from ehrql.query_language import (
     PatientFrame,
     get_all_series_from_class,
 )
+from ehrql.utils.inspect_utils import get_function_body
 from ehrql.utils.module_utils import get_submodules
 
 from .common import reformat_docstring
@@ -112,6 +114,9 @@ def build_method(table_name, name, method):
         "name": name,
         "docstring": reformat_docstring(method.__doc__),
         "arguments": arguments[1:],
+        # Replace the `self` argument with the table name so the resulting code makes
+        # more sense in isolation
+        "source": re.sub(r"\bself\b", table_name, get_function_body(method)),
     }
 
 
