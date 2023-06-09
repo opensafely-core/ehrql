@@ -54,7 +54,7 @@ def test_query_info_from_variable_definitions():
                     "code": ColumnInfo(
                         name="code",
                         type=str,
-                        values_used={"abc00"},
+                        _values_used={"abc00"},
                     )
                 },
             ),
@@ -106,7 +106,7 @@ def test_query_info_records_values():
     assert column_info == ColumnInfo(
         name="value",
         type=str,
-        values_used={"a", "b", "c", "d"},
+        _values_used={"a", "b", "c", "d"},
     )
 
 
@@ -155,4 +155,4 @@ def test_query_info_ignores_complex_comparisons():
     query_info = QueryInfo.from_variable_definitions(variable_definitions)
     column_info = query_info.tables["patients"].columns["date_of_birth"]
 
-    assert column_info.values_used == {datetime.date(2022, 10, 5)}
+    assert column_info.values_used == [datetime.date(2022, 10, 5)]

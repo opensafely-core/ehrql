@@ -209,9 +209,12 @@ class DummyPatientGenerator:
 
     def get_random_value(self, column_info):
         # TODO: This never returns None although for realism it sometimes should
-        if column_info.choices:
+        if cat_constraint := column_info.get_constraint(Constraint.Categorical):
             # TODO: It's obviously not true in general that categories are equiprobable
-            return self.rnd.choice(column_info.choices)
+            return self.rnd.choice(cat_constraint.values)
+        elif column_info.values_used:
+            if self.rnd.randint(0, len(column_info.values_used)) != 0:
+                return self.rnd.choice(column_info.values_used)
         elif column_info.type is bool:
             return self.rnd.choice((True, False))
         elif column_info.type is int:
