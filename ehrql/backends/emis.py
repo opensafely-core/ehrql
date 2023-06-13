@@ -7,7 +7,9 @@ from ehrql.query_engines.sqlite import SQLiteQueryEngine
 class EMISBackend(BaseBackend):
     """
     !!! warning
-        This is backend is still under development and is not ready for production use.
+        This backend is still under development and is not ready for production use.
+        Projects requiring EMIS data should continue to use the [Cohort
+        Extractor](https://docs.opensafely.org/study-def/) tool.
 
     [EMIS Health](https://www.emishealth.com/) are the devlopers and operators of the
     [EMIS Web](https://www.emishealth.com/products/emis-web) EHR platform. The ehrQL
