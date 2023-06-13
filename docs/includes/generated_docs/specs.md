@@ -711,6 +711,137 @@ returns the following patient series:
 
 
 
+### 4.4 Count distinct aggregation
+
+
+#### 4.4.1 Count distinct for patient integer
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|f1|s1|d1 |
+| - | - | - | - | - |
+| 1|101|1.1|a|2020-01-01 |
+| 1|102|1.2|b|2020-01-02 |
+| 1|103|1.5|c|2020-01-03 |
+| 2|201|2.1|a|2020-02-01 |
+| 2|201|2.1|a|2020-02-01 |
+| 2|203|2.5|b|2020-02-02 |
+| 3|301|3.1|a|2020-03-01 |
+| 3|301|3.1|a|2020-03-01 |
+| 3|||| |
+| 3|||| |
+| 4|||| |
+
+```
+e.i1.count_distinct_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|3 |
+| 2|2 |
+| 3|1 |
+| 4|0 |
+
+
+
+#### 4.4.2 Count distinct for patient float
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|f1|s1|d1 |
+| - | - | - | - | - |
+| 1|101|1.1|a|2020-01-01 |
+| 1|102|1.2|b|2020-01-02 |
+| 1|103|1.5|c|2020-01-03 |
+| 2|201|2.1|a|2020-02-01 |
+| 2|201|2.1|a|2020-02-01 |
+| 2|203|2.5|b|2020-02-02 |
+| 3|301|3.1|a|2020-03-01 |
+| 3|301|3.1|a|2020-03-01 |
+| 3|||| |
+| 3|||| |
+| 4|||| |
+
+```
+e.f1.count_distinct_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|3 |
+| 2|2 |
+| 3|1 |
+| 4|0 |
+
+
+
+#### 4.4.3 Count distinct for patient string
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|f1|s1|d1 |
+| - | - | - | - | - |
+| 1|101|1.1|a|2020-01-01 |
+| 1|102|1.2|b|2020-01-02 |
+| 1|103|1.5|c|2020-01-03 |
+| 2|201|2.1|a|2020-02-01 |
+| 2|201|2.1|a|2020-02-01 |
+| 2|203|2.5|b|2020-02-02 |
+| 3|301|3.1|a|2020-03-01 |
+| 3|301|3.1|a|2020-03-01 |
+| 3|||| |
+| 3|||| |
+| 4|||| |
+
+```
+e.s1.count_distinct_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|3 |
+| 2|2 |
+| 3|1 |
+| 4|0 |
+
+
+
+#### 4.4.4 Count distinct for patient date
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|i1|f1|s1|d1 |
+| - | - | - | - | - |
+| 1|101|1.1|a|2020-01-01 |
+| 1|102|1.2|b|2020-01-02 |
+| 1|103|1.5|c|2020-01-03 |
+| 2|201|2.1|a|2020-02-01 |
+| 2|201|2.1|a|2020-02-01 |
+| 2|203|2.5|b|2020-02-02 |
+| 3|301|3.1|a|2020-03-01 |
+| 3|301|3.1|a|2020-03-01 |
+| 3|||| |
+| 3|||| |
+| 4|||| |
+
+```
+e.s1.count_distinct_for_patient()
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|3 |
+| 2|2 |
+| 3|1 |
+| 4|0 |
+
+
+
 ## 5 Combining series
 
 

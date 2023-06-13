@@ -19,6 +19,7 @@ contents = {
         "test_minimum_and_maximum_for_patient",
         "test_sum_for_patient",
         "test_mean_for_patient",
+        "test_count_distinct_for_patient",
     ],
     "combine_series": [
         "test_patient_series_and_patient_series",
