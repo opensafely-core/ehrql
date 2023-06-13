@@ -7,8 +7,9 @@ providing primary care data, allowing dataset definitions written using this sch
 run across multiple backends.
 
 !!! warning
-    This schema is very much still a work-in-progress while the EMIS backend remains
-    under developemnt.
+    This schema is still a work-in-progress while the EMIS backend remains under
+    development. Projects requiring EMIS data should continue to use the [Cohort
+    Extractor](https://docs.opensafely.org/study-def/) tool.
 
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
 from ehrql.tables.beta.core import (
