@@ -285,7 +285,7 @@ def load_dataset_definition(definition_file, user_args):
             "Did not find a variable called 'dataset' in dataset definition file"
         )
     if not isinstance(dataset, Dataset):
-        raise CommandError("'dataset' must be an instance of ehrql.Dataset()")
+        raise CommandError("'dataset' must be an instance of ehrql.Dataset")
     if not hasattr(dataset, "population"):
         raise CommandError(
             "A population has not been defined; define one with define_population()"

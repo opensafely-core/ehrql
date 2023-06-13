@@ -143,7 +143,7 @@ def test_load_dataset_definition_no_dataset():
 def test_load_dataset_definition_not_a_dataset():
     filename = FIXTURES / "not_a_dataset.py"
     with pytest.raises(
-        CommandError, match=r"'dataset' must be an instance of .*\.Dataset()"
+        CommandError, match=r"'dataset' must be an instance of .*\.Dataset"
     ):
         load_dataset_definition(filename, user_args=())
 
