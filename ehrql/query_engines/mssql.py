@@ -242,12 +242,8 @@ def temporary_table_from_query(table_name, query, index_col=0, schema=None):
         # SQLAlchemy generate one for us.)
         CreateIndex(sqlalchemy.Index(None, table.c[index_col], mssql_clustered=True)),
     ]
-    # The "#" prefix indicates a session-scoped temporary table which doesn't need
-    # explict cleanup
-    if table_name.startswith("#"):
-        table.is_persistent = False
-        table.cleanup_queries = []
-    else:
-        table.is_persistent = True
-        table.cleanup_queries = [DropTable(table)]
+    table.cleanup_queries = [DropTable(table, if_exists=True)]
+    # The "#" prefix indicates a session-scoped temporary table which won't persist if
+    # we open a new connection to the database
+    table.is_persistent = table_name.startswith("#")
     return table

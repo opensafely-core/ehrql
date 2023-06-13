@@ -11,6 +11,7 @@ from ehrql.query_model.nodes import (
     Function,
     InlinePatientTable,
     IterWrapper,
+    Parameter,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -494,6 +495,9 @@ def variable(patient_tables, event_tables, schema, value_strategies):
 
 known_missing_operations = {
     AggregateByPatient.CombineAsSet,
+    # Parameters don't themselves form part of valid queries: they are placeholders
+    # which must all be replaced with Values before the query can be executed.
+    Parameter,
 }
 
 

@@ -19,6 +19,7 @@ from typing import Any
 from ehrql.query_model.nodes import (
     Case,
     Function,
+    Parameter,
     PickOneRowPerPatient,
     SelectColumn,
     Sort,
@@ -189,3 +190,12 @@ def build_reverse_index(nodes):
         for i in get_input_nodes(n):
             reverse_index[i].add(n)
     return reverse_index
+
+
+def substitute_parameters(variable_definitions, **parameter_values):
+    rewriter = QueryGraphRewriter()
+    for name, value in parameter_values.items():
+        value_type = type(value)
+        parameter = Parameter(name, value_type)
+        rewriter.replace(parameter, Value(value))
+    return rewriter.rewrite(variable_definitions)

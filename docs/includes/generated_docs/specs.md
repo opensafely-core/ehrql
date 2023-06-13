@@ -2469,7 +2469,36 @@ returns the following patient series:
 
 
 
-#### 11.2.9 Is between backwards
+#### 11.2.9 Is during
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|d1 |
+| - | - |
+| 1|2010-01-01 |
+| 2|2010-01-02 |
+| 3|2010-01-03 |
+| 4|2010-01-04 |
+| 5|2010-01-05 |
+| 6| |
+
+```
+p.d1.is_during(interval)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|F |
+| 2|T |
+| 3|T |
+| 4|T |
+| 5|F |
+| 6| |
+
+
+
+#### 11.2.10 Is between backwards
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -2498,7 +2527,7 @@ returns the following patient series:
 
 
 
-#### 11.2.10 Is on or between backwards
+#### 11.2.11 Is on or between backwards
 
 This example makes use of a patient-level table named `p` containing the following data:
 

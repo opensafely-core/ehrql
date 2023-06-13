@@ -20,6 +20,7 @@ from ehrql.query_language import (
     FloatPatientSeries,
     IntEventSeries,
     IntPatientSeries,
+    Parameter,
     PatientFrame,
     SchemaError,
     Series,
@@ -28,6 +29,7 @@ from ehrql.query_language import (
     compile,
     days,
     months,
+    parse_date_if_str,
     table,
     table_from_file,
     table_from_rows,
@@ -569,6 +571,9 @@ def test_ehrql_date_string_equivalence(fn_name):
     if fn_name in ["is_in", "is_not_in", "map_values"]:
         date_args = [date_args]
         str_args = [str_args]
+    if fn_name == "is_during":
+        date_args = [(date_args[0], date_args[0])]
+        str_args = [(str_args[0], str_args[0])]
 
     assert f(*date_args).qm_node == f(*str_args).qm_node
 
@@ -633,3 +638,95 @@ def test_frame_classes_are_preserved():
     # suggestion. Using `hasattr()` wouldn't tell us whether the attribute was only
     # available via a magic `__getattr__` method.
     assert "start_date" in dir(latest_event)
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        # Strings are parsed as dates
+        ("2021-03-04", date(2021, 3, 4)),
+        # Other types are passed through
+        (1.23, 1.23),
+        (b"abc", b"abc"),
+    ],
+)
+def test_parse_date_if_str(value, expected):
+    assert parse_date_if_str(value) == expected
+
+
+@pytest.mark.parametrize(
+    "value,error",
+    [
+        ("1st March 2020", "Invalid isoformat string: '1st March 2020'"),
+        ("2021-02-29", "day is out of range for month in '2021-02-29'"),
+    ],
+)
+def test_parse_date_if_str_errors(value, error):
+    with pytest.raises(ValueError, match=error):
+        parse_date_if_str(value)
+
+
+def test_parameter():
+    series = Parameter("test_param", date)
+    assert isinstance(series, DatePatientSeries)
+
+
+# The behaviour of `date_utils.generate_intervals` is covered more fully by its own unit
+# tests, we just need to test enough below to confirm that it's wired up correctly.
+
+
+@pytest.mark.parametrize(
+    "constructor,value,start_date,expected",
+    [
+        (
+            weeks,
+            1,
+            "2020-01-01",
+            [(date(2020, 1, 1), date(2020, 1, 7))],
+        ),
+        (
+            months,
+            1,
+            "2020-01-01",
+            [(date(2020, 1, 1), date(2020, 1, 31))],
+        ),
+        (
+            years,
+            1,
+            "2020-01-01",
+            [(date(2020, 1, 1), date(2020, 12, 31))],
+        ),
+    ],
+)
+def test_duration_starting_on(constructor, value, start_date, expected):
+    assert constructor(value).starting_on(start_date) == expected
+
+
+def test_duration_ending_on():
+    assert months(3).ending_on("2020-06-01") == [
+        (date(2020, 4, 1), date(2020, 4, 30)),
+        (date(2020, 5, 1), date(2020, 5, 31)),
+        (date(2020, 6, 1), date(2020, 6, 30)),
+    ]
+
+
+@pytest.mark.parametrize(
+    "value,start_date,error",
+    [
+        (
+            patients.i,
+            "2020-01-01",
+            r"weeks\.starting_on\(\) can only be used with a literal integer value, not an integer series",
+        ),
+        (
+            10,
+            patients.date_of_birth,
+            r"weeks\.starting_on\(\) can only be used with a literal date, not a date series",
+        ),
+    ],
+)
+def test_duration_generate_intervals_rejects_invalid_arguments(
+    value, start_date, error
+):
+    with pytest.raises(TypeError, match=error):
+        weeks(value).starting_on(start_date)
