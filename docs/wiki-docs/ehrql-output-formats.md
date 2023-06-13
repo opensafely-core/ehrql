@@ -9,7 +9,7 @@ The following output formats are supported:
 
 ## :x: Not recommended
 
-* `.csv` — uncompressed CSV format 
+* `.csv` — uncompressed CSV format
 
 :warning: The uncompressed CSV format is [not recommended](https://www.opensafely.org/changelog/2023-02-02/),
 because this produces *much larger* files than the alternative formats.
@@ -67,7 +67,7 @@ to run the project actions:
 ```
 $ opensafely run run_all
 => ProjectValidationError
-   Invalid project: 
+   Invalid project:
    1 validation error for Pipeline
    __root__
      --output in run command and outputs must match (type=value_error)

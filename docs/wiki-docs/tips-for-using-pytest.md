@@ -131,7 +131,7 @@ def test_handles_degenerate_population(engine):
         v=Value(1),
     )
     assert engine.extract_qm(variables) == []
-``` 
+```
 
 But when we run it we see it results in four tests, not one:
 ```console

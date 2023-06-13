@@ -28,11 +28,11 @@ the content here may be less relevant for you.
   * With ehrQL, we aim to simplify the learning curve for researchers querying electronic health records
     by providing a consistent and easy-to-understand interface.
     This has been designed based on our experience of developing cohort-extractor
-    and seeing how researchers were using cohort-extractor to conduct research. 
+    and seeing how researchers were using cohort-extractor to conduct research.
   * With ehrQL we aim to make it easier for our core software developers to extend ehrQL with new features and datasets.
     This is currently difficult with cohort-extractor's legacy code,
     where features have been "bolted on" over time.
-    By doing so, we should be able to shorten the time to add features that researchers want. 
+    By doing so, we should be able to shorten the time to add features that researchers want.
 
 # How do I replicate a certain data query pattern from cohort-extractor in ehrQL, or migrate my study definition to a dataset definition?
 

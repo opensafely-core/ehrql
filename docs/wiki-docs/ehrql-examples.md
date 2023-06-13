@@ -16,7 +16,7 @@ the example dataset definitions here all use the TPP backend.
 ### Some examples use `codelist_from_csv()`
 
 :construction: This guidance should be improved in future.
- 
+
 :warning: Some examples refer to CSV codelists using the
 `codelist_from_csv` function,
 but are incomplete.
@@ -227,7 +227,7 @@ from databuilder.tables.beta.tpp import addresses
 dataset = Dataset()
 address = addresses.for_patient_on("2023-01-01")
 dataset.imd = address.imd
-dataset.rural_urban_classification = address.rural_urban_classification 
+dataset.rural_urban_classification = address.rural_urban_classification
 dataset.msoa = address.msoa
 ```
 

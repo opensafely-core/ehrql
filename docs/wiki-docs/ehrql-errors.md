@@ -7,7 +7,7 @@ ehrQL error messages are shown as a [Python error report, known as a "traceback"
 :spiral_notepad: The error messages are from Python because ehrQL runs in Python.
 
 These error messages can be confusing to read,
-but they also give you lots of information to use to debug 
+but they also give you lots of information to use to debug
 and fix your dataset definition.
 
 ### Example error message
@@ -57,7 +57,7 @@ To narrow down the search, you could try:
 * Using the "Find text in page" feature of your browser,
   searching for parts of the error report.
   Let's look at the example given above again:
-  
+
   ```
   Traceback (most recent call last):
     File "/workspace/analysis/dataset_definition.py", line 7, in <module>
@@ -105,7 +105,7 @@ that ehrQL code must also adhere to.
 ### Code indentation error
 
 Python has particular rules about indentation.
-If a dataset definition contains indentation errors, 
+If a dataset definition contains indentation errors,
 the error message will tell you about them.
 For example, there is an indentation error in the following dataset definition.
 
@@ -135,7 +135,7 @@ Failed to import 'analysis/dataset_definition.py':
 IndentationError: unexpected indent
 ```
 
-The error message tells us that there is an indentation error, and also the line that 
+The error message tells us that there is an indentation error, and also the line that
 the error occurred on.
 
 #### Fixed dataset definition :heavy_check_mark:
@@ -187,7 +187,7 @@ from databuilder.ehrql import Dataset
 from databuilder.tables.beta.tpp import patients
 
 dataset = Dataset()
-dataset.age = patients.age_on("2023-01-01") # We have changed the invalid feature name, "age!", to a valid one, "age". 
+dataset.age = patients.age_on("2023-01-01") # We have changed the invalid feature name, "age!", to a valid one, "age".
 ```
 
 ## Common ehrQL errors
@@ -375,7 +375,7 @@ from databuilder.tables.beta.tpp import patients
 dataset = Dataset()
 age = patients.age_on("2000-01-01")
 age1 = patients.age_on("2023-01-01")
-dataset.define_population(age > 16) 
+dataset.define_population(age > 16)
 dataset.age = age
 dataset.age = age1
 ```
@@ -404,14 +404,14 @@ from databuilder.tables.beta.tpp import patients
 dataset = Dataset()
 age = patients.age_on("2000-01-01")
 age1 = patients.age_on("2023-01-01")
-dataset.define_population(age > 16) 
+dataset.define_population(age > 16)
 dataset.age = age
 dataset.age1 = age1 # The second age feature now has a unique name on the dataset
 ```
 
 ### Undefined features
 
-All features set on a dataset must be defined; in the following dataset, `age` has been 
+All features set on a dataset must be defined; in the following dataset, `age` has been
 defined on its own, but has not been defined when set on the dataset:
 
 #### Failing dataset definition :x:
@@ -422,7 +422,7 @@ from databuilder.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2000-01-01")
-dataset.define_population(age > 16) 
+dataset.define_population(age > 16)
 dataset.age
 ```
 
@@ -448,7 +448,7 @@ from databuilder.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2000-01-01")
-dataset.define_population(age > 16) 
+dataset.define_population(age > 16)
 dataset.age = age # dataset.age is now defined
 ```
 
@@ -476,7 +476,7 @@ TypeError: Invalid variable 'registered_on'. Dataset variables must return one r
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
-To return the latest `registered_on` date, first sort the practice registrations table, find the 
+To return the latest `registered_on` date, first sort the practice registrations table, find the
 last registration for each patient, and *then* get the start date.
 
 ```python

@@ -17,6 +17,6 @@ let us know.
 
 In future, we plan to hold regular ehrQL help clinics for new users.
 
-# What to read next 
+# What to read next
 
 :fast_forward: [Introduction to ehrQL concepts](https://github.com/opensafely-core/ehrql/wiki/introduction-to-ehrql-concepts)

@@ -45,7 +45,7 @@ and you should see something like this:
     Python 3.11.3 (main, Apr  5 2023, 14:15:06) [GCC 9.4.0] on linux
     Type "help", "copyright", "credits" or "license" for more information.
     (InteractiveConsole)
-    >>> 
+    >>>
 
 The `>>>` is the Python prompt for user input.
 When you see this, you can input Python statements,
@@ -56,7 +56,7 @@ For example if you type `1 + 1` and press the return key, you should see:
 
     >>> 1 + 1
     2
-    >>> 
+    >>>
 
 To use ehrQL, you'll first need to import the tables that you want to interact with:
 
@@ -147,7 +147,7 @@ If you enter some invalid ehrQL, you will see an error message:
 :grey_question: Can you work out what this is telling us?
 
 Refer to [the catalogue of errors](ehrql-errors) for details of common error messages and what they mean.
- 
+
 ### Exiting the sandbox
 
 To exit the sandbox,
@@ -219,9 +219,9 @@ to run the dataset definition.
 
 You should see output displayed similar to this:
 
-    2023-04-19 08:53:41 [info     ] Compiling dataset definition from dataset_definition.py [ehrql.main]                                                                                                        
-    2023-04-19 08:53:41 [info     ] Generating dummy dataset       [ehrql.main]                        
-    2023-04-19 08:53:41 [info     ] Reading CSV data from example-data [ehrql.main]                    
+    2023-04-19 08:53:41 [info     ] Compiling dataset definition from dataset_definition.py [ehrql.main]
+    2023-04-19 08:53:41 [info     ] Generating dummy dataset       [ehrql.main]
+    2023-04-19 08:53:41 [info     ] Reading CSV data from example-data [ehrql.main]
     2023-04-19 08:53:41 [info     ] Building dataset and writing results [ehrql.main]
 
 :spiral_notepad: The date and time you see will differ from that here.
@@ -255,7 +255,7 @@ an error message will be displayed on the screen.
 This is one example:
 
     $ opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv
-    2023-04-21 17:53:42 [info     ] Compiling dataset definition from dataset_definition.py [ehrql.main] 
+    2023-04-21 17:53:42 [info     ] Compiling dataset definition from dataset_definition.py [ehrql.main]
     Failed to import 'dataset_definition.py':
 
     Traceback (most recent call last):

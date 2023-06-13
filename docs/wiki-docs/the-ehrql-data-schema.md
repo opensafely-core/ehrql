@@ -31,7 +31,7 @@ but it is not as daunting as it might sound.
   ```python
   from ehrql.tables.beta.tpp import addresses, patients
   ```
- 
+
 ## Frames and series
 
 Very briefly, to understand this page:
@@ -114,7 +114,7 @@ From this code, we can deduce that:
   * `practice_stp`
     * string type
     * `practice_stp` has the constraint that the value must start `E540000`
-      and be followed by another two digits of 0-9.  
+      and be followed by another two digits of 0-9.
   * `practice_nuts1_region_name`
     * string type
     * `practice_nuts1_region_name` has the constraint that it must match one of several names of UK geographical regions.
