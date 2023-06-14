@@ -415,3 +415,29 @@ class TPPBackend(BaseBackend):
         FROM OPA_Cost
     """
     )
+
+    opa_diag = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            OPA_Ident AS opa_ident,
+            Primary_Diagnosis_Code AS primary_diagnosis_code,
+            Primary_Diagnosis_Code_Read AS primary_diagnosis_code_read,
+            Secondary_Diagnosis_Code_1 AS primary_diagnosis_code_1,
+            Secondary_Diagnosis_Code_1_Read AS primary_diagnosis_code_1_read
+        FROM OPA_Diag
+    """
+    )
+
+    opa_proc = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            OPA_Ident AS opa_ident,
+            Primary_Procedure_Code AS primary_procedure_code,
+            Primary_Procedure_Code_Read AS primary_procedure_code_read,
+            Procedure_Code_2 AS procedure_code_1,
+            Procedure_Code_2_Read AS procedure_code_2_read
+        FROM OPA_Proc
+    """
+    )

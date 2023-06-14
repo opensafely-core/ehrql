@@ -5,7 +5,7 @@ backend.
 import datetime
 
 from ehrql import case, when
-from ehrql.codes import CTV3Code, SNOMEDCTCode
+from ehrql.codes import CTV3Code, ICD10Code, OPCS4Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 from ehrql.tables.beta.core import medications, ons_deaths, patients
 
@@ -531,7 +531,7 @@ class ec_cost(EventFrame):
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="apcs_ident",
+        description="ec_ident",
     )
     grand_total_payment_mff = Series(
         float,
@@ -561,4 +561,54 @@ class opa_cost(EventFrame):
     tariff_total_payment = Series(
         float,
         description="tariff_total_payment",
+    )
+
+
+@table
+class opa_diag(EventFrame):
+    opa_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="Out-patient appointment opa_ident",
+    )
+    primary_diagnosis_code = Series(
+        ICD10Code,
+        description="Out-patient appointment primary_diagnosis_code",
+    )
+    primary_diagnosis_code_read = Series(
+        CTV3Code,
+        description="Out-patient appointment primary_diagnosis_code_read",
+    )
+    primary_diagnosis_code_1 = Series(
+        ICD10Code,
+        description="Out-patient appointment primary_diagnosis_code_1",
+    )
+    primary_diagnosis_code_1_read = Series(
+        CTV3Code,
+        description="out-patient appointment primary_diagnosis_code_1_read",
+    )
+
+
+@table
+class opa_proc(EventFrame):
+    opa_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="Out-patient appointment opa_ident",
+    )
+    primary_procedure_code = Series(
+        OPCS4Code,
+        description="Out-patient appointment primary_procedure_code",
+    )
+    primary_procedure_code_read = Series(
+        CTV3Code,
+        description="Out-patient appointment primary_procedure_code_read",
+    )
+    procedure_code_1 = Series(
+        OPCS4Code,
+        description="Out-patient appointment procedure_code_1",
+    )
+    procedure_code_2_read = Series(
+        CTV3Code,
+        description="Out-patient appointment procedure_code_2_read",
     )

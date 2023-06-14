@@ -21,6 +21,8 @@ from ehrql.tables.beta.tpp import (
     ons_cis,
     ons_deaths,
     opa_cost,
+    opa_diag,
+    opa_proc,
     open_prompt,
     patients,
     practice_registrations,
@@ -382,7 +384,7 @@ tariff_total_payment
     <code>integer</code>
   </dt>
   <dd markdown="block">
-apcs_ident
+ec_ident
 
  * Never `NULL`
   </dd>
@@ -1940,6 +1942,150 @@ grand_total_payment_mff
   </dt>
   <dd markdown="block">
 tariff_total_payment
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## opa_diag
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="opa_diag.opa_ident">
+    <strong>opa_ident</strong>
+    <a class="headerlink" href="#opa_diag.opa_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Out-patient appointment opa_ident
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_diag.primary_diagnosis_code">
+    <strong>primary_diagnosis_code</strong>
+    <a class="headerlink" href="#opa_diag.primary_diagnosis_code" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Out-patient appointment primary_diagnosis_code
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_diag.primary_diagnosis_code_read">
+    <strong>primary_diagnosis_code_read</strong>
+    <a class="headerlink" href="#opa_diag.primary_diagnosis_code_read" title="Permanent link">🔗</a>
+    <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+Out-patient appointment primary_diagnosis_code_read
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_diag.primary_diagnosis_code_1">
+    <strong>primary_diagnosis_code_1</strong>
+    <a class="headerlink" href="#opa_diag.primary_diagnosis_code_1" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Out-patient appointment primary_diagnosis_code_1
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_diag.primary_diagnosis_code_1_read">
+    <strong>primary_diagnosis_code_1_read</strong>
+    <a class="headerlink" href="#opa_diag.primary_diagnosis_code_1_read" title="Permanent link">🔗</a>
+    <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+out-patient appointment primary_diagnosis_code_1_read
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## opa_proc
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="opa_proc.opa_ident">
+    <strong>opa_ident</strong>
+    <a class="headerlink" href="#opa_proc.opa_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Out-patient appointment opa_ident
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_proc.primary_procedure_code">
+    <strong>primary_procedure_code</strong>
+    <a class="headerlink" href="#opa_proc.primary_procedure_code" title="Permanent link">🔗</a>
+    <code>OPCS-4 code</code>
+  </dt>
+  <dd markdown="block">
+Out-patient appointment primary_procedure_code
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_proc.primary_procedure_code_read">
+    <strong>primary_procedure_code_read</strong>
+    <a class="headerlink" href="#opa_proc.primary_procedure_code_read" title="Permanent link">🔗</a>
+    <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+Out-patient appointment primary_procedure_code_read
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_proc.procedure_code_1">
+    <strong>procedure_code_1</strong>
+    <a class="headerlink" href="#opa_proc.procedure_code_1" title="Permanent link">🔗</a>
+    <code>OPCS-4 code</code>
+  </dt>
+  <dd markdown="block">
+Out-patient appointment procedure_code_1
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_proc.procedure_code_2_read">
+    <strong>procedure_code_2_read</strong>
+    <a class="headerlink" href="#opa_proc.procedure_code_2_read" title="Permanent link">🔗</a>
+    <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+Out-patient appointment procedure_code_2_read
 
   </dd>
 </div>
