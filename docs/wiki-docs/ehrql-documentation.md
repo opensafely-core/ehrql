@@ -31,17 +31,3 @@ but there should be enough for new users to get started.
 you may find the [Coming to ehrQL from cohort-extractor](guidance-for-existing-cohort-extractor-users.md) page useful.
 
 The pages are designed to be read in order.
-
-## Table of contents
-
-* [Getting help](getting-help.md)
-* [Introduction to ehrQL concepts](introduction-to-ehrql-concepts.md)
-* [ehrQL and OpenSAFELY](ehrql-and-opensafely.md)
-* [Installation and setup](installation-and-setup.md)
-* [Running ehrQL](running-ehrql.md)
-* [ehrQL concepts in depth](ehrql-concepts-in-depth.md)
-* [Data schema](the-ehrql-data-schema.md)
-* [Output formats](ehrql-output-formats.md)
-* [Examples](ehrql-examples.md)
-* [Errors](ehrql-errors.md)
-* [Guidance for existing cohort-extractor users](guidance-for-existing-cohort-extractor-users.md)
