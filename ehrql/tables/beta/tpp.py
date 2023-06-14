@@ -26,6 +26,7 @@ __all__ = [
     "ons_cis",
     "isaric_raw",
     "open_prompt",
+    "apcs_cost",
 ]
 
 
@@ -500,4 +501,25 @@ class open_prompt(EventFrame):
         float,
         constraints=[Constraint.NotNull()],
         description="The response to the question",
+    )
+
+
+@table
+class apcs_cost(EventFrame):
+    apcs_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="apcs_ident",
+    )
+    grand_total_payment_mff = Series(
+        float,
+        description="grand_total_payment_mff",
+    )
+    tariff_initial_amount = Series(
+        float,
+        description="tariff_initial_amount",
+    )
+    tariff_total_payment = Series(
+        float,
+        description="tariff_total_payment",
     )

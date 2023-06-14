@@ -380,3 +380,15 @@ class TPPBackend(BaseBackend):
         FROM OpenPROMPT
     """
     )
+
+    apcs_cost = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            APCS_Ident AS apcs_ident,
+            Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            Tariff_Initial_Amount AS tariff_initial_amount,
+            Tariff_Total_Payment AS tariff_total_payment
+        FROM APCS_Cost
+    """
+    )

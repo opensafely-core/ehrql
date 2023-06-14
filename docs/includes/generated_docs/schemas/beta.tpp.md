@@ -8,6 +8,7 @@ backend.
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
 from ehrql.tables.beta.tpp import (
     addresses,
+    apcs_cost,
     appointments,
     clinical_events,
     emergency_care_attendances,
@@ -204,6 +205,66 @@ return ordered_addrs.last_for_patient()
 
 ```
     </details>
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## apcs_cost
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="apcs_cost.apcs_ident">
+    <strong>apcs_ident</strong>
+    <a class="headerlink" href="#apcs_cost.apcs_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+apcs_ident
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost.grand_total_payment_mff">
+    <strong>grand_total_payment_mff</strong>
+    <a class="headerlink" href="#apcs_cost.grand_total_payment_mff" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+grand_total_payment_mff
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost.tariff_initial_amount">
+    <strong>tariff_initial_amount</strong>
+    <a class="headerlink" href="#apcs_cost.tariff_initial_amount" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+tariff_initial_amount
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost.tariff_total_payment">
+    <strong>tariff_total_payment</strong>
+    <a class="headerlink" href="#apcs_cost.tariff_total_payment" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+tariff_total_payment
+
   </dd>
 </div>
 

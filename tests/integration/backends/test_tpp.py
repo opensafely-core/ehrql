@@ -9,6 +9,7 @@ from ehrql.tables.beta import tpp
 from tests.lib.tpp_schema import (
     APCS,
     EC,
+    APCS_Cost,
     APCS_Der,
     Appointment,
     CodedEvent,
@@ -991,3 +992,25 @@ def test_registered_tests_are_exhaustive():
         if not isinstance(table, BaseFrame):
             continue
         assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"
+
+
+@register_test_for(tpp.apcs_cost)
+def test_apcs_cost(select_all):
+    results = select_all(
+        APCS_Cost(
+            Patient_ID=1,
+            APCS_Ident=1,
+            Grand_Total_Payment_MFF=1.1,
+            Tariff_Initial_Amount=2.2,
+            Tariff_Total_Payment=3.3,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "apcs_ident": 1,
+            "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
+            "tariff_initial_amount": pytest.approx(2.2, rel=1e-5),
+            "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
+        },
+    ]
