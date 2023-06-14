@@ -403,3 +403,15 @@ class TPPBackend(BaseBackend):
         FROM EC_Cost
     """
     )
+
+    opa_cost = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            OPA_Ident AS opa_ident,
+            Tariff_OPP AS tariff_opp,
+            Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            Tariff_Total_Payment AS tariff_total_payment
+        FROM OPA_Cost
+    """
+    )

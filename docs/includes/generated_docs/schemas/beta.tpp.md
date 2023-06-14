@@ -20,6 +20,7 @@ from ehrql.tables.beta.tpp import (
     occupation_on_covid_vaccine_record,
     ons_cis,
     ons_deaths,
+    opa_cost,
     open_prompt,
     patients,
     practice_registrations,
@@ -1879,6 +1880,66 @@ Data from the ONS Covid Infection Survey.
   </dt>
   <dd markdown="block">
 
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## opa_cost
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="opa_cost.opa_ident">
+    <strong>opa_ident</strong>
+    <a class="headerlink" href="#opa_cost.opa_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+opa_ident
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_cost.tariff_opp">
+    <strong>tariff_opp</strong>
+    <a class="headerlink" href="#opa_cost.tariff_opp" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+tariff_opp
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_cost.grand_total_payment_mff">
+    <strong>grand_total_payment_mff</strong>
+    <a class="headerlink" href="#opa_cost.grand_total_payment_mff" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+grand_total_payment_mff
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_cost.tariff_total_payment">
+    <strong>tariff_total_payment</strong>
+    <a class="headerlink" href="#opa_cost.tariff_total_payment" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+tariff_total_payment
 
   </dd>
 </div>

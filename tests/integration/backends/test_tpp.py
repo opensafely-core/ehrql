@@ -24,6 +24,7 @@ from tests.lib.tpp_schema import (
     MedicationIssue,
     ONS_CIS_New,
     ONS_Deaths,
+    OPA_Cost,
     OpenPROMPT,
     Organisation,
     Patient,
@@ -1033,5 +1034,27 @@ def test_ec_cost(select_all):
             "ec_ident": 1,
             "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
             "tariff_total_payment": pytest.approx(2.2, rel=1e-5),
+        },
+    ]
+
+
+@register_test_for(tpp.opa_cost)
+def test_opa_cost(select_all):
+    results = select_all(
+        OPA_Cost(
+            Patient_ID=1,
+            OPA_Ident=1,
+            Tariff_OPP=1.1,
+            Grand_Total_Payment_MFF=2.2,
+            Tariff_Total_Payment=3.3,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "opa_ident": 1,
+            "tariff_opp": pytest.approx(1.1, rel=1e-5),
+            "grand_total_payment_mff": pytest.approx(2.2, rel=1e-5),
+            "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
         },
     ]

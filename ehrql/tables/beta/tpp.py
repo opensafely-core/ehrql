@@ -541,3 +541,24 @@ class ec_cost(EventFrame):
         float,
         description="tariff_total_payment",
     )
+
+
+@table
+class opa_cost(EventFrame):
+    opa_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="opa_ident",
+    )
+    tariff_opp = Series(
+        float,
+        description="tariff_opp",
+    )
+    grand_total_payment_mff = Series(
+        float,
+        description="grand_total_payment_mff",
+    )
+    tariff_total_payment = Series(
+        float,
+        description="tariff_total_payment",
+    )
