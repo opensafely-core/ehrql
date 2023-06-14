@@ -4,7 +4,7 @@ If an error is found in your dataset definition.
 ehrQL will stop running and give you an error message.
 ehrQL error messages are shown as a [Python error report, known as a "traceback"](https://realpython.com/python-traceback/).
 
-:spiral_notepad: The error messages are from Python because ehrQL runs in Python.
+:notepad_spiral: The error messages are from Python because ehrQL runs in Python.
 
 These error messages can be confusing to read,
 but they also give you lots of information to use to debug
@@ -863,7 +863,7 @@ Traceback (most recent call last):
 databuilder.query_model.nodes.TypeValidationError: In.rhs requires 'databuilder.query_model.nodes.Series[collections.abc.Set[int]]' but got 'databuilder.query_model.nodes.Series[int]'
 ```
 
-:spiral_notepad: This is also an error:
+:notepad_spiral: This is also an error:
 
 ```python
 dataset.age_30_or_40 = age.is_in(30, 40)

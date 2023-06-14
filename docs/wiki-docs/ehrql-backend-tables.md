@@ -33,7 +33,7 @@ from ehrql.tables.beta.core import medications, patients
 
 where the `ehrql.tables.beta.core` specifies that we are using the core tables.
 
-:spiral_notepad: Read the page on the [ehrQL data schema](the-ehrql-data-schema.md)
+:notepad_spiral: Read the page on the [ehrQL data schema](the-ehrql-data-schema.md)
 to learn how to understand which core tables are available,
 and the data schema for those tables.
 
@@ -49,7 +49,7 @@ your dataset definition will be only compatible with that backend.
 :construction: TPP is the most fully developed backend,
 offering several data tables.
 
-:spiral_notepad: Implementation of other backends is still in development.
+:notepad_spiral: Implementation of other backends is still in development.
 But all data in the EMIS OpenSAFELY backend is available via cohort-extractor.
 
 ### Importing backend-specific tables
@@ -64,12 +64,12 @@ we use `tpp` in the import statement:
 from ehrql.tables.beta.tpp import addresses, patients
 ```
 
-:spiral_notepad: In this example,
+:notepad_spiral: In this example,
 the `addresses` table is specific to the TPP backend.
 The `patients` table is a core ehrQL table.
 We import both core and backend-specific tables within a single import statement.
 
-:spiral_notepad: Read the page on the [ehrQL data schema](the-ehrql-data-schema.md)
+:notepad_spiral: Read the page on the [ehrQL data schema](the-ehrql-data-schema.md)
 to learn how to understand which backend-specific tables are available,
 and the data schema for those tables.
 

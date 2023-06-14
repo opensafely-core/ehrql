@@ -39,7 +39,7 @@ Before that, we need to explain four important related types of object.
 
 The explanations that follow make use of the [ehrQL sandbox](running-ehrql.md#sandbox-mode).
 
-:spiral_notepad: You need to have already followed the steps in the [Installation and setup](installation-and-setup.md) page
+:notepad_spiral: You need to have already followed the steps in the [Installation and setup](installation-and-setup.md) page
 to have the `opensafely` command installed and the example dummy data downloaded.
 
 You can follow along by starting the sandbox:
@@ -50,7 +50,7 @@ and importing the tables that we want to interact with:
 
     >>> from ehrql.tables.beta.core import patients, medications
 
-:spiral_notepad: The outputs below are truncated.
+:notepad_spiral: The outputs below are truncated.
 
 ## Core types of object
 
@@ -372,7 +372,7 @@ dataset.asthma_med_date = latest_asthma_medication.date
 dataset.asthma_med_code = latest_asthma_medication.code
 ```
 
-:spiral_notepad: Notice how the ehrQL sandbox can be useful
+:notepad_spiral: Notice how the ehrQL sandbox can be useful
 when developing your ehrQL queries.
 It can sometimes be quicker to try out ideas interactively via the sandbox first,
 instead of repeatedly editing a dataset definition and re-running it.

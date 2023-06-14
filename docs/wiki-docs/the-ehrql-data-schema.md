@@ -39,7 +39,7 @@ Very briefly, to understand this page:
 * Frames are table-like, with rows and columns.
 * Series are column-like, containing a sequence of values.
 
-:spiral_notepad: There is a more detailed explanation of [frames and series](ehrql-concepts-in-depth.md#core-types-of-object).
+:notepad_spiral: There is a more detailed explanation of [frames and series](ehrql-concepts-in-depth.md#core-types-of-object).
 
 ## Columns as series
 

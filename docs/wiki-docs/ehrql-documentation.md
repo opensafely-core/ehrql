@@ -17,7 +17,7 @@ We use the following emoji in this documentation to indicate:
   or ehrQL features that still require further work*
 * :computer: *steps that you should carry out on the computer
   that you are using for working with ehrQL*
-* :spiral_notepad: *extra explanatory information*
+* :notepad_spiral: *extra explanatory information*
 * :warning: *important information*
 * :grey_question: *questions for you to think about and try to answer*
 * :fast_forward: *the next part of the documentation that we suggest that you read*
@@ -27,7 +27,7 @@ We use the following emoji in this documentation to indicate:
 :construction: These documents are a work in progress,
 but there should be enough for new users to get started.
 
-:spiral_notepad: If you have previously used cohort-extractor,
+:notepad_spiral: If you have previously used cohort-extractor,
 you may find the [Coming to ehrQL from cohort-extractor](guidance-for-existing-cohort-extractor-users.md) page useful.
 
 The pages are designed to be read in order.

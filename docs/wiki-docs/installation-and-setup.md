@@ -21,7 +21,7 @@ on your computer:
 * for Windows, this might be the Command Prompt, PowerShell, Git Bash, or Anaconda Prompt,
 depending on what you have installed and prefer to use
 
-:spiral_notepad: It is possible that you have more than one command-line interface installed.
+:notepad_spiral: It is possible that you have more than one command-line interface installed.
 
 It is not essential,
 but it will help if you are already somewhat comfortable with the command-line interface
@@ -42,7 +42,7 @@ Visual Studio Code's integrated terminal indicates which command-line interface 
 If you have multiple command-line interfaces installed,
 Visual Studio Code also provides an option [to select a different command-line interface](https://code.visualstudio.com/docs/terminal/basics#_terminal-shells).
 
-:spiral_notepad: You should be able to complete all the tutorial steps from within Visual Studio Code.
+:notepad_spiral: You should be able to complete all the tutorial steps from within Visual Studio Code.
 You can:
 * create and edit files, and folders (directories)
 * run commands, such as `opensafely`, in the terminal
@@ -107,7 +107,7 @@ usage: ehrql [-h] [--version]
                    {generate-dataset,dump-dataset-sql,create-dummy-tables,generate-measures,sandbox,test-connection} ...
 
 
-:spiral_notepad: This command does not specify anything for ehrQL to do as yet.
+:notepad_spiral: This command does not specify anything for ehrQL to do as yet.
 
 Generate datasets in OpenSAFELY
 ...
@@ -133,7 +133,7 @@ we will use the same small set of dummy data.
 
 :computer: Begin by creating a new directory on your computer and call it `learning-ehrql`.
 
-:spiral_notepad: Any instructions in the documentation
+:notepad_spiral: Any instructions in the documentation
 that tell you to run a command from the command-line
 will assume that you are in this `learning-ehrql` directory.
 You will need to change directory to that directory before running commands.

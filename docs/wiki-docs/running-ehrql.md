@@ -196,7 +196,7 @@ use the command below to run your dataset definition with ehrQL.
 opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv
 ```
 
-:spiral_notepad: ehrQL dataset definitions are written in Python.
+:notepad_spiral: ehrQL dataset definitions are written in Python.
 But, unlike typical Python code,
 we instead run the dataset definition via the OpenSAFELY CLI.
 The OpenSAFELY CLI internally uses a correctly configured version of Python
@@ -211,7 +211,7 @@ to run the dataset definition.
   * The dataset definition file is in the directory that we are running `opensafely exec`
     so we do not need to specify the full path to the file in this case.
 * `--dummy-tables example-data` specifies that the dummy CSV input data is in the `example-data` directory.
-  * :spiral_notepad: If the `--dummy-tables` option is omitted,
+  * :notepad_spiral: If the `--dummy-tables` option is omitted,
     randomly generated data will be used instead.
 * `--output output/dataset.csv` specifies the path to the output CSV file.
 
@@ -224,7 +224,7 @@ You should see output displayed similar to this:
     2023-04-19 08:53:41 [info     ] Reading CSV data from example-data [ehrql.main]
     2023-04-19 08:53:41 [info     ] Building dataset and writing results [ehrql.main]
 
-:spiral_notepad: The date and time you see will differ from that here.
+:notepad_spiral: The date and time you see will differ from that here.
 
 #### The output file
 
@@ -271,7 +271,7 @@ Refer to [the catalogue of errors](ehrql-errors.md) for help with interpreting e
 To run your ehrQL queries as part of an OpenSAFELY pipeline with `opensafely run`,
 you need to have a file called `project.yaml`.
 
-:spiral_notepad: There is considerably more technical detail on [the project pipeline in the OpenSAFELY documentation](https://docs.opensafely.org/actions-pipelines/).
+:notepad_spiral: There is considerably more technical detail on [the project pipeline in the OpenSAFELY documentation](https://docs.opensafely.org/actions-pipelines/).
 
 :computer: Copy the following into a file called
 `project.yaml` in your `learning-ehrql` directory:
@@ -297,7 +297,7 @@ actions:
         cohort: output/summary.txt
 ```
 
-:spiral_notepad: Users already familiar with the [OpenSAFELY research template](https://github.com/opensafely/research-template) may notice that the research template already includes a basic `project.yaml` file that can be edited.
+:notepad_spiral: Users already familiar with the [OpenSAFELY research template](https://github.com/opensafely/research-template) may notice that the research template already includes a basic `project.yaml` file that can be edited.
 Here, for the purposes of this tutorial,
 to skip setting up the template,
 we create this file entirely by hand.
@@ -306,12 +306,12 @@ The `project.yaml` file defines two actions: `generate_dataset` and `summarise_d
 Each of these actions defines an `output`,
 which has the potential data sensitivity indicated.
 
-:spiral_notepad: The definitions of "highly sensitive" and "moderately sensitive" are indicated in the [`project.yaml` documentation](https://docs.opensafely.org/actions-pipelines/#projectyaml-format).
+:notepad_spiral: The definitions of "highly sensitive" and "moderately sensitive" are indicated in the [`project.yaml` documentation](https://docs.opensafely.org/actions-pipelines/#projectyaml-format).
 
 The `generate_dataset` action's `run:` command should look familiar from the previous section.
 However, note that the `--output` path is now to a compressed CSV file (`dataset.csv.gz`).
 
-:spiral_notepad: We recommend the use of compressed CSV files when running code via the jobs site.
+:notepad_spiral: We recommend the use of compressed CSV files when running code via the jobs site.
 
 `summarise_dataset` uses a Python script called `summarise_dataset.py`.
 Copy the following into a file called `summarise_dataset.py` in your `learning-ehrql` directory.
@@ -335,7 +335,7 @@ in `project.yaml`:
 
     opensafely run run_all
 
-:spiral_notepad: If is this is the first time you have used `opensafely exec`,
+:notepad_spiral: If is this is the first time you have used `opensafely exec`,
 the OpenSAFELY CLI may fetch some other Docker images (`python` and `busybox`) needed to run the action.
 
 ### What you should see when you run the command
@@ -368,7 +368,7 @@ You should see in the logs output displayed similar to this:
        outputs:
          output/summary.txt  - moderately_sensitive
 
-:spiral_notepad: Some of the middle lines of this log have been omitted.
+:notepad_spiral: Some of the middle lines of this log have been omitted.
 
 ### The output files
 
@@ -386,7 +386,7 @@ you can submit your project to run against real data in an OpenSAFELY backend da
 To submit your project to run against real data, refer to the
 [existing documentation on using the OpenSAFELY jobs site](https://docs.opensafely.org/jobs-site).
 
-:notebook: You will require approval for an OpenSAFELY project,
+:notepad_spiral: You will require approval for an OpenSAFELY project,
 before you can submit your project to the jobs site.
 
 ## Questions

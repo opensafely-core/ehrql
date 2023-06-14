@@ -39,7 +39,7 @@ asthma_codelist = codelist_from_csv("your-asthma-codelist.csv", column="code")
 which provides the filename `your-asthma-codelist.csv`
 and the name of the CSV column with codes.
 
-:spiral_notepad: It is also possible to use a category column
+:notepad_spiral: It is also possible to use a category column
 with `codelist_from_csv()`.
 Until this documentation is improved,
 refer to the [ehrQL source code](https://github.com/opensafely-core/ehrql/blob/main/ehrql/codes.py).
@@ -116,7 +116,7 @@ dataset = Dataset()
 dataset.date_of_death = patients.date_of_death
 ```
 
-:spiral_notepad: This value comes from the patient's EHR record.
+:notepad_spiral: This value comes from the patient's EHR record.
 
 There is generally a lag between the death being recorded in ONS data and appearing in the primary care record,
 but the date itself is usually reliable when it appears.
@@ -134,7 +134,7 @@ dataset.place_of_death = ons_deaths.place
 dataset.cause_of_death = ons_deaths.cause_of_death_01
 ```
 
-:spiral_notepad: There are currently [multiple](https://github.com/opensafely-core/ehrql/blob/8341a03ec55114fe026f326d55e81a462ad8d8c2/databuilder/tables/beta/tpp.py#L140-L155) cause of death fields. We aim to resolve these to a single feature in the future.
+:notepad_spiral: There are currently [multiple](https://github.com/opensafely-core/ehrql/blob/8341a03ec55114fe026f326d55e81a462ad8d8c2/databuilder/tables/beta/tpp.py#L140-L155) cause of death fields. We aim to resolve these to a single feature in the future.
 
 ### Finding each patient's sex
 
