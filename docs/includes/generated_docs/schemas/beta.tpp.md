@@ -11,6 +11,7 @@ from ehrql.tables.beta.tpp import (
     apcs_cost,
     appointments,
     clinical_events,
+    ec_cost,
     emergency_care_attendances,
     hospital_admissions,
     household_memberships_2020,
@@ -358,6 +359,54 @@ tariff_total_payment
   </dt>
   <dd markdown="block">
 
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## ec_cost
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ec_cost.ec_ident">
+    <strong>ec_ident</strong>
+    <a class="headerlink" href="#ec_cost.ec_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+apcs_ident
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec_cost.grand_total_payment_mff">
+    <strong>grand_total_payment_mff</strong>
+    <a class="headerlink" href="#ec_cost.grand_total_payment_mff" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+grand_total_payment_mff
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec_cost.tariff_total_payment">
+    <strong>tariff_total_payment</strong>
+    <a class="headerlink" href="#ec_cost.tariff_total_payment" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+tariff_total_payment
 
   </dd>
 </div>

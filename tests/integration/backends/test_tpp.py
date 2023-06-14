@@ -14,6 +14,7 @@ from tests.lib.tpp_schema import (
     Appointment,
     CodedEvent,
     CodedEvent_SNOMED,
+    EC_Cost,
     EC_Diagnosis,
     HealthCareWorker,
     Household,
@@ -1012,5 +1013,25 @@ def test_apcs_cost(select_all):
             "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
             "tariff_initial_amount": pytest.approx(2.2, rel=1e-5),
             "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
+        },
+    ]
+
+
+@register_test_for(tpp.ec_cost)
+def test_ec_cost(select_all):
+    results = select_all(
+        EC_Cost(
+            Patient_ID=1,
+            EC_Ident=1,
+            Grand_Total_Payment_MFF=1.1,
+            Tariff_Total_Payment=2.2,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "ec_ident": 1,
+            "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
+            "tariff_total_payment": pytest.approx(2.2, rel=1e-5),
         },
     ]

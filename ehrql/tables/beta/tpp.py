@@ -27,6 +27,7 @@ __all__ = [
     "isaric_raw",
     "open_prompt",
     "apcs_cost",
+    "ec_cost",
 ]
 
 
@@ -518,6 +519,23 @@ class apcs_cost(EventFrame):
     tariff_initial_amount = Series(
         float,
         description="tariff_initial_amount",
+    )
+    tariff_total_payment = Series(
+        float,
+        description="tariff_total_payment",
+    )
+
+
+@table
+class ec_cost(EventFrame):
+    ec_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="apcs_ident",
+    )
+    grand_total_payment_mff = Series(
+        float,
+        description="grand_total_payment_mff",
     )
     tariff_total_payment = Series(
         float,

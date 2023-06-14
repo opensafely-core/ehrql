@@ -392,3 +392,14 @@ class TPPBackend(BaseBackend):
         FROM APCS_Cost
     """
     )
+
+    ec_cost = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            EC_Ident AS ec_ident,
+            Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            Tariff_Total_Payment AS tariff_total_payment
+        FROM EC_Cost
+    """
+    )
