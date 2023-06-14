@@ -16,6 +16,11 @@ nav:
 
 theme:
   name: material
+  features:
+    - content.action.edit
+    - content.code.copy
+    - navigation.footer
+    - navigation.indexes
 
 extra_css:
   - stylesheets/extra.css
