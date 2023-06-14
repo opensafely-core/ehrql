@@ -54,6 +54,10 @@ markdown_extensions:
   - footnotes
   - abbr
   - md_in_html
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 # This hook adds some clarifying studying around snippets that will be incorporated
 # from the parent repo, and is relevant for local development only.
