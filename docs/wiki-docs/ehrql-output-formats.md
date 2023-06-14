@@ -75,4 +75,4 @@ $ opensafely run run_all
 
 # What to read next
 
-:fast_forward: [ehrQL examples](ehrql-examples)
+:fast_forward: [ehrQL examples](ehrql-examples.md)

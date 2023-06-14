@@ -28,24 +28,24 @@ We use the following emoji in this documentation to indicate:
 but there should be enough for new users to get started.
 
 :spiral_notepad: If you have previously used cohort-extractor,
-you may find the [Coming to ehrQL from cohort-extractor](guidance-for-existing-cohort-extractor-users) page useful.
+you may find the [Coming to ehrQL from cohort-extractor](guidance-for-existing-cohort-extractor-users.md) page useful.
 
 The pages are designed to be read in order.
 
 ## Table of contents
 
-* [Getting help](getting-help)
-* [Introduction to ehrQL concepts](introduction-to-ehrql-concepts)
-* [ehrQL and OpenSAFELY](ehrql-and-opensafely)
-* [Installation and setup](installation-and-setup)
-* [Running ehrQL](running-ehrql)
-* [ehrQL concepts in depth](ehrql-concepts-in-depth)
-* [Data schema](the-ehrql-data-schema)
-* [Output formats](ehrql-output-formats)
-* [Examples](ehrql-examples)
-* [Errors](ehrql-errors)
-* [Guidance for existing cohort-extractor users](guidance-for-existing-cohort-extractor-users)
+* [Getting help](getting-help.md)
+* [Introduction to ehrQL concepts](introduction-to-ehrql-concepts.md)
+* [ehrQL and OpenSAFELY](ehrql-and-opensafely.md)
+* [Installation and setup](installation-and-setup.md)
+* [Running ehrQL](running-ehrql.md)
+* [ehrQL concepts in depth](ehrql-concepts-in-depth.md)
+* [Data schema](the-ehrql-data-schema.md)
+* [Output formats](ehrql-output-formats.md)
+* [Examples](ehrql-examples.md)
+* [Errors](ehrql-errors.md)
+* [Guidance for existing cohort-extractor users](guidance-for-existing-cohort-extractor-users.md)
 
 # What to read next
 
-:fast_forward: [Getting help](getting-help)
+:fast_forward: [Getting help](getting-help.md)

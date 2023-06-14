@@ -14,7 +14,7 @@ We can consider two kinds of table:
 
 ## Core tables
 
-If you have read these documentation pages in the [suggested order](ehrql-documentation#table-of-contents),
+If you have read these documentation pages in the [suggested order](ehrql-documentation.md#table-of-contents),
 then all the examples you will have seen access the _core_ tables.
 
 The core tables are intended to be compatible with multiple OpenSAFELY backends.
@@ -33,7 +33,7 @@ from ehrql.tables.beta.core import medications, patients
 
 where the `ehrql.tables.beta.core` specifies that we are using the core tables.
 
-:spiral_notepad: Read the page on the [ehrQL data schema](The-ehrQL-data-schema)
+:spiral_notepad: Read the page on the [ehrQL data schema](the-ehrql-data-schema.md)
 to learn how to understand which core tables are available,
 and the data schema for those tables.
 
@@ -69,10 +69,10 @@ the `addresses` table is specific to the TPP backend.
 The `patients` table is a core ehrQL table.
 We import both core and backend-specific tables within a single import statement.
 
-:spiral_notepad: Read the page on the [ehrQL data schema](The-ehrQL-data-schema)
+:spiral_notepad: Read the page on the [ehrQL data schema](the-ehrql-data-schema.md)
 to learn how to understand which backend-specific tables are available,
 and the data schema for those tables.
 
 # What to read next
 
-:fast_forward: [The ehrQL data schema](The-ehrQL-data-schema)
+:fast_forward: [The ehrQL data schema](the-ehrql-data-schema.md)

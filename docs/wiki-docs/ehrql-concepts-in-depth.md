@@ -2,7 +2,7 @@
 
 This page explains several important concepts that you should understand
 in order to write a dataset definition.
-It builds on the [introduction to ehrQL concepts](introduction-to-ehrql-concepts).
+It builds on the [introduction to ehrQL concepts](introduction-to-ehrql-concepts.md).
 
 ## An example dataset definition
 
@@ -37,9 +37,9 @@ Before that, we need to explain four important related types of object.
 
 ## Running in the sandbox
 
-The explanations that follow make use of the [ehrQL sandbox](running-ehrql#sandbox-mode).
+The explanations that follow make use of the [ehrQL sandbox](running-ehrql.md#sandbox-mode).
 
-:spiral_notepad: You need to have already followed the steps in the [Installation and setup](installation-and-setup) page
+:spiral_notepad: You need to have already followed the steps in the [Installation and setup](installation-and-setup.md) page
 to have the `opensafely` command installed and the example dummy data downloaded.
 
 You can follow along by starting the sandbox:
@@ -379,4 +379,4 @@ instead of repeatedly editing a dataset definition and re-running it.
 
 # What to read next
 
-:fast_forward: [ehrQL backend tables](ehrQL-backend-tables)
+:fast_forward: [ehrQL backend tables](ehrql-backend-tables.md)

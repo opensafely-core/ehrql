@@ -12,11 +12,11 @@ For now, you should ask for help in the `#ehrql-support` channel in Slack.
 **hearing from ehrQL users what you find trickier to do or understand will help us improve ehrQL**.
 
 And in particular,
-if you see a strange error message that's not documented in [our catalogue of common errors](ehrql-errors),
+if you see a strange error message that's not documented in [our catalogue of common errors](ehrql-errors.md),
 let us know.
 
 In future, we plan to hold regular ehrQL help clinics for new users.
 
 # What to read next
 
-:fast_forward: [Introduction to ehrQL concepts](https://github.com/opensafely-core/ehrql/wiki/introduction-to-ehrql-concepts)
+:fast_forward: [Introduction to ehrQL concepts](introduction-to-ehrql-concepts.md)

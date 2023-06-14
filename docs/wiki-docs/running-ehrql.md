@@ -30,7 +30,7 @@ The ehrQL sandbox can help minimise constant re-editing and re-running of your d
 by allowing you to interactively query some dummy data.
 
 You need to have a directory containing CSV files of dummy data.
-If you followed the steps in [Installation and setup](installation-and-setup),
+If you followed the steps in [Installation and setup](installation-and-setup.md),
 you will have a suitable directory of CSV files at `learning-ehrql/example-data`.
 
 :computer:
@@ -92,7 +92,7 @@ Now, you can inspect the contents of these tables, by entering the names of the 
     9                 | 9                 | 2015-03-14        | 3484711000001105
 
 :warning: If you see an error when trying to access these tables,
-check that you have the [dummy data files in the correct location](installation-and-setup#check-all-the-files-are-in-the-correct-place).
+check that you have the [dummy data files in the correct location](installation-and-setup.md#check-all-the-files-are-in-the-correct-place).
 
 And you can enter ehrQL to perform queries, such as this one:
 
@@ -146,7 +146,7 @@ If you enter some invalid ehrQL, you will see an error message:
 
 :grey_question: Can you work out what this is telling us?
 
-Refer to [the catalogue of errors](ehrql-errors) for details of common error messages and what they mean.
+Refer to [the catalogue of errors](ehrql-errors.md) for details of common error messages and what they mean.
 
 ### Exiting the sandbox
 
@@ -264,7 +264,7 @@ This is one example:
                            ^^^^^^^^^^^^^^^^^^^
     AttributeError: 'medications' object has no attribute 'dat'
 
-Refer to [the catalogue of errors](ehrql-errors) for help with interpreting error messages.
+Refer to [the catalogue of errors](ehrql-errors.md) for help with interpreting error messages.
 
 ## 3. Running ehrQL in an OpenSAFELY pipeline via `opensafely run`
 
@@ -397,4 +397,4 @@ before you can submit your project to the jobs site.
 
 # What to read next
 
-:fast_forward: [ehrQL concepts in depth](ehrql-concepts-in-depth)
+:fast_forward: [ehrQL concepts in depth](ehrql-concepts-in-depth.md)

@@ -30,7 +30,7 @@ In summary:
 Because OpenSAFELY doesn't allow researchers direct access to patient data,
 researchers must use dummy data for developing their analysis code on their own computer.
 
-When an ehrQL action is executed on a researcher's computer (see [Running ehrQL](running-ehrql)),
+When an ehrQL action is executed on a researcher's computer (see [Running ehrQL](running-ehrql.md)),
 ehrQL can generate random dummy data based on the properties of the tables used in the dataset definition.
 Alternatively, users can also provide their own dummy data.
 
@@ -46,4 +46,4 @@ More information about the jobs site and and how to run a study can be found in 
 
 # What to read next
 
-:fast_forward: [Installation and setup](installation-and-setup)
+:fast_forward: [Installation and setup](installation-and-setup.md)

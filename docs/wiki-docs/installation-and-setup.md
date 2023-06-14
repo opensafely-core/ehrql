@@ -7,7 +7,7 @@ This page guides you to
 * download a directory of dummy data that we will use
   for demonstrations in the rest of the documentation
 
-It assumes that you have already read the short [[Introduction to ehrQL concepts|introduction-to-ehrql-concepts]].
+It assumes that you have already read the short [Introduction to ehrQL concepts](introduction-to-ehrql-concepts.md).
 
 ## Working with ehrQL
 
@@ -120,7 +120,7 @@ Did you see something similar?
 then everything is set up correctly.
 You can continue with the rest of this tutorial.\
 :x: If you do not see similar help text to above or you get an error,
-please [contact us](getting-help)
+please [contact us](getting-help.md)
 and we can help you get started.
 
 ## Downloading some dummy data
@@ -147,7 +147,7 @@ You will need to change directory to that directory before running commands.
 
 ### Check all the files are in the correct place
 
-:warning: Before continuing to learn more about [running ehrQL](running-ehrql),
+:warning: Before continuing to learn more about [running ehrQL](running-ehrql.md),
 check that you have the following structure for your files:
 
         learning-ehrql
@@ -161,4 +161,4 @@ check that you have the following structure for your files:
 
 # What to read next
 
-:fast_forward: [Running ehrQL](running-ehrql)
+:fast_forward: [Running ehrQL](running-ehrql.md)

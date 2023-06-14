@@ -10,7 +10,7 @@ and then jump to a specific example of interest.
 ### Examples in this page all use the TPP backend
 
 :construction: For consistency throughout the examples,
-and to make it possible to use [backend-specific tables in addition to core tables](ehrql-backend-tables),
+and to make it possible to use [backend-specific tables in addition to core tables](ehrql-backend-tables.md),
 the example dataset definitions here all use the TPP backend.
 
 ### Some examples use `codelist_from_csv()`
@@ -762,4 +762,4 @@ dataset.weeks_between_diagnosis_and_review = (first_asthma_review - first_asthma
 
 # What to read next
 
-:fast_forward: [ehrQL errors](ehrql-errors)
+:fast_forward: [ehrQL errors](ehrql-errors.md)

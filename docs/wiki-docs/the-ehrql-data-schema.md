@@ -39,7 +39,7 @@ Very briefly, to understand this page:
 * Frames are table-like, with rows and columns.
 * Series are column-like, containing a sequence of values.
 
-:spiral_notepad: There is a more detailed explanation of [frames and series](ehrql-concepts-in-depth#core-types-of-object).
+:spiral_notepad: There is a more detailed explanation of [frames and series](ehrql-concepts-in-depth.md#core-types-of-object).
 
 ## Columns as series
 
@@ -51,10 +51,10 @@ Very briefly, to understand this page:
 
 * There may be certain constraints on column values to ensure that all values are valid.
 
-# Example
+## Example
 
 :warning: This is a worked example using a [snapshot in time of the code as of 2023-05-03](https://github.com/opensafely-core/ehrql/blob/1fb4ab97912bf1f4fe7c95cf710bb40ded8966c9/ehrql/tables/beta/tpp.py).
-It may not represent the latest schema. (The latest version of the source code is [linked at the top of this page](The-ehrQL-data-schema#latest-version-of-the-tpp-schema).)
+It may not represent the latest schema. (The latest version of the source code is [linked at the top of this page](the-ehrql-data-schema.md#latest-version-of-the-tpp-schema).)
 
 ## Practice registrations
 
@@ -103,7 +103,7 @@ From this code, we can deduce that:
     ```python
     from ehrql.tables.beta.tpp import practice_registrations
     ```
-* The `practice_registrations` table is based on an [`EventFrame`](ehrql-concepts-in-depth#event-frames).
+* The `practice_registrations` table is based on an [`EventFrame`](ehrql-concepts-in-depth.md#event-frames).
 * The `practice_registrations` table has five columns:
   * `start_date`
     * `datetime.date` type
@@ -128,4 +128,4 @@ From this code, we can deduce that:
 
 # What to read next
 
-:fast_forward: [Output formats](ehrql-output-formats)
+:fast_forward: [Output formats](ehrql-output-formats.md)
