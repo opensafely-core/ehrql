@@ -885,8 +885,3 @@ dataset.age_30_list = age.is_in([30])
 dataset.age_30_or_40_set = age.is_in({30, 40})
 dataset.age_30_or_40_tuple = age.is_in((30, 40))
 ```
-
-# What to read next
-
-:fast_forward: If you are a cohort-extractor user,
-you may find the [Guidance for existing cohort-extractor users](guidance-for-existing-cohort-extractor-users.md) page useful.

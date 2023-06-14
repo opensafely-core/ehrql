@@ -125,7 +125,3 @@ From this code, we can deduce that:
   we can access columns on the `practice_registrations` table
   by specifying the table name and column name separated by a dot.
   * Example: `practice_registrations.start_date`
-
-# What to read next
-
-:fast_forward: [Output formats](ehrql-output-formats.md)

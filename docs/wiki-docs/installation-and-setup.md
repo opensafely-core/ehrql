@@ -158,7 +158,3 @@ check that you have the following structure for your files:
              ├─ ons_deaths.csv
              ├─ patients.csv
              └─ practice_registrations.csv
-
-# What to read next
-
-:fast_forward: [Running ehrQL](running-ehrql.md)

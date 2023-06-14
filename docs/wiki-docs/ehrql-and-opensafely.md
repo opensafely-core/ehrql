@@ -43,7 +43,3 @@ Executing a dataset definition against real data in an OpenSAFELY backend involv
 [OpenSAFELY jobs site](https://jobs.opensafely.org).
 More information about the jobs site and and how to run a study can be found in the
 [OpenSAFELY documentation](https://docs.opensafely.org/jobs-site/).
-
-# What to read next
-
-:fast_forward: [Installation and setup](installation-and-setup.md)

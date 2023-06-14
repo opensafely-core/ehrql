@@ -376,7 +376,3 @@ dataset.asthma_med_code = latest_asthma_medication.code
 when developing your ehrQL queries.
 It can sometimes be quicker to try out ideas interactively via the sandbox first,
 instead of repeatedly editing a dataset definition and re-running it.
-
-# What to read next
-
-:fast_forward: [ehrQL backend tables](ehrql-backend-tables.md)

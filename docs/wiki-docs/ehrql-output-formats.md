@@ -72,7 +72,3 @@ $ opensafely run run_all
    __root__
      --output in run command and outputs must match (type=value_error)
 ```
-
-# What to read next
-
-:fast_forward: [ehrQL examples](ehrql-examples.md)

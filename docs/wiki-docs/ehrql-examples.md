@@ -759,7 +759,3 @@ first_asthma_review = clinical_events.where(
 
 dataset.weeks_between_diagnosis_and_review = (first_asthma_review - first_asthma_diagnosis).weeks
 ```
-
-# What to read next
-
-:fast_forward: [ehrQL errors](ehrql-errors.md)

@@ -394,7 +394,3 @@ before you can submit your project to the jobs site.
 * :grey_question: Why would you use the ehrQL sandbox?
 * :grey_question: Which `opensafely` command would you use to run just a dataset definition as a single action?
 * :grey_question: Which `opensafely` command would you use to run an entire OpenSAFELY project consisting of multiple actions?
-
-# What to read next
-
-:fast_forward: [ehrQL concepts in depth](ehrql-concepts-in-depth.md)

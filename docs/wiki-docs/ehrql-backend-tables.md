@@ -72,7 +72,3 @@ We import both core and backend-specific tables within a single import statement
 :notepad_spiral: Read the page on the [ehrQL data schema](the-ehrql-data-schema.md)
 to learn how to understand which backend-specific tables are available,
 and the data schema for those tables.
-
-# What to read next
-
-:fast_forward: [The ehrQL data schema](the-ehrql-data-schema.md)

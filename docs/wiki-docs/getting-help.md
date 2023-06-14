@@ -16,7 +16,3 @@ if you see a strange error message that's not documented in [our catalogue of co
 let us know.
 
 In future, we plan to hold regular ehrQL help clinics for new users.
-
-# What to read next
-
-:fast_forward: [Introduction to ehrQL concepts](introduction-to-ehrql-concepts.md)

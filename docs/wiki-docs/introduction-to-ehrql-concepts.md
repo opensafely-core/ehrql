@@ -85,7 +85,3 @@ might generate a CSV file containing the following rows:
 | 1 | 2018-09-21 | 39113311000001107
 | 4 | 2017-05-11 | 39113611000001102
 | 5 | 2019-07-06 | 39113611000001102
-
-# What to read next
-
-:fast_forward: [ehrQL and OpenSAFELY](ehrql-and-opensafely.md)

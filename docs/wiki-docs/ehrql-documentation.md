@@ -45,7 +45,3 @@ The pages are designed to be read in order.
 * [Examples](ehrql-examples.md)
 * [Errors](ehrql-errors.md)
 * [Guidance for existing cohort-extractor users](guidance-for-existing-cohort-extractor-users.md)
-
-# What to read next
-
-:fast_forward: [Getting help](getting-help.md)
