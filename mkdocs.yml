@@ -14,20 +14,27 @@ nav:
   - Home: index.md
   - Old Table of Contents: toc.md
   - ehrQL wiki docs:
-    - ehrQL documentation: wiki-docs/ehrql-documentation.md
-    - Getting help: wiki-docs/getting-help.md
-    - ehrQL core concepts: wiki-docs/core-concepts.md
-    - Introduction to ehrQL concepts: wiki-docs/introduction-to-ehrql-concepts.md
-    - ehrQL and OpenSAFELY: wiki-docs/ehrql-and-opensafely.md
-    - Installation and setup: wiki-docs/installation-and-setup.md
-    - Running ehrQL: wiki-docs/running-ehrql.md
-    - ehrQL concepts in depth: wiki-docs/ehrql-concepts-in-depth.md
-    - ehrQL backend tables: wiki-docs/ehrql-backend-tables.md
-    - ehrQL data schema: wiki-docs/the-ehrql-data-schema.md
-    - ehrQL output formats: wiki-docs/ehrql-output-formats.md
-    - ehrQL examples: wiki-docs/ehrql-examples.md
-    - ehrQL errors: wiki-docs/ehrql-errors.md
-    - Guidance for existing cohort-extractor users: wiki-docs/guidance-for-existing-cohort-extractor-users.md
+    - Introduction:
+      - ehrQL documentation: wiki-docs/ehrql-documentation.md
+      - ehrQL overview: wiki-docs/core-concepts.md
+      - Getting help with ehrQL: wiki-docs/getting-help.md
+      - Guidance for existing cohort-extractor users: wiki-docs/guidance-for-existing-cohort-extractor-users.md
+    - Tutorial:
+      - Introduction to ehrQL concepts: wiki-docs/introduction-to-ehrql-concepts.md
+      - ehrQL and OpenSAFELY: wiki-docs/ehrql-and-opensafely.md
+      - Installation and setup: wiki-docs/installation-and-setup.md
+      - Running ehrQL: wiki-docs/running-ehrql.md
+      - ehrQL concepts in depth: wiki-docs/ehrql-concepts-in-depth.md
+    - Explanation:
+      - ehrQL backend tables: wiki-docs/ehrql-backend-tables.md
+      - ehrQL data schema: wiki-docs/the-ehrql-data-schema.md
+      - ehrQL output formats: wiki-docs/ehrql-output-formats.md
+      - ehrQL examples: wiki-docs/ehrql-examples.md
+      - ehrQL errors: wiki-docs/ehrql-errors.md
+    - Reference:
+      - ehrQL features: ehrql/reference.md
+      - ehrQL backends: backends/
+      - ehrQL schemas: schemas/
 
 theme:
   name: material
