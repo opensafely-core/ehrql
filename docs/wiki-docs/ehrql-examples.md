@@ -150,7 +150,7 @@ The possible values are "female", "male", "intersex", and "unknown".
 
 ### Finding each patient's ethnicity
 
-This is more complicated.  TODO.
+:construction: This is more complicated and will be added in future.
 
 ## Finding attributes related to each patient's address as of a given date
 
