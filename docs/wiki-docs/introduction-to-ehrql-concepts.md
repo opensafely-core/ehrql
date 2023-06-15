@@ -1,5 +1,3 @@
-# Introduction to ehrQL concepts
-
 This page outlines some important concepts that you should understand
 before reading the rest of the documentation.
 

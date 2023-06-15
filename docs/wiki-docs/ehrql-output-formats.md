@@ -1,5 +1,3 @@
-# Supported output formats
-
 The following output formats are supported:
 
 ## :heavy_check_mark: Recommended

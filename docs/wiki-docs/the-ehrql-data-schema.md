@@ -1,4 +1,4 @@
-# A very brief introduction to navigating the schema
+This is a brief introduction to the ehrQL schema.
 
 :construction: We intend to add more information,
 in an easier to use form here.

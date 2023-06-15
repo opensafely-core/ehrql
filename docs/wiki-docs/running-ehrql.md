@@ -1,5 +1,3 @@
-# Running ehrQL
-
 You can run ehrQL in two places:
 
 * on your own computer,

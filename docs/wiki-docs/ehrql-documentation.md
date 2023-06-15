@@ -1,5 +1,3 @@
-# ehrQL Documentation
-
 Welcome to the ehrQL documentation!
 
 **ehrQL** is a Python-based query language for electronic health record (EHR) data.

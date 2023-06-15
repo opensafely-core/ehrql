@@ -1,5 +1,3 @@
-# Getting help
-
 If you are confused or stuck, muddled, addled, befuddled or bemused,
 and cannot easily find what you are looking for in this documentation, then:
 

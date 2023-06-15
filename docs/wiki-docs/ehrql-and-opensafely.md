@@ -1,5 +1,3 @@
-# ehrQL and OpenSAFELY
-
 This page describes how ehrQL fits in with a full OpenSAFELY project.
 
 In one sentence:

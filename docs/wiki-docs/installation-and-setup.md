@@ -1,5 +1,3 @@
-# Installation and setup
-
 This page guides you to
 
 * install the necessary prerequisites for running ehrQL on your own computer;

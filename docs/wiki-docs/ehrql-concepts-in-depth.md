@@ -1,5 +1,3 @@
-# ehrQL concepts in depth
-
 This page explains several important concepts that you should understand
 in order to write a dataset definition.
 It builds on the [introduction to ehrQL concepts](introduction-to-ehrql-concepts.md).
