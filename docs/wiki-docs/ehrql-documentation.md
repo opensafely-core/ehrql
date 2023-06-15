@@ -1,15 +1,9 @@
-Welcome to the ehrQL documentation!
-
 **ehrQL** is a Python-based query language for electronic health record (EHR) data.
 It has been designed for use with the [OpenSAFELY platform](https://docs.opensafely.org).
 
-This documentation is stored in this wiki
-while it undergoes rapid revision.
-We plan to eventually migrate this documentation to the [OpenSAFELY documentation site](https://docs.opensafely.org).
-
 ## Conventions
 
-We use the following emoji in this documentation to indicate:
+We use the following emoji in the ehrQL documentation section to indicate:
 
 * :construction: *sections of the documentation
   or ehrQL features that still require further work*
@@ -28,4 +22,6 @@ but there should be enough for new users to get started.
 :notepad_spiral: If you have previously used cohort-extractor,
 you may find the [Coming to ehrQL from cohort-extractor](guidance-for-existing-cohort-extractor-users.md) page useful.
 
-The pages are designed to be read in order.
+The pages and sections are designed to be read in order.
+The reference section is most useful to consult when actually writing ehrQL,
+though you may find it useful to skim through to get a feel for how ehrQL works.
