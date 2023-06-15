@@ -719,7 +719,7 @@ dataset.year_of_first = clinical_events.where(
 
 ```
 
-### Finding prescriptions made in paricular months of the year
+### Finding prescriptions made in particular months of the year
 
 ```python
 from databuilder.ehrql import Dataset
