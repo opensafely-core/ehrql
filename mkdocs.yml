@@ -16,7 +16,7 @@ nav:
   - ehrQL wiki docs:
     - Introduction:
       - ehrQL documentation: wiki-docs/ehrql-documentation.md
-      - ehrQL overview: wiki-docs/core-concepts.md
+      - ehrQL overview: wiki-docs/ehrql-overview.md
       - Getting help with ehrQL: wiki-docs/getting-help.md
       - Guidance for existing cohort-extractor users: wiki-docs/guidance-for-existing-cohort-extractor-users.md
     - Tutorial:
