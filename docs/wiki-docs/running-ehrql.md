@@ -133,7 +133,7 @@ Or this one:
 
 :grey_question: Can you work out what these do?
 
-### When things go wrong
+#### When things go wrong
 
 If you enter some invalid ehrQL, you will see an error message:
 
@@ -146,7 +146,7 @@ If you enter some invalid ehrQL, you will see an error message:
 
 Refer to [the catalogue of errors](ehrql-errors.md) for details of common error messages and what they mean.
 
-### Exiting the sandbox
+#### Exiting the sandbox
 
 To exit the sandbox,
 type `exit()` and then press the return key
@@ -264,7 +264,7 @@ This is one example:
 
 Refer to [the catalogue of errors](ehrql-errors.md) for help with interpreting error messages.
 
-## 3. Running ehrQL in an OpenSAFELY pipeline via `opensafely run`
+### 3. Running ehrQL in an OpenSAFELY pipeline via `opensafely run`
 
 To run your ehrQL queries as part of an OpenSAFELY pipeline with `opensafely run`,
 you need to have a file called `project.yaml`.
@@ -336,7 +336,7 @@ in `project.yaml`:
 :notepad_spiral: If is this is the first time you have used `opensafely exec`,
 the OpenSAFELY CLI may fetch some other Docker images (`python` and `busybox`) needed to run the action.
 
-### What you should see when you run the command
+#### What you should see when you run the command
 
 You should see in the logs output displayed similar to this:
 
@@ -368,7 +368,7 @@ You should see in the logs output displayed similar to this:
 
 :notepad_spiral: Some of the middle lines of this log have been omitted.
 
-### The output files
+#### The output files
 
 The `generate_dataset` action will generate a compressed CSV file called `dataset.csv.gz` in the `output` directory.
 If you unzip this, you should see the same output as the previous example.

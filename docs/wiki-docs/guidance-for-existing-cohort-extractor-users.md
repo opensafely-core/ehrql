@@ -4,7 +4,7 @@ from the perspective of users that already have experience with cohort-extractor
 :warning: If you are learning ehrQL without having any experience of using cohort-extractor,
 the content here may be less relevant for you.
 
-# How does ehrQL relate to cohort-extractor?
+## How does ehrQL relate to cohort-extractor?
 
 * In the long term, ehrQL is intended to eventually replace the existing OpenSAFELY cohort-extractor tool.
   * ehrQL uses dataset definitions in place of [cohort-extractor's study definitions](https://docs.opensafely.org/study-def/).
@@ -16,13 +16,13 @@ the content here may be less relevant for you.
    * In principle, provided that ehrQL supports all the features that you need,
      then you could replace any cohort-extractor steps in an existing OpenSAFELY project with ehrQL instead.
 
-# Does ehrQL do everything that cohort-extractor already does?
+## Does ehrQL do everything that cohort-extractor already does?
 
 * ehrQL is eventually intended to be a complete replacement for cohort-extractor.
 * ehrQL can already be used to complete many of the kinds of data query extraction that cohort-extractor was used for.
 * However, development is still ongoing.
 
-# Why is ehrQL being developed?
+## Why is ehrQL being developed?
 
 * ehrQL has several goals; two of these are particularly relevant to researchers:
   * With ehrQL, we aim to simplify the learning curve for researchers querying electronic health records
@@ -34,7 +34,7 @@ the content here may be less relevant for you.
     where features have been "bolted on" over time.
     By doing so, we should be able to shorten the time to add features that researchers want.
 
-# How do I replicate a certain data query pattern from cohort-extractor in ehrQL, or migrate my study definition to a dataset definition?
+## How do I replicate a certain data query pattern from cohort-extractor in ehrQL, or migrate my study definition to a dataset definition?
 
 * :construction: We intend to add examples of certain cohort-extractor patterns
   and their ehrQL analogues.

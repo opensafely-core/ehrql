@@ -576,7 +576,7 @@ dataset.count_ics_prescriptions_2wks_post_diagnosis = medications.where(
 
 ## Performing arithmetic on numeric values of clinical events
 
-## Finding the mean observed value of clinical events matching some criteria
+### Finding the mean observed value of clinical events matching some criteria
 
 ```python
 from databuilder.ehrql import Dataset, codelist_from_csv

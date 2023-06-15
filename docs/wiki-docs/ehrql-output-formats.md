@@ -1,25 +1,27 @@
+## Supported output formats
+
 The following output formats are supported:
 
-## :heavy_check_mark: Recommended
+### :heavy_check_mark: Recommended
 
 * `.arrow` — Apache Arrow format
 * `.csv.gz` — compressed CSV format
 
-## :x: Not recommended
+### :x: Not recommended
 
 * `.csv` — uncompressed CSV format
 
 :warning: The uncompressed CSV format is [not recommended](https://www.opensafely.org/changelog/2023-02-02/),
 because this produces *much larger* files than the alternative formats.
 
-# :construction: Unsupported output formats
+## :construction: Unsupported output formats
 
 * `.dta` and `.dta.gz` — Stata formats
   * Stata output support is still in development.
   * There is an [open ehrQL issue](https://github.com/opensafely-core/ehrql/issues/794) that discusses the work
     of supporting a suitable format for Stata.
 
-# Selecting an output format
+## Selecting an output format
 
 You select an output format
 when you use the `--output` option to specify an output filename for ehrQL.
@@ -28,21 +30,21 @@ The filename *extension* — for example, `.arrow` — that you provide determin
 If you specify a filename extension that is not supported,
 you will get an error telling you so.
 
-## Examples with `opensafely exec`
+### Examples with `opensafely exec`
 
-### `.arrow`
+#### `.arrow`
 
 ```
 opensafely exec databuilder:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.arrow"
 ```
 
-### `.csv.gz`
+#### `.csv.gz`
 
 ```
 opensafely exec databuilder:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.csv.gz"
 ```
 
-## Example `project.yaml`
+### Example `project.yaml`
 
 ```yaml
 version: "3.0"

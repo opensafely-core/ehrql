@@ -23,7 +23,7 @@ to know what you can access in which table.
 This is not ideal,
 but it is not as daunting as it might sound.
 
-## Tables
+### Tables
 
 * Each `class` with `@table` above it defines an ehrQL table.
 * We make tables available for use within ehrQL via an import statement.
@@ -32,7 +32,7 @@ but it is not as daunting as it might sound.
   from ehrql.tables.beta.tpp import addresses, patients
   ```
 
-## Frames and series
+### Frames and series
 
 Very briefly, to understand this page:
 
@@ -41,13 +41,13 @@ Very briefly, to understand this page:
 
 :notepad_spiral: There is a more detailed explanation of [frames and series](ehrql-concepts-in-depth.md#core-types-of-object).
 
-## Columns as series
+### Columns as series
 
 * Attributes on each table class typically correspond to table columns,
   and are defined as `Series`.
 * The data type for the column is specified inside the `Series()` expression.
 
-## Constraints on column values
+### Constraints on column values
 
 * There may be certain constraints on column values to ensure that all values are valid.
 
@@ -56,7 +56,7 @@ Very briefly, to understand this page:
 :warning: This is a worked example using a [snapshot in time of the code as of 2023-05-03](https://github.com/opensafely-core/ehrql/blob/1fb4ab97912bf1f4fe7c95cf710bb40ded8966c9/ehrql/tables/beta/tpp.py).
 It may not represent the latest schema. (The latest version of the source code is [linked at the top of this page](the-ehrql-data-schema.md#latest-version-of-the-tpp-schema).)
 
-## Practice registrations
+### Practice registrations
 
 The ehrQL software code snippet below can be [seen in full context in the source](https://github.com/opensafely-core/ehrql/blob/1fb4ab97912bf1f4fe7c95cf710bb40ded8966c9/ehrql/tables/beta/tpp.py#L35-L66).
 

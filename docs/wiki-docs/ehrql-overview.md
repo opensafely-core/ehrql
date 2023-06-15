@@ -1,7 +1,7 @@
 This page gives a very concise guide to ehrQL,
 with links in each section to more detailed explanations.
 
-# What is ehrQL?
+## What is ehrQL?
 
 * ehrQL is a Python-based query language for electronic health record (EHR) data.
 * You run ehrQL in OpenSAFELY to query data and produce an output file with one row per patient and one column per feature of interest.
@@ -11,7 +11,7 @@ with links in each section to more detailed explanations.
   * number of prescriptions of a particular drug
 * :bulb: This [explanation gives an overview of what ehrQL is and how it works](ehrql-concepts-in-depth.md).
 
-# What data can I access through ehrQL?
+## What data can I access through ehrQL?
 
 * Primary care EHR data such as:
   * [patient demographics](https://github.com/opensafely-core/ehrql/blob/c28b2e82defe43c2c1e8f379fb9308a952455d52/databuilder/tables/beta/tpp.py#L27-L58)
@@ -22,20 +22,20 @@ with links in each section to more detailed explanations.
 * A full [list of datasets available through OpenSAFELY is available](https://docs.opensafely.org/data-sources/).
   * :warning: We are working on making these available through ehrQL, but all may not yet be available.
 
-# ehrQL builds datasets that detail features of populations
+## ehrQL builds datasets that detail features of populations
 
 * ehrQL uses *dataset definitions* to query electronic health record data.
 * The result of a *dataset definition* is a *dataset*.
 * Datasets are a tabular collection of *features* describing *populations*.
 * :bulb: There is a [full explanation of these concepts](ehrql-concepts-in-depth.md).
 
-# How to run ehrQL
+## How to run ehrQL
 
 * In just one concise line: write a dataset definition,
   and then use `opensafely-cli` to run the ehrQL in that dataset definition.
 * :bulb: There is a [tutorial that introduces how to run ehrQL](running-ehrql.md).
 
-# How does ehrQL fit in with a full OpenSAFELY project?
+## How does ehrQL fit in with a full OpenSAFELY project?
 
 * Typically, ehrQL is used when working on a full OpenSAFELY project.
   A project may involve data querying and extraction,
