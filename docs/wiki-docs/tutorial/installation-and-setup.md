@@ -5,7 +5,7 @@ This page guides you to
 * download a directory of dummy data that we will use
   for demonstrations in the rest of the documentation
 
-It assumes that you have already read the short [Introduction to ehrQL concepts](introduction-to-ehrql-concepts.md).
+It assumes that you have already read the short [Introduction to ehrQL concepts](introduction-to-concepts.md).
 
 ## Working with ehrQL
 

@@ -39,7 +39,7 @@ Very briefly, to understand this page:
 * Frames are table-like, with rows and columns.
 * Series are column-like, containing a sequence of values.
 
-:notepad_spiral: There is a more detailed explanation of [frames and series](../tutorial/ehrql-concepts-in-depth.md#core-types-of-object).
+:notepad_spiral: There is a more detailed explanation of [frames and series](../tutorial/dataset-definition-concepts.md#core-types-of-object).
 
 ### Columns as series
 
@@ -54,7 +54,7 @@ Very briefly, to understand this page:
 ## Example
 
 :warning: This is a worked example using a [snapshot in time of the code as of 2023-05-03](https://github.com/opensafely-core/ehrql/blob/1fb4ab97912bf1f4fe7c95cf710bb40ded8966c9/ehrql/tables/beta/tpp.py).
-It may not represent the latest schema. (The latest version of the source code is [linked at the top of this page](the-ehrql-data-schema.md#latest-version-of-the-tpp-schema).)
+It may not represent the latest schema. (The latest version of the source code is [linked at the top of this page](data-schema.md#latest-version-of-the-tpp-schema).)
 
 ### Practice registrations
 
@@ -103,7 +103,7 @@ From this code, we can deduce that:
     ```python
     from ehrql.tables.beta.tpp import practice_registrations
     ```
-* The `practice_registrations` table is based on an [`EventFrame`](../tutorial/ehrql-concepts-in-depth.md#event-frames).
+* The `practice_registrations` table is based on an [`EventFrame`](../tutorial/dataset-definition-concepts.md#event-frames).
 * The `practice_registrations` table has five columns:
   * `start_date`
     * `datetime.date` type

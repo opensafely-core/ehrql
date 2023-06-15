@@ -93,7 +93,7 @@ To narrow down the search, you could try:
 ### Examples currently use the TPP backend
 
 :construction: For consistency throughout the examples,
-and to make it possible to use [backend-specific tables in addition to core tables](ehrql-backend-tables.md),
+and to make it possible to use [backend-specific tables in addition to core tables](backend-tables.md),
 the example dataset definitions here all use the TPP backend.
 
 ## Python syntax errors

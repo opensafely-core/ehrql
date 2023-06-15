@@ -144,7 +144,7 @@ If you enter some invalid ehrQL, you will see an error message:
 
 :grey_question: Can you work out what this is telling us?
 
-Refer to [the catalogue of errors](../explanation/ehrql-errors.md) for details of common error messages and what they mean.
+Refer to [the catalogue of errors](../explanation/errors.md) for details of common error messages and what they mean.
 
 #### Exiting the sandbox
 
@@ -262,7 +262,7 @@ This is one example:
                            ^^^^^^^^^^^^^^^^^^^
     AttributeError: 'medications' object has no attribute 'dat'
 
-Refer to [the catalogue of errors](../explanation/ehrql-errors.md) for help with interpreting error messages.
+Refer to [the catalogue of errors](../explanation/errors.md) for help with interpreting error messages.
 
 ### 3. Running ehrQL in an OpenSAFELY pipeline via `opensafely run`
 

@@ -15,22 +15,22 @@ nav:
   - Old Table of Contents: toc.md
   - ehrQL wiki docs:
     - Introduction:
-      - ehrQL documentation: wiki-docs/introduction/ehrql-documentation.md
-      - ehrQL overview: wiki-docs/introduction/ehrql-overview.md
-      - Getting help with ehrQL: wiki-docs/introduction/getting-help.md
+      - Using this documentation: wiki-docs/introduction/using-this-documentation.md
+      - Overview: wiki-docs/introduction/overview.md
+      - Getting help: wiki-docs/introduction/getting-help.md
       - Guidance for existing cohort-extractor users: wiki-docs/introduction/guidance-for-existing-cohort-extractor-users.md
     - Tutorial:
-      - Introduction to ehrQL concepts: wiki-docs/tutorial/introduction-to-ehrql-concepts.md
-      - ehrQL and OpenSAFELY: wiki-docs/tutorial/ehrql-and-opensafely.md
-      - Installation and setup: wiki-docs/tutorial/installation-and-setup.md
+      - Introduction to ehrQL concepts: wiki-docs/tutorial/introduction-to-concepts.md
+      - Using ehrQL in OpenSAFELY projects: wiki-docs/tutorial/using-ehrql-in-opensafely-projects.md
+      - Installation and setup of ehrQL: wiki-docs/tutorial/installation-and-setup.md
       - Running ehrQL: wiki-docs/tutorial/running-ehrql.md
-      - ehrQL concepts in depth: wiki-docs/tutorial/ehrql-concepts-in-depth.md
+      - ehrQL concepts in depth: wiki-docs/tutorial/dataset-definition-concepts.md
     - Explanation:
-      - ehrQL backend tables: wiki-docs/explanation/ehrql-backend-tables.md
-      - ehrQL data schema: wiki-docs/explanation/the-ehrql-data-schema.md
-      - ehrQL output formats: wiki-docs/explanation/ehrql-output-formats.md
-      - ehrQL examples: wiki-docs/explanation/ehrql-examples.md
-      - ehrQL errors: wiki-docs/explanation/ehrql-errors.md
+      - ehrQL backend tables: wiki-docs/explanation/backend-tables.md
+      - ehrQL data schema: wiki-docs/explanation/data-schema.md
+      - ehrQL output formats: wiki-docs/explanation/output-formats.md
+      - ehrQL examples: wiki-docs/explanation/examples.md
+      - ehrQL errors: wiki-docs/explanation/errors.md
     - Reference:
       - ehrQL features: ehrql/reference.md
       - ehrQL backends: backends/

@@ -33,7 +33,7 @@ from ehrql.tables.beta.core import medications, patients
 
 where the `ehrql.tables.beta.core` specifies that we are using the core tables.
 
-:notepad_spiral: Read the page on the [ehrQL data schema](the-ehrql-data-schema.md)
+:notepad_spiral: Read the page on the [ehrQL data schema](data-schema.md)
 to learn how to understand which core tables are available,
 and the data schema for those tables.
 
@@ -69,6 +69,6 @@ the `addresses` table is specific to the TPP backend.
 The `patients` table is a core ehrQL table.
 We import both core and backend-specific tables within a single import statement.
 
-:notepad_spiral: Read the page on the [ehrQL data schema](the-ehrql-data-schema.md)
+:notepad_spiral: Read the page on the [ehrQL data schema](data-schema.md)
 to learn how to understand which backend-specific tables are available,
 and the data schema for those tables.

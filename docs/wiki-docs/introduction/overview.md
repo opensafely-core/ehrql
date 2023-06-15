@@ -9,7 +9,7 @@ with links in each section to more detailed explanations.
   * age
   * BMI
   * number of prescriptions of a particular drug
-* :bulb: This [explanation gives an overview of what ehrQL is and how it works](../tutorial/ehrql-concepts-in-depth.md).
+* :bulb: This [explanation gives an overview of what ehrQL is and how it works](../tutorial/dataset-definition-concepts.md).
 
 ## What data can I access through ehrQL?
 
@@ -27,7 +27,7 @@ with links in each section to more detailed explanations.
 * ehrQL uses *dataset definitions* to query electronic health record data.
 * The result of a *dataset definition* is a *dataset*.
 * Datasets are a tabular collection of *features* describing *populations*.
-* :bulb: There is a [full explanation of these concepts](../tutorial/ehrql-concepts-in-depth.md).
+* :bulb: There is a [full explanation of these concepts](../tutorial/dataset-definition-concepts.md).
 
 ## How to run ehrQL
 
@@ -41,4 +41,4 @@ with links in each section to more detailed explanations.
   A project may involve data querying and extraction,
   analysis.
   and presentation steps.
-* :bulb: There is an [explanation of how to use ehrQL in an OpenSAFELY project](../tutorial/ehrql-and-opensafely.md).
+* :bulb: There is an [explanation of how to use ehrQL in an OpenSAFELY project](../tutorial/using-ehrql-in-opensafely-projects.md).
