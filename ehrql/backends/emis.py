@@ -11,7 +11,7 @@ class EMISBackend(BaseBackend):
         Projects requiring EMIS data should continue to use the [Cohort
         Extractor](https://docs.opensafely.org/study-def/) tool.
 
-    [EMIS Health](https://www.emishealth.com/) are the devlopers and operators of the
+    [EMIS Health](https://www.emishealth.com/) are the developers and operators of the
     [EMIS Web](https://www.emishealth.com/products/emis-web) EHR platform. The ehrQL
     EMIS backend provides access to primary care data from EMIS Web, plus data linked
     from other sources.
