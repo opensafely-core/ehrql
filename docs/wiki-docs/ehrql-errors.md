@@ -50,8 +50,7 @@ Because of the included code examples and errors,
 this is a long page.
 To narrow down the search, you could try:
 
-* Skimming the wiki's navigation bar,
-  found on the right-hand side near the top of each wiki page,
+* Skimming the table of contents navigation bar on the right-hand side of this page,
   to see if any of the general descriptions of errors apply
   to what you are trying to do.
 * Using the "Find text in page" feature of your browser,
