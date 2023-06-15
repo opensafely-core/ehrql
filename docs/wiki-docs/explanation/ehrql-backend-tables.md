@@ -14,7 +14,7 @@ We can consider two kinds of table:
 
 ## Core tables
 
-If you have read these documentation pages in the [suggested order](ehrql-documentation.md#table-of-contents),
+If you have read these documentation pages in the suggested order,
 then all the examples you will have seen access the _core_ tables.
 
 The core tables are intended to be compatible with multiple OpenSAFELY backends.

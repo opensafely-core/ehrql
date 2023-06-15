@@ -20,7 +20,7 @@ We use the following emoji in the ehrQL documentation section to indicate:
 but there should be enough for new users to get started.
 
 :notepad_spiral: If you have previously used cohort-extractor,
-you may find the [Coming to ehrQL from cohort-extractor](guidance-for-existing-cohort-extractor-users.md) page useful.
+you may find the [Coming to ehrQL from cohort-extractor](../introduction/guidance-for-existing-cohort-extractor-users.md) page useful.
 
 The pages and sections are designed to be read in order.
 The reference section is most useful to consult when actually writing ehrQL,

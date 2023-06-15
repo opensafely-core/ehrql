@@ -39,7 +39,7 @@ Very briefly, to understand this page:
 * Frames are table-like, with rows and columns.
 * Series are column-like, containing a sequence of values.
 
-:notepad_spiral: There is a more detailed explanation of [frames and series](ehrql-concepts-in-depth.md#core-types-of-object).
+:notepad_spiral: There is a more detailed explanation of [frames and series](../tutorial/ehrql-concepts-in-depth.md#core-types-of-object).
 
 ### Columns as series
 
@@ -103,7 +103,7 @@ From this code, we can deduce that:
     ```python
     from ehrql.tables.beta.tpp import practice_registrations
     ```
-* The `practice_registrations` table is based on an [`EventFrame`](ehrql-concepts-in-depth.md#event-frames).
+* The `practice_registrations` table is based on an [`EventFrame`](../tutorial/ehrql-concepts-in-depth.md#event-frames).
 * The `practice_registrations` table has five columns:
   * `start_date`
     * `datetime.date` type

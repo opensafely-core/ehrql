@@ -118,7 +118,7 @@ Did you see something similar?
 then everything is set up correctly.
 You can continue with the rest of this tutorial.\
 :x: If you do not see similar help text to above or you get an error,
-please [contact us](getting-help.md)
+please [contact us](../introduction/getting-help.md)
 and we can help you get started.
 
 ## Downloading some dummy data

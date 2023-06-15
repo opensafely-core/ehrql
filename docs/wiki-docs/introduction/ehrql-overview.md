@@ -9,7 +9,7 @@ with links in each section to more detailed explanations.
   * age
   * BMI
   * number of prescriptions of a particular drug
-* :bulb: This [explanation gives an overview of what ehrQL is and how it works](ehrql-concepts-in-depth.md).
+* :bulb: This [explanation gives an overview of what ehrQL is and how it works](../tutorial/ehrql-concepts-in-depth.md).
 
 ## What data can I access through ehrQL?
 
@@ -27,13 +27,13 @@ with links in each section to more detailed explanations.
 * ehrQL uses *dataset definitions* to query electronic health record data.
 * The result of a *dataset definition* is a *dataset*.
 * Datasets are a tabular collection of *features* describing *populations*.
-* :bulb: There is a [full explanation of these concepts](ehrql-concepts-in-depth.md).
+* :bulb: There is a [full explanation of these concepts](../tutorial/ehrql-concepts-in-depth.md).
 
 ## How to run ehrQL
 
 * In just one concise line: write a dataset definition,
   and then use `opensafely-cli` to run the ehrQL in that dataset definition.
-* :bulb: There is a [tutorial that introduces how to run ehrQL](running-ehrql.md).
+* :bulb: There is a [tutorial that introduces how to run ehrQL](../tutorial/running-ehrql.md).
 
 ## How does ehrQL fit in with a full OpenSAFELY project?
 
@@ -41,4 +41,4 @@ with links in each section to more detailed explanations.
   A project may involve data querying and extraction,
   analysis.
   and presentation steps.
-* :bulb: There is an [explanation of how to use ehrQL in an OpenSAFELY project](ehrql-and-opensafely.md).
+* :bulb: There is an [explanation of how to use ehrQL in an OpenSAFELY project](../tutorial/ehrql-and-opensafely.md).
