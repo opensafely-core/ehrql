@@ -121,7 +121,8 @@ def test_dataset_accepts_valid_variable_names(name):
     "variable_name,error",
     [
         ("population", "Cannot set variable 'population'; use define_population"),
-        ("variables", "not an allowed variable name"),
+        ("variables", "'variables' is not an allowed variable name"),
+        ("patient_id", "'patient_id' is not an allowed variable name"),
         ("_something", "Variable names must start with a letter"),
         ("1something", "Variable names must start with a letter"),
         ("something!", "contain only alphanumeric characters and underscores"),

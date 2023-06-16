@@ -51,8 +51,8 @@ class Dataset:
             )
         if name in self.variables:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
-        if name == "variables":
-            raise AttributeError("'variables' is not an allowed variable name")
+        if name in ("patient_id", "variables"):
+            raise AttributeError(f"'{name}' is not an allowed variable name")
         if not VALID_VARIABLE_NAME_RE.match(name):
             raise AttributeError(
                 f"Variable names must start with a letter, and contain only alphanumeric characters and underscores (you defined a variable '{name}')"
