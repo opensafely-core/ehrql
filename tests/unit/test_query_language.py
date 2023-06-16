@@ -109,9 +109,28 @@ def test_dataset_preserves_variable_order():
     assert variables == ["population", "foo", "baz", "bar"]
 
 
-def test_assign_population_variable():
-    with pytest.raises(AttributeError, match="Cannot set variable 'population'"):
-        Dataset().population = patients.exists_for_patient()
+@pytest.mark.parametrize(
+    "name",
+    ["foo", "Foo", "f", "f_oo", "f1"],
+)
+def test_dataset_accepts_valid_variable_names(name):
+    setattr(Dataset(), name, patients.i)
+
+
+@pytest.mark.parametrize(
+    "variable_name,error",
+    [
+        ("population", "Cannot set variable 'population'; use define_population"),
+        ("variables", "'variables' is not an allowed variable name"),
+        ("patient_id", "'patient_id' is not an allowed variable name"),
+        ("_something", "Variable names must start with a letter"),
+        ("1something", "Variable names must start with a letter"),
+        ("something!", "contain only alphanumeric characters and underscores"),
+    ],
+)
+def test_dataset_rejects_invalid_variable_names(variable_name, error):
+    with pytest.raises(AttributeError, match=error):
+        setattr(Dataset(), variable_name, patients.i)
 
 
 def test_cannot_reassign_dataset_variable():
@@ -129,36 +148,6 @@ def test_cannot_assign_frame_to_variable():
 def test_cannot_assign_event_series_to_variable():
     with pytest.raises(TypeError, match="Invalid variable 'event_date'"):
         Dataset().event_date = events.event_date
-
-
-def test_cannot_define_variable_called_variables():
-    with pytest.raises(AttributeError, match="variables"):
-        Dataset().variables = patients.exists_for_patient()
-
-
-def test_cannot_define_variable_names_starting_with_single_underscores():
-    with pytest.raises(AttributeError, match="underscore"):
-        Dataset()._something = patients.exists_for_patient()
-
-
-def test_cannot_define_variable_names_starting_with_double_underscores():
-    with pytest.raises(AttributeError, match="underscore"):
-        Dataset().__something = patients.exists_for_patient()
-
-
-def test_cannot_define_variable_names_with_invalid_characters():
-    with pytest.raises(AttributeError, match="alphanumeric"):
-        setattr(Dataset(), "something!", patients.exists_for_patient())
-
-
-def test_cannot_define_variable_names_starting_with_numbers():
-    with pytest.raises(AttributeError, match="alphanumeric"):
-        setattr(Dataset(), "1f", patients.exists_for_patient())
-
-
-@pytest.mark.parametrize("name", ["foo", "Foo", "f", "f_oo", "f1"])
-def test_allowed_variable_names(name):
-    setattr(Dataset(), name, patients.exists_for_patient())
 
 
 def test_accessing_unassigned_variable_gives_helpful_error():
