@@ -11,27 +11,26 @@ repo_url: https://github.com/opensafely-core/ehrql
 docs_dir: docs
 
 nav:
-  - ehrQL docs:
-    - Overview: index.md
-    - Introduction:
-      - Using this documentation: introduction/using-this-documentation.md
-      - Getting help: introduction/getting-help.md
-      - Guidance for existing cohort-extractor users: introduction/guidance-for-existing-cohort-extractor-users.md
-    - Tutorial:
-      - Introduction to ehrQL concepts: tutorial/introduction-to-concepts.md
-      - Using ehrQL in OpenSAFELY projects: tutorial/using-ehrql-in-opensafely-projects.md
-      - Installation and setup of ehrQL: tutorial/installation-and-setup.md
-      - Running ehrQL: tutorial/running-ehrql.md
-      - ehrQL concepts in depth: tutorial/dataset-definition-concepts.md
-    - Explanation:
-      - ehrQL backend tables: explanation/backend-tables.md
-      - ehrQL output formats: explanation/output-formats.md
-      - ehrQL examples: explanation/examples.md
-      - ehrQL errors: explanation/errors.md
-    - Reference:
-      - ehrQL features: reference/features.md
-      - ehrQL backends: reference/backends.md
-      - ehrQL schemas: reference/schemas.md
+  - Overview: index.md
+  - Introduction:
+    - Using this documentation: introduction/using-this-documentation.md
+    - Getting help: introduction/getting-help.md
+    - Guidance for existing cohort-extractor users: introduction/guidance-for-existing-cohort-extractor-users.md
+  - Tutorial:
+    - Introduction to ehrQL concepts: tutorial/introduction-to-concepts.md
+    - Using ehrQL in OpenSAFELY projects: tutorial/using-ehrql-in-opensafely-projects.md
+    - Installation and setup of ehrQL: tutorial/installation-and-setup.md
+    - Running ehrQL: tutorial/running-ehrql.md
+    - ehrQL concepts in depth: tutorial/dataset-definition-concepts.md
+  - Explanation:
+    - ehrQL backend tables: explanation/backend-tables.md
+    - ehrQL output formats: explanation/output-formats.md
+    - ehrQL examples: explanation/examples.md
+    - ehrQL errors: explanation/errors.md
+  - Reference:
+    - ehrQL features: reference/features.md
+    - ehrQL backends: reference/backends.md
+    - ehrQL schemas: reference/schemas.md
 
 theme:
   name: material
