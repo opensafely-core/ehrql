@@ -1,7 +1,5 @@
 # ehrQL reference
 
----8<-- 'includes/data-builder-danger-header.md'
-
 This page is a reference for [ehrQL](index.md).
 This reference is structured as a series of examples.
 
