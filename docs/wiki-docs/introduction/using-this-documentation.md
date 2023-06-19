@@ -23,5 +23,9 @@ but there should be enough for new users to get started.
 you may find the [Coming to ehrQL from cohort-extractor](../introduction/guidance-for-existing-cohort-extractor-users.md) page useful.
 
 The pages and sections are designed to be read in order.
+Both the table of contents to the left of the page content,
+and the "next" link at the bottom of the page,
+show which page follows the current page you are reading.
+
 The reference section is most useful to consult when actually writing ehrQL,
 though you may find it useful to skim through to get a feel for how ehrQL works.
