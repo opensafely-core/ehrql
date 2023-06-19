@@ -89,7 +89,7 @@ such as the `date_of_birth` column on the `patients` table:
 >>> patients.date_of_birth
 ```
 
-Use the [table schema reference](../schemas.md)
+Use the [table schema reference](../reference/schemas.md)
 to look up which schemas and columns are available.
 
 The table schema reference explains:
@@ -102,6 +102,6 @@ The table schema reference explains:
 * whether table columns contain at most one row per patient,
   or may contain multiple rows per patient
 
-:grey_question: Consult the [`beta.core`](../../schemas/beta.core) schema.
+:grey_question: Consult the [`beta.core`](../reference/schemas/beta.core.md) schema.
 Choose any of the tables there
 and understand its structure from the schema.

@@ -1,6 +1,5 @@
 # ehrQL reference
 
-This page is a reference for [ehrQL](index.md).
 This reference is structured as a series of examples.
 
 The intended audience is primarily:
