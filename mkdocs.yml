@@ -11,25 +11,25 @@ repo_url: https://github.com/opensafely-core/ehrql
 docs_dir: docs
 
 nav:
-  - ehrQL wiki docs:
+  - ehrQL docs:
+    - Overview: index.md
     - Introduction:
-      - Using this documentation: wiki-docs/introduction/using-this-documentation.md
-      - Overview: wiki-docs/introduction/overview.md
-      - Getting help: wiki-docs/introduction/getting-help.md
-      - Guidance for existing cohort-extractor users: wiki-docs/introduction/guidance-for-existing-cohort-extractor-users.md
+      - Using this documentation: introduction/using-this-documentation.md
+      - Getting help: introduction/getting-help.md
+      - Guidance for existing cohort-extractor users: introduction/guidance-for-existing-cohort-extractor-users.md
     - Tutorial:
-      - Introduction to ehrQL concepts: wiki-docs/tutorial/introduction-to-concepts.md
-      - Using ehrQL in OpenSAFELY projects: wiki-docs/tutorial/using-ehrql-in-opensafely-projects.md
-      - Installation and setup of ehrQL: wiki-docs/tutorial/installation-and-setup.md
-      - Running ehrQL: wiki-docs/tutorial/running-ehrql.md
-      - ehrQL concepts in depth: wiki-docs/tutorial/dataset-definition-concepts.md
+      - Introduction to ehrQL concepts: tutorial/introduction-to-concepts.md
+      - Using ehrQL in OpenSAFELY projects: tutorial/using-ehrql-in-opensafely-projects.md
+      - Installation and setup of ehrQL: tutorial/installation-and-setup.md
+      - Running ehrQL: tutorial/running-ehrql.md
+      - ehrQL concepts in depth: tutorial/dataset-definition-concepts.md
     - Explanation:
-      - ehrQL backend tables: wiki-docs/explanation/backend-tables.md
-      - ehrQL output formats: wiki-docs/explanation/output-formats.md
-      - ehrQL examples: wiki-docs/explanation/examples.md
-      - ehrQL errors: wiki-docs/explanation/errors.md
+      - ehrQL backend tables: explanation/backend-tables.md
+      - ehrQL output formats: explanation/output-formats.md
+      - ehrQL examples: explanation/examples.md
+      - ehrQL errors: explanation/errors.md
     - Reference:
-      - ehrQL features: ehrql/reference.md
+      - ehrQL features: reference.md
       - ehrQL backends: backends/
       - ehrQL schemas: schemas/
 

@@ -72,7 +72,7 @@ the names of the table schemas, tables and columns
 have been provided for you.
 
 For example,
-in the [dataset definition concepts](../../dataset definition-concepts.md) tutorial,
+in the [dataset definition concepts](../tutorial/dataset-definition-concepts.md) tutorial,
 we used the interactive ehrQL sandbox with the following statement to start with:
 
 ```python
@@ -89,7 +89,7 @@ such as the `date_of_birth` column on the `patients` table:
 >>> patients.date_of_birth
 ```
 
-Use the [table schema reference](../../schemas.md)
+Use the [table schema reference](../schemas.md)
 to look up which schemas and columns are available.
 
 The table schema reference explains:

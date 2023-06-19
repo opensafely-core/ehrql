@@ -24,7 +24,7 @@ Features of interest might include:
 * whether a patient has received a particular medication in a given interval
 * a patient's recorded cause of death
 
-Refer to the [collection of examples](examples.md) for more examples of features,
+Refer to the [collection of examples](../explanation/examples.md) for more examples of features,
 and how to include features in an ehrQL query.
 
 A dataset is restricted to include only the patients who belong to a specified **population**.
