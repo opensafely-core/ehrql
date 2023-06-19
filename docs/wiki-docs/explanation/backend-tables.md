@@ -33,10 +33,6 @@ from ehrql.tables.beta.core import medications, patients
 
 where the `ehrql.tables.beta.core` specifies that we are using the core tables.
 
-:notepad_spiral: Read the page on the [ehrQL data schema](data-schema.md)
-to learn how to understand which core tables are available,
-and the data schema for those tables.
-
 ## Backend-specific tables
 
 Different OpenSAFELY backends may opt to provide additional data tables other than the core tables.
@@ -69,6 +65,43 @@ the `addresses` table is specific to the TPP backend.
 The `patients` table is a core ehrQL table.
 We import both core and backend-specific tables within a single import statement.
 
-:notepad_spiral: Read the page on the [ehrQL data schema](data-schema.md)
-to learn how to understand which backend-specific tables are available,
-and the data schema for those tables.
+## Using the table schema reference
+
+In the examples given so far,
+the names of the table schemas, tables and columns
+have been provided for you.
+
+For example,
+in the [dataset definition concepts](../../dataset definition-concepts.md) tutorial,
+we used the interactive ehrQL sandbox with the following statement to start with:
+
+```python
+>>> from ehrql.tables.beta.core import patients, medications
+```
+
+* `beta.core` is the *table schema*
+* `patients` and `medications` are the *table names*
+
+We also accessed *table columns*
+such as the `date_of_birth` column on the `patients` table:
+
+```python
+>>> patients.date_of_birth
+```
+
+Use the [table schema reference](../../schemas.md)
+to look up which schemas and columns are available.
+
+The table schema reference explains:
+
+* which backends support the schema
+* the table column names
+* the table column data types
+* any additional constraints on table column values
+* additional contextual information about table columns
+* whether table columns contain at most one row per patient,
+  or may contain multiple rows per patient
+
+:grey_question: Consult the [`beta.core`](../../schemas/beta.core) schema.
+Choose any of the tables there
+and understand its structure from the schema.

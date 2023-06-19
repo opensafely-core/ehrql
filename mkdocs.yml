@@ -27,7 +27,6 @@ nav:
       - ehrQL concepts in depth: wiki-docs/tutorial/dataset-definition-concepts.md
     - Explanation:
       - ehrQL backend tables: wiki-docs/explanation/backend-tables.md
-      - ehrQL data schema: wiki-docs/explanation/data-schema.md
       - ehrQL output formats: wiki-docs/explanation/output-formats.md
       - ehrQL examples: wiki-docs/explanation/examples.md
       - ehrQL errors: wiki-docs/explanation/errors.md
