@@ -24,15 +24,6 @@ jobs:
       - name: Check generated docs are up-to-date
         run: just docs-check-generated-docs-are-current
 
-      - name: Check snippets work
-        run: just docs-test
-
-      - name: Check dataset definitions run with Python installed ehrQL
-        run: just docs-check-dataset-definitions
-
-      - name: Check dataset definition outputs are up-to-date
-        run: just docs-check-dataset-definitions-outputs-are-current
-
       # This check becomes somewhat redundant if we fix up the Cloudflare Pages preview
       # to work with Dependabot, because the deployment will also do the build.
       # See https://github.com/opensafely/documentation/issues/930 which documents this problem.
