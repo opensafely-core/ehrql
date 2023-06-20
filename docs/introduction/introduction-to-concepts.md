@@ -40,6 +40,9 @@ Refer to [ehrQL and OpenSAFELY](../explanation/using-ehrql-in-opensafely-project
 
 ## A short ehrQL example
 
+:bulb: This example is here to give you an idea of what ehrQL looks like.
+It is explained more fully in the tutorial.
+
 ### The dataset definition
 
 This is a minimal,
