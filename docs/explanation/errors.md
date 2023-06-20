@@ -48,45 +48,53 @@ this page may help you.
 
 Because of the included code examples and errors,
 this is a long page.
-To narrow down the search, you could try:
 
-* Skimming the table of contents navigation bar on the right-hand side of this page,
-  to see if any of the general descriptions of errors apply
-  to what you are trying to do.
-* Using the "Find text in page" feature of your browser,
-  searching for parts of the error report.
-  Let's look at the example given above again:
+Here are some tips on narrowing down the search
 
-  ```
-  Traceback (most recent call last):
-    File "/workspace/analysis/dataset_definition.py", line 7, in <module>
-      dataset._age = age
-      ^^^^^^^^^^^^^
-  AttributeError: Variable names must start with a letter, and contain only alphanumeric characters and underscores (you defined a variable '_age')
-  ```
-  The first part of this traceback depends on the specific code that has been written here.
-  It shows:
-  * the name of the file —
-    `dataset_definition.py` stored in the `analysis` directory
-  * the line number in the file causing the error —
-    line 7
-  * the line of code causing the error
+#### Using the table of contents
 
-  All of these will vary depending on the code being run.
-  These are useful to point you to where your error is.
+Skimming the table of contents navigation bar on the right-hand side of this page,
+to see if any of the general descriptions of errors apply
+to what you are trying to do.
 
-  However, they are possibly less useful to search for in the list provided here,
-  because this part of the error report will vary.
-  What *will* stay more constant is the final error message.
-  Searching in this page for parts of that line,
-  for example `AttributeError` or `Variable names must start with a letter`
-  may show you the relevant error.
+#### Using your browser's "Find text in page" feature
 
-  :warning: This page covers many of the common ehrQL errors you may see,
-  but is not an exhaustive list.
+Using the "Find text in page" feature of your browser,
+searching for parts of the error report.
+Let's look at the example given above again:
 
-  :warning: Notice that even the error message may contain references to the precise code.
-  In this example: `you defined a variable '_age'`.
+```
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 7, in <module>
+    dataset._age = age
+    ^^^^^^^^^^^^^
+AttributeError: Variable names must start with a letter, and contain only alphanumeric characters and underscores (you defined a variable '_age')
+```
+
+The first part of this traceback depends on the specific code that has been written here.
+It shows:
+
+* the name of the file —
+  `dataset_definition.py` stored in the `analysis` directory
+* the line number in the file causing the error —
+  line 7
+* the line of code causing the error
+
+All of these will vary depending on the code being run.
+These are useful to point you to where your error is.
+
+However, they are possibly less useful to search for in the list provided here,
+because this part of the error report will vary.
+What *will* stay more constant is the final error message.
+Searching in this page for parts of that line,
+for example `AttributeError` or `Variable names must start with a letter`
+may show you the relevant error.
+
+:warning: This page covers many of the common ehrQL errors you may see,
+but is not an exhaustive list.
+
+:warning: Notice that even the error message may contain references to the precise code.
+In this example: `you defined a variable '_age'`.
 
 :question: Can you find the part of this page that does explain this error?
 

@@ -206,11 +206,11 @@ to run the dataset definition.
   The `v0` after the `:` refers to the version of ehrQL being used.
 * `generate-dataset` instructs ehrQL to generate a dataset from the dataset definition.
 * `dataset_definition.py` specifies the filename of the dataset definition to use.
-  * The dataset definition file is in the directory that we are running `opensafely exec`
-    so we do not need to specify the full path to the file in this case.
+    * The dataset definition file is in the directory that we are running `opensafely exec`
+      so we do not need to specify the full path to the file in this case.
 * `--dummy-tables example-data` specifies that the dummy CSV input data is in the `example-data` directory.
-  * :notepad_spiral: If the `--dummy-tables` option is omitted,
-    randomly generated data will be used instead.
+    * :notepad_spiral: If the `--dummy-tables` option is omitted,
+      randomly generated data will be used instead.
 * `--output output/dataset.csv` specifies the path to the output CSV file.
 
 #### What you should see when you run the command

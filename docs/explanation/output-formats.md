@@ -17,9 +17,9 @@ because this produces *much larger* files than the alternative formats.
 ## :construction: Unsupported output formats
 
 * `.dta` and `.dta.gz` — Stata formats
-  * Stata output support is still in development.
-  * There is an [open ehrQL issue](https://github.com/opensafely-core/ehrql/issues/794) that discusses the work
-    of supporting a suitable format for Stata.
+    * Stata output support is still in development.
+    * There is an [open ehrQL issue](https://github.com/opensafely-core/ehrql/issues/794) that discusses the work
+      of supporting a suitable format for Stata.
 
 ## Selecting an output format
 
