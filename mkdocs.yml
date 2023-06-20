@@ -11,7 +11,7 @@ repo_url: https://github.com/opensafely-core/ehrql
 docs_dir: docs
 
 nav:
-  - Overview: index.md
+  - ehrQL overview: index.md
   - Introduction:
     - Using this documentation: introduction/using-this-documentation.md
     - Getting help: introduction/getting-help.md
