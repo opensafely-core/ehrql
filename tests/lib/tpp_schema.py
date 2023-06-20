@@ -13,6 +13,24 @@ class Base(DeclarativeBase):
     "Common base class to signal that models below belong to the same database"
 
 
+# This table isn't included in the schema definition TPP provide for us because it isn't
+# created or managed by TPP. Instead we create and populate this table ourselves,
+# currently via a command in Cohort Extractor though this may eventually be moved to a
+# new repo:
+# [1]: https://github.com/opensafely-core/cohort-extractor/blob/dd681275/cohortextractor/update_custom_medication_dictionary.py
+class CustomMedicationDictionary(Base):
+    __tablename__ = "CustomMedicationDictionary"
+    # Because we don't have write privileges on the main TPP database schema this table
+    # lives in our "temporary tables" database. To mimic this as closely as possible in
+    # testing we create it in a separate schema from the other tables.
+    __table_args__ = {"schema": "temp_tables.dbo"}
+
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    DMD_ID = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
+    MultilexDrug_ID = mapped_column(t.VARCHAR(767))
+
+
 class APCS(Base):
     __tablename__ = "APCS"
     _pk = mapped_column(t.Integer, primary_key=True)
