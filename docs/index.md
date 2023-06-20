@@ -1,44 +1,37 @@
-This page gives a very concise guide to ehrQL,
-with links in each section to more detailed explanations.
-
-## What is ehrQL?
-
-* ehrQL is a Python-based query language for electronic health record (EHR) data.
-* You run ehrQL in OpenSAFELY to query data and produce an output file with one row per patient and one column per feature of interest.
-* Columns might be variables such as:
+* ehrQL is a query language for electronic health record (EHR) data.
+* You run ehrQL in OpenSAFELY to query data.
+* The result of an ehrQL query is an output file with one row per patient
+  and one column per feature of interest.
+* Columns might be features such as:
     * age
     * BMI
     * number of prescriptions of a particular drug
-* :bulb: This [explanation gives an overview of what ehrQL is and how it works](tutorial/dataset-definition-concepts.md).
 
-## What data can I access through ehrQL?
+## ehrQL provides access to several data sources
+
+Data sources that you can query include:
 
 * Primary care EHR data such as:
-    * [patient demographics](https://github.com/opensafely-core/ehrql/blob/c28b2e82defe43c2c1e8f379fb9308a952455d52/databuilder/tables/beta/tpp.py#L27-L58)
-    * [medication events](https://github.com/opensafely-core/ehrql/blob/c28b2e82defe43c2c1e8f379fb9308a952455d52/databuilder/tables/beta/tpp.py#L167-L170)
-    * [other clinical events](https://github.com/opensafely-core/ehrql/blob/c28b2e82defe43c2c1e8f379fb9308a952455d52/databuilder/tables/beta/tpp.py#L159-L163)
-* Some data from [secondary care](https://github.com/opensafely-core/ehrql/blob/c28b2e82defe43c2c1e8f379fb9308a952455d52/databuilder/tables/beta/tpp.py#L230-L271)
-* External data sets such as [death data from ONS](https://github.com/opensafely-core/ehrql/blob/c28b2e82defe43c2c1e8f379fb9308a952455d52/databuilder/tables/beta/tpp.py#L123-L155)
-* A full [list of datasets available through OpenSAFELY is available](https://docs.opensafely.org/data-sources/).
-    * :warning: We are working on making these available through ehrQL, but all may not yet be available.
+    * patient demographics
+    * medication events
+    * other clinical events
+* Some data from secondary care
+* External data sets such as death data from ONS
 
-## ehrQL builds datasets that detail features of populations
+:bulb: Refer to the [list of datasets available through OpenSAFELY](https://docs.opensafely.org/data-sources/).
 
-* ehrQL uses *dataset definitions* to query electronic health record data.
-* The result of a *dataset definition* is a *dataset*.
-* Datasets are a tabular collection of *features* describing *populations*.
-* :bulb: There is a [full explanation of these concepts](tutorial/dataset-definition-concepts.md).
+## How to start learning ehrQL
 
-## How to run ehrQL
+We suggest that you first read through the introduction section in order,
+starting with ["Using this documentation"](introduction/using-this-documentation.md)
 
-* In just one concise line: write a dataset definition,
-  and then use `opensafely-cli` to run the ehrQL in that dataset definition.
-* :bulb: There is a [tutorial that introduces how to run ehrQL](tutorial/running-ehrql.md).
+The introduction will give you more information about ehrQL
+and this documentation.
 
-## How does ehrQL fit in with a full OpenSAFELY project?
+Next, work through the tutorial section in order,
+starting with ["Installation and setup"](tutorial/installation-and-setup.md).
 
-* Typically, ehrQL is used when working on a full OpenSAFELY project.
-  A project may involve data querying and extraction,
-  analysis.
-  and presentation steps.
-* :bulb: There is an [explanation of how to use ehrQL in an OpenSAFELY project](tutorial/using-ehrql-in-opensafely-projects.md).
+The tutorial will guide you through:
+
+* setting up and running ehrQL on your own computer
+* writing ehrQL queries (known as *dataset definitions*)
