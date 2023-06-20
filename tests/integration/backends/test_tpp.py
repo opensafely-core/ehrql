@@ -13,6 +13,7 @@ from tests.lib.tpp_schema import (
     Appointment,
     CodedEvent,
     CodedEvent_SNOMED,
+    CustomMedicationDictionary,
     EC_Diagnosis,
     HealthCareWorker,
     Household,
@@ -273,10 +274,32 @@ def test_clinical_events(select_all):
 
 
 @register_test_for(tpp.medications)
-def test_medications(select_all):
+@pytest.mark.parametrize(
+    "dictionary_class", [MedicationDictionary, CustomMedicationDictionary]
+)
+def test_medications(select_all, dictionary_class):
+    results = select_all(
+        Patient(Patient_ID=1),
+        dictionary_class(MultilexDrug_ID="abc", DMD_ID="xyz"),
+        MedicationIssue(
+            Patient_ID=1, ConsultationDate="2020-05-15T10:10:10", MultilexDrug_ID="abc"
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 15),
+            "dmd_code": "xyz",
+        }
+    ]
+
+
+@register_test_for(tpp.medications)
+def test_medications_prefer_dictionary_to_custom_dictionary(select_all):
     results = select_all(
         Patient(Patient_ID=1),
         MedicationDictionary(MultilexDrug_ID="abc", DMD_ID="xyz"),
+        CustomMedicationDictionary(MultilexDrug_ID="abc", DMD_ID="def"),
         MedicationIssue(
             Patient_ID=1, ConsultationDate="2020-05-15T10:10:10", MultilexDrug_ID="abc"
         ),
