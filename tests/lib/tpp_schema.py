@@ -213,6 +213,14 @@ class Consultation(Base):
     Registration_ID = mapped_column(t.BIGINT)
 
 
+class CustomMedicationDictionary(Base):
+    __tablename__ = "CustomMedicationDictionary"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    DMD_ID = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
+    MultilexDrug_ID = mapped_column(t.VARCHAR(767))
+
+
 class DataDictionary(Base):
     __tablename__ = "DataDictionary"
     _pk = mapped_column(t.Integer, primary_key=True)

@@ -123,6 +123,12 @@ def apply_schema_modifications(by_table):
         {"ColumnName": "CodingSystem", "ColumnType": "int"},
     ]
 
+    assert "CustomMedicationDictionary" not in by_table
+    by_table["CustomMedicationDictionary"] = [
+        {"ColumnName": "DMD_ID", "ColumnType": "varchar", "MaxLength": "50"},
+        {"ColumnName": "MultilexDrug_ID", "ColumnType": "varchar", "MaxLength": "767"},
+    ]
+
     # We don't get column collation information but we know this matters in some cases
     # because you can't compare columns across tables unless the collations are
     # compatible. We add collations here for the two critical columns whose collations
@@ -135,6 +141,11 @@ def apply_schema_modifications(by_table):
     )
     add_to_column(
         by_table["MedicationDictionary"],
+        "DMD_ID",
+        collation="Latin1_General_CI_AS",
+    )
+    add_to_column(
+        by_table["CustomMedicationDictionary"],
         "DMD_ID",
         collation="Latin1_General_CI_AS",
     )
