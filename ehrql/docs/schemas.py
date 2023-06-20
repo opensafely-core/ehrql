@@ -1,7 +1,7 @@
 import datetime
 import inspect
 import re
-from collections import ChainMap, defaultdict
+from collections import defaultdict
 
 from ehrql import tables
 from ehrql.codes import BaseCode
@@ -14,7 +14,7 @@ from ehrql.query_language import (
 from ehrql.utils.inspect_utils import get_function_body
 from ehrql.utils.module_utils import get_submodules
 
-from .common import reformat_docstring
+from .common import get_arguments, get_class_attrs, reformat_docstring
 
 
 SORT_ORDER = {k: i for i, k in enumerate(["beta.tpp", "beta.core"])}
@@ -90,30 +90,19 @@ def build_column(name, series):
 
 
 def build_table_methods(table_name, cls):
-    base_methods = get_all_methods(EventFrame).keys()
+    base_attrs = get_class_attrs(EventFrame).keys()
     return [
-        build_method(table_name, name, method)
-        for name, method in get_all_methods(cls).items()
-        if name not in base_methods
+        build_method(table_name, name, attr)
+        for name, attr in get_class_attrs(cls).items()
+        if name not in base_attrs and inspect.isfunction(attr)
     ]
 
 
-def get_all_methods(cls):
-    # We can't iterate the class attributes directly because that would invoke the
-    # `Series` descriptors, and we can't use `inspect.getmembers_static` because that
-    # loses the definition order which we want to retain
-    attrs = ChainMap(*[vars(base) for base in cls.__mro__])
-    return {key: value for key, value in attrs.items() if inspect.isfunction(value)}
-
-
 def build_method(table_name, name, method):
-    signature = inspect.signature(method)
-    arguments = list(signature.parameters.keys())
-    assert arguments[0] == "self"
     return {
         "name": name,
         "docstring": reformat_docstring(method.__doc__),
-        "arguments": arguments[1:],
+        "arguments": get_arguments(method, ignore_self=True),
         # Replace the `self` argument with the table name so the resulting code makes
         # more sense in isolation
         "source": re.sub(r"\bself\b", table_name, get_function_body(method)),
