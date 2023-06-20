@@ -11,10 +11,14 @@ from ehrql.query_language import (
     PatientFrame,
     get_all_series_from_class,
 )
-from ehrql.utils.inspect_utils import get_function_body
 from ehrql.utils.module_utils import get_submodules
 
-from .common import get_arguments, get_class_attrs, reformat_docstring
+from .common import (
+    get_arguments,
+    get_class_attrs,
+    get_function_body,
+    reformat_docstring,
+)
 
 
 SORT_ORDER = {k: i for i, k in enumerate(["beta.tpp", "beta.core"])}
