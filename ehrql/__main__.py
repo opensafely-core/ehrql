@@ -16,6 +16,7 @@ from .main import (
     generate_measures,
     run_sandbox,
     test_connection,
+    update_custom_medication_dictionary,
 )
 
 
@@ -66,6 +67,7 @@ def main(args, environ=None):
     add_generate_measures(subparsers, environ, user_args)
     add_run_sandbox(subparsers, environ, user_args)
     add_test_connection(subparsers, environ, user_args)
+    add_update_custom_medication_dictionary(subparsers, environ, user_args)
 
     kwargs = vars(parser.parse_args(args))
     function = kwargs.pop("function")
@@ -256,6 +258,28 @@ def add_test_connection(subparsers, environ, user_args):
         "--url",
         "-u",
         help="db url",
+        default=environ.get("DATABASE_URL"),
+    )
+
+
+def add_update_custom_medication_dictionary(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "update-custom-medication-dictionary",
+        help="Update the custom medication dictionary",
+    )
+    parser.set_defaults(function=update_custom_medication_dictionary)
+    parser.set_defaults(environ=environ)
+    parser.add_argument(
+        "--backend",
+        type=backend_from_id,
+        help=f"Dotted import path to class, or one of: {', '.join(BACKEND_ALIASES)}",
+        default=environ.get("OPENSAFELY_BACKEND"),
+        dest="backend_class",
+    )
+    parser.add_argument(
+        "--dsn",
+        type=str,
+        help="Data Source Name: URL of remote database, or path to data on disk",
         default=environ.get("DATABASE_URL"),
     )
 

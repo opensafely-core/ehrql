@@ -276,6 +276,49 @@ def test_connection(backend_class, url, environ):
     print("SUCCESS")
 
 
+def update_custom_medication_dictionary(backend_class, dsn, environ):
+    from sqlalchemy import text
+
+    backend = backend_class()
+    query_engine = backend.query_engine_class(dsn, backend, config=environ)
+    with query_engine.engine.connect() as connection:
+        # SQLAlchemy calls this the "Commit As You Go" style. One transaction covers
+        # each `connection.execute()`, until `connection.commit()`.
+        # https://docs.sqlalchemy.org/en/20/core/connections.html#using-transactions
+
+        # FIXME: This implementation is tightly-coupled to TPP. It could be moved to
+        # `TPPBackend`, but then there would be less of a separation between the table
+        # and ehrQL.
+        connection.execute(
+            text(
+                """
+                IF OBJECT_ID('CustomMedicationDictionary', 'U') IS NOT NULL
+                    DROP TABLE CustomMedicationDictionary
+
+                CREATE TABLE CustomMedicationDictionary (
+                    DMD_ID VARCHAR(50) COLLATE Latin1_General_CI_AS,
+                    MultilexDrug_ID VARCHAR(767),
+                )
+                """
+            )
+        )
+        connection.execute(
+            text(
+                """
+                INSERT INTO CustomMedicationDictionary
+                    VALUES (:DMD_ID, :MultilexDrug_ID)
+                """
+            ),
+            get_custom_medication_dictionary_mapping(),
+        )
+        connection.commit()
+
+
+def get_custom_medication_dictionary_mapping():
+    # FIXME: We will read these from a csv that is committed to the repo.
+    return [{"DMD_ID": "my_dmd_id", "MultilexDrug_ID": "my_multilexdrug_id"}]
+
+
 def load_dataset_definition(definition_file, user_args):
     module = load_module(definition_file, user_args)
     try:
