@@ -1,5 +1,17 @@
-**ehrQL** is a Python-based query language for electronic health record (EHR) data.
-It has been designed for use with the [OpenSAFELY platform](https://docs.opensafely.org).
+## Navigating the documentation
+
+The Introduction, Tutorial and Explanation sections are written to be read in order.
+You can navigate the pages in any of these following ways:
+
+* Press the ++n++ or ++period++ key on your computer keyboard to go to the next page
+  and the ++p++ or ++comma++ key to go to the previous page.
+* Use the "Previous" and "Next" pages in the page footer on each page.
+* Refer to the table of contents to the left of the page content,
+  to see which page is next,
+  and clicking a link to see that page.
+
+The reference section is most useful to consult when actually writing ehrQL,
+though you may find it useful to skim through to get a feel for how ehrQL works.
 
 ## Conventions
 
@@ -13,19 +25,3 @@ We use the following emoji in the ehrQL documentation section to indicate:
 * :warning: *important information*
 * :grey_question: *questions for you to think about and try to answer*
 * :fast_forward: *the next part of the documentation that we suggest that you read*
-
-## How to use this documentation
-
-:construction: These documents are a work in progress,
-but there should be enough for new users to get started.
-
-:notepad_spiral: If you have previously used cohort-extractor,
-you may find the [Coming to ehrQL from cohort-extractor](guidance-for-existing-cohort-extractor-users.md) page useful.
-
-The pages and sections are designed to be read in order.
-Both the table of contents to the left of the page content,
-and the "next" link at the bottom of the page,
-show which page follows the current page you are reading.
-
-The reference section is most useful to consult when actually writing ehrQL,
-though you may find it useful to skim through to get a feel for how ehrQL works.
