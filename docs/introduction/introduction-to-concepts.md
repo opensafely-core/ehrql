@@ -36,7 +36,7 @@ For example, a typical study might be interested only in the population of patie
 
 Once a dataset has been generated,
 further analysis can be carried out.
-Refer to [ehrQL and OpenSAFELY](using-ehrql-in-opensafely-projects.md) for more details.
+Refer to [ehrQL and OpenSAFELY](../explanation/using-ehrql-in-opensafely-projects.md) for more details.
 
 ## A short ehrQL example
 

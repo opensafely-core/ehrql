@@ -16,15 +16,15 @@ nav:
     - Using this documentation: introduction/using-this-documentation.md
     - Getting help: introduction/getting-help.md
     - Guidance for existing cohort-extractor users: introduction/guidance-for-existing-cohort-extractor-users.md
+    - Introduction to ehrQL concepts: introduction/introduction-to-concepts.md
   - Tutorial:
-    - Introduction to ehrQL concepts: tutorial/introduction-to-concepts.md
-    - Using ehrQL in OpenSAFELY projects: tutorial/using-ehrql-in-opensafely-projects.md
     - Installation and setup of ehrQL: tutorial/installation-and-setup.md
     - Running ehrQL: tutorial/running-ehrql.md
     - ehrQL concepts in depth: tutorial/dataset-definition-concepts.md
   - Explanation:
     - ehrQL backend tables: explanation/backend-tables.md
     - ehrQL output formats: explanation/output-formats.md
+    - Using ehrQL in OpenSAFELY projects: explanation/using-ehrql-in-opensafely-projects.md
     - ehrQL examples: explanation/examples.md
     - ehrQL errors: explanation/errors.md
   - Reference:
