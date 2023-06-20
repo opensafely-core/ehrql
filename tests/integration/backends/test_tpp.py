@@ -14,6 +14,7 @@ from tests.lib.tpp_schema import (
     Appointment,
     CodedEvent,
     CodedEvent_SNOMED,
+    CustomMedicationDictionary,
     EC_Cost,
     EC_Diagnosis,
     HealthCareWorker,
@@ -66,7 +67,8 @@ def select_all(request, mssql_database):
         )
 
     qm_table = ql_table.qm_node
-    sql_table = TPPBackend().get_table_expression(qm_table.name, qm_table.schema)
+    backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
+    sql_table = backend.get_table_expression(qm_table.name, qm_table.schema)
     columns = [
         # Using `type_coerce(..., None)` like this strips the type information from the
         # SQLAlchemy column meaning we get back the type that the column actually is in
@@ -281,9 +283,22 @@ def test_clinical_events(select_all):
 def test_medications(select_all):
     results = select_all(
         Patient(Patient_ID=1),
+        # MedicationIssue.MultilexDrug_ID found in MedicationDictionary only
         MedicationDictionary(MultilexDrug_ID="abc", DMD_ID="xyz"),
         MedicationIssue(
             Patient_ID=1, ConsultationDate="2020-05-15T10:10:10", MultilexDrug_ID="abc"
+        ),
+        # MedicationIssue.MultilexDrug_ID found in CustomMedicationDictionary only
+        CustomMedicationDictionary(MultilexDrug_ID="def", DMD_ID="uvw"),
+        MedicationIssue(
+            Patient_ID=1, ConsultationDate="2020-05-16T10:10:10", MultilexDrug_ID="def"
+        ),
+        # MedicationDictionary.MultilexDrug_ID found in both; MedicationDictionary
+        # preferred
+        MedicationDictionary(MultilexDrug_ID="ghi", DMD_ID="rst"),
+        CustomMedicationDictionary(MultilexDrug_ID="ghi", DMD_ID="opq"),
+        MedicationIssue(
+            Patient_ID=1, ConsultationDate="2020-05-17T10:10:10", MultilexDrug_ID="ghi"
         ),
     )
     assert results == [
@@ -291,7 +306,17 @@ def test_medications(select_all):
             "patient_id": 1,
             "date": date(2020, 5, 15),
             "dmd_code": "xyz",
-        }
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 16),
+            "dmd_code": "uvw",
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 17),
+            "dmd_code": "rst",
+        },
     ]
 
 
