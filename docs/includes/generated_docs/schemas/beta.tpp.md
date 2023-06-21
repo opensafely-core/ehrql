@@ -1807,7 +1807,7 @@ The question, as a CTV3 code
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-The question, as a SNOMED CT code or None
+The question, as a SNOMED CT code
 
   </dd>
 </div>
