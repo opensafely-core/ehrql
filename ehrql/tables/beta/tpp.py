@@ -491,7 +491,10 @@ class open_prompt(EventFrame):
     )
     snomedct_code = Series(
         SNOMEDCTCode,
-        description="The response to the question, as a SNOMED CT code",
+        description=(
+            "The response to the question, as a SNOMED CT code, "
+            "for responses where the CTV3 code has a corresponding SNOMED CT code"
+        ),
     )
     consultation_date = Series(
         datetime.date,
