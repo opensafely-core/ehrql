@@ -1794,7 +1794,7 @@ You can find out more about this table in the associated short data report:
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-The question, as a CTV3 code
+The response to the question, as a CTV3 code
 
  * Never `NULL`
   </dd>
@@ -1807,7 +1807,7 @@ The question, as a CTV3 code
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-The question, as a SNOMED CT code
+The response to the question, as a SNOMED CT code
 
   </dd>
 </div>
