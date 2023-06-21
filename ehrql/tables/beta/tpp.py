@@ -201,6 +201,11 @@ class hospital_admissions(EventFrame):
 
 @table
 class appointments(EventFrame):
+    """
+    You can find out more about this table in the associated short data report:
+    <https://github.com/opensafely/appointments-short-data-report>.
+    """
+
     booked_date = Series(datetime.date)
     start_date = Series(datetime.date)
 

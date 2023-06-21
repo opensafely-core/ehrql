@@ -214,7 +214,8 @@ return ordered_addrs.last_for_patient()
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## appointments
 
-
+You can find out more about this table in the associated short data report:
+<https://github.com/opensafely/appointments-short-data-report>.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
