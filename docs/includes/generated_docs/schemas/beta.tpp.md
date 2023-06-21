@@ -230,7 +230,7 @@ return ordered_addrs.last_for_patient()
     <code>integer</code>
   </dt>
   <dd markdown="block">
-apcs_ident
+TODO
 
  * Never `NULL`
   </dd>
@@ -243,7 +243,7 @@ apcs_ident
     <code>float</code>
   </dt>
   <dd markdown="block">
-grand_total_payment_mff
+TODO
 
   </dd>
 </div>
@@ -255,7 +255,7 @@ grand_total_payment_mff
     <code>float</code>
   </dt>
   <dd markdown="block">
-tariff_initial_amount
+TODO
 
   </dd>
 </div>
@@ -267,7 +267,7 @@ tariff_initial_amount
     <code>float</code>
   </dt>
   <dd markdown="block">
-tariff_total_payment
+TODO
 
   </dd>
 </div>
@@ -384,7 +384,7 @@ tariff_total_payment
     <code>integer</code>
   </dt>
   <dd markdown="block">
-ec_ident
+TODO
 
  * Never `NULL`
   </dd>
@@ -397,7 +397,7 @@ ec_ident
     <code>float</code>
   </dt>
   <dd markdown="block">
-grand_total_payment_mff
+TODO
 
   </dd>
 </div>
@@ -409,7 +409,7 @@ grand_total_payment_mff
     <code>float</code>
   </dt>
   <dd markdown="block">
-tariff_total_payment
+TODO
 
   </dd>
 </div>
@@ -1904,7 +1904,7 @@ Data from the ONS Covid Infection Survey.
     <code>integer</code>
   </dt>
   <dd markdown="block">
-opa_ident
+TODO
 
  * Never `NULL`
   </dd>
@@ -1917,7 +1917,7 @@ opa_ident
     <code>float</code>
   </dt>
   <dd markdown="block">
-tariff_opp
+TODO
 
   </dd>
 </div>
@@ -1929,7 +1929,7 @@ tariff_opp
     <code>float</code>
   </dt>
   <dd markdown="block">
-grand_total_payment_mff
+TODO
 
   </dd>
 </div>
@@ -1941,7 +1941,7 @@ grand_total_payment_mff
     <code>float</code>
   </dt>
   <dd markdown="block">
-tariff_total_payment
+TODO
 
   </dd>
 </div>
@@ -1964,7 +1964,7 @@ tariff_total_payment
     <code>integer</code>
   </dt>
   <dd markdown="block">
-Out-patient appointment opa_ident
+TODO
 
  * Never `NULL`
   </dd>
@@ -1977,7 +1977,7 @@ Out-patient appointment opa_ident
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-Out-patient appointment primary_diagnosis_code
+TODO
 
   </dd>
 </div>
@@ -1989,7 +1989,7 @@ Out-patient appointment primary_diagnosis_code
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-Out-patient appointment primary_diagnosis_code_read
+TODO
 
   </dd>
 </div>
@@ -2001,7 +2001,7 @@ Out-patient appointment primary_diagnosis_code_read
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-Out-patient appointment primary_diagnosis_code_1
+TODO
 
   </dd>
 </div>
@@ -2013,7 +2013,7 @@ Out-patient appointment primary_diagnosis_code_1
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-out-patient appointment primary_diagnosis_code_1_read
+TODO
 
   </dd>
 </div>
@@ -2036,7 +2036,7 @@ out-patient appointment primary_diagnosis_code_1_read
     <code>integer</code>
   </dt>
   <dd markdown="block">
-Out-patient appointment opa_ident
+TODO
 
  * Never `NULL`
   </dd>
@@ -2049,7 +2049,7 @@ Out-patient appointment opa_ident
     <code>OPCS-4 code</code>
   </dt>
   <dd markdown="block">
-Out-patient appointment primary_procedure_code
+TODO
 
   </dd>
 </div>
@@ -2061,7 +2061,7 @@ Out-patient appointment primary_procedure_code
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-Out-patient appointment primary_procedure_code_read
+TODO
 
   </dd>
 </div>
@@ -2073,7 +2073,7 @@ Out-patient appointment primary_procedure_code_read
     <code>OPCS-4 code</code>
   </dt>
   <dd markdown="block">
-Out-patient appointment procedure_code_1
+TODO
 
   </dd>
 </div>
@@ -2085,7 +2085,7 @@ Out-patient appointment procedure_code_1
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-Out-patient appointment procedure_code_2_read
+TODO
 
   </dd>
 </div>

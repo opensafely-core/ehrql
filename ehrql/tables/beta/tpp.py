@@ -510,19 +510,19 @@ class apcs_cost(EventFrame):
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="apcs_ident",
+        description="TODO",
     )
     grand_total_payment_mff = Series(
         float,
-        description="grand_total_payment_mff",
+        description="TODO",
     )
     tariff_initial_amount = Series(
         float,
-        description="tariff_initial_amount",
+        description="TODO",
     )
     tariff_total_payment = Series(
         float,
-        description="tariff_total_payment",
+        description="TODO",
     )
 
 
@@ -531,15 +531,15 @@ class ec_cost(EventFrame):
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="ec_ident",
+        description="TODO",
     )
     grand_total_payment_mff = Series(
         float,
-        description="grand_total_payment_mff",
+        description="TODO",
     )
     tariff_total_payment = Series(
         float,
-        description="tariff_total_payment",
+        description="TODO",
     )
 
 
@@ -548,19 +548,19 @@ class opa_cost(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="opa_ident",
+        description="TODO",
     )
     tariff_opp = Series(
         float,
-        description="tariff_opp",
+        description="TODO",
     )
     grand_total_payment_mff = Series(
         float,
-        description="grand_total_payment_mff",
+        description="TODO",
     )
     tariff_total_payment = Series(
         float,
-        description="tariff_total_payment",
+        description="TODO",
     )
 
 
@@ -569,23 +569,23 @@ class opa_diag(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Out-patient appointment opa_ident",
+        description="TODO",
     )
     primary_diagnosis_code = Series(
         ICD10Code,
-        description="Out-patient appointment primary_diagnosis_code",
+        description="TODO",
     )
     primary_diagnosis_code_read = Series(
         CTV3Code,
-        description="Out-patient appointment primary_diagnosis_code_read",
+        description="TODO",
     )
     primary_diagnosis_code_1 = Series(
         ICD10Code,
-        description="Out-patient appointment primary_diagnosis_code_1",
+        description="TODO",
     )
     primary_diagnosis_code_1_read = Series(
         CTV3Code,
-        description="out-patient appointment primary_diagnosis_code_1_read",
+        description="TODO",
     )
 
 
@@ -594,21 +594,21 @@ class opa_proc(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Out-patient appointment opa_ident",
+        description="TODO",
     )
     primary_procedure_code = Series(
         OPCS4Code,
-        description="Out-patient appointment primary_procedure_code",
+        description="TODO",
     )
     primary_procedure_code_read = Series(
         CTV3Code,
-        description="Out-patient appointment primary_procedure_code_read",
+        description="TODO",
     )
     procedure_code_1 = Series(
         OPCS4Code,
-        description="Out-patient appointment procedure_code_1",
+        description="TODO",
     )
     procedure_code_2_read = Series(
         CTV3Code,
-        description="Out-patient appointment procedure_code_2_read",
+        description="TODO",
     )
