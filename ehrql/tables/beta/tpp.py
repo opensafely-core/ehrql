@@ -506,5 +506,5 @@ class open_prompt(EventFrame):
     numeric_value = Series(
         float,
         constraints=[Constraint.NotNull()],
-        description="The response to the question",
+        description="The response to the question, as a number",
     )
