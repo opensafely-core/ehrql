@@ -487,13 +487,20 @@ class open_prompt(EventFrame):
     ctv3_code = Series(
         CTV3Code,
         constraints=[Constraint.NotNull()],
-        description="The response to the question, as a CTV3 code",
+        description=(
+            "The response to the question, as a CTV3 code. "
+            "Alternatively, if the question admits a number as the response, "
+            "then the question, as a CTV3 code."
+        ),
     )
     snomedct_code = Series(
         SNOMEDCTCode,
         description=(
             "The response to the question, as a SNOMED CT code, "
-            "for responses where the CTV3 code has a corresponding SNOMED CT code"
+            "for responses where the CTV3 code has a corresponding SNOMED CT code. "
+            "Alternatively, if the question admits a number as the response, "
+            "then the question, as a SNOMED CT code, "
+            "for questions where the CTV3 code has a corresponding SNOMED CT code."
         ),
     )
     consultation_date = Series(
