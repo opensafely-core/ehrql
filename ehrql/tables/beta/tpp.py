@@ -206,8 +206,14 @@ class appointments(EventFrame):
     <https://github.com/opensafely/appointments-short-data-report>.
     """
 
-    booked_date = Series(datetime.date)
-    start_date = Series(datetime.date)
+    booked_date = Series(
+        datetime.date,
+        description="The date the appointment was booked",
+    )
+    start_date = Series(
+        datetime.date,
+        description="The date the appointment was due to start",
+    )
 
 
 @table

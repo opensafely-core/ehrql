@@ -226,7 +226,7 @@ You can find out more about this table in the associated short data report:
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+The date the appointment was booked
 
   </dd>
 </div>
@@ -238,7 +238,7 @@ You can find out more about this table in the associated short data report:
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+The date the appointment was due to start
 
   </dd>
 </div>
