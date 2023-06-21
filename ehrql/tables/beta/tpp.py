@@ -477,6 +477,13 @@ class isaric_raw(EventFrame):
 
 @table
 class open_prompt(EventFrame):
+    """
+    This table contains responses to questions from the OpenPROMPT project.
+
+    You can find out more about this table in the associated short data report:
+    <https://github.com/opensafely/airmid-short-data-report>.
+    """
+
     ctv3_code = Series(
         CTV3Code,
         constraints=[Constraint.NotNull()],

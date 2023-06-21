@@ -1780,7 +1780,10 @@ Data from the ONS Covid Infection Survey.
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## open_prompt
 
+This table contains responses to questions from the OpenPROMPT project.
 
+You can find out more about this table in the associated short data report:
+<https://github.com/opensafely/airmid-short-data-report>.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
