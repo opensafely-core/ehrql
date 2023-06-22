@@ -24,4 +24,3 @@ We use the following emoji in the ehrQL documentation section to indicate:
 * :notepad_spiral: *extra explanatory information*
 * :warning: *important information*
 * :grey_question: *questions for you to think about and try to answer*
-* :fast_forward: *the next part of the documentation that we suggest that you read*
