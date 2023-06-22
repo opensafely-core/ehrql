@@ -39,6 +39,11 @@ class BackendFixture(BaseBackend):
         "SELECT patient_id, date_start, date_end FROM some_table"
     )
 
+    @QueryTable.from_function
+    def positive_tests(self):
+        table_name = self.config.get("table_name", "some_table")
+        return f"SELECT patient_id, date FROM {table_name}"
+
 
 def test_backend_registers_tables():
     """Test that a backend registers its table names"""
@@ -47,6 +52,7 @@ def test_backend_registers_tables():
         "patients",
         "events",
         "practice_registrations",
+        "positive_tests",
     }
 
 
@@ -86,6 +92,15 @@ def test_query_table_sql():
         "FROM (SELECT patient_id, date_start, date_end FROM some_table) AS "
         "practice_registrations"
     )
+
+
+def test_query_table_from_function_sql():
+    backend = BackendFixture(config={"table_name": "other_table"})
+    table = backend.get_table_expression(
+        "positive_tests",
+        TableSchema(date=Column(datetime.date)),
+    )
+    assert str(table) == "SELECT patient_id, date FROM other_table"
 
 
 def test_default_backend_sql():

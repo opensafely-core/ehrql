@@ -122,15 +122,23 @@ class QueryTable(SQLTable):
         self.query = query
         self.implementation_notes = implementation_notes or {}
 
+    @classmethod
+    def from_function(cls, fn):
+        instance = cls(query=None)
+        instance.get_query = fn
+        return instance
+
+    def get_query(self, backend):
+        return self.query
+
     def validate_against_table_schema(self, backend, schema):
         # This is a very crude form of validation: we just check that the SQL string
         # contains each of the column names as words. But without actually executing the
         # SQL we can't know what it returns
+        query = self.get_query(backend)
         columns = ["patient_id", *schema.column_names]
         missing = [
-            name
-            for name in columns
-            if not re.search(rf"\b{re.escape(name)}\b", self.query)
+            name for name in columns if not re.search(rf"\b{re.escape(name)}\b", query)
         ]
         if missing:
             raise ValidationError(
@@ -143,7 +151,7 @@ class QueryTable(SQLTable):
             sqlalchemy.Column(name, type_=type_from_python_type(type_))
             for (name, type_) in schema.column_types
         )
-        query = sqlalchemy.text(self.query).columns(*columns)
+        query = sqlalchemy.text(self.get_query(backend)).columns(*columns)
         return query.alias(table_name)
 
 
