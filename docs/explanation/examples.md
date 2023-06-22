@@ -132,7 +132,7 @@ By contrast, cause of death is often not accurate in the primary care record so 
 ### Finding each patient's date, place, and cause of death from ONS records
 
 ```python
-from databuilder.ehql import Dataset
+from databuilder.ehrql import Dataset
 from databuilder.tables.beta.tpp import ons_deaths
 
 dataset = Dataset()
