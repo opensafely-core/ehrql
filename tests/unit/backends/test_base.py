@@ -15,8 +15,8 @@ from ehrql.query_model.nodes import Column, TableSchema
 from ehrql.tables import PatientFrame, Series, table
 
 
-class TestBackend(BaseBackend):
-    display_name = "Test Backend"
+class BackendFixture(BaseBackend):
+    display_name = "Backend Fixture"
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "PatientId"
 
@@ -43,7 +43,7 @@ class TestBackend(BaseBackend):
 def test_backend_registers_tables():
     """Test that a backend registers its table names"""
 
-    assert set(TestBackend.tables) == {
+    assert set(BackendFixture.tables) == {
         "patients",
         "events",
         "practice_registrations",
@@ -51,7 +51,7 @@ def test_backend_registers_tables():
 
 
 def test_mapped_table_sql_with_modified_names():
-    table = TestBackend().get_table_expression(
+    table = BackendFixture().get_table_expression(
         "patients",
         TableSchema(
             date_of_birth=Column(datetime.date),
@@ -62,7 +62,7 @@ def test_mapped_table_sql_with_modified_names():
 
 
 def test_mapped_table_sql_with_matching_names():
-    table = TestBackend().get_table_expression(
+    table = BackendFixture().get_table_expression(
         "events",
         TableSchema(
             date=Column(datetime.date),
@@ -73,7 +73,7 @@ def test_mapped_table_sql_with_matching_names():
 
 
 def test_query_table_sql():
-    table = TestBackend().get_table_expression(
+    table = BackendFixture().get_table_expression(
         "practice_registrations",
         TableSchema(
             date_start=Column(datetime.date),
@@ -106,8 +106,8 @@ class Schema:
 
 
 def test_backend_definition_is_allowed_extra_tables_and_columns():
-    class TestBackend(BaseBackend):
-        display_name = "Test Backend"
+    class BackendFixture(BaseBackend):
+        display_name = "Backend Fixture"
         query_engine_class = BaseSQLQueryEngine
         patient_join_column = "patient_id"
         implements = [Schema]
@@ -121,12 +121,12 @@ def test_backend_definition_is_allowed_extra_tables_and_columns():
             columns=dict(date="date", code="code"),
         )
 
-    assert TestBackend
+    assert BackendFixture
 
 
 def test_backend_definition_accepts_query_table():
-    class TestBackend(BaseBackend):
-        display_name = "Test Backend"
+    class BackendFixture(BaseBackend):
+        display_name = "Backend Fixture"
         query_engine_class = BaseSQLQueryEngine
         patient_join_column = "patient_id"
         implements = [Schema]
@@ -135,14 +135,14 @@ def test_backend_definition_accepts_query_table():
             "SELECT patient_id, CAST(DoB AS date) AS date_of_birth FROM patients",
         )
 
-    assert TestBackend
+    assert BackendFixture
 
 
 def test_backend_definition_fails_if_missing_tables():
     with pytest.raises(ValidationError, match="does not implement table"):
 
-        class TestBackend(BaseBackend):
-            display_name = "Test Backend"
+        class BackendFixture(BaseBackend):
+            display_name = "Backend Fixture"
             query_engine_class = BaseSQLQueryEngine
             patient_join_column = "patient_id"
             implements = [Schema]
@@ -156,8 +156,8 @@ def test_backend_definition_fails_if_missing_tables():
 def test_backend_definition_fails_if_missing_column():
     with pytest.raises(ValidationError, match="missing columns"):
 
-        class TestBackend(BaseBackend):
-            display_name = "Test Backend"
+        class BackendFixture(BaseBackend):
+            display_name = "Backend Fixture"
             query_engine_class = BaseSQLQueryEngine
             patient_join_column = "patient_id"
             implements = [Schema]
@@ -171,8 +171,8 @@ def test_backend_definition_fails_if_missing_column():
 def test_backend_definition_fails_if_query_table_missing_columns():
     with pytest.raises(ValidationError, match="SQL does not reference columns"):
 
-        class TestBackend(BaseBackend):
-            display_name = "Test Backend"
+        class BackendFixture(BaseBackend):
+            display_name = "Backend Fixture"
             query_engine_class = BaseSQLQueryEngine
             patient_join_column = "patient_id"
             implements = [Schema]
