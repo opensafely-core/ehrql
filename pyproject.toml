@@ -108,7 +108,3 @@ extend-ignore = [
 
 [tool.ruff.isort]
 lines-after-imports = 2
-
-[tool.ruff.per-file-ignores]
-"docs/snippets/*" = ["E402"]
-"docs/ehrql-tutorial-examples/*" = ["INP001"]

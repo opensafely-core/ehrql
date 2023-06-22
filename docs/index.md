@@ -1,103 +1,37 @@
-# OpenSAFELY ehrQL
+* ehrQL is a query language for electronic health record (EHR) data.
+* You run ehrQL in OpenSAFELY to query data.
+* The result of an ehrQL query is an output file with one row per patient
+  and one column per feature of interest.
+* Columns might be features such as:
+    * age
+    * BMI
+    * number of prescriptions of a particular drug
 
----8<-- 'includes/data-builder-danger-header.md'
+## ehrQL provides access to several data sources
 
-!!! danger
+Data sources that you can query include:
 
-    This content has not yet been reviewed by OpenSAFELY technical
-    leads. This page is *not* a definitive statement about the status of
-    ehrQL, cohort-extractor or any other part of OpenSAFELY.
+* Primary care EHR data such as:
+    * patient demographics
+    * medication events
+    * other clinical events
+* Some data from secondary care
+* External data sets such as death data from ONS
 
-    It should be taken as potentially incorrect, until this notice is
-    removed.
+:bulb: Refer to the [list of datasets available through OpenSAFELY](https://docs.opensafely.org/data-sources/).
 
-## ehrQL constructs datasets for researchers
+## How to start learning ehrQL
 
-ehrQL is a tool to construct your dataset to use for research studies
-and analysis using OpenSAFELY.
+We suggest that you first read through the introduction section in order,
+starting with ["Using this documentation"](introduction/using-this-documentation.md)
 
-With ehrQL:
+The introduction will give you more information about ehrQL
+and this documentation.
 
-* **Researchers** can specify data they want to use in their research via a
-  [*dataset definition*](dataset-definition.md).
-* **Data providers** can specify data they want to offer for research
-  via an [*OpenSAFELY Backend*](backends/).
+Next, work through the tutorial section in order,
+starting with ["Installation and setup"](tutorial/installation-and-setup.md).
 
-## Features
-### Readable dataset definitions
+The tutorial will guide you through:
 
-A new query language [ehrQL](ehrql/index.md) has been developed for
-ehrQL. Researchers can now use a *dataset definition* to specify
-the data to be extracted from OpenSAFELY.
-
-ehrQL is designed to be semantically easy to
-read and understand how the dataset it is defining is constructed.
-
-### Multiple backends
-
-ehrQL facilitates querying multiple different data backends,
-without the researcher concerning themselves with the specific details
-of how that backend works. This means that a researcher only need
-to write a dataset definition once and be able to use this to
-query different datasets.
-
-### Researcher-provided dummy data
-ehrQL allows researchers to provide their own dummy data to
-use to develop their analytical code against.
-
-!!! Note
-    There is work in progress to add the functionality to generate dummy data
-    from the dataset definition. This is currently in development.
-
-## Why ehrQL was created
-For researchers familiar with OpenSAFELY, there is naturally a question as
-to why we are writing software to replace cohort extractor. ehrQL is
-intended to eventually replace the use of cohort-extractor in new studies.
-We have [more information](comparison-with-cohort-extractor.md) about the
-differences between cohort-extractor and ehrQL to read if you are
-interested.
-
-In OpenSAFELY's first two years, researchers have used cohort-extractor
-and study definitions to successfully complete a number of [research
-studies](https://www.opensafely.org/research/) using [multiple data
-sources and linked data](../data-sources/index.md).
-
-ehrQL is a complete redesign and reimplementation of
-cohort-extractor aimed at making OpenSAFELY even easier to work with for
-researchers and data providers. ehrQL's design incorporates
-feedback from researchers' use of cohort-extractor.
-
-ehrQL:
-
-* **Provides more expressive ways** for researchers to specify cohorts.
-* **Simplifies the implementation of new features** across multiple
-  different data backends.
-
-For more information on how ehrQL and Cohort Extractor compare,
-see [the development plan for ehrQL](comparison-with-cohort-extractor.md).
-
-## Reading the ehrQL documentation
-Other documentation pages explain in more detail the concepts to write a
-dataset definition:
-
-* ehrQL [quick start](quick-start.md)
-* Writing a [dataset definition](dataset-definition.md)
-* The [dataset definition language, ehrQL](ehrql/index.md)
-* The [schemas](schemas/) which define what data
-  is available from the various OpenSAFELY data backends.
-
-## ehrQL is still in development
-
-!!! warning
-
-    There is considerable on-going work into ehrQL's
-    design and development. ehrQL is subject to frequent change,
-    indicated by its [current `v0` version](#versioning).
-
-    We recommend that users still favour the existing [OpenSAFELY Cohort
-    Extractor](../study-def.md) for their research.
-
-
-
-
-!!! parent_snippet:'includes/glossary.md'
+* setting up and running ehrQL on your own computer
+* writing ehrQL queries (known as *dataset definitions*)

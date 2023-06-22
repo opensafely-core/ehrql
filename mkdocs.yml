@@ -11,11 +11,34 @@ repo_url: https://github.com/opensafely-core/ehrql
 docs_dir: docs
 
 nav:
-  - Home: index.md
-  - Table of Contents: toc.md
+  - ehrQL overview: index.md
+  - Introduction:
+    - Using this documentation: introduction/using-this-documentation.md
+    - Getting help: introduction/getting-help.md
+    - Guidance for existing cohort-extractor users: introduction/guidance-for-existing-cohort-extractor-users.md
+    - Introduction to ehrQL concepts: introduction/introduction-to-concepts.md
+  - Tutorial:
+    - Installation and setup of ehrQL: tutorial/installation-and-setup.md
+    - Running ehrQL: tutorial/running-ehrql.md
+    - ehrQL concepts in depth: tutorial/dataset-definition-concepts.md
+  - Explanation:
+    - ehrQL backend tables: explanation/backend-tables.md
+    - ehrQL output formats: explanation/output-formats.md
+    - Using ehrQL in OpenSAFELY projects: explanation/using-ehrql-in-opensafely-projects.md
+    - ehrQL examples: explanation/examples.md
+    - ehrQL errors: explanation/errors.md
+  - Reference:
+    - ehrQL language features: reference/features.md
+    - ehrQL backends: reference/backends.md
+    - ehrQL schemas: reference/schemas.md
 
 theme:
   name: material
+  features:
+    - content.action.edit
+    - content.code.copy
+    - navigation.footer
+    - navigation.indexes
 
 extra_css:
   - stylesheets/extra.css
@@ -54,6 +77,10 @@ markdown_extensions:
   - footnotes
   - abbr
   - md_in_html
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 # This hook adds some clarifying studying around snippets that will be incorporated
 # from the parent repo, and is relevant for local development only.

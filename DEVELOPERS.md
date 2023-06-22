@@ -249,7 +249,6 @@ The `docs/` directory contains some files which are generated from the ehrql cod
 other documentation files. Specifically these are files at:
 
  - [docs/includes/generated_docs/](docs/includes/generated_docs/)
- - [docs/ehrql-tutorial-examples/outputs/](docs/ehrql-tutorial-examples/outputs/)
 
 The process for generating these files is described below.
 
@@ -264,16 +263,9 @@ that mechanisms that check this happens).
 2. Changes committed; pre-commit hook ensures generated docs are up-to-date
 3. PR opened; CI:
       - ensures generated docs are up to date
-      - tests tutorial snippets
-      - checks tutorial dataset definitions run successfully
-      - check tutorial outputs are current
 3. PR merged; CI:
       - triggers a deploy of the main OpenSAFELY documentation site
-      - checks if the major version of the ehrql image has changed and updates it in the
-        tutorial project.yaml
-      - runs all tutorial dataset definitions with OpenSAFELY CLI
-      - if the project.yaml or tutorial outputs have changed, opens a PR for the changes
-4. On a schedule (nightly), CI:
+4. On a schedule (weekly), CI in the main `opensafely/documentation` repository:
       - checks all the documentation links are valid
 
 ### Using includes from the parent documentation
@@ -309,103 +301,3 @@ date.
 ### Updating the main OpenSAFELY documentation repository
 
 Merges to the main branch in this repo trigger a [deployment of the main OpenSAFELY documentation via a Github Action](https://github.com/opensafely-core/ehrql/actions/workflows/deploy-documentation.yml).
-
-### Making changes to the dataset definition snippets
-
-These snippets are separate from the tutorial examples in `docs/ehrql-tutorial-examples`.
-See [below](#ehrql-tutorial-examples) for documentation on how the tutorial examples work.
-We may eventually unify the tutorial examples with the snippet
-so that all example code is checked in the same way.
-
-Edit the python modules in the `docs/snippets` directory.
-
-Examples are included in the markdown files using the [pymdown snippet notation](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/#snippets-notation).
-
-Each of the snippets sections in each snippet Python source file are bounded by markers:
-
-```python
-# --8<-- [start:print]
-print("hello world")
-# --8<-- [end:print]
-```
-
-If this example was stored as `docs/snippets/hello.py`,
-then it could be included in the documentation Markdown source via:
-
-````
-```python
---8<-- 'ehrql/snippets/hello.py:print'
-```
-````
-
-### ehrQL tutorial examples
-
-docs/ehrql-tutorial-examples is a collection of:
-
-* dataset definitions
-* example data
-* outputs from the dataset definitions run against the example data
-
-used in the ehrQL tutorials.
-
-#### Adding a new example
-
-Refer to existing ehrQL tutorial pages to see the current layout that we use.
-
-The current process for adding a new example is:
-
-1. Create a new dataset and add it to the [`example-data`](docs/ehrql-tutorial-examples/example-data/) directory,
-2. Write the dataset definition and add it to the [`ehrql-tutorial-examples`](docs/ehrql-tutorial-examples/).
-   See the [ehrQL tutorial introduction](docs/ehrql/tutorial/index.md#using-ehrqls-command-line-interface)
-   for an explanation of the filename convention.
-3. Build the dataset definition outputs
-   (see below),
-   then add and commit the new files stored in the [`outputs`](docs/ehrql-tutorial-examples/outputs/) directory to the repository.
-4. Use a dataset definition in the relevant documentation page's Markdown file:
-   ````
-   ```python title="$YOUR_DATASET_DEFINITION_FILENAME"
-   ---8<-- "ehrql-tutorial-examples/$YOUR_DATASET_DEFINITION_FILENAME"
-   ```
-   ````
-5. Use the `read_csv` feature of the [table-reader plugin](https://github.com/timvink/mkdocs-table-reader-plugin)
-   in the relevant documentation page's Markdown file:
-   to include the input and output CSVs as nicely formatted tables.
-
-   You will need one `read_csv` entry for each CSV.
-
-   Use the `keep_default_na=False` option to include blank table cells
-   instead of the text `nan`.
-
-#### Building dataset definition outputs
-
-The easiest way is via the relevant `just` recipe.
-
-```
-just docs-build-dataset-definitions-outputs
-```
-
-#### Updating content
-
-A GitHub Actions workflow checks that the dataset definition outputs are current.
-
-If you modify existing example data or dataset definitions,
-make sure that you:
-
-* Commit the files you have directly changed.
-* Rebuild the output CSVs and commit those if they have changed.
-* Review all documentation pages that use the files you have edited,
-  and check if any explanatory text requires amending as a result of your changes.
-
-
-### Syncing the ehrql Docker image version with the tutorial examples
-
-The version of the ehrql image used for the tutorials is specified in the tutorial's
-[`project.yaml`](docs/ehrql-tutorial-examples/project.yaml).  We reference the image by
-major version only (e.g. `v0`), so the `project.yaml` file itself only needs to be
-updated rarely.  However, whenever a new image is built, it could have an impact on the
-tutorial examples and their outputs.
-
-After a merge to main, a Github Action runs to [update and test the tutorial examples](https://github.com/opensafely-core/ehrql/actions/workflows/update-tutorial-ehrql-version.yml).
-If the image has changed major version, this will replace the version in the `project.yaml`. It
-will also run the tutorial project via the OpenSAFELY CLI, which will generate the tutorial
-output files.  If there are any changes, it will open a pull request in this repo.

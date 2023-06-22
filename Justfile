@@ -217,66 +217,7 @@ docs-build *ARGS: devenv generate-docs
 
 # Run the snippet tests
 docs-test: devenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-    for f in ./docs/snippets/*.py; do
-      if [[ -z "${PYTHONPATH:-}" ]]
-      then
-        PYTHONPATH="{{justfile_directory()}}" "$BIN"/python "$f"
-      else
-        PYTHONPATH="${PYTHONPATH}:{{justfile_directory()}}" "$BIN"/python "$f"
-      fi
-    done
-
-# Run the dataset definitions.
-docs-check-dataset-definitions: devenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    for f in ./docs/ehrql-tutorial-examples/*dataset_definition.py; do
-      # By convention, we name dataset definition as: IDENTIFIER_DATASOURCENAME_dataset_definition.py
-      DATASOURCENAME=`echo "$f" | cut -d'_' -f2`
-      $BIN/python -m ehrql generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/"
-    done
-
-
-# Check the dataset definition outputs are current
-docs-check-dataset-definitions-outputs-are-current: devenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # https://stackoverflow.com/questions/3878624/how-do-i-programmatically-determine-if-there-are-uncommitted-changes
-    # git diff --exit-code won't pick up untracked files, which we also want to check for.
-    if [[ -z $(git status --porcelain ./docs/ehrql-tutorial-examples/outputs/; git clean -nd ./docs/ehrql-tutorial-examples/outputs/) ]]
-    then
-      echo "Dataset definition outputs directory is current and free of other files/directories."
-    else
-      echo "Dataset definition outputs contains files/directories not in the repository."
-      exit 1
-    fi
-
-
-docs-build-dataset-definitions-outputs: devenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    for f in ./docs/ehrql-tutorial-examples/*dataset_definition.py; do
-      # By convention, we name dataset definition as: IDENTIFIER_DATASOURCENAME_dataset_definition.py
-      DATASOURCENAME=`echo "$f" | cut -d'_' -f2`
-      FILENAME="$(basename "$f" .py).csv"
-      "$BIN"/python -m ehrql generate-dataset "$f" --dummy-tables "./docs/ehrql-tutorial-examples/example-data/$DATASOURCENAME/" --output "./docs/ehrql-tutorial-examples/outputs/$FILENAME"
-    done
-
-# Requires OpenSAFELY CLI and Docker installed.
-# Runs all actions in the `project.yaml`
-docs-build-dataset-definitions-outputs-docker-project:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    # Instead of entering the directory, We could use opensafely --project-dir
-    # But we would end up with a metadata directory in this directory then.
-    cd "./docs/ehrql-tutorial-examples"
-    opensafely run run_all --force-run-dependencies
-
+    echo "Not implemented here"
 
 # Check the dataset public docs are current
 docs-check-generated-docs-are-current: generate-docs
@@ -293,29 +234,3 @@ docs-check-generated-docs-are-current: generate-docs
       git diff ./docs/includes/generated_docs/; git clean -n ./docs/includes/generated_docs/
       exit 1
     fi
-
-
-docs-update-tutorial-ehrql-version:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    package="opensafely-core/ehrql"
-
-    if [ -z ${GITHUB_TOKEN+x} ]
-    then
-        token="$(
-        curl --silent \
-            "https://ghcr.io/token?scope=repository:$package:pull&service=ghcr.io" \
-        | jq -r '.token'
-        )"
-    else
-        token="$(echo $GITHUB_TOKEN | base64)"
-    fi
-
-    latest_version=$(curl --silent --header "Authorization: Bearer $token" \
-      "https://ghcr.io/v2/$package/tags/list" \
-      | jq -r '.tags | map(select(test("^v\\d+$"))) | max_by(. | ltrimstr("v") | tonumber)'
-    )
-
-    # replace latest version in tutorial project.yaml
-    sed -Ei "s/v[0-9]\b/${latest_version}/g" docs/ehrql-tutorial-examples/project.yaml

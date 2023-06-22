@@ -3,7 +3,7 @@
 ehrQL is a Python-based query language for electronic health record (EHR) data.
 It has been designed for use with the OpenSAFELY platform.
 
-Documentation currently lives in [this wiki](https://github.com/opensafely-core/ehrql/wiki/ehrql-documentation).
+Documentation is at the [OpenSAFELY documentation site](https://docs.opensafely.org/ehrql).
 
 # For developers
 
