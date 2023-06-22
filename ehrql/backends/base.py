@@ -17,6 +17,9 @@ class BaseBackend:
     tables = None
     implements = ()
 
+    def __init__(self, config=None):
+        self.config = config or {}
+
     def __init_subclass__(cls, **kwargs):
         assert cls.display_name is not None
         assert cls.query_engine_class is not None
@@ -140,6 +143,9 @@ class QueryTable(SQLTable):
 
 
 class DefaultBackend:
+    def __init__(self, config=None):
+        pass
+
     def get_table_expression(self, table_name, schema):
         """
         Returns a SQLAlchemy Table object matching the supplied name and schema

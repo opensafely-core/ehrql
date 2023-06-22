@@ -178,7 +178,7 @@ def get_query_engine(
 ):
     # Construct backend if supplied
     if backend_class:
-        backend = backend_class()
+        backend = backend_class(config=environ)
     else:
         backend = None
 

@@ -31,7 +31,9 @@ class DefaultQueryEngine:
     config: dict
 
 
+@dataclasses.dataclass
 class DummyBackend:
+    config: dict
     query_engine_class = DummyQueryEngine
 
 
@@ -100,12 +102,13 @@ def test_get_query_engine_with_backend():
         dsn=None,
         backend_class=DummyBackend,
         query_engine_class=None,
-        environ={},
+        environ={"foo": "bar"},
         default_query_engine_class=None,
     )
     assert isinstance(query_engine, DummyQueryEngine)
     assert isinstance(query_engine.backend, DummyBackend)
-    assert query_engine.config == {}
+    assert query_engine.config == {"foo": "bar"}
+    assert query_engine.backend.config == {"foo": "bar"}
 
 
 def test_get_query_engine_with_backend_and_query_engine():
