@@ -28,7 +28,7 @@ nav:
     - ehrQL examples: explanation/examples.md
     - ehrQL errors: explanation/errors.md
   - Reference:
-    - ehrQL features: reference/features.md
+    - ehrQL language features: reference/features.md
     - ehrQL backends: reference/backends.md
     - ehrQL schemas: reference/schemas.md
 

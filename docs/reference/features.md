@@ -1,5 +1,3 @@
-# ehrQL reference
-
 This reference is structured as a series of examples.
 
 The intended audience is primarily:
