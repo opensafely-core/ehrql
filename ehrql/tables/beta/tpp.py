@@ -579,11 +579,11 @@ class opa_diag(EventFrame):
         CTV3Code,
         description="TODO",
     )
-    primary_diagnosis_code_1 = Series(
+    secondary_diagnosis_code_1 = Series(
         ICD10Code,
         description="TODO",
     )
-    primary_diagnosis_code_1_read = Series(
+    secondary_diagnosis_code_1_read = Series(
         CTV3Code,
         description="TODO",
     )

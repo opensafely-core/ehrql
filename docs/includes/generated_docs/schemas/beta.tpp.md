@@ -1995,9 +1995,9 @@ TODO
 </div>
 
 <div markdown="block">
-  <dt id="opa_diag.primary_diagnosis_code_1">
-    <strong>primary_diagnosis_code_1</strong>
-    <a class="headerlink" href="#opa_diag.primary_diagnosis_code_1" title="Permanent link">🔗</a>
+  <dt id="opa_diag.secondary_diagnosis_code_1">
+    <strong>secondary_diagnosis_code_1</strong>
+    <a class="headerlink" href="#opa_diag.secondary_diagnosis_code_1" title="Permanent link">🔗</a>
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
@@ -2007,9 +2007,9 @@ TODO
 </div>
 
 <div markdown="block">
-  <dt id="opa_diag.primary_diagnosis_code_1_read">
-    <strong>primary_diagnosis_code_1_read</strong>
-    <a class="headerlink" href="#opa_diag.primary_diagnosis_code_1_read" title="Permanent link">🔗</a>
+  <dt id="opa_diag.secondary_diagnosis_code_1_read">
+    <strong>secondary_diagnosis_code_1_read</strong>
+    <a class="headerlink" href="#opa_diag.secondary_diagnosis_code_1_read" title="Permanent link">🔗</a>
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">

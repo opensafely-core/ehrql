@@ -1080,8 +1080,8 @@ def test_opa_diag(select_all):
             "opa_ident": 1,
             "primary_diagnosis_code": "100000",
             "primary_diagnosis_code_read": "Y0000",
-            "primary_diagnosis_code_1": "100000",
-            "primary_diagnosis_code_1_read": "Y0000",
+            "secondary_diagnosis_code_1": "100000",
+            "secondary_diagnosis_code_1_read": "Y0000",
         },
     ]
 

@@ -423,8 +423,8 @@ class TPPBackend(BaseBackend):
             OPA_Ident AS opa_ident,
             Primary_Diagnosis_Code AS primary_diagnosis_code,
             Primary_Diagnosis_Code_Read AS primary_diagnosis_code_read,
-            Secondary_Diagnosis_Code_1 AS primary_diagnosis_code_1,
-            Secondary_Diagnosis_Code_1_Read AS primary_diagnosis_code_1_read
+            Secondary_Diagnosis_Code_1 AS secondary_diagnosis_code_1,
+            Secondary_Diagnosis_Code_1_Read AS secondary_diagnosis_code_1_read
         FROM OPA_Diag
     """
     )
