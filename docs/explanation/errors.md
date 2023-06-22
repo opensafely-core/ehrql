@@ -119,8 +119,8 @@ For example, there is an indentation error in the following dataset definition.
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -148,8 +148,8 @@ the error occurred on.
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -164,8 +164,8 @@ For example, a name — `age!` — with a non-alphanumeric character is invalid:
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age! = patients.age_on("2023-01-01") # age! is an invalid feature name.
@@ -190,8 +190,8 @@ SyntaxError: invalid syntax
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age = patients.age_on("2023-01-01") # We have changed the invalid feature name, "age!", to a valid one, "age".
@@ -207,8 +207,8 @@ rather than Python.
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -228,8 +228,8 @@ A population has not been defined; define one with define_population()
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -243,8 +243,8 @@ There are a few constraints on feature names in ehrQL.
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.population = patients.age_on("2023-01-01") > 16
@@ -270,8 +270,8 @@ AttributeError: Cannot set variable 'population'; use define_population() instea
 Define population with the `define_population` syntax:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.define_population(patients.age_on("2023-01-01") > 16)
@@ -280,8 +280,8 @@ dataset.define_population(patients.age_on("2023-01-01") > 16)
 Or rename the feature, if it is required as a separate output:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.over_16 = patients.age_on("2023-01-01") > 16
@@ -292,8 +292,8 @@ dataset.over_16 = patients.age_on("2023-01-01") > 16
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.variables = patients.age_on("2023-01-01") > 16
@@ -319,8 +319,8 @@ AttributeError: 'variables' is not an allowed variable name
 Rename the feature to something other than `variables`.
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age_greater_than_16 = patients.age_on("2023-01-01") > 16
@@ -332,8 +332,8 @@ dataset.age_greater_than_16 = patients.age_on("2023-01-01") > 16
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -360,8 +360,8 @@ AttributeError: Variable names must start with a letter, and contain only alphan
 #### Fixed data definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -376,8 +376,8 @@ In the following dataset definition, `dataset.age` is first defined as `age` and
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2000-01-01")
@@ -405,8 +405,8 @@ AttributeError: 'age' is already set and cannot be reassigned
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2000-01-01")
@@ -424,8 +424,8 @@ defined on its own, but has not been defined when set on the dataset:
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2000-01-01")
@@ -450,8 +450,8 @@ AttributeError: Variable 'age' has not been defined
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2000-01-01")
@@ -464,8 +464,8 @@ dataset.age = age # dataset.age is now defined
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import practice_registrations
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import practice_registrations
 
 dataset = Dataset()
 dataset.registered_on = practice_registrations.start_date
@@ -487,8 +487,8 @@ To return the latest `registered_on` date, first sort the practice registrations
 last registration for each patient, and *then* get the start date.
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import practice_registrations
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import practice_registrations
 
 dataset = Dataset()
 latest_registration_per_patient = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
@@ -503,8 +503,8 @@ we have not selected a value as the feature:
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import practice_registrations
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import practice_registrations
 
 dataset = Dataset()
 dataset.registered_on = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
@@ -525,8 +525,8 @@ Fix the dataset definition by setting the feature to a single value, in this cas
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import practice_registrations
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import practice_registrations
 
 dataset = Dataset()
 latest_registration_per_patient = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
@@ -543,8 +543,8 @@ try to define the population by comparing age to the string `"10"`
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -564,8 +564,8 @@ databuilder.query_model.nodes.TypeValidationError: GE.rhs requires 'databuilder.
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -580,8 +580,8 @@ these are prohibited and will raise an error.
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -604,8 +604,8 @@ TypeError: The keywords 'and', 'or', and 'not' cannot be used with ehrQL, please
 As described in the error message, use the operator `&` instead:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -619,8 +619,8 @@ Chained comparisons are not allowed in ehrQL.
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -641,8 +641,8 @@ TypeError: The keywords 'and', 'or', and 'not' cannot be used with ehrQL, please
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -656,8 +656,8 @@ In the following dataset, `age` is an integer. We cannot subtract a float from i
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -677,8 +677,8 @@ databuilder.query_model.nodes.TypeValidationError: Subtract.rhs requires 'databu
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -690,8 +690,8 @@ dataset.age_minus_5 = age - 5
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age_in_may = "2023-05-01" - patients.date_of_birth
@@ -712,8 +712,8 @@ To fix this error, specify the units of the date difference that you want in the
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age_in_may = ("2023-05-01" - patients.date_of_birth).years
@@ -724,8 +724,8 @@ dataset.age_in_may = ("2023-05-01" - patients.date_of_birth).years
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.date_at_age_16 = patients.date_of_birth + 16
@@ -746,8 +746,8 @@ we are adding (days, months, years).
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset, years
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset, years
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.date_at_age_16 = patients.date_of_birth + years(16)
@@ -758,8 +758,8 @@ dataset.date_at_age_16 = patients.date_of_birth + years(16)
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import clinical_events
 
 dataset = Dataset()
 first_event = clinical_events.sort_by(date).first_for_patient()
@@ -781,8 +781,8 @@ NameError: name 'date' is not defined
 Columns can be specified as the table attribute:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import clinical_events
 
 dataset = Dataset()
 first_event = clinical_events.sort_by(clinical_events.date).first_for_patient()
@@ -792,8 +792,8 @@ dataset.event_date = first_event.date
 They can also be specified as a name string:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import clinical_events
 
 dataset = Dataset()
 first_event = clinical_events.sort_by("date").first_for_patient()
@@ -809,8 +809,8 @@ an error - any default value given for a case statement must be of the same type
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import case, patients, when
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import case, patients, when
 
 dataset = Dataset()
 
@@ -833,8 +833,8 @@ databuilder.query_model.nodes.TypeValidationError: Case.default requires 'databu
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import case, patients, when
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import case, patients, when
 
 dataset = Dataset()
 
@@ -851,8 +851,8 @@ dataset.age_group = case(
 #### Failing dataset definition :x:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 
@@ -882,8 +882,8 @@ Arguments passed to `is_in` must be wrapped in a python container - a set, list 
 All of the following features defined with `is_in` are valid.
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 
