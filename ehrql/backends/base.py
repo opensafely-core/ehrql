@@ -32,8 +32,10 @@ class BaseBackend:
                 cls._init_table(value)
                 cls.tables[name] = value
 
-        for table_namespace in cls.implements:
-            cls.validate_against_table_namespace(table_namespace)
+        # Construct an instance in order to validate it
+        instance = cls()
+        for table_namespace in instance.implements:
+            instance.validate_against_table_namespace(table_namespace)
 
     @classmethod
     def _init_table(cls, table):
@@ -44,23 +46,24 @@ class BaseBackend:
         """
         table.learn_patient_join(cls.patient_join_column)
 
-    @classmethod
-    def validate_against_table_namespace(cls, table_namespace):
+    def validate_against_table_namespace(self, table_namespace):
         for attr, ql_table in get_tables_from_namespace(table_namespace):
             table = ql_table.qm_node
-            if table.name not in cls.tables:
+            if table.name not in self.tables:
                 raise ValidationError(
-                    f"{cls} does not implement table '{table.name}' from "
+                    f"{self.__class__} does not implement table '{table.name}' from "
                     f"{table_namespace}.{attr}"
                 )
 
-            table_def = cls.tables[table.name]
+            table_def = self.tables[table.name]
             try:
-                table_def.validate_against_table_schema(table.schema)
+                table_def.validate_against_table_schema(
+                    backend=self, schema=table.schema
+                )
             except ValidationError as e:
                 # Wrap error message to indicate source
                 raise ValidationError(
-                    f"{cls}.{table.name} does not match {table_namespace}.{attr}, {e}"
+                    f"{self.__class__}.{table.name} does not match {table_namespace}.{attr}, {e}"
                 ) from e
 
     def get_table_expression(self, table_name, schema):
@@ -74,14 +77,16 @@ class BaseBackend:
         Raises:
             ValueError: If unknown table passed in
         """
-        return self.tables[table_name].get_expression(table_name, schema)
+        return self.tables[table_name].get_expression(
+            backend=self, table_name=table_name, schema=schema
+        )
 
 
 class SQLTable:
     def learn_patient_join(self, source):
         self.patient_join_column = source
 
-    def validate_against_table_schema(self, schema):
+    def validate_against_table_schema(self, backend, schema):
         raise NotImplementedError()
 
 
@@ -92,12 +97,12 @@ class MappedTable(SQLTable):
         # Not to be confused with the schema which defines the column names and types
         self.db_schema_name = schema
 
-    def validate_against_table_schema(self, schema):
+    def validate_against_table_schema(self, backend, schema):
         missing = set(schema.column_names) - set(self.column_map)
         if missing:
             raise ValidationError(f"missing columns: {', '.join(missing)}")
 
-    def get_expression(self, table_name, schema):
+    def get_expression(self, backend, table_name, schema):
         patient_id_column = self.column_map.get("patient_id", self.patient_join_column)
         return sqlalchemy.table(
             self.source_table_name,
@@ -117,7 +122,7 @@ class QueryTable(SQLTable):
         self.query = query
         self.implementation_notes = implementation_notes or {}
 
-    def validate_against_table_schema(self, schema):
+    def validate_against_table_schema(self, backend, schema):
         # This is a very crude form of validation: we just check that the SQL string
         # contains each of the column names as words. But without actually executing the
         # SQL we can't know what it returns
@@ -132,7 +137,7 @@ class QueryTable(SQLTable):
                 f"SQL does not reference columns: {', '.join(missing)}"
             )
 
-    def get_expression(self, table_name, schema):
+    def get_expression(self, backend, table_name, schema):
         columns = [sqlalchemy.Column("patient_id")]
         columns.extend(
             sqlalchemy.Column(name, type_=type_from_python_type(type_))
