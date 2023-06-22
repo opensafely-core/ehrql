@@ -201,8 +201,19 @@ class hospital_admissions(EventFrame):
 
 @table
 class appointments(EventFrame):
-    booked_date = Series(datetime.date)
-    start_date = Series(datetime.date)
+    """
+    You can find out more about this table in the associated short data report:
+    <https://github.com/opensafely/appointments-short-data-report>.
+    """
+
+    booked_date = Series(
+        datetime.date,
+        description="The date the appointment was booked",
+    )
+    start_date = Series(
+        datetime.date,
+        description="The date the appointment was due to start",
+    )
 
 
 @table
@@ -477,14 +488,31 @@ class isaric_raw(EventFrame):
 
 @table
 class open_prompt(EventFrame):
+    """
+    This table contains responses to questions from the OpenPROMPT project.
+
+    You can find out more about this table in the associated short data report:
+    <https://github.com/opensafely/airmid-short-data-report>.
+    """
+
     ctv3_code = Series(
         CTV3Code,
         constraints=[Constraint.NotNull()],
-        description="The question, as a CTV3 code",
+        description=(
+            "The response to the question, as a CTV3 code. "
+            "Alternatively, if the question admits a number as the response, "
+            "then the question, as a CTV3 code."
+        ),
     )
     snomedct_code = Series(
         SNOMEDCTCode,
-        description="The question, as a SNOMED CT code or None",
+        description=(
+            "The response to the question, as a SNOMED CT code, "
+            "for responses where the CTV3 code has a corresponding SNOMED CT code. "
+            "Alternatively, if the question admits a number as the response, "
+            "then the question, as a SNOMED CT code, "
+            "for questions where the CTV3 code has a corresponding SNOMED CT code."
+        ),
     )
     consultation_date = Series(
         datetime.date,
@@ -499,5 +527,8 @@ class open_prompt(EventFrame):
     numeric_value = Series(
         float,
         constraints=[Constraint.NotNull()],
-        description="The response to the question",
+        description=(
+            "The response to the question, as a number. "
+            "Alternatively, if the question admits a code as the response, then zero."
+        ),
     )

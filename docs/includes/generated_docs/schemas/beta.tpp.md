@@ -214,7 +214,8 @@ return ordered_addrs.last_for_patient()
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## appointments
 
-
+You can find out more about this table in the associated short data report:
+<https://github.com/opensafely/appointments-short-data-report>.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -225,7 +226,7 @@ return ordered_addrs.last_for_patient()
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+The date the appointment was booked
 
   </dd>
 </div>
@@ -237,7 +238,7 @@ return ordered_addrs.last_for_patient()
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+The date the appointment was due to start
 
   </dd>
 </div>
@@ -1780,7 +1781,10 @@ Data from the ONS Covid Infection Survey.
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## open_prompt
 
+This table contains responses to questions from the OpenPROMPT project.
 
+You can find out more about this table in the associated short data report:
+<https://github.com/opensafely/airmid-short-data-report>.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -1791,7 +1795,7 @@ Data from the ONS Covid Infection Survey.
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-The question, as a CTV3 code
+The response to the question, as a CTV3 code. Alternatively, if the question admits a number as the response, then the question, as a CTV3 code.
 
  * Never `NULL`
   </dd>
@@ -1804,7 +1808,7 @@ The question, as a CTV3 code
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-The question, as a SNOMED CT code or None
+The response to the question, as a SNOMED CT code, for responses where the CTV3 code has a corresponding SNOMED CT code. Alternatively, if the question admits a number as the response, then the question, as a SNOMED CT code, for questions where the CTV3 code has a corresponding SNOMED CT code.
 
   </dd>
 </div>
@@ -1842,7 +1846,7 @@ The ID of the survey
     <code>float</code>
   </dt>
   <dd markdown="block">
-The response to the question
+The response to the question, as a number. Alternatively, if the question admits a code as the response, then zero.
 
  * Never `NULL`
   </dd>
