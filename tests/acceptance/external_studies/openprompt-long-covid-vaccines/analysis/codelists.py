@@ -19,6 +19,11 @@ long_covid_combine = (
     + long_covid_assessment_codes
 )
 
+long_covid_hosp = codelist_from_csv(
+    "codelists/user-hendersonad-hes-long-covid.csv",
+    column="code"
+)
+
 # some demographic codelists:
 ethnicity = codelist_from_csv(
     "codelists/opensafely-ethnicity.csv",

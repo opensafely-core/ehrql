@@ -8,14 +8,7 @@ from ehrql.query_language import table_from_file, PatientFrame, Series
 from covariates import *
 
 from hx_covariates import *
-from variables import (
-    add_visits, 
-    add_hx_visits,     
-    add_hos_visits,
-    add_hx_hos_visits, 
-    add_ae_visits,
-    add_hx_ae_visits
-)
+from variables import *
 
 # import matched data
 
@@ -46,13 +39,17 @@ dataset.index_date = index_date
 dataset.exposure = matched_hx_comparator.lc_exposure
 
 # Demographic covariates
-dataset.ethnicity = ethnicity
+dataset.ethnicity = (clinical_events.where(clinical_events.ctv3_code.is_in(codelists.ethnicity))
+    .sort_by(clinical_events.date)
+    .last_for_patient()
+    .ctv3_code.to_category(codelists.ethnicity)
+)
 dataset.imd = imd
 dataset.bmi = bmi
 dataset.bmi_date = bmi_date
 dataset.cov_cancer = cancer_all.exists_for_patient()
 dataset.cov_mental_health = mental_health_issues.exists_for_patient()
-dataset.cov_asthma = asthma.exists_for_patient() & ~copd.exists_for_patient()
+dataset.cov_asthma = clinical_ctv3_matches(clinical_events, codelists.asthma).exists_for_patient() & ~clinical_ctv3_matches(clinical_events, codelists.copd).exists_for_patient()
 dataset.cov_organ_transplant = organ_transplant.exists_for_patient()
 dataset.cov_chronic_cardiac_disease = chronic_cardiac_disease.exists_for_patient()
 dataset.cov_chronic_liver_disease = chronic_liver_disease.exists_for_patient()
@@ -64,21 +61,25 @@ dataset.cov_hiv = hiv.exists_for_patient()
 dataset.cov_aplastic_anemia = aplastic_anemia.exists_for_patient()
 dataset.cov_permanent_immune_suppress = permanent_immune_suppress.exists_for_patient()
 dataset.cov_temporary_immune_suppress = temporary_immune_suppress.exists_for_patient()
+dataset.end_death = death_date
+dataset.end_deregist = end_reg_date
+dataset.end_lc_cure = lc_cure_date
 
 # Outcome visit
 # Historical GP visits: 2019-3-1 to 2020-3-1
-add_hx_visits(dataset, hx_study_start_date, num_months=1)
-add_hx_visits(dataset, hx_study_start_date, num_months=2)
-add_hx_visits(dataset, hx_study_start_date, num_months=3)
-add_hx_visits(dataset, hx_study_start_date, num_months=4)
-add_hx_visits(dataset, hx_study_start_date, num_months=5)
-add_hx_visits(dataset, hx_study_start_date, num_months=6)
-add_hx_visits(dataset, hx_study_start_date, num_months=7)
-add_hx_visits(dataset, hx_study_start_date, num_months=8)
-add_hx_visits(dataset, hx_study_start_date, num_months=9)
-add_hx_visits(dataset, hx_study_start_date, num_months=10)
-add_hx_visits(dataset, hx_study_start_date, num_months=11)
-add_hx_visits(dataset, hx_study_start_date, num_months=12)
+add_hx_gp_visits(dataset, num_months=1)
+add_hx_gp_visits(dataset, num_months=2)
+add_hx_gp_visits(dataset, num_months=3)
+add_hx_gp_visits(dataset, num_months=4)
+add_hx_gp_visits(dataset, num_months=5)
+add_hx_gp_visits(dataset, num_months=6)
+add_hx_gp_visits(dataset, num_months=7)
+add_hx_gp_visits(dataset, num_months=8)
+add_hx_gp_visits(dataset, num_months=9)
+add_hx_gp_visits(dataset, num_months=10)
+add_hx_gp_visits(dataset, num_months=11)
+add_hx_gp_visits(dataset, num_months=12)
+
 
 # GP visit after long COVID
 add_visits(dataset, index_date, num_months=1)
@@ -96,18 +97,19 @@ add_visits(dataset, index_date, num_months=12)
 
 # Hospital visits
 # Historical admissions:
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=1)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=2)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=3)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=4)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=5)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=6)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=7)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=8)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=9)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=10)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=11)
-add_hx_hos_visits(dataset, hx_study_start_date, num_months=12)
+add_hx_hos_visits(dataset, num_months=1)
+add_hx_hos_visits(dataset, num_months=2)
+add_hx_hos_visits(dataset, num_months=3)
+add_hx_hos_visits(dataset, num_months=4)
+add_hx_hos_visits(dataset, num_months=5)
+add_hx_hos_visits(dataset, num_months=6)
+add_hx_hos_visits(dataset, num_months=7)
+add_hx_hos_visits(dataset, num_months=8)
+add_hx_hos_visits(dataset, num_months=9)
+add_hx_hos_visits(dataset, num_months=10)
+add_hx_hos_visits(dataset, num_months=11)
+add_hx_hos_visits(dataset, num_months=12)
+
 
 # Admission after index date:
 add_hos_visits(dataset, index_date, num_months=1)
@@ -125,18 +127,19 @@ add_hos_visits(dataset, index_date, num_months=12)
 
 # A&E visit
 # Historical A&E visit
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=1)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=2)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=3)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=4)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=5)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=6)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=7)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=8)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=9)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=10)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=11)
-add_hx_ae_visits(dataset, hx_study_start_date, num_months=12)
+add_hx_ae_visits(dataset, num_months=1)
+add_hx_ae_visits(dataset, num_months=2)
+add_hx_ae_visits(dataset, num_months=3)
+add_hx_ae_visits(dataset, num_months=4)
+add_hx_ae_visits(dataset, num_months=5)
+add_hx_ae_visits(dataset, num_months=6)
+add_hx_ae_visits(dataset, num_months=7)
+add_hx_ae_visits(dataset, num_months=8)
+add_hx_ae_visits(dataset, num_months=9)
+add_hx_ae_visits(dataset, num_months=10)
+add_hx_ae_visits(dataset, num_months=11)
+add_hx_ae_visits(dataset, num_months=12)
+
 
 # A&E visit after index date:
 add_ae_visits(dataset, index_date, num_months=1)
