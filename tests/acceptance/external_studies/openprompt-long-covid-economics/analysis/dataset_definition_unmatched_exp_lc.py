@@ -13,16 +13,18 @@ from covariates import *
 
 dataset = Dataset()
 dataset.define_population(
-    (age>= 18) & (age <=100) 
+    (age>=18)
+    & (age<=100) 
     & (registrations_number == 1) 
     & registration.exists_for_patient() 
     & lc_dx.exists_for_patient()
-    & patients.sex.contains("male")
+    & (patients.sex.contains("male"))
+    & ((death_date > lc_dx_date) | (death_date is None))
+    & ((lc_cure_date > lc_dx_date) | (lc_cure_date is None))
 )
 dataset.age = age
 dataset.sex = patients.sex
-dataset.region = registration.practice_stp
-dataset.gp_practice = registration.practice_pseudo_id
+dataset.region = registration.practice_nuts1_region_name
 dataset.registration_date = registration.start_date
 dataset.long_covid_dx = lc_dx.exists_for_patient().map_values({True: 1, False: 0})
 dataset.long_covid_dx_date = lc_dx_date

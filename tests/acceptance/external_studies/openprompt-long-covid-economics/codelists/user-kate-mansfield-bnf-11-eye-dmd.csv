@@ -1,0 +1,1279 @@
+dmd_type,dmd_id,dmd_name,bnf_code
+VMP,22333611000001106,Chlorhexidine gluconate 0.02% eye drops,110301020AAABAB
+AMP,22333911000001100,Chlorhexidine gluconate 0.02% eye drops,110301020AAABAB
+VMP,22388211000001107,Chlorhexidine gluconate 0.02% eye drops preservative free,110301020AAACAC
+AMP,22388611000001109,Chlorhexidine gluconate 0.02% eye drops preservative free,110301020AAACAC
+VMP,10228011000001109,Levofloxacin 5mg/ml eye drops,1103010AGAAAAAA
+AMP,33425411000001108,Levofloxacin 5mg/ml eye drops,1103010AGAAAAAA
+AMP,33422911000001108,Levofloxacin 5mg/ml eye drops,1103010AGAAAAAA
+AMP,34621711000001104,Levofloxacin 5mg/ml eye drops,1103010AGAAAAAA
+AMP,34544711000001108,Levofloxacin 5mg/ml eye drops,1103010AGAAAAAA
+AMP,37426811000001106,Levofloxacin 5mg/ml eye drops,1103010AGAAAAAA
+AMP,39015611000001107,Levofloxacin 5mg/ml eye drops,1103010AGAAAAAA
+VMP,14253011000001103,Levofloxacin 5mg/ml eye drops 0.5ml unit dose preservative free,1103010AGAAABAB
+VMP,33550711000001102,Levofloxacin 5mg/ml eye drops 0.3ml unit dose preservative free,1103010AGAAACAC
+VMP,39097511000001103,Levofloxacin 5mg/ml eye drops preservative free,1103010AGAAADAD
+AMP,10199211000001104,Oftaquix 5mg/ml eye drops,1103010AGBBAAAA
+AMP,14208811000001107,Oftaquix 5mg/ml eye drops 0.5ml unit dose,1103010AGBBABAB
+AMP,33550211000001109,Oftaquix 5mg/ml eye drops 0.3ml unit dose,1103010AGBBACAC
+AMP,39097311000001109,Eyflox 5mg/ml eye drops,1103010AGBCAAAD
+AMP,39576511000001109,Oxalux 5mg/ml eye drops 0.5ml unit dose,1103010AGBDAAAB
+VMP,19373411000001100,Azithromycin 15mg/g eye drops 0.25g unit dose preservative free,1103010AIAAAAAA
+AMP,19372311000001102,Azyter 15mg/g eye drops 0.25g unit dose,1103010AIBBAAAA
+VMP,18430711000001106,Polihexanide 0.06% eye drops preservative free,1103010AJAAAAAA
+AMP,18413911000001106,Polihexanide 0.06% eye drops preservative free,1103010AJAAAAAA
+VMP,20455911000001101,Polihexanide 0.02% eye drops,1103010AJAAABAB
+AMP,20439811000001108,Polihexanide 0.02% eye drops,1103010AJAAABAB
+VMP,21631311000001108,Polihexanide 0.02% eye drops preservative free,1103010AJAAACAC
+AMP,21631611000001103,Polihexanide 0.02% eye drops preservative free,1103010AJAAACAC
+VMP,20455111000001104,Gatifloxacin 0.3% eye drops,1103010AKAAAAAA
+AMP,20426311000001108,Gatifloxacin 0.3% eye drops,1103010AKAAAAAA
+VMP,35040711000001108,Hydrocortisone sodium phosphate 3.35mg/ml eye drops 0.4ml unit dose preservative free,1103010ALAAAAAA
+AMP,35022111000001109,Softacort 3.35mg/ml eye drops 0.4ml unit dose,1103010ALBBAAAA
+VMP,330418005,Ciprofloxacin 0.3% eye drops,1103010B0AAAAAA
+VMP,18519011000001100,Ciprofloxacin 0.2% eye drops preservative free,1103010B0AAAEAE
+AMP,18511511000001107,Ciprofloxacin 0.2% eye drops preservative free,1103010B0AAAEAE
+VMP,9552511000001108,Ciprofloxacin 3mg/g eye ointment,1103010B0AAAFAF
+AMP,36960611000001102,Ciprofloxacin 3mg/g eye ointment,1103010B0AAAFAF
+AMP,3686611000001107,Ciloxan 0.3% eye drops,1103010B0BBAAAA
+AMP,9549711000001106,Ciloxan 3mg/g eye ointment,1103010B0BBABAF
+VMP,330286001,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,271611000001100,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,880911000001103,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,20537211000001106,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,503211000001104,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,9794911000001104,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,10390111000001108,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,23790311000001109,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,37136611000001108,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,692811000001102,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,33611000001105,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,39846011000001101,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,17854611000001105,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,18704711000001100,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,17337711000001105,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,493111000001100,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,119111000001102,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,10987011000001103,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+AMP,21833611000001107,Chloramphenicol 0.5% eye drops,1103010C0AAAAAA
+VMP,330295009,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,862811000001106,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,576911000001108,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,20537011000001101,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,299311000001101,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,9795111000001103,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,10390711000001109,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,23790811000001100,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,241011000001106,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,267811000001104,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,212111000001108,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,35859711000001104,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,38828911000001102,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,17854811000001109,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,29777511000001106,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,100411000001104,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,476611000001106,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,20542711000001102,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+AMP,21833811000001106,Chloramphenicol 1% eye ointment,1103010C0AAADAD
+VMP,4700911000001108,Chloramphenicol 0.5% eye drops 0.5ml unit dose preservative free,1103010C0AAAGAG
+VMP,36135411000001100,Chloramphenicol 0.5% eye drops preservative free,1103010C0AAAJAJ
+AMP,32285311000001100,Chloramphenicol 0.5% eye drops preservative free,1103010C0AAAJAJ
+AMP,498011000001108,Chloromycetin 1% eye ointment,1103010C0BBAAAD
+AMP,614511000001106,Chloromycetin Redidrops 0.5%,1103010C0BBABAA
+AMP,4673111000001103,Minims chloramphenicol 0.5% eye drops 0.5ml unit dose,1103010C0BCAAAG
+AMP,9361811000001108,Optrex Infected Eyes 0.5% eye drops,1103010C0BFAAAA
+AMP,11769811000001102,Optrex Infected Eyes 1% eye ointment,1103010C0BFABAD
+AMP,33694111000001107,Optrex Bacterial Conjunctivitis 1% eye ointment,1103010C0BFACAD
+AMP,10191511000001102,Boots Pharmacy Antibiotic 0.5% eye drops,1103010C0BGAAAA
+AMP,10798011000001105,Brochlor 0.5% eye drops,1103010C0BHAAAA
+AMP,11621111000001105,Brochlor 1% eye ointment,1103010C0BHABAD
+AMP,12531611000001106,Lloydspharmacy Chloramphenicol Antibiotic 0.5% eye drops,1103010C0BIAAAA
+AMP,13858711000001103,Lloydspharmacy Chloramphenicol Antibiotic 1% eye ointment,1103010C0BIABAD
+AMP,13452111000001106,Golden Eye Antibiotic 1% eye ointment,1103010C0BJAAAD
+AMP,13738811000001105,Golden Eye Antibiotic 0.5% eye drops,1103010C0BJABAA
+AMP,13666811000001107,Chloramphenicol Antibiotic 0.5% eye drops,1103010C0BKAAAA
+AMP,23340811000001106,Tubilux Infected Eyes 0.5% eye drops,1103010C0BLAAAA
+AMP,30011911000001102,Klorafect 1% eye ointment,1103010C0BMAAAD
+AMP,31487211000001103,Brolene Antibiotic 0.5% eye drops,1103010C0BNAAAA
+AMP,34757911000001101,Eykappo 5mg/ml eye drops,1103010C0BPAAAJ
+AMP,40018411000001102,Clorogen 0.5% eye drops,1103010C0BQAAAA
+VMP,330368001,Dibrompropamidine 0.15% eye ointment,1103010E0AAAAAA
+AMP,3850211000001108,Brolene 0.15% eye ointment,1103010E0BBAAAA
+AMP,3850411000001107,Golden Eye 0.15% ointment,1103010E0BCAAAA
+VMP,347129003,Framycetin 0.5% eye drops,1103010F0AAAAAA
+VMP,347257004,Framycetin 0.5% eye ointment,1103010F0AAABAB
+AMP,3718011000001106,Soframycin 0.5% eye drops,1103010F0BCAAAA
+AMP,3684811000001104,Soframycin 0.5% eye ointment,1103010F0BCABAB
+VMP,36062811000001109,Gentamicin 0.3% eye drops 0.5ml unit dose preservative free,1103010G0AAAAAA
+VMP,347272000,Gentamicin 0.3% ear/eye drops,1103010G0AAAFAF
+AMP,27046111000001105,Gentamicin 0.3% ear/eye drops,1103010G0AAAFAF
+AMP,29746411000001109,Gentamicin 0.3% ear/eye drops,1103010G0AAAFAF
+AMP,29780911000001106,Gentamicin 0.3% ear/eye drops,1103010G0AAAFAF
+AMP,30056611000001106,Gentamicin 0.3% ear/eye drops,1103010G0AAAFAF
+AMP,37148611000001105,Gentamicin 0.3% ear/eye drops,1103010G0AAAFAF
+AMP,36861811000001101,Gentamicin 0.3% ear/eye drops,1103010G0AAAFAF
+AMP,30826111000001101,Gentamicin 0.3% ear/eye drops,1103010G0AAAFAF
+AMP,38929711000001102,Gentamicin 0.3% ear/eye drops,1103010G0AAAFAF
+VMP,347132000,Gentamicin 1.5% eye drops,1103010G0AAAHAH
+AMP,13875211000001101,Gentamicin 1.5% eye drops,1103010G0AAAHAH
+VMP,36062911000001104,Gentamicin 1.5% eye drops preservative free,1103010G0AAAKAK
+AMP,16000811000001109,Gentamicin 1.5% eye drops preservative free,1103010G0AAAKAK
+VMP,16174211000001104,Gentamicin 1.9% eye drops preservative free,1103010G0AAAMAM
+AMP,16133411000001101,Gentamicin 1.9% eye drops preservative free,1103010G0AAAMAM
+AMP,3146511000001101,Garamycin 0.3% eye/ear drops,1103010G0BCAAAF
+AMP,3147011000001107,Genticin 0.3% eye/ear drops,1103010G0BDAAAF
+AMP,3976111000001106,Minims gentamicin sulfate 0.3% eye drops 0.5ml unit dose,1103010G0BEAAAA
+VMP,39020911000001103,Fusidic acid 1% modified-release eye drops,1103010H0AAAAAA
+AMP,24620811000001100,Fusidic acid 1% modified-release eye drops,1103010H0AAAAAA
+AMP,24569111000001103,Fusidic acid 1% modified-release eye drops,1103010H0AAAAAA
+AMP,24602111000001100,Fusidic acid 1% modified-release eye drops,1103010H0AAAAAA
+AMP,37081211000001100,Fusidic acid 1% modified-release eye drops,1103010H0AAAAAA
+AMP,38928111000001105,Fusidic acid 1% modified-release eye drops,1103010H0AAAAAA
+AMP,292711000001108,Fucithalmic 1% eye drops,1103010H0BBAAAA
+VMP,10636911000001105,Erythromycin 0.5% eye ointment,1103010I0AAAAAA
+AMP,22456611000001107,Erythromycin 0.5% eye ointment,1103010I0AAAAAA
+AMP,10808111000001106,Oftalmolosa Cusi Eritromicina 0.5% eye ointment,1103010I0BBAAAA
+AMP,10637111000001105,Erythromycin 0.5% Ophthalmic Ointment,1103010I0BCAAAA
+VMP,330344009,Neomycin 0.5% eye drops,1103010N0AAAAAA
+AMP,4058511000001108,Neomycin 0.5% eye drops,1103010N0AAAAAA
+AMP,4059111000001106,Neomycin 0.5% eye drops,1103010N0AAAAAA
+AMP,4058811000001106,Neomycin 0.5% eye drops,1103010N0AAAAAA
+VMP,330352007,Neomycin 0.5% eye ointment,1103010N0AAABAB
+AMP,4060511000001103,Neomycin 0.5% eye ointment,1103010N0AAABAB
+AMP,4061211000001107,Neomycin 0.5% eye ointment,1103010N0AAABAB
+AMP,4060811000001100,Neomycin 0.5% eye ointment,1103010N0AAABAB
+VMP,36030611000001103,Neomycin 0.5% eye drops 0.5ml unit dose preservative free,1103010N0AAAEAE
+VMP,4009711000001102,Generic Neosporin eye drops,1103010N0AAAHAH
+AMP,4060111000001107,Minims neomycin 0.5% eye drops 0.5ml unit dose,1103010N0BBAAAE
+AMP,3995711000001106,Neosporin eye drops,1103010N0BFAAAH
+VMP,34548911000001103,Natamycin 5% eye drops,1103010P0AAAAAA
+VMP,29863111000001101,Natamycin 5% eye drops preservative free,1103010P0AAABAB
+AMP,29857611000001109,Natamycin 5% eye drops preservative free,1103010P0AAABAB
+AMP,34549111000001108,Natacyn 5% ophthalmic suspension,1103010P0BBAAAA
+VMP,3861711000001101,"Polymyxin B 10,000units/g / Bacitracin 500units/g eye ointment",1103010Q0AAAAAA
+VMP,36017511000001105,"Polymyxin B 10,000units/ml / Trimethoprim 1mg/ml eye drops",1103010Q0AAABAB
+VMP,36017411000001106,"Polymyxin B 10,000units/g / Trimethoprim 5mg/g eye ointment",1103010Q0AAACAC
+AMP,3841211000001104,Polyfax ophthalmic ointment,1103010Q0BBAAAA
+AMP,3844411000001103,Polytrim eye drops,1103010Q0BCAAAB
+AMP,3846211000001107,Polytrim ophthalmic ointment,1103010Q0BCABAC
+VMP,3909011000001108,Propamidine 0.1% eye drops,1103010S0AAAAAA
+AMP,3899611000001109,Brolene 0.1% eye drops,1103010S0BBAAAA
+AMP,3899811000001108,Golden Eye 0.1% drops,1103010S0BCAAAA
+VMP,15773911000001101,Cefuroxime 5% eye drops,1103010T0AAAAAA
+AMP,15652311000001103,Cefuroxime 5% eye drops,1103010T0AAAAAA
+VMP,36134611000001103,Cefuroxime 5% eye drops preservative free,1103010T0AAACAC
+AMP,15634711000001105,Cefuroxime 5% eye drops preservative free,1103010T0AAACAC
+VMP,14253311000001100,Tobramycin 3mg/ml eye drops,1103010X0AAAAAA
+AMP,14221811000001106,Tobravisc 3mg/ml eye drops,1103010X0BCAAAA
+VMP,330414007,Ofloxacin 0.3% eye drops,1103010Y0AAAAAA
+AMP,3679111000001102,Exocin 0.3% eye drops,1103010Y0BBAAAA
+VMP,21407511000001100,Vancomycin 5% eye drops,1103010Z0AAAAAA
+AMP,21394111000001105,Vancomycin 5% eye drops,1103010Z0AAAAAA
+VMP,22103111000001101,Vancomycin 1.4% eye drops,1103010Z0AAADAD
+AMP,22103511000001105,Vancomycin 1.4% eye drops,1103010Z0AAADAD
+VMP,18347211000001109,Amphotericin B 0.15% eye drops,1103020A0AAADAD
+VMP,18430511000001101,Amphotericin B 0.15% eye drops preservative free,1103020A0AAADAD
+AMP,18345311000001109,Amphotericin B 0.15% eye drops,1103020A0AAADAD
+AMP,18413611000001100,Amphotericin B 0.15% eye drops preservative free,1103020A0AAADAD
+VMP,21563011000001108,Amphotericin B 0.3% eye drops preservative free,1103020A0AAAEAE
+AMP,21563311000001106,Amphotericin B 0.3% eye drops preservative free,1103020A0AAAEAE
+VMP,23419411000001101,Clotrimazole 1% eye drops preservative free,1103020C0AAABAB
+AMP,23419711000001107,Clotrimazole 1% eye drops preservative free,1103020C0AAABAB
+VMP,36071411000001108,Econazole 1% eye drops preservative free,1103020E0AAAAAA
+AMP,20422411000001102,Econazole 1% eye drops preservative free,1103020E0AAAAAA
+VMP,20418911000001102,Econazole 1% in Arachis oil eye drops,1103020E0AAABAB
+AMP,20418511000001109,Econazole 1% in Arachis oil eye drops,1103020E0AAABAB
+VMP,36035911000001100,Miconazole 1% eye drops preservative free,1103020M0AAABAB
+AMP,20422711000001108,Miconazole 1% eye drops preservative free,1103020M0AAABAB
+VMP,330284003,Aciclovir 3% eye ointment,1103030C0AAAAAA
+AMP,37350611000001104,Aciclovir 3% eye ointment,1103030C0AAAAAA
+AMP,38336611000001106,Aciclovir 3% eye ointment,1103030C0AAAAAA
+AMP,433611000001103,Zovirax 3% ophthalmic ointment,1103030C0BBAAAA
+VMP,347243001,Trifluridine 1% eye drops,1103030T0AAABAB
+AMP,21403011000001102,Trifluridine 1% eye drops,1103030T0AAABAB
+VMP,17871211000001108,Trifluridine 1% eye drops preservative free,1103030T0AAADAD
+AMP,17868711000001102,Trifluridine 1% eye drops preservative free,1103030T0AAADAD
+AMP,11457511000001105,Viroptic 1% eye drops,1103030T0BDAAAB
+VMP,408597001,Ganciclovir 0.15% eye gel,1103030W0AAAAAA
+AMP,3976511000001102,Virgan 0.15% eye gel,1103030W0BBAAAA
+VMP,330442009,Betamethasone 0.1% eye ointment,1104010D0AAABAB
+AMP,35486611000001102,Betamethasone 0.1% eye ointment,1104010D0AAABAB
+VMP,330440001,Neomycin 0.5% / Betamethasone 0.1% eye ointment,1104010D0AAADAD
+VMP,354027002,Betamethasone 0.1% ear/eye/nose drops,1104010D0AAAGAG
+AMP,3148011000001108,Betnesol 0.1% eye/ear/nose drops,1104010D0BBAAAG
+AMP,3807311000001107,Betnesol 0.1% eye ointment,1104010D0BBABAB
+AMP,4066611000001102,Betnesol-N eye ointment,1104010D0BBACAD
+AMP,3148411000001104,Vistamethasone 0.1% ear/eye/nose drops,1104010D0BCAAAG
+VMP,330449000,Clobetasone 0.1% eye drops,1104010F0AAAAAA
+AMP,29875111000001108,Clobetasone 0.1% eye drops,1104010F0AAAAAA
+AMP,10596311000001105,Clobet 0.1% eye drops,1104010F0BDAAAA
+VMP,347120004,Dexamethasone 0.1% eye drops,1104010I0AAADAD
+VMP,3546611000001108,Generic Maxitrol eye drops,1104010I0AAAEAE
+VMP,4389111000001100,Generic Maxitrol eye ointment,1104010I0AAAFAF
+VMP,3655011000001103,Dexamethasone 0.1% eye drops 0.5ml unit dose preservative free,1104010I0AAALAL
+VMP,134748003,Dexamethasone 0.1% / Tobramycin 0.3% eye drops,1104010I0AAAPAP
+AMP,40831111000001106,Dexamethasone 0.1% / Tobramycin 0.3% eye drops,1104010I0AAAPAP
+VMP,9404911000001105,Dexamethasone 1% eye drops preservative free,1104010I0AAARAR
+AMP,9400311000001101,Dexamethasone 1% eye drops preservative free,1104010I0AAARAR
+VMP,23560011000001109,Dexamethasone 0.1% eye drops 0.4ml unit dose preservative free,1104010I0AAATAT
+AMP,30987511000001109,Dexamethasone 0.1% eye drops 0.4ml unit dose preservative free,1104010I0AAATAT
+AMP,30166411000001108,Dexamethasone 0.1% eye drops 0.4ml unit dose preservative free,1104010I0AAATAT
+VMP,36094811000001100,Dexamethasone 0.1% eye drops preservative free,1104010I0AAAUAU
+AMP,9400611000001106,Dexamethasone 0.1% eye drops preservative free,1104010I0AAAUAU
+AMP,54011000001102,Maxidex 0.1% eye drops,1104010I0BBAAAD
+AMP,270211000001108,Maxitrol eye drops,1104010I0BCAAAE
+AMP,4378611000001106,Maxitrol eye ointment,1104010I0BCABAF
+AMP,3640211000001102,Minims dexamethasone 0.1% eye drops 0.5ml unit dose,1104010I0BEAAAL
+AMP,3748211000001106,Tobradex 3mg/ml / 1mg/ml eye drops,1104010I0BFAAAP
+AMP,23484611000001104,Dropodex 0.1% eye drops 0.4ml unit dose,1104010I0BGAAAT
+AMP,24433911000001103,Dexafree 1mg/1ml eye drops 0.4ml unit dose,1104010I0BHAAAT
+AMP,35514311000001107,Eythalm 1mg/ml eye drops,1104010I0BIAAAU
+VMP,330466003,Fluorometholone 0.1% eye drops,1104010K0AAAAAA
+AMP,3149611000001105,FML Liquifilm 0.1% ophthalmic suspension,1104010K0BBAAAA
+VMP,4880511000001104,Hydrocortisone acetate 1% eye drops,1104010M0AAABAB
+AMP,4877311000001100,Hydrocortisone acetate 1% eye drops,1104010M0AAABAB
+VMP,330475001,Hydrocortisone acetate 0.5% eye ointment,1104010M0AAACAC
+AMP,3851911000001106,Hydrocortisone 0.5% eye ointment,1104010M0AAACAC
+AMP,3852511000001107,Hydrocortisone 0.5% eye ointment,1104010M0AAACAC
+AMP,3852311000001101,Hydrocortisone 0.5% eye ointment,1104010M0AAACAC
+AMP,32477311000001101,Hydrocortisone 0.5% eye ointment,1104010M0AAACAC
+VMP,330476000,Hydrocortisone 1% eye ointment,1104010M0AAADAD
+AMP,4005011000001101,Hydrocortisone 1% eye ointment,1104010M0AAADAD
+AMP,4249111000001103,Hydrocortisone 1% eye ointment,1104010M0AAADAD
+AMP,4005211000001106,Hydrocortisone 1% eye ointment,1104010M0AAADAD
+AMP,20886111000001107,Hydrocortisone 1% eye ointment,1104010M0AAADAD
+VMP,330477009,Hydrocortisone 2.5% eye ointment,1104010M0AAAEAE
+AMP,3851211000001102,Hydrocortisone 2.5% eye ointment,1104010M0AAAEAE
+AMP,11530011000001107,Hydrocortisone 2.5% eye ointment,1104010M0AAAEAE
+AMP,3851011000001107,Hydrocortisone 2.5% eye ointment,1104010M0AAAEAE
+VMP,347223007,Prednisolone acetate 1% eye drops,1104010R0AAAAAA
+AMP,3151611000001106,Pred Forte 1% eye drops,1104010R0BBAAAA
+VMP,9407211000001108,Prednisolone sodium phosphate 0.01% eye drops,1104010S0AAAAAA
+AMP,9399411000001105,Prednisolone sodium phosphate 0.01% eye drops,1104010S0AAAAAA
+VMP,9408211000001107,Prednisolone sodium phosphate 0.125% eye drops,1104010S0AAAEAE
+AMP,9394011000001102,Prednisolone sodium phosphate 0.125% eye drops,1104010S0AAAEAE
+VMP,9408511000001105,Prednisolone sodium phosphate 0.25% eye drops,1104010S0AAAFAF
+AMP,9392511000001100,Prednisolone sodium phosphate 0.25% eye drops,1104010S0AAAFAF
+VMP,9408611000001109,Prednisolone sodium phosphate 0.25% eye drops preservative free,1104010S0AAAKAK
+AMP,9392211000001103,Prednisolone sodium phosphate 0.25% eye drops preservative free,1104010S0AAAKAK
+VMP,16037011000001108,Prednisolone sodium phosphate 0.003% eye drops,1104010S0AAALAL
+AMP,16024411000001106,Prednisolone sodium phosphate 0.003% eye drops,1104010S0AAALAL
+VMP,38752911000001104,Prednisolone sodium phosphate 0.5% eye drops 0.5ml unit dose preservative free,1104010S0AAAPAP
+VMP,9408411000001106,Prednisolone sodium phosphate 0.13% eye drops,1104010S0AAAQAQ
+AMP,9392911000001107,Prednisolone sodium phosphate 0.13% eye drops,1104010S0AAAQAQ
+VMP,9409011000001107,Prednisolone sodium phosphate 0.5% eye drops preservative free,1104010S0AAARAR
+AMP,9389611000001107,Prednisolone sodium phosphate 0.5% eye drops preservative free,1104010S0AAARAR
+VMP,9407411000001107,Prednisolone sodium phosphate 0.025% eye drops,1104010S0AAASAS
+AMP,9399111000001100,Prednisolone sodium phosphate 0.025% eye drops,1104010S0AAASAS
+VMP,9408311000001104,Prednisolone sodium phosphate 0.125% eye drops preservative free,1104010S0AAAXAX
+AMP,9393411000001108,Prednisolone sodium phosphate 0.125% eye drops preservative free,1104010S0AAAXAX
+VMP,9407311000001100,Prednisolone sodium phosphate 0.01% eye drops preservative free,1104010S0AAAZAZ
+AMP,9386811000001100,Prednisolone sodium phosphate 0.01% eye drops preservative free,1104010S0AAAZAZ
+VMP,354028007,Prednisolone sodium phosphate 0.5% ear/eye drops,1104010S0AABBBB
+AMP,37302811000001108,Prednisolone sodium phosphate 0.5% ear/eye drops,1104010S0AABBBB
+AMP,37048411000001103,Prednisolone sodium phosphate 0.5% ear/eye drops,1104010S0AABBBB
+VMP,9407111000001102,Prednisolone sodium phosphate 0.005% eye drops,1104010S0AABCBC
+AMP,9399711000001104,Prednisolone sodium phosphate 0.005% eye drops,1104010S0AABCBC
+VMP,8982211000001109,Prednisolone sodium phosphate 0.1% ear drops,1104010S0AABHBH
+AMP,8979611000001105,Prednisolone sodium phosphate 0.1% ear drops,1104010S0AABHBH
+VMP,8982311000001101,Prednisolone sodium phosphate 0.3% ear drops,1104010S0AABIBI
+AMP,8979911000001104,Prednisolone sodium phosphate 0.3% ear drops,1104010S0AABIBI
+VMP,9407511000001106,Prednisolone sodium phosphate 0.025% eye drops preservative free,1104010S0AABJBJ
+AMP,9398511000001103,Prednisolone sodium phosphate 0.025% eye drops preservative free,1104010S0AABJBJ
+VMP,9407611000001105,Prednisolone sodium phosphate 0.03% eye drops,1104010S0AABKBK
+AMP,9398211000001101,Prednisolone sodium phosphate 0.03% eye drops,1104010S0AABKBK
+VMP,9408011000001102,Prednisolone sodium phosphate 0.1% eye drops,1104010S0AABLBL
+AMP,9395211000001108,Prednisolone sodium phosphate 0.1% eye drops,1104010S0AABLBL
+VMP,9408711000001100,Prednisolone sodium phosphate 0.3% eye drops,1104010S0AABMBM
+AMP,9391311000001102,Prednisolone sodium phosphate 0.3% eye drops,1104010S0AABMBM
+VMP,9407811000001109,Prednisolone sodium phosphate 0.05% eye drops,1104010S0AABNBN
+AMP,9396711000001109,Prednisolone sodium phosphate 0.05% eye drops,1104010S0AABNBN
+VMP,9407911000001104,Prednisolone sodium phosphate 0.05% eye drops preservative free,1104010S0AABPBP
+AMP,9396211000001102,Prednisolone sodium phosphate 0.05% eye drops preservative free,1104010S0AABPBP
+VMP,9409111000001108,Prednisolone sodium phosphate 1% eye drops preservative free,1104010S0AABQBQ
+AMP,9388911000001109,Prednisolone sodium phosphate 1% eye drops preservative free,1104010S0AABQBQ
+VMP,9407711000001101,Prednisolone sodium phosphate 0.03% eye drops preservative free,1104010S0AABRBR
+AMP,9397611000001103,Prednisolone sodium phosphate 0.03% eye drops preservative free,1104010S0AABRBR
+VMP,9408111000001101,Prednisolone sodium phosphate 0.1% eye drops preservative free,1104010S0AABSBS
+AMP,9394811000001108,Prednisolone sodium phosphate 0.1% eye drops preservative free,1104010S0AABSBS
+VMP,9408811000001108,Prednisolone sodium phosphate 0.3% eye drops preservative free,1104010S0AABTBT
+AMP,9390811000001103,Prednisolone sodium phosphate 0.3% eye drops preservative free,1104010S0AABTBT
+AMP,3150211000001103,Minims prednisolone sodium phosphate 0.5% eye drops 0.5ml unit dose,1104010S0BBAAAP
+AMP,3148811000001102,Predsol 0.5% ear/eye drops,1104010S0BCAABB
+VMP,330545009,Rimexolone 10mg/ml eye drops,1104010V0AAAAAA
+AMP,3689411000001102,Vexol 10mg/ml eye drops,1104010V0BBAAAA
+VMP,13467011000001101,Loteprednol 0.5% eye drops,1104010W0AAAAAA
+AMP,13464611000001102,Lotemax 0.5% eye drops,1104010W0BBAAAA
+VMP,4072611000001108,Hamamelis water 13% eye lotion,110402000BBAEA0
+AMP,4070511000001108,Optrex 13% eye lotion,110402000BBAEA0
+VMP,10196811000001109,Hamamelis water 5% / Cetrimide 0.01% eye drops,110402000BBALA0
+AMP,10191811000001104,Boots Soothing eye drops,110402000BBALA0
+VMP,7820911000001106,Hamamelis water 13% eye drops 0.4ml unit dose preservative free,110402000BBAPA0
+AMP,7777811000001100,Optrex Comforting eye drops 0.4ml unit dose preservative free,110402000BBAPA0
+VMP,4072411000001105,Hamamelis water 12.5% / Naphazoline 0.01% eye drops,1104020ABAAAAAA
+VMP,36053811000001107,Hamamelis water 13% eye drops,1104020ABAAABAB
+AMP,4583211000001106,Optrex Eye Dew eye drops dazzling blue,1104020ABBBAAAA
+AMP,18601411000001102,Optrex Bloodshot eye drops,1104020ABBCAAAA
+AMP,4070211000001105,Optrex Red Eyes eye drops,1104020ABBCABAA
+AMP,4070911000001101,Optrex Sore Eyes 13% eye drops,1104020ABBCACAB
+VMP,407071001,Epinastine 500micrograms/ml eye drops,1104020ACAAAAAA
+AMP,5651311000001108,Relestat 500micrograms/ml eye drops,1104020ACBBAAAA
+VMP,23435911000001104,"Heparin sodium 5,000units/ml eye drops preservative free",1104020ADAAAAAA
+AMP,23436211000001102,"Heparin sodium 5,000units/ml eye drops preservative free",1104020ADAAAAAA
+VMP,29951011000001101,Ciclosporin 0.1% eye drops 0.3ml unit dose,1104020AEAAAAAA
+AMP,29950811000001104,Ikervis 0.1% eye drops emulsion 0.3ml unit dose,1104020AEBBAAAA
+AMP,35840311000001105,Verkazia 0.1% eye drops emulsion 0.3ml unit dose,1104020AEBCAAAA
+VMP,33678411000001101,Ascorbic acid 10% eye drops preservative free,1104020AFAAAAAA
+AMP,33673211000001108,Ascorbic acid 10% eye drops preservative free,1104020AFAAAAAA
+VMP,330427006,Antazoline 0.5% / Xylometazoline 0.05% eye drops,1104020B0AAACAC
+AMP,328411000001100,Otrivine Antistin 0.5%/0.05% eye drops,1104020B0BCAAAC
+VMP,36058911000001107,Flurbiprofen 0.03% eye drops 0.4ml unit dose preservative free,1104020G0AAACAC
+AMP,3978211000001104,Ocufen 0.03% eye drops 0.4ml unit dose,1104020G0BBABAC
+VMP,330515006,Lodoxamide 0.1% eye drops,1104020M0AAAAAA
+AMP,397611000001105,Alomide 0.1% eye drops,1104020M0BBAAAA
+AMP,7960511000001100,Alomide Allergy 0.1% eye drops,1104020M0BBACAA
+VMP,330529007,Nedocromil 2% eye drops,1104020N0AAAAAA
+AMP,779311000001101,Rapitil 2% eye drops,1104020N0BBAAAA
+VMP,330532005,Levocabastine 0.5mg/ml eye drops,1104020P0AAAAAA
+AMP,3772711000001103,Livostin 0.5mg/ml eye drops,1104020P0BBAAAA
+AMP,3772511000001108,Livostin Direct 0.5mg/ml eye drops,1104020P0BBABAA
+VMP,347186008,Naphazoline 0.012% eye drops,1104020R0AAAAAA
+AMP,4058211000001105,Murine irritation & redness relief 0.012% eye drops,1104020R0BBAAAA
+VMP,330507008,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,12111000001101,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,893511000001103,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,395311000001108,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,10415211000001100,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,33275111000001103,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,30098311000001109,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,37144111000001108,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,556211000001102,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,37140911000001101,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,39248111000001106,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,11414811000001105,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,17796311000001104,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,737511000001102,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+AMP,21900411000001100,Sodium cromoglicate 2% eye drops,1104020T0AAAAAA
+VMP,35926511000001106,Sodium cromoglicate 2% eye drops unit dose preservative free,1104020T0AAADAD
+AMP,5004311000001106,Sodium cromoglicate 2% eye drops unit dose preservative free,1104020T0AAADAD
+VMP,21424211000001103,Sodium cromoglicate 2% eye drops 0.5ml unit dose preservative free,1104020T0AAAGAG
+VMP,10064611000001108,Sodium cromoglicate 2% eye drops preservative free,1104020T0AAAIAI
+AMP,9385711000001100,Sodium cromoglicate 2% eye drops preservative free,1104020T0AAAIAI
+VMP,17042811000001100,Sodium cromoglicate 2% eye drops 0.3ml unit dose preservative free,1104020T0AAAJAJ
+AMP,327511000001100,Opticrom Aqueous 2% eye drops,1104020T0BBADAA
+AMP,36311000001109,Opticrom Allergy 2% eye drops,1104020T0BBAEAA
+AMP,16629811000001104,Opticrom Hayfever 2% eye drops,1104020T0BBAFAA
+AMP,36771311000001104,Opticrom Allergy Single Dose 2% eye drops 0.3ml unit dose,1104020T0BBAGAJ
+AMP,400011000001109,Hay-Crom Hayfever 2% eye drops,1104020T0BDAAAA
+AMP,31411000001108,Hay-Crom Aqueous 2% eye drops,1104020T0BDABAA
+AMP,418511000001101,Vividrin 2% eye drops,1104020T0BFAAAA
+AMP,21413611000001107,Vividrin 2% eye drops 0.5ml unit dose preservative free,1104020T0BFABAG
+AMP,490911000001105,Optrex Allergy 2% eye drops,1104020T0BHAAAA
+AMP,31396911000001104,Optrex Hayfever Relief 2% eye drops,1104020T0BHABAA
+AMP,469411000001109,Viz-On 2% eye drops,1104020T0BJAAAA
+AMP,57811000001104,Dominion Pharma Hayfever 2% eye drops,1104020T0BLAAAA
+AMP,789011000001107,Vivicrom 2% eye drops,1104020T0BNAAAA
+AMP,9359811000001104,Cromolux 2% eye drops,1104020T0BPAAAA
+AMP,9360011000001106,Cromolux Hayfever 2% eye drops,1104020T0BPABAA
+AMP,9881911000001103,Galpharm Allergy 2% eye drops,1104020T0BQAAAA
+AMP,18747211000001105,Galpharm Hayfever 2% eye drops,1104020T0BQABAA
+AMP,7963211000001108,Pollenase Allergy 2% eye drops,1104020T0BRAAAA
+AMP,17032611000001100,Catacrom 2% eye drops 0.3ml unit dose,1104020T0BSAAAJ
+AMP,17054711000001100,Lloydspharmacy Allergy 2% eye drops,1104020T0BTAAAA
+AMP,21142611000001106,Allercrom 2% eye drops,1104020T0BUAAAA
+AMP,40237511000001100,Allercrom 2% eye drops,1104020T0BUABAA
+AMP,22650511000001109,Numark Hayfever 2% eye drops,1104020T0BVAAAA
+AMP,28205211000001104,Murine hayfever relief 2% eye drops,1104020T0BWAAAA
+AMP,32882711000001104,Aspire Hayfever Relief 2% eye drops,1104020T0BXAAAA
+AMP,37012311000001102,Aspire Allergy Relief 2% eye drops,1104020T0BXABAA
+AMP,39027711000001104,Librachrom 2% eye drops,1104020T0BYAAAI
+AMP,39361811000001105,Eycrom 2% eye drops,1104020T0BZAAAI
+VMP,3654711000001100,Azelastine 0.05% eye drops,1104020W0AAAAAA
+AMP,39610711000001103,Azelastine 0.05% eye drops,1104020W0AAAAAA
+AMP,39334311000001105,Azelastine 0.05% eye drops,1104020W0AAAAAA
+AMP,40334411000001101,Azelastine 0.05% eye drops,1104020W0AAAAAA
+AMP,3636611000001104,Optilast 0.05% eye drops,1104020W0BBAAAA
+AMP,4227511000001103,Aller-Eze 0.05% eye drops,1104020W0BCAAAA
+VMP,330543002,Emedastine 0.5mg/ml eye drops,1104020X0AAAAAA
+AMP,3685711000001106,Emadine 0.5mg/ml eye drops,1104020X0BBAAAA
+VMP,407900001,Ketotifen 250micrograms/ml eye drops,1104020Y0AAAAAA
+VMP,35214911000001103,Ketotifen 250micrograms/ml eye drops 0.4ml unit dose preservative free,1104020Y0AAABAB
+AMP,388511000001106,Zaditen 250micrograms/ml eye drops,1104020Y0BBAAAA
+AMP,35206111000001105,Ketofall 0.25mg/ml eye drops 0.4ml unit dose,1104020Y0BCAAAB
+VMP,408020000,Olopatadine 1mg/ml eye drops,1104020Z0AAAAAA
+AMP,38015211000001107,Olopatadine 1mg/ml eye drops,1104020Z0AAAAAA
+AMP,40090711000001105,Olopatadine 1mg/ml eye drops,1104020Z0AAAAAA
+AMP,37901411000001106,Olopatadine 1mg/ml eye drops,1104020Z0AAAAAA
+AMP,38091111000001102,Olopatadine 1mg/ml eye drops,1104020Z0AAAAAA
+AMP,39065311000001103,Olopatadine 1mg/ml eye drops,1104020Z0AAAAAA
+AMP,4532711000001100,Opatanol 1mg/ml eye drops,1104020Z0BBAAAA
+VMP,347097005,Atropine 0.5% eye drops,1105000B0AAADAD
+AMP,492711000001107,Atropine 0.5% eye drops,1105000B0AAADAD
+AMP,891611000001103,Atropine 0.5% eye drops,1105000B0AAADAD
+AMP,501311000001106,Atropine 0.5% eye drops,1105000B0AAADAD
+AMP,28781111000001104,Atropine 0.5% eye drops,1105000B0AAADAD
+AMP,21780011000001102,Atropine 0.5% eye drops,1105000B0AAADAD
+VMP,330548006,Atropine 1% eye drops,1105000B0AAAEAE
+AMP,667711000001109,Atropine 1% eye drops,1105000B0AAAEAE
+AMP,40978411000001102,Atropine 1% eye drops,1105000B0AAAEAE
+AMP,151211000001102,Atropine 1% eye drops,1105000B0AAAEAE
+AMP,39613311000001108,Atropine 1% eye drops,1105000B0AAAEAE
+AMP,22613911000001100,Atropine 1% eye drops,1105000B0AAAEAE
+AMP,567011000001104,Atropine 1% eye drops,1105000B0AAAEAE
+AMP,881211000001101,Atropine 1% eye drops,1105000B0AAAEAE
+AMP,38801611000001107,Atropine 1% eye drops,1105000B0AAAEAE
+AMP,32873811000001109,Atropine 1% eye drops,1105000B0AAAEAE
+AMP,21780211000001107,Atropine 1% eye drops,1105000B0AAAEAE
+VMP,330549003,Atropine 1% eye ointment,1105000B0AAAHAH
+AMP,3943811000001109,Atropine 1% eye ointment,1105000B0AAAHAH
+AMP,3945011000001102,Atropine 1% eye ointment,1105000B0AAAHAH
+AMP,3944711000001104,Atropine 1% eye ointment,1105000B0AAAHAH
+AMP,28781411000001109,Atropine 1% eye ointment,1105000B0AAAHAH
+VMP,35904611000001107,Atropine 1% eye drops 0.5ml unit dose preservative free,1105000B0AAAJAJ
+VMP,35904711000001103,Atropine 1% eye drops preservative free,1105000B0AAANAN
+AMP,20548211000001106,Atropine 1% eye drops preservative free,1105000B0AAANAN
+AMP,3941411000001108,Minims atropine sulfate 1% eye drops 0.5ml unit dose,1105000B0BBAAAJ
+AMP,3932611000001101,Isopto Atropine 1% eye drops,1105000B0BDAAAE
+VMP,330563009,Cyclopentolate 0.5% eye drops,1105000E0AAABAB
+VMP,330562004,Cyclopentolate 1% eye drops,1105000E0AAACAC
+VMP,3958311000001105,Cyclopentolate 0.5% eye drops 0.5ml unit dose preservative free,1105000E0AAAEAE
+VMP,3958411000001103,Cyclopentolate 1% eye drops 0.5ml unit dose preservative free,1105000E0AAAFAF
+AMP,3950711000001107,Minims cyclopentolate hydrochloride 0.5% eye drops 0.5ml unit dose,1105000E0BBAAAE
+AMP,3951811000001107,Minims cyclopentolate hydrochloride 1% eye drops 0.5ml unit dose,1105000E0BBABAF
+AMP,672011000001101,Mydrilate 0.5% solution,1105000E0BCAAAB
+AMP,601511000001106,Mydrilate 1% solution,1105000E0BCABAC
+VMP,330566001,Homatropine 1% eye drops,1105000H0AAADAD
+VMP,36056411000001100,Homatropine 1% eye drops preservative free,1105000H0AAADAD
+AMP,4002811000001100,Homatropine 1% eye drops,1105000H0AAADAD
+AMP,4003611000001109,Homatropine 1% eye drops,1105000H0AAADAD
+AMP,4003311000001104,Homatropine 1% eye drops,1105000H0AAADAD
+AMP,20552111000001101,Homatropine 1% eye drops preservative free,1105000H0AAADAD
+VMP,330567005,Homatropine 2% eye drops,1105000H0AAAEAE
+AMP,4006611000001103,Homatropine 2% eye drops,1105000H0AAAEAE
+AMP,4007211000001103,Homatropine 2% eye drops,1105000H0AAAEAE
+AMP,4007011000001108,Homatropine 2% eye drops,1105000H0AAAEAE
+VMP,4010111000001106,Homatropine 2% eye drops 0.5ml unit dose preservative free,1105000H0AAAHAH
+VMP,36056511000001101,Homatropine 2% eye drops preservative free,1105000H0AAALAL
+AMP,20119811000001101,Homatropine 2% eye drops preservative free,1105000H0AAALAL
+AMP,4007611000001101,Minims homatropine hydrobromide 2% eye drops 0.5ml unit dose,1105000H0BBAAAH
+VMP,22214011000001100,Hyoscine hydrobromide 0.5% eye drops,1105000J0AAADAD
+AMP,22213311000001104,Hyoscine hydrobromide 0.5% eye drops,1105000J0AAADAD
+VMP,330575004,Phenylephrine 10% eye drops,1105000P0AAACAC
+AMP,4895011000001102,Phenylephrine 10% eye drops,1105000P0AAACAC
+AMP,4895511000001105,Phenylephrine 10% eye drops,1105000P0AAACAC
+AMP,4895311000001104,Phenylephrine 10% eye drops,1105000P0AAACAC
+VMP,4225011000001104,Phenylephrine 10% eye drops 0.5ml unit dose preservative free,1105000P0AAAEAE
+VMP,4108611000001106,Phenylephrine 2.5% eye drops 0.5ml unit dose preservative free,1105000P0AAAFAF
+AMP,4219711000001106,Minims phenylephrine hydrochloride 10% eye drops 0.5ml unit dose,1105000P0BBAAAE
+AMP,4096411000001103,Minims phenylephrine hydrochloride 2.5% eye drops 0.5ml unit dose,1105000P0BBABAF
+VMP,330588001,Tropicamide 0.5% eye drops,1105000S0AAAAAA
+VMP,330587006,Tropicamide 1% eye drops,1105000S0AAABAB
+VMP,36145711000001107,Tropicamide 0.5% eye drops 0.5ml unit dose preservative free,1105000S0AAACAC
+VMP,36145911000001109,Tropicamide 1% eye drops 0.5ml unit dose preservative free,1105000S0AAADAD
+AMP,3906111000001101,Minims tropicamide 0.5% eye drops 0.5ml unit dose,1105000S0BBAAAC
+AMP,3907411000001108,Minims tropicamide 1% eye drops 0.5ml unit dose,1105000S0BBABAD
+AMP,4119911000001105,Mydriacyl 0.5% eye drops,1105000S0BCAAAA
+AMP,3906811000001108,Mydriacyl 1% eye drops,1105000S0BCABAB
+VMP,19805811000001109,Phenylephrine 5.4mg / Tropicamide 0.28mg ophthalmic inserts preservative free,1105000T0AAAAAA
+AMP,19805411000001107,Mydriasert 5.4mg/0.28mg ophthalmic inserts,1105000T0BBAAAA
+VMP,330731001,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,15149211000001101,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,15433911000001107,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,15018211000001105,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,22621811000001103,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,37136411000001105,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,17066711000001100,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,30003711000001100,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,38810411000001103,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,17808711000001101,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,16084311000001107,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,29775211000001100,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,15262711000001108,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,16247511000001105,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,21803411000001102,Brimonidine 0.2% eye drops,1106000AAAAAAAA
+AMP,35860611000001107,Brimonidine 2mg/ml eye drops,1106000AAAAAAAA
+AMP,727011000001107,Alphagan 0.2% eye drops,1106000AABBAAAA
+AMP,18163411000001103,Brymont 2mg/ml eye drops,1106000AABCAAAA
+VMP,330734009,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,17175711000001106,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,19491211000001100,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,18032511000001107,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,19308711000001105,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,23970211000001100,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,37484111000001102,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,27621811000001100,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,35860011000001100,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,38878411000001109,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,23835511000001100,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,20285711000001107,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,29833411000001100,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,17875411000001105,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,21932611000001108,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+AMP,19280711000001104,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops,1106000ABAAAAAA
+VMP,10931011000001100,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops 0.2ml unit dose preservative free,1106000ABAAABAB
+AMP,23477811000001102,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops 0.2ml unit dose preservative free,1106000ABAAABAB
+AMP,39079911000001108,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops 0.2ml unit dose preservative free,1106000ABAAABAB
+AMP,36757211000001100,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops 0.2ml unit dose preservative free,1106000ABAAABAB
+AMP,37300611000001108,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops 0.2ml unit dose preservative free,1106000ABAAABAB
+AMP,37061211000001102,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops 0.2ml unit dose preservative free,1106000ABAAABAB
+AMP,39169211000001101,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops 0.2ml unit dose preservative free,1106000ABAAABAB
+AMP,22755411000001107,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops 0.2ml unit dose preservative free,1106000ABAAABAB
+VMP,34318011000001105,Dorzolamide 20mg/ml / Timolol 5mg/ml eye drops preservative free,1106000ABAAACAC
+AMP,3322111000001104,Cosopt 20mg/ml / 5mg/ml eye drops,1106000ABBBAAAA
+AMP,10929111000001102,Cosopt 20mg/ml / 5mg/ml eye drops 0.2ml unit dose preservative free,1106000ABBBABAB
+AMP,36572911000001108,Cosopt iMulti 20mg/ml / 5mg/ml eye drops preservative free,1106000ABBBACAC
+AMP,21631911000001109,Tidomat 20mg/ml / 5mg/ml eye drops,1106000ABBCAAAA
+AMP,34312711000001109,Eylamdo 20mg/ml / 5mg/ml eye drops,1106000ABBDAAAC
+AMP,39381911000001102,Vizidor Duo 20mg/ml / 5mg/ml eye drops,1106000ABBEAAAC
+VMP,330738007,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,29713811000001105,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,30772311000001100,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,29700811000001100,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,29682411000001108,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,30027711000001103,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,30003911000001103,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,38806311000001105,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,29680511000001106,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,30298911000001101,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,33572711000001101,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,30204211000001101,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,29719611000001108,Brinzolamide 10mg/ml eye drops,1106000ACAAAAAA
+AMP,98111000001104,Azopt 10mg/ml eye drops,1106000ACBBAAAA
+VMP,408614000,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,20006711000001108,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,19997411000001107,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,20186611000001105,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,24356011000001103,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,37483711000001103,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,20128911000001109,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,27622911000001104,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,30218811000001105,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,39874411000001103,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,29884011000001102,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,19847611000001107,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,33592111000001106,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,22062111000001102,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+AMP,22358911000001106,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops,1106000ADAAAAAA
+VMP,36595511000001104,Latanoprost 50micrograms/ml / Timolol 5mg/ml eye drops 0.2ml unit dose preservative free,1106000ADAAABAB
+AMP,3642811000001100,Xalacom eye drops,1106000ADBBAAAA
+AMP,35860811000001106,Medox 50micrograms/ml / 5mg/ml eye drops,1106000ADBCAAAA
+AMP,36470311000001103,Fixapost 50micrograms/ml / 5mg/ml eye drops 0.2ml unit dose,1106000ADBDAAAB
+VMP,407803003,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,34559611000001103,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,39299811000001100,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,35111411000001107,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,34608711000001100,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,37828011000001106,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,39916811000001109,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,36869511000001103,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,35454211000001102,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,35112511000001103,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,37713811000001101,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,34539411000001102,Travoprost 40micrograms/ml eye drops,1106000AEAAAAAA
+AMP,368611000001107,Travatan 40micrograms/ml eye drops,1106000AEBBAAAA
+AMP,34534711000001107,Bondulc 40micrograms/ml eye drops,1106000AEBCAAAA
+VMP,407891009,Bimatoprost 300micrograms/ml eye drops,1106000AFAAAAAA
+AMP,37766911000001104,Bimatoprost 300micrograms/ml eye drops,1106000AFAAAAAA
+AMP,34709911000001104,Bimatoprost 300micrograms/ml eye drops,1106000AFAAAAAA
+AMP,34632711000001109,Bimatoprost 300micrograms/ml eye drops,1106000AFAAAAAA
+AMP,37108611000001103,Bimatoprost 300micrograms/ml eye drops,1106000AFAAAAAA
+AMP,38808611000001104,Bimatoprost 300micrograms/ml eye drops,1106000AFAAAAAA
+VMP,16749911000001102,Bimatoprost 100micrograms/ml eye drops,1106000AFAAABAB
+AMP,37889711000001107,Bimatoprost 100micrograms/ml eye drops,1106000AFAAABAB
+AMP,37861011000001108,Bimatoprost 100micrograms/ml eye drops,1106000AFAAABAB
+AMP,37873711000001103,Bimatoprost 100micrograms/ml eye drops,1106000AFAAABAB
+AMP,37803411000001104,Bimatoprost 100micrograms/ml eye drops,1106000AFAAABAB
+AMP,38109811000001101,Bimatoprost 100micrograms/ml eye drops,1106000AFAAABAB
+AMP,39842811000001106,Bimatoprost 100micrograms/ml eye drops,1106000AFAAABAB
+AMP,39809611000001106,Bimatoprost 100micrograms/ml eye drops,1106000AFAAABAB
+AMP,38192011000001103,Bimatoprost 100micrograms/ml eye drops,1106000AFAAABAB
+VMP,21939311000001106,Bimatoprost 300micrograms/ml eye drops 0.4ml unit dose preservative free,1106000AFAAACAC
+AMP,39562911000001108,Bimatoprost 300micrograms/ml eye drops 0.4ml unit dose preservative free,1106000AFAAACAC
+AMP,39458811000001102,Bimatoprost 300micrograms/ml eye drops 0.4ml unit dose preservative free,1106000AFAAACAC
+AMP,39382911000001108,Bimatoprost 300micrograms/ml eye drops 0.4ml unit dose preservative free,1106000AFAAACAC
+AMP,40374611000001100,Bimatoprost 300micrograms/ml eye drops 0.4ml unit dose preservative free,1106000AFAAACAC
+VMP,35149111000001105,Bimatoprost 300micrograms/ml eye drops preservative free,1106000AFAAADAD
+AMP,3449811000001108,Lumigan 300micrograms/ml eye drops,1106000AFBBAAAA
+AMP,16747711000001107,Lumigan 100micrograms/ml eye drops,1106000AFBBABAB
+AMP,21909311000001103,Lumigan 300micrograms/ml eye drops 0.4ml unit dose,1106000AFBBACAC
+AMP,34899611000001109,Sturiban 0.3mg/ml eye drops,1106000AFBCAAAA
+AMP,35139811000001102,Eyreida 0.3mg/ml eye drops,1106000AFBDAAAD
+VMP,9207511000001105,Brimonidine 2mg/ml / Timolol 5mg/ml eye drops,1106000AGAAAAAA
+AMP,39363711000001101,Brimonidine 2mg/ml / Timolol 5mg/ml eye drops,1106000AGAAAAAA
+AMP,39365211000001107,Brimonidine 2mg/ml / Timolol 5mg/ml eye drops,1106000AGAAAAAA
+AMP,37030511000001103,Brimonidine 2mg/ml / Timolol 5mg/ml eye drops,1106000AGAAAAAA
+AMP,9206811000001106,Combigan eye drops,1106000AGBBAAAA
+VMP,10328811000001108,Travoprost 40micrograms/ml / Timolol 5mg/ml eye drops,1106000AHAAAAAA
+AMP,37481411000001105,Travoprost 40micrograms/ml / Timolol 5mg/ml eye drops,1106000AHAAAAAA
+AMP,34838611000001109,Travoprost 40micrograms/ml / Timolol 5mg/ml eye drops,1106000AHAAAAAA
+AMP,34783211000001107,Travoprost 40micrograms/ml / Timolol 5mg/ml eye drops,1106000AHAAAAAA
+AMP,37828211000001101,Travoprost 40micrograms/ml / Timolol 5mg/ml eye drops,1106000AHAAAAAA
+AMP,37145811000001100,Travoprost 40micrograms/ml / Timolol 5mg/ml eye drops,1106000AHAAAAAA
+AMP,39916611000001105,Travoprost 40micrograms/ml / Timolol 5mg/ml eye drops,1106000AHAAAAAA
+AMP,37117811000001101,Travoprost 40micrograms/ml / Timolol 5mg/ml eye drops,1106000AHAAAAAA
+AMP,10320411000001108,DuoTrav 40micrograms/ml / 5mg/ml eye drops,1106000AHBBAAAA
+VMP,10514411000001107,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops,1106000AIAAAAAA
+AMP,38952811000001104,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops,1106000AIAAAAAA
+AMP,40090011000001108,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops,1106000AIAAAAAA
+AMP,38906711000001101,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops,1106000AIAAAAAA
+AMP,40374411000001103,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops,1106000AIAAAAAA
+AMP,40580311000001108,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops,1106000AIAAAAAA
+AMP,40523911000001107,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops,1106000AIAAAAAA
+AMP,40592211000001100,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops,1106000AIAAAAAA
+VMP,23304711000001104,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops 0.4ml unit dose preservative free,1106000AIAAABAB
+AMP,40031011000001106,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops 0.4ml unit dose preservative free,1106000AIAAABAB
+VMP,38515411000001109,Bimatoprost 300micrograms/ml / Timolol 5mg/ml eye drops preservative free,1106000AIAAACAC
+AMP,10458211000001104,Ganfort 0.3mg/ml / 5mg/ml eye drops,1106000AIBBAAAA
+AMP,23296211000001109,Ganfort 0.3mg/ml / 5mg/ml eye drops 0.4ml unit dose,1106000AIBBABAB
+AMP,38432211000001101,Eyzeetan 0.3mg/ml / 5mg/ml eye drops preservative free,1106000AIBCABAC
+VMP,15473511000001102,Brinzolamide 10mg/ml / Timolol 5mg/ml eye drops,1106000AJAAAAAA
+AMP,38669011000001109,Brinzolamide 10mg/ml / Timolol 5mg/ml eye drops,1106000AJAAAAAA
+AMP,38665411000001103,Brinzolamide 10mg/ml / Timolol 5mg/ml eye drops,1106000AJAAAAAA
+AMP,38740211000001109,Brinzolamide 10mg/ml / Timolol 5mg/ml eye drops,1106000AJAAAAAA
+AMP,38609011000001108,Brinzolamide 10mg/ml / Timolol 5mg/ml eye drops,1106000AJAAAAAA
+AMP,40373711000001107,Brinzolamide 10mg/ml / Timolol 5mg/ml eye drops,1106000AJAAAAAA
+AMP,39843111000001105,Brinzolamide 10mg/ml / Timolol 5mg/ml eye drops,1106000AJAAAAAA
+AMP,38697811000001108,Brinzolamide 10mg/ml / Timolol 5mg/ml eye drops,1106000AJAAAAAA
+AMP,38291311000001107,Brinzolamide 10mg/ml / Timolol 5mg/ml eye drops,1106000AJAAAAAA
+AMP,15454211000001104,Azarga 10mg/ml / 5mg/ml eye drops,1106000AJBBAAAA
+VMP,15915911000001102,Tafluprost 15micrograms/ml eye drops 0.3ml unit dose preservative free,1106000AKAAAAAA
+VMP,704471008,Tafluprost 15micrograms/ml eye drops,1106000AKAAABAB
+AMP,15868911000001101,Saflutan 15micrograms/ml eye drops 0.3ml unit dose,1106000AKBBAAAA
+AMP,37720411000001102,Saflutan 15micrograms/ml eye drops,1106000AKBBABAB
+AMP,17638211000001108,Taflotan 15micrograms/ml eye drops,1106000AKBCAAAB
+VMP,25503211000001101,Brinzolamide 10mg/ml / Brimonidine 2mg/ml eye drops,1106000ALAAAAAA
+AMP,24996711000001104,Simbrinza 10mg/ml / 2mg/ml eye drops,1106000ALBBAAAA
+VMP,29922111000001106,Tafluprost 15micrograms/ml / Timolol 5mg/ml eye drops 0.3ml unit dose preservative free,1106000AMAAAAAA
+AMP,29887011000001105,Taptiqom 15micrograms/ml / 5mg/ml eye drops 0.3ml unit dose,1106000AMBBAAAA
+VMP,11651811000001104,Acetazolamide 275mg/5ml oral solution,1106000B0AAA1A1
+VMP,11651911000001109,Acetazolamide 275mg/5ml oral suspension,1106000B0AAA1A1
+AMP,11631911000001105,Acetazolamide 275mg/5ml oral solution,1106000B0AAA1A1
+AMP,11631611000001104,Acetazolamide 275mg/5ml oral suspension,1106000B0AAA1A1
+VMP,8269211000001104,Acetazolamide 100mg/5ml oral solution,1106000B0AAA2A2
+VMP,8269311000001107,Acetazolamide 100mg/5ml oral suspension,1106000B0AAA2A2
+AMP,8192311000001103,Acetazolamide 100mg/5ml oral solution,1106000B0AAA2A2
+AMP,8193611000001103,Acetazolamide 100mg/5ml oral suspension,1106000B0AAA2A2
+VMP,11654411000001104,Acetazolamide 425mg/5ml oral solution,1106000B0AAA4A4
+VMP,11654511000001100,Acetazolamide 425mg/5ml oral suspension,1106000B0AAA4A4
+AMP,11635511000001100,Acetazolamide 425mg/5ml oral solution,1106000B0AAA4A4
+AMP,11634911000001108,Acetazolamide 425mg/5ml oral suspension,1106000B0AAA4A4
+VMP,11649811000001100,Acetazolamide 120mg/5ml oral solution,1106000B0AAA5A5
+VMP,11649911000001105,Acetazolamide 120mg/5ml oral suspension,1106000B0AAA5A5
+AMP,11626811000001108,Acetazolamide 120mg/5ml oral solution,1106000B0AAA5A5
+AMP,11627111000001103,Acetazolamide 120mg/5ml oral suspension,1106000B0AAA5A5
+VMP,11648511000001109,Acetazolamide 110mg/5ml oral solution,1106000B0AAA6A6
+VMP,11648611000001108,Acetazolamide 110mg/5ml oral suspension,1106000B0AAA6A6
+AMP,11626511000001105,Acetazolamide 110mg/5ml oral solution,1106000B0AAA6A6
+AMP,11626211000001107,Acetazolamide 110mg/5ml oral suspension,1106000B0AAA6A6
+VMP,8269611000001102,Acetazolamide 150mg/5ml oral solution,1106000B0AAA7A7
+VMP,8269811000001103,Acetazolamide 150mg/5ml oral suspension,1106000B0AAA7A7
+AMP,8192111000001100,Acetazolamide 150mg/5ml oral solution,1106000B0AAA7A7
+AMP,8193411000001101,Acetazolamide 150mg/5ml oral suspension,1106000B0AAA7A7
+VMP,330601002,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,9703811000001109,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,30771111000001107,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,20536511000001107,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,7843411000001108,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,14111711000001108,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,28923411000001107,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,13584211000001105,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,37892711000001100,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,32808111000001103,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,37027211000001104,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,38764111000001103,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,17749211000001107,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,5162511000001102,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,15059311000001104,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,33382211000001102,Acetazolamide 250mg tablets,1106000B0AAACAC
+AMP,21749911000001104,Acetazolamide 250mg tablets,1106000B0AAACAC
+VMP,35891911000001105,Acetazolamide 250mg modified-release capsules,1106000B0AAALAL
+AMP,39362411000001103,Acetazolamide 250mg modified-release capsules,1106000B0AAALAL
+AMP,19169211000001103,Acetazolamide 250mg modified-release capsules,1106000B0AAALAL
+VMP,8269411000001100,Acetazolamide 125mg/5ml oral solution,1106000B0AAASAS
+VMP,8269511000001101,Acetazolamide 125mg/5ml oral suspension,1106000B0AAASAS
+AMP,8192011000001101,Acetazolamide 125mg/5ml oral solution,1106000B0AAASAS
+AMP,8192911000001102,Acetazolamide 125mg/5ml oral suspension,1106000B0AAASAS
+VMP,8270711000001109,Acetazolamide 250mg/5ml oral solution,1106000B0AAATAT
+AMP,8204811000001101,Acetazolamide 250mg/5ml oral solution,1106000B0AAATAT
+VMP,8271611000001105,Acetazolamide 62.5mg/5ml oral solution,1106000B0AAAUAU
+VMP,8271711000001101,Acetazolamide 62.5mg/5ml oral suspension,1106000B0AAAUAU
+AMP,8208311000001100,Acetazolamide 62.5mg/5ml oral solution,1106000B0AAAUAU
+AMP,8209411000001104,Acetazolamide 62.5mg/5ml oral suspension,1106000B0AAAUAU
+VMP,11654611000001101,Acetazolamide 50mg/5ml oral solution,1106000B0AAAVAV
+VMP,11654711000001105,Acetazolamide 50mg/5ml oral suspension,1106000B0AAAVAV
+AMP,11636411000001108,Acetazolamide 50mg/5ml oral solution,1106000B0AAAVAV
+AMP,11636111000001103,Acetazolamide 50mg/5ml oral suspension,1106000B0AAAVAV
+VMP,11652711000001100,Acetazolamide 40mg/5ml oral solution,1106000B0AAAWAW
+VMP,11652811000001108,Acetazolamide 40mg/5ml oral suspension,1106000B0AAAWAW
+AMP,11634511000001101,Acetazolamide 40mg/5ml oral solution,1106000B0AAAWAW
+AMP,11634011000001109,Acetazolamide 40mg/5ml oral suspension,1106000B0AAAWAW
+VMP,8271411000001107,Acetazolamide 500mg/5ml oral solution,1106000B0AAAXAX
+VMP,8271511000001106,Acetazolamide 500mg/5ml oral suspension,1106000B0AAAXAX
+AMP,8217411000001105,Acetazolamide 500mg/5ml oral solution,1106000B0AAAXAX
+AMP,8219911000001109,Acetazolamide 500mg/5ml oral suspension,1106000B0AAAXAX
+VMP,8270211000001102,Acetazolamide 200mg/5ml oral solution,1106000B0AAAYAY
+VMP,8270311000001105,Acetazolamide 200mg/5ml oral suspension,1106000B0AAAYAY
+AMP,8198311000001100,Acetazolamide 200mg/5ml oral solution,1106000B0AAAYAY
+AMP,8200311000001102,Acetazolamide 200mg/5ml oral suspension,1106000B0AAAYAY
+VMP,8271211000001108,Acetazolamide 400mg/5ml oral solution,1106000B0AAAZAZ
+VMP,8271311000001100,Acetazolamide 400mg/5ml oral suspension,1106000B0AAAZAZ
+AMP,8210611000001109,Acetazolamide 400mg/5ml oral solution,1106000B0AAAZAZ
+AMP,8212411000001107,Acetazolamide 400mg/5ml oral suspension,1106000B0AAAZAZ
+VMP,8270411000001103,Acetazolamide 220mg/5ml oral solution,1106000B0AABBBB
+VMP,8270511000001104,Acetazolamide 220mg/5ml oral suspension,1106000B0AABBBB
+AMP,8203211000001100,Acetazolamide 220mg/5ml oral solution,1106000B0AABBBB
+AMP,8204311000001105,Acetazolamide 220mg/5ml oral suspension,1106000B0AABBBB
+VMP,11651111000001106,Acetazolamide 18mg/5ml oral solution,1106000B0AABCBC
+VMP,11651211000001100,Acetazolamide 18mg/5ml oral suspension,1106000B0AABCBC
+AMP,11630211000001107,Acetazolamide 18mg/5ml oral solution,1106000B0AABCBC
+AMP,11629711000001105,Acetazolamide 18mg/5ml oral suspension,1106000B0AABCBC
+VMP,11648311000001103,Acetazolamide 10mg/5ml oral solution,1106000B0AABDBD
+VMP,11648411000001105,Acetazolamide 10mg/5ml oral suspension,1106000B0AABDBD
+AMP,11625911000001105,Acetazolamide 10mg/5ml oral solution,1106000B0AABDBD
+AMP,11625611000001104,Acetazolamide 10mg/5ml oral suspension,1106000B0AABDBD
+VMP,8271011000001103,Acetazolamide 25mg/5ml oral solution,1106000B0AABEBE
+VMP,8271111000001102,Acetazolamide 25mg/5ml oral suspension,1106000B0AABEBE
+AMP,8203011000001105,Acetazolamide 25mg/5ml oral solution,1106000B0AABEBE
+AMP,8203811000001104,Acetazolamide 25mg/5ml oral suspension,1106000B0AABEBE
+VMP,11650211000001106,Acetazolamide 145mg/5ml oral solution,1106000B0AABFBF
+VMP,11651511000001102,Acetazolamide 145mg/5ml oral suspension,1106000B0AABFBF
+AMP,11628011000001103,Acetazolamide 145mg/5ml oral solution,1106000B0AABFBF
+AMP,11627511000001107,Acetazolamide 145mg/5ml oral suspension,1106000B0AABFBF
+VMP,11652511000001105,Acetazolamide 350mg/5ml oral solution,1106000B0AABGBG
+VMP,11652611000001109,Acetazolamide 350mg/5ml oral suspension,1106000B0AABGBG
+AMP,11633711000001109,Acetazolamide 350mg/5ml oral solution,1106000B0AABGBG
+AMP,11633111000001108,Acetazolamide 350mg/5ml oral suspension,1106000B0AABGBG
+VMP,11655111000001108,Acetazolamide 5mg/5ml oral solution,1106000B0AABHBH
+VMP,11655211000001102,Acetazolamide 5mg/5ml oral suspension,1106000B0AABHBH
+AMP,11637011000001101,Acetazolamide 5mg/5ml oral solution,1106000B0AABHBH
+AMP,11636711000001102,Acetazolamide 5mg/5ml oral suspension,1106000B0AABHBH
+VMP,8271811000001109,Acetazolamide 75mg/5ml oral solution,1106000B0AABIBI
+VMP,8271911000001104,Acetazolamide 75mg/5ml oral suspension,1106000B0AABIBI
+AMP,8211111000001107,Acetazolamide 75mg/5ml oral solution,1106000B0AABIBI
+AMP,8211911000001105,Acetazolamide 75mg/5ml oral suspension,1106000B0AABIBI
+VMP,11650711000001104,Acetazolamide 160mg/5ml oral solution,1106000B0AABJBJ
+VMP,11650811000001107,Acetazolamide 160mg/5ml oral suspension,1106000B0AABJBJ
+AMP,11629211000001103,Acetazolamide 160mg/5ml oral solution,1106000B0AABJBJ
+AMP,11628611000001105,Acetazolamide 160mg/5ml oral suspension,1106000B0AABJBJ
+VMP,11651611000001103,Acetazolamide 20mg/5ml oral solution,1106000B0AABLBL
+VMP,11651711000001107,Acetazolamide 20mg/5ml oral suspension,1106000B0AABLBL
+AMP,11631311000001109,Acetazolamide 20mg/5ml oral solution,1106000B0AABLBL
+AMP,11630811000001108,Acetazolamide 20mg/5ml oral suspension,1106000B0AABLBL
+VMP,8270011000001107,Acetazolamide 175mg/5ml oral solution,1106000B0AABMBM
+VMP,8270111000001108,Acetazolamide 175mg/5ml oral suspension,1106000B0AABMBM
+AMP,8195011000001106,Acetazolamide 175mg/5ml oral solution,1106000B0AABMBM
+AMP,8196211000001107,Acetazolamide 175mg/5ml oral suspension,1106000B0AABMBM
+VMP,11652311000001104,Acetazolamide 300mg/5ml oral solution,1106000B0AABNBN
+VMP,11652411000001106,Acetazolamide 300mg/5ml oral suspension,1106000B0AABNBN
+AMP,11632611000001105,Acetazolamide 300mg/5ml oral solution,1106000B0AABNBN
+AMP,11632211000001108,Acetazolamide 300mg/5ml oral suspension,1106000B0AABNBN
+VMP,8270911000001106,Acetazolamide 250mg/5ml oral suspension,1106000B0AABQBQ
+AMP,8206111000001101,Acetazolamide 250mg/5ml oral suspension,1106000B0AABQBQ
+VMP,36457711000001100,Acetazolamide 65mg/5ml oral suspension,1106000B0AABRBR
+AMP,36456011000001100,Acetazolamide 65mg/5ml oral suspension,1106000B0AABRBR
+AMP,801011000001107,Diamox 250mg tablets,1106000B0BBABAC
+AMP,664611000001106,Diamox SR 250mg capsules,1106000B0BBAEAL
+AMP,24194011000001109,Eytazox 250mg modified-release capsules,1106000B0BCAAAL
+VMP,4377611000001107,Acetazolamide 500mg powder for solution for injection vials,1106000C0AAAAAA
+AMP,4370711000001104,Diamox Sodium Parenteral 500mg powder for solution for injection vials,1106000C0BBAAAA
+VMP,330611009,Adrenaline (base) 1% eye drops,1106000F0AAADAD
+AMP,3708211000001103,Eppy 1% eye drops,1106000F0BBAAAD
+AMP,3707511000001104,Simplene 1% eye drops,1106000F0BCABAD
+VMP,330620000,Betaxolol 0.5% eye drops,1106000I0AAAAAA
+AMP,37143711000001107,Betaxolol 0.5% eye drops,1106000I0AAAAAA
+VMP,330614001,Betaxolol 0.25% eye drops,1106000I0AAABAB
+VMP,35911011000001101,Betaxolol 0.25% eye drops 0.25ml unit dose preservative free,1106000I0AAACAC
+AMP,438611000001105,Betoptic 0.5% eye drops,1106000I0BBAAAA
+AMP,197111000001107,Betoptic 0.25% suspension eye drops,1106000I0BBABAB
+AMP,646311000001103,Betoptic 0.25% eye drops suspension 0.25ml unit dose,1106000I0BBACAC
+VMP,330623003,Carbachol 3% eye drops,1106000J0AAAFAF
+AMP,3935511000001106,Isopto Carbachol 3% eye drops,1106000J0BBAAAF
+VMP,330629004,Carteolol 1% eye drops,1106000K0AAAAAA
+VMP,330630009,Carteolol 2% eye drops,1106000K0AAABAB
+AMP,3025011000001109,Teoptic 1% eye drops,1106000K0BBAAAA
+AMP,3024611000001103,Teoptic 2% eye drops,1106000K0BBABAB
+VMP,330729005,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,20006511000001103,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,19997211000001108,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,19958611000001101,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,20008111000001106,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,20018411000001104,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,24355611000001100,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,37483911000001101,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,20128711000001107,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,19888511000001104,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,30218611000001106,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,39874611000001100,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,20290011000001103,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,29884211000001107,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,19847411000001109,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,20373011000001107,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,22061511000001103,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+AMP,22105011000001101,Latanoprost 50micrograms/ml eye drops,1106000L0AAAAAA
+VMP,22154311000001107,Latanoprost 50micrograms/ml eye drops 0.2ml unit dose preservative free,1106000L0AAABAB
+AMP,365611000001101,Xalatan 50micrograms/ml eye drops,1106000L0BBAAAA
+AMP,21873811000001109,Monopost 50micrograms/ml eye drops 0.2ml unit dose,1106000L0BCAAAB
+AMP,35296711000001108,Medizol 0.005% eye drops,1106000L0BDAAAA
+VMP,330726003,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,16731311000001103,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,19190211000001107,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,16724711000001103,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,19586211000001102,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,23970011000001105,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,37484311000001100,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,19186411000001109,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,30026111000001102,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,35860411000001109,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,38878611000001107,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,18626611000001104,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,20285411000001101,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,18705711000001101,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,16638511000001105,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,33584811000001109,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+AMP,21932411000001105,Dorzolamide 20mg/ml eye drops,1106000P0AAAAAA
+VMP,10280311000001102,Dorzolamide 20mg/ml eye drops 0.2ml unit dose preservative free,1106000P0AAABAB
+VMP,34318111000001106,Dorzolamide 20mg/ml eye drops preservative free,1106000P0AAACAC
+AMP,434711000001109,Trusopt 20mg/ml eye drops,1106000P0BBAAAA
+AMP,10271211000001109,Trusopt 20mg/ml eye drops 0.2ml unit dose preservative free,1106000P0BBABAB
+AMP,18524911000001105,Dorzant 20mg/ml eye drops,1106000P0BCAAAA
+AMP,34313011000001103,Eydelto 20mg/ml eye drops,1106000P0BDAAAC
+AMP,39379011000001105,Vizidor 20mg/ml eye drops,1106000P0BEAAAC
+VMP,3368211000001101,Dipivefrine 0.1% eye drops,1106000Q0AAAAAA
+AMP,717811000001107,Propine 0.1% eye drops,1106000Q0BBAAAA
+VMP,347145001,Guanethidine 1% / Adrenaline 0.2% eye drops,1106000S0AAAEAE
+VMP,347144002,Guanethidine 3% / Adrenaline 0.5% eye drops,1106000S0AAAFAF
+AMP,4668111000001100,Ganda 1 + 0.2 eye drops,1106000S0BCAAAE
+AMP,4668411000001105,Ganda 3 + 0.5 eye drops,1106000S0BCABAF
+VMP,330722001,Levobunolol 0.5% eye drops,1106000T0AAAAAA
+AMP,617311000001109,Levobunolol 0.5% eye drops,1106000T0AAAAAA
+AMP,603111000001101,Levobunolol 0.5% eye drops,1106000T0AAAAAA
+AMP,917011000001105,Levobunolol 0.5% eye drops,1106000T0AAAAAA
+AMP,15107011000001107,Levobunolol 0.5% eye drops,1106000T0AAAAAA
+AMP,763311000001109,Levobunolol 0.5% eye drops,1106000T0AAAAAA
+VMP,36038511000001104,Levobunolol 0.5% eye drops 0.4ml unit dose preservative free,1106000T0AAABAB
+AMP,157111000001101,Betagan 0.5% eye drops,1106000T0BBAAAA
+AMP,773711000001100,Betagan Unit Dose 0.5% eye drops 0.4ml unit dose,1106000T0BBABAB
+VMP,36034911000001104,Metipranolol 0.1% eye drops 0.5ml unit dose preservative free,1106000U0AAADAD
+VMP,36035011000001104,Metipranolol 0.3% eye drops 0.5ml unit dose preservative free,1106000U0AAAEAE
+AMP,3881211000001105,Minims metipranolol 0.1% eye drops 0.5ml unit dose,1106000U0BCAAAD
+AMP,3882111000001109,Minims metipranolol 0.3% eye drops 0.5ml unit dose,1106000U0BCABAE
+VMP,20455711000001103,Pilocarpine hydrochloride 0.125% eye drops,1106000X0AAA3A3
+AMP,20435011000001104,Pilocarpine hydrochloride 0.125% eye drops,1106000X0AAA3A3
+VMP,36016311000001102,Pilocarpine hydrochloride 6% eye drops preservative free,1106000X0AAA4A4
+AMP,9393711000001102,Pilocarpine hydrochloride 6% eye drops preservative free,1106000X0AAA4A4
+VMP,330679001,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,566511000001105,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,472511000001106,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,486011000001108,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,37774711000001103,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,280611000001104,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,193811000001106,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,39325611000001102,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,29985211000001100,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,9395711000001101,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,111811000001108,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+AMP,21847011000001105,Pilocarpine hydrochloride 1% eye drops,1106000X0AAABAB
+VMP,330680003,Pilocarpine hydrochloride 2% eye drops,1106000X0AAACAC
+AMP,337111000001107,Pilocarpine hydrochloride 2% eye drops,1106000X0AAACAC
+AMP,302611000001109,Pilocarpine hydrochloride 2% eye drops,1106000X0AAACAC
+AMP,13611000001104,Pilocarpine hydrochloride 2% eye drops,1106000X0AAACAC
+AMP,37774911000001101,Pilocarpine hydrochloride 2% eye drops,1106000X0AAACAC
+AMP,824911000001103,Pilocarpine hydrochloride 2% eye drops,1106000X0AAACAC
+AMP,603211000001107,Pilocarpine hydrochloride 2% eye drops,1106000X0AAACAC
+AMP,39322311000001101,Pilocarpine hydrochloride 2% eye drops,1106000X0AAACAC
+AMP,18718211000001104,Pilocarpine hydrochloride 2% eye drops,1106000X0AAACAC
+AMP,492311000001108,Pilocarpine hydrochloride 2% eye drops,1106000X0AAACAC
+VMP,330681004,Pilocarpine hydrochloride 3% eye drops,1106000X0AAADAD
+AMP,815411000001102,Pilocarpine hydrochloride 3% eye drops,1106000X0AAADAD
+AMP,411811000001109,Pilocarpine hydrochloride 3% eye drops,1106000X0AAADAD
+AMP,69211000001103,Pilocarpine hydrochloride 3% eye drops,1106000X0AAADAD
+AMP,128011000001100,Pilocarpine hydrochloride 3% eye drops,1106000X0AAADAD
+AMP,465011000001102,Pilocarpine hydrochloride 3% eye drops,1106000X0AAADAD
+VMP,330682006,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+AMP,608311000001107,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+AMP,56111000001108,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+AMP,169611000001106,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+AMP,37775111000001100,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+AMP,406211000001102,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+AMP,487611000001104,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+AMP,39325811000001103,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+AMP,29985411000001101,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+AMP,569311000001106,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+AMP,21847711000001107,Pilocarpine hydrochloride 4% eye drops,1106000X0AAAEAE
+VMP,347200009,Pilocarpine hydrochloride 0.1% eye drops,1106000X0AAAFAF
+AMP,9397911000001109,Pilocarpine hydrochloride 0.1% eye drops,1106000X0AAAFAF
+VMP,347201008,Pilocarpine hydrochloride 0.25% eye drops,1106000X0AAAGAG
+AMP,9397311000001108,Pilocarpine hydrochloride 0.25% eye drops,1106000X0AAAGAG
+VMP,347208002,Pilocarpine hydrochloride 6% eye drops,1106000X0AAAIAI
+AMP,9394311000001104,Pilocarpine hydrochloride 6% eye drops,1106000X0AAAIAI
+VMP,347210000,Pilocarpine hydrochloride 8% eye drops,1106000X0AAARAR
+AMP,9393011000001104,Pilocarpine hydrochloride 8% eye drops,1106000X0AAARAR
+VMP,36016011000001100,Pilocarpine hydrochloride 1% eye drops preservative free,1106000X0AAASAS
+AMP,16020711000001106,Pilocarpine hydrochloride 1% eye drops preservative free,1106000X0AAASAS
+VMP,330694002,Pilocarpine hydrochloride 4% eye gel,1106000X0AABDBD
+VMP,36015911000001108,Pilocarpine hydrochloride 0.5% eye drops preservative free,1106000X0AABGBG
+AMP,16127011000001102,Pilocarpine hydrochloride 0.5% eye drops preservative free,1106000X0AABGBG
+VMP,9406811000001107,Pilocarpine hydrochloride 0.4% eye drops preservative free,1106000X0AABKBK
+AMP,9397011000001105,Pilocarpine hydrochloride 0.4% eye drops preservative free,1106000X0AABKBK
+VMP,36016111000001104,Pilocarpine hydrochloride 2% eye drops preservative free,1106000X0AABMBM
+AMP,9395511000001106,Pilocarpine hydrochloride 2% eye drops preservative free,1106000X0AABMBM
+VMP,36016211000001105,Pilocarpine hydrochloride 4% eye drops preservative free,1106000X0AABNBN
+AMP,9394711000001100,Pilocarpine hydrochloride 4% eye drops preservative free,1106000X0AABNBN
+VMP,330678009,Pilocarpine hydrochloride 0.5% eye drops,1106000X0AABPBP
+AMP,371511000001107,Pilocarpine hydrochloride 0.5% eye drops,1106000X0AABPBP
+AMP,431111000001105,Pilocarpine hydrochloride 0.5% eye drops,1106000X0AABPBP
+AMP,747711000001106,Pilocarpine hydrochloride 0.5% eye drops,1106000X0AABPBP
+AMP,252711000001104,Pilocarpine hydrochloride 0.5% eye drops,1106000X0AABPBP
+AMP,9396311000001105,Pilocarpine hydrochloride 0.5% eye drops,1106000X0AABPBP
+AMP,447311000001102,Pilogel 4% eye gel,1106000X0BFAABD
+VMP,36016411000001109,Pilocarpine nitrate 1% eye drops 0.5ml unit dose preservative free,1106000Y0AAAAAA
+VMP,36016511000001108,Pilocarpine nitrate 2% eye drops 0.5ml unit dose preservative free,1106000Y0AAABAB
+VMP,36016611000001107,Pilocarpine nitrate 4% eye drops 0.5ml unit dose preservative free,1106000Y0AAACAC
+AMP,4081711000001102,Minims pilocarpine nitrate 1% eye drops 0.5ml unit dose,1106000Y0BBABAA
+AMP,3892511000001101,Minims pilocarpine nitrate 2% eye drops 0.5ml unit dose,1106000Y0BBACAB
+AMP,3893211000001105,Minims pilocarpine nitrate 4% eye drops 0.5ml unit dose,1106000Y0BBAEAC
+VMP,330720009,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,11811000001104,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,214411000001105,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,715811000001102,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,9802011000001109,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,30099911000001102,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,37144311000001105,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,636311000001102,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,542211000001101,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,827911000001109,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,39907411000001107,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,17817111000001100,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,356311000001107,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,791411000001103,Timolol 0.25% eye drops,1106000Z0AAAAAA
+AMP,21787711000001104,Timolol 0.25% eye drops,1106000Z0AAAAAA
+VMP,330721008,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,527511000001103,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,377311000001107,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,579811000001109,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,9801611000001108,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,30100111000001100,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,37144511000001104,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,472311000001100,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,470111000001101,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,310411000001107,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,30922611000001101,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,39907611000001105,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,17817611000001108,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,918211000001101,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,44111000001104,Timolol 0.5% eye drops,1106000Z0AAABAB
+AMP,21787911000001102,Timolol 0.5% eye drops,1106000Z0AAABAB
+VMP,3655611000001105,Timolol 0.25% eye drops 0.2ml unit dose preservative free,1106000Z0AAAKAK
+VMP,3496911000001103,Timolol 0.5% eye drops 0.2ml unit dose preservative free,1106000Z0AAALAL
+VMP,35918511000001104,Timolol 0.25% eye gel,1106000Z0AAAPAP
+VMP,35918611000001100,Timolol 0.5% eye gel,1106000Z0AAAQAQ
+VMP,35918411000001103,Timolol 0.1% gel eye drops,1106000Z0AAARAR
+VMP,19723611000001104,Timolol 1mg/g gel eye drops 0.4g unit dose preservative free,1106000Z0AAASAS
+VMP,21014511000001101,Timolol 2.5mg/ml eye drops preservative free,1106000Z0AAATAT
+AMP,20981711000001109,Timolol 0.25% eye drops preservative free,1106000Z0AAATAT
+VMP,35918711000001109,Timolol 5mg/ml eye drops preservative free,1106000Z0AAAUAU
+AMP,32872311000001105,Timolol 0.5% eye drops preservative free,1106000Z0AAAUAU
+AMP,97711000001104,Timoptol 0.25% eye drops,1106000Z0BBAAAA
+AMP,604911000001101,Timoptol 0.5% eye drops,1106000Z0BBABAB
+AMP,3652411000001104,Timoptol Unit Dose 0.25% ophthalmic solution 0.2ml unit dose,1106000Z0BBACAK
+AMP,3421611000001106,Timoptol Unit Dose 0.5% ophthalmic solution 0.2ml unit dose,1106000Z0BBADAL
+AMP,3417311000001100,Timoptol-LA 0.25% ophthalmic gel-forming solution,1106000Z0BBAEAP
+AMP,3410811000001105,Timoptol-LA 0.5% ophthalmic gel-forming solution,1106000Z0BBAFAQ
+AMP,863811000001103,Glau-Opt 0.25% eye drops,1106000Z0BFAAAA
+AMP,48611000001102,Glau-Opt 0.5% eye drops,1106000Z0BFABAB
+AMP,3405511000001100,Nyogel 0.1% eye gel,1106000Z0BGAAAR
+AMP,19700211000001102,Tiopex 1mg/g eye gel 0.4g unit dose,1106000Z0BHAAAS
+AMP,34341911000001105,Eysano 2.5mg/ml eye drops,1106000Z0BIAAAT
+AMP,34341611000001104,Eysano 5mg/ml eye drops,1106000Z0BIABAU
+VMP,35917211000001101,Tetracaine 0.5% eye drops 0.5ml unit dose preservative free,1107000C0AAADAD
+VMP,35917311000001109,Tetracaine 1% eye drops 0.5ml unit dose preservative free,1107000C0AAAEAE
+AMP,3938111000001107,Minims tetracaine hydrochloride 0.5% eye drops 0.5ml unit dose,1107000C0BBAAAD
+AMP,3938611000001104,Minims tetracaine hydrochloride 1% eye drops 0.5ml unit dose,1107000C0BBABAE
+VMP,330748009,Cocaine 4% eye drops,1107000F0AAAAAA
+AMP,19680011000001104,Cocaine 4% eye drops,1107000F0AAAAAA
+VMP,20454411000001108,Cocaine 2% eye drops,1107000F0AAADAD
+AMP,20422111000001107,Cocaine 2% eye drops,1107000F0AAADAD
+VMP,21148011000001101,Cocaine 4% eye drops preservative free,1107000F0AAAEAE
+AMP,21131111000001107,Cocaine 4% eye drops preservative free,1107000F0AAAEAE
+VMP,36023111000001101,Oxybuprocaine 0.4% eye drops 0.5ml unit dose preservative free,1107000M0AAAAAA
+AMP,4073711000001107,Minims oxybuprocaine hydrochloride 0.4% eye drops 0.5ml unit dose,1107000M0BBAAAA
+VMP,36039511000001105,Lidocaine 4% / Fluorescein 0.25% eye drops 0.5ml unit dose preservative free,1107000N0AAAAAA
+AMP,4020811000001107,Minims lidocaine and fluorescein eye drops 0.5ml unit dose,1107000N0BBAAAA
+VMP,4090611000001102,Proxymetacaine 0.5% eye drops 0.5ml unit dose preservative free,1107000Q0AAABAB
+VMP,35933311000001106,Proxymetacaine 0.5% / Fluorescein 0.25% eye drops 0.5ml unit dose preservative free,1107000Q0AAACAC
+AMP,4087411000001100,Minims proxymetacaine 0.5% eye drops 0.5ml unit dose,1107000Q0BCAAAB
+AMP,4187911000001100,Minims proxymetacaine 0.5% / fluorescein 0.25% eye drops 0.5ml unit dose,1107000Q0BCABAC
+VMP,14696511000001109,Generic Lid-Care wipes,110801000AAABAB
+VMP,17645711000001109,Hyprolose 5mg ophthalmic inserts,110801000BLAAA0
+AMP,17644511000001100,Lacrisert 5mg ophthalmic inserts,110801000BLAAA0
+AMP,7819711000001108,Lid-Care solution,110801000BLAGA0
+VMP,17235511000001101,White soft paraffin 80% / Liquid paraffin 20% eye ointment,110801000BLAMA0
+AMP,17224511000001100,Soothe Night Time eye ointment,110801000BLAMA0
+AMP,14692611000001107,Lid-Care wipes,110801000BLANAB
+VMP,17563011000001107,Generic Blephasol lotion,110801000BLAPA0
+AMP,17534411000001107,Blephasol lotion,110801000BLAPA0
+AMP,24270211000001104,Supranettes sterile eye cleansing wipes,110801000BLARAB
+AMP,24270511000001101,Systane lid wipes,110801000BLASAB
+AMP,35837711000001106,Lumecare eyelid wipes,110801000BLATAB
+VMP,28422911000001108,Mercaptamine 0.5% eye drops,1108010A0AAAAAA
+AMP,28414111000001109,Mercaptamine 0.5% eye drops,1108010A0AAAAAA
+VMP,18684311000001106,Mercaptamine 0.11% eye drops,1108010A0AAABAB
+AMP,18677611000001103,Mercaptamine 0.11% eye drops,1108010A0AAABAB
+VMP,15914711000001103,Mercaptamine 0.55% eye drops,1108010A0AAACAC
+AMP,15888811000001109,Mercaptamine 0.55% eye drops,1108010A0AAACAC
+VMP,28166611000001105,Mercaptamine 0.55% eye drops preservative free,1108010A0AAAEAE
+AMP,28147111000001105,Mercaptamine 0.55% eye drops preservative free,1108010A0AAAEAE
+VMP,34607111000001102,Mercaptamine 3.8mg/ml eye drops,1108010A0AAAFAF
+AMP,34592511000001100,Cystadrops 3.8mg/ml eye drops,1108010A0BBAAAF
+VMP,9404711000001108,Ciclosporin 2% eye drops,1108010AAAAAAAA
+AMP,9402811000001106,Ciclosporin 2% eye drops,1108010AAAAAAAA
+VMP,9404611000001104,Ciclosporin 0.2% eye ointment,1108010AAAAACAC
+AMP,9403411000001100,Ciclosporin 0.2% eye ointment,1108010AAAAACAC
+VMP,9404811000001100,Ciclosporin 2% eye drops preservative free,1108010AAAAAHAH
+AMP,9402411000001109,Ciclosporin 2% eye drops preservative free,1108010AAAAAHAH
+VMP,15879811000001106,Ciclosporin 2% eye ointment,1108010AAAAAIAI
+AMP,15879011000001100,Ciclosporin 2% eye ointment,1108010AAAAAIAI
+VMP,21147811000001108,Ciclosporin 0.06% eye drops preservative free,1108010AAAAAJAJ
+AMP,21129911000001107,Ciclosporin 0.06% eye drops preservative free,1108010AAAAAJAJ
+VMP,21514711000001108,Ciclosporin 0.2% eye ointment preservative free,1108010AAAAALAL
+AMP,21493111000001103,Ciclosporin 0.2% eye ointment preservative free,1108010AAAAALAL
+VMP,15148011000001101,Ciclosporin 0.05% eye drops 0.4ml unit dose preservative free,1108010AAAAAMAM
+AMP,15865511000001100,Ciclosporin 0.05% eye drops 0.4ml unit dose preservative free,1108010AAAAAMAM
+VMP,34680711000001101,Ciclosporin 0.06% eye drops 0.4ml unit dose preservative free,1108010AAAAARAR
+AMP,34622311000001107,Ciclosporin 0.06% eye drops 0.4ml unit dose preservative free,1108010AAAAARAR
+AMP,15140711000001101,Restasis 0.05% eye drops 0.4ml unit dose,1108010AABCAAAM
+VMP,330814003,Carbomer '980' 0.2% eye drops,1108010B0AAABAB
+VMP,37082811000001108,Carbomer '980' 0.2% eye drops 0.6ml unit dose preservative free,1108010B0AAACAC
+AMP,3151011000001104,Viscotears 2mg/g liquid gel,1108010B0BBAAAB
+AMP,3154811000001107,Viscotears 2mg/g eye gel 0.6ml unit dose,1108010B0BBABAC
+AMP,3152411000001103,GelTears 0.2% gel,1108010B0BCAAAB
+AMP,4442311000001105,Liposic 0.2% eye gel,1108010B0BDABAB
+VMP,9410511000001109,Acetylcysteine 0.5% eye drops,1108010C0AAAAAA
+AMP,9405811000001104,Acetylcysteine 0.5% eye drops,1108010C0AAAAAA
+VMP,330768003,Acetylcysteine 5% eye drops,1108010C0AAADAD
+AMP,17473611000001102,Acetylcysteine 5% eye drops,1108010C0AAADAD
+VMP,347086005,Acetylcysteine 10% eye drops,1108010C0AAAEAE
+AMP,20142911000001108,Acetylcysteine 10% eye drops,1108010C0AAAEAE
+VMP,347088006,Acetylcysteine 20% eye drops,1108010C0AAAGAG
+AMP,9406511000001109,Acetylcysteine 20% eye drops,1108010C0AAAGAG
+VMP,35892111000001102,Acetylcysteine 5% eye drops preservative free,1108010C0AAAHAH
+AMP,9404111000001107,Acetylcysteine 5% eye drops preservative free,1108010C0AAAHAH
+VMP,9410611000001108,Acetylcysteine 0.5% eye drops preservative free,1108010C0AAAIAI
+AMP,9405211000001100,Acetylcysteine 0.5% eye drops preservative free,1108010C0AAAIAI
+VMP,35892011000001103,Acetylcysteine 10% eye drops preservative free,1108010C0AABABA
+AMP,9404411000001102,Acetylcysteine 10% eye drops preservative free,1108010C0AABABA
+AMP,197711000001108,Ilube 5% eye drops,1108010C0BBAAAD
+VMP,17844311000001103,Carmellose 1% eye drops 0.4ml unit dose preservative free,1108010D0AAACAC
+VMP,18248211000001104,Carmellose 0.5% eye drops 0.4ml unit dose preservative free,1108010D0AAADAD
+AMP,28403511000001101,Celluvisc 1% eye drops 0.4ml unit dose,1108010D0BCAAAC
+AMP,28398711000001108,Celluvisc 0.5% eye drops 0.4ml unit dose,1108010D0BCABAD
+VMP,400771006,Hypromellose 0.3% / Dextran '70' 0.1% eye drops,1108010F0AAA4A4
+VMP,330781005,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,556711000001109,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,200911000001109,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,602911000001105,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,9804511000001106,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,10435911000001101,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,33780211000001104,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,23947311000001105,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,99011000001105,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,165511000001109,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,297911000001107,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,30211111000001106,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,38968011000001100,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,18109411000001100,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,29874911000001107,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,9401711000001105,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,817711000001102,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,492811000001104,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+AMP,22465611000001108,Hypromellose 0.3% eye drops,1108010F0AAAAAA
+VMP,330784002,Hypromellose 0.5% eye drops,1108010F0AAABAB
+VMP,330783008,Hypromellose 1% eye drops,1108010F0AAACAC
+AMP,10378611000001108,Hypromellose 1% eye drops,1108010F0AAACAC
+VMP,20520011000001100,Hypromellose 2% eye drops,1108010F0AAADAD
+AMP,20520311000001102,Hypromellose 2% eye drops,1108010F0AAADAD
+VMP,9406211000001106,Hypromellose 0.5% eye drops preservative free,1108010F0AAALAL
+AMP,9401211000001103,Hypromellose 0.5% eye drops preservative free,1108010F0AAALAL
+VMP,36044711000001100,Hypromellose 0.3% eye drops preservative free,1108010F0AAANAN
+AMP,9398911000001105,Hypromellose 0.3% eye drops preservative free,1108010F0AAANAN
+VMP,9406311000001103,Hypromellose 1% eye drops preservative free,1108010F0AAASAS
+AMP,9400011000001104,Hypromellose 1% eye drops preservative free,1108010F0AAASAS
+VMP,9405611000001103,Hypromellose 0.1% eye drops preservative free,1108010F0AAAXAX
+AMP,9403711000001106,Hypromellose 0.1% eye drops preservative free,1108010F0AAAXAX
+VMP,12541111000001102,Hypromellose 0.32% eye drops,1108010F0AABNBN
+VMP,14967811000001108,Hypromellose 0.065% eye drops,1108010F0AABQBQ
+AMP,14965711000001106,Hypromellose 0.065% eye drops,1108010F0AABQBQ
+VMP,36044811000001108,Hypromellose 0.32% eye drops 0.5ml unit dose preservative free,1108010F0AABSBS
+VMP,13640411000001102,Hypromellose 0.3% / Dextran '70' 0.1% eye drops 0.4ml unit dose preservative free,1108010F0AABXBX
+VMP,9406111000001100,Hypromellose 0.32% eye drops preservative free,1108010F0AABYBY
+AMP,9401511000001100,Hypromellose 0.32% eye drops preservative free,1108010F0AABYBY
+VMP,9405711000001107,Hypromellose 0.25% eye drops,1108010F0AABZBZ
+AMP,9403111000001105,Hypromellose 0.25% eye drops,1108010F0AABZBZ
+VMP,9405911000001109,Hypromellose 0.25% eye drops preservative free,1108010F0AACACA
+AMP,9402011000001100,Hypromellose 0.25% eye drops preservative free,1108010F0AACACA
+AMP,671411000001100,Isopto Alkaline 1% eye drops,1108010F0BBAAAC
+AMP,807811000001108,Isopto Plain 0.5% eye drops,1108010F0BCAAAB
+AMP,186411000001103,Tears Naturale eye drops,1108010F0BDAAA4
+AMP,13636711000001107,Tears Naturale eye drops 0.4ml unit dose,1108010F0BDACBX
+AMP,3777311000001100,Artelac Single Dose Unit 0.32% eye drops 0.5ml unit dose,1108010F0BIABBS
+AMP,12539811000001106,Artelac 0.32% eye drops,1108010F0BIACBN
+AMP,12885611000001101,Brolene Cool Eyes 0.3% eye drops,1108010F0BJAAAA
+VMP,36043911000001100,Hyetellose 0.44% eye drops 0.5ml unit dose preservative free,1108010H0AAAAAA
+VMP,8012111000001106,Hyetellose 0.36% eye drops,1108010H0AAACAC
+AMP,3144811000001105,Minims artificial tears 0.44% eye drops 0.5ml unit dose,1108010H0BBAAAA
+AMP,8013411000001105,Refresh Instant Revival 0.36% eye drops,1108010H0BCAAAC
+VMP,35925211000001102,Sodium chloride 0.9% eye drops preservative free,1108010K0AAA1A1
+AMP,9389211000001105,Sodium chloride 0.9% eye drops preservative free,1108010K0AAA1A1
+VMP,35926011000001103,Sodium chloride 5% eye drops preservative free,1108010K0AAA6A6
+AMP,9386611000001104,Sodium chloride 5% eye drops preservative free,1108010K0AAA6A6
+VMP,356722003,Sodium chloride 0.9% eye drops,1108010K0AAAAAA
+AMP,3756511000001106,Sodium chloride 0.9% eye drops,1108010K0AAAAAA
+AMP,3757011000001100,Sodium chloride 0.9% eye drops,1108010K0AAAAAA
+AMP,3756811000001109,Sodium chloride 0.9% eye drops,1108010K0AAAAAA
+AMP,9389511000001108,Sodium chloride 0.9% eye drops,1108010K0AAAAAA
+VMP,375739006,Sodium chloride 5% eye drops,1108010K0AAABAB
+AMP,9387211000001104,Sodium chloride 5% eye drops,1108010K0AAABAB
+VMP,9409911000001106,Sodium chloride 6% eye drops,1108010K0AAACAC
+AMP,9386011000001106,Sodium chloride 6% eye drops,1108010K0AAACAC
+VMP,9409611000001100,Sodium chloride 10% eye drops,1108010K0AAAIAI
+AMP,9388411000001101,Sodium chloride 10% eye drops,1108010K0AAAIAI
+VMP,9409511000001104,Sodium chloride 0.5% eye ointment,1108010K0AAAJAJ
+AMP,9390311000001107,Sodium chloride 0.5% eye ointment,1108010K0AAAJAJ
+VMP,9409711000001109,Sodium chloride 2% eye drops,1108010K0AAALAL
+AMP,9388011000001105,Sodium chloride 2% eye drops,1108010K0AAALAL
+VMP,11416811000001103,Sodium chloride 4.5% eye drops,1108010K0AAAQAQ
+AMP,11412711000001107,Sodium chloride 4.5% eye drops,1108010K0AAAQAQ
+VMP,9409311000001105,Sodium chloride 0.5% eye drops,1108010K0AAAWAW
+AMP,9391611000001107,Sodium chloride 0.5% eye drops,1108010K0AAAWAW
+VMP,35925111000001108,Sodium chloride 0.9% eye drops 0.5ml unit dose preservative free,1108010K0AAAYAY
+VMP,9096311000001109,Generic Balanced Salt Solution irrigation solution,1108010K0AABLBL
+AMP,9094211000001106,Balanced Salt Solution irrigation solution,1108010K0AABLBL
+AMP,9093711000001101,Balanced Salt Solution irrigation solution,1108010K0AABLBL
+AMP,9094611000001108,Balanced Salt Solution irrigation solution,1108010K0AABLBL
+AMP,9094411000001105,Balanced Salt Solution irrigation solution,1108010K0AABLBL
+VMP,9409211000001102,Sodium chloride 0.43% eye drops,1108010K0AABPBP
+AMP,9391911000001101,Sodium chloride 0.43% eye drops,1108010K0AABPBP
+VMP,15880811000001106,Sodium chloride 3% eye drops,1108010K0AACBCB
+AMP,15860411000001106,Sodium chloride 3% eye drops,1108010K0AACBCB
+VMP,9409411000001103,Sodium chloride 0.5% eye drops preservative free,1108010K0AACCCC
+AMP,9390911000001108,Sodium chloride 0.5% eye drops preservative free,1108010K0AACCCC
+VMP,16110811000001101,Sodium chloride 6.5% eye drops preservative free,1108010K0AACDCD
+AMP,16102811000001102,Sodium chloride 6.5% eye drops preservative free,1108010K0AACDCD
+VMP,330835001,Sodium chloride 5% eye ointment,1108010K0AACFCF
+AMP,9386311000001109,Sodium chloride 5% eye ointment,1108010K0AACFCF
+AMP,3727811000001105,Minims saline 0.9% eye drops 0.5ml unit dose,1108010K0BBAAAY
+AMP,17635211000001101,Muro 128 5% eye ointment,1108010K0BJACCF
+VMP,16247111000001101,Liquid paraffin eye drops,1108010L0AAAAAA
+AMP,16245111000001105,Liquid paraffin eye drops,1108010L0AAAAAA
+VMP,16247211000001107,Liquid paraffin light eye drops,1108010L0AAACAC
+AMP,16244811000001104,Liquid paraffin light eye drops,1108010L0AAACAC
+VMP,3545311000001108,Generic Lubri-tears eye ointment,1108010L0AAADAD
+AMP,3154411000001105,Lacri-lube eye ointment,1108010L0BBAAAB
+AMP,3156011000001106,Lubri-Tears eye ointment,1108010L0BDAAAD
+VMP,35923811000001100,Simple eye ointment,1108010N0AAACAC
+AMP,3153911000001104,Simple eye ointment,1108010N0AAACAC
+AMP,3155211000001107,Simple eye ointment,1108010N0AAACAC
+AMP,17963211000001107,Simple eye ointment,1108010N0AAACAC
+AMP,30097111000001106,Simple eye ointment,1108010N0AAACAC
+AMP,3155511000001105,Simple eye ointment,1108010N0AAACAC
+AMP,3154911000001102,Simple eye ointment,1108010N0AAACAC
+AMP,39249711000001103,Simple eye ointment,1108010N0AAACAC
+AMP,8983411000001104,Simple eye ointment,1108010N0AAACAC
+AMP,17928411000001109,Simple eye ointment,1108010N0AAACAC
+AMP,15508911000001101,Simple eye ointment,1108010N0AAACAC
+AMP,3154511000001109,Simple eye ointment,1108010N0AAACAC
+AMP,35581211000001103,Simple eye ointment,1108010N0AAACAC
+AMP,21896611000001108,Simple eye ointment,1108010N0AAACAC
+VMP,330798005,Polyvinyl alcohol 1.4% eye drops,1108010Q0AAAAAA
+AMP,17015711000001109,Polyvinyl alcohol 1.4% eye drops,1108010Q0AAAAAA
+AMP,22352611000001102,Polyvinyl alcohol 1.4% eye drops,1108010Q0AAAAAA
+AMP,32480611000001101,Polyvinyl alcohol 1.4% eye drops,1108010Q0AAAAAA
+AMP,23219311000001107,Polyvinyl alcohol 1.4% eye drops,1108010Q0AAAAAA
+AMP,23959711000001103,Polyvinyl alcohol 1.4% eye drops,1108010Q0AAAAAA
+VMP,330799002,Polyvinyl alcohol 1% eye drops,1108010Q0AAABAB
+VMP,36017711000001100,Polyvinyl alcohol 1.4% eye drops 0.4ml unit dose preservative free,1108010Q0AAACAC
+AMP,32480411000001104,Polyvinyl alcohol 1.4% eye drops 0.4ml unit dose preservative free,1108010Q0AAACAC
+AMP,32685111000001104,Polyvinyl alcohol 1.4% eye drops 0.4ml unit dose preservative free,1108010Q0AAACAC
+AMP,28034611000001102,Polyvinyl alcohol 1.4% eye drops 0.4ml unit dose preservative free,1108010Q0AAACAC
+AMP,31509711000001106,Polyvinyl alcohol 1.4% eye drops 0.4ml unit dose preservative free,1108010Q0AAACAC
+VMP,22098911000001103,Polyvinyl alcohol 1.4% eye drops preservative free,1108010Q0AAAIAI
+AMP,22075311000001104,Polyvinyl alcohol 1.4% eye drops preservative free,1108010Q0AAAIAI
+AMP,3173811000001106,Hypotears 1% eye drops,1108010Q0BDAAAB
+VMP,36015511000001101,Phenylephrine 0.12% eye drops,1108010S0AAAAAA
+AMP,3803411000001107,Isopto Frin 0.12% eye drops,1108010S0BBAAAA
+VMP,4030711000001101,Povidone K25 5% eye drops 0.4ml unit dose preservative free,1108010T0AAAAAA
+AMP,4022311000001104,Oculotect 5% eye drops 0.4ml unit dose,1108010T0BBAAAA
+VMP,330848002,Zinc sulfate 0.25% eye drops,1108010Y0AAAAAA
+AMP,3698611000001107,Zinc sulfate 0.25% eye drops,1108010Y0AAAAAA
+AMP,3699211000001100,Zinc sulfate 0.25% eye drops,1108010Y0AAAAAA
+AMP,3698811000001106,Zinc sulfate 0.25% eye drops,1108010Y0AAAAAA
+VMP,5611711000001103,Carbomer 974P 0.25% eye gel,1108010Z0AAAAAA
+AMP,5609511000001106,Liquivisc 0.25% eye gel,1108010Z0BBAAAA
+VMP,18430911000001108,Sodium citrate 10.11% eye drops preservative free,110802050AAABAB
+AMP,18413311000001105,Sodium citrate 10.11% eye drops preservative free,110802050AAABAB
+VMP,330536008,Ketorolac 0.5% eye drops,110802070AAAAAA
+AMP,35427511000001106,Ketorolac 0.5% eye drops,110802070AAAAAA
+AMP,35633111000001105,Ketorolac 0.5% eye drops,110802070AAAAAA
+AMP,35514511000001101,Ketorolac 0.5% eye drops,110802070AAAAAA
+AMP,37426611000001107,Ketorolac 0.5% eye drops,110802070AAAAAA
+AMP,39856211000001109,Ketorolac 0.5% eye drops,110802070AAAAAA
+AMP,3692911000001104,Acular 0.5% eye drops,110802070BBAAAA
+VMP,36098011000001102,Diclofenac 0.1% eye drops 0.3ml unit dose preservative free,1108020A0AAAAAA
+VMP,4652311000001109,Diclofenac 0.1% eye drops,1108020A0AAACAC
+AMP,3834811000001100,Voltarol Ophtha 0.1% eye drops 0.3ml unit dose,1108020A0BBAAAA
+AMP,4637411000001103,Voltarol Ophtha Multidose 0.1% eye drops,1108020A0BBABAC
+VMP,327048008,Verteporfin 15mg powder for solution for infusion vials,1108020ABAAAAAA
+AMP,4811811000001106,Visudyne 15mg powder for solution for infusion vials,1108020ABBBAAAA
+VMP,10365211000001108,Pegaptanib 300micrograms/0.09ml solution for injection pre-filled syringes,1108020ACAAAAAA
+AMP,10363511000001107,Macugen 300micrograms/0.09ml solution for injection pre-filled syringes,1108020ACBBAAAA
+VMP,11266611000001104,Ranibizumab 3mg/0.3ml solution for injection vials,1108020ADAAAAAA
+VMP,14057611000001107,Ranibizumab 2.3mg/0.23ml solution for injection vials,1108020ADAAABAB
+VMP,24610711000001100,Ranibizumab 1.65mg/0.165ml solution for injection pre-filled syringes,1108020ADAAACAC
+AMP,11266811000001100,Lucentis 3mg/0.3ml solution for injection vials,1108020ADBBAAAA
+AMP,14038911000001101,Lucentis 2.3mg/0.23ml solution for injection vials,1108020ADBBABAB
+AMP,24607511000001107,Lucentis 1.65mg/0.165ml solution for injection pre-filled syringes,1108020ADBBACAC
+VMP,15518411000001106,Nepafenac 1mg/ml eye drops,1108020AFAAAAAA
+VMP,34586011000001106,Nepafenac 3mg/ml eye drops,1108020AFAAABAB
+AMP,15511411000001104,Nevanac 1mg/ml eye drops,1108020AFBBAAAA
+AMP,34580311000001106,Nevanac 3mg/ml eye drops,1108020AFBBABAB
+VMP,19199811000001104,Bromfenac 900micrograms/ml eye drops,1108020AGAAAAAA
+AMP,19196611000001106,Yellox 900micrograms/ml eye drops,1108020AGBBAAAA
+VMP,19980511000001108,Povidone-Iodine 5% eye drops preservative free,1108020AHAAAAAA
+AMP,19980711000001103,Povidone-Iodine 5% eye drops preservative free,1108020AHAAAAAA
+VMP,24510511000001103,Povidone-Iodine 5% eye drops 0.4ml unit dose preservative free,1108020AHAAABAB
+AMP,22323911000001102,Minims povidone iodine 5% eye drops 0.5ml unit dose,1108020AHBBAAAA
+AMP,24507511000001101,Minims povidone iodine 5% eye drops 0.4ml unit dose,1108020AHBBABAB
+VMP,9096211000001101,Acetylcholine chloride 20mg powder and solvent for solution for intraocular irrigation vials,1108020C0AAACAC
+VMP,29698711000001103,Acetylcholine chloride 20mg powder and solvent for solution for intraocular irrigation ampoules,1108020C0AAADAD
+AMP,9095911000001103,Miochol-E 20mg powder and solvent for solution for intraocular irrigation vials,1108020C0BBACAC
+AMP,29681611000001100,Miphtel 20mg powder and solvent for solution for intraocular irrigation ampoules,1108020C0BCAAAD
+VMP,347121000,Disodium edetate 0.37% eye drops,1108020G0AAAAAA
+AMP,21203011000001103,Disodium edetate 0.37% eye drops,1108020G0AAAAAA
+VMP,3958011000001107,Apraclonidine 1% eye drops 0.25ml unit dose preservative free,1108020J0AAAAAA
+VMP,330873002,Apraclonidine 5mg/ml eye drops,1108020J0AAABAB
+AMP,3956211000001103,Iopidine 1% eye drops 0.25ml unit dose,1108020J0BBAAAA
+AMP,3799011000001100,Iopidine 5mg/ml eye drops,1108020J0BBABAB
+VMP,36067911000001102,Fluorescein 1% eye drops 0.5ml unit dose preservative free,1108020K0AAAAAA
+VMP,36068011000001100,Fluorescein 2% eye drops 0.5ml unit dose preservative free,1108020K0AAABAB
+VMP,10859811000001100,Fluorescein 1mg ophthalmic strips,1108020K0AAAEAE
+AMP,3980511000001107,Minims fluorescein sodium 1% eye drops 0.5ml unit dose,1108020K0BBAAAA
+AMP,3980811000001105,Minims fluorescein sodium 2% eye drops 0.5ml unit dose,1108020K0BBABAB
+AMP,10858511000001109,Fluorets 1mg ophthalmic strips,1108020K0BEAAAE
+VMP,17870611000001100,Glycerol 10% eye drops,1108020L0AAADAD
+AMP,17869911000001108,Glycerol 10% eye drops,1108020L0AAADAD
+VMP,17870711000001109,Glycerol 10% eye drops preservative free,1108020L0AAANAN
+AMP,17869611000001102,Glycerol 10% eye drops preservative free,1108020L0AAANAN
+VMP,35935711000001106,Rose bengal 1% eye drops 0.5ml unit dose preservative free,1108020Q0AAAAAA
+AMP,4771511000001103,Minims rose bengal 1% eye drops 0.5ml unit dose,1108020Q0BBAAAA
+VMP,18482711000001103,Moxifloxacin 0.5% eye drops,1108020U0AAABAB
+AMP,18483011000001109,Moxivig 0.5% eye drops,1108020U0BCAAAB
+VMP,22220411000001107,Carbomer 0.35% eye gel,1108030AAAAAAAA
+VMP,23466211000001108,Carbomer 0.36% eye gel preservative free,1108030AAAAABAB
+AMP,22206611000001100,Blephagel 0.35% eye gel,1108030AABBAAAA
+AMP,23450511000001102,Blephagel 0.36% eye gel preservative free,1108030AABBABAB
+VMP,18519911000001101,Idebenone 45mg tablets,1108030ABAAAAAA
+AMP,18516211000001101,Idebenone 45mg tablets,1108030ABAAAAAA
+VMP,19947311000001108,Idebenone 150mg capsules,1108030ABAAABAB
+AMP,19903411000001102,Idebenone 150mg capsules,1108030ABAAABAB
+VMP,31719111000001108,Idebenone 150mg tablets,1108030ABAAACAC
+AMP,31461611000001108,Raxone 150mg tablets,1108030ABBBAAAC

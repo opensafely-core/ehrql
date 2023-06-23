@@ -1,0 +1,686 @@
+dmd_type,dmd_id,dmd_name,bnf_code
+AMP,21147411000001106,Otocomb Otic ear ointment,120101000BBABA0
+AMP,21147611000001109,Kenacomb Otic ear ointment,120101000BBACA0
+VMP,4661311000001105,Choline salicylate 21.61% / Glycerol 12.62% ear drops,120101020AAACAC
+VMP,4359411000001102,Choline salicylate 16% / Glycerol 12.62% ear drops,120101020AAAEAE
+AMP,4656911000001109,Audax ear drops,120101020BDAAAC
+AMP,4354611000001103,Earex Plus ear drops,120101020BGAAAE
+VMP,3555511000001100,Generic Sofradex ear/eye drops,120101040AAAAAA
+AMP,535411000001106,Sofradex ear/eye drops,120101040BBAAAA
+VMP,3555611000001101,Generic Sofradex ear/eye ointment,120101050AAAAAA
+VMP,3550411000001106,Generic Otomize ear spray,120101050AAABAB
+AMP,794811000001104,Sofradex ear/eye ointment,120101050BBAAAA
+AMP,507711000001101,Otomize ear spray,120101050BCAAAB
+VMP,32878711000001107,Ofloxacin 0.3% ear drops,1201010ABAAAAAA
+AMP,32863411000001103,Ofloxacin 0.3% ear drops,1201010ABAAAAAA
+VMP,19395211000001107,Ciprofloxacin 0.3% ear drops,1201010ACAAAAAA
+AMP,19389211000001109,Ciprofloxacin 0.3% ear drops,1201010ACAAAAAA
+VMP,34941111000001103,Ciprofloxacin 2mg/ml ear drops 0.25ml unit dose preservative free,1201010ACAAABAB
+AMP,34940611000001101,Cetraxal 2mg/ml ear drops 0.25ml unit dose,1201010ACBBABAB
+VMP,18782111000001105,Colistimethate 1% ear drops,1201010ADAAAAAA
+AMP,18781811000001107,Colistimethate 1% ear drops,1201010ADAAAAAA
+VMP,30780311000001108,Ciprofloxacin 0.3% / Dexamethasone 0.1% ear drops,1201010AEAAAAAA
+AMP,39087211000001100,Ciprofloxacin 0.3% / Dexamethasone 0.1% ear drops,1201010AEAAAAAA
+AMP,38873411000001103,Ciprofloxacin 0.3% / Dexamethasone 0.1% ear drops,1201010AEAAAAAA
+AMP,30293211000001102,Cilodex ear drops,1201010AEBBAAAA
+VMP,35873211000001106,Ciprofloxacin 3mg/ml / Fluocinolone acetonide 0.25mg/ml ear drops 0.25ml unit dose preservative free,1201010AFAAAAAA
+AMP,35860111000001104,Cetraxal Plus 3mg/ml + 0.25mg/ml ear drops 0.25ml unit dose,1201010AFBBAAAA
+VMP,39150711000001109,Phenazone 40mg/g / Lidocaine 10mg/g ear drops,1201010AGAAAAAA
+AMP,39150411000001103,Otigo 40mg/g / 10mg/g ear drops,1201010AGBBAAAA
+VMP,330900004,Acetic acid 2% ear spray,1201010B0AAAFAF
+VMP,22213711000001100,Acetic acid 5% ear spray,1201010B0AAAGAG
+AMP,22207911000001109,Acetic acid 5% ear spray,1201010B0AAAGAG
+AMP,3697711000001104,EarCalm 2% spray,1201010B0BBAAAF
+VMP,14957011000001108,Aluminium acetate 8% ear drops,1201010C0AAAAAA
+AMP,14950811000001101,Aluminium acetate 8% ear drops,1201010C0AAAAAA
+VMP,14021111000001105,Burow's Solution BP (Aluminium acetate 13%) ear drops,1201010C0AAABAB
+AMP,14021711000001106,Aluminium acetate 13% ear drops,1201010C0AAABAB
+VMP,33678211000001100,Aluminium acetate 12% ear drops,1201010C0AAAKAK
+AMP,33670611000001101,Aluminium acetate 12% ear drops,1201010C0AAAKAK
+VMP,29767211000001101,Aluminium acetate 0.3% ear drops,1201010C0AABABA
+AMP,29755011000001107,Aluminium acetate 0.3% ear drops,1201010C0AABABA
+VMP,330953008,Betamethasone 0.1% / Neomycin 0.5% ear/eye/nose drops,1201010E0AAABAB
+AMP,2839711000001103,Betnesol-N ear/eye/nose drops,1201010E0BBAAAB
+AMP,2839411000001109,Vistamethasone N ear/eye/nose drops,1201010E0BCAAAB
+VMP,330920003,Flumetasone 0.02% / Clioquinol 1% ear drops,1201010F0AAAAAA
+AMP,24918311000001103,Flumetasone 0.02% / Clioquinol 1% ear drops,1201010F0AAAAAA
+AMP,24612911000001104,Flumetasone 0.02% / Clioquinol 1% ear drops,1201010F0AAAAAA
+AMP,24774711000001109,Flumetasone 0.02% / Clioquinol 1% ear drops,1201010F0AAAAAA
+AMP,37381511000001101,Flumetasone 0.02% / Clioquinol 1% ear drops,1201010F0AAAAAA
+AMP,903511000001109,Locorten Vioform ear drops,1201010F0BBAAAA
+VMP,330952003,Hydrocortisone 1.5% / Neomycin 0.5% ear/eye drops,1201010G0AAAAAA
+VMP,330951005,Hydrocortisone 1.5% / Neomycin 0.5% ear/eye ointment,1201010G0AAABAB
+VMP,330936001,Gentamicin 0.3% / Hydrocortisone acetate 1% ear drops,1201010G0AAACAC
+AMP,28800011000001105,Gentamicin 0.3% / Hydrocortisone acetate 1% ear drops,1201010G0AAACAC
+AMP,28972911000001107,Gentamicin 0.3% / Hydrocortisone acetate 1% ear drops,1201010G0AAACAC
+AMP,37386611000001109,Gentamicin 0.3% / Hydrocortisone acetate 1% ear drops,1201010G0AAACAC
+AMP,39855511000001100,Gentamicin 0.3% / Hydrocortisone acetate 1% ear drops,1201010G0AAACAC
+AMP,4004711000001103,Neo-Cortef ear/eye drops,1201010G0BBAAAA
+AMP,3991711000001109,Neo-Cortef ear/eye ointment,1201010G0BBABAB
+AMP,2914711000001101,Gentisone HC ear drops,1201010G0BCAAAC
+VMP,330916002,Chloramphenicol 5% ear drops,1201010H0AAAAAA
+AMP,3815811000001106,Chloramphenicol 5% ear drops,1201010H0AAAAAA
+AMP,3816811000001103,Chloramphenicol 5% ear drops,1201010H0AAAAAA
+AMP,30029111000001105,Chloramphenicol 5% ear drops,1201010H0AAAAAA
+AMP,3816011000001109,Chloramphenicol 5% ear drops,1201010H0AAAAAA
+AMP,3816211000001104,Chloramphenicol 5% ear drops,1201010H0AAAAAA
+AMP,21833211000001105,Chloramphenicol 5% ear drops,1201010H0AAAAAA
+VMP,330917006,Chloramphenicol 10% ear drops,1201010H0AAABAB
+AMP,4187511000001107,Chloramphenicol 10% ear drops,1201010H0AAABAB
+AMP,11382411000001109,Chloramphenicol 10% ear drops,1201010H0AAABAB
+AMP,30029311000001107,Chloramphenicol 10% ear drops,1201010H0AAABAB
+AMP,25834711000001100,Chloramphenicol 10% ear drops,1201010H0AAABAB
+AMP,31355011000001102,Chloramphenicol 10% ear drops,1201010H0AAABAB
+AMP,4188011000001103,Chloramphenicol 10% ear drops,1201010H0AAABAB
+AMP,32202611000001100,Chloramphenicol 10% ear drops,1201010H0AAABAB
+AMP,21833411000001109,Chloramphenicol 10% ear drops,1201010H0AAABAB
+VMP,3550511000001105,Generic Otosporin ear drops,1201010Q0AAACAC
+AMP,423211000001103,Otosporin ear drops,1201010Q0BCAAAC
+VMP,5239511000001100,Hydrogen peroxide 1.5% ear drops,1201010S0AAAAAA
+AMP,8178111000001107,Hydrogen peroxide 1.5% ear drops,1201010S0AAAAAA
+AMP,24552211000001109,Hydrogen peroxide 1.5% ear drops,1201010S0AAAAAA
+VMP,330950006,Prednisolone 0.5% / Neomycin 0.5% ear/eye drops,1201010U0AAAAAA
+AMP,2840211000001102,Predsol-N ear/eye drops,1201010U0BBAAAA
+VMP,330973003,Neomycin 0.35% / Triamcinolone 0.1% ear drops,1201010Z0AAABAB
+VMP,3557011000001101,Generic Tri-Adcortyl Otic ointment,1201010Z0AAACAC
+AMP,3156911000001105,Audicort ear drops,1201010Z0BCAAAB
+AMP,358611000001101,Tri-Adcortyl Otic ointment,1201010Z0BDAAAC
+VMP,331001008,Docusate sodium 0.5% ear drops,1201030F0AAABAB
+VMP,331002001,Docusate sodium 5% ear drops,1201030F0AAACAC
+AMP,8157711000001105,Molcer ear drops,1201030F0BCAAAC
+AMP,383611000001103,Waxsol ear drops,1201030F0BEAAAB
+AMP,8158511000001101,Clear Ear drops,1201030F0BHAAAC
+VMP,3393511000001105,Generic Cerumol ear drops,1201030H0AAAAAA
+VMP,4758511000001105,Generic Earex ear drops,1201030H0AAAEAE
+AMP,76211000001104,Cerumol ear drops,1201030H0BBAAAA
+AMP,16501311000001107,Cerumol olive oil ear drops,1201030H0BBABAA
+AMP,4757211000001108,Earex ear drops,1201030H0BEAAAE
+AMP,9385211000001107,Nowax ear drops,1201030H0BJAAA0
+AMP,16736511000001100,Golden ear drops,1201030H0BLAAA0
+VMP,36148411000001106,Urea hydrogen peroxide 5% ear drops,1201030N0AAAAAA
+AMP,2901311000001100,Exterol 5% ear drops,1201030N0BBAAAA
+AMP,2900411000001103,Otex 5% ear drops,1201030N0BCAAAA
+VMP,331057004,Azelastine 140micrograms/dose nasal spray,1202010A0AAABAB
+AMP,3601611000001101,Rhinolast 140micrograms/dose nasal spray,1202010A0BBABAB
+AMP,4247411000001104,Aller-Eze 140micrograms/dose nasal spray,1202010A0BCAAAB
+VMP,39111911000001107,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,2938811000001107,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,2939011000001106,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,2939811000001100,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,30027511000001108,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,2939411000001102,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,29998711000001104,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,38804811000001108,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,15069111000001105,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,17794911000001106,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,29773711000001106,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,9189011000001107,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,11578811000001101,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,2939211000001101,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,21782111000001102,Beclometasone 50micrograms/dose nasal spray,1202010C0AAAAAA
+AMP,2940411000001108,Beconase Aqueous 50micrograms/dose nasal spray,1202010C0BBABAA
+AMP,6497711000001106,Beconase Hayfever Relief for Adults 50micrograms/dose nasal spray,1202010C0BBACAA
+AMP,2942511000001108,Beconase Hayfever 50micrograms/dose nasal spray,1202010C0BBADAA
+AMP,2940611000001106,Nasobec Aqueous 50micrograms/dose nasal spray,1202010C0BDAAAA
+AMP,2946111000001100,Nasobec Hayfever 50micrograms/dose nasal spray,1202010C0BDABAA
+AMP,2940211000001109,Beclo-Aqua 50micrograms/dose nasal spray,1202010C0BEAAAA
+AMP,2940911000001100,Vivabec 50micrograms/dose nasal spray,1202010C0BIAAAA
+AMP,2946911000001102,Care Hayfever Relief 50micrograms/dose nasal spray,1202010C0BJAAAA
+AMP,4699711000001105,Pollenase Hayfever 50micrograms/dose nasal spray,1202010C0BKABAA
+AMP,20119311000001105,Pollenase Hayfever Relief for Adults 50micrograms/dose nasal spray,1202010C0BKACAA
+AMP,4636511000001101,Rino Clenil 50micrograms/dose nasal spray,1202010C0BLAAAA
+AMP,24664011000001108,Numark Hayfever Relief 50micrograms/dose nasal spray,1202010C0BNAAAA
+AMP,13646311000001107,Beclometasone Hayfever Relief 50micrograms/dose nasal spray,1202010C0BNACAA
+VMP,35912211000001104,Budesonide 100micrograms/dose nasal spray,1202010I0AAACAC
+AMP,117711000001109,Budesonide 100micrograms/dose nasal spray,1202010I0AAACAC
+AMP,10271611000001106,Budesonide 100micrograms/dose nasal spray,1202010I0AAACAC
+AMP,65711000001108,Budesonide 100micrograms/dose nasal spray,1202010I0AAACAC
+AMP,15060211000001106,Budesonide 100micrograms/dose nasal spray,1202010I0AAACAC
+AMP,642611000001107,Budesonide 100micrograms/dose nasal spray,1202010I0AAACAC
+VMP,7425611000001100,Budesonide 64micrograms/dose nasal spray,1202010I0AAAFAF
+AMP,16730311000001108,Budesonide 64micrograms/dose nasal spray,1202010I0AAAFAF
+AMP,16640611000001107,Budesonide 64micrograms/dose nasal spray,1202010I0AAAFAF
+AMP,22622211000001106,Budesonide 64micrograms/dose nasal spray,1202010I0AAAFAF
+AMP,38806911000001106,Budesonide 64micrograms/dose nasal spray,1202010I0AAAFAF
+AMP,17809011000001108,Budesonide 64micrograms/dose nasal spray,1202010I0AAAFAF
+AMP,20284211000001101,Budesonide 64micrograms/dose nasal spray,1202010I0AAAFAF
+AMP,544311000001102,Rhinocort Aqua 100micrograms/dose nasal spray,1202010I0BBACAC
+AMP,7401811000001109,Rhinocort Aqua 64 nasal spray,1202010I0BBAEAF
+AMP,19528311000001102,Budeflam Aquanase 100micrograms/dose nasal spray,1202010I0BCAAAC
+AMP,28871811000001101,Aircort 100micrograms/dose nasal spray,1202010I0BDAAAC
+AMP,35089811000001104,Benacort 64micrograms nasal spray,1202010I0BEAAAF
+VMP,3875811000001101,Levocabastine 0.05% nasal spray,1202010K0AAAAAA
+AMP,3872111000001101,Livostin 0.05% nasal spray,1202010K0BBAAAA
+AMP,3871711000001107,Livostin Direct 0.05% nasal spray,1202010K0BBABAA
+VMP,331035006,Flunisolide 25micrograms/dose nasal spray,1202010L0AAACAC
+AMP,35570111000001108,Flunisolide 25micrograms/dose nasal spray,1202010L0AAACAC
+AMP,656911000001100,Syntaris 0.025% nasal spray,1202010L0BBAAAC
+VMP,38894911000001100,Fluticasone 400microgram/unit dose nasal drops,1202010M0AAABAB
+VMP,39110511000001107,Fluticasone propionate 50micrograms/dose nasal spray,1202010M0AAACAC
+AMP,9328511000001107,Fluticasone propionate 50micrograms/dose nasal spray,1202010M0AAACAC
+AMP,4380511000001101,Flixonase Nasule 400microgram/unit dose nasal drops,1202010M0BBABAB
+AMP,480211000001100,Flixonase 50micrograms/dose aqueous nasal spray,1202010M0BBACAC
+AMP,9310711000001107,Nasofan 50micrograms/dose aqueous nasal spray,1202010M0BCAAAC
+AMP,11177911000001100,Nasofan Allergy 50micrograms/dose nasal spray,1202010M0BCABAC
+AMP,4365311000001103,Pirinase Hayfever 0.05% nasal spray,1202010M0BDAAAC
+AMP,31572011000001107,Pirinase Hayfever Relief for Adults 0.05% nasal spray,1202010M0BDABAC
+AMP,20534011000001109,Boots Pharmacy Hayfever and Allergy 50micrograms/dose nasal spray,1202010M0BEAAAC
+VMP,331050002,Sodium cromoglicate 2% / Xylometazoline 0.025% nasal spray,1202010P0AAAFAF
+VMP,331046009,Sodium cromoglicate 4% nasal spray,1202010P0AAAGAG
+VMP,331049002,Sodium cromoglicate 2% nasal spray,1202010P0AAAHAH
+AMP,920711000001103,Rynacrom 4% nasal spray,1202010P0BBAEAG
+AMP,4006011000001105,Rynacrom Allergy nasal spray,1202010P0BBAFAF
+AMP,3841611000001102,Vividrin 2% nasal spray,1202010P0BEAAAH
+AMP,12099911000001107,Vividrin 2% nasal spray,1202010P0BEABAH
+VMP,38750811000001108,Triamcinolone 55micrograms/dose nasal spray,1202010T0AAAAAA
+AMP,269011000001101,Nasacort 55micrograms/dose nasal spray,1202010T0BBAAAA
+AMP,15249411000001104,Nasacort Allergy 55micrograms/dose nasal spray,1202010T0BBABAA
+VMP,39109911000001109,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,23679811000001107,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,24605011000001106,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,23726411000001109,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,34957111000001107,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,41153411000001100,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,30061811000001108,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,32423511000001103,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,37122311000001100,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,39049411000001104,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,36806611000001106,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,23655711000001104,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,29925411000001109,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,23679911000001102,Mometasone 50micrograms/dose nasal spray,1202010U0AAAAAA
+AMP,123711000001109,Nasonex 50micrograms/dose nasal spray,1202010U0BBAAAA
+VMP,400605006,Tramazoline 120micrograms/dose / Dexamethasone 20micrograms/dose nasal spray,1202010V0AAAAAA
+AMP,2934211000001100,Dexa-Rhinaspray Duo nasal spray,1202010V0BBAAAA
+VMP,425984002,Fluticasone furoate 27.5micrograms/dose nasal spray,1202010W0AAAAAA
+AMP,15046311000001109,Avamys 27.5micrograms/dose nasal spray,1202010W0BBAAAA
+VMP,21994411000001108,Fluticasone propionate 50micrograms/dose / Azelastine 137micrograms/dose nasal spray,1202010Y0AAAAAA
+AMP,21976811000001105,Dymista 137micrograms/dose / 50micrograms/dose nasal spray,1202010Y0BBAAAA
+VMP,40015611000001105,Mometasone 25micrograms/dose / Olopatadine 600micrograms/dose nasal spray,1202010Z0AAAAAA
+AMP,39970511000001103,Ryaltris 25micrograms/dose / 600micrograms/dose nasal spray,1202010Z0BBAAAA
+VMP,4615211000001100,Levomenthol 0.3% ointment,120202000AAANAN
+VMP,4978111000001108,Menthol 0.3% ointment,120202000BJBAA0
+AMP,4972111000001105,Nostroline 0.3% ointment,120202000BJBAA0
+VMP,4558611000001105,Generic Olbas inhaler,120202000BJBDA0
+AMP,4531111000001106,Olbas inhaler,120202000BJBDA0
+AMP,4609311000001108,Happinose 0.3% ointment,120202000BJBFAN
+VMP,5252311000001102,Generic Oleum rhinale nasal drops,120202000BJBGA0
+AMP,5248011000001104,Oleum rhinale nasal drops,120202000BJBGA0
+VMP,8793711000001100,Ephedrine 0.25% nasal drops,1202020C0AAABAB
+AMP,8784811000001105,Ephedrine 0.25% nasal drops,1202020C0AAABAB
+VMP,331083009,Ephedrine 0.5% nasal drops,1202020C0AAACAC
+AMP,781711000001105,Ephedrine 0.5% nasal drops,1202020C0AAACAC
+AMP,162611000001104,Ephedrine 0.5% nasal drops,1202020C0AAACAC
+AMP,38883711000001103,Ephedrine 0.5% nasal drops,1202020C0AAACAC
+AMP,833511000001105,Ephedrine 0.5% nasal drops,1202020C0AAACAC
+VMP,331084003,Ephedrine 1% nasal drops,1202020C0AAAEAE
+AMP,103211000001108,Ephedrine 1% nasal drops,1202020C0AAAEAE
+AMP,324311000001102,Ephedrine 1% nasal drops,1202020C0AAAEAE
+AMP,245511000001100,Ephedrine 1% nasal drops,1202020C0AAAEAE
+AMP,835711000001104,Ephedrine 1% nasal drops,1202020C0AAAEAE
+VMP,8793811000001108,Ephedrine 2% nasal drops,1202020C0AAALAL
+AMP,8785111000001104,Ephedrine 2% nasal drops,1202020C0AAALAL
+AMP,14799611000001109,Glucose 25% in glycerol nasal drops,1202020F0AAAAAA
+VMP,15533511000001109,Glucose 20% in glycerol nasal drops,1202020F0AAAEAE
+AMP,15531211000001107,Glucose 20% in glycerol nasal drops,1202020F0AAAEAE
+VMP,19698311000001103,Glucose 50% in glycerol nasal drops,1202020F0AAAHAH
+AMP,19680311000001101,Glucose 50% in glycerol nasal drops,1202020F0AAAHAH
+VMP,331096005,Oxymetazoline 0.05% nasal spray,1202020G0AAAAAA
+AMP,4935611000001108,Afrazine 0.05% nasal spray,1202020G0BBAAAA
+AMP,8862511000001102,Vicks Sinex Decongestant nasal spray,1202020G0BCAAAA
+AMP,8862311000001108,Vicks Sinex Micromist nasal spray,1202020G0BCABAA
+AMP,8104511000001101,Lemsip Max Sinus All Night Decongestant 0.05% nasal spray,1202020G0BEAAAA
+AMP,9537611000001106,Boots Blocked Nose Relief 0.05% nasal spray,1202020G0BFAAAA
+AMP,8112111000001104,Galpharm Blocked Nose Relief 0.05% nasal spray,1202020G0BGAAAA
+AMP,10878211000001109,Galpharm Cold & Flu Decongestant 0.05% nasal spray,1202020G0BGABAA
+AMP,13582211000001101,Galsud Decongestant 0.05% nasal spray,1202020G0BHAAAA
+AMP,18568911000001105,Care Decongestant 0.05% nasal spray,1202020G0BIAAAA
+AMP,24392411000001103,Numark Nasal Decongestant 0.05% spray,1202020G0BJAAAA
+VMP,38896611000001102,Ipratropium bromide 21micrograms/dose nasal spray,1202020I0AAABAB
+AMP,3346411000001108,Rinaspray 21micrograms/dose nasal spray,1202020I0BBABAB
+VMP,4360011000001107,Phenylephrine 0.5% nasal drops,1202020K0AAAAAA
+VMP,4939311000001101,Phenylephrine 0.5% nasal spray,1202020K0AAABAB
+AMP,4350811000001109,Fenox 0.5% nasal drops,1202020K0BCAAAA
+AMP,4930011000001107,Fenox 0.5% nasal spray,1202020K0BCABAB
+VMP,8399011000001103,Sodium chloride 0.9% nebuliser liquid 20ml unit dose vials,1202020L0AABEBE
+VMP,20138411000001104,Sodium chloride 7% nebuliser liquid 5ml ampoules,1202020L0AABNBN
+AMP,20138611000001101,Sodium chloride 7% nebuliser liquid 5ml ampoules,1202020L0AABNBN
+VMP,8967711000001102,Sodium chloride 7% nebuliser liquid,1202020L0AABQBQ
+AMP,8906011000001101,Sodium chloride 7% nebuliser liquid,1202020L0AABQBQ
+VMP,17563611000001100,Sodium chloride 3% nebuliser liquid,1202020L0AABZBZ
+AMP,17529111000001103,Sodium chloride 3% nebuliser liquid,1202020L0AABZBZ
+VMP,17563711000001109,Sodium chloride 3% nebuliser liquid 10ml unit dose vials,1202020L0AACACA
+AMP,17529511000001107,Sodium chloride 3% nebuliser liquid 10ml unit dose vials,1202020L0AACACA
+VMP,17563811000001101,Sodium chloride 3% nebuliser liquid 20ml unit dose vials,1202020L0AACBCB
+AMP,17529711000001102,Sodium chloride 3% nebuliser liquid 20ml unit dose vials,1202020L0AACBCB
+VMP,22683811000001108,Sodium chloride 0.9% nebuliser liquid 2.5ml unit dose ampoules,1202020L0AACCCC
+AMP,28966211000001105,Sodium chloride 0.9% nebuliser liquid 2.5ml unit dose ampoules,1202020L0AACCCC
+AMP,22665011000001104,Sodium chloride 0.9% nebuliser liquid 2.5ml unit dose ampoules,1202020L0AACCCC
+AMP,32419411000001106,Sodium chloride 0.9% nebuliser liquid 2.5ml unit dose ampoules,1202020L0AACCCC
+AMP,40372511000001109,Sodium chloride 0.9% nebuliser liquid 2.5ml unit dose ampoules,1202020L0AACCCC
+VMP,20138811000001102,Sodium chloride 7% nebuliser liquid 5ml bottles,1202020L0AACDCD
+AMP,20139011000001103,Sodium chloride 7% nebuliser liquid 5ml bottles,1202020L0AACDCD
+AMP,34174811000001109,Saline 0.9% nebuliser liquid 2.5ml Steri-Neb unit dose ampoules,1202020L0BCAACC
+AMP,8394711000001102,Saline nebuliser liquid 20ml unit dose Steripoule vials,1202020L0BJAABE
+AMP,34175011000001104,Saline Steripoules nebuliser liquid 2.5ml unit dose ampoules,1202020L0BJABCC
+VMP,35368811000001107,Xylometazoline 0.05% nasal drops,1202020P0AAAAAA
+VMP,331104002,Xylometazoline 0.1% nasal drops,1202020P0AAABAB
+VMP,353205009,Xylometazoline 0.1% nasal spray,1202020P0AAACAC
+AMP,575711000001103,Otrivine Adult nasal spray,1202020P0BBAAAC
+AMP,355811000001106,Otrivine Child nasal drops,1202020P0BBACAA
+AMP,806311000001102,Otrivine Adult 0.1% nasal drops,1202020P0BBADAB
+AMP,4596511000001102,Otrivine Adult Menthol nasal spray,1202020P0BBAGAC
+AMP,12611000001109,Otrivine Adult Measured Dose Sinusitis spray,1202020P0BBAHAC
+AMP,17531211000001106,Otrivine Adult Metered Dose 0.1% nasal spray,1202020P0BBAIAC
+AMP,19904611000001101,Otrivine Allergy Relief 0.1% nasal spray,1202020P0BBAJAC
+AMP,26349811000001107,Otrivine Congestion Relief 0.1% nasal spray,1202020P0BBAKAC
+AMP,458311000001104,Otradrops Child nasal drops,1202020P0BGAAAA
+AMP,729511000001106,Otradrops Adult Formula 0.1% nasal drops,1202020P0BGABAB
+AMP,136011000001101,Otraspray nasal spray,1202020P0BHAAAC
+AMP,201111000001100,Tixycolds Cold and Allergy nasal drops,1202020P0BIAAAA
+AMP,4935211000001106,Sudafed Blocked Nose 0.1% spray,1202020P0BJAAAC
+AMP,20002911000001106,Sudafed Mucus Relief 0.1% nasal spray,1202020P0BJABAC
+AMP,32277711000001103,Sudafed Congestion Relief 0.1% nasal spray,1202020P0BJACAC
+AMP,35825311000001101,Sudafed Sinus-Ease 0.1% nasal spray,1202020P0BJAEAC
+VMP,37693111000001103,Xylometazoline 70micrograms/dose / Ipratropium bromide 84micrograms/dose nasal spray,1202020Q0AAAAAA
+AMP,37686311000001109,Otrivine Extra Dual Relief 0.5mg/ml / 0.6mg/ml nasal spray,1202020Q0BBAAAA
+VMP,4999411000001100,Bismuth subnitrate and Iodoform paste 30g sachets,120203000AAAAAA
+AMP,35334611000001106,Bismuth subnitrate and Iodoform paste 30g sachets,120203000AAAAAA
+AMP,4991511000001102,Bismuth subnitrate and Iodoform paste 30g sachets,120203000AAAAAA
+VMP,15567411000001106,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 1.25cm x 100cm,120203000AAABAB
+AMP,15546311000001106,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 1.25cm x 100cm,120203000AAABAB
+VMP,15567511000001105,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 1.25cm x 200cm,120203000AAACAC
+AMP,15546611000001101,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 1.25cm x 200cm,120203000AAACAC
+VMP,15567611000001109,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 1.25cm x 300cm,120203000AAADAD
+AMP,15546911000001107,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 1.25cm x 300cm,120203000AAADAD
+VMP,15567711000001100,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 2.5cm x 100cm,120203000AAAEAE
+AMP,15547211000001101,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 2.5cm x 100cm,120203000AAAEAE
+VMP,15567811000001108,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 2.5cm x 200cm,120203000AAAFAF
+AMP,15547511000001103,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 2.5cm x 200cm,120203000AAAFAF
+VMP,15567911000001103,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 2.5cm x 300cm,120203000AAAGAG
+AMP,15547811000001100,Bismuth subnitrate 20% / Iodoform 40% paste impregnated gauze dressing 2.5cm x 300cm,120203000AAAGAG
+VMP,4209911000001106,Fusafungine 500micrograms/dose nasal/oromucosal spray sugar free,1202030D0AAABAB
+AMP,4203711000001106,Locabiotal 500micrograms/dose nasal/oromucosal spray,1202030D0BBABAB
+VMP,331140000,Mupirocin 2% nasal ointment,1202030R0AAAAAA
+AMP,40229311000001103,Mupirocin 2% nasal ointment,1202030R0AAAAAA
+AMP,2906711000001107,Bactroban 2% nasal ointment,1202030R0BBAAAA
+VMP,331141001,Neomycin 0.5% / Chlorhexidine hydrochloride 0.1% cream,1202030S0AAAAAA
+AMP,286111000001105,Naseptin nasal cream,1202030S0BBAAAA
+VMP,3958111000001108,Chlorobutanol 1% tincture,120301000AAAMAM
+AMP,3954011000001103,Frador 1% tincture,120301000BCBCAM
+VMP,7969411000001109,Cetylpyridinium chloride 1.28mg/g / Menthol 330micrograms/g pastilles sugar free,120301000BCBJA0
+AMP,7960211000001103,Rinstead pastilles sugar free,120301000BCBJA0
+VMP,8306611000001100,Benzocaine 150mg/5ml oral solution,1203010C0AAAKAK
+VMP,8306511000001104,Benzocaine 150mg/5ml oral suspension,1203010C0AAAKAK
+AMP,8289811000001101,Benzocaine 150mg/5ml oral solution,1203010C0AAAKAK
+AMP,8291011000001107,Benzocaine 150mg/5ml oral suspension,1203010C0AAAKAK
+VMP,331259005,Benzocaine 2% / Chloroxylenol 0.106% oromucosal gel sugar free,1203010C0AAALAL
+VMP,135588001,Benzocaine 10% dental gel sugar free,1203010C0AAAPAP
+VMP,12285711000001103,Benzocaine 125mg/5ml oral solution,1203010C0AAAQAQ
+VMP,12285811000001106,Benzocaine 125mg/5ml oral suspension,1203010C0AAAQAQ
+AMP,12229811000001101,Benzocaine 125mg/5ml oral solution,1203010C0AAAQAQ
+AMP,12229511000001104,Benzocaine 125mg/5ml oral suspension,1203010C0AAAQAQ
+VMP,135589009,Benzocaine 20% dental gel sugar free,1203010C0AAARAR
+AMP,3937611000001103,Rinstead Adult gel,1203010C0BGAAAL
+AMP,4510311000001106,Orajel 10% dental gel,1203010C0BJAAAP
+AMP,8063711000001100,Orajel 10% mouth gel,1203010C0BJABAP
+AMP,8065311000001103,Orajel Extra Strength 20% dental gel,1203010C0BJACAR
+VMP,39697011000001100,Benzydamine 0.15% mouthwash sugar free,1203010E0AAAAAA
+AMP,21374311000001101,Benzydamine 0.15% mouthwash sugar free,1203010E0AAAAAA
+AMP,21272011000001102,Benzydamine 0.15% mouthwash sugar free,1203010E0AAAAAA
+AMP,21347111000001109,Benzydamine 0.15% mouthwash sugar free,1203010E0AAAAAA
+AMP,22618711000001108,Benzydamine 0.15% mouthwash sugar free,1203010E0AAAAAA
+AMP,38805411000001107,Benzydamine 0.15% mouthwash sugar free,1203010E0AAAAAA
+AMP,22203211000001109,Benzydamine 0.15% mouthwash sugar free,1203010E0AAAAAA
+AMP,21511611000001101,Benzydamine 0.15% mouthwash sugar free,1203010E0AAAAAA
+VMP,331148007,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,17290311000001107,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,38251311000001100,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,17666411000001102,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,18031511000001104,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,22619211000001106,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,38805611000001105,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,22203411000001108,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,41136711000001100,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,20593411000001107,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,35650411000001107,Benzydamine 0.15% oromucosal spray sugar free,1203010E0AAABAB
+AMP,301311000001108,Difflam Oral Rinse 0.15% solution,1203010E0BBAAAA
+AMP,531611000001106,Difflam 0.15% spray,1203010E0BBABAB
+AMP,737011000001105,Difflam 0.15% Sore Throat Rinse,1203010E0BBACAA
+VMP,331348004,Flurbiprofen 8.75mg lozenges,1203010F0AAAAAA
+AMP,3756011000001103,Strefen Honey and Lemon 8.75mg lozenges,1203010F0BBAAAA
+VMP,39698411000001108,Carbenoxolone 1% granules 2g sachets,1203010G0AAADAD
+AMP,3812611000001103,Bioplex Mouthwash 1% granules 2g sachets,1203010G0BCABAD
+VMP,331177008,Choline salicylate 8.7% oromucosal gel sugar free,1203010K0AAABAB
+AMP,430511000001108,Bonjela Original gel,1203010K0BBAAAB
+AMP,9467511000001107,Bonjela Cool Mint gel,1203010K0BBABAB
+AMP,4778811000001106,Dinneford's Teejel gel,1203010K0BCAAAB
+VMP,331164004,Hydrocortisone 2.5mg muco-adhesive buccal tablets sugar free,1203010M0AAAAAA
+AMP,18111811000001101,Hydrocortisone 2.5mg muco-adhesive buccal tablets sugar free,1203010M0AAAAAA
+AMP,17872211000001101,Hydrocortisone 2.5mg muco-adhesive buccal tablets sugar free,1203010M0AAAAAA
+AMP,18032711000001102,Hydrocortisone 2.5mg muco-adhesive buccal tablets sugar free,1203010M0AAAAAA
+AMP,24149511000001107,Hydrocortisone 2.5mg muco-adhesive buccal tablets sugar free,1203010M0AAAAAA
+AMP,37087211000001105,Hydrocortisone 2.5mg muco-adhesive buccal tablets sugar free,1203010M0AAAAAA
+AMP,38945911000001104,Hydrocortisone 2.5mg muco-adhesive buccal tablets sugar free,1203010M0AAAAAA
+AMP,18725311000001107,Hydrocortisone 2.5mg muco-adhesive buccal tablets sugar free,1203010M0AAAAAA
+AMP,22044211000001107,Hydrocortisone 2.5mg muco-adhesive buccal tablets sugar free,1203010M0AAAAAA
+VMP,28049511000001103,Hydrocortisone 4mg pastilles,1203010M0AAABAB
+AMP,28044511000001102,Hydrocortisone 4mg pastilles,1203010M0AAABAB
+AMP,3083211000001105,Corlan 2.5mg Pellets,1203010M0BBAAAA
+VMP,4615411000001101,Lidocaine 0.66% / Aminoacridine 0.05% oromucosal gel,1203010Q0AAAAAA
+VMP,331263003,Lidocaine 0.33% / Cetylpyridinium chloride 0.1% oromucosal gel sugar free,1203010Q0AAACAC
+VMP,4210111000001100,Lidocaine 0.5% / Cetylpyridinium chloride 0.1% oromucosal gel sugar free,1203010Q0AAAHAH
+VMP,4030811000001109,Generic Anbesol Adult Strength gel sugar free,1203010Q0AAAIAI
+VMP,4018511000001104,Generic Anbesol teething gel sugar free,1203010Q0AAAJAJ
+VMP,4019011000001102,Lidocaine 0.33% / Cetalkonium chloride 0.01% oromucosal gel sugar free,1203010Q0AAAPAP
+VMP,13664911000001105,Lidocaine 0.66% / Aminoacridine 0.05% oromucosal gel sugar free,1203010Q0AAAQAQ
+AMP,4613211000001104,Medijel oromucosal gel,1203010Q0BBAAAA
+AMP,3835611000001103,Calgel teething gel,1203010Q0BDAAAC
+AMP,3834611000001104,Dentinox teething gel,1203010Q0BEAAAC
+AMP,4197011000001103,Rinstead teething gel,1203010Q0BIAAAH
+AMP,4023111000001107,Anbesol Adult Strength gel,1203010Q0BJAAAI
+AMP,4013411000001109,Anbesol teething gel,1203010Q0BJABAJ
+AMP,4016811000001102,Bonjela Teething gel,1203010Q0BLAAAP
+AMP,13664311000001109,Iglu oromucosal gel,1203010Q0BMAAAQ
+AMP,16659311000001109,Iglu Rapid Relief oromucosal gel,1203010Q0BMABAQ
+VMP,4030011000001103,Salicylic acid 1% / Rhubarb extract 5% oromucosal solution,1203010S0AAAAAA
+AMP,3988611000001109,Pyralvex solution,1203010S0BBAAAA
+VMP,331163005,Triamcinolone 0.1% oromucosal paste,1203010T0AAAGAG
+AMP,28801711000001104,Triamcinolone 0.1% oromucosal paste,1203010T0AAAGAG
+AMP,106211000001101,Adcortyl in Orabase 0.1% oromucosal paste,1203010T0BBAAAG
+AMP,155611000001102,Adcortyl In Orabase for Mouth Ulcer 0.1% oromucosal paste,1203010T0BBABAG
+VMP,408607002,Doxycycline 20mg tablets,1203010U0AAABAB
+AMP,3959411000001106,Periostat 20mg tablets,1203010U0BBABAB
+VMP,11764211000001102,Lidocaine 0.6% / Cetylpyridinium chloride 0.02% oromucosal gel,1203010V0AAAAAA
+AMP,11761011000001109,Boots Mouth Ulcer gel,1203010V0BBAAAA
+VMP,331189005,Amphotericin B 10mg lozenges sugar free,1203020C0AAAAAA
+AMP,28870511000001106,Amphotericin B 10mg lozenges sugar free,1203020C0AAAAAA
+AMP,200111000001106,Fungilin 10mg lozenges,1203020C0BBAAAA
+VMP,324682007,Miconazole 20mg/g oromucosal gel sugar free,1203020H0AAAAAA
+VMP,13533111000001108,Miconazole 50mg muco-adhesive buccal tablets sugar free,1203020H0AAADAD
+AMP,14718011000001108,Daktarin 20mg/g oromucosal gel,1203020H0BBAAAA
+AMP,3164211000001101,Daktarin 20mg/g oromucosal gel,1203020H0BBAAAA
+AMP,13505811000001106,Loramyc 50mg muco-adhesive buccal tablets,1203020H0BDAAAD
+VMP,331231009,Metronidazole 25% oromucosal gel sugar free,1203020J0AAAAAA
+AMP,4972711000001106,Elyzol 25% oromucosal gel,1203020J0BBAAAA
+VMP,39719911000001101,"Nystatin 100,000unit pastilles",1203020N0AAAAAA
+AMP,338511000001104,"Nystan 100,000unit pastilles",1203020N0BBAAAA
+VMP,39719111000001104,Minocycline 2% dental gel sugar free,1203020P0AAAAAA
+AMP,4576511000001108,Dentomycin 2% dental gel,1203020P0BBAAAA
+VMP,16246811000001106,Menthol 0.3% / Anise oil 0.2% lozenges,120303000AAAHAH
+VMP,29004511000001105,Thyme 59.5mg pastilles,120303000AAAIAI
+VMP,13532211000001108,Generic Sinotar tablets,120303000BBBMA0
+AMP,13506711000001106,Sinotar tablets,120303000BBBMA0
+AMP,16223011000001105,Zubes Original lozenges,120303000BBBQAH
+VMP,16246711000001103,Honey 1.76% / Menthol 0.076% pastilles,120303000BBBUA0
+AMP,16226311000001104,Throaties Blackcurrant pastilles,120303000BBBUA0
+VMP,16246511000001108,Generic Throaties Strong Original pastilles,120303000BBBVA0
+AMP,16226011000001102,Throaties Strong Original pastilles,120303000BBBVA0
+VMP,16246611000001107,Generic Zubes Honey & Lemon lozenges,120303000BBBWA0
+AMP,16223611000001103,Zubes Honey & Lemon lozenges,120303000BBBWA0
+VMP,20122111000001108,Echinacea throat spray sugar free,120303000BBBXA0
+AMP,20117711000001101,Echinaforce throat spray,120303000BBBXA0
+AMP,28999711000001105,Buttercup Bronchostop Cough pastilles,120303000BBBYAI
+VMP,32499211000001106,Generic Kilkof lozenges,120303000BBBZA0
+AMP,32476711000001100,Kilkof lozenges,120303000BBBZA0
+VMP,35204811000001105,Generic Iglu pastilles sugar free,120303000BBCAA0
+AMP,35197711000001109,Iglu pastilles sugar free,120303000BBCAA0
+VMP,3731911000001105,Dichlorobenzyl alcohol 1.2mg / Amylmetacresol 600microgram lozenges,1203030A0AAAAAA
+VMP,4118911000001102,Generic Strepsils Orange with Vitamin C 100mg lozenges,1203030A0AAABAB
+VMP,13859311000001108,Dichlorobenzyl alcohol 230micrograms / Amylmetacresol 120micrograms lozenges,1203030A0AAACAC
+VMP,11787011000001102,Amylmetacresol 600microgram lozenges sugar free,1203030A0AAADAD
+VMP,8147611000001104,Amylmetacresol 600microgram lozenges,1203030A0AAAEAE
+AMP,3729611000001101,Strepsils lozenges,1203030A0BBAAAA
+AMP,3729411000001104,Strepsils Honey and Lemon lozenges,1203030A0BBABAA
+AMP,4113711000001105,Strepsils Orange with Vitamin C 100mg lozenges,1203030A0BBACAB
+AMP,4103611000001104,Strepsils lozenges lemon & herb sugar free,1203030A0BBADAA
+AMP,8989911000001105,Strepsils Strawberry lozenges sugar free,1203030A0BBAEAA
+AMP,14692911000001101,Strepsils Cool lozenges,1203030A0BBAGAA
+AMP,18597411000001104,Strepsils Warm lozenges,1203030A0BBAHAA
+AMP,21680311000001109,Strepsils Children 6+ lozenges,1203030A0BBAIAA
+AMP,35748911000001105,Strepsils Menthol 1.2mg/600microgram lozenges,1203030A0BBAJAA
+AMP,11780111000001102,Antiseptic Throat Drops Blackcurrant sugar free,1203030A0BCAAAD
+AMP,11761511000001101,Antiseptic Throat Drops Cherry Menthol,1203030A0BCABAE
+AMP,11778411000001104,Antiseptic Throat Drops Orange and Menthol with Vitamin C,1203030A0BCACAE
+AMP,17983711000001102,Boots Sore Throat Relief 600microgram lozenges cherry,1203030A0BCADAE
+AMP,17984111000001101,Boots Sore Throat Relief 600microgram lozenges lemon,1203030A0BCAEAE
+AMP,17984711000001100,Boots Sore Throat Relief 600microgram lozenges orange & menthol,1203030A0BCAFAE
+AMP,17985011000001103,Boots Sore Throat Relief 600microgram lozenges sugar free,1203030A0BCAGAD
+AMP,8142811000001103,Throaties Anti-bacterial 600microgram pastilles lemon & honey,1203030A0BHAAAE
+AMP,13855811000001102,Lloydspharmacy Antiseptic Throat lozenges,1203030A0BIAAAC
+AMP,8172511000001100,Throaties Anti-bacterial 600microgram pastilles redcurrant & rosehip,1203030A0BJAAAE
+VMP,4107311000001102,Dichlorobenzyl alcohol 1.2mg / Amylmetacresol 600microgram lozenges sugar free,1203030AAAAAAAA
+VMP,3818311000001106,Benzocaine 1.5mg/dose oromucosal spray sugar free,1203030B0AAABAB
+VMP,331257007,Benzocaine 5mg / Tyrothricin 1mg lozenges,1203030B0AAACAC
+VMP,331171009,Benzocaine 10mg / Dequalinium chloride 250microgram lozenges,1203030B0AAAEAE
+VMP,331255004,Benzocaine 10mg / Cetylpyridinium chloride 1.4mg lozenges,1203030B0AAAHAH
+VMP,35910311000001108,Benzocaine 1mg/dose oromucosal spray sugar free,1203030B0AAAIAI
+AMP,3811211000001107,AAA 1.5mg/dose sore throat spray,1203030B0BCAAAB
+AMP,4952811000001101,Boots Anaesthetic and Antibiotic throat lozenges,1203030B0BFAAAC
+AMP,3738811000001106,Tyrozets lozenges,1203030B0BGAAAC
+AMP,3805211000001107,Dequacaine lozenges,1203030B0BLAAAE
+AMP,3733611000001100,Merocaine lozenges,1203030B0BNAAAH
+AMP,4187211000001109,Ultra Chloraseptic 0.71% anaesthetic throat spray original,1203030B0BQAAAI
+AMP,8070811000001107,Ultra Chloraseptic 0.71% anaesthetic throat spray cherry,1203030B0BQABAI
+AMP,22639611000001103,Ultra Chloraseptic 0.71% anaesthetic throat spray blackcurrant,1203030B0BQACAI
+AMP,33744111000001108,Ultra Chloraseptic 0.71% anaesthetic throat spray honey & lemon,1203030B0BQADAI
+AMP,33659311000001100,Children's Chloraseptic 0.71% Sore Throat spray,1203030B0BRAAAI
+VMP,3731811000001100,Cetylpyridinium chloride 1.4mg lozenges,1203030D0AAAAAA
+AMP,3717211000001100,Merocets 1.4mg lozenges,1203030D0BBAAAA
+VMP,4090411000001100,Generic Merocets Plus lozenges,1203030D0BFAAA0
+AMP,4082011000001107,Merocets Plus lozenges,1203030D0BFAAA0
+VMP,331194005,Dequalinium chloride 250microgram lozenges,1203030F0AAAAAA
+VMP,3973211000001107,Dequalinium chloride 250microgram pastilles sugar free,1203030F0AAABAB
+VMP,13893111000001103,Dequalinium chloride 250microgram lozenges sugar free,1203030F0AAACAC
+AMP,3821511000001103,Dequadin 250microgram lozenges,1203030F0BBAAAA
+AMP,3966111000001102,Labosept 250microgram pastilles,1203030F0BCAAAB
+AMP,13860811000001100,Lloydspharmacy Sugar Free Antiseptic 250microgram lozenges,1203030F0BEAAAC
+VMP,14612111000001103,Chlorhexidine 0.05% / Tetracaine 0.015% oromucosal spray sugar free,1203030G0AAAAAA
+AMP,3955011000001104,Eludril spray,1203030G0BBAAAA
+VMP,4018211000001102,Hexylresorcinol 2.4mg lozenges,1203030J0AAAAAA
+VMP,4599011000001104,Hexylresorcinol 2.5mg / Benzalkonium chloride 600microgram lozenges sugar free,1203030J0AAABAB
+AMP,4002511000001103,TCP Sore Throat 2.4mg lozenges,1203030J0BDAAAA
+AMP,4002011000001106,Strepsils Extra Strength Blackcurrant 2.4mg lozenges,1203030J0BEAAAA
+AMP,4002211000001101,Strepsils Extra Cherry 2.4mg lozenges,1203030J0BEABAA
+AMP,8143111000001104,Strepsils Extra Citrus Menthol 2.4mg lozenges,1203030J0BEACAA
+AMP,30785811000001105,Strepsils Extra Triple Action Blackcurrant 2.4mg lozenges,1203030J0BEADAA
+AMP,30786011000001108,Strepsils Extra Triple Action Cherry 2.4mg lozenges,1203030J0BEAEAA
+AMP,4582711000001107,Beechams Throat-Plus Blackcurrant lozenges,1203030J0BFAAAB
+AMP,4582511000001102,Beechams Throat-Plus Lemon lozenges,1203030J0BFAAAB
+AMP,4003911000001103,Lemsip Sore Throat Triple Action Citrus Fruit 2.4mg lozenges,1203030J0BGAAAA
+AMP,9463411000001101,Lemsip Sore Throat Triple Action Honey & Lemon 2.4mg lozenges,1203030J0BGABAA
+AMP,13853711000001109,Lloydspharmacy Double Action Throat Blackcurrant 2.4mg lozenges,1203030J0BHAAAA
+AMP,15645511000001100,Buttercup Max Strength Sore Throat 2.4mg lozenges,1203030J0BIAAAA
+AMP,17985411000001107,Boots Sore Throat Relief Dual Action 2.4mg lozenges blackcurrant,1203030J0BJAAAA
+AMP,17985911000001104,Boots Sore Throat Relief Dual Action 2.4mg lozenges black cherry,1203030J0BJABAA
+AMP,17986211000001102,Boots Sore Throat Relief Dual Action 2.4mg lozenges honey & lemon,1203030J0BJACAA
+AMP,4585311000001102,Benylin Sore Throat Honey and Lemon 2.4mg lozenges,1203030J0BKAAAA
+VMP,4615311000001108,Lidocaine 0.25% / Aminoacridine 0.025% pastilles,1203030M0AAAFAF
+VMP,4018411000001103,Generic Strepsils Pain Relief Plus lozenges,1203030M0AAAKAK
+VMP,331260000,Lidocaine 5mg / Domiphen bromide 500microgram lozenges sugar free,1203030M0AAAMAM
+VMP,4161411000001102,Lidocaine 2% oromucosal spray,1203030M0AAANAN
+VMP,4561611000001107,Lidocaine 0.05% / Chlorhexidine 0.2% oromucosal spray sugar free,1203030M0AAAQAQ
+AMP,4613711000001106,Medijel pastilles,1203030M0BBABAF
+AMP,4010911000001109,Bradosol Plus lozenges,1203030M0BHABAM
+AMP,3988911000001103,Strepsils Pain Relief Plus lozenges,1203030M0BMAAAK
+AMP,4148511000001103,Strepsils 2% pain relief spray,1203030M0BMABAN
+AMP,17988211000001101,Boots Anaesthetic Sore Throat Relief 2% spray,1203030M0BNAAAN
+AMP,36133311000001106,Covonia Sore Throat 0.2%/0.05% oromucosal spray lemon,1203030M0BPAAAQ
+AMP,4530711000001104,Covonia Sore Throat 0.2%/0.05% oromucosal spray menthol,1203030M0BPAAAQ
+AMP,4148211000001101,Dequaspray 2% oromucosal spray,1203030M0BQAAAN
+VMP,17973411000001102,Generic Boots Catarrh pastilles,1203030N0AAAAAA
+VMP,16246311000001102,Generic Boots Easy Breathing pastilles,1203030N0AAAAAA
+VMP,8012511000001102,Menthol 8mg/g / Eucalyptus oil 6mg/g pastilles,1203030N0AAADAD
+VMP,4018311000001105,Generic Strepsils Menthol and Eucalyptus lozenges,1203030N0AAAFAF
+VMP,8136411000001100,Menthol 0.185% / Eucalyptus oil 0.08% lozenges,1203030N0AAAGAG
+VMP,8136511000001101,Menthol 0.24% / Eucalyptus oil 0.1% lozenges sugar free,1203030N0AAAHAH
+VMP,8136611000001102,Menthol 0.52% / Eucalyptus oil 0.26% lozenges,1203030N0AAAIAI
+VMP,8136311000001107,Menthol 0.16% / Eucalyptus oil 0.14% lozenges sugar free,1203030N0AAAJAJ
+VMP,8136211000001104,Menthol 0.14% / Eucalyptus oil 0.028% lozenges,1203030N0AAAKAK
+AMP,17951711000001109,Potter's Catarrh pastilles,1203030N0BCAAAA
+AMP,16222411000001105,Potter's Decongestant pastilles,1203030N0BCABAD
+AMP,3990111000001102,Strepsils Menthol and Eucalyptus lozenges,1203030N0BEAAAF
+AMP,21680711000001108,Strepsils Sore Throat and Cough lozenges,1203030N0BEABAF
+AMP,10682211000001109,Strepsils Sore Throat and Blocked Nose lozenges,1203030N0BEACAF
+VMP,4600511000001105,Menthol 16mg pastilles,1203030N0BFAAA0
+AMP,4583011000001101,Meggezones 16mg pastilles,1203030N0BFAAA0
+AMP,8035411000001101,Vocalzone Throat pastilles original,1203030N0BIABA0
+AMP,36465111000001100,Vocalzone Throat pastilles blackcurrant,1203030N0BIACA0
+AMP,36465311000001103,Vocalzone Throat pastilles honey & lemon,1203030N0BIADA0
+AMP,8012711000001107,Hill's Balsam Nasal Congestion pastilles,1203030N0BMAAAD
+AMP,8133711000001104,Halls Mentholyptus Original lozenges,1203030N0BNAAAG
+AMP,8134911000001100,Halls Mentholyptus Original Sugar Free lozenges,1203030N0BNABAH
+AMP,8134311000001101,Halls Mentholyptus Extra Strong lozenges,1203030N0BNACAI
+AMP,8134611000001106,Halls Mentholyptus Sugar Free Cherry lozenges,1203030N0BNADAJ
+AMP,8134011000001104,Halls Mentholyptus Blackcurrant lozenges,1203030N0BNAEAK
+AMP,17951511000001104,Boots Catarrh pastilles,1203030N0BPAAAA
+AMP,17840411000001104,Boots Easy Breathing pastilles,1203030N0BPABAA
+VMP,331236004,Benzalkonium chloride 500microgram lozenges sugar free,1203030T0AAAAAA
+AMP,3801211000001109,Bradosol Sugar Free Cherry Menthol 500microgram lozenges,1203030T0BBAAAA
+AMP,3801011000001104,Bradosol Sugar Free Citrus 500microgram lozenges,1203030T0BBABAA
+VMP,8104811000001103,Glycerol 66mg / Thymol 880microgram pastilles,1203030V0AAACAC
+AMP,8104011000001109,Potter's Glycerin and Thymol Sore Throat pastilles,1203030V0BDAAAC
+VMP,8049211000001103,Hexylresorcinol 2.5mg / Benzalkonium chloride 1.2mg lozenges,1203030X0AAAAAA
+AMP,8049911000001107,Beechams Max Strength Sore Throat Lemon and Honey lozenges,1203030X0BBAAAA
+AMP,8049511000001100,Beechams Max Strength Sore Throat Blackberry lozenges,1203030X0BBABAA
+AMP,9514911000001101,Halls Max Strength Sore Throat Relief Honey and Lemon lozenges,1203030X0BCAAAA
+AMP,9515111000001100,Halls Max Strength Sore Throat Relief Original lozenges,1203030X0BCABAA
+VMP,14779311000001107,Benzydamine 3mg lozenges sugar free,1203030Y0AAAAAA
+AMP,14774011000001108,Lozamine 3mg lozenges,1203030Y0BBAAAA
+AMP,37151611000001100,Difflam 3mg lozenges eucalyptus,1203030Y0BCAAAA
+AMP,37152011000001104,Difflam 3mg lozenges lemon,1203030Y0BCABAA
+AMP,37152411000001108,Difflam 3mg lozenges mint,1203030Y0BCACAA
+AMP,37152611000001106,Difflam 3mg lozenges orange-honey,1203030Y0BCADAA
+VMP,11762211000001106,Dichlorobenzyl alcohol 1.29mg pastilles sugar free,1203030Z0AAAAAA
+AMP,11753511000001107,Antiseptic Sore Mouth 1.29mg pastilles,1203030Z0BBAAAA
+VMP,22373111000001101,Polyethylene oxide 150mg lozenges,120304000AAAGAG
+AMP,22373411000001106,Polyethylene oxide 150mg lozenges,120304000AAAGAG
+VMP,8064311000001102,Clove oil 10% / Lidocaine 0.7% dental liquid sugar free,120304000AAALAL
+VMP,8109811000001104,Clove oil 20% dental gel sugar free,120304000AABDBD
+VMP,39804111000001104,Generic Octenident mouthwash sugar free,120304000AABEBE
+VMP,4558511000001106,Generic Olbas pastilles,120304000BBBIA0
+AMP,4530011000001101,Olbas pastilles,120304000BBBIA0
+VMP,8066111000001106,Clove oil 21% / Chlorobutanol 7% dental gel sugar free,120304000BBCEA0
+AMP,8066311000001108,Soothake dental gel,120304000BBCEA0
+VMP,13844311000001109,Generic UltraDEX Oral Rinse sugar free,120304000BBCPA0
+AMP,13835011000001109,UltraDEX Oral Rinse,120304000BBCPA0
+AMP,8106711000001102,Dentogen Clove Oil 20% dental gel,120304000BBCRBD
+AMP,8065911000001102,Soothake Toothache Tincture dental liquid,120304000BBCTAL
+VMP,13639311000001101,Generic Olbas Blackcurrant pastilles sugar free,120304000BBCYA0
+AMP,13632911000001105,Olbas Blackcurrant pastilles,120304000BBCYA0
+VMP,8109911000001109,Clove oil 50% dental liquid sugar free,120304000BBDAA0
+AMP,8106411000001108,Dentogen Clove Oil 50% dental liquid,120304000BBDAA0
+VMP,20065711000001104,Generic ProntOral mouthwash,120304000BBDBA0
+AMP,39802311000001109,Octenident mouthwash,120304000BBDCBE
+VMP,33733711000001106,Diclofenac 0.074% mouthwash sugar free,1203040AAAAAAAA
+AMP,34044211000001103,Diclofenac 0.074% mouthwash sugar free,1203040AAAAAAAA
+AMP,37603211000001107,Diclofenac 0.74mg/ml mouthwash sugar free,1203040AAAAAAAA
+AMP,33731411000001104,Diclofenac 0.74mg/ml mouthwash sugar free,1203040AAAAAAAA
+VMP,17853611000001107,Cetylpyridinium chloride 0.025% mouthwash sugar free,1203040C0AAABAB
+VMP,4009011000001104,Generic Anbesol liquid,1203040C0AAACAC
+VMP,9168311000001101,Cetylpyridinium chloride 0.025% gel,1203040C0AAAFAF
+AMP,17849711000001103,Boots Oral Antiseptic 0.025% mouthwash,1203040C0BCAAAB
+AMP,4004011000001100,Anbesol liquid,1203040C0BDAAAC
+AMP,17842911000001106,Boots Antiseptic 0.025% gel,1203040C0BHAAAF
+AMP,9164111000001109,Germolene 0.025% antiseptic gel,1203040C0BIAAAF
+VMP,331284008,Chlorhexidine 1% dental gel sugar free,1203040E0AAAAAA
+VMP,39112311000001102,Chlorhexidine gluconate 0.2% mouthwash,1203040E0AAABAB
+AMP,10146911000001108,Chlorhexidine gluconate 0.2% mouthwash,1203040E0AAABAB
+AMP,13662911000001101,Chlorhexidine gluconate 0.2% mouthwash,1203040E0AAABAB
+AMP,24648211000001100,Chlorhexidine gluconate 0.2% mouthwash alcohol free,1203040E0AAABAB
+AMP,30926711000001109,Chlorhexidine gluconate 0.2% mouthwash alcohol free,1203040E0AAABAB
+AMP,27994311000001104,Chlorhexidine gluconate 0.2% mouthwash alcohol free,1203040E0AAABAB
+AMP,28887111000001108,Chlorhexidine gluconate 0.2% mouthwash alcohol free,1203040E0AAABAB
+AMP,3030011000001100,Chlorhexidine gluconate 0.2% mouthwash aniseed,1203040E0AAABAB
+AMP,3033611000001103,Chlorhexidine gluconate 0.2% mouthwash aniseed,1203040E0AAABAB
+AMP,3031111000001105,Chlorhexidine gluconate 0.2% mouthwash aniseed,1203040E0AAABAB
+AMP,7382011000001104,Chlorhexidine gluconate 0.2% mouthwash aniseed,1203040E0AAABAB
+AMP,3030411000001109,Chlorhexidine gluconate 0.2% mouthwash natural,1203040E0AAABAB
+AMP,3029111000001107,Chlorhexidine gluconate 0.2% mouthwash original,1203040E0AAABAB
+AMP,39207311000001101,Chlorhexidine gluconate 0.2% mouthwash original,1203040E0AAABAB
+AMP,18087111000001105,Chlorhexidine gluconate 0.2% mouthwash original,1203040E0AAABAB
+AMP,21837611000001104,Chlorhexidine gluconate 0.2% mouthwash original,1203040E0AAABAB
+AMP,3029411000001102,Chlorhexidine gluconate 0.2% mouthwash peppermint,1203040E0AAABAB
+AMP,3033311000001108,Chlorhexidine gluconate 0.2% mouthwash peppermint,1203040E0AAABAB
+AMP,3030711000001103,Chlorhexidine gluconate 0.2% mouthwash peppermint,1203040E0AAABAB
+AMP,39208111000001102,Chlorhexidine gluconate 0.2% mouthwash peppermint,1203040E0AAABAB
+AMP,18086911000001105,Chlorhexidine gluconate 0.2% mouthwash peppermint,1203040E0AAABAB
+AMP,33762411000001102,Chlorhexidine gluconate 0.2% mouthwash peppermint,1203040E0AAABAB
+AMP,21837811000001100,Chlorhexidine gluconate 0.2% mouthwash peppermint,1203040E0AAABAB
+AMP,3033011000001105,Chlorhexidine gluconate 0.2% mouthwash plain,1203040E0AAABAB
+VMP,36135711000001106,Chlorhexidine gluconate 0.1% / Chlorobutanol 0.5% mouthwash sugar free,1203040E0AAADAD
+VMP,331288006,Chlorhexidine 0.2% oral spray sugar free,1203040E0AAAEAE
+VMP,4870711000001102,Chlorhexidine gluconate 0.12% mouthwash sugar free,1203040E0AAAFAF
+VMP,13573111000001105,Chlorhexidine gluconate 0.06% / Sodium fluoride 0.05% mouthwash sugar free,1203040E0AAAHAH
+VMP,30780211000001100,Chlorhexidine 0.2% dental gel,1203040E0AAAJAJ
+AMP,3637111000001105,Corsodyl 1% dental gel,1203040E0BBAAAA
+AMP,3032011000001101,Corsodyl 0.2% mouthwash aniseed,1203040E0BBABAB
+AMP,3032211000001106,Corsodyl Mint 0.2% mouthwash,1203040E0BBACAB
+AMP,3639011000001100,Corsodyl 0.2% oral spray,1203040E0BBADAE
+AMP,13571711000001105,Corsodyl Daily Defence mouthwash,1203040E0BBAEAH
+AMP,22554511000001109,Corsodyl Daily mouthwash fresh mint,1203040E0BBAGAH
+AMP,22554711000001104,Corsodyl Daily mouthwash cool mint,1203040E0BBAHAH
+AMP,21967711000001106,Corsodyl 0.2% mouthwash alcohol free,1203040E0BBAIAB
+AMP,37593611000001100,Corsodyl Daily mouthwash icy white,1203040E0BBAJAH
+AMP,3858311000001103,Eludril mouthwash,1203040E0BCAAAD
+AMP,4868311000001105,Colgate Chlorohex 1200 mouthwash,1203040E0BDABAF
+AMP,27475611000001102,Colgate Pro Gum Health 0.2% antiseptic mouthwash,1203040E0BDADAB
+AMP,11782711000001102,Tarodent 0.2% mouthwash,1203040E0BEAAAB
+AMP,30776211000001109,Perio-kin 0.2% gel,1203040E0BGAAAJ
+VMP,36055811000001106,Hexetidine 0.1% mouthwash sugar free,1203040G0AAAAAA
+AMP,3057211000001108,Oraldene 0.1% mouthwash peppermint,1203040G0BBAAAA
+AMP,11623311000001108,Oraldene Icemint 0.1% mouthwash,1203040G0BBABAA
+VMP,4018911000001106,Hydrogen peroxide 1.5% mouthwash sugar free,1203040I0AAADAD
+AMP,4002911000001105,Peroxyl 1.5% mouthwash,1203040I0BCAAAD
+VMP,4217911000001101,Phenol 0.71% mouthwash sugar free,1203040K0AAAGAG
+AMP,4211911000001109,Ultra Chloraseptic 0.71% antiseptic mouthwash and gargle,1203040K0BCAAAG
+VMP,36020511000001104,Povidone-Iodine 1% mouthwash sugar free,1203040M0AAAAAA
+AMP,3787111000001109,Betadine 1% gargle and mouthwash,1203040M0BBAAAA
+VMP,5191711000001103,Mouthwash solution tablets,1203040N0AAAAAA
+AMP,5188611000001103,Mouthwash solution tablets,1203040N0AAAAAA
+AMP,5188811000001104,Mouthwash solution tablets,1203040N0AAAAAA
+AMP,5189111000001104,Mouthwash solution tablets,1203040N0AAAAAA
+VMP,34820911000001103,Sodium chloride compound mouthwash,1203040P0AAAAAA
+AMP,8197311000001101,Sodium chloride compound mouthwash,1203040P0AAAAAA
+AMP,11417411000001103,Sodium chloride compound mouthwash,1203040P0AAAAAA
+VMP,34820611000001109,Thymol glycerin compound mouthwash,1203040U0AAABAB
+AMP,3730311000001104,Thymol glycerin compound mouthwash,1203040U0AAABAB
+AMP,3731011000001106,Thymol glycerin compound mouthwash,1203040U0AAABAB
+AMP,3730711000001100,Thymol glycerin compound mouthwash,1203040U0AAABAB
+AMP,9501711000001103,Care Antiseptic Mouthwash,1203040U0BIAAAB
+AMP,18064211000001109,Lemon Glycerin swabsticks,120305000AAABAB
+AMP,18064411000001108,Blackcurrant Glycerin swabsticks,120305000AAACAC
+VMP,7876611000001104,Generic Biotene dry mouth antibacterial toothpaste,120305000BBAEA0
+AMP,7843711000001102,Biotene dry mouth antibacterial toothpaste original,120305000BBAEA0
+VMP,7876511000001103,Generic Biotene Oralbalance dry mouth system,120305000BBAFA0
+AMP,7849911000001102,Biotene Oralbalance dry mouth system,120305000BBAFA0
+VMP,7876811000001100,Generic Biotene dry mouth gum sugar free,120305000BBAHA0
+AMP,7848411000001102,Biotene dry mouth gum,120305000BBAHA0
+VMP,13640511000001103,Lactoperoxidase 50unit medicated chewing gum sugar free,120305000BBAKA0
+AMP,13638111000001105,BioXtra 50unit medicated chewing gum,120305000BBAKA0
+VMP,11236511000001105,Generic Biotene Oralbalance dry mouth moisturising liquid,120305000BBATA0
+AMP,11176111000001101,Biotene Oralbalance dry mouth moisturising liquid,120305000BBATA0
+VMP,13718211000001100,Lactoperoxidase 50unit oromucosal tablets sugar free,120305000BBAUA0
+AMP,13717311000001107,BioXtra 50unit sucking tablets,120305000BBAUA0
+AMP,28419011000001109,Xerostom dry mouth spray,120305000BBAWA0
+VMP,34820711000001100,Artificial saliva spray,1203050A0AAABAB
+VMP,3805511000001105,Artificial saliva lozenges,1203050A0AAAKAK
+AMP,860311000001101,Luborant spray,1203050A0BCAAAF
+AMP,860711000001102,AS Saliva Orthana spray,1203050A0BEAAAB
+AMP,14955711000001104,AS Saliva Orthana spray refill,1203050A0BEABAC
+AMP,3804011000001101,AS Saliva Orthana lozenges,1203050A0BEACAK
+AMP,243711000001109,Salivace spray,1203050A0BHAAAJ
+VMP,39702611000001102,Pilocarpine 5mg tablets,1203050P0AAABAB
+AMP,40610611000001105,Pilocarpine 5mg tablets,1203050P0AAABAB
+AMP,40603611000001104,Pilocarpine 5mg tablets,1203050P0AAABAB
+VMP,13042311000001103,Pilocarpine hydrochloride 3mg/5ml oral solution,1203050P0AAACAC
+AMP,13033011000001109,Pilocarpine hydrochloride 3mg/5ml oral solution,1203050P0AAACAC
+VMP,13042411000001105,Pilocarpine hydrochloride 5mg/5ml oral solution,1203050P0AAADAD
+AMP,13033511000001101,Pilocarpine hydrochloride 5mg/5ml oral solution,1203050P0AAADAD
+VMP,13042111000001100,Pilocarpine hydrochloride 1.25mg/5ml oral solution,1203050P0AAAEAE
+AMP,13029011000001105,Pilocarpine hydrochloride 1.25mg/5ml oral solution,1203050P0AAAEAE
+VMP,13042211000001106,Pilocarpine hydrochloride 2.5mg/5ml oral solution,1203050P0AAAGAG
+AMP,13032311000001102,Pilocarpine hydrochloride 2.5mg/5ml oral solution,1203050P0AAAGAG
+VMP,13042511000001109,Pilocarpine hydrochloride 8mg/5ml oral solution,1203050P0AAAHAH
+AMP,13034811000001100,Pilocarpine hydrochloride 8mg/5ml oral solution,1203050P0AAAHAH
+AMP,3894511000001106,Salagen 5mg tablets,1203050P0BBAAAB

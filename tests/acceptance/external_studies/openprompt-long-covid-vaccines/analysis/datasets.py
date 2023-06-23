@@ -1,5 +1,6 @@
 # where EHRQl is defined. Only really need Dastaset, tehe others are specific
 from databuilder.ehrql import days, case, when
+
 # this is where we import the schema to run the study with
 from databuilder.tables.beta.tpp import (
   patients,
@@ -279,7 +280,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     fracture_hospitalisations = hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_fractures)
 
     dataset.first_fracture_hosp = fracture_hospitalisations \
-        .where(fracture_hospitalisations.admission_date.is_between(study_start_date, end_date)) \
+        .where(fracture_hospitalisations.admission_date.is_between(dataset.pt_start_date, dataset.pt_end_date)) \
         .sort_by(fracture_hospitalisations.admission_date) \
         .first_for_patient().admission_date
 
