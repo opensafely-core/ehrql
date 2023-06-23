@@ -24,8 +24,8 @@ class covid_tests(EventFrame):
     positive = Series(int)
 
 
-class TestBackend(BaseBackend):
-    display_name = "Test Backend"
+class BackendFixture(BaseBackend):
+    display_name = "Backend Fixture"
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "patient_id"
 
@@ -102,5 +102,6 @@ def _extract(engine, series):
     )
     dataset.v = series
     return {
-        r["patient_id"]: r["v"] for r in engine.extract(dataset, backend=TestBackend())
+        r["patient_id"]: r["v"]
+        for r in engine.extract(dataset, backend=BackendFixture())
     }
