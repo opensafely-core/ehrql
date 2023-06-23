@@ -8,8 +8,10 @@ backend.
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
 from ehrql.tables.beta.tpp import (
     addresses,
+    apcs_cost,
     appointments,
     clinical_events,
+    ec_cost,
     emergency_care_attendances,
     hospital_admissions,
     household_memberships_2020,
@@ -18,6 +20,9 @@ from ehrql.tables.beta.tpp import (
     occupation_on_covid_vaccine_record,
     ons_cis,
     ons_deaths,
+    opa_cost,
+    opa_diag,
+    opa_proc,
     open_prompt,
     patients,
     practice_registrations,
@@ -212,6 +217,66 @@ return ordered_addrs.last_for_patient()
 
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
+## apcs_cost
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="apcs_cost.apcs_ident">
+    <strong>apcs_ident</strong>
+    <a class="headerlink" href="#apcs_cost.apcs_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost.grand_total_payment_mff">
+    <strong>grand_total_payment_mff</strong>
+    <a class="headerlink" href="#apcs_cost.grand_total_payment_mff" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost.tariff_initial_amount">
+    <strong>tariff_initial_amount</strong>
+    <a class="headerlink" href="#apcs_cost.tariff_initial_amount" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost.tariff_total_payment">
+    <strong>tariff_total_payment</strong>
+    <a class="headerlink" href="#apcs_cost.tariff_total_payment" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
 ## appointments
 
 You can find out more about this table in the associated short data report:
@@ -298,6 +363,54 @@ The date the appointment was due to start
   </dt>
   <dd markdown="block">
 
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## ec_cost
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ec_cost.ec_ident">
+    <strong>ec_ident</strong>
+    <a class="headerlink" href="#ec_cost.ec_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec_cost.grand_total_payment_mff">
+    <strong>grand_total_payment_mff</strong>
+    <a class="headerlink" href="#ec_cost.grand_total_payment_mff" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec_cost.tariff_total_payment">
+    <strong>tariff_total_payment</strong>
+    <a class="headerlink" href="#ec_cost.tariff_total_payment" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+TODO
 
   </dd>
 </div>
@@ -1770,6 +1883,210 @@ Data from the ONS Covid Infection Survey.
   </dt>
   <dd markdown="block">
 
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## opa_cost
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="opa_cost.opa_ident">
+    <strong>opa_ident</strong>
+    <a class="headerlink" href="#opa_cost.opa_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_cost.tariff_opp">
+    <strong>tariff_opp</strong>
+    <a class="headerlink" href="#opa_cost.tariff_opp" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_cost.grand_total_payment_mff">
+    <strong>grand_total_payment_mff</strong>
+    <a class="headerlink" href="#opa_cost.grand_total_payment_mff" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_cost.tariff_total_payment">
+    <strong>tariff_total_payment</strong>
+    <a class="headerlink" href="#opa_cost.tariff_total_payment" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## opa_diag
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="opa_diag.opa_ident">
+    <strong>opa_ident</strong>
+    <a class="headerlink" href="#opa_diag.opa_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_diag.primary_diagnosis_code">
+    <strong>primary_diagnosis_code</strong>
+    <a class="headerlink" href="#opa_diag.primary_diagnosis_code" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_diag.primary_diagnosis_code_read">
+    <strong>primary_diagnosis_code_read</strong>
+    <a class="headerlink" href="#opa_diag.primary_diagnosis_code_read" title="Permanent link">🔗</a>
+    <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_diag.secondary_diagnosis_code_1">
+    <strong>secondary_diagnosis_code_1</strong>
+    <a class="headerlink" href="#opa_diag.secondary_diagnosis_code_1" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_diag.secondary_diagnosis_code_1_read">
+    <strong>secondary_diagnosis_code_1_read</strong>
+    <a class="headerlink" href="#opa_diag.secondary_diagnosis_code_1_read" title="Permanent link">🔗</a>
+    <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## opa_proc
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="opa_proc.opa_ident">
+    <strong>opa_ident</strong>
+    <a class="headerlink" href="#opa_proc.opa_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_proc.primary_procedure_code">
+    <strong>primary_procedure_code</strong>
+    <a class="headerlink" href="#opa_proc.primary_procedure_code" title="Permanent link">🔗</a>
+    <code>OPCS-4 code</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_proc.primary_procedure_code_read">
+    <strong>primary_procedure_code_read</strong>
+    <a class="headerlink" href="#opa_proc.primary_procedure_code_read" title="Permanent link">🔗</a>
+    <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_proc.procedure_code_1">
+    <strong>procedure_code_1</strong>
+    <a class="headerlink" href="#opa_proc.procedure_code_1" title="Permanent link">🔗</a>
+    <code>OPCS-4 code</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_proc.procedure_code_2_read">
+    <strong>procedure_code_2_read</strong>
+    <a class="headerlink" href="#opa_proc.procedure_code_2_read" title="Permanent link">🔗</a>
+    <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+TODO
 
   </dd>
 </div>

@@ -5,7 +5,7 @@ backend.
 import datetime
 
 from ehrql import case, when
-from ehrql.codes import CTV3Code, SNOMEDCTCode
+from ehrql.codes import CTV3Code, ICD10Code, OPCS4Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 from ehrql.tables.beta.core import medications, ons_deaths, patients
 
@@ -26,6 +26,8 @@ __all__ = [
     "ons_cis",
     "isaric_raw",
     "open_prompt",
+    "apcs_cost",
+    "ec_cost",
 ]
 
 
@@ -531,4 +533,113 @@ class open_prompt(EventFrame):
             "The response to the question, as a number. "
             "Alternatively, if the question admits a code as the response, then zero."
         ),
+    )
+
+
+@table
+class apcs_cost(EventFrame):
+    apcs_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="TODO",
+    )
+    grand_total_payment_mff = Series(
+        float,
+        description="TODO",
+    )
+    tariff_initial_amount = Series(
+        float,
+        description="TODO",
+    )
+    tariff_total_payment = Series(
+        float,
+        description="TODO",
+    )
+
+
+@table
+class ec_cost(EventFrame):
+    ec_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="TODO",
+    )
+    grand_total_payment_mff = Series(
+        float,
+        description="TODO",
+    )
+    tariff_total_payment = Series(
+        float,
+        description="TODO",
+    )
+
+
+@table
+class opa_cost(EventFrame):
+    opa_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="TODO",
+    )
+    tariff_opp = Series(
+        float,
+        description="TODO",
+    )
+    grand_total_payment_mff = Series(
+        float,
+        description="TODO",
+    )
+    tariff_total_payment = Series(
+        float,
+        description="TODO",
+    )
+
+
+@table
+class opa_diag(EventFrame):
+    opa_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="TODO",
+    )
+    primary_diagnosis_code = Series(
+        ICD10Code,
+        description="TODO",
+    )
+    primary_diagnosis_code_read = Series(
+        CTV3Code,
+        description="TODO",
+    )
+    secondary_diagnosis_code_1 = Series(
+        ICD10Code,
+        description="TODO",
+    )
+    secondary_diagnosis_code_1_read = Series(
+        CTV3Code,
+        description="TODO",
+    )
+
+
+@table
+class opa_proc(EventFrame):
+    opa_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="TODO",
+    )
+    primary_procedure_code = Series(
+        OPCS4Code,
+        description="TODO",
+    )
+    primary_procedure_code_read = Series(
+        CTV3Code,
+        description="TODO",
+    )
+    procedure_code_1 = Series(
+        OPCS4Code,
+        description="TODO",
+    )
+    procedure_code_2_read = Series(
+        CTV3Code,
+        description="TODO",
     )

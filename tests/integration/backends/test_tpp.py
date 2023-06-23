@@ -9,10 +9,12 @@ from ehrql.tables.beta import tpp
 from tests.lib.tpp_schema import (
     APCS,
     EC,
+    APCS_Cost,
     APCS_Der,
     Appointment,
     CodedEvent,
     CodedEvent_SNOMED,
+    EC_Cost,
     EC_Diagnosis,
     HealthCareWorker,
     Household,
@@ -22,6 +24,9 @@ from tests.lib.tpp_schema import (
     MedicationIssue,
     ONS_CIS_New,
     ONS_Deaths,
+    OPA_Cost,
+    OPA_Diag,
+    OPA_Proc,
     OpenPROMPT,
     Organisation,
     Patient,
@@ -991,3 +996,115 @@ def test_registered_tests_are_exhaustive():
         if not isinstance(table, BaseFrame):
             continue
         assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"
+
+
+@register_test_for(tpp.apcs_cost)
+def test_apcs_cost(select_all):
+    results = select_all(
+        APCS_Cost(
+            Patient_ID=1,
+            APCS_Ident=1,
+            Grand_Total_Payment_MFF=1.1,
+            Tariff_Initial_Amount=2.2,
+            Tariff_Total_Payment=3.3,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "apcs_ident": 1,
+            "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
+            "tariff_initial_amount": pytest.approx(2.2, rel=1e-5),
+            "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
+        },
+    ]
+
+
+@register_test_for(tpp.ec_cost)
+def test_ec_cost(select_all):
+    results = select_all(
+        EC_Cost(
+            Patient_ID=1,
+            EC_Ident=1,
+            Grand_Total_Payment_MFF=1.1,
+            Tariff_Total_Payment=2.2,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "ec_ident": 1,
+            "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
+            "tariff_total_payment": pytest.approx(2.2, rel=1e-5),
+        },
+    ]
+
+
+@register_test_for(tpp.opa_cost)
+def test_opa_cost(select_all):
+    results = select_all(
+        OPA_Cost(
+            Patient_ID=1,
+            OPA_Ident=1,
+            Tariff_OPP=1.1,
+            Grand_Total_Payment_MFF=2.2,
+            Tariff_Total_Payment=3.3,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "opa_ident": 1,
+            "tariff_opp": pytest.approx(1.1, rel=1e-5),
+            "grand_total_payment_mff": pytest.approx(2.2, rel=1e-5),
+            "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
+        },
+    ]
+
+
+@register_test_for(tpp.opa_diag)
+def test_opa_diag(select_all):
+    results = select_all(
+        OPA_Diag(
+            Patient_ID=1,
+            OPA_Ident=1,
+            Primary_Diagnosis_Code="100000",
+            Primary_Diagnosis_Code_Read="Y0000",
+            Secondary_Diagnosis_Code_1="100000",
+            Secondary_Diagnosis_Code_1_Read="Y0000",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "opa_ident": 1,
+            "primary_diagnosis_code": "100000",
+            "primary_diagnosis_code_read": "Y0000",
+            "secondary_diagnosis_code_1": "100000",
+            "secondary_diagnosis_code_1_read": "Y0000",
+        },
+    ]
+
+
+@register_test_for(tpp.opa_proc)
+def test_opa_proc(select_all):
+    results = select_all(
+        OPA_Proc(
+            Patient_ID=1,
+            OPA_Ident=1,
+            Primary_Procedure_Code="100000",
+            Primary_Procedure_Code_Read="Y0000",
+            Procedure_Code_2="100000",
+            Procedure_Code_2_Read="Y0000",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "opa_ident": 1,
+            "primary_procedure_code": "100000",
+            "primary_procedure_code_read": "Y0000",
+            "procedure_code_1": "100000",
+            "procedure_code_2_read": "Y0000",
+        },
+    ]

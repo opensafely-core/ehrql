@@ -380,3 +380,64 @@ class TPPBackend(BaseBackend):
         FROM OpenPROMPT
     """
     )
+
+    apcs_cost = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            APCS_Ident AS apcs_ident,
+            Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            Tariff_Initial_Amount AS tariff_initial_amount,
+            Tariff_Total_Payment AS tariff_total_payment
+        FROM APCS_Cost
+    """
+    )
+
+    ec_cost = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            EC_Ident AS ec_ident,
+            Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            Tariff_Total_Payment AS tariff_total_payment
+        FROM EC_Cost
+    """
+    )
+
+    opa_cost = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            OPA_Ident AS opa_ident,
+            Tariff_OPP AS tariff_opp,
+            Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            Tariff_Total_Payment AS tariff_total_payment
+        FROM OPA_Cost
+    """
+    )
+
+    opa_diag = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            OPA_Ident AS opa_ident,
+            Primary_Diagnosis_Code AS primary_diagnosis_code,
+            Primary_Diagnosis_Code_Read AS primary_diagnosis_code_read,
+            Secondary_Diagnosis_Code_1 AS secondary_diagnosis_code_1,
+            Secondary_Diagnosis_Code_1_Read AS secondary_diagnosis_code_1_read
+        FROM OPA_Diag
+    """
+    )
+
+    opa_proc = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            OPA_Ident AS opa_ident,
+            Primary_Procedure_Code AS primary_procedure_code,
+            Primary_Procedure_Code_Read AS primary_procedure_code_read,
+            Procedure_Code_2 AS procedure_code_1,
+            Procedure_Code_2_Read AS procedure_code_2_read
+        FROM OPA_Proc
+    """
+    )
