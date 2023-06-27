@@ -7,6 +7,22 @@
     * BMI
     * number of prescriptions of a particular drug
 
+!!! info
+
+    ehrQL is a replacement for OpenSAFELY's cohort-extractor.
+
+    cohort-extractor will continue to work
+    and be supported for OpenSAFELY projects
+    created before June 2023.
+
+    However, *new* projects should use ehrQL to query data available in OpenSAFELY.
+    Please [get in touch with us before you start using ehrQL](introduction/getting-help.md)
+    and we can help you get started.
+
+    For more details,
+    read our [explanation on what this change means](introduction/guidance-for-existing-cohort-extractor-users.md)
+    for existing cohort-extractor users.
+
 ## ehrQL provides access to several data sources
 
 Data sources that you can query include:
