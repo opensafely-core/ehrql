@@ -66,6 +66,12 @@ def test_get_measure_results(engine):
         ),
         intervals=intervals,
     )
+    measures.define_measure(
+        "foo_events",
+        numerator=foo_event_count,
+        denominator=event_count,
+        intervals=intervals,
+    )
 
     patient_data, event_data = generate_data(intervals)
     engine.populate({patients: patient_data, events: event_data})
@@ -137,6 +143,8 @@ def calculate_measure_results(intervals, patient_data, event_data):
         dens[
             ("had_event_by_sex_and_region", interval, patient["sex"], patient["region"])
         ] += 1
+        nums[("foo_events", interval, None, None)] += foo_count
+        dens[("foo_events", interval, None, None)] += event_count
 
     for key, numerator in nums.items():
         measure, interval, sex, region = key

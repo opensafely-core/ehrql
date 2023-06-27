@@ -94,7 +94,12 @@ class Measures:
         }
         self._validate_kwargs(kwargs)
 
-        # Ensure all arguments are provided (either directly or by defaults)
+        # It's valid not to supply any group by columns, but we need an empty dict not a
+        # None value to make things work
+        if kwargs["group_by"] is None:
+            kwargs["group_by"] = {}
+
+        # Ensure all required arguments are provided (either directly or by defaults)
         for key, value in kwargs.items():
             if value is None:
                 raise ValidationError(
@@ -109,7 +114,7 @@ class Measures:
         for group_name, definition in get_all_group_by_columns(
             self._measures.values()
         ).items():
-            if group_name not in group_by:
+            if group_name not in kwargs["group_by"]:
                 continue
             if group_by[group_name].qm_node != definition:
                 raise ValidationError(

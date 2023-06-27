@@ -74,7 +74,8 @@ def test_must_define_all_attributes():
     measures = Measures()
     measures.define_defaults(numerator=patients.score)
     with pytest.raises(
-        ValidationError, match="No value supplied for 'group_by' and no default defined"
+        ValidationError,
+        match="No value supplied for 'intervals' and no default defined",
     ):
         measures.define_measure(
             name="test",

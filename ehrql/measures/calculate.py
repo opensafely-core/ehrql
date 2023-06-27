@@ -133,13 +133,14 @@ class MeasureCalculator:
         # from a tuple. This is going to be called frequently, so the fastest way to do
         # this is to build a function definition and then eval it.
         group_items = [f"row[{i}]" for i in group_indexes]
-        items = [
-            f"row[{numerator_index}]",
-            f"row[{denominator_index}]",
-            f"({', '.join(group_items)},)",
-        ]
-        code = f"lambda row: ({', '.join(items)})"
-        return eval(code)
+        if len(group_items) != 1:
+            group_tuple = ", ".join(group_items)
+        else:
+            # Single item tuples need a trailing comma in Python
+            group_tuple = group_items[0] + ","
+        return eval(
+            f"lambda row: (row[{numerator_index}], row[{denominator_index}], ({group_tuple}))"
+        )
 
 
 def series_as_bool(series):
