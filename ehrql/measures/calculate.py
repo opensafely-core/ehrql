@@ -87,7 +87,10 @@ class MeasureCalculator:
             for fetcher, accumulator in fetcher_accumulator_pairs:
                 numerator, denominator, group = fetcher(row)
                 totals = accumulator[group]
-                totals[0] += numerator
+                if numerator is not None:
+                    totals[0] += numerator
+                # Denominator cannot be None because population only includes rows where
+                # denominator is non-empty
                 totals[1] += denominator
 
         for measure, (_, accumulator) in zip(self.measures, fetcher_accumulator_pairs):
