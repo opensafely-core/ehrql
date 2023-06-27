@@ -53,26 +53,6 @@ class Measures:
         self._measures = {}
         self._defaults = {}
 
-    def define_defaults(
-        self,
-        numerator: BoolPatientSeries | IntPatientSeries | None = None,
-        denominator: BoolPatientSeries | IntPatientSeries | None = None,
-        group_by: dict[str, PatientSeries] | None = None,
-        intervals: list[tuple[datetime.date, datetime.date]] | None = None,
-    ):
-        kwargs = {
-            "numerator": numerator,
-            "denominator": denominator,
-            "group_by": group_by,
-            "intervals": intervals,
-        }
-        if self._defaults:
-            raise ValidationError(
-                "Defaults already set; cannot call `define_defaults()` more than once"
-            )
-        self._validate_kwargs(kwargs)
-        self._defaults = kwargs
-
     def define_measure(
         self,
         name,
@@ -132,6 +112,26 @@ class Measures:
             },
             intervals=tuple(sorted(set(kwargs["intervals"]))),
         )
+
+    def define_defaults(
+        self,
+        numerator: BoolPatientSeries | IntPatientSeries | None = None,
+        denominator: BoolPatientSeries | IntPatientSeries | None = None,
+        group_by: dict[str, PatientSeries] | None = None,
+        intervals: list[tuple[datetime.date, datetime.date]] | None = None,
+    ):
+        kwargs = {
+            "numerator": numerator,
+            "denominator": denominator,
+            "group_by": group_by,
+            "intervals": intervals,
+        }
+        if self._defaults:
+            raise ValidationError(
+                "Defaults already set; cannot call `define_defaults()` more than once"
+            )
+        self._validate_kwargs(kwargs)
+        self._defaults = kwargs
 
     def _validate_kwargs(self, kwargs):
         self._validate_num_denom(kwargs["numerator"], "numerator")

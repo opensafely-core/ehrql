@@ -120,6 +120,12 @@ class BaseSeries:
     def is_not_null(self):
         return self.is_null().__invert__()
 
+    def if_null_then(self, other):
+        return case(
+            when(self.is_not_null()).then(self),
+            default=self._cast(other),
+        )
+
     def is_in(self, other):
         # For iterable arguments, apply any necessary casting and convert to the
         # immutable Set type required by the query model. We don't accept arbitrary
@@ -145,12 +151,6 @@ class BaseSeries:
             default=default,
         )
 
-    def if_null_then(self, other):
-        return case(
-            when(self.is_not_null()).then(self),
-            default=self._cast(other),
-        )
-
 
 class PatientSeries(BaseSeries):
     def __init_subclass__(cls, **kwargs):
@@ -174,9 +174,6 @@ class EventSeries(BaseSeries):
 
 
 class BoolFunctions:
-    def __invert__(self):
-        return _apply(qm.Function.Not, self)
-
     def __and__(self, other):
         other = self._cast(other)
         return _apply(qm.Function.And, self, other)
@@ -184,6 +181,9 @@ class BoolFunctions:
     def __or__(self, other):
         other = self._cast(other)
         return _apply(qm.Function.Or, self, other)
+
+    def __invert__(self):
+        return _apply(qm.Function.Not, self)
 
 
 class BoolPatientSeries(BoolFunctions, PatientSeries):
@@ -251,9 +251,6 @@ class StrEventSeries(StrFunctions, StrAggregations, EventSeries):
 
 
 class NumericFunctions(ComparableFunctions):
-    def __neg__(self):
-        return _apply(qm.Function.Negate, self)
-
     def __add__(self, other):
         other = self._cast(other)
         return _apply(qm.Function.Add, self, other)
@@ -288,6 +285,9 @@ class NumericFunctions(ComparableFunctions):
 
     def __rfloordiv__(self, other):
         return self // other
+
+    def __neg__(self):
+        return _apply(qm.Function.Negate, self)
 
     def as_int(self):
         return _apply(qm.Function.CastToInt, self)
