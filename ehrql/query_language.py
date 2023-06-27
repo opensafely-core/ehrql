@@ -152,6 +152,13 @@ class BaseSeries:
         )
 
 
+class PatientSeries(BaseSeries):
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # Register the series using its `_type` attribute
+        REGISTERED_TYPES[cls._type, True] = cls
+
+
 class EventSeries(BaseSeries):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -160,13 +167,6 @@ class EventSeries(BaseSeries):
 
     def count_distinct_for_patient(self):
         return _apply(qm.AggregateByPatient.CountDistinct, self)
-
-
-class PatientSeries(BaseSeries):
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        # Register the series using its `_type` attribute
-        REGISTERED_TYPES[cls._type, True] = cls
 
 
 # BOOLEAN SERIES
@@ -186,11 +186,11 @@ class BoolFunctions:
         return _apply(qm.Function.Or, self, other)
 
 
-class BoolEventSeries(BoolFunctions, EventSeries):
+class BoolPatientSeries(BoolFunctions, PatientSeries):
     _type = bool
 
 
-class BoolPatientSeries(BoolFunctions, PatientSeries):
+class BoolEventSeries(BoolFunctions, EventSeries):
     _type = bool
 
 
@@ -238,11 +238,11 @@ class StrAggregations(ComparableAggregations):
     "Empty for now"
 
 
-class StrEventSeries(StrFunctions, StrAggregations, EventSeries):
+class StrPatientSeries(StrFunctions, PatientSeries):
     _type = str
 
 
-class StrPatientSeries(StrFunctions, PatientSeries):
+class StrEventSeries(StrFunctions, StrAggregations, EventSeries):
     _type = str
 
 
@@ -304,11 +304,11 @@ class NumericAggregations(ComparableAggregations):
         return _apply(qm.AggregateByPatient.Mean, self)
 
 
-class IntEventSeries(NumericFunctions, NumericAggregations, EventSeries):
+class IntPatientSeries(NumericFunctions, PatientSeries):
     _type = int
 
 
-class IntPatientSeries(NumericFunctions, PatientSeries):
+class IntEventSeries(NumericFunctions, NumericAggregations, EventSeries):
     _type = int
 
 
@@ -323,11 +323,11 @@ class FloatFunctions(NumericFunctions):
         return value
 
 
-class FloatEventSeries(FloatFunctions, NumericAggregations, EventSeries):
+class FloatPatientSeries(FloatFunctions, PatientSeries):
     _type = float
 
 
-class FloatPatientSeries(FloatFunctions, PatientSeries):
+class FloatEventSeries(FloatFunctions, NumericAggregations, EventSeries):
     _type = float
 
 
@@ -409,11 +409,11 @@ class DateAggregations(ComparableAggregations):
     "Empty for now"
 
 
-class DateEventSeries(DateFunctions, DateAggregations, EventSeries):
+class DatePatientSeries(DateFunctions, PatientSeries):
     _type = datetime.date
 
 
-class DatePatientSeries(DateFunctions, PatientSeries):
+class DateEventSeries(DateFunctions, DateAggregations, EventSeries):
     _type = datetime.date
 
 
@@ -554,11 +554,11 @@ class CodeFunctions:
         return self.map_values(categorisation, default=default)
 
 
-class CodeEventSeries(CodeFunctions, EventSeries):
+class CodePatientSeries(CodeFunctions, PatientSeries):
     _type = BaseCode
 
 
-class CodePatientSeries(CodeFunctions, PatientSeries):
+class CodeEventSeries(CodeFunctions, EventSeries):
     _type = BaseCode
 
 
