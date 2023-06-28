@@ -135,6 +135,18 @@ from ehrql.tables.beta.core import (
 </div>
 
 <div markdown="block">
+  <dt id="ons_deaths.underlying_cause_of_death">
+    <strong>underlying_cause_of_death</strong>
+    <a class="headerlink" href="#ons_deaths.underlying_cause_of_death" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
   <dt id="ons_deaths.cause_of_death_01">
     <strong>cause_of_death_01</strong>
     <a class="headerlink" href="#ons_deaths.cause_of_death_01" title="Permanent link">🔗</a>
