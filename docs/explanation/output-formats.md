@@ -35,13 +35,13 @@ you will get an error telling you so.
 #### `.arrow`
 
 ```
-opensafely exec databuilder:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.arrow"
+opensafely exec ehrql:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.arrow"
 ```
 
 #### `.csv.gz`
 
 ```
-opensafely exec databuilder:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.csv.gz"
+opensafely exec ehrql:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.csv.gz"
 ```
 
 ### Example `project.yaml`
@@ -54,7 +54,7 @@ expectations:
 
 actions:
   extract_data:
-    run: databuilder:v0 generate-dataset "./dataset_definition.py" --output "outputs/data_extract.arrow"
+    run: ehrql:v0 generate-dataset "./dataset_definition.py" --output "outputs/data_extract.arrow"
     outputs:
       highly_sensitive:
         population: outputs/data_extract.arrow
