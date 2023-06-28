@@ -3,6 +3,7 @@ import datetime
 from collections import namedtuple
 
 from ehrql.query_language import (
+    VALID_VARIABLE_NAME_RE,
     BoolPatientSeries,
     Duration,
     IntPatientSeries,
@@ -34,6 +35,8 @@ class Measure:
     intervals: tuple[tuple[datetime.date, datetime.date]]
 
 
+# This provides an interface for construction a list of `Measure` instances (as above)
+# and consists almost entirely of validation logic
 class Measures:
     # These names are used in the measures output table and so can't be used as group_by
     # column names
@@ -91,7 +94,12 @@ class Measures:
         }
         self._validate_kwargs(kwargs)
 
-        # Ensure all arguments are provided (either directly or by defaults)
+        # It's valid not to supply any group by columns, but we need an empty dict not a
+        # None value to make things work
+        if kwargs["group_by"] is None:
+            kwargs["group_by"] = {}
+
+        # Ensure all required arguments are provided (either directly or by defaults)
         for key, value in kwargs.items():
             if value is None:
                 raise ValidationError(
@@ -106,7 +114,7 @@ class Measures:
         for group_name, definition in get_all_group_by_columns(
             self._measures.values()
         ).items():
-            if group_name not in group_by:
+            if group_name not in kwargs["group_by"]:
                 continue
             if group_by[group_name].qm_node != definition:
                 raise ValidationError(
@@ -176,6 +184,25 @@ class Measures:
     def _validate_group_by(self, group_by):
         if group_by is None:
             return
+        if not isinstance(group_by, dict):
+            raise ValidationError(
+                f"`group_by` must be a dictionary, got '{type(group_by)}': {group_by!r}"
+            )
+        for key, value in group_by.items():
+            if not isinstance(key, str):
+                raise ValidationError(
+                    f"`group_by` names must be strings, got '{type(key)}': {key!r}"
+                )
+            if not VALID_VARIABLE_NAME_RE.match(key):
+                raise ValidationError(
+                    f"`group_by` names must start with a letter and contain only"
+                    f" alphanumeric characters and underscores, got: {key!r}"
+                )
+            if not isinstance(value, PatientSeries):
+                raise ValidationError(
+                    f"`group_by` values must be one row per patient series,"
+                    f"  at '{key}' got '{type(value)}': {value!r}"
+                )
         disallowed = self.RESERVED_NAMES.intersection(group_by)
         if disallowed:
             raise ValidationError(

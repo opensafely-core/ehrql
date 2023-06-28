@@ -17,6 +17,7 @@ class patients(PatientFrame):
 class events(EventFrame):
     date = Series(date)
     code = Series(str)
+    value = Series(int)
 
 
 def test_get_measure_results(engine):
@@ -24,6 +25,7 @@ def test_get_measure_results(engine):
     event_count = events_in_interval.count_for_patient()
     foo_event_count = events_in_interval.where(events.code == "foo").count_for_patient()
     had_event = events_in_interval.exists_for_patient()
+    event_value = events_in_interval.value.sum_for_patient()
 
     intervals = years(3).starting_on("2020-01-01")
     measures = Measures()
@@ -50,8 +52,8 @@ def test_get_measure_results(engine):
         intervals=intervals,
     )
     measures.define_measure(
-        "had_event_by_region",
-        numerator=had_event,
+        "event_value_by_region",
+        numerator=event_value,
         denominator=patients.exists_for_patient(),
         group_by=dict(region=patients.region),
         intervals=intervals,
@@ -64,6 +66,12 @@ def test_get_measure_results(engine):
             sex=patients.sex,
             region=patients.region,
         ),
+        intervals=intervals,
+    )
+    measures.define_measure(
+        "foo_events",
+        numerator=foo_event_count,
+        denominator=event_count,
         intervals=intervals,
     )
 
@@ -102,6 +110,7 @@ def generate_data(intervals):
                     patient_id=patient["patient_id"],
                     code=rnd.choice(["abc", "def", "foo"]),
                     date=random_date_in_interval(rnd, interval),
+                    value=rnd.randint(0, 10),
                 )
                 for _ in range(event_count)
             )
@@ -122,6 +131,7 @@ def calculate_measure_results(intervals, patient_data, event_data):
         event_count = len(events)
         foo_count = len([e for e in events if e["code"] == "foo"])
         had_event = 1 if events else 0
+        event_value = sum([e["value"] for e in events], start=0)
 
         nums[("foo_events_by_sex", interval, patient["sex"], None)] += foo_count
         dens[("foo_events_by_sex", interval, patient["sex"], None)] += event_count
@@ -129,14 +139,18 @@ def calculate_measure_results(intervals, patient_data, event_data):
         dens[("foo_events_by_region", interval, None, patient["region"])] += event_count
         nums[("had_event_by_sex", interval, patient["sex"], None)] += had_event
         dens[("had_event_by_sex", interval, patient["sex"], None)] += 1
-        nums[("had_event_by_region", interval, None, patient["region"])] += had_event
-        dens[("had_event_by_region", interval, None, patient["region"])] += 1
+        nums[
+            ("event_value_by_region", interval, None, patient["region"])
+        ] += event_value
+        dens[("event_value_by_region", interval, None, patient["region"])] += 1
         nums[
             ("had_event_by_sex_and_region", interval, patient["sex"], patient["region"])
         ] += had_event
         dens[
             ("had_event_by_sex_and_region", interval, patient["sex"], patient["region"])
         ] += 1
+        nums[("foo_events", interval, None, None)] += foo_count
+        dens[("foo_events", interval, None, None)] += event_count
 
     for key, numerator in nums.items():
         measure, interval, sex, region = key
