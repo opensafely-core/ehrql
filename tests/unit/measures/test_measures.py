@@ -156,18 +156,26 @@ def test_denominator_must_be_int_or_bool_series():
         )
 
 
-def test_reserved_column_names_are_rejected():
+@pytest.mark.parametrize(
+    "group_by,error",
+    [
+        (1234, "`group_by` must be a dictionary"),
+        ({1234: patients.category}, "group_by` names must be strings"),
+        ({"My Group": patients.category}, "alphanumeric characters and underscores"),
+        ({"my_group": 1234}, "group_by` values must be one row per patient series"),
+        ({"measure": patients.category}, "disallowed `group_by` column name: measure"),
+    ],
+)
+def test_invalid_group_by_is_rejected(group_by, error):
     measures = Measures()
 
-    with pytest.raises(
-        ValidationError, match="disallowed `group_by` column name: measure"
-    ):
+    with pytest.raises(ValidationError, match=error):
         measures.define_measure(
             name="test",
             numerator=patients.score,
             denominator=patients.is_interesting,
             intervals=[(date(2021, 1, 1), date(2021, 1, 31))],
-            group_by={"measure": patients.category},
+            group_by=group_by,
         )
 
 
