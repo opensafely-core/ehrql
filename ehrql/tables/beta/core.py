@@ -67,6 +67,7 @@ class ons_deaths(EventFrame):
             ),
         ],
     )
+    underlying_cause_of_death = Series(ICD10Code)
     # TODO: Revisit this when we have support for multi-valued fields
     cause_of_death_01 = Series(ICD10Code)
     cause_of_death_02 = Series(ICD10Code)

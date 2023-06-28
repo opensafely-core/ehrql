@@ -57,6 +57,7 @@ class EMISBackend(BaseBackend):
         columns=dict(
             date="date",
             place="place",
+            underlying_cause_of_death="icd10u",
             **{
                 f"cause_of_death_{i:02d}": f"cause_of_death_{i:02d}"
                 for i in range(1, 16)
