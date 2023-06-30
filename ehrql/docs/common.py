@@ -1,7 +1,10 @@
 import ast
+import datetime
 import inspect
 import textwrap
 from collections import ChainMap
+
+from ehrql.codes import BaseCode
 
 
 def reformat_docstring(d):
@@ -82,3 +85,15 @@ def find_first_line_of_function_body(func_def):
         func_def.returns,
     ]
     return max(el.end_lineno for el in elements if el is not None) + 1
+
+
+def get_name_for_type(type_):
+    if issubclass(type_, BaseCode):
+        return f"{type_.__doc__} code"
+    return {
+        bool: "boolean",
+        int: "integer",
+        float: "float",
+        str: "string",
+        datetime.date: "date",
+    }[type_]

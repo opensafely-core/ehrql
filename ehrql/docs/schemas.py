@@ -1,10 +1,8 @@
-import datetime
 import inspect
 import re
 from collections import defaultdict
 
 from ehrql import tables
-from ehrql.codes import BaseCode
 from ehrql.query_language import (
     BaseFrame,
     EventFrame,
@@ -17,6 +15,7 @@ from .common import (
     get_arguments,
     get_class_attrs,
     get_function_body,
+    get_name_for_type,
     reformat_docstring,
 )
 
@@ -111,18 +110,6 @@ def build_method(table_name, name, method):
         # more sense in isolation
         "source": re.sub(r"\bself\b", table_name, get_function_body(method)),
     }
-
-
-def get_name_for_type(type_):
-    if issubclass(type_, BaseCode):
-        return f"{type_.__doc__} code"
-    return {
-        bool: "boolean",
-        int: "integer",
-        float: "float",
-        str: "string",
-        datetime.date: "date",
-    }[type_]
 
 
 def sort_key(obj):
