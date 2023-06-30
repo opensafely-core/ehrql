@@ -4,7 +4,7 @@ from ehrql import Dataset
 from ehrql.tables.beta import tpp
 
 
-def tests_patients_age_on(in_memory_engine):
+def test_patients_age_on(in_memory_engine):
     in_memory_engine.populate(
         {
             tpp.patients: [
