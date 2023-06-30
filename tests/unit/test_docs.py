@@ -64,6 +64,10 @@ def test_render(tmp_path):
     render(generate_docs(), tmp_path)
     assert {pt.name for pt in tmp_path.iterdir()} == {
         "backends.md",
+        "language__frames.md",
+        "language__general.md",
+        "language__measures.md",
+        "language__series.md",
         "schemas",
         "schemas.md",
         "specs.md",
