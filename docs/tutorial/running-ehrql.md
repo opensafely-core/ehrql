@@ -4,7 +4,7 @@ You can run ehrQL in two places:
   where you can try out ehrQL against _dummy data_,
   and test that your analysis code runs correctly
 * on an OpenSAFELY backend database,
-  to user ehrQL with _real data_
+  to use ehrQL with _real data_
 
 ## Running ehrQL on your own computer against dummy data
 
