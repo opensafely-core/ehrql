@@ -441,6 +441,13 @@ def test_unsupported_date_operations(lhs, op, rhs):
         (weeks(10), "-", weeks(5), weeks(5)),
         (months(10), "-", months(5), months(5)),
         (years(10), "-", years(5), years(5)),
+        # Test comparison of Durations
+        (days(5), "==", days(5), True),
+        (months(5), "==", years(5), False),
+        (weeks(5), "==", weeks(4), False),
+        (weeks(1), "==", days(7), False),
+        (days(5), "!=", days(5), False),
+        (months(5), "!=", years(5), True),
     ],
 )
 def test_static_date_operations(lhs, op, rhs, expected):
@@ -448,6 +455,10 @@ def test_static_date_operations(lhs, op, rhs, expected):
         result = lhs + rhs
     elif op == "-":
         result = lhs - rhs
+    elif op == "==":
+        result = lhs == rhs
+    elif op == "!=":
+        result = lhs != rhs
     else:
         assert False
     assert result == expected
@@ -486,6 +497,11 @@ def test_static_date_operations(lhs, op, rhs, expected):
         (date(2020, 1, 1), "+", weeks(patients.i), DatePatientSeries),
         (date(2020, 1, 1), "+", months(patients.i), DatePatientSeries),
         (date(2020, 1, 1), "+", years(patients.i), DatePatientSeries),
+        # Test comparison of Durations
+        (days(patients.i), "==", days(patients.i), BoolPatientSeries),
+        (months(patients.i), "==", years(patients.i), bool),
+        (days(patients.i), "!=", days(patients.i), BoolPatientSeries),
+        (months(patients.i), "!=", years(patients.i), bool),
     ],
 )
 def test_ehrql_date_operations(lhs, op, rhs, expected_type):
@@ -493,6 +509,10 @@ def test_ehrql_date_operations(lhs, op, rhs, expected_type):
         result = lhs + rhs
     elif op == "-":
         result = lhs - rhs
+    elif op == "==":
+        result = lhs == rhs
+    elif op == "!=":
+        result = lhs != rhs
     else:
         assert False
     assert isinstance(result, expected_type)

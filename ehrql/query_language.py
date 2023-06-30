@@ -417,7 +417,9 @@ class DatePatientSeries(DateFunctions, PatientSeries):
     _type = datetime.date
 
 
-@dataclasses.dataclass
+# The default dataclass equality method doesn't work here and while we could define our
+# own it wouldn't be very useful for this type
+@dataclasses.dataclass(eq=False)
 class DateDifference:
     lhs: datetime.date | DateEventSeries | DatePatientSeries
     rhs: datetime.date | DateEventSeries | DatePatientSeries
@@ -447,6 +449,21 @@ class Duration:
         super().__init_subclass__(**kwargs)
         assert cls._date_add_static is not None
         assert cls._date_add_qm is not None
+
+    # The default dataclass equality/inequality methods don't behave correctly here
+    def __eq__(self, other):
+        if other.__class__ is not self.__class__:
+            return False
+        return self.value == other.value
+
+    def __ne__(self, other):
+        # We have to apply different inversion logic depending on whether we have a
+        # boolean or a BoolSeries
+        is_equal = self == other
+        if isinstance(is_equal, bool):
+            return not is_equal
+        else:
+            return is_equal.__invert__()
 
     def __add__(self, other):
         other = parse_date_if_str(other)
