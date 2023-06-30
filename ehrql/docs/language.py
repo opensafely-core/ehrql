@@ -144,7 +144,7 @@ def build_value_details(name, value):
 def build_class_details(name, cls):
     return {
         "name": name,
-        "docstring": reformat_docstring(cls.__doc__),
+        "docstring": require_docstring(cls),
         "methods": sorted(
             [
                 build_method_details(attr_name, attr)
@@ -189,14 +189,14 @@ def build_method_details(name, method):
         "arguments": arguments,
         "operator": OPERATORS.get(name),
         "is_property": is_property,
-        "docstring": reformat_docstring(method.__doc__),
+        "docstring": require_docstring(method),
     }
 
 
 def build_function_details(name, function):
     return {
         "name": name,
-        "docstring": reformat_docstring(function.__doc__),
+        "docstring": require_docstring(function),
         "arguments": get_arguments(function),
     }
 
@@ -205,11 +205,11 @@ def build_namedtuple_details(name, value):
     cls = value.__class__
     return {
         "name": name,
-        "docstring": reformat_docstring(cls.__doc__),
+        "docstring": require_docstring(cls),
         "fields": [
             {
                 "name": field,
-                "docstring": reformat_docstring(getattr(cls, field).__doc__),
+                "docstring": require_docstring(getattr(cls, field)),
             }
             for field in cls._fields
         ],
@@ -228,3 +228,9 @@ def get_missing_values(target_values, included_values):
     # Ignore explicitly excluded values
     included_value_ids.update(id(value) for value in EXCLUDE_FROM_DOCS)
     return [value for value in target_values if id(value) not in included_value_ids]
+
+
+def require_docstring(obj):
+    docstring = reformat_docstring(obj.__doc__)
+    assert docstring.strip(), f"No docstring found for {obj}"
+    return docstring
