@@ -25,6 +25,32 @@ INTERVAL = namedtuple("INTERVAL", ["start_date", "end_date"])(
     end_date=Parameter("interval_end_date", datetime.date),
 )
 
+INTERVAL.__class__.__doc__ = """
+This is a placeholder value to be used when defining numerator, denominator and group_by
+columns in a measure. This allows these definitions to be written once and then be
+automatically evaluated over multiple different intervals. It can be used just like any
+pair of dates in ehrQL e.g.
+```py
+clincial_events.date.is_during(INTERVAL)
+```
+"""
+
+INTERVAL.__class__.start_date.__doc__ = """
+Placeholder for the start date (inclusive) of the interval. Can be used like any other
+date e.g.
+```py
+clinical_events.date.is_on_or_after(INTERVAL.start_date)
+```
+"""
+
+INTERVAL.__class__.end_date.__doc__ = """
+Placeholder for the end date (inclusive) of the interval. Can be used like any other
+date e.g.
+```py
+clinical_events.date.is_on_or_before(INTERVAL.end_date)
+```
+"""
+
 
 @dataclasses.dataclass
 class Measure:
@@ -38,6 +64,14 @@ class Measure:
 # This provides an interface for construction a list of `Measure` instances (as above)
 # and consists almost entirely of validation logic
 class Measures:
+    """
+    Define a collection of measures to be generated. Each measure definition file must
+    define a single `Measures()` instance called `measures` like so:
+    ```py
+    measures = Measures()
+    ```
+    """
+
     # These names are used in the measures output table and so can't be used as group_by
     # column names
     RESERVED_NAMES = {
@@ -61,6 +95,42 @@ class Measures:
         group_by: dict[str, PatientSeries] | None = None,
         intervals: list[tuple[datetime.date, datetime.date]] | None = None,
     ):
+        """
+        Add a measure to the list of measures to be generated.
+
+        _name_<br>
+        The name of the measure, as a string.
+
+        _numerator_<br>
+        The numerator definition, which must be a patient series but can be either
+        boolean or integer.
+
+        _denominator_<br>
+        The denominator definition, which must be a patient series but can be either
+        boolean or integer.
+
+        _group_by_<br>
+        Optional groupings to break down the results by. Must be supplied as a
+        dictionary of the form:
+        ```py
+        {
+            "group_name": group_definition,
+            ...
+        }
+        ```
+
+        _intervals_<br>
+        A list of start/end date pairs over which to evaluate the measures. These can be
+        most conveniently generated using the `starting_at()`/`ending_at()` methods on
+        [`years`](#years), [`months`](#months), and [`weeks`](#weeks) e.g.
+        ```py
+        intervals = months(12).starting_at("2020-01-01")
+        ```
+
+        The `numerator`, `denominator` and `intervals` arguments can be omitted if
+        default values for them have been set using
+        [`define_defaults()`](#Measures.define_defaults).
+        """
         # Merge supplied kwargs with defaults and validate
         supplied_kwargs = {
             "numerator": numerator,
@@ -120,6 +190,13 @@ class Measures:
         group_by: dict[str, PatientSeries] | None = None,
         intervals: list[tuple[datetime.date, datetime.date]] | None = None,
     ):
+        """
+        When defining several measures which share common arguments you can reduce
+        repetition by defining default values for the measures.
+
+        Note that you can only define a single set of defaults and attempting to call
+        this method more than once is an error.
+        """
         kwargs = {
             "numerator": numerator,
             "denominator": denominator,

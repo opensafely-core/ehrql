@@ -42,7 +42,10 @@ OPERATORS = {
 # sorted frame classes for each individual table (see `make_sorted_event_frame_class()`)
 # but we add it here so we can document the available methods
 class SortedEventFrame(ql.SortedEventFrameMethods, ql.EventFrame):
-    pass
+    """
+    Frame which contains multiple rows per patient and has had one or more sort
+    operations applied.
+    """
 
 
 def build_language():
