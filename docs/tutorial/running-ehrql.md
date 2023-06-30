@@ -240,6 +240,8 @@ The file will contain the following CSV data:
     8,,
     9,,
 
+:notepad_spiral: The bottom 4 rows in the generated dataset show that there are 4 patients in the provided example data that do not have any record for the medications specified in the dataset definition.
+
 :computer: Try running the ehrQL dataset definition again,
 modifying the command to remove the `--dummy-tables example-data`.
 This gives you a random data output,
