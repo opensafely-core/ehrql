@@ -138,6 +138,7 @@ will assume that you are in this `learning-ehrql` directory.
 You will need to change directory to that directory before running commands.
 
 :computer: Retrieve the sample dummy data files for use in this tutorial:
+
 1. Download [this zip file](https://github.com/opensafely-core/ehrql-example-data/archive/refs/heads/main.zip).
 2. Create a new directory inside `learning-ehrql` called `example-data`.
 3. Inside the zip file are several CSV files. Extract the CSV files to the `example-data` directory.
