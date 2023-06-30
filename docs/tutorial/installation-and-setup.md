@@ -42,6 +42,7 @@ Visual Studio Code also provides an option [to select a different command-line i
 
 :notepad_spiral: You should be able to complete all the tutorial steps from within Visual Studio Code.
 You can:
+
 * create and edit files, and folders (directories)
 * run commands, such as `opensafely`, in the terminal
 * run Python and use the Python interactive console from the terminal
@@ -103,13 +104,12 @@ you should see a text help message that starts something like:
 ```
 usage: ehrql [-h] [--version]
                    {generate-dataset,dump-dataset-sql,create-dummy-tables,generate-measures,sandbox,test-connection} ...
-
+```
 
 :notepad_spiral: This command does not specify anything for ehrQL to do as yet.
 
 Generate datasets in OpenSAFELY
 ...
-```
 
 :grey_question: Check the output that you got from running the command.
 Did you see something similar?
