@@ -5,6 +5,7 @@ from ehrql import query_language as ql
 from ehrql.docs.common import (
     get_arguments,
     get_class_attrs,
+    get_name_for_type,
     reformat_docstring,
 )
 
@@ -232,5 +233,17 @@ def get_missing_values(target_values, included_values):
 
 def require_docstring(obj):
     docstring = reformat_docstring(obj.__doc__)
+    if not docstring and is_proper_subclass(obj, ql.BaseSeries):
+        docstring = generate_docstring_for_series(obj)
     assert docstring.strip(), f"No docstring found for {obj}"
     return docstring
+
+
+def generate_docstring_for_series(series):
+    if is_proper_subclass(series, ql.PatientSeries):
+        dimension = "One row per patient"
+    elif is_proper_subclass(series, ql.EventSeries):
+        dimension = "Multiple rows per patient"
+    else:
+        assert False
+    return f"{dimension} series of type `{get_name_for_type(series._type)}`"

@@ -88,6 +88,8 @@ def find_first_line_of_function_body(func_def):
 
 
 def get_name_for_type(type_):
+    if type_ is BaseCode:
+        return "code"
     if issubclass(type_, BaseCode):
         return f"{type_.__doc__} code"
     return {
