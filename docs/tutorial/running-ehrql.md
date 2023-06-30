@@ -32,9 +32,9 @@ If you followed the steps in [Installation and setup](installation-and-setup.md)
 you will have a suitable directory of CSV files at `learning-ehrql/example-data`.
 
 :computer:
-To start the sandbox,
-from the `learning-ehrql` directory,
-run `opensafely exec ehrql:v0 sandbox example-data`
+To start the sandbox, from the `learning-ehrql` directory, run:
+  
+    opensafely exec ehrql:v0 sandbox example-data
 
 You will now be in a session with an interactive Python console,
 and you should see something like this:
