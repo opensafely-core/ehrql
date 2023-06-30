@@ -9,6 +9,8 @@ run across multiple backends.
     Extractor](https://docs.opensafely.org/study-def/) tool.
 """
 import datetime
+import functools
+import operator
 
 from ehrql.codes import DMDCode, ICD10Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
@@ -68,7 +70,15 @@ class ons_deaths(EventFrame):
         ],
     )
     underlying_cause_of_death = Series(ICD10Code)
+
     # TODO: Revisit this when we have support for multi-valued fields
+    def any_cause_of_death_is_in(self, codelist):
+        conditions = [
+            getattr(self, f"cause_of_death_{i:02d}").is_in(codelist)
+            for i in range(1, 16)
+        ]
+        return functools.reduce(operator.or_, conditions)
+
     cause_of_death_01 = Series(ICD10Code)
     cause_of_death_02 = Series(ICD10Code)
     cause_of_death_03 = Series(ICD10Code)

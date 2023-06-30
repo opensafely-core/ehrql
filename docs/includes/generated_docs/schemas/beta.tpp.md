@@ -1901,6 +1901,33 @@ Data from the ONS Covid Infection Survey.
 
   </dl>
 </div>
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Methods</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ons_deaths.any_cause_of_death_is_in">
+    <strong>any_cause_of_death_is_in(</strong>codelist<strong>)</strong>
+    <a class="headerlink" href="#ons_deaths.any_cause_of_death_is_in" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+conditions = [
+    getattr(ons_deaths, f"cause_of_death_{i:02d}").is_in(codelist)
+    for i in range(1, 16)
+]
+return functools.reduce(operator.or_, conditions)
+
+```
+    </details>
+  </dd>
+</div>
+
+  </dl>
+</div>
 
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
