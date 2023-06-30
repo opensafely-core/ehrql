@@ -1,3 +1,4 @@
+import operator
 from datetime import date
 from inspect import signature
 
@@ -394,149 +395,139 @@ def test_boolean_operators_raise_errors():
 @pytest.mark.parametrize(
     "lhs,op,rhs",
     [
-        (100, "+", patients.date_of_birth),
-        (100, "-", patients.date_of_birth),
-        (patients.date_of_birth, "+", 100),
-        (patients.date_of_birth, "-", 100),
-        (100, "+", days(100)),
-        (100, "-", days(100)),
-        (days(100), "+", 100),
-        (days(100), "-", 100),
-        (date(2010, 1, 1), "+", patients.date_of_birth - "2000-01-01"),
+        (100, operator.add, patients.date_of_birth),
+        (100, operator.sub, patients.date_of_birth),
+        (patients.date_of_birth, operator.add, 100),
+        (patients.date_of_birth, operator.sub, 100),
+        (100, operator.add, days(100)),
+        (100, operator.sub, days(100)),
+        (days(100), operator.add, 100),
+        (days(100), operator.sub, 100),
+        (date(2010, 1, 1), operator.add, patients.date_of_birth - "2000-01-01"),
     ],
 )
 def test_unsupported_date_operations(lhs, op, rhs):
     with pytest.raises(TypeError, match="unsupported operand type"):
-        if op == "+":
-            lhs + rhs
-        elif op == "-":
-            lhs - rhs
-        else:
-            assert False
+        op(lhs, rhs)
 
 
 @pytest.mark.parametrize(
     "lhs,op,rhs,expected",
     [
         # Test each type of Duration constructor
-        ("2020-01-01", "+", days(10), date(2020, 1, 11)),
-        ("2020-01-01", "+", weeks(1), date(2020, 1, 8)),
-        ("2020-01-01", "+", months(10), date(2020, 11, 1)),
-        ("2020-01-01", "+", years(10), date(2030, 1, 1)),
+        ("2020-01-01", operator.add, days(10), date(2020, 1, 11)),
+        ("2020-01-01", operator.add, weeks(1), date(2020, 1, 8)),
+        ("2020-01-01", operator.add, months(10), date(2020, 11, 1)),
+        ("2020-01-01", operator.add, years(10), date(2030, 1, 1)),
         # Order reversed
-        (days(10), "+", "2020-01-01", date(2020, 1, 11)),
+        (days(10), operator.add, "2020-01-01", date(2020, 1, 11)),
         # Subtraction
-        ("2020-01-01", "-", years(10), date(2010, 1, 1)),
+        ("2020-01-01", operator.sub, years(10), date(2010, 1, 1)),
         # Date objects rather than ISO strings
-        (date(2020, 1, 1), "+", years(10), date(2030, 1, 1)),
-        (years(10), "+", date(2020, 1, 1), date(2030, 1, 1)),
-        (date(2020, 1, 1), "-", years(10), date(2010, 1, 1)),
+        (date(2020, 1, 1), operator.add, years(10), date(2030, 1, 1)),
+        (years(10), operator.add, date(2020, 1, 1), date(2030, 1, 1)),
+        (date(2020, 1, 1), operator.sub, years(10), date(2010, 1, 1)),
         # Test addition of Durations
-        (days(10), "+", days(5), days(15)),
-        (weeks(10), "+", weeks(5), weeks(15)),
-        (months(10), "+", months(5), months(15)),
-        (years(10), "+", years(5), years(15)),
+        (days(10), operator.add, days(5), days(15)),
+        (weeks(10), operator.add, weeks(5), weeks(15)),
+        (months(10), operator.add, months(5), months(15)),
+        (years(10), operator.add, years(5), years(15)),
         # Test subtraction of Durations
-        (days(10), "-", days(5), days(5)),
-        (weeks(10), "-", weeks(5), weeks(5)),
-        (months(10), "-", months(5), months(5)),
-        (years(10), "-", years(5), years(5)),
+        (days(10), operator.sub, days(5), days(5)),
+        (weeks(10), operator.sub, weeks(5), weeks(5)),
+        (months(10), operator.sub, months(5), months(5)),
+        (years(10), operator.sub, years(5), years(5)),
         # Test comparison of Durations
-        (days(5), "==", days(5), True),
-        (months(5), "==", years(5), False),
-        (weeks(5), "==", weeks(4), False),
-        (weeks(1), "==", days(7), False),
-        (days(5), "!=", days(5), False),
-        (months(5), "!=", years(5), True),
+        (days(5), operator.eq, days(5), True),
+        (months(5), operator.eq, years(5), False),
+        (weeks(5), operator.eq, weeks(4), False),
+        (weeks(1), operator.eq, days(7), False),
+        (days(5), operator.ne, days(5), False),
+        (months(5), operator.ne, years(5), True),
     ],
 )
 def test_static_date_operations(lhs, op, rhs, expected):
-    if op == "+":
-        result = lhs + rhs
-    elif op == "-":
-        result = lhs - rhs
-    elif op == "==":
-        result = lhs == rhs
-    elif op == "!=":
-        result = lhs != rhs
-    else:
-        assert False
-    assert result == expected
+    assert op(lhs, rhs) == expected
 
 
 @pytest.mark.parametrize(
     "lhs,op,rhs,expected_type",
     [
         # Test each type of Duration constructor
-        (patients.date_of_birth, "+", days(10), DatePatientSeries),
-        (patients.date_of_birth, "+", weeks(10), DatePatientSeries),
-        (patients.date_of_birth, "+", months(10), DatePatientSeries),
-        (patients.date_of_birth, "+", years(10), DatePatientSeries),
+        (patients.date_of_birth, operator.add, days(10), DatePatientSeries),
+        (patients.date_of_birth, operator.add, weeks(10), DatePatientSeries),
+        (patients.date_of_birth, operator.add, months(10), DatePatientSeries),
+        (patients.date_of_birth, operator.add, years(10), DatePatientSeries),
         # Order reversed
-        (days(10), "+", patients.date_of_birth, DatePatientSeries),
+        (days(10), operator.add, patients.date_of_birth, DatePatientSeries),
         # Subtraction
-        (patients.date_of_birth, "-", days(10), DatePatientSeries),
+        (patients.date_of_birth, operator.sub, days(10), DatePatientSeries),
         # Date differences
-        (patients.date_of_birth, "-", "2020-01-01", DateDifference),
-        (patients.date_of_birth, "-", date(2020, 1, 1), DateDifference),
+        (patients.date_of_birth, operator.sub, "2020-01-01", DateDifference),
+        (patients.date_of_birth, operator.sub, date(2020, 1, 1), DateDifference),
         # Order reversed
-        ("2020-01-01", "-", patients.date_of_birth, DateDifference),
-        (date(2020, 1, 1), "-", patients.date_of_birth, DateDifference),
+        ("2020-01-01", operator.sub, patients.date_of_birth, DateDifference),
+        (date(2020, 1, 1), operator.sub, patients.date_of_birth, DateDifference),
         # DateDifference attributes
-        ((patients.date_of_birth - "2020-01-01").days, "+", 1, IntPatientSeries),
-        ((patients.date_of_birth - "2020-01-01").weeks, "+", 1, IntPatientSeries),
-        ((patients.date_of_birth - "2020-01-01").months, "+", 1, IntPatientSeries),
-        ((patients.date_of_birth - "2020-01-01").years, "+", 1, IntPatientSeries),
+        (
+            (patients.date_of_birth - "2020-01-01").days,
+            operator.add,
+            1,
+            IntPatientSeries,
+        ),
+        (
+            (patients.date_of_birth - "2020-01-01").weeks,
+            operator.add,
+            1,
+            IntPatientSeries,
+        ),
+        (
+            (patients.date_of_birth - "2020-01-01").months,
+            operator.add,
+            1,
+            IntPatientSeries,
+        ),
+        (
+            (patients.date_of_birth - "2020-01-01").years,
+            operator.add,
+            1,
+            IntPatientSeries,
+        ),
         # Test with a "dynamic" duration
-        (patients.date_of_birth, "+", days(patients.i), DatePatientSeries),
-        (patients.date_of_birth, "+", weeks(patients.i), DatePatientSeries),
-        (patients.date_of_birth, "+", months(patients.i), DatePatientSeries),
-        (patients.date_of_birth, "+", years(patients.i), DatePatientSeries),
+        (patients.date_of_birth, operator.add, days(patients.i), DatePatientSeries),
+        (patients.date_of_birth, operator.add, weeks(patients.i), DatePatientSeries),
+        (patients.date_of_birth, operator.add, months(patients.i), DatePatientSeries),
+        (patients.date_of_birth, operator.add, years(patients.i), DatePatientSeries),
         # Test with a dynamic duration and a static date
-        (date(2020, 1, 1), "+", days(patients.i), DatePatientSeries),
-        (date(2020, 1, 1), "+", weeks(patients.i), DatePatientSeries),
-        (date(2020, 1, 1), "+", months(patients.i), DatePatientSeries),
-        (date(2020, 1, 1), "+", years(patients.i), DatePatientSeries),
+        (date(2020, 1, 1), operator.add, days(patients.i), DatePatientSeries),
+        (date(2020, 1, 1), operator.add, weeks(patients.i), DatePatientSeries),
+        (date(2020, 1, 1), operator.add, months(patients.i), DatePatientSeries),
+        (date(2020, 1, 1), operator.add, years(patients.i), DatePatientSeries),
         # Test comparison of Durations
-        (days(patients.i), "==", days(patients.i), BoolPatientSeries),
-        (months(patients.i), "==", years(patients.i), bool),
-        (days(patients.i), "!=", days(patients.i), BoolPatientSeries),
-        (months(patients.i), "!=", years(patients.i), bool),
+        (days(patients.i), operator.eq, days(patients.i), BoolPatientSeries),
+        (months(patients.i), operator.eq, years(patients.i), bool),
+        (days(patients.i), operator.ne, days(patients.i), BoolPatientSeries),
+        (months(patients.i), operator.ne, years(patients.i), bool),
     ],
 )
 def test_ehrql_date_operations(lhs, op, rhs, expected_type):
-    if op == "+":
-        result = lhs + rhs
-    elif op == "-":
-        result = lhs - rhs
-    elif op == "==":
-        result = lhs == rhs
-    elif op == "!=":
-        result = lhs != rhs
-    else:
-        assert False
-    assert isinstance(result, expected_type)
+    assert isinstance(op(lhs, rhs), expected_type)
 
 
 @pytest.mark.parametrize(
     "lhs,op,rhs",
     [
-        (days(10), "+", months(10)),
-        (days(10), "-", months(10)),
-        (days(10), "+", years(10)),
-        (days(10), "-", years(10)),
-        (months(10), "+", years(10)),
-        (months(10), "-", years(10)),
+        (days(10), operator.add, months(10)),
+        (days(10), operator.sub, months(10)),
+        (days(10), operator.add, years(10)),
+        (days(10), operator.sub, years(10)),
+        (months(10), operator.add, years(10)),
+        (months(10), operator.sub, years(10)),
     ],
 )
 def test_incompatible_duration_operations(lhs, op, rhs):
     with pytest.raises(TypeError):
-        if op == "+":
-            lhs + rhs
-        elif op == "-":
-            lhs - rhs
-        else:
-            assert False
+        op(lhs, rhs)
 
 
 fn_names = sorted(
