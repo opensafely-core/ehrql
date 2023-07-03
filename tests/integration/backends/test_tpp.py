@@ -286,50 +286,58 @@ def test_medications(select_all):
     results = select_all(
         Patient(Patient_ID=1),
         # MedicationIssue.MultilexDrug_ID found in MedicationDictionary only
-        MedicationDictionary(MultilexDrug_ID="abc", DMD_ID="xyz"),
+        MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
         MedicationIssue(
-            Patient_ID=1, ConsultationDate="2020-05-15T10:10:10", MultilexDrug_ID="abc"
+            Patient_ID=1,
+            ConsultationDate="2020-05-15T10:10:10",
+            MultilexDrug_ID="0;0;0",
         ),
         # MedicationIssue.MultilexDrug_ID found in CustomMedicationDictionary only
-        CustomMedicationDictionary(MultilexDrug_ID="def", DMD_ID="uvw"),
+        CustomMedicationDictionary(MultilexDrug_ID="2;0;0", DMD_ID="200000"),
         MedicationIssue(
-            Patient_ID=1, ConsultationDate="2020-05-16T10:10:10", MultilexDrug_ID="def"
+            Patient_ID=1,
+            ConsultationDate="2020-05-16T10:10:10",
+            MultilexDrug_ID="2;0;0",
         ),
         # MedicationIssue.MultilexDrug_ID found in both; MedicationDictionary
         # preferred
-        MedicationDictionary(MultilexDrug_ID="ghi", DMD_ID="rst"),
-        CustomMedicationDictionary(MultilexDrug_ID="ghi", DMD_ID="opq"),
+        MedicationDictionary(MultilexDrug_ID="3;0;0", DMD_ID="300000"),
+        CustomMedicationDictionary(MultilexDrug_ID="3;0;0", DMD_ID="400000"),
         MedicationIssue(
-            Patient_ID=1, ConsultationDate="2020-05-17T10:10:10", MultilexDrug_ID="ghi"
+            Patient_ID=1,
+            ConsultationDate="2020-05-17T10:10:10",
+            MultilexDrug_ID="3;0;0",
         ),
         # MedicationIssue.MultilexDrug_ID found in both, but MedicationDictionary.DMD_ID
         # contains the empty string; CustomMedicationDictionary.DMD_ID preferred
-        MedicationDictionary(MultilexDrug_ID="jkl", DMD_ID=""),
-        CustomMedicationDictionary(MultilexDrug_ID="jkl", DMD_ID="lmn"),
+        MedicationDictionary(MultilexDrug_ID="5;0;0", DMD_ID=""),
+        CustomMedicationDictionary(MultilexDrug_ID="5;0;0", DMD_ID="500000"),
         MedicationIssue(
-            Patient_ID=1, ConsultationDate="2020-05-18T10:10:10", MultilexDrug_ID="jkl"
+            Patient_ID=1,
+            ConsultationDate="2020-05-18T10:10:10",
+            MultilexDrug_ID="5;0;0",
         ),
     )
     assert results == [
         {
             "patient_id": 1,
             "date": date(2020, 5, 15),
-            "dmd_code": "xyz",
+            "dmd_code": "100000",
         },
         {
             "patient_id": 1,
             "date": date(2020, 5, 16),
-            "dmd_code": "uvw",
+            "dmd_code": "200000",
         },
         {
             "patient_id": 1,
             "date": date(2020, 5, 17),
-            "dmd_code": "rst",
+            "dmd_code": "300000",
         },
         {
             "patient_id": 1,
             "date": date(2020, 5, 18),
-            "dmd_code": "lmn",
+            "dmd_code": "500000",
         },
     ]
 
