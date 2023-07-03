@@ -280,7 +280,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     fracture_hospitalisations = hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_fractures)
 
     dataset.first_fracture_hosp = fracture_hospitalisations \
-        .where(fracture_hospitalisations.admission_date.is_between(dataset.pt_start_date, dataset.pt_end_date)) \
+        .where(fracture_hospitalisations.admission_date.is_on_or_between(dataset.pt_start_date + days(1), dataset.pt_end_date - days(1))) \
         .sort_by(fracture_hospitalisations.admission_date) \
         .first_for_patient().admission_date
 

@@ -1,4 +1,4 @@
-from databuilder.ehrql import Dataset
+from databuilder.ehrql import Dataset, days
 from databuilder.tables.beta import tpp as schema
 
 

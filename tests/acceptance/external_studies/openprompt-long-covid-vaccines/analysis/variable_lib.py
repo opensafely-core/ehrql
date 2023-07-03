@@ -2,7 +2,7 @@ import operator
 from functools import reduce
 
 from databuilder.codes import ICD10Code
-from databuilder.ehrql import case, when
+from databuilder.ehrql import case, when, days
 from databuilder.tables.beta import tpp as schema
 
 import codelists
@@ -138,6 +138,6 @@ def long_covid_dx_during(start, end):
 
 def long_covid_inhosp(start, end):
     in_study_admissions = schema.hospital_admissions \
-      .where(schema.hospital_admissions.admission_date.is_between(start, end))
+      .where(schema.hospital_admissions.admission_date.is_on_or_between(start + days(1), end - days(1)))
 
     return hospitalisation_diagnosis_matches(admissions=in_study_admissions, codelist=codelists.long_covid_hosp)
