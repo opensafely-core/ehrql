@@ -295,7 +295,7 @@ def test_medications(select_all):
         MedicationIssue(
             Patient_ID=1, ConsultationDate="2020-05-16T10:10:10", MultilexDrug_ID="def"
         ),
-        # MedicationDictionary.MultilexDrug_ID found in both; MedicationDictionary
+        # MedicationIssue.MultilexDrug_ID found in both; MedicationDictionary
         # preferred
         MedicationDictionary(MultilexDrug_ID="ghi", DMD_ID="rst"),
         CustomMedicationDictionary(MultilexDrug_ID="ghi", DMD_ID="opq"),
