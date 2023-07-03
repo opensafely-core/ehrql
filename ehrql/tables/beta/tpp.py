@@ -501,8 +501,15 @@ class open_prompt(EventFrame):
     """
     This table contains responses to questions from the OpenPROMPT project.
 
-    You can find out more about this table in the associated short data report:
-    <https://github.com/opensafely/airmid-short-data-report>.
+    You can find out more about this table in the associated short data report. To view
+    it, you will need a login for [Level 4][open_prompt_1]. The
+    [workspace][open_prompt_2] shows when the code that comprises the report was run;
+    the code itself is in the [airmid-short-data-report][open_prompt_3] repository on
+    GitHub.
+
+    [open_prompt_1]: https://docs.opensafely.org/security-levels/#level-4-nhs-england-are-data-controllers-of-the-data
+    [open_prompt_2]: https://jobs.opensafely.org/datalab/opensafely-internal/airmid-short-data-report/
+    [open_prompt_3]: https://github.com/opensafely/airmid-short-data-report
     """
 
     ctv3_code = Series(
