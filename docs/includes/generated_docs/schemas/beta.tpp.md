@@ -279,8 +279,16 @@ TODO
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## appointments
 
-You can find out more about this table in the associated short data report:
-<https://github.com/opensafely/appointments-short-data-report>.
+You can find out more about this table in the associated [short data
+report][appointments_1]. To view it, you will need a login for OpenSAFELY Jobs and
+the Project Collaborator or Project Developer role for the OpenSAFELY Internal
+project. The [workspace][appointments_2] shows when the code that comprises the
+report was run; the code itself is in the
+[appointments-short-data-report][appointments_3] repository on GitHub.
+
+[appointments_1]: https://jobs.opensafely.org/datalab/opensafely-internal/appointments-short-data-report/outputs/latest/tpp/output/reports/report.html
+[appointments_2]: https://jobs.opensafely.org/datalab/opensafely-internal/appointments-short-data-report/
+[appointments_3]: https://github.com/opensafely/appointments-short-data-report
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
