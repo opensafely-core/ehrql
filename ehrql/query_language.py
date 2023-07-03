@@ -380,9 +380,6 @@ class DateFunctions(ComparableFunctions):
     def is_on_or_after(self, other):
         return self.__ge__(other)
 
-    def is_between(self, start, end):
-        return (self > start) & (self < end)
-
     def is_on_or_between(self, start, end):
         return (self >= start) & (self <= end)
 
