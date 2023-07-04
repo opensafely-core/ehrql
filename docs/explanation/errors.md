@@ -14,7 +14,7 @@ and fix your dataset definition.
 
 Let's look at an example of an error report:
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 7, in <module>
     dataset._age = age
@@ -63,7 +63,7 @@ Using the "Find text in page" feature of your browser,
 searching for parts of the error report.
 Let's look at the example given above again:
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 7, in <module>
     dataset._age = age
@@ -134,7 +134,7 @@ opensafely exec ehrql:v0 analysis/dataset_definition.py
 
 #### Error
 
-```
+```pytb
 Failed to import 'analysis/dataset_definition.py':
 
   File "/workspace/analysis/dataset_definition.py", line 6
@@ -178,7 +178,7 @@ opensafely exec ehrql:v0 analysis/dataset_definition.py
 
 #### Error
 
-```
+```pytb
 Failed to import 'analysis/dataset_definition.py':
 
   File "/workspace/analysis/dataset_definition.py", line 5
@@ -257,7 +257,7 @@ opensafely exec ehrql:v0 analysis/dataset_definition.py
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 6, in <module>
     dataset.population = patients.age_on("2023-01-01") > 16
@@ -307,7 +307,7 @@ opensafely exec ehrql:v0 analysis/dataset_definition.py
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 5, in <module>
     dataset.variables = patients.age_on("2023-01-01") > 16
@@ -348,7 +348,7 @@ opensafely exec ehrql:v0 analysis/dataset_definition.py
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 7, in <module>
     dataset._age = age
@@ -394,7 +394,7 @@ opensafely exec ehrql:v0 analysis/dataset_definition.py
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 9, in <module>
     dataset.age = age1
@@ -440,7 +440,7 @@ opensafely exec ehrql:v0 analysis/dataset_definition.py
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 8, in <module>
     dataset.age
@@ -474,7 +474,7 @@ The `practice_registrations` table contains multiple rows per patient.
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 5, in <module>
     dataset.registered_on = practice_registrations.start_date
@@ -512,7 +512,7 @@ dataset.registered_on = practice_registrations.sort_by(practice_registrations.st
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 5, in <module>
     dataset.registered_on = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
@@ -553,7 +553,7 @@ dataset.define_population(age >= "10")
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 6, in <module>
     dataset.define_population(age >= "10")
@@ -590,7 +590,7 @@ dataset.define_population((age >= 16) and (age <= 80))
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 6, in <module>
     dataset.define_population((age >= 16) and (age <= 80))
@@ -629,7 +629,7 @@ dataset.define_population(16 < age <= 80)
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 6, in <module>
     dataset.define_population(16 < age <= 80)
@@ -666,7 +666,7 @@ dataset.age_minus_5 = age - 5.5
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 6, in <module>
     dataset.age_minus_5 = age - 5.5
@@ -699,7 +699,7 @@ dataset.age_in_may = "2023-05-01" - patients.date_of_birth
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 5, in <module>
     dataset.age_in_may = "2023-05-01" - patients.date_of_birth
@@ -733,7 +733,7 @@ dataset.date_at_age_16 = patients.date_of_birth + 16
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 5, in <module>
     dataset.date_at_age_16 = patients.date_of_birth + 16
@@ -768,7 +768,7 @@ dataset.event_date = first_event.date
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 5, in <module>
     first_event = clinical_events.sort_by(date).first_for_patient()
@@ -823,7 +823,8 @@ dataset.age_group = case(
 ```
 
 #### Error
-```
+
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 7, in <module>
     dataset.age_group5 = case(
@@ -862,7 +863,7 @@ dataset.age_30 = age.is_in(30)
 
 #### Error
 
-```
+```pytb
 Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 7, in <module>
     dataset.age_30 = age.is_in(30)
