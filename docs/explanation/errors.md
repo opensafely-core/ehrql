@@ -470,6 +470,7 @@ from ehrql.tables.beta.tpp import practice_registrations
 dataset = Dataset()
 dataset.registered_on = practice_registrations.start_date
 ```
+
 The `practice_registrations` table contains multiple rows per patient.
 
 #### Error
@@ -483,6 +484,7 @@ TypeError: Invalid variable 'registered_on'. Dataset variables must return one r
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
+
 To return the latest `registered_on` date, first sort the practice registrations table, find the
 last registration for each patient, and *then* get the start date.
 
@@ -740,6 +742,7 @@ Traceback (most recent call last):
                              ~~~~~~~~~~~~~~~~~~~~~~~^~~~
 TypeError: unsupported operand type(s) for +: 'DatePatientSeries' and 'int'
 ```
+
 ehrQL cannot add an integer to a date - it needs to know what sort of time unit
 we are adding (days, months, years).
 
@@ -831,6 +834,7 @@ Traceback (most recent call last):
                          ^^^^^
 ehrql.query_model.nodes.TypeValidationError: Case.default requires 'ehrql.query_model.nodes.Series[int] | None' but got 'ehrql.query_model.nodes.Series[str]'
 ```
+
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
