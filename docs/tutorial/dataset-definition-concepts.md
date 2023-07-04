@@ -232,6 +232,8 @@ Or we can do this by querying whether an event's date is before/after another da
     3 | 4 | True
     ...
 
+To see all of the available operations for filtering an event frame, see the reference docs [here](../../reference/features/#1-filtering-an-event-frame)
+
 #### Extracting dates
 
 Given a series of dates, we can extract the year (or month or day):
@@ -254,6 +256,8 @@ And we can perform arithmetic with dates:
     3 | 4 | 2022-12-09
     ...
 
+To see all of the available operations for series containing dates, see the reference docs [here](../../reference/features/#11-operations-on-all-series-containing-dates)
+
 ## Explaining the example
 
 We're now in a position to explain our example dataset definition.
@@ -267,12 +271,14 @@ from ehrql.tables.beta.core import patients, medications
 
 Next, we create a dataset object.
 Don't worry about exactly what this line does!
+# I'd like to know what this is here. I don't think it is explained anywhere
+# e.g. to this we can add the patient series (variables) we are interested in. These form a patient frame that can then be filtered to the population of interest.
 
 ```python
 dataset = Dataset()
 ```
 
-Now, we define the population of our dataset.
+Now, we define the population of our dataset. `define_population` is used to limit the population from which data is extracted.
 
 ```python
 dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
