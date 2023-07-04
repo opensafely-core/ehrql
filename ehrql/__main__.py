@@ -1,6 +1,7 @@
 import importlib
 import os
 import sys
+import warnings
 from argparse import ArgumentParser, ArgumentTypeError
 from pathlib import Path
 
@@ -30,6 +31,15 @@ BACKEND_ALIASES = {
     "emis": "ehrql.backends.emis.EMISBackend",
     "tpp": "ehrql.backends.tpp.TPPBackend",
 }
+
+
+if not os.environ.get("PYTHONHASHSEED") == "0":  # pragma: no cover
+    # The kinds of DoS attacks hash seed randomisation is designed to protect against
+    # don't apply to ehrQL, and having consistent output makes debugging much easier
+    warnings.warn(
+        "PYTHONHASHSEED environment variable not set to 0, so generated SQL may not"
+        " exactly match what is generated in production."
+    )
 
 
 def entrypoint():
