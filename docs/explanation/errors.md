@@ -576,7 +576,7 @@ dataset.define_population(age >= 10)  # age is now being compared to the integer
 
 ### Invalid keywords "and", "or", "not"
 
-In normal python, logical operations can be performed using the keywords `and`, `or` and `not`. In ehrQL
+In normal Python, logical operations can be performed using the keywords `and`, `or` and `not`. In ehrQL
 these are prohibited and will raise an error.
 
 #### Failing dataset definition :x:
