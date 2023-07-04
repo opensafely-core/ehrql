@@ -14,7 +14,7 @@ This example makes use of {intro} containing the following data:
 
 {input_tables}
 
-```
+```python
 {series}
 ```
 returns the following patient series:
