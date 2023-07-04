@@ -212,6 +212,12 @@ class DummyPatientGenerator:
         if cat_constraint := column_info.get_constraint(Constraint.Categorical):
             # TODO: It's obviously not true in general that categories are equiprobable
             return self.rnd.choice(cat_constraint.values)
+        elif range_constraint := column_info.get_constraint(Constraint.Range):
+            return self.rnd.randrange(
+                range_constraint.minimum,
+                range_constraint.maximum + 1,
+                range_constraint.step,
+            )
         elif column_info.values_used:
             if self.rnd.randint(0, len(column_info.values_used)) != 0:
                 return self.rnd.choice(column_info.values_used)

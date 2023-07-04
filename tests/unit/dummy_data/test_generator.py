@@ -33,6 +33,12 @@ class events(EventFrame):
     code = Series(str)
 
 
+@table
+class addresses(EventFrame):
+    start_date = Series(datetime.date)
+    imd_rounded = Series(int, constraints=[Constraint.Range(0, 5000, 1000)])
+
+
 def test_dummy_data_generator():
     # Define a basic dataset
     dataset = Dataset()
@@ -40,6 +46,7 @@ def test_dummy_data_generator():
     dataset.date_of_birth = patients.date_of_birth
     dataset.date_of_death = patients.date_of_death
     dataset.sex = patients.sex
+    dataset.imd = addresses.sort_by(addresses.start_date).last_for_patient().imd_rounded
 
     last_event = (
         events.where(events.code.is_in(["abc", "def"]))
@@ -69,6 +76,7 @@ def test_dummy_data_generator():
         if r.code is not None or r.date is not None:
             assert r.code in {"abc", "def"}
             assert isinstance(r.date, datetime.date)
+        assert r.imd in {0, 1000, 2000, 3000, 4000, 5000}
 
 
 @mock.patch("ehrql.dummy_data.generator.time")
@@ -166,6 +174,16 @@ def test_rows_for_patients_with_first_of_month_constraint(dummy_patient_generato
     assert all(r["date_of_birth"] is not None for r in rows)
     assert any(r["date_of_birth"].day != 1 for r in rows)  # pragma: no branch
     assert all(r["date_of_death"] is None or r["date_of_death"].day == 1 for r in rows)
+
+
+def test_get_random_int_with_range(dummy_patient_generator):
+    column_info = ColumnInfo(
+        name="test",
+        type=int,
+        constraints=(Constraint.Range(0, 10, 2),),
+    )
+    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
+    assert all(value in [0, 2, 4, 6, 8, 10] for value in values), values
 
 
 @pytest.fixture(scope="module")
