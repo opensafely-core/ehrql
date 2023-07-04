@@ -14,7 +14,8 @@ ENV VIRTUAL_ENV=/opt/venv/ \
     PATH="/opt/venv/bin:/opt/mssql-tools/bin:$PATH" \
     ACTION_EXEC=ehrql \
     PYTHONUNBUFFERED=True \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONHASHSEED=0
 
 RUN mkdir /workspace
 WORKDIR /workspace

@@ -7,6 +7,10 @@ export BIN := VIRTUAL_ENV + "/bin"
 export PIP := BIN + "/python -m pip"
 # enforce our chosen pip compile flags
 export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
+# Disable hash randomisation. The kinds of DoS attacks hash seed randomisation
+# is designed to protect against don't apply to ehrQL, and having consistent
+# output makes debugging much easier
+export PYTHONHASHSEED := "0"
 
 
 alias help := list
