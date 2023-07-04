@@ -558,7 +558,7 @@ Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 6, in <module>
     dataset.define_population(age >= "10")
                               ^^^^^^^^^^^
-databuilder.query_model.nodes.TypeValidationError: GE.rhs requires 'databuilder.query_model.nodes.Series[int]' but got 'databuilder.query_model.nodes.Series[str]'
+ehrql.query_model.nodes.TypeValidationError: GE.rhs requires 'ehrql.query_model.nodes.Series[int]' but got 'ehrql.query_model.nodes.Series[str]'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
@@ -671,7 +671,7 @@ Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 6, in <module>
     dataset.age_minus_5 = age - 5.5
                           ~~~~^~~~~
-databuilder.query_model.nodes.TypeValidationError: Subtract.rhs requires 'databuilder.query_model.nodes.Series[int]' but got 'databuilder.query_model.nodes.Series[float]'
+ehrql.query_model.nodes.TypeValidationError: Subtract.rhs requires 'ehrql.query_model.nodes.Series[int]' but got 'ehrql.query_model.nodes.Series[float]'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
@@ -828,7 +828,7 @@ Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 7, in <module>
     dataset.age_group5 = case(
                          ^^^^^
-databuilder.query_model.nodes.TypeValidationError: Case.default requires 'databuilder.query_model.nodes.Series[int] | None' but got 'databuilder.query_model.nodes.Series[str]'
+ehrql.query_model.nodes.TypeValidationError: Case.default requires 'ehrql.query_model.nodes.Series[int] | None' but got 'ehrql.query_model.nodes.Series[str]'
 ```
 #### Fixed dataset definition :heavy_check_mark:
 
@@ -867,7 +867,7 @@ Traceback (most recent call last):
   File "/workspace/analysis/dataset_definition.py", line 7, in <module>
     dataset.age_30 = age.is_in(30)
                      ^^^^^^^^^^^^^
-databuilder.query_model.nodes.TypeValidationError: In.rhs requires 'databuilder.query_model.nodes.Series[collections.abc.Set[int]]' but got 'databuilder.query_model.nodes.Series[int]'
+ehrql.query_model.nodes.TypeValidationError: In.rhs requires 'ehrql.query_model.nodes.Series[collections.abc.Set[int]]' but got 'ehrql.query_model.nodes.Series[int]'
 ```
 
 :notepad_spiral: This is also an error:
