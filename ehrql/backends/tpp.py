@@ -237,36 +237,38 @@ class TPPBackend(BaseBackend):
         """
     )
 
-    ons_cis = MappedTable(
-        source="ONS_CIS_New",
-        columns=dict(
-            visit_date="visit_date",
-            visit_num="visit_num",
-            visit_status="visit_status",
-            visit_type="visit_type",
-            is_opted_out_of_nhs_data_share="nhs_data_share",
-            last_linkage_dt="last_linkage_dt",
-            imd_decile_e="imd_decile_E",
-            imd_quartile_e="imd_quartile_E",
-            rural_urban="rural_urban",
-            household_size="hhsize",
-            is_work_in_healthcare_status="health_care_clean",
-            work_in_patient_facing_healthcare_status="patient_facing_clean",
-            covid_think_had="covid_think_havehad",
-            covid_date_first_symptoms="covid_date",
-            covid_contacted_nhs="covid_nhs_contact",
-            covid_was_admitted="covid_admitted",
-            covid_was_swab_tested="covid_test_swab",
-            covid_date_last_negative_swab_test="covid_test_swab_neg_last_date",
-            covid_date_first_positive_swab_test="covid_test_swab_pos_first_date",
-            covid_swab_test_result="covid_test_swab_result",
-            covid_think_have_symptoms_now="think_have_covid_sympt_now",
-            swab_test_result="result_mk",
-            swab_test_date="result_mk_date",
-            ct_sgene_result="ctSgene_result",
-            combined_antibody_test_result="result_combined",
-            long_covid_have_had_symptoms="long_covid_have_symptoms",
-        ),
+    ons_cis = QueryTable(
+        """
+            SELECT
+                Patient_ID as patient_id,
+                visit_date AS visit_date,
+                visit_num AS visit_num,
+                visit_status AS visit_status,
+                visit_type AS visit_type,
+                nhs_data_share AS is_opted_out_of_nhs_data_share,
+                last_linkage_dt AS last_linkage_dt,
+                imd_decile_E AS imd_decile_e,
+                imd_quartile_E AS imd_quartile_e,
+                rural_urban AS rural_urban,
+                hhsize AS household_size,
+                health_care_clean AS is_work_in_healthcare_status,
+                patient_facing_clean AS work_in_patient_facing_healthcare_status,
+                covid_think_havehad AS covid_think_had,
+                covid_date AS covid_date_first_symptoms,
+                covid_nhs_contact AS covid_contacted_nhs,
+                covid_admitted AS covid_was_admitted,
+                covid_test_swab AS covid_was_swab_tested,
+                covid_test_swab_neg_last_date AS covid_date_last_negative_swab_test,
+                covid_test_swab_pos_first_date AS covid_date_first_positive_swab_test,
+                covid_test_swab_result AS covid_swab_test_result,
+                think_have_covid_sympt_now AS covid_think_have_symptoms_now,
+                result_mk AS swab_test_result,
+                result_mk_date AS swab_test_date,
+                ctSgene_result AS ct_sgene_result,
+                result_combined AS combined_antibody_test_result,
+                long_covid_have_symptoms AS long_covid_have_had_symptoms
+            FROM ONS_CIS_New
+        """
     )
 
     isaric_raw = QueryTable(
