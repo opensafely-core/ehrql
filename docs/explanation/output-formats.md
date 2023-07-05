@@ -14,12 +14,39 @@ The following output formats are supported:
 :warning: The uncompressed CSV format is [not recommended](https://www.opensafely.org/changelog/2023-02-02/),
 because this produces *much larger* files than the alternative formats.
 
-## :construction: Unsupported output formats
+## Unsupported output formats
+
+These formats were supported in cohort-extractor,
+but are not by ehrQL
 
 * `.dta` and `.dta.gz` — Stata formats
-    * Stata output support is still in development.
-    * There is an [open ehrQL issue](https://github.com/opensafely-core/ehrql/issues/794) that discusses the work
-      of supporting a suitable format for Stata.
+
+## `arrowload` for Stata users
+
+As `.dta` and `.dta.gz` are no longer supported,
+Stata users should use the `.arrow` format.
+
+Stata itself does not directly support `.arrow`.
+However, OpenSAFELY's Stata Docker image contains the `arrowload` library
+that can load `.arrow` files in Stata.
+
+Use `arrowload` as:
+
+```
+. arrowload /path/to/arrow/file
+```
+
+See the full documentation via running command-line Stata via OpenSAFELY:
+
+```
+opensafely exec stata-mp stata
+```
+
+and then running
+
+```
+. help arrowload
+```
 
 ## Selecting an output format
 
