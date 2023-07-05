@@ -39,15 +39,17 @@ asthma_codelist = codelist_from_csv("your-asthma-codelist.csv", column="code")
 which provides the filename `your-asthma-codelist.csv`
 and the name of the CSV column with codes.
 
-Some codelists will have a category column that groups individual codes into categories. For example, [this codelist](https://www.opencodelists.org/codelist/opensafely/ethnicity-snomed-0removed/2e641f61/) for ethnicity has 2 category columns, which represent categories at both 6 and 16 levels.To make use of these categories you can do this:
+#### Using codelists with category columns
+
+Some codelists will have a category column that groups individual codes into categories. For example, [this codelist for ethnicity](https://www.opencodelists.org/codelist/opensafely/ethnicity-snomed-0removed/2e641f61/) has 2 category columns, which represent categories at both 6 and 16 levels. To make use of these categories, you can use `codelist_from_csv()` as follows:
 
 ```python
 ethnicity_codelist = codelist_from_csv("ethnicity_codelist_with_categories", column="snomedcode", category_column="Grouping_6")
 ```
 
-If you include an argument for `category_column`, the codelist returned will be a dictionary mapping individual codes to their respective categories, instead of simply a list of codes, which is returned if you don't specify this argument.
+If you include an argument for `category_column`, the codelist returned will be a *dictionary* mapping individual codes to their respective categories. Without the `category_column` argument, the codelist returned will be a *list* of codes.
 
-You can see an example of how to access these categories within your dataset definition [below](#finding-each-patients-ethnicity).
+You can see an example of [how to access these categories within your dataset definition ](#finding-each-patients-ethnicity) below.
 
 ## Finding patient demographics
 
@@ -157,7 +159,7 @@ The possible values are "female", "male", "intersex", and "unknown".
 
 :construction: Ethnicity is incompletely coded within primary care. More detail will be added in the future on how to improve ethnicity capture by incorporating data from secondary care.
 
-Ethnicity can be defined using a codelist. There are a lot of individual codes that can used to indicate a patients' fine-grained ethnicity. To make analysis more manageable, ethnicity is therefore commonly grouped into higher level categories. Above, we described how you can [import codelists that have a category column](#some-examples-using-codelist_from_csv). You can use a codelist like this to map clinical event codes for ethnicity to higher level categories like this:
+Ethnicity can be defined using a codelist. There are a lot of individual codes that can used to indicate a patients' fine-grained ethnicity. To make analysis more manageable, ethnicity is therefore commonly grouped into higher level categories. Above, we described how you can [import codelists that have a category column](#some-examples-using-codelist_from_csv). You can use a codelist with a category column to map clinical event codes for ethnicity to higher level categories as in this example:
 
 ```python
 from ehrql import Dataset

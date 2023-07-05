@@ -17,7 +17,7 @@ We can consider two kinds of table:
 If you have read these documentation pages in the suggested order,
 then all the examples you will have seen access the _core_ tables.
 
-The core tables are intended to be compatible with any backend OpenSAFELY backend providing primary care data.
+The core tables are intended to be compatible with any OpenSAFELY backend providing primary care data.
 If you *only* use the core tables,
 then your ehrQL dataset definition will be compatible with different OpenSAFELY backends,
 without requiring any changes.
