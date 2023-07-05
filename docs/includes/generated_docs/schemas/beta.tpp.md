@@ -1611,11 +1611,12 @@ Date of visit (derived)
   <dt id="ons_cis.visit_num">
     <strong>visit_num</strong>
     <a class="headerlink" href="#ons_cis.visit_num" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code>string</code>
   </dt>
   <dd markdown="block">
 Number of visit (derived)
 
+ * Possible values: `enrol`, `w1`, `w2`, `w3`, `w4/m1`, `m2`, `m3`, `m4`, `m5`, `m6`, `m7`, `m8`, `m9`, `m10`, `m11`, `m12`, `unknown`
   </dd>
 </div>
 
@@ -1623,11 +1624,12 @@ Number of visit (derived)
   <dt id="ons_cis.visit_status">
     <strong>visit_status</strong>
     <a class="headerlink" href="#ons_cis.visit_status" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code>string</code>
   </dt>
   <dd markdown="block">
 Status of visit (IQVIA)
 
+ * Possible values: `Cancelled`, `Completed`, `Patient did not attend`, `Rescheduled`, `Scheduled`, `Partially completed`, `Withdrawn`, `New`, `Dispatched`, `Household did not attend`, `unknown`
   </dd>
 </div>
 
@@ -1635,11 +1637,12 @@ Status of visit (IQVIA)
   <dt id="ons_cis.visit_type">
     <strong>visit_type</strong>
     <a class="headerlink" href="#ons_cis.visit_type" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code>string</code>
   </dt>
   <dd markdown="block">
 Type of visit (IQVIA)
 
+ * Possible values: `First visit`, `Follow-up visit`, `unknown`
   </dd>
 </div>
 
@@ -1707,11 +1710,12 @@ Type of visit (IQVIA)
   <dt id="ons_cis.household_size">
     <strong>household_size</strong>
     <a class="headerlink" href="#ons_cis.household_size" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code>string</code>
   </dt>
   <dd markdown="block">
 Size of household, if available. Otherwise, number of participants (derived)
 
+ * Possible values: `1`, `2`, `3`, `4`, `5+`, `unknown`
   </dd>
 </div>
 
@@ -1827,11 +1831,12 @@ If any swab test was positive, then the date of the first positive swab test (IQ
   <dt id="ons_cis.covid_swab_test_result">
     <strong>covid_swab_test_result</strong>
     <a class="headerlink" href="#ons_cis.covid_swab_test_result" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code>string</code>
   </dt>
   <dd markdown="block">
 The result of the swab test according to the patient (IQVIA)
 
+ * Possible values: `Any tests negative, but none positive`, `One or more positive tests`, `Waiting for all results`, `All tests failed`, `unknown`
   </dd>
 </div>
 
@@ -1851,11 +1856,12 @@ Whether the patient thinks they have symptoms consistent with covid now (IQVIA)
   <dt id="ons_cis.swab_test_result">
     <strong>swab_test_result</strong>
     <a class="headerlink" href="#ons_cis.swab_test_result" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code>string</code>
   </dt>
   <dd markdown="block">
 The result of the swab test according to the lab (lab)
 
+ * Possible values: `Negative`, `Positive`, `Rejected`, `Inconclusive`, `Void`, `Insufficient sample`, `Could not process`, `unknown`
   </dd>
 </div>
 
@@ -1875,11 +1881,12 @@ The date of the swab test (derived)
   <dt id="ons_cis.ct_sgene_result">
     <strong>ct_sgene_result</strong>
     <a class="headerlink" href="#ons_cis.ct_sgene_result" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code>string</code>
   </dt>
   <dd markdown="block">
 The result of the S gene target (lab)
 
+ * Possible values: `Negative`, `Positive`, `Rejected`, `Inconclusive`, `Void`, `Insufficient sample`, `Could not process`, `unknown`
   </dd>
 </div>
 
@@ -1887,11 +1894,12 @@ The result of the S gene target (lab)
   <dt id="ons_cis.combined_antibody_test_result">
     <strong>combined_antibody_test_result</strong>
     <a class="headerlink" href="#ons_cis.combined_antibody_test_result" title="Permanent link">🔗</a>
-    <code>integer</code>
+    <code>string</code>
   </dt>
   <dd markdown="block">
 The combined antibody test result across both assays (derived)
 
+ * Possible values: `Negative`, `Positive`, `Rejected`, `Inconclusive`, `Void`, `Insufficient sample`, `Could not process`, `unknown`
   </dd>
 </div>
 

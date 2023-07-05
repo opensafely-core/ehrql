@@ -242,15 +242,56 @@ class TPPBackend(BaseBackend):
             SELECT
                 Patient_ID as patient_id,
                 visit_date AS visit_date,
-                visit_num AS visit_num,
-                visit_status AS visit_status,
-                visit_type AS visit_type,
+                CASE
+                    WHEN visit_num = 0 THEN 'enrol'
+                    WHEN visit_num = 1 THEN 'w1'
+                    WHEN visit_num = 2 THEN 'w2'
+                    WHEN visit_num = 3 THEN 'w3'
+                    WHEN visit_num = 4 THEN 'w4/m1'
+                    WHEN visit_num = 5 THEN 'm2'
+                    WHEN visit_num = 6 THEN 'm3'
+                    WHEN visit_num = 7 THEN 'm4'
+                    WHEN visit_num = 8 THEN 'm5'
+                    WHEN visit_num = 9 THEN 'm6'
+                    WHEN visit_num = 10 THEN 'm7'
+                    WHEN visit_num = 11 THEN 'm8'
+                    WHEN visit_num = 12 THEN 'm9'
+                    WHEN visit_num = 13 THEN 'm10'
+                    WHEN visit_num = 14 THEN 'm11'
+                    WHEN visit_num = 15 THEN 'm12'
+                    ELSE 'unknown'
+                END AS visit_num,
+                CASE
+                    WHEN visit_status = 0 THEN 'Cancelled'
+                    WHEN visit_status = 1 THEN 'Completed'
+                    WHEN visit_status = 2 THEN 'Patient did not attend'
+                    WHEN visit_status = 3 THEN 'Rescheduled'
+                    WHEN visit_status = 4 THEN 'Scheduled'
+                    WHEN visit_status = 5 THEN 'Partially completed'
+                    WHEN visit_status = 6 THEN 'Withdrawn'
+                    WHEN visit_status = 7 THEN 'New'
+                    WHEN visit_status = 8 THEN 'Dispatched'
+                    WHEN visit_status = 9 THEN 'Household did not attend'
+                    ELSE 'unknown'
+                END AS visit_status,
+                CASE
+                    WHEN visit_type = 0 THEN 'First visit'
+                    WHEN visit_type = 1 THEN 'Follow-up visit'
+                    ELSE 'unknown'
+                END AS visit_type,
                 nhs_data_share AS is_opted_out_of_nhs_data_share,
                 last_linkage_dt AS last_linkage_dt,
                 imd_decile_E AS imd_decile_e,
                 imd_quartile_E AS imd_quartile_e,
                 rural_urban AS rural_urban,
-                hhsize AS household_size,
+                CASE
+                    WHEN hhsize = 1 THEN '1'
+                    WHEN hhsize = 2 THEN '2'
+                    WHEN hhsize = 3 THEN '3'
+                    WHEN hhsize = 4 THEN '4'
+                    WHEN hhsize = 5 THEN '5+'
+                    ELSE 'unknown'
+                END AS household_size,
                 health_care_clean AS is_work_in_healthcare_status,
                 patient_facing_clean AS work_in_patient_facing_healthcare_status,
                 covid_think_havehad AS covid_think_had,
@@ -260,12 +301,45 @@ class TPPBackend(BaseBackend):
                 covid_test_swab AS covid_was_swab_tested,
                 covid_test_swab_neg_last_date AS covid_date_last_negative_swab_test,
                 covid_test_swab_pos_first_date AS covid_date_first_positive_swab_test,
-                covid_test_swab_result AS covid_swab_test_result,
+                CASE
+                    WHEN covid_test_swab_result = 0 THEN 'Any tests negative, but none positive'
+                    WHEN covid_test_swab_result = 1 THEN 'One or more positive tests'
+                    WHEN covid_test_swab_result = 2 THEN 'Waiting for all results'
+                    WHEN covid_test_swab_result = 9 THEN 'All tests failed'
+                    ELSE 'unknown'
+                END AS covid_swab_test_result,
                 think_have_covid_sympt_now AS covid_think_have_symptoms_now,
-                result_mk AS swab_test_result,
+                CASE
+                    WHEN result_mk = 0 THEN 'Negative'
+                    WHEN result_mk = 1 THEN 'Positive'
+                    WHEN result_mk = 7 THEN 'Rejected'
+                    WHEN result_mk = 8 THEN 'Inconclusive'
+                    WHEN result_mk = 9 THEN 'Void'
+                    WHEN result_mk = 10 THEN 'Insufficient sample'
+                    WHEN result_mk = 11 THEN 'Could not process'
+                    ELSE 'unknown'
+                END AS swab_test_result,
                 result_mk_date AS swab_test_date,
-                ctSgene_result AS ct_sgene_result,
-                result_combined AS combined_antibody_test_result,
+                CASE
+                    WHEN ctSgene_result = 0 THEN 'Negative'
+                    WHEN ctSgene_result = 1 THEN 'Positive'
+                    WHEN ctSgene_result = 7 THEN 'Rejected'
+                    WHEN ctSgene_result = 8 THEN 'Inconclusive'
+                    WHEN ctSgene_result = 9 THEN 'Void'
+                    WHEN ctSgene_result = 10 THEN 'Insufficient sample'
+                    WHEN ctSgene_result = 11 THEN 'Could not process'
+                    ELSE 'unknown'
+                END AS ct_sgene_result,
+                CASE
+                    WHEN result_combined = 0 THEN 'Negative'
+                    WHEN result_combined = 1 THEN 'Positive'
+                    WHEN result_combined = 7 THEN 'Rejected'
+                    WHEN result_combined = 8 THEN 'Inconclusive'
+                    WHEN result_combined = 9 THEN 'Void'
+                    WHEN result_combined = 10 THEN 'Insufficient sample'
+                    WHEN result_combined = 11 THEN 'Could not process'
+                    ELSE 'unknown'
+                END AS combined_antibody_test_result,
                 long_covid_have_symptoms AS long_covid_have_had_symptoms
             FROM ONS_CIS_New
         """

@@ -244,17 +244,87 @@ class ons_cis(EventFrame):
     """
 
     visit_date = Series(datetime.date, description="Date of visit (derived)")
-    visit_num = Series(int, description="Number of visit (derived)")
-    visit_status = Series(int, description="Status of visit (IQVIA)")
-    visit_type = Series(int, description="Type of visit (IQVIA)")
+    visit_num = Series(
+        str,
+        description="Number of visit (derived)",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "enrol",
+                    "w1",
+                    "w2",
+                    "w3",
+                    "w4/m1",
+                    "m2",
+                    "m3",
+                    "m4",
+                    "m5",
+                    "m6",
+                    "m7",
+                    "m8",
+                    "m9",
+                    "m10",
+                    "m11",
+                    "m12",
+                    "unknown",
+                ]
+            )
+        ],
+    )
+    visit_status = Series(
+        str,
+        description="Status of visit (IQVIA)",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Cancelled",
+                    "Completed",
+                    "Patient did not attend",
+                    "Rescheduled",
+                    "Scheduled",
+                    "Partially completed",
+                    "Withdrawn",
+                    "New",
+                    "Dispatched",
+                    "Household did not attend",
+                    "unknown",
+                ]
+            )
+        ],
+    )
+    visit_type = Series(
+        str,
+        description="Type of visit (IQVIA)",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "First visit",
+                    "Follow-up visit",
+                    "unknown",
+                ]
+            )
+        ],
+    )
     is_opted_out_of_nhs_data_share = Series(bool)
     last_linkage_dt = Series(datetime.date)
     imd_decile_e = Series(int)
     imd_quartile_e = Series(int)
     rural_urban = Series(int)
     household_size = Series(
-        int,
+        str,
         description="Size of household, if available. Otherwise, number of participants (derived)",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5+",
+                    "unknown",
+                ]
+            )
+        ],
     )
     is_work_in_healthcare_status = Series(
         bool,
@@ -293,28 +363,81 @@ class ons_cis(EventFrame):
         description="If any swab test was positive, then the date of the first positive swab test (IQVIA)",
     )
     covid_swab_test_result = Series(
-        int,
+        str,
         description="The result of the swab test according to the patient (IQVIA)",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Any tests negative, but none positive",
+                    "One or more positive tests",
+                    "Waiting for all results",
+                    "All tests failed",
+                    "unknown",
+                ]
+            )
+        ],
     )
     covid_think_have_symptoms_now = Series(
         bool,
         description="Whether the patient thinks they have symptoms consistent with covid now (IQVIA)",
     )
     swab_test_result = Series(
-        int,
+        str,
         description="The result of the swab test according to the lab (lab)",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Negative",
+                    "Positive",
+                    "Rejected",
+                    "Inconclusive",
+                    "Void",
+                    "Insufficient sample",
+                    "Could not process",
+                    "unknown",
+                ]
+            )
+        ],
     )
     swab_test_date = Series(
         datetime.date,
         description="The date of the swab test (derived)",
     )
     ct_sgene_result = Series(
-        int,
+        str,
         description="The result of the S gene target (lab)",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Negative",
+                    "Positive",
+                    "Rejected",
+                    "Inconclusive",
+                    "Void",
+                    "Insufficient sample",
+                    "Could not process",
+                    "unknown",
+                ]
+            )
+        ],
     )
     combined_antibody_test_result = Series(
-        int,
+        str,
         description="The combined antibody test result across both assays (derived)",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Negative",
+                    "Positive",
+                    "Rejected",
+                    "Inconclusive",
+                    "Void",
+                    "Insufficient sample",
+                    "Could not process",
+                    "unknown",
+                ]
+            )
+        ],
     )
     long_covid_have_had_symptoms = Series(
         bool,
