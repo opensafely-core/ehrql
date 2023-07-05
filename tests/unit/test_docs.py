@@ -122,7 +122,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|203|F |
 | 3|302|F |
 
-```
+```python
 e.where(e.b1).i1.sum_for_patient()
 ```
 returns the following patient series:
@@ -192,7 +192,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4|9 |
 | 5| |
 
-```
+```python
 case(
     when(p.i1 < 8).then(p.i1),
     when(p.i1 > 8).then(100),
@@ -265,7 +265,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|203|F |
 | 3|302|F |
 
-```
+```python
 e.where(e.b1).i1.sum_for_patient()
 ```
 returns the following patient series:
