@@ -158,7 +158,7 @@ AttributeError: 'medications' object has no attribute 'dat'
 
 :grey_question: Can you work out what this is telling us?
 
-Refer to [the catalogue of errors](../explanation/errors.md) for details of common error messages and what they mean.
+Refer to [the catalogue of errors](../how-to/errors.md) for details of common error messages and what they mean.
 
 #### Exiting the sandbox
 
@@ -285,7 +285,7 @@ Traceback (most recent call last):
 AttributeError: 'medications' object has no attribute 'dat'
 ```
 
-Refer to [the catalogue of errors](../explanation/errors.md) for help with interpreting error messages.
+Refer to [the catalogue of errors](../how-to/errors.md) for help with interpreting error messages.
 
 ### 3. Running ehrQL in an OpenSAFELY pipeline via `opensafely run`
 
