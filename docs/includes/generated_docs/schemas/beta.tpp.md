@@ -1620,6 +1620,30 @@ Data from the ONS Covid Infection Survey.
 </div>
 
 <div markdown="block">
+  <dt id="ons_cis.visit_status">
+    <strong>visit_status</strong>
+    <a class="headerlink" href="#ons_cis.visit_status" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Status of visit (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.visit_type">
+    <strong>visit_type</strong>
+    <a class="headerlink" href="#ons_cis.visit_type" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Type of visit (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
   <dt id="ons_cis.is_opted_out_of_nhs_data_share">
     <strong>is_opted_out_of_nhs_data_share</strong>
     <a class="headerlink" href="#ons_cis.is_opted_out_of_nhs_data_share" title="Permanent link">🔗</a>
@@ -1675,6 +1699,210 @@ Data from the ONS Covid Infection Survey.
   </dt>
   <dd markdown="block">
 
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.household_size">
+    <strong>household_size</strong>
+    <a class="headerlink" href="#ons_cis.household_size" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Size of household, if available. Otherwise, number of participants (derived)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.is_work_in_healthcare_status">
+    <strong>is_work_in_healthcare_status</strong>
+    <a class="headerlink" href="#ons_cis.is_work_in_healthcare_status" title="Permanent link">🔗</a>
+    <code>boolean</code>
+  </dt>
+  <dd markdown="block">
+Whether the patient works in healthcare (derived)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.work_in_patient_facing_healthcare_status">
+    <strong>work_in_patient_facing_healthcare_status</strong>
+    <a class="headerlink" href="#ons_cis.work_in_patient_facing_healthcare_status" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Whether the patient works in patient-facing healthcare (derived)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.covid_think_had">
+    <strong>covid_think_had</strong>
+    <a class="headerlink" href="#ons_cis.covid_think_had" title="Permanent link">🔗</a>
+    <code>boolean</code>
+  </dt>
+  <dd markdown="block">
+Whether the patient thinks they had covid (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.covid_date_first_symptoms">
+    <strong>covid_date_first_symptoms</strong>
+    <a class="headerlink" href="#ons_cis.covid_date_first_symptoms" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+If the patient thinks they had covid, then the date of first symptoms (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.covid_contacted_nhs">
+    <strong>covid_contacted_nhs</strong>
+    <a class="headerlink" href="#ons_cis.covid_contacted_nhs" title="Permanent link">🔗</a>
+    <code>boolean</code>
+  </dt>
+  <dd markdown="block">
+If the patient thinks they had covid, then whether they contacted the NHS (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.covid_was_admitted">
+    <strong>covid_was_admitted</strong>
+    <a class="headerlink" href="#ons_cis.covid_was_admitted" title="Permanent link">🔗</a>
+    <code>boolean</code>
+  </dt>
+  <dd markdown="block">
+If the patient contacted the NHS, then whether they were admitted (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.covid_was_swab_tested">
+    <strong>covid_was_swab_tested</strong>
+    <a class="headerlink" href="#ons_cis.covid_was_swab_tested" title="Permanent link">🔗</a>
+    <code>boolean</code>
+  </dt>
+  <dd markdown="block">
+If the patient contacted the NHS, then whether they were swab tested (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.covid_date_last_negative_swab_test">
+    <strong>covid_date_last_negative_swab_test</strong>
+    <a class="headerlink" href="#ons_cis.covid_date_last_negative_swab_test" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+If all swab tests were negative, then the date of the last negative swab test (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.covid_date_first_positive_swab_test">
+    <strong>covid_date_first_positive_swab_test</strong>
+    <a class="headerlink" href="#ons_cis.covid_date_first_positive_swab_test" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+If any swab test was positive, then the date of the first positive swab test (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.covid_swab_test_result">
+    <strong>covid_swab_test_result</strong>
+    <a class="headerlink" href="#ons_cis.covid_swab_test_result" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+The result of the swab test according to the patient (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.covid_think_have_symptoms_now">
+    <strong>covid_think_have_symptoms_now</strong>
+    <a class="headerlink" href="#ons_cis.covid_think_have_symptoms_now" title="Permanent link">🔗</a>
+    <code>boolean</code>
+  </dt>
+  <dd markdown="block">
+Whether the patient thinks they have symptoms consistent with covid now (IQVIA)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.swab_test_result">
+    <strong>swab_test_result</strong>
+    <a class="headerlink" href="#ons_cis.swab_test_result" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+The result of the swab test according to the lab (lab)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.swab_test_date">
+    <strong>swab_test_date</strong>
+    <a class="headerlink" href="#ons_cis.swab_test_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+The date of the swab test (derived)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.ct_sgene_result">
+    <strong>ct_sgene_result</strong>
+    <a class="headerlink" href="#ons_cis.ct_sgene_result" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+The result of the S gene target (lab)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.combined_antibody_test_result">
+    <strong>combined_antibody_test_result</strong>
+    <a class="headerlink" href="#ons_cis.combined_antibody_test_result" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+The combined antibody test result across both assays (derived)
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis.long_covid_have_had_symptoms">
+    <strong>long_covid_have_had_symptoms</strong>
+    <a class="headerlink" href="#ons_cis.long_covid_have_had_symptoms" title="Permanent link">🔗</a>
+    <code>boolean</code>
+  </dt>
+  <dd markdown="block">
+Whether the patient thinks they have long covid symptoms (IQVIA)
 
   </dd>
 </div>

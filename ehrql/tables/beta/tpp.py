@@ -245,11 +245,81 @@ class ons_cis(EventFrame):
 
     visit_date = Series(datetime.date)
     visit_num = Series(int)
+    visit_status = Series(int, description="Status of visit (IQVIA)")
+    visit_type = Series(int, description="Type of visit (IQVIA)")
     is_opted_out_of_nhs_data_share = Series(bool)
     last_linkage_dt = Series(datetime.date)
     imd_decile_e = Series(int)
     imd_quartile_e = Series(int)
     rural_urban = Series(int)
+    household_size = Series(
+        int,
+        description="Size of household, if available. Otherwise, number of participants (derived)",
+    )
+    is_work_in_healthcare_status = Series(
+        bool,
+        description="Whether the patient works in healthcare (derived)",
+    )
+    work_in_patient_facing_healthcare_status = Series(
+        int,
+        description="Whether the patient works in patient-facing healthcare (derived)",
+    )
+    covid_think_had = Series(
+        bool,
+        description="Whether the patient thinks they had covid (IQVIA)",
+    )
+    covid_date_first_symptoms = Series(
+        datetime.date,
+        description="If the patient thinks they had covid, then the date of first symptoms (IQVIA)",
+    )
+    covid_contacted_nhs = Series(
+        bool,
+        description="If the patient thinks they had covid, then whether they contacted the NHS (IQVIA)",
+    )
+    covid_was_admitted = Series(
+        bool,
+        description="If the patient contacted the NHS, then whether they were admitted (IQVIA)",
+    )
+    covid_was_swab_tested = Series(
+        bool,
+        description="If the patient contacted the NHS, then whether they were swab tested (IQVIA)",
+    )
+    covid_date_last_negative_swab_test = Series(
+        datetime.date,
+        description="If all swab tests were negative, then the date of the last negative swab test (IQVIA)",
+    )
+    covid_date_first_positive_swab_test = Series(
+        datetime.date,
+        description="If any swab test was positive, then the date of the first positive swab test (IQVIA)",
+    )
+    covid_swab_test_result = Series(
+        int,
+        description="The result of the swab test according to the patient (IQVIA)",
+    )
+    covid_think_have_symptoms_now = Series(
+        bool,
+        description="Whether the patient thinks they have symptoms consistent with covid now (IQVIA)",
+    )
+    swab_test_result = Series(
+        int,
+        description="The result of the swab test according to the lab (lab)",
+    )
+    swab_test_date = Series(
+        datetime.date,
+        description="The date of the swab test (derived)",
+    )
+    ct_sgene_result = Series(
+        int,
+        description="The result of the S gene target (lab)",
+    )
+    combined_antibody_test_result = Series(
+        int,
+        description="The combined antibody test result across both assays (derived)",
+    )
+    long_covid_have_had_symptoms = Series(
+        bool,
+        description="Whether the patient thinks they have long covid symptoms (IQVIA)",
+    )
 
 
 @table
