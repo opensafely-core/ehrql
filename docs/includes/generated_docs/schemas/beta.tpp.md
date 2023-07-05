@@ -1602,7 +1602,7 @@ Data from the ONS Covid Infection Survey.
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+Date of visit (derived)
 
   </dd>
 </div>
@@ -1614,7 +1614,7 @@ Data from the ONS Covid Infection Survey.
     <code>integer</code>
   </dt>
   <dd markdown="block">
-
+Number of visit (derived)
 
   </dd>
 </div>

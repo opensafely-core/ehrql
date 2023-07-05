@@ -243,8 +243,8 @@ class ons_cis(EventFrame):
     Data from the ONS Covid Infection Survey.
     """
 
-    visit_date = Series(datetime.date)
-    visit_num = Series(int)
+    visit_date = Series(datetime.date, description="Date of visit (derived)")
+    visit_num = Series(int, description="Number of visit (derived)")
     visit_status = Series(int, description="Status of visit (IQVIA)")
     visit_type = Series(int, description="Type of visit (IQVIA)")
     is_opted_out_of_nhs_data_share = Series(bool)
