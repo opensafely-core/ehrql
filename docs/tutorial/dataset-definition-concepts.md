@@ -269,10 +269,7 @@ from ehrql import Dataset
 from ehrql.tables.beta.core import patients, medications
 ```
 
-Next, we create a dataset object.
-Don't worry about exactly what this line does!
-# I'd like to know what this is here. I don't think it is explained anywhere
-# e.g. to this we can add the patient series (variables) we are interested in. These form a patient frame that can then be filtered to the population of interest.
+Next, we create a dataset object. Don't worry about exactly what this line does!
 
 ```python
 dataset = Dataset()
