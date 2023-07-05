@@ -39,11 +39,12 @@ To start the sandbox, from the `learning-ehrql` directory, run:
 You will now be in a session with an interactive Python console,
 and you should see something like this:
 
-    $ opensafely exec ehrql:v0 sandbox example-data
-    Python 3.11.3 (main, Apr  5 2023, 14:15:06) [GCC 9.4.0] on linux
-    Type "help", "copyright", "credits" or "license" for more information.
-    (InteractiveConsole)
-    >>>
+```pycon
+Python 3.11.3 (main, Apr  5 2023, 14:15:06) [GCC 9.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>>
+```
 
 The `>>>` is the Python prompt for user input.
 When you see this, you can input Python statements,
@@ -52,84 +53,95 @@ and if the statement returns a value,
 it will be displayed below your input.
 For example if you type `1 + 1` and press the return key, you should see:
 
-    >>> 1 + 1
-    2
-    >>>
+```pycon
+>>> 1 + 1
+2
+>>>
+```
 
 To use ehrQL, you'll first need to import the tables that you want to interact with:
 
-    >>> from ehrql.tables.beta.core import patients, medications
+```pycon
+>>> from ehrql.tables.beta.core import patients, medications
+```
 
 Now, you can inspect the contents of these tables, by entering the names of the tables:
 
-    >>> patients
-    patient_id        | date_of_birth     | sex               | date_of_death
-    ------------------+-------------------+-------------------+------------------
-    0                 | 1973-07-01        | female            | 2015-09-14
-    1                 | 1948-03-01        | male              | None
-    2                 | 2003-04-01        | male              | None
-    3                 | 2007-06-01        | female            | None
-    4                 | 1938-10-01        | male              | 2018-05-23
-    5                 | 1994-04-01        | female            | None
-    6                 | 1953-05-01        | male              | None
-    7                 | 1992-08-01        | female            | None
-    8                 | 1931-10-01        | female            | 2017-11-10
-    9                 | 1979-04-01        | male              | None
-    >>> medications
-    patient_id        | row_id            | date              | dmd_code
-    ------------------+-------------------+-------------------+------------------
-    0                 | 0                 | 2014-01-11        | 39113611000001102
-    1                 | 1                 | 2015-08-06        | 39113611000001102
-    1                 | 2                 | 2018-09-21        | 39113311000001107
-    1                 | 3                 | 2020-05-17        | 22777311000001105
-    3                 | 4                 | 2022-11-09        | 22777311000001105
-    4                 | 5                 | 2017-05-11        | 39113611000001102
-    5                 | 6                 | 2017-07-11        | 3484711000001105
-    5                 | 7                 | 2019-07-06        | 39113611000001102
-    7                 | 8                 | 2021-01-27        | 3484711000001105
-    9                 | 9                 | 2015-03-14        | 3484711000001105
+```pycon
+>>> patients
+patient_id        | date_of_birth     | sex               | date_of_death
+------------------+-------------------+-------------------+------------------
+0                 | 1973-07-01        | female            | 2015-09-14
+1                 | 1948-03-01        | male              | None
+2                 | 2003-04-01        | male              | None
+3                 | 2007-06-01        | female            | None
+4                 | 1938-10-01        | male              | 2018-05-23
+5                 | 1994-04-01        | female            | None
+6                 | 1953-05-01        | male              | None
+7                 | 1992-08-01        | female            | None
+8                 | 1931-10-01        | female            | 2017-11-10
+9                 | 1979-04-01        | male              | None
+>>> medications
+patient_id        | row_id            | date              | dmd_code
+------------------+-------------------+-------------------+------------------
+0                 | 0                 | 2014-01-11        | 39113611000001102
+1                 | 1                 | 2015-08-06        | 39113611000001102
+1                 | 2                 | 2018-09-21        | 39113311000001107
+1                 | 3                 | 2020-05-17        | 22777311000001105
+3                 | 4                 | 2022-11-09        | 22777311000001105
+4                 | 5                 | 2017-05-11        | 39113611000001102
+5                 | 6                 | 2017-07-11        | 3484711000001105
+5                 | 7                 | 2019-07-06        | 39113611000001102
+7                 | 8                 | 2021-01-27        | 3484711000001105
+9                 | 9                 | 2015-03-14        | 3484711000001105
+```
 
 :warning: If you see an error when trying to access these tables,
 check that you have the [dummy data files in the correct location](installation-and-setup.md#check-all-the-files-are-in-the-correct-place).
 
 And you can enter ehrQL to perform queries, such as this one:
 
-    >>> patients.date_of_birth.year
-    0 | 1973
-    1 | 1948
-    2 | 2003
-    3 | 2007
-    4 | 1938
-    5 | 1994
-    6 | 1953
-    7 | 1992
-    8 | 1931
-    9 | 1979
+```pycon
+>>> patients.date_of_birth.year
+0 | 1973
+1 | 1948
+2 | 2003
+3 | 2007
+4 | 1938
+5 | 1994
+6 | 1953
+7 | 1992
+8 | 1931
+9 | 1979
+```
 
 Or this one:
 
-    >>> patients.date_of_birth.is_on_or_before("1999-12-31")
-    0 | True
-    1 | True
-    2 | False
-    3 | False
-    4 | True
-    5 | True
-    6 | True
-    7 | True
-    8 | True
-    9 | True
-
+```pycon
+>>> patients.date_of_birth.is_on_or_before("1999-12-31")
+0 | True
+1 | True
+2 | False
+3 | False
+4 | True
+5 | True
+6 | True
+7 | True
+8 | True
+9 | True
+```
 
 Or this one:
 
-    >>> medications.where(medications.dmd_code == "39113611000001102").sort_by(medications.date).first_for_patient()
-    patient_id        | date              | dmd_code
-    ------------------+-------------------+------------------
-    0                 | 2014-01-11        | 39113611000001102
-    1                 | 2015-08-06        | 39113611000001102
-    4                 | 2017-05-11        | 39113611000001102
-    5                 | 2019-07-06        | 39113611000001102
+```pycon
+>>> medications.where(medications.dmd_code == "39113611000001102").sort_by(medications.date).first_for_patient()
+patient_id        | date              | dmd_code
+------------------+-------------------+------------------
+0                 | 2014-01-11        | 39113611000001102
+1                 | 2015-08-06        | 39113611000001102
+4                 | 2017-05-11        | 39113611000001102
+5                 | 2019-07-06        | 39113611000001102
+```
 
 :grey_question: Can you work out what these do?
 
@@ -137,10 +149,12 @@ Or this one:
 
 If you enter some invalid ehrQL, you will see an error message:
 
-    >>> medications.where(medications.date >= "2016-01-01").sort_by(medications.dat).first_for_patient()
-    Traceback (most recent call last):
-      File "<console>", line 1, in <module>
-    AttributeError: 'medications' object has no attribute 'dat'
+```pycon
+>>> medications.where(medications.date >= "2016-01-01").sort_by(medications.dat).first_for_patient()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: 'medications' object has no attribute 'dat'
+```
 
 :grey_question: Can you work out what this is telling us?
 
@@ -217,10 +231,12 @@ to run the dataset definition.
 
 You should see output displayed similar to this:
 
-    2023-04-19 08:53:41 [info     ] Compiling dataset definition from dataset_definition.py [ehrql.main]
-    2023-04-19 08:53:41 [info     ] Generating dummy dataset       [ehrql.main]
-    2023-04-19 08:53:41 [info     ] Reading CSV data from example-data [ehrql.main]
-    2023-04-19 08:53:41 [info     ] Building dataset and writing results [ehrql.main]
+```
+2023-04-19 08:53:41 [info     ] Compiling dataset definition from dataset_definition.py [ehrql.main]
+2023-04-19 08:53:41 [info     ] Generating dummy dataset       [ehrql.main]
+2023-04-19 08:53:41 [info     ] Reading CSV data from example-data [ehrql.main]
+2023-04-19 08:53:41 [info     ] Building dataset and writing results [ehrql.main]
+```
 
 :notepad_spiral: The date and time you see will differ from that here.
 
@@ -230,15 +246,17 @@ The output will be stored in a file called `dataset.csv` in the `output` directo
 
 The file will contain the following CSV data:
 
-    patient_id,med_date,med_code
-    0,2014-01-11,39113611000001102
-    1,2018-09-21,39113311000001107
-    4,2017-05-11,39113611000001102
-    5,2019-07-06,39113611000001102
-    6,,
-    7,,
-    8,,
-    9,,
+```
+patient_id,med_date,med_code
+0,2014-01-11,39113611000001102
+1,2018-09-21,39113311000001107
+4,2017-05-11,39113611000001102
+5,2019-07-06,39113611000001102
+6,,
+7,,
+8,,
+9,,
+```
 
 :notepad_spiral: The bottom 4 rows in the generated dataset show that there are 4 patients in the defined population that do not have any record for the medications specified in the dataset definition.
 
@@ -254,15 +272,18 @@ an error message will be displayed on the screen.
 
 This is one example:
 
-    $ opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv
-    2023-04-21 17:53:42 [info     ] Compiling dataset definition from dataset_definition.py [ehrql.main]
-    Failed to import 'dataset_definition.py':
-
-    Traceback (most recent call last):
-      File "/workspace/dataset_definition.py", line 10, in <module>
-        dataset.med_date = latest_asthma_med.dat
-                           ^^^^^^^^^^^^^^^^^^^
-    AttributeError: 'medications' object has no attribute 'dat'
+```
+$ opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv
+2023-04-21 17:53:42 [info     ] Compiling dataset definition from dataset_definition.py [ehrql.main]
+Failed to import 'dataset_definition.py':
+```
+```pycon
+Traceback (most recent call last):
+  File "/workspace/dataset_definition.py", line 10, in <module>
+    dataset.med_date = latest_asthma_med.dat
+                       ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'medications' object has no attribute 'dat'
+```
 
 Refer to [the catalogue of errors](../explanation/errors.md) for help with interpreting error messages.
 
