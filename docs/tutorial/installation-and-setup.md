@@ -150,11 +150,13 @@ You will need to change directory to that directory before running commands.
 :warning: Before continuing to learn more about [running ehrQL](running-ehrql.md),
 check that you have the following structure for your files:
 
-        learning-ehrql
-         └─ example-data
-             ├─ addresses.csv
-             ├─ clinical_events.csv
-             ├─ medications.csv
-             ├─ ons_deaths.csv
-             ├─ patients.csv
-             └─ practice_registrations.csv
+```
+learning-ehrql
+ └─ example-data
+     ├─ addresses.csv
+     ├─ clinical_events.csv
+     ├─ medications.csv
+     ├─ ons_deaths.csv
+     ├─ patients.csv
+     └─ practice_registrations.csv
+```

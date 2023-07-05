@@ -363,31 +363,33 @@ the OpenSAFELY CLI may fetch some other Docker images (`python` and `busybox`) n
 
 You should see in the logs output displayed similar to this:
 
-    $ opensafely run run_all
+```
+$ opensafely run run_all
 
-    Running actions: generate_dataset, summarise_dataset
+Running actions: generate_dataset, summarise_dataset
 
-    jobrunner.run loop started
-    generate_dataset: Preparing your code and workspace files
-    ...
-    summarise_dataset: Extracting output file: output/summary.txt
-    summarise_dataset: Finished recording results
-    summarise_dataset: Completed successfully
-    summarise_dataset: Cleaning up container and volume
+jobrunner.run loop started
+generate_dataset: Preparing your code and workspace files
+...
+summarise_dataset: Extracting output file: output/summary.txt
+summarise_dataset: Finished recording results
+summarise_dataset: Completed successfully
+summarise_dataset: Cleaning up container and volume
 
-    => generate_dataset
-       Completed successfully
+=> generate_dataset
+   Completed successfully
 
-       log file: metadata/generate_dataset.log
-       outputs:
-         output/dataset.csv.gz  - highly_sensitive
+   log file: metadata/generate_dataset.log
+   outputs:
+     output/dataset.csv.gz  - highly_sensitive
 
-    => summarise_dataset
-       Completed successfully
+=> summarise_dataset
+   Completed successfully
 
-       log file: metadata/summarise_dataset.log
-       outputs:
-         output/summary.txt  - moderately_sensitive
+   log file: metadata/summarise_dataset.log
+   outputs:
+     output/summary.txt  - moderately_sensitive
+```
 
 :notepad_spiral: Some of the middle lines of this log have been omitted.
 
