@@ -78,7 +78,7 @@ class SQLiteQueryEngine(BaseSQLQueryEngine):
     def to_first_of_month(self, date):
         return SQLFunction("DATE", date, "start of month", type_=sqlalchemy.Date)
 
-    def get_aggregate_subquery(self, aggregate_function, columns, return_type):
+    def get_aggregate_subquery(self, node, aggregate_function, columns, return_type):
         # horrible edge-case where if a horizontal aggregate is called on
         # a single literal, sqlite will only return the first row
         if len(columns) == 1:

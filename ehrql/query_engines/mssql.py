@@ -6,6 +6,7 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine, apply_patient_joins
 from ehrql.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
+from ehrql.query_model.nodes import has_many_rows_per_patient
 from ehrql.utils.sqlalchemy_exec_utils import (
     ReconnectableConnection,
     execute_with_retry_factory,
@@ -23,18 +24,6 @@ log = structlog.getLogger()
 
 class MSSQLQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = MSSQLDialect
-
-    # Use a CTE as the source for the aggregate query rather than a
-    # subquery in order to avoid the "Cannot perform an aggregate function
-    # on an expression containing an aggregate or a subquery" error
-    def aggregate_series_by_patient(self, source_node, aggregation_func):
-        query = self.get_select_query_for_node_domain(source_node)
-        from_subquery = query.add_columns(self.get_expr(source_node))
-        from_subquery = apply_patient_joins(from_subquery)
-        from_subquery = from_subquery.alias("aggregate_subquery")
-        query = sqlalchemy.select(from_subquery.columns[0])
-        aggregation_expr = aggregation_func(from_subquery.columns[1]).label("value")
-        return self.apply_sql_aggregation(query, aggregation_expr)
 
     def calculate_mean(self, sql_expr):
         # Unlike other DBMSs, MSSQL will return an integer as the mean of integers so we
@@ -241,7 +230,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
 
     # implement the "table value constructor trick"
     # https://stackoverflow.com/questions/71022/sql-max-of-multiple-columns/6871572#6871572
-    def get_aggregate_subquery(self, aggregate_function, columns, return_type):
+    def get_aggregate_subquery(self, node, aggregate_function, columns, return_type):
         v = values(column("aggregate", return_type), name="aggregate_values").data(
             [(c,) for c in columns]
         )
@@ -250,6 +239,19 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             aggregate_function(v.c.aggregate)
         ).scalar_subquery()
         aggregated._from_objects = list(froms)
+
+        # If the result of this horizontal aggregation has many rows per patient then
+        # it's going to end up being part of a vertical aggregation later to reduce to
+        # one row per patient. And if we try to do this directly MSSQL throws the error
+        # "Cannot perform an aggregate function on an expression containing an aggregate
+        # or a subquery". To work around this we have to transform the query into
+        # something table-like, in this case an aliased subquery.
+        if has_many_rows_per_patient(node):
+            query = self.get_select_query_for_node_domain(node)
+            query = query.add_columns(aggregated.label("value"))
+            query = apply_patient_joins(query)
+            aggregated = query.alias().c.value
+
         return aggregated
 
 

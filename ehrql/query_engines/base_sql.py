@@ -415,12 +415,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql.register(Function.MaximumOf)
     def get_sql_maximum_of(self, node):
         args = self.get_nary_function_args(node)
-        return self.get_aggregate_subquery(sqlalchemy.func.max, *args).label("greatest")
+        return self.get_aggregate_subquery(node, sqlalchemy.func.max, *args).label(
+            "greatest"
+        )
 
     @get_sql.register(Function.MinimumOf)
     def get_sql_minimum_of(self, node):
         args = self.get_nary_function_args(node)
-        return self.get_aggregate_subquery(sqlalchemy.func.min, *args).label("least")
+        return self.get_aggregate_subquery(node, sqlalchemy.func.min, *args).label(
+            "least"
+        )
 
     def get_aggregate_subquery(self, aggregate_function, columns, return_type):
         raise NotImplementedError()
