@@ -1,12 +1,15 @@
 # Backends
 
 Dataset definitions written in ehrQL can be run inside different secure
-environments, managed by different providers of EHR data. For each such
-secure environment there is a corresponding "backend" defined in ehrQL.
-This specifies what datasets are available inside each secure
-environment and does the necessary translation work to allow the same
-dataset definition to run against data modelled in different ways and
-stored in different systems.
+environments, managed by different providers of EHR data.
+
+For each such secure environment, there is a corresponding "backend"
+defined in ehrQL. Each ehrQL backend:
+
+* specifies the datasets available inside each secure environment
+* does the necessary translation work to allow the same
+  dataset definition to run against data modelled in different ways and
+  stored in different systems
 
 When writing a dataset definition you don't need to explicitly reference
 any particular backend. But, as not every dataset is available in every
