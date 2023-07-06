@@ -107,6 +107,7 @@ from ehrql.tables.beta.tpp import (
   <dd markdown="block">
 
 
+ * Must be >= 0, <= 32800, and a multiple of 100
   </dd>
 </div>
 
