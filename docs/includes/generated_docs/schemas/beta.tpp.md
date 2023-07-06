@@ -19,6 +19,7 @@ from ehrql.tables.beta.tpp import (
     medications,
     occupation_on_covid_vaccine_record,
     ons_cis,
+    ons_cis_raw,
     ons_deaths,
     opa_cost,
     opa_diag,
@@ -1672,6 +1673,332 @@ Data from the ONS Covid Infection Survey.
   <dt id="ons_cis.rural_urban">
     <strong>rural_urban</strong>
     <a class="headerlink" href="#ons_cis.rural_urban" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## ons_cis_raw
+
+Raw data from the ONS Covid Infection Survey.
+
+This table exposes the raw data; that is, the values haven't been transformed on
+their journey from the database table to the ehrQL table.
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ons_cis_raw.covid_admitted">
+    <strong>covid_admitted</strong>
+    <a class="headerlink" href="#ons_cis_raw.covid_admitted" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.covid_date">
+    <strong>covid_date</strong>
+    <a class="headerlink" href="#ons_cis_raw.covid_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.covid_nhs_contact">
+    <strong>covid_nhs_contact</strong>
+    <a class="headerlink" href="#ons_cis_raw.covid_nhs_contact" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.covid_test_swab">
+    <strong>covid_test_swab</strong>
+    <a class="headerlink" href="#ons_cis_raw.covid_test_swab" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.covid_test_swab_neg_last_date">
+    <strong>covid_test_swab_neg_last_date</strong>
+    <a class="headerlink" href="#ons_cis_raw.covid_test_swab_neg_last_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.covid_test_swab_pos_first_date">
+    <strong>covid_test_swab_pos_first_date</strong>
+    <a class="headerlink" href="#ons_cis_raw.covid_test_swab_pos_first_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.covid_test_swab_result">
+    <strong>covid_test_swab_result</strong>
+    <a class="headerlink" href="#ons_cis_raw.covid_test_swab_result" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.covid_think_havehad">
+    <strong>covid_think_havehad</strong>
+    <a class="headerlink" href="#ons_cis_raw.covid_think_havehad" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.ctsgene_result">
+    <strong>ctsgene_result</strong>
+    <a class="headerlink" href="#ons_cis_raw.ctsgene_result" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.health_care_clean">
+    <strong>health_care_clean</strong>
+    <a class="headerlink" href="#ons_cis_raw.health_care_clean" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.hhsize">
+    <strong>hhsize</strong>
+    <a class="headerlink" href="#ons_cis_raw.hhsize" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.imd_decile_e">
+    <strong>imd_decile_e</strong>
+    <a class="headerlink" href="#ons_cis_raw.imd_decile_e" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.imd_quartile_e">
+    <strong>imd_quartile_e</strong>
+    <a class="headerlink" href="#ons_cis_raw.imd_quartile_e" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.last_linkage_dt">
+    <strong>last_linkage_dt</strong>
+    <a class="headerlink" href="#ons_cis_raw.last_linkage_dt" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.long_covid_have_symptoms">
+    <strong>long_covid_have_symptoms</strong>
+    <a class="headerlink" href="#ons_cis_raw.long_covid_have_symptoms" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.nhs_data_share">
+    <strong>nhs_data_share</strong>
+    <a class="headerlink" href="#ons_cis_raw.nhs_data_share" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.patient_facing_clean">
+    <strong>patient_facing_clean</strong>
+    <a class="headerlink" href="#ons_cis_raw.patient_facing_clean" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.result_combined">
+    <strong>result_combined</strong>
+    <a class="headerlink" href="#ons_cis_raw.result_combined" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.result_mk">
+    <strong>result_mk</strong>
+    <a class="headerlink" href="#ons_cis_raw.result_mk" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.result_mk_date">
+    <strong>result_mk_date</strong>
+    <a class="headerlink" href="#ons_cis_raw.result_mk_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.rural_urban">
+    <strong>rural_urban</strong>
+    <a class="headerlink" href="#ons_cis_raw.rural_urban" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.think_have_covid_sympt_now">
+    <strong>think_have_covid_sympt_now</strong>
+    <a class="headerlink" href="#ons_cis_raw.think_have_covid_sympt_now" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.visit_date">
+    <strong>visit_date</strong>
+    <a class="headerlink" href="#ons_cis_raw.visit_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.visit_num">
+    <strong>visit_num</strong>
+    <a class="headerlink" href="#ons_cis_raw.visit_num" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.visit_status">
+    <strong>visit_status</strong>
+    <a class="headerlink" href="#ons_cis_raw.visit_status" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_cis_raw.visit_type">
+    <strong>visit_type</strong>
+    <a class="headerlink" href="#ons_cis_raw.visit_type" title="Permanent link">🔗</a>
     <code>integer</code>
   </dt>
   <dd markdown="block">
