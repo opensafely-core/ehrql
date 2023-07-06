@@ -5,6 +5,7 @@ from typing import TypeVar
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
+    Constraint,
     SelectColumn,
     Value,
     get_root_frame,
@@ -128,3 +129,16 @@ def get_range_for_count(series):
     # memory pressure. For counts anywhere near this high the user should be classifying
     # them into buckets rather than retrieving the raw numbers in any case.
     return 0, 2**16 - 1
+
+
+@get_range.register(SelectColumn)
+def get_range_for_select_column(series):
+    # When selecting a column we can use the underlying column constraints to return
+    # a valid range, if the column has a range constraint
+    root = get_root_frame(series.source)
+    range_constraint = root.schema.get_column_constraint_by_type(
+        series.name, Constraint.Range
+    )
+    if range_constraint:
+        return range_constraint.minimum, range_constraint.maximum
+    return None, None
