@@ -24,7 +24,7 @@ dataset.age = patients.age_on("2020-01-01")
 Define the condition that patients must meet to be included in the Dataset, in
 the form of a [boolean patient series](#BoolPatientSeries) e.g.
 ```py
-dataset.set_population(patients.date_of_birth < "1990-01-01")
+dataset.define_population(patients.date_of_birth < "1990-01-01")
 ```
 </div>
 
