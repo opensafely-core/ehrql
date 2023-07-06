@@ -13,7 +13,7 @@ and then jump to a specific example of interest.
 and to make it possible to use [backend-specific tables in addition to core tables](backend-tables.md),
 the example dataset definitions here all use the TPP backend.
 
-### Some examples use `codelist_from_csv()`
+### Some examples using `codelist_from_csv()`
 
 :construction: This guidance should be improved in future.
 
@@ -39,10 +39,17 @@ asthma_codelist = codelist_from_csv("your-asthma-codelist.csv", column="code")
 which provides the filename `your-asthma-codelist.csv`
 and the name of the CSV column with codes.
 
-:notepad_spiral: It is also possible to use a category column
-with `codelist_from_csv()`.
-Until this documentation is improved,
-refer to the [ehrQL source code](https://github.com/opensafely-core/ehrql/blob/main/ehrql/codes.py).
+#### Using codelists with category columns
+
+Some codelists will have a category column that groups individual codes into categories. For example, [this codelist for ethnicity](https://www.opencodelists.org/codelist/opensafely/ethnicity-snomed-0removed/2e641f61/) has 2 category columns, which represent categories at both 6 and 16 levels. To make use of these categories, you can use `codelist_from_csv()` as follows:
+
+```python
+ethnicity_codelist = codelist_from_csv("ethnicity_codelist_with_categories", column="snomedcode", category_column="Grouping_6")
+```
+
+If you include an argument for `category_column`, the codelist returned will be a *dictionary* mapping individual codes to their respective categories. Without the `category_column` argument, the codelist returned will be a *list* of codes.
+
+You can see an example of [how to access these categories within your dataset definition ](#finding-each-patients-ethnicity) below.
 
 ## Finding patient demographics
 
@@ -150,7 +157,34 @@ The possible values are "female", "male", "intersex", and "unknown".
 
 ### Finding each patient's ethnicity
 
-:construction: This is more complicated and will be added in future.
+:construction: Ethnicity is incompletely coded within primary care. More detail will be added in the future on how to improve ethnicity capture by incorporating data from secondary care.
+
+Ethnicity can be defined using a codelist. There are a lot of individual codes that can used to indicate a patients' fine-grained ethnicity. To make analysis more manageable, ethnicity is therefore commonly grouped into higher level categories. Above, we described how you can [import codelists that have a category column](#some-examples-using-codelist_from_csv). You can use a codelist with a category column to map clinical event codes for ethnicity to higher level categories as in this example:
+
+```python
+from ehrql import Dataset
+from ehrql.tables.beta.core import clinical_events
+from ehrql.codes import codelist_from_csv
+
+dataset = Dataset()
+
+ethnicity_codelist = codelist_from_csv(
+    "ethnicity_codelist_with_categories",
+    column="snomedcode",
+    category_column="Grouping_6",
+)
+
+dataset.latest_ethnicity_code = (
+    clinical_events.where(clinical_events.snomedct_code.is_in(ethnicity_codelist))
+    .where(clinical_events.date.is_on_or_before("2023-01-01"))
+    .sort_by(clinical_events.date)
+    .last_for_patient()
+    .snomedct_code
+)
+latest_ethnicity_group = latest_ethnicity_code.to_category(
+    ethnicity_codelist
+)
+```
 
 ## Finding attributes related to each patient's address as of a given date
 
@@ -177,13 +211,13 @@ from databuilder.tables.beta.tpp import addresses
 
 dataset = Dataset()
 imd = addresses.for_patient_on("2023-01-01").imd_rounded
-dataset.imd_band = case(
-        when(imd < 32844 * 1 / 5).then("1 (most deprived)"),
-        when(imd < 32844 * 2 / 5).then("2"),
-        when(imd < 32844 * 3 / 5).then("3"),
-        when(imd < 32844 * 4 / 5).then("4"),
-        when(imd < 32844 * 5 / 5).then("5 (least deprived)"),
-        default="unknown"
+dataset.imd_quintile = case(
+    when((imd >=0) & (imd < int(32844 * 1 / 5))).then("1 (most deprived)"),
+    when(imd < int(32844 * 2 / 5)).then("2"),
+    when(imd < int(32844 * 3 / 5)).then("3"),
+    when(imd < int(32844 * 4 / 5)).then("4"),
+    when(imd < int(32844 * 5 / 5)).then("5 (least deprived)"),
+    default="unknown"
 )
 ```
 

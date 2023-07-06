@@ -4,7 +4,7 @@ You can run ehrQL in two places:
   where you can try out ehrQL against _dummy data_,
   and test that your analysis code runs correctly
 * on an OpenSAFELY backend database,
-  to user ehrQL with _real data_
+  to use ehrQL with _real data_
 
 ## Running ehrQL on your own computer against dummy data
 
@@ -32,9 +32,9 @@ If you followed the steps in [Installation and setup](installation-and-setup.md)
 you will have a suitable directory of CSV files at `learning-ehrql/example-data`.
 
 :computer:
-To start the sandbox,
-from the `learning-ehrql` directory,
-run `opensafely exec ehrql:v0 sandbox example-data`
+To start the sandbox, from the `learning-ehrql` directory, run:
+  
+    opensafely exec ehrql:v0 sandbox example-data
 
 You will now be in a session with an interactive Python console,
 and you should see something like this:
@@ -239,6 +239,8 @@ The file will contain the following CSV data:
     7,,
     8,,
     9,,
+
+:notepad_spiral: The bottom 4 rows in the generated dataset show that there are 4 patients in the defined population that do not have any record for the medications specified in the dataset definition.
 
 :computer: Try running the ehrQL dataset definition again,
 modifying the command to remove the `--dummy-tables example-data`.

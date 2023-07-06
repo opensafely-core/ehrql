@@ -116,7 +116,8 @@ Did you see something similar?
 
 :heavy_check_mark: If you see the help text as above,
 then everything is set up correctly.
-You can continue with the rest of this tutorial.\
+You can continue with the rest of this tutorial.
+
 :x: If you do not see similar help text to above or you get an error,
 please [contact us](../introduction/getting-help.md)
 and we can help you get started.
@@ -137,6 +138,7 @@ will assume that you are in this `learning-ehrql` directory.
 You will need to change directory to that directory before running commands.
 
 :computer: Retrieve the sample dummy data files for use in this tutorial:
+
 1. Download [this zip file](https://github.com/opensafely-core/ehrql-example-data/archive/refs/heads/main.zip).
 2. Create a new directory inside `learning-ehrql` called `example-data`.
 3. Inside the zip file are several CSV files. Extract the CSV files to the `example-data` directory.
