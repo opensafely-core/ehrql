@@ -23,9 +23,6 @@ but are not by ehrQL
 
 ## `arrowload` for Stata users
 
-As `.dta` and `.dta.gz` are no longer supported,
-Stata users should use the `.arrow` format.
-
 Stata itself does not directly support `.arrow`.
 However, OpenSAFELY's Stata Docker image contains the `arrowload` library
 that can load `.arrow` files in Stata.
