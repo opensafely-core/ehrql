@@ -324,10 +324,9 @@ to skip setting up the template,
 we create this file entirely by hand.
 
 The `project.yaml` file defines two actions: `generate_dataset` and `summarise_dataset`.
-Each of these actions defines an `output`,
-which has the potential data sensitivity indicated.
+Each of these actions specifies one or more `outputs`.
 
-:notepad_spiral: The definitions of "highly sensitive" and "moderately sensitive" are indicated in the [`project.yaml` documentation](https://docs.opensafely.org/actions-pipelines/#projectyaml-format).
+:notepad_spiral: The definitions of "highly sensitive" and "moderately sensitive" are explained in the [`project.yaml` documentation](https://docs.opensafely.org/actions-pipelines/#projectyaml-format).
 
 The `generate_dataset` action's `run:` command should look familiar from the previous section.
 However, note that the `--output` path is now to a compressed CSV file (`dataset.csv.gz`).
