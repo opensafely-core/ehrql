@@ -33,7 +33,7 @@ you will have a suitable directory of CSV files at `learning-ehrql/example-data`
 
 :computer:
 To start the sandbox, from the `learning-ehrql` directory, run:
-  
+
     opensafely exec ehrql:v0 sandbox example-data
 
 You will now be in a session with an interactive Python console,
@@ -176,7 +176,7 @@ to produce an output file that you can inspect.
 
 :computer: Copy and paste the following dataset definition
 into a new file called `dataset_definition.py`
-that is saved in your `learning-ehrql` directory:
+and save it in your `learning-ehrql` directory:
 
 ```python
 from ehrql import Dataset
