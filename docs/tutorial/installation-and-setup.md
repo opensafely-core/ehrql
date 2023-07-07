@@ -32,15 +32,15 @@ you will need some way of editing your ehrQL dataset definitions
 that specify queries you want to run against electronic health record data.
 
 If you do not already have a preferred text editor or integrated development environment for writing code,
-we suggest that you try [Visual Studio Code](https://code.visualstudio.com/).
-Visual Studio Code is available for Windows, macOS and Linux.
+we suggest that you try [VS Code](https://code.visualstudio.com/).
+VS Code is available for Windows, macOS and Linux.
 
-Visual Studio Code also provides an [integrated command-line interface or "terminal"](https://code.visualstudio.com/docs/terminal/basics).
-Visual Studio Code's integrated terminal indicates which command-line interface is running.
+VS Code also provides an [integrated command-line interface or "terminal"](https://code.visualstudio.com/docs/terminal/basics).
+VS Code's integrated terminal indicates which command-line interface is running.
 If you have multiple command-line interfaces installed,
-Visual Studio Code also provides an option [to select a different command-line interface](https://code.visualstudio.com/docs/terminal/basics#_terminal-shells).
+VS Code also provides an option [to select a different command-line interface](https://code.visualstudio.com/docs/terminal/basics#_terminal-shells).
 
-:notepad_spiral: You should be able to complete all the tutorial steps from within Visual Studio Code.
+:notepad_spiral: You should be able to complete all the tutorial steps from within VS Code.
 You can:
 
 * create and edit files, and folders (directories)
