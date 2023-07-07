@@ -33,7 +33,7 @@ you will have a suitable directory of CSV files at `learning-ehrql/example-data`
 
 :computer:
 To start the sandbox, from the `learning-ehrql` directory, run:
-  
+
     opensafely exec ehrql:v0 sandbox example-data
 
 You will now be in a session with an interactive Python console,
@@ -176,7 +176,7 @@ to produce an output file that you can inspect.
 
 :computer: Copy and paste the following dataset definition
 into a new file called `dataset_definition.py`
-that is saved in your `learning-ehrql` directory:
+and save it in your `learning-ehrql` directory:
 
 ```python
 from ehrql import Dataset
@@ -324,15 +324,14 @@ to skip setting up the template,
 we create this file entirely by hand.
 
 The `project.yaml` file defines two actions: `generate_dataset` and `summarise_dataset`.
-Each of these actions defines an `output`,
-which has the potential data sensitivity indicated.
+Each of these actions specifies one or more `outputs`.
 
-:notepad_spiral: The definitions of "highly sensitive" and "moderately sensitive" are indicated in the [`project.yaml` documentation](https://docs.opensafely.org/actions-pipelines/#projectyaml-format).
+:notepad_spiral: The definitions of "highly sensitive" and "moderately sensitive" are explained in the [`project.yaml` documentation](https://docs.opensafely.org/actions-pipelines/#projectyaml-format).
 
 The `generate_dataset` action's `run:` command should look familiar from the previous section.
 However, note that the `--output` path is now to a compressed CSV file (`dataset.csv.gz`).
 
-:notepad_spiral: We recommend the use of compressed CSV files when running code via the jobs site.
+:notepad_spiral: We recommend the use of compressed CSV files when generating a dataset definition as part of an OpenSAFELY pipeline.
 
 `summarise_dataset` uses a Python script called `summarise_dataset.py`.
 Copy the following into a file called `summarise_dataset.py` in your `learning-ehrql` directory.
@@ -347,7 +346,7 @@ with open("output/summary.txt", "w") as f:
     f.write(f"There are {num_rows} patients in the population\n")
 ```
 
-:grey_question: Even if you don't know how to use pandas,
+:grey_question: Even if you don't know how to use [pandas](https://pandas.pydata.org/),
 can you guess at what this code might do before you run the OpenSAFELY project?
 
 :computer: From the `learning-ehrql` directory,
