@@ -1,9 +1,9 @@
-This page guides you to
+This page guides you through:
 
-* install the necessary prerequisites for running ehrQL on your own computer;
-* check that ehrQL is working correctly;
-* download a directory of dummy data that we will use
-  for demonstrations in the rest of the documentation
+* installing the necessary prerequisites for running ehrQL on your own computer;
+* checking that ehrQL is working correctly;
+* downloading a directory of dummy data that we will use
+  for demonstrations in the rest of the documentation.
 
 It assumes that you have already read the short [Introduction to ehrQL concepts](../introduction/introduction-to-concepts.md).
 
