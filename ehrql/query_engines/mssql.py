@@ -245,5 +245,5 @@ def temporary_table_from_query(table_name, query, index_col=0, schema=None):
     table.cleanup_queries = [DropTable(table, if_exists=True)]
     # The "#" prefix indicates a session-scoped temporary table which won't persist if
     # we open a new connection to the database
-    table.is_persistent = table_name.startswith("#")
+    table.is_persistent = not table_name.startswith("#")
     return table

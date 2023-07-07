@@ -15,9 +15,8 @@ from ehrql.query_model.nodes import (
 )
 
 
-def test_get_results_using_temporary_database(mssql_engine):
-    temp_database_name = "temp_tables"
-
+@pytest.mark.parametrize("temp_database_name", ["temp_tables", None])
+def test_get_results_using_temporary_database(mssql_engine, temp_database_name):
     # Define a simple query and load some test data
     patient_table = SelectPatientTable("patients", TableSchema(i=Column(int)))
     variable_definitions = dict(
@@ -57,7 +56,9 @@ def test_get_results_using_temporary_database(mssql_engine):
         query = select.call_args[0][0]
 
     # Check that we were actually using the temporary database
-    assert temp_database_name in str(query)
+    if temp_database_name is not None:
+        assert temp_database_name in str(query)
+
     # Check that the table we were querying has now been cleaned up
     with mssql_engine.sqlalchemy_engine().connect() as conn:
         with pytest.raises(ProgrammingError, match="Invalid object name"):
