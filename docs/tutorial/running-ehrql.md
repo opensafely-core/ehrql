@@ -346,7 +346,7 @@ with open("output/summary.txt", "w") as f:
     f.write(f"There are {num_rows} patients in the population\n")
 ```
 
-:grey_question: Even if you don't know how to use pandas,
+:grey_question: Even if you don't know how to use [pandas](https://pandas.pydata.org/),
 can you guess at what this code might do before you run the OpenSAFELY project?
 
 :computer: From the `learning-ehrql` directory,
