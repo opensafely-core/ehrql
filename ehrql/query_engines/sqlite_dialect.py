@@ -1,8 +1,15 @@
+import sqlean
 from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 
 
 class SQLiteDialect(SQLiteDialect_pysqlite):
     supports_statement_cache = True
+
+    @classmethod
+    def import_dbapi(cls):
+        # Use sqlean rather than the system version
+        sqlean.extensions.enable("math")
+        return sqlean.dbapi2
 
     def do_on_connect(self, connection):
         # Set the per-connection flag which makes LIKE queries case-sensitive

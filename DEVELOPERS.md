@@ -189,23 +189,6 @@ We recommend using [homebrew](https://brew.sh/) to install a more recent version
 brew install bash
 ```
 
-ehrQL uses SQLite's [Built-In Mathematical SQL Functions](https://sqlite.org/lang_mathfunc.html), such as `FLOOR(X)`.
-If you installed Python with the macOS or Windows installers,
-then these functions are enabled in the bundled SQLite.
-Congratulations!
-If you use pyenv -- or a tool that builds against system-SQLite -- to manage Python versions, however,
-then it should build against Homebrew-SQLite rather than system-SQLite.
-This is because these functions are enabled in the former but disabled in the latter.
-
-```bash
-brew install sqlite
-
-env PYTHON_CONFIGURE_OPTS="CPPFLAGS=-I$(brew --prefix)/include LDFLAGS=-L$(brew --prefix)/opt/sqlite/lib" pyenv install <version>
-```
-
-If pyenv builds against system-SQLite,
-then the spec tests will fail with `OperationalError: no such function: FLOOR`.
-
 ## Static Type Checking
 We previously used [mypy](https://mypy.readthedocs.io/en/stable/) and type annotations to perform correctness checking of the code base.
 However, we made the decision to remove this stack after finding it was not a good fit for large parts of the code base.
