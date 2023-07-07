@@ -41,6 +41,17 @@ class Constraint:
         def description(self):
             return f"Matches regular expression: `{self.regex}`"
 
+    class ClosedRange(BaseConstraint):
+        minimum: int
+        maximum: int
+        step: int = 1
+
+        @property
+        def description(self):
+            if self.step == 1:
+                return f"Always >= {self.minimum} and <= {self.maximum}"
+            return f"Always >= {self.minimum}, <= {self.maximum}, and a multiple of {self.step}"
+
 
 @dataclasses.dataclass(frozen=True)
 class Column:
