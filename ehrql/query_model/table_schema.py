@@ -48,7 +48,9 @@ class Constraint:
 
         @property
         def description(self):
-            return f"Must be >= {self.minimum}, <= {self.maximum}, and a multiple of {self.step}"
+            if self.step == 1:
+                return f"Always >= {self.minimum} and <= {self.maximum}"
+            return f"Always >= {self.minimum}, <= {self.maximum}, and a multiple of {self.step}"
 
 
 @dataclasses.dataclass(frozen=True)
