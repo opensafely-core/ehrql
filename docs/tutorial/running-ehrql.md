@@ -331,7 +331,7 @@ Each of these actions specifies one or more `outputs`.
 The `generate_dataset` action's `run:` command should look familiar from the previous section.
 However, note that the `--output` path is now to a compressed CSV file (`dataset.csv.gz`).
 
-:notepad_spiral: We recommend the use of compressed CSV files when running code via the jobs site.
+:notepad_spiral: We recommend the use of compressed CSV files when generating a dataset definition as part of an OpenSAFELY pipeline.
 
 `summarise_dataset` uses a Python script called `summarise_dataset.py`.
 Copy the following into a file called `summarise_dataset.py` in your `learning-ehrql` directory.
