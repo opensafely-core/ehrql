@@ -14,12 +14,36 @@ The following output formats are supported:
 :warning: The uncompressed CSV format is [not recommended](https://www.opensafely.org/changelog/2023-02-02/),
 because this produces *much larger* files than the alternative formats.
 
-## :construction: Unsupported output formats
+## Unsupported output formats
+
+These formats were supported in cohort-extractor,
+but are not by ehrQL
 
 * `.dta` and `.dta.gz` — Stata formats
-    * Stata output support is still in development.
-    * There is an [open ehrQL issue](https://github.com/opensafely-core/ehrql/issues/794) that discusses the work
-      of supporting a suitable format for Stata.
+
+## `arrowload` for Stata users
+
+Stata itself does not directly support `.arrow`.
+However, OpenSAFELY's Stata Docker image contains the `arrowload` library
+that can load `.arrow` files in Stata.
+
+Use `arrowload` as:
+
+```
+. arrowload /path/to/arrow/file
+```
+
+See the full documentation via running command-line Stata via OpenSAFELY:
+
+```
+opensafely exec stata-mp stata
+```
+
+and then running
+
+```
+. help arrowload
+```
 
 ## Selecting an output format
 
@@ -35,13 +59,13 @@ you will get an error telling you so.
 #### `.arrow`
 
 ```
-opensafely exec databuilder:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.arrow"
+opensafely exec ehrql:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.arrow"
 ```
 
 #### `.csv.gz`
 
 ```
-opensafely exec databuilder:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.csv.gz"
+opensafely exec ehrql:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.csv.gz"
 ```
 
 ### Example `project.yaml`
@@ -54,7 +78,7 @@ expectations:
 
 actions:
   extract_data:
-    run: databuilder:v0 generate-dataset "./dataset_definition.py" --output "outputs/data_extract.arrow"
+    run: ehrql:v0 generate-dataset "./dataset_definition.py" --output "outputs/data_extract.arrow"
     outputs:
       highly_sensitive:
         population: outputs/data_extract.arrow

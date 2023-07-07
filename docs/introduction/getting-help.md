@@ -10,7 +10,7 @@ and cannot easily find what you are looking for in this documentation, then:
 For now, you should ask for help in the `#ehrql-support` channel in Slack.
 
 And in particular,
-if you see a strange error message that's not documented in [our catalogue of common errors](../explanation/errors.md),
+if you see a strange error message that's not documented in [our catalogue of common errors](../how-to/errors.md),
 let us know.
 
 In future, we plan to hold regular ehrQL help clinics for new users.

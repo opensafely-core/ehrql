@@ -56,8 +56,8 @@ You can see an example of [how to access these categories within your dataset de
 ### Finding each patient's age
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -67,8 +67,8 @@ Alternatively, using a native Python `date`:
 
 ```python
 from datetime import date
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.age = patients.age_on(date(2023, 1, 1))
@@ -77,8 +77,8 @@ dataset.age = patients.age_on(date(2023, 1, 1))
 Or using an `index_date` variable:
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 index_date = "2023-01-01"
 dataset = Dataset()
@@ -88,8 +88,8 @@ dataset.age = patients.age_on(index_date)
 ### Assigning each patient an age band
 
 ```python
-from databuilder.ehrql import Dataset, case, when
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset, case, when
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 age = patients.age_on("2023-01-01")
@@ -106,8 +106,8 @@ dataset.age_band = case(
 ### Finding each patient's date of birth
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.date_of_birth = patients.date_of_birth
@@ -116,8 +116,8 @@ dataset.date_of_birth = patients.date_of_birth
 ### Finding each patient's date of death in their primary care record
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.date_of_death = patients.date_of_death
@@ -132,8 +132,8 @@ By contrast, cause of death is often not accurate in the primary care record so 
 ### Finding each patient's date, place, and cause of death from ONS records
 
 ```python
-from databuilder.ehql import Dataset
-from databuilder.tables.beta.tpp import ons_deaths
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import ons_deaths
 
 dataset = Dataset()
 dataset.date_of_death = ons_deaths.date
@@ -141,13 +141,13 @@ dataset.place_of_death = ons_deaths.place
 dataset.cause_of_death = ons_deaths.cause_of_death_01
 ```
 
-:notepad_spiral: There are currently [multiple](https://github.com/opensafely-core/ehrql/blob/8341a03ec55114fe026f326d55e81a462ad8d8c2/databuilder/tables/beta/tpp.py#L140-L155) cause of death fields. We aim to resolve these to a single feature in the future.
+:notepad_spiral: There are currently [multiple](https://github.com/opensafely-core/ehrql/blob/8341a03ec55114fe026f326d55e81a462ad8d8c2/ehrql/tables/beta/tpp.py#L140-L155) cause of death fields. We aim to resolve these to a single feature in the future.
 
 ### Finding each patient's sex
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import patients
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import patients
 
 dataset = Dataset()
 dataset.sex = patients.sex
@@ -191,8 +191,8 @@ latest_ethnicity_group = latest_ethnicity_code.to_category(
 ### Finding each patient's IMD rank
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import addresses
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import addresses
 
 dataset = Dataset()
 dataset.imd = addresses.for_patient_on("2023-01-01").imd_rounded
@@ -201,13 +201,13 @@ dataset.imd = addresses.for_patient_on("2023-01-01").imd_rounded
 The original IMD ranking is rounded to the nearest 100.
 The rounded IMD ranking ranges from 0 to 32,800.
 
-See [this code comment](https://github.com/opensafely-core/ehrql/blob/c28b2e82defe43c2c1e8f379fb9308a952455d52/databuilder/tables/beta/tpp.py#L194-L205) about how we choose one address if a patient has multiple registered addresses on the given date.
+See [this code comment](https://github.com/opensafely-core/ehrql/blob/c28b2e82defe43c2c1e8f379fb9308a952455d52/ehrql/tables/beta/tpp.py#L194-L205) about how we choose one address if a patient has multiple registered addresses on the given date.
 
 ### Calculating each patient's IMD quintile
 
 ```python
-from databuilder.ehrql import Dataset, case, when
-from databuilder.tables.beta.tpp import addresses
+from ehrql import Dataset, case, when
+from ehrql.tables.beta.tpp import addresses
 
 dataset = Dataset()
 imd = addresses.for_patient_on("2023-01-01").imd_rounded
@@ -224,8 +224,8 @@ dataset.imd_quintile = case(
 ### Finding each patient's rural/urban classification
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import addresses
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import addresses
 
 dataset = Dataset()
 dataset.rural_urban = addresses.for_patient_on("2023-01-01").rural_urban_classification
@@ -245,8 +245,8 @@ The meaning of this value is as follows:
 ### Finding each patient's MSOA
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import addresses
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import addresses
 
 dataset = Dataset()
 dataset.msoa = addresses.for_patient_on("2023-01-01").msoa
@@ -255,8 +255,8 @@ dataset.msoa = addresses.for_patient_on("2023-01-01").msoa
 ### Finding multiple attributes of each patient's address
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import addresses
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import addresses
 
 dataset = Dataset()
 address = addresses.for_patient_on("2023-01-01")
@@ -270,8 +270,8 @@ dataset.msoa = address.msoa
 ### Finding each patient's practice's pseudonymised identifier
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import practice_registrations
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import practice_registrations
 
 dataset = Dataset()
 dataset.practice = practice_registrations.for_patient_on("2023-01-01").practice_pseudo_id
@@ -280,8 +280,8 @@ dataset.practice = practice_registrations.for_patient_on("2023-01-01").practice_
 ### Finding each patient's practice's STP
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import practice_registrations
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import practice_registrations
 
 dataset = Dataset()
 dataset.stp = practice_registrations.for_patient_on("2023-01-01").practice_stp
@@ -290,8 +290,8 @@ dataset.stp = practice_registrations.for_patient_on("2023-01-01").practice_stp
 ### Finding each patient's practice's region
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import practice_registrations
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import practice_registrations
 
 dataset = Dataset()
 dataset.region = practice_registrations.for_patient_on("2023-01-01").nuts1_region_name
@@ -300,8 +300,8 @@ dataset.region = practice_registrations.for_patient_on("2023-01-01").nuts1_regio
 ### Finding multiple attributes of each patient's practice
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import practice_registrations
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import practice_registrations
 
 dataset = Dataset()
 registration = practice_registrations.for_patient_on("2023-01-01")
@@ -315,8 +315,8 @@ dataset.region = registration.nuts1_region_name
 ### Does each patient have a clinical event matching a code in a codelist?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -329,8 +329,8 @@ dataset.has_had_asthma_diagnosis = clinical_events.where(
 ### Does each patient have a clinical event matching a code in a codelist in a time period?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -345,8 +345,8 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 ### Does each patient have a medication event matching some criteria?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import medications
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import medications
 
 statin_medications = codelist_from_csv(XXX)
 
@@ -361,8 +361,8 @@ dataset.has_recent_statin_prescription = medications.where(
 ### Does each patient have a hospitalisation event matching some criteria?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import hospital_admissions
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import hospital_admissions
 
 cardiac_diagnosis_codes = codelist_from_csv(XXX)
 
@@ -377,8 +377,8 @@ dataset.has_recent_cardiac_admission = hospital_admissions.where(
 ## How many events does each patient have matching some criteria?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import medications
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import medications
 
 statin_medications = codelist_from_csv(XXX)
 
@@ -398,8 +398,8 @@ Frames can be sorted by calling the `sort_by()` method with the column to sort t
 ### What is the earliest/latest clinical event matching some criteria?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -414,8 +414,8 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 ```
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -432,8 +432,8 @@ dataset.last_asthma_diagnosis_date = clinical_events.where(
 ### What is the earliest/latest medication event matching some criteria?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import medications
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import medications
 
 statin_medications = codelist_from_csv(XXX)
 
@@ -448,8 +448,8 @@ dataset.first_statin_prescription_date = medications.where(
 ```
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import medications
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import medications
 
 statin_medications = codelist_from_csv(XXX)
 
@@ -466,8 +466,8 @@ dataset.last_statin_prescription_date = medications.where(
 ### What is the earliest/latest hospitalisation event matching some criteria?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import hospital_admissions
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import hospital_admissions
 
 cardiac_diagnosis_codes = codelist_from_csv(XXX)
 
@@ -482,8 +482,8 @@ dataset.first_cardiac_hospitalisation_date = hospital_admissions.where(
 ```
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import medications
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import medications
 
 cardiac_diagnosis_codes = codelist_from_csv(XXX)
 
@@ -500,8 +500,8 @@ dataset.last_cardiac_hospitalisation_date = medications.where(
 ### What is the clinical event, matching some criteria, with the least/greatest value?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 hba1c_codelist = codelist_from_csv(XXX)
 
@@ -525,8 +525,8 @@ dataset.date_of_max_hba1c_observed = clinical_events.where(clinical_events.snome
 ### What is the code of the first/last clinical event matching some criteria?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -543,8 +543,8 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 ### What is the date of the first/last clinical event matching some criteria?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -561,8 +561,8 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 ### What is the code and date of the first/last clinical event matching some criteria?
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -584,9 +584,8 @@ dataset.first_asthma_diagnosis_date = first_asthma_diagnosis.date
 ### Finding the code of the first medication after the first clinical event matching some criteria
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.query_language import weeks
-from databuilder.tables.beta.tpp import clinical_events, medications
+from ehrql import Dataset, codelist_from_csv, weeks
+from ehrql.tables.beta.tpp import clinical_events, medications
 
 asthma_codelist = codelist_from_csv(XXX)
 inhaled_corticosteroid_codelist = codelist_from_csv(XXX)
@@ -613,8 +612,8 @@ dataset.count_ics_prescriptions_2wks_post_diagnosis = medications.where(
 ### Finding the mean observed value of clinical events matching some criteria
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 hba1c_codelist = codelist_from_csv(XXX)
 
@@ -629,8 +628,8 @@ dataset.mean_hba1c = clinical_events.where(
 ### Finding the observed value of clinical events matching some criteria expressed relative to another value
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 hba1c_codelist = codelist_from_csv(XXX)
 
@@ -655,8 +654,8 @@ clinical_events.where(clinical_events.snomedct_code.is_in(hba1c_codelist)
 ### Finding events within a fixed date range
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -671,9 +670,8 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 ### Finding events within a date range plus a constant
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.query_language import weeks
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv, weeks
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -690,9 +688,8 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 ### Finding events within a dynamic date range
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.query_language import months
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv, months
+from ehrql.tables.beta.tpp import clinical_events
 
 diabetes_codelist = codelist_from_csv(XXX)
 hba1c_codelist = codelist_from_csv(XXX)
@@ -717,8 +714,8 @@ Data quality issues with many sources may result in events apparently happening 
 
 ```python
 from datetime import date
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -739,8 +736,8 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 
 ```python
 from datetime import date
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -756,8 +753,8 @@ dataset.year_of_first = clinical_events.where(
 ### Finding prescriptions made in particular months of the year
 
 ```python
-from databuilder.ehrql import Dataset
-from databuilder.tables.beta.tpp import medications
+from ehrql import Dataset
+from ehrql.tables.beta.tpp import medications
 
 amoxicillin_codelist = codelist_from_csv(XXX)
 
@@ -774,8 +771,8 @@ dataset.winter_amoxicillin_count = medications.where(
 ### Finding the number of weeks between two events
 
 ```python
-from databuilder.ehrql import Dataset, codelist_from_csv
-from databuilder.tables.beta.tpp import clinical_events
+from ehrql import Dataset, codelist_from_csv
+from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 asthma_review_codelist = codelist_from_csv(XXX)

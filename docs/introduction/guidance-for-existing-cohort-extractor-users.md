@@ -39,5 +39,5 @@ the content here may be less relevant for you.
 * :construction: We intend to add examples of certain cohort-extractor patterns
   and their ehrQL analogues
   to the ehrQL documentation.
-* For now, consult the [ehrQL examples](../explanation/examples.md) which may cover what you want to do.
+* For now, consult the [ehrQL examples](../how-to/examples.md) which may cover what you want to do.
 * You can also [ask us for help](getting-help.md).
