@@ -212,7 +212,7 @@ class DummyPatientGenerator:
         if cat_constraint := column_info.get_constraint(Constraint.Categorical):
             # TODO: It's obviously not true in general that categories are equiprobable
             return self.rnd.choice(cat_constraint.values)
-        elif range_constraint := column_info.get_constraint(Constraint.Range):
+        elif range_constraint := column_info.get_constraint(Constraint.ClosedRange):
             return self.rnd.randrange(
                 range_constraint.minimum,
                 range_constraint.maximum + 1,

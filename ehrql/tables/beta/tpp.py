@@ -107,7 +107,7 @@ class addresses(EventFrame):
     end_date = Series(datetime.date)
     address_type = Series(int)
     rural_urban_classification = Series(int)
-    imd_rounded = Series(int, constraints=[Constraint.Range(0, 32_800, 100)])
+    imd_rounded = Series(int, constraints=[Constraint.ClosedRange(0, 32_800, 100)])
     msoa_code = Series(
         str,
         constraints=[Constraint.Regex("E020[0-9]{5}")],

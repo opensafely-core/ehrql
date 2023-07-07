@@ -153,10 +153,10 @@ def test_supplying_class_instead_of_instance_raises_error():
 
 def test_range_constraint_description():
     assert (
-        Constraint.Range(0, 10, 2).description
+        Constraint.ClosedRange(0, 10, 2).description
         == "Always >= 0, <= 10, and a multiple of 2"
     )
 
 
 def test_range_constraint_description_step_1():
-    assert Constraint.Range(0, 10).description == "Always >= 0 and <= 10"
+    assert Constraint.ClosedRange(0, 10).description == "Always >= 0 and <= 10"

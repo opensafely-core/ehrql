@@ -137,7 +137,7 @@ def get_range_for_select_column(series):
     # a valid range, if the column has a range constraint
     root = get_root_frame(series.source)
     range_constraint = root.schema.get_column_constraint_by_type(
-        series.name, Constraint.Range
+        series.name, Constraint.ClosedRange
     )
     if range_constraint:
         return range_constraint.minimum, range_constraint.maximum

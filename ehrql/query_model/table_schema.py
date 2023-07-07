@@ -41,7 +41,7 @@ class Constraint:
         def description(self):
             return f"Matches regular expression: `{self.regex}`"
 
-    class Range(BaseConstraint):
+    class ClosedRange(BaseConstraint):
         minimum: int
         maximum: int
         step: int = 1

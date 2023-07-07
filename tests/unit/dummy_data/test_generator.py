@@ -36,7 +36,7 @@ class events(EventFrame):
 @table
 class addresses(EventFrame):
     start_date = Series(datetime.date)
-    imd_rounded = Series(int, constraints=[Constraint.Range(0, 5000, 1000)])
+    imd_rounded = Series(int, constraints=[Constraint.ClosedRange(0, 5000, 1000)])
 
 
 def test_dummy_data_generator():
@@ -180,7 +180,7 @@ def test_get_random_int_with_range(dummy_patient_generator):
     column_info = ColumnInfo(
         name="test",
         type=int,
-        constraints=(Constraint.Range(0, 10, 2),),
+        constraints=(Constraint.ClosedRange(0, 10, 2),),
     )
     values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
     assert all(value in [0, 2, 4, 6, 8, 10] for value in values), values

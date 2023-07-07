@@ -123,7 +123,7 @@ def test_get_range_for_select_column_with_range_constraint():
         SelectTable(
             "t",
             schema=TableSchema(
-                i=Column(int, constraints=[Constraint.Range(0, 100, 10)])
+                i=Column(int, constraints=[Constraint.ClosedRange(0, 100, 10)])
             ),
         ),
         "i",
