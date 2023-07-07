@@ -70,7 +70,7 @@ dataset.med_code = latest_asthma_med.dmd_code
 
 In this dataset definition,
 the dataset is restricted to the population of patients born on or before 31st December 1999.
-The features of interest are the Dictionary of Medicines and Devices (dm+d) code,
+The features of interest are the dm+d code
 and date of the last asthma medication
 that the patient was prescribed.
 
