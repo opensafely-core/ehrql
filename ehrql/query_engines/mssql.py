@@ -233,17 +233,42 @@ def temporary_table_from_query(table_name, query, index_col=0, schema=None):
         sqlalchemy.Column(c.name, c.type, key=c.key) for c in query.selected_columns
     ]
     table = GeneratedTable(table_name, sqlalchemy.MetaData(), *columns, schema=schema)
-    table.setup_queries = [
-        # Use the MSSQL `SELECT * INTO ...` construct to create and populate this
-        # table
-        SelectStarInto(table, query.alias()),
+    # The "#" prefix indicates a session-scoped temporary table which won't persist if
+    # we open a new connection to the database
+    table.is_persistent = not table_name.startswith("#")
+    if not table.is_persistent:
+        # If we're creating this table in the ephemeral, session-scoped temporary
+        # database then we can use the MSSQL `SELECT * INTO` construct to create and
+        # populate the table in a single query
+        table.setup_queries = [
+            SelectStarInto(table, query.alias()),
+        ]
+    else:
+        # If we're creating a persistent table then things are more complicated because
+        # the `SELECT * INTO` query locks the system table of the target database for
+        # the whole duration of the query, which can be a long time if the query is very
+        # large, and no other tables can be created while this lock is held. Instead we
+        # have to use separate queries: a fast, blocking, one to create the table; and
+        # then a slower, non-blocking one to populate it.
+        table.setup_queries = [
+            # We can't use a standard SQLAlchemy `CreateTable(table)` query here
+            # because, while ehrQL knows the general types of all the columns in the
+            # query (integer, string etc), it doesn't know the database specific
+            # attributes (how wide are these integers? what collation are these strings
+            # in? etc). So instead we use the construct `SELECT * INTO ... WHERE 0=1` to
+            # create a table with all the appropriate columns without needing to fetch
+            # any of the actual data for it.
+            SelectStarInto(table, query.alias(), schema_only=True),
+            # We then use an `INSERT FROM SELECT` query to populate the table. This only
+            # takes a table-specific lock and so won't block other queries from running.
+            table.insert().from_select(columns, query),
+        ]
+    table.setup_queries.append(
         # Create a clustered index on the specified column which defines the order in
         # which data will be stored on disk. (We use `None` as the index name to let
         # SQLAlchemy generate one for us.)
         CreateIndex(sqlalchemy.Index(None, table.c[index_col], mssql_clustered=True)),
-    ]
+    )
+
     table.cleanup_queries = [DropTable(table, if_exists=True)]
-    # The "#" prefix indicates a session-scoped temporary table which won't persist if
-    # we open a new connection to the database
-    table.is_persistent = table_name.startswith("#")
     return table

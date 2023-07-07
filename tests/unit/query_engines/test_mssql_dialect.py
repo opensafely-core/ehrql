@@ -47,6 +47,18 @@ def test_select_star_into():
     )
 
 
+def test_select_star_into_schema_only():
+    table = sqlalchemy.table("foo", sqlalchemy.Column("bar"))
+    query = sqlalchemy.select(table.c.bar).where(table.c.bar > 1)
+    target_table = sqlalchemy.table("test")
+    select_into = SelectStarInto(target_table, query.alias(), schema_only=True)
+    assert _str(select_into) == (
+        "SELECT * INTO test FROM (SELECT foo.bar AS bar \n"
+        "FROM foo \n"
+        "WHERE foo.bar > 1) AS anon_1 WHERE 0=1"
+    )
+
+
 def test_select_star_into_can_be_iterated():
     # If we don't define the `get_children()` method on `SelectStarInto` we won't get an
     # error when attempting to iterate the resulting element structure: it will just act

@@ -72,6 +72,12 @@ settings = dict(
     deadline=None,
 )
 
+ENGINE_CONFIG = {
+    # Exercise the codepath which writes to the temporary database as this is more
+    # convoluted and thus, presumably, more prone to bugs
+    "mssql": {"TEMP_DATABASE_NAME": "temp_tables"},
+}
+
 
 @pytest.fixture(scope="session")
 def query_engines(request):
@@ -265,7 +271,10 @@ IGNORED_ERRORS = [
 def run_with(engine, instances, variables):
     try:
         engine.setup(instances, metadata=sqla_metadata)
-        return engine.extract_qm(variables)
+        return engine.extract_qm(
+            variables,
+            config=ENGINE_CONFIG.get(engine.name, {}),
+        )
     except Exception as e:  # pragma: no cover
         for ignored_error_type, ignored_error_regex in IGNORED_ERRORS:
             if type(e) == ignored_error_type and ignored_error_regex.match(str(e)):
