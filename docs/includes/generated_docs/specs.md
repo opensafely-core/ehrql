@@ -2440,7 +2440,36 @@ returns the following patient series:
 
 
 
-#### 11.2.8 Is on or between
+#### 11.2.8 Is between but not on
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|d1 |
+| - | - |
+| 1|2010-01-01 |
+| 2|2010-01-02 |
+| 3|2010-01-03 |
+| 4|2010-01-04 |
+| 5|2010-01-05 |
+| 6| |
+
+```python
+p.d1.is_between_but_not_on(date(2010, 1, 2), date(2010, 1, 4))
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|F |
+| 2|F |
+| 3|T |
+| 4|F |
+| 5|F |
+| 6| |
+
+
+
+#### 11.2.9 Is on or between
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -2469,7 +2498,7 @@ returns the following patient series:
 
 
 
-#### 11.2.9 Is during
+#### 11.2.10 Is during
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -2498,7 +2527,7 @@ returns the following patient series:
 
 
 
-#### 11.2.10 Is between backwards
+#### 11.2.11 Is between backwards
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -2527,7 +2556,7 @@ returns the following patient series:
 
 
 
-#### 11.2.11 Is on or between backwards
+#### 11.2.12 Is on or between backwards
 
 This example makes use of a patient-level table named `p` containing the following data:
 
