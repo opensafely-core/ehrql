@@ -517,7 +517,7 @@ class open_prompt(EventFrame):
         constraints=[Constraint.NotNull()],
         description=(
             "The response to the question, as a CTV3 code. "
-            "Alternatively, if the question admits a number as the response, "
+            "Alternatively, if the question does not admit a CTV3 code as the response, "
             "then the question, as a CTV3 code."
         ),
     )
@@ -526,15 +526,24 @@ class open_prompt(EventFrame):
         description=(
             "The response to the question, as a SNOMED CT code, "
             "for responses where the CTV3 code has a corresponding SNOMED CT code. "
-            "Alternatively, if the question admits a number as the response, "
+            "Alternatively, if the question does not admit a SNOMED CT code as the response, "
             "then the question, as a SNOMED CT code, "
             "for questions where the CTV3 code has a corresponding SNOMED CT code."
         ),
     )
-    consultation_date = Series(
+    creation_date = Series(
         datetime.date,
         constraints=[Constraint.NotNull()],
         description="The date the survey was administered",
+    )
+    consultation_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+        description=(
+            "The response to the question, as a date, "
+            "if the question admits a date as the response. "
+            "Alternatively, the date the survey was administered."
+        ),
     )
     consultation_id = Series(
         int,
@@ -543,11 +552,7 @@ class open_prompt(EventFrame):
     )
     numeric_value = Series(
         float,
-        constraints=[Constraint.NotNull()],
-        description=(
-            "The response to the question, as a number. "
-            "Alternatively, if the question admits a code as the response, then zero."
-        ),
+        description="The response to the question, as a number",
     )
 
 
