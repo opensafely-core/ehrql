@@ -2026,50 +2026,6 @@ has no values).
 </div>
 
 
-<h4 class="attr-heading" id="DateDifference" data-toc-label="DateDifference" markdown>
-  <tt><em>class</em> <strong>DateDifference</strong>(<em>lhs</em>, <em>rhs</em>)</tt>
-</h4>
-
-<div markdown="block" class="indent">
-Represents the difference between two date series (i.e. it is what you get when you
-subtract one date series from another)
-<div class="attr-heading" id="DateDifference.days">
-  <tt><strong>days</strong></tt>
-  <a class="headerlink" href="#DateDifference.days" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-The value of the date difference in days (can be positive or negative)
-</div>
-
-<div class="attr-heading" id="DateDifference.weeks">
-  <tt><strong>weeks</strong></tt>
-  <a class="headerlink" href="#DateDifference.weeks" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-The value of the date difference in whole weeks (can be positive or negative)
-</div>
-
-<div class="attr-heading" id="DateDifference.months">
-  <tt><strong>months</strong></tt>
-  <a class="headerlink" href="#DateDifference.months" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-The value of the date difference in whole calendar months (can be positive or
-negative)
-</div>
-
-<div class="attr-heading" id="DateDifference.years">
-  <tt><strong>years</strong></tt>
-  <a class="headerlink" href="#DateDifference.years" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-The value of the date difference in whole calendar years (can be positive or
-negative)
-</div>
-
-</div>
-
-
 <h4 class="attr-heading" id="CodePatientSeries" data-toc-label="CodePatientSeries" markdown>
   <tt><em>class</em> <strong>CodePatientSeries</strong>()</tt>
 </h4>
