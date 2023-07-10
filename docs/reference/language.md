@@ -51,6 +51,54 @@ mix values of different types.
 
 ## Date Arithmetic
 
+ehrQL supports adding and subtracting durations from dates e.g.
+`date_of_admission + days(10)` or `date_of_discharge - weeks(6)`. It
+also supports finding the difference between dates e.g.
+```py
+days_in_hospital = (date_of_discharge - date_of_admission).days
+```
+
+When working with dates you should generally prefer using days or weeks
+as units, rather than months or years, unless there's a specific reason
+you care about the calendar. Adding or subtracting days or weeks to a
+date is a simple, unambiguous process; adding years or months introduces
+ambiguities and complexities as neither unit is a consistent length (see
+[section below](#ambiguous-dates) for details). So, for example, unless
+there is specific epidemiological significance to whether an event
+happened exactly three calendar months ago, it is better to say "90
+days" rather than "3 months".
+
+Additionally, some dates in the patient data (e.g. dates of birth) have
+been rounded to the first of the month for privacy purposes. It's
+pointless applying precise calendar arithmetic to such dates.
+
+**Tip**: it can be clearer to readers to write time periods as a product
+rather than just a number e.g. it's easier to see that `days(5 * 365)`
+is approximately five years than it is with `days(1825)`.
+
+
+#### Ambiguous Dates
+
+Adding years or months to a date sometimes has a clear answer e.g. 1
+January 2001 is exactly one calendar year later than 1 January 2000, and
+1 February is exactly one calendar month later. But not all cases are
+clear, for instance: which day is exactly one year after 29 February
+2000? There is no 29 February 2001, so should it be 28 February or 1
+March? And which day is exactly one calendar month after 31 August?
+There is no 31 September, so should it be 30 September or 1 October?
+Different databases give different answers here.
+
+ehrQL takes the approach that we consistently round *up* to the next
+date. That is, whenever the naïve calculation takes us to a date which
+doesn't exist (like 29 February 2001 or 31 September) we always take the
+next *largest* date (1 March 2001, or 1 October).
+
+As different databases take different approaches here, ehrQL has to go
+to some lengths to ensure that we get the same results on every database
+we support. This introduces complexity into the generated SQL which may
+have performance costs in some circumstances. This is another reason to
+prefer unambiguous units of days and weeks where possible.
+
 ---8<-- 'includes/generated_docs/language__date_arithmetic.md'
 
 ---
