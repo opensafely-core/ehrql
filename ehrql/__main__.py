@@ -60,8 +60,21 @@ def main(args, environ=None):
     else:
         user_args = []
 
+    parser = create_parser(user_args, environ)
+
     init_logging()
 
+    kwargs = vars(parser.parse_args(args))
+    function = kwargs.pop("function")
+
+    try:
+        function(**kwargs)
+    except CommandError as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
+
+
+def create_parser(user_args, environ):
     parser = ArgumentParser(prog="ehrql", description="Generate datasets in OpenSAFELY")
 
     def show_help(**kwargs):
@@ -81,14 +94,7 @@ def main(args, environ=None):
     add_test_connection(subparsers, environ, user_args)
     add_dump_example_data(subparsers, environ, user_args)
 
-    kwargs = vars(parser.parse_args(args))
-    function = kwargs.pop("function")
-
-    try:
-        function(**kwargs)
-    except CommandError as e:
-        print(str(e), file=sys.stderr)
-        sys.exit(1)
+    return parser
 
 
 def add_generate_dataset(subparsers, environ, user_args):
