@@ -517,7 +517,7 @@ class open_prompt(EventFrame):
         constraints=[Constraint.NotNull()],
         description=(
             "The response to the question, as a CTV3 code. "
-            "Alternatively, if the question admits a number as the response, "
+            "Alternatively, if the question does not admit a CTV3 code as the response, "
             "then the question, as a CTV3 code."
         ),
     )
@@ -526,7 +526,7 @@ class open_prompt(EventFrame):
         description=(
             "The response to the question, as a SNOMED CT code, "
             "for responses where the CTV3 code has a corresponding SNOMED CT code. "
-            "Alternatively, if the question admits a number as the response, "
+            "Alternatively, if the question does not admit a SNOMED CT code as the response, "
             "then the question, as a SNOMED CT code, "
             "for questions where the CTV3 code has a corresponding SNOMED CT code."
         ),
