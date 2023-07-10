@@ -1,5 +1,5 @@
 :construction: We're still working on ehrQL and its documentation:
-**hearing from ehrQL users what you find trickier to do or understand will help us improve ehrQL**.
+**hearing what you find tricky to do or understand will help us improve ehrQL**.
 
 If you are confused or stuck, muddled, addled, befuddled or bemused,
 and cannot easily find what you are looking for in this documentation, then:
