@@ -385,6 +385,7 @@ class TPPBackend(BaseBackend):
             CASE
                 WHEN prompt.CodeSystemId = 0 THEN prompt.ConceptId
             END AS snomedct_code,
+            CAST(prompt.CreationDate AS date) AS creation_date,
             CAST(prompt.ConsultationDate AS date) AS consultation_date,
             prompt.Consultation_ID AS consultation_id,
             prompt.NumericValue AS numeric_value

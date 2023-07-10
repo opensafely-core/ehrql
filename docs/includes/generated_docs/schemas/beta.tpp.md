@@ -2159,13 +2159,26 @@ The response to the question, as a SNOMED CT code, for responses where the CTV3 
 </div>
 
 <div markdown="block">
+  <dt id="open_prompt.creation_date">
+    <strong>creation_date</strong>
+    <a class="headerlink" href="#open_prompt.creation_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+The date the survey was administered
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
   <dt id="open_prompt.consultation_date">
     <strong>consultation_date</strong>
     <a class="headerlink" href="#open_prompt.consultation_date" title="Permanent link">🔗</a>
     <code>date</code>
   </dt>
   <dd markdown="block">
-The date the survey was administered
+The response to the question, as a date, if the question admits a date as the response. Alternatively, the date the survey was administered.
 
  * Never `NULL`
   </dd>

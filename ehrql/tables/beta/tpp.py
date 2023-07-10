@@ -531,10 +531,19 @@ class open_prompt(EventFrame):
             "for questions where the CTV3 code has a corresponding SNOMED CT code."
         ),
     )
-    consultation_date = Series(
+    creation_date = Series(
         datetime.date,
         constraints=[Constraint.NotNull()],
         description="The date the survey was administered",
+    )
+    consultation_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+        description=(
+            "The response to the question, as a date, "
+            "if the question admits a date as the response. "
+            "Alternatively, the date the survey was administered."
+        ),
     )
     consultation_id = Series(
         int,
