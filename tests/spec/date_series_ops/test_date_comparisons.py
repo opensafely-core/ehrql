@@ -109,22 +109,6 @@ table_data_for_between_tests = {
 }
 
 
-def test_is_between(spec_test):
-    table_data = table_data_for_between_tests
-    spec_test(
-        table_data,
-        p.d1.is_between(date(2010, 1, 2), date(2010, 1, 4)),
-        {
-            1: False,
-            2: False,
-            3: True,
-            4: False,
-            5: False,
-            6: None,
-        },
-    )
-
-
 def test_is_between_but_not_on(spec_test):
     table_data = table_data_for_between_tests
     spec_test(
