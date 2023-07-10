@@ -12,8 +12,11 @@ and is saved in a file.
 When a dataset definition is **executed** against data,
 a **dataset** is generated and written to an output file.
 
-A dataset definition may run against **dummy data**, when developing the ehrQL query on your own computer,
-or real patient data, when the dataset definition runs on the OpenSAFELY platform.
+When developing an ehrQL query, you run a dataset definition against **dummy data**.
+Dummy data can be produced automatically, or you can provide your own.
+
+Once you are confident that your ehrQL query is correct,
+you can run it against real patient data in an **OpenSAFELY backend**.
 
 A dataset is a table containing **one row per patient**,
 and **one column per feature of interest**.
