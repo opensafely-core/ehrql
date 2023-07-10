@@ -49,6 +49,13 @@ mix values of different types.
 ---
 
 
+## Date Arithmetic
+
+---8<-- 'includes/generated_docs/language__date_arithmetic.md'
+
+---
+
+
 ## General
 
 ---8<-- 'includes/generated_docs/language__general.md'
