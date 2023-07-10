@@ -21,14 +21,10 @@ def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patien
     attributes = {"__tablename__": table_name}
 
     if has_one_row_per_patient:
-        attributes["patient_id"] = sqlalchemy.Column(
-            sqlalchemy.Integer, primary_key=True
-        )
+        attributes["patient_id"] = make_primary_key_column()
     else:
         attributes["patient_id"] = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
-        attributes[SYNTHETIC_PRIMARY_KEY] = sqlalchemy.Column(
-            sqlalchemy.Integer, primary_key=True
-        )
+        attributes[SYNTHETIC_PRIMARY_KEY] = make_primary_key_column()
 
     for col_name, type_ in schema.column_types:
         attributes[col_name] = sqlalchemy.Column(type_from_python_type(type_))
@@ -36,6 +32,23 @@ def orm_class_from_schema(base_class, table_name, schema, has_one_row_per_patien
     class_name = table_name.title().replace("_", "")
 
     return type(class_name, (base_class,), attributes)
+
+
+def make_primary_key_column():
+    return sqlalchemy.Column(
+        sqlalchemy.Integer,
+        primary_key=True,
+        # We deliberately avoid using database-level autoincrement and instead implement
+        # our own sequence generation. In MSSQL using autoincrement creates "identity
+        # columns" which [cause us problems][1400]. And not all DBMSs we plan to support
+        # have autoincrement features in any case. Given that these are the tables in
+        # question are test fixtures which we control the usual concurrency and
+        # integrity concerns don't apply.
+        #
+        # 1400: https://github.com/opensafely-core/ehrql/pull/1400
+        autoincrement=False,
+        default=iter(range(1, 2**63)).__next__,
+    )
 
 
 def make_orm_models(*args):

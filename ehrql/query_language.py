@@ -37,12 +37,35 @@ class _DictArg(list):
 
 
 class Dataset:
+    """
+    Defines the patients you want to include in your dataset and the variables you want
+    to extract for each patient.
+
+    Every dataset definition file must define a `Dataset()` instance called `dataset`
+    like so:
+    ```py
+    dataset = Dataset()
+    ```
+
+    Variables are added to the dataset as attributes, for example:
+    ```py
+    dataset.age = patients.age_on("2020-01-01")
+    ```
+    """
+
     def __init__(self):
         object.__setattr__(self, "variables", {})
 
-    def define_population(self, population):
-        validate_population_definition(population.qm_node)
-        self.variables["population"] = population
+    def define_population(self, population_condition):
+        """
+        Define the condition that patients must meet to be included in the Dataset, in
+        the form of a [boolean patient series](#BoolPatientSeries) e.g.
+        ```py
+        dataset.define_population(patients.date_of_birth < "1990-01-01")
+        ```
+        """
+        validate_population_definition(population_condition.qm_node)
+        self.variables["population"] = population_condition
 
     def __setattr__(self, name, value):
         if name == "population":
@@ -55,7 +78,9 @@ class Dataset:
             raise AttributeError(f"'{name}' is not an allowed variable name")
         if not VALID_VARIABLE_NAME_RE.match(name):
             raise AttributeError(
-                f"Variable names must start with a letter, and contain only alphanumeric characters and underscores (you defined a variable '{name}')"
+                f"Variable names must start with a letter, and contain only "
+                f"alphanumeric characters and underscores (you defined a "
+                f"variable '{name}')"
             )
         if not isinstance(value, BaseSeries):
             raise TypeError(
@@ -107,20 +132,54 @@ class BaseSeries:
     # These are the basic operations that apply to any series regardless of type or
     # dimension
     def __eq__(self, other):
+        """
+        Return a boolean series comparing each value in this series with its
+        corresponding value in `other`.
+
+        Note that the result of comparing anything with NULL (including NULL itself) is NULL.
+        """
         other = self._cast(other)
         return _apply(qm.Function.EQ, self, other)
 
     def __ne__(self, other):
+        """
+        Return the inverse of `==` above.
+
+        Note that the same point regarding NULL applies here.
+        """
         other = self._cast(other)
         return _apply(qm.Function.NE, self, other)
 
     def is_null(self):
+        """
+        Return a boolean series which is True for each value in this series which is
+        NULL, and False otherwise.
+        """
         return _apply(qm.Function.IsNull, self)
 
     def is_not_null(self):
+        """
+        Return the inverse of `is_null()` above.
+        """
         return self.is_null().__invert__()
 
+    def if_null_then(self, other):
+        """
+        Replace any NULL value in this series with the corresponding value in `other`.
+
+        Note that `other` must be of the same type as this series.
+        """
+        return case(
+            when(self.is_not_null()).then(self),
+            default=self._cast(other),
+        )
+
     def is_in(self, other):
+        """
+        Return a boolean series which is True for each value in this series which is
+        contained in `other`, where `other` can be any of the standard "container"
+        types: tuple, list, set, frozenset, or dict.
+        """
         # For iterable arguments, apply any necessary casting and convert to the
         # immutable Set type required by the query model. We don't accept arbitrary
         # iterables here because too many types in Python are iterable and there's the
@@ -130,12 +189,22 @@ class BaseSeries:
         return _apply(qm.Function.In, self, other)
 
     def is_not_in(self, other):
+        """
+        Return the inverse of `is_in()` above.
+        """
         return self.is_in(other).__invert__()
 
     def map_values(self, mapping, default=None):
         """
         Accepts a dictionary mapping one set of values to another and applies that
-        mapping to the series
+        mapping to the series e.g.
+
+        ```py
+        status = status_code.map_values(
+            {1: "pending", 2: "accepted", 3: "completed"},
+            default="unknown"
+        )
+        ```
         """
         return case(
             *[
@@ -145,11 +214,12 @@ class BaseSeries:
             default=default,
         )
 
-    def if_null_then(self, other):
-        return case(
-            when(self.is_not_null()).then(self),
-            default=self._cast(other),
-        )
+
+class PatientSeries(BaseSeries):
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # Register the series using its `_type` attribute
+        REGISTERED_TYPES[cls._type, True] = cls
 
 
 class EventSeries(BaseSeries):
@@ -159,14 +229,12 @@ class EventSeries(BaseSeries):
         REGISTERED_TYPES[cls._type, False] = cls
 
     def count_distinct_for_patient(self):
+        """
+        Return a integer patient series counting the number of distinct values for each
+        patient in the series (ignoring any NULL values). Not that if a patient has no
+        values at all in the series the result will be zero rather than NULL.
+        """
         return _apply(qm.AggregateByPatient.CountDistinct, self)
-
-
-class PatientSeries(BaseSeries):
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        # Register the series using its `_type` attribute
-        REGISTERED_TYPES[cls._type, True] = cls
 
 
 # BOOLEAN SERIES
@@ -174,23 +242,41 @@ class PatientSeries(BaseSeries):
 
 
 class BoolFunctions:
-    def __invert__(self):
-        return _apply(qm.Function.Not, self)
-
     def __and__(self, other):
+        """
+        Logical AND
+
+        Return a boolean series which is True where both this series and `other` are
+        True, False where either are False, and NULL otherwise.
+        """
         other = self._cast(other)
         return _apply(qm.Function.And, self, other)
 
     def __or__(self, other):
+        """
+        Logical OR
+
+        Return a boolean series which is True where either this series or `other` is
+        True, False where both are False, and NULL otherwise.
+        """
         other = self._cast(other)
         return _apply(qm.Function.Or, self, other)
 
+    def __invert__(self):
+        """
+        Logical NOT
 
-class BoolEventSeries(BoolFunctions, EventSeries):
-    _type = bool
+        Return a boolean series which is the inverse of this series i.e. where True
+        becomes False, False becomes True, and NULL stays as NULL.
+        """
+        return _apply(qm.Function.Not, self)
 
 
 class BoolPatientSeries(BoolFunctions, PatientSeries):
+    _type = bool
+
+
+class BoolEventSeries(BoolFunctions, EventSeries):
     _type = bool
 
 
@@ -200,27 +286,55 @@ class BoolPatientSeries(BoolFunctions, PatientSeries):
 
 class ComparableFunctions:
     def __lt__(self, other):
+        """
+        Return a boolean series which is True for each value in this series that is
+        strictly less than its corresponding value in `other` and False otherwise (or NULL
+        if either value is NULL).
+        """
         other = self._cast(other)
         return _apply(qm.Function.LT, self, other)
 
     def __le__(self, other):
+        """
+        Return a boolean series which is True for each value in this series that is less
+        than or equal to its corresponding value in `other` and False otherwise (or NULL
+        if either value is NULL).
+        """
         other = self._cast(other)
         return _apply(qm.Function.LE, self, other)
 
     def __ge__(self, other):
+        """
+        Return a boolean series which is True for each value in this series that is
+        greater than or equal to its corresponding value in `other` and False otherwise
+        (or NULL if either value is NULL).
+        """
         other = self._cast(other)
         return _apply(qm.Function.GE, self, other)
 
     def __gt__(self, other):
+        """
+        Return a boolean series which is True for each value in this series that is
+        strictly greater than its corresponding value in `other` and False otherwise (or
+        NULL if either value is NULL).
+        """
         other = self._cast(other)
         return _apply(qm.Function.GT, self, other)
 
 
 class ComparableAggregations:
     def minimum_for_patient(self):
+        """
+        Return the minimum value in the series for each patient (or NULL if the patient
+        has no values).
+        """
         return _apply(qm.AggregateByPatient.Min, self)
 
     def maximum_for_patient(self):
+        """
+        Return the maximum value in the series for each patient (or NULL if the patient
+        has no values).
+        """
         return _apply(qm.AggregateByPatient.Max, self)
 
 
@@ -230,6 +344,11 @@ class ComparableAggregations:
 
 class StrFunctions(ComparableFunctions):
     def contains(self, other):
+        """
+        Return a boolean series which is True for each string in this series which
+        contains the corresponding value in `other` as a sub-string and False otherwise (or
+        NULL if either value is NULL).
+        """
         other = self._cast(other)
         return _apply(qm.Function.StringContains, self, other)
 
@@ -238,11 +357,11 @@ class StrAggregations(ComparableAggregations):
     "Empty for now"
 
 
-class StrEventSeries(StrFunctions, StrAggregations, EventSeries):
+class StrPatientSeries(StrFunctions, PatientSeries):
     _type = str
 
 
-class StrPatientSeries(StrFunctions, PatientSeries):
+class StrEventSeries(StrFunctions, StrAggregations, EventSeries):
     _type = str
 
 
@@ -251,10 +370,11 @@ class StrPatientSeries(StrFunctions, PatientSeries):
 
 
 class NumericFunctions(ComparableFunctions):
-    def __neg__(self):
-        return _apply(qm.Function.Negate, self)
-
     def __add__(self, other):
+        """
+        Return the sum of each corresponding value in this series and `other` (or NULL
+        if either is NULL).
+        """
         other = self._cast(other)
         return _apply(qm.Function.Add, self, other)
 
@@ -262,6 +382,10 @@ class NumericFunctions(ComparableFunctions):
         return self + other
 
     def __sub__(self, other):
+        """
+        Return each value in this series with its corresponding value in `other`
+        subtracted (or NULL if either is NULL).
+        """
         other = self._cast(other)
         return _apply(qm.Function.Subtract, self, other)
 
@@ -269,6 +393,10 @@ class NumericFunctions(ComparableFunctions):
         return other + -self
 
     def __mul__(self, other):
+        """
+        Return the product of each corresponding value in this series and `other` (or
+        NULL if either is NULL).
+        """
         other = self._cast(other)
         return _apply(qm.Function.Multiply, self, other)
 
@@ -276,6 +404,12 @@ class NumericFunctions(ComparableFunctions):
         return self * other
 
     def __truediv__(self, other):
+        """
+        Return a series with each value in this series divided by its correponding value
+        in `other` (or NULL if either is NULL).
+
+        Note that the result is always if a float even if the inputs are integers.
+        """
         other = self._cast(other)
         return _apply(qm.Function.TrueDivide, self, other)
 
@@ -283,32 +417,58 @@ class NumericFunctions(ComparableFunctions):
         return self / other
 
     def __floordiv__(self, other):
+        """
+        Return a series with each value in this series divided by its correponding value
+        in `other` and then rounded **down** to the nearest integer value (or NULL if either
+        is NULL).
+
+        Note that the result is always if an integer even if the inputs are floats.
+        """
         other = self._cast(other)
         return _apply(qm.Function.FloorDivide, self, other)
 
     def __rfloordiv__(self, other):
         return self // other
 
+    def __neg__(self):
+        """
+        Return the negation of each value in this series.
+        """
+        return _apply(qm.Function.Negate, self)
+
     def as_int(self):
+        """
+        Return each value in this series rounded down to the nearest integer.
+        """
         return _apply(qm.Function.CastToInt, self)
 
     def as_float(self):
+        """
+        Return each value in this series as a float e.g 10 becomes 10.0
+        """
         return _apply(qm.Function.CastToFloat, self)
 
 
 class NumericAggregations(ComparableAggregations):
     def sum_for_patient(self):
+        """
+        Return the sum of all values in the series for each patient.
+        """
         return _apply(qm.AggregateByPatient.Sum, self)
 
     def mean_for_patient(self):
+        """
+        Return the arithmetic mean of any non-NULL values in the series for each
+        patient.
+        """
         return _apply(qm.AggregateByPatient.Mean, self)
 
 
-class IntEventSeries(NumericFunctions, NumericAggregations, EventSeries):
+class IntPatientSeries(NumericFunctions, PatientSeries):
     _type = int
 
 
-class IntPatientSeries(NumericFunctions, PatientSeries):
+class IntEventSeries(NumericFunctions, NumericAggregations, EventSeries):
     _type = int
 
 
@@ -323,11 +483,11 @@ class FloatFunctions(NumericFunctions):
         return value
 
 
-class FloatEventSeries(FloatFunctions, NumericAggregations, EventSeries):
+class FloatPatientSeries(FloatFunctions, PatientSeries):
     _type = float
 
 
-class FloatPatientSeries(FloatFunctions, PatientSeries):
+class FloatEventSeries(FloatFunctions, NumericAggregations, EventSeries):
     _type = float
 
 
@@ -352,42 +512,99 @@ class DateFunctions(ComparableFunctions):
 
     @property
     def year(self):
+        """
+        Return an integer series giving the year of each date in this series.
+        """
         return _apply(qm.Function.YearFromDate, self)
 
     @property
     def month(self):
+        """
+        Return an integer series giving the month (1-12) of each date in this series.
+        """
         return _apply(qm.Function.MonthFromDate, self)
 
     @property
     def day(self):
+        """
+        Return an integer series giving the day of the month (1-31) of each date in this
+        series.
+        """
         return _apply(qm.Function.DayFromDate, self)
 
     def to_first_of_year(self):
+        """
+        Return a date series with each date in this series replaced by the date of the
+        first day in its corresponding calendar year.
+        """
         return _apply(qm.Function.ToFirstOfYear, self)
 
     def to_first_of_month(self):
+        """
+        Return a date series with each date in this series replaced by the date of the
+        first day in its corresponding calendar month.
+        """
         return _apply(qm.Function.ToFirstOfMonth, self)
 
     def is_before(self, other):
+        """
+        Return a boolean series which is True for each date in this series that is
+        earlier than its corresponding date in `other` and False otherwise (or NULL if
+        either value is NULL).
+        """
         return self.__lt__(other)
 
     def is_on_or_before(self, other):
+        """
+        Return a boolean series which is True for each date in this series that is
+        earlier than or the same as its corresponding value in `other` and False
+        otherwise (or NULL if either value is NULL).
+        """
         return self.__le__(other)
 
     def is_after(self, other):
+        """
+        Return a boolean series which is True for each date in this series that is later
+        than its corresponding date in `other` and False otherwise (or NULL if either value
+        is NULL).
+        """
         return self.__gt__(other)
 
     def is_on_or_after(self, other):
+        """
+        Return a boolean series which is True for each date in this series that is later
+        than or the same as its corresponding value in `other` and False otherwise (or
+        NULL if either value is NULL).
+        """
         return self.__ge__(other)
 
+    def is_between(self, start, end):
+        """
+        Return a boolean series which is True for each date in this series which is
+        strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
+        """
+        return (self > start) & (self < end)
+
     def is_on_or_between(self, start, end):
+        """
+        Return a boolean series which is True for each date in this series which is
+        between or the same as the corresponding dates in `start` and `end`.
+        """
         return (self >= start) & (self <= end)
 
     def is_during(self, interval):
+        """
+        The same as `is_on_or_between()` above, but allows supplying a start/end date
+        pair as single argument.
+        """
         start, end = interval
         return self.is_on_or_between(start, end)
 
     def __sub__(self, other):
+        """
+        Return a series giving the difference between each date in this series and
+        `other` (see [`DateDifference`](#DateDifference)).
+        """
         other = self._cast(other)
         if isinstance(other, datetime.date | DateEventSeries | DatePatientSeries):
             return DateDifference(self, other)
@@ -406,11 +623,11 @@ class DateAggregations(ComparableAggregations):
     "Empty for now"
 
 
-class DateEventSeries(DateFunctions, DateAggregations, EventSeries):
+class DatePatientSeries(DateFunctions, PatientSeries):
     _type = datetime.date
 
 
-class DatePatientSeries(DateFunctions, PatientSeries):
+class DateEventSeries(DateFunctions, DateAggregations, EventSeries):
     _type = datetime.date
 
 
@@ -418,23 +635,42 @@ class DatePatientSeries(DateFunctions, PatientSeries):
 # own it wouldn't be very useful for this type
 @dataclasses.dataclass(eq=False)
 class DateDifference:
+    """
+    Represents the difference between two date series (i.e. it is what you get when you
+    subtract one date series from another)
+    """
+
     lhs: datetime.date | DateEventSeries | DatePatientSeries
     rhs: datetime.date | DateEventSeries | DatePatientSeries
 
     @property
     def days(self):
+        """
+        The value of the date difference in days (can be positive or negative)
+        """
         return _apply(qm.Function.DateDifferenceInDays, self.lhs, self.rhs)
 
     @property
     def weeks(self):
+        """
+        The value of the date difference in whole weeks (can be positive or negative)
+        """
         return self.days // 7
 
     @property
     def months(self):
+        """
+        The value of the date difference in whole calendar months (can be positive or
+        negative)
+        """
         return _apply(qm.Function.DateDifferenceInMonths, self.lhs, self.rhs)
 
     @property
     def years(self):
+        """
+        The value of the date difference in whole calendar years (can be positive or
+        negative)
+        """
         return _apply(qm.Function.DateDifferenceInYears, self.lhs, self.rhs)
 
 
@@ -449,11 +685,18 @@ class Duration:
 
     # The default dataclass equality/inequality methods don't behave correctly here
     def __eq__(self, other):
+        """
+        Return a boolean indicating whether the two durations have the same value and units.
+        """
         if other.__class__ is not self.__class__:
             return False
         return self.value == other.value
 
     def __ne__(self, other):
+        """
+        Return a boolean indicating whether the two durations do not have the same value
+        and units.
+        """
         # We have to apply different inversion logic depending on whether we have a
         # boolean or a BoolSeries
         is_equal = self == other
@@ -463,6 +706,11 @@ class Duration:
             return is_equal.__invert__()
 
     def __add__(self, other):
+        """
+        Add this duration to a date to produce a new date.
+
+        Alternatively two durations with the same units may be added to produce a new duration.
+        """
         other = parse_date_if_str(other)
         if isinstance(self.value, int) and isinstance(other, datetime.date):
             # If both operands are static values we can perform the date arithmetic
@@ -479,6 +727,9 @@ class Duration:
             return NotImplemented
 
     def __sub__(self, other):
+        """
+        Subtract another duration of the same units from this duration.
+        """
         return self.__add__(other.__neg__())
 
     def __radd__(self, other):
@@ -488,12 +739,50 @@ class Duration:
         return self.__neg__().__add__(other)
 
     def __neg__(self):
+        """
+        Invert this duration so that rather that representing a movement, say, four
+        weeks forwards in time it now represents a movement four weeks backwards.
+        """
         return self.__class__(self.value.__neg__())
 
     def starting_on(self, date):
+        """
+        Return a list of time intervals covering the duration starting on the supplied
+        date. For example:
+        ```py
+        weeks(3).starting_on("2000-01-01")
+        ```
+        Returns:
+        ```
+        [
+            (date(2000, 1, 1), date(2000, 1, 7)),
+            (date(2000, 1, 8), date(2000, 1, 14)),
+            (date(2000, 1, 15), date(2000, 1, 21)),
+        ]
+        ```
+
+        Useful for generating the `intervals` arguments to [`Measures`](#Measures).
+        """
         return self._generate_intervals(date, self.value, "starting_on")
 
     def ending_on(self, date):
+        """
+        Return a list of time intervals covering the duration ending on the supplied
+        date. For example:
+        ```py
+        weeks(3).ending_on("2000-01-15")
+        ```
+        Returns:
+        ```
+        [
+            (date(2000, 1, 1), date(2000, 1, 7)),
+            (date(2000, 1, 8), date(2000, 1, 14)),
+            (date(2000, 1, 15), date(2000, 1, 21)),
+        ]
+        ```
+
+        Useful for generating the `intervals` arguments to [`Measures`](#Measures).
+        """
         return self._generate_intervals(date, -self.value, "ending_on")
 
     @classmethod
@@ -513,11 +802,19 @@ class Duration:
 
 
 class days(Duration):
+    """
+    Represents a duration of time specified in days
+    """
+
     _date_add_static = staticmethod(date_utils.date_add_days)
     _date_add_qm = qm.Function.DateAddDays
 
 
 class weeks(Duration):
+    """
+    Represents a duration of time specified in weeks
+    """
+
     _date_add_static = staticmethod(date_utils.date_add_weeks)
 
     @staticmethod
@@ -527,11 +824,19 @@ class weeks(Duration):
 
 
 class months(Duration):
+    """
+    Represents a duration of time specified in calendar months
+    """
+
     _date_add_static = staticmethod(date_utils.date_add_months)
     _date_add_qm = qm.Function.DateAddMonths
 
 
 class years(Duration):
+    """
+    Represents a duration of time specified in calendar years
+    """
+
     _date_add_static = staticmethod(date_utils.date_add_years)
     _date_add_qm = qm.Function.DateAddYears
 
@@ -548,14 +853,18 @@ class CodeFunctions:
             return value
 
     def to_category(self, categorisation, default=None):
+        """
+        An alias for `map_values` which makes the intention clearer when working with
+        codelists. See [`codelist_from_csv()`](#codelist_from_csv).
+        """
         return self.map_values(categorisation, default=default)
 
 
-class CodeEventSeries(CodeFunctions, EventSeries):
+class CodePatientSeries(CodeFunctions, PatientSeries):
     _type = BaseCode
 
 
-class CodePatientSeries(CodeFunctions, PatientSeries):
+class CodeEventSeries(CodeFunctions, EventSeries):
     _type = BaseCode
 
 
@@ -633,42 +942,79 @@ class BaseFrame:
         return _wrap(qm.SelectColumn(source=self.qm_node, name=name))
 
     def exists_for_patient(self):
+        """
+        Return a [boolean patient series](#BoolPatientSeries) which is True for each
+        patient that has a row in this frame and False otherwise.
+        """
         return _wrap(qm.AggregateByPatient.Exists(source=self.qm_node))
 
     def count_for_patient(self):
+        """
+        Return an [integer patient series](#IntPatientSeries) giving the number of rows each
+        patient has in this frame.
+
+        Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
+        """
         return _wrap(qm.AggregateByPatient.Count(source=self.qm_node))
 
 
 class PatientFrame(BaseFrame):
-    pass
+    """
+    Frame containing at most one row per patient.
+    """
 
 
 class EventFrame(BaseFrame):
-    def where(self, series):
+    """
+    Frame which may contain multiple rows per patient.
+    """
+
+    def where(self, condition):
+        """
+        Return a new frame containing only the rows in this frame for which `condition`
+        evaluates True.
+
+        Note that this excludes any rows for which `condition` is NULL.
+        """
         return self.__class__(
             qm.Filter(
                 source=self.qm_node,
-                condition=_convert(series),
+                condition=_convert(condition),
             )
         )
 
-    def except_where(self, series):
+    def except_where(self, condition):
+        """
+        Return a new frame containing only the rows in this frame for which `condition`
+        evaluates False or NULL i.e. the exact inverse of the rows included by
+        `where()`.
+        """
         return self.__class__(
             qm.Filter(
                 source=self.qm_node,
                 condition=qm.Function.Or(
-                    lhs=qm.Function.Not(_convert(series)),
-                    rhs=qm.Function.IsNull(_convert(series)),
+                    lhs=qm.Function.Not(_convert(condition)),
+                    rhs=qm.Function.IsNull(_convert(condition)),
                 ),
             )
         )
 
-    def sort_by(self, *order_series):
+    def sort_by(self, *sort_values):
+        """
+        Sort the rows for each patient by each of the supplied `sort_values`.
+
+        Where more than one sort value is supplied then the first (i.e. left-most) value
+        has highest priority and each subsequent sort value will only be used as a
+        tie-breaker in case of an exact match among previous values.
+
+        Note that NULL is considered smaller than any other value, so you may wish to
+        filter out NULL values before sorting.
+        """
         qm_node = self.qm_node
         # We expect series to be supplied highest priority first and, as the most
         # recently applied Sort operation has the highest priority, we need to apply
         # them in reverse order
-        for series in reversed(order_series):
+        for series in reversed(sort_values):
             qm_node = qm.Sort(
                 source=qm_node,
                 sort_by=_convert(series),
@@ -679,6 +1025,15 @@ class EventFrame(BaseFrame):
 
 class SortedEventFrameMethods:
     def first_for_patient(self):
+        """
+        Return a PatientFrame containing, for each patient, the first matching row
+        according to whatever sort order has been applied.
+
+        Note that where there are multiple rows tied for first place then the specific
+        row returned is picked arbitrarily but consistently i.e. you shouldn't depend on
+        getting any particular result, but the result you do get shouldn't change unless
+        the data changes.
+        """
         cls = make_patient_frame_class(self.__class__)
         return cls(
             qm.PickOneRowPerPatient(
@@ -688,6 +1043,15 @@ class SortedEventFrameMethods:
         )
 
     def last_for_patient(self):
+        """
+        Return a PatientFrame containing, for each patient, the last matching row
+        according to whatever sort order has been applied.
+
+        Note that where there are multiple rows tied for last place then the specific
+        row returned is picked arbitrarily but consistently i.e. you shouldn't depend on
+        getting any particular result, but the result you do get shouldn't change unless
+        the data changes.
+        """
         cls = make_patient_frame_class(self.__class__)
         return cls(
             qm.PickOneRowPerPatient(
@@ -877,6 +1241,31 @@ class when:
 
 
 def case(*when_thens, default=None):
+    """
+    Take a sequence of condition-values of the form:
+    ```py
+    when(condition).then(value)
+    ```
+
+    And evaluate them in order, returning the value of the first condition which
+    evaluates True. If no condition matches and a `default` is specified then return
+    that, otherwise return NULL.
+
+    For example:
+    ```py
+    category = case(
+        when(size < 10).then("small"),
+        when(size < 20).then("medium"),
+        when(size >= 20).then("large"),
+        default="unknown",
+    )
+    ```
+
+    Note that because the conditions are evaluated in order we don't need the condition
+    for "medium" to specify `(size >= 10) & (size < 20)` because by the time the
+    condition for "medium" is being evaluated we already know the condition for "small"
+    is False.
+    """
     cases = _DictArg((case._condition, case._value) for case in when_thens)
     # If we don't want a default then we shouldn't supply an argument, or else it will
     # get converted into `Value(None)` which is not what we want

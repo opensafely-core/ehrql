@@ -107,7 +107,7 @@ class addresses(EventFrame):
     end_date = Series(datetime.date)
     address_type = Series(int)
     rural_urban_classification = Series(int)
-    imd_rounded = Series(int)
+    imd_rounded = Series(int, constraints=[Constraint.ClosedRange(0, 32_800, 100)])
     msoa_code = Series(
         str,
         constraints=[Constraint.Regex("E020[0-9]{5}")],
@@ -204,8 +204,16 @@ class hospital_admissions(EventFrame):
 @table
 class appointments(EventFrame):
     """
-    You can find out more about this table in the associated short data report:
-    <https://github.com/opensafely/appointments-short-data-report>.
+    You can find out more about this table in the associated [short data
+    report][appointments_1]. To view it, you will need a login for OpenSAFELY Jobs and
+    the Project Collaborator or Project Developer role for the OpenSAFELY Internal
+    project. The [workspace][appointments_2] shows when the code that comprises the
+    report was run; the code itself is in the
+    [appointments-short-data-report][appointments_3] repository on GitHub.
+
+    [appointments_1]: https://jobs.opensafely.org/datalab/opensafely-internal/appointments-short-data-report/outputs/latest/tpp/output/reports/report.html
+    [appointments_2]: https://jobs.opensafely.org/datalab/opensafely-internal/appointments-short-data-report/
+    [appointments_3]: https://github.com/opensafely/appointments-short-data-report
     """
 
     booked_date = Series(
@@ -493,8 +501,15 @@ class open_prompt(EventFrame):
     """
     This table contains responses to questions from the OpenPROMPT project.
 
-    You can find out more about this table in the associated short data report:
-    <https://github.com/opensafely/airmid-short-data-report>.
+    You can find out more about this table in the associated short data report. To view
+    it, you will need a login for [Level 4][open_prompt_1]. The
+    [workspace][open_prompt_2] shows when the code that comprises the report was run;
+    the code itself is in the [airmid-short-data-report][open_prompt_3] repository on
+    GitHub.
+
+    [open_prompt_1]: https://docs.opensafely.org/security-levels/#level-4-nhs-england-are-data-controllers-of-the-data
+    [open_prompt_2]: https://jobs.opensafely.org/datalab/opensafely-internal/airmid-short-data-report/
+    [open_prompt_3]: https://github.com/opensafely/airmid-short-data-report
     """
 
     ctv3_code = Series(

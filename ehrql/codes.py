@@ -109,6 +109,24 @@ class DMDCode(BaseCode):
 
 
 def codelist_from_csv(filename, *, column, category_column=None):
+    """
+    Read a codelist from a CSV file as either a list or a dictionary (for categorised
+    codelists).
+
+    _filename_<br>
+    Path to the file on disk, relative to the root of your repository. (Remember to use
+    UNIX/style/forward-slashes not Windows\\style\\backslashes.)
+
+    _column_<br>
+    Name of the column in the CSV file which contains the codes.
+
+    _category_column_<br>
+    Optional name of a column in the CSV file which contains categories to which each
+    code should be mapped. If this argument is passed then the resulting codelist will
+    be a dictionary mapping each code to its corresponding category. This can be passed
+    to the [`to_category()`](#CodePatientSeries.to_category) method to map a series of
+    codes to a series of categories.
+    """
     filename = Path(filename)
     if not filename.exists():
         # If the character which comes after the backslash in the string literal happens

@@ -1,6 +1,6 @@
 import pytest
 
-from ehrql.utils.inspect_utils import get_function_body
+from ehrql.docs.common import get_function_body
 
 
 class ExampleClass:

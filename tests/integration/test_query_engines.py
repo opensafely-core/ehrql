@@ -6,7 +6,7 @@ import sqlalchemy
 from ehrql import Dataset
 from ehrql.query_language import PatientFrame, Series, table_from_file
 from ehrql.query_model.nodes import Value
-from ehrql.tables.beta import tpp
+from ehrql.tables.beta.core import patients
 
 
 def test_handles_degenerate_population(engine):
@@ -26,7 +26,7 @@ def test_handles_inline_patient_table(engine, tmp_path):
 
     engine.populate(
         {
-            tpp.patients: [
+            patients: [
                 dict(patient_id=1, date_of_birth=date(1980, 1, 1)),
                 dict(patient_id=2, date_of_birth=date(1990, 2, 2)),
                 dict(patient_id=3, date_of_birth=date(2000, 3, 3)),
@@ -56,11 +56,11 @@ def test_handles_inline_patient_table(engine, tmp_path):
 
     dataset = Dataset()
     dataset.define_population(
-        tpp.patients.exists_for_patient() & test_table.exists_for_patient()
+        patients.exists_for_patient() & test_table.exists_for_patient()
     )
 
     dataset.n = test_table.i + (test_table.i * 10)
-    dataset.age = tpp.patients.age_on(test_table.d)
+    dataset.age = patients.age_on(test_table.d)
     dataset.s = test_table.s
 
     results = engine.extract(dataset)

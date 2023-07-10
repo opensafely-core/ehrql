@@ -1,9 +1,9 @@
-This page guides you to
+This page guides you through:
 
-* install the necessary prerequisites for running ehrQL on your own computer;
-* check that ehrQL is working correctly;
-* download a directory of dummy data that we will use
-  for demonstrations in the rest of the documentation
+* installing the necessary prerequisites for running ehrQL on your own computer;
+* checking that ehrQL is working correctly;
+* downloading a directory of dummy data that we will use
+  for demonstrations in the rest of the documentation.
 
 It assumes that you have already read the short [Introduction to ehrQL concepts](../introduction/introduction-to-concepts.md).
 
@@ -32,15 +32,15 @@ you will need some way of editing your ehrQL dataset definitions
 that specify queries you want to run against electronic health record data.
 
 If you do not already have a preferred text editor or integrated development environment for writing code,
-we suggest that you try [Visual Studio Code](https://code.visualstudio.com/).
-Visual Studio Code is available for Windows, macOS and Linux.
+we suggest that you try [VS Code](https://code.visualstudio.com/).
+VS Code is available for Windows, macOS and Linux.
 
-Visual Studio Code also provides an [integrated command-line interface or "terminal"](https://code.visualstudio.com/docs/terminal/basics).
-Visual Studio Code's integrated terminal indicates which command-line interface is running.
+VS Code also provides an [integrated command-line interface or "terminal"](https://code.visualstudio.com/docs/terminal/basics).
+VS Code's integrated terminal indicates which command-line interface is running.
 If you have multiple command-line interfaces installed,
-Visual Studio Code also provides an option [to select a different command-line interface](https://code.visualstudio.com/docs/terminal/basics#_terminal-shells).
+VS Code also provides an option [to select a different command-line interface](https://code.visualstudio.com/docs/terminal/basics#_terminal-shells).
 
-:notepad_spiral: You should be able to complete all the tutorial steps from within Visual Studio Code.
+:notepad_spiral: You should be able to complete all the tutorial steps from within VS Code.
 You can:
 
 * create and edit files, and folders (directories)
@@ -116,7 +116,8 @@ Did you see something similar?
 
 :heavy_check_mark: If you see the help text as above,
 then everything is set up correctly.
-You can continue with the rest of this tutorial.\
+You can continue with the rest of this tutorial.
+
 :x: If you do not see similar help text to above or you get an error,
 please [contact us](../introduction/getting-help.md)
 and we can help you get started.
@@ -137,6 +138,7 @@ will assume that you are in this `learning-ehrql` directory.
 You will need to change directory to that directory before running commands.
 
 :computer: Retrieve the sample dummy data files for use in this tutorial:
+
 1. Download [this zip file](https://github.com/opensafely-core/ehrql-example-data/archive/refs/heads/main.zip).
 2. Create a new directory inside `learning-ehrql` called `example-data`.
 3. Inside the zip file are several CSV files. Extract the CSV files to the `example-data` directory.
@@ -148,11 +150,13 @@ You will need to change directory to that directory before running commands.
 :warning: Before continuing to learn more about [running ehrQL](running-ehrql.md),
 check that you have the following structure for your files:
 
-        learning-ehrql
-         └─ example-data
-             ├─ addresses.csv
-             ├─ clinical_events.csv
-             ├─ medications.csv
-             ├─ ons_deaths.csv
-             ├─ patients.csv
-             └─ practice_registrations.csv
+```
+learning-ehrql
+ └─ example-data
+     ├─ addresses.csv
+     ├─ clinical_events.csv
+     ├─ medications.csv
+     ├─ ons_deaths.csv
+     ├─ patients.csv
+     └─ practice_registrations.csv
+```

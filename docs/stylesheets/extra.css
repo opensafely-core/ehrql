@@ -75,3 +75,25 @@ p.dimension-indicator code {
   padding-left: 1em;
   padding-right: 1em;
 }
+
+.attr-heading {
+  margin-top: 1em;
+  margin-bottom: -0.5em;
+}
+
+h4.attr-heading {
+  font-weight: normal;
+  letter-spacing: normal;
+  margin-top: 2em;
+  margin-bottom: -0.5em;
+}
+
+.indent {
+  margin-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.indent p {
+  margin-top: 0.4em;
+  margin-bottom: 0.4em;
+}

@@ -25,9 +25,11 @@ nav:
     - ehrQL backend tables: explanation/backend-tables.md
     - ehrQL output formats: explanation/output-formats.md
     - Using ehrQL in OpenSAFELY projects: explanation/using-ehrql-in-opensafely-projects.md
-    - ehrQL examples: explanation/examples.md
-    - ehrQL errors: explanation/errors.md
+  - How-to guides:
+    - Using ehrQL to answer specific questions: how-to/examples.md
+    - Resolving ehrQL errors: how-to/errors.md
   - Reference:
+    - ehrQL language: reference/language.md
     - ehrQL language features: reference/features.md
     - ehrQL backends: reference/backends.md
     - ehrQL schemas: reference/schemas.md

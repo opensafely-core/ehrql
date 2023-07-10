@@ -24,7 +24,7 @@ Features of interest might include:
 * whether a patient has received a particular medication in a given interval
 * a patient's recorded cause of death
 
-Refer to the [collection of examples](../explanation/examples.md) for more examples of features,
+Refer to the [collection of examples](../how-to/examples.md) for more examples of features,
 and how to include features in an ehrQL query.
 
 A dataset is restricted to include only the patients who belong to a specified **population**.
@@ -70,7 +70,7 @@ dataset.med_code = latest_asthma_med.dmd_code
 
 In this dataset definition,
 the dataset is restricted to the population of patients born on or before 31st December 1999.
-The features of interest are the Dictionary of Medicines and Devices (dm+d) code,
+The features of interest are the dm+d code
 and date of the last asthma medication
 that the patient was prescribed.
 
@@ -85,4 +85,6 @@ might generate a CSV file containing the following rows:
 | 0 | 2014-01-11 | 39113611000001102
 | 1 | 2018-09-21 | 39113311000001107
 | 4 | 2017-05-11 | 39113611000001102
-| 5 | 2019-07-06 | 39113611000001102
+| 5 |            |
+| 7 | 2019-07-06 | 39113611000001102
+| 8 |            |

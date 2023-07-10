@@ -19,7 +19,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|301| |
 | 3|302|F |
 
-```
+```python
 e.where(e.b1).i1.sum_for_patient()
 ```
 returns the following patient series:
@@ -46,7 +46,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|203|213 |
 | 3|301| |
 
-```
+```python
 e.where((e.i1 + e.i2) < 413).i1.sum_for_patient()
 ```
 returns the following patient series:
@@ -69,7 +69,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 1|102 |
 | 2|201 |
 
-```
+```python
 e.where(True).count_for_patient()
 ```
 returns the following patient series:
@@ -91,7 +91,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 1|102 |
 | 2|201 |
 
-```
+```python
 e.where(False).count_for_patient()
 ```
 returns the following patient series:
@@ -113,7 +113,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 1|2|T |
 | 1|3|F |
 
-```
+```python
 e.where(e.i1 >= 2).where(e.b1).i1.sum_for_patient()
 ```
 returns the following patient series:
@@ -142,7 +142,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|301|T |
 | 3|302|T |
 
-```
+```python
 e.except_where(e.b1).i1.sum_for_patient()
 ```
 returns the following patient series:
@@ -169,7 +169,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|203|213 |
 | 3|301| |
 
-```
+```python
 e.except_where((e.i1 + e.i2) < 413).i1.sum_for_patient()
 ```
 returns the following patient series:
@@ -192,7 +192,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 1|102 |
 | 2|201 |
 
-```
+```python
 e.except_where(True).count_for_patient()
 ```
 returns the following patient series:
@@ -214,7 +214,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 1|102 |
 | 2|201 |
 
-```
+```python
 e.except_where(False).count_for_patient()
 ```
 returns the following patient series:
@@ -245,7 +245,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|202 |
 | 2|201 |
 
-```
+```python
 e.sort_by(e.i1).first_for_patient().i1
 ```
 returns the following patient series:
@@ -270,7 +270,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|202 |
 | 2|201 |
 
-```
+```python
 e.sort_by(e.i1).last_for_patient().i1
 ```
 returns the following patient series:
@@ -298,7 +298,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|202|2 |
 | 2|202|3 |
 
-```
+```python
 e.sort_by(e.i1, e.i2).first_for_patient().i2
 ```
 returns the following patient series:
@@ -323,7 +323,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|202|2 |
 | 2|202|3 |
 
-```
+```python
 e.sort_by(e.i1, e.i2).last_for_patient().i2
 ```
 returns the following patient series:
@@ -351,7 +351,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|202 |
 | 2| |
 
-```
+```python
 e.sort_by(e.i1).first_for_patient().i1
 ```
 returns the following patient series:
@@ -376,7 +376,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|202 |
 | 2| |
 
-```
+```python
 e.sort_by(e.i1).last_for_patient().i1
 ```
 returns the following patient series:
@@ -404,7 +404,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|202|2 |
 | 2|201|2 |
 
-```
+```python
 e.sort_by(e.i1).where(e.i1 > 102).first_for_patient().i1
 ```
 returns the following patient series:
@@ -429,7 +429,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|202|2 |
 | 2|201|2 |
 
-```
+```python
 e.sort_by(e.i1).where(e.i2 > 1).sort_by(e.i2).first_for_patient().i1
 ```
 returns the following patient series:
@@ -463,7 +463,7 @@ This example makes use of a patient-level table named `p` and an event-level tab
 | 1| |
 | 2| |
 
-```
+```python
 e.exists_for_patient()
 ```
 returns the following patient series:
@@ -492,7 +492,7 @@ This example makes use of a patient-level table named `p` and an event-level tab
 | 1| |
 | 2| |
 
-```
+```python
 p.exists_for_patient()
 ```
 returns the following patient series:
@@ -524,7 +524,7 @@ This example makes use of a patient-level table named `p` and an event-level tab
 | 1| |
 | 2| |
 
-```
+```python
 e.count_for_patient()
 ```
 returns the following patient series:
@@ -553,7 +553,7 @@ This example makes use of a patient-level table named `p` and an event-level tab
 | 1| |
 | 2| |
 
-```
+```python
 p.count_for_patient()
 ```
 returns the following patient series:
@@ -585,7 +585,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2| |
 | 3| |
 
-```
+```python
 e.i1.minimum_for_patient()
 ```
 returns the following patient series:
@@ -611,7 +611,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2| |
 | 3| |
 
-```
+```python
 e.i1.maximum_for_patient()
 ```
 returns the following patient series:
@@ -641,7 +641,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|203 |
 | 3| |
 
-```
+```python
 e.i1.sum_for_patient()
 ```
 returns the following patient series:
@@ -671,7 +671,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|3|3.1 |
 | 3|| |
 
-```
+```python
 e.i1.mean_for_patient()
 ```
 returns the following patient series:
@@ -698,7 +698,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|3|3.1 |
 | 3|| |
 
-```
+```python
 e.f1.mean_for_patient()
 ```
 returns the following patient series:
@@ -732,7 +732,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|||| |
 | 4|||| |
 
-```
+```python
 e.i1.count_distinct_for_patient()
 ```
 returns the following patient series:
@@ -764,7 +764,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|||| |
 | 4|||| |
 
-```
+```python
 e.f1.count_distinct_for_patient()
 ```
 returns the following patient series:
@@ -796,7 +796,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|||| |
 | 4|||| |
 
-```
+```python
 e.s1.count_distinct_for_patient()
 ```
 returns the following patient series:
@@ -828,7 +828,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 3|||| |
 | 4|||| |
 
-```
+```python
 e.s1.count_distinct_for_patient()
 ```
 returns the following patient series:
@@ -857,7 +857,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|101|102 |
 | 2|201|202 |
 
-```
+```python
 p.i1 + p.i2
 ```
 returns the following patient series:
@@ -881,7 +881,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|101 |
 | 2|201 |
 
-```
+```python
 p.i1 + 1
 ```
 returns the following patient series:
@@ -902,7 +902,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|101 |
 | 2|201 |
 
-```
+```python
 1 + p.i1
 ```
 returns the following patient series:
@@ -928,7 +928,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|201|211|b |
 | 2|202|212|a |
 
-```
+```python
 (e.i1 + e.i2).sum_for_patient()
 ```
 returns the following patient series:
@@ -952,7 +952,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|201|211|b |
 | 2|202|212|a |
 
-```
+```python
 (e.i1 + e.sort_by(e.s1).i2).minimum_for_patient()
 ```
 returns the following patient series:
@@ -983,7 +983,7 @@ This example makes use of a patient-level table named `p` and an event-level tab
 | 2|211 |
 | 2|212 |
 
-```
+```python
 (e.i1 + p.i1).sum_for_patient()
 ```
 returns the following patient series:
@@ -1011,7 +1011,7 @@ This example makes use of a patient-level table named `p` and an event-level tab
 | 2|211 |
 | 2|212 |
 
-```
+```python
 (p.i1 + e.i1).sum_for_patient()
 ```
 returns the following patient series:
@@ -1037,7 +1037,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|201 |
 | 2|202 |
 
-```
+```python
 (e.i1 + 1).sum_for_patient()
 ```
 returns the following patient series:
@@ -1060,7 +1060,7 @@ This example makes use of an event-level table named `e` containing the followin
 | 2|201 |
 | 2|202 |
 
-```
+```python
 (1 + e.i1).sum_for_patient()
 ```
 returns the following patient series:
@@ -1089,7 +1089,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301| |
 | 4|| |
 
-```
+```python
 p.i1 == p.i2
 ```
 returns the following patient series:
@@ -1114,7 +1114,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301| |
 | 4|| |
 
-```
+```python
 p.i1 != p.i2
 ```
 returns the following patient series:
@@ -1139,7 +1139,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301| |
 | 4|| |
 
-```
+```python
 p.i1.is_null()
 ```
 returns the following patient series:
@@ -1164,7 +1164,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301| |
 | 4|| |
 
-```
+```python
 p.i1.is_not_null()
 ```
 returns the following patient series:
@@ -1192,7 +1192,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301 |
 | 4| |
 
-```
+```python
 p.i1.is_in([101, 301])
 ```
 returns the following patient series:
@@ -1217,7 +1217,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301 |
 | 4| |
 
-```
+```python
 p.i1.is_not_in([101, 301])
 ```
 returns the following patient series:
@@ -1245,7 +1245,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301 |
 | 4| |
 
-```
+```python
 p.i1.map_values({101: "a", 201: "b", 301: "a"}, default="c")
 ```
 returns the following patient series:
@@ -1273,7 +1273,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301 |
 | 4| |
 
-```
+```python
 p.i1.if_null_then(0)
 ```
 returns the following patient series:
@@ -1298,7 +1298,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301 |
 | 4| |
 
-```
+```python
 p.i1.is_in([101, 201]).if_null_then(False)
 ```
 returns the following patient series:
@@ -1328,7 +1328,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 2| |
 | 3|F |
 
-```
+```python
 ~p.b1
 ```
 returns the following patient series:
@@ -1357,7 +1357,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 8|F| |
 | 9|F|F |
 
-```
+```python
 p.b1 & p.b2
 ```
 returns the following patient series:
@@ -1392,7 +1392,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 8|F| |
 | 9|F|F |
 
-```
+```python
 p.b1 | p.b2
 ```
 returns the following patient series:
@@ -1426,7 +1426,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|101|111 |
 | 2|201| |
 
-```
+```python
 -p.i2
 ```
 returns the following patient series:
@@ -1447,7 +1447,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|101|111 |
 | 2|201| |
 
-```
+```python
 p.i1 + p.i2
 ```
 returns the following patient series:
@@ -1468,7 +1468,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|101|111 |
 | 2|201| |
 
-```
+```python
 p.i1 - p.i2
 ```
 returns the following patient series:
@@ -1489,7 +1489,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|101|111 |
 | 2|201| |
 
-```
+```python
 p.i1 * p.i2
 ```
 returns the following patient series:
@@ -1510,7 +1510,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|101|111 |
 | 2|201| |
 
-```
+```python
 10 * p.i2
 ```
 returns the following patient series:
@@ -1536,7 +1536,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301|201 |
 | 4||201 |
 
-```
+```python
 p.i1 < p.i2
 ```
 returns the following patient series:
@@ -1561,7 +1561,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301|201 |
 | 4||201 |
 
-```
+```python
 p.i1 <= p.i2
 ```
 returns the following patient series:
@@ -1586,7 +1586,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301|201 |
 | 4||201 |
 
-```
+```python
 p.i1 > p.i2
 ```
 returns the following patient series:
@@ -1611,7 +1611,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|301|201 |
 | 4||201 |
 
-```
+```python
 p.i1 >= p.i2
 ```
 returns the following patient series:
@@ -1642,7 +1642,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|789000 |
 | 4| |
 
-```
+```python
 p.c1.is_in([SNOMEDCTCode("123000"), SNOMEDCTCode("789000")])
 ```
 returns the following patient series:
@@ -1667,7 +1667,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|789000 |
 | 4| |
 
-```
+```python
 p.c1.is_not_in([SNOMEDCTCode("123000"), SNOMEDCTCode("789000")])
 ```
 returns the following patient series:
@@ -1692,7 +1692,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|789000 |
 | 4| |
 
-```
+```python
 p.c1.is_in(codelist)
 ```
 returns the following patient series:
@@ -1720,7 +1720,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|789000 |
 | 4| |
 
-```
+```python
 p.c1.to_category(codelist)
 ```
 returns the following patient series:
@@ -1752,7 +1752,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4|9 |
 | 5| |
 
-```
+```python
 case(
     when(p.i1 < 8).then(p.i1),
     when(p.i1 > 8).then(100),
@@ -1782,7 +1782,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4|9 |
 | 5| |
 
-```
+```python
 case(
     when(p.i1 < 8).then(p.i1),
     when(p.i1 > 8).then(100),
@@ -1812,7 +1812,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|9|F |
 | 4| |
 
-```
+```python
 case(
     when(p.b1).then(p.i1),
     when(p.i1 > 8).then(100),
@@ -1845,7 +1845,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 2|2000-03-04|200 |
 | 3|| |
 
-```
+```python
 p.d1.year
 ```
 returns the following patient series:
@@ -1868,7 +1868,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 2|2000-03-04|200 |
 | 3|| |
 
-```
+```python
 p.d1.month
 ```
 returns the following patient series:
@@ -1891,7 +1891,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 2|2000-03-04|200 |
 | 3|| |
 
-```
+```python
 p.d1.day
 ```
 returns the following patient series:
@@ -1915,7 +1915,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2020-12-31 |
 | 4| |
 
-```
+```python
 p.d1.to_first_of_year()
 ```
 returns the following patient series:
@@ -1939,7 +1939,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 2|1990-01-31 |
 | 3| |
 
-```
+```python
 p.d1.to_first_of_month()
 ```
 returns the following patient series:
@@ -1962,7 +1962,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 2|2000-03-04|200 |
 | 3|| |
 
-```
+```python
 p.d1 + days(p.i1)
 ```
 returns the following patient series:
@@ -1985,7 +1985,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 2|2000-03-04|200 |
 | 3|| |
 
-```
+```python
 p.d1 - days(p.i1)
 ```
 returns the following patient series:
@@ -2012,7 +2012,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 6|2000-10-31|11 |
 | 7|2000-10-31|-11 |
 
-```
+```python
 p.d1 + months(p.i1)
 ```
 returns the following patient series:
@@ -2043,7 +2043,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 6|2004-02-29|-4 |
 | 7|2003-03-01|1 |
 
-```
+```python
 p.d1 + years(p.i1)
 ```
 returns the following patient series:
@@ -2070,7 +2070,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 2|2000-03-04|200 |
 | 3|| |
 
-```
+```python
 days(100) + p.d1
 ```
 returns the following patient series:
@@ -2096,7 +2096,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 5|2023-01-01 |
 | 6| |
 
-```
+```python
 (date(2021, 2, 28) - p.d1).years
 ```
 returns the following patient series:
@@ -2129,7 +2129,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 9|2010-01-01|2000-01-01 |
 | 10|2000-01-01| |
 
-```
+```python
 (p.d1 - p.d2).months
 ```
 returns the following patient series:
@@ -2160,7 +2160,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2001-03-01|2001-01-01 |
 | 4|1999-12-31|2001-01-01 |
 
-```
+```python
 (p.d1 - p.d2).days
 ```
 returns the following patient series:
@@ -2183,7 +2183,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|1990-01-30 |
 | 2|1970-01-15 |
 
-```
+```python
 (p.d1 - "1980-01-20").years
 ```
 returns the following patient series:
@@ -2204,7 +2204,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|10 |
 | 2|-10 |
 
-```
+```python
 date(2000, 1, 1) + days(p.i1)
 ```
 returns the following patient series:
@@ -2225,7 +2225,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|10 |
 | 2|-10 |
 
-```
+```python
 date(2000, 1, 1) + months(p.i1)
 ```
 returns the following patient series:
@@ -2246,7 +2246,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 1|10 |
 | 2|-10 |
 
-```
+```python
 date(2000, 1, 1) + years(p.i1)
 ```
 returns the following patient series:
@@ -2272,7 +2272,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2010-01-01 |
 | 4| |
 
-```
+```python
 p.d1.is_before(date(2000, 1, 1))
 ```
 returns the following patient series:
@@ -2297,7 +2297,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2010-01-01 |
 | 4| |
 
-```
+```python
 p.d1.is_on_or_before(date(2000, 1, 1))
 ```
 returns the following patient series:
@@ -2322,7 +2322,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2010-01-01 |
 | 4| |
 
-```
+```python
 p.d1.is_after(date(2000, 1, 1))
 ```
 returns the following patient series:
@@ -2347,7 +2347,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2010-01-01 |
 | 4| |
 
-```
+```python
 p.d1.is_on_or_after(date(2000, 1, 1))
 ```
 returns the following patient series:
@@ -2372,7 +2372,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2010-01-01 |
 | 4| |
 
-```
+```python
 p.d1.is_in([date(2010, 1, 1), date(1900, 1, 1)])
 ```
 returns the following patient series:
@@ -2397,7 +2397,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2010-01-01 |
 | 4| |
 
-```
+```python
 p.d1.is_not_in([date(2010, 1, 1), date(1900, 1, 1)])
 ```
 returns the following patient series:
@@ -2424,7 +2424,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 5|2010-01-05 |
 | 6| |
 
-```
+```python
 p.d1.is_on_or_between(date(2010, 1, 2), date(2010, 1, 4))
 ```
 returns the following patient series:
@@ -2453,7 +2453,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 5|2010-01-05 |
 | 6| |
 
-```
+```python
 p.d1.is_during(interval)
 ```
 returns the following patient series:
@@ -2482,7 +2482,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 5|2010-01-05 |
 | 6| |
 
-```
+```python
 p.d1.is_on_or_between(date(2010, 1, 4), date(2010, 1, 2))
 ```
 returns the following patient series:
@@ -2512,7 +2512,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2010-01-01|2020-01-01 |
 | 4||2020-01-01 |
 
-```
+```python
 p.d1.is_before(datetime.date(2000, 1, 20))
 ```
 returns the following patient series:
@@ -2537,7 +2537,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2010-01-01|2020-01-01 |
 | 4||2020-01-01 |
 
-```
+```python
 p.d1.is_before("2000-01-20")
 ```
 returns the following patient series:
@@ -2562,7 +2562,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|2010-01-01|2020-01-01 |
 | 4||2020-01-01 |
 
-```
+```python
 p.d1.is_before(p.d2)
 ```
 returns the following patient series:
@@ -2596,7 +2596,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 6|AB |
 | 7| |
 
-```
+```python
 p.s1.contains("ab")
 ```
 returns the following patient series:
@@ -2624,7 +2624,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|/a%bc |
 | 4|a%b_ |
 
-```
+```python
 p.s1.contains("/a%b_")
 ```
 returns the following patient series:
@@ -2653,7 +2653,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 7||mn |
 | 8|ab| |
 
-```
+```python
 p.s1.contains(p.s2)
 ```
 returns the following patient series:
@@ -2682,7 +2682,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|/a%bc|/a%b_ |
 | 4|a%b_|/a%b_ |
 
-```
+```python
 p.s1.contains(p.s2)
 ```
 returns the following patient series:
@@ -2716,7 +2716,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 2|T|20 |
 | 3|F|30 |
 
-```
+```python
 p.i1
 define_population(~p.b1)
 ```
@@ -2748,7 +2748,7 @@ This example makes use of a patient-level table named `p` and an event-level tab
 | 3|301 |
 | 4|401 |
 
-```
+```python
 e.exists_for_patient()
 define_population(p.i1 > 0)
 ```
@@ -2773,7 +2773,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 3|9 |
 | 4| |
 
-```
+```python
 p.i1
 define_population(
     case(
@@ -2807,7 +2807,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 2|20 |
 | 3|30 |
 
-```
+```python
 p.i1 + t.n
 ```
 returns the following patient series:

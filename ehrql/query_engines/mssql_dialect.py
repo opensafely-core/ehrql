@@ -115,9 +115,10 @@ class MSSQLDialect(MSDialect_pymssql):
 class SelectStarInto(Executable, ClauseElement):
     inherit_cache = True
 
-    def __init__(self, table, selectable):
+    def __init__(self, table, selectable, schema_only=False):
         self.table = table
         self.selectable = selectable
+        self.schema_only = schema_only
 
     def get_children(self):
         return (self.table, self.selectable)
@@ -125,7 +126,8 @@ class SelectStarInto(Executable, ClauseElement):
 
 @compiles(SelectStarInto)
 def visit_select_star_into(element, compiler, **kw):
-    return "SELECT * INTO {} FROM {}".format(
+    return "SELECT * INTO {} FROM {}{}".format(
         compiler.process(element.table, asfrom=True, **kw),
         compiler.process(element.selectable, asfrom=True, **kw),
+        " WHERE 0=1" if element.schema_only else "",
     )

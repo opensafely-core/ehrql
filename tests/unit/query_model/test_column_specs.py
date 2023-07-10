@@ -116,3 +116,16 @@ def test_get_range_for_count():
     assert min_value == 0
     num_bits = len(f"{max_value:b}")
     assert num_bits == 16
+
+
+def test_get_range_for_select_column_with_range_constraint():
+    i = SelectColumn(
+        SelectTable(
+            "t",
+            schema=TableSchema(
+                i=Column(int, constraints=[Constraint.ClosedRange(0, 100, 10)])
+            ),
+        ),
+        "i",
+    )
+    assert get_range(i) == (0, 100)
