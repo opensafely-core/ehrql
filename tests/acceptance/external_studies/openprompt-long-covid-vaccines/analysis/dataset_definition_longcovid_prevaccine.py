@@ -115,16 +115,16 @@ dataset.define_population(population)
 # covid tests ------------------------------------------------------------
 dataset.first_test_post_lc = sgss_covid_all_tests \
     .where(sgss_covid_all_tests.is_positive) \
-    .where(sgss_covid_all_tests.specimen_taken_date.is_between(dataset.pt_start_date, dataset.pt_end_date)) \
+    .where(sgss_covid_all_tests.specimen_taken_date.is_between_but_not_on(dataset.pt_start_date, dataset.pt_end_date)) \
     .sort_by(sgss_covid_all_tests.specimen_taken_date).first_for_patient().specimen_taken_date
 
 dataset.all_test_positive = sgss_covid_all_tests \
     .where(sgss_covid_all_tests.is_positive) \
-    .where(sgss_covid_all_tests.specimen_taken_date.is_between(dataset.pt_start_date, dataset.pt_end_date)) \
+    .where(sgss_covid_all_tests.specimen_taken_date.is_between_but_not_on(dataset.pt_start_date, dataset.pt_end_date)) \
     .count_for_patient()
 
 dataset.all_tests = sgss_covid_all_tests \
-    .where(sgss_covid_all_tests.specimen_taken_date.is_between(dataset.pt_start_date, dataset.pt_end_date)) \
+    .where(sgss_covid_all_tests.specimen_taken_date.is_between_but_not_on(dataset.pt_start_date, dataset.pt_end_date)) \
     .count_for_patient()
 
 # VACCCINES ------------------------------------------------------------

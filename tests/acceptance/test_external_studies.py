@@ -5,8 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from ehrql.main import load_dataset_definition
-from ehrql.query_language import compile
+from ehrql.main import load_dataset_definition, load_measure_definitions
 
 
 # These tests specify dataset definitions in other repositories which we want to ensure
@@ -89,10 +88,11 @@ EXTERNAL_STUDIES = {
             "analysis/variable_lib_helper.py",
             "codelists/*.csv",
         ],
-        dataset_definitions=[
+        dataset_definitions=[],
+        measure_definitions=[
             "analysis/dataset_definition_dm017.py",
-            "analysis/dataset_definition_dm020.py",
-            "analysis/dataset_definition_dm021.py",
+            ("analysis/dataset_definition_dm020.py", ["--ifcchba-cutoff-val", "58"]),
+            ("analysis/dataset_definition_dm021.py", ["--ifcchba-cutoff-val", "75"]),
         ],
     ),
     "openprompt-long-covid-economics": dict(
@@ -139,16 +139,25 @@ def reset_module_namespace():
 
 
 @pytest.mark.parametrize(
-    "study_name,dataset_def",
+    "study_name,definition_file,load_function",
     [
-        (study_name, dataset_def)
+        (study_name, dataset_def, load_dataset_definition)
         for (study_name, config) in EXTERNAL_STUDIES.items()
         for dataset_def in config["dataset_definitions"]
+    ]
+    + [
+        (study_name, measure_def, load_measure_definitions)
+        for (study_name, config) in EXTERNAL_STUDIES.items()
+        for measure_def in config.get("measure_definitions", ())
     ],
 )
-def test_external_study(study_name, dataset_def):
+def test_external_study(study_name, definition_file, load_function):
+    if isinstance(definition_file, tuple):
+        definition_file, user_args = definition_file
+    else:
+        user_args = []
     study_path = STUDY_DIR / study_name
-    dataset_def_path = study_path / dataset_def
+    definition_path = study_path / definition_file
     with contextlib.ExitStack() as stack:
         # Studies often use project-relative paths so ensure these resolve correctly
         stack.enter_context(contextlib.chdir(study_path))
@@ -159,10 +168,9 @@ def test_external_study(study_name, dataset_def):
         # Usually we treat warnings as errors, but we want to ignore them in user code
         stack.enter_context(warnings.catch_warnings())
         warnings.simplefilter("ignore")
-        # Import the dataset (most of the validation work happens here)
-        dataset = load_dataset_definition(dataset_def_path, user_args=())
-    # Test that we can compile the dataset definition to a valid query model graph. I
-    # think this is sufficient for these tests which are intended to ensure we don't
-    # accidentally break the API. If we're unable to execute a valid query, that's a
-    # separate class of problem for which we need separate tests.
-    assert compile(dataset)
+        # Import the dataset or measure definition. This tests that we can construct a
+        # valid query model graph from the definition. I think this is sufficient for
+        # these tests which are intended to ensure we don't accidentally break the API.
+        # If we're unable to execute a valid query, that's a separate class of problem
+        # for which we need separate tests.
+        assert load_function(definition_path, user_args=user_args)
