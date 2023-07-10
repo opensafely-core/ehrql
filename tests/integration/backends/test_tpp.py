@@ -1012,6 +1012,7 @@ def test_open_prompt(select_all):
             CreationDate="2023-01-01",
             ConsultationDate="2023-01-01",
             Consultation_ID=1,
+            NumericCode=1,
             NumericValue=1.0,
         ),
         CodedEvent(
@@ -1027,7 +1028,8 @@ def test_open_prompt(select_all):
             CreationDate="2023-01-01",
             ConsultationDate="2023-01-01",
             Consultation_ID=2,
-            NumericValue=1.0,
+            NumericCode=0,
+            NumericValue=0,
         ),
     )
     assert results == [
@@ -1047,7 +1049,7 @@ def test_open_prompt(select_all):
             "creation_date": date(2023, 1, 1),
             "consultation_date": date(2023, 1, 1),
             "consultation_id": 2,
-            "numeric_value": 1.0,
+            "numeric_value": None,
         },
     ]
 

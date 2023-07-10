@@ -388,7 +388,9 @@ class TPPBackend(BaseBackend):
             CAST(prompt.CreationDate AS date) AS creation_date,
             CAST(prompt.ConsultationDate AS date) AS consultation_date,
             prompt.Consultation_ID AS consultation_id,
-            prompt.NumericValue AS numeric_value
+            CASE
+                WHEN prompt.NumericCode = 1 THEN prompt.NumericValue
+            END AS numeric_value
         FROM OpenPROMPT AS prompt LEFT JOIN CodedEvent AS event
         ON prompt.CodedEvent_ID = event.CodedEvent_ID
         AND prompt.Patient_ID = event.Patient_ID

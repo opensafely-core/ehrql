@@ -2204,9 +2204,8 @@ The ID of the survey
     <code>float</code>
   </dt>
   <dd markdown="block">
-The response to the question, as a number. Alternatively, if the question admits a code as the response, then zero.
+The response to the question, as a number
 
- * Never `NULL`
   </dd>
 </div>
 
