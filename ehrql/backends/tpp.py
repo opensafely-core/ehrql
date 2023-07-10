@@ -220,8 +220,17 @@ class TPPBackend(BaseBackend):
                 Appointment_ID AS appointment_id,
                 Patient_ID AS patient_id,
                 CAST(BookedDate AS date) AS booked_date,
-                CAST(StartDate AS date) AS start_date
-            FROM Appointment
+                CAST(StartDate AS date) AS start_date,
+                Description AS status
+            FROM Appointment AS appt
+            LEFT JOIN (
+                SELECT
+                    Code,
+                    Description
+                FROM DataDictionary
+                WHERE [Table] = 'Appointment'
+            ) AS dict
+            ON appt.Status = dict.Code
         """
     )
 
