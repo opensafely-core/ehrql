@@ -2916,10 +2916,12 @@ class OpenPROMPT(Base):
 
     Patient_ID = mapped_column(t.Integer)
     CodeSystemId = mapped_column(t.Integer)
-    CodedEvent_ID = mapped_column(t.VARCHAR(50))
+    CodedEvent_ID = mapped_column(t.BIGINT)
     ConceptId = mapped_column(t.VARCHAR(50))
     ConsultationDate = mapped_column(t.DateTime)
     Consultation_ID = mapped_column(t.BIGINT)
+    CreationDate = mapped_column(t.DateTime)
+    NumericCode = mapped_column(t.Integer)
     NumericValue = mapped_column(t.REAL)
 
 
