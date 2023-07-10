@@ -91,8 +91,8 @@ EXTERNAL_STUDIES = {
         dataset_definitions=[],
         measure_definitions=[
             "analysis/dataset_definition_dm017.py",
-            "analysis/dataset_definition_dm020.py",
-            "analysis/dataset_definition_dm021.py",
+            ("analysis/dataset_definition_dm020.py", ["--ifcchba-cutoff-val", "58"]),
+            ("analysis/dataset_definition_dm021.py", ["--ifcchba-cutoff-val", "75"]),
         ],
     ),
     "openprompt-long-covid-economics": dict(
@@ -152,6 +152,10 @@ def reset_module_namespace():
     ],
 )
 def test_external_study(study_name, definition_file, load_function):
+    if isinstance(definition_file, tuple):
+        definition_file, user_args = definition_file
+    else:
+        user_args = []
     study_path = STUDY_DIR / study_name
     definition_path = study_path / definition_file
     with contextlib.ExitStack() as stack:
@@ -169,4 +173,4 @@ def test_external_study(study_name, definition_file, load_function):
         # these tests which are intended to ensure we don't accidentally break the API.
         # If we're unable to execute a valid query, that's a separate class of problem
         # for which we need separate tests.
-        assert load_function(definition_path, user_args=())
+        assert load_function(definition_path, user_args=user_args)
