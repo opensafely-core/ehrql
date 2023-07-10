@@ -13,5 +13,3 @@ Ask your co-pilot if you're unsure how to join.
 And in particular,
 if you see a strange error message that's not documented in [our catalogue of common errors](../how-to/errors.md),
 let us know.
-
-In future, we plan to hold regular ehrQL help clinics for new users.
