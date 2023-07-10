@@ -1,7 +1,7 @@
 from databuilder.ehrql import Dataset, case, when, days
 import codelists
 
-from variable_lib import long_covid_events_during, long_covid_dx_during, long_covid_inhosp
+from variable_lib import long_covid_events_during, long_covid_dx_during
 from datasets import (
     add_common_variables,
     study_start_date,
