@@ -13,6 +13,7 @@ from .main import (
     CommandError,
     create_dummy_tables,
     dump_dataset_sql,
+    dump_example_data,
     generate_dataset,
     generate_measures,
     run_sandbox,
@@ -76,6 +77,7 @@ def main(args, environ=None):
     add_generate_measures(subparsers, environ, user_args)
     add_run_sandbox(subparsers, environ, user_args)
     add_test_connection(subparsers, environ, user_args)
+    add_dump_example_data(subparsers, environ, user_args)
 
     kwargs = vars(parser.parse_args(args))
     function = kwargs.pop("function")
@@ -251,6 +253,14 @@ def add_test_connection(subparsers, environ, user_args):
         help="db url",
         default=environ.get("DATABASE_URL"),
     )
+
+
+def add_dump_example_data(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "dump-example-data", help="dump example data to directory"
+    )
+    parser.set_defaults(function=dump_example_data)
+    parser.set_defaults(environ=environ)
 
 
 def add_common_backend_arguments(parser, environ):
