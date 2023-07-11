@@ -64,7 +64,7 @@ class Dataset:
         dataset.define_population(patients.date_of_birth < "1990-01-01")
         ```
         """
-        validate_population_definition(population_condition.qm_node)
+        validate_population_definition(population_condition._qm_node)
         self.variables["population"] = population_condition
 
     def __setattr__(self, name, value):
@@ -86,7 +86,7 @@ class Dataset:
             raise TypeError(
                 f"Invalid variable '{name}'. Dataset variables must be values not whole rows"
             )
-        if not qm.has_one_row_per_patient(value.qm_node):
+        if not qm.has_one_row_per_patient(value._qm_node):
             raise TypeError(
                 f"Invalid variable '{name}'. Dataset variables must return one row per patient"
             )
@@ -99,7 +99,7 @@ class Dataset:
 
 
 def compile(dataset):  # noqa A003
-    return {k: v.qm_node for k, v in dataset.variables.items()}
+    return {k: v._qm_node for k, v in dataset.variables.items()}
 
 
 # BASIC SERIES TYPES
@@ -108,7 +108,7 @@ def compile(dataset):  # noqa A003
 
 @dataclasses.dataclass(frozen=True)
 class BaseSeries:
-    qm_node: qm.Node
+    _qm_node: qm.Node
 
     def __hash__(self):
         # The issue here is not mutability but the fact that we overload `__eq__` for
@@ -915,7 +915,7 @@ def _convert(arg):
         return {_convert(key): _convert(value) for key, value in arg}
     # If it's an ehrQL series then get the wrapped query model node
     elif isinstance(arg, BaseSeries):
-        return arg.qm_node
+        return arg._qm_node
     # Otherwise it's a static value and needs to be put in a query model Value wrapper
     else:
         return qm.Value(arg)
@@ -936,17 +936,17 @@ def Parameter(name, type_):
 
 class BaseFrame:
     def __init__(self, qm_node):
-        self.qm_node = qm_node
+        self._qm_node = qm_node
 
     def _select_column(self, name):
-        return _wrap(qm.SelectColumn(source=self.qm_node, name=name))
+        return _wrap(qm.SelectColumn(source=self._qm_node, name=name))
 
     def exists_for_patient(self):
         """
         Return a [boolean patient series](#BoolPatientSeries) which is True for each
         patient that has a row in this frame and False otherwise.
         """
-        return _wrap(qm.AggregateByPatient.Exists(source=self.qm_node))
+        return _wrap(qm.AggregateByPatient.Exists(source=self._qm_node))
 
     def count_for_patient(self):
         """
@@ -955,7 +955,7 @@ class BaseFrame:
 
         Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
         """
-        return _wrap(qm.AggregateByPatient.Count(source=self.qm_node))
+        return _wrap(qm.AggregateByPatient.Count(source=self._qm_node))
 
 
 class PatientFrame(BaseFrame):
@@ -978,7 +978,7 @@ class EventFrame(BaseFrame):
         """
         return self.__class__(
             qm.Filter(
-                source=self.qm_node,
+                source=self._qm_node,
                 condition=_convert(condition),
             )
         )
@@ -991,7 +991,7 @@ class EventFrame(BaseFrame):
         """
         return self.__class__(
             qm.Filter(
-                source=self.qm_node,
+                source=self._qm_node,
                 condition=qm.Function.Or(
                     lhs=qm.Function.Not(_convert(condition)),
                     rhs=qm.Function.IsNull(_convert(condition)),
@@ -1010,7 +1010,7 @@ class EventFrame(BaseFrame):
         Note that NULL is considered smaller than any other value, so you may wish to
         filter out NULL values before sorting.
         """
-        qm_node = self.qm_node
+        qm_node = self._qm_node
         # We expect series to be supplied highest priority first and, as the most
         # recently applied Sort operation has the highest priority, we need to apply
         # them in reverse order
@@ -1038,7 +1038,7 @@ class SortedEventFrameMethods:
         return cls(
             qm.PickOneRowPerPatient(
                 position=qm.Position.FIRST,
-                source=self.qm_node,
+                source=self._qm_node,
             )
         )
 
@@ -1056,7 +1056,7 @@ class SortedEventFrameMethods:
         return cls(
             qm.PickOneRowPerPatient(
                 position=qm.Position.LAST,
-                source=self.qm_node,
+                source=self._qm_node,
             )
         )
 
@@ -1207,9 +1207,8 @@ class Series:
         self.name = name
 
     def __get__(self, instance, owner):
-        # Prevent users attempting to interact with the class rather than an instance
-        if instance is None:
-            raise SchemaError("Missing `@table` decorator on schema class")
+        if instance is None:  # pragma: no cover
+            return self
         return instance._select_column(self.name)
 
 

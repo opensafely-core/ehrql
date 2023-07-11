@@ -31,8 +31,12 @@ def render_class(details):
         id=details["name"],
         signature=render_signature(
             details["name"],
-            # Hide the `qm_node` init argument from the user to avoid confusion
-            {k: v for k, v in details["init_arguments"].items() if k != "qm_node"},
+            # Hide the `qm_node` and `_qm_node` init arguments from the user to avoid confusion
+            {
+                k: v
+                for k, v in details["init_arguments"].items()
+                if k not in ["qm_node", "_qm_node"]
+            },
         ),
         docstring=details["docstring"],
         methods="\n".join(

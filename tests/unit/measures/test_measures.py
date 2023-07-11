@@ -44,19 +44,19 @@ def test_define_measures():
     assert list(measures) == [
         Measure(
             name="test_1",
-            numerator=patients.score.qm_node,
-            denominator=patients.is_interesting.qm_node,
+            numerator=patients.score._qm_node,
+            denominator=patients.is_interesting._qm_node,
             group_by={
-                "category": patients.category.qm_node,
+                "category": patients.category._qm_node,
             },
             intervals=tuple(intervals),
         ),
         Measure(
             name="test_2",
-            numerator=patients.score.qm_node,
-            denominator=patients.is_interesting.qm_node,
+            numerator=patients.score._qm_node,
+            denominator=patients.is_interesting._qm_node,
             group_by={
-                "style": patients.style.qm_node,
+                "style": patients.style._qm_node,
             },
             intervals=tuple(intervals),
         ),

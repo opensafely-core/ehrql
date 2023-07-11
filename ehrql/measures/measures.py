@@ -166,7 +166,7 @@ class Measures:
         ).items():
             if group_name not in kwargs["group_by"]:
                 continue
-            if group_by[group_name].qm_node != definition:
+            if group_by[group_name]._qm_node != definition:
                 raise ValidationError(
                     f"Inconsistent definition for `group_by` column: {group_name}"
                 )
@@ -174,10 +174,10 @@ class Measures:
         # Add measure
         self._measures[name] = Measure(
             name=name,
-            numerator=kwargs["numerator"].qm_node,
-            denominator=kwargs["denominator"].qm_node,
+            numerator=kwargs["numerator"]._qm_node,
+            denominator=kwargs["denominator"]._qm_node,
             group_by={
-                group_name: series.qm_node
+                group_name: series._qm_node
                 for group_name, series in kwargs["group_by"].items()
             },
             intervals=tuple(sorted(set(kwargs["intervals"]))),

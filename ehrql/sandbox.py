@@ -1,4 +1,6 @@
 import code
+import readline
+import rlcompleter
 import sys
 
 from ehrql.query_engines.csv import CSVQueryEngine
@@ -17,5 +19,9 @@ def run(dummy_tables_path):
     # Set up readline etc.
     sys.__interactivehook__()
 
+    # Set up namespace for tab-completion.
+    namespace = {}
+    readline.set_completer(rlcompleter.Completer(namespace).complete)
+
     # Start running a Python REPL.
-    code.interact()
+    code.interact(local=namespace)

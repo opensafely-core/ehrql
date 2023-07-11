@@ -204,7 +204,7 @@ def get_table_name(table):
     return {
         "patient_level_table": "p",
         "event_level_table": "e",
-    }[table.qm_node.name]
+    }[table._qm_node.name]
 
 
 def parse_table(s):
