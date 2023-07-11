@@ -165,6 +165,22 @@ Refer to [the catalogue of errors](../how-to/errors.md) for details of common er
 To exit the sandbox,
 type `exit()` and then press the return key
 
+#### Python console tips and tricks
+
+You can hit the `<tab>` key to see possible completions.
+For instance, if you type `patients.` and then `<tab>`,
+you'll see all of the columns available on the patients table, (eg `patients.date_of_birth`)
+as well as all of the available methods available, (eg `patients.count_for_patient()`).
+
+```pycon
+>>> patients.
+patients.age_on(               patients.date_of_birth         patients.exists_for_patient()
+patients.count_for_patient()   patients.date_of_death         patients.sex
+```
+
+You can also cycle through previous commands with the up/down arrow keys,
+and use <ctrl-r> to search through your command history.
+
 ### 2. Running ehrQL as a standalone action via `opensafely exec`
 
 To actually run your ehrQL queries against real patient data,

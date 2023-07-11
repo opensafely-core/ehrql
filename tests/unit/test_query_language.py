@@ -308,14 +308,6 @@ def test_construct_enforces_exactly_one_base_class():
             some_int = Series(int)
 
 
-def test_must_reference_instance_not_class():
-    class some_table(PatientFrame):
-        some_int = Series(int)
-
-    with pytest.raises(SchemaError, match="Missing `@table` decorator"):
-        some_table.some_int
-
-
 def test_table_from_rows():
     @table_from_rows([(1, 100), (2, 200)])
     class some_table(PatientFrame):

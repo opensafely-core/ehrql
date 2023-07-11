@@ -1216,9 +1216,8 @@ class Series:
         self.name = name
 
     def __get__(self, instance, owner):
-        # Prevent users attempting to interact with the class rather than an instance
-        if instance is None:
-            raise SchemaError("Missing `@table` decorator on schema class")
+        if instance is None:  # pragma: no cover
+            return self
         return instance._select_column(self.name)
 
 
