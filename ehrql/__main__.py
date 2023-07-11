@@ -156,23 +156,6 @@ def add_dump_dataset_sql(subparsers, environ, user_args):
     add_common_backend_arguments(parser, environ)
 
 
-def add_common_backend_arguments(parser, environ):
-    parser.add_argument(
-        "--query-engine",
-        type=query_engine_from_id,
-        help=f"Dotted import path to class, or one of: {', '.join(QUERY_ENGINE_ALIASES)}",
-        default=environ.get("OPENSAFELY_QUERY_ENGINE"),
-        dest="query_engine_class",
-    )
-    parser.add_argument(
-        "--backend",
-        type=backend_from_id,
-        help=f"Dotted import path to class, or one of: {', '.join(BACKEND_ALIASES)}",
-        default=environ.get("OPENSAFELY_BACKEND"),
-        dest="backend_class",
-    )
-
-
 def add_create_dummy_tables(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "create-dummy-tables",
@@ -267,6 +250,23 @@ def add_test_connection(subparsers, environ, user_args):
         "-u",
         help="db url",
         default=environ.get("DATABASE_URL"),
+    )
+
+
+def add_common_backend_arguments(parser, environ):
+    parser.add_argument(
+        "--query-engine",
+        type=query_engine_from_id,
+        help=f"Dotted import path to class, or one of: {', '.join(QUERY_ENGINE_ALIASES)}",
+        default=environ.get("OPENSAFELY_QUERY_ENGINE"),
+        dest="query_engine_class",
+    )
+    parser.add_argument(
+        "--backend",
+        type=backend_from_id,
+        help=f"Dotted import path to class, or one of: {', '.join(BACKEND_ALIASES)}",
+        default=environ.get("OPENSAFELY_BACKEND"),
+        dest="backend_class",
     )
 
 
