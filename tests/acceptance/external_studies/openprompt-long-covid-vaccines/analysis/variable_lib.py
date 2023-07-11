@@ -2,7 +2,7 @@ import operator
 from functools import reduce
 
 from databuilder.codes import ICD10Code
-from databuilder.ehrql import case, when, days
+from databuilder.ehrql import case, when
 from databuilder.tables.beta import tpp as schema
 
 import codelists
