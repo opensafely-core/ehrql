@@ -72,7 +72,7 @@ def make_orm_models(*args):
             combined.setdefault(table, []).extend(rows)
     orm_classes = orm_classes_from_tables(combined.keys())
     for table, rows in combined.items():
-        table_name = table.qm_node.name if hasattr(table, "qm_node") else table.name
+        table_name = table._qm_node.name if hasattr(table, "_qm_node") else table.name
         orm_class = orm_classes[table_name]
         yield from (orm_class(**row) for row in rows)
 
@@ -83,7 +83,7 @@ def orm_classes_from_tables(tables):
     a dict mapping table names to ORM classes
     """
     qm_tables = frozenset(
-        table.qm_node if hasattr(table, "qm_node") else table for table in tables
+        table._qm_node if hasattr(table, "_qm_node") else table for table in tables
     )
     return _orm_classes_from_qm_tables(qm_tables)
 

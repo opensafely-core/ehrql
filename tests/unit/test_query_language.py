@@ -172,7 +172,7 @@ qm_date_series = SelectColumn(source=qm_table, name="date_column")
 
 
 def assert_produces(ql_element, qm_element):
-    assert ql_element.qm_node == qm_element
+    assert ql_element._qm_node == qm_element
 
 
 class TestIntEventSeries:
@@ -275,7 +275,7 @@ def test_construct_constructs_patient_frame():
         some_str = Series(str)
 
     assert isinstance(some_table, PatientFrame)
-    assert some_table.qm_node.name == "some_table"
+    assert some_table._qm_node.name == "some_table"
     assert isinstance(some_table.some_int, IntPatientSeries)
     assert isinstance(some_table.some_str, StrPatientSeries)
 
@@ -287,7 +287,7 @@ def test_construct_constructs_event_frame():
         some_str = Series(str)
 
     assert isinstance(some_table, EventFrame)
-    assert some_table.qm_node.name == "some_table"
+    assert some_table._qm_node.name == "some_table"
     assert isinstance(some_table.some_int, IntEventSeries)
     assert isinstance(some_table.some_str, StrEventSeries)
 
@@ -314,7 +314,7 @@ def test_table_from_rows():
         some_int = Series(int)
 
     assert isinstance(some_table, PatientFrame)
-    assert isinstance(some_table.qm_node, InlinePatientTable)
+    assert isinstance(some_table._qm_node, InlinePatientTable)
 
 
 def test_table_from_rows_only_accepts_patient_frame():
@@ -350,13 +350,13 @@ def test_table_from_file(file_extension, tmp_path):
         d = Series(date)
 
     assert isinstance(some_table, PatientFrame)
-    assert isinstance(some_table.qm_node, InlinePatientTable)
-    assert some_table.qm_node.schema.column_types == [
+    assert isinstance(some_table._qm_node, InlinePatientTable)
+    assert some_table._qm_node.schema.column_types == [
         ("i", int),
         ("s", str),
         ("d", date),
     ]
-    assert list(some_table.qm_node.rows) == file_data
+    assert list(some_table._qm_node.rows) == file_data
 
 
 def test_table_from_file_only_accepts_patient_frame():
@@ -567,7 +567,7 @@ def test_ehrql_date_string_equivalence(fn_name):
         date_args = [(date_args[0], date_args[0])]
         str_args = [(str_args[0], str_args[0])]
 
-    assert f(*date_args).qm_node == f(*str_args).qm_node
+    assert f(*date_args)._qm_node == f(*str_args)._qm_node
 
 
 def test_code_series_instances_have_correct_type_attribute():
@@ -587,16 +587,16 @@ def test_strings_are_cast_to_codes():
         code = Series(SNOMEDCTCode)
 
     eq_series = p.code == "123000"
-    assert eq_series.qm_node.rhs == Value(SNOMEDCTCode("123000"))
+    assert eq_series._qm_node.rhs == Value(SNOMEDCTCode("123000"))
 
     is_in_series = p.code.is_in(["456000", "789000"])
-    assert is_in_series.qm_node.rhs == Value(
+    assert is_in_series._qm_node.rhs == Value(
         frozenset({SNOMEDCTCode("456000"), SNOMEDCTCode("789000")})
     )
 
     mapping = {"456000": "foo", "789000": "bar"}
     mapped_series = p.code.is_in(mapping)
-    assert mapped_series.qm_node.rhs == Value(
+    assert mapped_series._qm_node.rhs == Value(
         frozenset({SNOMEDCTCode("456000"), SNOMEDCTCode("789000")})
     )
 

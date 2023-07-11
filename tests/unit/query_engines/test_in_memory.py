@@ -19,4 +19,4 @@ def test_pick_one_row_per_patient():
     engine = InMemoryQueryEngine(database)
     engine.cache = {}
     frame = events.sort_by(events.date).first_for_patient()
-    engine.visit(frame.qm_node)
+    engine.visit(frame._qm_node)

@@ -66,7 +66,7 @@ def select_all(request, mssql_database):
             f"`@register_test_for(table)` decorator applied"
         )
 
-    qm_table = ql_table.qm_node
+    qm_table = ql_table._qm_node
     backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
     sql_table = backend.get_table_expression(qm_table.name, qm_table.schema)
     columns = [
@@ -590,7 +590,7 @@ def test_ons_cis(select_all):
 
 @register_test_for(tpp.isaric_raw)
 def test_isaric_raw_dates(select_all):
-    isaric_patient_keys = frozenset(tpp.isaric_raw.qm_node.schema.column_names)
+    isaric_patient_keys = frozenset(tpp.isaric_raw._qm_node.schema.column_names)
 
     # Test date extraction with all valid date strings.
     patient_1 = dict.fromkeys(isaric_patient_keys, None)
@@ -673,7 +673,7 @@ def test_isaric_raw_dates(select_all):
 
 @register_test_for(tpp.isaric_raw)
 def test_isaric_raw_clinical_variables(select_all):
-    isaric_patient_keys = frozenset(tpp.isaric_raw.qm_node.schema.column_names)
+    isaric_patient_keys = frozenset(tpp.isaric_raw._qm_node.schema.column_names)
 
     patient_1 = dict.fromkeys(isaric_patient_keys, None)
     patient_1 |= {

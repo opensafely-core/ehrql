@@ -12,7 +12,7 @@ def spec_test(request, engine):
         # Populate database tables.
         engine.populate(
             {
-                table: parse_table(table.qm_node.schema, s)
+                table: parse_table(table._qm_node.schema, s)
                 for table, s in table_data.items()
             }
         )
