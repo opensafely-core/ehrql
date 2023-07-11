@@ -238,7 +238,7 @@ def add_generate_measures(subparsers, environ, user_args):
 
 
 def add_run_sandbox(subparsers, environ, user_args):
-    parser = subparsers.add_parser("sandbox", help="XXX")
+    parser = subparsers.add_parser("sandbox", help="start ehrQL sandbox environment")
     parser.set_defaults(function=run_sandbox)
     parser.set_defaults(environ=environ)
     parser.add_argument(
