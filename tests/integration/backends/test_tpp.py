@@ -559,6 +559,73 @@ def test_household_memberships_2020(select_all):
     ]
 
 
+@register_test_for(tpp.ons_cis_raw)
+def test_ons_cis_raw(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        ONS_CIS_New(
+            covid_admitted=None,
+            covid_date=None,
+            covid_nhs_contact=None,
+            covid_test_swab=None,
+            covid_test_swab_neg_last_date=None,
+            covid_test_swab_pos_first_date=None,
+            covid_test_swab_result=None,
+            covid_think_havehad=None,
+            ctSgene_result=None,
+            health_care_clean=None,
+            hhsize=None,
+            imd_decile_E=1,
+            imd_quartile_E=1,
+            last_linkage_dt=date(2022, 8, 15),
+            long_covid_have_symptoms=None,
+            nhs_data_share=1,
+            patient_facing_clean=None,
+            Patient_ID=1,
+            result_combined=None,
+            result_mk=None,
+            result_mk_date=None,
+            rural_urban=1,
+            think_have_covid_sympt_now=None,
+            visit_date=date(2021, 10, 20),
+            visit_num=1,
+            visit_status=None,
+            visit_type=None,
+        ),
+    )
+    assert results == [
+        {
+            "covid_admitted": None,
+            "covid_date": None,
+            "covid_nhs_contact": None,
+            "covid_test_swab": None,
+            "covid_test_swab_neg_last_date": None,
+            "covid_test_swab_pos_first_date": None,
+            "covid_test_swab_result": None,
+            "covid_think_havehad": None,
+            "ctsgene_result": None,
+            "health_care_clean": None,
+            "hhsize": None,
+            "imd_decile_e": 1,
+            "imd_quartile_e": 1,
+            "last_linkage_dt": date(2022, 8, 15),
+            "long_covid_have_symptoms": None,
+            "nhs_data_share": 1,
+            "patient_facing_clean": None,
+            "patient_id": 1,
+            "result_combined": None,
+            "result_mk": None,
+            "result_mk_date": None,
+            "rural_urban": 1,
+            "think_have_covid_sympt_now": None,
+            "visit_date": date(2021, 10, 20),
+            "visit_num": 1,
+            "visit_status": None,
+            "visit_type": None,
+        },
+    ]
+
+
 @register_test_for(tpp.ons_cis)
 def test_ons_cis(select_all):
     results = select_all(
