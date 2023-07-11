@@ -1696,17 +1696,6 @@ than or the same as its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
 </div>
 
-<div class="attr-heading" id="DatePatientSeries.is_between">
-  <tt><strong>is_between</strong>(<em>start</em>, <em>end</em>)</tt>
-  <a class="headerlink" href="#DatePatientSeries.is_between" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-NOTE: We will remove this method after (1) releasing is_between_but_not_on and
-(2) updating all existing studies that use is_between.
-Return a boolean series which is True for each date in this series which is
-strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
-</div>
-
 <div class="attr-heading" id="DatePatientSeries.is_between_but_not_on">
   <tt><strong>is_between_but_not_on</strong>(<em>start</em>, <em>end</em>)</tt>
   <a class="headerlink" href="#DatePatientSeries.is_between_but_not_on" title="Permanent link">🔗</a>
@@ -1955,17 +1944,6 @@ is NULL).
 Return a boolean series which is True for each date in this series that is later
 than or the same as its corresponding value in `other` and False otherwise (or
 NULL if either value is NULL).
-</div>
-
-<div class="attr-heading" id="DateEventSeries.is_between">
-  <tt><strong>is_between</strong>(<em>start</em>, <em>end</em>)</tt>
-  <a class="headerlink" href="#DateEventSeries.is_between" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-NOTE: We will remove this method after (1) releasing is_between_but_not_on and
-(2) updating all existing studies that use is_between.
-Return a boolean series which is True for each date in this series which is
-strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_between_but_not_on">
