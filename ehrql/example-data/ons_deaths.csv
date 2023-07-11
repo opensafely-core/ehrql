@@ -1,0 +1,4 @@
+patient_id,date,place,cause_of_death_01
+0,2015-09-14,Hospital,C91.1
+4,2018-05-23,Home,I21.0
+8,2017-11-10,Care Home,I69.4

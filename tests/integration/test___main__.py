@@ -1,3 +1,5 @@
+import contextlib
+
 from ehrql.__main__ import (
     BACKEND_ALIASES,
     QUERY_ENGINE_ALIASES,
@@ -21,6 +23,13 @@ def test_test_connection(mssql_database, capsys):
     main(argv, env)
     out, _ = capsys.readouterr()
     assert "SUCCESS" in out
+
+
+def test_dump_example_data(tmpdir):
+    with contextlib.chdir(tmpdir):
+        main(["dump-example-data"])
+    filenames = [path.basename for path in (tmpdir / "example-data").listdir()]
+    assert "patients.csv" in filenames
 
 
 def test_all_query_engine_aliases_are_importable():

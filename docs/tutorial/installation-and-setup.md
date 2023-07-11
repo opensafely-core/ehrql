@@ -125,7 +125,7 @@ and we can help you get started.
 ## Downloading some dummy data
 
 Before running queries against real data in an OpenSAFELY backend,
-you can test your queries against dummy data on your own computer.
+you should test your queries against dummy data on your own computer.
 
 In the rest of this documentation,
 we will use the same small set of dummy data.
@@ -137,13 +137,11 @@ that tell you to run a command from the command-line
 will assume that you are in this `learning-ehrql` directory.
 You will need to change directory to that directory before running commands.
 
-:computer: Retrieve the sample dummy data files for use in this tutorial:
+:computer: At the command-line, navigate to your `learning-ehrql` directory, and run:
 
-1. Download [this zip file](https://github.com/opensafely-core/ehrql-example-data/archive/refs/heads/main.zip).
-2. Create a new directory inside `learning-ehrql` called `example-data`.
-3. Inside the zip file are several CSV files. Extract the CSV files to the `example-data` directory.
-
-:warning: Some zip extraction software may nest extracted files inside an additional directory.
+```
+opensafely exec ehrql:v0 dump-example-data
+```
 
 ### Check all the files are in the correct place
 

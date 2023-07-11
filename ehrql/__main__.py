@@ -13,6 +13,7 @@ from .main import (
     CommandError,
     create_dummy_tables,
     dump_dataset_sql,
+    dump_example_data,
     generate_dataset,
     generate_measures,
     run_sandbox,
@@ -76,6 +77,7 @@ def main(args, environ=None):
     add_generate_measures(subparsers, environ, user_args)
     add_run_sandbox(subparsers, environ, user_args)
     add_test_connection(subparsers, environ, user_args)
+    add_dump_example_data(subparsers, environ, user_args)
 
     kwargs = vars(parser.parse_args(args))
     function = kwargs.pop("function")
@@ -156,23 +158,6 @@ def add_dump_dataset_sql(subparsers, environ, user_args):
     add_common_backend_arguments(parser, environ)
 
 
-def add_common_backend_arguments(parser, environ):
-    parser.add_argument(
-        "--query-engine",
-        type=query_engine_from_id,
-        help=f"Dotted import path to class, or one of: {', '.join(QUERY_ENGINE_ALIASES)}",
-        default=environ.get("OPENSAFELY_QUERY_ENGINE"),
-        dest="query_engine_class",
-    )
-    parser.add_argument(
-        "--backend",
-        type=backend_from_id,
-        help=f"Dotted import path to class, or one of: {', '.join(BACKEND_ALIASES)}",
-        default=environ.get("OPENSAFELY_BACKEND"),
-        dest="backend_class",
-    )
-
-
 def add_create_dummy_tables(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "create-dummy-tables",
@@ -238,7 +223,7 @@ def add_generate_measures(subparsers, environ, user_args):
 
 
 def add_run_sandbox(subparsers, environ, user_args):
-    parser = subparsers.add_parser("sandbox", help="XXX")
+    parser = subparsers.add_parser("sandbox", help="start ehrQL sandbox environment")
     parser.set_defaults(function=run_sandbox)
     parser.set_defaults(environ=environ)
     parser.add_argument(
@@ -267,6 +252,31 @@ def add_test_connection(subparsers, environ, user_args):
         "-u",
         help="db url",
         default=environ.get("DATABASE_URL"),
+    )
+
+
+def add_dump_example_data(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "dump-example-data", help="dump example data to directory"
+    )
+    parser.set_defaults(function=dump_example_data)
+    parser.set_defaults(environ=environ)
+
+
+def add_common_backend_arguments(parser, environ):
+    parser.add_argument(
+        "--query-engine",
+        type=query_engine_from_id,
+        help=f"Dotted import path to class, or one of: {', '.join(QUERY_ENGINE_ALIASES)}",
+        default=environ.get("OPENSAFELY_QUERY_ENGINE"),
+        dest="query_engine_class",
+    )
+    parser.add_argument(
+        "--backend",
+        type=backend_from_id,
+        help=f"Dotted import path to class, or one of: {', '.join(BACKEND_ALIASES)}",
+        default=environ.get("OPENSAFELY_BACKEND"),
+        dest="backend_class",
     )
 
 

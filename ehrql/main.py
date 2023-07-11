@@ -1,6 +1,9 @@
 import importlib.util
+import os
+import shutil
 import sys
 from contextlib import nullcontext
+from pathlib import Path
 
 import structlog
 
@@ -274,6 +277,12 @@ def test_connection(backend_class, url, environ):
     with query_engine.engine.connect() as connection:
         connection.execute(select(1))
     print("SUCCESS")
+
+
+def dump_example_data(environ):
+    src_path = Path(__file__).parent / "example-data"
+    dst_path = Path(os.getcwd()) / "example-data"
+    shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
 
 
 def load_dataset_definition(definition_file, user_args):
