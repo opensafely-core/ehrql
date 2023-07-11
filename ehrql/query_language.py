@@ -580,6 +580,15 @@ class DateFunctions(ComparableFunctions):
 
     def is_between_but_not_on(self, start, end):
         """
+        NOTE: We will remove this method after (1) releasing is_between_but_not_on and
+        (2) updating all existing studies that use is_between.
+        Return a boolean series which is True for each date in this series which is
+        strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
+        """
+        return (self > start) & (self < end)
+
+    def is_between_but_not_on(self, start, end):
+        """
         Return a boolean series which is True for each date in this series which is
         strictly between (i.e. not equal to) the corresponding dates in `start` and `end`.
         """

@@ -65,12 +65,6 @@ def build_language():
             Dataset=namespace["Dataset"],
             case=namespace["case"],
             codelist_from_csv=namespace["codelist_from_csv"],
-            # Add Duration subclasses
-            **{
-                name: attr
-                for name, attr in namespace.items()
-                if is_proper_subclass(attr, ql.Duration)
-            },
         ),
         "frames": {
             name: attr
@@ -80,11 +74,16 @@ def build_language():
         "series": {
             name: attr
             for name, attr in namespace.items()
-            if (
-                is_proper_subclass(attr, ql.PatientSeries, ql.EventSeries)
-                or attr is ql.DateDifference
-            )
+            if is_proper_subclass(attr, ql.PatientSeries, ql.EventSeries)
         },
+        "date_arithmetic": dict(
+            DateDifference=ql.DateDifference,
+            **{
+                name: attr
+                for name, attr in namespace.items()
+                if is_proper_subclass(attr, ql.Duration)
+            },
+        ),
         "measures": {
             "Measures": namespace["Measures"],
             "INTERVAL": namespace["INTERVAL"],

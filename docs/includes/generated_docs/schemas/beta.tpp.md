@@ -2140,7 +2140,7 @@ GitHub.
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-The response to the question, as a CTV3 code. Alternatively, if the question admits a number as the response, then the question, as a CTV3 code.
+The response to the question, as a CTV3 code. Alternatively, if the question does not admit a CTV3 code as the response, then the question, as a CTV3 code.
 
  * Never `NULL`
   </dd>
@@ -2153,8 +2153,21 @@ The response to the question, as a CTV3 code. Alternatively, if the question adm
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-The response to the question, as a SNOMED CT code, for responses where the CTV3 code has a corresponding SNOMED CT code. Alternatively, if the question admits a number as the response, then the question, as a SNOMED CT code, for questions where the CTV3 code has a corresponding SNOMED CT code.
+The response to the question, as a SNOMED CT code, for responses where the CTV3 code has a corresponding SNOMED CT code. Alternatively, if the question does not admit a SNOMED CT code as the response, then the question, as a SNOMED CT code, for questions where the CTV3 code has a corresponding SNOMED CT code.
 
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="open_prompt.creation_date">
+    <strong>creation_date</strong>
+    <a class="headerlink" href="#open_prompt.creation_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+The date the survey was administered
+
+ * Never `NULL`
   </dd>
 </div>
 
@@ -2165,7 +2178,7 @@ The response to the question, as a SNOMED CT code, for responses where the CTV3 
     <code>date</code>
   </dt>
   <dd markdown="block">
-The date the survey was administered
+The response to the question, as a date, if the question admits a date as the response. Alternatively, the date the survey was administered.
 
  * Never `NULL`
   </dd>
@@ -2191,9 +2204,8 @@ The ID of the survey
     <code>float</code>
   </dt>
   <dd markdown="block">
-The response to the question, as a number. Alternatively, if the question admits a code as the response, then zero.
+The response to the question, as a number
 
- * Never `NULL`
   </dd>
 </div>
 

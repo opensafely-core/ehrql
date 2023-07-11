@@ -1,12 +1,10 @@
-from datetime import date
-
-from databuilder.ehrql import (
+from ehrql import (
     Dataset,
     years,
     months,
     days,
 )
-from databuilder.tables.beta.tpp import (
+from ehrql.tables.beta.tpp import (
     clinical_events,
     patients,
     practice_registrations,
@@ -27,7 +25,7 @@ import codelists
 
 
 # Define a dataset including all variables needed for the diabetes mellitus (dm)
-def make_dm_dataset(index_date: date):
+def make_dm_dataset(index_date):
     # Instantiate dataset
     dataset = Dataset()
 

@@ -64,6 +64,7 @@ dataset.cov_temporary_immune_suppress = temporary_immune_suppress.exists_for_pat
 dataset.end_death = death_date
 dataset.end_deregist = end_reg_date
 dataset.end_lc_cure = lc_cure_date
+dataset.end_date = earliest4(dataset.end_death, dataset.end_deregist, dataset.end_lc_cure, study_end_date)
 
 # Outcome visit
 # Historical GP visits: 2019-3-1 to 2020-3-1
@@ -82,18 +83,19 @@ add_hx_gp_visits(dataset, num_months=12)
 
 
 # GP visit after long COVID
-add_visits(dataset, index_date, num_months=1)
-add_visits(dataset, index_date, num_months=2)
-add_visits(dataset, index_date, num_months=3)
-add_visits(dataset, index_date, num_months=4)
-add_visits(dataset, index_date, num_months=5)
-add_visits(dataset, index_date, num_months=6)
-add_visits(dataset, index_date, num_months=7)
-add_visits(dataset, index_date, num_months=8)
-add_visits(dataset, index_date, num_months=9)
-add_visits(dataset, index_date, num_months=10)
-add_visits(dataset, index_date, num_months=11)
-add_visits(dataset, index_date, num_months=12)
+add_visits(dataset, dataset.index_date, num_months=1, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=2, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=3, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=4, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=5, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=6, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=7, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=8, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=9, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=10, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=11, end_date= dataset.end_date)
+add_visits(dataset, dataset.index_date, num_months=12, end_date= dataset.end_date)
+
 
 # Hospital visits
 # Historical admissions:
@@ -112,18 +114,18 @@ add_hx_hos_visits(dataset, num_months=12)
 
 
 # Admission after index date:
-add_hos_visits(dataset, index_date, num_months=1)
-add_hos_visits(dataset, index_date, num_months=2)
-add_hos_visits(dataset, index_date, num_months=3)
-add_hos_visits(dataset, index_date, num_months=4)
-add_hos_visits(dataset, index_date, num_months=5)
-add_hos_visits(dataset, index_date, num_months=6)
-add_hos_visits(dataset, index_date, num_months=7)
-add_hos_visits(dataset, index_date, num_months=8)
-add_hos_visits(dataset, index_date, num_months=9)
-add_hos_visits(dataset, index_date, num_months=10)
-add_hos_visits(dataset, index_date, num_months=11)
-add_hos_visits(dataset, index_date, num_months=12)
+add_hos_visits(dataset, dataset.index_date, num_months=1, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=2, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=3, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=4, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=5, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=6, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=7, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=8, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=9, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=10, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=11, end_date=dataset.end_date)
+add_hos_visits(dataset, dataset.index_date, num_months=12, end_date=dataset.end_date)
 
 # A&E visit
 # Historical A&E visit
@@ -142,15 +144,16 @@ add_hx_ae_visits(dataset, num_months=12)
 
 
 # A&E visit after index date:
-add_ae_visits(dataset, index_date, num_months=1)
-add_ae_visits(dataset, index_date, num_months=2)
-add_ae_visits(dataset, index_date, num_months=3)
-add_ae_visits(dataset, index_date, num_months=4)
-add_ae_visits(dataset, index_date, num_months=5)
-add_ae_visits(dataset, index_date, num_months=6)
-add_ae_visits(dataset, index_date, num_months=7)
-add_ae_visits(dataset, index_date, num_months=8)
-add_ae_visits(dataset, index_date, num_months=9)
-add_ae_visits(dataset, index_date, num_months=10)
-add_ae_visits(dataset, index_date, num_months=11)
-add_ae_visits(dataset, index_date, num_months=12)
+add_ae_visits(dataset, dataset.index_date, num_months=1, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=2, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=3, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=4, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=5, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=6, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=7, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=8, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=9, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=10, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=11, end_date=dataset.end_date)
+add_ae_visits(dataset, dataset.index_date, num_months=12, end_date=dataset.end_date)
+
