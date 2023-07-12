@@ -172,20 +172,20 @@ class QueryEngineFixture:
         return self.query_engine_class(dsn, **engine_kwargs)
 
     def extract(self, dataset, **engine_kwargs):
-        variables = compile(dataset)
-        return self.extract_qm(variables, **engine_kwargs)
+        variable_definitions = compile(dataset)
+        return self.extract_qm(variable_definitions, **engine_kwargs)
 
-    def extract_qm(self, variables, **engine_kwargs):
+    def extract_qm(self, variable_definitions, **engine_kwargs):
         query_engine = self.query_engine(**engine_kwargs)
-        results = query_engine.get_results(variables)
+        results = query_engine.get_results(variable_definitions)
         # We don't explicitly order the results and not all databases naturally
         # return in the same order
         return [row._asdict() for row in sorted(results)]
 
     def dump_dataset_sql(self, dataset, **engine_kwargs):
-        variables = compile(dataset)
+        variable_definitions = compile(dataset)
         query_engine = self.query_engine(dsn=None, **engine_kwargs)
-        return get_sql_strings(query_engine, variables)
+        return get_sql_strings(query_engine, variable_definitions)
 
     def sqlalchemy_engine(self):
         return self.query_engine().engine
