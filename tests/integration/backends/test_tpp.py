@@ -1,3 +1,4 @@
+import hashlib
 from datetime import date
 
 import pytest
@@ -634,6 +635,7 @@ def test_ons_cis(select_all):
         ONS_CIS_New(
             Patient_ID=1,
             visit_date=date(2021, 10, 20),
+            pseudo_visit_id=hashlib.sha256(b"1").digest(),
             visit_num=1,
             last_linkage_dt=date(2022, 8, 15),
             nhs_data_share=1,
@@ -646,6 +648,7 @@ def test_ons_cis(select_all):
         {
             "patient_id": 1,
             "visit_date": date(2021, 10, 20),
+            "visit_id": hashlib.sha256(b"1").digest().hex().upper(),
             "visit_num": 1,
             "is_opted_out_of_nhs_data_share": True,
             "last_linkage_dt": date(2022, 8, 15),

@@ -282,6 +282,7 @@ class ons_cis(EventFrame):
     """
 
     visit_date = Series(datetime.date)
+    visit_id = Series(str)
     visit_num = Series(int)
     is_opted_out_of_nhs_data_share = Series(bool)
     last_linkage_dt = Series(datetime.date)

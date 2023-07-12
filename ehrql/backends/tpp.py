@@ -274,6 +274,7 @@ class TPPBackend(BaseBackend):
             SELECT
                 Patient_ID as patient_id,
                 visit_date AS visit_date,
+                CONVERT(varchar(max), pseudo_visit_id, 2) AS visit_id,
                 visit_num AS visit_num,
                 nhs_data_share AS is_opted_out_of_nhs_data_share,
                 last_linkage_dt AS last_linkage_dt,

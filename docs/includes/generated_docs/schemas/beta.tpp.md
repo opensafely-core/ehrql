@@ -1670,6 +1670,18 @@ Data from the ONS Covid Infection Survey.
 </div>
 
 <div markdown="block">
+  <dt id="ons_cis.visit_id">
+    <strong>visit_id</strong>
+    <a class="headerlink" href="#ons_cis.visit_id" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
   <dt id="ons_cis.visit_num">
     <strong>visit_num</strong>
     <a class="headerlink" href="#ons_cis.visit_num" title="Permanent link">🔗</a>
