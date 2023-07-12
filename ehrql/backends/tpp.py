@@ -269,17 +269,19 @@ class TPPBackend(BaseBackend):
         ),
     )
 
-    ons_cis = MappedTable(
-        source="ONS_CIS_New",
-        columns=dict(
-            visit_date="visit_date",
-            visit_num="visit_num",
-            is_opted_out_of_nhs_data_share="nhs_data_share",
-            last_linkage_dt="last_linkage_dt",
-            imd_decile_e="imd_decile_E",
-            imd_quartile_e="imd_quartile_E",
-            rural_urban="rural_urban",
-        ),
+    ons_cis = QueryTable(
+        """
+            SELECT
+                Patient_ID as patient_id,
+                visit_date AS visit_date,
+                visit_num AS visit_num,
+                nhs_data_share AS is_opted_out_of_nhs_data_share,
+                last_linkage_dt AS last_linkage_dt,
+                imd_decile_E AS imd_decile_e,
+                imd_quartile_E AS imd_quartile_e,
+                rural_urban AS rural_urban
+            FROM ONS_CIS_New
+        """
     )
 
     isaric_raw = QueryTable(
