@@ -160,11 +160,6 @@ AttributeError: 'medications' object has no attribute 'dat'
 
 Refer to [the catalogue of errors](../how-to/errors.md) for details of common error messages and what they mean.
 
-#### Exiting the sandbox
-
-To exit the sandbox,
-type `exit()` and then press the return key
-
 #### Python console tips and tricks
 
 You can hit the `<tab>` key to see possible completions.
@@ -180,6 +175,11 @@ patients.count_for_patient()   patients.date_of_death         patients.sex
 
 You can also cycle through previous commands with the up/down arrow keys,
 and use <ctrl-r> to search through your command history.
+
+#### Exiting the sandbox
+
+To exit the sandbox,
+type `exit()` and then press the return key
 
 ### 2. Running ehrQL as a standalone action via `opensafely exec`
 
