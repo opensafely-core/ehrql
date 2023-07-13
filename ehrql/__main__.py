@@ -11,6 +11,7 @@ from ehrql.utils.log_utils import init_logging
 
 from .main import (
     CommandError,
+    assure,
     create_dummy_tables,
     dump_dataset_sql,
     dump_example_data,
@@ -76,6 +77,7 @@ def main(args, environ=None):
     add_create_dummy_tables(subparsers, environ, user_args)
     add_generate_measures(subparsers, environ, user_args)
     add_run_sandbox(subparsers, environ, user_args)
+    add_assure(subparsers, environ, user_args)
     add_test_connection(subparsers, environ, user_args)
     add_dump_example_data(subparsers, environ, user_args)
 
@@ -230,6 +232,18 @@ def add_run_sandbox(subparsers, environ, user_args):
         "dummy_tables_path",
         help="Path to directory of CSV files (one per table)",
         type=Path,
+    )
+
+
+def add_assure(subparsers, environ, user_args):
+    parser = subparsers.add_parser("assure", help="experimental")
+    parser.set_defaults(function=assure)
+    parser.set_defaults(environ=environ)
+    parser.set_defaults(user_args=user_args)
+    parser.add_argument(
+        "test_data_file",
+        help="The path of the file where the test data is defined",
+        type=existing_python_file,
     )
 
 

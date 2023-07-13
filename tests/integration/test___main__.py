@@ -1,4 +1,5 @@
 import contextlib
+from pathlib import Path
 
 from ehrql.__main__ import (
     BACKEND_ALIASES,
@@ -12,6 +13,13 @@ from ehrql.query_engines.base import BaseQueryEngine
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.utils.module_utils import get_sibling_subclasses
+
+
+def test_assure(capsys):
+    path = Path(__file__).parents[1] / "fixtures" / "assurance" / "assurance.py"
+    main(["assure", str(path)])
+    out, _ = capsys.readouterr()
+    assert "All OK" in out
 
 
 def test_test_connection(mssql_database, capsys):

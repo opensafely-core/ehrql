@@ -7,7 +7,7 @@ from pathlib import Path
 
 import structlog
 
-from ehrql import sandbox
+from ehrql import assurance, sandbox
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.file_formats import read_dataset, write_dataset
 from ehrql.measures import (
@@ -269,6 +269,13 @@ def run_sandbox(dummy_tables_path, environ):
     sandbox.run(dummy_tables_path)
 
 
+def assure(test_data_file, environ, user_args):
+    dataset_definition = load_dataset_definition(test_data_file, user_args)
+    test_data = load_test_data(test_data_file, user_args)
+    results = assurance.validate(dataset_definition, test_data)
+    print(assurance.present(results))
+
+
 def test_connection(backend_class, url, environ):
     from sqlalchemy import select
 
@@ -315,6 +322,11 @@ def load_measure_definitions(definition_file, user_args):
     if len(measures) == 0:
         raise CommandError("No measures defined")
     return measures
+
+
+def load_test_data(definition_file, user_args):
+    module = load_module(definition_file, user_args)
+    return module.patient_data
 
 
 def load_module(module_path, user_args=()):
