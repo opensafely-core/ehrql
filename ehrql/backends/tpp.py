@@ -405,27 +405,22 @@ class TPPBackend(BaseBackend):
     )
 
     open_prompt = QueryTable(
-        # There doesn't seem to be an index on CodedEvent.CodedEvent_ID. However, there
-        # does seem to be an index on CodedEvent.Patient_ID. We join on both, to make
-        # the query faster. We know it's faster, because we compared the time without
-        # the extra join (the query was still executing after 60s) to the time with the
-        # extra join (the query executed in 5s).
         """
         SELECT
-            prompt.Patient_ID AS patient_id,
-            event.CTV3Code AS ctv3_code,
+            Patient_ID AS patient_id,
             CASE
-                WHEN prompt.CodeSystemId = 0 THEN prompt.ConceptId
+                WHEN CodeSystemId = 0 THEN ConceptId
             END AS snomedct_code,
-            CAST(prompt.CreationDate AS date) AS creation_date,
-            CAST(prompt.ConsultationDate AS date) AS consultation_date,
-            prompt.Consultation_ID AS consultation_id,
             CASE
-                WHEN prompt.NumericCode = 1 THEN prompt.NumericValue
+                WHEN CodeSystemId = 2 THEN ConceptId
+            END ctv3_code,
+            CAST(CreationDate AS date) AS creation_date,
+            CAST(ConsultationDate AS date) AS consultation_date,
+            Consultation_ID AS consultation_id,
+            CASE
+                WHEN NumericCode = 1 THEN NumericValue
             END AS numeric_value
-        FROM OpenPROMPT AS prompt LEFT JOIN CodedEvent AS event
-        ON prompt.CodedEvent_ID = event.CodedEvent_ID
-        AND prompt.Patient_ID = event.Patient_ID
+        FROM OpenPROMPT
     """
     )
 

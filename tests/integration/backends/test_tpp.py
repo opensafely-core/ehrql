@@ -1066,14 +1066,8 @@ def test_isaric_raw_clinical_variables(select_all):
 @register_test_for(tpp.open_prompt)
 def test_open_prompt(select_all):
     results = select_all(
-        CodedEvent(
-            Patient_ID=1,
-            CodedEvent_ID=1,
-            CTV3Code="00000",
-        ),
         OpenPROMPT(
             Patient_ID=1,
-            CodedEvent_ID=1,
             CodeSystemId=0,  # SNOMED CT
             ConceptId="100000",
             CreationDate="2023-01-01",
@@ -1082,14 +1076,8 @@ def test_open_prompt(select_all):
             NumericCode=1,
             NumericValue=1.0,
         ),
-        CodedEvent(
-            Patient_ID=2,
-            CodedEvent_ID=2,
-            CTV3Code="Y0000",
-        ),
         OpenPROMPT(
             Patient_ID=2,
-            CodedEvent_ID=2,
             CodeSystemId=2,  # CTV3 "Y"
             ConceptId="Y0000",
             CreationDate="2023-01-01",
@@ -1102,7 +1090,7 @@ def test_open_prompt(select_all):
     assert results == [
         {
             "patient_id": 1,
-            "ctv3_code": "00000",
+            "ctv3_code": None,
             "snomedct_code": "100000",
             "creation_date": date(2023, 1, 1),
             "consultation_date": date(2023, 1, 1),

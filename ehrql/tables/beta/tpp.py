@@ -552,7 +552,6 @@ class open_prompt(EventFrame):
 
     ctv3_code = Series(
         CTV3Code,
-        constraints=[Constraint.NotNull()],
         description=(
             "The response to the question, as a CTV3 code. "
             "Alternatively, if the question does not admit a CTV3 code as the response, "
@@ -562,11 +561,9 @@ class open_prompt(EventFrame):
     snomedct_code = Series(
         SNOMEDCTCode,
         description=(
-            "The response to the question, as a SNOMED CT code, "
-            "for responses where the CTV3 code has a corresponding SNOMED CT code. "
+            "The response to the question, as a SNOMED CT code. "
             "Alternatively, if the question does not admit a SNOMED CT code as the response, "
-            "then the question, as a SNOMED CT code, "
-            "for questions where the CTV3 code has a corresponding SNOMED CT code."
+            "then the question, as a SNOMED CT code."
         ),
     )
     creation_date = Series(

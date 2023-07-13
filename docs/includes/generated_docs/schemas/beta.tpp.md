@@ -2469,7 +2469,6 @@ GitHub.
   <dd markdown="block">
 The response to the question, as a CTV3 code. Alternatively, if the question does not admit a CTV3 code as the response, then the question, as a CTV3 code.
 
- * Never `NULL`
   </dd>
 </div>
 
@@ -2480,7 +2479,7 @@ The response to the question, as a CTV3 code. Alternatively, if the question doe
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-The response to the question, as a SNOMED CT code, for responses where the CTV3 code has a corresponding SNOMED CT code. Alternatively, if the question does not admit a SNOMED CT code as the response, then the question, as a SNOMED CT code, for questions where the CTV3 code has a corresponding SNOMED CT code.
+The response to the question, as a SNOMED CT code. Alternatively, if the question does not admit a SNOMED CT code as the response, then the question, as a SNOMED CT code.
 
   </dd>
 </div>
