@@ -475,13 +475,17 @@ class TPPBackend(BaseBackend):
     opa_diag = QueryTable(
         """
         SELECT
-            Patient_ID AS patient_id,
-            OPA_Ident AS opa_ident,
-            Primary_Diagnosis_Code AS primary_diagnosis_code,
-            Primary_Diagnosis_Code_Read AS primary_diagnosis_code_read,
-            Secondary_Diagnosis_Code_1 AS secondary_diagnosis_code_1,
-            Secondary_Diagnosis_Code_1_Read AS secondary_diagnosis_code_1_read
-        FROM OPA_Diag
+            diag.Patient_ID AS patient_id,
+            diag.OPA_Ident AS opa_ident,
+            diag.Primary_Diagnosis_Code AS primary_diagnosis_code,
+            diag.Primary_Diagnosis_Code_Read AS primary_diagnosis_code_read,
+            diag.Secondary_Diagnosis_Code_1 AS secondary_diagnosis_code_1,
+            diag.Secondary_Diagnosis_Code_1_Read AS secondary_diagnosis_code_1_read,
+            opa.Appointment_Date AS appointment_date,
+            opa.Referral_Request_Received_Date AS referral_request_received_date
+        FROM OPA_Diag AS diag
+        LEFT JOIN OPA AS opa
+        ON diag.OPA_Ident = opa.OPA_Ident
     """
     )
 

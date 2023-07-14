@@ -1207,6 +1207,11 @@ def test_opa_cost(select_all):
 @register_test_for(tpp.opa_diag)
 def test_opa_diag(select_all):
     results = select_all(
+        OPA(
+            OPA_Ident=1,
+            Appointment_Date=date(2023, 2, 1),
+            Referral_Request_Received_Date=date(2023, 1, 1),
+        ),
         OPA_Diag(
             Patient_ID=1,
             OPA_Ident=1,
@@ -1224,6 +1229,8 @@ def test_opa_diag(select_all):
             "primary_diagnosis_code_read": "Y0000",
             "secondary_diagnosis_code_1": "100000",
             "secondary_diagnosis_code_1_read": "Y0000",
+            "appointment_date": date(2023, 2, 1),
+            "referral_request_received_date": date(2023, 1, 1),
         },
     ]
 
