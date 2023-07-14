@@ -63,6 +63,54 @@ def test_define_measures():
     ]
 
 
+def test_define_measures_with_default_group_by():
+    # Regression test for #1423.
+
+    intervals = [
+        (date(2021, 1, 1), date(2021, 1, 31)),
+        (date(2021, 2, 1), date(2021, 2, 28)),
+    ]
+
+    measures = Measures()
+
+    measures.define_defaults(
+        numerator=patients.score,
+        denominator=patients.is_interesting,
+        intervals=intervals,
+        group_by={"category": patients.category},
+    )
+
+    measures.define_measure(
+        name="test_1",
+    )
+    measures.define_measure(
+        name="test_2",
+    )
+
+    assert len(measures) == 2
+
+    assert list(measures) == [
+        Measure(
+            name="test_1",
+            numerator=patients.score._qm_node,
+            denominator=patients.is_interesting._qm_node,
+            group_by={
+                "category": patients.category._qm_node,
+            },
+            intervals=tuple(intervals),
+        ),
+        Measure(
+            name="test_2",
+            numerator=patients.score._qm_node,
+            denominator=patients.is_interesting._qm_node,
+            group_by={
+                "category": patients.category._qm_node,
+            },
+            intervals=tuple(intervals),
+        ),
+    ]
+
+
 def test_cannot_redefine_defaults():
     measures = Measures()
     measures.define_defaults(numerator=patients.score)
