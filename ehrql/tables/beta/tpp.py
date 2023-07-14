@@ -610,6 +610,14 @@ class apcs_cost(EventFrame):
         float,
         description="TODO",
     )
+    admission_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    discharge_date = Series(
+        datetime.date,
+        description="TODO",
+    )
 
 
 @table

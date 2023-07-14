@@ -274,6 +274,30 @@ TODO
   </dd>
 </div>
 
+<div markdown="block">
+  <dt id="apcs_cost.admission_date">
+    <strong>admission_date</strong>
+    <a class="headerlink" href="#apcs_cost.admission_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost.discharge_date">
+    <strong>discharge_date</strong>
+    <a class="headerlink" href="#apcs_cost.discharge_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
   </dl>
 </div>
 

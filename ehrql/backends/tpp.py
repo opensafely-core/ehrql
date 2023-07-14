@@ -427,12 +427,16 @@ class TPPBackend(BaseBackend):
     apcs_cost = QueryTable(
         """
         SELECT
-            Patient_ID AS patient_id,
-            APCS_Ident AS apcs_ident,
-            Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            Tariff_Initial_Amount AS tariff_initial_amount,
-            Tariff_Total_Payment AS tariff_total_payment
-        FROM APCS_Cost
+            cost.Patient_ID AS patient_id,
+            cost.APCS_Ident AS apcs_ident,
+            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            cost.Tariff_Initial_Amount AS tariff_initial_amount,
+            cost.Tariff_Total_Payment AS tariff_total_payment,
+            apcs.Admission_Date AS admission_date,
+            apcs.Discharge_Date AS discharge_date
+        FROM APCS_Cost AS cost
+        LEFT JOIN APCS AS apcs
+        ON cost.APCS_Ident = apcs.APCS_Ident
     """
     )
 

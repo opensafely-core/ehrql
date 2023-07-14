@@ -1119,6 +1119,11 @@ def test_registered_tests_are_exhaustive():
 @register_test_for(tpp.apcs_cost)
 def test_apcs_cost(select_all):
     results = select_all(
+        APCS(
+            APCS_Ident=1,
+            Admission_Date=date(2023, 1, 1),
+            Discharge_Date=date(2023, 2, 1),
+        ),
         APCS_Cost(
             Patient_ID=1,
             APCS_Ident=1,
@@ -1134,6 +1139,8 @@ def test_apcs_cost(select_all):
             "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
             "tariff_initial_amount": pytest.approx(2.2, rel=1e-5),
             "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
+            "admission_date": date(2023, 1, 1),
+            "discharge_date": date(2023, 2, 1),
         },
     ]
 
