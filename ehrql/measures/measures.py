@@ -166,7 +166,7 @@ class Measures:
         ).items():
             if group_name not in kwargs["group_by"]:
                 continue
-            if group_by[group_name]._qm_node != definition:
+            if kwargs["group_by"][group_name]._qm_node != definition:
                 raise ValidationError(
                     f"Inconsistent definition for `group_by` column: {group_name}"
                 )
