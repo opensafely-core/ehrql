@@ -490,14 +490,19 @@ class TPPBackend(BaseBackend):
     )
 
     opa_proc = QueryTable(
+        # "PROC" is a reserved word in T-SQL, so we drop the "O"
         """
         SELECT
-            Patient_ID AS patient_id,
-            OPA_Ident AS opa_ident,
-            Primary_Procedure_Code AS primary_procedure_code,
-            Primary_Procedure_Code_Read AS primary_procedure_code_read,
-            Procedure_Code_2 AS procedure_code_1,
-            Procedure_Code_2_Read AS procedure_code_2_read
-        FROM OPA_Proc
+            prc.Patient_ID AS patient_id,
+            prc.OPA_Ident AS opa_ident,
+            prc.Primary_Procedure_Code AS primary_procedure_code,
+            prc.Primary_Procedure_Code_Read AS primary_procedure_code_read,
+            prc.Procedure_Code_2 AS procedure_code_1,
+            prc.Procedure_Code_2_Read AS procedure_code_2_read,
+            opa.Appointment_Date AS appointment_date,
+            opa.Referral_Request_Received_Date AS referral_request_received_date
+        FROM OPA_Proc AS prc
+        LEFT JOIN OPA AS opa
+        ON prc.OPA_Ident = opa.OPA_Ident
     """
     )
