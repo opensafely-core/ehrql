@@ -454,12 +454,16 @@ class TPPBackend(BaseBackend):
     opa_cost = QueryTable(
         """
         SELECT
-            Patient_ID AS patient_id,
-            OPA_Ident AS opa_ident,
-            Tariff_OPP AS tariff_opp,
-            Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            Tariff_Total_Payment AS tariff_total_payment
-        FROM OPA_Cost
+            cost.Patient_ID AS patient_id,
+            cost.OPA_Ident AS opa_ident,
+            cost.Tariff_OPP AS tariff_opp,
+            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            cost.Tariff_Total_Payment AS tariff_total_payment,
+            opa.Appointment_Date AS appointment_date,
+            opa.Referral_Request_Received_Date AS referral_request_received_date
+        FROM OPA_Cost AS cost
+        LEFT JOIN OPA AS opa
+        ON cost.OPA_Ident = opa.OPA_Ident
     """
     )
 

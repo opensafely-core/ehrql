@@ -2319,6 +2319,30 @@ TODO
   </dd>
 </div>
 
+<div markdown="block">
+  <dt id="opa_cost.appointment_date">
+    <strong>appointment_date</strong>
+    <a class="headerlink" href="#opa_cost.appointment_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_cost.referral_request_received_date">
+    <strong>referral_request_received_date</strong>
+    <a class="headerlink" href="#opa_cost.referral_request_received_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
   </dl>
 </div>
 

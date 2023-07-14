@@ -656,6 +656,14 @@ class opa_cost(EventFrame):
         float,
         description="TODO",
     )
+    appointment_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    referral_request_received_date = Series(
+        datetime.date,
+        description="TODO",
+    )
 
 
 @table
