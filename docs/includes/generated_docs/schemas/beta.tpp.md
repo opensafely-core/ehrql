@@ -2025,7 +2025,7 @@ their journey from the database table to the ehrQL table.
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+Patient's date of death. Only deaths registered from February 2019 are recorded.
 
   </dd>
 </div>
