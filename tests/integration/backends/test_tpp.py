@@ -1149,6 +1149,12 @@ def test_apcs_cost(select_all):
 @register_test_for(tpp.ec_cost)
 def test_ec_cost(select_all):
     results = select_all(
+        EC(
+            EC_Ident=1,
+            Arrival_Date=date(2023, 1, 2),
+            EC_Decision_To_Admit_Date=date(2023, 1, 3),
+            EC_Injury_Date=date(2023, 1, 1),
+        ),
         EC_Cost(
             Patient_ID=1,
             EC_Ident=1,
@@ -1162,6 +1168,9 @@ def test_ec_cost(select_all):
             "ec_ident": 1,
             "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
             "tariff_total_payment": pytest.approx(2.2, rel=1e-5),
+            "arrival_date": date(2023, 1, 2),
+            "ec_decision_to_admit_date": date(2023, 1, 3),
+            "ec_injury_date": date(2023, 1, 1),
         },
     ]
 

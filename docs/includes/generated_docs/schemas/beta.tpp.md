@@ -449,6 +449,42 @@ TODO
   </dd>
 </div>
 
+<div markdown="block">
+  <dt id="ec_cost.arrival_date">
+    <strong>arrival_date</strong>
+    <a class="headerlink" href="#ec_cost.arrival_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec_cost.ec_decision_to_admit_date">
+    <strong>ec_decision_to_admit_date</strong>
+    <a class="headerlink" href="#ec_cost.ec_decision_to_admit_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec_cost.ec_injury_date">
+    <strong>ec_injury_date</strong>
+    <a class="headerlink" href="#ec_cost.ec_injury_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
   </dl>
 </div>
 

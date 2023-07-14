@@ -635,6 +635,18 @@ class ec_cost(EventFrame):
         float,
         description="TODO",
     )
+    arrival_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    ec_decision_to_admit_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    ec_injury_date = Series(
+        datetime.date,
+        description="TODO",
+    )
 
 
 @table
