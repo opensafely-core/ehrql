@@ -8,6 +8,7 @@ from pathlib import Path
 from ehrql import __version__
 from ehrql.file_formats import FILE_FORMATS, get_file_extension
 from ehrql.utils.log_utils import init_logging
+from ehrql.utils.string_utils import strip_indent
 
 from .main import (
     CommandError,
@@ -111,12 +112,13 @@ def add_generate_dataset(subparsers, environ, user_args):
         type=valid_output_path,
         dest="dataset_file",
     )
-    add_dsn_argument(parser, environ)
     add_dummy_data_file_argument(parser, environ)
     add_dummy_tables_argument(parser, environ)
     add_dataset_definition_file_argument(parser, environ)
-    add_query_engine_argument(parser, environ)
-    add_backend_argument(parser, environ)
+    internal_args = create_internal_argument_group(parser, environ)
+    add_dsn_argument(internal_args, environ)
+    add_query_engine_argument(internal_args, environ)
+    add_backend_argument(internal_args, environ)
 
 
 def add_dump_dataset_sql(subparsers, environ, user_args):
@@ -170,7 +172,6 @@ def add_generate_measures(subparsers, environ, user_args):
         type=valid_output_path,
         dest="output_file",
     )
-    add_dsn_argument(parser, environ)
     add_dummy_tables_argument(parser, environ)
     add_dummy_data_file_argument(parser, environ)
     parser.add_argument(
@@ -178,8 +179,10 @@ def add_generate_measures(subparsers, environ, user_args):
         help="Path of the file where measures are defined",
         type=existing_python_file,
     )
-    add_query_engine_argument(parser, environ)
-    add_backend_argument(parser, environ)
+    internal_args = create_internal_argument_group(parser, environ)
+    add_dsn_argument(internal_args, environ)
+    add_query_engine_argument(internal_args, environ)
+    add_backend_argument(internal_args, environ)
 
 
 def add_run_sandbox(subparsers, environ, user_args):
@@ -233,6 +236,18 @@ def add_dump_example_data(subparsers, environ, user_args):
     )
     parser.set_defaults(function=dump_example_data)
     parser.set_defaults(environ=environ)
+
+
+def create_internal_argument_group(parser, environ):
+    return parser.add_argument_group(
+        title="Internal Arguments",
+        description=strip_indent(
+            """
+            You should not normally need to use these arguments: they are for the
+            internal operation of ehrQL and the OpenSAFELY platform.
+            """
+        ),
+    )
 
 
 def add_dataset_definition_file_argument(parser, environ):
