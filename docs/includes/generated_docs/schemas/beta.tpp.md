@@ -274,6 +274,30 @@ TODO
   </dd>
 </div>
 
+<div markdown="block">
+  <dt id="apcs_cost.admission_date">
+    <strong>admission_date</strong>
+    <a class="headerlink" href="#apcs_cost.admission_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost.discharge_date">
+    <strong>discharge_date</strong>
+    <a class="headerlink" href="#apcs_cost.discharge_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
   </dl>
 </div>
 
@@ -418,6 +442,42 @@ TODO
     <strong>tariff_total_payment</strong>
     <a class="headerlink" href="#ec_cost.tariff_total_payment" title="Permanent link">🔗</a>
     <code>float</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec_cost.arrival_date">
+    <strong>arrival_date</strong>
+    <a class="headerlink" href="#ec_cost.arrival_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec_cost.ec_decision_to_admit_date">
+    <strong>ec_decision_to_admit_date</strong>
+    <a class="headerlink" href="#ec_cost.ec_decision_to_admit_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec_cost.ec_injury_date">
+    <strong>ec_injury_date</strong>
+    <a class="headerlink" href="#ec_cost.ec_injury_date" title="Permanent link">🔗</a>
+    <code>date</code>
   </dt>
   <dd markdown="block">
 TODO
@@ -2295,6 +2355,30 @@ TODO
   </dd>
 </div>
 
+<div markdown="block">
+  <dt id="opa_cost.appointment_date">
+    <strong>appointment_date</strong>
+    <a class="headerlink" href="#opa_cost.appointment_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_cost.referral_request_received_date">
+    <strong>referral_request_received_date</strong>
+    <a class="headerlink" href="#opa_cost.referral_request_received_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
   </dl>
 </div>
 
@@ -2367,6 +2451,30 @@ TODO
   </dd>
 </div>
 
+<div markdown="block">
+  <dt id="opa_diag.appointment_date">
+    <strong>appointment_date</strong>
+    <a class="headerlink" href="#opa_diag.appointment_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_diag.referral_request_received_date">
+    <strong>referral_request_received_date</strong>
+    <a class="headerlink" href="#opa_diag.referral_request_received_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
   </dl>
 </div>
 
@@ -2432,6 +2540,30 @@ TODO
     <strong>procedure_code_2_read</strong>
     <a class="headerlink" href="#opa_proc.procedure_code_2_read" title="Permanent link">🔗</a>
     <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_proc.appointment_date">
+    <strong>appointment_date</strong>
+    <a class="headerlink" href="#opa_proc.appointment_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa_proc.referral_request_received_date">
+    <strong>referral_request_received_date</strong>
+    <a class="headerlink" href="#opa_proc.referral_request_received_date" title="Permanent link">🔗</a>
+    <code>date</code>
   </dt>
   <dd markdown="block">
 TODO

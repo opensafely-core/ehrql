@@ -610,6 +610,14 @@ class apcs_cost(EventFrame):
         float,
         description="TODO",
     )
+    admission_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    discharge_date = Series(
+        datetime.date,
+        description="TODO",
+    )
 
 
 @table
@@ -625,6 +633,18 @@ class ec_cost(EventFrame):
     )
     tariff_total_payment = Series(
         float,
+        description="TODO",
+    )
+    arrival_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    ec_decision_to_admit_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    ec_injury_date = Series(
+        datetime.date,
         description="TODO",
     )
 
@@ -646,6 +666,14 @@ class opa_cost(EventFrame):
     )
     tariff_total_payment = Series(
         float,
+        description="TODO",
+    )
+    appointment_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    referral_request_received_date = Series(
+        datetime.date,
         description="TODO",
     )
 
@@ -673,6 +701,14 @@ class opa_diag(EventFrame):
         CTV3Code,
         description="TODO",
     )
+    appointment_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    referral_request_received_date = Series(
+        datetime.date,
+        description="TODO",
+    )
 
 
 @table
@@ -696,5 +732,13 @@ class opa_proc(EventFrame):
     )
     procedure_code_2_read = Series(
         CTV3Code,
+        description="TODO",
+    )
+    appointment_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    referral_request_received_date = Series(
+        datetime.date,
         description="TODO",
     )

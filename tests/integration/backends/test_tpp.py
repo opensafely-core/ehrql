@@ -9,6 +9,7 @@ from ehrql.tables.beta import tpp
 from tests.lib.tpp_schema import (
     APCS,
     EC,
+    OPA,
     APCS_Cost,
     APCS_Der,
     Appointment,
@@ -1119,6 +1120,11 @@ def test_registered_tests_are_exhaustive():
 @register_test_for(tpp.apcs_cost)
 def test_apcs_cost(select_all):
     results = select_all(
+        APCS(
+            APCS_Ident=1,
+            Admission_Date=date(2023, 1, 1),
+            Discharge_Date=date(2023, 2, 1),
+        ),
         APCS_Cost(
             Patient_ID=1,
             APCS_Ident=1,
@@ -1134,6 +1140,8 @@ def test_apcs_cost(select_all):
             "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
             "tariff_initial_amount": pytest.approx(2.2, rel=1e-5),
             "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
+            "admission_date": date(2023, 1, 1),
+            "discharge_date": date(2023, 2, 1),
         },
     ]
 
@@ -1141,6 +1149,12 @@ def test_apcs_cost(select_all):
 @register_test_for(tpp.ec_cost)
 def test_ec_cost(select_all):
     results = select_all(
+        EC(
+            EC_Ident=1,
+            Arrival_Date=date(2023, 1, 2),
+            EC_Decision_To_Admit_Date=date(2023, 1, 3),
+            EC_Injury_Date=date(2023, 1, 1),
+        ),
         EC_Cost(
             Patient_ID=1,
             EC_Ident=1,
@@ -1154,6 +1168,9 @@ def test_ec_cost(select_all):
             "ec_ident": 1,
             "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
             "tariff_total_payment": pytest.approx(2.2, rel=1e-5),
+            "arrival_date": date(2023, 1, 2),
+            "ec_decision_to_admit_date": date(2023, 1, 3),
+            "ec_injury_date": date(2023, 1, 1),
         },
     ]
 
@@ -1161,6 +1178,11 @@ def test_ec_cost(select_all):
 @register_test_for(tpp.opa_cost)
 def test_opa_cost(select_all):
     results = select_all(
+        OPA(
+            OPA_Ident=1,
+            Appointment_Date=date(2023, 2, 1),
+            Referral_Request_Received_Date=date(2023, 1, 1),
+        ),
         OPA_Cost(
             Patient_ID=1,
             OPA_Ident=1,
@@ -1176,6 +1198,8 @@ def test_opa_cost(select_all):
             "tariff_opp": pytest.approx(1.1, rel=1e-5),
             "grand_total_payment_mff": pytest.approx(2.2, rel=1e-5),
             "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
+            "appointment_date": date(2023, 2, 1),
+            "referral_request_received_date": date(2023, 1, 1),
         },
     ]
 
@@ -1183,6 +1207,11 @@ def test_opa_cost(select_all):
 @register_test_for(tpp.opa_diag)
 def test_opa_diag(select_all):
     results = select_all(
+        OPA(
+            OPA_Ident=1,
+            Appointment_Date=date(2023, 2, 1),
+            Referral_Request_Received_Date=date(2023, 1, 1),
+        ),
         OPA_Diag(
             Patient_ID=1,
             OPA_Ident=1,
@@ -1200,6 +1229,8 @@ def test_opa_diag(select_all):
             "primary_diagnosis_code_read": "Y0000",
             "secondary_diagnosis_code_1": "100000",
             "secondary_diagnosis_code_1_read": "Y0000",
+            "appointment_date": date(2023, 2, 1),
+            "referral_request_received_date": date(2023, 1, 1),
         },
     ]
 
@@ -1207,6 +1238,11 @@ def test_opa_diag(select_all):
 @register_test_for(tpp.opa_proc)
 def test_opa_proc(select_all):
     results = select_all(
+        OPA(
+            OPA_Ident=1,
+            Appointment_Date=date(2023, 2, 1),
+            Referral_Request_Received_Date=date(2023, 1, 1),
+        ),
         OPA_Proc(
             Patient_ID=1,
             OPA_Ident=1,
@@ -1224,5 +1260,7 @@ def test_opa_proc(select_all):
             "primary_procedure_code_read": "Y0000",
             "procedure_code_1": "100000",
             "procedure_code_2_read": "Y0000",
+            "appointment_date": date(2023, 2, 1),
+            "referral_request_received_date": date(2023, 1, 1),
         },
     ]

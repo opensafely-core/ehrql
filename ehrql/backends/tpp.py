@@ -427,60 +427,82 @@ class TPPBackend(BaseBackend):
     apcs_cost = QueryTable(
         """
         SELECT
-            Patient_ID AS patient_id,
-            APCS_Ident AS apcs_ident,
-            Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            Tariff_Initial_Amount AS tariff_initial_amount,
-            Tariff_Total_Payment AS tariff_total_payment
-        FROM APCS_Cost
+            cost.Patient_ID AS patient_id,
+            cost.APCS_Ident AS apcs_ident,
+            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            cost.Tariff_Initial_Amount AS tariff_initial_amount,
+            cost.Tariff_Total_Payment AS tariff_total_payment,
+            apcs.Admission_Date AS admission_date,
+            apcs.Discharge_Date AS discharge_date
+        FROM APCS_Cost AS cost
+        LEFT JOIN APCS AS apcs
+        ON cost.APCS_Ident = apcs.APCS_Ident
     """
     )
 
     ec_cost = QueryTable(
         """
         SELECT
-            Patient_ID AS patient_id,
-            EC_Ident AS ec_ident,
-            Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            Tariff_Total_Payment AS tariff_total_payment
-        FROM EC_Cost
+            cost.Patient_ID AS patient_id,
+            cost.EC_Ident AS ec_ident,
+            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            cost.Tariff_Total_Payment AS tariff_total_payment,
+            ec.Arrival_Date AS arrival_date,
+            ec.EC_Decision_To_Admit_Date AS ec_decision_to_admit_date,
+            ec.EC_Injury_Date AS ec_injury_date
+        FROM EC_Cost AS cost
+        LEFT JOIN EC AS ec
+        ON cost.EC_Ident = ec.EC_Ident
     """
     )
 
     opa_cost = QueryTable(
         """
         SELECT
-            Patient_ID AS patient_id,
-            OPA_Ident AS opa_ident,
-            Tariff_OPP AS tariff_opp,
-            Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            Tariff_Total_Payment AS tariff_total_payment
-        FROM OPA_Cost
+            cost.Patient_ID AS patient_id,
+            cost.OPA_Ident AS opa_ident,
+            cost.Tariff_OPP AS tariff_opp,
+            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            cost.Tariff_Total_Payment AS tariff_total_payment,
+            opa.Appointment_Date AS appointment_date,
+            opa.Referral_Request_Received_Date AS referral_request_received_date
+        FROM OPA_Cost AS cost
+        LEFT JOIN OPA AS opa
+        ON cost.OPA_Ident = opa.OPA_Ident
     """
     )
 
     opa_diag = QueryTable(
         """
         SELECT
-            Patient_ID AS patient_id,
-            OPA_Ident AS opa_ident,
-            Primary_Diagnosis_Code AS primary_diagnosis_code,
-            Primary_Diagnosis_Code_Read AS primary_diagnosis_code_read,
-            Secondary_Diagnosis_Code_1 AS secondary_diagnosis_code_1,
-            Secondary_Diagnosis_Code_1_Read AS secondary_diagnosis_code_1_read
-        FROM OPA_Diag
+            diag.Patient_ID AS patient_id,
+            diag.OPA_Ident AS opa_ident,
+            diag.Primary_Diagnosis_Code AS primary_diagnosis_code,
+            diag.Primary_Diagnosis_Code_Read AS primary_diagnosis_code_read,
+            diag.Secondary_Diagnosis_Code_1 AS secondary_diagnosis_code_1,
+            diag.Secondary_Diagnosis_Code_1_Read AS secondary_diagnosis_code_1_read,
+            opa.Appointment_Date AS appointment_date,
+            opa.Referral_Request_Received_Date AS referral_request_received_date
+        FROM OPA_Diag AS diag
+        LEFT JOIN OPA AS opa
+        ON diag.OPA_Ident = opa.OPA_Ident
     """
     )
 
     opa_proc = QueryTable(
+        # "PROC" is a reserved word in T-SQL, so we drop the "O"
         """
         SELECT
-            Patient_ID AS patient_id,
-            OPA_Ident AS opa_ident,
-            Primary_Procedure_Code AS primary_procedure_code,
-            Primary_Procedure_Code_Read AS primary_procedure_code_read,
-            Procedure_Code_2 AS procedure_code_1,
-            Procedure_Code_2_Read AS procedure_code_2_read
-        FROM OPA_Proc
+            prc.Patient_ID AS patient_id,
+            prc.OPA_Ident AS opa_ident,
+            prc.Primary_Procedure_Code AS primary_procedure_code,
+            prc.Primary_Procedure_Code_Read AS primary_procedure_code_read,
+            prc.Procedure_Code_2 AS procedure_code_1,
+            prc.Procedure_Code_2_Read AS procedure_code_2_read,
+            opa.Appointment_Date AS appointment_date,
+            opa.Referral_Request_Received_Date AS referral_request_received_date
+        FROM OPA_Proc AS prc
+        LEFT JOIN OPA AS opa
+        ON prc.OPA_Ident = opa.OPA_Ident
     """
     )
