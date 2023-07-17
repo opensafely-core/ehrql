@@ -86,13 +86,13 @@ def create_parser(user_args, environ):
 
     subparsers = parser.add_subparsers(help="sub-command help")
     add_generate_dataset(subparsers, environ, user_args)
-    add_dump_dataset_sql(subparsers, environ, user_args)
-    add_create_dummy_tables(subparsers, environ, user_args)
     add_generate_measures(subparsers, environ, user_args)
     add_run_sandbox(subparsers, environ, user_args)
+    add_dump_example_data(subparsers, environ, user_args)
+    add_dump_dataset_sql(subparsers, environ, user_args)
+    add_create_dummy_tables(subparsers, environ, user_args)
     add_assure(subparsers, environ, user_args)
     add_test_connection(subparsers, environ, user_args)
-    add_dump_example_data(subparsers, environ, user_args)
 
     return parser
 
