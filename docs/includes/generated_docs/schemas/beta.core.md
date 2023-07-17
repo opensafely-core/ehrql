@@ -116,7 +116,7 @@ from ehrql.tables.beta.core import (
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+Patient's date of death. Only deaths registered from February 2019 are recorded.
 
   </dd>
 </div>

@@ -51,7 +51,13 @@ class patients(PatientFrame):
 
 @table
 class ons_deaths(EventFrame):
-    date = Series(datetime.date)
+    date = Series(
+        datetime.date,
+        description=(
+            "Patient's date of death. "
+            "Only deaths registered from February 2019 are recorded."
+        ),
+    )
     place = Series(
         str,
         constraints=[
