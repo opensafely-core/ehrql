@@ -65,6 +65,8 @@ def build_language():
             Dataset=namespace["Dataset"],
             case=namespace["case"],
             codelist_from_csv=namespace["codelist_from_csv"],
+            maximum_of=namespace["maximum_of"],
+            minimum_of=namespace["minimum_of"],
         ),
         "frames": {
             name: attr

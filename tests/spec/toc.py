@@ -33,6 +33,8 @@ contents = {
         "test_containment",
         "test_map_values",
         "test_if_null_then",
+        "test_maximum_of_and_minimum_of_patient_series",
+        "test_maximum_of_and_minimum_of_event_series",
     ],
     "bool_series_ops": [
         "test_logical_ops",

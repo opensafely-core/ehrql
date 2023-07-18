@@ -3,7 +3,17 @@ from pathlib import Path
 
 from ehrql.codes import codelist_from_csv
 from ehrql.measures import INTERVAL, Measures
-from ehrql.query_language import Dataset, case, days, months, weeks, when, years
+from ehrql.query_language import (
+    Dataset,
+    case,
+    days,
+    maximum_of,
+    minimum_of,
+    months,
+    weeks,
+    when,
+    years,
+)
 from ehrql.utils.log_utils import init_logging
 
 
@@ -24,6 +34,8 @@ __all__ = [
     "Dataset",
     "case",
     "days",
+    "maximum_of",
+    "minimum_of",
     "months",
     "weeks",
     "when",
