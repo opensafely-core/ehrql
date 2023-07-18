@@ -62,7 +62,10 @@ class TPPBackend(BaseBackend):
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
-                CAST(reg.EndDate AS date) AS end_date,
+                CASE
+                    WHEN reg.EndDate = '9999-12-31' THEN NULL
+                    ELSE CAST(reg.EndDate AS date)
+                END AS end_date,
                 org.Organisation_ID AS practice_pseudo_id,
                 NULLIF(org.STPCode, '') AS practice_stp,
                 NULLIF(org.Region, '') AS practice_nuts1_region_name

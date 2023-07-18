@@ -198,7 +198,7 @@ def test_practice_registrations(select_all):
         RegistrationHistory(
             Patient_ID=1,
             StartDate=date(2020, 1, 1),
-            EndDate=date(2030, 1, 1),
+            EndDate=date(9999, 12, 31),
             Organisation_ID=3,
         ),
     )
@@ -214,7 +214,7 @@ def test_practice_registrations(select_all):
         {
             "patient_id": 1,
             "start_date": date(2020, 1, 1),
-            "end_date": date(2030, 1, 1),
+            "end_date": None,
             "practice_pseudo_id": 3,
             "practice_stp": None,
             "practice_nuts1_region_name": None,
