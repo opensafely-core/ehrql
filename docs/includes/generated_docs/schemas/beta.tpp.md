@@ -2791,6 +2791,7 @@ return (date - patients.date_of_birth).years
   <dd markdown="block">
 
 
+ * Never `NULL`
   </dd>
 </div>
 
@@ -2815,6 +2816,7 @@ return (date - patients.date_of_birth).years
   <dd markdown="block">
 
 
+ * Never `NULL`
   </dd>
 </div>
 

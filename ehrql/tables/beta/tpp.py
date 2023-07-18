@@ -50,9 +50,15 @@ class vaccinations(EventFrame):
 
 @table
 class practice_registrations(EventFrame):
-    start_date = Series(datetime.date)
+    start_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+    )
     end_date = Series(datetime.date)
-    practice_pseudo_id = Series(int)
+    practice_pseudo_id = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+    )
     practice_stp = Series(
         str,
         constraints=[Constraint.Regex("E540000[0-9]{2}")],
