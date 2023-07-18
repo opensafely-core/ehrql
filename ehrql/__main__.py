@@ -36,6 +36,18 @@ BACKEND_ALIASES = {
 }
 
 
+# I haven't yet come up with a good way to expose these in the CLI help text, so for now
+# they only appear in the HTML docs. But it makes sense to define the text here where
+# the rest of the CLI help text is defined.
+USER_ARGS_NAME = "PARAMETERS"
+USER_ARGS_USAGE = " -- ... PARAMETERS ..."
+USER_ARGS_HELP = """\
+Parameters are extra arguments you can pass to your Python definition file. They must be
+supplied after all ehrQL arguments and separated from the ehrQL arguments with a
+double-dash ` -- `.
+"""
+
+
 if not os.environ.get("PYTHONHASHSEED") == "0":  # pragma: no cover
     # The kinds of DoS attacks hash seed randomisation is designed to protect against
     # don't apply to ehrQL, and having consistent output makes debugging much easier
