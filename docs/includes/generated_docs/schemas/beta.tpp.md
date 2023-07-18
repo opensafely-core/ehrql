@@ -2778,7 +2778,20 @@ return (date - patients.date_of_birth).years
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## practice_registrations
 
+Each record corresponds to a patient's registration with a practice.
 
+Only patients with a full GMS (General Medical Services) registration are included.
+
+We have registration history for:
+
+* all patients currently registered at a TPP practice
+* all patients registered at a TPP practice any time from 1 Jan 2009 onwards:
+    * who have since de-registered
+    * who have since died
+
+A patient can be registered with zero, one, or more than one practices at a given
+time. For instance, students are often registered with a practice at home and a
+practice at university.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2789,7 +2802,7 @@ return (date - patients.date_of_birth).years
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+Date patient joined practice.
 
  * Never `NULL`
   </dd>
@@ -2802,7 +2815,7 @@ return (date - patients.date_of_birth).years
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+Date patient left practice.
 
   </dd>
 </div>
@@ -2814,7 +2827,7 @@ return (date - patients.date_of_birth).years
     <code>integer</code>
   </dt>
   <dd markdown="block">
-
+Pseudonymised practice identifier.
 
  * Never `NULL`
   </dd>
@@ -2827,7 +2840,8 @@ return (date - patients.date_of_birth).years
     <code>string</code>
   </dt>
   <dd markdown="block">
-
+ONS code of practice's STP (Sustainability and Transformation Partnership).
+STPs have been replaced by ICBs (Integrated Care Boards), and ICB codes will be available soon.
 
  * Matches regular expression: `E540000[0-9]{2}`
   </dd>
