@@ -1,3 +1,4 @@
+import dataclasses
 from functools import reduce
 
 from ehrql.dummy_data import DummyDataGenerator
@@ -15,40 +16,11 @@ from ehrql.query_model.nodes import Function
 class DummyMeasuresDataGenerator:
     def __init__(self, measures):
         self.measures = measures
-        variables, population_size = self._variables_and_population_size(measures)
-        self.generator = DummyDataGenerator(variables, population_size=population_size)
-
-    def _variables_and_population_size(self, measures):
-        # Collect all variables used in all measures
-        all_denominators = {series_as_bool(m.denominator) for m in measures}
-        all_numerators = {m.numerator for m in measures}
-        all_groups = get_all_group_by_columns(measures).values()
-
-        variable_placeholders = {
-            # Use the union of all denominators as the population
-            "population": reduce(Function.Or, all_denominators),
-            **{
-                f"column_{i}": column
-                for i, column in enumerate([*all_numerators, *all_groups])
-            },
-        }
-
-        # Use the maximum range over all intervals as a date range
-        all_intervals = {interval for m in measures for interval in m.intervals}
-        min_interval_start = min(interval[0] for interval in all_intervals)
-        max_interval_end = max(interval[1] for interval in all_intervals)
-
-        variables = substitute_interval_parameters(
-            variable_placeholders, (min_interval_start, max_interval_end)
+        combined = CombinedMeasureComponents.from_measures(measures)
+        self.generator = DummyDataGenerator(
+            get_dataset_variables(combined),
+            population_size=get_population_size(combined),
         )
-
-        # Totally unscientific heuristic for producing a "big enough" population to
-        # generate a "reasonable" amount of non-zero measures
-        population_size = (
-            10 * len(all_denominators) * len(all_intervals) * len(all_groups)
-        )
-
-        return variables, population_size
 
     def get_data(self):
         return self.generator.get_data()
@@ -58,3 +30,65 @@ class DummyMeasuresDataGenerator:
         database.setup(self.get_data())
         engine = InMemoryQueryEngine(database)
         return get_measure_results(engine, self.measures)
+
+
+@dataclasses.dataclass
+class CombinedMeasureComponents:
+    """
+    Represents a de-duplicated collection of all the components used in a collection of
+    measures
+    """
+
+    denominators: set
+    numerators: set
+    groups: set
+    intervals: set
+
+    @classmethod
+    def from_measures(cls, measures):
+        return cls(
+            denominators={series_as_bool(m.denominator) for m in measures},
+            numerators={m.numerator for m in measures},
+            groups=get_all_group_by_columns(measures).values(),
+            intervals={interval for m in measures for interval in m.intervals},
+        )
+
+
+def get_dataset_variables(combined):
+    """
+    Return a dict of dataset definition variables suitable for passing to the dummy data
+    generator which should produce dummy data of the right shape to use for calculating
+    measures
+    """
+    variable_placeholders = {
+        # Use the union of all denominators as the population
+        "population": reduce(Function.Or, combined.denominators),
+        **{
+            f"column_{i}": column
+            for i, column in enumerate([*combined.numerators, *combined.groups])
+        },
+    }
+
+    # Use the maximum range over all intervals as a date range
+    min_interval_start = min(interval[0] for interval in combined.intervals)
+    max_interval_end = max(interval[1] for interval in combined.intervals)
+
+    return substitute_interval_parameters(
+        variable_placeholders, (min_interval_start, max_interval_end)
+    )
+
+
+def get_population_size(combined):
+    """
+    Make a totally unscientific guess as to how many dummy patients to generate to
+    produce a "big enough" population to generate a "reasonable" amount of non-zero
+    measure results
+    """
+    return (
+        10
+        * len(combined.denominators)
+        * len(combined.intervals)
+        # Denominators and intervals are both guaranteed to be non-empty, but we
+        # need to make sure we produce a non-zero value when `groups` is empty
+        * max(1, len(combined.groups))
+    )

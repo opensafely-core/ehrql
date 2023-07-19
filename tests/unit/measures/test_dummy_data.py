@@ -69,3 +69,17 @@ def test_dummy_measures_data_generator():
 
     assert all(v > 0 for v in numerators)
     assert all(v > 0 for v in denominators)
+
+
+def test_population_is_nonzero_when_no_groups():
+    measures = Measures()
+    measures.define_measure(
+        "events_per_patient",
+        numerator=events.where(events.date.is_during(INTERVAL)).count_for_patient(),
+        denominator=patients.exists_for_patient(),
+        intervals=years(1).starting_on("2020-01-01"),
+        # Deliberately omiting any `group_by` columns
+    )
+
+    generator = DummyMeasuresDataGenerator(measures)
+    assert generator.generator.population_size > 0
