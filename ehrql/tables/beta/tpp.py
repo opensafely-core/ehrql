@@ -225,6 +225,31 @@ class appointments(EventFrame):
         datetime.date,
         description="The date the appointment was due to start",
     )
+    status = Series(
+        str,
+        description="The status of the appointment",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Booked",
+                    "Arrived",
+                    "Did Not Attend",
+                    "In Progress",
+                    "Finished",
+                    "Requested",
+                    "Blocked",
+                    "Visit",
+                    "Waiting",
+                    "Cancelled by Patient",
+                    "Cancelled by Unit",
+                    "Cancelled by Other Service",
+                    "No Access Visit",
+                    "Cancelled Due To Death",
+                    "Patient Walked Out",
+                ]
+            )
+        ],
+    )
 
 
 @table

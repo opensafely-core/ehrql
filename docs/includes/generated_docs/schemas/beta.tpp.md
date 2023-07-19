@@ -342,6 +342,19 @@ The date the appointment was due to start
   </dd>
 </div>
 
+<div markdown="block">
+  <dt id="appointments.status">
+    <strong>status</strong>
+    <a class="headerlink" href="#appointments.status" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The status of the appointment
+
+ * Possible values: `Booked`, `Arrived`, `Did Not Attend`, `In Progress`, `Finished`, `Requested`, `Blocked`, `Visit`, `Waiting`, `Cancelled by Patient`, `Cancelled by Unit`, `Cancelled by Other Service`, `No Access Visit`, `Cancelled Due To Death`, `Patient Walked Out`
+  </dd>
+</div>
+
   </dl>
 </div>
 
