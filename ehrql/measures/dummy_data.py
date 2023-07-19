@@ -85,5 +85,10 @@ def get_population_size(combined):
     measure results
     """
     return (
-        10 * len(combined.denominators) * len(combined.intervals) * len(combined.groups)
+        10
+        * len(combined.denominators)
+        * len(combined.intervals)
+        # Denominators and intervals are both guaranteed to be non-empty, but we
+        # need to make sure we produce a non-zero value when `groups` is empty
+        * max(1, len(combined.groups))
     )
