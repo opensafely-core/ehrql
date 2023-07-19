@@ -1,7 +1,7 @@
 import ehrql.tables.beta.core
 import ehrql.tables.beta.smoketest
 from ehrql.backends.base import BaseBackend, MappedTable
-from ehrql.query_engines.sqlite import SQLiteQueryEngine
+from ehrql.query_engines.trino import TrinoQueryEngine
 
 
 class EMISBackend(BaseBackend):
@@ -18,8 +18,7 @@ class EMISBackend(BaseBackend):
     """
 
     display_name = "EMIS"
-    # Obviously the completed backend will use a TrinoQueryEngine not SQLite
-    query_engine_class = SQLiteQueryEngine
+    query_engine_class = TrinoQueryEngine
     patient_join_column = "patient_id"
     implements = [
         ehrql.tables.beta.core,
