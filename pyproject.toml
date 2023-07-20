@@ -86,6 +86,10 @@ testpaths = ["tests"]
 env = [
   "PYTHONHASHSEED=0",
 ]
+# ignnore dbapi() deprecation warnings for the third party TrinoDialect that we subclass
+filterwarnings = [
+    "ignore:.*dbapi.*TrinoDialect.*:sqlalchemy.exc.SADeprecationWarning",
+]
 
 [tool.ruff]
 line-length = 88

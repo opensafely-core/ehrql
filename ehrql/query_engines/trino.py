@@ -1,7 +1,6 @@
 import structlog
-from trino.sqlalchemy.dialect import TrinoDialect
-
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.query_engines.trino_dialect import TrinoDialect
 
 
 log = structlog.getLogger()

@@ -23,6 +23,10 @@ registry.register(
     "SQLiteDialect",
 )
 
+registry.register(
+    "trino.opensafely", "ehrql.query_engines.trino_dialect", "TrinoDialect"
+)
+
 
 class DbDetails:
     def __init__(
@@ -225,7 +229,7 @@ def make_trino_database(containers):
 
     return DbDetails(
         protocol="trino",
-        driver=None,
+        driver="opensafely",
         host_from_container=container_ip,
         port_from_container=trino_port,
         host_from_host="localhost",
