@@ -49,6 +49,7 @@ contents = {
     ],
     "case_expressions": [
         "test_case",
+        "test_when",
     ],
     "date_series_ops": [
         "test_date_series_ops",
