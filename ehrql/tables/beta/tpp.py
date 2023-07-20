@@ -74,11 +74,11 @@ class practice_registrations(EventFrame):
                 ]
             ),
         ],
-        description=(
-            "Name of the NUTS level 1 region of England to which the practice belongs.\n"
-            "For more information see:\n"
-            "<https://www.ons.gov.uk/methodology/geography/ukgeographies/eurostat>"
-        ),
+        description="""
+            Name of the NUTS level 1 region of England to which the practice belongs.
+            For more information see:
+            <https://www.ons.gov.uk/methodology/geography/ukgeographies/eurostat>
+        """,
     )
 
     def for_patient_on(self, date):

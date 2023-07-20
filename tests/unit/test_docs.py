@@ -1,20 +1,5 @@
 from ehrql.docs import generate_docs, render
-from ehrql.docs.common import reformat_docstring
 from ehrql.docs.render_includes.specs import render_specs
-
-
-def test_reformat_docstring():
-    docstring = """
-    First line.
-
-    Second line.
-        Indented
-    """
-
-    output = reformat_docstring(docstring)
-
-    expected = "First line.\n\nSecond line.\n    Indented"
-    assert output == expected
 
 
 def test_generate_docs():

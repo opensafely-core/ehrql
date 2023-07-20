@@ -6,8 +6,8 @@ from ehrql.docs.common import (
     get_arguments,
     get_class_attrs,
     get_name_for_type,
-    reformat_docstring,
 )
+from ehrql.utils.string_utils import strip_indent
 
 
 EXCLUDE_FROM_DOCS = {
@@ -234,7 +234,7 @@ def get_missing_values(target_values, included_values):
 
 
 def require_docstring(obj):
-    docstring = reformat_docstring(obj.__doc__)
+    docstring = strip_indent(obj.__doc__ or "")
     if not docstring and is_proper_subclass(obj, ql.BaseSeries):
         docstring = generate_docstring_for_series(obj)
     assert docstring.strip(), f"No docstring found for {obj}"

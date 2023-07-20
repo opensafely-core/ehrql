@@ -3,8 +3,8 @@ from pathlib import Path
 
 import ehrql
 import ehrql.tables
-from ehrql.docs.common import reformat_docstring
 from ehrql.utils.module_utils import get_sibling_subclasses
+from ehrql.utils.string_utils import strip_indent
 
 from ..backends.base import BaseBackend
 
@@ -26,7 +26,7 @@ def build_backends():
                 "name": backend.display_name,
                 "dotted_path": f"{backend.__module__}.{backend.__qualname__}",
                 "file_path": relative_file_path(backend.__module__),
-                "docstring": reformat_docstring(backend.__doc__),
+                "docstring": strip_indent(backend.__doc__),
                 "implements": implements,
             }
         )
