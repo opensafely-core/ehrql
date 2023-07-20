@@ -4,8 +4,10 @@ from pathlib import Path
 
 import sqlalchemy
 import sqlalchemy.exc
+from requests.exceptions import ConnectionError
 from sqlalchemy.dialects import registry
 from sqlalchemy.orm import sessionmaker
+from trino.exceptions import TrinoQueryError
 
 from ehrql.utils.itertools_utils import iter_flatten
 
@@ -122,6 +124,9 @@ def wait_for_database(database, timeout=20):
             ConnectionRefusedError,
             ConnectionResetError,
             BrokenPipeError,
+            ConnectionError,
+            TrinoQueryError,
+            sqlalchemy.exc.DBAPIError,
         ) as e:  # pragma: no cover
             if time.time() >= limit:
                 raise Exception(
