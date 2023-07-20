@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+
+just docs-serve &
+bg_pid=$!
+
+trap "kill $bg_pid" SIGINT
+
+sleep 2
+
+./watch-files ehrql just generate-docs
+
+kill $bg_pid

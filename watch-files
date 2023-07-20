@@ -1,0 +1,44 @@
+#!/bin/bash
+POLL_INTERVAL=${POLL_INTERVAL:-2}
+DEBOUNCE_DELAY=${DEBOUNCE_DELAY:-0.1}
+
+DIRECTORY="$1"
+CMD="$2"
+
+if [ -z "$DIRECTORY" ] || [ -z "$CMD" ]; then
+  >&2 echo 'Usage: watch-files DIRECTORY COMMAND [ARG]...'
+  >&2 echo
+  >&2 echo 'Execute COMMAND whenever a file in DIRECTORY (or its descendants) changes.'
+  >&2 echo
+  >&2 echo 'Note: if inotifywait is not available this falls back to executing COMMAND'
+  >&2 echo "every $POLL_INTERVAL seconds."
+  exit 1
+fi
+
+shift 2
+
+# Exit with a success status when Ctrl-C is pressed (prevents spurious error
+# messages when running under make)
+trap "exit 0" SIGINT
+
+if ! which inotifywait >/dev/null; then
+  >&2 tput setaf 1
+  >&2 echo "inotifywait command not found; falling back to looping every $POLL_INTERVAL seconds."
+  >&2 echo 'Try: sudo apt-get install inotify-tools'
+  >&2 tput sgr0
+  while true; do
+    "$CMD" "$@"
+    sleep "$POLL_INTERVAL"
+  done
+fi
+
+"$CMD" "$@"
+
+inotifywait \
+  -e modify -e attrib -e move -e create -e delete \
+  --quiet --recursive --monitor "$DIRECTORY" \
+  | while read; do
+    # Wait until there have been no new events for DEBOUNCE_DELAY seconds
+    while read -t "$DEBOUNCE_DELAY"; do true; done;
+    "$CMD" "$@"
+  done
