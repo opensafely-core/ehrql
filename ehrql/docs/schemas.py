@@ -10,13 +10,13 @@ from ehrql.query_language import (
     get_all_series_from_class,
 )
 from ehrql.utils.module_utils import get_submodules
+from ehrql.utils.string_utils import strip_indent
 
 from .common import (
     get_arguments,
     get_class_attrs,
     get_function_body,
     get_name_for_type,
-    reformat_docstring,
 )
 
 
@@ -32,7 +32,7 @@ def build_schemas(backends=()):
         if not module_tables:
             continue
 
-        docstring = reformat_docstring(module.__doc__)
+        docstring = strip_indent(module.__doc__)
         dotted_path = module.__name__
         hierarchy = dotted_path.removeprefix(f"{tables.__name__}.").split(".")
         name = ".".join(hierarchy)
@@ -68,7 +68,7 @@ def build_tables(module):
         if not isinstance(obj, BaseFrame):
             continue
         cls = obj.__class__
-        docstring = reformat_docstring(cls.__doc__)
+        docstring = strip_indent(cls.__doc__ or "")
         columns = [
             build_column(name, series)
             for name, series in get_all_series_from_class(cls).items()
@@ -104,7 +104,7 @@ def build_table_methods(table_name, cls):
 def build_method(table_name, name, method):
     return {
         "name": name,
-        "docstring": reformat_docstring(method.__doc__),
+        "docstring": strip_indent(method.__doc__),
         "arguments": get_arguments(method, ignore_self=True),
         # Replace the `self` argument with the table name so the resulting code makes
         # more sense in isolation
