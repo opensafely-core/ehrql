@@ -12,6 +12,7 @@ from ehrql.query_model.column_specs import get_column_specs_from_schema
 from ehrql.query_model.nodes import get_series_type, has_one_row_per_patient
 from ehrql.query_model.population_validation import validate_population_definition
 from ehrql.utils import date_utils
+from ehrql.utils.string_utils import strip_indent
 
 
 VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
@@ -1211,13 +1212,13 @@ class Series:
         notes_for_implementors="",
     ):
         self.type_ = type_
-        self.description = description
+        self.description = strip_indent(description)
         self.constraints = constraints
         self.required = required
-        self.implementation_notes_to_add_to_description = (
+        self.implementation_notes_to_add_to_description = strip_indent(
             implementation_notes_to_add_to_description
         )
-        self.notes_for_implementors = notes_for_implementors
+        self.notes_for_implementors = strip_indent(notes_for_implementors)
 
     def __set_name__(self, owner, name):
         self.name = name
