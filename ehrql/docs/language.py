@@ -13,7 +13,8 @@ from ehrql.docs.common import (
 EXCLUDE_FROM_DOCS = {
     ql.BaseCode,
     ql.Series,
-    # We document `when` as part of `case`
+    # We document `WhenThen` and `when` as part of `case`
+    ql.WhenThen,
     ql.when,
 }
 

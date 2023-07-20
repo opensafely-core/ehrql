@@ -59,6 +59,19 @@ Note that because the conditions are evaluated in order we don't need the condit
 for "medium" to specify `(size >= 10) & (size < 20)` because by the time the
 condition for "medium" is being evaluated we already know the condition for "small"
 is False.
+
+A simpler form is available when there is a single condition.  This example:
+```py
+category = case(
+    when(size < 15).then("small"),
+    default="large",
+)
+```
+
+can be rewritten as:
+```py
+category = when(size < 15).then("small").otherwise("large")
+```
 </div>
 
 

@@ -2849,6 +2849,57 @@ returns the following patient series:
 
 
 
+### 10.2 Case expressions with single condition
+
+
+#### 10.2.1 When with expression
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|6 |
+| 2|7 |
+| 3|8 |
+| 4| |
+
+```python
+when(p.i1 < 8).then(p.i1).otherwise(100)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|6 |
+| 2|7 |
+| 3|100 |
+| 4|100 |
+
+
+
+#### 10.2.2 When with boolean column
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1|b1 |
+| - | - | - |
+| 1|6|T |
+| 2|7|F |
+| 3|| |
+
+```python
+when(p.b1).then(p.i1).otherwise(100)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|6 |
+| 2|100 |
+| 3|100 |
+
+
+
 ## 11 Operations on all series containing dates
 
 

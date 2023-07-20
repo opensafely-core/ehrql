@@ -1250,9 +1250,16 @@ class when:
         self._condition = condition
 
     def then(self, value):
-        new = self.__class__(self._condition)
-        new._value = value
-        return new
+        return WhenThen(self._condition, value)
+
+
+class WhenThen:
+    def __init__(self, condition, value):
+        self._condition = condition
+        self._value = value
+
+    def otherwise(self, default):
+        return case(self, default=default)
 
 
 def case(*when_thens, default=None):
@@ -1280,6 +1287,20 @@ def case(*when_thens, default=None):
     for "medium" to specify `(size >= 10) & (size < 20)` because by the time the
     condition for "medium" is being evaluated we already know the condition for "small"
     is False.
+
+    A simpler form is available when there is a single condition.  This example:
+    ```py
+    category = case(
+        when(size < 15).then("small"),
+        default="large",
+    )
+    ```
+
+    can be rewritten as:
+    ```py
+    category = when(size < 15).then("small").otherwise("large")
+    ```
+
     """
     cases = _DictArg((case._condition, case._value) for case in when_thens)
     # If we don't want a default then we shouldn't supply an argument, or else it will
