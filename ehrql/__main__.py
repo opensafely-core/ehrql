@@ -183,6 +183,7 @@ def add_create_dummy_tables(subparsers, environ, user_args):
 def add_generate_measures(subparsers, environ, user_args):
     parser = subparsers.add_parser("generate-measures", help="Generate measures")
     parser.set_defaults(function=generate_measures)
+    parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
     parser.add_argument(
         "--output",
