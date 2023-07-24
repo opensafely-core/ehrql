@@ -65,3 +65,10 @@ def init_logging():
             },
         }
     )
+
+
+def pymssql_message_logger(log):
+    def logger(msgstate, severity, srvname, procname, line, msgtext):
+        log.info(msgtext)
+
+    return logger
