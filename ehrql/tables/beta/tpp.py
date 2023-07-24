@@ -50,12 +50,44 @@ class vaccinations(EventFrame):
 
 @table
 class practice_registrations(EventFrame):
-    start_date = Series(datetime.date)
-    end_date = Series(datetime.date)
-    practice_pseudo_id = Series(int)
+    """
+    Each record corresponds to a patient's registration with a practice.
+
+    Only patients with a full GMS (General Medical Services) registration are included.
+
+    We have registration history for:
+
+    * all patients currently registered at a TPP practice
+    * all patients registered at a TPP practice any time from 1 Jan 2009 onwards:
+        * who have since de-registered
+        * who have since died
+
+    A patient can be registered with zero, one, or more than one practices at a given
+    time. For instance, students are often registered with a practice at home and a
+    practice at university.
+    """
+
+    start_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+        description="Date patient joined practice.",
+    )
+    end_date = Series(
+        datetime.date,
+        description="Date patient left practice.",
+    )
+    practice_pseudo_id = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="Pseudonymised practice identifier.",
+    )
     practice_stp = Series(
         str,
         constraints=[Constraint.Regex("E540000[0-9]{2}")],
+        description="""
+            ONS code of practice's STP (Sustainability and Transformation Partnership).
+            STPs have been replaced by ICBs (Integrated Care Boards), and ICB codes will be available soon.
+        """,
     )
     practice_nuts1_region_name = Series(
         str,
