@@ -5,7 +5,11 @@ from sqlalchemy.schema import CreateIndex, DropTable
 from sqlalchemy.sql.functions import Function as SQLFunction
 
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine, apply_patient_joins
-from ehrql.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
+from ehrql.query_engines.mssql_dialect import (
+    MSSQLDialect,
+    SelectStarInto,
+    SetStatistics,
+)
 from ehrql.utils.log_utils import pymssql_message_logger
 from ehrql.utils.sqlalchemy_exec_utils import (
     ReconnectableConnection,
@@ -196,6 +200,16 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         assert str(results_query) == str(sqlalchemy.select(results_table))
 
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
+
+        # Set server-side statistics settings ON before query and re-set to OFF after
+        setup_queries = [
+            SetStatistics("IO", True),
+            SetStatistics("TIME", True),
+        ] + setup_queries
+        cleanup_queries = cleanup_queries + [
+            SetStatistics("IO", False),
+            SetStatistics("TIME", False),
+        ]
 
         # Because we may be disconnecting and reconnecting to the database part way
         # through downloading results we need to make sure that the temporary tables we

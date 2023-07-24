@@ -131,3 +131,16 @@ def visit_select_star_into(element, compiler, **kw):
         compiler.process(element.selectable, asfrom=True, **kw),
         " WHERE 0=1" if element.schema_only else "",
     )
+
+
+class SetStatistics(Executable, ClauseElement):
+    inherit_cache = True
+
+    def __init__(self, statistic, on):
+        self.statistic = statistic
+        self.on = on
+
+
+@compiles(SetStatistics)
+def visit_set_statistics(element, compiler, **kw):
+    return f"SET STATISTICS {element.statistic} {'ON' if element.on else 'OFF'}"
