@@ -6,6 +6,7 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine, apply_patient_joins
 from ehrql.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
+from ehrql.utils.log_utils import pymssql_message_logger
 from ehrql.utils.sqlalchemy_exec_utils import (
     ReconnectableConnection,
     execute_with_retry_factory,
@@ -203,6 +204,9 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         autocommit_engine = self.engine.execution_options(isolation_level="AUTOCOMMIT")
 
         with ReconnectableConnection(autocommit_engine) as connection:
+            message_logger = pymssql_message_logger(log)
+            connection.set_message_handler(message_logger)
+
             for i, setup_query in enumerate(setup_queries, start=1):
                 log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
                 connection.execute(setup_query)

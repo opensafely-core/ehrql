@@ -126,3 +126,6 @@ class ReconnectableConnection:
         self._connection.detach()
         self._connection.close()
         self._connection = None
+
+    def set_message_handler(self, handler):
+        self._connection.connection.driver_connection._conn.set_msghandler(handler)
