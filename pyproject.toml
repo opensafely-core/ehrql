@@ -80,7 +80,7 @@ add_ignore = [
 [tool.pytest.ini_options]
 addopts = "--tb=native --strict-markers --dist=loadgroup"
 testpaths = ["tests"]
-filterwarnings = ["ignore::UserWarning"]
+filterwarnings = ['ignore: PYTHONHASHSEED environment variable not set to 0']
 
 [tool.ruff]
 line-length = 88
