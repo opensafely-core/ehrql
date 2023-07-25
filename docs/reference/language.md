@@ -10,7 +10,7 @@ operations applied to it like filtering or sorting to produce a new
 Frame.
 
 You don't need to define any Frames yourself. Instead you import them
-from the various [schemas](../schemas/) available in `ehrql.tables` e.g.
+from the various [schemas](schemas.md) available in `ehrql.tables` e.g.
 ```py
 from ehrql.tables.beta.core import patients
 ```
@@ -20,9 +20,9 @@ Frames have columns which you can access as attributes on the Frame e.g.
 dob = patients.date_of_birth
 ```
 
-The [schema](../schemas/) documentation contains the full list of
+The [schema](schemas.md) documentation contains the full list of
 available columns for each Frame. For example, see
-[`ehrql.tables.beta.core.patients`](../schemas/beta.core/#patients).
+[`ehrql.tables.beta.core.patients`](schemas/beta.core.md/#patients).
 
 Accessing a column attribute on a Frame produces a [Series](#series),
 which are documented elsewhere below.
