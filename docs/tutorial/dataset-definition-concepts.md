@@ -253,7 +253,7 @@ Or we can do this by querying whether an event's date is before/after another da
 ...
 ```
 
-To see all of the available operations for filtering an event frame, see the reference docs [here](../../reference/features/#1-filtering-an-event-frame)
+To see all of the available operations for filtering an event frame, see the reference docs [here](../reference/features.md#1-filtering-an-event-frame)
 
 #### Extracting dates
 
@@ -281,7 +281,7 @@ And we can perform arithmetic with dates:
 ...
 ```
 
-To see all of the available operations for series containing dates, see the reference docs [here](../../reference/features/#11-operations-on-all-series-containing-dates)
+To see all of the available operations for series containing dates, see the reference docs [here](../reference/features.md#11-operations-on-all-series-containing-dates)
 
 ## Explaining the example
 
@@ -294,7 +294,7 @@ from ehrql import Dataset
 from ehrql.tables.beta.core import patients, medications
 ```
 
-Next, we create a dataset object. Don't worry about exactly what this line does (but see the [ehrQL reference here](../../reference/language/#Dataset) if you're interested).
+Next, we create a dataset object. Don't worry about exactly what this line does (but see the [ehrQL reference here](../reference/language.md#Dataset) if you're interested).
 
 ```python
 dataset = Dataset()
