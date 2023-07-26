@@ -10,6 +10,11 @@ from databuilder.tables.beta.tpp import (
     sgss_covid_all_tests,
     ons_deaths,
 )
+
+from ehrql.tables.beta.tpp import (
+	opa_diag, opa_proc, opa_cost, ec_cost, apcs_cost,
+)
+
 from ehrql.tables.beta.core import medications
 from databuilder.codes import ICD10Code
 from codelists import *
@@ -49,7 +54,7 @@ def add_visits(dataset, from_date, num_months, end_date):
     # Number of GP visits within `num_months` of `from_date`
     num_visits = appointments \
         .where((appointments.start_date >= from_date + days((num_months-1)*30)) &
-              (appointments.start_date <=  from_date + days(num_months*30)) &
+              (appointments.start_date  <  from_date + days(num_months*30)) &
               (appointments.start_date <=  end_date)) \
         .count_for_patient()
     setattr(dataset, f"gp_visit_m{num_months}", num_visits)
@@ -59,7 +64,7 @@ def add_hx_gp_visits(dataset, num_months):
     # Number of GP visits within `num_months` of `from_date`
     num_visits = appointments \
         .where((appointments.start_date >= hx_study_start_date + days((num_months-1)*30)) &
-              (appointments.start_date <=  hx_study_start_date + days(num_months*30))) \
+              (appointments.start_date  < hx_study_start_date + days(num_months*30))) \
         .count_for_patient()
     setattr(dataset, f"hx_gp_visit_m{num_months}", num_visits)
 
@@ -69,7 +74,7 @@ def add_hos_visits(dataset, from_date, num_months, end_date):
     # Number of Hospitalisation within `num_months` of `from_date`
     num_visits = hospital_admissions \
         .where((hospital_admissions.admission_date >= from_date + days((num_months-1)*30)) &
-              (hospital_admissions.admission_date  <= from_date + days(num_months*30)) &
+              (hospital_admissions.admission_date  < from_date + days(num_months*30)) &
               (hospital_admissions.admission_date  <= end_date)) \
         .count_for_patient()
     setattr(dataset, f"hos_visit_m{num_months}", num_visits)
@@ -79,7 +84,7 @@ def add_hx_hos_visits(dataset, num_months):
     # Number of Hospitalisation within `num_months` of `from_date`
     num_visits = hospital_admissions \
         .where((hospital_admissions.admission_date >= hx_study_start_date + days((num_months-1)*30)) &
-              (hospital_admissions.discharge_date  <= hx_study_start_date + days(num_months*30))) \
+              (hospital_admissions.discharge_date  <  hx_study_start_date + days(num_months*30))) \
         .count_for_patient()
     setattr(dataset, f"hx_hos_visit_m{num_months}", num_visits)
 
@@ -89,7 +94,7 @@ def add_ae_visits(dataset, from_date, num_months, end_date):
     # Number of A&E visits within `num_months` of `from_date`
     num_visits = emergency_care_attendances \
         .where((emergency_care_attendances.arrival_date >= from_date + days((num_months-1)*30)) &
-              (emergency_care_attendances.arrival_date  <= from_date + days(num_months*30)) &
+              (emergency_care_attendances.arrival_date  <  from_date + days(num_months*30)) &
               (emergency_care_attendances.arrival_date  <= end_date)) \
         .count_for_patient()
     setattr(dataset, f"ae_visit_m{num_months}", num_visits)
@@ -99,7 +104,7 @@ def add_hx_ae_visits(dataset, num_months):
     # Number of A&E visits within `num_months` of `from_date`
     num_visits = emergency_care_attendances \
         .where((emergency_care_attendances.arrival_date >= hx_study_start_date + days((num_months-1)*30)) &
-              (emergency_care_attendances.arrival_date  <= hx_study_start_date + days(num_months*30))) \
+              (emergency_care_attendances.arrival_date  < hx_study_start_date + days(num_months*30))) \
         .count_for_patient()
     setattr(dataset, f"hx_ae_visit_m{num_months}", num_visits)
 
@@ -166,7 +171,7 @@ def drug_1gi_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date + days(num_months*30))) &
+              (medications.date  <  (from_date + days(num_months*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch1_gi_dmd)).count_for_patient()
     setattr(dataset, f"gi_drug_{num_months}", num_pres)
@@ -175,7 +180,7 @@ def drug_2cv_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= from_date + days((num_months)*30)) &
+              (medications.date  <  from_date + days((num_months)*30)) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch2_cv_dmd)).count_for_patient()
     setattr(dataset, f"cv_drug_{num_months}", num_pres)
@@ -185,7 +190,7 @@ def drug_3chest_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= from_date + days((num_months)*30)) &
+              (medications.date  <  from_date + days((num_months)*30)) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch3_chest_dmd)).count_for_patient()
     setattr(dataset, f"chest_drug_{num_months}", num_pres)
@@ -195,7 +200,7 @@ def drug_4cns_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date + days((num_months)*30))) &
+              (medications.date   <  (from_date + days((num_months)*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch4_cns_dmd)).count_for_patient()
     setattr(dataset, f"cns_drug_{num_months}", num_pres)
@@ -205,7 +210,7 @@ def drug_5inf_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date  + days((num_months)*30))) &
+              (medications.date  < (from_date  + days((num_months)*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch5_inf_dmd)).count_for_patient()
     setattr(dataset, f"inf_drug_{num_months}", num_pres)
@@ -215,7 +220,7 @@ def drug_6meta_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date + days((num_months)*30))) &
+              (medications.date  < (from_date + days((num_months)*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch6_meta_dmd)).count_for_patient()
     setattr(dataset, f"meta_drug_{num_months}", num_pres)
@@ -224,7 +229,7 @@ def drug_7gyn_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date + days((num_months)*30))) &
+              (medications.date  < (from_date + days((num_months)*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch7_gyn)).count_for_patient()
     setattr(dataset, f"gyn_drug_{num_months}", num_pres)
@@ -234,7 +239,7 @@ def drug_8cancer_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date + days((num_months)*30))) &
+              (medications.date  < (from_date + days((num_months)*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch8_cancer_dmd)).count_for_patient()
     setattr(dataset, f"cancer_drug_{num_months}", num_pres)
@@ -244,7 +249,7 @@ def drug_9diet_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date  + days((num_months)*30))) &
+              (medications.date  < (from_date  + days((num_months)*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch9_diet_blood_dmd)).count_for_patient()
     setattr(dataset, f"diet_drug_{num_months}", num_pres)
@@ -254,7 +259,7 @@ def drug_10muscle_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date  + days((num_months)*30))) &
+              (medications.date  < (from_date  + days((num_months)*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch10_muscle_dmd)).count_for_patient()
     setattr(dataset, f"muscle_drug_{num_months}", num_pres)
@@ -264,7 +269,7 @@ def drug_11eye_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date + days((num_months)*30))) &
+              (medications.date  < (from_date + days((num_months)*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch11_eye_dmd)).count_for_patient()
     setattr(dataset, f"eye_drug_{num_months}", num_pres)
@@ -274,7 +279,7 @@ def drug_12ent_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date + days((num_months)*30))) &
+              (medications.date  < (from_date + days((num_months)*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch12_ent_dmd)).count_for_patient()
     setattr(dataset, f"ent_drug_{num_months}", num_pres)
@@ -284,16 +289,64 @@ def drug_13skin_number(dataset, from_date, num_months, end_date):
     # Number of prescriptions within `num_months` of `from_date`
     num_pres = medications \
         .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <= (from_date + days((num_months)*30))) &
+              (medications.date  < (from_date + days((num_months)*30))) &
               (medications.date  <= end_date)) \
         .where(medications.dmd_code.is_in(drug_bnf_ch13_skin_dmd)).count_for_patient()
     setattr(dataset, f"skin_drug_{num_months}", num_pres)
 
 
-# Temp: test generate data
-# dataset = Dataset()
-# dataset.define_population(age >= 18)
+def outpatient_visit(dataset, from_date, num_months, end_date):
+    # Number of total outpatient clinic visits within `num_months` of `from_date`
+    num_visits = opa_diag \
+        .where((opa_diag.appointment_date >= from_date + days((num_months-1)*30)) &
+              (opa_diag.appointment_date <  from_date + days(num_months*30)) &
+              (opa_diag.appointment_date <=  end_date)) \
+        .count_for_patient()
+    setattr(dataset, f"opa_visit_m{num_months}", num_visits)
 
+
+def outpatient_lc_dx_visit(dataset, from_date, num_months, end_date):
+    # Number of outpatient visits due to long covid within `num_months` of `from_date`
+    num_visits = opa_diag \
+        .where((opa_diag.appointment_date >= from_date + days((num_months-1)*30)) &
+              (opa_diag.appointment_date <  from_date + days(num_months*30)) &
+              (opa_diag.appointment_date <=  end_date)) \
+        .where((opa_diag.primary_diagnosis_code.is_in(hosp_covid) | 
+               opa_diag.secondary_diagnosis_code_1.is_in(hosp_covid))).count_for_patient()
+    setattr(dataset, f"opa_lc_visit_m{num_months}", num_visits)
+
+# Need to figure out opa_proc: where is `with_these_treatment_function_codes`?
+
+# Cost function
+# inpatient hospital costs
+def cost_apc_fn(dataset, from_date, num_months, end_date):
+    mon_cost = apcs_cost \
+        .where((apcs_cost.admission_date >= from_date + days((num_months-1)*30)) &
+              (apcs_cost.admission_date <  from_date + days(num_months*30)) &
+              (apcs_cost.admission_date <=  end_date)).grand_total_payment_mff.sum_for_patient() 
+    setattr(dataset, f"apc_cost_m{num_months}", mon_cost)    
+
+# A&E monthly costs
+def cost_er_fn(dataset, from_date, num_months, end_date):
+    mon_cost = ec_cost \
+        .where((ec_cost.ec_decision_to_admit_date >= from_date + days((num_months-1)*30)) &
+              (ec_cost.ec_decision_to_admit_date <  from_date + days(num_months*30)) &
+              (ec_cost.ec_decision_to_admit_date <=  end_date)).grand_total_payment_mff.sum_for_patient() 
+    setattr(dataset, f"er_cost_m{num_months}", mon_cost)    
+
+# outpatient hospital costs
+def cost_opa_fn(dataset, from_date, num_months, end_date):
+    mon_cost = opa_cost \
+        .where((opa_cost.appointment_date >= from_date + days((num_months-1)*30)) &
+              (opa_cost.appointment_date  <  from_date + days(num_months*30)) &
+              (opa_cost.appointment_date  <=  end_date)).grand_total_payment_mff.sum_for_patient() 
+    setattr(dataset, f"opd_cost_m{num_months}", mon_cost)    
+
+
+
+# Temp: test generate data
+dataset = Dataset()
+dataset.define_population(age >= 18)
 # month1 = lc_dx.date + days(0*30)
 # month2 = lc_dx.date + days(1*30)
 # month3 = lc_dx.date + days(2*30)
@@ -314,3 +367,9 @@ def drug_13skin_number(dataset, from_date, num_months, end_date):
 # add_hos_visits(dataset, lc_dx.date, num_months=4)
 # add_ae_visits(dataset, lc_dx.date, num_months=5)
 # add_ae_visits(dataset, lc_dx.date, num_months=6)
+
+# outpatient_visit(dataset, from_date=lc_dx.date, num_months=1, end_date=study_end_date)
+# outpatient_lc_dx_visit(dataset, from_date=lc_dx.date, num_months=4, end_date=study_end_date)
+# cost_apc_fn(dataset, from_date=lc_dx.date, num_months=4, end_date=study_end_date)
+# cost_er_fn(dataset, from_date=lc_dx.date, num_months=4, end_date=study_end_date)
+# cost_apc_fn(dataset, from_date=lc_dx.date, num_months=4, end_date=study_end_date)
