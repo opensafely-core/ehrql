@@ -10,6 +10,7 @@ from databuilder.tables.beta.tpp import (
     practice_registrations, clinical_events,
     sgss_covid_all_tests, ons_deaths, hospital_admissions,
 )
+
 from databuilder.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
 import codelists
 from codelists import lc_codelists_combined
@@ -170,6 +171,7 @@ permanent_immune_suppress = clinical_ctv3_matches(clinical_events, codelists.per
 
 # # temporary immunosuppression
 temporary_immune_suppress = clinical_ctv3_matches(clinical_events, codelists.temporary_immune_suppress_code)
+
 
 # The following codes will be removed later when the importing CSV file function is ready. 
 # Use these codes to test this is working. 
