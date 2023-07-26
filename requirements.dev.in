@@ -11,6 +11,7 @@ pip-tools
 pre-commit
 pytest
 pytest-cov
+pytest-env
 pytest-mock
 pytest-xdist
 ruff
