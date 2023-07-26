@@ -10,7 +10,7 @@ and then jump to a specific example of interest.
 ### Examples in this page all use the TPP backend
 
 :construction: For consistency throughout the examples,
-and to make it possible to use [backend-specific tables in addition to core tables](backend-tables.md),
+and to make it possible to use [backend-specific tables in addition to core tables](../reference/backends.md),
 the example dataset definitions here all use the TPP backend.
 
 ### Some examples using `codelist_from_csv()`
@@ -143,7 +143,7 @@ dataset.place_of_death = last_ons_death.place
 dataset.cause_of_death = last_ons_death.cause_of_death_01
 ```
 
-:notepad_spiral: There are currently [multiple](https://github.com/opensafely-core/ehrql/blob/8341a03ec55114fe026f326d55e81a462ad8d8c2/ehrql/tables/beta/tpp.py#L140-L155) cause of death fields. We aim to resolve these to a single feature in the future.
+:notepad_spiral: There are currently [multiple](https://github.com/opensafely-core/ehrql/blob/d29ff8ab2cebf3522258c408f8225b7a76f7b6f2/ehrql/tables/beta/core.py#L78-L92) cause of death fields. We aim to resolve these to a single feature in the future.
 
 ### Finding each patient's sex
 
@@ -203,7 +203,7 @@ dataset.imd = addresses.for_patient_on("2023-01-01").imd_rounded
 The original IMD ranking is rounded to the nearest 100.
 The rounded IMD ranking ranges from 0 to 32,800.
 
-See [this code comment](https://github.com/opensafely-core/ehrql/blob/c28b2e82defe43c2c1e8f379fb9308a952455d52/ehrql/tables/beta/tpp.py#L194-L205) about how we choose one address if a patient has multiple registered addresses on the given date.
+See [this code comment](https://github.com/opensafely-core/ehrql/blob/d29ff8ab2cebf3522258c408f8225b7a76f7b6f2/ehrql/tables/beta/tpp.py#L117-L123) about how we choose one address if a patient has multiple registered addresses on the given date.
 
 ### Calculating each patient's IMD quintile
 
