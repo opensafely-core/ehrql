@@ -23,8 +23,6 @@ __all__ = [
     "emergency_care_attendances",
     "hospital_admissions",
     "appointments",
-    "ons_cis_raw",
-    "ons_cis",
     "isaric_raw",
     "open_prompt",
     "apcs_cost",
@@ -293,59 +291,6 @@ class household_memberships_2020(PatientFrame):
 
     household_pseudo_id = Series(int)
     household_size = Series(int)
-
-
-@table
-class ons_cis_raw(EventFrame):
-    """
-    Raw data from the ONS Covid Infection Survey.
-
-    This table exposes the raw data; that is, the values haven't been transformed on
-    their journey from the database table to the ehrQL table.
-    """
-
-    covid_admitted = Series(int)
-    covid_date = Series(datetime.date)
-    covid_nhs_contact = Series(int)
-    covid_test_swab = Series(int)
-    covid_test_swab_neg_last_date = Series(datetime.date)
-    covid_test_swab_pos_first_date = Series(datetime.date)
-    covid_test_swab_result = Series(int)
-    covid_think_havehad = Series(int)
-    ctsgene_result = Series(int)
-    health_care_clean = Series(int)
-    hhsize = Series(int)
-    imd_decile_e = Series(int)
-    imd_quartile_e = Series(int)
-    last_linkage_dt = Series(datetime.date)
-    long_covid_have_symptoms = Series(int)
-    nhs_data_share = Series(int)
-    patient_facing_clean = Series(int)
-    result_combined = Series(int)
-    result_mk = Series(int)
-    result_mk_date = Series(datetime.date)
-    rural_urban = Series(int)
-    think_have_covid_sympt_now = Series(int)
-    visit_date = Series(datetime.date)
-    visit_num = Series(int)
-    visit_status = Series(int)
-    visit_type = Series(int)
-
-
-@table
-class ons_cis(EventFrame):
-    """
-    Data from the ONS Covid Infection Survey.
-    """
-
-    visit_date = Series(datetime.date)
-    visit_id = Series(str)
-    visit_num = Series(int)
-    is_opted_out_of_nhs_data_share = Series(bool)
-    last_linkage_dt = Series(datetime.date)
-    imd_decile_e = Series(int)
-    imd_quartile_e = Series(int)
-    rural_urban = Series(int)
 
 
 @table

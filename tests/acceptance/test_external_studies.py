@@ -43,25 +43,6 @@ EXTERNAL_STUDIES = {
         ],
         dataset_definitions=["analysis/dataset_definition.py"],
     ),
-    "ons-cis-validation": dict(
-        repo="opensafely/cis-pop-validation-ehrql",
-        branch="main",
-        file_globs=[
-            "analysis/codelists_ehrql.py",
-            "analysis/dataset_definition.py",
-            "analysis/variable_lib.py",
-            "codelists/*.csv",
-        ],
-        dataset_definitions=["analysis/dataset_definition.py"],
-    ),
-    "ons-mental-health": dict(
-        repo="opensafely/MH_pandemic",
-        branch="main",
-        file_globs=[
-            "analysis/dataset_definition_ons_cis_new.py",
-        ],
-        dataset_definitions=["analysis/dataset_definition_ons_cis_new.py"],
-    ),
     "openprompt-long-covid-vaccines": dict(
         repo="opensafely/openprompt-vaccine-long-covid",
         branch="main",
