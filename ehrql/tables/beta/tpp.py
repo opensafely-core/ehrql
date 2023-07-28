@@ -237,6 +237,8 @@ class hospital_admissions(EventFrame):
 @table
 class appointments(EventFrame):
     """
+    Appointments in primary care.
+
     You can find out more about this table in the associated [short data
     report][appointments_1]. To view it, you will need a login for OpenSAFELY Jobs and
     the Project Collaborator or Project Developer role for the OpenSAFELY Internal
