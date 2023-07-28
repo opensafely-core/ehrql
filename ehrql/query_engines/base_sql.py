@@ -672,13 +672,37 @@ def apply_patient_joins(query):
     # column. This avoids having to hardcode, or pass around, the name of the column.
     join_key = query.selected_columns[0]
     join_key_name = join_key.key
+
     # The table referenced by `join_key`, and any tables already explicitly joined with
     # it, will be returned as the first value from the `get_final_froms()` method
     # (because `join_key` is the first column). Any remaining tables which aren't yet
     # explicitly joined on will be returned as additional clauses in the list. The best
     # explanation of SQLAlchemy's behaviour here is probably this:
     # https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#change-4737
-    implicit_joins = query.get_final_froms()[1:]
+    final_froms = query.get_final_froms()
+    implicit_joins = final_froms[1:]
+
+    # Hack to ensure that if there is an inline patient table and no primary patient
+    # table, the inline table is first.
+    if (
+        len([f for f in final_froms if f.name.startswith("#inline")])
+        > 0 & len([f for f in final_froms if f.name.lower() == "patients"])
+        == 0
+    ):
+        inline_table = [f for f in final_froms if f.name.startswith("#inline")][0]
+        inline_table_index = final_froms.index(inline_table)
+        if inline_table_index > 0:
+            initial_from_table = final_froms[0]
+            final_froms.pop(inline_table_index)
+            final_froms = [inline_table] + final_froms
+            query = query.join_from(
+                inline_table,
+                initial_from_table,
+                inline_table.c[join_key_name] == join_key,
+                isouter=True,
+            )
+            implicit_joins = final_froms[2:]
+
     for table in implicit_joins:
         query = query.join(table, table.c[join_key_name] == join_key, isouter=True)
     return query
