@@ -399,6 +399,10 @@ class Function:
         lhs: Series[T]
         rhs: Series[Set[T]]
 
+    class BigIn(Series[bool]):
+        lhs: Series[T]
+        rows: Iterable[tuple]
+
     # Horizontal Aggregation
     class MinimumOf(Series[Comparable]):
         sources: tuple[Series[Comparable]]

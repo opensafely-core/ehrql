@@ -189,6 +189,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         rhs = self.get_expr(node.rhs)
         return lhs.in_(rhs)
 
+    @get_sql.register(Function.BigIn)
+    def get_sql_big_in(self, node):
+        lhs = self.get_expr(node.lhs)
+
+        columns = [sqlalchemy.Column("code", type_from_python_type(str))]  # TODO: collation
+        table = self.create_inline_patient_table(columns, node.rows)
+
+        return sqlalchemy.select(table.c.code).where(table.c.code == lhs).exists()
+
     @get_sql.register(Function.Not)
     def get_sql_not(self, node):
         return sqlalchemy.not_(self.get_predicate(node.source))

@@ -5,10 +5,10 @@ import re
 from collections import ChainMap
 from pathlib import Path
 
-from ehrql.codes import BaseCode
+from ehrql.codes import BaseCode, codelist_from_csv
 from ehrql.file_formats import read_dataset
 from ehrql.query_model import nodes as qm
-from ehrql.query_model.column_specs import get_column_specs_from_schema
+from ehrql.query_model.column_specs import get_column_specs_from_schema, ColumnSpec
 from ehrql.query_model.nodes import get_series_type, has_one_row_per_patient
 from ehrql.query_model.population_validation import validate_population_definition
 from ehrql.utils import date_utils
@@ -188,6 +188,14 @@ class BaseSeries:
         if isinstance(other, tuple | list | set | frozenset | dict):
             other = frozenset(map(self._cast, other))
         return _apply(qm.Function.In, self, other)
+
+    def is_in_codelist(self, filename, column):
+        schema = {
+            column: ColumnSpec(str),
+        }
+        rows = read_dataset(Path(filename), schema)
+
+        return _wrap(qm.Function.BigIn(self._qm_node, qm.IterWrapper(rows)))
 
     def is_not_in(self, other):
         """
