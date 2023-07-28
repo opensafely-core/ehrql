@@ -314,6 +314,24 @@ project. The [workspace][appointments_2] shows when the code that comprises the
 report was run; the code itself is in the
 [appointments-short-data-report][appointments_3] repository on GitHub.
 
+!!! tip
+    Querying this table is similar to using Cohort Extractor's
+    `patients.with_gp_consultations` function. However, that function filters by
+    the status of the appointment. To achieve a similar result with this table:
+
+    ```py
+    appointments.where(
+        appointments.status.is_in([
+            "Arrived",
+            "In Progress",
+            "Finished",
+            "Visit",
+            "Waiting",
+            "Patient Walked Out",
+        ])
+    )
+    ```
+
 [appointments_1]: https://jobs.opensafely.org/datalab/opensafely-internal/appointments-short-data-report/outputs/latest/tpp/output/reports/report.html
 [appointments_2]: https://jobs.opensafely.org/datalab/opensafely-internal/appointments-short-data-report/
 [appointments_3]: https://github.com/opensafely/appointments-short-data-report
