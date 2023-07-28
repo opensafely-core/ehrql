@@ -249,54 +249,6 @@ class TPPBackend(BaseBackend):
         """
     )
 
-    ons_cis_raw = MappedTable(
-        source="ONS_CIS_New",
-        columns=dict(
-            covid_admitted="covid_admitted",
-            covid_date="covid_date",
-            covid_nhs_contact="covid_nhs_contact",
-            covid_test_swab="covid_test_swab",
-            covid_test_swab_neg_last_date="covid_test_swab_neg_last_date",
-            covid_test_swab_pos_first_date="covid_test_swab_pos_first_date",
-            covid_test_swab_result="covid_test_swab_result",
-            covid_think_havehad="covid_think_havehad",
-            ctsgene_result="ctSgene_result",
-            health_care_clean="health_care_clean",
-            hhsize="hhsize",
-            imd_decile_e="imd_decile_E",
-            imd_quartile_e="imd_quartile_E",
-            last_linkage_dt="last_linkage_dt",
-            long_covid_have_symptoms="long_covid_have_symptoms",
-            nhs_data_share="nhs_data_share",
-            patient_facing_clean="patient_facing_clean",
-            result_combined="result_combined",
-            result_mk="result_mk",
-            result_mk_date="result_mk_date",
-            rural_urban="rural_urban",
-            think_have_covid_sympt_now="think_have_covid_sympt_now",
-            visit_date="visit_date",
-            visit_num="visit_num",
-            visit_status="visit_status",
-            visit_type="visit_type",
-        ),
-    )
-
-    ons_cis = QueryTable(
-        """
-            SELECT
-                Patient_ID as patient_id,
-                visit_date AS visit_date,
-                CONVERT(varchar(max), pseudo_visit_id, 2) AS visit_id,
-                visit_num AS visit_num,
-                nhs_data_share AS is_opted_out_of_nhs_data_share,
-                last_linkage_dt AS last_linkage_dt,
-                imd_decile_E AS imd_decile_e,
-                imd_quartile_E AS imd_quartile_e,
-                rural_urban AS rural_urban
-            FROM ONS_CIS_New
-        """
-    )
-
     isaric_raw = QueryTable(
         """
             SELECT
