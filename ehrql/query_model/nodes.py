@@ -110,6 +110,7 @@ def get_typespec_for_iter_wrapper(_):
 
 class Node:
     "Abstract base class for all objects in the Query Model"
+    hints = []
 
     def __init_subclass__(cls, **kwargs):
         # All nodes in the query model are frozen dataclasses

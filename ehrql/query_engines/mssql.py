@@ -131,7 +131,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             index_col="patient_id",
         )
 
-    def create_inline_patient_table(self, columns, rows):
+    def create_inline_patient_table(self, columns, rows, hints):
         table_name = f"#inline_data_{self.get_next_id()}"
         table = GeneratedTable(
             table_name,
@@ -145,6 +145,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 sqlalchemy.Index(None, table.c[0], mssql_clustered=True)
             ),
         ]
+        table.hints = hints
         return table
 
     def get_query(self, variable_definitions):

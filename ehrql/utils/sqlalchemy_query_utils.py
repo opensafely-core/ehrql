@@ -55,6 +55,7 @@ class GeneratedTable(sqlalchemy.Table):
 
     setup_queries = ()
     cleanup_queries = ()
+    hints = ()
 
 
 def get_setup_and_cleanup_queries(query):

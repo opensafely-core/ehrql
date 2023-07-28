@@ -979,6 +979,8 @@ class PatientFrame(BaseFrame):
     """
     Frame containing at most one row per patient.
     """
+    def hint(self, hint):
+        self._qm_node.hints.append(hint)
 
 
 class EventFrame(BaseFrame):

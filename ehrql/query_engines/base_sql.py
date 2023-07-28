@@ -582,9 +582,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             sqlalchemy.Column(name, type_from_python_type(col_type))
             for name, col_type in column_types
         ]
-        return self.create_inline_patient_table(columns, node.rows)
+        return self.create_inline_patient_table(columns, node.rows, node.hints)
 
-    def create_inline_patient_table(self, columns, rows):
+    def create_inline_patient_table(self, columns, rows, hints):
         table_name = f"inline_data_{self.get_next_id()}"
         table = GeneratedTable(
             table_name,
@@ -597,6 +597,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             InsertMany(table, rows),
             sqlalchemy.schema.CreateIndex(sqlalchemy.Index(None, table.c[0])),
         ]
+        table.hints = hints
         return table
 
     def reify_query(self, query):
@@ -670,17 +671,27 @@ def apply_patient_joins(query):
     """
     # We use the convention that the column to be joined on is always the first selected
     # column. This avoids having to hardcode, or pass around, the name of the column.
-    join_key = query.selected_columns[0]
-    join_key_name = join_key.key
-    # The table referenced by `join_key`, and any tables already explicitly joined with
-    # it, will be returned as the first value from the `get_final_froms()` method
-    # (because `join_key` is the first column). Any remaining tables which aren't yet
-    # explicitly joined on will be returned as additional clauses in the list. The best
-    # explanation of SQLAlchemy's behaviour here is probably this:
-    # https://docs.sqlalchemy.org/en/14/changelog/migration_14.html#change-4737
-    implicit_joins = query.get_final_froms()[1:]
-    for table in implicit_joins:
-        query = query.join(table, table.c[join_key_name] == join_key, isouter=True)
+    join_key_name = query.selected_columns[0].key
+
+    all_tables = query.get_final_froms()
+    sorted_population_first = sorted(
+        all_tables,
+        key=lambda t: hasattr(t, "hints") and "population" in t.hints,
+        reverse=True
+    )
+
+    # Join tables to the query starting with those that have the "population" hint (if any). This
+    # means we can arrange to have smaller, population-constraining tables on the left side of the
+    # left outer join and so avoid including in this subquery large numbers of rows for patients
+    # that cannot ultimately contribute.
+    first_table = sorted_population_first[0]
+    for table in sorted_population_first[1:]:
+        query = query.join_from(
+            first_table, table,
+            first_table.c[join_key_name] == table.c[join_key_name],
+            isouter=True
+        )
+
     return query
 
 
