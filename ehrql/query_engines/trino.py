@@ -76,3 +76,12 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
             end,
             type_=sqlalchemy.Integer,
         )
+
+    def cast_to_int(self, value):
+        # Trino's casting to int rounds away from zero. We need to round towards zero for
+        # consistency with other query engines.
+        rounded_towards_zero = sqlalchemy.case(
+            (value > 0, SQLFunction("FLOOR", value)),
+            else_=SQLFunction("CEILING", value),
+        )
+        return sqlalchemy.cast(rounded_towards_zero, sqlalchemy.Integer)

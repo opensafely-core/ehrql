@@ -256,9 +256,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         float_result = self.get_sql_truedivide(node)
         return sqlalchemy.cast(SQLFunction("FLOOR", float_result), sqlalchemy.Integer)
 
+    def cast_to_int(self, value):
+        return sqlalchemy.cast(value, sqlalchemy.Integer)
+
     @get_sql.register(Function.CastToInt)
     def get_sql_cast_to_int(self, node):
-        return sqlalchemy.cast(self.get_expr(node.source), sqlalchemy.Integer)
+        return self.cast_to_int(self.get_expr(node.source))
 
     @get_sql.register(Function.CastToFloat)
     def get_sql_cast_to_float(self, node):
