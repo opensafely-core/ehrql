@@ -2211,6 +2211,7 @@ GitHub.
   <dd markdown="block">
 The response to the question, as a CTV3 code. Alternatively, if the question does not admit a CTV3 code as the response, then the question, as a CTV3 code.
 
+ * Never `NULL`
   </dd>
 </div>
 
