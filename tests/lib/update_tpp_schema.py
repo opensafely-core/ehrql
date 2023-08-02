@@ -141,6 +141,12 @@ def apply_schema_modifications(by_table):
         {"ColumnName": "CodingSystem", "ColumnType": "int"},
     ]
 
+    # TODO: Remove this when the "OpenSAFELY-TPP database schema" report is next
+    # released.
+    by_table["OpenPROMPT"] += [
+        {"ColumnName": "CTV3Code", "ColumnType": "varchar", "MaxLength": 50},
+    ]
+
     # We don't get column collation information but we know this matters in some cases
     # because you can't compare columns across tables unless the collations are
     # compatible. We add collations here for the two critical columns whose collations

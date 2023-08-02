@@ -2915,6 +2915,7 @@ class OpenPROMPT(Base):
     _pk = mapped_column(t.Integer, primary_key=True)
 
     Patient_ID = mapped_column(t.Integer)
+    CTV3Code = mapped_column(t.VARCHAR(50))
     CodeSystemId = mapped_column(t.Integer)
     CodedEvent_ID = mapped_column(t.BIGINT)
     ConceptId = mapped_column(t.VARCHAR(50))
