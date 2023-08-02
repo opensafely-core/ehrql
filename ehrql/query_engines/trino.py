@@ -85,3 +85,7 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
             else_=SQLFunction("CEILING", value),
         )
         return sqlalchemy.cast(rounded_towards_zero, sqlalchemy.Integer)
+
+    def truedivide(self, lhs, rhs):
+        rhs_null_if_zero = SQLFunction("NULLIF", rhs, 0.0, type_=sqlalchemy.Float)
+        return lhs / rhs_null_if_zero
