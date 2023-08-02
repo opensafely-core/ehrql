@@ -48,35 +48,11 @@ The following dataset definition selects the date and the code of each patient's
 for all patients born on or before 31 December 1999.
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.core import patients, medications
-
-dataset = Dataset()
-
-dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
-
-asthma_codes = ["39113311000001107", "39113611000001102"]
-latest_asthma_med = (
-    medications.where(medications.dmd_code.is_in(asthma_codes))
-    .sort_by(medications.date)
-    .last_for_patient()
-)
-
-dataset.asthma_med_date = latest_asthma_med.date
-dataset.asthma_med_code = latest_asthma_med.dmd_code
+--8<-- 'includes/code/tutorial/writing-a-dataset-definition/asthma_medications-standalone-success/analysis/dataset_definition.py'
 ```
 
 When the dataset definition is executed with the command line interface,
 the command line interface generates a dataset with one row per patient.
 For example, it may generate the following dummy dataset:
 
-| patient_id | asthma_med_date |        asthma_med_code |
-| ---------- | --------------- | ---------------------- |
-|          1 |      2023-05-14 | 39113611000001102      |
-|          2 |      2023-05-26 | 39113611000001102      |
-|          3 |      2018-07-23 | 39113311000001107      |
-|          5 |      2004-09-25 | 39113611000001102      |
-|          6 |      2007-04-25 | 39113611000001102      |
-|          7 |      1949-10-18 | 39113311000001107      |
-|          9 |      1966-05-15 | 39113311000001107      |
-|         10 |      1966-03-14 | 39113611000001102      |
+{{ read_csv('includes/code/tutorial/writing-a-dataset-definition/asthma_medications-standalone-success/output/data_extract.csv', keep_default_na=False) }}
