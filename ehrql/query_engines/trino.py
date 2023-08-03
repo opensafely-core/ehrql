@@ -4,6 +4,7 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
 from ehrql.query_engines.trino_dialect import TrinoDialect
+from ehrql.query_model.nodes import Position
 
 
 log = structlog.getLogger()
@@ -11,6 +12,13 @@ log = structlog.getLogger()
 
 class TrinoQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = TrinoDialect
+
+    def apply_order_clauses_modifications(self, node, order_clauses):
+        # Trino always sorts with nulls last by default. We need ascending sorts to
+        # sort with nulls first
+        if node.position == Position.FIRST:
+            order_clauses = [sqlalchemy.nullsfirst(c) for c in order_clauses]
+        return order_clauses
 
     def get_date_part(self, date, part):
         assert part in {"YEAR", "MONTH", "DAY"}
