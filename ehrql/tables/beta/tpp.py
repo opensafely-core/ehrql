@@ -575,6 +575,7 @@ class open_prompt(EventFrame):
 
     ctv3_code = Series(
         CTV3Code,
+        constraints=[Constraint.NotNull()],
         description=(
             "The response to the question, as a CTV3 code. "
             "Alternatively, if the question does not admit a CTV3 code as the response, "

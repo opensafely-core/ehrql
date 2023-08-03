@@ -378,9 +378,7 @@ class TPPBackend(BaseBackend):
             CASE
                 WHEN CodeSystemId = 0 THEN ConceptId
             END AS snomedct_code,
-            CASE
-                WHEN CodeSystemId = 2 THEN ConceptId
-            END ctv3_code,
+            CTV3Code AS ctv3_code,
             CAST(CreationDate AS date) AS creation_date,
             CAST(ConsultationDate AS date) AS consultation_date,
             Consultation_ID AS consultation_id,

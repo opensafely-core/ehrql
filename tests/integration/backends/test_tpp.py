@@ -976,6 +976,7 @@ def test_open_prompt(select_all):
     results = select_all(
         OpenPROMPT(
             Patient_ID=1,
+            CTV3Code="X0000",
             CodeSystemId=0,  # SNOMED CT
             ConceptId="100000",
             CreationDate="2023-01-01",
@@ -986,6 +987,7 @@ def test_open_prompt(select_all):
         ),
         OpenPROMPT(
             Patient_ID=2,
+            CTV3Code="Y0000",
             CodeSystemId=2,  # CTV3 "Y"
             ConceptId="Y0000",
             CreationDate="2023-01-01",
@@ -998,7 +1000,7 @@ def test_open_prompt(select_all):
     assert results == [
         {
             "patient_id": 1,
-            "ctv3_code": None,
+            "ctv3_code": "X0000",
             "snomedct_code": "100000",
             "creation_date": date(2023, 1, 1),
             "consultation_date": date(2023, 1, 1),
