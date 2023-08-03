@@ -5,6 +5,10 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
 from ehrql.query_engines.trino_dialect import TrinoDialect
 from ehrql.query_model.nodes import Position
+from ehrql.utils.sqlalchemy_query_utils import (
+    GeneratedTable,
+    InsertMany,
+)
 
 
 log = structlog.getLogger()
@@ -97,3 +101,25 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
     def truedivide(self, lhs, rhs):
         rhs_null_if_zero = SQLFunction("NULLIF", rhs, 0.0, type_=sqlalchemy.Float)
         return lhs / rhs_null_if_zero
+
+    def create_inline_patient_table(self, columns, rows):
+        # Trino doesn't support temporary tables, so we create
+        # a new persistent table and drop it in the cleanup
+        # queries
+        table_name = f"inline_data_{self.get_next_id()}"
+        table = GeneratedTable(
+            table_name,
+            sqlalchemy.MetaData(),
+            *columns,
+        )
+        table.setup_queries = [
+            # Drop the table if it already exists. This only seems to happen
+            # occasionally in tests, when a failed/errored test doesn't clean up properly.
+            sqlalchemy.schema.DropTable(table, if_exists=True),
+            sqlalchemy.schema.CreateTable(table),
+            InsertMany(table, rows),
+        ]
+        table.cleanup_queries = [
+            sqlalchemy.schema.DropTable(table),
+        ]
+        return table
