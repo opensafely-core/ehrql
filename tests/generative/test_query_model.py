@@ -299,6 +299,12 @@ IGNORED_ERRORS = [
         OverflowError,
         re.compile("date value out of range"),
     ),  # DateAddMonths, resulting in an invalid date
+    # Trino
+    (
+        # Invalid date errors
+        sqlalchemy.exc.NotSupportedError,
+        re.compile(r".+Could not convert '.+' into the associated python type"),
+    ),
 ]
 
 
