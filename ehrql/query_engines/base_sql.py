@@ -52,6 +52,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     global_unique_id: str
     counter = 0
+    population_table = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,18 +78,31 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         `get_setup_and_cleanup_queries` on the query object.
         """
         variable_definitions = apply_transforms(variable_definitions)
+
+        population_expression = self.get_predicate(variable_definitions["population"])
+        population_query = self.select_patient_id_for_population(population_expression)
+        population_query = population_query.where(population_expression)
+        population_query = apply_patient_joins(population_query)
+        population_table = self.reify_query(population_query)
+        # Store a reference to the population table so that all subsequent queries can
+        # make use of it
+        self.population_table = population_table
+
         variable_expressions = {
             name: self.get_expr(definition)
             for name, definition in variable_definitions.items()
             if name != "population"
         }
-        population_expression = self.get_predicate(variable_definitions["population"])
-        query = self.select_patient_id_for_population(population_expression)
+        query = sqlalchemy.select(population_table.c[0])
         query = query.add_columns(
             *[expr.label(name) for name, expr in variable_expressions.items()]
         )
-        query = query.where(population_expression)
         query = apply_patient_joins(query)
+
+        # Clear all shared state (yuck)
+        self.population_table = None
+        self.get_sql.cache_clear()
+        self.get_table.cache_clear()
 
         return query
 
@@ -116,8 +130,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             ]
             # Create a table which contains the union of all these IDs. (Note UNION
             # rather than UNION ALL so we don't get duplicates.)
-            population_table = self.reify_query(sqlalchemy.union(*id_selects))
-            return sqlalchemy.select(population_table.c.patient_id)
+            all_ids_table = self.reify_query(sqlalchemy.union(*id_selects))
+            return sqlalchemy.select(all_ids_table.c.patient_id)
         elif len(tables) == 1:
             # If there's only one table then use the IDs from that
             return sqlalchemy.select(tables[0].c.patient_id.label("patient_id"))
@@ -616,8 +630,25 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         frame = get_domain(node).get_node()
         select_table, conditions = get_table_and_filter_conditions(frame)
         table = self.get_table(select_table)
+        if self.population_table is None:
+            # If we don't already have a population table (which will be the case if
+            # we're in the middle of compiling the population query) then we select from
+            # the target table directly
+            query = sqlalchemy.select(table.c.patient_id.label("patient_id"))
+        else:
+            # Otherwise we start with the population table (which is a table containing
+            # all the patient IDs in our population) and join the target table to that.
+            # This means that we avoid selecting rows for patients which we end up
+            # throwing away, but at the cost of an extra join. Whether this cost is
+            # worth paying depends on the specific query in question but we currently
+            # hypothesise that it will be a net benefit.
+            query = sqlalchemy.select(
+                self.population_table.c.patient_id.label("patient_id")
+            )
+            query = query.join(
+                table, table.c.patient_id == self.population_table.c.patient_id
+            )
         where_clauses = [self.get_predicate(condition) for condition in conditions]
-        query = sqlalchemy.select(table.c.patient_id.label("patient_id"))
         if where_clauses:
             query = query.where(sqlalchemy.and_(*where_clauses))
         return query
