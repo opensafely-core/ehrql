@@ -75,17 +75,7 @@ opensafely exec ehrql:v0 generate-dataset "./dataset-definition.py" --dummy-tabl
 ### Example `project.yaml`
 
 ```yaml
-version: "3.0"
-
-expectations:
-  population_size: 1000
-
-actions:
-  extract_data:
-    run: ehrql:v0 generate-dataset "./dataset_definition.py" --output "outputs/data_extract.arrow"
-    outputs:
-      highly_sensitive:
-        population: outputs/data_extract.arrow
+--8<-- 'includes/code/explanation/output-formats/example_yaml-project-success/project.yaml'
 ```
 
 :warning: When using a `project.yaml` file,
