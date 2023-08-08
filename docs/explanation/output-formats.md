@@ -88,7 +88,8 @@ actions:
         population: outputs/data_extract.arrow
 ```
 
-:warning: The `population` filename *must* be identical to the output filename specified by `--output`.
+:warning: When using a `project.yaml` file,
+the `population` filename *must* be identical to the output filename specified by `--output`.
 Otherwise you will see the following error when you use `opensafely run`
 to run the project actions:
 
