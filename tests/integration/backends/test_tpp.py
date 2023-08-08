@@ -16,7 +16,6 @@ from tests.lib.tpp_schema import (
     CodedEvent,
     CodedEvent_SNOMED,
     CustomMedicationDictionary,
-    DataDictionary,
     EC_Cost,
     EC_Diagnosis,
     HealthCareWorker,
@@ -523,12 +522,11 @@ def test_hospital_admissions(select_all):
 def test_appointments(select_all):
     results = select_all(
         Patient(Patient_ID=1),
-        DataDictionary(Code=0, Description="Booked", Table="Appointment"),
         Appointment(
             Patient_ID=1,
             BookedDate="2021-01-01T09:00:00",
             StartDate="2021-01-01T09:00:00",
-            Status=0,
+            Status=5,
         ),
     )
     assert results == [
@@ -536,7 +534,7 @@ def test_appointments(select_all):
             "patient_id": 1,
             "booked_date": date(2021, 1, 1),
             "start_date": date(2021, 1, 1),
-            "status": "Booked",
+            "status": "Requested",
         },
     ]
 

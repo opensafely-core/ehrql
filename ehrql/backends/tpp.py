@@ -224,16 +224,24 @@ class TPPBackend(BaseBackend):
                 Patient_ID AS patient_id,
                 CAST(BookedDate AS date) AS booked_date,
                 CAST(StartDate AS date) AS start_date,
-                Description AS status
-            FROM Appointment AS appt
-            LEFT JOIN (
-                SELECT
-                    Code,
-                    Description
-                FROM DataDictionary
-                WHERE [Table] = 'Appointment'
-            ) AS dict
-            ON appt.Status = dict.Code
+                CASE Status
+                    WHEN 0 THEN 'Booked'
+                    WHEN 1 THEN 'Arrived'
+                    WHEN 2 THEN 'Did Not Attend'
+                    WHEN 3 THEN 'In Progress'
+                    WHEN 4 THEN 'Finished'
+                    WHEN 5 THEN 'Requested'
+                    WHEN 6 THEN 'Blocked'
+                    WHEN 7 THEN 'Visit'
+                    WHEN 8 THEN 'Waiting'
+                    WHEN 9 THEN 'Cancelled by Patient'
+                    WHEN 10 THEN 'Cancelled by Unit'
+                    WHEN 11 THEN 'Cancelled by Other Service'
+                    WHEN 12 THEN 'No Access Visit'
+                    WHEN 13 THEN 'Cancelled Due To Death'
+                    WHEN 14 THEN 'Patient Walked Out'
+                END AS status
+            FROM Appointment
         """
     )
 
