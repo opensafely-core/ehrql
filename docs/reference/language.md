@@ -8,13 +8,15 @@ Frame.
 
 You don't need to define any Frames yourself. Instead you import them
 from the various [schemas](schemas.md) available in `ehrql.tables` e.g.
+
 ```py
-from ehrql.tables.beta.core import patients
+--8<-- 'includes/code/reference/language/birth_date-standalone-success/analysis/dataset_definition.py:import'
 ```
 
 Frames have columns which you can access as attributes on the Frame e.g.
+
 ```py
-dob = patients.date_of_birth
+--8<-- 'includes/code/reference/language/birth_date-standalone-success/analysis/dataset_definition.py:date_of_birth_column'
 ```
 
 The [schema](schemas.md) documentation contains the full list of
