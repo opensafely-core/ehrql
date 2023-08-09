@@ -317,6 +317,14 @@ def test_medications(select_all):
             ConsultationDate="2020-05-18T10:10:10",
             MultilexDrug_ID="5;0;0",
         ),
+        # MedicationIssue.MultilexDrug_ID found in MedicationDictionary but DMD_ID
+        # contains the empty string; dmd_code is NULL not empty string
+        MedicationDictionary(MultilexDrug_ID="6;0;0", DMD_ID=""),
+        MedicationIssue(
+            Patient_ID=1,
+            ConsultationDate="2020-05-19T10:10:10",
+            MultilexDrug_ID="6;0;0",
+        ),
     )
     assert results == [
         {
@@ -338,6 +346,11 @@ def test_medications(select_all):
             "patient_id": 1,
             "date": date(2020, 5, 18),
             "dmd_code": "500000",
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 19),
+            "dmd_code": None,
         },
     ]
 
