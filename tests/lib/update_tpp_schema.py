@@ -11,9 +11,7 @@ import requests
 
 SERVER_URL = "https://jobs.opensafely.org"
 WORKSPACE_NAME = "tpp-database-schema"
-OUTPUTS_INDEX_URL = (
-    f"{SERVER_URL}/datalab/opensafely-internal/{WORKSPACE_NAME}/outputs/"
-)
+OUTPUTS_INDEX_URL = f"{SERVER_URL}/opensafely-internal/{WORKSPACE_NAME}/outputs/"
 
 SCHEMA_DIR = Path(__file__).parent
 SCHEMA_CSV = SCHEMA_DIR / "tpp_schema.csv"
@@ -74,8 +72,9 @@ def fetch_schema():
     # There's currently no API to get the latest output from a workspace so we use a
     # regex to extract output IDs from the workspace's outputs page.
     index_page = requests.get(OUTPUTS_INDEX_URL)
-    escaped_path = re.escape(urlparse(OUTPUTS_INDEX_URL).path)
-    url_re = re.compile(rf"{escaped_path}(\d+)/")
+    url_path = urlparse(index_page.url).path.rstrip("/")
+    escaped_path = re.escape(url_path)
+    url_re = re.compile(rf"{escaped_path}/(\d+)/")
     ids = url_re.findall(index_page.text)
     max_id = max(map(int, ids))
     # Once we have the ID we can fetch the output manifest using the API
