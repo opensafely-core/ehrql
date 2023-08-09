@@ -1,0 +1,8 @@
+>>> from ehrql.tables.beta.core import patients, medications
+
+# --8<-- [start:medication_dat]
+>>> medications.where(medications.date >= "2016-01-01").sort_by(medications.dat).first_for_patient()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: 'medications' object has no attribute 'dat'
+# --8<-- [end:medication_dat]

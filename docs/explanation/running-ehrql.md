@@ -52,90 +52,37 @@ it will be displayed below your input.
 For example if you type `1 + 1` and press the return key, you should see:
 
 ```pycon
->>> 1 + 1
-2
->>>
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_sandbox-pycon-success/session.txt:console_introduction'
 ```
 
 To use ehrQL, you'll first need to import the tables that you want to interact with:
 
 ```pycon
->>> from ehrql.tables.beta.core import patients, medications
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_sandbox-pycon-success/session.txt:table_imports'
 ```
 
 Now, you can inspect the contents of these tables, by entering the names of the tables:
 
 ```pycon
->>> patients
-patient_id        | date_of_birth     | sex               | date_of_death
-------------------+-------------------+-------------------+------------------
-0                 | 1973-07-01        | female            | 2015-09-14
-1                 | 1948-03-01        | male              | None
-2                 | 2003-04-01        | male              | None
-3                 | 2007-06-01        | female            | None
-4                 | 1938-10-01        | male              | 2018-05-23
-5                 | 1994-04-01        | female            | None
-6                 | 1953-05-01        | male              | None
-7                 | 1992-08-01        | female            | None
-8                 | 1931-10-01        | female            | 2017-11-10
-9                 | 1979-04-01        | male              | None
->>> medications
-patient_id        | row_id            | date              | dmd_code
-------------------+-------------------+-------------------+------------------
-0                 | 0                 | 2014-01-11        | 39113611000001102
-1                 | 1                 | 2015-08-06        | 39113611000001102
-1                 | 2                 | 2018-09-21        | 39113311000001107
-1                 | 3                 | 2020-05-17        | 22777311000001105
-3                 | 4                 | 2022-11-09        | 22777311000001105
-4                 | 5                 | 2017-05-11        | 39113611000001102
-5                 | 6                 | 2017-07-11        | 3484711000001105
-5                 | 7                 | 2019-07-06        | 39113611000001102
-7                 | 8                 | 2021-01-27        | 3484711000001105
-9                 | 9                 | 2015-03-14        | 3484711000001105
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_sandbox-pycon-success/session.txt:display_tables'
 ```
 
 And you can enter ehrQL to perform queries, such as this one:
 
 ```pycon
->>> patients.date_of_birth.year
-0 | 1973
-1 | 1948
-2 | 2003
-3 | 2007
-4 | 1938
-5 | 1994
-6 | 1953
-7 | 1992
-8 | 1931
-9 | 1979
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_sandbox-pycon-success/session.txt:birth_year'
 ```
 
 Or this one:
 
 ```pycon
->>> patients.date_of_birth.is_on_or_before("1999-12-31")
-0 | True
-1 | True
-2 | False
-3 | False
-4 | True
-5 | True
-6 | True
-7 | True
-8 | True
-9 | True
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_sandbox-pycon-success/session.txt:year_before'
 ```
 
 Or this one:
 
 ```pycon
->>> medications.where(medications.dmd_code == "39113611000001102").sort_by(medications.date).first_for_patient()
-patient_id        | date              | dmd_code
-------------------+-------------------+------------------
-0                 | 2014-01-11        | 39113611000001102
-1                 | 2015-08-06        | 39113611000001102
-4                 | 2017-05-11        | 39113611000001102
-5                 | 2019-07-06        | 39113611000001102
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_sandbox-pycon-success/session.txt:first_medication'
 ```
 
 :grey_question: Can you work out what these do?
@@ -145,10 +92,7 @@ patient_id        | date              | dmd_code
 If you enter some invalid ehrQL, you will see an error message:
 
 ```pycon
->>> medications.where(medications.date >= "2016-01-01").sort_by(medications.dat).first_for_patient()
-Traceback (most recent call last):
-  File "<console>", line 1, in <module>
-AttributeError: 'medications' object has no attribute 'dat'
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_sandbox-pycon-failure/session.txt:medication_dat'
 ```
 
 :grey_question: Can you work out what this is telling us?
@@ -190,22 +134,7 @@ into a new file called `dataset_definition.py`
 and save it in your `learning-ehrql` directory:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.core import patients, medications
-
-dataset = Dataset()
-
-dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
-
-asthma_codes = ["39113311000001107", "39113611000001102"]
-latest_asthma_med = (
-    medications.where(medications.dmd_code.is_in(asthma_codes))
-    .sort_by(medications.date)
-    .last_for_patient()
-)
-
-dataset.med_date = latest_asthma_med.date
-dataset.med_code = latest_asthma_med.dmd_code
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_example-standalone-success/analysis/dataset_definition.py'
 ```
 
 :grey_question: Can you work out what the dataset definition will generate?
@@ -260,17 +189,7 @@ The output will be stored in a file called `dataset.csv` in the `output` directo
 
 The file will contain the following CSV data:
 
-```
-patient_id,med_date,med_code
-0,2014-01-11,39113611000001102
-1,2018-09-21,39113311000001107
-4,2017-05-11,39113611000001102
-5,2019-07-06,39113611000001102
-6,,
-7,,
-8,,
-9,,
-```
+{{ read_csv('includes/code/explanation/running-ehrql/ehrql_example-standalone-success/output/data_extract.csv', keep_default_na=False) }}
 
 :notepad_spiral: The bottom 4 rows in the generated dataset show that there are 4 patients in the defined population that do not have any record for the medications specified in the dataset definition.
 
@@ -306,11 +225,7 @@ $ opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-tables
 Failed to import 'dataset_definition.py':
 ```
 ```pycon
-Traceback (most recent call last):
-  File "/workspace/dataset_definition.py", line 10, in <module>
-    dataset.med_date = latest_asthma_med.dat
-                       ^^^^^^^^^^^^^^^^^^^
-AttributeError: 'medications' object has no attribute 'dat'
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_example-standalone-failure/log/error.log'
 ```
 
 Refer to [the catalogue of errors](../how-to/errors.md) for help with interpreting error messages.
@@ -326,24 +241,7 @@ you need to have a file called `project.yaml`.
 `project.yaml` in your `learning-ehrql` directory:
 
 ```yaml
-version: '3.0'
-
-expectations:
-  population_size: 1000
-
-actions:
-  generate_dataset:
-    run: ehrql:v0 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv.gz
-    outputs:
-      highly_sensitive:
-        cohort: output/dataset.csv.gz
-
-  summarise_dataset:
-    run: python:latest summarise_dataset.py
-    needs: [generate_dataset]
-    outputs:
-     moderately_sensitive:
-        cohort: output/summary.txt
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_example-project-success/project.yaml'
 ```
 
 :notepad_spiral: Users already familiar with the [OpenSAFELY research template](https://github.com/opensafely/research-template) may notice that the research template already includes a basic `project.yaml` file that can be edited.
@@ -365,13 +263,7 @@ However, note that the `--output` path is now to a compressed CSV file (`dataset
 Copy the following into a file called `summarise_dataset.py` in your `learning-ehrql` directory.
 
 ```python
-import pandas as pd
-
-dataframe = pd.read_csv("output/dataset.csv.gz")
-num_rows = len(dataframe)
-
-with open("output/summary.txt", "w") as f:
-    f.write(f"There are {num_rows} patients in the population\n")
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_example-project-success/summarise_dataset.py'
 ```
 
 :grey_question: Even if you don't know how to use [pandas](https://pandas.pydata.org/),

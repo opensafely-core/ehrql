@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/dataset_definition.py", line 16, in <module>
+    dataset.med_date = latest_asthma_med.dat
+                       ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'medications' object has no attribute 'dat'
