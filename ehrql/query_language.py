@@ -784,7 +784,7 @@ class Duration:
         Return a list of time intervals covering the duration ending on the supplied
         date. For example:
         ```py
-        weeks(3).ending_on("2000-01-15")
+        weeks(3).ending_on("2000-01-21")
         ```
         Returns:
         ```

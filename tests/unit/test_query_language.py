@@ -695,10 +695,10 @@ def test_duration_starting_on(constructor, value, start_date, expected):
 
 
 def test_duration_ending_on():
-    assert months(3).ending_on("2020-06-01") == [
-        (date(2020, 4, 1), date(2020, 4, 30)),
-        (date(2020, 5, 1), date(2020, 5, 31)),
-        (date(2020, 6, 1), date(2020, 6, 30)),
+    assert months(3).ending_on("2020-06-30") == [
+        (date(2020, 3, 31), date(2020, 4, 30)),
+        (date(2020, 5, 1), date(2020, 5, 30)),
+        (date(2020, 5, 31), date(2020, 6, 30)),
     ]
 
 

@@ -97,10 +97,19 @@ def to_first_of_month(date):
 
 
 def generate_intervals(date_add_fn, base_date, count):
-    return [
-        (
-            date_add_fn(base_date, offset),
-            date_add_fn(base_date, offset + 1) - datetime.timedelta(days=1),
-        )
-        for offset in (range(count) if count >= 0 else range(1 + count, 1))
-    ]
+    if count >= 0:
+        return [
+            (
+                date_add_fn(base_date, offset),
+                date_add_fn(base_date, offset + 1) - datetime.timedelta(days=1),
+            )
+            for offset in range(count)
+        ]
+    else:
+        return [
+            (
+                date_add_fn(base_date, offset - 1) + datetime.timedelta(days=1),
+                date_add_fn(base_date, offset),
+            )
+            for offset in range(1 + count, 1)
+        ]
