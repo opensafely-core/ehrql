@@ -30,7 +30,9 @@ by allowing you to interactively query some dummy tables.
 :computer:
 To start the sandbox, from the `learning-ehrql` directory, run:
 
-    opensafely exec ehrql:v0 sandbox example-data
+```
+opensafely exec ehrql:v0 sandbox example-data
+```
 
 You will now be in a session with an interactive Python console,
 and you should see something like this:
