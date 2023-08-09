@@ -11,9 +11,7 @@ import requests
 
 SERVER_URL = "https://jobs.opensafely.org"
 WORKSPACE_NAME = "tpp-database-schema"
-OUTPUTS_INDEX_URL = (
-    f"{SERVER_URL}/datalab/opensafely-internal/{WORKSPACE_NAME}/outputs/"
-)
+OUTPUTS_INDEX_URL = f"{SERVER_URL}/opensafely-internal/{WORKSPACE_NAME}/outputs/"
 
 SCHEMA_DIR = Path(__file__).parent
 SCHEMA_CSV = SCHEMA_DIR / "tpp_schema.csv"
