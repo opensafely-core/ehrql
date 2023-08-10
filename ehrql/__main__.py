@@ -232,7 +232,7 @@ def add_run_sandbox(subparsers, environ, user_args):
     parser.add_argument(
         "dummy_tables_path",
         help="Path to directory of CSV files (one per table)",
-        type=Path,
+        type=existing_directory,
     )
 
 
