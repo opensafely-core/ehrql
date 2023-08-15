@@ -1,8 +1,11 @@
+from urllib import parse
+
 import ehrql.tables.beta.core
 import ehrql.tables.beta.smoketest
 import ehrql.tables.beta.tpp
 from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.query_engines.mssql import MSSQLQueryEngine
+from ehrql.query_model import nodes as qm
 
 
 class TPPBackend(SQLBackend):
@@ -21,6 +24,56 @@ class TPPBackend(SQLBackend):
         ehrql.tables.beta.tpp,
         ehrql.tables.beta.smoketest,
     ]
+
+    # TODO: Temporary default to support safe deployment
+    include_t1oo = True
+
+    def modify_dsn(self, dsn):
+        """
+        Removes the `opensafely_include_t1oo` parameter if present and uses it to set
+        the `include_t1oo` attribute accordingly
+        """
+        parts = parse.urlparse(dsn)
+        params = parse.parse_qs(parts.query, keep_blank_values=True)
+
+        include_t1oo_values = params.pop("opensafely_include_t1oo", [])
+        if len(include_t1oo_values) == 1:
+            self.include_t1oo = include_t1oo_values[0].lower() == "true"
+        elif len(include_t1oo_values) != 0:
+            raise ValueError(
+                "`opensafely_include_t1oo` parameter must not be supplied more than once"
+            )
+
+        new_query = parse.urlencode(params, doseq=True)
+        new_parts = parts._replace(query=new_query)
+        return parse.urlunparse(new_parts)
+
+    def modify_query_variables(self, variables):
+        # If this query has been explictly flagged as including T1OO patients then
+        # return it unmodified
+        if self.include_t1oo:
+            return variables
+        # Otherwise we add an extra condition to the population definition which is that
+        # the patient does *not* appear in the T1OO table.
+        variables = dict(variables)
+        variables["population"] = qm.Function.And(
+            variables["population"],
+            qm.Function.Not(
+                qm.AggregateByPatient.Exists(
+                    # We don't currently expose this table in the user-facing schema. If
+                    # we did then we could avoid defining it inline like this.
+                    qm.SelectPatientTable(
+                        "t1oo",
+                        # It doesn't need any columns: it's just a list of patient IDs
+                        schema=qm.TableSchema(),
+                    )
+                )
+            ),
+        )
+        return variables
+
+    # The T1OO table doesn't need any columns: it's just a list of patient IDs
+    t1oo = MappedTable(source="PatientsWithTypeOneDissent", columns={})
 
     addresses = QueryTable(
         """

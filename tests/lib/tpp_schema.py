@@ -3154,6 +3154,13 @@ class PatientAddress(Base):
     StartDate = mapped_column(t.DateTime)
 
 
+class PatientsWithTypeOneDissent(Base):
+    __tablename__ = "PatientsWithTypeOneDissent"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.BIGINT)
+
+
 class PotentialCareHomeAddress(Base):
     __tablename__ = "PotentialCareHomeAddress"
     _pk = mapped_column(t.Integer, primary_key=True)
