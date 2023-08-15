@@ -2,8 +2,10 @@ import shutil
 from pathlib import Path
 
 from .backends import build_backends
+from .cli import build_cli
 from .language import build_language
 from .render_includes.backends import render_backends
+from .render_includes.cli import render_cli
 from .render_includes.language import render_language_section
 from .render_includes.schemas import render_schema, render_schema_index
 from .render_includes.specs import render_specs
@@ -19,6 +21,7 @@ def generate_docs():
         "schemas": schemas,
         "specs": build_specs(),
         "language": build_language(),
+        "cli": build_cli(),
     }
 
 
@@ -40,6 +43,9 @@ def render(docs_data, output_dir):
 
     with open(output_dir / "specs.md", "w") as outfile:
         outfile.write(fix_whitespace(render_specs(docs_data["specs"])))
+
+    with open(output_dir / "cli.md", "w") as outfile:
+        outfile.write(fix_whitespace(render_cli(docs_data["cli"])))
 
     section_filenames = []
     for section_name, section in docs_data["language"].items():

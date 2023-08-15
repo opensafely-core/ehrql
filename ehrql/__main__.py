@@ -2,12 +2,13 @@ import importlib
 import os
 import sys
 import warnings
-from argparse import ArgumentParser, ArgumentTypeError
+from argparse import ArgumentParser, ArgumentTypeError, RawTextHelpFormatter
 from pathlib import Path
 
 from ehrql import __version__
 from ehrql.file_formats import FILE_FORMATS, get_file_extension
 from ehrql.utils.log_utils import init_logging
+from ehrql.utils.string_utils import strip_indent
 
 from .main import (
     CommandError,
@@ -35,6 +36,18 @@ BACKEND_ALIASES = {
 }
 
 
+# I haven't yet come up with a good way to expose these in the CLI help text, so for now
+# they only appear in the HTML docs. But it makes sense to define the text here where
+# the rest of the CLI help text is defined.
+USER_ARGS_NAME = "PARAMETERS"
+USER_ARGS_USAGE = " -- ... PARAMETERS ..."
+USER_ARGS_HELP = """\
+Parameters are extra arguments you can pass to your Python definition file. They must be
+supplied after all ehrQL arguments and separated from the ehrQL arguments with a
+double-dash ` -- `.
+"""
+
+
 if not os.environ.get("PYTHONHASHSEED") == "0":  # pragma: no cover
     # The kinds of DoS attacks hash seed randomisation is designed to protect against
     # don't apply to ehrQL, and having consistent output makes debugging much easier
@@ -60,26 +73,9 @@ def main(args, environ=None):
     else:
         user_args = []
 
+    parser = create_parser(user_args, environ)
+
     init_logging()
-
-    parser = ArgumentParser(prog="ehrql", description="Generate datasets in OpenSAFELY")
-
-    def show_help(**kwargs):
-        parser.print_help()
-        parser.exit()
-
-    parser.set_defaults(function=show_help)
-    parser.add_argument("--version", action="version", version=f"ehrql {__version__}")
-
-    subparsers = parser.add_subparsers(help="sub-command help")
-    add_generate_dataset(subparsers, environ, user_args)
-    add_dump_dataset_sql(subparsers, environ, user_args)
-    add_create_dummy_tables(subparsers, environ, user_args)
-    add_generate_measures(subparsers, environ, user_args)
-    add_run_sandbox(subparsers, environ, user_args)
-    add_assure(subparsers, environ, user_args)
-    add_test_connection(subparsers, environ, user_args)
-    add_dump_example_data(subparsers, environ, user_args)
 
     kwargs = vars(parser.parse_args(args))
     function = kwargs.pop("function")
@@ -91,173 +87,237 @@ def main(args, environ=None):
         sys.exit(1)
 
 
+def create_parser(user_args, environ):
+    parser = ArgumentParser(
+        prog="ehrql",
+        description=strip_indent(
+            """
+            The command line interface for ehrQL, a query language for electronic health
+            record (EHR) data.
+            """
+        ),
+        formatter_class=RawTextHelpFormatter,
+    )
+
+    def show_help(**kwargs):
+        parser.print_help()
+        parser.exit()
+
+    parser.set_defaults(function=show_help)
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"ehrql {__version__}",
+        help="Show the exact version of ehrQL in use and then exit.",
+    )
+
+    subparsers = parser.add_subparsers(help="Name of the sub-command to execute.")
+    add_generate_dataset(subparsers, environ, user_args)
+    add_generate_measures(subparsers, environ, user_args)
+    add_run_sandbox(subparsers, environ, user_args)
+    add_dump_example_data(subparsers, environ, user_args)
+    add_dump_dataset_sql(subparsers, environ, user_args)
+    add_create_dummy_tables(subparsers, environ, user_args)
+    add_assure(subparsers, environ, user_args)
+    add_test_connection(subparsers, environ, user_args)
+
+    return parser
+
+
 def add_generate_dataset(subparsers, environ, user_args):
-    parser = subparsers.add_parser("generate-dataset", help="Generate a dataset")
+    parser = subparsers.add_parser(
+        "generate-dataset",
+        help=strip_indent(
+            """
+        Take a dataset definition file and output a dataset.
+
+        ehrQL is designed so that exactly the same command can be used to output dummy
+        data when run on your own computer and then output real data when run inside the
+        secure environment as part of an OpenSAFELY pipeline.
+        """
+        ),
+        formatter_class=RawTextHelpFormatter,
+    )
     parser.set_defaults(function=generate_dataset)
     parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
     parser.add_argument(
         "--output",
-        help=(
-            f"Path of the file where the dataset will be written (console by default),"
-            f" supported formats: {', '.join(FILE_FORMATS)}"
+        help=strip_indent(
+            f"""
+            Path of the file where the dataset will be written (console by default).
+
+            The file extension determines the file format used. Supported formats are:
+            {backtick_join(FILE_FORMATS)}
+            """
         ),
         type=valid_output_path,
         dest="dataset_file",
     )
-    parser.add_argument(
-        "--dsn",
-        help="Data Source Name: URL of remote database, or path to data on disk",
-        type=str,
-        default=environ.get("DATABASE_URL"),
-    )
-    parser.add_argument(
-        "--dummy-data-file",
-        help="Provide dummy data from a file to be validated and used as the dataset",
-        type=existing_file,
-    )
-    parser.add_argument(
-        "--dummy-tables",
-        help=(
-            "Path to directory of CSV files (one per table) to use when generating "
-            "dummy data"
-        ),
-        type=existing_directory,
-        dest="dummy_tables_path",
-    )
-    parser.add_argument(
-        "definition_file",
-        help="The path of the file where the dataset is defined",
-        type=existing_python_file,
-        metavar="dataset_definition",
-    )
-    add_common_backend_arguments(parser, environ)
+    add_dummy_data_file_argument(parser, environ)
+    add_dummy_tables_argument(parser, environ)
+    add_dataset_definition_file_argument(parser, environ)
+    internal_args = create_internal_argument_group(parser, environ)
+    add_dsn_argument(internal_args, environ)
+    add_query_engine_argument(internal_args, environ)
+    add_backend_argument(internal_args, environ)
 
 
 def add_dump_dataset_sql(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "dump-dataset-sql",
-        help=(
-            "Output the SQL that would be executed to fetch the results of the "
-            "dataset definition"
+        help=strip_indent(
+            """
+            Output the SQL that would be executed to fetch the results of the dataset
+            definition.
+
+            By default, this command will output SQL suitable for the SQLite database.
+            To get the SQL as it would be run against the real data you will to supply
+            the appropriate `--backend` argument, for example `--backend tpp`.
+
+            Note that due to configuration differences this may not always exactly match
+            what gets run against the real data.
+            """
         ),
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=dump_dataset_sql)
     parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
     parser.add_argument(
         "--output",
-        help="SQL output file (outputs to console by default)",
+        help="SQL output file (outputs to console by default).",
         type=Path,
         dest="output_file",
     )
-    parser.add_argument(
-        "definition_file",
-        help="The path of the file where the dataset is defined",
-        type=existing_python_file,
-        metavar="dataset_definition",
-    )
-    add_common_backend_arguments(parser, environ)
+    add_dataset_definition_file_argument(parser, environ)
+    add_query_engine_argument(parser, environ)
+    add_backend_argument(parser, environ)
 
 
 def add_create_dummy_tables(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "create-dummy-tables",
-        help=("Write dummy data tables as CSV ready for customisation"),
+        help=strip_indent(
+            """
+            Generate dummy data for a dataset and write out tables as CSV.
+
+            This generates the same dummy data that `generate-dataset` would, but
+            instead of using this to produce a dataset it writes the underlying data
+            tables out as CSV (one file per table).
+
+            The directory containing these CSV files can then be used as the
+            [`--dummy-tables`](#generate-dataset.dummy-tables) argument to
+            `generate-dataset` to produce the dataset.
+
+            The CSV files can be edited in any way you wish, giving you full control
+            over the dummy data.
+            """
+        ),
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=create_dummy_tables)
     parser.set_defaults(user_args=user_args)
-    parser.add_argument(
-        "definition_file",
-        help="The path of the file where the dataset is defined",
-        type=existing_python_file,
-        metavar="dataset_definition",
-    )
+    add_dataset_definition_file_argument(parser, environ)
     parser.add_argument(
         "dummy_tables_path",
-        help=("Path to directory where CSV files (one per table) will be written"),
+        help="Path to directory where CSV files (one per table) will be written.",
         type=Path,
     )
 
 
 def add_generate_measures(subparsers, environ, user_args):
-    parser = subparsers.add_parser("generate-measures", help="Generate measures")
+    parser = subparsers.add_parser(
+        "generate-measures",
+        help="Take a measures definition file and output measures.",
+        formatter_class=RawTextHelpFormatter,
+    )
     parser.set_defaults(function=generate_measures)
     parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
     parser.add_argument(
         "--output",
-        help=(
-            f"Path of the file where the measures will be written (console by default),"
-            f" supported formats: {', '.join(FILE_FORMATS)}"
+        help=strip_indent(
+            f"""
+            Path of the file where the measures will be written (console by default),
+            supported formats: {backtick_join(FILE_FORMATS)}
+            """
         ),
         type=valid_output_path,
         dest="output_file",
     )
-    parser.add_argument(
-        "--dsn",
-        help="Data Source Name: URL of remote database, or path to data on disk",
-        type=str,
-        default=environ.get("DATABASE_URL"),
-    )
-    parser.add_argument(
-        "--dummy-tables",
-        help=(
-            "Path to directory of CSV files (one per table) to use when generating "
-            "dummy data"
-        ),
-        type=existing_directory,
-        dest="dummy_tables_path",
-    )
-    parser.add_argument(
-        "--dummy-data-file",
-        help=(
-            "Provide dummy data from a file to be validated and used as the "
-            "measures output"
-        ),
-        type=existing_file,
-    )
+    add_dummy_tables_argument(parser, environ)
+    add_dummy_data_file_argument(parser, environ)
     parser.add_argument(
         "definition_file",
-        help="Path of the file where measures are defined",
+        help="Path of the Python file where measures are defined.",
         type=existing_python_file,
     )
-    add_common_backend_arguments(parser, environ)
+    internal_args = create_internal_argument_group(parser, environ)
+    add_dsn_argument(internal_args, environ)
+    add_query_engine_argument(internal_args, environ)
+    add_backend_argument(internal_args, environ)
 
 
 def add_run_sandbox(subparsers, environ, user_args):
-    parser = subparsers.add_parser("sandbox", help="start ehrQL sandbox environment")
+    parser = subparsers.add_parser(
+        "sandbox",
+        help="Start the ehrQL sandbox environment.",
+        formatter_class=RawTextHelpFormatter,
+    )
     parser.set_defaults(function=run_sandbox)
     parser.set_defaults(environ=environ)
     parser.add_argument(
         "dummy_tables_path",
-        help="Path to directory of CSV files (one per table)",
+        help="Path to directory of CSV files (one per table).",
         type=existing_directory,
     )
 
 
 def add_assure(subparsers, environ, user_args):
-    parser = subparsers.add_parser("assure", help="experimental")
+    parser = subparsers.add_parser(
+        "assure",
+        help=strip_indent(
+            """
+            Experimental command for running assurance tests.
+
+            Note that **this command is experimental** and not yet intended for widespread
+            use.
+            """
+        ),
+        formatter_class=RawTextHelpFormatter,
+    )
     parser.set_defaults(function=assure)
     parser.set_defaults(environ=environ)
     parser.set_defaults(user_args=user_args)
     parser.add_argument(
         "test_data_file",
-        help="The path of the file where the test data is defined",
+        help="Path of the file where the test data is defined.",
         type=existing_python_file,
     )
 
 
 def add_test_connection(subparsers, environ, user_args):
     parser = subparsers.add_parser(
-        "test-connection", help="test the database connection configuration"
+        "test-connection",
+        help=strip_indent(
+            """
+            Internal command for testing the database connection configuration.
+
+            Note that **this in an internal command** and not intended for end users.
+            """
+        ),
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=test_connection)
     parser.set_defaults(environ=environ)
     parser.add_argument(
         "--backend",
         "-b",
-        help="backend type to test",
+        help=(
+            f"Dotted import path to Backend class, or one of: "
+            f"{backtick_join(BACKEND_ALIASES)}"
+        ),
         type=backend_from_id,
         default=environ.get("BACKEND", environ.get("OPENSAFELY_BACKEND")),
         dest="backend_class",
@@ -265,31 +325,115 @@ def add_test_connection(subparsers, environ, user_args):
     parser.add_argument(
         "--url",
         "-u",
-        help="db url",
+        help="Database connection string.",
         default=environ.get("DATABASE_URL"),
     )
 
 
 def add_dump_example_data(subparsers, environ, user_args):
     parser = subparsers.add_parser(
-        "dump-example-data", help="dump example data to directory"
+        "dump-example-data",
+        help="Dump example data for the ehrQL tutorial to the current directory.",
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=dump_example_data)
     parser.set_defaults(environ=environ)
 
 
-def add_common_backend_arguments(parser, environ):
+def create_internal_argument_group(parser, environ):
+    return parser.add_argument_group(
+        title="Internal Arguments",
+        description=strip_indent(
+            """
+            You should not normally need to use these arguments: they are for the
+            internal operation of ehrQL and the OpenSAFELY platform.
+            """
+        ),
+    )
+
+
+def add_dataset_definition_file_argument(parser, environ):
+    parser.add_argument(
+        "definition_file",
+        help="Path of the Python file where the dataset is defined.",
+        type=existing_python_file,
+        metavar="dataset_definition",
+    )
+
+
+def add_dsn_argument(parser, environ):
+    parser.add_argument(
+        "--dsn",
+        help=strip_indent(
+            """
+            Data Source Name: URL of remote database, or path to data on disk
+            (defaults to value of DATABASE_URL environment variable).
+            """
+        ),
+        type=str,
+        default=environ.get("DATABASE_URL"),
+    )
+
+
+def add_dummy_data_file_argument(parser, environ):
+    parser.add_argument(
+        "--dummy-data-file",
+        help=strip_indent(
+            """
+            Path to a file to use as dummy output data.
+
+            This allows you to take complete control of the dummy data produced. ehrQL
+            will ensure that the column names, types and categorical values match what
+            they will be in the real data, but does no further validation.
+
+            Note that the dummy data file doesn't need to be of the same type as the
+            final output file (e.g. you can use a `.csv` file here to produce a `.arrow`
+            file).
+
+            This argument is ignored when running against real data.
+            """
+        ),
+        type=existing_file,
+    )
+
+
+def add_dummy_tables_argument(parser, environ):
+    parser.add_argument(
+        "--dummy-tables",
+        help=strip_indent(
+            """
+            Path to directory of CSV files (one per table) to use as dummy data tables
+            (see [`create-dummy-tables`](#create-dummy-tables)).
+
+            This argument is ignored when running against real data.
+            """
+        ),
+        type=existing_directory,
+        dest="dummy_tables_path",
+    )
+
+
+def add_query_engine_argument(parser, environ):
     parser.add_argument(
         "--query-engine",
         type=query_engine_from_id,
-        help=f"Dotted import path to class, or one of: {', '.join(QUERY_ENGINE_ALIASES)}",
+        help=(
+            f"Dotted import path to Query Engine class, or one of: "
+            f"{backtick_join(QUERY_ENGINE_ALIASES)}"
+        ),
         default=environ.get("OPENSAFELY_QUERY_ENGINE"),
         dest="query_engine_class",
     )
+
+
+def add_backend_argument(parser, environ):
     parser.add_argument(
         "--backend",
         type=backend_from_id,
-        help=f"Dotted import path to class, or one of: {', '.join(BACKEND_ALIASES)}",
+        help=(
+            f"Dotted import path to Backend class, or one of: "
+            f"{backtick_join(BACKEND_ALIASES)}"
+        ),
         default=environ.get("OPENSAFELY_BACKEND"),
         dest="backend_class",
     )
@@ -328,7 +472,7 @@ def valid_output_path(value):
     if extension not in FILE_FORMATS:
         raise ArgumentTypeError(
             f"'{extension}' is not a supported format, must be one of: "
-            f"{', '.join(FILE_FORMATS)}"
+            f"{backtick_join(FILE_FORMATS)}"
         )
     return path
 
@@ -360,7 +504,7 @@ def backend_from_id(str_id):
             str_id = BACKEND_ALIASES[str_id]
         except KeyError:
             raise ArgumentTypeError(
-                f"(or OPENSAFELY_BACKEND) must be one of: {', '.join(BACKEND_ALIASES.keys())} "
+                f"(or OPENSAFELY_BACKEND) must be one of: {backtick_join(BACKEND_ALIASES.keys())} "
                 f"(or a full dotted path to a backend class) but got '{str_id}'"
             )
     backend = import_string(str_id)
@@ -389,6 +533,10 @@ def assert_duck_type(obj, type_name, required_method):
         raise ArgumentTypeError(
             f"{obj} is not a valid {type_name}: no '{required_method}' method"
         )
+
+
+def backtick_join(items):
+    return ", ".join(f"`{i}`" for i in items)
 
 
 if __name__ == "__main__":
