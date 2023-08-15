@@ -82,12 +82,14 @@ def test_generate_measures(mocker):
     patched.assert_called_once()
 
 
-def test_run_sandbox(mocker):
+def test_run_sandbox(mocker, tmp_path):
     # Verify that the runs_sandbox subcommand can be invoked.
+    dummy_data_path = tmp_path / "dummy-data"
+    dummy_data_path.mkdir()
     patched = mocker.patch("ehrql.sandbox.run")
     argv = [
         "sandbox",
-        "dummy_data_path",
+        str(dummy_data_path),
     ]
     main(argv)
     patched.assert_called_once()
@@ -120,6 +122,70 @@ def test_existing_python_file_unpythonic_file(capsys, tmp_path):
         main(argv)
     captured = capsys.readouterr()
     assert "dataset.cpp is not a Python file" in captured.err
+
+
+def test_existing_directory_missing_directory(capsys, tmp_path):
+    dataset_definition_path = tmp_path / "dataset.py"
+    dataset_definition_path.touch()
+    argv = [
+        "generate-dataset",
+        str(dataset_definition_path),
+        "--dummy-tables",
+        "non-existent-directory",
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "non-existent-directory does not exist" in captured.err
+
+
+def test_existing_directory_not_a_directory(capsys, tmp_path):
+    dataset_definition_path = tmp_path / "dataset.py"
+    dataset_definition_path.touch()
+    file_path = tmp_path / "not-a-directory.file"
+    file_path.touch()
+    argv = [
+        "generate-dataset",
+        str(dataset_definition_path),
+        "--dummy-tables",
+        str(file_path),
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "not-a-directory.file is not a directory" in captured.err
+
+
+def test_existing_file_missing_file(capsys, tmp_path):
+    dataset_definition_path = tmp_path / "dataset.py"
+    dataset_definition_path.touch()
+    argv = [
+        "generate-dataset",
+        str(dataset_definition_path),
+        "--dummy-data-file",
+        "non-existent-file",
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "non-existent-file does not exist" in captured.err
+
+
+def test_existing_file_not_a_file(capsys, tmp_path):
+    dataset_definition_path = tmp_path / "dataset.py"
+    dataset_definition_path.touch()
+    directory_path = tmp_path / "not-a-file"
+    directory_path.mkdir()
+    argv = [
+        "generate-dataset",
+        str(dataset_definition_path),
+        "--dummy-data-file",
+        str(directory_path),
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "not-a-file is not a file" in captured.err
 
 
 def test_import_string():

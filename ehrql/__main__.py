@@ -114,7 +114,7 @@ def add_generate_dataset(subparsers, environ, user_args):
     parser.add_argument(
         "--dummy-data-file",
         help="Provide dummy data from a file to be validated and used as the dataset",
-        type=Path,
+        type=existing_file,
     )
     parser.add_argument(
         "--dummy-tables",
@@ -122,7 +122,7 @@ def add_generate_dataset(subparsers, environ, user_args):
             "Path to directory of CSV files (one per table) to use when generating "
             "dummy data"
         ),
-        type=Path,
+        type=existing_directory,
         dest="dummy_tables_path",
     )
     parser.add_argument(
@@ -206,7 +206,7 @@ def add_generate_measures(subparsers, environ, user_args):
             "Path to directory of CSV files (one per table) to use when generating "
             "dummy data"
         ),
-        type=Path,
+        type=existing_directory,
         dest="dummy_tables_path",
     )
     parser.add_argument(
@@ -215,7 +215,7 @@ def add_generate_measures(subparsers, environ, user_args):
             "Provide dummy data from a file to be validated and used as the "
             "measures output"
         ),
-        type=Path,
+        type=existing_file,
     )
     parser.add_argument(
         "definition_file",
@@ -232,7 +232,7 @@ def add_run_sandbox(subparsers, environ, user_args):
     parser.add_argument(
         "dummy_tables_path",
         help="Path to directory of CSV files (one per table)",
-        type=Path,
+        type=existing_directory,
     )
 
 
@@ -293,6 +293,24 @@ def add_common_backend_arguments(parser, environ):
         default=environ.get("OPENSAFELY_BACKEND"),
         dest="backend_class",
     )
+
+
+def existing_file(value):
+    path = Path(value)
+    if not path.exists():
+        raise ArgumentTypeError(f"{value} does not exist")
+    if not path.is_file():
+        raise ArgumentTypeError(f"{value} is not a file")
+    return path
+
+
+def existing_directory(value):
+    path = Path(value)
+    if not path.exists():
+        raise ArgumentTypeError(f"{value} does not exist")
+    if not path.is_dir():
+        raise ArgumentTypeError(f"{value} is not a directory")
+    return path
 
 
 def existing_python_file(value):
