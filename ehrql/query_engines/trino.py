@@ -2,7 +2,7 @@ import sqlalchemy
 import structlog
 from sqlalchemy.sql.functions import Function as SQLFunction
 
-from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.query_engines.base_sql import BaseSQLQueryEngine, get_cyclic_coalescence
 from ehrql.query_engines.trino_dialect import TrinoDialect
 from ehrql.query_model.nodes import Position
 from ehrql.utils.sqlalchemy_query_utils import (
@@ -101,6 +101,19 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
     def truedivide(self, lhs, rhs):
         rhs_null_if_zero = SQLFunction("NULLIF", rhs, 0.0, type_=sqlalchemy.Float)
         return lhs / rhs_null_if_zero
+
+    @property
+    def aggregate_functions(self):
+        return {
+            "minimum_of": sqlalchemy.func.least,
+            "maximum_of": sqlalchemy.func.greatest,
+        }
+
+    def get_aggregate_subquery(self, aggregate_function, columns, return_type):
+        # Trino returns null for greatest/least if any of the inputs are null
+        # Use cyclic coalescence to remove the nulls before applying the aggregate function
+        columns = get_cyclic_coalescence(columns)
+        return aggregate_function(*columns)
 
     def create_inline_patient_table(self, columns, rows):
         # Trino doesn't support temporary tables, so we create

@@ -417,13 +417,22 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Function.MaximumOf)
     def get_sql_maximum_of(self, node):
+        aggregate_function = self.aggregate_functions["maximum_of"]
         args = self.get_nary_function_args(node)
-        return self.get_aggregate_subquery(sqlalchemy.func.max, *args).label("greatest")
+        return self.get_aggregate_subquery(aggregate_function, *args).label("greatest")
 
     @get_sql.register(Function.MinimumOf)
     def get_sql_minimum_of(self, node):
+        aggregate_function = self.aggregate_functions["minimum_of"]
         args = self.get_nary_function_args(node)
-        return self.get_aggregate_subquery(sqlalchemy.func.min, *args).label("least")
+        return self.get_aggregate_subquery(aggregate_function, *args).label("least")
+
+    @property
+    def aggregate_functions(self):
+        return {
+            "minimum_of": sqlalchemy.func.min,
+            "maximum_of": sqlalchemy.func.max,
+        }
 
     def get_aggregate_subquery(self, aggregate_function, columns, return_type):
         raise NotImplementedError()
@@ -719,3 +728,33 @@ def get_sort_conditions(frame):
     # order of priority (i.e. the most recently applied sort gives us the primary sort
     # condition) so we reverse them here
     return tuple(s.sort_by for s in reversed(get_sorts(frame)))
+
+
+def get_cyclic_coalescence(columns):
+    """
+    Given a list of columns, this produces a list of coalescences of all columns with the
+    first input to coalesce at each index being the column at the index in the input columns
+    """
+    # Some SQL engines (sqlite, trino), aggregate functions return NULL if any of the
+    # inputs are NULL. This cyclic coalescence allows us to get rid of any null values, but
+    # retain valid empty strings.
+    # Coalesce returns the first non-null value in a list; by cycling through the list and
+    # calling coalesce with each item as the first value, we end up calling the aggregate
+    # function only on the non-null values
+    # e.g.
+    # cols = ["a", "b", None, ""]
+    # column_cycles = [
+    #   ["a", "b", None, ""],
+    #   ["b", None, "", "a"],
+    #   [None, "", "a", "b"]
+    #   ["", "a", "b", None]
+    # ]
+    # Calling coalesce on each of these returns ["a", "b", "a", "a"] to be used in the
+    # aggregate function
+    len_cols = len(columns)
+    # if there is only one column in the list, just return it. Coalesce requires at least two
+    # arguments
+    if len_cols == 1:
+        return columns
+    column_cycles = [[*columns[i:], *columns[:i]] for i in range(len_cols)]
+    return [sqlalchemy.func.coalesce(*c) for c in column_cycles]
