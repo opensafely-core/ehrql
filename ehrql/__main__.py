@@ -2,7 +2,7 @@ import importlib
 import os
 import sys
 import warnings
-from argparse import ArgumentParser, ArgumentTypeError
+from argparse import ArgumentParser, ArgumentTypeError, RawTextHelpFormatter
 from pathlib import Path
 
 from ehrql import __version__
@@ -96,6 +96,7 @@ def create_parser(user_args, environ):
             record (EHR) data.
             """
         ),
+        formatter_class=RawTextHelpFormatter,
     )
 
     def show_help(**kwargs):
@@ -135,6 +136,7 @@ def add_generate_dataset(subparsers, environ, user_args):
         secure environment as part of an OpenSAFELY pipeline.
         """
         ),
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=generate_dataset)
     parser.set_defaults(environ=environ)
@@ -177,6 +179,7 @@ def add_dump_dataset_sql(subparsers, environ, user_args):
             what gets run against the real data.
             """
         ),
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=dump_dataset_sql)
     parser.set_defaults(environ=environ)
@@ -211,6 +214,7 @@ def add_create_dummy_tables(subparsers, environ, user_args):
             over the dummy data.
             """
         ),
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=create_dummy_tables)
     parser.set_defaults(user_args=user_args)
@@ -226,6 +230,7 @@ def add_generate_measures(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "generate-measures",
         help="Take a measures definition file and output measures.",
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=generate_measures)
     parser.set_defaults(environ=environ)
@@ -258,6 +263,7 @@ def add_run_sandbox(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "sandbox",
         help="Start the ehrQL sandbox environment.",
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=run_sandbox)
     parser.set_defaults(environ=environ)
@@ -279,6 +285,7 @@ def add_assure(subparsers, environ, user_args):
             use.
             """
         ),
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=assure)
     parser.set_defaults(environ=environ)
@@ -300,6 +307,7 @@ def add_test_connection(subparsers, environ, user_args):
             Note that **this in an internal command** and not intended for end users.
             """
         ),
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=test_connection)
     parser.set_defaults(environ=environ)
@@ -326,6 +334,7 @@ def add_dump_example_data(subparsers, environ, user_args):
     parser = subparsers.add_parser(
         "dump-example-data",
         help="Dump example data for the ehrQL tutorial to the current directory.",
+        formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=dump_example_data)
     parser.set_defaults(environ=environ)
