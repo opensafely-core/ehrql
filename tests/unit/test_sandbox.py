@@ -5,7 +5,7 @@ from ehrql.sandbox import run
 
 
 user_input = """
-from databuilder.tables.beta.tpp import patients
+from ehrql.tables.beta.tpp import patients
 patients.date_of_birth
 patients
 """
