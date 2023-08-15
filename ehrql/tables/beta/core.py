@@ -40,10 +40,10 @@ class patients(PatientFrame):
     def age_on(self, date):
         """
         Patient's age as an integer, in whole elapsed calendar years, as it would be on
-        the supplied date.
+        the given date.
 
-        Note that this takes no account of whether the patient is alive at the given
-        date. In particular, it may return negative values if the date is before the
+        This method takes no account of whether the patient is alive on the given date.
+        In particular, it may return negative values if the given date is before the
         patient's date of birth.
         """
         return (date - self.date_of_birth).years
