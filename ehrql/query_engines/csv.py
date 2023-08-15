@@ -35,6 +35,8 @@ class CSVQueryEngine(InMemoryQueryEngine):
 
     def evaluate_dataset(self, dataset_definition):
         variable_definitions = compile(dataset_definition)
+        if not variable_definitions:
+            return EmptyDataset()
         table_nodes = get_table_nodes(*variable_definitions.values())
         if "population" not in variable_definitions:
             # When the dataset does not have a defined population, we include all
@@ -59,3 +61,11 @@ class CSVQueryEngine(InMemoryQueryEngine):
             Path(self.csv_directory), orm_classes.values()
         )
         self.database.setup(input_data)
+
+
+class EmptyDataset:
+    """This class exists to render something nice when a user tries to inspect an empty
+    dataset in the sandbox."""
+
+    def __repr__(self):
+        return "Dataset()"

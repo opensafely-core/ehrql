@@ -58,3 +58,11 @@ def test_run(capsys, monkeypatch):
     assert expected_frame_output in captured.out
     assert expected_dataset_output_1 in captured.out
     assert expected_dataset_output_2 in captured.out
+
+
+def test_run_with_empty_dataset(capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", StringIO("from ehrql import Dataset; Dataset()"))
+    dummy_tables_path = Path(__file__).parents[1] / "fixtures" / "sandbox"
+    run(dummy_tables_path)
+    captured = capsys.readouterr()
+    assert captured.out == ">>> Dataset()\n>>> "
