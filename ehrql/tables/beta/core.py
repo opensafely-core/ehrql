@@ -18,7 +18,7 @@ from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 class patients(PatientFrame):
     date_of_birth = Series(
         datetime.date,
-        description="Patient's date of birth, rounded to first of month.",
+        description="Patient's date of birth.",
         constraints=[Constraint.FirstOfMonth(), Constraint.NotNull()],
     )
     sex = Series(
