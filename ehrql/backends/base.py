@@ -10,7 +10,7 @@ class ValidationError(Exception):
     ...
 
 
-class BaseBackend:
+class SQLBackend:
     display_name = None
     query_engine_class = None
     patient_join_column = None

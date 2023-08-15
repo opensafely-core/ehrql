@@ -1,11 +1,11 @@
 import ehrql.tables.beta.core
 import ehrql.tables.beta.smoketest
 import ehrql.tables.beta.tpp
-from ehrql.backends.base import BaseBackend, MappedTable, QueryTable
+from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 
 
-class TPPBackend(BaseBackend):
+class TPPBackend(SQLBackend):
     """
     [TPP](https://tpp-uk.com/) are the developers and operators of the
     [SystmOne](https://tpp-uk.com/products/) EHR platform. The ehrQL TPP backend

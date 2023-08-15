@@ -4,7 +4,7 @@ import pytest
 import sqlalchemy
 
 from ehrql import Dataset
-from ehrql.backends.base import BaseBackend, MappedTable, QueryTable
+from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
@@ -24,7 +24,7 @@ class covid_tests(EventFrame):
     positive = Series(int)
 
 
-class BackendFixture(BaseBackend):
+class BackendFixture(SQLBackend):
     display_name = "Backend Fixture"
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "patient_id"
