@@ -5,9 +5,15 @@ from ehrql.sandbox import run
 
 
 user_input = """
+from ehrql import Dataset
 from ehrql.tables.beta.tpp import patients
 patients.date_of_birth
 patients
+dataset = Dataset()
+dataset.sex = patients.sex
+dataset
+dataset.define_population(patients.date_of_birth > "2000-01-01")
+dataset
 """
 
 expected_series_output = """
@@ -26,6 +32,22 @@ patient_id        | date_of_birth     | sex               | date_of_death
 4                 | 2010-04-01        | M                 | None
 """.strip()
 
+expected_dataset_output_1 = """
+patient_id        | sex
+------------------+------------------
+1                 | F
+2                 | M
+3                 | F
+4                 | M
+""".strip()
+
+expected_dataset_output_2 = """
+patient_id        | sex
+------------------+------------------
+3                 | F
+4                 | M
+""".strip()
+
 
 def test_run(capsys, monkeypatch):
     monkeypatch.setattr("sys.stdin", StringIO(user_input))
@@ -34,3 +56,5 @@ def test_run(capsys, monkeypatch):
     captured = capsys.readouterr()
     assert expected_series_output in captured.out
     assert expected_frame_output in captured.out
+    assert expected_dataset_output_1 in captured.out
+    assert expected_dataset_output_2 in captured.out

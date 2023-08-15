@@ -4,7 +4,7 @@ import rlcompleter
 import sys
 
 from ehrql.query_engines.csv import CSVQueryEngine
-from ehrql.query_language import BaseFrame, BaseSeries
+from ehrql.query_language import BaseFrame, BaseSeries, Dataset
 
 
 def run(dummy_tables_path):
@@ -15,6 +15,7 @@ def run(dummy_tables_path):
     # Overwrite __repr__ methods to display contents of frame/series.
     BaseFrame.__repr__ = lambda self: repr(engine.evaluate(self))
     BaseSeries.__repr__ = lambda self: repr(engine.evaluate(self))
+    Dataset.__repr__ = lambda self: repr(engine.evaluate_dataset(self))
 
     # Set up readline etc.
     sys.__interactivehook__()

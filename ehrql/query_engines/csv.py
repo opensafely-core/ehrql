@@ -1,8 +1,10 @@
+from functools import reduce
 from pathlib import Path
 
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
-from ehrql.query_model.nodes import get_table_nodes
+from ehrql.query_language import compile
+from ehrql.query_model.nodes import AggregateByPatient, Function, get_table_nodes
 from ehrql.utils.orm_utils import (
     orm_classes_from_tables,
     read_orm_models_from_csv_directory,
@@ -30,6 +32,19 @@ class CSVQueryEngine(InMemoryQueryEngine):
 
         # Run the query as normal
         return super().get_results(variable_definitions)
+
+    def evaluate_dataset(self, dataset_definition):
+        variable_definitions = compile(dataset_definition)
+        table_nodes = get_table_nodes(*variable_definitions.values())
+        if "population" not in variable_definitions:
+            # When the dataset does not have a defined population, we include all
+            # patients with a value in any of the tables used in the query.
+            variable_definitions["population"] = reduce(
+                Function.Or,
+                map(AggregateByPatient.Exists, table_nodes),
+            )
+        self.populate_database(table_nodes)
+        return self.get_results_as_table(variable_definitions)
 
     def evaluate(self, series_or_frame):
         table_nodes = get_table_nodes(series_or_frame._qm_node)
