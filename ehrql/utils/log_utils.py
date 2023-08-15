@@ -1,11 +1,22 @@
 import itertools
 import logging.config
 import os
+import re
 from contextlib import contextmanager
 from datetime import timedelta
 from time import monotonic
 
 import structlog
+
+
+SQLSERVER_TIMING_REGEX = re.compile(
+    r"""
+        .*SQL\sServer\s(?P<timing_type>parse\sand\scompile\stime|Execution\sTime).*  # SQl Server Statistics time message prefix
+        .*CPU\stime\s=\s(?P<cpu_time>\d+)\sms  # cpu time in ms
+        .*elapsed\stime\s=\s(?P<elapsed_time>\d+)\sms  # elapsed time in ms
+        """,
+    flags=re.S | re.X,
+)
 
 
 class TimingCounter:
@@ -214,6 +225,8 @@ class LoggingDatabaseConnection(BaseLoggingWrapper):
         self.db_connection = database_connection
         self.truncate = truncate
         self.time_stats = time_stats
+        if time_stats:
+            self.set_mssql_message_logger()
 
     def cursor(self):
         return LoggingCursor(
@@ -222,3 +235,34 @@ class LoggingDatabaseConnection(BaseLoggingWrapper):
             truncate=self.truncate,
             time_stats=self.time_stats,
         )
+
+    def set_mssql_message_logger(self):
+        def stats_msg_handler(msgstate, severity, srvname, procname, line, msgtext):
+            """
+            Log parse, compile and execution timing messages sent by the server.
+            """
+            try:
+                if timing_match := SQLSERVER_TIMING_REGEX.match(msgtext.decode()):
+                    self.logger.info(
+                        "sqlserver-stats",
+                        description=timing_match.group("timing_type")
+                        .lower()
+                        .replace(" ", "_"),
+                        cpu_time_secs=int(timing_match.group("cpu_time")) / 1000,
+                        elapsed_time_secs=int(timing_match.group("elapsed_time"))
+                        / 1000,
+                        # SQL Server statistics timing is only set to ON for timed query execution, so
+                        # we may be able match it to the query it timed by tagging it with the current timing id
+                        # This may result in multiple execution timings logged against one timing id if
+                        # query execution is delayed until the time of fetching
+                        timing_id=timing_log_counter.current,
+                    )
+            except Exception as e:
+                # Don't raise any exceptions from the message handling itself, just log them
+                self.logger.error(
+                    "sqlserver-stats",
+                    description="Exception in SQL server message handling",
+                    exc_info=e,
+                )
+
+        self.db_connection.connection.connection._conn.set_msghandler(stats_msg_handler)
