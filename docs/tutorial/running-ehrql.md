@@ -242,6 +242,9 @@ to run the dataset definition.
     * :notepad_spiral: If the `--dummy-tables` option is omitted,
       randomly generated data will be used instead.
 * `--output output/dataset.csv` specifies the path to the output CSV file.
+    * :notepad_spiral: If the `--output` option is omitted,
+      the output will be not be saved to a file,
+      but displayed on screen.
 
 #### What you should see when you run the command
 
@@ -277,9 +280,23 @@ patient_id,med_date,med_code
 :notepad_spiral: The bottom 4 rows in the generated dataset show that there are 4 patients in the defined population that do not have any record for the medications specified in the dataset definition.
 
 :computer: Try running the ehrQL dataset definition again,
-modifying the command to remove the `--dummy-tables example-data`.
-This gives you a random data output,
-instead of one based on the sample dummy data that you downloaded previously.
+without the `--dummy-tables` and `--output` options:
+
+```
+opensafely exec ehrql:v0 generate-dataset dataset_definition.py
+```
+
+By not specifying the dummy tables to use,
+random data is used as the data source to generate the dataset,
+instead of using the sample dummy data that you downloaded previously.
+
+By not specifying the output file,
+the output is displayed on screen.
+This can be useful for quickly seeing output
+while working on a dataset definition,
+instead of saving to a file,
+and then opening the file.
+
 
 #### When things go wrong
 
