@@ -2285,7 +2285,27 @@ The response to the question, as a number
 <p class="dimension-indicator"><code>one row per patient</code></p>
 ## patients
 
+Patients in primary care.
 
+### Representativeness
+
+You can find out more about the representativeness of these data in the
+OpenSAFELY-TPP backend in:
+
+> The OpenSAFELY Collaborative, Colm D. Andrews, Anna Schultze, Helen J. Curtis, William J. Hulme, John Tazare, Stephen J. W. Evans, _et al._ 2022.
+> "OpenSAFELY: Representativeness of Electronic Health Record Platform OpenSAFELY-TPP Data Compared to the Population of England."
+> Wellcome Open Res 2022, 7:191.
+> <https://doi.org/10.12688/wellcomeopenres.18010.1>
+
+
+### Orphan records
+
+If a practice becomes aware that a patient has moved house,
+then the practice _deducts_, or removes, the patient's records from their register.
+If the patient doesn't register with a new practice within a given amount of time
+(normally from four to eight weeks),
+then the patient's records are permanently deducted and are _orphan records_.
+There are roughly 1.6 million orphan records.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2296,7 +2316,7 @@ The response to the question, as a number
     <code>date</code>
   </dt>
   <dd markdown="block">
-Patient's date of birth, rounded to first of month.
+Patient's date of birth.
 
  * Always the first day of a month
  * Never `NULL`
@@ -2342,10 +2362,10 @@ Patient's date of death.
   </dt>
   <dd markdown="block">
 Patient's age as an integer, in whole elapsed calendar years, as it would be on
-the supplied date.
+the given date.
 
-Note that this takes no account of whether the patient is alive at the given
-date. In particular, it may return negative values if the date is before the
+This method takes no account of whether the patient is alive on the given date.
+In particular, it may return negative values if the given date is before the
 patient's date of birth.
     <details markdown="block">
     <summary>View method definition</summary>

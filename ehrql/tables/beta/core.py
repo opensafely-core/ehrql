@@ -16,6 +16,30 @@ from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 @table
 class patients(PatientFrame):
+    """
+    Patients in primary care.
+
+    ### Representativeness
+
+    You can find out more about the representativeness of these data in the
+    OpenSAFELY-TPP backend in:
+
+    > The OpenSAFELY Collaborative, Colm D. Andrews, Anna Schultze, Helen J. Curtis, William J. Hulme, John Tazare, Stephen J. W. Evans, _et al._ 2022.
+    > "OpenSAFELY: Representativeness of Electronic Health Record Platform OpenSAFELY-TPP Data Compared to the Population of England."
+    > Wellcome Open Res 2022, 7:191.
+    > <https://doi.org/10.12688/wellcomeopenres.18010.1>
+
+
+    ### Orphan records
+
+    If a practice becomes aware that a patient has moved house,
+    then the practice _deducts_, or removes, the patient's records from their register.
+    If the patient doesn't register with a new practice within a given amount of time
+    (normally from four to eight weeks),
+    then the patient's records are permanently deducted and are _orphan records_.
+    There are roughly 1.6 million orphan records.
+    """
+
     date_of_birth = Series(
         datetime.date,
         description="Patient's date of birth.",
