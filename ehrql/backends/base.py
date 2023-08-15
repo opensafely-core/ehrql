@@ -10,15 +10,18 @@ class ValidationError(Exception):
     ...
 
 
-class SQLBackend:
+class BaseBackend:
     display_name = None
-    query_engine_class = None
-    patient_join_column = None
-    tables = None
     implements = ()
 
     def __init__(self, config=None):
         self.config = config or {}
+
+
+class SQLBackend(BaseBackend):
+    query_engine_class = None
+    patient_join_column = None
+    tables = None
 
     def __init_subclass__(cls, **kwargs):
         assert cls.display_name is not None
@@ -155,10 +158,7 @@ class QueryTable(SQLTable):
         return query.alias(table_name)
 
 
-class DefaultBackend:
-    def __init__(self, config=None):
-        pass
-
+class DefaultBackend(BaseBackend):
     def get_table_expression(self, table_name, schema):
         """
         Returns a SQLAlchemy Table object matching the supplied name and schema
