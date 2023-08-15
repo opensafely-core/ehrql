@@ -130,3 +130,11 @@ COPY ehrql /app/ehrql
 RUN python -m compileall /app/ehrql
 COPY databuilder /app/databuilder
 RUN python -m compileall /app/databuilder
+
+# The following build details will change.
+# These are the last step to make better use of Docker's build cache,
+# avoiding rebuilding image layers unnecessarily.
+ARG BUILD_DATE=unknown
+LABEL org.opencontainers.image.created=$BUILD_DATE
+ARG GITREF=unknown
+LABEL org.opencontainers.image.revision=$GITREF
