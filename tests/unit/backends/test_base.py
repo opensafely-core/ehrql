@@ -4,7 +4,7 @@ import pytest
 import sqlalchemy
 
 from ehrql.backends.base import (
-    DefaultBackend,
+    DefaultSQLBackend,
     MappedTable,
     QueryTable,
     SQLBackend,
@@ -104,7 +104,7 @@ def test_query_table_from_function_sql():
 
 
 def test_default_backend_sql():
-    table = DefaultBackend().get_table_expression(
+    table = DefaultSQLBackend().get_table_expression(
         "some_table", TableSchema(i=Column(int), b=Column(bool))
     )
     sql = str(sqlalchemy.select(table.c.patient_id, table.c.i, table.c.b))

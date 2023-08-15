@@ -158,7 +158,7 @@ class QueryTable(SQLTable):
         return query.alias(table_name)
 
 
-class DefaultBackend(BaseBackend):
+class DefaultSQLBackend(BaseBackend):
     def get_table_expression(self, table_name, schema):
         """
         Returns a SQLAlchemy Table object matching the supplied name and schema
