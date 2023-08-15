@@ -12,6 +12,8 @@ class BaseQueryEngine:
         `backend` is an optional Backend instance
         `config` is an optional dictionary of config values
         """
+        if backend is not None:
+            dsn = backend.modify_dsn(dsn)
         self.dsn = dsn
         self.backend = backend
         self.config = config or {}

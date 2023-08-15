@@ -77,6 +77,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         needed to create these tables and clean them up can be retrieved by calling
         `get_setup_and_cleanup_queries` on the query object.
         """
+        variable_definitions = self.backend.modify_query_variables(variable_definitions)
         variable_definitions = apply_transforms(variable_definitions)
 
         # Generate a table containing the IDs all of patients matching the population

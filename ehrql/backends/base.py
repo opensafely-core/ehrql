@@ -17,6 +17,19 @@ class BaseBackend:
     def __init__(self, config=None):
         self.config = config or {}
 
+    def modify_dsn(self, dsn: str | None) -> str | None:
+        """
+        This hook gives backends the option to modify the DSN before it's passed to the
+        query engine, including removing and storing any special-case config values
+        """
+        return dsn
+
+    def modify_query_variables(self, variables: dict) -> dict:
+        """
+        This hook gives backends the option to modify queries before they are run
+        """
+        return variables
+
 
 class SQLBackend(BaseBackend):
     query_engine_class = None
