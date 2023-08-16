@@ -197,7 +197,7 @@ Data Source Name: URL of remote database, or path to data on disk
   <a class="headerlink" href="#generate-dataset.query-engine" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `csv`
+Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `csv`, `trino`
 
 </div>
 
@@ -316,7 +316,7 @@ Data Source Name: URL of remote database, or path to data on disk
   <a class="headerlink" href="#generate-measures.query-engine" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `csv`
+Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `csv`, `trino`
 
 </div>
 
@@ -427,7 +427,7 @@ SQL output file (outputs to console by default).
   <a class="headerlink" href="#dump-dataset-sql.query-engine" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `csv`
+Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `csv`, `trino`
 
 </div>
 
