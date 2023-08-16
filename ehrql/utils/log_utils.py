@@ -57,11 +57,6 @@ def init_logging():
                     "level": "INFO" if os.getenv("LOG_SQL") else "WARN",
                     "propagate": False,
                 },
-                "pyhive": {
-                    "handlers": ["console"],
-                    "level": "INFO" if os.getenv("LOG_SQL") else "WARN",
-                    "propagate": False,
-                },
             },
         }
     )
