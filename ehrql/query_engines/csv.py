@@ -31,12 +31,6 @@ class CSVQueryEngine(InMemoryQueryEngine):
         # Run the query as normal
         return super().get_results(variable_definitions)
 
-    def evaluate(self, series_or_frame):
-        table_nodes = get_table_nodes(series_or_frame._qm_node)
-        self.populate_database(table_nodes)
-        self.cache = {}
-        return self.visit(series_or_frame._qm_node)
-
     def populate_database(self, table_nodes):
         # Populate the database using CSV files in the supplied directory
         orm_classes = orm_classes_from_tables(table_nodes)

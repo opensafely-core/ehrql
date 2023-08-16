@@ -28,6 +28,12 @@ class InMemoryQueryEngine(BaseQueryEngine):
     """
 
     def get_results(self, variable_definitions):
+        table = self.get_results_as_table(variable_definitions)
+        Row = namedtuple("Row", table.name_to_col.keys())
+        for record in table.to_records():
+            yield Row(**record)
+
+    def get_results_as_table(self, variable_definitions):
         self.cache = {}
 
         variable_definitions = apply_transforms(variable_definitions)
@@ -48,9 +54,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
         table = table.filter(table["population"])
         table.name_to_col.pop("population")
 
-        Row = namedtuple("Row", table.name_to_col.keys())
-        for record in table.to_records():
-            yield Row(**record)
+        return table
 
     @property
     def database(self):
