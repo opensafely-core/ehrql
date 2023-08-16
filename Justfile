@@ -147,6 +147,11 @@ build-ehrql-for-os-cli: build-ehrql
 remove-database-containers:
     docker rm --force ehrql-mssql
 
+# Create an MSSQL docker container with the TPP database schema and print
+# connection strings
+create-tpp-test-db: devenv
+    $BIN/python -m pytest -o python_functions=create tests/lib/create_tpp_test_db.py
+
 # open an interactive SQL Server shell running against MSSQL
 connect-to-mssql:
     docker exec -it ehrql-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!'
