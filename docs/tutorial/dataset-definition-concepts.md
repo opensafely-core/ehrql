@@ -397,8 +397,8 @@ Finally, we can transform this patient frame into two patient series,
 which we can then add to our dataset.
 
 ```python
-dataset.asthma_med_date = latest_asthma_medication.date
-dataset.asthma_med_code = latest_asthma_medication.code
+dataset.asthma_med_date = latest_asthma_med.date
+dataset.asthma_med_code = latest_asthma_med.code
 ```
 
 :notepad_spiral: Notice how the ehrQL sandbox can be useful
