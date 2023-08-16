@@ -3,14 +3,14 @@ import readline
 import rlcompleter
 import sys
 
-from ehrql.query_engines.csv import CSVQueryEngine
+from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import BaseFrame, BaseSeries, Dataset
 
 
 def run(dummy_tables_path):
-    # Create a CSV query engine using data at given path.  A user will be able to
-    # interact with this data via a Python REPL.
-    engine = CSVQueryEngine(dummy_tables_path)
+    # Create a query engine using data at given path.  A user will be able to interact
+    # with this data via a Python REPL.
+    engine = SandboxQueryEngine(dummy_tables_path)
 
     # Overwrite __repr__ methods to display contents of frame/series.
     BaseFrame.__repr__ = lambda self: repr(engine.evaluate(self))

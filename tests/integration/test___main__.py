@@ -12,6 +12,7 @@ from ehrql.backends.base import BaseBackend
 from ehrql.query_engines.base import BaseQueryEngine
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
+from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.utils.module_utils import get_sibling_subclasses
 
 
@@ -52,11 +53,11 @@ def test_all_backend_aliases_are_importable():
 
 def test_all_query_engines_have_an_alias():
     for cls in get_sibling_subclasses(BaseQueryEngine):
-        # Ignore abstract classes that shouldn't have an alias
-        if cls is BaseSQLQueryEngine:
-            continue
-        # We don't (currently) expose the in-memory engine as an option to users
-        if cls is InMemoryQueryEngine:
+        if cls in [
+            BaseSQLQueryEngine,
+            InMemoryQueryEngine,
+            SandboxQueryEngine,
+        ]:
             continue
         name = f"{cls.__module__}.{cls.__name__}"
         assert name in QUERY_ENGINE_ALIASES.values(), f"No alias defined for '{name}'"
