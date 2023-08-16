@@ -49,13 +49,11 @@ def init_logging():
             },
             "root": {
                 "handlers": ["console"],
-                "level": os.getenv("LOG_LEVEL", "INFO"),
+                "level": os.getenv("LOG_LEVEL", "CRITICAL"),
             },
             "loggers": {
                 "sqlalchemy.engine": {
-                    "handlers": ["console"],
                     "level": "INFO" if os.getenv("LOG_SQL") else "WARN",
-                    "propagate": False,
                 },
             },
         }
