@@ -1,4 +1,5 @@
 import importlib
+import logging
 import os
 import sys
 import warnings
@@ -7,7 +8,6 @@ from pathlib import Path
 
 from ehrql import __version__
 from ehrql.file_formats import FILE_FORMATS, get_file_extension
-from ehrql.utils.log_utils import init_logging
 from ehrql.utils.string_utils import strip_indent
 
 from .main import (
@@ -75,16 +75,21 @@ def main(args, environ=None):
 
     parser = create_parser(user_args, environ)
 
-    init_logging()
-
     kwargs = vars(parser.parse_args(args))
     function = kwargs.pop("function")
+
+    # Set log level to INFO, if it isn't lower already
+    root_logger = logging.getLogger()
+    orig_log_level = root_logger.level
+    root_logger.setLevel(min(orig_log_level, logging.INFO))
 
     try:
         function(**kwargs)
     except CommandError as e:
         print(str(e), file=sys.stderr)
         sys.exit(1)
+    finally:
+        root_logger.setLevel(orig_log_level)
 
 
 def create_parser(user_args, environ):
