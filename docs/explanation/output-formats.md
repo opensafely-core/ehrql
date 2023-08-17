@@ -54,6 +54,10 @@ The filename *extension* — for example, `.arrow` — that you provide determin
 If you specify a filename extension that is not supported,
 you will get an error telling you so.
 
+:notepad_spiral: If you omit the `--output` option,
+the output is not saved to a file.
+Instead, the output is displayed at the command line.
+
 ### Examples with `opensafely exec`
 
 #### `.arrow`
