@@ -101,8 +101,7 @@ jobs:
 
           echo "$PATCH" > ehrql/VERSION
 
-          DOCKER_BUILDKIT=1 docker build . --file Dockerfile \
-            --target ehrql \
+          just build-ehrql "ehrql" \
             --tag ${{ env.image }}:$MAJOR \
             --tag ${{ env.image }}:$MINOR \
             --tag ${{ env.image }}:$PATCH \
