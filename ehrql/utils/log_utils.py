@@ -14,7 +14,6 @@ structlog.configure(
     processors=[
         structlog.stdlib.filter_by_level,
         structlog.processors.TimeStamper(fmt="%Y-%m-%d %H:%M:%S"),
-        structlog.stdlib.add_logger_name,
         structlog.stdlib.add_log_level,
         structlog.stdlib.PositionalArgumentsFormatter(),
         structlog.processors.StackInfoRenderer(),
@@ -36,7 +35,9 @@ def init_logging():
             "formatters": {
                 "formatter": {
                     "()": structlog.stdlib.ProcessorFormatter,
-                    "processor": structlog.dev.ConsoleRenderer(),
+                    "processor": structlog.dev.ConsoleRenderer(
+                        pad_event=0, sort_keys=False
+                    ),
                     "foreign_pre_chain": pre_chain,
                 }
             },
