@@ -136,3 +136,9 @@ def test_reconnectable_connection_explicit_disconnect():
 
     # Exiting the context does not call `close()` either
     assert engine.connect.return_value.close.call_count == 1
+
+
+def test_reconnectable_connection_proxies_connection_attr():
+    engine = mock.Mock(spec=Engine)
+    with ReconnectableConnection(engine) as conn:
+        assert conn.connection is conn._get_connection().connection

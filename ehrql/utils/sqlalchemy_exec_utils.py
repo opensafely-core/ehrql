@@ -126,3 +126,10 @@ class ReconnectableConnection:
         self._connection.detach()
         self._connection.close()
         self._connection = None
+
+    # SQLAlchemy Connection objects have a `.connection` attribute which provides access
+    # to the underlying DB-API connection so we provide the same here. See:
+    # https://docs.sqlalchemy.org/en/20/core/connections.html#sqlalchemy.engine.Connection.connection
+    @property
+    def connection(self):
+        return self._get_connection().connection
