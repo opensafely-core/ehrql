@@ -87,6 +87,11 @@ jobs:
         run: |
           /bin/false
 
+      - name: Install just
+        uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+
       # This relies on the tag having a version of the form vX.Y.Z
       - name: Build image
         if: ${{ startsWith(steps.taggedcommit.outputs.tag, 'y') }}
