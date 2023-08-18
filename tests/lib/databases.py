@@ -64,9 +64,7 @@ class DbDetails:
 
     def engine(self, dialect=None, **kwargs):
         url = self._url(
-            self.host_from_host,
-            self.port_from_host,
-            include_driver=True if self.driver else False,
+            self.host_from_host, self.port_from_host, include_driver=bool(self.driver)
         )
         engine_url = sqlalchemy.engine.make_url(url)
         engine = sqlalchemy.create_engine(engine_url, **kwargs)
