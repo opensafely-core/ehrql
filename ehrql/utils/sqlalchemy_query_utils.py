@@ -218,11 +218,18 @@ class InsertMany:
             )
 
     def compile(self, *args, **kwargs):  # NOQA: A003
-        # We don't expect the SQL we compile when using `dump-dataset-sql` to be
-        # identical with the SQL we execute because the more efficient APIs like
-        # `executemany()` have no parallel in plain SQL-as-text. We just need to make
-        # sure that it does the same thing.
         insert_statement = self.table.insert()
+        # If we're not trying to render a statement with literal values instead of
+        # parameters then we just pass directly through to the default `compile()`
+        # method
+        if not (
+            "compile_kwargs" in kwargs and kwargs["compile_kwargs"].get("literal_binds")
+        ):
+            return insert_statement.compile(*args, **kwargs)
+        # If we *are* trying to render with literal values then things are bit more
+        # tricky because there's no direct parallel to multi-row inserts in plain
+        # SQL-as-text. So instead we compile a multi-statement string which does the
+        # same thing.
         sql = []
         for row in self.rows:
             bound_insert = insert_statement.values(row)
