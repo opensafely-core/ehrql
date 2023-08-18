@@ -90,6 +90,7 @@ def parse_statistics_messages(messages):
     timings = {
         "exec_cpu_ms": 0,
         "exec_elapsed_ms": 0,
+        "exec_cpu_ratio": 0.0,
         "parse_cpu_ms": 0,
         "parse_elapsed_ms": 0,
     }
@@ -127,6 +128,10 @@ def parse_statistics_messages(messages):
                 # Given the structure of the regex it shouldn't be possible to get here,
                 # but if somehow we did I'd rather drop the stats message than blow up
                 pass  # pragma: no cover
+    if timings["exec_elapsed_ms"] != 0:
+        timings["exec_cpu_ratio"] = round(
+            timings["exec_cpu_ms"] / timings["exec_elapsed_ms"], 2
+        )
     return timings, table_io
 
 

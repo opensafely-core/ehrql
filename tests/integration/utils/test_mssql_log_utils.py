@@ -66,7 +66,7 @@ def test_execute_with_log(mssql_database):
     )
 
     assert log_lines[1] == (
-        "2023-01-01 10:00:00 [info     ] 0 seconds: exec_cpu_ms=0 exec_elapsed_ms=0 parse_cpu_ms=0 parse_elapsed_ms=0\n"
+        "2023-01-01 10:00:00 [info     ] 0 seconds: exec_cpu_ms=0 exec_elapsed_ms=0 exec_cpu_ratio=0.0 parse_cpu_ms=0 parse_elapsed_ms=0\n"
         "\n"
     )
 
@@ -86,6 +86,6 @@ def test_execute_with_log(mssql_database):
     )
 
     assert re.search(
-        r"\d+ seconds: exec_cpu_ms=\d+ exec_elapsed_ms=\d+ parse_cpu_ms=\d+ parse_elapsed_ms=\d+ query_id=test_query",
+        r"\d+ seconds: exec_cpu_ms=\d+ exec_elapsed_ms=\d+ exec_cpu_ratio=[\d\.]+ parse_cpu_ms=\d+ parse_elapsed_ms=\d+ query_id=test_query",
         log_lines[4],
     )

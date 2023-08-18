@@ -62,6 +62,7 @@ def test_parse_statistics_messages():
     assert timings == {
         "exec_cpu_ms": 223,
         "exec_elapsed_ms": 656,
+        "exec_cpu_ratio": 0.34,
         "parse_cpu_ms": 60,
         "parse_elapsed_ms": 21,
     }
