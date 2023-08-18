@@ -6,6 +6,7 @@ from sqlalchemy.sql.functions import Function as SQLFunction
 
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine, apply_patient_joins
 from ehrql.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
+from ehrql.utils.mssql_log_utils import execute_with_log
 from ehrql.utils.sqlalchemy_exec_utils import (
     ReconnectableConnection,
     execute_with_retry_factory,
@@ -205,7 +206,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         with ReconnectableConnection(autocommit_engine) as connection:
             for i, setup_query in enumerate(setup_queries, start=1):
                 log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
-                connection.execute(setup_query)
+                execute_with_log(connection, setup_query, log.info)
 
             # Re-establishing the database connection after an error allows us to
             # recover from a wider range of failure modes. But we can only do this if
@@ -236,7 +237,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
 
             for i, cleanup_query in enumerate(cleanup_queries, start=1):
                 log.info(f"Running cleanup query {i:03} / {len(cleanup_queries):03}")
-                connection.execute(cleanup_query)
+                execute_with_log(connection, cleanup_query, log.info)
 
     # implement the "table value constructor trick"
     # https://stackoverflow.com/questions/71022/sql-max-of-multiple-columns/6871572#6871572
