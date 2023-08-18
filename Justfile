@@ -125,15 +125,15 @@ fix: devenv
 
 
 # build the ehrql docker image
-build-ehrql:
+build-ehrql image_name="ehrql-dev" *args="":
     #!/usr/bin/env bash
     set -euo pipefail
 
     export BUILD_DATE=$(date -u +'%y-%m-%dT%H:%M:%SZ')
     export GITREF=$(git rev-parse --short HEAD)
 
-    [[ -v CI ]] && echo "::group::Build ehrql (click to view)" || echo "Build ehrql"
-    DOCKER_BUILDKIT=1 docker build --build-arg BUILD_DATE="$BUILD_DATE" --build-arg GITREF="$GITREF" . -t ehrql-dev
+    [[ -v CI ]] && echo "::group::Build ehrql Docker image (click to view)" || echo "Build ehrql Docker image"
+    DOCKER_BUILDKIT=1 docker build . --build-arg BUILD_DATE="$BUILD_DATE" --build-arg GITREF="$GITREF" --tag {{ image_name }} {{ args }}
     [[ -v CI ]] && echo "::endgroup::" || echo ""
 
 
