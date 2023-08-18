@@ -11,7 +11,7 @@ import sqlalchemy
 LOG_INDENT = " " * 32
 
 
-def execute_with_log(connection, query, log):
+def execute_with_log(connection, query, log, query_id=None):
     """
     Execute `query` with `connection` while logging SQL, timing and IO information
 
@@ -41,6 +41,10 @@ def execute_with_log(connection, query, log):
 
     if table_io:
         log(indent(format_table_io(table_io)))
+
+    # For easier greppability we optionally append a query to ID to the timings line
+    if query_id is not None:
+        timings["query_id"] = query_id
     # In order to make the logs visually parseable rather than just a wall of text we
     # want some visual space between logs for each query. The simplest way to achieve
     # this is to append some newlines to the last thing we log here.

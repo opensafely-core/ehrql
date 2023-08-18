@@ -53,7 +53,7 @@ def test_execute_with_log(mssql_database):
         # Execute a query that does no IO to check we handle that correctly
         execute_with_log(connection, sqlalchemy.text("SELECT 1"), log)
         # Execute the main query
-        execute_with_log(connection, query, log)
+        execute_with_log(connection, query, log, query_id="test_query")
         # Retrive results from temporary table
         response = connection.execute(sqlalchemy.select(tmp_table.c.pk))
         results = list(response)
@@ -86,6 +86,6 @@ def test_execute_with_log(mssql_database):
     )
 
     assert re.search(
-        r"\d+ seconds: exec_cpu_ms=\d+ exec_elapsed_ms=\d+ parse_cpu_ms=\d+ parse_elapsed_ms=\d+",
+        r"\d+ seconds: exec_cpu_ms=\d+ exec_elapsed_ms=\d+ parse_cpu_ms=\d+ parse_elapsed_ms=\d+ query_id=test_query",
         log_lines[4],
     )

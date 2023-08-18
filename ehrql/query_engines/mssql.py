@@ -205,8 +205,9 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
 
         with ReconnectableConnection(autocommit_engine) as connection:
             for i, setup_query in enumerate(setup_queries, start=1):
-                log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
-                execute_with_log(connection, setup_query, log.info)
+                query_id = f"setup query {i:03} / {len(setup_queries):03}"
+                log.info(f"Running {query_id}")
+                execute_with_log(connection, setup_query, log.info, query_id=query_id)
 
             # Re-establishing the database connection after an error allows us to
             # recover from a wider range of failure modes. But we can only do this if
@@ -236,8 +237,9 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             )
 
             for i, cleanup_query in enumerate(cleanup_queries, start=1):
-                log.info(f"Running cleanup query {i:03} / {len(cleanup_queries):03}")
-                execute_with_log(connection, cleanup_query, log.info)
+                query_id = f"cleanup query {i:03} / {len(cleanup_queries):03}"
+                log.info(f"Running {query_id}")
+                execute_with_log(connection, cleanup_query, log.info, query_id=query_id)
 
     # implement the "table value constructor trick"
     # https://stackoverflow.com/questions/71022/sql-max-of-multiple-columns/6871572#6871572
