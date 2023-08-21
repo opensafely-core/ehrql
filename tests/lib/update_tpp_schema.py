@@ -123,29 +123,6 @@ def apply_schema_modifications(by_table):
     #     worry about.
     del by_table["OpenSAFELYSchemaInformation"]
 
-    # For some reason, the `CodedEvent_SNOMED` table isn't included in the schema so we
-    # have to add it here. See:
-    # https://github.com/opensafely/tpp-database-schema/issues/49
-    #
-    # The columns and types are taken from the old Cohort Extractor
-    # test setup code:
-    # https://github.com/opensafely-core/cohort-extractor/blob/bdf82919/tests/tpp_backend_setup.py#L150-L161
-    assert "CodedEvent_SNOMED" not in by_table
-    by_table["CodedEvent_SNOMED"] = [
-        {"ColumnName": "Patient_ID", "ColumnType": "bigint"},
-        {"ColumnName": "CodedEvent_ID", "ColumnType": "bigint"},
-        {"ColumnName": "NumericValue", "ColumnType": "real"},
-        {"ColumnName": "ConsultationDate", "ColumnType": "datetime"},
-        {"ColumnName": "ConceptID", "ColumnType": "varchar", "MaxLength": "18"},
-        {"ColumnName": "CodingSystem", "ColumnType": "int"},
-    ]
-
-    # TODO: Remove this when the "OpenSAFELY-TPP database schema" report is next
-    # released.
-    by_table["OpenPROMPT"] += [
-        {"ColumnName": "CTV3Code", "ColumnType": "varchar", "MaxLength": 50},
-    ]
-
     # We don't get column collation information but we know this matters in some cases
     # because you can't compare columns across tables unless the collations are
     # compatible. We add collations here for the two critical columns whose collations
