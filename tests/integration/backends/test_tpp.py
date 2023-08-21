@@ -259,7 +259,7 @@ def test_clinical_events(select_all):
         CodedEvent_SNOMED(
             Patient_ID=1,
             ConsultationDate="2020-11-21T09:30:00",
-            ConceptID="ijk",
+            ConceptId="ijk",
             NumericValue=1.5,
         ),
     )

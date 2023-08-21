@@ -98,7 +98,7 @@ class TPPBackend(BaseBackend):
             SELECT
                 Patient_ID AS patient_id,
                 CAST(ConsultationDate AS date) AS date,
-                ConceptID AS snomedct_code,
+                ConceptId AS snomedct_code,
                 NULL AS ctv3_code,
                 NumericValue AS numeric_value
             FROM CodedEvent_SNOMED
