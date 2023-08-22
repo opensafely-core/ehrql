@@ -74,6 +74,7 @@ data_strategy = data_strategies.data(
 settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 10))),
     deadline=None,
+    derandomize=not os.environ.get("GENTEST_RANDOMIZE"),
 )
 
 ENGINE_CONFIG = {

@@ -197,6 +197,7 @@ test-unit *ARGS: devenv
 # Set GENTEST_MAX_DEPTH to change the depth of generated query trees.
 test-generative *ARGS: devenv
     GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-200} \
+    GENTEST_RANDOMIZE=${GENTEST_RANDOMIZE:t} \
       $BIN/python -m pytest tests/generative {{ ARGS }}
 
 # Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
@@ -212,7 +213,6 @@ test-generative *ARGS: devenv
         --cov=tests \
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
-        --hypothesis-seed=1234 \
         {{ ARGS }}
     $BIN/python -m pytest --doctest-modules ehrql
     [[ -v CI ]]  && echo "::endgroup::" || echo ""

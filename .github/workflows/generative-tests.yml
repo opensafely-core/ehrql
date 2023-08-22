@@ -18,6 +18,7 @@ jobs:
           python-version: "3.11"
       - run: |
           GENTEST_EXAMPLES=10000 \
+          GENTEST_RANDOMIZE=t \
           GENTEST_MAX_DEPTH=30 \
           GENTEST_DEBUG=t \
           GENTEST_CHECK_IGNORED_ERRORS=t \
