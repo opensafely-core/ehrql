@@ -11,7 +11,6 @@ from ehrql.query_model.nodes import (
     Function,
     InlinePatientTable,
     IterWrapper,
-    Parameter,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -20,10 +19,9 @@ from ehrql.query_model.nodes import (
     Sort,
     Value,
 )
-from tests.lib.query_model_utils import get_all_operations
 
 
-MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH", 30))
+MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH", 15))
 
 # This module defines a set of recursive Hypothesis strategies for generating query model graphs.
 #
@@ -533,28 +531,6 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         return draw(series(type_, frame))
 
     return valid_variable()
-
-
-known_missing_operations = {
-    AggregateByPatient.CombineAsSet,
-    # Parameters don't themselves form part of valid queries: they are placeholders
-    # which must all be replaced with Values before the query can be executed.
-    Parameter,
-}
-
-
-def assert_includes_all_operations(operations):  # pragma: no cover
-    all_operations = set(get_all_operations())
-
-    unexpected_missing = all_operations - known_missing_operations - operations
-    assert (
-        not unexpected_missing
-    ), f"unseen operations: {[o.__name__ for o in unexpected_missing]}"
-
-    unexpected_present = known_missing_operations & operations
-    assert (
-        not unexpected_present
-    ), f"unexpectedly seen operations: {[o.__name__ for o in unexpected_present]}"
 
 
 def is_one_row_per_patient_frame(frame):

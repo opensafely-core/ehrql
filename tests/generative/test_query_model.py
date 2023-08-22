@@ -10,13 +10,17 @@ import sqlalchemy.exc
 
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.query_model.nodes import (
+    AggregateByPatient,
     Column,
     Function,
+    Parameter,
     SelectColumn,
     SelectPatientTable,
     TableSchema,
     Value,
+    node_types,
 )
+from tests.lib.query_model_utils import get_all_operations
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
@@ -70,6 +74,7 @@ data_strategy = data_strategies.data(
 settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 10))),
     deadline=None,
+    derandomize=not os.environ.get("GENTEST_RANDOMIZE"),
 )
 
 ENGINE_CONFIG = {
@@ -88,6 +93,35 @@ def query_engines(request):
         name: engine_factory(request, name, with_session_scope=True)
         for name in QUERY_ENGINE_NAMES
     }
+
+
+# This is "meta test" i.e. a test of our test generating strategy, rather than a test of
+# the system _using_ the test strategy. We want to ensure that we don't add new query
+# model nodes without adding an appropriate strategy for them.
+def test_variable_strategy_is_comprehensive():
+    operations_seen = set()
+
+    # This uses a fixed seed and no example database to make it deterministic
+    @hyp.settings(max_examples=150, database=None, deadline=None)
+    @hyp.seed(123456)
+    @hyp.given(variable=variable_strategy)
+    def record_operations_seen(variable):
+        operations_seen.update(node_types(variable))
+
+    record_operations_seen()
+
+    known_missing_operations = {
+        AggregateByPatient.CombineAsSet,
+        # Parameters don't themselves form part of valid queries: they are placeholders
+        # which must all be replaced with Values before the query can be executed.
+        Parameter,
+    }
+    all_operations = set(get_all_operations())
+    unexpected_missing = all_operations - known_missing_operations - operations_seen
+    unexpected_present = known_missing_operations & operations_seen
+
+    assert not unexpected_missing, f"unseen operations: {unexpected_missing}"
+    assert not unexpected_present, f"unexpectedly seen operations: {unexpected_present}"
 
 
 @hyp.given(variable=variable_strategy, data=data_strategy)

@@ -3,16 +3,12 @@ import dataclasses
 from ehrql.query_model import nodes as query_model
 
 
-# These are only exercised during the long-running generative tests when
-# GENTEST_COMPREHENSIVE is enabled
-
-
-def get_all_operations():  # pragma: no cover
+def get_all_operations():
     "Return every operation defined in the query model"
     return [cls for cls in iterate_query_model_namespace() if is_operation(cls)]
 
 
-def is_operation(cls):  # pragma: no cover
+def is_operation(cls):
     "Return whether an arbitrary value is a query model operation class"
     # We need to check this first or the `issubclass` check can fail
     if not isinstance(cls, type):
@@ -25,7 +21,7 @@ def is_operation(cls):  # pragma: no cover
     return len(dataclasses.fields(cls)) > 0
 
 
-def iterate_query_model_namespace():  # pragma: no cover
+def iterate_query_model_namespace():
     "Yield every value in the query_model module"
     yield from vars(query_model).values()
     yield from vars(query_model.Function).values()

@@ -20,7 +20,7 @@ def test_data_strategy_examples_round_trip(example):
     hyp.assume(len(example) > 0)
     # `pretty` is the formatter Hypothesis uses for examples
     example_repr = pretty(example)
-    # Evaluate it in the context of the `text_query_model` module, which is where
+    # Evaluate it in the context of the `test_query_model` module, which is where
     # examples will get pasted
     evaled = eval(example_repr, globals(), vars(test_query_model))
     assert evaled == example

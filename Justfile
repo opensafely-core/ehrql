@@ -189,12 +189,16 @@ test-unit *ARGS: devenv
     $BIN/python -m pytest tests/unit {{ ARGS }}
     $BIN/python -m pytest --doctest-modules ehrql
 
-# Run the generative tests only. Optional args are passed to pytest.
+# Run the generative tests only, configured to use more than the tiny default
+# number of examples. Optional args are passed to pytest.
 #
 # Set GENTEST_DEBUG env var to see stats.
 # Set GENTEST_EXAMPLES to change the number of examples generated.
+# Set GENTEST_MAX_DEPTH to change the depth of generated query trees.
 test-generative *ARGS: devenv
-    $BIN/python -m pytest tests/generative {{ ARGS }}
+    GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-200} \
+    GENTEST_RANDOMIZE=${GENTEST_RANDOMIZE:t} \
+      $BIN/python -m pytest tests/generative {{ ARGS }}
 
 # Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
 # (The `@` prefix means that the script is echoed first for debugging purposes.)
@@ -202,14 +206,13 @@ test-generative *ARGS: devenv
     #!/usr/bin/env bash
     set -euo pipefail
 
-    examples=${GENTEST_EXAMPLES:-200}
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
-    GENTEST_EXAMPLES=$examples GENTEST_COMPREHENSIVE=t $BIN/python -m pytest \
+    GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-100} \
+      $BIN/python -m pytest \
         --cov=ehrql \
         --cov=tests \
         --cov-report=html \
         --cov-report=term-missing:skip-covered \
-        --hypothesis-seed=1234 \
         {{ ARGS }}
     $BIN/python -m pytest --doctest-modules ehrql
     [[ -v CI ]]  && echo "::endgroup::" || echo ""

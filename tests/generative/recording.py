@@ -6,8 +6,6 @@ import pytest
 
 from ehrql.query_model.nodes import count_nodes, node_types
 
-from . import variable_strategies
-
 
 class Recorder:
     _inputs = set()
@@ -53,19 +51,11 @@ def recorder(request):  # pragma: no cover
 
     yield recorder_
 
-    if "GENTEST_COMPREHENSIVE" in os.environ:
-        check_comprehensive(recorder_)
-
     if "GENTEST_DEBUG" in os.environ:
         with output_enabled(request):
             show_input_summary(recorder_)
 
     check_not_too_many_ignored_errors(recorder_)
-
-
-def check_comprehensive(recorder):  # pragma: no cover
-    operations_seen = {o for v in recorder.variables for o in node_types(v)}
-    variable_strategies.assert_includes_all_operations(operations_seen)
 
 
 def check_not_too_many_ignored_errors(recorder):
