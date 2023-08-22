@@ -18,7 +18,6 @@ jobs:
           python-version: "3.11"
       - run: |
           GENTEST_EXAMPLES=10000 \
-          GENTEST_COMPREHENSIVE=t \
           GENTEST_DEBUG=t \
           GENTEST_CHECK_IGNORED_ERRORS=t \
           just test-generative

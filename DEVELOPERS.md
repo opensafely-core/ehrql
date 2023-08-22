@@ -33,8 +33,7 @@ example `just test-unit`).
 
 ### Running tests
 
-To run all tests, as they're run in CI (with code coverage, and the comprehensive
-check for [generative tests](#generative-tests)):
+To run all tests, as they're run in CI with code coverage):
 ```
 just test-all
 ```
@@ -94,17 +93,6 @@ When debugging a failure you'll probably want to reproduce it.
  * The output from the failing test includes the examples in a form where they can be copy-pasted into the test code as arguments to a `@hyp.example()` decorator for the test.
    (You'll need to add some imports to get it to run.) This allows you to get the failure case running in a debugger
    (and also to get the example nicely formatted to help understand it).
-
-Since the variable generation strategies are quite complex, it's hard to convince yourself that they give good coverage of the query space.
-To help with this there is an optional assertion that the generative tests have included every query model operation at least once.
-To enable this assertion set `GENTEST_COMPREHENSIVE=t`, like this:
-
-```
-GENTEST_COMPREHENSIVE=t GENTEST_EXAMPLES=200 just test-generative
-```
-
-Note that you need approximately 200 examples to have any chance of this passing.
-`just test-all` runs with these parameters (unless passed a different value for `GENTEST_EXAMPLES`).
 
 Hypothesis can generate query graphs that are very deeply nested; after 100 draws in a test example, hypothesis will return the example as invalid.  In order to avoid this, the
 variable strategies check for a maximum depth and return a terminal node if the maximum depth is exceeded (A `SelectColumn` node for a series strategy, and a `SelectTable` or `SelectPatientTable` for a table strategy). The max depth defaults to 30 and can be overridden with environment variable `GENTEST_MAX_DEPTH`.

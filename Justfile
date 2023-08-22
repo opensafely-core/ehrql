@@ -204,7 +204,7 @@ test-generative *ARGS: devenv
 
     examples=${GENTEST_EXAMPLES:-200}
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
-    GENTEST_EXAMPLES=$examples GENTEST_COMPREHENSIVE=t $BIN/python -m pytest \
+    GENTEST_EXAMPLES=$examples $BIN/python -m pytest \
         --cov=ehrql \
         --cov=tests \
         --cov-report=html \

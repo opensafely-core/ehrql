@@ -3,10 +3,6 @@ import dataclasses
 from ehrql.query_model import nodes as query_model
 
 
-# These are only exercised during the long-running generative tests when
-# GENTEST_COMPREHENSIVE is enabled
-
-
 def get_all_operations():  # pragma: no cover
     "Return every operation defined in the query model"
     return [cls for cls in iterate_query_model_namespace() if is_operation(cls)]
