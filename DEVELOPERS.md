@@ -65,24 +65,45 @@ https://github.com/opensafely-core/ehrql/wiki/Tips-for-using-pytest
 
 #### Generative tests
 
-The generative tests use Hypothesis to generate variable definitions (in the query model) and test data.
-They then execute the resulting dataset definitions using the MSSQL, SQLite and in-memory query engines,
-and check that the results are the same.
+The generative tests use Hypothesis to generate variable definitions (in
+the query model) and test data.  They then execute the resulting dataset
+definitions using all the available query engines, and check that the
+results are the same.
 
-The GHAs use a fixed seed and run 200 examples, which is enough to ensure that all nodes are covered.  By default, tests run with `just test ...` or `pytest` use only 10 examples
-to check that the infrastructure is basically working and avoid build flakiness due to finding new failure cases.
+To get the most out of our generative tests we want them to run for a
+long time and to explore different parts of the query space each time
+they're run. But neither of these qualities are desirable in CI or in
+local test runs. For this reason, the default configuration generates
+only a small number of examples, of limited query depth, and in a
+determinstic fashion. They thus function more as a test that the
+generative test machinery is working correctly than as a serious attempt
+to do generative testing.
 
-To get the benefit of the generative tests you need to run them at larger scale on your own dev box.
-Use something like this:
+By default, CI generates more examples than the local tests on the basis
+that the extra time is less noticeble there and it gives us a better
+chance of actully catching some novel bugs. But the examples are still
+deterministic for reasons of sanity preservation.
 
+To do some "proper" generative testing you can run the command:
 ```
-GENTEST_EXAMPLES=10000 just test-generative
+just test-generative
+```
+which increases the example count even further and enables randomisation
+by setting:
+```
+GENTEST_RANDOMIZE=t
 ```
 
-This generates 10k examples and takes ten or fifteen minutes to run.
-When developing this, I (Ben) only ever saw one problem that took more than 10k examples to uncover, so that's pretty good as a check.
+It would be worth running these locally when adding new query model
+operations or making significant changes to a query engine. You may even
+want to crank the settings further e.g.
+```
+GENTEST_EXAMPLES=10000 GENTEST_MAX_DEPTH=20 just test-generative
+```
 
-A scheduled GHA runs overnight with 40,000 examples to make sure that we're not missing anything.
+In addition to whatever you do locally, a scheduled Github Actions
+workflow runs the generative test overnight with settings as high as we
+can get away with and alerts us in Slack if it finds a failure.
 
 You can get Hypothesis to dump statistics at the end of the run with `--hypothesis-show-statistics`,
 or (more usefully) dump some of our own statistics about the generated data and queries by setting `GENTEST_DEBUG=t`.
@@ -95,7 +116,7 @@ When debugging a failure you'll probably want to reproduce it.
    (and also to get the example nicely formatted to help understand it).
 
 Hypothesis can generate query graphs that are very deeply nested; after 100 draws in a test example, hypothesis will return the example as invalid.  In order to avoid this, the
-variable strategies check for a maximum depth and return a terminal node if the maximum depth is exceeded (A `SelectColumn` node for a series strategy, and a `SelectTable` or `SelectPatientTable` for a table strategy). The max depth defaults to 30 and can be overridden with environment variable `GENTEST_MAX_DEPTH`.
+variable strategies check for a maximum depth and return a terminal node if the maximum depth is exceeded (A `SelectColumn` node for a series strategy, and a `SelectTable` or `SelectPatientTable` for a table strategy). The max depth defaults to 15 and can be overridden with environment variable `GENTEST_MAX_DEPTH`.
 
 See the [generative tests documentation](tests/generative/README.md) for more details.
 
