@@ -1,5 +1,4 @@
 import datetime
-import itertools
 import os
 import re
 
@@ -19,6 +18,7 @@ from ehrql.query_model.nodes import (
     SelectPatientTable,
     TableSchema,
     Value,
+    get_series_type,
 )
 from tests.lib.query_model_utils import get_all_operations
 
@@ -196,29 +196,23 @@ def run_test(query_engines, data, variable, recorder):
         len(results), len([r for (_, r) in results if r is IGNORE_RESULT])
     )
 
-    for first, second in itertools.combinations(results, 2):
-        first_name, first_results = first
-        second_name, second_results = second
+    # Use the first engine's results as the baseline (this is arbitrary, equality being
+    # transitive)
+    first_name, first_results = results[0]
+    # If the results contain floats then we want only approximate equality to account
+    # for rounding differences
+    if any(get_series_type(v) is float for v in variables.values()):
+        first_results = [pytest.approx(row, rel=1e-5) for row in first_results]
 
-        # Sometimes we hit test cases where one engine is known to have problems; skip them.
-        if IGNORE_RESULT in [first_results, second_results]:
+    for other_name, other_results in results[1:]:
+        # Sometimes we hit test cases where one engine is known to have problems; skip
+        # them.
+        if other_results is IGNORE_RESULT:
             continue  # pragma: no cover
 
-        # If the results contain floats then we want only approximate equality to account
-        # for rounding differences
-        if any(
-            isinstance(v, float)
-            for res in [*first_results, *second_results]
-            for v in res.values()
-        ):
-            for i, result in enumerate(first_results):
-                assert result == pytest.approx(
-                    second_results[i], rel=1e-5
-                ), f"Mismatch between {first_name} and {second_name}"
-        else:
-            assert (
-                first_results == second_results
-            ), f"Mismatch between {first_name} and {second_name}"
+        assert (
+            first_results == other_results
+        ), f"Mismatch between {first_name} and {other_name}"
 
 
 def run_error_test(query_engines, data, variable):
