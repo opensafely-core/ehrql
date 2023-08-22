@@ -118,7 +118,9 @@ def test_format_table_io():
             "scans": 1,
         },
         "Worktable": {
-            "lob_logical": 0,
+            # Check we correctly handle the case when the figure is wider than the
+            # header (which does actually happen in production!)
+            "lob_logical": 100_000_000_000,
             "lob_physical": 0,
             "lob_read_ahead": 0,
             "logical": 0,
@@ -129,9 +131,9 @@ def test_format_table_io():
     }
     output = format_table_io(table_io)
     assert output == (
-        "lob_logical lob_physical lob_read_ahead logical physical read_ahead scans table\n"
-        "5           6            7              2       3        4          1     Workfile\n"
-        "0           0            0              0       0        0          0     Worktable"
+        "lob_logical  lob_physical lob_read_ahead logical physical read_ahead scans table\n"
+        "5            6            7              2       3        4          1     Workfile\n"
+        "100000000000 0            0              0       0        0          0     Worktable"
     )
 
 
