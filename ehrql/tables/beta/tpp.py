@@ -1,6 +1,6 @@
 """
-This defines all the data (both primary care and externally linked) available in the TPP
-backend.
+This defines all the data (both primary care and externally linked) available in the
+OpenSAFELY-TPP backend.
 """
 import datetime
 

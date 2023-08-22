@@ -5,8 +5,8 @@
 
 Available on backends: [**TPP**](../backends#tpp)
 
-This defines all the data (both primary care and externally linked) available in the TPP
-backend.
+This defines all the data (both primary care and externally linked) available in the
+OpenSAFELY-TPP backend.
 
 ## [beta.core](./beta.core/)
 <small class="subtitle">
