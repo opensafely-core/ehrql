@@ -3,7 +3,8 @@
 Available on backends: [**TPP**](../../backends#tpp)
 
 This defines all the data (both primary care and externally linked) available in the
-OpenSAFELY-TPP backend.
+OpenSAFELY-TPP backend. For more information about this backend, see the
+[*SystmOne Primary Care*](https://docs.opensafely.org/data-sources/systmone/) section.
 
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
 from ehrql.tables.beta.tpp import (
