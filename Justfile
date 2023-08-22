@@ -193,6 +193,7 @@ test-unit *ARGS: devenv
 #
 # Set GENTEST_DEBUG env var to see stats.
 # Set GENTEST_EXAMPLES to change the number of examples generated.
+# Set GENTEST_MAX_DEPTH to change the depth of generated query trees.
 test-generative *ARGS: devenv
     $BIN/python -m pytest tests/generative {{ ARGS }}
 

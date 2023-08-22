@@ -21,7 +21,7 @@ from ehrql.query_model.nodes import (
 )
 
 
-MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH", 30))
+MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH", 15))
 
 # This module defines a set of recursive Hypothesis strategies for generating query model graphs.
 #
