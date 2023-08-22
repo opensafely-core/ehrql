@@ -136,13 +136,30 @@ def parse_statistics_messages(messages):
 
 
 def format_table_io(table_io):
+    results_table = table_io_dict_to_table(table_io)
+    return format_table(results_table)
+
+
+def table_io_dict_to_table(table_io):
     headers = list(table_io.values())[0].keys()
-    output = [[*headers, "table"]]
+    table = [[*headers, "table"]]
     for table_name, stats in table_io.items():
-        row = [str(stats[header]).ljust(len(header)) for header in headers]
-        row.append(table_name)
-        output.append(row)
-    return "\n".join(" ".join(row) for row in output)
+        table.append(
+            [*(str(stats[header]) for header in headers), table_name],
+        )
+    return table
+
+
+def format_table(table):
+    column_max_length = {i: 0 for i in range(0, len(table[0]))}
+    for row in table:
+        # Ignore the right-most column as we don't want to pad that
+        for i, value in enumerate(row[:-1]):
+            column_max_length[i] = max(column_max_length[i], len(value))
+    return "\n".join(
+        " ".join(value.ljust(column_max_length[i]) for i, value in enumerate(row))
+        for row in table
+    )
 
 
 def indent(s, prefix=LOG_INDENT):
