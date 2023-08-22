@@ -197,7 +197,7 @@ test-unit *ARGS: devenv
 # Set GENTEST_MAX_DEPTH to change the depth of generated query trees.
 test-generative *ARGS: devenv
     GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-200} \
-    GENTEST_RANDOMIZE=${GENTEST_RANDOMIZE:t} \
+    GENTEST_RANDOMIZE=${GENTEST_RANDOMIZE:-t} \
       $BIN/python -m pytest tests/generative {{ ARGS }}
 
 # Run by CI. Run all tests, checking code coverage. Optional args are passed to pytest.
