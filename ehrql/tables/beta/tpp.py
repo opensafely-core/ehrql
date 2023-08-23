@@ -33,6 +33,20 @@ __all__ = [
 
 @table
 class clinical_events(EventFrame):
+    """
+    Each record corresponds to a single clinical or consultation event for a patient.
+
+    Each record contains either a SNOMED-CT code or a CTv3 code (never both). Note that
+    date may be null.
+
+    Note that event codes do not change in this table. If an event code in the coding
+    system becomes inactive, the event will still be coded to the inactive code.
+    As such, codelists should include all relevant inactive codes.
+
+    Detailed information on onward referrals is not currently available. A subset of
+    referrals are recorded in the clinical events table but this data will be incomplete.
+    """
+
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
     ctv3_code = Series(CTV3Code)
