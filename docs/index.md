@@ -1,11 +1,10 @@
-* ehrQL is a query language for electronic health record (EHR) data.
-* You run ehrQL in OpenSAFELY to query data.
-* The result of an ehrQL query is an output file with one row per patient
-  and one column per feature of interest.
-* Columns might be features such as:
-    * age
-    * BMI
-    * number of prescriptions of a particular drug
+*ehrQL* (*err-kul*), the **Electronic Health Records Query Language**,
+is a programming language and command line interface designed for the specific application domain of EHR data.
+Researchers create **dataset definitions** with the programming language
+and execute them with the command line interface to generate **one row per patient datasets**.
+
+ehrQL allows researchers to access data sources from primary and secondary care,
+as well as from organisations such as the Office for National Statistics (ONS).
 
 !!! info
 
@@ -22,19 +21,6 @@
     For more details,
     read our [explanation on what this change means](introduction/guidance-for-existing-cohort-extractor-users.md)
     for existing cohort-extractor users.
-
-## ehrQL provides access to several data sources
-
-Data sources that you can query include:
-
-* Primary care EHR data such as:
-    * patient demographics
-    * medication events
-    * other clinical events
-* Some data from secondary care
-* External data sets such as death data from ONS
-
-:bulb: Refer to the [list of datasets available through OpenSAFELY](https://docs.opensafely.org/data-sources/).
 
 ## How to start learning ehrQL
 
