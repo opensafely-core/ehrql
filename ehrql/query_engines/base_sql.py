@@ -643,14 +643,6 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         results_query = self.get_query(variable_definitions)
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
         with self.engine.connect() as connection:
-
-            def do_cleanup():
-                for i, cleanup_query in enumerate(cleanup_queries, start=1):
-                    log.info(
-                        f"Running cleanup query {i:03} / {len(cleanup_queries):03}"
-                    )
-                    connection.execute(cleanup_query)
-
             for i, setup_query in enumerate(setup_queries, start=1):
                 log.info(f"Running setup query {i:03} / {len(setup_queries):03}")
                 connection.execute(setup_query)
@@ -666,10 +658,11 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 # hygiene in any case)
                 cursor_result.close()
                 # Make sure the cleanup happens before raising the error
-                do_cleanup()
                 raise
 
-            do_cleanup()
+            for i, cleanup_query in enumerate(cleanup_queries, start=1):
+                log.info(f"Running cleanup query {i:03} / {len(cleanup_queries):03}")
+                connection.execute(cleanup_query)
 
     @cached_property
     def engine(self):
