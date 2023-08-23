@@ -26,16 +26,9 @@ ehrQL's documentation has four main sections:
 
 ## ehrQL replaces cohort-extractor
 
-ehrQL is a replacement for OpenSAFELY's cohort-extractor.
-
-cohort-extractor will continue to work
-and be supported for OpenSAFELY projects
-created before June 2023.
-
-However, *new* projects should use ehrQL to query data available in OpenSAFELY.
+Whilst cohort-extractor will be supported for projects created before June 2023,
+new projects should use ehrQL.
 Please [get in touch with us before you start using ehrQL](introduction/getting-help.md)
 and we can help you get started.
-
-For more details,
-read our [explanation on what this change means](introduction/guidance-for-existing-cohort-extractor-users.md)
-for existing cohort-extractor users.
+For more information,
+read the [guidance for existing cohort-extractor users](introduction/guidance-for-existing-cohort-extractor-users.md).
