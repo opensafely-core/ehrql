@@ -8,12 +8,6 @@ as well as from organisations such as the Office for National Statistics (ONS).
 
 ## ehrQL's documentation
 
-We suggest that you first read through the introduction section in order,
-starting with ["Using this documentation"](introduction/using-this-documentation.md)
-
-The introduction will give you more information about ehrQL
-and this documentation.
-
 ehrQL's documentation has four main sections:
 
 1. The [tutorial](tutorial/index.md) provides practical steps for studying ehrQL.
