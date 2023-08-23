@@ -31,6 +31,15 @@ ehrQL's documentation has four main sections:
 * :warning: important information
 * :grey_question: questions for you to think about
 
+### Navigation
+
+The four main sections are written to be read in order.
+You can navigate between them by:
+
+* pressing the ++n++ or ++period++ keys to go to the next page, and the ++p++ or ++comma++ keys to go to the previous page;
+* using the *Previous* and *Next* links in the page footer;
+* referring to the navigation pane to the left of the page and clicking a link.
+
 ## ehrQL replaces cohort-extractor
 
 Whilst cohort-extractor will be supported for projects created before June 2023,
