@@ -21,10 +21,6 @@ nav:
     - Installation and setup of ehrQL: tutorial/installation-and-setup.md
     - Running ehrQL: tutorial/running-ehrql.md
     - ehrQL concepts in depth: tutorial/dataset-definition-concepts.md
-  - Explanation:
-    - ehrQL backend tables: explanation/backend-tables.md
-    - ehrQL output formats: explanation/output-formats.md
-    - Using ehrQL in OpenSAFELY projects: explanation/using-ehrql-in-opensafely-projects.md
   - How-to guides:
     - Using ehrQL to answer specific questions: how-to/examples.md
     - Resolving ehrQL errors: how-to/errors.md
@@ -34,6 +30,10 @@ nav:
     - ehrQL backends: reference/backends.md
     - ehrQL schemas: reference/schemas.md
     - ehrQL command line interface: reference/cli.md
+  - Explanation:
+    - ehrQL backend tables: explanation/backend-tables.md
+    - ehrQL output formats: explanation/output-formats.md
+    - Using ehrQL in OpenSAFELY projects: explanation/using-ehrql-in-opensafely-projects.md
 
 theme:
   name: material
