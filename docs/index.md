@@ -44,10 +44,12 @@ starting with ["Using this documentation"](introduction/using-this-documentation
 The introduction will give you more information about ehrQL
 and this documentation.
 
-Next, work through the tutorial section in order,
-starting with ["Installation and setup"](tutorial/installation-and-setup.md).
+ehrQL's documentation has four main sections:
 
-The tutorial will guide you through:
+1. The [tutorial](tutorial/index.md) provides practical steps for studying ehrQL.
 
-* setting up and running ehrQL on your own computer
-* writing ehrQL queries (known as *dataset definitions*)
+1. The [how-to guides](how-to/index.md) provide practical steps for working with ehrQL in your project.
+
+1. The [reference](reference/index.md) provides theoretical knowledge for working with ehrQL in your project.
+
+1. The [explanation](explanation/index.md) provides theoretical knowledge for studying ehrQL.
