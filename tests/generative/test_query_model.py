@@ -251,6 +251,19 @@ IGNORED_ERRORS = [
         sqlalchemy.exc.OperationalError,
         re.compile(".+Internal error: An expression services limit has been reached.+"),
     ),
+    # Trino also raises an error if the variable strategy generates queries
+    # that result in many nested or too-long queries; again the many-date stacking seems to be the
+    # main culprit
+    (
+        sqlalchemy.exc.DBAPIError,
+        re.compile(
+            ".+TrinoQueryError.+the query may have too many or too complex expressions.+"
+        ),
+    ),
+    (
+        sqlalchemy.exc.ProgrammingError,
+        re.compile(".+TrinoUserError.+QUERY_TEXT_TOO_LARGE.+"),
+    ),
     # ARITHMETIC OVERFLOW ERRORS
     # mssql raises this error if an operation results in an integer bigger than the max INT value
     # or a float outside of the max range
@@ -299,6 +312,12 @@ IGNORED_ERRORS = [
         OverflowError,
         re.compile("date value out of range"),
     ),  # DateAddMonths, resulting in an invalid date
+    # Trino
+    (
+        # Invalid date errors
+        sqlalchemy.exc.NotSupportedError,
+        re.compile(r".+Could not convert '.+' into the associated python type"),
+    ),
 ]
 
 

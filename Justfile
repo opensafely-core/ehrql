@@ -145,7 +145,7 @@ build-ehrql-for-os-cli: build-ehrql
 
 # tear down the persistent docker containers we create to run tests again
 remove-database-containers:
-    docker rm --force ehrql-mssql
+    docker rm --force ehrql-mssql ehrql-trino
 
 # Create an MSSQL docker container with the TPP database schema and print
 # connection strings
@@ -155,6 +155,11 @@ create-tpp-test-db: devenv
 # open an interactive SQL Server shell running against MSSQL
 connect-to-mssql:
     docker exec -it ehrql-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!'
+
+# open an interactive trino shell
+connect-to-trino:
+    docker exec -it ehrql-trino trino --catalog trino --schema default
+
 
 ###################################################################
 # Testing targets
@@ -206,9 +211,9 @@ test-generative *ARGS: devenv
     #!/usr/bin/env bash
     set -euo pipefail
 
+    examples=${GENTEST_EXAMPLES:-100}
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
-    GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-100} \
-      $BIN/python -m pytest \
+    GENTEST_EXAMPLES=$examples $BIN/python -m pytest \
         --cov=ehrql \
         --cov=tests \
         --cov-report=html \

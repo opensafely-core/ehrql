@@ -11,12 +11,14 @@ from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
+from ehrql.query_engines.trino import TrinoQueryEngine
 from ehrql.query_language import compile
 from ehrql.utils.orm_utils import make_orm_models
 
 from .lib.databases import (
     InMemorySQLiteDatabase,
     make_mssql_database,
+    make_trino_database,
     wait_for_database,
 )
 from .lib.docker import Containers
@@ -43,7 +45,7 @@ def pytest_collection_modifyitems(session, config, items):  # pragma: no cover
         # with pytest-xdist.
         return
 
-    slow_database_names = ["mssql"]
+    slow_database_names = ["mssql", "trino"]
 
     for item in items:
         group = "other"
@@ -148,7 +150,21 @@ def mssql_database(mssql_database_with_session_scope):
     database.teardown()
 
 
-# }
+@pytest.fixture(scope="session")
+def trino_database_with_session_scope(containers, show_delayed_warning):
+    with show_delayed_warning(
+        3, "Starting Trino Docker image (will download image on first run)"
+    ):
+        database = make_trino_database(containers)
+        wait_for_database(database)
+    return database
+
+
+@pytest.fixture(scope="function")
+def trino_database(trino_database_with_session_scope):
+    database = trino_database_with_session_scope
+    yield database
+    database.teardown()
 
 
 class QueryEngineFixture:
@@ -191,7 +207,7 @@ class QueryEngineFixture:
         return self.query_engine().engine
 
 
-QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql")
+QUERY_ENGINE_NAMES = ("in_memory", "sqlite", "mssql", "trino")
 
 
 def engine_factory(request, engine_name, with_session_scope=False):
@@ -204,6 +220,9 @@ def engine_factory(request, engine_name, with_session_scope=False):
     elif engine_name == "mssql":
         database_fixture_name = "mssql_database"
         query_engine_class = MSSQLQueryEngine
+    elif engine_name == "trino":
+        database_fixture_name = "trino_database"
+        query_engine_class = TrinoQueryEngine
     else:
         assert False
 

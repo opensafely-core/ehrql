@@ -256,9 +256,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         float_result = self.get_sql_truedivide(node)
         return sqlalchemy.cast(SQLFunction("FLOOR", float_result), sqlalchemy.Integer)
 
+    def cast_to_int(self, value):
+        return sqlalchemy.cast(value, sqlalchemy.Integer)
+
     @get_sql.register(Function.CastToInt)
     def get_sql_cast_to_int(self, node):
-        return sqlalchemy.cast(self.get_expr(node.source), sqlalchemy.Integer)
+        return self.cast_to_int(self.get_expr(node.source))
 
     @get_sql.register(Function.CastToFloat)
     def get_sql_cast_to_float(self, node):
@@ -414,13 +417,22 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Function.MaximumOf)
     def get_sql_maximum_of(self, node):
+        aggregate_function = self.aggregate_functions["maximum_of"]
         args = self.get_nary_function_args(node)
-        return self.get_aggregate_subquery(sqlalchemy.func.max, *args).label("greatest")
+        return self.get_aggregate_subquery(aggregate_function, *args).label("greatest")
 
     @get_sql.register(Function.MinimumOf)
     def get_sql_minimum_of(self, node):
+        aggregate_function = self.aggregate_functions["minimum_of"]
         args = self.get_nary_function_args(node)
-        return self.get_aggregate_subquery(sqlalchemy.func.min, *args).label("least")
+        return self.get_aggregate_subquery(aggregate_function, *args).label("least")
+
+    @property
+    def aggregate_functions(self):
+        return {
+            "minimum_of": sqlalchemy.func.min,
+            "maximum_of": sqlalchemy.func.max,
+        }
 
     def get_aggregate_subquery(self, aggregate_function, columns, return_type):
         raise NotImplementedError()
@@ -539,13 +551,18 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_table_sort_and_filter(self, node):
         return self.get_table(node.source)
 
+    def apply_order_clauses_modifications(self, node, order_clauses):
+        # Hook for subclasses to apply additional modifications to the
+        # order clauses if required
+        return order_clauses
+
     @get_table.register(PickOneRowPerPatientWithColumns)
     def get_table_pick_one_row_per_patient(self, node):
         selected_columns = [self.get_expr(c) for c in node.selected_columns]
         order_clauses = [self.get_expr(c) for c in get_sort_conditions(node.source)]
-
         if node.position == Position.LAST:
             order_clauses = [c.desc() for c in order_clauses]
+        order_clauses = self.apply_order_clauses_modifications(node, order_clauses)
 
         query = self.get_select_query_for_node_domain(node.source)
         query = query.add_columns(*selected_columns)
@@ -640,9 +657,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
                 # more (only really relevant for the in-memory SQLite tests, but good
                 # hygiene in any case)
                 cursor_result.close()
+                # Make sure the cleanup happens before raising the error
                 raise
 
-            assert not cleanup_queries, "Support these once tests exercise them"
+            for i, cleanup_query in enumerate(cleanup_queries, start=1):
+                log.info(f"Running cleanup query {i:03} / {len(cleanup_queries):03}")
+                connection.execute(cleanup_query)
 
     @cached_property
     def engine(self):
@@ -701,3 +721,33 @@ def get_sort_conditions(frame):
     # order of priority (i.e. the most recently applied sort gives us the primary sort
     # condition) so we reverse them here
     return tuple(s.sort_by for s in reversed(get_sorts(frame)))
+
+
+def get_cyclic_coalescence(columns):
+    """
+    Given a list of columns, this produces a list of coalescences of all columns with the
+    first input to coalesce at each index being the column at the index in the input columns
+    """
+    # Some SQL engines (sqlite, trino), aggregate functions return NULL if any of the
+    # inputs are NULL. This cyclic coalescence allows us to get rid of any null values, but
+    # retain valid empty strings.
+    # Coalesce returns the first non-null value in a list; by cycling through the list and
+    # calling coalesce with each item as the first value, we end up calling the aggregate
+    # function only on the non-null values
+    # e.g.
+    # cols = ["a", "b", None, ""]
+    # column_cycles = [
+    #   ["a", "b", None, ""],
+    #   ["b", None, "", "a"],
+    #   [None, "", "a", "b"]
+    #   ["", "a", "b", None]
+    # ]
+    # Calling coalesce on each of these returns ["a", "b", "a", "a"] to be used in the
+    # aggregate function
+    len_cols = len(columns)
+    # if there is only one column in the list, just return it. Coalesce requires at least two
+    # arguments
+    if len_cols == 1:
+        return columns
+    column_cycles = [[*columns[i:], *columns[:i]] for i in range(len_cols)]
+    return [sqlalchemy.func.coalesce(*c) for c in column_cycles]

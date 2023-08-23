@@ -1,7 +1,7 @@
 import sqlalchemy
 from sqlalchemy.sql.functions import Function as SQLFunction
 
-from ehrql.query_engines.base_sql import BaseSQLQueryEngine
+from ehrql.query_engines.base_sql import BaseSQLQueryEngine, get_cyclic_coalescence
 from ehrql.query_engines.sqlite_dialect import SQLiteDialect
 
 
@@ -83,15 +83,7 @@ class SQLiteQueryEngine(BaseSQLQueryEngine):
         # a single literal, sqlite will only return the first row
         if len(columns) == 1:
             return columns[0]
+        # Sqlite returns null for greatest/least if any of the inputs are null
+        # Use cyclic coalescence to remove the nulls before applying the aggregate function
         columns = get_cyclic_coalescence(columns)
         return aggregate_function(*columns)
-
-
-# sqlite's aggregate functions return NULL if any of the inputs are NULL
-# this produces a list of coalescences of all columns with the first
-# input to coalesce at each index being the column at the index in
-# the input columns
-def get_cyclic_coalescence(columns):
-    len_cols = len(columns)
-    column_cycles = [[*columns[i:], *columns[:i]] for i in range(len_cols)]
-    return [sqlalchemy.func.coalesce(*c) for c in column_cycles]

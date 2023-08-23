@@ -4,13 +4,16 @@ from pathlib import Path
 
 import sqlalchemy
 import sqlalchemy.exc
+from requests.exceptions import ConnectionError
 from sqlalchemy.dialects import registry
 from sqlalchemy.orm import sessionmaker
+from trino.exceptions import TrinoQueryError
 
 from ehrql.utils.itertools_utils import iter_flatten
 
 
 MSSQL_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/mssql"
+TRINO_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/trino"
 
 
 # Register our modified SQLAlchemy dialects
@@ -18,6 +21,10 @@ registry.register(
     "sqlite.pysqlite.opensafely",
     "ehrql.query_engines.sqlite_dialect",
     "SQLiteDialect",
+)
+
+registry.register(
+    "trino.opensafely", "ehrql.query_engines.trino_dialect", "TrinoDialect"
 )
 
 
@@ -56,15 +63,19 @@ class DbDetails:
         return self._url(self.host_from_host, self.port_from_host)
 
     def engine(self, dialect=None, **kwargs):
-        url = self._url(self.host_from_host, self.port_from_host, include_driver=True)
+        url = self._url(
+            self.host_from_host, self.port_from_host, include_driver=bool(self.driver)
+        )
         engine_url = sqlalchemy.engine.make_url(url)
         engine = sqlalchemy.create_engine(engine_url, **kwargs)
         return engine
 
     def _url(self, host, port, include_driver=False):
-        assert self.username and self.password
-        auth = f"{self.username}:{self.password}@"
-
+        assert self.username
+        if self.username and self.password:
+            auth = f"{self.username}:{self.password}@"
+        else:
+            auth = f"{self.username}@"
         if include_driver:
             protocol = f"{self.protocol}+{self.driver}"
         else:
@@ -78,7 +89,6 @@ class DbDetails:
         tuples), creates the necessary tables and inserts them into the database
         """
         input_data = list(iter_flatten(input_data))
-
         engine = self.engine()
         Session = sessionmaker()
         Session.configure(bind=engine)
@@ -104,7 +114,6 @@ class DbDetails:
 
 def wait_for_database(database, timeout=20):
     engine = database.engine()
-
     start = time.time()
     limit = start + timeout
     while True:
@@ -117,6 +126,9 @@ def wait_for_database(database, timeout=20):
             ConnectionRefusedError,
             ConnectionResetError,
             BrokenPipeError,
+            ConnectionError,
+            TrinoQueryError,
+            sqlalchemy.exc.DBAPIError,
         ) as e:  # pragma: no cover
             if time.time() >= limit:
                 raise Exception(
@@ -201,3 +213,41 @@ class InMemorySQLiteDatabase(DbDetails):
         # https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#uri-connections
         # https://sqlite.org/inmemorydb.html
         return f"{protocol}:///file:{self.db_name}?mode=memory&cache=shared&uri=true"
+
+
+def make_trino_database(containers):
+    container_name = "ehrql-trino"
+    trino_port = 8080
+
+    if not containers.is_running(container_name):  # pragma: no cover
+        run_trino(container_name, containers, trino_port)
+
+    container_ip = containers.get_container_ip(container_name)
+    host_trino_port = containers.get_mapped_port_for_host(container_name, trino_port)
+
+    return DbDetails(
+        protocol="trino",
+        driver="opensafely",
+        host_from_container=container_ip,
+        port_from_container=trino_port,
+        host_from_host="localhost",
+        port_from_host=host_trino_port,
+        username="trino",
+        db_name="trino/default",
+    )
+
+
+def run_trino(container_name, containers, trino_port):  # pragma: no cover
+    containers.run_bg(
+        name=container_name,
+        image="trinodb/trino",
+        volumes={
+            TRINO_SETUP_DIR: {"bind": "/trino", "mode": "ro"},
+            f"{TRINO_SETUP_DIR}/catalog": {"bind": "/etc/trino/catalog", "mode": "ro"},
+        },
+        # Choose an arbitrary free port to publish the trino port on
+        ports={trino_port: None},
+        environment={},
+        entrypoint="/trino/entrypoint.sh",
+        command="/usr/lib/trino/bin/run-trino",
+    )
