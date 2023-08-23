@@ -24,6 +24,13 @@ ehrQL's documentation has four main sections:
 
 1. The [explanation](explanation/index.md) provides theoretical knowledge for studying ehrQL.
 
+### Conventions
+
+* :computer: steps you should follow on the computer you are using for studying or working with ehrQL
+* :notepad_spiral: explanatory information
+* :warning: important information
+* :grey_question: questions for you to think about
+
 ## ehrQL replaces cohort-extractor
 
 Whilst cohort-extractor will be supported for projects created before June 2023,

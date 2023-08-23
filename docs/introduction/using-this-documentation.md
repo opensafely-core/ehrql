@@ -12,13 +12,3 @@ You can navigate the pages in any of these following ways:
 
 The reference section is most useful to consult when actually writing ehrQL,
 though you may find it useful to skim through to get a feel for how ehrQL works.
-
-## Conventions
-
-We use the following emoji in the ehrQL documentation section to indicate:
-
-* :computer: *steps that you should carry out on the computer
-  that you are using for working with ehrQL*
-* :notepad_spiral: *extra explanatory information*
-* :warning: *important information*
-* :grey_question: *questions for you to think about and try to answer*
