@@ -181,12 +181,12 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 log.info(f"Running {query_id}")
                 execute_with_log(connection, setup_query, log.info, query_id=query_id)
 
-            # Retry 6 times over ~90m
+            # Retry 4 times over the course of 1 minute
             execute_with_retry = execute_with_retry_factory(
                 connection.execute,
-                max_retries=6,
+                max_retries=4,
                 retry_sleep=4.0,
-                backoff_factor=4,
+                backoff_factor=2,
                 log=log.info,
             )
 
