@@ -6,22 +6,6 @@ and execute them with the command line interface to generate **one row per patie
 ehrQL allows researchers to access data sources from primary and secondary care,
 as well as from organisations such as the Office for National Statistics (ONS).
 
-## ehrQL replaces cohort-extractor
-
-ehrQL is a replacement for OpenSAFELY's cohort-extractor.
-
-cohort-extractor will continue to work
-and be supported for OpenSAFELY projects
-created before June 2023.
-
-However, *new* projects should use ehrQL to query data available in OpenSAFELY.
-Please [get in touch with us before you start using ehrQL](introduction/getting-help.md)
-and we can help you get started.
-
-For more details,
-read our [explanation on what this change means](introduction/guidance-for-existing-cohort-extractor-users.md)
-for existing cohort-extractor users.
-
 ## How to start learning ehrQL
 
 We suggest that you first read through the introduction section in order,
@@ -39,3 +23,19 @@ ehrQL's documentation has four main sections:
 1. The [reference](reference/index.md) provides theoretical knowledge for working with ehrQL in your project.
 
 1. The [explanation](explanation/index.md) provides theoretical knowledge for studying ehrQL.
+
+## ehrQL replaces cohort-extractor
+
+ehrQL is a replacement for OpenSAFELY's cohort-extractor.
+
+cohort-extractor will continue to work
+and be supported for OpenSAFELY projects
+created before June 2023.
+
+However, *new* projects should use ehrQL to query data available in OpenSAFELY.
+Please [get in touch with us before you start using ehrQL](introduction/getting-help.md)
+and we can help you get started.
+
+For more details,
+read our [explanation on what this change means](introduction/guidance-for-existing-cohort-extractor-users.md)
+for existing cohort-extractor users.
