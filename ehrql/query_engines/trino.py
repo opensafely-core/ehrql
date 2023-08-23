@@ -119,16 +119,13 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
         # Trino doesn't support temporary tables, so we create
         # a new persistent table and drop it in the cleanup
         # queries
-        table_name = f"inline_data_{self.get_next_id()}"
+        table_name = f"ehrql_{self.global_unique_id}_inline_data_{self.get_next_id()}"
         table = GeneratedTable(
             table_name,
             sqlalchemy.MetaData(),
             *columns,
         )
         table.setup_queries = [
-            # Drop the table if it already exists. This only seems to happen
-            # occasionally in tests, when a failed/errored test doesn't clean up properly.
-            sqlalchemy.schema.DropTable(table, if_exists=True),
             sqlalchemy.schema.CreateTable(table),
             InsertMany(table, rows),
         ]
