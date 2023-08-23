@@ -9,13 +9,7 @@ and then jump to a specific example of interest.
 
 ### Examples in this page all use the TPP backend
 
-:construction: For consistency throughout the examples,
-and to make it possible to use [backend-specific tables in addition to core tables](../reference/backends.md),
-the example dataset definitions here all use the TPP backend.
-
 ### Some examples using `codelist_from_csv()`
-
-:construction: This guidance should be improved in future.
 
 :warning: Some examples refer to CSV codelists using the
 `codelist_from_csv` function,
@@ -158,8 +152,6 @@ dataset.sex = patients.sex
 The possible values are "female", "male", "intersex", and "unknown".
 
 ### Finding each patient's ethnicity
-
-:construction: Ethnicity is incompletely coded within primary care. More detail will be added in the future on how to improve ethnicity capture by incorporating data from secondary care.
 
 Ethnicity can be defined using a codelist. There are a lot of individual codes that can used to indicate a patients' fine-grained ethnicity. To make analysis more manageable, ethnicity is therefore commonly grouped into higher level categories. Above, we described how you can [import codelists that have a category column](#some-examples-using-codelist_from_csv). You can use a codelist with a category column to map clinical event codes for ethnicity to higher level categories as in this example:
 

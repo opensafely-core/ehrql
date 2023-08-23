@@ -42,9 +42,6 @@ to answer the research question of interest.
 :warning: When using backend-specific tables in a dataset definition,
 your dataset definition will be only compatible with that backend.
 
-:construction: TPP is the most fully developed backend,
-offering several data tables.
-
 :notepad_spiral: Implementation of other backends is still in development.
 But all data in the EMIS OpenSAFELY backend is available via cohort-extractor.
 
