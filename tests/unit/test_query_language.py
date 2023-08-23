@@ -715,10 +715,15 @@ def test_duration_ending_on():
             patients.date_of_birth,
             r"weeks\.starting_on\(\) can only be used with a literal date, not a date series",
         ),
+        (
+            -10,
+            "2020-01-01",
+            r"weeks\.starting_on\(\) can only be used with positive numbers",
+        ),
     ],
 )
 def test_duration_generate_intervals_rejects_invalid_arguments(
     value, start_date, error
 ):
-    with pytest.raises(TypeError, match=error):
+    with pytest.raises((TypeError, ValueError), match=error):
         weeks(value).starting_on(start_date)

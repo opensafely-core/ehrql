@@ -777,7 +777,7 @@ class Duration:
 
         Useful for generating the `intervals` arguments to [`Measures`](#Measures).
         """
-        return self._generate_intervals(date, self.value, "starting_on")
+        return self._generate_intervals(date, self.value, 1, "starting_on")
 
     def ending_on(self, date):
         """
@@ -797,10 +797,10 @@ class Duration:
 
         Useful for generating the `intervals` arguments to [`Measures`](#Measures).
         """
-        return self._generate_intervals(date, -self.value, "ending_on")
+        return self._generate_intervals(date, self.value, -1, "ending_on")
 
     @classmethod
-    def _generate_intervals(cls, date, value, method_name):
+    def _generate_intervals(cls, date, value, sign, method_name):
         date = parse_date_if_str(date)
         if not isinstance(date, datetime.date):
             raise TypeError(
@@ -812,7 +812,11 @@ class Duration:
                 f"{cls.__name__}.{method_name}() can only be used with a literal "
                 f"integer value, not an integer series"
             )
-        return date_utils.generate_intervals(cls._date_add_static, date, value)
+        if value < 0:
+            raise ValueError(
+                f"{cls.__name__}.{method_name}() can only be used with positive numbers"
+            )
+        return date_utils.generate_intervals(cls._date_add_static, date, value * sign)
 
 
 class days(Duration):
