@@ -17,8 +17,6 @@ though you may find it useful to skim through to get a feel for how ehrQL works.
 
 We use the following emoji in the ehrQL documentation section to indicate:
 
-* :construction: *sections of the documentation
-  or ehrQL features that still require further work*
 * :computer: *steps that you should carry out on the computer
   that you are using for working with ehrQL*
 * :notepad_spiral: *extra explanatory information*
