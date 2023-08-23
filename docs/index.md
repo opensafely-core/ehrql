@@ -6,7 +6,7 @@ and execute them with the command line interface to generate **one row per patie
 ehrQL allows researchers to access data sources from primary and secondary care,
 as well as from organisations such as the Office for National Statistics (ONS).
 
-## How to start learning ehrQL
+## ehrQL's documentation
 
 We suggest that you first read through the introduction section in order,
 starting with ["Using this documentation"](introduction/using-this-documentation.md)
