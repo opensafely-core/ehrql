@@ -18,19 +18,23 @@ nav:
     - Guidance for existing cohort-extractor users: introduction/guidance-for-existing-cohort-extractor-users.md
     - Introduction to ehrQL concepts: introduction/introduction-to-concepts.md
   - Tutorial:
+    - Tutorial: tutorial/index.md
     - Installation and setup of ehrQL: tutorial/installation-and-setup.md
     - Running ehrQL: tutorial/running-ehrql.md
     - ehrQL concepts in depth: tutorial/dataset-definition-concepts.md
   - How-to guides:
+    - How-to guides: how-to/index.md
     - Using ehrQL to answer specific questions: how-to/examples.md
     - Resolving ehrQL errors: how-to/errors.md
   - Reference:
+    - Reference: reference/index.md
     - ehrQL language: reference/language.md
     - ehrQL language features: reference/features.md
     - ehrQL backends: reference/backends.md
     - ehrQL schemas: reference/schemas.md
     - ehrQL command line interface: reference/cli.md
   - Explanation:
+    - Explanation: explanation/index.md
     - ehrQL backend tables: explanation/backend-tables.md
     - ehrQL output formats: explanation/output-formats.md
     - Using ehrQL in OpenSAFELY projects: explanation/using-ehrql-in-opensafely-projects.md
