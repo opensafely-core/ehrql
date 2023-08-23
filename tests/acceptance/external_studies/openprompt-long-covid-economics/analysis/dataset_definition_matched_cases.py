@@ -11,7 +11,7 @@ from databuilder.tables.beta.tpp import (
 from ehrql.query_language import table_from_file, PatientFrame, Series
 from covariates import *
 from variables import *
-
+from ehrql import minimum_of
 
 # import matched data
 
@@ -48,7 +48,7 @@ dataset.index_date = matched_cases.index_date
 dataset.end_death = matched_cases.end_death
 dataset.end_deregist = matched_cases.end_deregist
 dataset.end_lc_cure = matched_cases.end_lc_cure
-dataset.end_date = earliest4(dataset.end_death, dataset.end_deregist, dataset.end_lc_cure, study_end_date)
+dataset.end_date = minimum_of(dataset.end_death, dataset.end_deregist, dataset.end_lc_cure, study_end_date)
 dataset.set_id = matched_cases.set_id
 dataset.exposure = matched_cases.exposure
 dataset.match_counts = matched_cases.match_counts

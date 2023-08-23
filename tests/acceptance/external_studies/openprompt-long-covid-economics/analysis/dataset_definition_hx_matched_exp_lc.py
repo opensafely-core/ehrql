@@ -8,7 +8,7 @@ from ehrql.query_language import table_from_file, PatientFrame, Series
 from covariates import *
 from hx_covariates import *
 from variables import *
-
+from ehrql import minimum_of
 # import matched data
 
 @table_from_file("output/matched_cases_historical.csv")
@@ -18,6 +18,9 @@ class matched_hx_cases(PatientFrame):
     lc_exp = Series(int)
     index_date = Series(date)
     region = Series(str)
+    end_death = Series(date)
+    end_deregist = Series(date)
+    end_lc_cure = Series(date)
     set_id = Series(int)
     lc_exposure = Series(int)
     match_counts = Series(float)
@@ -59,10 +62,10 @@ dataset.cov_hiv = hiv.exists_for_patient()
 dataset.cov_aplastic_anemia = aplastic_anemia.exists_for_patient()
 dataset.cov_permanent_immune_suppress = permanent_immune_suppress.exists_for_patient()
 dataset.cov_temporary_immune_suppress = temporary_immune_suppress.exists_for_patient()
-dataset.end_death = death_date
-dataset.end_deregist = end_reg_date
-dataset.end_lc_cure = lc_cure_date
-dataset.end_date = earliest4(dataset.end_death, dataset.end_deregist, dataset.end_lc_cure, study_end_date)
+dataset.end_death = matched_hx_cases.end_death
+dataset.end_deregist = matched_hx_cases.end_deregist
+dataset.end_lc_cure = matched_hx_cases.end_lc_cure
+dataset.end_date = minimum_of(dataset.end_death, dataset.end_deregist, dataset.end_lc_cure, study_end_date)
 
 # Outcome visit
 # Historical GP visits: 2019-3-1 to 2020-3-1

@@ -78,7 +78,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     # covid tests ------------------------------------------------------------
     positive_tests = sgss_covid_all_tests \
         .where(sgss_covid_all_tests.is_positive) \
-        .except_where(sgss_covid_all_tests.specimen_taken_date >= dataset.pt_end_date)
+        .except_where(sgss_covid_all_tests.specimen_taken_date >= dataset.pt_end_date - days(covid_to_longcovid_lag))
 
     dataset.latest_test_before_diagnosis = positive_tests \
         .sort_by(sgss_covid_all_tests.specimen_taken_date).last_for_patient().specimen_taken_date
@@ -91,13 +91,14 @@ def add_common_variables(dataset, study_start_date, end_date, population):
 
     dataset.all_tests = sgss_covid_all_tests \
         .except_where(sgss_covid_all_tests.specimen_taken_date <= study_start_date) \
-        .except_where(sgss_covid_all_tests.specimen_taken_date >= dataset.pt_end_date) \
+        .except_where(sgss_covid_all_tests.specimen_taken_date >= dataset.pt_end_date - days(covid_to_longcovid_lag)) \
         .count_for_patient()
 
     # covid hospitalisation ------------------------------------------------------------
     covid_hospitalisations = hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_covid)
+    
     all_covid_hosp = covid_hospitalisations \
-        .except_where(covid_hospitalisations.admission_date >= dataset.pt_end_date)
+        .except_where(covid_hospitalisations.admission_date >= dataset.pt_end_date - days(covid_to_longcovid_lag))
 
     dataset.all_covid_hosp = all_covid_hosp \
         .count_for_patient()
@@ -114,7 +115,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     # Any covid identification ------------------------------------------------------------
     primarycare_covid = clinical_events \
         .where(clinical_events.ctv3_code.is_in(codelists.any_primary_care_code)) \
-        .except_where(clinical_events.date >= dataset.pt_end_date)
+        .except_where(clinical_events.date >= dataset.pt_end_date - days(covid_to_longcovid_lag))
 
     dataset.latest_primarycare_covid = primarycare_covid \
         .sort_by(primarycare_covid.date) \
@@ -123,24 +124,16 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     dataset.total_primarycare_covid = primarycare_covid \
         .count_for_patient()
 
-    # vaccine code - get date of first 5 doses ------------------------------------------------------------
-    create_sequential_variables(
-      dataset,
-      "covid_vacc_{n}_adm",
-      num_variables=5,
-      events=clinical_events.where(clinical_events.snomedct_code.is_in(codelists.vac_adm_combine)),
-      column="date"
-    )
+    # Vaccines from the vaccines schema ---------------------------------------------------
 
-    # Vaccines from the vaccines schema
     # only take one record per day to remove duplication
     all_vacc = vaccinations \
-        .where(vaccinations.date < dataset.pt_end_date) \
-        .where(vaccinations.target_disease == "SARS-2 CORONAVIRUS")
+        .where(vaccinations.target_disease == "SARS-2 CORONAVIRUS") \
+        .except_where(vaccinations.date >= dataset.pt_end_date - days(vaccine_to_longcovid_lag))
 
     # this will be replaced with distinct_count_for_patient() once it is developed
     dataset.no_prev_vacc = all_vacc \
-        .sort_by(vaccinations.date) \
+        .sort_by(all_vacc.date) \
         .count_for_patient()
     dataset.date_last_vacc = all_vacc.sort_by(all_vacc.date).last_for_patient().date
     dataset.last_vacc_gap = (dataset.pt_end_date - dataset.date_last_vacc).days

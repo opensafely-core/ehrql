@@ -43,11 +43,15 @@ dataset.define_population(
     & (age>= 18) 
     & (age <=100)
     & (patients.sex.contains("male"))
-    & ((death_date > lc_dx_date) | (death_date is None))
-    & ((lc_cure_date > lc_dx_date) | (lc_cure_date is None))
+    & (death_date.is_after(index_date))
+    & (end_reg_date.is_after(index_date))
+    & (lc_cure_date.is_after(index_date))    
 )
 dataset.age = age
 dataset.sex = patients.sex
 dataset.lc_exp = lc_dx.exists_for_patient().map_values({True: 1, False: 0})
 dataset.index_date = index_date
 dataset.region = registration.practice_nuts1_region_name
+dataset.end_death = death_date
+dataset.end_deregist = end_reg_date
+dataset.end_lc_cure = lc_cure_date

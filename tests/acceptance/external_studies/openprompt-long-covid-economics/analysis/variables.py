@@ -33,22 +33,6 @@ lc_dx = clinical_events.where(clinical_events.snomedct_code.is_in(lc_codelists_c
     .first_for_patient()# had lc dx and dx dates
 # -----
 
-# Functions to extract the earliest date:
-def earliest2(d1, d2):
-    return case(
-        when(d1 <= d2).then(d1),
-        when(d1 > d2).then(d2),
-        when(d1.is_null() if hasattr(d1, "is_null") else False).then(d2),
-        default=d1,
-    )
-def earliest3(d1, d2, d3):
-    return earliest2(d1, earliest2(d2, d3))
-   
-def earliest4(d1, d2, d3, d4):
-    return earliest2(d4, earliest3(d1, d2, d3))
-
-
-
 # Function codes for extracting monthly GP visit
 def add_visits(dataset, from_date, num_months, end_date):
     # Number of GP visits within `num_months` of `from_date`
