@@ -89,7 +89,10 @@ class TPPBackend(BaseBackend):
         """
             SELECT
                 Patient_ID AS patient_id,
-                CAST(ConsultationDate AS date) AS date,
+                CASE
+                    WHEN ConsultationDate = '9999-12-31T00:00:00' THEN NULL
+                    ELSE CAST(ConsultationDate AS date)
+                END AS date,
                 NULL AS snomedct_code,
                 CTV3Code AS ctv3_code,
                 NumericValue AS numeric_value
@@ -97,7 +100,10 @@ class TPPBackend(BaseBackend):
             UNION ALL
             SELECT
                 Patient_ID AS patient_id,
-                CAST(ConsultationDate AS date) AS date,
+                CASE
+                    WHEN ConsultationDate = '9999-12-31T00:00:00' THEN NULL
+                    ELSE CAST(ConsultationDate AS date)
+                END AS date,
                 ConceptId AS snomedct_code,
                 NULL AS ctv3_code,
                 NumericValue AS numeric_value

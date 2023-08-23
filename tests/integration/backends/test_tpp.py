@@ -262,6 +262,12 @@ def test_clinical_events(select_all):
             ConceptId="ijk",
             NumericValue=1.5,
         ),
+        CodedEvent_SNOMED(
+            Patient_ID=1,
+            ConsultationDate="9999-12-31T00:00:00",
+            ConceptId="lmn",
+            NumericValue=None,
+        ),
     )
     assert results == [
         {
@@ -277,6 +283,13 @@ def test_clinical_events(select_all):
             "snomedct_code": "ijk",
             "ctv3_code": None,
             "numeric_value": 1.5,
+        },
+        {
+            "patient_id": 1,
+            "date": None,
+            "snomedct_code": "lmn",
+            "ctv3_code": None,
+            "numeric_value": None,
         },
     ]
 
