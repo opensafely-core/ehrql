@@ -153,7 +153,12 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         # Write results to a temporary table and select them from there. This allows us
         # to use more efficient/robust mechanisms to retrieve the results.
         table_name, schema = self.get_results_table_name_and_schema(
+            # This is a minimally invasive way to disable the persistent results table
+            # in case we want to re-enable it in a hurry. We need the toggle so that
+            # tests can use it to retain coverage.
             self.config.get("TEMP_DATABASE_NAME")
+            if self.config.get("PERSIST_RESULTS_TABLE")
+            else None
         )
         results_table = temporary_table_from_query(
             table_name, results_query, index_col="patient_id", schema=schema

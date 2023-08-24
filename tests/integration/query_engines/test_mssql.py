@@ -42,7 +42,10 @@ def test_get_results_using_temporary_database(mssql_engine, temp_database_name):
 
         results = mssql_engine.extract_qm(
             variable_definitions,
-            config=dict(TEMP_DATABASE_NAME=temp_database_name),
+            config=dict(
+                TEMP_DATABASE_NAME=temp_database_name,
+                PERSIST_RESULTS_TABLE="t",
+            ),
         )
 
         assert results == [
