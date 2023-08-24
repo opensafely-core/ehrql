@@ -140,3 +140,19 @@ def test_read_dataset_validates_categories(test_file):
 
     with pytest.raises(ValidationError, match=errors[test_file.name]):
         read_dataset(test_file, column_specs)
+
+
+def test_dataset_readers_identity(test_file):
+    reader_1 = read_dataset(test_file, TEST_FILE_SPECS)
+    reader_2 = read_dataset(test_file, TEST_FILE_SPECS)
+    reader_3 = read_dataset(test_file, {"i": ColumnSpec(int)})
+    assert reader_1 == reader_2
+    assert hash(reader_1) == hash(reader_2)
+    assert reader_1 != reader_3
+    # Cover the type-mismatch branch
+    assert reader_1 != "foo"
+
+
+def test_dataset_reader_repr(test_file):
+    reader = read_dataset(test_file, TEST_FILE_SPECS)
+    assert repr(test_file) in repr(reader)

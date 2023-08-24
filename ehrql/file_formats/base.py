@@ -35,6 +35,24 @@ class BaseDatasetReader:
     def __exit__(self, *exc_args):
         self.close()
 
+    def __eq__(self, other):
+        if other.__class__ is self.__class__:
+            return (
+                self.filename == other.filename
+                and self.column_specs == other.column_specs
+            )
+        return NotImplemented
+
+    def __hash__(self):
+        # The hash doesn't need to be unique, just cheap to compute and reasonably well
+        # distributed across objects. In the event that we have a very large number of
+        # DatasetReader objects with the same file path and different columns our dicts
+        # may underperform: I think we can live with this risk.
+        return hash(self.filename)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.filename!r}, {self.column_specs!r})"
+
 
 def validate_columns(columns, required_columns):
     missing = [c for c in required_columns if c not in columns]
