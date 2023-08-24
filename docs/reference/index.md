@@ -1,4 +1,4 @@
-The [reference](reference/index.md) provides theoretical knowledge for working with ehrQL in your project.
+The reference provides theoretical knowledge for working with ehrQL in your project.
 
 * [ehrQL language](reference/language.md)
 * [ehrQL language features](reference/features.md)

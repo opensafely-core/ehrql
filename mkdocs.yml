@@ -13,7 +13,6 @@ docs_dir: docs
 nav:
   - ehrQL: index.md
   - Introduction:
-    - Using this documentation: introduction/using-this-documentation.md
     - Guidance for existing cohort-extractor users: introduction/guidance-for-existing-cohort-extractor-users.md
     - Introduction to ehrQL concepts: introduction/introduction-to-concepts.md
   - Tutorial:
