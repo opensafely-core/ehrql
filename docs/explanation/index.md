@@ -1,4 +1,4 @@
-The [explanation](explanation/index.md) provides theoretical knowledge for studying ehrQL.
+The explanation provides theoretical knowledge for studying ehrQL.
 
 * [ehrQL backend tables](explanation/backend-tables.md)
 * [ehrQL output formats](explanation/output-formats.md)
