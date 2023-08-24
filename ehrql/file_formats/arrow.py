@@ -3,8 +3,7 @@ from itertools import islice
 
 import pyarrow
 
-from ehrql.file_formats.base import BaseDatasetReader
-from ehrql.file_formats.validation import ValidationError, validate_columns
+from ehrql.file_formats.base import BaseDatasetReader, ValidationError, validate_columns
 
 
 PYARROW_TYPE_MAP = {

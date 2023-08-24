@@ -1,4 +1,5 @@
-from ehrql.file_formats.validation import ValidationError
+class ValidationError(Exception):
+    pass
 
 
 class BaseDatasetReader:
@@ -33,3 +34,9 @@ class BaseDatasetReader:
 
     def __exit__(self, *exc_args):
         self.close()
+
+
+def validate_columns(columns, required_columns):
+    missing = [c for c in required_columns if c not in columns]
+    if missing:
+        raise ValidationError(f"Missing columns: {', '.join(missing)}")
