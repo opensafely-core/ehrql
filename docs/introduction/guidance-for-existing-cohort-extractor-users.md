@@ -37,4 +37,3 @@ the content here may be less relevant for you.
 ## How do I replicate a certain data query pattern from cohort-extractor in ehrQL, or migrate my study definition to a dataset definition?
 
 * For now, consult the [ehrQL examples](../how-to/examples.md) which may cover what you want to do.
-* You can also [ask us for help](getting-help.md).
