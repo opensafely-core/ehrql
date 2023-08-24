@@ -6,6 +6,7 @@ from ehrql.file_formats.arrow import (
 )
 from ehrql.file_formats.csv import (
     CSVDatasetReader,
+    CSVGZDatasetReader,
     write_dataset_csv,
     write_dataset_csv_gz,
 )
@@ -14,8 +15,8 @@ from ehrql.file_formats.validation import ValidationError
 
 FILE_FORMATS = {
     ".arrow": (write_dataset_arrow, ArrowDatasetReader),
-    ".csv": (write_dataset_csv, CSVDatasetReader.from_csv),
-    ".csv.gz": (write_dataset_csv_gz, CSVDatasetReader.from_csv_gz),
+    ".csv": (write_dataset_csv, CSVDatasetReader),
+    ".csv.gz": (write_dataset_csv_gz, CSVGZDatasetReader),
 }
 
 
