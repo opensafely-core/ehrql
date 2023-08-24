@@ -86,4 +86,4 @@ For example, it may generate the following dummy dataset:
 Whilst cohort-extractor will be supported for projects created before June 2023,
 new projects should use ehrQL.
 For more information,
-read the [guidance for existing cohort-extractor users](introduction/guidance-for-existing-cohort-extractor-users.md).
+read the [guidance for existing cohort-extractor users](explanation/guidance-for-existing-cohort-extractor-users.md).
