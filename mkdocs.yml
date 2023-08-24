@@ -14,7 +14,6 @@ nav:
   - ehrQL: index.md
   - Introduction:
     - Guidance for existing cohort-extractor users: introduction/guidance-for-existing-cohort-extractor-users.md
-    - Introduction to ehrQL concepts: introduction/introduction-to-concepts.md
   - Tutorial:
     - Tutorial: tutorial/index.md
     - Installation and setup of ehrQL: tutorial/installation-and-setup.md
