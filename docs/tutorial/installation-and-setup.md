@@ -5,8 +5,6 @@ This page guides you through:
 * downloading a directory of dummy data that we will use
   for demonstrations in the rest of the documentation.
 
-It assumes that you have already read the short [Introduction to ehrQL concepts](../introduction/introduction-to-concepts.md).
-
 ## Working with ehrQL
 
 ### ehrQL is run via a command-line interface
@@ -117,10 +115,6 @@ Did you see something similar?
 :heavy_check_mark: If you see the help text as above,
 then everything is set up correctly.
 You can continue with the rest of this tutorial.
-
-:x: If you do not see similar help text to above or you get an error,
-please [contact us](../introduction/getting-help.md)
-and we can help you get started.
 
 ## Downloading some dummy data
 

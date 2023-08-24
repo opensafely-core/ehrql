@@ -1,6 +1,6 @@
 *ehrQL* (*err-kul*), the **Electronic Health Records Query Language**,
 is a programming language and command line interface designed for the specific application domain of EHR data.
-Researchers create **dataset definitions** with the programming language
+Researchers write **dataset definitions** with the programming language
 and execute them with the command line interface to generate **one row per patient datasets**.
 
 ehrQL allows researchers to access data sources from primary and secondary care,
@@ -37,14 +37,53 @@ You can navigate between them by:
 ## Asking for help
 
 If need help with ehrQL or ehrQL's documentation,
-then ask for help on the
+then please ask for help on the
 [#ehrql-support](https://bennettoxford.slack.com/archives/C04DVD1UQC9)
 Slack channel.
-(If you're unsure how to join, then ask your co-pilot.)
+(If you're unsure how to join, then please ask your co-pilot.)
+
+## Example
+
+The following dataset definition is written in ehrQL:
+
+```python
+from ehrql import Dataset
+from ehrql.tables.beta.core import patients, medications
+
+dataset = Dataset()
+
+dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
+
+asthma_codes = ["39113311000001107", "39113611000001102"]
+latest_asthma_med = (
+    medications.where(medications.dmd_code.is_in(asthma_codes))
+    .sort_by(medications.date)
+    .last_for_patient()
+)
+
+dataset.med_date = latest_asthma_med.date
+dataset.med_code = latest_asthma_med.dmd_code
+```
+
+Notice that the dataset will be restricted to the population of patients born on or before 31st December 1999.
+It will contain two columns: `med_date` and `med_code`.
+`med_date` is the date, and `med_code` is the code, of the latest (most recent) asthma medication.
+Asthma medications will be restricted to those with the dm+d codes `39113311000001107` and `39113611000001102`.
+
+When the dataset definition is executed with the command line interface,
+the command line interface generates a one row per patient dataset.
+For example, it may generate the following dummy dataset:
+
+| `patient_id` | `med_date` | `med_code`        |
+|--------------|------------|-------------------|
+| 1            | 2018-09-21 | 39113311000001107 |
+| 2            | 2014-01-11 | 39113611000001102 |
+| 4            | 2017-05-11 | 39113611000001102 |
+| 5            |            |                   |
 
 ## ehrQL replaces cohort-extractor
 
 Whilst cohort-extractor will be supported for projects created before June 2023,
 new projects should use ehrQL.
 For more information,
-read the [guidance for existing cohort-extractor users](introduction/guidance-for-existing-cohort-extractor-users.md).
+please read the [guidance for existing cohort-extractor users](explanation/guidance-for-existing-cohort-extractor-users.md).
