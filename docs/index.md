@@ -8,12 +8,6 @@ as well as from organisations such as the Office for National Statistics (ONS).
 
 ## ehrQL's documentation
 
-We suggest that you first read through the introduction section in order,
-starting with ["Using this documentation"](introduction/using-this-documentation.md)
-
-The introduction will give you more information about ehrQL
-and this documentation.
-
 ehrQL's documentation has four main sections:
 
 1. The [tutorial](tutorial/index.md) provides practical steps for studying ehrQL.
@@ -23,6 +17,22 @@ ehrQL's documentation has four main sections:
 1. The [reference](reference/index.md) provides theoretical knowledge for working with ehrQL in your project.
 
 1. The [explanation](explanation/index.md) provides theoretical knowledge for studying ehrQL.
+
+### Conventions
+
+* :computer: steps you should follow on the computer you are using for studying or working with ehrQL
+* :notepad_spiral: explanatory information
+* :warning: important information
+* :grey_question: questions for you to think about
+
+### Navigation
+
+The four main sections are written to be read in order.
+You can navigate between them by:
+
+* pressing the ++n++ or ++period++ keys to go to the next page, and the ++p++ or ++comma++ keys to go to the previous page;
+* using the *Previous* and *Next* links in the page footer;
+* referring to the navigation pane to the left of the page and clicking a link.
 
 ## ehrQL replaces cohort-extractor
 
