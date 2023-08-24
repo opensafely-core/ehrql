@@ -37,10 +37,10 @@ You can navigate between them by:
 ## Asking for help
 
 If need help with ehrQL or ehrQL's documentation,
-then ask for help on the
+then please ask for help on the
 [#ehrql-support](https://bennettoxford.slack.com/archives/C04DVD1UQC9)
 Slack channel.
-(If you're unsure how to join, then ask your co-pilot.)
+(If you're unsure how to join, then please ask your co-pilot.)
 
 ## Example
 
@@ -86,4 +86,4 @@ For example, it may generate the following dummy dataset:
 Whilst cohort-extractor will be supported for projects created before June 2023,
 new projects should use ehrQL.
 For more information,
-read the [guidance for existing cohort-extractor users](explanation/guidance-for-existing-cohort-extractor-users.md).
+please read the [guidance for existing cohort-extractor users](explanation/guidance-for-existing-cohort-extractor-users.md).
