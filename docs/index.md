@@ -34,6 +34,21 @@ You can navigate between them by:
 * using the *Previous* and *Next* links in the page footer;
 * referring to the navigation pane to the left of the page and clicking a link.
 
+## Getting help
+
+If you are confused or stuck, muddled, addled, befuddled or bemused,
+and cannot easily find what you are looking for in this documentation, then:
+
+1. don't worry
+2. _please ask for help!_
+
+For now, you should ask for help in the `#ehrql-support` channel in Slack.
+Ask your co-pilot if you're unsure how to join.
+
+And in particular,
+if you see a strange error message that's not documented in [our catalogue of common errors](../how-to/errors.md),
+let us know.
+
 ## ehrQL replaces cohort-extractor
 
 Whilst cohort-extractor will be supported for projects created before June 2023,
