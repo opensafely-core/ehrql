@@ -15,7 +15,6 @@ from ehrql.query_model.nodes import (
     Frame,
     Function,
     InlinePatientTable,
-    IterWrapper,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -73,6 +72,15 @@ def queries():
     )
     q.had_anaphylaxis = AggregateByPatient.Exists(q.anaphylaxis_co_occurance)
 
+    inline_table = InlinePatientTable(
+        rows=(
+            (1, 100),
+            (2, 200),
+        ),
+        schema=TableSchema(i=Column(int)),
+    )
+    q.inline_value = SelectColumn(inline_table, "i")
+
     return q
 
 
@@ -85,6 +93,7 @@ def test_queries_have_expected_types(queries):
     assert isinstance(queries.vaccination_days_set, Series)
     assert isinstance(queries.anaphylaxis_co_occurance, Frame)
     assert isinstance(queries.had_anaphylaxis, Series)
+    assert isinstance(queries.inline_value, Series)
 
 
 def test_queries_have_expected_dimension(queries):
@@ -96,6 +105,7 @@ def test_queries_have_expected_dimension(queries):
     assert has_one_row_per_patient(queries.vaccination_days_set)
     assert not has_one_row_per_patient(queries.anaphylaxis_co_occurance)
     assert has_one_row_per_patient(queries.had_anaphylaxis)
+    assert has_one_row_per_patient(queries.inline_value)
 
 
 def test_series_contain_expected_types(queries):
@@ -105,6 +115,7 @@ def test_series_contain_expected_types(queries):
     assert get_series_type(queries.vaccination_days) == datetime.date
     assert get_series_type(queries.vaccination_days_set) == Set[datetime.date]
     assert get_series_type(queries.had_anaphylaxis) == bool
+    assert get_series_type(queries.inline_value) == int
 
 
 def test_queries_are_hashable(queries):
@@ -125,42 +136,40 @@ def test_query_reprs_round_trip(queries):
         assert eval(repr(query)) == query
 
 
-def test_inline_patient_table():
-    # Because the `rows` attribute uses the `IterWrapper` class we can't test
-    # `InlinePatientTable` in quite the same way as the other nodes above: by design,
-    # instances of `IterWrapper` only compare equal if they're the very same object.
-    inline_table = InlinePatientTable(
-        rows=IterWrapper(
-            [
-                (1, 100),
-                (2, 200),
-            ]
-        ),
+def test_inline_patient_table_accepts_arbitrary_iterables():
+    class MyIter:
+        def __iter__(self):
+            raise NotImplementedError()
+
+    assert InlinePatientTable(
+        rows=MyIter(),
         schema=TableSchema(i=Column(int)),
     )
-    # Check that the table node is still hashable even though the iterable hidden by the
-    # `IterWrapper` is mutable
-    assert hash(inline_table)
-
-    # Check that the repr still round-trips. To do this we have to compare the
-    # _contents_ of the iterables, rather than the identity of the wrappers.
-    round_tripped = eval(repr(inline_table))
-    assert list(round_tripped.rows) == list(inline_table.rows)
-    assert round_tripped.schema == inline_table.schema
-
-    # Check that `get_series_type` knows how to get the schema from an
-    # `InlinePatientTable`
-    i = SelectColumn(inline_table, "i")
-    assert get_series_type(i) == int
 
 
-def test_iterwrapper_rejects_iterators():
-    rows = [(1, 2), (3, 4)]
-    # IterWrapper accepts an iterable
-    assert IterWrapper(rows)
-    with pytest.raises(AssertionError):
-        # But rejects an iterator
-        IterWrapper(iter(rows))
+@pytest.mark.parametrize(
+    "rows,error",
+    [
+        (
+            object(),
+            "must be iterable",
+        ),
+        (
+            iter(((1, 2), (3, 4))),
+            "must not be an iterator",
+        ),
+        (
+            [(1, 2), (3, 4)],
+            "must be hashable",
+        ),
+    ],
+)
+def test_inline_patient_table_rejects_invalid_types(rows, error):
+    with pytest.raises(TypeError, match=error):
+        InlinePatientTable(
+            rows=rows,
+            schema=TableSchema(i=Column(int)),
+        )
 
 
 # TEST DOMAIN VALIDATION

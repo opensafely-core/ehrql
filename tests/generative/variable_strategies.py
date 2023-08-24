@@ -10,7 +10,6 @@ from ehrql.query_model.nodes import (
     Filter,
     Function,
     InlinePatientTable,
-    IterWrapper,
     PickOneRowPerPatient,
     Position,
     SelectColumn,
@@ -491,14 +490,14 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     @st.composite
     def inline_patient_table(draw):
         patient_ids = draw(st.lists(st.integers(1, 10), unique=True))
-        rows = [
+        rows = tuple(
             (
                 patient_id,
                 *[draw(value_strategies[type_]) for name, type_ in schema.column_types],
             )
             for patient_id in patient_ids
-        ]
-        return InlinePatientTable(rows=IterWrapper(rows), schema=schema)
+        )
+        return InlinePatientTable(rows=rows, schema=schema)
 
     @st.composite
     def filter_(draw, source):

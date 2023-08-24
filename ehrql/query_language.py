@@ -1167,7 +1167,7 @@ def table_from_rows(rows):
         if cls.__bases__ != (PatientFrame,):
             raise SchemaError("`@table_from_rows` can only be used with `PatientFrame`")
         qm_node = qm.InlinePatientTable(
-            rows=qm.IterWrapper(rows),
+            rows=tuple(rows),
             schema=get_table_schema_from_class(cls),
         )
         return cls(qm_node)
@@ -1193,7 +1193,7 @@ def table_from_file(path):
         rows = read_dataset(path, column_specs)
 
         qm_node = qm.InlinePatientTable(
-            rows=qm.IterWrapper(rows),
+            rows=rows,
             schema=get_table_schema_from_class(cls),
         )
         return cls(qm_node)
