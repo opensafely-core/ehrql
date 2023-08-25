@@ -36,9 +36,6 @@ Before that, we need to explain four important related types of object.
 
 The explanations that follow make use of the [ehrQL sandbox](running-ehrql.md#sandbox-mode).
 
-:notepad_spiral: You need to have already followed the steps in the [Installation and setup](installation-and-setup.md) page
-to have the `opensafely` command installed and the example dummy data downloaded.
-
 You can follow along by starting the sandbox:
 
 ```

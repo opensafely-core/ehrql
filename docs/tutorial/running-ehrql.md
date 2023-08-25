@@ -27,10 +27,6 @@ The ehrQL sandbox can be useful to:
 The ehrQL sandbox can help minimise constant re-editing and re-running of your dataset definitions
 by allowing you to interactively query some dummy data.
 
-You need to have a directory containing CSV files of dummy data.
-If you followed the steps in [Installation and setup](installation-and-setup.md),
-you will have a suitable directory of CSV files at `learning-ehrql/example-data`.
-
 :computer:
 To start the sandbox, from the `learning-ehrql` directory, run:
 
@@ -95,9 +91,6 @@ patient_id        | row_id            | date              | dmd_code
 7                 | 8                 | 2021-01-27        | 3484711000001105
 9                 | 9                 | 2015-03-14        | 3484711000001105
 ```
-
-:warning: If you see an error when trying to access these tables,
-check that you have the [dummy data files in the correct location](installation-and-setup.md#check-all-the-files-are-in-the-correct-place).
 
 And you can enter ehrQL to perform queries, such as this one:
 
