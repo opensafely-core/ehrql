@@ -8,6 +8,12 @@ class Containers:
     def __init__(self):
         self._docker = docker.from_env()
 
+    def get_engine_version(self):  # pragma: no cover
+        versions = self._docker.version()
+        engine_details = [c for c in versions["Components"] if c["Name"] == "Engine"]
+        assert len(engine_details) == 1
+        return engine_details[0]["Version"]
+
     def get_container(self, name):
         return self._docker.containers.get(name)
 
