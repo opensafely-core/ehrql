@@ -23,11 +23,11 @@ nav:
     - Resolving ehrQL errors: how-to/errors.md
   - Reference:
     - Reference: reference/index.md
-    - ehrQL language: reference/language.md
-    - ehrQL language features: reference/features.md
-    - ehrQL backends: reference/backends.md
-    - ehrQL schemas: reference/schemas.md
-    - ehrQL command line interface: reference/cli.md
+    - Language reference: reference/language.md
+    - Language features: reference/features.md
+    - Backends: reference/backends.md
+    - Table schemas: reference/schemas.md
+    - Command line interface: reference/cli.md
   - Explanation:
     - Explanation: explanation/index.md
     - ehrQL backend tables: explanation/backend-tables.md

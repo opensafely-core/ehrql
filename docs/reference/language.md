@@ -1,6 +1,3 @@
-# ehrQL language reference
-
-
 ## Frames
 
 Frames are the starting point for building any query in ehrQL. You can

@@ -1,5 +1,3 @@
-# Backends
-
 Dataset definitions written in ehrQL can be run inside different secure
 environments, managed by different providers of EHR data.
 
