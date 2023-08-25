@@ -3,7 +3,7 @@ from itertools import islice
 
 import pyarrow
 
-from ehrql.file_formats.validation import ValidationError, validate_columns
+from ehrql.file_formats.base import BaseDatasetReader, ValidationError, validate_columns
 
 
 PYARROW_TYPE_MAP = {
@@ -175,24 +175,17 @@ def batch_and_transpose(iterable, batch_size):
     return iter(next_transposed_batch, [])
 
 
-class ArrowDatasetReader:
-    def __init__(self, filename, column_specs):
-        self.fileobj = pyarrow.memory_map(str(filename), "rb")
+class ArrowDatasetReader(BaseDatasetReader):
+    def _open(self):
+        self.fileobj = pyarrow.memory_map(str(self.filename), "rb")
         self.reader = pyarrow.ipc.open_file(self.fileobj)
-        self.column_specs = column_specs
-        self.columns = list(column_specs.keys())
-        try:
-            self._validate_basic()
-        except ValidationError:
-            self.close()
-            raise
 
     def _validate_basic(self):
         # Arrow enforces that all record batches have a consistent schema and that any
         # categorical columns use the same dictionary, so we only need to get the first
         # batch in order to validate
         batch = self.reader.get_record_batch(0)
-        validate_columns(batch.schema.names, self.columns)
+        validate_columns(batch.schema.names, self.column_specs)
         errors = []
         for name, spec in self.column_specs.items():
             column = batch.column(name)
@@ -224,16 +217,12 @@ class ArrowDatasetReader:
         for i in range(self.reader.num_record_batches):
             batch = self.reader.get_record_batch(i)
             # Use `zip(*...)` to transpose from column-wise to row-wise
-            yield from zip(*(batch.column(name).to_pylist() for name in self.columns))
+            yield from zip(
+                *(batch.column(name).to_pylist() for name in self.column_specs)
+            )
 
     def close(self):
         # `self.reader` does not need closing: it acts as a contextmanager, but its exit
         # method is a no-op, see:
         # https://github.com/apache/arrow/blob/1706b095/python/pyarrow/ipc.pxi#L1032-L1036
         self.fileobj.close()
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc_args):
-        self.close()

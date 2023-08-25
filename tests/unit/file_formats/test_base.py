@@ -1,6 +1,6 @@
 import pytest
 
-from ehrql.file_formats.validation import ValidationError, validate_columns
+from ehrql.file_formats.base import ValidationError, validate_columns
 
 
 def test_validate_columns():

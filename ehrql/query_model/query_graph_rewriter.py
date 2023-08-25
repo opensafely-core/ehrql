@@ -32,6 +32,11 @@ class QueryGraphRewriter:
             # explicitly we don't have to exhaustively list the types of object a Value
             # can contain.
             return obj
+        elif isinstance(obj, qm.InlinePatientTable):
+            # InlinePatientTables are similar to Values in that they're wrappers around
+            # static data supplied by the user and we likewise don't want to recurse
+            # into these
+            return obj
         elif isinstance(obj, qm.Node):
             # This is where most the work gets done
             return self._rewrite_node_with_cache(obj, replacements)
@@ -44,9 +49,7 @@ class QueryGraphRewriter:
         elif isinstance(obj, frozenset | tuple):
             # As do frozensets and tuples
             return obj.__class__(self._rewrite(v, replacements) for v in obj)
-        elif isinstance(
-            obj, NoneType | str | qm.Position | qm.TableSchema | qm.IterWrapper
-        ):
+        elif isinstance(obj, NoneType | str | qm.Position | qm.TableSchema):
             # Other expected types we return unchanged
             return obj
         else:

@@ -4,7 +4,7 @@ import gzip
 import sys
 from contextlib import nullcontext
 
-from ehrql.file_formats.validation import ValidationError, validate_columns
+from ehrql.file_formats.base import BaseDatasetReader, ValidationError, validate_columns
 
 
 def write_dataset_csv(filename, results, column_specs):
@@ -58,23 +58,11 @@ def format_bool(value):
     return "T" if value else "F"
 
 
-class CSVDatasetReader:
-    @classmethod
-    def from_csv(cls, filename, column_specs):
-        return cls(open(filename, newline=""), column_specs)
-
-    @classmethod
-    def from_csv_gz(cls, filename, column_specs):
-        return cls(gzip.open(filename, "rt", newline=""), column_specs)
-
-    def __init__(self, fileobj, column_specs):
-        self.fileobj = fileobj
-        self.column_specs = column_specs
-        try:
-            self._validate_basic()
-        except ValidationError:
-            self.close()
-            raise
+class CSVStreamDatasetReader(BaseDatasetReader):
+    def _open(self):
+        # Support supplying the file object directly as the first argument for testing
+        # purposes
+        self.fileobj = self.filename
 
     def _validate_basic(self):
         # CSV being what it is we can't properly validate the types it contains without
@@ -98,11 +86,15 @@ class CSVDatasetReader:
     def close(self):
         self.fileobj.close()
 
-    def __enter__(self):
-        return self
 
-    def __exit__(self, *exc_args):
-        self.close()
+class CSVDatasetReader(CSVStreamDatasetReader):
+    def _open(self):
+        self.fileobj = open(self.filename, newline="")
+
+
+class CSVGZDatasetReader(CSVStreamDatasetReader):
+    def _open(self):
+        self.fileobj = gzip.open(self.filename, "rt", newline="")
 
 
 def create_row_parser(headers, column_specs):

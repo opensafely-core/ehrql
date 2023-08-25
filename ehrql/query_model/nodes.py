@@ -69,31 +69,6 @@ class Position(Enum):
         return f"{self.__class__.__name__}.{self.name}"
 
 
-# For the `InlinePatientTable` node we want to be able to supply an arbitrary iterable
-# of rows. By default the query model's type checking code tries to "reach inside" any
-# value it sees to determine the types and will then complain that it doesn't know what
-# to do with the iterable its been given. The below provides an opaque wrapper around an
-# iterable of tuples which prevents the query model attempting to reach in any further.
-class IterWrapper(Iterable):
-    def __init__(self, iterable: Iterable[tuple]):
-        # Ensure the wrapped object is iterable (i.e. has an `__iter__` method) but is
-        # not an iterator (i.e. has a `__next___` method). It's important that we're
-        # able to iterate over the object multiple times without consuming it.
-        assert isinstance(iterable, Iterable) and not isinstance(iterable, Iterator)
-        self.iterable = iterable
-
-    def __iter__(self):
-        return iter(self.iterable)
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self.iterable!r})"
-
-
-@get_typespec.register(IterWrapper)
-def get_typespec_for_iter_wrapper(_):
-    return IterWrapper[tuple]
-
-
 # BASIC QUERY MODEL TYPES
 #
 # The Query Model consists of operations on "frames" and "series". A frame is a table-like
@@ -204,12 +179,25 @@ class SelectPatientTable(OneRowPerPatientFrame):
 
 
 class InlinePatientTable(OneRowPerPatientFrame):
-    # Row tuples specify the data for the table in the form:
+    # `rows` is an iterable of tuples specifing the data for the table in the form:
     #
     #     (patient_id, column_1_in_schema, column_2_in_schema, ...)
     #
-    rows: Iterable[tuple]
+    # As far as I can tell, Python's type system is incapable of specifying the type we
+    # want here, which is: iterable but not an iterator. So we opt of typing here and
+    # enforce the types in the post_init method.
+    rows: Any
     schema: TableSchema
+
+    def __post_init__(self):
+        super().__post_init__()
+        # Ensure the wrapped object is iterable (i.e. has an `__iter__` method) but is
+        # not an iterator (i.e. has a `__next___` method). It's important that we're
+        # able to iterate over the object multiple times without consuming it.
+        if not isinstance(self.rows, Iterable):
+            raise TypeError(f"{self.__class__.__name__}.rows must be iterable")
+        if isinstance(self.rows, Iterator):
+            raise TypeError(f"{self.__class__.__name__}.rows must not be an iterator")
 
 
 class SelectColumn(Series):

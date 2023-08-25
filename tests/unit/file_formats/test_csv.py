@@ -4,7 +4,7 @@ from io import StringIO
 import pytest
 
 from ehrql.file_formats.csv import (
-    CSVDatasetReader,
+    CSVStreamDatasetReader,
     ValidationError,
     create_column_parser,
     write_dataset_csv_lines,
@@ -91,10 +91,10 @@ def test_read_dataset_csv_lines(csv, error):
     csv_file = StringIO(csv)
 
     if error is None:
-        CSVDatasetReader(csv_file, specs).close()
+        CSVStreamDatasetReader(csv_file, specs).close()
     else:
         with pytest.raises(ValidationError, match=error):
-            CSVDatasetReader(csv_file, specs)
+            CSVStreamDatasetReader(csv_file, specs)
 
 
 @pytest.mark.parametrize(
