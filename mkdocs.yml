@@ -16,8 +16,8 @@ nav:
     - Tutorial: tutorial/index.md
     - Installing ehrQL: tutorial/installing-ehrql.md
     - Generating dummy input data: tutorial/generating-dummy-input-data.md
-    - Running ehrQL: tutorial/running-ehrql.md
     - ehrQL concepts in depth: tutorial/dataset-definition-concepts.md
+    - Running ehrQL: tutorial/running-ehrql.md
   - How-to guides:
     - How-to guides: how-to/index.md
     - Using ehrQL to answer specific questions: how-to/examples.md
