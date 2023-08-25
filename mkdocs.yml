@@ -14,9 +14,11 @@ nav:
   - ehrQL: index.md
   - Tutorial:
     - Tutorial: tutorial/index.md
-    - Installation and setup of ehrQL: tutorial/installation-and-setup.md
+    - Installing ehrQL: tutorial/installing-ehrql.md
+    - Generating dummy input data: tutorial/generating-dummy-input-data.md
+    - Working with frames and series: tutorial/working-with-frames-and-series.md
+    - Writing a dataset definition: tutorial/writing-a-dataset-definition.md
     - Running ehrQL: tutorial/running-ehrql.md
-    - ehrQL concepts in depth: tutorial/dataset-definition-concepts.md
   - How-to guides:
     - How-to guides: how-to/index.md
     - Using ehrQL to answer specific questions: how-to/examples.md
