@@ -83,6 +83,8 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         ctx = current_build_context()
         return ctx.data.depth > MAX_DEPTH
 
+    COMPARABLE_TYPES = [t for t in value_strategies.keys() if t is not bool]
+
     @st.composite
     def series(draw, type_, frame):
         if depth_exceeded():  # pragma: no cover
@@ -99,8 +101,8 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             exists: ({bool}, DomainConstraint.PATIENT),
             count: ({int}, DomainConstraint.PATIENT),
             count_distinct: ({int}, DomainConstraint.PATIENT),
-            min_: (comparable_types(), DomainConstraint.PATIENT),
-            max_: (comparable_types(), DomainConstraint.PATIENT),
+            min_: (COMPARABLE_TYPES, DomainConstraint.PATIENT),
+            max_: (COMPARABLE_TYPES, DomainConstraint.PATIENT),
             sum_: ({int, float}, DomainConstraint.PATIENT),
             mean: ({float}, DomainConstraint.PATIENT),
             is_null: ({bool}, DomainConstraint.ANY),
@@ -135,8 +137,8 @@ def variable(patient_tables, event_tables, schema, value_strategies):
             date_difference_in_months: ({int}, DomainConstraint.ANY),
             date_difference_in_days: ({int}, DomainConstraint.ANY),
             case: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
-            maximum_of: (comparable_types(), DomainConstraint.ANY),
-            minimum_of: (comparable_types(), DomainConstraint.ANY),
+            maximum_of: (COMPARABLE_TYPES, DomainConstraint.ANY),
+            minimum_of: (COMPARABLE_TYPES, DomainConstraint.ANY),
         }
         series_types = series_constraints.keys()
 
@@ -416,11 +418,8 @@ def variable(patient_tables, event_tables, schema, value_strategies):
     def any_numeric_type():
         return st.sampled_from([int, float])
 
-    def comparable_types():
-        return set(value_strategies.keys()) - {bool}
-
     def any_comparable_type():
-        return st.sampled_from(list(comparable_types()))
+        return st.sampled_from(COMPARABLE_TYPES)
 
     # Frame strategies
     #
