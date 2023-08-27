@@ -252,7 +252,10 @@ def run_trino(container_name, containers, trino_port):  # pragma: no cover
     )
     containers.run_bg(
         name=container_name,
-        image="trinodb/trino",
+        # This is the version which happened to be current at the time of writing and is
+        # pinned for reproduciblity's sake rather than because there's anything
+        # significant about it
+        image="trinodb/trino:425",
         volumes={
             TRINO_SETUP_DIR: {"bind": "/trino", "mode": "ro"},
             f"{TRINO_SETUP_DIR}/catalog": {"bind": "/etc/trino/catalog", "mode": "ro"},
