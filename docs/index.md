@@ -36,7 +36,7 @@ You can navigate between them by:
 
 ## Asking for help
 
-If need help with ehrQL or ehrQL's documentation,
+If you need help with ehrQL or ehrQL's documentation,
 then please ask for help on the
 [#ehrql-support](https://bennettoxford.slack.com/archives/C04DVD1UQC9)
 Slack channel.
