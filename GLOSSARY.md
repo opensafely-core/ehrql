@@ -22,7 +22,7 @@ it is a programming language designed for the specific application domain of EHR
 Randomly-generated data used as a substitute for EHR data when generating a dataset from a Dataset Definition.
 
 **ehrQL.**
-The Electronic Health Records Query Language, pronounced *err-kul* (or *Hercule*, as in Poirot, if you're feeling continental).
+The Electronic Health Records Query Language (rhymes with *circle*).
 A Domain-Specific Language (DSL) for EHR data.
 It consists of the classes, methods, and functions that are used in Dataset Definitions.
 
