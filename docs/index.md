@@ -1,7 +1,7 @@
 *ehrQL* (rhymes with *circle*), the **Electronic Health Records Query Language**,
 is a query language and command line interface designed for the specific application domain of EHR data.
 Researchers write **dataset definitions** with the query language
-and execute them with the command line interface to generate **one row per patient datasets**.
+and execute them with the command line interface to generate **datasets with one row per patient**.
 
 ehrQL allows researchers to access data sources from primary and secondary care,
 as well as from organisations such as the Office for National Statistics (ONS).
@@ -71,7 +71,7 @@ It will contain two columns: `med_date` and `med_code`.
 Asthma medications will be restricted to those with the dm+d codes `39113311000001107` and `39113611000001102`.
 
 When the dataset definition is executed with the command line interface,
-the command line interface generates a one row per patient dataset.
+the command line interface generates a dataset with one row per patient.
 For example, it may generate the following dummy dataset:
 
 | `patient_id` | `med_date` | `med_code`        |
