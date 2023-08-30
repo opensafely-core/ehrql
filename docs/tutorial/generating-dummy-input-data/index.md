@@ -1,34 +1,23 @@
-Before running queries against real data in an OpenSAFELY backend,
-you should test your queries against dummy data on your own computer.
+In this section, you will generate dummy **input** data that you will use in later sections.
 
-In the rest of this documentation,
-we will use the same small set of dummy data.
+## Create and open a new folder
 
-:computer: Begin by creating a new directory on your computer and call it `learning-ehrql`.
+From the menu, using **Open Folder**, create and open a new folder called *learning-ehrql*.
 
-:notepad_spiral: Any instructions in the documentation
-that tell you to run a command from the command-line
-will assume that you are in this `learning-ehrql` directory.
-You will need to change directory to that directory before running commands.
+![A screenshot of VS Code, showing the learning-ehrql folder in the explorer](learning_ehrql_folder.png)
 
-:computer: At the command-line, navigate to your `learning-ehrql` directory, and run:
+## Generate dummy input data
+
+In the terminal, type
 
 ```
 opensafely exec ehrql:v0 dump-example-data
 ```
 
-### Check all the files are in the correct place
+and press ++enter++.
 
-:warning: Before continuing to learn more about [running ehrQL](../running-ehrql.md),
-check that you have the following structure for your files:
+Click the *example-data* folder in the explorer.
+Notice that it contains several CSV files.
+Each CSV file contains dummy input data.
 
-```
-learning-ehrql
- └─ example-data
-     ├─ addresses.csv
-     ├─ clinical_events.csv
-     ├─ medications.csv
-     ├─ ons_deaths.csv
-     ├─ patients.csv
-     └─ practice_registrations.csv
-```
+![A screenshot of VS Code, showing the learning-ehrql and example-data folders in the explorer](example_data_folder.png)
