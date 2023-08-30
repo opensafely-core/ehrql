@@ -1,4 +1,4 @@
-The explanations that follow make use of the [ehrQL sandbox](running-ehrql.md#sandbox-mode).
+The explanations that follow make use of the [ehrQL sandbox](../running-ehrql.md#sandbox-mode).
 
 You can follow along by starting the sandbox:
 
@@ -213,7 +213,7 @@ Or we can do this by querying whether an event's date is before/after another da
 ...
 ```
 
-To see all of the available operations for filtering an event frame, see the reference docs [here](../reference/features.md#1-filtering-an-event-frame)
+To see all of the available operations for filtering an event frame, see the reference docs [here](../../reference/features.md#1-filtering-an-event-frame)
 
 #### Extracting dates
 
@@ -241,4 +241,4 @@ And we can perform arithmetic with dates:
 ...
 ```
 
-To see all of the available operations for series containing dates, see the reference docs [here](../reference/features.md#11-operations-on-all-series-containing-dates)
+To see all of the available operations for series containing dates, see the reference docs [here](../../reference/features.md#11-operations-on-all-series-containing-dates)
