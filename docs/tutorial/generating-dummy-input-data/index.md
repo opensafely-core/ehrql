@@ -19,7 +19,7 @@ opensafely exec ehrql:v0 dump-example-data
 
 ### Check all the files are in the correct place
 
-:warning: Before continuing to learn more about [running ehrQL](running-ehrql.md),
+:warning: Before continuing to learn more about [running ehrQL](../running-ehrql.md),
 check that you have the following structure for your files:
 
 ```
