@@ -121,10 +121,10 @@ class Measures:
 
         _intervals_<br>
         A list of start/end date pairs over which to evaluate the measures. These can be
-        most conveniently generated using the `starting_at()`/`ending_at()` methods on
+        most conveniently generated using the `starting_on()`/`ending_on()` methods on
         [`years`](#years), [`months`](#months), and [`weeks`](#weeks) e.g.
         ```py
-        intervals = months(12).starting_at("2020-01-01")
+        intervals = months(12).starting_on("2020-01-01")
         ```
 
         The `numerator`, `denominator` and `intervals` arguments can be omitted if
