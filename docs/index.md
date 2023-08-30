@@ -80,10 +80,3 @@ For example, it may generate the following dummy dataset:
 | 2            | 2014-01-11 | 39113611000001102 |
 | 4            | 2017-05-11 | 39113611000001102 |
 | 5            |            |                   |
-
-## ehrQL replaces cohort-extractor
-
-Whilst cohort-extractor will be supported for projects created before June 2023,
-new projects should use ehrQL.
-For more information,
-please read the [guidance for existing cohort-extractor users](explanation/guidance-for-existing-cohort-extractor-users.md).

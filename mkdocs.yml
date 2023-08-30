@@ -35,7 +35,6 @@ nav:
     - ehrQL backend tables: explanation/backend-tables.md
     - ehrQL output formats: explanation/output-formats.md
     - Using ehrQL in OpenSAFELY projects: explanation/using-ehrql-in-opensafely-projects.md
-    - Guidance for existing cohort-extractor users: explanation/guidance-for-existing-cohort-extractor-users.md
 
 theme:
   name: material
