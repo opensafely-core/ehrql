@@ -18,7 +18,6 @@ nav:
     - Generating dummy input data: tutorial/generating-dummy-input-data/index.md
     - Working with frames and series: tutorial/working-with-frames-and-series/index.md
     - Writing a dataset definition: tutorial/writing-a-dataset-definition/index.md
-    - Running ehrQL: tutorial/running-ehrql.md
   - How-to guides:
     - How-to guides: how-to/index.md
     - Using ehrQL to answer specific questions: how-to/examples.md
@@ -35,6 +34,7 @@ nav:
     - ehrQL backend tables: explanation/backend-tables.md
     - ehrQL output formats: explanation/output-formats.md
     - Using ehrQL in OpenSAFELY projects: explanation/using-ehrql-in-opensafely-projects.md
+    - Running ehrQL: explanation/running-ehrql.md
 
 theme:
   name: material
