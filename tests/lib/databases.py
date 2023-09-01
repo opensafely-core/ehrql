@@ -4,6 +4,7 @@ from pathlib import Path
 
 import sqlalchemy
 import sqlalchemy.exc
+from packaging.version import parse as version_parse
 from requests.exceptions import ConnectionError
 from sqlalchemy.dialects import registry
 from sqlalchemy.orm import sessionmaker
@@ -238,9 +239,23 @@ def make_trino_database(containers):
 
 
 def run_trino(container_name, containers, trino_port):  # pragma: no cover
+    # Note, I don't actually know that this is the minimum required version of Docker
+    # Engine. I do know that 20.10.5 is unsupported (because that's what I had
+    # installed) and that 20.10.16 is supported, according to this comment:
+    # https://github.com/adoptium/containers/issues/214#issuecomment-1139464798 which
+    # was linked from this issue: https://github.com/trinodb/trino/issues/14269
+    min_docker_version = "20.10.16"
+    docker_version = containers.get_engine_version()
+    assert version_parse(docker_version) >= version_parse(min_docker_version), (
+        f"The Trino Docker image requires Docker Engine v{min_docker_version}"
+        f" or above but you have v{docker_version}"
+    )
     containers.run_bg(
         name=container_name,
-        image="trinodb/trino",
+        # This is the version which happened to be current at the time of writing and is
+        # pinned for reproduciblity's sake rather than because there's anything
+        # significant about it
+        image="trinodb/trino:425",
         volumes={
             TRINO_SETUP_DIR: {"bind": "/trino", "mode": "ro"},
             f"{TRINO_SETUP_DIR}/catalog": {"bind": "/etc/trino/catalog", "mode": "ro"},
