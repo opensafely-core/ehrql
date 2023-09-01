@@ -105,7 +105,12 @@ class DbDetails:
 
         self.metadata = metadata
         metadata.create_all(engine)
-        session.bulk_save_objects(input_data)
+        session.bulk_save_objects(
+            input_data,
+            return_defaults=False,
+            update_changed_only=False,
+            preserve_order=False,
+        )
         session.commit()
 
     def teardown(self):
