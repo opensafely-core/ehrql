@@ -42,9 +42,10 @@ then please ask for help on the
 Slack channel.
 (If you're unsure how to join, then please ask your co-pilot.)
 
-## Example
+## A dataset definition
 
-The following dataset definition is written in ehrQL:
+The following dataset definition selects the date and the code of each patient's most recent asthma medication,
+for all patients born on or before 31 December 1999.
 
 ```python
 from ehrql import Dataset
@@ -61,22 +62,21 @@ latest_asthma_med = (
     .last_for_patient()
 )
 
-dataset.med_date = latest_asthma_med.date
-dataset.med_code = latest_asthma_med.dmd_code
+dataset.asthma_med_date = latest_asthma_med.date
+dataset.asthma_med_code = latest_asthma_med.dmd_code
 ```
-
-Notice that the dataset will be restricted to the population of patients born on or before 31st December 1999.
-It will contain two columns: `med_date` and `med_code`.
-`med_date` is the date, and `med_code` is the code, of the latest (most recent) asthma medication.
-Asthma medications will be restricted to those with the dm+d codes `39113311000001107` and `39113611000001102`.
 
 When the dataset definition is executed with the command line interface,
 the command line interface generates a dataset with one row per patient.
 For example, it may generate the following dummy dataset:
 
-| `patient_id` | `med_date` | `med_code`        |
-|--------------|------------|-------------------|
-| 1            | 2018-09-21 | 39113311000001107 |
-| 2            | 2014-01-11 | 39113611000001102 |
-| 4            | 2017-05-11 | 39113611000001102 |
-| 5            |            |                   |
+| patient_id | asthma_med_date |        asthma_med_code |
+| ---------- | --------------- | ---------------------- |
+|          1 |      2023-05-14 | 39113611000001102      |
+|          2 |      2023-05-26 | 39113611000001102      |
+|          3 |      2018-07-23 | 39113311000001107      |
+|          5 |      2004-09-25 | 39113611000001102      |
+|          6 |      2007-04-25 | 39113611000001102      |
+|          7 |      1949-10-18 | 39113311000001107      |
+|          9 |      1966-05-15 | 39113311000001107      |
+|         10 |      1966-03-14 | 39113611000001102      |

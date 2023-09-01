@@ -69,7 +69,7 @@ the names of the table schemas, tables and columns
 have been provided for you.
 
 For example,
-in the [writing a dataset definition](../tutorial/writing-a-dataset-definition.md) section of the tutorial,
+in the [writing a dataset definition](../tutorial/writing-a-dataset-definition/index.md) section of the tutorial,
 we used the interactive ehrQL sandbox with the following statement to start with:
 
 ```python
