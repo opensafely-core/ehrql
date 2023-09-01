@@ -263,7 +263,7 @@ def run_trino(container_name, containers, trino_port):  # pragma: no cover
         image="trinodb/trino:425",
         volumes={
             TRINO_SETUP_DIR: {"bind": "/trino", "mode": "ro"},
-            f"{TRINO_SETUP_DIR}/catalog": {"bind": "/etc/trino/catalog", "mode": "ro"},
+            f"{TRINO_SETUP_DIR}/etc": {"bind": "/etc/trino", "mode": "ro"},
         },
         # Choose an arbitrary free port to publish the trino port on
         ports={trino_port: None},
