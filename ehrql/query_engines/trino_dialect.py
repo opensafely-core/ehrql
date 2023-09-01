@@ -31,3 +31,8 @@ class TrinoDDLCompiler(BaseTrinoDDLCompiler):
 class TrinoDialect(BaseTrinoDialect):
     supports_statement_cache = True
     ddl_compiler = TrinoDDLCompiler
+
+    # Tell SQLAlchemy it can used batched insert options for faster test setup
+    supports_multivalues_insert = True
+    use_insertmanyvalues = True
+    use_insertmanyvalues_wo_returning = True
