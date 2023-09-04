@@ -49,12 +49,14 @@ double-dash ` -- `.
 """
 
 
-if not os.environ.get("PYTHONHASHSEED") == "0":  # pragma: no cover
+if sys.flags.hash_randomization:  # pragma: no cover
     # The kinds of DoS attacks hash seed randomisation is designed to protect against
-    # don't apply to ehrQL, and having consistent output makes debugging much easier
+    # don't apply to ehrQL, and we want consistent set iteration orders so as to keep
+    # tests deterministic and generate stable SQL output.
     warnings.warn(
-        "PYTHONHASHSEED environment variable not set to 0, so generated SQL may not"
-        " exactly match what is generated in production."
+        "Hash randomization is enabled so output may not be consistent with what ehrQL"
+        " generates elsewhere. Set the environment variable `PYTHONHASHSEED=0` before"
+        " Python starts to disable randomization."
     )
 
 
