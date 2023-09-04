@@ -14,7 +14,6 @@ nav:
   - ehrQL: index.md
   - Tutorial:
     - Tutorial: tutorial/index.md
-    - Generating dummy input data: tutorial/generating-dummy-input-data/index.md
     - Setting up: tutorial/setting-up/index.md
     - Working with frames and series: tutorial/working-with-frames-and-series/index.md
     - Writing a dataset definition: tutorial/writing-a-dataset-definition/index.md
