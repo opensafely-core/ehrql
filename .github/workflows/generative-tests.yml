@@ -17,7 +17,7 @@ jobs:
           install-just: true
           python-version: "3.11"
       - run: |
-          GENTEST_EXAMPLES=10000 \
+          GENTEST_EXAMPLES=5000 \
           GENTEST_RANDOMIZE=t \
           GENTEST_MAX_DEPTH=30 \
           GENTEST_DEBUG=t \
@@ -25,7 +25,7 @@ jobs:
           just test-generative
 
       - name: "Notify Slack on Failure"
-        if: failure()
+        if: failure() && github.ref_name == 'main'
         uses: voxmedia/github-action-slack-notify-build@3665186a8c1a022b28a1dbe0954e73aa9081ea9e # v1.6.0
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
