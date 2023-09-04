@@ -83,9 +83,6 @@ add_ignore = [
 [tool.pytest.ini_options]
 addopts = "--tb=native --strict-markers --dist=loadgroup"
 testpaths = ["tests"]
-env = [
-  "PYTHONHASHSEED=0",
-]
 # ignnore dbapi() deprecation warnings for the third party TrinoDialect that we subclass
 filterwarnings = [
     "ignore:.*dbapi.*TrinoDialect.*:sqlalchemy.exc.SADeprecationWarning",
