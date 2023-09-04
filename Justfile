@@ -1,3 +1,6 @@
+# Load environment variables from `.env` file
+set dotenv-load := true
+
 # just has no idiom for setting a default value for an environment variable
 # so we shell out, as we need VIRTUAL_ENV in the justfile environment
 export VIRTUAL_ENV  := `echo ${VIRTUAL_ENV:-.venv}`
@@ -7,11 +10,6 @@ export BIN := VIRTUAL_ENV + "/bin"
 export PIP := BIN + "/python -m pip"
 # enforce our chosen pip compile flags
 export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
-# Disable hash randomisation. The kinds of DoS attacks hash seed randomisation
-# is designed to protect against don't apply to ehrQL, and having consistent
-# output makes debugging much easier
-export PYTHONHASHSEED := "0"
-
 
 alias help := list
 
