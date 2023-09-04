@@ -32,8 +32,3 @@ found 500 that matched the dataset definition;
 and displayed them in the terminal.
 
 ![A screenshot of VS Code, showing the terminal after the `opensafely exec` command was run](opensafely_exec.png)
-
-## Congratulations!
-
-Congratulations!
-You have completed the tutorial.
