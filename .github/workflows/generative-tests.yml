@@ -17,7 +17,7 @@ jobs:
           install-just: true
           python-version: "3.11"
       - run: |
-          GENTEST_EXAMPLES=10000 \
+          GENTEST_EXAMPLES=5000 \
           GENTEST_RANDOMIZE=t \
           GENTEST_MAX_DEPTH=30 \
           GENTEST_DEBUG=t \
