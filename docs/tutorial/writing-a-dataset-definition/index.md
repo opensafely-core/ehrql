@@ -21,9 +21,9 @@ dataset.asthma_med_date = latest_asthma_med.date
 dataset.asthma_med_code = latest_asthma_med.dmd_code
 ```
 
-## Create an empty dataset definition
+## Open the dataset definition
 
-From the menu, using **New File...**, create an empty dataset definition called *dataset_definition.py*.
+1. Click *dataset_definition.py* in the **Explorer** towards the top left of the codespace
 
 ![A screenshot of VS Code, showing an empty dataset definition](empty_dataset_definition.png)
 
@@ -227,4 +227,8 @@ dataset.asthma_med_code = latest_asthma_med.dmd_code
 
 ## Save the dataset definition
 
-From the menu, using **File > Save**, save the dataset definition.
+1. Click the menu icon towards the top left of the codespace
+
+    ![VS Code's menu icon](menu_icon.png){ width=50 }
+
+1. Click **File > Save**
