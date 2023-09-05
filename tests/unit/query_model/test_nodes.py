@@ -465,6 +465,21 @@ def test_any_type_acts_as_an_escape_hatch():
         (1.0, "!=", True),
         (0, "!=", False),
         (0.0, "!=", False),
+        # Test that we're strict about booleans embedded in frozensets
+        (frozenset({True}), "==", frozenset({True})),
+        (frozenset({True}), "!=", frozenset({False})),
+        (frozenset({1}), "!=", frozenset({True})),
+        (frozenset({1.0}), "!=", frozenset({True})),
+        (frozenset({0}), "!=", frozenset({False})),
+        (frozenset({0.0}), "!=", frozenset({False})),
+        (frozenset({True, False}), "==", frozenset({False, True})),
+        # Test the fast path for identical frozensets
+        (example := frozenset({1, 2, 3}), "==", example),
+        # Test the fast path for different sized frozensets
+        (frozenset({1, 2, 3}), "!=", frozenset({1, 2})),
+        # Test the normal path for frozenset equality
+        (frozenset({1, 2, 3}), "==", frozenset({3, 2, 1})),
+        (frozenset({1, 2, 3}), "!=", frozenset({4, 5, 6})),
     ],
 )
 def test_comparisons_between_value_nodes_are_strict(lhs, cmp, rhs):
@@ -478,6 +493,13 @@ def test_comparisons_between_value_nodes_are_strict(lhs, cmp, rhs):
 
 def test_value_nodes_are_not_equal_to_bare_values():
     assert Value(10) != 10
+
+
+def test_value_nodes_reject_unhandled_container_types():
+    with pytest.raises(
+        TypeError, match="does not know how to handle containers of type"
+    ):
+        Value((1, 2, 3))
 
 
 # TEST SORTING

@@ -1,6 +1,6 @@
 import dataclasses
 import typing
-from collections.abc import Iterable, Iterator, Mapping, Set
+from collections.abc import Container, Iterable, Iterator, Mapping, Set
 from datetime import date
 from enum import Enum
 from functools import cache, singledispatch
@@ -150,6 +150,18 @@ class AggregatedSeries(OneRowPerPatientSeries):
 class Value(OneRowPerPatientSeries[T]):
     value: T
 
+    def __post_init__(self):
+        super().__post_init__()
+        # Because we need to be strict about equality (see `__eq__()` below) we can only
+        # accept container types for which we know how to handle equality
+        if isinstance(self.value, Container) and not isinstance(
+            self.value, frozenset | str
+        ):
+            raise TypeError(
+                f"`Value` class does not know how to handle containers of type:"
+                f" {self.value!r}"
+            )
+
     # Python treats certain differently typed values as equal (e.g. `1 == True` and `10
     # == 10.0`) but we need to be stricter about types because some of the databases we
     # run against are strict
@@ -157,8 +169,25 @@ class Value(OneRowPerPatientSeries[T]):
         if other.__class__ is self.__class__:
             if self.value.__class__ is not other.value.__class__:
                 return False
-            return self.value == other.value
+            elif isinstance(self.value, frozenset):
+                return self.__eq__frozenset(self.value, other.value)
+            else:
+                return self.value == other.value
         return NotImplemented
+
+    @staticmethod
+    def __eq__frozenset(value, other_value):
+        # Cheap test for identical objects. I expect this to be hit quite frequently
+        # because the query model transformation process de-duplicates the query model
+        # so equivalent objects get replaced with identical objects.
+        if value is other_value:
+            return True
+        # Cheap test for obviously not equal sets
+        if len(value) != len(other_value):
+            return False
+        value_typed = {(i, type(i)) for i in value}
+        other_typed = {(i, type(i)) for i in other_value}
+        return value_typed == other_typed
 
 
 # `Parameter` is a placeholder for a value: it allows us to construct query "templates"
