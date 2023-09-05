@@ -32,3 +32,16 @@ found 500 that matched the dataset definition;
 and displayed them in the terminal.
 
 ![A screenshot of VS Code, showing the terminal after the `opensafely exec` command was run](opensafely_exec.png)
+
+??? tip "The anatomy of an OpenSAFELY command"
+    What do the parts of the OpenSAFELY command
+    `opensafely exec ehrql:v0 generate-dataset dataset_definition.py`
+    do?
+
+    * `opensafely exec` executes an OpenSAFELY action outside [the project pipeline][1]
+    * `ehrql` is the OpenSAFELY action to execute
+    * `v0` is the major version of the ehrQL action
+    * `generate-dataset` is the ehrQL command to generate a dataset from a dataset definition
+    * `dataset_definition.py` is the dataset definition
+
+[1]: https://docs.opensafely.org/actions-pipelines/
