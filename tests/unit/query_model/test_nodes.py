@@ -453,10 +453,24 @@ def test_any_type_acts_as_an_escape_hatch():
     assert SomeInternalOperation(value=mixed_set)
 
 
-def test_comparisons_between_value_nodes_are_strict():
-    assert Value(10) == Value(10)
-    assert Value(10) != Value(10.0)
-    assert Value(1) != Value(True)
+@pytest.mark.parametrize(
+    "lhs,cmp,rhs",
+    [
+        (10, "==", 10),
+        (10, "!=", 10.0),
+        (1, "!=", True),
+    ],
+)
+def test_comparisons_between_value_nodes_are_strict(lhs, cmp, rhs):
+    if cmp == "==":
+        assert Value(lhs) == Value(rhs)
+    elif cmp == "!=":
+        assert Value(lhs) != Value(rhs)
+    else:
+        assert False
+
+
+def test_value_nodes_are_not_equal_to_bare_values():
     assert Value(10) != 10
 
 
