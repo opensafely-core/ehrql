@@ -457,8 +457,14 @@ def test_any_type_acts_as_an_escape_hatch():
     "lhs,cmp,rhs",
     [
         (10, "==", 10),
+        (10, "!=", 11),
         (10, "!=", 10.0),
+        (True, "==", True),
+        (True, "!=", False),
         (1, "!=", True),
+        (1.0, "!=", True),
+        (0, "!=", False),
+        (0.0, "!=", False),
     ],
 )
 def test_comparisons_between_value_nodes_are_strict(lhs, cmp, rhs):
