@@ -238,12 +238,12 @@ class appointments(EventFrame):
     """
     Appointments in primary care.
 
-    You can find out more about this table in the associated [short data
-    report][appointments_1]. To view it, you will need a login for OpenSAFELY Jobs and
-    the Project Collaborator or Project Developer role for the OpenSAFELY Internal
-    project. The [workspace][appointments_2] shows when the code that comprises the
-    report was run; the code itself is in the
-    [appointments-short-data-report][appointments_3] repository on GitHub.
+    You can find out more about this table in the [short data report][appointments_1].
+    To view it, you will need a login for OpenSAFELY Jobs and the Project Collaborator
+    or Project Developer role for the [project][appointments_4]. The
+    [workspace][appointments_2] shows when the code that comprises the report was run;
+    the code itself is in the [appointments-short-data-report][appointments_3]
+    repository on GitHub.
 
     !!! tip
         Querying this table is similar to using Cohort Extractor's
@@ -263,9 +263,10 @@ class appointments(EventFrame):
         )
         ```
 
-    [appointments_1]: https://jobs.opensafely.org/datalab/opensafely-internal/appointments-short-data-report/outputs/latest/tpp/output/reports/report.html
-    [appointments_2]: https://jobs.opensafely.org/datalab/opensafely-internal/appointments-short-data-report/
+    [appointments_1]: https://jobs.opensafely.org/curation-of-gp-appointments-data-short-data-report/appointments-short-data-report/outputs/latest/tpp/output/reports/report.html
+    [appointments_2]: https://jobs.opensafely.org/curation-of-gp-appointments-data-short-data-report/appointments-short-data-report/
     [appointments_3]: https://github.com/opensafely/appointments-short-data-report
+    [appointments_4]: https://jobs.opensafely.org/curation-of-gp-appointments-data-short-data-report/
     """
 
     booked_date = Series(
