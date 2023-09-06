@@ -1,14 +1,14 @@
 You can run ehrQL in two places:
 
 * on your own computer,
-  where you can try out ehrQL against _dummy data_,
+  where you can try out ehrQL against _dummy tables_,
   and test that your analysis code runs correctly
 * on an OpenSAFELY backend database,
-  to use ehrQL with _real data_
+  to use ehrQL with _real tables_
 
-## Running ehrQL on your own computer against dummy data
+## Running ehrQL on your own computer against dummy tables
 
-There are three ways to run ehrQL on your own computer against dummy data:
+There are three ways to run ehrQL on your own computer against dummy tables:
 
 1. with the sandbox mode, to try out ehrQL in an interactive Python console
 1. as a standalone action, to test your dataset definition, via `opensafely exec`
@@ -16,16 +16,16 @@ There are three ways to run ehrQL on your own computer against dummy data:
 
 ### 1. Running ehrQL interactively via the ehrQL sandbox mode
 
-The ehrQL sandbox lets you try out ehrQL queries against dummy data
+The ehrQL sandbox lets you try out ehrQL queries against dummy tables
 in an interactive Python console.
 
 The ehrQL sandbox can be useful to:
 
 * become familiar with how ehrQL works
-* develop more complicated ehrQL queries against dummy data
+* develop more complicated ehrQL queries against dummy tables
 
 The ehrQL sandbox can help minimise constant re-editing and re-running of your dataset definitions
-by allowing you to interactively query some dummy data.
+by allowing you to interactively query some dummy tables.
 
 :computer:
 To start the sandbox, from the `learning-ehrql` directory, run:
@@ -176,11 +176,11 @@ type `exit()` and then press the return key
 
 ### 2. Running ehrQL as a standalone action via `opensafely exec`
 
-To actually run your ehrQL queries against real patient data,
+To actually run your ehrQL queries against real tables,
 you need to write a dataset definition and save it in a file.
 
 But first, while you are developing an ehrQL query,
-you can run your dataset definition against dummy data
+you can run your dataset definition against dummy tables
 to produce an output file that you can inspect.
 
 :computer: Copy and paste the following dataset definition
@@ -281,7 +281,7 @@ opensafely exec ehrql:v0 generate-dataset dataset_definition.py
 
 By not specifying the dummy tables to use,
 random data is used as the data source to generate the dataset,
-instead of using the sample dummy data that you downloaded previously.
+instead of using the sample dummy tables that you downloaded previously.
 
 By not specifying the output file,
 the output is displayed on screen.

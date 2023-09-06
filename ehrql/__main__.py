@@ -139,9 +139,9 @@ def add_generate_dataset(subparsers, environ, user_args):
             """
         Take a dataset definition file and output a dataset.
 
-        ehrQL is designed so that exactly the same command can be used to output dummy
-        data when run on your own computer and then output real data when run inside the
-        secure environment as part of an OpenSAFELY pipeline.
+        ehrQL is designed so that exactly the same command can be used to output a dummy
+        dataset when run on your own computer and then output a real dataset when run
+        inside the secure environment as part of an OpenSAFELY pipeline.
         """
         ),
         formatter_class=RawTextHelpFormatter,
@@ -180,11 +180,11 @@ def add_dump_dataset_sql(subparsers, environ, user_args):
             definition.
 
             By default, this command will output SQL suitable for the SQLite database.
-            To get the SQL as it would be run against the real data you will to supply
+            To get the SQL as it would be run against the real tables you will to supply
             the appropriate `--backend` argument, for example `--backend tpp`.
 
             Note that due to configuration differences this may not always exactly match
-            what gets run against the real data.
+            what gets run against the real tables.
             """
         ),
         formatter_class=RawTextHelpFormatter,
@@ -208,18 +208,18 @@ def add_create_dummy_tables(subparsers, environ, user_args):
         "create-dummy-tables",
         help=strip_indent(
             """
-            Generate dummy data for a dataset and write out tables as CSV.
+            Generate dummy tables and write them out as CSV files (one per table).
 
-            This generates the same dummy data that `generate-dataset` would, but
-            instead of using this to produce a dataset it writes the underlying data
-            tables out as CSV (one file per table).
+            This command generates the same dummy tables that the `generate-dataset`
+            command would generate, but instead of using them to produce a dummy
+            dataset, it writes them out as CSV files.
 
-            The directory containing these CSV files can then be used as the
+            The directory containing the CSV files can then be used as the
             [`--dummy-tables`](#generate-dataset.dummy-tables) argument to
-            `generate-dataset` to produce the dataset.
+            `generate-dataset` to produce the dummy dataset.
 
             The CSV files can be edited in any way you wish, giving you full control
-            over the dummy data.
+            over the dummy tables.
             """
         ),
         formatter_class=RawTextHelpFormatter,
@@ -388,17 +388,17 @@ def add_dummy_data_file_argument(parser, environ):
         "--dummy-data-file",
         help=strip_indent(
             """
-            Path to a file to use as dummy output data.
+            Path to a dummy dataset.
 
-            This allows you to take complete control of the dummy data produced. ehrQL
+            This allows you to take complete control of the dummy dataset. ehrQL
             will ensure that the column names, types and categorical values match what
-            they will be in the real data, but does no further validation.
+            they will be in the real dataset, but does no further validation.
 
-            Note that the dummy data file doesn't need to be of the same type as the
-            final output file (e.g. you can use a `.csv` file here to produce a `.arrow`
+            Note that the dummy dataset doesn't need to be of the same type as the
+            real dataset (e.g. you can use a `.csv` file here to produce a `.arrow`
             file).
 
-            This argument is ignored when running against real data.
+            This argument is ignored when running against real tables.
             """
         ),
         type=existing_file,
@@ -410,10 +410,10 @@ def add_dummy_tables_argument(parser, environ):
         "--dummy-tables",
         help=strip_indent(
             """
-            Path to directory of CSV files (one per table) to use as dummy data tables
+            Path to directory of CSV files (one per table) to use as dummy tables
             (see [`create-dummy-tables`](#create-dummy-tables)).
 
-            This argument is ignored when running against real data.
+            This argument is ignored when running against real tables.
             """
         ),
         type=existing_directory,
