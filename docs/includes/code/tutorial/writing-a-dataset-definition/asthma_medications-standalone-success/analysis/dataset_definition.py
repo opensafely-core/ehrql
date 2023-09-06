@@ -1,3 +1,4 @@
+# --8<-- [start:dataset_definition]
 from ehrql import Dataset
 from ehrql.tables.beta.core import patients, medications
 
@@ -14,3 +15,4 @@ latest_asthma_med = (
 
 dataset.med_date = latest_asthma_med.date
 dataset.med_code = latest_asthma_med.dmd_code
+# --8<-- [end:dataset_definition]

@@ -48,7 +48,7 @@ The following dataset definition selects the date and the code of each patient's
 for all patients born on or before 31 December 1999.
 
 ```python
---8<-- 'includes/code/tutorial/writing-a-dataset-definition/asthma_medications-standalone-success/analysis/dataset_definition.py'
+--8<-- 'includes/code/tutorial/writing-a-dataset-definition/asthma_medications-standalone-success/analysis/dataset_definition.py:dataset_definition'
 ```
 
 When the dataset definition is executed with the command line interface,
