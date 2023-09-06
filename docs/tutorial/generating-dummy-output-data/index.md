@@ -1,4 +1,4 @@
-In this section, you will generate dummy **output** data.
+In this section, you will generate a dummy dataset.
 
 ## Exit the sandbox
 
@@ -10,7 +10,7 @@ Exit the sandbox and return to the terminal.
 
 ![A screenshot of VS Code, showing the terminal](the_terminal.png)
 
-## Generate dummy output data
+## Generate a dummy dataset
 
 In the terminal, type
 
@@ -20,7 +20,7 @@ opensafely exec ehrql:v0 generate-dataset dataset_definition.py
 
 and press ++enter++.
 
-The terminal will fill with dummy output data in CSV format.
+The terminal will fill with a dummy dataset in CSV format.
 Scroll up to see the column headers;
 notice that two column headers correspond to the two patient series
 — `asthma_med_date` and `asthma_med_code` —

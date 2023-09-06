@@ -113,13 +113,11 @@ The `medications.date` column is an event series; it has many rows per patient.
 9 | 9 | 2015-03-14
 ```
 
-## Transform input data into output data
+## Transform tables into a dataset
 
-ehrQL tables, such as `patients` and `medications`, contain input data.
-As a researcher, your task is to transform them into a dataset.
-A dataset has one row per patient and contains output data.
-
-Let's look at how we might transform input data into output data.
+Your task, as a researcher, is to transform tables
+— such as `patients` and `medications` —
+into a dataset.
 
 ### Transform an event frame into a patient frame
 
