@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
+    dataset.registered_on = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
+    ^^^^^^^^^^^^^^^^^^^^^
+TypeError: Invalid variable 'registered_on'. Dataset variables must be values not whole rows

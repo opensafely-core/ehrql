@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 7, in <module>
+    dataset.age_30 = age.is_in(30)
+                     ^^^^^^^^^^^^^
+ehrql.query_model.nodes.TypeValidationError: In.rhs requires 'ehrql.query_model.nodes.Series[collections.abc.Set[int]]' but got 'ehrql.query_model.nodes.Series[int]'

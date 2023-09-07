@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 7, in <module>
+    dataset.age_group5 = case(
+                         ^^^^^
+ehrql.query_model.nodes.TypeValidationError: Case.default requires 'ehrql.query_model.nodes.Series[int] | None' but got 'ehrql.query_model.nodes.Series[str]'

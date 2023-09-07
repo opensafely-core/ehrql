@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 6, in <module>
+    dataset.define_population(age >= "10")
+                              ^^^^^^^^^^^
+ehrql.query_model.nodes.TypeValidationError: GE.rhs requires 'ehrql.query_model.nodes.Series[int]' but got 'ehrql.query_model.nodes.Series[str]'

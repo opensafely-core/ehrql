@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 9, in <module>
+    dataset.age = age1
+    ^^^^^^^^^^^
+AttributeError: 'age' is already set and cannot be reassigned

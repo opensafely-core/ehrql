@@ -1,0 +1,6 @@
+Failed to import 'analysis/dataset_definition.py':
+
+  File "/workspace/analysis/dataset_definition.py", line 5
+    dataset.age! = patients.age_on("2023-01-01") # age! is an invalid feature name.
+               ^
+SyntaxError: invalid syntax

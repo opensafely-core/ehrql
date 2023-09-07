@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
+    dataset.date_at_age_16 = patients.date_of_birth + 16
+                             ~~~~~~~~~~~~~~~~~~~~~~~^~~~
+TypeError: unsupported operand type(s) for +: 'DatePatientSeries' and 'int'

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 6, in <module>
+    dataset.define_population(16 < age <= 80)
+                              ^^^^^^^^^^^^^^
+TypeError: The keywords 'and', 'or', and 'not' cannot be used with ehrQL, please use the operators '&', '|' and '~' instead.
+(You will also see this error if you try use a chained comparison, such as 'a < b < c'.)

@@ -115,12 +115,7 @@ For example, there is an indentation error in the following dataset definition.
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.age = patients.age_on("2023-01-01")
- dataset.define_population(dataset.age > 16) # This line has incorrect indentation.
+--8<-- 'includes/code/how-to/errors/code_indentation-standalone-failure/analysis/dataset_definition.py'
 ```
 
 Run the dataset definition with:
@@ -131,11 +126,7 @@ opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
 #### Error
 
 ```pytb
-Failed to import 'analysis/dataset_definition.py':
-
-  File "/workspace/analysis/dataset_definition.py", line 6
-    dataset.define_population(dataset.age > 16)
-IndentationError: unexpected indent
+--8<-- 'includes/code/how-to/errors/code_indentation-standalone-failure/output/traceback.txt'
 ```
 
 The error message tells us that there is an indentation error, and also the line that
@@ -144,12 +135,7 @@ the error occurred on.
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.age = patients.age_on("2023-01-01")
-dataset.define_population(dataset.age > 16) # This line now has correct indentation.
+--8<-- 'includes/code/how-to/errors/code_indentation-standalone-failure/analysis/dataset_definition.py'
 ```
 
 ### Forbidden feature names
@@ -160,11 +146,7 @@ For example, a name — `age!` — with a non-alphanumeric character is invalid:
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.age! = patients.age_on("2023-01-01") # age! is an invalid feature name.
+--8<-- 'includes/code/how-to/errors/feature_name-standalone-failure/analysis/dataset_definition.py'
 ```
 
 Run the dataset definition with:
@@ -175,22 +157,13 @@ opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
 #### Error
 
 ```pytb
-Failed to import 'analysis/dataset_definition.py':
-
-  File "/workspace/analysis/dataset_definition.py", line 5
-    dataset.age! = patients.age_on("2023-01-01") # age! is an invalid feature name.
-               ^
-SyntaxError: invalid syntax
+--8<-- 'includes/code/how-to/errors/feature_name-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.age = patients.age_on("2023-01-01") # We have changed the invalid feature name, "age!", to a valid one, "age".
+--8<-- 'includes/code/how-to/errors/feature_name-standalone-success/analysis/dataset_definition.py'
 ```
 
 ## Common ehrQL errors
@@ -203,11 +176,7 @@ rather than Python.
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.age = patients.age_on("2023-01-01")
+--8<-- 'includes/code/how-to/errors/set_population-standalone-failure/analysis/dataset_definition.py'
 ```
 
 Run the dataset definition with:
@@ -217,19 +186,14 @@ opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
 
 #### Error
 
-```
-A population has not been defined; define one with define_population()
+```pytb
+--8<-- 'includes/code/how-to/errors/set_population-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.age = patients.age_on("2023-01-01")
-dataset.define_population(dataset.age > 16) # Here we have now defined a population for the dataset.
+--8<-- 'includes/code/how-to/errors/set_population-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Invalid feature name: `population` is a reserved name
@@ -239,11 +203,7 @@ There are a few constraints on feature names in ehrQL.
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.population = patients.age_on("2023-01-01") > 16
+--8<-- 'includes/code/how-to/errors/population_reserved-standalone-failure/analysis/dataset_definition.py'
 ```
 
 Run the dataset definition with:
@@ -254,11 +214,7 @@ opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 6, in <module>
-    dataset.population = patients.age_on("2023-01-01") > 16
-    ^^^^^^^^^^^^^^^^^^
-AttributeError: Cannot set variable 'population'; use define_population() instead
+--8<-- 'includes/code/how-to/errors/population_reserved-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
@@ -266,21 +222,13 @@ AttributeError: Cannot set variable 'population'; use define_population() instea
 Define population with the `define_population` syntax:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.define_population(patients.age_on("2023-01-01") > 16)
+--8<-- 'includes/code/how-to/errors/population_reserved-standalone-success/analysis/dataset_definition.py'
 ```
 
 Or rename the feature, if it is required as a separate output:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.over_16 = patients.age_on("2023-01-01") > 16
+--8<-- 'includes/code/how-to/errors/population_reserved2-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Invalid feature name: `variables` is a reserved name
@@ -288,12 +236,7 @@ dataset.over_16 = patients.age_on("2023-01-01") > 16
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.variables = patients.age_on("2023-01-01") > 16
-...
+--8<-- 'includes/code/how-to/errors/variables_reserved-standalone-failure/analysis/dataset_definition.py'
 ```
 
 Run the dataset definition with:
@@ -304,23 +247,15 @@ opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
-    dataset.variables = patients.age_on("2023-01-01") > 16
-    ^^^^^^^^^^^^^^^^^
-AttributeError: 'variables' is not an allowed variable name
+--8<-- 'includes/code/how-to/errors/variables_reserved-standalone-failure/output/traceback.txt'
 ```
+
 #### Fixed dataset definition :heavy_check_mark:
 
 Rename the feature to something other than `variables`.
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.age_greater_than_16 = patients.age_on("2023-01-01") > 16
-...
+--8<-- 'includes/code/how-to/errors/variables_reserved-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Invalid feature name: feature names must not start with underscores
@@ -328,13 +263,7 @@ dataset.age_greater_than_16 = patients.age_on("2023-01-01") > 16
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2023-01-01")
-dataset.define_population(age > 16)
-dataset._age = age
+--8<-- 'includes/code/how-to/errors/underscore_name-standalone-failure/analysis/dataset_definition.py'
 ```
 
 Run the dataset definition with:
@@ -345,24 +274,13 @@ opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 7, in <module>
-    dataset._age = age
-    ^^^^^^^^^^^^^
-AttributeError: Variable names must start with a letter, and contain only alphanumeric characters and underscores (you defined a variable '_age')
-
+--8<-- 'includes/code/how-to/errors/underscore_name-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed data definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2023-01-01")
-dataset.define_population(age > 16)
-dataset.age = age # _age feature renamed to remove the leading underscores.
+--8<-- 'includes/code/how-to/errors/underscore_name-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Re-defining a feature
@@ -372,15 +290,7 @@ In the following dataset definition, `dataset.age` is first defined as `age` and
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2000-01-01")
-age1 = patients.age_on("2023-01-01")
-dataset.define_population(age > 16)
-dataset.age = age
-dataset.age = age1
+--8<-- 'includes/code/how-to/errors/feature_redefinition-standalone-failure/analysis/dataset_definition.py'
 ```
 
 Run the dataset definition with:
@@ -391,25 +301,13 @@ opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 9, in <module>
-    dataset.age = age1
-    ^^^^^^^^^^^
-AttributeError: 'age' is already set and cannot be reassigned
+--8<-- 'includes/code/how-to/errors/feature_redefinition-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2000-01-01")
-age1 = patients.age_on("2023-01-01")
-dataset.define_population(age > 16)
-dataset.age = age
-dataset.age1 = age1 # The second age feature now has a unique name on the dataset
+--8<-- 'includes/code/how-to/errors/feature_redefinition-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Undefined features
@@ -420,13 +318,7 @@ defined on its own, but has not been defined when set on the dataset:
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2000-01-01")
-dataset.define_population(age > 16)
-dataset.age
+--8<-- 'includes/code/how-to/errors/undefined_feature-standalone-failure/analysis/dataset_definition.py'
 ```
 
 Run the dataset definition with:
@@ -437,22 +329,13 @@ opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 8, in <module>
-    dataset.age
-AttributeError: Variable 'age' has not been defined
+--8<-- 'includes/code/how-to/errors/undefined_feature-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2000-01-01")
-dataset.define_population(age > 16)
-dataset.age = age # dataset.age is now defined
+--8<-- 'includes/code/how-to/errors/undefined_feature-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Trying to set a feature that has more than one row per patient
@@ -460,11 +343,7 @@ dataset.age = age # dataset.age is now defined
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import practice_registrations
-
-dataset = Dataset()
-dataset.registered_on = practice_registrations.start_date
+--8<-- 'includes/code/how-to/errors/multiple_rows-standalone-failure/analysis/dataset_definition.py'
 ```
 
 The `practice_registrations` table contains multiple rows per patient.
@@ -472,11 +351,7 @@ The `practice_registrations` table contains multiple rows per patient.
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
-    dataset.registered_on = practice_registrations.start_date
-    ^^^^^^^^^^^^^^^^^^^^^
-TypeError: Invalid variable 'registered_on'. Dataset variables must return one row per patient
+--8<-- 'includes/code/how-to/errors/multiple_rows-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
@@ -485,12 +360,7 @@ To return the latest `registered_on` date, first sort the practice registrations
 last registration for each patient, and *then* get the start date.
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import practice_registrations
-
-dataset = Dataset()
-latest_registration_per_patient = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
-dataset.registered_on = latest_registration_per_patient.start_date
+--8<-- 'includes/code/how-to/errors/multiple_rows-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Trying to set a feature to a row rather than a value
@@ -501,21 +371,13 @@ we have not selected a value as the feature:
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import practice_registrations
-
-dataset = Dataset()
-dataset.registered_on = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
+--8<-- 'includes/code/how-to/errors/feature_value-standalone-failure/analysis/dataset_definition.py'
 ```
 
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
-    dataset.registered_on = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
-    ^^^^^^^^^^^^^^^^^^^^^
-TypeError: Invalid variable 'registered_on'. Dataset variables must be values not whole rows
+--8<-- 'includes/code/how-to/errors/feature_value-standalone-failure/output/traceback.txt'
 ```
 
 Fix the dataset definition by setting the feature to a single value, in this case, `start_date`.
@@ -523,12 +385,7 @@ Fix the dataset definition by setting the feature to a single value, in this cas
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import practice_registrations
-
-dataset = Dataset()
-latest_registration_per_patient = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
-dataset.registered_on = latest_registration_per_patient.start_date
+--8<-- 'includes/code/how-to/errors/feature_value-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Type errors in ehrQL expressions
@@ -541,33 +398,19 @@ try to define the population by comparing age to the string `"10"`
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2023-01-01")
-dataset.define_population(age >= "10")
+--8<-- 'includes/code/how-to/errors/element_type-standalone-failure/analysis/dataset_definition.py'
 ```
 
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 6, in <module>
-    dataset.define_population(age >= "10")
-                              ^^^^^^^^^^^
-ehrql.query_model.nodes.TypeValidationError: GE.rhs requires 'ehrql.query_model.nodes.Series[int]' but got 'ehrql.query_model.nodes.Series[str]'
+--8<-- 'includes/code/how-to/errors/element_type-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2023-01-01")
-dataset.define_population(age >= 10)  # age is now being compared to the integer 10
+--8<-- 'includes/code/how-to/errors/element_type-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Invalid keywords "and", "or", "not"
@@ -578,23 +421,13 @@ these are prohibited and will raise an error.
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2023-01-01")
-dataset.define_population((age >= 16) and (age <= 80))
+--8<-- 'includes/code/how-to/errors/invalid_keywords-standalone-failure/analysis/dataset_definition.py'
 ```
 
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 6, in <module>
-    dataset.define_population((age >= 16) and (age <= 80))
-                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: The keywords 'and', 'or', and 'not' cannot be used with ehrQL, please use the operators '&', '|' and '~' instead.
-(You will also see this error if you try use a chained comparison, such as 'a < b < c'.)
+--8<-- 'includes/code/how-to/errors/invalid_keywords-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
@@ -602,12 +435,7 @@ TypeError: The keywords 'and', 'or', and 'not' cannot be used with ehrQL, please
 As described in the error message, use the operator `&` instead:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2023-01-01")
-dataset.define_population((age >= 16) & (age <= 80))
+--8<-- 'includes/code/how-to/errors/invalid_keywords-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Chaining comparisons
@@ -617,34 +445,19 @@ Chained comparisons are not allowed in ehrQL.
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2023-01-01")
-dataset.define_population(16 < age <= 80)
+--8<-- 'includes/code/how-to/errors/chained_comparison-standalone-failure/analysis/dataset_definition.py'
 ```
 
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 6, in <module>
-    dataset.define_population(16 < age <= 80)
-                              ^^^^^^^^^^^^^^
-TypeError: The keywords 'and', 'or', and 'not' cannot be used with ehrQL, please use the operators '&', '|' and '~' instead.
-(You will also see this error if you try use a chained comparison, such as 'a < b < c'.)
+--8<-- 'includes/code/how-to/errors/chained_comparison-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2023-01-01")
-dataset.define_population((age >= 16) & (age <= 80))
+--8<-- 'includes/code/how-to/errors/chained_comparison-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Trying to perform arithmetic operations with an integer column and a float constant
@@ -654,33 +467,19 @@ In the following dataset, `age` is an integer. We cannot subtract a float from i
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2023-01-01")
-dataset.age_minus_5 = age - 5.5
+--8<-- 'includes/code/how-to/errors/arithmetic_type-standalone-failure/analysis/dataset_definition.py'
 ```
 
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 6, in <module>
-    dataset.age_minus_5 = age - 5.5
-                          ~~~~^~~~~
-ehrql.query_model.nodes.TypeValidationError: Subtract.rhs requires 'ehrql.query_model.nodes.Series[int]' but got 'ehrql.query_model.nodes.Series[float]'
+--8<-- 'includes/code/how-to/errors/arithmetic_type-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-age = patients.age_on("2023-01-01")
-dataset.age_minus_5 = age - 5
+--8<-- 'includes/code/how-to/errors/arithmetic_type-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Calculate a date difference without specifying return units
@@ -688,21 +487,13 @@ dataset.age_minus_5 = age - 5
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.age_in_may = "2023-05-01" - patients.date_of_birth
+--8<-- 'includes/code/how-to/errors/date_difference-standalone-failure/analysis/dataset_definition.py'
 ```
 
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
-    dataset.age_in_may = "2023-05-01" - patients.date_of_birth
-    ^^^^^^^^^^^^^^^^^^
-TypeError: Invalid variable 'age_in_may'. Dataset variables must be values not whole rows
+--8<-- 'includes/code/how-to/errors/date_difference-standalone-failure/output/traceback.txt'
 ```
 
 To fix this error, specify the units of the date difference that you want in the feature:
@@ -710,11 +501,7 @@ To fix this error, specify the units of the date difference that you want in the
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.age_in_may = ("2023-05-01" - patients.date_of_birth).years
+--8<-- 'includes/code/how-to/errors/date_difference-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Trying to subtract/add constants to dates
@@ -722,21 +509,13 @@ dataset.age_in_may = ("2023-05-01" - patients.date_of_birth).years
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.date_at_age_16 = patients.date_of_birth + 16
+--8<-- 'includes/code/how-to/errors/date_addition-standalone-failure/analysis/dataset_definition.py'
 ```
 
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
-    dataset.date_at_age_16 = patients.date_of_birth + 16
-                             ~~~~~~~~~~~~~~~~~~~~~~~^~~~
-TypeError: unsupported operand type(s) for +: 'DatePatientSeries' and 'int'
+--8<-- 'includes/code/how-to/errors/date_addition-standalone-failure/output/traceback.txt'
 ```
 
 ehrQL cannot add an integer to a date - it needs to know what sort of time unit
@@ -745,11 +524,7 @@ we are adding (days, months, years).
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset, years
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-dataset.date_at_age_16 = patients.date_of_birth + years(16)
+--8<-- 'includes/code/how-to/errors/date_addition-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Incorrectly referencing a table column
@@ -757,22 +532,13 @@ dataset.date_at_age_16 = patients.date_of_birth + years(16)
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import clinical_events
-
-dataset = Dataset()
-first_event = clinical_events.sort_by(date).first_for_patient()
-dataset.event_date = first_event.date
+--8<-- 'includes/code/how-to/errors/column_reference-standalone-failure/analysis/dataset_definition.py'
 ```
 
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
-    first_event = clinical_events.sort_by(date).first_for_patient()
-                                          ^^^^
-NameError: name 'date' is not defined
+--8<-- 'includes/code/how-to/errors/column_reference-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
@@ -780,23 +546,13 @@ NameError: name 'date' is not defined
 Columns can be specified as the table attribute:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import clinical_events
-
-dataset = Dataset()
-first_event = clinical_events.sort_by(clinical_events.date).first_for_patient()
-dataset.event_date = first_event.date
+--8<-- 'includes/code/how-to/errors/column_reference-standalone-success/analysis/dataset_definition.py'
 ```
 
 They can also be specified as a name string:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import clinical_events
-
-dataset = Dataset()
-first_event = clinical_events.sort_by("date").first_for_patient()
-dataset.event_date = first_event.date
+--8<-- 'includes/code/how-to/errors/column_reference2-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Specifying a default for `case` which is a different type to the values
@@ -808,43 +564,19 @@ an error - any default value given for a case statement must be of the same type
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import case, patients, when
-
-dataset = Dataset()
-
-age = patients.age_on("2023-01-01")
-dataset.age_group = case(
-   when(age < 10).then(1),
-   when(age > 80).then(2),
-   default="unknown",
-)
+--8<-- 'includes/code/how-to/errors/case_default-standalone-failure/analysis/dataset_definition.py'
 ```
 
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 7, in <module>
-    dataset.age_group5 = case(
-                         ^^^^^
-ehrql.query_model.nodes.TypeValidationError: Case.default requires 'ehrql.query_model.nodes.Series[int] | None' but got 'ehrql.query_model.nodes.Series[str]'
+--8<-- 'includes/code/how-to/errors/case_default-standalone-failure/output/traceback.txt'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import case, patients, when
-
-dataset = Dataset()
-
-age = patients.age_on("2023-01-01")
-dataset.age_group = case(
-   when(age < 10).then(1),
-   when(age > 80).then(2),
-   default=0,
-)
+--8<-- 'includes/code/how-to/errors/case_default-standalone-success/analysis/dataset_definition.py'
 ```
 
 ### Using `is_in` without a container
@@ -852,29 +584,19 @@ dataset.age_group = case(
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-
-age = patients.age_on("2023-01-01")
-dataset.age_30 = age.is_in(30)
+--8<-- 'includes/code/how-to/errors/in_container-standalone-failure/analysis/dataset_definition.py:initial_error'
 ```
 
 #### Error
 
 ```pytb
-Traceback (most recent call last):
-  File "/workspace/analysis/dataset_definition.py", line 7, in <module>
-    dataset.age_30 = age.is_in(30)
-                     ^^^^^^^^^^^^^
-ehrql.query_model.nodes.TypeValidationError: In.rhs requires 'ehrql.query_model.nodes.Series[collections.abc.Set[int]]' but got 'ehrql.query_model.nodes.Series[int]'
+--8<-- 'includes/code/how-to/errors/in_container-standalone-failure/output/traceback.txt'
 ```
 
 :notepad_spiral: This is also an error:
 
 ```python
-dataset.age_30_or_40 = age.is_in(30, 40)
+--8<-- 'includes/code/how-to/errors/in_container-standalone-failure/analysis/dataset_definition.py:age_range'
 ```
 
 #### Fixed dataset definition :heavy_check_mark:
@@ -883,13 +605,5 @@ Arguments passed to `is_in` must be wrapped in a python container - a set, list 
 All of the following features defined with `is_in` are valid.
 
 ```python
-from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
-
-dataset = Dataset()
-
-age = patients.age_on("2023-01-01")
-dataset.age_30_list = age.is_in([30])
-dataset.age_30_or_40_set = age.is_in({30, 40})
-dataset.age_30_or_40_tuple = age.is_in((30, 40))
+--8<-- 'includes/code/how-to/errors/in_container-standalone-success/analysis/dataset_definition.py'
 ```

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
+    first_event = clinical_events.sort_by(date).first_for_patient()
+                                          ^^^^
+NameError: name 'date' is not defined

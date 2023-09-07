@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 6, in <module>
+    dataset.population = patients.age_on("2023-01-01") > 16
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: Cannot set variable 'population'; use define_population() instead

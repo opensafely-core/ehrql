@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
+    dataset.age_in_may = "2023-05-01" - patients.date_of_birth
+    ^^^^^^^^^^^^^^^^^^
+TypeError: Invalid variable 'age_in_may'. Dataset variables must be values not whole rows

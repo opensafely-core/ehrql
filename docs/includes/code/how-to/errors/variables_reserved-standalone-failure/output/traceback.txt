@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/analysis/dataset_definition.py", line 5, in <module>
+    dataset.variables = patients.age_on("2023-01-01") > 16
+    ^^^^^^^^^^^^^^^^^
+AttributeError: 'variables' is not an allowed variable name
