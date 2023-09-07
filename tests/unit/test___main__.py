@@ -245,3 +245,8 @@ def test_backend_from_id_missing_alias():
 def test_backend_from_id_wrong_type():
     with pytest.raises(ArgumentTypeError, match="is not a valid backend"):
         backend_from_id("pathlib.Path")
+
+
+@pytest.mark.parametrize("alias", ["expectations", "test"])
+def test_backend_from_id_special_case_aliases(alias):
+    assert backend_from_id(alias) is None

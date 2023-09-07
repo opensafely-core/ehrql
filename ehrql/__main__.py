@@ -501,10 +501,11 @@ def query_engine_from_id(str_id):
 
 def backend_from_id(str_id):
     # Workaround for the fact that Job Runner insists on setting OPENSAFELY_BACKEND to
-    # "expectations" when running locally. Cohort Extractor backends have a different
-    # meaning from ehrQL's, and the semantics of the "expectations" backend
-    # translate to "no backend at all" in ehrQL terms so that's how we treat it.
-    if str_id == "expectations":
+    # "expectations" when running locally, and that the test backend sets it to "test".
+    # Cohort Extractor backends have a different meaning from ehrQL's, and the semantics
+    # of these "expectations" and "test" backends translate to "no backend at all" in
+    # ehrQL terms so that's how we treat them.
+    if str_id in ("expectations", "test"):
         return None
 
     if "." not in str_id:
