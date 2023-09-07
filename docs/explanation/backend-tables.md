@@ -28,7 +28,7 @@ Make the core tables available for use in a dataset definition
 with import statements like:
 
 ```python
-from ehrql.tables.beta.core import medications, patients
+--8<-- 'includes/code/tutorial/writing-a-dataset-definition/asthma_medications-standalone-success/analysis/dataset_definition.py:tables_import'
 ```
 
 where the `ehrql.tables.beta.core` specifies that we are using the core tables.
@@ -54,7 +54,7 @@ For example, for TPP-specific tables,
 we use `tpp` in the import statement:
 
 ```python
-from ehrql.tables.beta.tpp import addresses, patients
+--8<-- 'includes/code/explanation/backend-tables/tpp_import-standalone-success/analysis/dataset_definition.py:tables_import'
 ```
 
 :notepad_spiral: In this example,
@@ -72,8 +72,8 @@ For example,
 in the [writing a dataset definition](../tutorial/writing-a-dataset-definition/index.md) section of the tutorial,
 we used the interactive ehrQL sandbox with the following statement to start with:
 
-```python
->>> from ehrql.tables.beta.core import patients, medications
+```pycon
+--8<-- 'includes/code/tutorial/writing-a-dataset-definition/asthma_medications-pycon-success/session.txt:tables_import'
 ```
 
 * `beta.core` is the *table schema*
@@ -82,8 +82,8 @@ we used the interactive ehrQL sandbox with the following statement to start with
 We also accessed *table columns*
 such as the `date_of_birth` column on the `patients` table:
 
-```python
->>> patients.date_of_birth
+```pycon
+--8<-- 'includes/code/tutorial/writing-a-dataset-definition/asthma_medications-pycon-success/session.txt:patients_birthdate'
 ```
 
 Use the [table schema reference](../reference/schemas.md)
