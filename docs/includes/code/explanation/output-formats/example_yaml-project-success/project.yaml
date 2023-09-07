@@ -8,4 +8,4 @@ actions:
     run: ehrql:v0 generate-dataset "./dataset_definition.py" --output "outputs/data_extract.csv" --dummy-tables "example-data/"
     outputs:
       highly_sensitive:
-        population: outputs/data_extract.csv
+        population: output/data_extract.arrow
