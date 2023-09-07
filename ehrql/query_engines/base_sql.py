@@ -116,8 +116,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             ]
             # Create a table which contains the union of all these IDs. (Note UNION
             # rather than UNION ALL so we don't get duplicates.)
-            population_table = self.reify_query(sqlalchemy.union(*id_selects))
-            return sqlalchemy.select(population_table.c.patient_id)
+            all_ids_table = self.reify_query(sqlalchemy.union(*id_selects))
+            return sqlalchemy.select(all_ids_table.c.patient_id)
         elif len(tables) == 1:
             # If there's only one table then use the IDs from that
             return sqlalchemy.select(tables[0].c.patient_id.label("patient_id"))
@@ -631,8 +631,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         domain of that node
         """
         frame = get_domain(node).get_node()
-        select_table, conditions = get_table_and_filter_conditions(frame)
-        table = self.get_table(select_table)
+        table_node, conditions = get_table_and_filter_conditions(frame)
+        table = self.get_table(table_node)
         where_clauses = [self.get_predicate(condition) for condition in conditions]
         query = sqlalchemy.select(table.c.patient_id.label("patient_id"))
         if where_clauses:
