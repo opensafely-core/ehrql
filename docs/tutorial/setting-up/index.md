@@ -48,6 +48,19 @@ In this section, you will run an OpenSAFELY command to test that the codespace i
 
 Towards the bottom of the codespace, you will see the terminal.
 
+??? tip "The terminal"
+    The terminal allows you to interact with programs,
+    such as ehrQL,
+    that have command line interfaces.
+    Whilst *terminal* and *shell* are often used synonymously,
+    a shell runs within a terminal.
+
+    You may have used a shell before:
+    Git Bash, for example, bundles Git with the Bash shell for the Windows operating system.
+    The codespace's default shell is also the Bash shell,
+    so if you've used Git Bash before,
+    then you'll find the codespace's default shell familiar.
+
 In the terminal, type:
 
 ```
