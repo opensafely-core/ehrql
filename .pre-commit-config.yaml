@@ -1,7 +1,7 @@
 default_language_version:
   python: python3.11
 
-exclude: tests/acceptance/external_studies/
+exclude: ^(tests/acceptance/external_studies/|docs/includes/code/.*-failure.*)
 
 repos:
   - repo: local
