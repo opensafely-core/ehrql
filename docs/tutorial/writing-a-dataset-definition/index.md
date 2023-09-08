@@ -51,8 +51,8 @@ from ehrql import Dataset
 
 ## Import the tables
 
-The `patients` table is a patient frame; it has one row per patient.
-The `medications` table is an event frame; it has many rows per patient.
+The `patients` table has one row per patient.
+The `medications` table has many rows per patient.
 
 ```python
 from ehrql.tables.beta.core import patients, medications
@@ -80,8 +80,8 @@ dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
 ```
 
 ??? tip "Define the population condition"
-    `.define_population` takes a population condition in the form of a boolean patient series.
-    However, `patients.date_of_birth` is a date patient series.
+    `.define_population` takes a population condition in the form of a boolean column.
+    However, `patients.date_of_birth` is a date column.
 
     ```pycon
     >>> patients.date_of_birth
@@ -97,7 +97,7 @@ dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
     9 | 1979-04-01
     ```
 
-    To transform a date patient series into a boolean patient series,
+    To transform a date column into a boolean column,
     use `.is_on_or_before` with a date.
 
     ```pycon
@@ -117,13 +117,13 @@ dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
 ## Select each patient's most recent asthma medication
 
 Define a list of asthma codes.
-**Filter** the `medications` event frame,
+**Filter** the `medications` table,
 so that it contains rows that match the asthma codes on the list.
-**Sort** the resulting event frame by date,
+**Sort** the resulting table by date,
 so that the most recent asthma medication is the last row for each patient.
-From the resulting event frame,
+From the resulting table,
 **select** the last row for each patient.
-The result is a patient frame that contains each patient's most recent asthma medication.
+The result is a table that contains each patient's most recent asthma medication.
 
 ```python
 asthma_codes = ["39113311000001107", "39113611000001102"]
@@ -141,7 +141,7 @@ latest_asthma_med = (
     >>> asthma_codes = ["39113311000001107", "39113611000001102"]
     ```
 
-    `medications.dmd_code` is a code event series.
+    `medications.dmd_code` is a code column.
 
     ```pycon
     >>> medications.dmd_code
@@ -157,7 +157,7 @@ latest_asthma_med = (
     9 | 9 | 3484711000001105
     ```
 
-    Create a filter condition in the form of a boolean patient series.
+    Create a filter condition in the form of a boolean column.
 
     ```pycon
     >>> medications.dmd_code.is_in(asthma_codes)
@@ -173,7 +173,7 @@ latest_asthma_med = (
     9 | 9 | False
     ```
 
-    **Filter** the `medications` event frame,
+    **Filter** the `medications` table,
     so that it contains rows that match the asthma codes on the list.
 
     ```pycon
@@ -187,7 +187,7 @@ latest_asthma_med = (
     5                 | 7                 | 2019-07-06        | 39113611000001102
     ```
 
-    **Sort** the resulting event frame by date,
+    **Sort** the resulting table by date,
     so that the most recent asthma medication is the last row for each patient.
 
     ```pycon
@@ -201,7 +201,7 @@ latest_asthma_med = (
     5                 | 7                 | 2019-07-06        | 39113611000001102
     ```
 
-    From the resulting event frame,
+    From the resulting table,
     **select** the last row for each patient.
 
     ```pycon
@@ -214,15 +214,20 @@ latest_asthma_med = (
     5                 | 2019-07-06        | 39113611000001102
     ```
 
-## Add dates and codes to the dataset
+## Add the date column to the dataset
 
-Transform the patient frame into two patient series;
-one of dates and one of codes.
-Add them to the dataset.
+Select the date column and add it to the dataset.
 
 ```python
 dataset.asthma_med_date = latest_asthma_med.date
-dataset.asthma_med_code = latest_asthma_med.dmd_code
+```
+
+## Add the code column to the dataset
+
+Select the code column and add it to the dataset.
+
+```python
+dataset.asthma_med_date = latest_asthma_med.date
 ```
 
 ## Save the dataset definition
