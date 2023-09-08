@@ -50,6 +50,7 @@ patient_id        | date_of_birth     | sex               | date_of_death
 
 Similarly, the `patients.date_of_birth` column has one row per patient.
 (If a table has one row per patient, then a column from the table must also have one row per patient.)
+Notice that the column is indexed by `patient_id`.
 
 ```pycon
 >>> patients.date_of_birth
@@ -77,7 +78,8 @@ first import it into the sandbox.
 ```
 
 The `medications` table has many rows per patient.
-Notice that some values in the `patient_id` column are not unique.
+Notice that some values in the `patient_id` column are not unique,
+but that all values in the `row_id` column are unique.
 
 ```pycon
 >>> medications
@@ -96,6 +98,7 @@ patient_id        | row_id            | date              | dmd_code
 ```
 
 Similarly, the `medications.date` column has many rows per patient.
+Notice that the column is indexed by `patient_id` and `row_id`.
 
 ```pycon
 >>> medications.date
