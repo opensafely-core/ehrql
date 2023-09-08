@@ -115,7 +115,13 @@ Similarly, the `medications.date` column has many rows per patient.
 
 Your task, as a researcher, is to transform tables
 — such as `patients` and `medications` —
-into a dataset.
+into a dataset that is suitable for analysis.
+
+??? tip "Tables and datasets"
+    In ehrQL, **tables and datasets perform different functions**.
+    Whilst both can be represented as rows and columns,
+    a *dataset* is a group of patients with common statistical characteristics.
+    In other words, a *dataset* is a *cohort*.
 
 ### Transform event data into patient data
 
