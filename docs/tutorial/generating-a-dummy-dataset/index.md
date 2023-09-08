@@ -22,7 +22,7 @@ and press ++enter++.
 
 The terminal will fill with a dummy dataset in CSV format.
 Scroll up to see the column headers;
-notice that two column headers correspond to the two patient series
+notice that two column headers correspond to the two columns
 — `asthma_med_date` and `asthma_med_code` —
 that you added to the dataset definition.
 

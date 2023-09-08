@@ -15,7 +15,7 @@ nav:
   - Tutorial:
     - Tutorial: tutorial/index.md
     - Setting up: tutorial/setting-up/index.md
-    - Working with frames and series: tutorial/working-with-frames-and-series/index.md
+    - Working with tables: tutorial/working-with-frames-and-series/index.md
     - Writing a dataset definition: tutorial/writing-a-dataset-definition/index.md
     - Generating a dummy dataset: tutorial/generating-a-dummy-dataset/index.md
     - Tidying up: tutorial/tidying-up/index.md

@@ -1,4 +1,4 @@
-In this section, you will work with frames and series in the sandbox.
+In this section, you will work with tables in the sandbox.
 
 ## Start the sandbox
 
@@ -21,15 +21,15 @@ you should type the code that follows into the sandbox and press ++enter++.
 
 ## Work with patient data
 
-### Import the `patients` table
+In most cases, there is one source of patient data: the `patients` table.
+To work with the `patients` table,
+first import it into the sandbox.
 
 ```pycon
 >>> from ehrql.tables.beta.core import patients
 ```
 
-### Work with a patient frame
-
-The `patients` table is a patient frame; it has one row per patient.
+The `patients` table has one row per patient.
 Notice that all values in the `patient_id` column are unique.
 
 ```pycon
@@ -48,9 +48,8 @@ patient_id        | date_of_birth     | sex               | date_of_death
 9                 | 1979-04-01        | male              | None
 ```
 
-### Work with a patient series
-
-The `patients.date_of_birth` column is a patient series; it has one row per patient.
+Similarly, the `patients.date_of_birth` column has one row per patient.
+(If a table has one row per patient, then a column from the table must also have one row per patient.)
 
 ```pycon
 >>> patients.date_of_birth
@@ -68,15 +67,16 @@ The `patients.date_of_birth` column is a patient series; it has one row per pati
 
 ## Work with event data
 
-### Import the `medications` table
+Unlike patient data, there are many sources of event data:
+the `medications` table, for example.
+To work with the `medications` table,
+first import it into the sandbox.
 
 ```pycon
 >>> from ehrql.tables.beta.core import medications
 ```
 
-### Work with an event frame
-
-The `medications` table is an event frame; it has many rows per patient.
+The `medications` table has many rows per patient.
 Notice that some values in the `patient_id` column are not unique.
 
 ```pycon
@@ -95,9 +95,7 @@ patient_id        | row_id            | date              | dmd_code
 9                 | 9                 | 2015-03-14        | 3484711000001105
 ```
 
-### Work with an event series
-
-The `medications.date` column is an event series; it has many rows per patient.
+Similarly, the `medications.date` column has many rows per patient.
 
 ```pycon
 >>> medications.date
@@ -119,12 +117,12 @@ Your task, as a researcher, is to transform tables
 — such as `patients` and `medications` —
 into a dataset.
 
-### Transform an event frame into a patient frame
+### Transform event data into patient data
 
-To transform an event frame into a patient frame:
+To transform event data into patient data:
 
-1. Sort the event frame
-2. Select either the first row or the last row in the event frame
+1. Sort the event data
+2. Select either the first row or the last row of the event data
 
 ```pycon
 >>> medications.sort_by(medications.date).first_for_patient()
@@ -139,10 +137,10 @@ patient_id        | date              | dmd_code
 9                 | 2015-03-14        | 3484711000001105
 ```
 
-### Transform an event frame into another event frame
+### Filter event data
 
-To transform an event frame into another event frame,
-filter rows that match or do not match a condition.
+To filter event data,
+select rows that match or do not match a condition.
 
 Rows that match 100mcg/dose Salbutamol:
 
@@ -170,10 +168,10 @@ patient_id        | row_id            | date              | dmd_code
 9                 | 9                 | 2015-03-14        | 3484711000001105
 ```
 
-### Extract a series of years from a series of dates
+### Extract a column of years from a column of dates
 
-To extract a series of years from a series of dates,
-append `.year` to the series of dates.
+To extract a column of years from a column of dates,
+append `.year` to the column of dates.
 
 ```pycon
 >>> patients.date_of_birth.year
@@ -189,9 +187,9 @@ append `.year` to the series of dates.
 9 | 1979
 ```
 
-### Add one or more years to a series of dates
+### Add one or more years to a column of dates
 
-To add one or more years to a series of dates,
+To add one or more years to a column of dates,
 use the `years` function.
 
 ```pycon
