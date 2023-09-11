@@ -36,8 +36,11 @@ class clinical_events(EventFrame):
     """
     Each record corresponds to a single clinical or consultation event for a patient.
 
-    Each record contains either a SNOMED-CT code or a CTv3 code (never both). Note that
-    date may be null.
+    Each event is recorded twice: once with a CTv3 code, and again with the equivalent
+    SNOMED-CT code. Each record will have only one of the ctv3_code or snomedct_code
+    columns set and the other will be null. This allows you to query the table using
+    either a CTv3 codelist or SNOMED-CT codelist and all records using the other coding
+    system will be effectively ignored.
 
     Note that event codes do not change in this table. If an event code in the coding
     system becomes inactive, the event will still be coded to the inactive code.
