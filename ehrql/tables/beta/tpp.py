@@ -676,6 +676,35 @@ class ec_cost(EventFrame):
 
 
 @table
+class opa(EventFrame):
+    opa_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="TODO",
+    )
+    appointment_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    attendance_status = Series(
+        str,
+        description="TODO",
+    )
+    consultation_medium_used = Series(
+        str,
+        description="TODO",
+    )
+    first_attendance = Series(
+        str,
+        description="TODO",
+    )
+    treatment_function_code = Series(
+        str,
+        description="TODO",
+    )
+
+
+@table
 class opa_cost(EventFrame):
     opa_ident = Series(
         int,

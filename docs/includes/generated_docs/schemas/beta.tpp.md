@@ -20,6 +20,7 @@ from ehrql.tables.beta.tpp import (
     medications,
     occupation_on_covid_vaccine_record,
     ons_deaths,
+    opa,
     opa_cost,
     opa_diag,
     opa_proc,
@@ -1903,6 +1904,90 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
   </dt>
   <dd markdown="block">
 
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## opa
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="opa.opa_ident">
+    <strong>opa_ident</strong>
+    <a class="headerlink" href="#opa.opa_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa.appointment_date">
+    <strong>appointment_date</strong>
+    <a class="headerlink" href="#opa.appointment_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa.attendance_status">
+    <strong>attendance_status</strong>
+    <a class="headerlink" href="#opa.attendance_status" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa.consultation_medium_used">
+    <strong>consultation_medium_used</strong>
+    <a class="headerlink" href="#opa.consultation_medium_used" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa.first_attendance">
+    <strong>first_attendance</strong>
+    <a class="headerlink" href="#opa.first_attendance" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa.treatment_function_code">
+    <strong>treatment_function_code</strong>
+    <a class="headerlink" href="#opa.treatment_function_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+TODO
 
   </dd>
 </div>

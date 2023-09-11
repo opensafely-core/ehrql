@@ -1095,6 +1095,32 @@ def test_ec_cost(select_all):
     ]
 
 
+@register_test_for(tpp.opa)
+def test_opa(select_all):
+    results = select_all(
+        OPA(
+            Patient_ID=1,
+            OPA_Ident=1,
+            Appointment_Date=date(2023, 2, 1),
+            Attendance_Status="1",
+            Consultation_Medium_Used="2",
+            First_Attendance="3",
+            Treatment_Function_Code="999",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "opa_ident": 1,
+            "appointment_date": date(2023, 2, 1),
+            "attendance_status": "1",
+            "consultation_medium_used": "2",
+            "first_attendance": "3",
+            "treatment_function_code": "999",
+        },
+    ]
+
+
 @register_test_for(tpp.opa_cost)
 def test_opa_cost(select_all):
     results = select_all(
