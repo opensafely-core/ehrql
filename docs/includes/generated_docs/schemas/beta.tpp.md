@@ -382,7 +382,20 @@ The status of the appointment
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## clinical_events
 
+Each record corresponds to a single clinical or consultation event for a patient.
 
+Each event is recorded twice: once with a CTv3 code, and again with the equivalent
+SNOMED-CT code. Each record will have only one of the ctv3_code or snomedct_code
+columns set and the other will be null. This allows you to query the table using
+either a CTv3 codelist or SNOMED-CT codelist and all records using the other coding
+system will be effectively ignored.
+
+Note that event codes do not change in this table. If an event code in the coding
+system becomes inactive, the event will still be coded to the inactive code.
+As such, codelists should include all relevant inactive codes.
+
+Detailed information on onward referrals is not currently available. A subset of
+referrals are recorded in the clinical events table but this data will be incomplete.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
