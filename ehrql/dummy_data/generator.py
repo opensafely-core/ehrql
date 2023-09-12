@@ -136,12 +136,9 @@ class DummyPatientGenerator:
         return self.get_patient_data(patient_id, self.query_info.other_table_names)
 
     def get_patient_data(self, patient_id, table_names):
-        # Seed the random generator using the patient_id so we always generate the same
-        # data for the same patient
-        self.rnd.seed(f"{self.random_seed}:{patient_id}")
         # Generate some basic demographic facts about the patient which subsequent table
         # generators can use to ensure a consistent patient history
-        self.generate_patient_facts()
+        self.generate_patient_facts(patient_id)
         for name in table_names:
             # Seed the random generator per-table, so that we get the same data no
             # matter what order the tables are generated in
@@ -159,7 +156,10 @@ class DummyPatientGenerator:
             orm_class = self.orm_classes[table_info.name]
             yield from (orm_class(**row) for row in rows)
 
-    def generate_patient_facts(self):
+    def generate_patient_facts(self, patient_id):
+        # Seed the random generator using the patient_id so we always generate the same
+        # data for the same patient
+        self.rnd.seed(f"{self.random_seed}:{patient_id}")
         # TODO: We could obviously generate more realistic age distributions than this
         date_of_birth = self.today - timedelta(days=self.rnd.randrange(0, 120 * 365))
         age_days = self.rnd.randrange(105 * 365)
