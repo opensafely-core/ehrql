@@ -594,7 +594,7 @@ first_asthma_diagnosis_date = clinical_events.where(
 ).first_for_patient().date
 dataset.first_asthma_diagnosis_date = first_asthma_diagnosis_date
 dataset.count_ics_prescriptions_2wks_post_diagnosis = medications.where(
-        medications.dmd_code.isin(inhaled_corticosteroid_codelist
+        medications.dmd_code.is_in(inhaled_corticosteroid_codelist
 ).where(
         medications.date.is_on_or_between(first_asthma_diagnosis_date,first_asthma_diagnosis_date + weeks(2))
 )
@@ -756,9 +756,9 @@ winter_months = [10,11,12,1,2,3]
 
 dataset = Dataset()
 dataset.winter_amoxicillin_count = medications.where(
-        medications.dmd_code.isin(amoxicillin_codelist)
+        medications.dmd_code.is_in(amoxicillin_codelist)
 ).where(
-        medications.date.month.isin(winter_months)
+        medications.date.month.is_in(winter_months)
 )
 ```
 
