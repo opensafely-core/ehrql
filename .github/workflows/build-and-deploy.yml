@@ -18,7 +18,7 @@ jobs:
       image: ghcr.io/opensafely-core/ehrql
       aliased_image: ghcr.io/opensafely-core/databuilder
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # Required to get previous tags
           fetch-depth: 0
