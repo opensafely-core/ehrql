@@ -24,9 +24,10 @@ This backend implements the following table schemas:
 </small>
 
 !!! warning
-    This backend is still under development and is not ready for production use.
-    Projects requiring EMIS data should continue to use the [Cohort
-    Extractor](https://docs.opensafely.org/study-def/) tool.
+    Research access to the backend provided by EMIS is temporarily unavailable,
+    pending funding arrangements between NHS England and EMIS.
+    When funding has been secured,
+    we will publish a timeline for gradually reopening access.
 
 [EMIS Health](https://www.emishealth.com/) are the developers and operators of the
 [EMIS Web](https://www.emishealth.com/products/emis-web) EHR platform. The ehrQL
