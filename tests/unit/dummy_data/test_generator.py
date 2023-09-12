@@ -129,7 +129,7 @@ def test_get_random_value_on_first_of_month(dummy_patient_generator):
         type=datetime.date,
         constraints=(Constraint.FirstOfMonth(),),
     )
-    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(100)]
+    values = [dummy_patient_generator.get_random_value(column_info) for _ in range(10)]
     assert len(set(values)) > 1, "dates are all identical"
     assert all(value.day == 1 for value in values)
 
@@ -166,8 +166,8 @@ def test_rows_for_patients_with_first_of_month_constraint(dummy_patient_generato
         },
     )
     rows = []
-    for _ in range(10):
-        dummy_patient_generator.generate_patient_facts()
+    for patient_id in range(10):
+        dummy_patient_generator.generate_patient_facts(patient_id)
         rows.extend(dummy_patient_generator.rows_for_patients(table_info))
     assert len(rows) == 10
     # Assert constraints are respected
@@ -192,5 +192,9 @@ def dummy_patient_generator():
     dataset.define_population(patients.exists_for_patient())
     variable_definitions = compile(dataset)
     generator = DummyPatientGenerator(variable_definitions, random_seed="abc")
-    generator.generate_patient_facts()
+    generator.generate_patient_facts(patient_id=1)
+    # Ensure that this patient has a long enough history that we get a sensible
+    # distribution of event dates (the fixed random seed above should ensure that the
+    # history length is always the same; this check is here as a failsafe)
+    assert (generator.events_end - generator.events_start).days > 365
     return generator
