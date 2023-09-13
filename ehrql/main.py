@@ -62,7 +62,11 @@ def generate_dataset(
         )
     else:
         generate_dataset_with_dummy_data(
-            variable_definitions, dataset_file, dummy_data_file, dummy_tables_path
+            variable_definitions,
+            dataset_definition.dummy_dataset_config,
+            dataset_file,
+            dummy_data_file,
+            dummy_tables_path,
         )
 
 
@@ -89,7 +93,11 @@ def generate_dataset_with_dsn(
 
 
 def generate_dataset_with_dummy_data(
-    variable_definitions, dataset_file, dummy_data_file=None, dummy_tables_path=None
+    variable_definitions,
+    dummy_dataset_config,
+    dataset_file,
+    dummy_data_file=None,
+    dummy_tables_path=None,
 ):
     log.info("Generating dummy dataset")
     column_specs = get_column_specs(variable_definitions)
@@ -103,7 +111,11 @@ def generate_dataset_with_dummy_data(
         query_engine = CSVQueryEngine(dummy_tables_path)
         results = query_engine.get_results(variable_definitions)
     else:
-        results = DummyDataGenerator(variable_definitions).get_results()
+        generator = DummyDataGenerator(
+            variable_definitions,
+            population_size=dummy_dataset_config.population_size,
+        )
+        results = generator.get_results()
 
     log.info("Building dataset and writing results")
     results = eager_iterator(results)
@@ -114,7 +126,10 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args):
     log.info(f"Creating dummy data tables for {str(definition_file)}")
     dataset_definition = load_dataset_definition(definition_file, user_args)
     variable_definitions = compile(dataset_definition)
-    generator = DummyDataGenerator(variable_definitions)
+    generator = DummyDataGenerator(
+        variable_definitions,
+        population_size=dataset_definition.dummy_dataset_config.population_size,
+    )
     dummy_tables = generator.get_data()
     dummy_tables_path.parent.mkdir(parents=True, exist_ok=True)
     log.info(f"Writing CSV files to {dummy_tables_path}")
