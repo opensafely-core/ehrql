@@ -25,8 +25,7 @@ class TPPBackend(SQLBackend):
         ehrql.tables.beta.smoketest,
     ]
 
-    # TODO: Temporary default to support safe deployment
-    include_t1oo = True
+    include_t1oo = False
 
     def modify_dsn(self, dsn):
         """
