@@ -260,6 +260,14 @@ IGNORED_ERRORS = [
             ".+TrinoQueryError.+the query may have too many or too complex expressions.+"
         ),
     ),
+    # Another Trino error that appears to be due to overly complex queries - in this case
+    # when the variable strategy has many nested horizontal aggregations
+    (
+        sqlalchemy.exc.DBAPIError,
+        re.compile(
+            r".+TrinoQueryError.+Error compiling class: io\/trino\/\$gen\/JoinFilterFunction.+"
+        ),
+    ),
     (
         sqlalchemy.exc.ProgrammingError,
         re.compile(".+TrinoUserError.+QUERY_TEXT_TOO_LARGE.+"),
