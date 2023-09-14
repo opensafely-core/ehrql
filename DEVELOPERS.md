@@ -290,6 +290,176 @@ generated markdown files. It is a developer's responsibility to update the gener
 their PR if required. There is also a CI step that will check that the documentation is up to
 date.
 
+### Adding examples to the ehrQL documentation
+
+ehrQL code examples that were originally included inline,
+in the documentation Markdown source.
+have been moved to separate files.
+
+Below summarises how this works.
+Also refer to the [relevant pull request instigating this change](https://github.com/opensafely-core/ehrql/pull/1475).
+
+**This does not affect examples that are automatically generated from the ehrQL source,
+and stored in `/docs/includes/generated`.**
+
+#### Where examples for a given page are stored
+
+All examples that would otherwise be inlined in documentation Markdown source files
+are stored in the `/docs/includes/code/` directory.
+
+`/docs/includes/code/` has a directory structure
+that mirrors the structure of the documentation pages inside `/docs`.
+For example, the `/docs/how-to/errors.md` source file currently corresponds to the "Resolving ehrQL errors" page.
+There is also a corresponding directory for the examples: `/docs/include/code/how-to/errors/`.
+The `/docs/include/code/how-to/errors/` directory contains the examples used by the "Resolving ehrQL errors" page.
+
+##### Example
+
+This shows the overall structure for an example,
+and how it relates to the documentation source file that uses it.
+
+Conventions on how the specific example is structured are detailed below.
+
+```
+├── docs
+│   ├── how-to
+│   │   ├── errors.md
+│   ├── includes
+│   │   ├── code
+│   │   │   ├── how-to
+│   │   │   │   ├── errors
+│   │   │   │   │   ├── example_name-standalone-failure
+│   │   │   │   │   │   ├── analysis
+│   │   │   │   │   │   │   └── dataset_definition.py
+│   │   │   │   │   │   └── output
+│   │   │   │   │   │       └── traceback.txt
+```
+
+#### Conventions for example structure
+
+Each example is contained in its own directory.
+
+The directory name is in the format: `example_name-type-state`.
+
+* `example_name` is two words, separated by an underscore.
+* `-` is used as a separator between `example_name`, `type` and `state`.
+* `type` is one of:
+  * `standalone`: a standalone dataset definition
+  * `project`: an OpenSAFELY project
+  * `pycon`: an interactive Python session
+* `state` indicates whether the example works or not.
+  `state` is either `success` or `failure`.
+* An example may contain an `example-data` directory
+  that specifies specific example data to use.
+  If no example data is provided,
+  then it is assumed that the example is expected
+  to be used with the default example data bundled with ehrQL.
+
+These conventions are not yet enforced,
+but could be in future.
+
+These aim to mimic the conventions used in the [research-template](https://github.com/opensafely/research-template).
+
+##### `standalone`: standalone dataset definitions
+
+These are dataset definitions outside of a OpenSAFELY project;
+that is, without a `project.yaml`.
+
+The dataset definition is:
+
+* named `dataset_definition.py`
+* located in the `analysis/` directory of the example.
+
+The output for a `success` example dataset definition is the extracted data
+and stored in `output/` as `data_extract.csv`.
+
+The output for a `failure` example dataset definition is the Python traceback
+and stored in `output/` as `traceback.txt`.
+
+Any required codelists are stored in `codelists/`.
+
+###### Examples
+
+```
+├── my_example-standalone-success/
+│   ├── analysis/
+│   │   └── dataset_definition.py
+│   ├── codelists/
+│   │   └── example_codelist.csv
+│   └── output/
+│       └── data_extract.csv
+```
+
+```
+├── my_example-standalone-failure/
+│   ├── analysis/
+│   │   └── dataset_definition.py
+│   ├── codelists/
+│   │   └── example_codelist.csv
+│   └── output/
+│       └── traceback.txt
+```
+
+##### `project`: OpenSAFELY projects
+
+These are complete OpenSAFELY projects;
+that is, some code *with* a `project.yaml` that uses that code.
+
+The output for a `success` example dataset definition is the extracted data
+and stored in `output/` as `data_extract.csv`.
+
+The output for a `failure` example dataset definition is the Python traceback
+and stored in `output/` as `traceback.txt`.
+
+Any required codelists are stored in `codelists/`.
+
+###### Examples
+
+```
+├── my_example-project-success/
+│   ├── analysis/
+│   │   └── dataset_definition.py
+│   ├── codelists/
+│   │   └── example_codelist.csv
+│   ├── output/
+│   │   └── data_extract.csv
+│   └── project.yaml
+```
+
+```
+├── my_example-project-failure/
+│   ├── analysis/
+│   │   └── dataset_definition.py
+│   ├── codelists/
+│   │   └── example_codelist.csv
+│   ├── output/
+│   │   └── traceback.txt
+│   └── project.yaml
+```
+
+##### `pycon`: Python console sessions
+
+These are logs of Python console sessions, presented doctest-style.
+For ehrQL, these are primarily for the ehrQL sandbox.
+
+The filename is `session.txt`.
+It is stored directly in the specific example directory:
+
+`example_name-pycon-state/session.txt`
+
+###### Examples
+
+```
+├── my_example-pycon-success/
+│   └── session.txt
+```
+
+```
+├── my_example-pycon-failure/
+│   └── session.txt
+
+```
+
 ### Updating the main OpenSAFELY documentation repository
 
 Merges to the main branch in this repo trigger a [deployment of the main OpenSAFELY documentation via a Github Action](https://github.com/opensafely-core/ehrql/actions/workflows/deploy-documentation.yml).
