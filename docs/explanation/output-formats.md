@@ -63,13 +63,13 @@ Instead, the output is displayed at the command line.
 #### `.arrow`
 
 ```
-opensafely exec ehrql:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.arrow"
+opensafely exec ehrql:v0 generate-dataset "./analysis/dataset-definition.py" --dummy-tables "example-data/" --output "./output/data_extract.arrow"
 ```
 
 #### `.csv.gz`
 
 ```
-opensafely exec ehrql:v0 generate-dataset "./dataset-definition.py" --dummy-tables "example-data/" --output "./outputs/data_extract.csv.gz"
+opensafely exec ehrql:v0 generate-dataset "./analysis/dataset-definition.py" --dummy-tables "example-data/" --output "./output/data_extract.csv.gz"
 ```
 
 ### Example `project.yaml`

@@ -5,7 +5,7 @@ expectations:
 
 actions:
   extract_data:
-    run: ehrql:v0 generate-dataset "./dataset_definition.py" --output "outputs/data_extract.csv" --dummy-tables "example-data/"
+    run: ehrql:v0 generate-dataset "./analysis/dataset_definition.py" --output "output/data_extract.arrow" --dummy-tables "example-data/"
     outputs:
       highly_sensitive:
         population: output/data_extract.arrow
