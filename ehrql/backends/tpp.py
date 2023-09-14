@@ -453,6 +453,18 @@ class TPPBackend(BaseBackend):
     """
     )
 
+    opa = MappedTable(
+        source="OPA",
+        columns={
+            "opa_ident": "OPA_Ident",
+            "appointment_date": "Appointment_Date",
+            "attendance_status": "Attendance_Status",
+            "consultation_medium_used": "Consultation_Medium_Used",
+            "first_attendance": "First_Attendance",
+            "treatment_function_code": "Treatment_Function_Code",
+        },
+    )
+
     opa_cost = QueryTable(
         """
         SELECT
