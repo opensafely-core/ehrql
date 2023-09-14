@@ -5,13 +5,13 @@ expectations:
 
 actions:
   generate_dataset:
-    run: ehrql:v0 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv.gz
+    run: ehrql:v0 generate-dataset analysis/dataset_definition.py --dummy-tables example-data --output output/dataset.csv.gz
     outputs:
       highly_sensitive:
         cohort: output/dataset.csv.gz
 
   summarise_dataset:
-    run: python:latest summarise_dataset.py
+    run: python:latest analysis/summarise_dataset.py
     needs: [generate_dataset]
     outputs:
      moderately_sensitive:

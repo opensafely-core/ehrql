@@ -225,7 +225,7 @@ $ opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-tables
 Failed to import 'dataset_definition.py':
 ```
 ```pycon
---8<-- 'includes/code/explanation/running-ehrql/ehrql_example-standalone-failure/log/error.log'
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_example-standalone-failure/output/traceback.txt'
 ```
 
 Refer to [the catalogue of errors](../how-to/errors.md) for help with interpreting error messages.
@@ -263,7 +263,7 @@ However, note that the `--output` path is now to a compressed CSV file (`dataset
 Copy the following into a file called `summarise_dataset.py` in your `learning-ehrql` directory.
 
 ```python
---8<-- 'includes/code/explanation/running-ehrql/ehrql_example-project-success/summarise_dataset.py'
+--8<-- 'includes/code/explanation/running-ehrql/ehrql_example-project-success/analysis/summarise_dataset.py'
 ```
 
 :grey_question: Even if you don't know how to use [pandas](https://pandas.pydata.org/),
