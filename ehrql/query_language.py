@@ -30,6 +30,11 @@ VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
 REGISTERED_TYPES = {}
 
 
+@dataclasses.dataclass
+class DummyDatasetConfig:
+    population_size: int = 500
+
+
 # Because ehrQL classes override `__eq__` we can't use them as dictionary keys. So where
 # the query model expects dicts we represent them as lists of pairs, which the
 # `_apply()` function can convert to dicts when it passes them to the query model.
@@ -56,6 +61,7 @@ class Dataset:
 
     def __init__(self):
         object.__setattr__(self, "variables", {})
+        object.__setattr__(self, "dummy_dataset_config", DummyDatasetConfig())
 
     def define_population(self, population_condition):
         """
@@ -68,6 +74,16 @@ class Dataset:
         validate_population_definition(population_condition._qm_node)
         self.variables["population"] = population_condition
 
+    def configure_dummy_dataset(self, *, population_size):
+        """
+        Configure the dummy dataset.
+
+        ```py
+        dataset.configure_dummy_dataset(population_size=10000)
+        ```
+        """
+        self.dummy_dataset_config.population_size = population_size
+
     def __setattr__(self, name, value):
         if name == "population":
             raise AttributeError(
@@ -75,7 +91,7 @@ class Dataset:
             )
         if name in self.variables:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
-        if name in ("patient_id", "variables"):
+        if name in ("patient_id", "variables", "dummy_dataset_config"):
             raise AttributeError(f"'{name}' is not an allowed variable name")
         if not VALID_VARIABLE_NAME_RE.match(name):
             raise AttributeError(

@@ -132,8 +132,9 @@ def test_validate_dummy_data_error_path(study, tmp_path):
 def test_generate_dummy_data(study):
     study.setup_from_string(trivial_dataset_definition)
     study.generate(database=None, backend="expectations", extension=".csv")
-    header_line = study._dataset_path.read_text().splitlines()[0]
-    assert header_line == "patient_id,year"
+    lines = study._dataset_path.read_text().splitlines()
+    assert lines[0] == "patient_id,year"
+    assert len(lines) == 11  # 1 header, 10 rows
 
 
 def test_generate_dummy_data_with_dummy_tables(study, tmp_path):
@@ -157,5 +158,6 @@ def test_create_dummy_tables(study, tmp_path):
     dummy_tables_path = tmp_path / "subdir" / "dummy_data"
     study.setup_from_string(trivial_dataset_definition)
     study.create_dummy_tables(dummy_tables_path)
-    header_line = (dummy_tables_path / "patients.csv").read_text().splitlines()[0]
-    assert header_line == "patient_id,date_of_birth"
+    lines = (dummy_tables_path / "patients.csv").read_text().splitlines()
+    assert lines[0] == "patient_id,date_of_birth"
+    assert len(lines) == 11  # 1 header, 10 rows
