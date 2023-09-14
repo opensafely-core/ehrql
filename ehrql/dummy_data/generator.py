@@ -79,13 +79,13 @@ class DummyDataGenerator:
                 if found >= self.population_size:
                     break
 
+            if found >= self.population_size:
+                return data
+
             log.info(
                 f"Generated {batch_start + self.batch_size - 1} patients, "
                 f"found {found} matching"
             )
-
-            if found >= self.population_size:
-                return data
 
             if time.time() - start > self.timeout:
                 log.warn(
