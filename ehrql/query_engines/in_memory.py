@@ -11,6 +11,7 @@ from ehrql.query_engines.in_memory_database import (
     handle_null,
 )
 from ehrql.query_model import nodes as qm
+from ehrql.query_model.introspection import all_inline_patient_ids
 from ehrql.query_model.transforms import apply_transforms
 from ehrql.utils import date_utils, math_utils
 
@@ -38,9 +39,15 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
         variable_definitions = apply_transforms(variable_definitions)
 
+        # If the query contains any InlinePatientTables then we need to include all the
+        # patient IDs contained in those in our big list of all the patients
+        all_patients = self.all_patients.union(
+            all_inline_patient_ids(*variable_definitions.values())
+        )
+
         name_to_col = {
             "patient_id": PatientColumn(
-                {patient: patient for patient in self.all_patients},
+                {patient: patient for patient in all_patients},
                 default=None,
             )
         }

@@ -4,7 +4,7 @@ from datetime import date
 import sqlalchemy
 
 from ehrql import Dataset
-from ehrql.query_language import PatientFrame, Series, table_from_file
+from ehrql.query_language import PatientFrame, Series, table_from_file, table_from_rows
 from ehrql.query_model.nodes import Value
 from ehrql.tables.beta.core import patients
 
@@ -70,4 +70,38 @@ def test_handles_inline_patient_table(engine, tmp_path):
         {"patient_id": 2, "age": 32, "n": 220, "s": "b"},
         {"patient_id": 3, "age": 23, "n": None, "s": "c"},
         {"patient_id": 4, "age": None, "n": 440, "s": "d"},
+    ]
+
+
+def test_handles_inline_patient_table_with_different_patients(engine):
+    engine.populate(
+        {
+            patients: [
+                dict(patient_id=1, sex="female"),
+            ]
+        }
+    )
+
+    # This inline table contains patients which are not in the patients table
+    @table_from_rows(
+        [
+            (1, 10),
+            (2, 20),
+            (3, 30),
+        ]
+    )
+    class test_table(PatientFrame):
+        i = Series(int)
+
+    dataset = Dataset()
+    dataset.define_population(test_table.exists_for_patient())
+    dataset.i = test_table.i
+    dataset.sex = patients.sex
+
+    results = engine.extract(dataset)
+
+    assert results == [
+        {"patient_id": 1, "i": 10, "sex": "female"},
+        {"patient_id": 2, "i": 20, "sex": None},
+        {"patient_id": 3, "i": 30, "sex": None},
     ]

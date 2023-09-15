@@ -1,4 +1,9 @@
-from ehrql.query_model.nodes import SelectPatientTable, SelectTable, get_input_nodes
+from ehrql.query_model.nodes import (
+    InlinePatientTable,
+    SelectPatientTable,
+    SelectTable,
+    get_input_nodes,
+)
 
 
 def all_nodes(tree):  # pragma: no cover
@@ -38,3 +43,15 @@ def get_table_nodes(*nodes):
         for subnode in all_unique_nodes(*nodes)
         if isinstance(subnode, SelectTable | SelectPatientTable)
     }
+
+
+def all_inline_patient_ids(*nodes):
+    """
+    Given some nodes, return a set of all the patient IDs contained in any inline tables
+    referenced by those nodes
+    """
+    patient_ids = set()
+    for node in all_unique_nodes(*nodes):
+        if isinstance(node, InlinePatientTable):
+            patient_ids.update(row[0] for row in node.rows)
+    return patient_ids
