@@ -1,7 +1,7 @@
 from ehrql.query_model.nodes import SelectPatientTable, SelectTable, get_input_nodes
 
 
-def all_nodes(tree):
+def all_nodes(tree):  # pragma: no cover
     nodes = []
 
     for subnode in get_input_nodes(tree):

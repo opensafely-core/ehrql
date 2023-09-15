@@ -9,7 +9,7 @@ import pytest
 import sqlalchemy.exc
 
 from ehrql.dummy_data import DummyDataGenerator
-from ehrql.query_model.introspection import node_types
+from ehrql.query_model.introspection import all_unique_nodes
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Column,
@@ -106,7 +106,7 @@ def test_variable_strategy_is_comprehensive():
     @hyp.seed(123456)
     @hyp.given(variable=variable_strategy)
     def record_operations_seen(variable):
-        operations_seen.update(node_types(variable))
+        operations_seen.update(type(node) for node in all_unique_nodes(variable))
 
     record_operations_seen()
 
