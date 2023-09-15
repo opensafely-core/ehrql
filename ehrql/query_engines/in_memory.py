@@ -97,7 +97,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
             value = self.convert_value(node.value)
         return PatientColumn(
             {patient: value for patient in self.all_patients},
-            default=None,
+            default=value,
         )
 
     def convert_value(self, value):

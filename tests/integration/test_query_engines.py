@@ -95,13 +95,13 @@ def test_handles_inline_patient_table_with_different_patients(engine):
 
     dataset = Dataset()
     dataset.define_population(test_table.exists_for_patient())
-    dataset.i = test_table.i
+    dataset.n = test_table.i + 100
     dataset.sex = patients.sex
 
     results = engine.extract(dataset)
 
     assert results == [
-        {"patient_id": 1, "i": 10, "sex": "female"},
-        {"patient_id": 2, "i": 20, "sex": None},
-        {"patient_id": 3, "i": 30, "sex": None},
+        {"patient_id": 1, "n": 110, "sex": "female"},
+        {"patient_id": 2, "n": 120, "sex": None},
+        {"patient_id": 3, "n": 130, "sex": None},
     ]
