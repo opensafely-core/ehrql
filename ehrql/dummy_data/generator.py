@@ -1,4 +1,5 @@
 import functools
+import itertools
 import random
 import string
 import time
@@ -9,6 +10,7 @@ import structlog
 from ehrql.dummy_data.query_info import QueryInfo
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
+from ehrql.query_model.introspection import all_inline_patient_ids
 from ehrql.tables import Constraint
 from ehrql.utils.orm_utils import orm_classes_from_tables
 from ehrql.utils.regex_utils import create_regex_generator
@@ -107,8 +109,21 @@ class DummyDataGenerator:
         assert False
 
     def get_patient_id_batches(self):
-        for batch_start in range(1, 2**63, self.batch_size):
-            yield range(batch_start, batch_start + self.batch_size)
+        id_stream = self.get_patient_id_stream()
+        while True:
+            yield itertools.islice(id_stream, self.batch_size)
+
+    def get_patient_id_stream(self):
+        # Where a query involves inline tables we want to extract all the patient IDs
+        # and include them in the IDs for which we're going to generate dummy data
+        inline_patient_ids = all_inline_patient_ids(*self.variable_definitions.values())
+        yield from sorted(inline_patient_ids)
+        for i in range(1, 2**63):
+            if i not in inline_patient_ids:
+                yield i
+        else:
+            # Keep coverage happy: the loop should never complete
+            assert False
 
     def get_results(self):
         database = InMemoryDatabase()
