@@ -7,8 +7,21 @@ import pytest
 from ehrql import Dataset
 from ehrql.dummy_data.generator import DummyDataGenerator, DummyPatientGenerator
 from ehrql.dummy_data.query_info import ColumnInfo, TableInfo
-from ehrql.query_language import compile
+from ehrql.query_language import compile, table_from_rows
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
+
+
+class NotNull:
+    """
+    Useful for pytest assertions where we don't care what a value nested in a dictionary
+    is, just that it isn't null
+    """
+
+    def __eq__(self, other):
+        return other is not None
+
+    def __repr__(self):  # pragma: no cover
+        return f"{self.__class__.__name__}()"
 
 
 @table
@@ -114,6 +127,66 @@ def test_dummy_data_generator_timeout_with_no_results(patched_time):
 
     # Expecting 1 patient * 1 table
     assert len(data) == 1
+
+
+@pytest.mark.parametrize("inline_table_only", [True, False])
+@mock.patch("ehrql.dummy_data.generator.time")
+def test_dummy_data_generator_with_inline_patient_table(
+    patched_time, inline_table_only
+):
+    # We're deliberately using high valued IDs here which the dummy data system wouldn't
+    # naturally generate
+    @table_from_rows(
+        [
+            # Plus one low-valued ID which we _do_ expect it to generate
+            (1, 1),
+            (1234567890, 2),
+            (1234567891, 3),
+            (1234567892, 4),
+            (1234567893, 5),
+            (1234567894, 6),
+        ]
+    )
+    class inline_table(PatientFrame):
+        i = Series(int)
+
+    # Define a basic dataset
+    dataset = Dataset()
+    dataset.i = inline_table.i
+    dataset.sex = patients.sex
+
+    # Define population: we need to test a population definition that only involves an
+    # inline table and, separately, one that involves another table because these result
+    # in different failure modes
+    if inline_table_only:
+        dataset.define_population(inline_table.exists_for_patient())
+    else:
+        dataset.define_population(
+            inline_table.exists_for_patient() & patients.date_of_birth.is_not_null()
+        )
+
+    # Generate some results
+    variable_definitions = compile(dataset)
+    generator = DummyDataGenerator(variable_definitions)
+    # We're asking for more results than we can possibly get (because there are only 6
+    # patients in the inline table). We expect the attempt to timeout and just return 6
+    # results.
+    generator.population_size = 10
+    generator.timeout = 10
+    generator.batch_size = 10
+    # Configure `time.time()` so we timeout after two loop passes
+    patched_time.time.side_effect = [0.0, 5.0, 20.0]
+
+    results = [row._asdict() for row in generator.get_results()]
+
+    assert results == [
+        {"patient_id": 1, "i": 1, "sex": NotNull()},
+        {"patient_id": 1234567890, "i": 2, "sex": NotNull()},
+        {"patient_id": 1234567891, "i": 3, "sex": NotNull()},
+        {"patient_id": 1234567892, "i": 4, "sex": NotNull()},
+        {"patient_id": 1234567893, "i": 5, "sex": NotNull()},
+        {"patient_id": 1234567894, "i": 6, "sex": NotNull()},
+    ]
 
 
 @pytest.mark.parametrize("type_", [bool, int, float, str, datetime.date])
