@@ -18,10 +18,23 @@ def node_types(tree):  # pragma: no cover
     return [type(node) for node in all_nodes(tree)]
 
 
-def get_table_nodes(*nodes):
-    table_nodes = set()
+def all_unique_nodes(*nodes):
+    found = set()
     for node in nodes:
-        for subnode in all_nodes(node):
-            if isinstance(subnode, SelectTable | SelectPatientTable):
-                table_nodes.add(subnode)
-    return table_nodes
+        gather_unique_nodes(node, found)
+    return found
+
+
+def gather_unique_nodes(node, found):
+    found.add(node)
+    for subnode in get_input_nodes(node):
+        if subnode not in found:
+            gather_unique_nodes(subnode, found)
+
+
+def get_table_nodes(*nodes):
+    return {
+        subnode
+        for subnode in all_unique_nodes(*nodes)
+        if isinstance(subnode, SelectTable | SelectPatientTable)
+    }
