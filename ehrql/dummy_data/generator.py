@@ -79,6 +79,11 @@ class DummyDataGenerator:
             results = engine.get_results(population_query)
             # Accumulate all data from matching patients, returning once we have enough
             for row in results:
+                # Because of the existence of InlinePatientTables it's possible to get
+                # patients out of a population which we didn't put in. We want to ignore
+                # these.
+                if row.patient_id not in patient_batch:
+                    continue
                 data.extend(patient_batch[row.patient_id])
                 # Include additional data needed for the dataset but not required just
                 # to determine population membership
