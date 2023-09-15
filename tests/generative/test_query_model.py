@@ -9,6 +9,7 @@ import pytest
 import sqlalchemy.exc
 
 from ehrql.dummy_data import DummyDataGenerator
+from ehrql.query_model.introspection import node_types
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Column,
@@ -18,7 +19,6 @@ from ehrql.query_model.nodes import (
     SelectPatientTable,
     TableSchema,
     Value,
-    node_types,
 )
 from tests.lib.query_model_utils import get_all_operations
 

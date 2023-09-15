@@ -16,6 +16,7 @@ want to keep them separate from the core query model classes.
 from collections import defaultdict
 from typing import Any
 
+from ehrql.query_model.introspection import all_nodes
 from ehrql.query_model.nodes import (
     Case,
     Function,
@@ -24,7 +25,6 @@ from ehrql.query_model.nodes import (
     SelectColumn,
     Sort,
     Value,
-    all_nodes,
     get_input_nodes,
     get_series_type,
     get_sorts,
