@@ -38,11 +38,7 @@ __all__ = [
     "has_one_row_per_patient",
     "has_many_rows_per_patient",
     "get_series_type",
-    "all_nodes",
-    "get_table_nodes",
     "get_domain",
-    "count_nodes",
-    "node_types",
     "get_input_nodes",
     "get_root_frame",
 ]
@@ -683,32 +679,6 @@ def is_sorted_sort(frame):
 @is_sorted.register(Filter)
 def is_sorted_filter(frame):
     return is_sorted(frame.source)
-
-
-def all_nodes(tree):
-    nodes = []
-
-    for subnode in get_input_nodes(tree):
-        for node in all_nodes(subnode):
-            nodes.append(node)
-    return [tree] + nodes
-
-
-def count_nodes(tree):  # pragma: no cover
-    return len(all_nodes(tree))
-
-
-def node_types(tree):  # pragma: no cover
-    return [type(node) for node in all_nodes(tree)]
-
-
-def get_table_nodes(*nodes):
-    table_nodes = set()
-    for node in nodes:
-        for subnode in all_nodes(node):
-            if isinstance(subnode, SelectTable | SelectPatientTable):
-                table_nodes.add(subnode)
-    return table_nodes
 
 
 # TYPE VALIDATION

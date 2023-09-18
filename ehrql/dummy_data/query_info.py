@@ -2,6 +2,7 @@ import dataclasses
 from collections import defaultdict
 from functools import cached_property
 
+from ehrql.query_model.introspection import all_unique_nodes, get_table_nodes
 from ehrql.query_model.nodes import (
     Column,
     Function,
@@ -11,7 +12,6 @@ from ehrql.query_model.nodes import (
     SelectTable,
     TableSchema,
     Value,
-    get_input_nodes,
     get_root_frame,
 )
 
@@ -97,7 +97,7 @@ class QueryInfo:
 
     @classmethod
     def from_variable_definitions(cls, variable_definitions):
-        all_nodes = walk_tree(*variable_definitions.values())
+        all_nodes = all_unique_nodes(*variable_definitions.values())
         by_type = get_nodes_by_type(all_nodes)
 
         tables = {
@@ -154,9 +154,7 @@ class QueryInfo:
         # Record which tables are used in determining population membership and which
         # are not
         population_table_names = {
-            node.name
-            for node in walk_tree(variable_definitions["population"])
-            if isinstance(node, SelectTable | SelectPatientTable)
+            node.name for node in get_table_nodes(variable_definitions["population"])
         }
 
         other_table_names = tables.keys() - population_table_names
@@ -173,12 +171,6 @@ def get_nodes_by_type(nodes):
     for node in nodes:
         by_type[type(node)].add(node)
     return by_type
-
-
-def walk_tree(*nodes):
-    for node in nodes:
-        yield node
-        yield from walk_tree(*get_input_nodes(node))
 
 
 def sort_by_name(iterable):

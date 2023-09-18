@@ -3,9 +3,10 @@ the in-memory engine.
 
 See tests in test_database.py for comprehensive examples of how this all works.
 """
-
 from collections import UserDict, defaultdict
 from dataclasses import dataclass
+
+import sqlalchemy
 
 from ehrql.utils.itertools_utils import iter_flatten
 from ehrql.utils.orm_utils import table_has_one_row_per_patient
@@ -22,7 +23,8 @@ class InMemoryDatabase:
         elif input_data:
             metadata = input_data[0].metadata
         else:
-            assert False, "No source of metadata"
+            metadata = sqlalchemy.MetaData()
+
         assert all(item.metadata is metadata for item in input_data)
 
         sqla_table_to_items = {table: [] for table in metadata.sorted_tables}

@@ -1,4 +1,5 @@
 import functools
+import itertools
 import random
 import string
 import time
@@ -9,6 +10,7 @@ import structlog
 from ehrql.dummy_data.query_info import QueryInfo
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
+from ehrql.query_model.introspection import all_inline_patient_ids
 from ehrql.tables import Constraint
 from ehrql.utils.orm_utils import orm_classes_from_tables
 from ehrql.utils.regex_utils import create_regex_generator
@@ -45,6 +47,7 @@ class DummyDataGenerator:
         generator = self.patient_generator
         data = []
         found = 0
+        generated = 0
 
         # Create a version of the query with just the population definition, and an
         # in-memory engine to run it against
@@ -62,19 +65,25 @@ class DummyDataGenerator:
         )
         start = time.time()
 
-        for batch_start in range(1, 2**63, self.batch_size):
+        for patient_id_batch in self.get_patient_id_batches():
             # Generate batches of patient data (just enough to determine population
             # membership) and find those matching the population definition
             patient_batch = {
                 patient_id: list(
                     generator.get_patient_data_for_population_condition(patient_id)
                 )
-                for patient_id in range(batch_start, batch_start + self.batch_size)
+                for patient_id in patient_id_batch
             }
+            generated += len(patient_batch)
             database.setup(*patient_batch.values())
             results = engine.get_results(population_query)
             # Accumulate all data from matching patients, returning once we have enough
             for row in results:
+                # Because of the existence of InlinePatientTables it's possible to get
+                # patients out of a population which we didn't put in. We want to ignore
+                # these.
+                if row.patient_id not in patient_batch:
+                    continue
                 data.extend(patient_batch[row.patient_id])
                 # Include additional data needed for the dataset but not required just
                 # to determine population membership
@@ -86,10 +95,7 @@ class DummyDataGenerator:
             if found >= self.population_size:
                 return data
 
-            log.info(
-                f"Generated {batch_start + self.batch_size - 1} patients, "
-                f"found {found} matching"
-            )
+            log.info(f"Generated {generated} patients, found {found} matching")
 
             if time.time() - start > self.timeout:
                 log.warn(
@@ -106,6 +112,23 @@ class DummyDataGenerator:
 
         # Keep coverage happy: the loop should never complete
         assert False
+
+    def get_patient_id_batches(self):
+        id_stream = self.get_patient_id_stream()
+        while True:
+            yield itertools.islice(id_stream, self.batch_size)
+
+    def get_patient_id_stream(self):
+        # Where a query involves inline tables we want to extract all the patient IDs
+        # and include them in the IDs for which we're going to generate dummy data
+        inline_patient_ids = all_inline_patient_ids(*self.variable_definitions.values())
+        yield from sorted(inline_patient_ids)
+        for i in range(1, 2**63):
+            if i not in inline_patient_ids:
+                yield i
+        else:
+            # Keep coverage happy: the loop should never complete
+            assert False
 
     def get_results(self):
         database = InMemoryDatabase()

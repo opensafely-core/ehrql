@@ -16,6 +16,7 @@ want to keep them separate from the core query model classes.
 from collections import defaultdict
 from typing import Any
 
+from ehrql.query_model.introspection import all_unique_nodes
 from ehrql.query_model.nodes import (
     Case,
     Function,
@@ -24,7 +25,6 @@ from ehrql.query_model.nodes import (
     SelectColumn,
     Sort,
     Value,
-    all_nodes,
     get_input_nodes,
     get_series_type,
     get_sorts,
@@ -45,7 +45,7 @@ def apply_transforms(variables):
     # transforms. While we only have one this is obviously fine! It _might_ be OK as we
     # add more depending on whether they're commutative but we should be careful here
     # and might decide we want to restructure things to keep the transforms independent.
-    nodes = all_nodes_from_variables(variables)
+    nodes = all_unique_nodes(*variables.values())
     reverse_index = build_reverse_index(nodes)
 
     transforms = [
@@ -173,15 +173,6 @@ def make_sortable(col):
             cases={col: Value(2), Function.Not(col): Value(1)}, default=Value(0)
         )
     return col
-
-
-def all_nodes_from_variables(variables):
-    nodes = set()
-    for query in variables.values():
-        query_nodes = all_nodes(query)
-        for query_node in query_nodes:
-            nodes.add(query_node)
-    return nodes
 
 
 def build_reverse_index(nodes):

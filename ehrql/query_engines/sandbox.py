@@ -2,7 +2,8 @@ from functools import reduce
 
 from ehrql.query_engines.csv import CSVQueryEngine
 from ehrql.query_language import compile
-from ehrql.query_model.nodes import AggregateByPatient, Function, get_table_nodes
+from ehrql.query_model.introspection import get_table_nodes
+from ehrql.query_model.nodes import AggregateByPatient, Function
 
 
 class SandboxQueryEngine(CSVQueryEngine):
