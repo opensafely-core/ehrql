@@ -57,7 +57,7 @@ class DummyDataGenerator:
             f"(random seed: {self.random_seed}, timeout: {self.timeout}s)"
         )
         log.info(
-            "Use `dataset.configure_dummy_dataset(population_size=N)` "
+            "Use `dataset.configure_dummy_data(population_size=N)` "
             "to change number of patients generated"
         )
         start = time.time()

@@ -12,6 +12,7 @@ from ehrql.query_model.column_specs import get_column_specs_from_schema
 from ehrql.query_model.nodes import get_series_type, has_one_row_per_patient
 from ehrql.query_model.population_validation import validate_population_definition
 from ehrql.utils import date_utils
+from ehrql.utils.docs_utils import exclude_from_docs
 from ehrql.utils.string_utils import strip_indent
 
 
@@ -74,15 +75,22 @@ class Dataset:
         validate_population_definition(population_condition._qm_node)
         self.variables["population"] = population_condition
 
-    def configure_dummy_dataset(self, *, population_size):
+    def configure_dummy_data(self, *, population_size):
         """
-        Configure the dummy dataset.
+        Configure the dummy data to be generated.
 
         ```py
-        dataset.configure_dummy_dataset(population_size=10000)
+        dataset.configure_dummy_data(population_size=10000)
         ```
         """
         self.dummy_dataset_config.population_size = population_size
+
+    @exclude_from_docs
+    def configure_dummy_dataset(self, **kwargs):  # pragma: no cover
+        """
+        Deprecated alias from `configure_dummy_data`
+        """
+        return self.configure_dummy_data(**kwargs)
 
     def __setattr__(self, name, value):
         if name == "population":
