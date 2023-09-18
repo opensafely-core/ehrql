@@ -26,11 +26,6 @@ notice that two column headers correspond to the two columns
 — `asthma_med_date` and `asthma_med_code` —
 that you added to the dataset definition.
 
-Also notice the lines that start with `[info]`.
-These show that the dummy data generator generated dummy data for 5,000 patients;
-found 500 that matched the dataset definition;
-and displayed them in the terminal.
-
 ![A screenshot of VS Code, showing the terminal after the `opensafely exec` command was run](opensafely_exec.png)
 
 ??? tip "The anatomy of an OpenSAFELY command"
