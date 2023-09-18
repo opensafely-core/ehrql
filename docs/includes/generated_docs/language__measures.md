@@ -1,13 +1,22 @@
+
+<h4 class="attr-heading" id="create_measures" data-toc-label="create_measures" markdown>
+  <tt><strong>create_measures</strong>()</tt>
+</h4>
+<div markdown="block" class="indent">
+A measure definition file must define a collection of measures called `measures`.
+
+```py
+measures = create_measures()
+```
+</div>
+
+
 <h4 class="attr-heading" id="Measures" data-toc-label="Measures" markdown>
   <tt><em>class</em> <strong>Measures</strong>()</tt>
 </h4>
 
 <div markdown="block" class="indent">
-Define a collection of measures to be generated. Each measure definition file must
-define a single `Measures()` instance called `measures` like so:
-```py
-measures = Measures()
-```
+Create a collection of measures with [`create_measures`](#create_measures).
 <div class="attr-heading" id="Measures.define_measure">
   <tt><strong>define_measure</strong>(<em>name</em>, <em>numerator=None</em>, <em>denominator=None</em>, <em>group_by=None</em>, <em>intervals=None</em>)</tt>
   <a class="headerlink" href="#Measures.define_measure" title="Permanent link">🔗</a>

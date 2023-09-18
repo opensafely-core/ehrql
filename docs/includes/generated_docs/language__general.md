@@ -1,21 +1,31 @@
+
+<h4 class="attr-heading" id="create_dataset" data-toc-label="create_dataset" markdown>
+  <tt><strong>create_dataset</strong>()</tt>
+</h4>
+<div markdown="block" class="indent">
+A dataset defines the patients you want to include in your population and the
+variables you want to extract for them.
+
+A dataset definition file must define a dataset called `dataset`:
+
+```py
+dataset = create_dataset()
+```
+
+Add variables to the dataset as attributes:
+
+```py
+dataset.age = patients.age_on("2020-01-01")
+```
+</div>
+
+
 <h4 class="attr-heading" id="Dataset" data-toc-label="Dataset" markdown>
   <tt><em>class</em> <strong>Dataset</strong>()</tt>
 </h4>
 
 <div markdown="block" class="indent">
-Defines the patients you want to include in your dataset and the variables you want
-to extract for each patient.
-
-Every dataset definition file must define a `Dataset()` instance called `dataset`
-like so:
-```py
-dataset = Dataset()
-```
-
-Variables are added to the dataset as attributes, for example:
-```py
-dataset.age = patients.age_on("2020-01-01")
-```
+Create a dataset with [`create_dataset`](#create_dataset).
 <div class="attr-heading" id="Dataset.define_population">
   <tt><strong>define_population</strong>(<em>population_condition</em>)</tt>
   <a class="headerlink" href="#Dataset.define_population" title="Permanent link">🔗</a>
