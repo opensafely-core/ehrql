@@ -28,15 +28,15 @@ dataset.define_population(patients.date_of_birth < "1990-01-01")
 ```
 </div>
 
-<div class="attr-heading" id="Dataset.configure_dummy_dataset">
-  <tt><strong>configure_dummy_dataset</strong>(<em>population_size</em>)</tt>
-  <a class="headerlink" href="#Dataset.configure_dummy_dataset" title="Permanent link">🔗</a>
+<div class="attr-heading" id="Dataset.configure_dummy_data">
+  <tt><strong>configure_dummy_data</strong>(<em>population_size</em>)</tt>
+  <a class="headerlink" href="#Dataset.configure_dummy_data" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Configure the dummy dataset.
+Configure the dummy data to be generated.
 
 ```py
-dataset.configure_dummy_dataset(population_size=10000)
+dataset.configure_dummy_data(population_size=10000)
 ```
 </div>
 
