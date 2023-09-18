@@ -90,6 +90,7 @@ def build_language():
             },
         ),
         "measures": {
+            "create_measures": namespace["create_measures"],
             "Measures": namespace["Measures"],
             "INTERVAL": namespace["INTERVAL"],
         },

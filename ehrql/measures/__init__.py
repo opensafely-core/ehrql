@@ -3,7 +3,7 @@ from ehrql.measures.calculate import (
     get_measure_results,
 )
 from ehrql.measures.dummy_data import DummyMeasuresDataGenerator
-from ehrql.measures.measures import INTERVAL, Measures
+from ehrql.measures.measures import INTERVAL, Measures, create_measures
 
 
 __all__ = [
@@ -12,4 +12,5 @@ __all__ = [
     "DummyMeasuresDataGenerator",
     "INTERVAL",
     "Measures",
+    "create_measures",
 ]

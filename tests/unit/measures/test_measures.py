@@ -4,7 +4,7 @@ from datetime import date
 import pytest
 
 from ehrql import Measures, months
-from ehrql.measures.measures import Measure, ValidationError
+from ehrql.measures.measures import Measure, ValidationError, create_measures
 from ehrql.tables import PatientFrame, Series, table
 
 
@@ -14,6 +14,10 @@ class patients(PatientFrame):
     score = Series(int)
     category = Series(str)
     style = Series(str)
+
+
+def test_create_measures():
+    assert isinstance(create_measures(), Measures)
 
 
 def test_define_measures():
