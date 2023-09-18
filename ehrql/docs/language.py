@@ -164,6 +164,8 @@ def build_class_details(name, cls):
 def is_included_attr(name, attr):
     if name.startswith("_") and name not in OPERATORS:
         return False
+    if getattr(attr, "exclude_from_docs", None):
+        return False
     return inspect.isfunction(attr) or inspect.isdatadescriptor(attr)
 
 
