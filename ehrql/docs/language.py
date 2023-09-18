@@ -64,6 +64,7 @@ def build_language():
 
     sections = {
         "general": dict(
+            create_dataset=namespace["create_dataset"],
             Dataset=namespace["Dataset"],
             case=namespace["case"],
             codelist_from_csv=namespace["codelist_from_csv"],

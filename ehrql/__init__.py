@@ -5,6 +5,7 @@ from ehrql.measures import INTERVAL, Measures
 from ehrql.query_language import (
     Dataset,
     case,
+    create_dataset,
     days,
     maximum_of,
     minimum_of,
@@ -25,6 +26,7 @@ __all__ = [
     "Measures",
     "Dataset",
     "case",
+    "create_dataset",
     "days",
     "maximum_of",
     "minimum_of",

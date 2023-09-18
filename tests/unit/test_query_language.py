@@ -28,6 +28,7 @@ from ehrql.query_language import (
     StrEventSeries,
     StrPatientSeries,
     compile,
+    create_dataset,
     days,
     months,
     parse_date_if_str,
@@ -70,6 +71,10 @@ class events(EventFrame):
 
 
 events_schema = TableSchema(event_date=Column(date), f=Column(float))
+
+
+def test_create_dataset():
+    assert isinstance(create_dataset(), Dataset)
 
 
 def test_dataset():

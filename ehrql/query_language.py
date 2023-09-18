@@ -45,19 +45,7 @@ class _DictArg(list):
 
 class Dataset:
     """
-    Defines the patients you want to include in your dataset and the variables you want
-    to extract for each patient.
-
-    Every dataset definition file must define a `Dataset()` instance called `dataset`
-    like so:
-    ```py
-    dataset = Dataset()
-    ```
-
-    Variables are added to the dataset as attributes, for example:
-    ```py
-    dataset.age = patients.age_on("2020-01-01")
-    ```
+    Create a dataset with [`create_dataset`](#create_dataset).
     """
 
     def __init__(self):
@@ -121,6 +109,26 @@ class Dataset:
         if name in self.variables:
             return self.variables[name]
         raise AttributeError(f"Variable '{name}' has not been defined")
+
+
+def create_dataset():
+    """
+    A dataset defines the patients you want to include in your population and the
+    variables you want to extract for them.
+
+    A dataset definition file must define a dataset called `dataset`:
+
+    ```py
+    dataset = create_dataset()
+    ```
+
+    Add variables to the dataset as attributes:
+
+    ```py
+    dataset.age = patients.age_on("2020-01-01")
+    ```
+    """
+    return Dataset()
 
 
 def compile(dataset):  # noqa A003
