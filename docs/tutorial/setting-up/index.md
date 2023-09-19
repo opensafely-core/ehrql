@@ -11,7 +11,7 @@ In this section, you will create a new repository from a template.
 The new repository will live within your personal account;
 the template lives within the opensafely organization.
 
-1. Visit <https://github.com/opensafely/ehrql-tutorial>
+1. Visit <a target="_blank" href="https://github.com/opensafely/ehrql-tutorial">https://github.com/opensafely/ehrql-tutorial</a>
 
 1. Click **Use this template**
 
