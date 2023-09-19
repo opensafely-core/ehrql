@@ -40,7 +40,8 @@ A *codespace* is a development environment that's hosted in the cloud.
 
 1. Click **Create codespace on main**
 
-The codespace will open in a new tab.
+It will take roughly two minutes to create the codespace,
+which will open in a new tab.
 
 ## Run an OpenSAFELY command
 
