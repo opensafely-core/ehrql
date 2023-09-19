@@ -206,7 +206,8 @@ class ArrowDatasetReader(BaseDatasetReader):
             )
         if pyarrow.types.is_dictionary(column.type) and spec.categories is not None:
             column_categories = column.dictionary.to_pylist()
-            if column_categories != list(spec.categories):
+            unexpected_categories = set(column_categories) - set(spec.categories)
+            if unexpected_categories:
                 return (
                     f"Unexpected categories in column '{name}'\n"
                     f"  Categories: {', '.join(column_categories)}\n"
