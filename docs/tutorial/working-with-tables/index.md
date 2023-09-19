@@ -31,6 +31,20 @@ first import it into the sandbox.
 >>> from ehrql.tables.beta.core import patients
 ```
 
+??? tip "Importing tables into the sandbox"
+    Importing a table into the sandbox doesn't display any output.
+    In other words, typing
+
+    ```pycon
+    >>> from ehrql.tables.beta.core import patients
+    ```
+
+    into the sandbox and pressing ++enter++ displays
+
+    ```pycon
+    >>>
+    ```
+
 The `patients` table has one row per patient.
 Notice that all values in the `patient_id` column are unique.
 
