@@ -33,10 +33,8 @@ that you added to the dataset definition.
     `opensafely exec ehrql:v0 generate-dataset dataset_definition.py`
     do?
 
-    * `opensafely exec` executes an OpenSAFELY action outside [the project pipeline][1]
+    * `opensafely exec` executes an OpenSAFELY action independently of other OpenSAFELY actions
     * `ehrql` is the OpenSAFELY action to execute
     * `v0` is the major version of the ehrQL action
     * `generate-dataset` is the ehrQL command to generate a dataset from a dataset definition
     * `dataset_definition.py` is the dataset definition
-
-[1]: https://docs.opensafely.org/actions-pipelines/
