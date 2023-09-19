@@ -223,7 +223,7 @@ dataset.asthma_med_date = latest_asthma_med.date
 Select the code column and add it to the dataset.
 
 ```python
-dataset.asthma_med_date = latest_asthma_med.date
+dataset.asthma_med_code = latest_asthma_med.dmd_code
 ```
 
 ## Save the dataset definition
