@@ -1,15 +1,5 @@
 In this section, you will generate a dummy dataset.
 
-## Exit the sandbox
-
-Exit the sandbox and return to the terminal.
-
-```pycon
->>> quit()
-```
-
-![A screenshot of VS Code, showing the terminal](the_terminal.png)
-
 ## Generate a dummy dataset
 
 In the terminal, type

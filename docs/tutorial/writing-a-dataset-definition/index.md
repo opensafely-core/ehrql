@@ -293,3 +293,13 @@ dataset.asthma_med_code = latest_asthma_med.dmd_code
     ![VS Code's menu icon](menu_icon.png){ width=50 }
 
 1. Click **File > Save**
+
+## Exit the sandbox
+
+Exit the sandbox and return to the terminal.
+
+```pycon
+>>> quit()
+```
+
+![A screenshot of VS Code, showing the terminal](the_terminal.png)
