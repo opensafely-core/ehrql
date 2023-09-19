@@ -188,10 +188,10 @@ into a new file called `dataset_definition.py`
 and save it in your `learning-ehrql` directory:
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.core import patients, medications
 
-dataset = Dataset()
+dataset = create_dataset()
 
 dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
 

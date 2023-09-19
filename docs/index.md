@@ -48,10 +48,10 @@ The following dataset definition selects the date and the code of each patient's
 for all patients born on or before 31 December 1999.
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.core import patients, medications
 
-dataset = Dataset()
+dataset = create_dataset()
 
 dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
 
