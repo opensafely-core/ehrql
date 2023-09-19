@@ -1,4 +1,6 @@
 In this section, you will work with tables in the sandbox.
+The *sandbox* is an environment for experimenting with ehrQL
+that contains a small amount of dummy data.
 
 ## Start the sandbox
 
