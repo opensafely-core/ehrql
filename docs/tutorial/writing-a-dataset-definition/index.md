@@ -3,10 +3,10 @@ It selects the date and the code of each patient's most recent asthma medication
 for all patients born on or before 31 December 1999.
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.core import patients, medications
 
-dataset = Dataset()
+dataset = create_dataset()
 
 dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
 
@@ -36,17 +36,15 @@ you should type the code into *dataset_definition.py*.
     Remember, when you see `>>>`,
     you should type the code that follows into the sandbox and press ++enter++.
 
-## Import the `Dataset` object
-
-Think of the `Dataset` object as a blueprint for a dataset.
+## Import the `create_dataset` function
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 ```
 
-??? tip "Import the `Dataset` object"
+??? tip "Import the `create_dataset` function"
     ```pycon
-    >>> from ehrql import Dataset
+    >>> from ehrql import create_dataset
     ```
 
 ## Import the tables
@@ -65,10 +63,8 @@ from ehrql.tables.beta.core import patients, medications
 
 ## Create the dataset
 
-Create the dataset from the `Dataset` object.
-
 ```python
-dataset = Dataset()
+dataset = create_dataset()
 ```
 
 ## Define the population

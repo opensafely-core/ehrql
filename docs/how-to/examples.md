@@ -50,10 +50,10 @@ You can see an example of [how to access these categories within your dataset de
 ### Finding each patient's age
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import patients
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.age = patients.age_on("2023-01-01")
 ```
 
@@ -61,31 +61,31 @@ Alternatively, using a native Python `date`:
 
 ```python
 from datetime import date
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import patients
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.age = patients.age_on(date(2023, 1, 1))
 ```
 
 Or using an `index_date` variable:
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import patients
 
 index_date = "2023-01-01"
-dataset = Dataset()
+dataset = create_dataset()
 dataset.age = patients.age_on(index_date)
 ```
 
 ### Assigning each patient an age band
 
 ```python
-from ehrql import Dataset, case, when
+from ehrql import create_dataset, case, when
 from ehrql.tables.beta.tpp import patients
 
-dataset = Dataset()
+dataset = create_dataset()
 age = patients.age_on("2023-01-01")
 dataset.age_band = case(
         when(age < 20).then("0-19"),
@@ -100,20 +100,20 @@ dataset.age_band = case(
 ### Finding each patient's date of birth
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import patients
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.date_of_birth = patients.date_of_birth
 ```
 
 ### Finding each patient's date of death in their primary care record
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import patients
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.date_of_death = patients.date_of_death
 ```
 
@@ -127,10 +127,10 @@ By contrast, cause of death is often not accurate in the primary care record so 
 ### Finding each patient's date, place, and cause of death from ONS records
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import ons_deaths
 
-dataset = Dataset()
+dataset = create_dataset()
 last_ons_death = ons_deaths.sort_by(ons_deaths.date).last_for_patient()
 dataset.date_of_death = last_ons_death.date
 dataset.place_of_death = last_ons_death.place
@@ -142,10 +142,10 @@ dataset.cause_of_death = last_ons_death.cause_of_death_01
 ### Finding each patient's sex
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import patients
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.sex = patients.sex
 ```
 
@@ -156,11 +156,11 @@ The possible values are "female", "male", "intersex", and "unknown".
 Ethnicity can be defined using a codelist. There are a lot of individual codes that can used to indicate a patients' fine-grained ethnicity. To make analysis more manageable, ethnicity is therefore commonly grouped into higher level categories. Above, we described how you can [import codelists that have a category column](#some-examples-using-codelist_from_csv). You can use a codelist with a category column to map clinical event codes for ethnicity to higher level categories as in this example:
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.core import clinical_events
 from ehrql.codes import codelist_from_csv
 
-dataset = Dataset()
+dataset = create_dataset()
 
 ethnicity_codelist = codelist_from_csv(
     "ethnicity_codelist_with_categories",
@@ -185,10 +185,10 @@ latest_ethnicity_group = latest_ethnicity_code.to_category(
 ### Finding each patient's IMD rank
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import addresses
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.imd = addresses.for_patient_on("2023-01-01").imd_rounded
 ```
 
@@ -200,10 +200,10 @@ See [this code comment](https://github.com/opensafely-core/ehrql/blob/d29ff8ab2c
 ### Calculating each patient's IMD quintile
 
 ```python
-from ehrql import Dataset, case, when
+from ehrql import create_dataset, case, when
 from ehrql.tables.beta.tpp import addresses
 
-dataset = Dataset()
+dataset = create_dataset()
 imd = addresses.for_patient_on("2023-01-01").imd_rounded
 dataset.imd_quintile = case(
     when((imd >=0) & (imd < int(32844 * 1 / 5))).then("1 (most deprived)"),
@@ -218,10 +218,10 @@ dataset.imd_quintile = case(
 ### Finding each patient's rural/urban classification
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import addresses
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.rural_urban = addresses.for_patient_on("2023-01-01").rural_urban_classification
 ```
 
@@ -239,20 +239,20 @@ The meaning of this value is as follows:
 ### Finding each patient's MSOA
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import addresses
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.msoa = addresses.for_patient_on("2023-01-01").msoa
 ```
 
 ### Finding multiple attributes of each patient's address
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import addresses
 
-dataset = Dataset()
+dataset = create_dataset()
 address = addresses.for_patient_on("2023-01-01")
 dataset.imd = address.imd
 dataset.rural_urban_classification = address.rural_urban_classification
@@ -264,40 +264,40 @@ dataset.msoa = address.msoa
 ### Finding each patient's practice's pseudonymised identifier
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import practice_registrations
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.practice = practice_registrations.for_patient_on("2023-01-01").practice_pseudo_id
 ```
 
 ### Finding each patient's practice's STP
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import practice_registrations
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.stp = practice_registrations.for_patient_on("2023-01-01").practice_stp
 ```
 
 ### Finding each patient's practice's region
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import practice_registrations
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.region = practice_registrations.for_patient_on("2023-01-01").nuts1_region_name
 ```
 
 ### Finding multiple attributes of each patient's practice
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import practice_registrations
 
-dataset = Dataset()
+dataset = create_dataset()
 registration = practice_registrations.for_patient_on("2023-01-01")
 dataset.practice = registration.practice_pseudo_id
 dataset.stp = registration.practice_stp
@@ -309,12 +309,12 @@ dataset.region = registration.nuts1_region_name
 ### Does each patient have a clinical event matching a code in a codelist?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.has_had_asthma_diagnosis = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).exists_for_patient()
@@ -323,12 +323,12 @@ dataset.has_had_asthma_diagnosis = clinical_events.where(
 ### Does each patient have a clinical event matching a code in a codelist in a time period?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.has_recent_asthma_diagnosis = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
@@ -339,12 +339,12 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 ### Does each patient have a medication event matching some criteria?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import medications
 
 statin_medications = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.has_recent_statin_prescription = medications.where(
         medications.dmd_code.is_in(statin_medications)
 ).where(
@@ -355,12 +355,12 @@ dataset.has_recent_statin_prescription = medications.where(
 ### Does each patient have a hospitalisation event matching some criteria?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import hospital_admissions
 
 cardiac_diagnosis_codes = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.has_recent_cardiac_admission = hospital_admissions.where(
         hospital_admissions.primary_diagnoses .is_in(cardiac_diagnosis_codes)
 ).where(
@@ -371,12 +371,12 @@ dataset.has_recent_cardiac_admission = hospital_admissions.where(
 ## How many events does each patient have matching some criteria?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import medications
 
 statin_medications = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.number_of_statin_prescriptions_in_last_year = medications.where(
         medications.dmd_code.is_in(statin_medications)
 ).where(
@@ -392,12 +392,12 @@ Frames can be sorted by calling the `sort_by()` method with the column to sort t
 ### What is the earliest/latest clinical event matching some criteria?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.first_asthma_diagnosis_date = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
@@ -408,12 +408,12 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 ```
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.last_asthma_diagnosis_date = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
@@ -426,12 +426,12 @@ dataset.last_asthma_diagnosis_date = clinical_events.where(
 ### What is the earliest/latest medication event matching some criteria?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import medications
 
 statin_medications = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.first_statin_prescription_date = medications.where(
         medications.dmd_code.is_in(statin_medications)
 ).where(
@@ -442,12 +442,12 @@ dataset.first_statin_prescription_date = medications.where(
 ```
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import medications
 
 statin_medications = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.last_statin_prescription_date = medications.where(
         medications.dmd_code.is_in(statin_medications)
 ).where(
@@ -460,12 +460,12 @@ dataset.last_statin_prescription_date = medications.where(
 ### What is the earliest/latest hospitalisation event matching some criteria?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import hospital_admissions
 
 cardiac_diagnosis_codes = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.first_cardiac_hospitalisation_date = hospital_admissions.where(
         hospital_admissions.snomedct_code.is_in(cardiac_diagnosis_codes)
 ).where(
@@ -476,12 +476,12 @@ dataset.first_cardiac_hospitalisation_date = hospital_admissions.where(
 ```
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import medications
 
 cardiac_diagnosis_codes = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.last_cardiac_hospitalisation_date = medications.where(
         medications.dmd_code.is_in(cardiac_diagnosis_codes)
 ).where(
@@ -494,12 +494,12 @@ dataset.last_cardiac_hospitalisation_date = medications.where(
 ### What is the clinical event, matching some criteria, with the least/greatest value?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 hba1c_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 max_hba1c = clinical_events.where(
         clinical_events.snomedct_code.is_in(hba1c_codelist)
 ).where(
@@ -519,12 +519,12 @@ dataset.date_of_max_hba1c_observed = clinical_events.where(clinical_events.snome
 ### What is the code of the first/last clinical event matching some criteria?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.first_asthma_diagnosis_date = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
@@ -537,12 +537,12 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 ### What is the date of the first/last clinical event matching some criteria?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.first_asthma_diagnosis_date = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
@@ -555,12 +555,12 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 ### What is the code and date of the first/last clinical event matching some criteria?
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 first_asthma_diagnosis = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
@@ -578,13 +578,13 @@ dataset.first_asthma_diagnosis_date = first_asthma_diagnosis.date
 ### Finding the code of the first medication after the first clinical event matching some criteria
 
 ```python
-from ehrql import Dataset, codelist_from_csv, weeks
+from ehrql import create_dataset, codelist_from_csv, weeks
 from ehrql.tables.beta.tpp import clinical_events, medications
 
 asthma_codelist = codelist_from_csv(XXX)
 inhaled_corticosteroid_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 first_asthma_diagnosis_date = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
@@ -606,12 +606,12 @@ dataset.count_ics_prescriptions_2wks_post_diagnosis = medications.where(
 ### Finding the mean observed value of clinical events matching some criteria
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 hba1c_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.mean_hba1c = clinical_events.where(
         clinical_events.snomedct_code.is_in(hba1c_codelist)
 ).where(
@@ -622,12 +622,12 @@ dataset.mean_hba1c = clinical_events.where(
 ### Finding the observed value of clinical events matching some criteria expressed relative to another value
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 hba1c_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 mean_hba1c = clinical_events.where(
         clinical_events.snomedct_code.is_in(hba1c_codelist)
 ).where(
@@ -648,12 +648,12 @@ clinical_events.where(clinical_events.snomedct_code.is_in(hba1c_codelist)
 ### Finding events within a fixed date range
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.has_recent_asthma_diagnosis = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
@@ -664,14 +664,14 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 ### Finding events within a date range plus a constant
 
 ```python
-from ehrql import Dataset, codelist_from_csv, weeks
+from ehrql import create_dataset, codelist_from_csv, weeks
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
 index_date = "2022-07-01"
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.has_recent_asthma_diagnosis = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
@@ -682,13 +682,13 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 ### Finding events within a dynamic date range
 
 ```python
-from ehrql import Dataset, codelist_from_csv, months
+from ehrql import create_dataset, codelist_from_csv, months
 from ehrql.tables.beta.tpp import clinical_events
 
 diabetes_codelist = codelist_from_csv(XXX)
 hba1c_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 first_diabetes_code_date = clinical_events.where(
         clinical_events.snomedct_code.is_in(diabetes_codelist)
 ).sort_by(
@@ -708,12 +708,12 @@ Data quality issues with many sources may result in events apparently happening 
 
 ```python
 from datetime import date
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.has_recent_asthma_diagnosis = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).where(
@@ -730,12 +730,12 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 
 ```python
 from datetime import date
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.year_of_first = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).sort_by(
@@ -747,14 +747,14 @@ dataset.year_of_first = clinical_events.where(
 ### Finding prescriptions made in particular months of the year
 
 ```python
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.tables.beta.tpp import medications
 
 amoxicillin_codelist = codelist_from_csv(XXX)
 
 winter_months = [10,11,12,1,2,3]
 
-dataset = Dataset()
+dataset = create_dataset()
 dataset.winter_amoxicillin_count = medications.where(
         medications.dmd_code.is_in(amoxicillin_codelist)
 ).where(
@@ -765,13 +765,13 @@ dataset.winter_amoxicillin_count = medications.where(
 ### Finding the number of weeks between two events
 
 ```python
-from ehrql import Dataset, codelist_from_csv
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 asthma_review_codelist = codelist_from_csv(XXX)
 
-dataset = Dataset()
+dataset = create_dataset()
 first_asthma_diagnosis = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
 ).sort_by(clinical_events.date).first_for_patient()
