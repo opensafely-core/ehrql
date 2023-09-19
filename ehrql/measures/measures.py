@@ -65,11 +65,7 @@ class Measure:
 # and consists almost entirely of validation logic
 class Measures:
     """
-    Define a collection of measures to be generated. Each measure definition file must
-    define a single `Measures()` instance called `measures` like so:
-    ```py
-    measures = Measures()
-    ```
+    Create a collection of measures with [`create_measures`](#create_measures).
     """
 
     # These names are used in the measures output table and so can't be used as group_by
@@ -291,6 +287,17 @@ class Measures:
 
     def __len__(self):
         return len(self._measures)
+
+
+def create_measures():
+    """
+    A measure definition file must define a collection of measures called `measures`.
+
+    ```py
+    measures = create_measures()
+    ```
+    """
+    return Measures()
 
 
 def get_all_group_by_columns(measures):
