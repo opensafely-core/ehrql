@@ -22,6 +22,7 @@ jobs:
           GENTEST_MAX_DEPTH=30 \
           GENTEST_DEBUG=t \
           GENTEST_CHECK_IGNORED_ERRORS=t \
+          GENTEST_QUERY_ENGINES='in_memory sqlite mssql' \
           just test-generative
 
       - name: "Notify Slack on Failure"
