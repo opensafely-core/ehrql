@@ -75,6 +75,7 @@ settings = dict(
     max_examples=(int(os.environ.get("GENTEST_EXAMPLES", 10))),
     deadline=None,
     derandomize=not os.environ.get("GENTEST_RANDOMIZE"),
+    phases=[hyp.Phase.generate],
 )
 
 ENGINE_CONFIG = {

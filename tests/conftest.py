@@ -151,13 +151,16 @@ def mssql_database(mssql_database_with_session_scope):
 
 
 @pytest.fixture(scope="session")
-def trino_database_with_session_scope(containers, show_delayed_warning):
+def trino_database_with_session_scope(request, containers, show_delayed_warning):
     with show_delayed_warning(
         3, "Starting Trino Docker image (will download image on first run)"
     ):
         database = make_trino_database(containers)
         wait_for_database(database)
-    return database
+    yield database
+    capturemanager = request.config.pluginmanager.getplugin("capturemanager")
+    with capturemanager.global_and_fixture_disabled():
+        subprocess.run(["docker", "logs", "--tail", "300", "ehrql-trino"])
 
 
 @pytest.fixture(scope="function")
