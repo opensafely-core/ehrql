@@ -182,14 +182,19 @@ def setup_test(data, variable):
 def run_test(query_engines, data, variable, recorder):
     instances, variables = setup_test(data, variable)
 
-    results = [
+    all_results = [
         (name, run_with(engine, instances, variables))
         for name, engine in query_engines.items()
     ]
+    # Sometimes we hit test cases where one engine is known to have problems so we
+    # ignore those results
+    results = [(name, rows) for name, rows in all_results if rows is not IGNORE_RESULT]
+    recorder.record_results(len(all_results), len(all_results) - len(results))
 
-    recorder.record_results(
-        len(results), len([r for (_, r) in results if r is IGNORE_RESULT])
-    )
+    # If we hit a case which _no_ database can handle (e.g. some silly bit of date
+    # arithmetic results in an out-of-bounds date) then just bail out
+    if not results:  # pragma: no cover
+        return
 
     # Use the first engine's results as the baseline (this is arbitrary, equality being
     # transitive)
@@ -200,11 +205,6 @@ def run_test(query_engines, data, variable, recorder):
         first_results = [pytest.approx(row, rel=1e-5) for row in first_results]
 
     for other_name, other_results in results[1:]:
-        # Sometimes we hit test cases where one engine is known to have problems; skip
-        # them.
-        if other_results is IGNORE_RESULT:
-            continue  # pragma: no cover
-
         assert (
             first_results == other_results
         ), f"Mismatch between {first_name} and {other_name}"
