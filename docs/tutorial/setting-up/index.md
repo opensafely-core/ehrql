@@ -11,7 +11,7 @@ In this section, you will create a new repository from a template.
 The new repository will live within your personal account;
 the template lives within the opensafely organization.
 
-1. Visit <https://github.com/opensafely/ehrql-tutorial>
+1. Visit <a target="_blank" href="https://github.com/opensafely/ehrql-tutorial">https://github.com/opensafely/ehrql-tutorial</a>
 
 1. Click **Use this template**
 
@@ -40,7 +40,8 @@ A *codespace* is a development environment that's hosted in the cloud.
 
 1. Click **Create codespace on main**
 
-The codespace will open in a new tab.
+It will take roughly two minutes to create the codespace,
+which will open in a new tab.
 
 ## Run an OpenSAFELY command
 
@@ -78,10 +79,9 @@ The codespace is working correctly.
     `opensafely exec ehrql:v0 --version`
     do?
 
-    * `opensafely exec` executes an OpenSAFELY action outside [the project pipeline][2]
+    * `opensafely exec` executes an OpenSAFELY action independently of other OpenSAFELY actions
     * `ehrql` is the OpenSAFELY action to execute
     * `v0` is the major version of the ehrQL action
     * `--version` instructs the ehrQL action to display its full version
 
 [1]: https://docs.github.com/en/get-started/signing-up-for-github/signing-up-for-a-new-github-account
-[2]: https://docs.opensafely.org/actions-pipelines/

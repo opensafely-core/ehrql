@@ -67,6 +67,13 @@ from ehrql.tables.beta.core import patients, medications
 dataset = create_dataset()
 ```
 
+??? tip "Create the dataset"
+    ```pycon
+    >>> dataset = create_dataset()
+    >>> dataset
+    Dataset()
+    ```
+
 ## Define the population
 
 Define the population as all patients born on or before 31 December 1999.
@@ -75,7 +82,7 @@ Define the population as all patients born on or before 31 December 1999.
 dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
 ```
 
-??? tip "Define the population condition"
+??? tip "Define the population"
     `.define_population` takes a population condition in the form of a boolean column.
     However, `patients.date_of_birth` is a date column.
 
@@ -109,6 +116,27 @@ dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
     8 | True
     9 | True
     ```
+
+    Compare the patients in the boolean column with the patients in the dataset,
+    after defining the population.
+
+    ```pycon
+    >>> dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
+    >>> dataset
+    patient_id
+    -----------------
+    0
+    1
+    4
+    5
+    6
+    7
+    8
+    9
+    ```
+
+    Notice that patients with `True` in the boolean column are included in the population;
+    and patients with `False` in the boolean column are excluded from the population.
 
 ## Select each patient's most recent asthma medication
 
@@ -218,13 +246,45 @@ Select the date column and add it to the dataset.
 dataset.asthma_med_date = latest_asthma_med.date
 ```
 
+??? tip "Add the date column to the dataset"
+    ```pycon
+    >>> dataset.asthma_med_date = latest_asthma_med.date
+    >>> dataset
+    patient_id        | asthma_med_date
+    ------------------+------------------
+    0                 | 2014-01-11
+    1                 | 2018-09-21
+    4                 | 2017-05-11
+    5                 | 2019-07-06
+    6                 | None
+    7                 | None
+    8                 | None
+    9                 | None
+    ```
+
 ## Add the code column to the dataset
 
 Select the code column and add it to the dataset.
 
 ```python
-dataset.asthma_med_date = latest_asthma_med.date
+dataset.asthma_med_code = latest_asthma_med.dmd_code
 ```
+
+??? tip "Add the code column to the dataset"
+    ```pycon
+    >>> dataset.asthma_med_code = latest_asthma_med.dmd_code
+    >>> dataset
+    patient_id        | asthma_med_date   | asthma_med_code
+    ------------------+-------------------+------------------
+    0                 | 2014-01-11        | 39113611000001102
+    1                 | 2018-09-21        | 39113311000001107
+    4                 | 2017-05-11        | 39113611000001102
+    5                 | 2019-07-06        | 39113611000001102
+    6                 | None              | None
+    7                 | None              | None
+    8                 | None              | None
+    9                 | None              | None
+    ```
 
 ## Save the dataset definition
 
@@ -233,3 +293,13 @@ dataset.asthma_med_date = latest_asthma_med.date
     ![VS Code's menu icon](menu_icon.png){ width=50 }
 
 1. Click **File > Save**
+
+## Exit the sandbox
+
+Exit the sandbox and return to the terminal.
+
+```pycon
+>>> quit()
+```
+
+![A screenshot of VS Code, showing the terminal](the_terminal.png)

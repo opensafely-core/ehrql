@@ -1,4 +1,6 @@
 In this section, you will work with tables in the sandbox.
+The *sandbox* is an environment for experimenting with ehrQL
+that contains a small amount of dummy data.
 
 ## Start the sandbox
 
@@ -28,6 +30,20 @@ first import it into the sandbox.
 ```pycon
 >>> from ehrql.tables.beta.core import patients
 ```
+
+??? tip "Importing tables into the sandbox"
+    Importing a table into the sandbox doesn't display any output.
+    In other words, typing
+
+    ```pycon
+    >>> from ehrql.tables.beta.core import patients
+    ```
+
+    into the sandbox and pressing ++enter++ displays
+
+    ```pycon
+    >>>
+    ```
 
 The `patients` table has one row per patient.
 Notice that all values in the `patient_id` column are unique.
@@ -203,15 +219,15 @@ use the `years` function.
 
 ```pycon
 >>> from ehrql import years
->>> patients.date_of_birth + years(1)
-0 | 1974-07-01
-1 | 1949-03-01
-2 | 2004-04-01
-3 | 2008-06-01
-4 | 1939-10-01
-5 | 1995-04-01
-6 | 1954-05-01
-7 | 1993-08-01
-8 | 1932-10-01
-9 | 1980-04-01
+>>> medications.date + years(1)
+0 | 0 | 2015-01-11
+1 | 1 | 2016-08-06
+1 | 2 | 2019-09-21
+1 | 3 | 2021-05-17
+3 | 4 | 2023-11-09
+4 | 5 | 2018-05-11
+5 | 6 | 2018-07-11
+5 | 7 | 2020-07-06
+7 | 8 | 2022-01-27
+9 | 9 | 2016-03-14
 ```
