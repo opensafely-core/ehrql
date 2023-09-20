@@ -133,6 +133,7 @@ def test_variable_strategy_is_comprehensive():
 @hyp.settings(**settings)
 def test_query_model(query_engines, variable, data, recorder):
     recorder.record_inputs(variable, data)
+    run_dummy_data_test(variable)
     run_test(query_engines, data, variable, recorder)
 
 
@@ -181,12 +182,6 @@ def setup_test(data, variable):
 def run_test(query_engines, data, variable, recorder):
     instances, variables = setup_test(data, variable)
 
-    # Test that we can successfully generate a minimal amount of dummy data
-    dummy_data_generator = DummyDataGenerator(
-        variables, population_size=1, batch_size=1, timeout=-1
-    )
-    assert len(dummy_data_generator.get_data()) > 0
-
     results = [
         (name, run_with(engine, instances, variables))
         for name, engine in query_engines.items()
@@ -213,6 +208,17 @@ def run_test(query_engines, data, variable, recorder):
         assert (
             first_results == other_results
         ), f"Mismatch between {first_name} and {other_name}"
+
+
+def run_dummy_data_test(variable):
+    # Test that we can successfully generate a minimal amount of dummy data
+    dummy_data_generator = DummyDataGenerator(
+        {"population": all_patients_query, "v": variable},
+        population_size=1,
+        batch_size=1,
+        timeout=-1,
+    )
+    assert len(dummy_data_generator.get_data()) > 0
 
 
 def run_error_test(query_engines, data, variable):
