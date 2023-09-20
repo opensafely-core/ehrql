@@ -84,6 +84,11 @@ ENGINE_CONFIG = {
 }
 
 
+SELECTED_QUERY_ENGINES = (
+    os.environ.get("GENTEST_QUERY_ENGINES", "").split() or QUERY_ENGINE_NAMES
+)
+
+
 @pytest.fixture(scope="session")
 def query_engines(request):
     # By contrast with the `engine` fixture which is parametrized over the types of
@@ -91,7 +96,7 @@ def query_engines(request):
     # the engines together at once
     return {
         name: engine_factory(request, name, with_session_scope=True)
-        for name in QUERY_ENGINE_NAMES
+        for name in SELECTED_QUERY_ENGINES
     }
 
 
