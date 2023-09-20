@@ -101,6 +101,15 @@ want to crank the settings further e.g.
 GENTEST_EXAMPLES=10000 GENTEST_MAX_DEPTH=20 just test-generative
 ```
 
+You can control which query engines the tests exercise using the
+enviornment variable `GENTEST_QUERY_ENGINES`. For instance, if you have
+made a change to the basic SQL-building logic in BaseSQLQueryEngine and
+you want to rapidly test this with a large number of examples you could
+compare just the in-memory and SQLite engines using:
+```
+GENTEST_QUERY_ENGINES='in_memory sqlite' GENTEST_EXAMPLES=10000 just test-generative
+```
+
 In addition to whatever you do locally, a scheduled Github Actions
 workflow runs the generative test overnight with settings as high as we
 can get away with and alerts us in Slack if it finds a failure.
