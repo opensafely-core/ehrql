@@ -142,6 +142,17 @@ def test_read_dataset_validates_categories(test_file):
         read_dataset(test_file, column_specs)
 
 
+def test_read_dataset_accepts_subset_of_expected_categories(test_file):
+    # Create a copy of the column specs with an extra category on the categorical column
+    # and the categories in a different order
+    column_specs = TEST_FILE_SPECS.copy()
+    column_specs["c"] = ColumnSpec(str, categories=("C", "B", "A"))
+
+    # Check we can still read it correctly
+    reader = read_dataset(test_file, column_specs)
+    assert list(reader) == TEST_FILE_DATA
+
+
 def test_dataset_readers_identity(test_file):
     reader_1 = read_dataset(test_file, TEST_FILE_SPECS)
     reader_2 = read_dataset(test_file, TEST_FILE_SPECS)
