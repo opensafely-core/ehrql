@@ -87,287 +87,6 @@ def select_all(request, mssql_database):
     return _select_all
 
 
-@register_test_for(tpp.patients)
-def test_patients(select_all):
-    results = select_all(
-        Patient(Patient_ID=1, DateOfBirth="2020-01-01", Sex="M"),
-        Patient(Patient_ID=2, DateOfBirth="2020-01-01", Sex="F"),
-        Patient(Patient_ID=3, DateOfBirth="2020-01-01", Sex="I"),
-        Patient(Patient_ID=4, DateOfBirth="2020-01-01", Sex="U"),
-        Patient(Patient_ID=5, DateOfBirth="2020-01-01", Sex=""),
-        Patient(
-            Patient_ID=6, DateOfBirth="2000-01-01", Sex="M", DateOfDeath="2020-01-01"
-        ),
-        Patient(
-            Patient_ID=7, DateOfBirth="2000-01-01", Sex="M", DateOfDeath="9999-12-31"
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "date_of_birth": date(2020, 1, 1),
-            "sex": "male",
-            "date_of_death": None,
-        },
-        {
-            "patient_id": 2,
-            "date_of_birth": date(2020, 1, 1),
-            "sex": "female",
-            "date_of_death": None,
-        },
-        {
-            "patient_id": 3,
-            "date_of_birth": date(2020, 1, 1),
-            "sex": "intersex",
-            "date_of_death": None,
-        },
-        {
-            "patient_id": 4,
-            "date_of_birth": date(2020, 1, 1),
-            "sex": "unknown",
-            "date_of_death": None,
-        },
-        {
-            "patient_id": 5,
-            "date_of_birth": date(2020, 1, 1),
-            "sex": "unknown",
-            "date_of_death": None,
-        },
-        {
-            "patient_id": 6,
-            "date_of_birth": date(2000, 1, 1),
-            "sex": "male",
-            "date_of_death": date(2020, 1, 1),
-        },
-        {
-            "patient_id": 7,
-            "date_of_birth": date(2000, 1, 1),
-            "sex": "male",
-            "date_of_death": None,
-        },
-    ]
-
-
-@register_test_for(tpp.vaccinations)
-def test_vaccinations(select_all):
-    results = select_all(
-        Patient(Patient_ID=1),
-        VaccinationReference(VaccinationName_ID=10, VaccinationContent="foo"),
-        VaccinationReference(VaccinationName_ID=10, VaccinationContent="bar"),
-        Vaccination(
-            Patient_ID=1,
-            Vaccination_ID=123,
-            VaccinationDate="2020-01-01T14:00:00",
-            VaccinationName="baz",
-            VaccinationName_ID=10,
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "vaccination_id": 123,
-            "date": date(2020, 1, 1),
-            "target_disease": "foo",
-            "product_name": "baz",
-        },
-        {
-            "patient_id": 1,
-            "vaccination_id": 123,
-            "date": date(2020, 1, 1),
-            "target_disease": "bar",
-            "product_name": "baz",
-        },
-    ]
-
-
-@register_test_for(tpp.practice_registrations)
-def test_practice_registrations(select_all):
-    results = select_all(
-        Patient(Patient_ID=1),
-        Organisation(Organisation_ID=2, STPCode="abc", Region="def"),
-        Organisation(Organisation_ID=3, STPCode="", Region=""),
-        RegistrationHistory(
-            Patient_ID=1,
-            StartDate=date(2010, 1, 1),
-            EndDate=date(2020, 1, 1),
-            Organisation_ID=2,
-        ),
-        RegistrationHistory(
-            Patient_ID=1,
-            StartDate=date(2020, 1, 1),
-            EndDate=date(9999, 12, 31),
-            Organisation_ID=3,
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "start_date": date(2010, 1, 1),
-            "end_date": date(2020, 1, 1),
-            "practice_pseudo_id": 2,
-            "practice_stp": "abc",
-            "practice_nuts1_region_name": "def",
-        },
-        {
-            "patient_id": 1,
-            "start_date": date(2020, 1, 1),
-            "end_date": None,
-            "practice_pseudo_id": 3,
-            "practice_stp": None,
-            "practice_nuts1_region_name": None,
-        },
-    ]
-
-
-@register_test_for(tpp.ons_deaths)
-def test_ons_deaths(select_all):
-    results = select_all(
-        Patient(Patient_ID=1),
-        ONS_Deaths(
-            Patient_ID=1,
-            dod="2022-01-01",
-            Place_of_occurrence="Care Home",
-            icd10u="xyz",
-            ICD10001="abc",
-            ICD10002="def",
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "date": date(2022, 1, 1),
-            "place": "Care Home",
-            "underlying_cause_of_death": "xyz",
-            "cause_of_death_01": "abc",
-            "cause_of_death_02": "def",
-            "cause_of_death_03": None,
-            **{f"cause_of_death_{i:02d}": None for i in range(4, 16)},
-        }
-    ]
-
-
-@register_test_for(tpp.clinical_events)
-def test_clinical_events(select_all):
-    results = select_all(
-        Patient(Patient_ID=1),
-        CodedEvent(
-            Patient_ID=1,
-            ConsultationDate="2020-10-20T14:30:05",
-            CTV3Code="xyz",
-            NumericValue=0.5,
-        ),
-        CodedEvent_SNOMED(
-            Patient_ID=1,
-            ConsultationDate="2020-11-21T09:30:00",
-            ConceptId="ijk",
-            NumericValue=1.5,
-        ),
-        CodedEvent_SNOMED(
-            Patient_ID=1,
-            ConsultationDate="9999-12-31T00:00:00",
-            ConceptId="lmn",
-            NumericValue=None,
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "date": date(2020, 10, 20),
-            "snomedct_code": None,
-            "ctv3_code": "xyz",
-            "numeric_value": 0.5,
-        },
-        {
-            "patient_id": 1,
-            "date": date(2020, 11, 21),
-            "snomedct_code": "ijk",
-            "ctv3_code": None,
-            "numeric_value": 1.5,
-        },
-        {
-            "patient_id": 1,
-            "date": None,
-            "snomedct_code": "lmn",
-            "ctv3_code": None,
-            "numeric_value": None,
-        },
-    ]
-
-
-@register_test_for(tpp.medications)
-def test_medications(select_all):
-    results = select_all(
-        Patient(Patient_ID=1),
-        # MedicationIssue.MultilexDrug_ID found in MedicationDictionary only
-        MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
-        MedicationIssue(
-            Patient_ID=1,
-            ConsultationDate="2020-05-15T10:10:10",
-            MultilexDrug_ID="0;0;0",
-        ),
-        # MedicationIssue.MultilexDrug_ID found in CustomMedicationDictionary only
-        CustomMedicationDictionary(MultilexDrug_ID="2;0;0", DMD_ID="200000"),
-        MedicationIssue(
-            Patient_ID=1,
-            ConsultationDate="2020-05-16T10:10:10",
-            MultilexDrug_ID="2;0;0",
-        ),
-        # MedicationIssue.MultilexDrug_ID found in both; MedicationDictionary
-        # preferred
-        MedicationDictionary(MultilexDrug_ID="3;0;0", DMD_ID="300000"),
-        CustomMedicationDictionary(MultilexDrug_ID="3;0;0", DMD_ID="400000"),
-        MedicationIssue(
-            Patient_ID=1,
-            ConsultationDate="2020-05-17T10:10:10",
-            MultilexDrug_ID="3;0;0",
-        ),
-        # MedicationIssue.MultilexDrug_ID found in both, but MedicationDictionary.DMD_ID
-        # contains the empty string; CustomMedicationDictionary.DMD_ID preferred
-        MedicationDictionary(MultilexDrug_ID="5;0;0", DMD_ID=""),
-        CustomMedicationDictionary(MultilexDrug_ID="5;0;0", DMD_ID="500000"),
-        MedicationIssue(
-            Patient_ID=1,
-            ConsultationDate="2020-05-18T10:10:10",
-            MultilexDrug_ID="5;0;0",
-        ),
-        # MedicationIssue.MultilexDrug_ID found in MedicationDictionary but DMD_ID
-        # contains the empty string; dmd_code is NULL not empty string
-        MedicationDictionary(MultilexDrug_ID="6;0;0", DMD_ID=""),
-        MedicationIssue(
-            Patient_ID=1,
-            ConsultationDate="2020-05-19T10:10:10",
-            MultilexDrug_ID="6;0;0",
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "date": date(2020, 5, 15),
-            "dmd_code": "100000",
-        },
-        {
-            "patient_id": 1,
-            "date": date(2020, 5, 16),
-            "dmd_code": "200000",
-        },
-        {
-            "patient_id": 1,
-            "date": date(2020, 5, 17),
-            "dmd_code": "300000",
-        },
-        {
-            "patient_id": 1,
-            "date": date(2020, 5, 18),
-            "dmd_code": "500000",
-        },
-        {
-            "patient_id": 1,
-            "date": date(2020, 5, 19),
-            "dmd_code": None,
-        },
-    ]
-
-
 @register_test_for(tpp.addresses)
 def test_addresses(select_all):
     results = select_all(
@@ -454,34 +173,131 @@ def test_addresses(select_all):
     ]
 
 
-@register_test_for(tpp.sgss_covid_all_tests)
-def test_sgss_covid_all_tests(select_all):
+@register_test_for(tpp.apcs_cost)
+def test_apcs_cost(select_all):
     results = select_all(
-        Patient(Patient_ID=1),
-        SGSS_AllTests_Positive(Patient_ID=1, Specimen_Date="2021-10-20"),
-        SGSS_AllTests_Negative(Patient_ID=1, Specimen_Date="2021-11-20"),
+        APCS(
+            APCS_Ident=1,
+            Admission_Date=date(2023, 1, 1),
+            Discharge_Date=date(2023, 2, 1),
+        ),
+        APCS_Cost(
+            Patient_ID=1,
+            APCS_Ident=1,
+            Grand_Total_Payment_MFF=1.1,
+            Tariff_Initial_Amount=2.2,
+            Tariff_Total_Payment=3.3,
+        ),
     )
     assert results == [
         {
             "patient_id": 1,
-            "specimen_taken_date": date(2021, 10, 20),
-            "is_positive": True,
-        },
-        {
-            "patient_id": 1,
-            "specimen_taken_date": date(2021, 11, 20),
-            "is_positive": False,
+            "apcs_ident": 1,
+            "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
+            "tariff_initial_amount": pytest.approx(2.2, rel=1e-5),
+            "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
+            "admission_date": date(2023, 1, 1),
+            "discharge_date": date(2023, 2, 1),
         },
     ]
 
 
-@register_test_for(tpp.occupation_on_covid_vaccine_record)
-def test_occupation_on_covid_vaccine_record(select_all):
+@register_test_for(tpp.appointments)
+def test_appointments(select_all):
     results = select_all(
         Patient(Patient_ID=1),
-        HealthCareWorker(Patient_ID=1),
+        Appointment(
+            Patient_ID=1,
+            BookedDate="2021-01-01T09:00:00",
+            StartDate="2021-01-01T09:00:00",
+            Status=5,
+        ),
     )
-    assert results == [{"patient_id": 1, "is_healthcare_worker": True}]
+    assert results == [
+        {
+            "patient_id": 1,
+            "booked_date": date(2021, 1, 1),
+            "start_date": date(2021, 1, 1),
+            "status": "Requested",
+        },
+    ]
+
+
+@register_test_for(tpp.clinical_events)
+def test_clinical_events(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        CodedEvent(
+            Patient_ID=1,
+            ConsultationDate="2020-10-20T14:30:05",
+            CTV3Code="xyz",
+            NumericValue=0.5,
+        ),
+        CodedEvent_SNOMED(
+            Patient_ID=1,
+            ConsultationDate="2020-11-21T09:30:00",
+            ConceptId="ijk",
+            NumericValue=1.5,
+        ),
+        CodedEvent_SNOMED(
+            Patient_ID=1,
+            ConsultationDate="9999-12-31T00:00:00",
+            ConceptId="lmn",
+            NumericValue=None,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "date": date(2020, 10, 20),
+            "snomedct_code": None,
+            "ctv3_code": "xyz",
+            "numeric_value": 0.5,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 11, 21),
+            "snomedct_code": "ijk",
+            "ctv3_code": None,
+            "numeric_value": 1.5,
+        },
+        {
+            "patient_id": 1,
+            "date": None,
+            "snomedct_code": "lmn",
+            "ctv3_code": None,
+            "numeric_value": None,
+        },
+    ]
+
+
+@register_test_for(tpp.ec_cost)
+def test_ec_cost(select_all):
+    results = select_all(
+        EC(
+            EC_Ident=1,
+            Arrival_Date=date(2023, 1, 2),
+            EC_Decision_To_Admit_Date=date(2023, 1, 3),
+            EC_Injury_Date=date(2023, 1, 1),
+        ),
+        EC_Cost(
+            Patient_ID=1,
+            EC_Ident=1,
+            Grand_Total_Payment_MFF=1.1,
+            Tariff_Total_Payment=2.2,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "ec_ident": 1,
+            "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
+            "tariff_total_payment": pytest.approx(2.2, rel=1e-5),
+            "arrival_date": date(2023, 1, 2),
+            "ec_decision_to_admit_date": date(2023, 1, 3),
+            "ec_injury_date": date(2023, 1, 1),
+        },
+    ]
 
 
 @register_test_for(tpp.emergency_care_attendances)
@@ -541,27 +357,6 @@ def test_hospital_admissions(select_all):
             "days_in_critical_care": 5,
             "primary_diagnoses": "A1;B1",
         }
-    ]
-
-
-@register_test_for(tpp.appointments)
-def test_appointments(select_all):
-    results = select_all(
-        Patient(Patient_ID=1),
-        Appointment(
-            Patient_ID=1,
-            BookedDate="2021-01-01T09:00:00",
-            StartDate="2021-01-01T09:00:00",
-            Status=5,
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "booked_date": date(2021, 1, 1),
-            "start_date": date(2021, 1, 1),
-            "status": "Requested",
-        },
     ]
 
 
@@ -995,116 +790,113 @@ def test_isaric_raw_clinical_variables(select_all):
     ]
 
 
-@register_test_for(tpp.open_prompt)
-def test_open_prompt(select_all):
+@register_test_for(tpp.medications)
+def test_medications(select_all):
     results = select_all(
-        OpenPROMPT(
+        Patient(Patient_ID=1),
+        # MedicationIssue.MultilexDrug_ID found in MedicationDictionary only
+        MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
+        MedicationIssue(
             Patient_ID=1,
-            CTV3Code="X0000",
-            CodeSystemId=0,  # SNOMED CT
-            ConceptId="100000",
-            CreationDate="2023-01-01",
-            ConsultationDate="2023-01-01",
-            Consultation_ID=1,
-            NumericCode=1,
-            NumericValue=1.0,
+            ConsultationDate="2020-05-15T10:10:10",
+            MultilexDrug_ID="0;0;0",
         ),
-        OpenPROMPT(
-            Patient_ID=2,
-            CTV3Code="Y0000",
-            CodeSystemId=2,  # CTV3 "Y"
-            ConceptId="Y0000",
-            CreationDate="2023-01-01",
-            ConsultationDate="2023-01-01",
-            Consultation_ID=2,
-            NumericCode=0,
-            NumericValue=0,
+        # MedicationIssue.MultilexDrug_ID found in CustomMedicationDictionary only
+        CustomMedicationDictionary(MultilexDrug_ID="2;0;0", DMD_ID="200000"),
+        MedicationIssue(
+            Patient_ID=1,
+            ConsultationDate="2020-05-16T10:10:10",
+            MultilexDrug_ID="2;0;0",
+        ),
+        # MedicationIssue.MultilexDrug_ID found in both; MedicationDictionary
+        # preferred
+        MedicationDictionary(MultilexDrug_ID="3;0;0", DMD_ID="300000"),
+        CustomMedicationDictionary(MultilexDrug_ID="3;0;0", DMD_ID="400000"),
+        MedicationIssue(
+            Patient_ID=1,
+            ConsultationDate="2020-05-17T10:10:10",
+            MultilexDrug_ID="3;0;0",
+        ),
+        # MedicationIssue.MultilexDrug_ID found in both, but MedicationDictionary.DMD_ID
+        # contains the empty string; CustomMedicationDictionary.DMD_ID preferred
+        MedicationDictionary(MultilexDrug_ID="5;0;0", DMD_ID=""),
+        CustomMedicationDictionary(MultilexDrug_ID="5;0;0", DMD_ID="500000"),
+        MedicationIssue(
+            Patient_ID=1,
+            ConsultationDate="2020-05-18T10:10:10",
+            MultilexDrug_ID="5;0;0",
+        ),
+        # MedicationIssue.MultilexDrug_ID found in MedicationDictionary but DMD_ID
+        # contains the empty string; dmd_code is NULL not empty string
+        MedicationDictionary(MultilexDrug_ID="6;0;0", DMD_ID=""),
+        MedicationIssue(
+            Patient_ID=1,
+            ConsultationDate="2020-05-19T10:10:10",
+            MultilexDrug_ID="6;0;0",
         ),
     )
     assert results == [
         {
             "patient_id": 1,
-            "ctv3_code": "X0000",
-            "snomedct_code": "100000",
-            "creation_date": date(2023, 1, 1),
-            "consultation_date": date(2023, 1, 1),
-            "consultation_id": 1,
-            "numeric_value": 1.0,
+            "date": date(2020, 5, 15),
+            "dmd_code": "100000",
         },
         {
-            "patient_id": 2,
-            "ctv3_code": "Y0000",
-            "snomedct_code": None,
-            "creation_date": date(2023, 1, 1),
-            "consultation_date": date(2023, 1, 1),
-            "consultation_id": 2,
-            "numeric_value": None,
+            "patient_id": 1,
+            "date": date(2020, 5, 16),
+            "dmd_code": "200000",
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 17),
+            "dmd_code": "300000",
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 18),
+            "dmd_code": "500000",
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 19),
+            "dmd_code": None,
         },
     ]
 
 
-def test_registered_tests_are_exhaustive():
-    for name, table in vars(tpp).items():
-        if not isinstance(table, BaseFrame):
-            continue
-        assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"
-
-
-@register_test_for(tpp.apcs_cost)
-def test_apcs_cost(select_all):
+@register_test_for(tpp.occupation_on_covid_vaccine_record)
+def test_occupation_on_covid_vaccine_record(select_all):
     results = select_all(
-        APCS(
-            APCS_Ident=1,
-            Admission_Date=date(2023, 1, 1),
-            Discharge_Date=date(2023, 2, 1),
-        ),
-        APCS_Cost(
+        Patient(Patient_ID=1),
+        HealthCareWorker(Patient_ID=1),
+    )
+    assert results == [{"patient_id": 1, "is_healthcare_worker": True}]
+
+
+@register_test_for(tpp.ons_deaths)
+def test_ons_deaths(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        ONS_Deaths(
             Patient_ID=1,
-            APCS_Ident=1,
-            Grand_Total_Payment_MFF=1.1,
-            Tariff_Initial_Amount=2.2,
-            Tariff_Total_Payment=3.3,
+            dod="2022-01-01",
+            Place_of_occurrence="Care Home",
+            icd10u="xyz",
+            ICD10001="abc",
+            ICD10002="def",
         ),
     )
     assert results == [
         {
             "patient_id": 1,
-            "apcs_ident": 1,
-            "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
-            "tariff_initial_amount": pytest.approx(2.2, rel=1e-5),
-            "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
-            "admission_date": date(2023, 1, 1),
-            "discharge_date": date(2023, 2, 1),
-        },
-    ]
-
-
-@register_test_for(tpp.ec_cost)
-def test_ec_cost(select_all):
-    results = select_all(
-        EC(
-            EC_Ident=1,
-            Arrival_Date=date(2023, 1, 2),
-            EC_Decision_To_Admit_Date=date(2023, 1, 3),
-            EC_Injury_Date=date(2023, 1, 1),
-        ),
-        EC_Cost(
-            Patient_ID=1,
-            EC_Ident=1,
-            Grand_Total_Payment_MFF=1.1,
-            Tariff_Total_Payment=2.2,
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "ec_ident": 1,
-            "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
-            "tariff_total_payment": pytest.approx(2.2, rel=1e-5),
-            "arrival_date": date(2023, 1, 2),
-            "ec_decision_to_admit_date": date(2023, 1, 3),
-            "ec_injury_date": date(2023, 1, 1),
-        },
+            "date": date(2022, 1, 1),
+            "place": "Care Home",
+            "underlying_cause_of_death": "xyz",
+            "cause_of_death_01": "abc",
+            "cause_of_death_02": "def",
+            "cause_of_death_03": None,
+            **{f"cause_of_death_{i:02d}": None for i in range(4, 16)},
+        }
     ]
 
 
@@ -1223,3 +1015,211 @@ def test_opa_proc(select_all):
             "referral_request_received_date": date(2023, 1, 1),
         },
     ]
+
+
+@register_test_for(tpp.open_prompt)
+def test_open_prompt(select_all):
+    results = select_all(
+        OpenPROMPT(
+            Patient_ID=1,
+            CTV3Code="X0000",
+            CodeSystemId=0,  # SNOMED CT
+            ConceptId="100000",
+            CreationDate="2023-01-01",
+            ConsultationDate="2023-01-01",
+            Consultation_ID=1,
+            NumericCode=1,
+            NumericValue=1.0,
+        ),
+        OpenPROMPT(
+            Patient_ID=2,
+            CTV3Code="Y0000",
+            CodeSystemId=2,  # CTV3 "Y"
+            ConceptId="Y0000",
+            CreationDate="2023-01-01",
+            ConsultationDate="2023-01-01",
+            Consultation_ID=2,
+            NumericCode=0,
+            NumericValue=0,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "ctv3_code": "X0000",
+            "snomedct_code": "100000",
+            "creation_date": date(2023, 1, 1),
+            "consultation_date": date(2023, 1, 1),
+            "consultation_id": 1,
+            "numeric_value": 1.0,
+        },
+        {
+            "patient_id": 2,
+            "ctv3_code": "Y0000",
+            "snomedct_code": None,
+            "creation_date": date(2023, 1, 1),
+            "consultation_date": date(2023, 1, 1),
+            "consultation_id": 2,
+            "numeric_value": None,
+        },
+    ]
+
+
+@register_test_for(tpp.patients)
+def test_patients(select_all):
+    results = select_all(
+        Patient(Patient_ID=1, DateOfBirth="2020-01-01", Sex="M"),
+        Patient(Patient_ID=2, DateOfBirth="2020-01-01", Sex="F"),
+        Patient(Patient_ID=3, DateOfBirth="2020-01-01", Sex="I"),
+        Patient(Patient_ID=4, DateOfBirth="2020-01-01", Sex="U"),
+        Patient(Patient_ID=5, DateOfBirth="2020-01-01", Sex=""),
+        Patient(
+            Patient_ID=6, DateOfBirth="2000-01-01", Sex="M", DateOfDeath="2020-01-01"
+        ),
+        Patient(
+            Patient_ID=7, DateOfBirth="2000-01-01", Sex="M", DateOfDeath="9999-12-31"
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "date_of_birth": date(2020, 1, 1),
+            "sex": "male",
+            "date_of_death": None,
+        },
+        {
+            "patient_id": 2,
+            "date_of_birth": date(2020, 1, 1),
+            "sex": "female",
+            "date_of_death": None,
+        },
+        {
+            "patient_id": 3,
+            "date_of_birth": date(2020, 1, 1),
+            "sex": "intersex",
+            "date_of_death": None,
+        },
+        {
+            "patient_id": 4,
+            "date_of_birth": date(2020, 1, 1),
+            "sex": "unknown",
+            "date_of_death": None,
+        },
+        {
+            "patient_id": 5,
+            "date_of_birth": date(2020, 1, 1),
+            "sex": "unknown",
+            "date_of_death": None,
+        },
+        {
+            "patient_id": 6,
+            "date_of_birth": date(2000, 1, 1),
+            "sex": "male",
+            "date_of_death": date(2020, 1, 1),
+        },
+        {
+            "patient_id": 7,
+            "date_of_birth": date(2000, 1, 1),
+            "sex": "male",
+            "date_of_death": None,
+        },
+    ]
+
+
+@register_test_for(tpp.practice_registrations)
+def test_practice_registrations(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        Organisation(Organisation_ID=2, STPCode="abc", Region="def"),
+        Organisation(Organisation_ID=3, STPCode="", Region=""),
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2010, 1, 1),
+            EndDate=date(2020, 1, 1),
+            Organisation_ID=2,
+        ),
+        RegistrationHistory(
+            Patient_ID=1,
+            StartDate=date(2020, 1, 1),
+            EndDate=date(9999, 12, 31),
+            Organisation_ID=3,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "start_date": date(2010, 1, 1),
+            "end_date": date(2020, 1, 1),
+            "practice_pseudo_id": 2,
+            "practice_stp": "abc",
+            "practice_nuts1_region_name": "def",
+        },
+        {
+            "patient_id": 1,
+            "start_date": date(2020, 1, 1),
+            "end_date": None,
+            "practice_pseudo_id": 3,
+            "practice_stp": None,
+            "practice_nuts1_region_name": None,
+        },
+    ]
+
+
+@register_test_for(tpp.sgss_covid_all_tests)
+def test_sgss_covid_all_tests(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        SGSS_AllTests_Positive(Patient_ID=1, Specimen_Date="2021-10-20"),
+        SGSS_AllTests_Negative(Patient_ID=1, Specimen_Date="2021-11-20"),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "specimen_taken_date": date(2021, 10, 20),
+            "is_positive": True,
+        },
+        {
+            "patient_id": 1,
+            "specimen_taken_date": date(2021, 11, 20),
+            "is_positive": False,
+        },
+    ]
+
+
+@register_test_for(tpp.vaccinations)
+def test_vaccinations(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        VaccinationReference(VaccinationName_ID=10, VaccinationContent="foo"),
+        VaccinationReference(VaccinationName_ID=10, VaccinationContent="bar"),
+        Vaccination(
+            Patient_ID=1,
+            Vaccination_ID=123,
+            VaccinationDate="2020-01-01T14:00:00",
+            VaccinationName="baz",
+            VaccinationName_ID=10,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "vaccination_id": 123,
+            "date": date(2020, 1, 1),
+            "target_disease": "foo",
+            "product_name": "baz",
+        },
+        {
+            "patient_id": 1,
+            "vaccination_id": 123,
+            "date": date(2020, 1, 1),
+            "target_disease": "bar",
+            "product_name": "baz",
+        },
+    ]
+
+
+def test_registered_tests_are_exhaustive():
+    for name, table in vars(tpp).items():
+        if not isinstance(table, BaseFrame):
+            continue
+        assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"

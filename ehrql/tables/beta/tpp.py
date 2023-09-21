@@ -37,124 +37,6 @@ __all__ = [
 
 
 @table
-class clinical_events(EventFrame):
-    """
-    Each record corresponds to a single clinical or consultation event for a patient.
-
-    Each event is recorded twice: once with a CTv3 code, and again with the equivalent
-    SNOMED-CT code. Each record will have only one of the ctv3_code or snomedct_code
-    columns set and the other will be null. This allows you to query the table using
-    either a CTv3 codelist or SNOMED-CT codelist and all records using the other coding
-    system will be effectively ignored.
-
-    Note that event codes do not change in this table. If an event code in the coding
-    system becomes inactive, the event will still be coded to the inactive code.
-    As such, codelists should include all relevant inactive codes.
-
-    Detailed information on onward referrals is not currently available. A subset of
-    referrals are recorded in the clinical events table but this data will be incomplete.
-    """
-
-    date = Series(datetime.date)
-    snomedct_code = Series(SNOMEDCTCode)
-    ctv3_code = Series(CTV3Code)
-    numeric_value = Series(float)
-
-
-@table
-class vaccinations(EventFrame):
-    vaccination_id = Series(int)
-    date = Series(datetime.date)
-    target_disease = Series(str)
-    product_name = Series(str)
-
-
-@table
-class practice_registrations(EventFrame):
-    """
-    Each record corresponds to a patient's registration with a practice.
-
-    Only patients with a full GMS (General Medical Services) registration are included.
-
-    We have registration history for:
-
-    * all patients currently registered at a TPP practice
-    * all patients registered at a TPP practice any time from 1 Jan 2009 onwards:
-        * who have since de-registered
-        * who have since died
-
-    A patient can be registered with zero, one, or more than one practices at a given
-    time. For instance, students are often registered with a practice at home and a
-    practice at university.
-    """
-
-    start_date = Series(
-        datetime.date,
-        constraints=[Constraint.NotNull()],
-        description="Date patient joined practice.",
-    )
-    end_date = Series(
-        datetime.date,
-        description="Date patient left practice.",
-    )
-    practice_pseudo_id = Series(
-        int,
-        constraints=[Constraint.NotNull()],
-        description="Pseudonymised practice identifier.",
-    )
-    practice_stp = Series(
-        str,
-        constraints=[Constraint.Regex("E540000[0-9]{2}")],
-        description="""
-            ONS code of practice's STP (Sustainability and Transformation Partnership).
-            STPs have been replaced by ICBs (Integrated Care Boards), and ICB codes will be available soon.
-        """,
-    )
-    practice_nuts1_region_name = Series(
-        str,
-        constraints=[
-            Constraint.Categorical(
-                [
-                    "North East",
-                    "North West",
-                    "Yorkshire and The Humber",
-                    "East Midlands",
-                    "West Midlands",
-                    "East",
-                    "London",
-                    "South East",
-                    "South West",
-                ]
-            ),
-        ],
-        description="""
-            Name of the NUTS level 1 region of England to which the practice belongs.
-            For more information see:
-            <https://www.ons.gov.uk/methodology/geography/ukgeographies/eurostat>
-        """,
-    )
-
-    def for_patient_on(self, date):
-        """
-        Return each patient's practice registration as it was on the supplied date.
-
-        Where a patient is registered with multiple practices we prefer the most recent
-        registration and then, if there are multiple of these, the one with the longest
-        duration. If there's stil an exact tie we choose arbitrarily based on the
-        practice ID.
-        """
-        spanning_regs = self.where(self.start_date <= date).except_where(
-            self.end_date < date
-        )
-        ordered_regs = spanning_regs.sort_by(
-            self.start_date,
-            self.end_date,
-            self.practice_pseudo_id,
-        )
-        return ordered_regs.last_for_patient()
-
-
-@table
 class addresses(EventFrame):
     address_id = Series(int)
     start_date = Series(datetime.date)
@@ -200,59 +82,32 @@ class addresses(EventFrame):
 
 
 @table
-class sgss_covid_all_tests(EventFrame):
-    specimen_taken_date = Series(datetime.date)
-    is_positive = Series(bool)
-
-
-@table
-class occupation_on_covid_vaccine_record(EventFrame):
-    is_healthcare_worker = Series(bool)
-
-
-@table
-class emergency_care_attendances(EventFrame):
-    id = Series(int)  # noqa: A003
-    arrival_date = Series(datetime.date)
-    discharge_destination = Series(SNOMEDCTCode)
-    # TODO: Revisit this when we have support for multi-valued fields
-    diagnosis_01 = Series(SNOMEDCTCode)
-    diagnosis_02 = Series(SNOMEDCTCode)
-    diagnosis_03 = Series(SNOMEDCTCode)
-    diagnosis_04 = Series(SNOMEDCTCode)
-    diagnosis_05 = Series(SNOMEDCTCode)
-    diagnosis_06 = Series(SNOMEDCTCode)
-    diagnosis_07 = Series(SNOMEDCTCode)
-    diagnosis_08 = Series(SNOMEDCTCode)
-    diagnosis_09 = Series(SNOMEDCTCode)
-    diagnosis_10 = Series(SNOMEDCTCode)
-    diagnosis_11 = Series(SNOMEDCTCode)
-    diagnosis_12 = Series(SNOMEDCTCode)
-    diagnosis_13 = Series(SNOMEDCTCode)
-    diagnosis_14 = Series(SNOMEDCTCode)
-    diagnosis_15 = Series(SNOMEDCTCode)
-    diagnosis_16 = Series(SNOMEDCTCode)
-    diagnosis_17 = Series(SNOMEDCTCode)
-    diagnosis_18 = Series(SNOMEDCTCode)
-    diagnosis_19 = Series(SNOMEDCTCode)
-    diagnosis_20 = Series(SNOMEDCTCode)
-    diagnosis_21 = Series(SNOMEDCTCode)
-    diagnosis_22 = Series(SNOMEDCTCode)
-    diagnosis_23 = Series(SNOMEDCTCode)
-    diagnosis_24 = Series(SNOMEDCTCode)
-
-
-@table
-class hospital_admissions(EventFrame):
-    id = Series(int)  # noqa: A003
-    admission_date = Series(datetime.date)
-    discharge_date = Series(datetime.date)
-    admission_method = Series(str)
-    # TODO: Revisit this when we have support for multi-valued fields
-    all_diagnoses = Series(str)
-    patient_classification = Series(str)
-    days_in_critical_care = Series(int)
-    primary_diagnoses = Series(str)
+class apcs_cost(EventFrame):
+    apcs_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="TODO",
+    )
+    grand_total_payment_mff = Series(
+        float,
+        description="TODO",
+    )
+    tariff_initial_amount = Series(
+        float,
+        description="TODO",
+    )
+    tariff_total_payment = Series(
+        float,
+        description="TODO",
+    )
+    admission_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    discharge_date = Series(
+        datetime.date,
+        description="TODO",
+    )
 
 
 @table
@@ -324,6 +179,105 @@ class appointments(EventFrame):
             )
         ],
     )
+
+
+@table
+class clinical_events(EventFrame):
+    """
+    Each record corresponds to a single clinical or consultation event for a patient.
+
+    Each event is recorded twice: once with a CTv3 code, and again with the equivalent
+    SNOMED-CT code. Each record will have only one of the ctv3_code or snomedct_code
+    columns set and the other will be null. This allows you to query the table using
+    either a CTv3 codelist or SNOMED-CT codelist and all records using the other coding
+    system will be effectively ignored.
+
+    Note that event codes do not change in this table. If an event code in the coding
+    system becomes inactive, the event will still be coded to the inactive code.
+    As such, codelists should include all relevant inactive codes.
+
+    Detailed information on onward referrals is not currently available. A subset of
+    referrals are recorded in the clinical events table but this data will be incomplete.
+    """
+
+    date = Series(datetime.date)
+    snomedct_code = Series(SNOMEDCTCode)
+    ctv3_code = Series(CTV3Code)
+    numeric_value = Series(float)
+
+
+@table
+class ec_cost(EventFrame):
+    ec_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="TODO",
+    )
+    grand_total_payment_mff = Series(
+        float,
+        description="TODO",
+    )
+    tariff_total_payment = Series(
+        float,
+        description="TODO",
+    )
+    arrival_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    ec_decision_to_admit_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    ec_injury_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+
+
+@table
+class emergency_care_attendances(EventFrame):
+    id = Series(int)  # noqa: A003
+    arrival_date = Series(datetime.date)
+    discharge_destination = Series(SNOMEDCTCode)
+    # TODO: Revisit this when we have support for multi-valued fields
+    diagnosis_01 = Series(SNOMEDCTCode)
+    diagnosis_02 = Series(SNOMEDCTCode)
+    diagnosis_03 = Series(SNOMEDCTCode)
+    diagnosis_04 = Series(SNOMEDCTCode)
+    diagnosis_05 = Series(SNOMEDCTCode)
+    diagnosis_06 = Series(SNOMEDCTCode)
+    diagnosis_07 = Series(SNOMEDCTCode)
+    diagnosis_08 = Series(SNOMEDCTCode)
+    diagnosis_09 = Series(SNOMEDCTCode)
+    diagnosis_10 = Series(SNOMEDCTCode)
+    diagnosis_11 = Series(SNOMEDCTCode)
+    diagnosis_12 = Series(SNOMEDCTCode)
+    diagnosis_13 = Series(SNOMEDCTCode)
+    diagnosis_14 = Series(SNOMEDCTCode)
+    diagnosis_15 = Series(SNOMEDCTCode)
+    diagnosis_16 = Series(SNOMEDCTCode)
+    diagnosis_17 = Series(SNOMEDCTCode)
+    diagnosis_18 = Series(SNOMEDCTCode)
+    diagnosis_19 = Series(SNOMEDCTCode)
+    diagnosis_20 = Series(SNOMEDCTCode)
+    diagnosis_21 = Series(SNOMEDCTCode)
+    diagnosis_22 = Series(SNOMEDCTCode)
+    diagnosis_23 = Series(SNOMEDCTCode)
+    diagnosis_24 = Series(SNOMEDCTCode)
+
+
+@table
+class hospital_admissions(EventFrame):
+    id = Series(int)  # noqa: A003
+    admission_date = Series(datetime.date)
+    discharge_date = Series(datetime.date)
+    admission_method = Series(str)
+    # TODO: Revisit this when we have support for multi-valued fields
+    all_diagnoses = Series(str)
+    patient_classification = Series(str)
+    days_in_critical_care = Series(int)
+    primary_diagnoses = Series(str)
 
 
 @table
@@ -582,119 +536,8 @@ class isaric_raw(EventFrame):
 
 
 @table
-class open_prompt(EventFrame):
-    """
-    This table contains responses to questions from the OpenPROMPT project.
-
-    You can find out more about this table in the associated short data report. To view
-    it, you will need a login for [Level 4][open_prompt_1]. The
-    [workspace][open_prompt_2] shows when the code that comprises the report was run;
-    the code itself is in the [airmid-short-data-report][open_prompt_3] repository on
-    GitHub.
-
-    [open_prompt_1]: https://docs.opensafely.org/security-levels/#level-4-nhs-england-are-data-controllers-of-the-data
-    [open_prompt_2]: https://jobs.opensafely.org/datalab/opensafely-internal/airmid-short-data-report/
-    [open_prompt_3]: https://github.com/opensafely/airmid-short-data-report
-    """
-
-    ctv3_code = Series(
-        CTV3Code,
-        constraints=[Constraint.NotNull()],
-        description=(
-            "The response to the question, as a CTV3 code. "
-            "Alternatively, if the question does not admit a CTV3 code as the response, "
-            "then the question, as a CTV3 code."
-        ),
-    )
-    snomedct_code = Series(
-        SNOMEDCTCode,
-        description=(
-            "The response to the question, as a SNOMED CT code. "
-            "Alternatively, if the question does not admit a SNOMED CT code as the response, "
-            "then the question, as a SNOMED CT code."
-        ),
-    )
-    creation_date = Series(
-        datetime.date,
-        constraints=[Constraint.NotNull()],
-        description="The date the survey was administered",
-    )
-    consultation_date = Series(
-        datetime.date,
-        constraints=[Constraint.NotNull()],
-        description=(
-            "The response to the question, as a date, "
-            "if the question admits a date as the response. "
-            "Alternatively, the date the survey was administered."
-        ),
-    )
-    consultation_id = Series(
-        int,
-        constraints=[Constraint.NotNull()],
-        description="The ID of the survey",
-    )
-    numeric_value = Series(
-        float,
-        description="The response to the question, as a number",
-    )
-
-
-@table
-class apcs_cost(EventFrame):
-    apcs_ident = Series(
-        int,
-        constraints=[Constraint.NotNull()],
-        description="TODO",
-    )
-    grand_total_payment_mff = Series(
-        float,
-        description="TODO",
-    )
-    tariff_initial_amount = Series(
-        float,
-        description="TODO",
-    )
-    tariff_total_payment = Series(
-        float,
-        description="TODO",
-    )
-    admission_date = Series(
-        datetime.date,
-        description="TODO",
-    )
-    discharge_date = Series(
-        datetime.date,
-        description="TODO",
-    )
-
-
-@table
-class ec_cost(EventFrame):
-    ec_ident = Series(
-        int,
-        constraints=[Constraint.NotNull()],
-        description="TODO",
-    )
-    grand_total_payment_mff = Series(
-        float,
-        description="TODO",
-    )
-    tariff_total_payment = Series(
-        float,
-        description="TODO",
-    )
-    arrival_date = Series(
-        datetime.date,
-        description="TODO",
-    )
-    ec_decision_to_admit_date = Series(
-        datetime.date,
-        description="TODO",
-    )
-    ec_injury_date = Series(
-        datetime.date,
-        description="TODO",
-    )
+class occupation_on_covid_vaccine_record(EventFrame):
+    is_healthcare_worker = Series(bool)
 
 
 @table
@@ -819,3 +662,160 @@ class opa_proc(EventFrame):
         datetime.date,
         description="TODO",
     )
+
+
+@table
+class open_prompt(EventFrame):
+    """
+    This table contains responses to questions from the OpenPROMPT project.
+
+    You can find out more about this table in the associated short data report. To view
+    it, you will need a login for [Level 4][open_prompt_1]. The
+    [workspace][open_prompt_2] shows when the code that comprises the report was run;
+    the code itself is in the [airmid-short-data-report][open_prompt_3] repository on
+    GitHub.
+
+    [open_prompt_1]: https://docs.opensafely.org/security-levels/#level-4-nhs-england-are-data-controllers-of-the-data
+    [open_prompt_2]: https://jobs.opensafely.org/datalab/opensafely-internal/airmid-short-data-report/
+    [open_prompt_3]: https://github.com/opensafely/airmid-short-data-report
+    """
+
+    ctv3_code = Series(
+        CTV3Code,
+        constraints=[Constraint.NotNull()],
+        description=(
+            "The response to the question, as a CTV3 code. "
+            "Alternatively, if the question does not admit a CTV3 code as the response, "
+            "then the question, as a CTV3 code."
+        ),
+    )
+    snomedct_code = Series(
+        SNOMEDCTCode,
+        description=(
+            "The response to the question, as a SNOMED CT code. "
+            "Alternatively, if the question does not admit a SNOMED CT code as the response, "
+            "then the question, as a SNOMED CT code."
+        ),
+    )
+    creation_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+        description="The date the survey was administered",
+    )
+    consultation_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+        description=(
+            "The response to the question, as a date, "
+            "if the question admits a date as the response. "
+            "Alternatively, the date the survey was administered."
+        ),
+    )
+    consultation_id = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="The ID of the survey",
+    )
+    numeric_value = Series(
+        float,
+        description="The response to the question, as a number",
+    )
+
+
+@table
+class practice_registrations(EventFrame):
+    """
+    Each record corresponds to a patient's registration with a practice.
+
+    Only patients with a full GMS (General Medical Services) registration are included.
+
+    We have registration history for:
+
+    * all patients currently registered at a TPP practice
+    * all patients registered at a TPP practice any time from 1 Jan 2009 onwards:
+        * who have since de-registered
+        * who have since died
+
+    A patient can be registered with zero, one, or more than one practices at a given
+    time. For instance, students are often registered with a practice at home and a
+    practice at university.
+    """
+
+    start_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+        description="Date patient joined practice.",
+    )
+    end_date = Series(
+        datetime.date,
+        description="Date patient left practice.",
+    )
+    practice_pseudo_id = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="Pseudonymised practice identifier.",
+    )
+    practice_stp = Series(
+        str,
+        constraints=[Constraint.Regex("E540000[0-9]{2}")],
+        description="""
+            ONS code of practice's STP (Sustainability and Transformation Partnership).
+            STPs have been replaced by ICBs (Integrated Care Boards), and ICB codes will be available soon.
+        """,
+    )
+    practice_nuts1_region_name = Series(
+        str,
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "North East",
+                    "North West",
+                    "Yorkshire and The Humber",
+                    "East Midlands",
+                    "West Midlands",
+                    "East",
+                    "London",
+                    "South East",
+                    "South West",
+                ]
+            ),
+        ],
+        description="""
+            Name of the NUTS level 1 region of England to which the practice belongs.
+            For more information see:
+            <https://www.ons.gov.uk/methodology/geography/ukgeographies/eurostat>
+        """,
+    )
+
+    def for_patient_on(self, date):
+        """
+        Return each patient's practice registration as it was on the supplied date.
+
+        Where a patient is registered with multiple practices we prefer the most recent
+        registration and then, if there are multiple of these, the one with the longest
+        duration. If there's stil an exact tie we choose arbitrarily based on the
+        practice ID.
+        """
+        spanning_regs = self.where(self.start_date <= date).except_where(
+            self.end_date < date
+        )
+        ordered_regs = spanning_regs.sort_by(
+            self.start_date,
+            self.end_date,
+            self.practice_pseudo_id,
+        )
+        return ordered_regs.last_for_patient()
+
+
+@table
+class sgss_covid_all_tests(EventFrame):
+    specimen_taken_date = Series(datetime.date)
+    is_positive = Series(bool)
+
+
+@table
+class vaccinations(EventFrame):
+    vaccination_id = Series(int)
+    date = Series(datetime.date)
+    target_disease = Series(str)
+    product_name = Series(str)
