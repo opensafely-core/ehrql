@@ -12,22 +12,22 @@ from ehrql.tables.beta.core import medications, ons_deaths, patients
 
 
 __all__ = [
-    "clinical_events",
-    "medications",
-    "ons_deaths",
-    "patients",
-    "vaccinations",
-    "practice_registrations",
     "addresses",
-    "sgss_covid_all_tests",
-    "occupation_on_covid_vaccine_record",
+    "apcs_cost",
+    "appointments",
+    "clinical_events",
+    "ec_cost",
     "emergency_care_attendances",
     "hospital_admissions",
-    "appointments",
     "isaric_raw",
+    "medications",
+    "occupation_on_covid_vaccine_record",
+    "ons_deaths",
     "open_prompt",
-    "apcs_cost",
-    "ec_cost",
+    "patients",
+    "practice_registrations",
+    "sgss_covid_all_tests",
+    "vaccinations",
 ]
 
 
