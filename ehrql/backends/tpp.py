@@ -57,6 +57,16 @@ class TPPBackend(BaseBackend):
         """
     )
 
+    apcs = MappedTable(
+        source="APCS",
+        columns={
+            "apcs_ident": "APCS_Ident",
+            "admission_date": "Admission_Date",
+            "discharge_date": "Discharge_Date",
+            "spell_core_hrg_sus": "Spell_Core_HRG_SUS",
+        },
+    )
+
     apcs_cost = QueryTable(
         """
         SELECT
@@ -122,6 +132,15 @@ class TPPBackend(BaseBackend):
                 NumericValue AS numeric_value
             FROM CodedEvent_SNOMED
         """
+    )
+
+    ec = MappedTable(
+        source="EC",
+        columns={
+            "ec_ident": "EC_Ident",
+            "arrival_date": "Arrival_Date",
+            "sus_hrg_code": "SUS_HRG_Code",
+        },
     )
 
     ec_cost = QueryTable(
@@ -374,6 +393,7 @@ class TPPBackend(BaseBackend):
             "attendance_status": "Attendance_Status",
             "consultation_medium_used": "Consultation_Medium_Used",
             "first_attendance": "First_Attendance",
+            "hrg_code": "HRG_Code",
             "treatment_function_code": "Treatment_Function_Code",
         },
     )

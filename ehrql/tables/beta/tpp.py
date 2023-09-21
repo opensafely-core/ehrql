@@ -13,9 +13,11 @@ from ehrql.tables.beta.core import medications, ons_deaths, patients
 
 __all__ = [
     "addresses",
+    "apcs",
     "apcs_cost",
     "appointments",
     "clinical_events",
+    "ec",
     "ec_cost",
     "emergency_care_attendances",
     "hospital_admissions",
@@ -79,6 +81,27 @@ class addresses(EventFrame):
             self.address_id,
         )
         return ordered_addrs.last_for_patient()
+
+
+@table
+class apcs(EventFrame):
+    apcs_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="TODO",
+    )
+    admission_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    discharge_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    spell_core_hrg_sus = Series(
+        str,
+        description="TODO",
+    )
 
 
 @table
@@ -204,6 +227,23 @@ class clinical_events(EventFrame):
     snomedct_code = Series(SNOMEDCTCode)
     ctv3_code = Series(CTV3Code)
     numeric_value = Series(float)
+
+
+@table
+class ec(EventFrame):
+    ec_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+        description="TODO",
+    )
+    arrival_date = Series(
+        datetime.date,
+        description="TODO",
+    )
+    sus_hrg_code = Series(
+        str,
+        description="TODO",
+    )
 
 
 @table
@@ -560,6 +600,10 @@ class opa(EventFrame):
         description="TODO",
     )
     first_attendance = Series(
+        str,
+        description="TODO",
+    )
+    hrg_code = Series(
         str,
         description="TODO",
     )

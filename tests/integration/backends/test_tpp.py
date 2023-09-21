@@ -173,6 +173,28 @@ def test_addresses(select_all):
     ]
 
 
+@register_test_for(tpp.apcs)
+def test_apcs(select_all):
+    results = select_all(
+        APCS(
+            Patient_ID=1,
+            APCS_Ident=1,
+            Admission_Date=date(2023, 1, 1),
+            Discharge_Date=date(2023, 2, 1),
+            Spell_Core_HRG_SUS="XXX",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "apcs_ident": 1,
+            "admission_date": date(2023, 1, 1),
+            "discharge_date": date(2023, 2, 1),
+            "spell_core_hrg_sus": "XXX",
+        },
+    ]
+
+
 @register_test_for(tpp.apcs_cost)
 def test_apcs_cost(select_all):
     results = select_all(
@@ -267,6 +289,26 @@ def test_clinical_events(select_all):
             "snomedct_code": "lmn",
             "ctv3_code": None,
             "numeric_value": None,
+        },
+    ]
+
+
+@register_test_for(tpp.ec)
+def test_ec(select_all):
+    results = select_all(
+        EC(
+            Patient_ID=1,
+            EC_Ident=1,
+            Arrival_Date=date(2023, 1, 1),
+            SUS_HRG_Code="XXX",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "ec_ident": 1,
+            "arrival_date": date(2023, 1, 1),
+            "sus_hrg_code": "XXX",
         },
     ]
 
@@ -910,6 +952,7 @@ def test_opa(select_all):
             Attendance_Status="1",
             Consultation_Medium_Used="2",
             First_Attendance="3",
+            HRG_Code="XXX",
             Treatment_Function_Code="999",
         ),
     )
@@ -921,6 +964,7 @@ def test_opa(select_all):
             "attendance_status": "1",
             "consultation_medium_used": "2",
             "first_attendance": "3",
+            "hrg_code": "XXX",
             "treatment_function_code": "999",
         },
     ]
