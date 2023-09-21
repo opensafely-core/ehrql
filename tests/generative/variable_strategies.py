@@ -1,6 +1,7 @@
 import datetime
 from os import environ
 
+import hypothesis as hyp
 import hypothesis.strategies as st
 from hypothesis.control import current_build_context
 
@@ -17,6 +18,10 @@ from ehrql.query_model.nodes import (
     SelectTable,
     Sort,
     Value,
+)
+from ehrql.query_model.population_validation import (
+    ValidationError,
+    validate_population_definition,
 )
 
 
@@ -39,7 +44,7 @@ MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH", 15))
 #       strategy function.
 
 
-def variable(patient_tables, event_tables, schema, value_strategies):
+def population_and_variable(patient_tables, event_tables, schema, value_strategies):
     # Every inner-function here returns a Hypothesis strategy for creating the thing it is named
     # for, not the thing itself.
     #
@@ -528,7 +533,24 @@ def variable(patient_tables, event_tables, schema, value_strategies):
         frame = draw(one_row_per_patient_frame())
         return draw(series(type_, frame))
 
-    return valid_variable()
+    # A population definition is a boolean-typed variable that meets some additional
+    # criteria enforced by the query model
+    @st.composite
+    def valid_population(draw):
+        frame = draw(one_row_per_patient_frame())
+        population = draw(series(bool, frame))
+        hyp.assume(is_valid_population(population))
+        return population
+
+    return valid_population(), valid_variable()
+
+
+def is_valid_population(series):
+    try:
+        validate_population_definition(series)
+        return True
+    except ValidationError:
+        return False
 
 
 def is_one_row_per_patient_frame(frame):

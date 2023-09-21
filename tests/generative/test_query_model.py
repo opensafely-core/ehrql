@@ -1,5 +1,4 @@
 import datetime
-import itertools
 import os
 import re
 
@@ -19,6 +18,7 @@ from ehrql.query_model.nodes import (
     SelectPatientTable,
     TableSchema,
     Value,
+    get_series_type,
 )
 from tests.lib.query_model_utils import get_all_operations
 
@@ -59,7 +59,7 @@ value_strategies = {
     str: st.text(alphabet=["a", "b", "c"], min_size=0, max_size=3),
 }
 
-variable_strategy = variable_strategies.variable(
+population_strategy, variable_strategy = variable_strategies.population_and_variable(
     [c.__tablename__ for c in patient_classes],
     [c.__tablename__ for c in event_classes],
     schema,
@@ -129,11 +129,19 @@ def test_variable_strategy_is_comprehensive():
     assert not unexpected_present, f"unexpectedly seen operations: {unexpected_present}"
 
 
-@hyp.given(variable=variable_strategy, data=data_strategy)
+@hyp.given(
+    population=population_strategy, variable=variable_strategy, data=data_strategy
+)
 @hyp.settings(**settings)
-def test_query_model(query_engines, variable, data, recorder):
+def test_query_model(query_engines, population, variable, data, recorder):
     recorder.record_inputs(variable, data)
-    run_test(query_engines, data, variable, recorder)
+    run_dummy_data_test(population, variable)
+    run_test(query_engines, data, population, variable, recorder)
+    # We run the test again using a simplified population definition which includes all
+    # patients: this ensures that the calculated value of `variable` matches for all
+    # patients, not just those included in the original population (which may be zero,
+    # if `data` happens not to contain any matching patients)
+    run_test(query_engines, data, all_patients_query, variable, recorder)
 
 
 @pytest.mark.parametrize(
@@ -169,56 +177,69 @@ def test_handle_date_errors(query_engines, operation, rhs):
     run_error_test(query_engines, data, variable)
 
 
-def setup_test(data, variable):
+def setup_test(data, population, variable):
     instances = instantiate(data)
     variables = {
-        "population": all_patients_query,
+        "population": population,
         "v": variable,
     }
     return instances, variables
 
 
-def run_test(query_engines, data, variable, recorder):
-    instances, variables = setup_test(data, variable)
+def run_test(query_engines, data, population, variable, recorder):
+    instances, variables = setup_test(data, population, variable)
 
-    # Test that we can successfully generate a minimal amount of dummy data
-    dummy_data_generator = DummyDataGenerator(
-        variables, population_size=1, batch_size=1, timeout=-1
-    )
-    assert len(dummy_data_generator.get_data()) > 0
-
-    results = [
+    all_results = [
         (name, run_with(engine, instances, variables))
         for name, engine in query_engines.items()
     ]
+    # Sometimes we hit test cases where one engine is known to have problems so we
+    # ignore those results
+    results = [(name, rows) for name, rows in all_results if rows is not IGNORE_RESULT]
+    recorder.record_results(len(all_results), len(all_results) - len(results))
 
-    recorder.record_results(
-        len(results), len([r for (_, r) in results if r is IGNORE_RESULT])
+    # If we hit a case which _no_ database can handle (e.g. some silly bit of date
+    # arithmetic results in an out-of-bounds date) then just bail out
+    if not results:  # pragma: no cover
+        return
+
+    # Use the first engine's results as the baseline (this is arbitrary, equality being
+    # transitive)
+    first_name, first_results = results[0]
+    # If the results contain floats then we want only approximate equality to account
+    # for rounding differences
+    if any(get_series_type(v) is float for v in variables.values()):
+        first_results = [pytest.approx(row, rel=1e-5) for row in first_results]
+
+    for other_name, other_results in results[1:]:
+        assert (
+            first_results == other_results
+        ), f"Mismatch between {first_name} and {other_name}"
+
+
+def run_dummy_data_test(population, variable):
+    # We can't do much more here than check that the generator runs without error, but
+    # that's enough to catch quite a few issues
+    dummy_data_generator = DummyDataGenerator(
+        {"population": population, "v": variable},
+        population_size=1,
+        # We need a batch size bigger than one otherwise by chance (or, more strictly,
+        # by deterministic combination of query and fixed random seed) we can end up
+        # generating no examples of any tables, resulting in a not very interesting
+        # failure mode.
+        batch_size=5,
+        timeout=-1,
     )
-
-    for first, second in itertools.combinations(results, 2):
-        first_name, first_results = first
-        second_name, second_results = second
-
-        # Sometimes we hit test cases where one engine is known to have problems; skip them.
-        if IGNORE_RESULT in [first_results, second_results]:
-            continue  # pragma: no cover
-
-        # If the results contain floats then we want only approximate equality to account
-        # for rounding differences
-        if any(
-            isinstance(v, float)
-            for res in [*first_results, *second_results]
-            for v in res.values()
-        ):
-            for i, result in enumerate(first_results):
-                assert result == pytest.approx(
-                    second_results[i], rel=1e-5
-                ), f"Mismatch between {first_name} and {second_name}"
-        else:
-            assert (
-                first_results == second_results
-            ), f"Mismatch between {first_name} and {second_name}"
+    assert isinstance(dummy_data_generator.get_data(), list)
+    # Using a simplified population definition which should always have matching patients
+    # we can confirm that we generate at least some data
+    dummy_data_generator = DummyDataGenerator(
+        {"population": all_patients_query, "v": variable},
+        population_size=1,
+        batch_size=1,
+        timeout=-1,
+    )
+    assert len(dummy_data_generator.get_data()) > 0
 
 
 def run_error_test(query_engines, data, variable):
@@ -231,7 +252,7 @@ def run_error_test(query_engines, data, variable):
     of the valid range (max 9999-12-31).  The sqlite engine returns None for this,
     all other engines raise an Exception that we catch and ignore.
     """
-    instances, variables = setup_test(data, variable)
+    instances, variables = setup_test(data, all_patients_query, variable)
     for _, engine in query_engines.items():
         result = run_with(engine, instances, variables)
         assert result in [IGNORE_RESULT, [{"patient_id": 1, "v": None}]]
