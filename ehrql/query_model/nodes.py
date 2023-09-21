@@ -91,6 +91,8 @@ class Node:
         # dominating ehrQL's execution time. Given that these are immutable
         # objects we can cache the hash value instead of recalcuting it each time.
         cls.__hash__ = cached_method(cls.__hash__)
+        # Disable reprs to minimise extraneous Hypothesis output
+        cls.__repr__ = lambda self: "[repr suppressed]"
 
     def __post_init__(self):
         # validate the things which have to be checked dynamically

@@ -1,5 +1,6 @@
 import os
 import subprocess
+import tempfile
 import threading
 from pathlib import Path
 
@@ -157,10 +158,22 @@ def trino_database_with_session_scope(request, containers, show_delayed_warning)
     ):
         database = make_trino_database(containers)
         wait_for_database(database)
+    tmp_fd, tmp_name = tempfile.mkstemp()
+    proc = subprocess.Popen(
+        ["docker", "logs", "--follow", "ehrql-trino"], stdout=tmp_fd, stderr=tmp_fd
+    )
     yield database
     capturemanager = request.config.pluginmanager.getplugin("capturemanager")
     with capturemanager.global_and_fixture_disabled():
-        subprocess.run(["docker", "logs", "--tail", "300", "ehrql-trino"])
+        try:
+            proc.kill()
+        except Exception:
+            pass
+        os.close(tmp_fd)
+        print("\n=====> ehrql-trino logs\n\n")
+        subprocess.run(["tail", "-n", "500", tmp_name])
+        print()
+        print()
 
 
 @pytest.fixture(scope="function")

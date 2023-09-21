@@ -20,7 +20,7 @@ jobs:
           GENTEST_EXAMPLES=10000 \
           GENTEST_RANDOMIZE=t \
           GENTEST_MAX_DEPTH=30 \
-          just test-generative
+          just test tests/generative/test_query_model.py::test_query_model -s
 
       - name: "Notify Slack on Failure"
         if: failure() && github.ref_name == 'main'
