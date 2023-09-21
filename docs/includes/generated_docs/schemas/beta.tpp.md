@@ -9,9 +9,11 @@ OpenSAFELY-TPP backend. For more information about this backend, see the
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
 from ehrql.tables.beta.tpp import (
     addresses,
+    apcs,
     apcs_cost,
     appointments,
     clinical_events,
+    ec,
     ec_cost,
     emergency_care_attendances,
     hospital_admissions,
@@ -211,6 +213,66 @@ return ordered_addrs.last_for_patient()
 
 ```
     </details>
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## apcs
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="apcs.apcs_ident">
+    <strong>apcs_ident</strong>
+    <a class="headerlink" href="#apcs.apcs_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.admission_date">
+    <strong>admission_date</strong>
+    <a class="headerlink" href="#apcs.admission_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.discharge_date">
+    <strong>discharge_date</strong>
+    <a class="headerlink" href="#apcs.discharge_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.spell_core_hrg_sus">
+    <strong>spell_core_hrg_sus</strong>
+    <a class="headerlink" href="#apcs.spell_core_hrg_sus" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
   </dd>
 </div>
 
@@ -444,6 +506,54 @@ referrals are recorded in the clinical events table but this data will be incomp
   </dt>
   <dd markdown="block">
 
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## ec
+
+
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ec.ec_ident">
+    <strong>ec_ident</strong>
+    <a class="headerlink" href="#ec.ec_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec.arrival_date">
+    <strong>arrival_date</strong>
+    <a class="headerlink" href="#ec.arrival_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ec.sus_hrg_code">
+    <strong>sus_hrg_code</strong>
+    <a class="headerlink" href="#ec.sus_hrg_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+TODO
 
   </dd>
 </div>
@@ -1985,6 +2095,18 @@ TODO
   <dt id="opa.first_attendance">
     <strong>first_attendance</strong>
     <a class="headerlink" href="#opa.first_attendance" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+TODO
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="opa.hrg_code">
+    <strong>hrg_code</strong>
+    <a class="headerlink" href="#opa.hrg_code" title="Permanent link">🔗</a>
     <code>string</code>
   </dt>
   <dd markdown="block">

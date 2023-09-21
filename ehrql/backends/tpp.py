@@ -22,130 +22,6 @@ class TPPBackend(BaseBackend):
         ehrql.tables.beta.smoketest,
     ]
 
-    patients = QueryTable(
-        """
-            SELECT
-                Patient_ID as patient_id,
-                DateOfBirth as date_of_birth,
-                CASE
-                    WHEN Sex = 'M' THEN 'male'
-                    WHEN Sex = 'F' THEN 'female'
-                    WHEN Sex = 'I' THEN 'intersex'
-                    ELSE 'unknown'
-                END AS sex,
-                CASE
-                    WHEN DateOfDeath != '99991231' THEN DateOfDeath
-                END As date_of_death
-            FROM Patient
-        """,
-        implementation_notes=dict(
-            sex="Sex assigned at birth.",
-        ),
-    )
-
-    vaccinations = QueryTable(
-        """
-            SELECT
-                vax.Patient_ID AS patient_id,
-                vax.Vaccination_ID AS vaccination_id,
-                CAST(vax.VaccinationDate AS date) AS date,
-                vax.VaccinationName AS product_name,
-                ref.VaccinationContent AS target_disease
-            FROM Vaccination AS vax
-            LEFT JOIN VaccinationReference AS ref
-            ON vax.VaccinationName_ID = ref.VaccinationName_ID
-        """
-    )
-
-    practice_registrations = QueryTable(
-        """
-            SELECT
-                reg.Patient_ID AS patient_id,
-                CAST(reg.StartDate AS date) AS start_date,
-                CASE
-                    WHEN reg.EndDate = '9999-12-31' THEN NULL
-                    ELSE CAST(reg.EndDate AS date)
-                END AS end_date,
-                org.Organisation_ID AS practice_pseudo_id,
-                NULLIF(org.STPCode, '') AS practice_stp,
-                NULLIF(org.Region, '') AS practice_nuts1_region_name
-            FROM RegistrationHistory AS reg
-            LEFT OUTER JOIN Organisation AS org
-            ON reg.Organisation_ID = org.Organisation_ID
-        """
-    )
-
-    ons_deaths = MappedTable(
-        source="ONS_Deaths",
-        columns=dict(
-            date="dod",
-            place="Place_of_occurrence",
-            underlying_cause_of_death="icd10u",
-            **{f"cause_of_death_{i:02d}": f"ICD100{i:02d}" for i in range(1, 16)},
-        ),
-    )
-
-    clinical_events = QueryTable(
-        """
-            SELECT
-                Patient_ID AS patient_id,
-                CAST(NULLIF(ConsultationDate, '9999-12-31T00:00:00') AS date) AS date,
-                NULL AS snomedct_code,
-                CTV3Code AS ctv3_code,
-                NumericValue AS numeric_value
-            FROM CodedEvent
-            UNION ALL
-            SELECT
-                Patient_ID AS patient_id,
-                CAST(NULLIF(ConsultationDate, '9999-12-31T00:00:00') AS date) AS date,
-                ConceptId AS snomedct_code,
-                NULL AS ctv3_code,
-                NumericValue AS numeric_value
-            FROM CodedEvent_SNOMED
-        """
-    )
-
-    @QueryTable.from_function
-    def medications(self):
-        temp_database_name = self.config.get(
-            "TEMP_DATABASE_NAME", "PLACEHOLDER_FOR_TEMP_DATABASE_NAME"
-        )
-
-        # We construct a medication dictionary table which combines the table provided
-        # by TPP (removing blank entries) with a custom dictionary we supply, taking
-        # care to remove any entries in our custom dictionary which are already defined
-        # in the TPP dictionary. If we didn't do this then duplicate entries would
-        # result in duplicate MedicationIssue rows when we do the join later.
-        #
-        # This query looks a bit gnarly, but MSSQL is sensible enough to just execute it
-        # once and it performs significantly better than other approaches we've tried.
-        medication_dictionary_query = f"""
-            SELECT meds_dict.MultilexDrug_ID, meds_dict.DMD_ID
-            FROM MedicationDictionary AS meds_dict
-            WHERE meds_dict.DMD_ID != ''
-
-            UNION ALL
-
-            SELECT cust_dict.MultilexDrug_ID, cust_dict.DMD_ID
-            FROM {temp_database_name}..CustomMedicationDictionary AS cust_dict
-            WHERE NOT EXISTS (
-              SELECT 1 FROM MedicationDictionary AS meds_dict
-              WHERE
-                meds_dict.MultilexDrug_ID = cust_dict.MultilexDrug_ID
-                AND meds_dict.DMD_ID != ''
-            )
-        """
-
-        return f"""
-            SELECT
-                meds.Patient_ID AS patient_id,
-                CAST(meds.ConsultationDate AS date) AS date,
-                dict.DMD_ID AS dmd_code
-            FROM MedicationIssue AS meds
-            LEFT JOIN ({medication_dictionary_query}) AS dict
-            ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
-        """
-
     addresses = QueryTable(
         """
             SELECT
@@ -181,29 +57,106 @@ class TPPBackend(BaseBackend):
         """
     )
 
-    sgss_covid_all_tests = QueryTable(
+    apcs = MappedTable(
+        source="APCS",
+        columns={
+            "apcs_ident": "APCS_Ident",
+            "admission_date": "Admission_Date",
+            "discharge_date": "Discharge_Date",
+            "spell_core_hrg_sus": "Spell_Core_HRG_SUS",
+        },
+    )
+
+    apcs_cost = QueryTable(
         """
-            SELECT
+        SELECT
+            cost.Patient_ID AS patient_id,
+            cost.APCS_Ident AS apcs_ident,
+            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            cost.Tariff_Initial_Amount AS tariff_initial_amount,
+            cost.Tariff_Total_Payment AS tariff_total_payment,
+            apcs.Admission_Date AS admission_date,
+            apcs.Discharge_Date AS discharge_date
+        FROM APCS_Cost AS cost
+        LEFT JOIN APCS AS apcs
+        ON cost.APCS_Ident = apcs.APCS_Ident
+    """
+    )
+
+    appointments = QueryTable(
+        # WARNING: There are duplicate rows in the Appointment table, so we add DISTINCT
+        # to remove them from this query. When they are removed from the Appointment
+        # table, then we will remove DISTINCT from this query.
+        """
+            SELECT DISTINCT
+                Appointment_ID AS appointment_id,
                 Patient_ID AS patient_id,
-                Specimen_Date AS specimen_taken_date,
-                1 AS is_positive
-            FROM SGSS_AllTests_Positive
-            UNION ALL
-            SELECT
-                Patient_ID AS patient_id,
-                Specimen_Date AS specimen_taken_date,
-                0 AS is_positive
-            FROM SGSS_AllTests_Negative
+                CAST(BookedDate AS date) AS booked_date,
+                CAST(StartDate AS date) AS start_date,
+                CASE Status
+                    WHEN 0 THEN 'Booked'
+                    WHEN 1 THEN 'Arrived'
+                    WHEN 2 THEN 'Did Not Attend'
+                    WHEN 3 THEN 'In Progress'
+                    WHEN 4 THEN 'Finished'
+                    WHEN 5 THEN 'Requested'
+                    WHEN 6 THEN 'Blocked'
+                    WHEN 7 THEN 'Visit'
+                    WHEN 8 THEN 'Waiting'
+                    WHEN 9 THEN 'Cancelled by Patient'
+                    WHEN 10 THEN 'Cancelled by Unit'
+                    WHEN 11 THEN 'Cancelled by Other Service'
+                    WHEN 12 THEN 'No Access Visit'
+                    WHEN 13 THEN 'Cancelled Due To Death'
+                    WHEN 14 THEN 'Patient Walked Out'
+                END AS status
+            FROM Appointment
         """
     )
 
-    occupation_on_covid_vaccine_record = QueryTable(
+    clinical_events = QueryTable(
         """
             SELECT
                 Patient_ID AS patient_id,
-                1 AS is_healthcare_worker
-            FROM HealthCareWorker
+                CAST(NULLIF(ConsultationDate, '9999-12-31T00:00:00') AS date) AS date,
+                NULL AS snomedct_code,
+                CTV3Code AS ctv3_code,
+                NumericValue AS numeric_value
+            FROM CodedEvent
+            UNION ALL
+            SELECT
+                Patient_ID AS patient_id,
+                CAST(NULLIF(ConsultationDate, '9999-12-31T00:00:00') AS date) AS date,
+                ConceptId AS snomedct_code,
+                NULL AS ctv3_code,
+                NumericValue AS numeric_value
+            FROM CodedEvent_SNOMED
         """
+    )
+
+    ec = MappedTable(
+        source="EC",
+        columns={
+            "ec_ident": "EC_Ident",
+            "arrival_date": "Arrival_Date",
+            "sus_hrg_code": "SUS_HRG_Code",
+        },
+    )
+
+    ec_cost = QueryTable(
+        """
+        SELECT
+            cost.Patient_ID AS patient_id,
+            cost.EC_Ident AS ec_ident,
+            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            cost.Tariff_Total_Payment AS tariff_total_payment,
+            ec.Arrival_Date AS arrival_date,
+            ec.EC_Decision_To_Admit_Date AS ec_decision_to_admit_date,
+            ec.EC_Injury_Date AS ec_injury_date
+        FROM EC_Cost AS cost
+        LEFT JOIN EC AS ec
+        ON cost.EC_Ident = ec.EC_Ident
+    """
     )
 
     emergency_care_attendances = QueryTable(
@@ -235,37 +188,6 @@ class TPPBackend(BaseBackend):
             FROM APCS AS apcs
             LEFT JOIN APCS_Der AS der
             ON apcs.APCS_Ident = der.APCS_Ident
-        """
-    )
-
-    appointments = QueryTable(
-        # WARNING: There are duplicate rows in the Appointment table, so we add DISTINCT
-        # to remove them from this query. When they are removed from the Appointment
-        # table, then we will remove DISTINCT from this query.
-        """
-            SELECT DISTINCT
-                Appointment_ID AS appointment_id,
-                Patient_ID AS patient_id,
-                CAST(BookedDate AS date) AS booked_date,
-                CAST(StartDate AS date) AS start_date,
-                CASE Status
-                    WHEN 0 THEN 'Booked'
-                    WHEN 1 THEN 'Arrived'
-                    WHEN 2 THEN 'Did Not Attend'
-                    WHEN 3 THEN 'In Progress'
-                    WHEN 4 THEN 'Finished'
-                    WHEN 5 THEN 'Requested'
-                    WHEN 6 THEN 'Blocked'
-                    WHEN 7 THEN 'Visit'
-                    WHEN 8 THEN 'Waiting'
-                    WHEN 9 THEN 'Cancelled by Patient'
-                    WHEN 10 THEN 'Cancelled by Unit'
-                    WHEN 11 THEN 'Cancelled by Other Service'
-                    WHEN 12 THEN 'No Access Visit'
-                    WHEN 13 THEN 'Cancelled Due To Death'
-                    WHEN 14 THEN 'Patient Walked Out'
-                END AS status
-            FROM Appointment
         """
     )
 
@@ -403,54 +325,64 @@ class TPPBackend(BaseBackend):
         """
     )
 
-    open_prompt = QueryTable(
+    @QueryTable.from_function
+    def medications(self):
+        temp_database_name = self.config.get(
+            "TEMP_DATABASE_NAME", "PLACEHOLDER_FOR_TEMP_DATABASE_NAME"
+        )
+
+        # We construct a medication dictionary table which combines the table provided
+        # by TPP (removing blank entries) with a custom dictionary we supply, taking
+        # care to remove any entries in our custom dictionary which are already defined
+        # in the TPP dictionary. If we didn't do this then duplicate entries would
+        # result in duplicate MedicationIssue rows when we do the join later.
+        #
+        # This query looks a bit gnarly, but MSSQL is sensible enough to just execute it
+        # once and it performs significantly better than other approaches we've tried.
+        medication_dictionary_query = f"""
+            SELECT meds_dict.MultilexDrug_ID, meds_dict.DMD_ID
+            FROM MedicationDictionary AS meds_dict
+            WHERE meds_dict.DMD_ID != ''
+
+            UNION ALL
+
+            SELECT cust_dict.MultilexDrug_ID, cust_dict.DMD_ID
+            FROM {temp_database_name}..CustomMedicationDictionary AS cust_dict
+            WHERE NOT EXISTS (
+              SELECT 1 FROM MedicationDictionary AS meds_dict
+              WHERE
+                meds_dict.MultilexDrug_ID = cust_dict.MultilexDrug_ID
+                AND meds_dict.DMD_ID != ''
+            )
         """
-        SELECT
-            Patient_ID AS patient_id,
-            CASE
-                WHEN CodeSystemId = 0 THEN ConceptId
-            END AS snomedct_code,
-            CTV3Code AS ctv3_code,
-            CAST(CreationDate AS date) AS creation_date,
-            CAST(ConsultationDate AS date) AS consultation_date,
-            Consultation_ID AS consultation_id,
-            CASE
-                WHEN NumericCode = 1 THEN NumericValue
-            END AS numeric_value
-        FROM OpenPROMPT
-    """
+
+        return f"""
+            SELECT
+                meds.Patient_ID AS patient_id,
+                CAST(meds.ConsultationDate AS date) AS date,
+                dict.DMD_ID AS dmd_code
+            FROM MedicationIssue AS meds
+            LEFT JOIN ({medication_dictionary_query}) AS dict
+            ON meds.MultilexDrug_ID = dict.MultilexDrug_ID
+        """
+
+    occupation_on_covid_vaccine_record = QueryTable(
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                1 AS is_healthcare_worker
+            FROM HealthCareWorker
+        """
     )
 
-    apcs_cost = QueryTable(
-        """
-        SELECT
-            cost.Patient_ID AS patient_id,
-            cost.APCS_Ident AS apcs_ident,
-            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            cost.Tariff_Initial_Amount AS tariff_initial_amount,
-            cost.Tariff_Total_Payment AS tariff_total_payment,
-            apcs.Admission_Date AS admission_date,
-            apcs.Discharge_Date AS discharge_date
-        FROM APCS_Cost AS cost
-        LEFT JOIN APCS AS apcs
-        ON cost.APCS_Ident = apcs.APCS_Ident
-    """
-    )
-
-    ec_cost = QueryTable(
-        """
-        SELECT
-            cost.Patient_ID AS patient_id,
-            cost.EC_Ident AS ec_ident,
-            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
-            cost.Tariff_Total_Payment AS tariff_total_payment,
-            ec.Arrival_Date AS arrival_date,
-            ec.EC_Decision_To_Admit_Date AS ec_decision_to_admit_date,
-            ec.EC_Injury_Date AS ec_injury_date
-        FROM EC_Cost AS cost
-        LEFT JOIN EC AS ec
-        ON cost.EC_Ident = ec.EC_Ident
-    """
+    ons_deaths = MappedTable(
+        source="ONS_Deaths",
+        columns=dict(
+            date="dod",
+            place="Place_of_occurrence",
+            underlying_cause_of_death="icd10u",
+            **{f"cause_of_death_{i:02d}": f"ICD100{i:02d}" for i in range(1, 16)},
+        ),
     )
 
     opa = MappedTable(
@@ -461,6 +393,7 @@ class TPPBackend(BaseBackend):
             "attendance_status": "Attendance_Status",
             "consultation_medium_used": "Consultation_Medium_Used",
             "first_attendance": "First_Attendance",
+            "hrg_code": "HRG_Code",
             "treatment_function_code": "Treatment_Function_Code",
         },
     )
@@ -514,4 +447,91 @@ class TPPBackend(BaseBackend):
         LEFT JOIN OPA AS opa
         ON prc.OPA_Ident = opa.OPA_Ident
     """
+    )
+
+    open_prompt = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            CASE
+                WHEN CodeSystemId = 0 THEN ConceptId
+            END AS snomedct_code,
+            CTV3Code AS ctv3_code,
+            CAST(CreationDate AS date) AS creation_date,
+            CAST(ConsultationDate AS date) AS consultation_date,
+            Consultation_ID AS consultation_id,
+            CASE
+                WHEN NumericCode = 1 THEN NumericValue
+            END AS numeric_value
+        FROM OpenPROMPT
+    """
+    )
+
+    patients = QueryTable(
+        """
+            SELECT
+                Patient_ID as patient_id,
+                DateOfBirth as date_of_birth,
+                CASE
+                    WHEN Sex = 'M' THEN 'male'
+                    WHEN Sex = 'F' THEN 'female'
+                    WHEN Sex = 'I' THEN 'intersex'
+                    ELSE 'unknown'
+                END AS sex,
+                CASE
+                    WHEN DateOfDeath != '99991231' THEN DateOfDeath
+                END As date_of_death
+            FROM Patient
+        """,
+        implementation_notes=dict(
+            sex="Sex assigned at birth.",
+        ),
+    )
+
+    practice_registrations = QueryTable(
+        """
+            SELECT
+                reg.Patient_ID AS patient_id,
+                CAST(reg.StartDate AS date) AS start_date,
+                CASE
+                    WHEN reg.EndDate = '9999-12-31' THEN NULL
+                    ELSE CAST(reg.EndDate AS date)
+                END AS end_date,
+                org.Organisation_ID AS practice_pseudo_id,
+                NULLIF(org.STPCode, '') AS practice_stp,
+                NULLIF(org.Region, '') AS practice_nuts1_region_name
+            FROM RegistrationHistory AS reg
+            LEFT OUTER JOIN Organisation AS org
+            ON reg.Organisation_ID = org.Organisation_ID
+        """
+    )
+
+    sgss_covid_all_tests = QueryTable(
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                Specimen_Date AS specimen_taken_date,
+                1 AS is_positive
+            FROM SGSS_AllTests_Positive
+            UNION ALL
+            SELECT
+                Patient_ID AS patient_id,
+                Specimen_Date AS specimen_taken_date,
+                0 AS is_positive
+            FROM SGSS_AllTests_Negative
+        """
+    )
+
+    vaccinations = QueryTable(
+        """
+            SELECT
+                vax.Patient_ID AS patient_id,
+                vax.Vaccination_ID AS vaccination_id,
+                CAST(vax.VaccinationDate AS date) AS date,
+                vax.VaccinationName AS product_name,
+                ref.VaccinationContent AS target_disease
+            FROM Vaccination AS vax
+            LEFT JOIN VaccinationReference AS ref
+            ON vax.VaccinationName_ID = ref.VaccinationName_ID
+        """
     )
