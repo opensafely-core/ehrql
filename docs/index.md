@@ -6,6 +6,8 @@ and execute them with the command line interface to generate **datasets with one
 ehrQL allows researchers to access data sources from primary and secondary care,
 as well as from organisations such as the Office for National Statistics (ONS).
 
+!!! info "Why did we create a new query language for healthcare research?  Read more in [this blog post](https://www.bennett.ox.ac.uk/blog/2023/09/why-ehrql/)."
+
 ## ehrQL's documentation
 
 ehrQL's documentation has four main sections:
