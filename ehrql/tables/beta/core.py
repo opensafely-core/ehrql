@@ -14,6 +14,14 @@ from ehrql.codes import DMDCode, ICD10Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
+__all__ = [
+    "clinical_events",
+    "medications",
+    "ons_deaths",
+    "patients",
+]
+
+
 @table
 class patients(PatientFrame):
     """
