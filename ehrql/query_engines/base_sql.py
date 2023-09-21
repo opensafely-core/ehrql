@@ -52,6 +52,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     global_unique_id: str
     counter = 0
+    population_table = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,18 +78,38 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         `get_setup_and_cleanup_queries` on the query object.
         """
         variable_definitions = apply_transforms(variable_definitions)
+
+        # Generate a table containing the IDs all of patients matching the population
+        # definition
+        population_expression = self.get_predicate(variable_definitions["population"])
+        select_patient_id = self.select_patient_id_for_population(population_expression)
+        population_query = select_patient_id.where(population_expression)
+        population_query = apply_patient_joins(population_query)
+        population_table = self.reify_query(population_query)
+        # Store a reference to the population table so that we can use it while
+        # generating the variable expressions below
+        self.population_table = population_table
+
         variable_expressions = {
             name: self.get_expr(definition)
             for name, definition in variable_definitions.items()
             if name != "population"
         }
-        population_expression = self.get_predicate(variable_definitions["population"])
-        query = self.select_patient_id_for_population(population_expression)
+        query = sqlalchemy.select(population_table.c.patient_id)
         query = query.add_columns(
             *[expr.label(name) for name, expr in variable_expressions.items()]
         )
-        query = query.where(population_expression)
         query = apply_patient_joins(query)
+
+        # We use an instance variable to store the population table in order to avoid
+        # having to thread it through all our `get_sql`/`get_table` method calls. But
+        # this means that we can't safely re-use cached values across different calls to
+        # `get_query()` because the same query node may now generate different SQL
+        # depending on the population of the query to which it belongs. So we have to
+        # reset the caches and the population table reference.
+        self.population_table = None
+        self.get_sql.cache_clear()
+        self.get_table.cache_clear()
 
         return query
 
@@ -116,8 +137,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             ]
             # Create a table which contains the union of all these IDs. (Note UNION
             # rather than UNION ALL so we don't get duplicates.)
-            population_table = self.reify_query(sqlalchemy.union(*id_selects))
-            return sqlalchemy.select(population_table.c.patient_id)
+            all_ids_table = self.reify_query(sqlalchemy.union(*id_selects))
+            return sqlalchemy.select(all_ids_table.c.patient_id)
         elif len(tables) == 1:
             # If there's only one table then use the IDs from that
             return sqlalchemy.select(tables[0].c.patient_id.label("patient_id"))
@@ -631,10 +652,27 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         domain of that node
         """
         frame = get_domain(node).get_node()
-        select_table, conditions = get_table_and_filter_conditions(frame)
-        table = self.get_table(select_table)
+        table_node, conditions = get_table_and_filter_conditions(frame)
+        table = self.get_table(table_node)
         where_clauses = [self.get_predicate(condition) for condition in conditions]
         query = sqlalchemy.select(table.c.patient_id.label("patient_id"))
+        # If we've already defined the population table (which we will have, other than
+        # when we're still in the middle of compiling the population query) then we can
+        # add an extra condition to our query which restricts it to just those
+        # patient_ids present in the population. Where the query population is a small
+        # fraction of the total population in the database this can result in some
+        # dramatic speedups. As the fraction of the population increases this
+        # improvement diminishes and where the population includes all (or almost all)
+        # possible patients including this condition will make things slower. Initial
+        # testing seems to show that the speedups are so significant, and the slowdowns
+        # rare and mild enough, that this is still a net benefit but we'll need to keep
+        # this under review.
+        if self.population_table is not None:
+            where_clauses.append(
+                table.c.patient_id.in_(
+                    sqlalchemy.select(self.population_table.c.patient_id)
+                )
+            )
         if where_clauses:
             query = query.where(sqlalchemy.and_(*where_clauses))
         return query
