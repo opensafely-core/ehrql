@@ -100,35 +100,6 @@ def query_engines(request):
     }
 
 
-# This is "meta test" i.e. a test of our test generating strategy, rather than a test of
-# the system _using_ the test strategy. We want to ensure that we don't add new query
-# model nodes without adding an appropriate strategy for them.
-def test_variable_strategy_is_comprehensive():
-    operations_seen = set()
-
-    # This uses a fixed seed and no example database to make it deterministic
-    @hyp.settings(max_examples=150, database=None, deadline=None)
-    @hyp.seed(123456)
-    @hyp.given(variable=variable_strategy)
-    def record_operations_seen(variable):
-        operations_seen.update(type(node) for node in all_unique_nodes(variable))
-
-    record_operations_seen()
-
-    known_missing_operations = {
-        AggregateByPatient.CombineAsSet,
-        # Parameters don't themselves form part of valid queries: they are placeholders
-        # which must all be replaced with Values before the query can be executed.
-        Parameter,
-    }
-    all_operations = set(get_all_operations())
-    unexpected_missing = all_operations - known_missing_operations - operations_seen
-    unexpected_present = known_missing_operations & operations_seen
-
-    assert not unexpected_missing, f"unseen operations: {unexpected_missing}"
-    assert not unexpected_present, f"unexpectedly seen operations: {unexpected_present}"
-
-
 @hyp.given(
     population=population_strategy, variable=variable_strategy, data=data_strategy
 )
@@ -142,68 +113,6 @@ def test_query_model(query_engines, population, variable, data, recorder):
     # patients, not just those included in the original population (which may be zero,
     # if `data` happens not to contain any matching patients)
     run_test(query_engines, data, all_patients_query, variable, recorder)
-
-
-@pytest.mark.parametrize(
-    "operation,rhs",
-    [
-        (Function.DateAddYears, -2000),  # year=0
-        (Function.DateAddYears, -3000),  # year=-1000
-        (Function.DateAddYears, 8000),  # year = 10000
-        (Function.DateAddMonths, -3000 * 12),
-        (Function.DateAddMonths, 8000 * 12),
-        (Function.DateAddDays, -3000 * 366),
-        (Function.DateAddDays, 8000 * 366),
-        (
-            Function.DateAddDays,
-            1500000000,
-        ),  # triggers python overflow error with timedelta
-    ],
-)
-def test_handle_date_errors(query_engines, operation, rhs):
-    """
-    Runs a test with input that is expected to raise an error in some way which is
-    expected to be handled. If an exception is raised and handled within the test
-    function, the result will be an `IGNORE_RESULT` object.  If the bad input is
-    handled within the query engine itself, the result will contain a None value.
-    e.g. attempting to add 8000 years to 2000-01-01 results in a date that is outside
-    of the valid range (max 9999-12-31).  The sqlite engine returns None for this,
-    all other engines raise an Exception that we catch and ignore.
-    """
-    data = [
-        {
-            "type": data_setup.P0,
-            "patient_id": 1,
-            "d1": datetime.date(2000, 1, 1),
-        }
-    ]
-    variable = operation(
-        lhs=SelectColumn(
-            source=SelectPatientTable(name="p0", schema=schema), name="d1"
-        ),
-        rhs=Value(rhs),
-    )
-    instances, variables = setup_test(data, all_patients_query, variable)
-    for engine in query_engines.values():
-        result = run_with(engine, instances, variables)
-        assert result in [IGNORE_RESULT, [{"patient_id": 1, "v": None}]]
-
-
-def test_non_ignored_errors_are_still_raised(query_engines):
-    # Make sure our ignored error code isn't inadvertently catching everything
-    first_engine = list(query_engines.values())[0]
-    not_valid_variables = object()
-    with pytest.raises(Exception):
-        run_with(first_engine, [], not_valid_variables)
-
-
-def setup_test(data, population, variable):
-    instances = instantiate(data)
-    variables = {
-        "population": population,
-        "v": variable,
-    }
-    return instances, variables
 
 
 def run_test(query_engines, data, population, variable, recorder):
@@ -235,6 +144,38 @@ def run_test(query_engines, data, population, variable, recorder):
         assert (
             first_results == other_results
         ), f"Mismatch between {first_name} and {other_name}"
+
+
+def setup_test(data, population, variable):
+    instances = instantiate(data)
+    variables = {
+        "population": population,
+        "v": variable,
+    }
+    return instances, variables
+
+
+def instantiate(data):
+    instances = []
+    for item in data:
+        item = item.copy()
+        instances.append(item.pop("type")(**item))
+    return instances
+
+
+def run_with(engine, instances, variables):
+    try:
+        engine.setup(instances, metadata=sqla_metadata)
+        return engine.extract_qm(
+            variables,
+            config=ENGINE_CONFIG.get(engine.name, {}),
+        )
+    except Exception as e:
+        if is_ignorable_error(e):
+            return IGNORE_RESULT
+        raise
+    finally:
+        engine.teardown()
 
 
 def run_dummy_data_test(population, variable):
@@ -374,24 +315,89 @@ def is_ignorable_error(e):
     return False
 
 
-def run_with(engine, instances, variables):
-    try:
-        engine.setup(instances, metadata=sqla_metadata)
-        return engine.extract_qm(
-            variables,
-            config=ENGINE_CONFIG.get(engine.name, {}),
-        )
-    except Exception as e:
-        if is_ignorable_error(e):
-            return IGNORE_RESULT
-        raise
-    finally:
-        engine.teardown()
+# META TESTS
+#
+# The below are all "meta tests" i.e. they are tests which check that our testing
+# machinery is doing what we think it's doing and covering all the things we want it to
+# cover
 
 
-def instantiate(data):
-    instances = []
-    for item in data:
-        item = item.copy()
-        instances.append(item.pop("type")(**item))
-    return instances
+# Ensure that we don't add new query model nodes without adding an appropriate strategy
+# for them.
+def test_variable_strategy_is_comprehensive():
+    operations_seen = set()
+
+    # This uses a fixed seed and no example database to make it deterministic
+    @hyp.settings(max_examples=150, database=None, deadline=None)
+    @hyp.seed(123456)
+    @hyp.given(variable=variable_strategy)
+    def record_operations_seen(variable):
+        operations_seen.update(type(node) for node in all_unique_nodes(variable))
+
+    record_operations_seen()
+
+    known_missing_operations = {
+        AggregateByPatient.CombineAsSet,
+        # Parameters don't themselves form part of valid queries: they are placeholders
+        # which must all be replaced with Values before the query can be executed.
+        Parameter,
+    }
+    all_operations = set(get_all_operations())
+    unexpected_missing = all_operations - known_missing_operations - operations_seen
+    unexpected_present = known_missing_operations & operations_seen
+
+    assert not unexpected_missing, f"unseen operations: {unexpected_missing}"
+    assert not unexpected_present, f"unexpectedly seen operations: {unexpected_present}"
+
+
+@pytest.mark.parametrize(
+    "operation,rhs",
+    [
+        (Function.DateAddYears, -2000),  # year=0
+        (Function.DateAddYears, -3000),  # year=-1000
+        (Function.DateAddYears, 8000),  # year = 10000
+        (Function.DateAddMonths, -3000 * 12),
+        (Function.DateAddMonths, 8000 * 12),
+        (Function.DateAddDays, -3000 * 366),
+        (Function.DateAddDays, 8000 * 366),
+        (
+            Function.DateAddDays,
+            1500000000,
+        ),  # triggers python overflow error with timedelta
+    ],
+)
+def test_handle_date_errors(query_engines, operation, rhs):
+    """
+    Runs a test with input that is expected to raise an error in some way which is
+    expected to be handled. If an exception is raised and handled within the test
+    function, the result will be an `IGNORE_RESULT` object.  If the bad input is
+    handled within the query engine itself, the result will contain a None value.
+    e.g. attempting to add 8000 years to 2000-01-01 results in a date that is outside
+    of the valid range (max 9999-12-31).  The sqlite engine returns None for this,
+    all other engines raise an Exception that we catch and ignore.
+    """
+    data = [
+        {
+            "type": data_setup.P0,
+            "patient_id": 1,
+            "d1": datetime.date(2000, 1, 1),
+        }
+    ]
+    variable = operation(
+        lhs=SelectColumn(
+            source=SelectPatientTable(name="p0", schema=schema), name="d1"
+        ),
+        rhs=Value(rhs),
+    )
+    instances, variables = setup_test(data, all_patients_query, variable)
+    for engine in query_engines.values():
+        result = run_with(engine, instances, variables)
+        assert result in [IGNORE_RESULT, [{"patient_id": 1, "v": None}]]
+
+
+def test_non_ignored_errors_are_still_raised(query_engines):
+    # Make sure our ignored error code isn't inadvertently catching everything
+    first_engine = list(query_engines.values())[0]
+    not_valid_variables = object()
+    with pytest.raises(Exception):
+        run_with(first_engine, [], not_valid_variables)
