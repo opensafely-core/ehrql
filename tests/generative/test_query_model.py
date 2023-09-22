@@ -189,6 +189,14 @@ def test_handle_date_errors(query_engines, operation, rhs):
         assert result in [IGNORE_RESULT, [{"patient_id": 1, "v": None}]]
 
 
+def test_non_ignored_errors_are_still_raised(query_engines):
+    # Make sure our ignored error code isn't inadvertently catching everything
+    first_engine = list(query_engines.values())[0]
+    not_valid_variables = object()
+    with pytest.raises(Exception):
+        run_with(first_engine, [], not_valid_variables)
+
+
 def setup_test(data, population, variable):
     instances = instantiate(data)
     variables = {
