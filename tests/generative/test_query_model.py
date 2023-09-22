@@ -238,6 +238,14 @@ def run_test(query_engines, data, population, variable, recorder):
 
 
 def run_dummy_data_test(population, variable):
+    try:
+        run_dummy_data_test_without_error_handling(population, variable)
+    except Exception as e:  # pragma: no cover
+        if not is_ignorable_error(e):
+            raise
+
+
+def run_dummy_data_test_without_error_handling(population, variable):
     # We can't do much more here than check that the generator runs without error, but
     # that's enough to catch quite a few issues
     dummy_data_generator = DummyDataGenerator(
@@ -359,6 +367,13 @@ IGNORED_ERRORS = [
 ]
 
 
+def is_ignorable_error(e):
+    for ignored_error_type, ignored_error_regex in IGNORED_ERRORS:
+        if type(e) == ignored_error_type and ignored_error_regex.match(str(e)):
+            return True
+    return False
+
+
 def run_with(engine, instances, variables):
     try:
         engine.setup(instances, metadata=sqla_metadata)
@@ -366,12 +381,11 @@ def run_with(engine, instances, variables):
             variables,
             config=ENGINE_CONFIG.get(engine.name, {}),
         )
-    except Exception as e:  # pragma: no cover
-        for ignored_error_type, ignored_error_regex in IGNORED_ERRORS:
-            if type(e) == ignored_error_type and ignored_error_regex.match(str(e)):
-                return IGNORE_RESULT
+    except Exception as e:
+        if is_ignorable_error(e):
+            return IGNORE_RESULT
         raise
-    finally:  # pragma: no cover
+    finally:
         engine.teardown()
 
 
