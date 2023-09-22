@@ -366,7 +366,7 @@ def test_variable_strategy_is_comprehensive():
         ),  # triggers python overflow error with timedelta
     ],
 )
-def test_handle_date_errors(query_engines, operation, rhs):
+def test_run_with_handles_date_errors(query_engines, operation, rhs):
     """
     Runs a test with input that is expected to raise an error in some way which is
     expected to be handled. If an exception is raised and handled within the test
@@ -395,7 +395,7 @@ def test_handle_date_errors(query_engines, operation, rhs):
         assert result in [IGNORE_RESULT, [{"patient_id": 1, "v": None}]]
 
 
-def test_non_ignored_errors_are_still_raised(query_engines):
+def test_run_with_still_raises_non_ignored_errors(query_engines):
     # Make sure our ignored error code isn't inadvertently catching everything
     first_engine = list(query_engines.values())[0]
     not_valid_variables = object()
