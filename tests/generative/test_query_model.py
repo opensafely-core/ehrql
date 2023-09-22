@@ -161,6 +161,15 @@ def test_query_model(query_engines, population, variable, data, recorder):
     ],
 )
 def test_handle_date_errors(query_engines, operation, rhs):
+    """
+    Runs a test with input that is expected to raise an error in some way which is
+    expected to be handled. If an exception is raised and handled within the test
+    function, the result will be an `IGNORE_RESULT` object.  If the bad input is
+    handled within the query engine itself, the result will contain a None value.
+    e.g. attempting to add 8000 years to 2000-01-01 results in a date that is outside
+    of the valid range (max 9999-12-31).  The sqlite engine returns None for this,
+    all other engines raise an Exception that we catch and ignore.
+    """
     data = [
         {
             "type": data_setup.P0,
@@ -174,7 +183,10 @@ def test_handle_date_errors(query_engines, operation, rhs):
         ),
         rhs=Value(rhs),
     )
-    run_error_test(query_engines, data, variable)
+    instances, variables = setup_test(data, all_patients_query, variable)
+    for engine in query_engines.values():
+        result = run_with(engine, instances, variables)
+        assert result in [IGNORE_RESULT, [{"patient_id": 1, "v": None}]]
 
 
 def setup_test(data, population, variable):
@@ -240,22 +252,6 @@ def run_dummy_data_test(population, variable):
         timeout=-1,
     )
     assert len(dummy_data_generator.get_data()) > 0
-
-
-def run_error_test(query_engines, data, variable):
-    """
-    Runs a test with input that is expected to raise an error in some way which is
-    expected to be handled. If an exception is raised and handled within the test
-    function, the result will be an `IGNORE_RESULT` object.  If the bad input is
-    handled within the query engine itself, the result will contain a None value.
-    e.g. attempting to add 8000 years to 2000-01-01 results in a date that is outside
-    of the valid range (max 9999-12-31).  The sqlite engine returns None for this,
-    all other engines raise an Exception that we catch and ignore.
-    """
-    instances, variables = setup_test(data, all_patients_query, variable)
-    for _, engine in query_engines.items():
-        result = run_with(engine, instances, variables)
-        assert result in [IGNORE_RESULT, [{"patient_id": 1, "v": None}]]
 
 
 IGNORED_ERRORS = [
