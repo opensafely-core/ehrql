@@ -22,10 +22,8 @@ from tests.lib.query_model_utils import get_all_operations
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
-from .ignored_errors import is_ignorable_error
+from .ignored_errors import IgnoredError, get_ignored_error_type
 
-
-IGNORE_RESULT = object()
 
 # To simplify data generation, all tables have the same schema.
 schema = TableSchema(
@@ -123,7 +121,9 @@ def run_test(query_engines, data, population, variable, recorder):
     ]
     # Sometimes we hit test cases where one engine is known to have problems so we
     # ignore those results
-    results = [(name, rows) for name, rows in all_results if rows is not IGNORE_RESULT]
+    results = [
+        (name, rows) for name, rows in all_results if not isinstance(rows, IgnoredError)
+    ]
     recorder.record_results(len(all_results), len(all_results) - len(results))
 
     # If we hit a case which _no_ database can handle (e.g. some silly bit of date
@@ -170,8 +170,8 @@ def run_with(engine, instances, variables):
             config=ENGINE_CONFIG.get(engine.name, {}),
         )
     except Exception as e:
-        if is_ignorable_error(e):
-            return IGNORE_RESULT
+        if error_type := get_ignored_error_type(e):
+            return error_type
         raise
     finally:
         engine.teardown()
@@ -181,7 +181,7 @@ def run_dummy_data_test(population, variable):
     try:
         run_dummy_data_test_without_error_handling(population, variable)
     except Exception as e:  # pragma: no cover
-        if not is_ignorable_error(e):
+        if not get_ignored_error_type(e):
             raise
 
 
@@ -287,7 +287,7 @@ def test_run_with_handles_date_errors(query_engines, operation, rhs):
     instances, variables = setup_test(data, all_patients_query, variable)
     for engine in query_engines.values():
         result = run_with(engine, instances, variables)
-        assert result in [IGNORE_RESULT, [{"patient_id": 1, "v": None}]]
+        assert result in [IgnoredError.DATE_OVERFLOW, [{"patient_id": 1, "v": None}]]
 
 
 def test_run_with_still_raises_non_ignored_errors(query_engines):
