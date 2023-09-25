@@ -2,6 +2,7 @@ import collections
 import graphlib
 
 import sqlalchemy
+from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.elements import (
     AsBoolean,
     BinaryExpression,
@@ -9,6 +10,7 @@ from sqlalchemy.sql.elements import (
     UnaryExpression,
     operators,
 )
+from sqlalchemy.sql.expression import ClauseElement, Executable
 
 
 def is_predicate(clause):
@@ -251,3 +253,22 @@ class InsertMany:
         # works fine for our purposes. We can consider doing something more complicated
         # if the need arises.
         return ";\n".join(sql)
+
+
+class CreateTableAs(Executable, ClauseElement):
+    inherit_cache = True
+
+    def __init__(self, table, selectable):
+        self.table = table
+        self.selectable = selectable
+
+    def get_children(self):
+        return (self.table, self.selectable)
+
+
+@compiles(CreateTableAs)
+def visit_create_table_as(element, compiler, **kw):
+    return "CREATE TABLE {} AS {}".format(
+        compiler.process(element.table, asfrom=True, **kw),
+        compiler.process(element.selectable, asfrom=True, **kw),
+    )
