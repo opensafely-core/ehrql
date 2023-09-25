@@ -115,31 +115,44 @@ def test_query_model(query_engines, population, variable, data, recorder):
 def run_test(query_engines, data, population, variable, recorder):
     instances, variables = setup_test(data, population, variable)
 
-    all_results = [
-        (name, run_with(engine, instances, variables))
+    all_results = {
+        name: run_with(engine, instances, variables)
         for name, engine in query_engines.items()
-    ]
+    }
+
     # Sometimes we hit test cases where one engine is known to have problems so we
     # ignore those results
-    results = [
-        (name, rows) for name, rows in all_results if not isinstance(rows, IgnoredError)
-    ]
+    results = {
+        name: rows
+        for name, rows in all_results.items()
+        if not isinstance(rows, IgnoredError)
+    }
+
+    # SQLite has an unfortunate habit of returning NULL, rather than raising an error,
+    # when it hits a date overflow. This can make Hypothesis think it has found an
+    # interesting results mismatch when in fact it hasn't. To avoid this, we take the
+    # approach that whenever the in-memory engine hits a date overflow we ignore the
+    # results from SQLite as well.
+    if all_results.get("in_memory") is IgnoredError.DATE_OVERFLOW:
+        results.pop("sqlite", None)
+
     recorder.record_results(len(all_results), len(all_results) - len(results))
 
     # If we hit a case which _no_ database can handle (e.g. some silly bit of date
     # arithmetic results in an out-of-bounds date) then just bail out
-    if not results:  # pragma: no cover
+    if not results:
         return
 
     # Use the first engine's results as the baseline (this is arbitrary, equality being
     # transitive)
-    first_name, first_results = results[0]
+    first_name = list(results.keys())[0]
+    first_results = results.pop(first_name)
     # If the results contain floats then we want only approximate equality to account
     # for rounding differences
     if any(get_series_type(v) is float for v in variables.values()):
         first_results = [pytest.approx(row, rel=1e-5) for row in first_results]
 
-    for other_name, other_results in results[1:]:
+    for other_name, other_results in results.items():
         assert (
             first_results == other_results
         ), f"Mismatch between {first_name} and {other_name}"
@@ -296,3 +309,14 @@ def test_run_with_still_raises_non_ignored_errors(query_engines):
     not_valid_variables = object()
     with pytest.raises(Exception):
         run_with(first_engine, [], not_valid_variables)
+
+
+def test_run_test_handles_errors_from_all_query_engines(query_engines, recorder):
+    # Make sure we can handle a query which fails for all query engines
+    data = [{"type": data_setup.P0, "patient_id": 1}]
+    population = AggregateByPatient.Exists(SelectPatientTable("p0", schema=schema))
+    variable = Function.DateAddYears(
+        lhs=Value(datetime.date(2000, 1, 1)),
+        rhs=Value(8000),
+    )
+    run_test(query_engines, data, population, variable, recorder)
