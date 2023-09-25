@@ -192,6 +192,27 @@ def test_get_setup_and_cleanup_queries_with_insert_many():
     assert setup_cleanup == ([], [])
 
 
+def test_generated_table_from_query():
+    query = sqlalchemy.select(
+        sqlalchemy.literal(1).label("number"),
+        sqlalchemy.literal("a").label("string"),
+    )
+    table = GeneratedTable.from_query("some_table", query, schema="some_schema")
+    assert str(sqlalchemy.schema.CreateTable(table)).strip() == (
+        "CREATE TABLE some_schema.some_table (\n"
+        "\tnumber INTEGER, \n"
+        "\tstring VARCHAR\n"
+        ")"
+    )
+
+
+def test_generated_table_from_query_with_metadata():
+    metadata = sqlalchemy.MetaData()
+    query = sqlalchemy.select(sqlalchemy.literal(1).label("number"))
+    table = GeneratedTable.from_query("some_table", query, metadata=metadata)
+    assert table.metadata is metadata
+
+
 # The below tests exercise obscure corners of SQLAlchemy which used to have bugs that we
 # had to workaroud. These have been fixed in SQLAlchemy 2 but we retain the tests for
 # their warm fuzzy value.

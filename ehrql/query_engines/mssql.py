@@ -261,10 +261,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
 
 def temporary_table_from_query(table_name, query, index_col=0, schema=None):
     # Define a table object with the same columns as the query
-    columns = [
-        sqlalchemy.Column(c.name, c.type, key=c.key) for c in query.selected_columns
-    ]
-    table = GeneratedTable(table_name, sqlalchemy.MetaData(), *columns, schema=schema)
+    table = GeneratedTable.from_query(table_name, query, schema=schema)
     table.setup_queries = [
         # Use the MSSQL `SELECT * INTO ...` construct to create and populate this
         # table

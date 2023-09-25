@@ -56,6 +56,18 @@ class GeneratedTable(sqlalchemy.Table):
     setup_queries = ()
     cleanup_queries = ()
 
+    @classmethod
+    def from_query(cls, name, query, metadata=None, **kwargs):
+        """
+        Create a GeneratedTable whose column structure matches that of the supplied query
+        """
+        if metadata is None:
+            metadata = sqlalchemy.MetaData()
+        columns = [
+            sqlalchemy.Column(c.name, c.type, key=c.key) for c in query.selected_columns
+        ]
+        return cls(name, metadata, *columns, **kwargs)
+
 
 def get_setup_and_cleanup_queries(query):
     """
