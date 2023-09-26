@@ -1,12 +1,13 @@
 import csv
 from datetime import date
 
+import pytest
 import sqlalchemy
 
 from ehrql import Dataset
 from ehrql.query_language import PatientFrame, Series, table_from_file, table_from_rows
 from ehrql.query_model.nodes import Value
-from ehrql.tables.beta.core import patients
+from ehrql.tables.beta.core import clinical_events, patients
 
 
 def test_handles_degenerate_population(engine):
@@ -105,3 +106,50 @@ def test_handles_inline_patient_table_with_different_patients(engine):
         {"patient_id": 2, "n": 120, "sex": None},
         {"patient_id": 3, "n": 130, "sex": None},
     ]
+
+
+def test_cleans_up_temporary_tables(engine):
+    # Cleanup doesn't apply to the in-memory engine
+    if engine.name == "in_memory":
+        pytest.skip()
+
+    engine.populate(
+        {
+            clinical_events: [
+                dict(patient_id=1, date=date(2000, 1, 1)),
+                dict(patient_id=1, date=date(2001, 1, 1)),
+                dict(patient_id=2, date=date(2002, 1, 1)),
+            ]
+        }
+    )
+    original_tables = _get_tables(engine)
+
+    @table_from_rows(
+        [
+            (1, 10),
+            (2, 20),
+        ]
+    )
+    class inline_table(PatientFrame):
+        i = Series(int)
+
+    dataset = Dataset()
+    dataset.define_population(clinical_events.exists_for_patient())
+    dataset.n = clinical_events.count_for_patient()
+    dataset.i = inline_table.i
+
+    results = engine.extract(dataset)
+
+    assert results == [
+        {"patient_id": 1, "n": 2, "i": 10},
+        {"patient_id": 2, "n": 1, "i": 20},
+    ]
+
+    # Check that the tables we're left with match those we started with
+    final_tables = _get_tables(engine)
+    assert final_tables == original_tables
+
+
+def _get_tables(engine):
+    inspector = sqlalchemy.inspect(engine.sqlalchemy_engine())
+    return sorted(inspector.get_table_names())

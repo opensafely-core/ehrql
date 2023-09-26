@@ -2,8 +2,10 @@ import pytest
 import sqlalchemy
 from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 from sqlalchemy.engine.default import DefaultDialect
+from sqlalchemy.sql.visitors import iterate
 
 from ehrql.utils.sqlalchemy_query_utils import (
+    CreateTableAs,
     GeneratedTable,
     InsertMany,
     clause_as_str,
@@ -190,6 +192,57 @@ def test_get_setup_and_cleanup_queries_with_insert_many():
     statement = InsertMany(table, rows=[])
     setup_cleanup = get_setup_and_cleanup_queries(statement)
     assert setup_cleanup == ([], [])
+
+
+def test_generated_table_from_query():
+    query = sqlalchemy.select(
+        sqlalchemy.literal(1).label("number"),
+        sqlalchemy.literal("a").label("string"),
+    )
+    table = GeneratedTable.from_query("some_table", query, schema="some_schema")
+    assert str(sqlalchemy.schema.CreateTable(table)).strip() == (
+        "CREATE TABLE some_schema.some_table (\n"
+        "\tnumber INTEGER, \n"
+        "\tstring VARCHAR\n"
+        ")"
+    )
+
+
+def test_generated_table_from_query_with_metadata():
+    metadata = sqlalchemy.MetaData()
+    query = sqlalchemy.select(sqlalchemy.literal(1).label("number"))
+    table = GeneratedTable.from_query("some_table", query, metadata=metadata)
+    assert table.metadata is metadata
+
+
+def test_create_table_as():
+    query = sqlalchemy.select(
+        sqlalchemy.literal(1).label("number"),
+        sqlalchemy.literal("a").label("string"),
+    )
+    table = sqlalchemy.table("test")
+    create_table = CreateTableAs(table, query)
+
+    assert str(create_table) == (
+        "CREATE TABLE test AS SELECT :param_1 AS number, :param_2 AS string"
+    )
+
+
+def test_create_table_as_can_be_iterated():
+    # If we don't define the `get_children()` method on `CreateTableAs` we won't get an
+    # error when attempting to iterate the resulting element structure: it will just act
+    # as a leaf node. But as we rely heavily on query introspection we need to ensure we
+    # can iterate over query structures.
+    query = sqlalchemy.select(
+        sqlalchemy.literal(1).label("number"),
+        sqlalchemy.literal("a").label("string"),
+    )
+    table = sqlalchemy.table("test")
+    create_table = CreateTableAs(table, query)
+
+    # Check that the original elements show up when iterated
+    assert any([e is table for e in iterate(create_table)])
+    assert any([e is query for e in iterate(create_table)])
 
 
 # The below tests exercise obscure corners of SQLAlchemy which used to have bugs that we

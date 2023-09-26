@@ -147,7 +147,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # doesn't reference any tables at all. Our validation rules ensure that such
             # an expression will never evaluate True so the population will always be
             # empty. But we can at least return an empty result, rather than blowing up.
-            return sqlalchemy.select(sqlalchemy.literal(None).label("patient_id"))
+            return sqlalchemy.select(sqlalchemy.literal(0).label("patient_id"))
 
     # Some databases care about the distinction between "predicates" (expressions which
     # are guaranteed boolean-typed by virtue of their syntax) and other forms of

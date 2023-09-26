@@ -6,6 +6,7 @@ from ehrql.query_engines.base_sql import BaseSQLQueryEngine, get_cyclic_coalesce
 from ehrql.query_engines.trino_dialect import TrinoDialect
 from ehrql.query_model.nodes import Position
 from ehrql.utils.sqlalchemy_query_utils import (
+    CreateTableAs,
     GeneratedTable,
     InsertMany,
 )
@@ -131,5 +132,16 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
         ]
         table.cleanup_queries = [
             sqlalchemy.schema.DropTable(table),
+        ]
+        return table
+
+    def reify_query(self, query):
+        table_name = f"ehrql_{self.global_unique_id}_tmp_{self.get_next_id()}"
+        table = GeneratedTable.from_query(table_name, query)
+        table.setup_queries = [
+            CreateTableAs(table, query),
+        ]
+        table.cleanup_queries = [
+            sqlalchemy.schema.DropTable(table, if_exists=True),
         ]
         return table
