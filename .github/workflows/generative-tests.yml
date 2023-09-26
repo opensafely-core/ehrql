@@ -16,14 +16,44 @@ jobs:
         with:
           install-just: true
           python-version: "3.11"
-      - run: |
-          GENTEST_EXAMPLES=10000 \
-          GENTEST_RANDOMIZE=t \
-          GENTEST_MAX_DEPTH=30 \
-          GENTEST_DEBUG=t \
-          GENTEST_CHECK_IGNORED_ERRORS=t \
-          GENTEST_QUERY_ENGINES='in_memory sqlite mssql' \
-          just test-generative
+      # To work around memory leak issues in our database containers we run the
+      # tests in multiple smaller batches, recreating the containers between
+      # each batch
+      - name: Run `just test tests/generative/test_query_model.py::test_query_model` in batches
+        run: |
+          set -euo pipefail
+          start_time=$(date +%s)
+
+          just devenv
+          export \
+            GENTEST_EXAMPLES=200 \
+            GENTEST_RANDOMIZE=t \
+            GENTEST_MAX_DEPTH=30 \
+            GENTEST_DEBUG=t \
+            GENTEST_CHECK_IGNORED_ERRORS=t
+
+          # We get a maximum of 6 hours runtime with Github Actions so breaking
+          # the loop after 4 hours feels like a reasonably balance of getting a
+          # decent amount of generative testing done while leaving plenty of
+          # headroom.
+          end_time=$((start_time + 4 * 3600))
+          i=1
+
+          while true; do
+            echo
+            echo "==> Running test batch $i with $GENTEST_EXAMPLES examples"
+            echo
+
+            # Do the actual testing
+            just test tests/generative/test_query_model.py::test_query_model
+
+            if [[ $(date +%s) -ge $end_time ]]; then
+              break
+            fi
+
+            just remove-database-containers
+            ((i++))
+          done
 
       - name: "Notify Slack on Failure"
         if: failure() && github.ref_name == 'main'
