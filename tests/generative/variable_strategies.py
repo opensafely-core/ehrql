@@ -24,6 +24,8 @@ from ehrql.query_model.population_validation import (
     validate_population_definition,
 )
 
+from .ignored_errors import get_ignored_error_type
+
 
 MAX_DEPTH = int(environ.get("GENTEST_MAX_DEPTH", 15))
 
@@ -551,6 +553,10 @@ def is_valid_population(series):
         return True
     except ValidationError:
         return False
+    except Exception as e:  # pragma: no cover
+        if get_ignored_error_type(e):
+            return False
+        raise
 
 
 def is_one_row_per_patient_frame(frame):

@@ -1,11 +1,9 @@
 import datetime
 import os
-import re
 
 import hypothesis as hyp
 import hypothesis.strategies as st
 import pytest
-import sqlalchemy.exc
 
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.query_model.introspection import all_unique_nodes
@@ -24,9 +22,8 @@ from tests.lib.query_model_utils import get_all_operations
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
+from .ignored_errors import IgnoredError, get_ignored_error_type
 
-
-IGNORE_RESULT = object()
 
 # To simplify data generation, all tables have the same schema.
 schema = TableSchema(
@@ -118,29 +115,44 @@ def test_query_model(query_engines, population, variable, data, recorder):
 def run_test(query_engines, data, population, variable, recorder):
     instances, variables = setup_test(data, population, variable)
 
-    all_results = [
-        (name, run_with(engine, instances, variables))
+    all_results = {
+        name: run_with(engine, instances, variables)
         for name, engine in query_engines.items()
-    ]
+    }
+
     # Sometimes we hit test cases where one engine is known to have problems so we
     # ignore those results
-    results = [(name, rows) for name, rows in all_results if rows is not IGNORE_RESULT]
+    results = {
+        name: rows
+        for name, rows in all_results.items()
+        if not isinstance(rows, IgnoredError)
+    }
+
+    # SQLite has an unfortunate habit of returning NULL, rather than raising an error,
+    # when it hits a date overflow. This can make Hypothesis think it has found an
+    # interesting results mismatch when in fact it hasn't. To avoid this, we take the
+    # approach that whenever the in-memory engine hits a date overflow we ignore the
+    # results from SQLite as well.
+    if all_results.get("in_memory") is IgnoredError.DATE_OVERFLOW:
+        results.pop("sqlite", None)
+
     recorder.record_results(len(all_results), len(all_results) - len(results))
 
     # If we hit a case which _no_ database can handle (e.g. some silly bit of date
     # arithmetic results in an out-of-bounds date) then just bail out
-    if not results:  # pragma: no cover
+    if not results:
         return
 
     # Use the first engine's results as the baseline (this is arbitrary, equality being
     # transitive)
-    first_name, first_results = results[0]
+    first_name = list(results.keys())[0]
+    first_results = results.pop(first_name)
     # If the results contain floats then we want only approximate equality to account
     # for rounding differences
     if any(get_series_type(v) is float for v in variables.values()):
         first_results = [pytest.approx(row, rel=1e-5) for row in first_results]
 
-    for other_name, other_results in results[1:]:
+    for other_name, other_results in results.items():
         assert (
             first_results == other_results
         ), f"Mismatch between {first_name} and {other_name}"
@@ -171,8 +183,8 @@ def run_with(engine, instances, variables):
             config=ENGINE_CONFIG.get(engine.name, {}),
         )
     except Exception as e:
-        if is_ignorable_error(e):
-            return IGNORE_RESULT
+        if error_type := get_ignored_error_type(e):
+            return error_type
         raise
     finally:
         engine.teardown()
@@ -182,7 +194,7 @@ def run_dummy_data_test(population, variable):
     try:
         run_dummy_data_test_without_error_handling(population, variable)
     except Exception as e:  # pragma: no cover
-        if not is_ignorable_error(e):
+        if not get_ignored_error_type(e):
             raise
 
 
@@ -209,110 +221,6 @@ def run_dummy_data_test_without_error_handling(population, variable):
         timeout=-1,
     )
     assert len(dummy_data_generator.get_data()) > 0
-
-
-IGNORED_ERRORS = [
-    # MSSQL can only accept 10 levels of CASE nesting. The variable strategy will sometimes
-    # generate queries that exceed that limit.
-    (
-        sqlalchemy.exc.OperationalError,
-        re.compile(".+Case expressions may only be nested to level 10.+"),
-    ),
-    # SQLite raises a parser stack overflow error if the variable strategy generates queries
-    # that result in many nested queries
-    (sqlalchemy.exc.OperationalError, re.compile(".+parser stack overflow")),
-    # mssql raises this error when the number of identifiers and constants contained in a single
-    # expression is > 65,535.
-    # https://learn.microsoft.com/en-US/sql/relational-databases/errors-events/mssqlserver-8632-database-engine-error?view=sql-server-ver16
-    # The variable strategy may produce this when it stacks many date operations on top of one
-    # another.  It's unlikely a real query would produce this.
-    (
-        sqlalchemy.exc.OperationalError,
-        re.compile(".+Internal error: An expression services limit has been reached.+"),
-    ),
-    # Trino also raises an error if the variable strategy generates queries
-    # that result in many nested or too-long queries; again the many-date stacking seems to be the
-    # main culprit
-    (
-        sqlalchemy.exc.DBAPIError,
-        re.compile(
-            ".+TrinoQueryError.+the query may have too many or too complex expressions.+"
-        ),
-    ),
-    # Another Trino error that appears to be due to overly complex queries - in this case
-    # when the variable strategy has many nested horizontal aggregations
-    (
-        sqlalchemy.exc.DBAPIError,
-        re.compile(
-            r".+TrinoQueryError.+Error compiling class: io\/trino\/\$gen\/JoinFilterFunction.+"
-        ),
-    ),
-    (
-        sqlalchemy.exc.ProgrammingError,
-        re.compile(".+TrinoUserError.+QUERY_TEXT_TOO_LARGE.+"),
-    ),
-    # ARITHMETIC OVERFLOW ERRORS
-    # mssql raises this error if an operation results in an integer bigger than the max INT value
-    # or a float outside of the max range
-    # https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver16
-    # https://learn.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-ver16#remarks
-    # https://github.com/opensafely-core/ehrql/issues/1034
-    (
-        sqlalchemy.exc.OperationalError,
-        re.compile(
-            ".+Arithmetic overflow error converting expression to data type [int|float].+"
-        ),
-    ),  # arithmetic operations that result in an out-of-range int or floar
-    (
-        sqlalchemy.exc.OperationalError,
-        re.compile(".+Arithmetic overflow error for type int.+"),
-    ),  # attempting to convert a valid float to an out-of-range int
-    #
-    # OUT-OF-RANGE DATES
-    # The variable strategy will sometimes result in date operations that construct
-    # invalid dates (e.g. a large positive or negative integer in a DateAddYears operation
-    # may result in a date with a year that is outside of the allowed range)
-    # The different query engines report errors from out-of-range dates in different ways:
-    # mssql
-    (
-        sqlalchemy.exc.OperationalError,
-        re.compile(".+Cannot construct data type date.+"),
-    ),  # DateAddYears, with an invalid calculated year
-    (
-        sqlalchemy.exc.OperationalError,
-        re.compile(".+Adding a value to a 'date' column caused an overflow.+"),
-    ),  # DateAddMonths, resulting in an invalid date
-    # sqlite
-    # Note the leading `-` below: ISO format doesn't handle BC dates, and BC dates don't
-    # always have four year digits
-    (ValueError, re.compile(r"Invalid isoformat string: '-\d+-\d\d-\d\d'")),
-    # in-memory engine
-    (
-        ValueError,
-        re.compile("year -?\\d+ is out of range"),
-    ),  # DateAddYears, with an invalid calculated year
-    (
-        ValueError,
-        re.compile("Number of days -?\\d+ is out of range"),
-    ),  # DateAddDays, with a number of days out of the valid range
-    (
-        OverflowError,
-        re.compile("date value out of range"),
-    ),  # DateAddMonths, resulting in an invalid date
-    # Trino
-    (
-        # Invalid date errors
-        sqlalchemy.exc.NotSupportedError,
-        re.compile(r".+Could not convert '.+' into the associated python type"),
-    ),
-]
-
-
-def is_ignorable_error(e):
-    for ignored_error_type, ignored_error_regex in IGNORED_ERRORS:
-        if type(e) == ignored_error_type and ignored_error_regex.match(str(e)):
-            return True
-    return False
 
 
 # META TESTS
@@ -392,7 +300,7 @@ def test_run_with_handles_date_errors(query_engines, operation, rhs):
     instances, variables = setup_test(data, all_patients_query, variable)
     for engine in query_engines.values():
         result = run_with(engine, instances, variables)
-        assert result in [IGNORE_RESULT, [{"patient_id": 1, "v": None}]]
+        assert result in [IgnoredError.DATE_OVERFLOW, [{"patient_id": 1, "v": None}]]
 
 
 def test_run_with_still_raises_non_ignored_errors(query_engines):
@@ -401,3 +309,14 @@ def test_run_with_still_raises_non_ignored_errors(query_engines):
     not_valid_variables = object()
     with pytest.raises(Exception):
         run_with(first_engine, [], not_valid_variables)
+
+
+def test_run_test_handles_errors_from_all_query_engines(query_engines, recorder):
+    # Make sure we can handle a query which fails for all query engines
+    data = [{"type": data_setup.P0, "patient_id": 1}]
+    population = AggregateByPatient.Exists(SelectPatientTable("p0", schema=schema))
+    variable = Function.DateAddYears(
+        lhs=Value(datetime.date(2000, 1, 1)),
+        rhs=Value(8000),
+    )
+    run_test(query_engines, data, population, variable, recorder)
