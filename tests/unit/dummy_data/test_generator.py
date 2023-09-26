@@ -129,10 +129,13 @@ def test_dummy_data_generator_timeout_with_no_results(patched_time):
     assert len(data) == 1
 
 
-@pytest.mark.parametrize("inline_table_only", [True, False])
+# Every combination here exercises slightly different codes paths and has different
+# failure modes so we need to test them all
+@pytest.mark.parametrize("population_has_inline_table_only", [True, False])
+@pytest.mark.parametrize("dataset_has_inline_table_only", [True, False])
 @mock.patch("ehrql.dummy_data.generator.time")
 def test_dummy_data_generator_with_inline_patient_table(
-    patched_time, inline_table_only
+    patched_time, population_has_inline_table_only, dataset_has_inline_table_only
 ):
     # We're deliberately using high valued IDs here which the dummy data system wouldn't
     # naturally generate
@@ -153,12 +156,17 @@ def test_dummy_data_generator_with_inline_patient_table(
     # Define a basic dataset
     dataset = Dataset()
     dataset.i = inline_table.i
-    dataset.sex = patients.sex
 
-    # Define population: we need to test a population definition that only involves an
-    # inline table and, separately, one that involves another table because these result
-    # in different failure modes
-    if inline_table_only:
+    # We don't particularly care what the variables are here, we just need to ensure we
+    # include a reference a non-inline table or not, as appropriate
+    if dataset_has_inline_table_only:
+        dataset.j = inline_table.i + 1
+    else:
+        dataset.j = patients.sex
+
+    # Likewise for the population: there's no signficance to the specific definition
+    # here other than whether or not it includes a reference to a non-inline table
+    if population_has_inline_table_only:
         dataset.define_population(inline_table.exists_for_patient())
     else:
         dataset.define_population(
@@ -180,12 +188,12 @@ def test_dummy_data_generator_with_inline_patient_table(
     results = [row._asdict() for row in generator.get_results()]
 
     assert results == [
-        {"patient_id": 1, "i": 1, "sex": NotNull()},
-        {"patient_id": 1234567890, "i": 2, "sex": NotNull()},
-        {"patient_id": 1234567891, "i": 3, "sex": NotNull()},
-        {"patient_id": 1234567892, "i": 4, "sex": NotNull()},
-        {"patient_id": 1234567893, "i": 5, "sex": NotNull()},
-        {"patient_id": 1234567894, "i": 6, "sex": NotNull()},
+        {"patient_id": 1, "i": 1, "j": NotNull()},
+        {"patient_id": 1234567890, "i": 2, "j": NotNull()},
+        {"patient_id": 1234567891, "i": 3, "j": NotNull()},
+        {"patient_id": 1234567892, "i": 4, "j": NotNull()},
+        {"patient_id": 1234567893, "i": 5, "j": NotNull()},
+        {"patient_id": 1234567894, "i": 6, "j": NotNull()},
     ]
 
 

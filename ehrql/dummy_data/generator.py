@@ -75,7 +75,7 @@ class DummyDataGenerator:
                 for patient_id in patient_id_batch
             }
             generated += len(patient_batch)
-            database.setup(*patient_batch.values())
+            database.setup(*patient_batch.values(), metadata=generator.orm_metadata)
             results = engine.get_results(population_query)
             # Accumulate all data from matching patients, returning once we have enough
             for row in results:
@@ -152,6 +152,14 @@ class DummyPatientGenerator:
             table_info.get_table_node()
             for table_info in self.query_info.tables.values()
         )
+        if self.orm_classes:
+            # Grab the ORM metadata from (arbitrarily) the first ORM class
+            self.orm_metadata = list(self.orm_classes.values())[0].metadata
+        else:
+            # This is an edge case encountered when a query contains _only_ references
+            # to inline tables. That's not particularly realistic, but if we don't
+            # handle it gracefully Hypothesis will keep nagging us about it.
+            self.orm_metadata = None
 
     def get_patient_data_for_population_condition(self, patient_id):
         # Generate data for just those tables needed for determining whether the patient
