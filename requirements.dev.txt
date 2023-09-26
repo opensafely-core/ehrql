@@ -309,13 +309,13 @@ mkdocs==1.5.3 \
     #   -r requirements.dev.in
     #   mkdocs-material
     #   mkdocs-table-reader-plugin
-mkdocs-material==9.3.2 \
-    --hash=sha256:7b3a35a7731af02d70d120224fcec053ce09bebbf83dff3366ab72abc4d5fc89 \
-    --hash=sha256:f2fd5cef6f0266b4caad6414f31c6a51e3183dbdd341995ad8fa7f33bc998c3d
+mkdocs-material==9.4.2 \
+    --hash=sha256:8651ff451f84681df9d2e3388906eee63c866576d98d6bb542826f83a091b289 \
+    --hash=sha256:d53b17d058e70efd04c281f9b384ca10fb1f0bfecfe85dacdadad891bb826e3d
     # via -r requirements.dev.in
-mkdocs-material-extensions==1.1.1 \
-    --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
-    --hash=sha256:e41d9f38e4798b6617ad98ca8f7f1157b1e4385ac1459ca1e4ea219b556df945
+mkdocs-material-extensions==1.2 \
+    --hash=sha256:27e2d1ed2d031426a6e10d5ea06989d67e90bb02acd588bc5673106b5ee5eedf \
+    --hash=sha256:c767bd6d6305f6420a50f0b541b0c9966d52068839af97029be14443849fb8a1
     # via mkdocs-material
 mkdocs-table-reader-plugin==2.0.1 \
     --hash=sha256:bfeb246a76c273c7745833be747e20b067abc3dafd720f658521ddf23b53cbf7 \
