@@ -227,7 +227,17 @@ return ordered_addrs.last_for_patient()
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## apcs
 
+Admitted Patient Care Spells (APCS) data is provided via the NHS Secondary Uses Service.
 
+This table gives core details of spells.
+
+Each row is an in-hospital spell: a period of continuous care within a single trust.
+
+Refer to the [OpenSAFELY documentation on the APCS data source][apcs_data_source_docs]
+and the [GitHub issue discussing more of the background context][apcs_context_issue].
+
+[apcs_data_source_docs]: https://docs.opensafely.org/data-sources/apc/
+[apcs_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/186
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -238,7 +248,7 @@ return ordered_addrs.last_for_patient()
     <code>integer</code>
   </dt>
   <dd markdown="block">
-TODO
+Unique identifier for the spell used across the APCS tables.
 
  * Never `NULL`
   </dd>
@@ -251,7 +261,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The admission date of the hospital provider spell.
 
   </dd>
 </div>
@@ -263,7 +273,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date of discharge from a hospital provider spell.
 
   </dd>
 </div>
@@ -275,7 +285,7 @@ TODO
     <code>string</code>
   </dt>
   <dd markdown="block">
-TODO
+The core Healthcare Resource Group (HRG) code for the spell according to the derivations made by NHS Digital prior to import to the National Commissioning Data Repository (NCDR). HRGs are used to assign baseline tariff costs.
 
   </dd>
 </div>
@@ -287,7 +297,13 @@ TODO
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## apcs_cost
 
+Admitted Patient Care Spells (APCS) data is provided via the NHS Secondary Uses Service.
 
+This table gives details of spell cost.
+
+Each row is an in-hospital spell: a period of continuous care within a single trust.
+
+Note that data only goes back a couple of years.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -298,7 +314,7 @@ TODO
     <code>integer</code>
   </dt>
   <dd markdown="block">
-TODO
+Unique identifier for the spell used across the APCS tables.
 
  * Never `NULL`
   </dd>
@@ -311,7 +327,7 @@ TODO
     <code>float</code>
   </dt>
   <dd markdown="block">
-TODO
+The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) where SLA = service level agreement, i.e. all contractual payments which is national tariff for the type of activity **plus** any additional payments **minus** any applicable deductions. MFF = Market Forces Factor, a geography-based cost adjustment).
 
   </dd>
 </div>
@@ -323,7 +339,7 @@ TODO
     <code>float</code>
   </dt>
   <dd markdown="block">
-TODO
+The base national tariff.
 
   </dd>
 </div>
@@ -335,7 +351,7 @@ TODO
     <code>float</code>
   </dt>
   <dd markdown="block">
-TODO
+The total payment according to the national tariff.
 
   </dd>
 </div>
@@ -347,7 +363,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The admission date of the hospital provider spell.
 
   </dd>
 </div>
@@ -359,7 +375,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date of discharge from a hospital provider spell.
 
   </dd>
 </div>
@@ -521,7 +537,16 @@ referrals are recorded in the clinical events table but this data will be incomp
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## ec
 
+Emergency care attendances data — the Emergency Care Data Set (ECDS) —
+is provided via the NHS Secondary Uses Service.
 
+This table gives core details of attendances.
+
+Refer to the [OpenSAFELY documentation on the ECDS data source][ecds_data_source_docs]
+and the GitHub issue that [discusses more of the background context][ecds_context_issue].
+
+[ecds_data_source_docs]: https://docs.opensafely.org/data-sources/ecds/
+[ecds_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/182
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -532,7 +557,7 @@ referrals are recorded in the clinical events table but this data will be incomp
     <code>integer</code>
   </dt>
   <dd markdown="block">
-TODO
+Unique identifier for the attendance used across the EC tables.
 
  * Never `NULL`
   </dd>
@@ -545,7 +570,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.
 
   </dd>
 </div>
@@ -557,7 +582,7 @@ TODO
     <code>string</code>
   </dt>
   <dd markdown="block">
-TODO
+The core Healthcare Resource Group (HRG) code derived by sus+, used for tariff application.
 
   </dd>
 </div>
@@ -569,7 +594,9 @@ TODO
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## ec_cost
 
+Emergency care attendances data is provided via the NHS Secondary Uses Service.
 
+This table gives details of attendance costs.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -580,7 +607,7 @@ TODO
     <code>integer</code>
   </dt>
   <dd markdown="block">
-TODO
+Unique identifier for the attendance used across the EC tables.
 
  * Never `NULL`
   </dd>
@@ -593,7 +620,7 @@ TODO
     <code>float</code>
   </dt>
   <dd markdown="block">
-TODO
+The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) where SLA = service level agreement, i.e. all contractual payments which is national tariff for the type of activity **plus** any additional payments **minus** any applicable deductions. MFF = Market Forces Factor, a geography-based cost adjustment).
 
   </dd>
 </div>
@@ -605,7 +632,7 @@ TODO
     <code>float</code>
   </dt>
   <dd markdown="block">
-TODO
+The total payment according to the national tariff.
 
   </dd>
 </div>
@@ -617,7 +644,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.
 
   </dd>
 </div>
@@ -629,7 +656,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date a decision to admit was made (if applicable).
 
   </dd>
 </div>
@@ -641,7 +668,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date the patient was injured (if applicable).
 
   </dd>
 </div>
@@ -653,7 +680,13 @@ TODO
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## emergency_care_attendances
 
+Emergency care attendances data is provided via the NHS Secondary Uses Service.
 
+This table gives details of attendances.
+
+Note that there is a limited number of diagnoses allowed within this dataset,
+and so will not match with the range of diagnoses allowed in other datasets
+such as the primary care record.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -664,8 +697,9 @@ TODO
     <code>integer</code>
   </dt>
   <dd markdown="block">
+Unique identifier for the attendance used across the EC tables.
 
-
+ * Never `NULL`
   </dd>
 </div>
 
@@ -676,7 +710,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.
 
   </dd>
 </div>
@@ -688,7 +722,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the intended destination of the patient following discharge from the emergency care department.
 
   </dd>
 </div>
@@ -700,7 +734,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -712,7 +746,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -724,7 +758,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -736,7 +770,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -748,7 +782,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -760,7 +794,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -772,7 +806,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -784,7 +818,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -796,7 +830,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -808,7 +842,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -820,7 +854,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -832,7 +866,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -844,7 +878,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -856,7 +890,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -868,7 +902,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -880,7 +914,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -892,7 +926,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -904,7 +938,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -916,7 +950,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -928,7 +962,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -940,7 +974,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -952,7 +986,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -964,7 +998,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -976,7 +1010,7 @@ TODO
     <code>SNOMED-CT code</code>
   </dt>
   <dd markdown="block">
-
+The SNOMED CT concept ID which is used to identify the patient diagnosis. Note that only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary entry for emergency care diagnosis](https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html).
 
   </dd>
 </div>
@@ -2042,7 +2076,16 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## opa
 
+Outpatient appointments data (OPA) is provided via the NHS Secondary Uses Service.
 
+This table gives core details of outpatient appointments.
+
+Refer to the GitHub issue that [describes limitations
+of the outpatient appointments data][opa_limitations_issue]
+and the GitHub issue that [discusses more of the background context][opa_context_issue].
+
+[opa_limitations_issue]: https://github.com/opensafely-core/cohort-extractor/issues/673
+[opa_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/492
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2053,7 +2096,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>integer</code>
   </dt>
   <dd markdown="block">
-TODO
+Unique identifier for the appointment used across the OPA tables.
 
  * Never `NULL`
   </dd>
@@ -2066,7 +2109,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date of an appointment.
 
   </dd>
 </div>
@@ -2078,8 +2121,9 @@ TODO
     <code>string</code>
   </dt>
   <dd markdown="block">
-TODO
+Indicates whether or not an appointment for a care contact took place. If the appointment did not take place it also indicates whether or not advanced warning was given. Refer to the [NHS Data Model and Dictionary entry for "attended or did not attend"](https://www.datadictionary.nhs.uk/data_elements/attended_or_did_not_attend_code.html) for details on code meanings.
 
+ * Possible values: `5`, `6`, `7`, `2`, `3`, `4`, `0`
   </dd>
 </div>
 
@@ -2090,8 +2134,9 @@ TODO
     <code>string</code>
   </dt>
   <dd markdown="block">
-TODO
+Identifies the communication mechanism used to relay information between the care professional and the person who is the subject of the consultation, during a care activity. Refer to the [NHS Data Model and Dictionary entry for "consultation mechanism"](https://www.datadictionary.nhs.uk/data_elements/consultation_mechanism.html) for details on code meanings. Note that the allowed codes as listed in TPP's data appear to be a subset of the codes listed in the NHS Data Model and Dictionary.
 
+ * Possible values: `01`, `02`, `03`, `04`, `05`, `09`, `10`, `11`, `98`
   </dd>
 </div>
 
@@ -2102,8 +2147,9 @@ TODO
     <code>string</code>
   </dt>
   <dd markdown="block">
-TODO
+An indication of whether a patient is making a first attendance or contact; or a follow-up attendance or contact and whether the consultation medium used national code was face to face communication or telephone or telemedicine web camera. Refer to the [NHS Data Model and Dictionary entry for "first attendance"](https://www.datadictionary.nhs.uk/attributes/first_attendance.html) for details on code meanings. Note that the allowed codes as listed in TPP's data contain an additional `9` code over the NHS Data Model and Dictionary entry.
 
+ * Possible values: `1`, `2`, `3`, `4`, `5`, `9`
   </dd>
 </div>
 
@@ -2114,7 +2160,7 @@ TODO
     <code>string</code>
   </dt>
   <dd markdown="block">
-TODO
+The Healthcare Resource Group (HRG) code assigned to the activity, used to assign baseline tariff costs.
 
   </dd>
 </div>
@@ -2126,7 +2172,7 @@ TODO
     <code>string</code>
   </dt>
   <dd markdown="block">
-TODO
+The treatment function under which the patient is treated. It may be the same as the main specialty code or a different treatment function which will be the care professional's treatment interest.
 
   </dd>
 </div>
@@ -2138,7 +2184,11 @@ TODO
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## opa_cost
 
+Outpatient appointments data is provided via the NHS Secondary Uses Service.
 
+This table gives details of outpatient appointment costs.
+
+Note that data only goes back a couple of years.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2149,7 +2199,7 @@ TODO
     <code>integer</code>
   </dt>
   <dd markdown="block">
-TODO
+Unique identifier for the appointment used across the OPA tables.
 
  * Never `NULL`
   </dd>
@@ -2162,7 +2212,7 @@ TODO
     <code>float</code>
   </dt>
   <dd markdown="block">
-TODO
+The base national tariff where the procedure tariff is applicable.
 
   </dd>
 </div>
@@ -2174,7 +2224,7 @@ TODO
     <code>float</code>
   </dt>
   <dd markdown="block">
-TODO
+The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) where SLA = service level agreement, i.e. all contractual payments which is national tariff for the type of activity **plus** any additional payments **minus** any applicable deductions. MFF = Market Forces Factor, a geography-based cost adjustment).
 
   </dd>
 </div>
@@ -2186,7 +2236,7 @@ TODO
     <code>float</code>
   </dt>
   <dd markdown="block">
-TODO
+The total payment according to the national tariff.
 
   </dd>
 </div>
@@ -2198,7 +2248,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date of an appointment.
 
   </dd>
 </div>
@@ -2210,7 +2260,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date the referral request was received by the health care provider.
 
   </dd>
 </div>
@@ -2222,7 +2272,11 @@ TODO
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## opa_diag
 
+Outpatient appointments data is provided via the NHS Secondary Uses Service.
 
+This table gives details of outpatient appointment diagnoses.
+
+Note that diagnoses are often absent from outpatient records.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2233,7 +2287,7 @@ TODO
     <code>integer</code>
   </dt>
   <dd markdown="block">
-TODO
+Unique identifier for the appointment used across the OPA tables.
 
  * Never `NULL`
   </dd>
@@ -2246,7 +2300,7 @@ TODO
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-TODO
+The international classification of diseases (ICD) code used to identify the primary patient diagnosis. Note that this will typically not be completed.
 
   </dd>
 </div>
@@ -2258,7 +2312,7 @@ TODO
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-TODO
+The Read coded clinical terms code to identify the primary patient diagnosis. Note that this will typically not be completed.
 
   </dd>
 </div>
@@ -2270,7 +2324,7 @@ TODO
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-TODO
+The international classification of diseases (ICD) code used to identify the secondary patient diagnosis. Note that this will typically not be completed.
 
   </dd>
 </div>
@@ -2282,7 +2336,7 @@ TODO
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-TODO
+The Read coded clinical terms used to identify the secondary patient diagnosis. Note that this will typically not be completed.
 
   </dd>
 </div>
@@ -2294,7 +2348,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date of an appointment.
 
   </dd>
 </div>
@@ -2306,7 +2360,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date the referral request was received by the health care provider.
 
   </dd>
 </div>
@@ -2318,7 +2372,11 @@ TODO
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## opa_proc
 
+Outpatient appointments data is provided via the NHS Secondary Uses Service.
 
+This table gives details of outpatient procedures.
+Typically, procedures will only be recorded where they attract a specified payment.
+The majority of appointments will have no procedure recorded.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2329,7 +2387,7 @@ TODO
     <code>integer</code>
   </dt>
   <dd markdown="block">
-TODO
+Unique identifier for the appointment used across the OPA tables.
 
  * Never `NULL`
   </dd>
@@ -2342,7 +2400,7 @@ TODO
     <code>OPCS-4 code</code>
   </dt>
   <dd markdown="block">
-TODO
+The OPCS classification of interventions and procedures code which is used to identify the primary patient procedure carried out.
 
   </dd>
 </div>
@@ -2354,7 +2412,7 @@ TODO
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-TODO
+The Read coded clinical terms code which is used to identify the primary patient procedure carried out.
 
   </dd>
 </div>
@@ -2378,7 +2436,7 @@ TODO
     <code>CTV3 (Read v3) code</code>
   </dt>
   <dd markdown="block">
-TODO
+The Read coded clinical terms for a procedure other than the primary procedure.
 
   </dd>
 </div>
@@ -2390,7 +2448,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date of an appointment.
 
   </dd>
 </div>
@@ -2402,7 +2460,7 @@ TODO
     <code>date</code>
   </dt>
   <dd markdown="block">
-TODO
+The date the referral request was received by the health care provider.
 
   </dd>
 </div>
