@@ -92,19 +92,19 @@ class apcs(EventFrame):
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Primary key used to join to the other APCS tables.",
     )
     admission_date = Series(
         datetime.date,
-        description="TODO",
+        description="The start date of the hospital provider spell.",
     )
     discharge_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of discharge from a hospital provider spell.",
     )
     spell_core_hrg_sus = Series(
         str,
-        description="TODO",
+        description="The core HRG for the spell according to the derivations made by NHS Digital prior to import to the NCDR.",
     )
 
 
@@ -113,27 +113,27 @@ class apcs_cost(EventFrame):
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Primary key used to join to the other APCS tables.",
     )
     grand_total_payment_mff = Series(
         float,
-        description="TODO",
+        description="The total payment for the activity (Net_SLA_Payment + Tariff_MFF_Payment).",
     )
     tariff_initial_amount = Series(
         float,
-        description="TODO",
+        description="The base national tariff.",
     )
     tariff_total_payment = Series(
         float,
-        description="TODO",
+        description="The total payment according to the national tariff.",
     )
     admission_date = Series(
         datetime.date,
-        description="TODO",
+        description="The start date of the hospital provider spell.",
     )
     discharge_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of discharge from a hospital provider spell.",
     )
 
 
@@ -238,15 +238,15 @@ class ec(EventFrame):
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Primary key used to join to the other EC tables",
     )
     arrival_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.",
     )
     sus_hrg_code = Series(
         str,
-        description="TODO",
+        description="The core HRG derived by sus+, as a result of HRG grouping, and used for tariff application.",
     )
 
 
@@ -255,60 +255,142 @@ class ec_cost(EventFrame):
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Primary key used to join to the other EC tables",
     )
     grand_total_payment_mff = Series(
         float,
-        description="TODO",
+        description="The total payment for the activity (Net_SLA_Payment + Tariff_MFF_Payment).",
     )
     tariff_total_payment = Series(
         float,
-        description="TODO",
+        description="The total payment according to the national tariff.",
     )
     arrival_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.",
     )
     ec_decision_to_admit_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date a decision to admit was made.",
     )
     ec_injury_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date the patient was injured.",
     )
 
 
 @table
 class emergency_care_attendances(EventFrame):
-    id = Series(int)  # noqa: A003
-    arrival_date = Series(datetime.date)
-    discharge_destination = Series(SNOMEDCTCode)
+    id = Series(  # noqa: A003
+        int,
+        constraints=[Constraint.NotNull()],
+        description="Primary key used to join to the other EC tables",
+    )
+    arrival_date = Series(
+        datetime.date,
+        description="The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.",
+    )
+    discharge_destination = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the intended destination of the patient following discharge from the emergency care department.",
+    )
     # TODO: Revisit this when we have support for multi-valued fields
-    diagnosis_01 = Series(SNOMEDCTCode)
-    diagnosis_02 = Series(SNOMEDCTCode)
-    diagnosis_03 = Series(SNOMEDCTCode)
-    diagnosis_04 = Series(SNOMEDCTCode)
-    diagnosis_05 = Series(SNOMEDCTCode)
-    diagnosis_06 = Series(SNOMEDCTCode)
-    diagnosis_07 = Series(SNOMEDCTCode)
-    diagnosis_08 = Series(SNOMEDCTCode)
-    diagnosis_09 = Series(SNOMEDCTCode)
-    diagnosis_10 = Series(SNOMEDCTCode)
-    diagnosis_11 = Series(SNOMEDCTCode)
-    diagnosis_12 = Series(SNOMEDCTCode)
-    diagnosis_13 = Series(SNOMEDCTCode)
-    diagnosis_14 = Series(SNOMEDCTCode)
-    diagnosis_15 = Series(SNOMEDCTCode)
-    diagnosis_16 = Series(SNOMEDCTCode)
-    diagnosis_17 = Series(SNOMEDCTCode)
-    diagnosis_18 = Series(SNOMEDCTCode)
-    diagnosis_19 = Series(SNOMEDCTCode)
-    diagnosis_20 = Series(SNOMEDCTCode)
-    diagnosis_21 = Series(SNOMEDCTCode)
-    diagnosis_22 = Series(SNOMEDCTCode)
-    diagnosis_23 = Series(SNOMEDCTCode)
-    diagnosis_24 = Series(SNOMEDCTCode)
+    diagnosis_01 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_02 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_03 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_04 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_05 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_06 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_07 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_08 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_09 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_10 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_11 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_12 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_13 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_14 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_15 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_16 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_17 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_18 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_19 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_20 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_21 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_22 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_23 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
+    diagnosis_24 = Series(
+        SNOMEDCTCode,
+        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+    )
 
 
 @table
@@ -589,31 +671,31 @@ class opa(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Primary key used to join to the other OPA tables",
     )
     appointment_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of an appointment.",
     )
     attendance_status = Series(
         str,
-        description="TODO",
+        description="Indicates whether or not an appointment for a care contact took place. If the appointment did not take place it also indicates whether or not advanced warning was given.",
     )
     consultation_medium_used = Series(
         str,
-        description="TODO",
+        description="Identifies the communication mechanism used to relay information between the care professional and the person who is the subject of the consultation, during a care activity.",
     )
     first_attendance = Series(
         str,
-        description="TODO",
+        description="An indication of whether a patient is making a first attendance or contact; or a follow-up attendance or contact and whether the consultation medium used national code was face to face communication or telephone or telemedicine web camera.",
     )
     hrg_code = Series(
         str,
-        description="TODO",
+        description="The HRG produced by the HRG grouper.",
     )
     treatment_function_code = Series(
         str,
-        description="TODO",
+        description="The treatment function under which the patient is treated. It may be the same as the main specialty code or a different treatment function which will be the care professional's treatment interest.",
     )
 
 
@@ -622,27 +704,27 @@ class opa_cost(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Primary key used to join to the other OPA tables",
     )
     tariff_opp = Series(
         float,
-        description="TODO",
+        description="The base national tariff where the procedure tariff is applicable.",
     )
     grand_total_payment_mff = Series(
         float,
-        description="TODO",
+        description="The total payment for the activity (Net_SLA_Payment + Tariff_MFF_Payment).",
     )
     tariff_total_payment = Series(
         float,
-        description="TODO",
+        description="The total payment according to the national tariff.",
     )
     appointment_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of an appointment.",
     )
     referral_request_received_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date the referral request was received by the health care provider.",
     )
 
 
@@ -651,31 +733,31 @@ class opa_diag(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Primary key used to join to the other OPA tables",
     )
     primary_diagnosis_code = Series(
         ICD10Code,
-        description="TODO",
+        description="The international classification of diseases (ICD) code used to identify the primary diagnosis.",
     )
     primary_diagnosis_code_read = Series(
         CTV3Code,
-        description="TODO",
+        description="The read coded clinical terms code to identify the primary diagnosis.",
     )
     secondary_diagnosis_code_1 = Series(
         ICD10Code,
-        description="TODO",
+        description="The international classification of diseases (ICD) code used to identify the secondary patient diagnosis.",
     )
     secondary_diagnosis_code_1_read = Series(
         CTV3Code,
-        description="TODO",
+        description="The read coded clinical terms used to identify the secondary patient diagnosis.",
     )
     appointment_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of an appointment.",
     )
     referral_request_received_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date the referral request was received by the health care provider.",
     )
 
 
@@ -684,15 +766,15 @@ class opa_proc(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Primary key used to join to the other OPA tables",
     )
     primary_procedure_code = Series(
         OPCS4Code,
-        description="TODO",
+        description="The OPCS classification of interventions and procedures code which is used to identify the primary patient procedure carried out.",
     )
     primary_procedure_code_read = Series(
         CTV3Code,
-        description="TODO",
+        description="The read coded clinical terms code which is used to identify the primary patient procedure carried out.",
     )
     procedure_code_1 = Series(
         OPCS4Code,
@@ -700,15 +782,15 @@ class opa_proc(EventFrame):
     )
     procedure_code_2_read = Series(
         CTV3Code,
-        description="TODO",
+        description="The read coded clinical terms for a procedure other than the primary procedure (read).",
     )
     appointment_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of an appointment.",
     )
     referral_request_received_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date the referral request was received by the health care provider.",
     )
 
 
