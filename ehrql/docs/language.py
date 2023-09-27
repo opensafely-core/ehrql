@@ -69,7 +69,6 @@ def build_language():
         ),
         "general": dict(
             case=namespace["case"],
-            codelist_from_csv=namespace["codelist_from_csv"],
             maximum_of=namespace["maximum_of"],
             minimum_of=namespace["minimum_of"],
         ),
@@ -90,6 +89,9 @@ def build_language():
                 for name, attr in namespace.items()
                 if is_proper_subclass(attr, ql.Duration)
             },
+        ),
+        "codelists": dict(
+            codelist_from_csv=namespace["codelist_from_csv"],
         ),
         "measures": {
             "create_measures": namespace["create_measures"],

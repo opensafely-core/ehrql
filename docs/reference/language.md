@@ -108,6 +108,13 @@ prefer unambiguous units of days and weeks where possible.
 ---
 
 
+## Codelists
+
+---8<-- 'includes/generated_docs/language__codelists.md'
+
+---
+
+
 ## General
 
 ---8<-- 'includes/generated_docs/language__general.md'
