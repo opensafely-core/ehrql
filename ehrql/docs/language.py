@@ -63,9 +63,11 @@ def build_language():
     namespace["SortedEventFrame"] = SortedEventFrame
 
     sections = {
-        "general": dict(
+        "dataset": dict(
             create_dataset=namespace["create_dataset"],
             Dataset=namespace["Dataset"],
+        ),
+        "general": dict(
             case=namespace["case"],
             codelist_from_csv=namespace["codelist_from_csv"],
             maximum_of=namespace["maximum_of"],

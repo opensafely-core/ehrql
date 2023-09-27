@@ -1,3 +1,10 @@
+## Dataset
+
+---8<-- 'includes/generated_docs/language__dataset.md'
+
+---
+
+
 ## Frames
 
 Frames are the starting point for building any query in ehrQL. You can
