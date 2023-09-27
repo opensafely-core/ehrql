@@ -67,11 +67,6 @@ def build_language():
             create_dataset=namespace["create_dataset"],
             Dataset=namespace["Dataset"],
         ),
-        "general": dict(
-            case=namespace["case"],
-            maximum_of=namespace["maximum_of"],
-            minimum_of=namespace["minimum_of"],
-        ),
         "frames": {
             name: attr
             for name, attr in namespace.items()
@@ -92,6 +87,11 @@ def build_language():
         ),
         "codelists": dict(
             codelist_from_csv=namespace["codelist_from_csv"],
+        ),
+        "functions": dict(
+            case=namespace["case"],
+            maximum_of=namespace["maximum_of"],
+            minimum_of=namespace["minimum_of"],
         ),
         "measures": {
             "create_measures": namespace["create_measures"],

@@ -115,9 +115,9 @@ prefer unambiguous units of days and weeks where possible.
 ---
 
 
-## General
+## Functions
 
----8<-- 'includes/generated_docs/language__general.md'
+---8<-- 'includes/generated_docs/language__functions.md'
 
 ---
 
