@@ -1,5 +1,5 @@
 *ehrQL* (rhymes with *circle*), the **Electronic Health Records Query Language**,
-is a query language and command line interface designed for the specific application domain of EHR data.
+is a query language and command line interface that we designed for the specific application domain of EHR data.
 Researchers write **dataset definitions** with the query language
 and execute them with the command line interface to generate **datasets with one row per patient**.
 
