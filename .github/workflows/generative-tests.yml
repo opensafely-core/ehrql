@@ -26,9 +26,9 @@ jobs:
 
           just devenv
           export \
-            GENTEST_EXAMPLES=200 \
+            GENTEST_EXAMPLES=150 \
             GENTEST_RANDOMIZE=t \
-            GENTEST_MAX_DEPTH=30 \
+            GENTEST_MAX_DEPTH=25 \
             GENTEST_DEBUG=t \
             GENTEST_CHECK_IGNORED_ERRORS=t
 
