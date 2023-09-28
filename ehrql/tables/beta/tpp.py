@@ -89,6 +89,14 @@ class addresses(EventFrame):
 
 @table
 class apcs(EventFrame):
+    """
+    Admitted patient care spells (APCS) data is provided via the NHS Secondary Uses Service.
+
+    This table gives core details of spells.
+
+    Each row is an in-hospital spell: a period of continuous care within a single trust.
+    """
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -110,6 +118,14 @@ class apcs(EventFrame):
 
 @table
 class apcs_cost(EventFrame):
+    """
+    Admitted patient care spells (APCS) data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of spell cost.
+
+    Each row is an in-hospital spell: a period of continuous care within a single trust.
+    """
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -235,6 +251,12 @@ class clinical_events(EventFrame):
 
 @table
 class ec(EventFrame):
+    """
+    Emergency care admissions data is provided via the NHS Secondary Uses Service.
+
+    This table gives core details of admissions.
+    """
+
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -252,6 +274,12 @@ class ec(EventFrame):
 
 @table
 class ec_cost(EventFrame):
+    """
+    Emergency care admissions data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of admission costs.
+    """
+
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -281,6 +309,12 @@ class ec_cost(EventFrame):
 
 @table
 class emergency_care_attendances(EventFrame):
+    """
+    Emergency care admissions data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of admission attendances.
+    """
+
     id = Series(  # noqa: A003
         int,
         constraints=[Constraint.NotNull()],
@@ -668,6 +702,12 @@ class occupation_on_covid_vaccine_record(EventFrame):
 
 @table
 class opa(EventFrame):
+    """
+    Outpatient appointments data is provided via the NHS Secondary Uses Service.
+
+    This table gives core details of outpatient appointments.
+    """
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -701,6 +741,12 @@ class opa(EventFrame):
 
 @table
 class opa_cost(EventFrame):
+    """
+    Outpatient appointments data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of outpatient appointment costs.
+    """
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -730,6 +776,12 @@ class opa_cost(EventFrame):
 
 @table
 class opa_diag(EventFrame):
+    """
+    Outpatient appointments data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of outpatient appointment diagnoses.
+    """
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
@@ -763,6 +815,12 @@ class opa_diag(EventFrame):
 
 @table
 class opa_proc(EventFrame):
+    """
+    Outpatient appointments data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of outpatient appointment procedures.
+    """
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
