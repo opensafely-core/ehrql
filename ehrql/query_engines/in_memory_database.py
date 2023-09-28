@@ -45,7 +45,8 @@ class InMemoryDatabase:
             table_cls = PatientTable
         else:
             table_cls = EventTable
-            for ix, item in enumerate(items):
+            # starting at 1 is more like the real data
+            for ix, item in enumerate(items, start=1):
                 item.row_id = ix
         row_records = [
             [getattr(item, col_name) for col_name in col_names] for item in items
@@ -275,7 +276,9 @@ class PatientColumn:
         return cls(patient_to_value, default)
 
     def __repr__(self):
-        return "\n".join(f"{p} | {v}" for p, v in sorted(self.patient_to_value.items()))
+        return "\n".join(
+            f"{p:2} | {v}" for p, v in sorted(self.patient_to_value.items())
+        )
 
     def __getitem__(self, patient):
         return self.patient_to_value.get(patient, self.default)
@@ -324,7 +327,7 @@ class EventColumn:
 
     def __repr__(self):
         return "\n".join(
-            f"{p} | {k} | {v}"
+            f"{p:2} | {k:2} | {v}"
             for p, rows in sorted(self.patient_to_rows.items())
             for k, v in rows.items()
         )

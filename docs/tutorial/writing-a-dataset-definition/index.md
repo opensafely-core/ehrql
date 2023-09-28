@@ -88,16 +88,16 @@ dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
 
     ```pycon
     >>> patients.date_of_birth
-    0 | 1973-07-01
-    1 | 1948-03-01
-    2 | 2003-04-01
-    3 | 2007-06-01
-    4 | 1938-10-01
-    5 | 1994-04-01
-    6 | 1953-05-01
-    7 | 1992-08-01
-    8 | 1931-10-01
-    9 | 1979-04-01
+     1 | 1973-07-01
+     2 | 1948-03-01
+     3 | 2003-04-01
+     4 | 2007-06-01
+     5 | 1938-10-01
+     6 | 1994-04-01
+     7 | 1953-05-01
+     8 | 1992-08-01
+     9 | 1931-10-01
+    10 | 1979-04-01
     ```
 
     To transform a date column into a boolean column,
@@ -105,16 +105,16 @@ dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
 
     ```pycon
     >>> patients.date_of_birth.is_on_or_before("1999-12-31")
-    0 | True
-    1 | True
-    2 | False
-    3 | False
-    4 | True
-    5 | True
-    6 | True
-    7 | True
-    8 | True
-    9 | True
+     1 | True
+     2 | True
+     3 | False
+     4 | False
+     5 | True
+     6 | True
+     7 | True
+     8 | True
+     9 | True
+    10 | True
     ```
 
     Compare the patients in the boolean column with the patients in the dataset,
@@ -125,14 +125,14 @@ dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
     >>> dataset
     patient_id
     -----------------
-    0
     1
-    4
+    2
     5
     6
     7
     8
     9
+    10
     ```
 
     Notice that patients with `True` in the boolean column are included in the population;
@@ -169,32 +169,32 @@ latest_asthma_med = (
 
     ```pycon
     >>> medications.dmd_code
-    0 | 0 | 39113611000001102
-    1 | 1 | 39113611000001102
-    1 | 2 | 39113311000001107
-    1 | 3 | 22777311000001105
-    3 | 4 | 22777311000001105
-    4 | 5 | 39113611000001102
-    5 | 6 | 3484711000001105
-    5 | 7 | 39113611000001102
-    7 | 8 | 3484711000001105
-    9 | 9 | 3484711000001105
+     1 |  1 | 39113611000001102
+     2 |  2 | 39113611000001102
+     2 |  3 | 39113311000001107
+     2 |  4 | 22777311000001105
+     4 |  5 | 22777311000001105
+     5 |  6 | 39113611000001102
+     6 |  7 | 3484711000001105
+     6 |  8 | 39113611000001102
+     8 |  9 | 3484711000001105
+    10 | 10 | 3484711000001105
     ```
 
     Create a filter condition in the form of a boolean column.
 
     ```pycon
     >>> medications.dmd_code.is_in(asthma_codes)
-    0 | 0 | True
-    1 | 1 | True
-    1 | 2 | True
-    1 | 3 | False
-    3 | 4 | False
-    4 | 5 | True
-    5 | 6 | False
-    5 | 7 | True
-    7 | 8 | False
-    9 | 9 | False
+     1 |  1 | True
+     2 |  2 | True
+     2 |  3 | True
+     2 |  4 | False
+     4 |  5 | False
+     5 |  6 | True
+     6 |  7 | False
+     6 |  8 | True
+     8 |  9 | False
+    10 | 10 | False
     ```
 
     **Filter** the `medications` table,
@@ -204,11 +204,11 @@ latest_asthma_med = (
     >>> medications.where(medications.dmd_code.is_in(asthma_codes))
     patient_id        | row_id            | date              | dmd_code
     ------------------+-------------------+-------------------+------------------
-    0                 | 0                 | 2014-01-11        | 39113611000001102
-    1                 | 1                 | 2015-08-06        | 39113611000001102
-    1                 | 2                 | 2018-09-21        | 39113311000001107
-    4                 | 5                 | 2017-05-11        | 39113611000001102
-    5                 | 7                 | 2019-07-06        | 39113611000001102
+    1                 | 1                 | 2014-01-11        | 39113611000001102
+    2                 | 2                 | 2015-08-06        | 39113611000001102
+    2                 | 3                 | 2018-09-21        | 39113311000001107
+    5                 | 6                 | 2017-05-11        | 39113611000001102
+    6                 | 8                 | 2019-07-06        | 39113611000001102
     ```
 
     **Sort** the resulting table by date,
@@ -218,11 +218,11 @@ latest_asthma_med = (
     >>> medications.where(medications.dmd_code.is_in(asthma_codes)).sort_by(medications.date)
     patient_id        | row_id            | date              | dmd_code
     ------------------+-------------------+-------------------+------------------
-    0                 | 0                 | 2014-01-11        | 39113611000001102
-    1                 | 1                 | 2015-08-06        | 39113611000001102
-    1                 | 2                 | 2018-09-21        | 39113311000001107
-    4                 | 5                 | 2017-05-11        | 39113611000001102
-    5                 | 7                 | 2019-07-06        | 39113611000001102
+    1                 | 1                 | 2014-01-11        | 39113611000001102
+    2                 | 2                 | 2015-08-06        | 39113611000001102
+    2                 | 3                 | 2018-09-21        | 39113311000001107
+    5                 | 6                 | 2017-05-11        | 39113611000001102
+    6                 | 8                 | 2019-07-06        | 39113611000001102
     ```
 
     From the resulting table,
@@ -232,10 +232,10 @@ latest_asthma_med = (
     >>> medications.where(medications.dmd_code.is_in(asthma_codes)).sort_by(medications.date).last_for_patient()
     patient_id        | date              | dmd_code
     ------------------+-------------------+------------------
-    0                 | 2014-01-11        | 39113611000001102
-    1                 | 2018-09-21        | 39113311000001107
-    4                 | 2017-05-11        | 39113611000001102
-    5                 | 2019-07-06        | 39113611000001102
+    1                 | 2014-01-11        | 39113611000001102
+    2                 | 2018-09-21        | 39113311000001107
+    5                 | 2017-05-11        | 39113611000001102
+    6                 | 2019-07-06        | 39113611000001102
     ```
 
 ## Add the date column to the dataset
@@ -252,14 +252,14 @@ dataset.asthma_med_date = latest_asthma_med.date
     >>> dataset
     patient_id        | asthma_med_date
     ------------------+------------------
-    0                 | 2014-01-11
-    1                 | 2018-09-21
-    4                 | 2017-05-11
-    5                 | 2019-07-06
-    6                 | None
+    1                 | 2014-01-11
+    2                 | 2018-09-21
+    5                 | 2017-05-11
+    6                 | 2019-07-06
     7                 | None
     8                 | None
     9                 | None
+    10                | None
     ```
 
 ## Add the code column to the dataset
@@ -276,14 +276,14 @@ dataset.asthma_med_code = latest_asthma_med.dmd_code
     >>> dataset
     patient_id        | asthma_med_date   | asthma_med_code
     ------------------+-------------------+------------------
-    0                 | 2014-01-11        | 39113611000001102
-    1                 | 2018-09-21        | 39113311000001107
-    4                 | 2017-05-11        | 39113611000001102
-    5                 | 2019-07-06        | 39113611000001102
-    6                 | None              | None
+    1                 | 2014-01-11        | 39113611000001102
+    2                 | 2018-09-21        | 39113311000001107
+    5                 | 2017-05-11        | 39113611000001102
+    6                 | 2019-07-06        | 39113611000001102
     7                 | None              | None
     8                 | None              | None
     9                 | None              | None
+    10                | None              | None
     ```
 
 ## Save the dataset definition
