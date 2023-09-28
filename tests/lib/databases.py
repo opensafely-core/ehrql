@@ -43,6 +43,7 @@ class DbDetails:
         db_name="",
         query=None,
         temp_db=None,
+        engine_kwargs=None,
     ):
         self.protocol = protocol
         self.driver = driver
@@ -55,6 +56,7 @@ class DbDetails:
         self.db_name = db_name
         self.query = query
         self.temp_db = temp_db
+        self.engine_kwargs = engine_kwargs or {}
         self.metadata = None
 
     def container_url(self):
@@ -68,7 +70,8 @@ class DbDetails:
             self.host_from_host, self.port_from_host, include_driver=bool(self.driver)
         )
         engine_url = sqlalchemy.engine.make_url(url)
-        engine = sqlalchemy.create_engine(engine_url, **kwargs)
+        engine_kwargs = self.engine_kwargs | kwargs
+        engine = sqlalchemy.create_engine(engine_url, **engine_kwargs)
         return engine
 
     def _url(self, host, port, include_driver=False):
@@ -240,6 +243,9 @@ def make_trino_database(containers):
         port_from_host=host_trino_port,
         username="trino",
         db_name="trino/default",
+        # Disable automatic retries for the test client: it's pointless and creates log
+        # noise
+        engine_kwargs={"connect_args": {"max_attempts": 1}},
     )
 
 
