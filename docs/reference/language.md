@@ -1,3 +1,10 @@
+## Dataset
+
+---8<-- 'includes/generated_docs/language__dataset.md'
+
+---
+
+
 ## Frames
 
 Frames are the starting point for building any query in ehrQL. You can
@@ -101,9 +108,16 @@ prefer unambiguous units of days and weeks where possible.
 ---
 
 
-## General
+## Codelists
 
----8<-- 'includes/generated_docs/language__general.md'
+---8<-- 'includes/generated_docs/language__codelists.md'
+
+---
+
+
+## Functions
+
+---8<-- 'includes/generated_docs/language__functions.md'
 
 ---
 

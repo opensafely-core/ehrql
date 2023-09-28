@@ -50,9 +50,11 @@ def test_render(tmp_path):
     assert {pt.name for pt in tmp_path.iterdir()} == {
         "backends.md",
         "cli.md",
+        "language__codelists.md",
+        "language__dataset.md",
         "language__date_arithmetic.md",
         "language__frames.md",
-        "language__general.md",
+        "language__functions.md",
         "language__measures.md",
         "language__series.md",
         "schemas",
