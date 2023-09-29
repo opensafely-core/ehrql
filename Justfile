@@ -224,8 +224,6 @@ generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
     $BIN/python -m ehrql.docs {{ OUTPUT_DIR }}
     echo "Generated data for documentation in {{ OUTPUT_DIR }}"
 
-precommit-generate-docs *args: generate-docs
-
 update-external-studies: devenv
     $BIN/python -m tests.acceptance.update_external_studies
 

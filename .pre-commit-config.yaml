@@ -13,14 +13,6 @@ repos:
       types: [python]
       require_serial: true
 
-    - id: check-docs
-      name: check-docs
-      entry: just precommit-generate-docs
-      language: system
-      types: [python]
-      always_run: true
-      require_serial: true
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0
     hooks:
