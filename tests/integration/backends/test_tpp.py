@@ -108,7 +108,7 @@ def test_addresses(select_all):
             EndDate="2020-01-01T10:10:00",
             AddressType=3,
             RuralUrbanClassificationCode=4,
-            ImdRankRounded=2000,
+            ImdRankRounded=-1,
             MSOACode="",
         ),
         PatientAddress(
@@ -149,7 +149,7 @@ def test_addresses(select_all):
             "end_date": date(2020, 1, 1),
             "address_type": 3,
             "rural_urban_classification": 4,
-            "imd_rounded": 2000,
+            "imd_rounded": None,
             "msoa_code": None,
             "has_postcode": False,
             "care_home_is_potential_match": False,

@@ -31,7 +31,7 @@ class TPPBackend(BaseBackend):
                 CAST(addr.EndDate AS date) AS end_date,
                 addr.AddressType AS address_type,
                 addr.RuralUrbanClassificationCode AS rural_urban_classification,
-                addr.ImdRankRounded AS imd_rounded,
+                NULLIF(addr.ImdRankRounded, -1) AS imd_rounded,
                 CASE
                     WHEN addr.MSOACode NOT IN ('NPC', '') THEN addr.MSOACode
                 END AS msoa_code,
