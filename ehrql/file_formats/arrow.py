@@ -177,14 +177,14 @@ def batch_and_transpose(iterable, batch_size):
 
 class ArrowDatasetReader(BaseDatasetReader):
     def _open(self):
-        self.fileobj = pyarrow.memory_map(str(self.filename), "rb")
-        self.reader = pyarrow.ipc.open_file(self.fileobj)
+        self._fileobj = pyarrow.memory_map(str(self.filename), "rb")
+        self._reader = pyarrow.ipc.open_file(self._fileobj)
 
     def _validate_basic(self):
         # Arrow enforces that all record batches have a consistent schema and that any
         # categorical columns use the same dictionary, so we only need to get the first
         # batch in order to validate
-        batch = self.reader.get_record_batch(0)
+        batch = self._reader.get_record_batch(0)
         validate_columns(batch.schema.names, self.column_specs)
         errors = []
         for name, spec in self.column_specs.items():
@@ -215,15 +215,15 @@ class ArrowDatasetReader(BaseDatasetReader):
                 )
 
     def __iter__(self):
-        for i in range(self.reader.num_record_batches):
-            batch = self.reader.get_record_batch(i)
+        for i in range(self._reader.num_record_batches):
+            batch = self._reader.get_record_batch(i)
             # Use `zip(*...)` to transpose from column-wise to row-wise
             yield from zip(
                 *(batch.column(name).to_pylist() for name in self.column_specs)
             )
 
     def close(self):
-        # `self.reader` does not need closing: it acts as a contextmanager, but its exit
+        # `self._reader` does not need closing: it acts as a contextmanager, but its exit
         # method is a no-op, see:
         # https://github.com/apache/arrow/blob/1706b095/python/pyarrow/ipc.pxi#L1032-L1036
-        self.fileobj.close()
+        self._fileobj.close()
