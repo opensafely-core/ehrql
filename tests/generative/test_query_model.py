@@ -18,6 +18,7 @@ from ehrql.query_model.nodes import (
     Value,
     get_series_type,
 )
+from ehrql.serializer import deserialize, serialize
 from tests.lib.query_model_utils import get_all_operations
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
@@ -103,6 +104,7 @@ def query_engines(request):
 @hyp.settings(**settings)
 def test_query_model(query_engines, population, variable, data, recorder):
     recorder.record_inputs(variable, data)
+    run_serializer_test(population, variable)
     run_dummy_data_test(population, variable)
     run_test(query_engines, data, population, variable, recorder)
     # We run the test again using a simplified population definition which includes all
@@ -221,6 +223,12 @@ def run_dummy_data_test_without_error_handling(population, variable):
         timeout=-1,
     )
     assert len(dummy_data_generator.get_data()) > 0
+
+
+def run_serializer_test(population, variable):
+    # Test that the query correctly roundtrips through the serializer
+    query = {"population": population, "v": variable}
+    assert query == deserialize(serialize(query))
 
 
 # META TESTS
