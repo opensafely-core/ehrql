@@ -53,3 +53,9 @@ def is_proper_subclass(value, cls):
         return issubclass(value, cls) and value is not cls
     except TypeError:
         return False
+
+
+def get_subclasses(cls):
+    for subclass in cls.__subclasses__():
+        yield subclass
+        yield from get_subclasses(subclass)
