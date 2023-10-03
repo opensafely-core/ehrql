@@ -90,7 +90,7 @@ class addresses(EventFrame):
 @table
 class apcs(EventFrame):
     """
-    Admitted patient care spells (APCS) data is provided via the NHS Secondary Uses Service.
+    Admitted Patient Care Spells (APCS) data is provided via the NHS Secondary Uses Service.
 
     This table gives core details of spells.
 
@@ -100,11 +100,11 @@ class apcs(EventFrame):
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Primary key used to join to the other APCS tables.",
+        description="Unique identifier used across the APCS tables.",
     )
     admission_date = Series(
         datetime.date,
-        description="The start date of the hospital provider spell.",
+        description="The admission date of the hospital provider spell.",
     )
     discharge_date = Series(
         datetime.date,
@@ -112,14 +112,14 @@ class apcs(EventFrame):
     )
     spell_core_hrg_sus = Series(
         str,
-        description="The core HRG for the spell according to the derivations made by NHS Digital prior to import to the NCDR.",
+        description="The core Healthcare Resource Group (HRG) code for the spell according to the derivations made by NHS Digital prior to import to the National Commissioning Data Respository (NCDR).",
     )
 
 
 @table
 class apcs_cost(EventFrame):
     """
-    Admitted patient care spells (APCS) data is provided via the NHS Secondary Uses Service.
+    Admitted Patient Care Spells (APCS) data is provided via the NHS Secondary Uses Service.
 
     This table gives details of spell cost.
 
@@ -129,11 +129,11 @@ class apcs_cost(EventFrame):
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Primary key used to join to the other APCS tables.",
+        description="Unique identifier used across the APCS tables.",
     )
     grand_total_payment_mff = Series(
         float,
-        description="The total payment for the activity (Net_SLA_Payment + Tariff_MFF_Payment).",
+        description="The total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`).",
     )
     tariff_initial_amount = Series(
         float,
@@ -145,7 +145,7 @@ class apcs_cost(EventFrame):
     )
     admission_date = Series(
         datetime.date,
-        description="The start date of the hospital provider spell.",
+        description="The admission date of the hospital provider spell.",
     )
     discharge_date = Series(
         datetime.date,
@@ -260,7 +260,7 @@ class ec(EventFrame):
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Primary key used to join to the other EC tables",
+        description="Unique identifier used across the EC tables.",
     )
     arrival_date = Series(
         datetime.date,
@@ -268,7 +268,7 @@ class ec(EventFrame):
     )
     sus_hrg_code = Series(
         str,
-        description="The core HRG derived by sus+, as a result of HRG grouping, and used for tariff application.",
+        description="The core Healthcare Resource Group (HRG) code derived by sus+, as a result of HRG grouping, and used for tariff application.",
     )
 
 
@@ -283,11 +283,11 @@ class ec_cost(EventFrame):
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Primary key used to join to the other EC tables",
+        description="Unique identifier used across the EC tables.",
     )
     grand_total_payment_mff = Series(
         float,
-        description="The total payment for the activity (Net_SLA_Payment + Tariff_MFF_Payment).",
+        description="The total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`).",
     )
     tariff_total_payment = Series(
         float,
@@ -318,7 +318,7 @@ class emergency_care_attendances(EventFrame):
     id = Series(  # noqa: A003
         int,
         constraints=[Constraint.NotNull()],
-        description="Primary key used to join to the other EC tables",
+        description="Unique identifier used across the EC tables.",
     )
     arrival_date = Series(
         datetime.date,
@@ -711,7 +711,7 @@ class opa(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Primary key used to join to the other OPA tables",
+        description="Unique identifier used across the OPA tables.",
     )
     appointment_date = Series(
         datetime.date,
@@ -731,7 +731,7 @@ class opa(EventFrame):
     )
     hrg_code = Series(
         str,
-        description="The HRG produced by the HRG grouper.",
+        description="The Healthcare Resource Group (HRG) code produced by the HRG grouper.",
     )
     treatment_function_code = Series(
         str,
@@ -750,7 +750,7 @@ class opa_cost(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Primary key used to join to the other OPA tables",
+        description="Unique identifier used across the OPA tables.",
     )
     tariff_opp = Series(
         float,
@@ -758,7 +758,7 @@ class opa_cost(EventFrame):
     )
     grand_total_payment_mff = Series(
         float,
-        description="The total payment for the activity (Net_SLA_Payment + Tariff_MFF_Payment).",
+        description="The total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`).",
     )
     tariff_total_payment = Series(
         float,
@@ -785,7 +785,7 @@ class opa_diag(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Primary key used to join to the other OPA tables",
+        description="Unique identifier used across the OPA tables.",
     )
     primary_diagnosis_code = Series(
         ICD10Code,
@@ -824,7 +824,7 @@ class opa_proc(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Primary key used to join to the other OPA tables",
+        description="Unique identifier used across the OPA tables.",
     )
     primary_procedure_code = Series(
         OPCS4Code,
