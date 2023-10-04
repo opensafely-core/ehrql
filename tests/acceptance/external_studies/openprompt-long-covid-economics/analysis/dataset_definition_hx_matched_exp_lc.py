@@ -158,3 +158,35 @@ add_ae_visits(dataset, dataset.index_date, num_months=10, end_date=dataset.end_d
 add_ae_visits(dataset, dataset.index_date, num_months=11, end_date=dataset.end_date)
 add_ae_visits(dataset, dataset.index_date, num_months=12, end_date=dataset.end_date)
 
+
+# Outpatient visits
+# Historical outpatient visits:
+hx_outpatient_visit(dataset, num_months=1)
+hx_outpatient_visit(dataset, num_months=2)
+hx_outpatient_visit(dataset, num_months=3)
+hx_outpatient_visit(dataset, num_months=4)
+hx_outpatient_visit(dataset, num_months=5)
+hx_outpatient_visit(dataset, num_months=6)
+hx_outpatient_visit(dataset, num_months=7)
+hx_outpatient_visit(dataset, num_months=8)
+hx_outpatient_visit(dataset, num_months=9)
+hx_outpatient_visit(dataset, num_months=10)
+hx_outpatient_visit(dataset, num_months=11)
+hx_outpatient_visit(dataset, num_months=12)
+
+
+# Current outpatient visit after index date 
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=1, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=2, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=3, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=4, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=5, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=6, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=7, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=8, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=9, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=10, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=11, end_date=dataset.end_date)
+outpatient_visit(dataset, from_date=lc_dx.date, num_months=12, end_date=dataset.end_date)
+
+dataset.configure_dummy_data(population_size=10000)
