@@ -385,7 +385,7 @@ class TPPBackend(BaseBackend):
         ),
     )
 
-    opa = MappedTable(
+    opa_raw = MappedTable(
         source="OPA",
         columns={
             "opa_ident": "OPA_Ident",

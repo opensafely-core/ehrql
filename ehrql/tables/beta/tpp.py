@@ -26,10 +26,10 @@ __all__ = [
     "medications",
     "occupation_on_covid_vaccine_record",
     "ons_deaths",
-    "opa",
     "opa_cost",
     "opa_diag",
     "opa_proc",
+    "opa_raw",
     "open_prompt",
     "patients",
     "practice_registrations",
@@ -581,7 +581,7 @@ class occupation_on_covid_vaccine_record(EventFrame):
 
 
 @table
-class opa(EventFrame):
+class opa_raw(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],

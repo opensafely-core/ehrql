@@ -942,8 +942,8 @@ def test_ons_deaths(select_all):
     ]
 
 
-@register_test_for(tpp.opa)
-def test_opa(select_all):
+@register_test_for(tpp.opa_raw)
+def test_opa_raw(select_all):
     results = select_all(
         OPA(
             Patient_ID=1,
