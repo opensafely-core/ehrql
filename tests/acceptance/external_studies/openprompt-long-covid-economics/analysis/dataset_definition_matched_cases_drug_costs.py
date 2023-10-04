@@ -239,3 +239,5 @@ drug_13skin_number(dataset, dataset.index_date, num_months=9, end_date=dataset.e
 drug_13skin_number(dataset, dataset.index_date, num_months=10, end_date=dataset.end_date)
 drug_13skin_number(dataset, dataset.index_date, num_months=11, end_date=dataset.end_date)
 drug_13skin_number(dataset, dataset.index_date, num_months=12, end_date=dataset.end_date)
+
+dataset.configure_dummy_data(population_size=10000)

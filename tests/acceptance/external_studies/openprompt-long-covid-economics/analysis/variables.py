@@ -40,7 +40,7 @@ def add_visits(dataset, from_date, num_months, end_date):
         .where((appointments.start_date >= from_date + days((num_months-1)*30)) &
               (appointments.start_date  <  from_date + days(num_months*30)) &
               (appointments.start_date <=  end_date)) \
-        .count_for_patient()
+        .start_date.count_distinct_for_patient()
     setattr(dataset, f"gp_visit_m{num_months}", num_visits)
 
 # Function codes for cumulative historical GP visits: from 2019-3-1
@@ -49,7 +49,7 @@ def add_hx_gp_visits(dataset, num_months):
     num_visits = appointments \
         .where((appointments.start_date >= hx_study_start_date + days((num_months-1)*30)) &
               (appointments.start_date  < hx_study_start_date + days(num_months*30))) \
-        .count_for_patient()
+        .start_date.count_distinct_for_patient()
     setattr(dataset, f"hx_gp_visit_m{num_months}", num_visits)
 
 
@@ -60,7 +60,7 @@ def add_hos_visits(dataset, from_date, num_months, end_date):
         .where((hospital_admissions.admission_date >= from_date + days((num_months-1)*30)) &
               (hospital_admissions.admission_date  < from_date + days(num_months*30)) &
               (hospital_admissions.admission_date  <= end_date)) \
-        .count_for_patient()
+        .admission_date.count_distinct_for_patient()
     setattr(dataset, f"hos_visit_m{num_months}", num_visits)
 
 # Historical hospital visit
@@ -69,7 +69,7 @@ def add_hx_hos_visits(dataset, num_months):
     num_visits = hospital_admissions \
         .where((hospital_admissions.admission_date >= hx_study_start_date + days((num_months-1)*30)) &
               (hospital_admissions.discharge_date  <  hx_study_start_date + days(num_months*30))) \
-        .count_for_patient()
+        .admission_date.count_distinct_for_patient()
     setattr(dataset, f"hx_hos_visit_m{num_months}", num_visits)
 
 
@@ -80,7 +80,7 @@ def add_ae_visits(dataset, from_date, num_months, end_date):
         .where((emergency_care_attendances.arrival_date >= from_date + days((num_months-1)*30)) &
               (emergency_care_attendances.arrival_date  <  from_date + days(num_months*30)) &
               (emergency_care_attendances.arrival_date  <= end_date)) \
-        .count_for_patient()
+        .arrival_date.count_distinct_for_patient()
     setattr(dataset, f"ae_visit_m{num_months}", num_visits)
 
 # Function codes for the historical A&E
@@ -89,7 +89,7 @@ def add_hx_ae_visits(dataset, num_months):
     num_visits = emergency_care_attendances \
         .where((emergency_care_attendances.arrival_date >= hx_study_start_date + days((num_months-1)*30)) &
               (emergency_care_attendances.arrival_date  < hx_study_start_date + days(num_months*30))) \
-        .count_for_patient()
+        .arrival_date.count_distinct_for_patient()
     setattr(dataset, f"hx_ae_visit_m{num_months}", num_visits)
 
 
@@ -285,9 +285,8 @@ def outpatient_visit(dataset, from_date, num_months, end_date):
         .where((opa_diag.appointment_date >= from_date + days((num_months-1)*30)) &
               (opa_diag.appointment_date <  from_date + days(num_months*30)) &
               (opa_diag.appointment_date <=  end_date)) \
-        .count_for_patient()
+        .appointment_date.count_distinct_for_patient()
     setattr(dataset, f"opa_visit_m{num_months}", num_visits)
-
 
 def outpatient_lc_dx_visit(dataset, from_date, num_months, end_date):
     # Number of outpatient visits due to long covid within `num_months` of `from_date`
@@ -296,8 +295,18 @@ def outpatient_lc_dx_visit(dataset, from_date, num_months, end_date):
               (opa_diag.appointment_date <  from_date + days(num_months*30)) &
               (opa_diag.appointment_date <=  end_date)) \
         .where((opa_diag.primary_diagnosis_code.is_in(hosp_covid) | 
-               opa_diag.secondary_diagnosis_code_1.is_in(hosp_covid))).count_for_patient()
+               opa_diag.secondary_diagnosis_code_1.is_in(hosp_covid))) \
+        .appointment_date.count_distinct_for_patient()
     setattr(dataset, f"opa_lc_visit_m{num_months}", num_visits)
+
+def hx_outpatient_visit(dataset, num_months):
+    # Number of total outpatient clinic visits within `num_months` of `from_date`
+    num_visits = opa_diag \
+        .where((opa_diag.appointment_date >= hx_study_start_date + days((num_months-1)*30)) &
+              (opa_diag.appointment_date <  hx_study_start_date + days(num_months*30))) \
+        .appointment_date.count_distinct_for_patient()
+    setattr(dataset, f"opa_hx_visit_m{num_months}", num_visits)
+
 
 # Need to figure out opa_proc: where is `with_these_treatment_function_codes`?
 
@@ -343,6 +352,7 @@ dataset.define_population(age >= 18)
 # month10 = lc_dx.date + days(9*30)
 # month11 = lc_dx.date + days(10*30)
 # month12 = lc_dx.date + days(11*30)
+# hx_outpatient_visit(dataset, lc_dx.date, num_months=2)
 
 # drug_12ent_number(dataset, lc_dx.date, num_months=2)
 # add_visits(dataset, lc_dx.date, num_months=1)
