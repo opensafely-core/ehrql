@@ -277,7 +277,7 @@ class ec_cost(EventFrame):
 
 @table
 class emergency_care_attendances(EventFrame):
-    id = Series(int)  # noqa: A003
+    ec_ident = Series(int)  # noqa: A003
     arrival_date = Series(datetime.date)
     discharge_destination = Series(SNOMEDCTCode)
     # TODO: Revisit this when we have support for multi-valued fields

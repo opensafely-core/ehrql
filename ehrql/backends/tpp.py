@@ -163,7 +163,7 @@ class TPPBackend(BaseBackend):
         f"""
             SELECT
                 EC.Patient_ID AS patient_id,
-                EC.EC_Ident AS id,
+                EC.EC_Ident AS ec_ident,
                 EC.Arrival_Date AS arrival_date,
                 EC.Discharge_Destination_SNOMED_CT AS discharge_destination,
                 {", ".join(f"diag.EC_Diagnosis_{i:02d} AS diagnosis_{i:02d}" for i in range(1, 25))}

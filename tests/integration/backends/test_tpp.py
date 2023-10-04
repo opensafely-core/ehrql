@@ -357,7 +357,7 @@ def test_emergency_care_attendances(select_all):
     assert results == [
         {
             "patient_id": 1,
-            "id": 2,
+            "ec_ident": 2,
             "arrival_date": date(2021, 1, 1),
             "discharge_destination": "abc",
             "diagnosis_01": "def",
