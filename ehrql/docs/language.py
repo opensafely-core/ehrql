@@ -16,7 +16,7 @@ EXCLUDE_FROM_DOCS = {
     # We document `WhenThen` and `when` as part of `case`
     ql.WhenThen,
     ql.when,
-    ql.DummyDatasetConfig,
+    ql.DummyDataConfig,
 }
 
 

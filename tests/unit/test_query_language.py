@@ -130,8 +130,8 @@ def test_dataset_accepts_valid_variable_names(name):
         ("variables", "'variables' is not an allowed variable name"),
         ("patient_id", "'patient_id' is not an allowed variable name"),
         (
-            "dummy_dataset_config",
-            "'dummy_dataset_config' is not an allowed variable name",
+            "dummy_data_config",
+            "'dummy_data_config' is not an allowed variable name",
         ),
         ("_something", "Variable names must start with a letter"),
         ("1something", "Variable names must start with a letter"),

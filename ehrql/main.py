@@ -63,7 +63,7 @@ def generate_dataset(
     else:
         generate_dataset_with_dummy_data(
             variable_definitions,
-            dataset_definition.dummy_dataset_config,
+            dataset_definition.dummy_data_config,
             dataset_file,
             dummy_data_file,
             dummy_tables_path,
@@ -94,7 +94,7 @@ def generate_dataset_with_dsn(
 
 def generate_dataset_with_dummy_data(
     variable_definitions,
-    dummy_dataset_config,
+    dummy_data_config,
     dataset_file,
     dummy_data_file=None,
     dummy_tables_path=None,
@@ -113,7 +113,7 @@ def generate_dataset_with_dummy_data(
     else:
         generator = DummyDataGenerator(
             variable_definitions,
-            population_size=dummy_dataset_config.population_size,
+            population_size=dummy_data_config.population_size,
         )
         results = generator.get_results()
 
@@ -128,7 +128,7 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args):
     variable_definitions = compile(dataset_definition)
     generator = DummyDataGenerator(
         variable_definitions,
-        population_size=dataset_definition.dummy_dataset_config.population_size,
+        population_size=dataset_definition.dummy_data_config.population_size,
     )
     dummy_tables = generator.get_data()
     dummy_tables_path.parent.mkdir(parents=True, exist_ok=True)
