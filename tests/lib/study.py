@@ -42,7 +42,7 @@ class Study:
             "DATABASE_URL": database.container_url() if database else "",
             "OPENSAFELY_BACKEND": backend,
         }
-        self._run_in_docker(
+        return self._run_in_docker(
             command=self._generate_command(
                 self._docker_path(self._definition_path),
                 self._docker_path(self._dataset_path),
@@ -74,7 +74,7 @@ class Study:
 
     def dump_dataset_sql_in_docker(self):
         self._output_path = self._workspace / "queries.sql"
-        self._run_in_docker(
+        return self._run_in_docker(
             command=self._dump_dataset_sql_command(
                 self._docker_path(self._definition_path),
                 self._docker_path(self._output_path),
@@ -102,7 +102,7 @@ class Study:
 
     def _run_in_docker(self, command, environment=None):
         environment = environment or {}
-        self._containers.run_fg(
+        return self._containers.run_fg(
             image=self._image,
             command=command,
             environment=environment,
