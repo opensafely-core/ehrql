@@ -1,5 +1,8 @@
 import contextlib
+import json
 from pathlib import Path
+
+import pytest
 
 from ehrql.__main__ import (
     BACKEND_ALIASES,
@@ -16,9 +19,11 @@ from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.utils.module_utils import get_sibling_subclasses
 
 
+FIXTURES_PATH = Path(__file__).parents[1] / "fixtures" / "good_definition_files"
+
+
 def test_assure(capsys):
-    path = Path(__file__).parents[1] / "fixtures" / "good_definition_files" / "assurance.py"
-    main(["assure", str(path)])
+    main(["assure", str(FIXTURES_PATH / "assurance.py")])
     out, _ = capsys.readouterr()
     assert "All OK" in out
 
@@ -39,6 +44,31 @@ def test_dump_example_data(tmpdir):
         main(["dump-example-data"])
     filenames = [path.basename for path in (tmpdir / "example-data").listdir()]
     assert "patients.csv" in filenames
+
+
+@pytest.mark.parametrize(
+    "definition_type,definition_file",
+    [
+        ("dataset", FIXTURES_PATH / "dataset_definition.py"),
+        ("measures", FIXTURES_PATH / "measure_definitions.py"),
+        ("test", FIXTURES_PATH / "assurance.py"),
+    ],
+)
+def test_serialize_definition(definition_type, definition_file, capsys):
+    main(
+        [
+            "serialize-definition",
+            "--definition-type",
+            definition_type,
+            str(definition_file),
+        ]
+    )
+    stdout, stderr = capsys.readouterr()
+    # We rely on tests elsewhere to ensure that the serialization is working correctly;
+    # here we just want to check that we return valid JSON
+    assert json.loads(stdout)
+    # We shouldn't be producing any warnings or any other output
+    assert stderr == ""
 
 
 def test_all_query_engine_aliases_are_importable():

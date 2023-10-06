@@ -53,6 +53,17 @@ def load_measure_definitions(definition_file, user_args):
     return list(measures)
 
 
+DEFINITION_LOADERS = {
+    "dataset": load_dataset_definition,
+    "measures": load_measure_definitions,
+    "test": load_test_definition,
+}
+
+
+def load_definition(definition_type, definition_file, user_args):
+    return DEFINITION_LOADERS[definition_type](definition_file, user_args)
+
+
 def load_module(module_path, user_args=()):
     # Taken from the official recipe for importing a module from a file path:
     # https://docs.python.org/3.9/library/importlib.html#importing-a-source-file-directly

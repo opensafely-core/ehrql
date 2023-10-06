@@ -11,6 +11,7 @@ from ehrql.dummy_data import DummyDataGenerator
 from ehrql.file_formats import read_dataset, write_dataset
 from ehrql.loaders import (
     load_dataset_definition,
+    load_definition,
     load_measure_definitions,
     load_test_definition,
 )
@@ -22,6 +23,7 @@ from ehrql.measures import (
 from ehrql.query_engines.csv import CSVQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_model.column_specs import get_column_specs
+from ehrql.serializer import serialize
 from ehrql.utils.itertools_utils import eager_iterator
 from ehrql.utils.orm_utils import write_orm_models_to_csv_directory
 from ehrql.utils.sqlalchemy_query_utils import (
@@ -302,3 +304,11 @@ def dump_example_data(environ):
     src_path = Path(__file__).parent / "example-data"
     dst_path = Path(os.getcwd()) / "example-data"
     shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
+
+
+def serialize_definition(
+    definition_type, definition_file, output_file, user_args, environ
+):
+    result = load_definition(definition_type, definition_file, user_args)
+    with open_output_file(output_file) as f:
+        f.write(serialize(result))
