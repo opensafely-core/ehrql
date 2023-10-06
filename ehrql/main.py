@@ -338,7 +338,7 @@ def load_measure_definitions(definition_file, user_args):
         raise CommandError("'measures' must be an instance of ehrql.Measures")
     if len(measures) == 0:
         raise CommandError("No measures defined")
-    return measures
+    return list(measures)
 
 
 def load_test_data(definition_file, user_args):
