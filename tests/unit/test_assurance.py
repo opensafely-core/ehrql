@@ -9,6 +9,7 @@ from ehrql.assurance import (
     validate,
 )
 from ehrql.codes import SNOMEDCTCode
+from ehrql.query_language import compile
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
@@ -85,7 +86,7 @@ expected_validation_results = {
 
 
 def test_validate():
-    assert validate(dataset, test_data) == expected_validation_results
+    assert validate(compile(dataset), test_data) == expected_validation_results
 
 
 def test_present_with_errors():

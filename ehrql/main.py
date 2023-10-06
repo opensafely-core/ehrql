@@ -286,8 +286,9 @@ def run_sandbox(dummy_tables_path, environ):
 
 def assure(test_data_file, environ, user_args):
     dataset_definition = load_dataset_definition(test_data_file, user_args)
+    variable_definitions = compile(dataset_definition)
     test_data = load_test_data(test_data_file, user_args)
-    results = assurance.validate(dataset_definition, test_data)
+    results = assurance.validate(variable_definitions, test_data)
     print(assurance.present(results))
 
 
