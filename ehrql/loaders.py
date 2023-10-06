@@ -43,6 +43,16 @@ def load_measure_definitions(definition_file, user_args):
     return list(measures)
 
 
+DEFINITION_LOADERS = {
+    "dataset": load_dataset_definition,
+    "measures": load_measure_definitions,
+}
+
+
+def load_definition(definition_type, definition_file, user_args):
+    return DEFINITION_LOADERS[definition_type](definition_file, user_args)
+
+
 def load_test_data(definition_file, user_args):
     module = load_module(definition_file, user_args)
     return module.patient_data
