@@ -48,8 +48,9 @@ def generate_dataset(
     user_args=(),
 ):
     log.info(f"Compiling dataset definition from {str(definition_file)}")
-    dataset_definition = load_dataset_definition(definition_file, user_args)
-    variable_definitions = compile(dataset_definition)
+    variable_definitions, dummy_data_config = load_dataset_definition(
+        definition_file, user_args
+    )
 
     if dsn:
         generate_dataset_with_dsn(
@@ -63,7 +64,7 @@ def generate_dataset(
     else:
         generate_dataset_with_dummy_data(
             variable_definitions,
-            dataset_definition.dummy_data_config,
+            dummy_data_config,
             dataset_file,
             dummy_data_file,
             dummy_tables_path,
@@ -124,11 +125,12 @@ def generate_dataset_with_dummy_data(
 
 def create_dummy_tables(definition_file, dummy_tables_path, user_args):
     log.info(f"Creating dummy data tables for {str(definition_file)}")
-    dataset_definition = load_dataset_definition(definition_file, user_args)
-    variable_definitions = compile(dataset_definition)
+    variable_definitions, dummy_data_config = load_dataset_definition(
+        definition_file, user_args
+    )
     generator = DummyDataGenerator(
         variable_definitions,
-        population_size=dataset_definition.dummy_data_config.population_size,
+        population_size=dummy_data_config.population_size,
     )
     dummy_tables = generator.get_data()
     dummy_tables_path.parent.mkdir(parents=True, exist_ok=True)
@@ -141,7 +143,7 @@ def dump_dataset_sql(
 ):
     log.info(f"Generating SQL for {str(definition_file)}")
 
-    dataset_definition = load_dataset_definition(definition_file, user_args)
+    variable_definitions, _ = load_dataset_definition(definition_file, user_args)
     query_engine = get_query_engine(
         None,
         backend_class,
@@ -150,7 +152,6 @@ def dump_dataset_sql(
         default_query_engine_class=SQLiteQueryEngine,
     )
 
-    variable_definitions = compile(dataset_definition)
     all_query_strings = get_sql_strings(query_engine, variable_definitions)
     log.info("SQL generation succeeded")
 
@@ -285,8 +286,7 @@ def run_sandbox(dummy_tables_path, environ):
 
 
 def assure(test_data_file, environ, user_args):
-    dataset_definition = load_dataset_definition(test_data_file, user_args)
-    variable_definitions = compile(dataset_definition)
+    variable_definitions, _ = load_dataset_definition(test_data_file, user_args)
     test_data = load_test_data(test_data_file, user_args)
     results = assurance.validate(variable_definitions, test_data)
     print(assurance.present(results))
@@ -322,7 +322,8 @@ def load_dataset_definition(definition_file, user_args):
         raise CommandError(
             "A population has not been defined; define one with define_population()"
         )
-    return dataset
+    variable_definitions = compile(dataset)
+    return variable_definitions, dataset.dummy_data_config
 
 
 def load_measure_definitions(definition_file, user_args):

@@ -40,7 +40,7 @@ class DummyBackend:
 @pytest.fixture
 def mock_load_and_compile():
     m = "ehrql.main"
-    with mock.patch(f"{m}.load_dataset_definition"), mock.patch(f"{m}.compile"):
+    with mock.patch(f"{m}.load_dataset_definition", return_value=(None, None)):
         yield
 
 
