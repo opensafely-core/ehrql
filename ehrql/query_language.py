@@ -32,7 +32,7 @@ REGISTERED_TYPES = {}
 
 
 @dataclasses.dataclass
-class DummyDatasetConfig:
+class DummyDataConfig:
     population_size: int = 500
 
 
@@ -50,7 +50,7 @@ class Dataset:
 
     def __init__(self):
         object.__setattr__(self, "variables", {})
-        object.__setattr__(self, "dummy_dataset_config", DummyDatasetConfig())
+        object.__setattr__(self, "dummy_data_config", DummyDataConfig())
 
     def define_population(self, population_condition):
         """
@@ -71,7 +71,7 @@ class Dataset:
         dataset.configure_dummy_data(population_size=10000)
         ```
         """
-        self.dummy_dataset_config.population_size = population_size
+        self.dummy_data_config.population_size = population_size
 
     @exclude_from_docs
     def configure_dummy_dataset(self, **kwargs):  # pragma: no cover
@@ -87,7 +87,7 @@ class Dataset:
             )
         if name in self.variables:
             raise AttributeError(f"'{name}' is already set and cannot be reassigned")
-        if name in ("patient_id", "variables", "dummy_dataset_config"):
+        if name in ("patient_id", "variables", "dummy_data_config"):
             raise AttributeError(f"'{name}' is not an allowed variable name")
         if not VALID_VARIABLE_NAME_RE.match(name):
             raise AttributeError(
