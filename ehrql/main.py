@@ -32,8 +32,8 @@ from ehrql.utils.traceback_utils import get_trimmed_traceback
 log = structlog.getLogger()
 
 
-class CommandError(Exception):
-    "Errors that should be shown to the user without a traceback"
+class DefinitionError(Exception):
+    "Error in or with the user-supplied definition file"
 
 
 def generate_dataset(
@@ -323,13 +323,13 @@ def get_variable_definitions_from_module(module):
     try:
         dataset = module.dataset
     except AttributeError:
-        raise CommandError(
+        raise DefinitionError(
             "Did not find a variable called 'dataset' in dataset definition file"
         )
     if not isinstance(dataset, Dataset):
-        raise CommandError("'dataset' must be an instance of ehrql.Dataset")
+        raise DefinitionError("'dataset' must be an instance of ehrql.Dataset")
     if not hasattr(dataset, "population"):
-        raise CommandError(
+        raise DefinitionError(
             "A population has not been defined; define one with define_population()"
         )
     return compile(dataset)
@@ -340,13 +340,13 @@ def load_measure_definitions(definition_file, user_args):
     try:
         measures = module.measures
     except AttributeError:
-        raise CommandError(
+        raise DefinitionError(
             "Did not find a variable called 'measures' in measures definition file"
         )
     if not isinstance(measures, Measures):
-        raise CommandError("'measures' must be an instance of ehrql.Measures")
+        raise DefinitionError("'measures' must be an instance of ehrql.Measures")
     if len(measures) == 0:
-        raise CommandError("No measures defined")
+        raise DefinitionError("No measures defined")
     return list(measures)
 
 
@@ -369,7 +369,7 @@ def load_module(module_path, user_args=()):
         return module
     except Exception as exc:
         traceback = get_trimmed_traceback(exc, module.__file__)
-        raise CommandError(f"Failed to import '{module_path}':\n\n{traceback}")
+        raise DefinitionError(f"Failed to import '{module_path}':\n\n{traceback}")
     finally:
         sys.path = original_sys_path
         sys.argv = original_sys_argv

@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 import ehrql
-from ehrql.main import CommandError, load_module
+from ehrql.main import DefinitionError, load_module
 from ehrql.tables.beta import smoketest
 
 
@@ -14,13 +14,13 @@ FIXTURES = Path(__file__).parents[2] / "fixtures" / "bad_dataset_definitions"
 def test_traceback_starts_with_user_code():
     filename = FIXTURES / "bad_import.py"
     message = f'Traceback (most recent call last):\n  File "{filename}"'
-    with pytest.raises(CommandError, match=re.escape(message)):
+    with pytest.raises(DefinitionError, match=re.escape(message)):
         load_module(filename)
 
 
 def test_traceback_ends_with_user_code():
     filename = FIXTURES / "bad_types.py"
-    with pytest.raises(CommandError) as excinfo:
+    with pytest.raises(DefinitionError) as excinfo:
         load_module(filename)
     # We shouldn't have any references to ehrql code in the traceback
     ehrql_root = str(Path(ehrql.__file__).parent)
@@ -29,7 +29,7 @@ def test_traceback_ends_with_user_code():
 
 def test_references_to_failed_imports_from_ehrql_are_not_stripped_out():
     filename = FIXTURES / "bad_import.py"
-    with pytest.raises(CommandError) as excinfo:
+    with pytest.raises(DefinitionError) as excinfo:
         load_module(filename)
     # We tried to import a name from `smoketest` which doesn't exist, though the module
     # itself does. Therefore this module should be visible in the traceback.
@@ -39,7 +39,7 @@ def test_references_to_failed_imports_from_ehrql_are_not_stripped_out():
 def test_traceback_filtering_handles_relative_paths():
     relative_filename = (FIXTURES / "bad_import.py").relative_to(Path.cwd())
     message = r'Traceback \(most recent call last\):\n  File ".*bad_import\.py"'
-    with pytest.raises(CommandError, match=message):
+    with pytest.raises(DefinitionError, match=message):
         load_module(relative_filename)
 
 
@@ -56,5 +56,5 @@ def test_traceback_filtering_handles_syntax_errors():
         r"SyntaxError: invalid syntax"
         r"$"
     )
-    with pytest.raises(CommandError, match=message):
+    with pytest.raises(DefinitionError, match=message):
         load_module(filename)
