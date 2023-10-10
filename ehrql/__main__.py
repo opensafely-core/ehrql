@@ -11,7 +11,7 @@ from ehrql.file_formats import FILE_FORMATS, get_file_extension
 from ehrql.utils.string_utils import strip_indent
 
 from .main import (
-    CommandError,
+    DefinitionError,
     assure,
     create_dummy_tables,
     dump_dataset_sql,
@@ -88,7 +88,7 @@ def main(args, environ=None):
 
     try:
         function(**kwargs)
-    except CommandError as e:
+    except DefinitionError as e:
         print(str(e), file=sys.stderr)
         sys.exit(1)
     finally:

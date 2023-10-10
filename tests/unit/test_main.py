@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 
 from ehrql.main import (
-    CommandError,
+    DefinitionError,
     generate_dataset,
     get_query_engine,
     load_dataset_definition,
@@ -139,39 +139,43 @@ def test_open_output_file_with_stdout(capsys):
 
 def test_load_dataset_definition_no_dataset():
     filename = FIXTURES / "no_dataset.py"
-    with pytest.raises(CommandError, match="Did not find a variable called 'dataset'"):
+    with pytest.raises(
+        DefinitionError, match="Did not find a variable called 'dataset'"
+    ):
         load_dataset_definition(filename, user_args=())
 
 
 def test_load_dataset_definition_not_a_dataset():
     filename = FIXTURES / "not_a_dataset.py"
     with pytest.raises(
-        CommandError, match=r"'dataset' must be an instance of .*\.Dataset"
+        DefinitionError, match=r"'dataset' must be an instance of .*\.Dataset"
     ):
         load_dataset_definition(filename, user_args=())
 
 
 def test_load_dataset_definition_no_population():
     filename = FIXTURES / "no_population.py"
-    with pytest.raises(CommandError, match="A population has not been defined"):
+    with pytest.raises(DefinitionError, match="A population has not been defined"):
         load_dataset_definition(filename, user_args=())
 
 
 def test_load_measure_definitions_no_measures():
     filename = FIXTURES / "no_measures.py"
-    with pytest.raises(CommandError, match="Did not find a variable called 'measures'"):
+    with pytest.raises(
+        DefinitionError, match="Did not find a variable called 'measures'"
+    ):
         load_measure_definitions(filename, user_args=())
 
 
 def test_load_measure_definitions_not_measures_instance():
     filename = FIXTURES / "not_measures_instance.py"
     with pytest.raises(
-        CommandError, match=r"'measures' must be an instance of .*\.Measures"
+        DefinitionError, match=r"'measures' must be an instance of .*\.Measures"
     ):
         load_measure_definitions(filename, user_args=())
 
 
 def test_load_measure_definitions_empty_measures():
     filename = FIXTURES / "empty_measures.py"
-    with pytest.raises(CommandError, match="No measures defined"):
+    with pytest.raises(DefinitionError, match="No measures defined"):
         load_measure_definitions(filename, user_args=())
