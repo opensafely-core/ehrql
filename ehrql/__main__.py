@@ -8,10 +8,10 @@ from pathlib import Path
 
 from ehrql import __version__
 from ehrql.file_formats import FILE_FORMATS, get_file_extension
+from ehrql.loaders import DefinitionError
 from ehrql.utils.string_utils import strip_indent
 
 from .main import (
-    DefinitionError,
     assure,
     create_dummy_tables,
     dump_dataset_sql,

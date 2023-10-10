@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 import ehrql
-from ehrql.main import DefinitionError, load_module
+from ehrql.loaders import DefinitionError, load_module
 from ehrql.tables.beta import smoketest
 
 
