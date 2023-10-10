@@ -50,7 +50,7 @@ Slack channel.
 The following dataset definition selects the date and the code of each patient's most recent asthma medication,
 for all patients born on or before 31 December 1999.
 
-```python
+```ehrql
 from ehrql import create_dataset
 from ehrql.tables.beta.core import patients, medications
 
