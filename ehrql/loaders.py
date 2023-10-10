@@ -1,8 +1,12 @@
 import importlib.util
+import os
+import subprocess
 import sys
+from pathlib import Path
 
 from ehrql.measures import Measures
 from ehrql.query_language import Dataset, compile
+from ehrql.serializer import deserialize
 from ehrql.utils.traceback_utils import get_trimmed_traceback
 
 
@@ -11,6 +15,55 @@ class DefinitionError(Exception):
 
 
 def load_dataset_definition(definition_file, user_args):
+    return load_definition_in_subprocess("dataset", definition_file, user_args)
+
+
+def load_measure_definitions(definition_file, user_args):
+    return load_definition_in_subprocess("measures", definition_file, user_args)
+
+
+def load_definition_in_subprocess(definition_type, definition_file, user_args):
+    PLEDGE_BIN = Path(__file__).parents[1] / "bin" / "pledge"
+    result = subprocess.run(
+        [
+            PLEDGE_BIN,
+            # "-q",
+            "-p",
+            # "stdio rpath wpath cpath prot_exec tty",
+            "stdio rpath prot_exec tty",
+            "-v",
+            "r:/",
+            # "-v",
+            # "r:" + str(Path(sys.executable).parents[1]),
+            # "-v",
+            # "r:" + str(Path(__file__).parents[1]),
+            # "-v",
+            # "rwc:{os.getcwd()}",
+            sys.executable,
+            "-m",
+            "ehrql",
+            "serialize-definition",
+            "--definition-type",
+            definition_type,
+            definition_file,
+            "--",
+            *user_args,
+        ],
+        env={
+            "PYTHONPATH": os.environ.get("PYTHONPATH", ""),
+            "PYTHONHASHSEED": "0",
+        },
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        raise DefinitionError(result.stderr)
+    else:
+        print(result.stderr, file=sys.stderr, end="")
+    return deserialize(result.stdout)
+
+
+def load_dataset_definition_unsafe(definition_file, user_args):
     module = load_module(definition_file, user_args)
     try:
         dataset = module.dataset
@@ -28,7 +81,7 @@ def load_dataset_definition(definition_file, user_args):
     return variable_definitions, dataset.dummy_data_config
 
 
-def load_measure_definitions(definition_file, user_args):
+def load_measure_definitions_unsafe(definition_file, user_args):
     module = load_module(definition_file, user_args)
     try:
         measures = module.measures
@@ -44,12 +97,12 @@ def load_measure_definitions(definition_file, user_args):
 
 
 DEFINITION_LOADERS = {
-    "dataset": load_dataset_definition,
-    "measures": load_measure_definitions,
+    "dataset": load_dataset_definition_unsafe,
+    "measures": load_measure_definitions_unsafe,
 }
 
 
-def load_definition(definition_type, definition_file, user_args):
+def load_definition_unsafe(definition_type, definition_file, user_args):
     return DEFINITION_LOADERS[definition_type](definition_file, user_args)
 
 
