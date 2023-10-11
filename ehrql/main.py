@@ -286,8 +286,7 @@ def run_sandbox(dummy_tables_path, environ):
 
 
 def assure(test_data_file, environ, user_args):
-    variable_definitions, _ = load_dataset_definition(test_data_file, user_args)
-    test_data = load_test_data(test_data_file, user_args)
+    variable_definitions, test_data = load_test_definition(test_data_file, user_args)
     results = assurance.validate(variable_definitions, test_data)
     print(assurance.present(results))
 
@@ -310,6 +309,17 @@ def dump_example_data(environ):
 
 def load_dataset_definition(definition_file, user_args):
     module = load_module(definition_file, user_args)
+    variable_definitions = get_variable_definitions_from_module(module)
+    return variable_definitions, module.dataset.dummy_data_config
+
+
+def load_test_definition(definition_file, user_args):
+    module = load_module(definition_file, user_args)
+    variable_definitions = get_variable_definitions_from_module(module)
+    return variable_definitions, module.patient_data
+
+
+def get_variable_definitions_from_module(module):
     try:
         dataset = module.dataset
     except AttributeError:
@@ -322,8 +332,7 @@ def load_dataset_definition(definition_file, user_args):
         raise CommandError(
             "A population has not been defined; define one with define_population()"
         )
-    variable_definitions = compile(dataset)
-    return variable_definitions, dataset.dummy_data_config
+    return compile(dataset)
 
 
 def load_measure_definitions(definition_file, user_args):
@@ -339,11 +348,6 @@ def load_measure_definitions(definition_file, user_args):
     if len(measures) == 0:
         raise CommandError("No measures defined")
     return list(measures)
-
-
-def load_test_data(definition_file, user_args):
-    module = load_module(definition_file, user_args)
-    return module.patient_data
 
 
 def load_module(module_path, user_args=()):
