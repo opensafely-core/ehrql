@@ -39,4 +39,4 @@ dataset.long_covid_dx_date = lc_dx_date
 dataset.end_death = death_date
 dataset.end_deregist = end_reg_date
 dataset.end_lc_cure = lc_cure_date
-dataset.configure_dummy_data(population_size=10000)
+dataset.configure_dummy_data(population_size=50000)
