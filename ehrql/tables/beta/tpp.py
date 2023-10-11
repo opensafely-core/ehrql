@@ -35,6 +35,7 @@ __all__ = [
     "practice_registrations",
     "sgss_covid_all_tests",
     "vaccinations",
+    "wl_clockstops",
     "wl_clockstops_raw",
 ]
 
@@ -889,3 +890,74 @@ class wl_clockstops_raw(EventFrame):
     source_of_referral_for_outpatients = Series(str)
     waiting_list_type = Series(str)
     week_ending_date = Series(str)
+
+
+@table
+class wl_clockstops(EventFrame):
+    """
+    National Waiting List Clock Stops
+
+    This dataset contains all completed referral-to-treatment (RTT) pathways with a "clock stop" date between May 2021 and May 2022.
+    Patients referred for non-emergency consultant-led treatment are on RTT pathways.
+    The "clock start" date is the date of the first referral that starts the pathway.
+    The "clock stop" date is when the patient either: receives treatment;
+    declines treatment;
+    enters a period of active monitoring;
+    no longer requires treatment;
+    or dies.
+    The time spent waiting is the difference in these two dates.
+
+    A patient may have multiple rows if they have multiple completed RTT pathways;
+    however, there is only one row per unique pathway.
+    Because referral identifiers aren't necessarily unique between hospitals,
+    unique RTT pathways can be identified using a combination of:
+
+    * `pseudo_organisation_code_patient_pathway_identifier_issuer`
+    * `pseudo_patient_pathway_identifier`
+    * `pseudo_referral_identifier`
+    * `referral_to_treatment_period_start_date`
+
+    For more information, see
+    "[Consultant-led Referral to Treatment Waiting Times Rules and Guidance][wl_clockstops_1]".
+
+    [wl_clockstops_1]: https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/
+    """
+
+    activity_treatment_function_code = Series(
+        str,
+        description="The treatment function",
+        constraints=[Constraint.Regex(r"[a-zA-Z0-9]{3}")],
+    )
+    priority_type_code = Series(
+        str,
+        description="The priority type",
+        constraints=[Constraint.Categorical(["routine", "urgent", "two week wait"])],
+    )
+    pseudo_organisation_code_patient_pathway_identifier_issuer = Series(str)
+    pseudo_patient_pathway_identifier = Series(str)
+    pseudo_referral_identifier = Series(str)
+    referral_request_received_date = Series(
+        datetime.date,
+        description=(
+            "The date the referral was received, "
+            "for the referral that started the original pathway"
+        ),
+    )
+    referral_to_treatment_period_end_date = Series(
+        datetime.date,
+        description="Clock stop for the completed pathway",
+    )
+    referral_to_treatment_period_start_date = Series(
+        datetime.date,
+        description="Clock start for the completed pathway",
+    )
+    source_of_referral_for_outpatients = Series(str)
+    waiting_list_type = Series(
+        str,
+        description="The waiting list type on completion of the pathway",
+        constraints=[Constraint.Categorical(["ORTT", "IRTT"])],
+    )
+    week_ending_date = Series(
+        datetime.date,
+        description="The Sunday of the week that the pathway relates to",
+    )
