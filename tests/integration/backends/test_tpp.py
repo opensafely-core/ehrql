@@ -1392,6 +1392,47 @@ def test_wl_openpathways_raw(select_all):
     ]
 
 
+@register_test_for(tpp.wl_openpathways)
+def test_wl_openpathways(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        WL_OpenPathways(
+            Patient_ID=1,
+            ACTIVITY_TREATMENT_FUNCTION_CODE="110",
+            Current_Pathway_Period_Start_Date="2024-03-02",
+            PRIORITY_TYPE_CODE="2",
+            PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER=sha256_digest(1),
+            PSEUDO_PATIENT_PATHWAY_IDENTIFIER=sha256_digest(1),
+            Pseudo_Referral_Identifier=sha256_digest(1),
+            REFERRAL_REQUEST_RECEIVED_DATE="2023-02-01",
+            REFERRAL_TO_TREATMENT_PERIOD_END_DATE="9999-12-31",
+            REFERRAL_TO_TREATMENT_PERIOD_START_DATE="2024-03-02",
+            SOURCE_OF_REFERRAL="",
+            Waiting_List_Type="IRTT",
+            Week_Ending_Date="2024-03-03",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "activity_treatment_function_code": "110",
+            "current_pathway_period_start_date": date(2024, 3, 2),
+            "priority_type_code": "urgent",
+            "pseudo_organisation_code_patient_pathway_identifier_issuer": to_hex(
+                sha256_digest(1)
+            ),
+            "pseudo_patient_pathway_identifier": to_hex(sha256_digest(1)),
+            "pseudo_referral_identifier": to_hex(sha256_digest(1)),
+            "referral_request_received_date": date(2023, 2, 1),
+            "referral_to_treatment_period_end_date": None,
+            "referral_to_treatment_period_start_date": date(2024, 3, 2),
+            "source_of_referral": "",
+            "waiting_list_type": "IRTT",
+            "week_ending_date": date(2024, 3, 3),
+        }
+    ]
+
+
 def test_registered_tests_are_exhaustive():
     for name, table in vars(tpp).items():
         if not isinstance(table, BaseFrame):

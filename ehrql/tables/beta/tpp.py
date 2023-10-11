@@ -37,6 +37,7 @@ __all__ = [
     "vaccinations",
     "wl_clockstops",
     "wl_clockstops_raw",
+    "wl_openpathways",
     "wl_openpathways_raw",
 ]
 
@@ -990,3 +991,81 @@ class wl_openpathways_raw(EventFrame):
     source_of_referral = Series(str)
     waiting_list_type = Series(str)
     week_ending_date = Series(str)
+
+
+@table
+class wl_openpathways(EventFrame):
+    """
+    National Waiting List Open Pathways
+
+    This dataset contains all people on open (incomplete) RTT or not current RTT (non-RTT) pathways as of May 2022.
+    It is a snapshot of everyone still awaiting treatment as of May 2022 (i.e., the clock hasn't stopped).
+    Patients referred for non-emergency consultant-led treatment are on RTT pathways,
+    while patients referred for non-consultant-led treatment are on non-RTT pathways.
+    For each pathway, there is one row for every week that the patient is still waiting.
+    Because referral identifiers aren't necessarily unique between hospitals,
+    unique RTT pathways can be identified using a combination of:
+
+    * `pseudo_organisation_code_patient_pathway_identifier_issuer`
+    * `pseudo_patient_pathway_identifier`
+    * `pseudo_referral_identifier`
+    * `referral_to_treatment_period_start_date`
+
+
+    For more information, see
+    "[Consultant-led Referral to Treatment Waiting Times Rules and Guidance][wl_openpathways_1]".
+
+    [wl_openpathways_1]: https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/
+    """
+
+    activity_treatment_function_code = Series(
+        str,
+        description="The treatment function",
+        constraints=[Constraint.Regex(r"[a-zA-Z0-9]{3}")],
+    )
+    current_pathway_period_start_date = Series(
+        datetime.date,
+        description="Latest clock start for this pathway period",
+    )
+    priority_type_code = Series(
+        str,
+        description="The priority type",
+        constraints=[Constraint.Categorical(["routine", "urgent", "two week wait"])],
+    )
+    pseudo_organisation_code_patient_pathway_identifier_issuer = Series(str)
+    pseudo_patient_pathway_identifier = Series(str)
+    pseudo_referral_identifier = Series(str)
+    referral_request_received_date = Series(
+        datetime.date,
+        description=(
+            "The date the referral was received, "
+            "for the referral that started the original pathway"
+        ),
+    )
+    referral_to_treatment_period_end_date = Series(
+        datetime.date,
+        description="If the pathway is open, then `NULL`",
+    )
+    referral_to_treatment_period_start_date = Series(
+        datetime.date,
+        description=(
+            "Latest clock start for this pathway. "
+            "If the pathway is not a current pathway, then `NULL`."
+        ),
+    )
+    source_of_referral = Series(
+        str,
+        description=(
+            "National referral source code "
+            "for the referral that created the original pathway"
+        ),
+        constraints=[Constraint.Regex(r"[a-zA-Z0-9]{2}")],
+    )
+    waiting_list_type = Series(
+        str,
+        constraints=[Constraint.Categorical(["ORTT", "IRTT", "ONON", "INON"])],
+    )
+    week_ending_date = Series(
+        datetime.date,
+        description="The Sunday of the week that the pathway relates to",
+    )
