@@ -37,6 +37,7 @@ __all__ = [
     "vaccinations",
     "wl_clockstops",
     "wl_clockstops_raw",
+    "wl_openpathways_raw",
 ]
 
 
@@ -872,7 +873,8 @@ class wl_clockstops_raw(EventFrame):
     """
     National Waiting List Clock Stops
 
-    The columns in this table have the same data types as the columns in [the associated
+    Unlike [`wl_clockstops`](#wl_clockstops),
+    the columns in this table have the same data types as the columns in [the associated
     database table][wl_clockstops_raw_1]. The three "pseudo" columns are small
     exceptions, as they are converted from binary columns to string columns.
 
@@ -961,3 +963,30 @@ class wl_clockstops(EventFrame):
         datetime.date,
         description="The Sunday of the week that the pathway relates to",
     )
+
+
+@table
+class wl_openpathways_raw(EventFrame):
+    """
+    National Waiting List Open Pathways
+
+    Unlike [`wl_openpathways`](#wl_openpathways),
+    the columns in this table have the same data types as the columns in [the associated
+    database table][wl_openpathways_raw_1]. The three "pseudo" columns are small
+    exceptions, as they are converted from binary columns to string columns.
+
+    [wl_openpathways_raw_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#WL_OpenPathways
+    """
+
+    activity_treatment_function_code = Series(str)
+    current_pathway_period_start_date = Series(str)
+    priority_type_code = Series(str)
+    pseudo_organisation_code_patient_pathway_identifier_issuer = Series(str)
+    pseudo_patient_pathway_identifier = Series(str)
+    pseudo_referral_identifier = Series(str)
+    referral_request_received_date = Series(str)
+    referral_to_treatment_period_end_date = Series(str)
+    referral_to_treatment_period_start_date = Series(str)
+    source_of_referral = Series(str)
+    waiting_list_type = Series(str)
+    week_ending_date = Series(str)
