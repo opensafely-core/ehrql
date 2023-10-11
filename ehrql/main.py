@@ -11,7 +11,7 @@ from ehrql.dummy_data import DummyDataGenerator
 from ehrql.file_formats import read_dataset, write_dataset
 from ehrql.loaders import (
     load_dataset_definition,
-    load_definition,
+    load_definition_unsafe,
     load_measure_definitions,
     load_test_definition,
 )
@@ -309,6 +309,6 @@ def dump_example_data(environ):
 def serialize_definition(
     definition_type, definition_file, output_file, user_args, environ
 ):
-    result = load_definition(definition_type, definition_file, user_args)
+    result = load_definition_unsafe(definition_type, definition_file, user_args)
     with open_output_file(output_file) as f:
         f.write(serialize(result))
