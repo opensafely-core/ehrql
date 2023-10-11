@@ -9,7 +9,7 @@ from ehrql.loaders import (
 )
 
 
-FIXTURES = Path(__file__).parents[1] / "fixtures" / "bad_dataset_definitions"
+FIXTURES = Path(__file__).parents[1] / "fixtures" / "bad_definition_files"
 
 
 def test_load_dataset_definition_no_dataset():

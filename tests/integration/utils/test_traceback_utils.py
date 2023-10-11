@@ -8,7 +8,7 @@ from ehrql.loaders import DefinitionError, load_module
 from ehrql.tables.beta import smoketest
 
 
-FIXTURES = Path(__file__).parents[2] / "fixtures" / "bad_dataset_definitions"
+FIXTURES = Path(__file__).parents[2] / "fixtures" / "bad_definition_files"
 
 
 def test_traceback_starts_with_user_code():

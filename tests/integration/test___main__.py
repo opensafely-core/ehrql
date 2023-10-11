@@ -17,7 +17,7 @@ from ehrql.utils.module_utils import get_sibling_subclasses
 
 
 def test_assure(capsys):
-    path = Path(__file__).parents[1] / "fixtures" / "assurance" / "assurance.py"
+    path = Path(__file__).parents[1] / "fixtures" / "good_definition_files" / "assurance.py"
     main(["assure", str(path)])
     out, _ = capsys.readouterr()
     assert "All OK" in out
