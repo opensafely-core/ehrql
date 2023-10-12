@@ -48,7 +48,7 @@ def generate_dataset(
 ):
     log.info(f"Compiling dataset definition from {str(definition_file)}")
     variable_definitions, dummy_data_config = load_dataset_definition(
-        definition_file, user_args
+        definition_file, user_args, environ
     )
 
     if dsn:
@@ -122,10 +122,10 @@ def generate_dataset_with_dummy_data(
     write_dataset(dataset_file, results, column_specs)
 
 
-def create_dummy_tables(definition_file, dummy_tables_path, user_args):
+def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
     log.info(f"Creating dummy data tables for {str(definition_file)}")
     variable_definitions, dummy_data_config = load_dataset_definition(
-        definition_file, user_args
+        definition_file, user_args, environ
     )
     generator = DummyDataGenerator(
         variable_definitions,
@@ -142,7 +142,9 @@ def dump_dataset_sql(
 ):
     log.info(f"Generating SQL for {str(definition_file)}")
 
-    variable_definitions, _ = load_dataset_definition(definition_file, user_args)
+    variable_definitions, _ = load_dataset_definition(
+        definition_file, user_args, environ
+    )
     query_engine = get_query_engine(
         None,
         backend_class,
@@ -223,7 +225,7 @@ def generate_measures(
     user_args=(),
 ):
     log.info(f"Compiling measure definitions from {str(definition_file)}")
-    measure_definitions = load_measure_definitions(definition_file, user_args)
+    measure_definitions = load_measure_definitions(definition_file, user_args, environ)
 
     if dsn:
         generate_measures_with_dsn(
@@ -285,7 +287,9 @@ def run_sandbox(dummy_tables_path, environ):
 
 
 def assure(test_data_file, environ, user_args):
-    variable_definitions, test_data = load_test_definition(test_data_file, user_args)
+    variable_definitions, test_data = load_test_definition(
+        test_data_file, user_args, environ
+    )
     results = assurance.validate(variable_definitions, test_data)
     print(assurance.present(results))
 
@@ -309,6 +313,8 @@ def dump_example_data(environ):
 def serialize_definition(
     definition_type, definition_file, output_file, user_args, environ
 ):
-    result = load_definition_unsafe(definition_type, definition_file, user_args)
+    result = load_definition_unsafe(
+        definition_type, definition_file, user_args, environ
+    )
     with open_output_file(output_file) as f:
         f.write(serialize(result))

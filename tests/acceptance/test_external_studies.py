@@ -129,4 +129,4 @@ def test_external_study(study_name, definition_file, load_function):
         # these tests which are intended to ensure we don't accidentally break the API.
         # If we're unable to execute a valid query, that's a separate class of problem
         # for which we need separate tests.
-        assert load_function(definition_path, user_args=user_args)
+        assert load_function(definition_path, user_args=user_args, environ={})

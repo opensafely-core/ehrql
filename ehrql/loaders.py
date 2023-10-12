@@ -13,19 +13,21 @@ class DefinitionError(Exception):
     "Error in or with the user-supplied definition file"
 
 
-def load_dataset_definition(definition_file, user_args):
-    return load_definition_in_subprocess("dataset", definition_file, user_args)
+def load_dataset_definition(definition_file, user_args, environ):
+    return load_definition_in_subprocess("dataset", definition_file, user_args, environ)
 
 
-def load_measure_definitions(definition_file, user_args):
-    return load_definition_in_subprocess("measures", definition_file, user_args)
+def load_measure_definitions(definition_file, user_args, environ):
+    return load_definition_in_subprocess(
+        "measures", definition_file, user_args, environ
+    )
 
 
-def load_test_definition(definition_file, user_args):
-    return load_definition_in_subprocess("test", definition_file, user_args)
+def load_test_definition(definition_file, user_args, environ):
+    return load_definition_in_subprocess("test", definition_file, user_args, environ)
 
 
-def load_definition_in_subprocess(definition_type, definition_file, user_args):
+def load_definition_in_subprocess(definition_type, definition_file, user_args, environ):
     # NOTE: This is not yet safe because the subprocess needs to be isolated to prevent
     # it doing things like accessing the network, but it is the first step towards that
     result = subprocess.run(
@@ -112,7 +114,7 @@ DEFINITION_LOADERS = {
 }
 
 
-def load_definition_unsafe(definition_type, definition_file, user_args):
+def load_definition_unsafe(definition_type, definition_file, user_args, environ):
     return DEFINITION_LOADERS[definition_type](definition_file, user_args)
 
 
