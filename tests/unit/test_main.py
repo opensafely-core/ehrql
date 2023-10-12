@@ -43,10 +43,15 @@ def test_generate_dataset_dsn_arg(mock_load_and_compile):
         generate_dataset(
             Path("dataset_definition.py"),
             Path("results.csv"),
+            # Interesting argument
             dsn="sqlite://:memory:",
-            backend_class=DummyBackend,
-            query_engine_class=DummyQueryEngine,
-            environ={"FOO": "bar"},
+            # Defaults
+            backend_class=None,
+            query_engine_class=None,
+            dummy_tables_path=None,
+            dummy_data_file=None,
+            environ={},
+            user_args=(),
         )
         p.assert_called_once()
 
@@ -56,14 +61,33 @@ def test_generate_dataset_dummy_data_file_arg(mock_load_and_compile):
         generate_dataset(
             Path("dataset_definition.py"),
             Path("results.csv"),
+            # Interesting argument
             dummy_data_file="dummy-data.csv",
+            # Defaults
+            dsn=None,
+            backend_class=None,
+            query_engine_class=None,
+            dummy_tables_path=None,
+            environ={},
+            user_args=(),
         )
         p.assert_called_once()
 
 
 def test_generate_dataset_no_data_args(mock_load_and_compile):
     with mock.patch("ehrql.main.generate_dataset_with_dummy_data") as p:
-        generate_dataset(Path("dataset_definition.py"), Path("results.csv"))
+        generate_dataset(
+            Path("dataset_definition.py"),
+            Path("results.csv"),
+            # Defaults
+            dsn=None,
+            backend_class=None,
+            query_engine_class=None,
+            dummy_tables_path=None,
+            dummy_data_file=None,
+            environ={},
+            user_args=(),
+        )
         p.assert_called_once()
 
 

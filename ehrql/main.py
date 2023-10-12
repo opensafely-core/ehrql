@@ -38,13 +38,14 @@ log = structlog.getLogger()
 def generate_dataset(
     definition_file,
     dataset_file,
-    dsn=None,
-    backend_class=None,
-    query_engine_class=None,
-    dummy_tables_path=None,
-    dummy_data_file=None,
-    environ=None,
-    user_args=(),
+    *,
+    dsn,
+    backend_class,
+    query_engine_class,
+    dummy_tables_path,
+    dummy_data_file,
+    environ,
+    user_args,
 ):
     log.info(f"Compiling dataset definition from {str(definition_file)}")
     variable_definitions, dummy_data_config = load_dataset_definition(
@@ -58,15 +59,15 @@ def generate_dataset(
             dsn,
             backend_class=backend_class,
             query_engine_class=query_engine_class,
-            environ=environ or {},
+            environ=environ,
         )
     else:
         generate_dataset_with_dummy_data(
             variable_definitions,
             dummy_data_config,
             dataset_file,
-            dummy_data_file,
-            dummy_tables_path,
+            dummy_data_file=dummy_data_file,
+            dummy_tables_path=dummy_tables_path,
         )
 
 
@@ -96,8 +97,9 @@ def generate_dataset_with_dummy_data(
     variable_definitions,
     dummy_data_config,
     dataset_file,
-    dummy_data_file=None,
-    dummy_tables_path=None,
+    *,
+    dummy_data_file,
+    dummy_tables_path,
 ):
     log.info("Generating dummy dataset")
     column_specs = get_column_specs(variable_definitions)
@@ -216,13 +218,14 @@ def get_query_engine(
 def generate_measures(
     definition_file,
     output_file,
-    dsn=None,
-    backend_class=None,
-    query_engine_class=None,
-    dummy_tables_path=None,
-    dummy_data_file=None,
-    environ=None,
-    user_args=(),
+    *,
+    dsn,
+    backend_class,
+    query_engine_class,
+    dummy_tables_path,
+    dummy_data_file,
+    environ,
+    user_args,
 ):
     log.info(f"Compiling measure definitions from {str(definition_file)}")
     measure_definitions = load_measure_definitions(definition_file, user_args, environ)
@@ -234,7 +237,7 @@ def generate_measures(
             dsn,
             backend_class=backend_class,
             query_engine_class=query_engine_class,
-            environ=environ or {},
+            environ=environ,
         )
     else:
         generate_measures_with_dummy_data(

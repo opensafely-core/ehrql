@@ -45,6 +45,12 @@ def test_generate_measures(in_memory_sqlite_database, tmp_path):
         output_file,
         dsn=in_memory_sqlite_database.host_url(),
         query_engine_class=SQLiteQueryEngine,
+        # Defaults
+        backend_class=None,
+        dummy_tables_path=None,
+        dummy_data_file=None,
+        environ={},
+        user_args=(),
     )
     assert output_file.read_text() == textwrap.dedent(
         """\
@@ -65,6 +71,14 @@ def test_generate_measures_dummy_data_generated(tmp_path):
     generate_measures(
         measure_definitions,
         output_file,
+        # Defaults
+        dsn=None,
+        backend_class=None,
+        query_engine_class=None,
+        dummy_tables_path=None,
+        dummy_data_file=None,
+        environ={},
+        user_args=(),
     )
     assert output_file.read_text().startswith(
         "measure,interval_start,interval_end,ratio,numerator,denominator,sex"
@@ -91,6 +105,13 @@ def test_generate_measures_dummy_data_supplied(tmp_path):
         measure_definitions,
         output_file,
         dummy_data_file=dummy_data_file,
+        # Defaults
+        dsn=None,
+        backend_class=None,
+        query_engine_class=None,
+        dummy_tables_path=None,
+        environ={},
+        user_args=(),
     )
     assert output_file.read_text() == DUMMY_DATA
 
@@ -114,6 +135,13 @@ def test_generate_measures_dummy_tables(tmp_path):
         measure_definitions,
         output_file,
         dummy_tables_path=dummy_tables_path,
+        # Defaults
+        dsn=None,
+        backend_class=None,
+        query_engine_class=None,
+        dummy_data_file=None,
+        environ={},
+        user_args=(),
     )
     assert output_file.read_text() == textwrap.dedent(
         """\
