@@ -1,4 +1,9 @@
-from trino.sqlalchemy.compiler import TrinoDDLCompiler as BaseTrinoDDLCompiler
+from trino.sqlalchemy.compiler import (
+    TrinoDDLCompiler as BaseTrinoDDLCompiler,
+)
+from trino.sqlalchemy.compiler import (
+    TrinoTypeCompiler as BaseTrinoTypeCompiler,
+)
 from trino.sqlalchemy.dialect import TrinoDialect as BaseTrinoDialect
 
 
@@ -28,9 +33,18 @@ class TrinoDDLCompiler(BaseTrinoDDLCompiler):
         return ""
 
 
+class TrinoTypeCompiler(BaseTrinoTypeCompiler):
+    def visit_FLOAT(self, type_, **kw):
+        """Make SQLAlchemy use 64-bit precision for floats."""
+
+        assert type_.precision is None
+        return self.visit_DOUBLE(type_, **kw)
+
+
 class TrinoDialect(BaseTrinoDialect):
     supports_statement_cache = True
     ddl_compiler = TrinoDDLCompiler
+    type_compiler = TrinoTypeCompiler
 
     # Tell SQLAlchemy it can used batched insert options for faster test setup
     supports_multivalues_insert = True
