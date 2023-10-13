@@ -247,6 +247,11 @@ def mssql_engine(request):
 
 
 @pytest.fixture
+def trino_engine(request):
+    return engine_factory(request, "trino")
+
+
+@pytest.fixture
 def in_memory_engine(request):
     return engine_factory(request, "in_memory")
 
