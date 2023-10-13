@@ -67,6 +67,20 @@ Experimental command for running assurance tests.
 Internal command for testing the database connection configuration.
 </p>
 
+<div class="attr-heading">
+  <a href="#serialize-definition"><tt>serialize-definition</tt></a>
+</div>
+<p class="indent">
+Internal command for serializing a definition file to a JSON representation.
+</p>
+
+<div class="attr-heading">
+  <a href="#isolation-report"><tt>isolation-report</tt></a>
+</div>
+<p class="indent">
+Internal command for testing code isolation support.
+</p>
+
 </div>
 
 <div class="attr-heading" id="ehrql.help">
@@ -589,5 +603,86 @@ Dotted import path to Backend class, or one of: `emis`, `tpp`
 </div>
 <div markdown="block" class="indent">
 Database connection string.
+
+</div>
+
+
+<h2 id="serialize-definition" data-toc-label="serialize-definition" markdown>
+  serialize-definition
+</h2>
+```
+ehrql serialize-definition DEFINITION_FILE [--help]
+      [--definition-type DEFINITION_TYPE] [--output OUTPUT_FILE]
+      [ -- ... PARAMETERS ...]
+```
+Internal command for serializing a definition file to a JSON representation.
+
+Note that **this in an internal command** and not intended for end users.
+
+<div class="attr-heading" id="serialize-definition.definition_file">
+  <tt>DEFINITION_FILE</tt>
+  <a class="headerlink" href="#serialize-definition.definition_file" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Definition file path
+
+</div>
+
+<div class="attr-heading" id="serialize-definition.help">
+  <tt>-h, --help</tt>
+  <a class="headerlink" href="#serialize-definition.help" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+show this help message and exit
+
+</div>
+
+<div class="attr-heading" id="serialize-definition.definition-type">
+  <tt>-t, --definition-type DEFINITION_TYPE</tt>
+  <a class="headerlink" href="#serialize-definition.definition-type" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Options: `dataset`, `measures`, `test`
+
+</div>
+
+<div class="attr-heading" id="serialize-definition.output">
+  <tt>-o, --output OUTPUT_FILE</tt>
+  <a class="headerlink" href="#serialize-definition.output" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Output file path (stdout by default)
+
+</div>
+
+<div class="attr-heading" id="serialize-definition.user_args">
+  <tt>PARAMETERS</tt>
+  <a class="headerlink" href="#serialize-definition.user_args" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Parameters are extra arguments you can pass to your Python definition file. They must be
+supplied after all ehrQL arguments and separated from the ehrQL arguments with a
+double-dash ` -- `.
+
+
+</div>
+
+
+<h2 id="isolation-report" data-toc-label="isolation-report" markdown>
+  isolation-report
+</h2>
+```
+ehrql isolation-report [--help]
+```
+Internal command for testing code isolation support.
+
+Note that **this in an internal command** and not intended for end users.
+
+<div class="attr-heading" id="isolation-report.help">
+  <tt>-h, --help</tt>
+  <a class="headerlink" href="#isolation-report.help" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+show this help message and exit
 
 </div>
