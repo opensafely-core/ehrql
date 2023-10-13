@@ -275,4 +275,8 @@ def ehrql_image(show_delayed_warning):
 
 @pytest.fixture
 def study(tmp_path, containers, ehrql_image):
+    # Because the files in these directories will need to be readable by low-privilege,
+    # isolated processes we can't use the standard restrictive permissions for temporary
+    # directories
+    tmp_path.chmod(0o755)
     return Study(tmp_path, containers, ehrql_image)
