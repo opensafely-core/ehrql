@@ -64,7 +64,7 @@ omit = [
 name = "ehrql"
 
 [tool.black]
-extend-exclude = "(tests/acceptance/external_studies/.*|tests/fixtures/bad_dataset_definitions/.*)"
+extend-exclude = "(tests/acceptance/external_studies/.*|tests/fixtures/bad_dataset_definitions/.*|docs/tutorial/example-study/.*)"
 
 [tool.pydocstyle]
 convention = "google"
