@@ -83,6 +83,7 @@ devenv: prodenv _virtualenv && _install-precommit
     test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
 
     $PIP install -r requirements.dev.txt
+    $PIP install --no-deps --editable .
     touch $VIRTUAL_ENV/.dev
 
 
