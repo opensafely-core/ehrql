@@ -142,6 +142,28 @@ def test_read_dataset_validates_categories(test_file):
         read_dataset(test_file, column_specs)
 
 
+def test_read_dataset_validates_categories_on_non_categorical_column(test_file):
+    # This tests that categories are validated even if an arrow column is not
+    # categorical. This is relevant if a user provides their own dummy dataset without
+    # making the columns categorical.
+
+    if test_file.suffix != ".arrow":
+        pytest.skip("only relevant for arrow files")
+
+    # Create a copy of the column specs with modified column categories
+    column_specs = TEST_FILE_SPECS.copy()
+    column_specs["s"] = ColumnSpec(str, categories=("X", "Y"))
+
+    error = (
+        "Unexpected categories in column 's'\n"
+        "  Categories: a, b\n"
+        "  Expected: X, Y"
+    )
+
+    with pytest.raises(ValidationError, match=error):
+        read_dataset(test_file, column_specs)
+
+
 def test_read_dataset_accepts_subset_of_expected_categories(test_file):
     # Create a copy of the column specs with an extra category on the categorical column
     # and the categories in a different order
