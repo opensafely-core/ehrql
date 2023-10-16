@@ -317,9 +317,9 @@ mkdocs-material-extensions==1.2 \
     --hash=sha256:27e2d1ed2d031426a6e10d5ea06989d67e90bb02acd588bc5673106b5ee5eedf \
     --hash=sha256:c767bd6d6305f6420a50f0b541b0c9966d52068839af97029be14443849fb8a1
     # via mkdocs-material
-mkdocs-table-reader-plugin==2.0.1 \
-    --hash=sha256:bfeb246a76c273c7745833be747e20b067abc3dafd720f658521ddf23b53cbf7 \
-    --hash=sha256:e1701a5df1fd64a6ea331b3ec5fae74de618086db89bfb03eb1d67517d435059
+mkdocs-table-reader-plugin==2.0.3 \
+    --hash=sha256:7d1abb3838ac2ab7b1a5a5cc7f40a4e966a77defa7a7ae1f2137efd185b96752 \
+    --hash=sha256:e14136a6103d43030215491ff0a6cdcf8f92a78c3bac32a509e4cf2b365ef529
     # via -r requirements.dev.in
 mypy-extensions==1.0.0 \
     --hash=sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d \
