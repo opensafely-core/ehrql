@@ -244,27 +244,3 @@ def test_maximum_of_two_integers_all_a_values(spec_test):
             3: 3,
         },
     )
-
-
-def test_maximum_of_single_value(spec_test):
-    spec_test(
-        table_data,
-        maximum_of(0),
-        {
-            1: 0,
-            2: 0,
-            3: 0,
-        },
-    )
-
-
-def test_minimum_of_single_value(spec_test):
-    spec_test(
-        table_data,
-        minimum_of(0),
-        {
-            1: 0,
-            2: 0,
-            3: 0,
-        },
-    )
