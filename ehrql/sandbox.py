@@ -5,6 +5,7 @@ import sys
 
 from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.query_language import BaseFrame, BaseSeries, Dataset
+from ehrql.utils.traceback_utils import get_trimmed_traceback
 
 
 def run(dummy_tables_path):
@@ -20,9 +21,17 @@ def run(dummy_tables_path):
     # Set up readline etc.
     sys.__interactivehook__()
 
+    # Set up exception handler to trim tracebacks
+    sys.excepthook = excepthook
+
     # Set up namespace for tab-completion.
     namespace = {}
     readline.set_completer(rlcompleter.Completer(namespace).complete)
 
     # Start running a Python REPL.
     code.interact(local=namespace)
+
+
+def excepthook(type_, exc, tb):
+    traceback = get_trimmed_traceback(exc, "<console>")
+    sys.stderr.write(traceback)
