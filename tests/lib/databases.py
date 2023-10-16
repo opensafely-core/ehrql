@@ -188,6 +188,7 @@ def run_mssql(container_name, containers, password, mssql_port):  # pragma: no c
             # Make all string comparisons case-sensitive across all databases
             "MSSQL_COLLATION": "SQL_Latin1_General_CP1_CS_AS",
         },
+        user="root",
         entrypoint="/mssql/entrypoint.sh",
         command="/opt/mssql/bin/sqlservr",
     )
@@ -274,6 +275,7 @@ def run_trino(container_name, containers, trino_port):  # pragma: no cover
         # Choose an arbitrary free port to publish the trino port on
         ports={trino_port: None},
         environment={},
+        user="root",
         entrypoint="/trino/entrypoint.sh",
         command="/usr/lib/trino/bin/run-trino",
     )

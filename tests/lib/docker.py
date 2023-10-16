@@ -1,3 +1,4 @@
+import os
 import sys
 
 import docker
@@ -57,4 +58,6 @@ class Containers:
             raise
 
     def _run(self, **kwargs):  # pragma: no cover
+        # Run as non-root by default to match production
+        kwargs.setdefault("user", os.getuid())
         return self._docker.containers.run(remove=True, **kwargs)
