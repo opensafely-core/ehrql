@@ -52,11 +52,6 @@ extra_css:
 watch:
   - docs
 
-plugins:
-  - table-reader:
-      base_path: "docs_dir"
-
-
 # WARNING!
 # This markdown_extensions config (with the exception of the snippets base_path) is duplicated
 # from the mkdocs.yml in the parent repo (https://github.com/opensafely/documentation) in order
