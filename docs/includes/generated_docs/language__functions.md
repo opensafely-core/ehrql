@@ -44,7 +44,7 @@ category = when(size < 15).then("small").otherwise("large")
 
 
 <h4 class="attr-heading" id="maximum_of" data-toc-label="maximum_of" markdown>
-  <tt><strong>maximum_of</strong>(<em>*args</em>)</tt>
+  <tt><strong>maximum_of</strong>(<em>value</em>, <em>other_value</em>, <em>*other_values</em>)</tt>
 </h4>
 <div markdown="block" class="indent">
 Return the maximum value of a collection of Series or Values, disregarding NULLs
@@ -58,7 +58,7 @@ latest_event_date = maximum_of(event_series_1.date, event_series_2.date, "2001-0
 
 
 <h4 class="attr-heading" id="minimum_of" data-toc-label="minimum_of" markdown>
-  <tt><strong>minimum_of</strong>(<em>*args</em>)</tt>
+  <tt><strong>minimum_of</strong>(<em>value</em>, <em>other_value</em>, <em>*other_values</em>)</tt>
 </h4>
 <div markdown="block" class="indent">
 Return the minimum value of a collection of Series or Values, disregarding NULLs
