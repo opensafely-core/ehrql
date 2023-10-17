@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import sys
@@ -10,6 +11,7 @@ from ehrql import assurance, sandbox
 from ehrql.dummy_data import DummyDataGenerator
 from ehrql.file_formats import read_dataset, write_dataset
 from ehrql.loaders import (
+    isolation_report,
     load_dataset_definition,
     load_definition_unsafe,
     load_measure_definitions,
@@ -321,3 +323,7 @@ def serialize_definition(
     )
     with open_output_file(output_file) as f:
         f.write(serialize(result))
+
+
+def run_isolation_report():
+    print(json.dumps(isolation_report(Path.cwd()), indent=4))

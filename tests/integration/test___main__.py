@@ -1,5 +1,6 @@
 import contextlib
 import json
+import sys
 import textwrap
 from pathlib import Path
 
@@ -101,6 +102,15 @@ def test_generate_dataset_disallows_reading_file_outside_working_directory(
     with pytest.raises(Exception) as e:
         main(["generate-dataset", str(dataset_file)])
     assert "is not contained within the directory" in str(e.value)
+
+
+@pytest.mark.skipif(
+    not sys.platform.startswith("linux"),
+    reason="Subprocess isolation only works on Linux",
+)
+def test_isolation_report(capsys):
+    main(["isolation-report"])
+    assert json.loads(capsys.readouterr().out)
 
 
 def test_all_query_engine_aliases_are_importable():

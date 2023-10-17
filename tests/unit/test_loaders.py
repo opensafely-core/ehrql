@@ -1,6 +1,4 @@
-import subprocess
 import sys
-import textwrap
 from functools import partial
 from pathlib import Path
 from types import SimpleNamespace
@@ -190,68 +188,26 @@ def test_load_definition_unsafe_raises_error_if_isolation_required():
 
 # Confirm that various things we can do in an ordinary subprocess are blocked in an
 # isolated subprocess
-@pytest.mark.parametrize(
-    "function,status",
-    [
-        (subprocess.run, "ALLOWED"),
-        (loaders.subprocess_run_isolated, "BLOCKED"),
-    ],
-)
 @pytest.mark.skipif(
     not sys.platform.startswith("linux"),
     reason="Subprocess isolation only works on Linux",
 )
-def test_subprocess_run_isolated(tmp_path, function, status):
+def test_isolation_report(tmp_path):
     assert loaders.isolation_is_supported()
-    # Attempt various sorts of action and print whether or not we were blocked
-    code = textwrap.dedent(
-        """\
-        import os, pathlib, socket, subprocess
-
-
-        print("Touch: ", end="")
-        try:
-            pathlib.Path(".").touch()
-            print("ALLOWED")
-        except PermissionError:
-            print("BLOCKED")
-
-        print("Open socket: ", end="")
-        try:
-            socket.create_connection(("192.0.2.0", 53), timeout=0.001)
-        except TimeoutError:
-            print("ALLOWED")
-        except PermissionError:
-            print("BLOCKED")
-
-        print("Exec: ", end="")
-        try:
-            subprocess.run(["/bin/true"])
-            print("ALLOWED")
-        except PermissionError:
-            print("BLOCKED")
-
-        print("Read env vars: ", end="")
-        try:
-            pathlib.Path(f"/proc/{os.getppid()}/environ").read_bytes()
-            print("ALLOWED")
-        except PermissionError:
-            print("BLOCKED")
-        """
-    )
-    result = function(
-        [sys.executable, "-c", code],
-        check=True,
-        text=True,
-        stdout=subprocess.PIPE,
-        cwd=tmp_path,
-    )
-    assert result.stdout == (
-        f"Touch: {status}\n"
-        f"Open socket: {status}\n"
-        f"Exec: {status}\n"
-        # Until we can assume "unveil" support we can't block the subprocess reading its
-        # parent's environment variables out of /proc; but we leave this test code in
-        # place in preparation.
-        f"Read env vars: ALLOWED\n"
-    )
+    assert loaders.isolation_report(tmp_path) == {
+        "subprocess.run": {
+            "touch": "ALLOWED",
+            "open_socket": "ALLOWED",
+            "exec": "ALLOWED",
+            "read_env_vars": "ALLOWED",
+        },
+        "subprocess_run_isolated": {
+            "touch": "BLOCKED",
+            "open_socket": "BLOCKED",
+            "exec": "BLOCKED",
+            # Until we can assume "unveil" support we can't block the subprocess reading
+            # its parent's environment variables out of /proc; but we leave this test
+            # code in place in preparation.
+            "read_env_vars": "ALLOWED",
+        },
+    }

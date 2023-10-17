@@ -18,6 +18,7 @@ from .main import (
     dump_example_data,
     generate_dataset,
     generate_measures,
+    run_isolation_report,
     run_sandbox,
     serialize_definition,
     test_connection,
@@ -130,6 +131,7 @@ def create_parser(user_args, environ):
     add_assure(subparsers, environ, user_args)
     add_test_connection(subparsers, environ, user_args)
     add_serialize_definition(subparsers, environ, user_args)
+    add_isolation_report(subparsers, environ, user_args)
 
     return parser
 
@@ -388,6 +390,21 @@ def add_serialize_definition(subparsers, environ, user_args):
         type=existing_python_file,
         metavar="definition_file",
     )
+
+
+def add_isolation_report(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "isolation-report",
+        help=strip_indent(
+            """
+            Internal command for testing code isolation support.
+
+            Note that **this in an internal command** and not intended for end users.
+            """
+        ),
+        formatter_class=RawTextHelpFormatter,
+    )
+    parser.set_defaults(function=run_isolation_report)
 
 
 def create_internal_argument_group(parser, environ):

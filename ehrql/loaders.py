@@ -4,6 +4,7 @@ import pathlib
 import subprocess
 import sys
 import tempfile
+import textwrap
 
 import ehrql
 from ehrql.measures import Measures
@@ -155,6 +156,65 @@ def isolation_is_required(environ):
             f"Invalid value {config!r} for EHRQL_ISOLATE_USER_CODE environment"
             f" variable, must be one of: default, always, never"
         )
+
+
+def isolation_report(cwd):
+    # Run a series of checks to confirm that certain operations which are ordinarily
+    # allowed in a subprocess are blocked in an isolated subprocess
+    return {
+        "subprocess.run": isolation_report_for_function(subprocess.run, cwd),
+        "subprocess_run_isolated": isolation_report_for_function(
+            subprocess_run_isolated, cwd
+        ),
+    }
+
+
+def isolation_report_for_function(run_function, cwd):
+    # Map operation names to a snippet of code which tests whether we have permission to
+    # perform that operation
+    operation_tests = {
+        "touch": "pathlib.Path('.').touch()",
+        "open_socket": (
+            "try:\n"
+            "    socket.create_connection(('192.0.2.0', 53), timeout=0.001)\n"
+            "except (ConnectionRefusedError, TimeoutError):\n"
+            "    pass"
+        ),
+        "exec": "subprocess.run(['/bin/true'])",
+        "read_env_vars": "pathlib.Path(f'/proc/{os.getppid()}/environ').read_bytes()",
+    }
+    # Compile the snippets into a test script
+    code_lines = [
+        "import os, pathlib, socket, subprocess",
+        *[
+            f"try:\n"
+            f"{textwrap.indent(test_code, prefix='    ')}\n"
+            f"except PermissionError:\n"
+            f"    print('{test_name}: BLOCKED')\n"
+            f"else:\n"
+            f"    print('{test_name}: ALLOWED')\n"
+            for test_name, test_code in operation_tests.items()
+        ],
+    ]
+    # Run the test script
+    result = run_function(
+        [sys.executable, "-c", "\n".join(code_lines)],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        cwd=cwd,
+        env={
+            # `pledge` requires this to be set
+            "TMPDIR": tempfile.gettempdir(),
+        },
+    )
+    # Parse out the results
+    return {
+        key: value
+        for key, _, value in [
+            line.partition(": ") for line in result.stdout.splitlines()
+        ]
+    }
 
 
 # The `_unsafe` functions below are so named because they import user-supplied code
