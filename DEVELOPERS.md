@@ -26,6 +26,7 @@ Tests are divided into the following categories.
    <dt>acceptance</dt><dd>tests which demonstrate how ehrQL is used and check compatibility with real studies</dd>
    <dt>integration</dt><dd>tests of detailed code logic that require a database</dd>
    <dt>docker</dt><dd>tests of the ehrQL docker image</dd>
+   <dt>docs</dt><dd>tests of the documentation examples</dd>
 </dl>
 
 Each category lives in its own directory (for example `tests/unit`) and has its own `just` command to run it (for
@@ -298,6 +299,52 @@ This command runs as a pre-commit hook and will fail if there are any changes to
 generated markdown files. It is a developer's responsibility to update the generated docs in
 their PR if required. There is also a CI step that will check that the documentation is up to
 date.
+
+### Testing dataset definitions included in the documentation
+
+All of the example tests can be run with:
+
+    just test-docs-examples
+
+* Examples to be tested run with `generate_dataset()`.
+* Dataset definitions may be included inline in Markdown files in `docs/`,
+  labelled as code blocks with the `ehrql` syntax,
+  or as Python `.py` files in `docs/`.
+
+#### Examples using `codelist_from_csv()`
+
+For testing examples,
+`codelist_from_csv()` is currently patched out to work without any CSV,
+nor are codelist codes validated.
+
+The function signature of `codelist_from_csv()` calls from examples *is* checked.
+
+This may be improved in future to make the testing more rigorous;
+see #1694.
+
+#### Inline code blocks (Markdown fences)
+
+Examples in the documentation Markdown source will be tested as part of the test suite
+if you place complete examples in a code block with the `ehrql` syntax label: `` ```ehrql ``
+
+This will still highlight the code as if it were Python.
+
+:warning: The `ehrql` syntax label is for inline and complete ehrQL blocks only.
+
+We use the SuperFences extension for extracting Markdown fences.
+Refer to the [SuperFences documentation](https://facelessuser.github.io/pymdown-extensions/extensions/superfences/#nested-fence-format) for more details of the fence format.
+
+#### Dataset definitions as included Python files
+
+Python files in the `docs/` directory are assumed to be working dataset definitions.
+
+They are also tested in the test suite.
+
+If included in the documentation using the snippet syntax,
+they must be used with a `python` syntax label.
+(If they were labelled as `ehrql`,
+the snippet line itself would be extracted from the Markdown,
+and treated as a dataset definition.)
 
 ### Updating the main OpenSAFELY documentation repository
 
