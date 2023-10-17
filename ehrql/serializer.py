@@ -13,6 +13,10 @@ from ehrql.query_model.table_schema import BaseConstraint, Column, TableSchema
 from ehrql.utils.module_utils import get_all_subclasses
 
 
+class SerializerError(Exception):
+    pass
+
+
 # Mapping of names to types for all types that we support serializing/deserializing
 TYPE_REGISTRY = {
     type_.__qualname__: type_
@@ -53,8 +57,8 @@ def serialize(value):
     return json.dumps(Marshaller.to_dict(value), indent=2)
 
 
-def deserialize(data):
-    return Unmarshaller.from_dict(json.loads(data))
+def deserialize(data, *, root_dir):
+    return Unmarshaller.from_dict(json.loads(data), root_dir=root_dir)
 
 
 class Marshaller:
@@ -191,13 +195,14 @@ class Unmarshaller:
     """
 
     @classmethod
-    def from_dict(cls, references):
-        unmarshaller = cls(references)
+    def from_dict(cls, references, *, root_dir):
+        unmarshaller = cls(references, root_dir=root_dir)
         return unmarshaller.unmarshal(references["value"])
 
-    def __init__(self, references):
+    def __init__(self, references, *, root_dir):
         self.references = references
         self.reference_cache = {}
+        self.root_dir = root_dir.resolve()
 
     @functools.singledispatchmethod
     def unmarshal(self, obj):
@@ -274,9 +279,18 @@ class Unmarshaller:
         attrs = {key: self.unmarshal(v) for key, v in value.items()}
         return type_(**attrs)
 
+    @unmarshal_for.register(pathlib.Path)
+    def unmarshal_for_path(self, type_, value):
+        path = type_(self.unmarshal(value))
+        if not path.resolve().is_relative_to(self.root_dir):
+            raise SerializerError(
+                f"Path {str(path)!r} is not contained within the directory"
+                f" {str(self.root_dir)!r}"
+            )
+        return path
+
     @unmarshal_for.register(Position)
     @unmarshal_for.register(BaseCode)
     @unmarshal_for.register(Value)
-    @unmarshal_for.register(pathlib.Path)
     def unmarshal_for_value(self, type_, value):
         return type_(self.unmarshal(value))

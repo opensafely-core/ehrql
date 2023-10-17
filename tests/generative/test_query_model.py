@@ -1,5 +1,6 @@
 import datetime
 import os
+from pathlib import Path
 
 import hypothesis as hyp
 import hypothesis.strategies as st
@@ -228,7 +229,7 @@ def run_dummy_data_test_without_error_handling(population, variable):
 def run_serializer_test(population, variable):
     # Test that the query correctly roundtrips through the serializer
     query = {"population": population, "v": variable}
-    assert query == deserialize(serialize(query))
+    assert query == deserialize(serialize(query), root_dir=Path.cwd())
 
 
 # META TESTS

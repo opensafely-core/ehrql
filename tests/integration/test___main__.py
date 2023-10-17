@@ -1,5 +1,6 @@
 import contextlib
 import json
+import textwrap
 from pathlib import Path
 
 import pytest
@@ -69,6 +70,37 @@ def test_serialize_definition(definition_type, definition_file, capsys):
     assert json.loads(stdout)
     # We shouldn't be producing any warnings or any other output
     assert stderr == ""
+
+
+def test_generate_dataset_disallows_reading_file_outside_working_directory(
+    tmp_path, monkeypatch, capsys
+):
+    csv_file = tmp_path / "file.csv"
+    csv_file.write_text("patient_id,i\n1,10\n2,20")
+
+    code = textwrap.dedent(
+        f"""\
+        from ehrql import create_dataset
+        from ehrql.tables import table_from_file, PatientFrame, Series
+
+        @table_from_file({str(csv_file)!r})
+        class test_table(PatientFrame):
+            i = Series(int)
+
+        dataset = create_dataset()
+        dataset.define_population(test_table.exists_for_patient())
+        dataset.configure_dummy_data(population_size=2)
+        dataset.i = test_table.i
+        """
+    )
+    dataset_file = tmp_path / "sub_dir" / "dataset_definition.py"
+    dataset_file.parent.mkdir(parents=True, exist_ok=True)
+    dataset_file.write_text(code)
+
+    monkeypatch.chdir(dataset_file.parent)
+    with pytest.raises(Exception) as e:
+        main(["generate-dataset", str(dataset_file)])
+    assert "is not contained within the directory" in str(e.value)
 
 
 def test_all_query_engine_aliases_are_importable():

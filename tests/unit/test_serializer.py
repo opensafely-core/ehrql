@@ -1,4 +1,5 @@
 import datetime
+from pathlib import Path
 
 import pytest
 
@@ -11,7 +12,7 @@ from ehrql.file_formats import (
 )
 from ehrql.query_language import BaseFrame, DummyDataConfig
 from ehrql.query_model.column_specs import ColumnSpec
-from ehrql.serializer import deserialize, serialize
+from ehrql.serializer import SerializerError, deserialize, serialize
 from ehrql.tables.beta.core import clinical_events, patients
 from ehrql.utils.module_utils import get_submodules
 
@@ -80,7 +81,7 @@ def get_all_tables():
     ],
 )
 def test_roundtrip(value):
-    assert value == deserialize(serialize(value))
+    assert value == deserialize(serialize(value), root_dir=Path.cwd())
 
 
 # Fixture which generates a dataset reader instance for every format we support
@@ -105,7 +106,14 @@ def dataset_reader(request, tmp_path):
 
 
 def test_roundtrip_dataset_readers(dataset_reader):
-    roundtripped = deserialize(serialize(dataset_reader))
+    parent_dir = dataset_reader.filename.parent
+    roundtripped = deserialize(serialize(dataset_reader), root_dir=parent_dir)
     assert roundtripped is not dataset_reader
     assert roundtripped == dataset_reader
     assert list(roundtripped) == list(dataset_reader)
+
+
+def test_dataset_readers_cannot_be_deserialized_outside_of_root_dir(dataset_reader):
+    serialized = serialize(dataset_reader)
+    with pytest.raises(SerializerError, match="is not contained within the directory"):
+        deserialize(serialized, root_dir=Path("/some/path"))
