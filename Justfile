@@ -60,7 +60,7 @@ requirements-dev *args: requirements-prod
 
 
 # ensure prod requirements installed and up to date
-prodenv: requirements-prod
+prodenv: _virtualenv
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -75,7 +75,7 @@ prodenv: requirements-prod
 # a killer feature over Makefiles.
 #
 # ensure dev requirements installed and up to date
-devenv: prodenv requirements-dev && _install-precommit
+devenv: prodenv _virtualenv && _install-precommit
     #!/usr/bin/env bash
     set -euo pipefail
 
