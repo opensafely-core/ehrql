@@ -1,10 +1,11 @@
 import datetime
 from io import StringIO
+from pathlib import Path
 
 import pytest
 
 from ehrql.file_formats.csv import (
-    CSVStreamDatasetReader,
+    BaseCSVDatasetReader,
     ValidationError,
     create_column_parser,
     write_dataset_csv_lines,
@@ -48,6 +49,16 @@ def test_write_dataset_csv_lines_params_are_exhaustive():
     assert set(types) == set(TYPE_MAP)
 
 
+# Allow testing CSV reader without needing a file on disk
+class StringIOCSVDatasetReader(BaseCSVDatasetReader):
+    def __init__(self, csv_data, column_specs):
+        self.csv_data = csv_data
+        super().__init__(Path("/dev/null"), column_specs)
+
+    def _open(self):
+        self._fileobj = StringIO(self.csv_data)
+
+
 @pytest.mark.parametrize(
     "csv,error",
     [
@@ -88,13 +99,12 @@ def test_read_dataset_csv_lines(csv, error):
         "patient_id": ColumnSpec(int, nullable=False),
         "age": ColumnSpec(int, nullable=True),
     }
-    csv_file = StringIO(csv)
 
     if error is None:
-        CSVStreamDatasetReader(csv_file, specs).close()
+        StringIOCSVDatasetReader(csv, specs).close()
     else:
         with pytest.raises(ValidationError, match=error):
-            CSVStreamDatasetReader(csv_file, specs)
+            StringIOCSVDatasetReader(csv, specs)
 
 
 @pytest.mark.parametrize(

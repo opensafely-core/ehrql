@@ -1,9 +1,16 @@
+import pathlib
+
+
 class ValidationError(Exception):
     pass
 
 
 class BaseDatasetReader:
     def __init__(self, filename, column_specs):
+        if not isinstance(filename, pathlib.Path):
+            raise ValidationError(
+                f"`filename` must be a pathlib.Path instance got: {filename!r}"
+            )
         self.filename = filename
         self.column_specs = column_specs
         self._open()
