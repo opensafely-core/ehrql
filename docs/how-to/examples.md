@@ -157,7 +157,7 @@ Ethnicity can be defined using a codelist. There are a lot of individual codes t
 ```python
 from ehrql import create_dataset
 from ehrql.tables.beta.core import clinical_events
-from ehrql.codes import codelist_from_csv
+from ehrql import codelist_from_csv
 
 dataset = create_dataset()
 
@@ -174,7 +174,7 @@ dataset.latest_ethnicity_code = (
     .last_for_patient()
     .snomedct_code
 )
-latest_ethnicity_group = latest_ethnicity_code.to_category(
+latest_ethnicity_group = dataset.latest_ethnicity_code.to_category(
     ethnicity_codelist
 )
 ```
