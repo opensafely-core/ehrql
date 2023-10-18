@@ -718,7 +718,7 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 ).where(
         clinical_events.date > "2022-07-01"
 ).where(
-        clinical_events.date < datetime.today()
+        clinical_events.date < date.today()
 ).exists_for_patient()
 
 ```
