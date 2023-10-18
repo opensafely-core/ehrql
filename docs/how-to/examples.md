@@ -361,9 +361,9 @@ cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.has_recent_cardiac_admission = hospital_admissions.where(
-        hospital_admissions.primary_diagnoses .is_in(cardiac_diagnosis_codes)
+        hospital_admissions.primary_diagnoses.is_in(cardiac_diagnosis_codes)
 ).where(
-        hospital_admissions.is_on_or_between("2022-07-01", "2023-01-01")
+        hospital_admissions.admission_date.is_on_or_between("2022-07-01", "2023-01-01")
 ).exists_for_patient()
 ```
 
