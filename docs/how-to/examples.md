@@ -593,11 +593,10 @@ first_asthma_diagnosis_date = clinical_events.where(
 ).first_for_patient().date
 dataset.first_asthma_diagnosis_date = first_asthma_diagnosis_date
 dataset.count_ics_prescriptions_2wks_post_diagnosis = medications.where(
-        medications.dmd_code.is_in(inhaled_corticosteroid_codelist
+        medications.dmd_code.is_in(inhaled_corticosteroid_codelist)
 ).where(
         medications.date.is_on_or_between(first_asthma_diagnosis_date,first_asthma_diagnosis_date + weeks(2))
-)
-
+).count_for_patient()
 ```
 
 ## Performing arithmetic on numeric values of clinical events
