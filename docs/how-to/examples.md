@@ -745,7 +745,7 @@ dataset.year_of_first = clinical_events.where(
 ### Finding prescriptions made in particular months of the year
 
 ```python
-from ehrql import create_dataset
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import medications
 
 amoxicillin_codelist = codelist_from_csv("XXX", column="YYY")
@@ -757,7 +757,7 @@ dataset.winter_amoxicillin_count = medications.where(
         medications.dmd_code.is_in(amoxicillin_codelist)
 ).where(
         medications.date.month.is_in(winter_months)
-)
+).count_for_patient()
 ```
 
 ### Finding the number of weeks between two events
