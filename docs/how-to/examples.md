@@ -237,25 +237,25 @@ The meaning of this value is as follows:
 
 ### Finding each patient's MSOA
 
-```python
+```ehrql
 from ehrql import create_dataset
 from ehrql.tables.beta.tpp import addresses
 
 dataset = create_dataset()
-dataset.msoa = addresses.for_patient_on("2023-01-01").msoa
+dataset.msoa_code = addresses.for_patient_on("2023-01-01").msoa_code
 ```
 
 ### Finding multiple attributes of each patient's address
 
-```python
+```ehrql
 from ehrql import create_dataset
 from ehrql.tables.beta.tpp import addresses
 
 dataset = create_dataset()
 address = addresses.for_patient_on("2023-01-01")
-dataset.imd = address.imd
+dataset.imd_rounded = address.imd_rounded
 dataset.rural_urban_classification = address.rural_urban_classification
-dataset.msoa = address.msoa
+dataset.msoa_code = address.msoa_code
 ```
 
 ## Finding attributes related to each patient's GP practice as of a given date
@@ -282,17 +282,17 @@ dataset.stp = practice_registrations.for_patient_on("2023-01-01").practice_stp
 
 ### Finding each patient's practice's region
 
-```python
+```ehrql
 from ehrql import create_dataset
 from ehrql.tables.beta.tpp import practice_registrations
 
 dataset = create_dataset()
-dataset.region = practice_registrations.for_patient_on("2023-01-01").nuts1_region_name
+dataset.region = practice_registrations.for_patient_on("2023-01-01").practice_nuts1_region_name
 ```
 
 ### Finding multiple attributes of each patient's practice
 
-```python
+```ehrql
 from ehrql import create_dataset
 from ehrql.tables.beta.tpp import practice_registrations
 
@@ -300,7 +300,7 @@ dataset = create_dataset()
 registration = practice_registrations.for_patient_on("2023-01-01")
 dataset.practice = registration.practice_pseudo_id
 dataset.stp = registration.practice_stp
-dataset.region = registration.nuts1_region_name
+dataset.region = registration.practice_nuts1_region_name
 ```
 
 ## Does each patient have an event matching some criteria?
