@@ -770,15 +770,15 @@ asthma_codelist = codelist_from_csv("XXX", column="YYY")
 asthma_review_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
-first_asthma_diagnosis = clinical_events.where(
+first_asthma_diagnosis_date = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
-).sort_by(clinical_events.date).first_for_patient()
+).sort_by(clinical_events.date).first_for_patient().date
 
-first_asthma_review = clinical_events.where(
+first_asthma_review_date = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_review_codelist)
 ).where(
-        clinical_events.date.is_on_or_after(first_asthma_diagnosis)
-).sort_by(clinical_events.date).first_for_patient()
+        clinical_events.date.is_on_or_after(first_asthma_diagnosis_date)
+).sort_by(clinical_events.date).first_for_patient().date
 
-dataset.weeks_between_diagnosis_and_review = (first_asthma_review - first_asthma_diagnosis).weeks
+dataset.weeks_between_diagnosis_and_review = (first_asthma_review_date - first_asthma_diagnosis_date).weeks
 ```
