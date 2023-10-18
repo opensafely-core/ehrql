@@ -1350,7 +1350,7 @@ def case(*when_thens, default=None):
 
 # HORIZONTAL AGGREGATION FUNCTIONS
 #
-def maximum_of(*args):
+def maximum_of(value, other_value, *other_values):
     """
     Return the maximum value of a collection of Series or Values, disregarding NULLs
 
@@ -1359,11 +1359,11 @@ def maximum_of(*args):
     latest_event_date = maximum_of(event_series_1.date, event_series_2.date, "2001-01-01")
     ```
     """
-    args = cast_all_arguments(args)
+    args = cast_all_arguments((value, other_value, *other_values))
     return _apply(qm.Function.MaximumOf, args)
 
 
-def minimum_of(*args):
+def minimum_of(value, other_value, *other_values):
     """
     Return the minimum value of a collection of Series or Values, disregarding NULLs
 
@@ -1372,5 +1372,5 @@ def minimum_of(*args):
     ealiest_event_date = minimum_of(event_series_1.date, event_series_2.date, "2001-01-01")
     ```
     """
-    args = cast_all_arguments(args)
+    args = cast_all_arguments((value, other_value, *other_values))
     return _apply(qm.Function.MinimumOf, args)

@@ -6,7 +6,7 @@ import sqlalchemy
 
 from ehrql import Dataset
 from ehrql.query_language import PatientFrame, Series, table_from_file, table_from_rows
-from ehrql.query_model.nodes import Value
+from ehrql.query_model.nodes import Function, Value
 from ehrql.tables.beta.core import clinical_events, patients
 
 
@@ -153,3 +153,40 @@ def test_cleans_up_temporary_tables(engine):
 def _get_tables(engine):
     inspector = sqlalchemy.inspect(engine.sqlalchemy_engine())
     return sorted(inspector.get_table_names())
+
+
+# Supplying only a single series to the min/max functions is valid in the query model so
+# Hypothesis will generate examples like this which we want to handle correctly. But we
+# deliberately make these unconstructable in ehrQL so we can't write standard spec tests
+# to cover them.
+@pytest.mark.parametrize(
+    "operation",
+    [
+        Function.MinimumOf,
+        Function.MaximumOf,
+    ],
+)
+def test_minimum_maximum_of_single_series(engine, operation):
+    engine.populate(
+        {
+            patients: [
+                dict(patient_id=1, date_of_birth=date(1980, 1, 1)),
+                dict(patient_id=2, date_of_birth=date(1990, 2, 2)),
+            ]
+        }
+    )
+
+    variables = dict(
+        population=as_query_model(patients.exists_for_patient()),
+        v=operation(
+            (as_query_model(patients.date_of_birth),),
+        ),
+    )
+    assert engine.extract_qm(variables) == [
+        {"patient_id": 1, "v": date(1980, 1, 1)},
+        {"patient_id": 2, "v": date(1990, 2, 2)},
+    ]
+
+
+def as_query_model(query_lang_expr):
+    return query_lang_expr._qm_node

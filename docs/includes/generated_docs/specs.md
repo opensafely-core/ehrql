@@ -1752,52 +1752,6 @@ returns the following patient series:
 
 
 
-#### 6.5.20 Maximum of single value
-
-This example makes use of a patient-level table named `p` containing the following data:
-
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
-
-```python
-maximum_of(0)
-```
-returns the following patient series:
-
-| patient | value |
-| - | - |
-| 1|0 |
-| 2|0 |
-| 3|0 |
-
-
-
-#### 6.5.21 Minimum of single value
-
-This example makes use of a patient-level table named `p` containing the following data:
-
-| patient|i1|i2|d1|d2|s1|s2|f1|f2 |
-| - | - | - | - | - | - | - | - | - |
-| 1|101|112|2001-01-01|2012-12-12|a|d|1.01|1.12 |
-| 2||211||2021-01-01||f||2.11 |
-| 3|||||||| |
-
-```python
-minimum_of(0)
-```
-returns the following patient series:
-
-| patient | value |
-| - | - |
-| 1|0 |
-| 2|0 |
-| 3|0 |
-
-
-
 ### 6.6 Minimum and maximum aggregations across Event series
 
 
