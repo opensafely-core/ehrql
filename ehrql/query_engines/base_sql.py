@@ -621,9 +621,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             sqlalchemy.Column(name, type_from_python_type(col_type))
             for name, col_type in column_types
         ]
-        return self.create_inline_patient_table(columns, node.rows)
+        return self.create_inline_table(columns, node.rows)
 
-    def create_inline_patient_table(self, columns, rows):
+    def create_inline_table(self, columns, rows):
         table_name = f"inline_data_{self.get_next_id()}"
         table = GeneratedTable(
             table_name,
