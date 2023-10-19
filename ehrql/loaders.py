@@ -95,7 +95,11 @@ def load_definition_in_subprocess(definition_type, definition_file, user_args, e
 
 
 def isolation_is_supported():
-    return subprocess.run([PLEDGE_BIN, "-T", "pledge"]).returncode == 0
+    try:
+        return subprocess.run([PLEDGE_BIN, "-T", "pledge"]).returncode == 0
+    except OSError:  # pragma: no cover
+        # Required for non-Linux platforms where we can't even execute the binary
+        return False
 
 
 def subprocess_run_isolated(args, **kwargs):
