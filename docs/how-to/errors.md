@@ -98,7 +98,6 @@ In this example: `you defined a variable '_age'`.
 
 :question: Can you find the part of this page that does explain this error?
 
-### Examples currently use the TPP backend
 
 ## Python syntax errors
 
