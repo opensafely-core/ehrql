@@ -808,8 +808,8 @@ an error - any default value given for a case statement must be of the same type
 #### Failing dataset definition :x:
 
 ```python
-from ehrql import create_dataset
-from ehrql.tables.beta.core import case, patients, when
+from ehrql import create_dataset, case, when
+from ehrql.tables.beta.core import patients
 
 dataset = create_dataset()
 
@@ -834,8 +834,8 @@ ehrql.query_model.nodes.TypeValidationError: Case.default requires 'ehrql.query_
 #### Fixed dataset definition :heavy_check_mark:
 
 ```python
-from ehrql import create_dataset
-from ehrql.tables.beta.core import case, patients, when
+from ehrql import create_dataset, case, when
+from ehrql.tables.beta.core import patients
 
 dataset = create_dataset()
 
