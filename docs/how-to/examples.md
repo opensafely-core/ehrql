@@ -7,7 +7,6 @@ Or you can use the navigation bar at the top-right of this page,
 to see a list of the examples,
 and then jump to a specific example of interest.
 
-### Examples in this page all use the TPP backend
 
 ### Some examples using `codelist_from_csv()`
 
@@ -51,7 +50,7 @@ You can see an example of [how to access these categories within your dataset de
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import patients
+from ehrql.tables.beta.core import patients
 
 dataset = create_dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -62,7 +61,7 @@ Alternatively, using a native Python `date`:
 ```python
 from datetime import date
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import patients
+from ehrql.tables.beta.core import patients
 
 dataset = create_dataset()
 dataset.age = patients.age_on(date(2023, 1, 1))
@@ -72,7 +71,7 @@ Or using an `index_date` variable:
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import patients
+from ehrql.tables.beta.core import patients
 
 index_date = "2023-01-01"
 dataset = create_dataset()
@@ -83,7 +82,7 @@ dataset.age = patients.age_on(index_date)
 
 ```python
 from ehrql import create_dataset, case, when
-from ehrql.tables.beta.tpp import patients
+from ehrql.tables.beta.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -101,7 +100,7 @@ dataset.age_band = case(
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import patients
+from ehrql.tables.beta.core import patients
 
 dataset = create_dataset()
 dataset.date_of_birth = patients.date_of_birth
@@ -111,7 +110,7 @@ dataset.date_of_birth = patients.date_of_birth
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import patients
+from ehrql.tables.beta.core import patients
 
 dataset = create_dataset()
 dataset.date_of_death = patients.date_of_death
@@ -128,7 +127,7 @@ By contrast, cause of death is often not accurate in the primary care record so 
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import ons_deaths
+from ehrql.tables.beta.core import ons_deaths
 
 dataset = create_dataset()
 last_ons_death = ons_deaths.sort_by(ons_deaths.date).last_for_patient()
@@ -143,7 +142,7 @@ dataset.cause_of_death = last_ons_death.cause_of_death_01
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import patients
+from ehrql.tables.beta.core import patients
 
 dataset = create_dataset()
 dataset.sex = patients.sex
@@ -310,7 +309,7 @@ dataset.region = registration.nuts1_region_name
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -324,7 +323,7 @@ dataset.has_had_asthma_diagnosis = clinical_events.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -340,7 +339,7 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import medications
+from ehrql.tables.beta.core import medications
 
 statin_medications = codelist_from_csv(XXX)
 
@@ -372,7 +371,7 @@ dataset.has_recent_cardiac_admission = hospital_admissions.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import medications
+from ehrql.tables.beta.core import medications
 
 statin_medications = codelist_from_csv(XXX)
 
@@ -393,7 +392,7 @@ Frames can be sorted by calling the `sort_by()` method with the column to sort t
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -409,7 +408,7 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -427,7 +426,7 @@ dataset.last_asthma_diagnosis_date = clinical_events.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import medications
+from ehrql.tables.beta.core import medications
 
 statin_medications = codelist_from_csv(XXX)
 
@@ -443,7 +442,7 @@ dataset.first_statin_prescription_date = medications.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import medications
+from ehrql.tables.beta.core import medications
 
 statin_medications = codelist_from_csv(XXX)
 
@@ -477,7 +476,7 @@ dataset.first_cardiac_hospitalisation_date = hospital_admissions.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import medications
+from ehrql.tables.beta.core import medications
 
 cardiac_diagnosis_codes = codelist_from_csv(XXX)
 
@@ -495,7 +494,7 @@ dataset.last_cardiac_hospitalisation_date = medications.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 hba1c_codelist = codelist_from_csv(XXX)
 
@@ -520,7 +519,7 @@ dataset.date_of_max_hba1c_observed = clinical_events.where(clinical_events.snome
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -538,7 +537,7 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -556,7 +555,7 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -579,7 +578,7 @@ dataset.first_asthma_diagnosis_date = first_asthma_diagnosis.date
 
 ```python
 from ehrql import create_dataset, codelist_from_csv, weeks
-from ehrql.tables.beta.tpp import clinical_events, medications
+from ehrql.tables.beta.core import clinical_events, medications
 
 asthma_codelist = codelist_from_csv(XXX)
 inhaled_corticosteroid_codelist = codelist_from_csv(XXX)
@@ -607,7 +606,7 @@ dataset.count_ics_prescriptions_2wks_post_diagnosis = medications.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 hba1c_codelist = codelist_from_csv(XXX)
 
@@ -623,7 +622,7 @@ dataset.mean_hba1c = clinical_events.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 hba1c_codelist = codelist_from_csv(XXX)
 
@@ -649,7 +648,7 @@ clinical_events.where(clinical_events.snomedct_code.is_in(hba1c_codelist)
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -665,7 +664,7 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv, weeks
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -683,7 +682,7 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv, months
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 diabetes_codelist = codelist_from_csv(XXX)
 hba1c_codelist = codelist_from_csv(XXX)
@@ -709,7 +708,7 @@ Data quality issues with many sources may result in events apparently happening 
 ```python
 from datetime import date
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -731,7 +730,7 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 ```python
 from datetime import date
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 
@@ -748,7 +747,7 @@ dataset.year_of_first = clinical_events.where(
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import medications
+from ehrql.tables.beta.core import medications
 
 amoxicillin_codelist = codelist_from_csv(XXX)
 
@@ -766,7 +765,7 @@ dataset.winter_amoxicillin_count = medications.where(
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.beta.core import clinical_events
 
 asthma_codelist = codelist_from_csv(XXX)
 asthma_review_codelist = codelist_from_csv(XXX)
