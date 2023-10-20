@@ -6,14 +6,14 @@ import ehrql.tables
 from ehrql.utils.module_utils import get_sibling_subclasses
 from ehrql.utils.string_utils import strip_indent
 
-from ..backends.base import BaseBackend
+from ..backends.base import SQLBackend
 
 
 SORT_ORDER = {k: i for i, k in enumerate(["TPP", "EMIS"])}
 
 
 def build_backends():
-    backend_classes = get_sibling_subclasses(BaseBackend)
+    backend_classes = get_sibling_subclasses(SQLBackend)
 
     backends = []
     for backend in backend_classes:

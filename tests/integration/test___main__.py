@@ -8,7 +8,7 @@ from ehrql.__main__ import (
     main,
     query_engine_from_id,
 )
-from ehrql.backends.base import BaseBackend
+from ehrql.backends.base import SQLBackend
 from ehrql.query_engines.base import BaseQueryEngine
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
@@ -64,7 +64,7 @@ def test_all_query_engines_have_an_alias():
 
 
 def test_all_backends_have_an_alias():
-    for cls in get_sibling_subclasses(BaseBackend):
+    for cls in get_sibling_subclasses(SQLBackend):
         name = f"{cls.__module__}.{cls.__name__}"
         assert name in BACKEND_ALIASES.values(), f"No alias defined for '{name}'"
 

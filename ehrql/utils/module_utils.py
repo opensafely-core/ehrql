@@ -8,7 +8,7 @@ def get_sibling_subclasses(cls):
     Return all subclasses of `cls` defined in modules which are siblings of the module
     containing `cls`
 
-    For example, sibling subclasses of the class `ehrql.backends.base.BaseBackend`
+    For example, sibling subclasses of the class `ehrql.backends.base.SQLBackend`
     include:
 
         ehrql.backends.tpp.TPPBackend

@@ -1,10 +1,10 @@
 import ehrql.tables.beta.core
 import ehrql.tables.beta.smoketest
-from ehrql.backends.base import BaseBackend, MappedTable
+from ehrql.backends.base import MappedTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
 
 
-class EMISBackend(BaseBackend):
+class EMISBackend(SQLBackend):
     """
     !!! warning
         Research access to the backend provided by EMIS is temporarily unavailable,

@@ -10,7 +10,7 @@ from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
 
-from ehrql.backends.base import DefaultBackend
+from ehrql.backends.base import DefaultSQLBackend
 from ehrql.query_model.nodes import (
     AggregateByPatient,
     Case,
@@ -57,7 +57,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.backend:
-            self.backend = DefaultBackend()
+            self.backend = DefaultSQLBackend()
         # Supporting generating globally unique names – the timestamp is not strictly
         # necessary but can help with debugging and manual cleanup
         self.global_unique_id = (
@@ -77,6 +77,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         needed to create these tables and clean them up can be retrieved by calling
         `get_setup_and_cleanup_queries` on the query object.
         """
+        variable_definitions = self.backend.modify_query_variables(variable_definitions)
         variable_definitions = apply_transforms(variable_definitions)
 
         # Generate a table containing the IDs all of patients matching the population
