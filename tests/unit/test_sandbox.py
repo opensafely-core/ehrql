@@ -1,6 +1,8 @@
+import re
 from io import StringIO
 from pathlib import Path
 
+import ehrql
 from ehrql.sandbox import run
 
 
@@ -66,3 +68,19 @@ def test_run_with_empty_dataset(capsys, monkeypatch):
     run(dummy_tables_path)
     captured = capsys.readouterr()
     assert captured.out == ">>> Dataset()\n>>> "
+
+
+def test_traceback_trimmed(capsys, monkeypatch):
+    monkeypatch.setattr(
+        "sys.stdin",
+        StringIO(
+            "from ehrql.tables.beta.tpp import patients\n"
+            "patients.date_of_birth == patients.sex"
+        ),
+    )
+    dummy_tables_path = Path(__file__).parents[1] / "fixtures" / "sandbox"
+    run(dummy_tables_path)
+    captured = capsys.readouterr()
+    # We shouldn't have any references to ehrql code in the traceback
+    ehrql_root = str(Path(ehrql.__file__).parent)
+    assert not re.search(re.escape(ehrql_root), captured.err)
