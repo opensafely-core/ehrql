@@ -31,6 +31,10 @@ from ehrql.tables.beta.tpp import (
     practice_registrations,
     sgss_covid_all_tests,
     vaccinations,
+    wl_clockstops,
+    wl_clockstops_raw,
+    wl_openpathways,
+    wl_openpathways_raw,
 )
 ```
 
@@ -2812,6 +2816,667 @@ return ordered_regs.last_for_patient()
   <dt id="vaccinations.product_name">
     <strong>product_name</strong>
     <a class="headerlink" href="#vaccinations.product_name" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## wl_clockstops
+
+National Waiting List Clock Stops
+
+This dataset contains all completed referral-to-treatment (RTT) pathways with a "clock stop" date between May 2021 and May 2022.
+Patients referred for non-emergency consultant-led treatment are on RTT pathways.
+The "clock start" date is the date of the first referral that starts the pathway.
+The "clock stop" date is when the patient either: receives treatment;
+declines treatment;
+enters a period of active monitoring;
+no longer requires treatment;
+or dies.
+The time spent waiting is the difference in these two dates.
+
+A patient may have multiple rows if they have multiple completed RTT pathways;
+however, there is only one row per unique pathway.
+Because referral identifiers aren't necessarily unique between hospitals,
+unique RTT pathways can be identified using a combination of:
+
+* `pseudo_organisation_code_patient_pathway_identifier_issuer`
+* `pseudo_patient_pathway_identifier`
+* `pseudo_referral_identifier`
+* `referral_to_treatment_period_start_date`
+
+For more information, see
+"[Consultant-led Referral to Treatment Waiting Times Rules and Guidance][wl_clockstops_1]".
+
+[wl_clockstops_1]: https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="wl_clockstops.activity_treatment_function_code">
+    <strong>activity_treatment_function_code</strong>
+    <a class="headerlink" href="#wl_clockstops.activity_treatment_function_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The treatment function
+
+ * Matches regular expression: `[a-zA-Z0-9]{3}`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops.priority_type_code">
+    <strong>priority_type_code</strong>
+    <a class="headerlink" href="#wl_clockstops.priority_type_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The priority type
+
+ * Possible values: `routine`, `urgent`, `two week wait`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops.pseudo_organisation_code_patient_pathway_identifier_issuer">
+    <strong>pseudo_organisation_code_patient_pathway_identifier_issuer</strong>
+    <a class="headerlink" href="#wl_clockstops.pseudo_organisation_code_patient_pathway_identifier_issuer" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops.pseudo_patient_pathway_identifier">
+    <strong>pseudo_patient_pathway_identifier</strong>
+    <a class="headerlink" href="#wl_clockstops.pseudo_patient_pathway_identifier" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops.pseudo_referral_identifier">
+    <strong>pseudo_referral_identifier</strong>
+    <a class="headerlink" href="#wl_clockstops.pseudo_referral_identifier" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops.referral_request_received_date">
+    <strong>referral_request_received_date</strong>
+    <a class="headerlink" href="#wl_clockstops.referral_request_received_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+The date the referral was received, for the referral that started the original pathway
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops.referral_to_treatment_period_end_date">
+    <strong>referral_to_treatment_period_end_date</strong>
+    <a class="headerlink" href="#wl_clockstops.referral_to_treatment_period_end_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Clock stop for the completed pathway
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops.referral_to_treatment_period_start_date">
+    <strong>referral_to_treatment_period_start_date</strong>
+    <a class="headerlink" href="#wl_clockstops.referral_to_treatment_period_start_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Clock start for the completed pathway
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops.source_of_referral_for_outpatients">
+    <strong>source_of_referral_for_outpatients</strong>
+    <a class="headerlink" href="#wl_clockstops.source_of_referral_for_outpatients" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops.waiting_list_type">
+    <strong>waiting_list_type</strong>
+    <a class="headerlink" href="#wl_clockstops.waiting_list_type" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The waiting list type on completion of the pathway
+
+ * Possible values: `ORTT`, `IRTT`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops.week_ending_date">
+    <strong>week_ending_date</strong>
+    <a class="headerlink" href="#wl_clockstops.week_ending_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+The Sunday of the week that the pathway relates to
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## wl_clockstops_raw
+
+National Waiting List Clock Stops
+
+Unlike [`wl_clockstops`](#wl_clockstops),
+the columns in this table have the same data types as the columns in [the associated
+database table][wl_clockstops_raw_1]. The three "pseudo" columns are small
+exceptions, as they are converted from binary columns to string columns.
+
+[wl_clockstops_raw_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#WL_ClockStops
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="wl_clockstops_raw.activity_treatment_function_code">
+    <strong>activity_treatment_function_code</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.activity_treatment_function_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops_raw.priority_type_code">
+    <strong>priority_type_code</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.priority_type_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops_raw.pseudo_organisation_code_patient_pathway_identifier_issuer">
+    <strong>pseudo_organisation_code_patient_pathway_identifier_issuer</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.pseudo_organisation_code_patient_pathway_identifier_issuer" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops_raw.pseudo_patient_pathway_identifier">
+    <strong>pseudo_patient_pathway_identifier</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.pseudo_patient_pathway_identifier" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops_raw.pseudo_referral_identifier">
+    <strong>pseudo_referral_identifier</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.pseudo_referral_identifier" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops_raw.referral_request_received_date">
+    <strong>referral_request_received_date</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.referral_request_received_date" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops_raw.referral_to_treatment_period_end_date">
+    <strong>referral_to_treatment_period_end_date</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.referral_to_treatment_period_end_date" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops_raw.referral_to_treatment_period_start_date">
+    <strong>referral_to_treatment_period_start_date</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.referral_to_treatment_period_start_date" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops_raw.source_of_referral_for_outpatients">
+    <strong>source_of_referral_for_outpatients</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.source_of_referral_for_outpatients" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops_raw.waiting_list_type">
+    <strong>waiting_list_type</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.waiting_list_type" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_clockstops_raw.week_ending_date">
+    <strong>week_ending_date</strong>
+    <a class="headerlink" href="#wl_clockstops_raw.week_ending_date" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## wl_openpathways
+
+National Waiting List Open Pathways
+
+This dataset contains all people on open (incomplete) RTT or not current RTT (non-RTT) pathways as of May 2022.
+It is a snapshot of everyone still awaiting treatment as of May 2022 (i.e., the clock hasn't stopped).
+Patients referred for non-emergency consultant-led treatment are on RTT pathways,
+while patients referred for non-consultant-led treatment are on non-RTT pathways.
+For each pathway, there is one row for every week that the patient is still waiting.
+Because referral identifiers aren't necessarily unique between hospitals,
+unique RTT pathways can be identified using a combination of:
+
+* `pseudo_organisation_code_patient_pathway_identifier_issuer`
+* `pseudo_patient_pathway_identifier`
+* `pseudo_referral_identifier`
+* `referral_to_treatment_period_start_date`
+
+
+For more information, see
+"[Consultant-led Referral to Treatment Waiting Times Rules and Guidance][wl_openpathways_1]".
+
+[wl_openpathways_1]: https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-guidance/
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="wl_openpathways.activity_treatment_function_code">
+    <strong>activity_treatment_function_code</strong>
+    <a class="headerlink" href="#wl_openpathways.activity_treatment_function_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The treatment function
+
+ * Matches regular expression: `[a-zA-Z0-9]{3}`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.current_pathway_period_start_date">
+    <strong>current_pathway_period_start_date</strong>
+    <a class="headerlink" href="#wl_openpathways.current_pathway_period_start_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Latest clock start for this pathway period
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.priority_type_code">
+    <strong>priority_type_code</strong>
+    <a class="headerlink" href="#wl_openpathways.priority_type_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+The priority type
+
+ * Possible values: `routine`, `urgent`, `two week wait`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.pseudo_organisation_code_patient_pathway_identifier_issuer">
+    <strong>pseudo_organisation_code_patient_pathway_identifier_issuer</strong>
+    <a class="headerlink" href="#wl_openpathways.pseudo_organisation_code_patient_pathway_identifier_issuer" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.pseudo_patient_pathway_identifier">
+    <strong>pseudo_patient_pathway_identifier</strong>
+    <a class="headerlink" href="#wl_openpathways.pseudo_patient_pathway_identifier" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.pseudo_referral_identifier">
+    <strong>pseudo_referral_identifier</strong>
+    <a class="headerlink" href="#wl_openpathways.pseudo_referral_identifier" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.referral_request_received_date">
+    <strong>referral_request_received_date</strong>
+    <a class="headerlink" href="#wl_openpathways.referral_request_received_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+The date the referral was received, for the referral that started the original pathway
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.referral_to_treatment_period_end_date">
+    <strong>referral_to_treatment_period_end_date</strong>
+    <a class="headerlink" href="#wl_openpathways.referral_to_treatment_period_end_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+If the pathway is open, then `NULL`
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.referral_to_treatment_period_start_date">
+    <strong>referral_to_treatment_period_start_date</strong>
+    <a class="headerlink" href="#wl_openpathways.referral_to_treatment_period_start_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Latest clock start for this pathway. If the pathway is not a current pathway, then `NULL`.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.source_of_referral">
+    <strong>source_of_referral</strong>
+    <a class="headerlink" href="#wl_openpathways.source_of_referral" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+National referral source code for the referral that created the original pathway
+
+ * Matches regular expression: `[a-zA-Z0-9]{2}`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.waiting_list_type">
+    <strong>waiting_list_type</strong>
+    <a class="headerlink" href="#wl_openpathways.waiting_list_type" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+ * Possible values: `ORTT`, `IRTT`, `ONON`, `INON`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways.week_ending_date">
+    <strong>week_ending_date</strong>
+    <a class="headerlink" href="#wl_openpathways.week_ending_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+The Sunday of the week that the pathway relates to
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## wl_openpathways_raw
+
+National Waiting List Open Pathways
+
+Unlike [`wl_openpathways`](#wl_openpathways),
+the columns in this table have the same data types as the columns in [the associated
+database table][wl_openpathways_raw_1]. The three "pseudo" columns are small
+exceptions, as they are converted from binary columns to string columns.
+
+[wl_openpathways_raw_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#WL_OpenPathways
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="wl_openpathways_raw.activity_treatment_function_code">
+    <strong>activity_treatment_function_code</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.activity_treatment_function_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.current_pathway_period_start_date">
+    <strong>current_pathway_period_start_date</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.current_pathway_period_start_date" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.priority_type_code">
+    <strong>priority_type_code</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.priority_type_code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.pseudo_organisation_code_patient_pathway_identifier_issuer">
+    <strong>pseudo_organisation_code_patient_pathway_identifier_issuer</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.pseudo_organisation_code_patient_pathway_identifier_issuer" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.pseudo_patient_pathway_identifier">
+    <strong>pseudo_patient_pathway_identifier</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.pseudo_patient_pathway_identifier" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.pseudo_referral_identifier">
+    <strong>pseudo_referral_identifier</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.pseudo_referral_identifier" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.referral_request_received_date">
+    <strong>referral_request_received_date</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.referral_request_received_date" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.referral_to_treatment_period_end_date">
+    <strong>referral_to_treatment_period_end_date</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.referral_to_treatment_period_end_date" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.referral_to_treatment_period_start_date">
+    <strong>referral_to_treatment_period_start_date</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.referral_to_treatment_period_start_date" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.source_of_referral">
+    <strong>source_of_referral</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.source_of_referral" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.waiting_list_type">
+    <strong>waiting_list_type</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.waiting_list_type" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="wl_openpathways_raw.week_ending_date">
+    <strong>week_ending_date</strong>
+    <a class="headerlink" href="#wl_openpathways_raw.week_ending_date" title="Permanent link">🔗</a>
     <code>string</code>
   </dt>
   <dd markdown="block">

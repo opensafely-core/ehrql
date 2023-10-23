@@ -535,3 +535,143 @@ class TPPBackend(SQLBackend):
             ON vax.VaccinationName_ID = ref.VaccinationName_ID
         """
     )
+
+    wl_clockstops_raw = QueryTable(
+        # columns passed to CONVERT are likely to contain sha256 hashes
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                ACTIVITY_TREATMENT_FUNCTION_CODE AS activity_treatment_function_code,
+                PRIORITY_TYPE_CODE AS priority_type_code,
+                CONVERT(
+                    varchar(max),
+                    PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER,
+                    2
+                ) AS pseudo_organisation_code_patient_pathway_identifier_issuer,
+                CONVERT(
+                    varchar(max),
+                    PSEUDO_PATIENT_PATHWAY_IDENTIFIER,
+                    2
+                ) AS pseudo_patient_pathway_identifier,
+                CONVERT(
+                    varchar(max),
+                    Pseudo_Referral_Identifier,
+                    2
+                ) AS pseudo_referral_identifier,
+                Referral_Request_Received_Date AS referral_request_received_date,
+                REFERRAL_TO_TREATMENT_PERIOD_END_DATE AS referral_to_treatment_period_end_date,
+                REFERRAL_TO_TREATMENT_PERIOD_START_DATE AS referral_to_treatment_period_start_date,
+                SOURCE_OF_REFERRAL_FOR_OUTPATIENTS AS source_of_referral_for_outpatients,
+                Waiting_List_Type AS waiting_list_type,
+                Week_Ending_Date AS week_ending_date
+            FROM WL_ClockStops
+        """
+    )
+
+    wl_clockstops = QueryTable(
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                ACTIVITY_TREATMENT_FUNCTION_CODE AS activity_treatment_function_code,
+                CASE PRIORITY_TYPE_CODE
+                    WHEN '1' THEN 'routine'
+                    WHEN '2' THEN 'urgent'
+                    WHEN '3' THEN 'two week wait'
+                END AS priority_type_code,
+                CONVERT(
+                    varchar(max),
+                    PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER,
+                    2
+                ) AS pseudo_organisation_code_patient_pathway_identifier_issuer,
+                CONVERT(
+                    varchar(max),
+                    PSEUDO_PATIENT_PATHWAY_IDENTIFIER,
+                    2
+                ) AS pseudo_patient_pathway_identifier,
+                CONVERT(
+                    varchar(max),
+                    Pseudo_Referral_Identifier,
+                    2
+                ) AS pseudo_referral_identifier,
+                CONVERT(DATE, Referral_Request_Received_Date, 23) AS referral_request_received_date,
+                CONVERT(DATE, REFERRAL_TO_TREATMENT_PERIOD_END_DATE, 23) AS referral_to_treatment_period_end_date,
+                CONVERT(DATE, REFERRAL_TO_TREATMENT_PERIOD_START_DATE, 23) AS referral_to_treatment_period_start_date,
+                SOURCE_OF_REFERRAL_FOR_OUTPATIENTS AS source_of_referral_for_outpatients,
+                NULLIF(Waiting_List_Type, 'NULL') AS waiting_list_type,
+                CONVERT(DATE, Week_Ending_Date, 23) AS week_ending_date
+            FROM WL_ClockStops
+        """
+    )
+
+    wl_openpathways_raw = QueryTable(
+        # columns passed to CONVERT are likely to contain sha256 hashes
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                ACTIVITY_TREATMENT_FUNCTION_CODE AS activity_treatment_function_code,
+                Current_Pathway_Period_Start_Date AS current_pathway_period_start_date,
+                PRIORITY_TYPE_CODE AS priority_type_code,
+                CONVERT(
+                    varchar(max),
+                    PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER,
+                    2
+                ) AS pseudo_organisation_code_patient_pathway_identifier_issuer,
+                CONVERT(
+                    varchar(max),
+                    PSEUDO_PATIENT_PATHWAY_IDENTIFIER,
+                    2
+                ) AS pseudo_patient_pathway_identifier,
+                CONVERT(
+                    varchar(max),
+                    Pseudo_Referral_Identifier,
+                    2
+                ) AS pseudo_referral_identifier,
+                REFERRAL_REQUEST_RECEIVED_DATE AS referral_request_received_date,
+                REFERRAL_TO_TREATMENT_PERIOD_END_DATE AS referral_to_treatment_period_end_date,
+                REFERRAL_TO_TREATMENT_PERIOD_START_DATE AS referral_to_treatment_period_start_date,
+                SOURCE_OF_REFERRAL AS source_of_referral,
+                Waiting_List_Type AS waiting_list_type,
+                Week_Ending_Date AS week_ending_date
+            FROM WL_OpenPathways
+        """
+    )
+
+    wl_openpathways = QueryTable(
+        """
+            SELECT
+                Patient_ID AS patient_id,
+                ACTIVITY_TREATMENT_FUNCTION_CODE AS activity_treatment_function_code,
+                CONVERT(DATE, Current_Pathway_Period_Start_Date, 23) AS current_pathway_period_start_date,
+                CASE PRIORITY_TYPE_CODE
+                    WHEN '1' THEN 'routine'
+                    WHEN '2' THEN 'urgent'
+                    WHEN '3' THEN 'two week wait'
+                END AS priority_type_code,
+                CONVERT(
+                    varchar(max),
+                    PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER,
+                    2
+                ) AS pseudo_organisation_code_patient_pathway_identifier_issuer,
+                CONVERT(
+                    varchar(max),
+                    PSEUDO_PATIENT_PATHWAY_IDENTIFIER,
+                    2
+                ) AS pseudo_patient_pathway_identifier,
+                CONVERT(
+                    varchar(max),
+                    Pseudo_Referral_Identifier,
+                    2
+                ) AS pseudo_referral_identifier,
+                CONVERT(DATE, REFERRAL_REQUEST_RECEIVED_DATE, 23) AS referral_request_received_date,
+                CONVERT(
+                    DATE,
+                    NULLIF(REFERRAL_TO_TREATMENT_PERIOD_END_DATE, '9999-12-31'),
+                    23
+                ) AS referral_to_treatment_period_end_date,
+                CONVERT(DATE, REFERRAL_TO_TREATMENT_PERIOD_START_DATE, 23) AS referral_to_treatment_period_start_date,
+                SOURCE_OF_REFERRAL AS source_of_referral,
+                NULLIF(Waiting_List_Type, 'NULL') AS waiting_list_type,
+                CONVERT(DATE, Week_Ending_Date, 23) AS week_ending_date
+            FROM WL_OpenPathways
+        """
+    )

@@ -1,3 +1,4 @@
+import hashlib
 from datetime import date
 
 import pytest
@@ -38,6 +39,8 @@ from tests.lib.tpp_schema import (
     SGSS_AllTests_Positive,
     Vaccination,
     VaccinationReference,
+    WL_ClockStops,
+    WL_OpenPathways,
 )
 
 
@@ -1259,6 +1262,174 @@ def test_vaccinations(select_all):
             "target_disease": "bar",
             "product_name": "baz",
         },
+    ]
+
+
+def sha256_digest(int_):
+    return hashlib.sha256(int_.to_bytes()).digest()
+
+
+def to_hex(bytes_):
+    return bytes_.hex().upper()
+
+
+@register_test_for(tpp.wl_clockstops_raw)
+def test_wl_clockstops_raw(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        WL_ClockStops(
+            Patient_ID=1,
+            ACTIVITY_TREATMENT_FUNCTION_CODE="110",
+            PRIORITY_TYPE_CODE="1",
+            PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER=sha256_digest(1),
+            PSEUDO_PATIENT_PATHWAY_IDENTIFIER=sha256_digest(1),
+            Pseudo_Referral_Identifier=sha256_digest(1),
+            Referral_Request_Received_Date="2023-02-01",
+            REFERRAL_TO_TREATMENT_PERIOD_END_DATE="2025-04-03",
+            REFERRAL_TO_TREATMENT_PERIOD_START_DATE="2024-03-02",
+            SOURCE_OF_REFERRAL_FOR_OUTPATIENTS="",
+            Waiting_List_Type="ORTT",
+            Week_Ending_Date="2024-03-03",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "activity_treatment_function_code": "110",
+            "priority_type_code": "1",
+            "pseudo_organisation_code_patient_pathway_identifier_issuer": to_hex(
+                sha256_digest(1)
+            ),
+            "pseudo_patient_pathway_identifier": to_hex(sha256_digest(1)),
+            "pseudo_referral_identifier": to_hex(sha256_digest(1)),
+            "referral_request_received_date": "2023-02-01",
+            "referral_to_treatment_period_end_date": "2025-04-03",
+            "referral_to_treatment_period_start_date": "2024-03-02",
+            "source_of_referral_for_outpatients": "",
+            "waiting_list_type": "ORTT",
+            "week_ending_date": "2024-03-03",
+        }
+    ]
+
+
+@register_test_for(tpp.wl_clockstops)
+def test_wl_clockstops(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        WL_ClockStops(
+            Patient_ID=1,
+            ACTIVITY_TREATMENT_FUNCTION_CODE="110",
+            PRIORITY_TYPE_CODE="1",
+            PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER=sha256_digest(1),
+            PSEUDO_PATIENT_PATHWAY_IDENTIFIER=sha256_digest(1),
+            Pseudo_Referral_Identifier=sha256_digest(1),
+            Referral_Request_Received_Date="2023-02-01",
+            REFERRAL_TO_TREATMENT_PERIOD_END_DATE="2025-04-03",
+            REFERRAL_TO_TREATMENT_PERIOD_START_DATE="2024-03-02",
+            SOURCE_OF_REFERRAL_FOR_OUTPATIENTS="",
+            Waiting_List_Type="ORTT",
+            Week_Ending_Date="2024-03-03",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "activity_treatment_function_code": "110",
+            "priority_type_code": "routine",
+            "pseudo_organisation_code_patient_pathway_identifier_issuer": to_hex(
+                sha256_digest(1)
+            ),
+            "pseudo_patient_pathway_identifier": to_hex(sha256_digest(1)),
+            "pseudo_referral_identifier": to_hex(sha256_digest(1)),
+            "referral_request_received_date": date(2023, 2, 1),
+            "referral_to_treatment_period_end_date": date(2025, 4, 3),
+            "referral_to_treatment_period_start_date": date(2024, 3, 2),
+            "source_of_referral_for_outpatients": "",
+            "waiting_list_type": "ORTT",
+            "week_ending_date": date(2024, 3, 3),
+        }
+    ]
+
+
+@register_test_for(tpp.wl_openpathways_raw)
+def test_wl_openpathways_raw(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        WL_OpenPathways(
+            Patient_ID=1,
+            ACTIVITY_TREATMENT_FUNCTION_CODE="110",
+            Current_Pathway_Period_Start_Date="2024-03-02",
+            PRIORITY_TYPE_CODE="2",
+            PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER=sha256_digest(1),
+            PSEUDO_PATIENT_PATHWAY_IDENTIFIER=sha256_digest(1),
+            Pseudo_Referral_Identifier=sha256_digest(1),
+            REFERRAL_REQUEST_RECEIVED_DATE="2023-02-01",
+            REFERRAL_TO_TREATMENT_PERIOD_END_DATE="9999-12-31",
+            REFERRAL_TO_TREATMENT_PERIOD_START_DATE="2024-03-02",
+            SOURCE_OF_REFERRAL="",
+            Waiting_List_Type="IRTT",
+            Week_Ending_Date="2024-03-03",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "activity_treatment_function_code": "110",
+            "current_pathway_period_start_date": "2024-03-02",
+            "priority_type_code": "2",
+            "pseudo_organisation_code_patient_pathway_identifier_issuer": to_hex(
+                sha256_digest(1)
+            ),
+            "pseudo_patient_pathway_identifier": to_hex(sha256_digest(1)),
+            "pseudo_referral_identifier": to_hex(sha256_digest(1)),
+            "referral_request_received_date": "2023-02-01",
+            "referral_to_treatment_period_end_date": "9999-12-31",
+            "referral_to_treatment_period_start_date": "2024-03-02",
+            "source_of_referral": "",
+            "waiting_list_type": "IRTT",
+            "week_ending_date": "2024-03-03",
+        }
+    ]
+
+
+@register_test_for(tpp.wl_openpathways)
+def test_wl_openpathways(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        WL_OpenPathways(
+            Patient_ID=1,
+            ACTIVITY_TREATMENT_FUNCTION_CODE="110",
+            Current_Pathway_Period_Start_Date="2024-03-02",
+            PRIORITY_TYPE_CODE="2",
+            PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER=sha256_digest(1),
+            PSEUDO_PATIENT_PATHWAY_IDENTIFIER=sha256_digest(1),
+            Pseudo_Referral_Identifier=sha256_digest(1),
+            REFERRAL_REQUEST_RECEIVED_DATE="2023-02-01",
+            REFERRAL_TO_TREATMENT_PERIOD_END_DATE="9999-12-31",
+            REFERRAL_TO_TREATMENT_PERIOD_START_DATE="2024-03-02",
+            SOURCE_OF_REFERRAL="",
+            Waiting_List_Type="IRTT",
+            Week_Ending_Date="2024-03-03",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "activity_treatment_function_code": "110",
+            "current_pathway_period_start_date": date(2024, 3, 2),
+            "priority_type_code": "urgent",
+            "pseudo_organisation_code_patient_pathway_identifier_issuer": to_hex(
+                sha256_digest(1)
+            ),
+            "pseudo_patient_pathway_identifier": to_hex(sha256_digest(1)),
+            "pseudo_referral_identifier": to_hex(sha256_digest(1)),
+            "referral_request_received_date": date(2023, 2, 1),
+            "referral_to_treatment_period_end_date": None,
+            "referral_to_treatment_period_start_date": date(2024, 3, 2),
+            "source_of_referral": "",
+            "waiting_list_type": "IRTT",
+            "week_ending_date": date(2024, 3, 3),
+        }
     ]
 
 
