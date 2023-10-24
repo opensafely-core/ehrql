@@ -48,6 +48,8 @@ from ehrql import create_dataset
 ```
 
 ??? tip "Import the `create_dataset` function"
+    Importing a function into the sandbox doesn't display any output.
+
     ```pycon
     >>> from ehrql import create_dataset
     ```
@@ -62,6 +64,8 @@ from ehrql.tables.beta.core import patients, medications
 ```
 
 ??? tip "Import the tables"
+    Importing tables into the sandbox doesn't display any output.
+
     ```pycon
     >>> from ehrql.tables.beta.core import patients, medications
     ```

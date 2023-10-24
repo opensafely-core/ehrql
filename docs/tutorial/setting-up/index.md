@@ -62,13 +62,13 @@ Towards the bottom of the codespace, you will see the terminal.
     so if you've used Git Bash before,
     then you'll find the codespace's default shell familiar.
 
-In the terminal, type:
+In the terminal, type
 
 ```
 opensafely exec ehrql:v0 --version
 ```
 
-And press ++enter++.
+and press ++enter++.
 
 ![A screenshot of VS Code, showing the terminal](the_terminal.png)
 
