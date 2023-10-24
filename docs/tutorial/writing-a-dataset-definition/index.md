@@ -23,15 +23,15 @@ dataset.asthma_med_code = latest_asthma_med.dmd_code
 
 ## Open the dataset definition
 
-1. Click *dataset_definition.py* in the **Explorer** towards the top left of the codespace
+1. Click `dataset_definition.py` in the Explorer towards the top left of the codespace
 
 ![A screenshot of VS Code, showing an empty dataset definition](empty_dataset_definition.png)
 
 For the remainder of this section,
-you should type the code into *dataset_definition.py*.
+you should type the code into `dataset_definition.py`.
 
 ??? tip "Interact with the code in the sandbox"
-    As well as typing the code into *dataset_definition.py*,
+    As well as typing the code into `dataset_definition.py`,
     you can interact with the code in the sandbox.
     Remember, when you see `>>>`,
     you should type the code that follows into the sandbox and press ++enter++.

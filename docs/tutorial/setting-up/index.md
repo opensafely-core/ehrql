@@ -3,7 +3,7 @@ In this section, you will set up everything you need to complete the tutorial.
 ## Prerequisites
 
 You should have a GitHub personal account.
-See the [*Signing up for a new GitHub account*][1] page in the GitHub docs.
+See the "[Signing up for a new GitHub account][1]" page in the GitHub docs.
 
 ## Create a new repository
 

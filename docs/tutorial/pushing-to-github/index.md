@@ -5,7 +5,7 @@ you will commit the dataset definition and push the commits to GitHub.
 
 1. Click the Source Control icon towards the left of the codespace
 
-1. Click the Stage Changes icon next to *dataset_definition.py*
+1. Click the Stage Changes icon next to `dataset_definition.py`
 
 1. Enter *Update the dataset definition* into the Message box
 

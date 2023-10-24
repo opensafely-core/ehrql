@@ -5,7 +5,7 @@ A *commit* records one or more changes to the repository.
 
 1. Click the Source Control icon towards the left of the codespace
 
-1. Click the Stage Changes icon next to *dataset_definition.py*
+1. Click the Stage Changes icon next to `dataset_definition.py`
 
 1. Enter *Add the dataset definition* into the Message box
 
