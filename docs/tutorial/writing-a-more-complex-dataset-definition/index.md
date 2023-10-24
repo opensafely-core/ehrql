@@ -1,7 +1,3 @@
-!!! info
-    If this is your first time through the tutorial,
-    then skip this section.
-
 In this section, you will write the following dataset definition.
 
 ```python
