@@ -20,7 +20,7 @@ The codelists are not provided as a part of these examples.
 For example, instead of:
 
 ```python
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 ```
 
 you will need a line more like:
@@ -157,7 +157,7 @@ Ethnicity can be defined using a codelist. There are a lot of individual codes t
 ```python
 from ehrql import create_dataset
 from ehrql.tables.beta.core import clinical_events
-from ehrql.codes import codelist_from_csv
+from ehrql import codelist_from_csv
 
 dataset = create_dataset()
 
@@ -174,7 +174,7 @@ dataset.latest_ethnicity_code = (
     .last_for_patient()
     .snomedct_code
 )
-latest_ethnicity_group = latest_ethnicity_code.to_category(
+latest_ethnicity_group = dataset.latest_ethnicity_code.to_category(
     ethnicity_codelist
 )
 ```
@@ -311,7 +311,7 @@ dataset.region = registration.nuts1_region_name
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.has_had_asthma_diagnosis = clinical_events.where(
@@ -325,7 +325,7 @@ dataset.has_had_asthma_diagnosis = clinical_events.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.has_recent_asthma_diagnosis = clinical_events.where(
@@ -341,7 +341,7 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import medications
 
-statin_medications = codelist_from_csv(XXX)
+statin_medications = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.has_recent_statin_prescription = medications.where(
@@ -357,13 +357,13 @@ dataset.has_recent_statin_prescription = medications.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import hospital_admissions
 
-cardiac_diagnosis_codes = codelist_from_csv(XXX)
+cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.has_recent_cardiac_admission = hospital_admissions.where(
-        hospital_admissions.primary_diagnoses .is_in(cardiac_diagnosis_codes)
+        hospital_admissions.primary_diagnoses.is_in(cardiac_diagnosis_codes)
 ).where(
-        hospital_admissions.is_on_or_between("2022-07-01", "2023-01-01")
+        hospital_admissions.admission_date.is_on_or_between("2022-07-01", "2023-01-01")
 ).exists_for_patient()
 ```
 
@@ -373,7 +373,7 @@ dataset.has_recent_cardiac_admission = hospital_admissions.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import medications
 
-statin_medications = codelist_from_csv(XXX)
+statin_medications = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.number_of_statin_prescriptions_in_last_year = medications.where(
@@ -394,7 +394,7 @@ Frames can be sorted by calling the `sort_by()` method with the column to sort t
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.first_asthma_diagnosis_date = clinical_events.where(
@@ -410,7 +410,7 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.last_asthma_diagnosis_date = clinical_events.where(
@@ -428,7 +428,7 @@ dataset.last_asthma_diagnosis_date = clinical_events.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import medications
 
-statin_medications = codelist_from_csv(XXX)
+statin_medications = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.first_statin_prescription_date = medications.where(
@@ -444,7 +444,7 @@ dataset.first_statin_prescription_date = medications.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import medications
 
-statin_medications = codelist_from_csv(XXX)
+statin_medications = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.last_statin_prescription_date = medications.where(
@@ -462,7 +462,7 @@ dataset.last_statin_prescription_date = medications.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.tpp import hospital_admissions
 
-cardiac_diagnosis_codes = codelist_from_csv(XXX)
+cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.first_cardiac_hospitalisation_date = hospital_admissions.where(
@@ -478,7 +478,7 @@ dataset.first_cardiac_hospitalisation_date = hospital_admissions.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import medications
 
-cardiac_diagnosis_codes = codelist_from_csv(XXX)
+cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.last_cardiac_hospitalisation_date = medications.where(
@@ -496,7 +496,7 @@ dataset.last_cardiac_hospitalisation_date = medications.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-hba1c_codelist = codelist_from_csv(XXX)
+hba1c_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 max_hba1c = clinical_events.where(
@@ -521,7 +521,7 @@ dataset.date_of_max_hba1c_observed = clinical_events.where(clinical_events.snome
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.first_asthma_diagnosis_date = clinical_events.where(
@@ -539,7 +539,7 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.first_asthma_diagnosis_date = clinical_events.where(
@@ -557,7 +557,7 @@ dataset.first_asthma_diagnosis_date = clinical_events.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 first_asthma_diagnosis = clinical_events.where(
@@ -580,8 +580,8 @@ dataset.first_asthma_diagnosis_date = first_asthma_diagnosis.date
 from ehrql import create_dataset, codelist_from_csv, weeks
 from ehrql.tables.beta.core import clinical_events, medications
 
-asthma_codelist = codelist_from_csv(XXX)
-inhaled_corticosteroid_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
+inhaled_corticosteroid_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 first_asthma_diagnosis_date = clinical_events.where(
@@ -593,11 +593,10 @@ first_asthma_diagnosis_date = clinical_events.where(
 ).first_for_patient().date
 dataset.first_asthma_diagnosis_date = first_asthma_diagnosis_date
 dataset.count_ics_prescriptions_2wks_post_diagnosis = medications.where(
-        medications.dmd_code.is_in(inhaled_corticosteroid_codelist
+        medications.dmd_code.is_in(inhaled_corticosteroid_codelist)
 ).where(
         medications.date.is_on_or_between(first_asthma_diagnosis_date,first_asthma_diagnosis_date + weeks(2))
-)
-
+).count_for_patient()
 ```
 
 ## Performing arithmetic on numeric values of clinical events
@@ -608,7 +607,7 @@ dataset.count_ics_prescriptions_2wks_post_diagnosis = medications.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-hba1c_codelist = codelist_from_csv(XXX)
+hba1c_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.mean_hba1c = clinical_events.where(
@@ -624,7 +623,7 @@ dataset.mean_hba1c = clinical_events.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-hba1c_codelist = codelist_from_csv(XXX)
+hba1c_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 mean_hba1c = clinical_events.where(
@@ -650,7 +649,7 @@ clinical_events.where(clinical_events.snomedct_code.is_in(hba1c_codelist)
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.has_recent_asthma_diagnosis = clinical_events.where(
@@ -666,7 +665,7 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 from ehrql import create_dataset, codelist_from_csv, weeks
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 index_date = "2022-07-01"
 
@@ -684,8 +683,8 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 from ehrql import create_dataset, codelist_from_csv, months
 from ehrql.tables.beta.core import clinical_events
 
-diabetes_codelist = codelist_from_csv(XXX)
-hba1c_codelist = codelist_from_csv(XXX)
+diabetes_codelist = codelist_from_csv("XXX", column="YYY")
+hba1c_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 first_diabetes_code_date = clinical_events.where(
@@ -710,7 +709,7 @@ from datetime import date
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.has_recent_asthma_diagnosis = clinical_events.where(
@@ -718,7 +717,7 @@ dataset.has_recent_asthma_diagnosis = clinical_events.where(
 ).where(
         clinical_events.date > "2022-07-01"
 ).where(
-        clinical_events.date < datetime.today()
+        clinical_events.date < date.today()
 ).exists_for_patient()
 
 ```
@@ -732,7 +731,7 @@ from datetime import date
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
 dataset.year_of_first = clinical_events.where(
@@ -746,10 +745,10 @@ dataset.year_of_first = clinical_events.where(
 ### Finding prescriptions made in particular months of the year
 
 ```python
-from ehrql import create_dataset
+from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import medications
 
-amoxicillin_codelist = codelist_from_csv(XXX)
+amoxicillin_codelist = codelist_from_csv("XXX", column="YYY")
 
 winter_months = [10,11,12,1,2,3]
 
@@ -758,7 +757,7 @@ dataset.winter_amoxicillin_count = medications.where(
         medications.dmd_code.is_in(amoxicillin_codelist)
 ).where(
         medications.date.month.is_in(winter_months)
-)
+).count_for_patient()
 ```
 
 ### Finding the number of weeks between two events
@@ -767,19 +766,19 @@ dataset.winter_amoxicillin_count = medications.where(
 from ehrql import create_dataset, codelist_from_csv
 from ehrql.tables.beta.core import clinical_events
 
-asthma_codelist = codelist_from_csv(XXX)
-asthma_review_codelist = codelist_from_csv(XXX)
+asthma_codelist = codelist_from_csv("XXX", column="YYY")
+asthma_review_codelist = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
-first_asthma_diagnosis = clinical_events.where(
+first_asthma_diagnosis_date = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_codelist)
-).sort_by(clinical_events.date).first_for_patient()
+).sort_by(clinical_events.date).first_for_patient().date
 
-first_asthma_review = clinical_events.where(
+first_asthma_review_date = clinical_events.where(
         clinical_events.snomedct_code.is_in(asthma_review_codelist)
 ).where(
-        clinical_events.date.is_on_or_after(first_asthma_diagnosis)
-).sort_by(clinical_events.date).first_for_patient()
+        clinical_events.date.is_on_or_after(first_asthma_diagnosis_date)
+).sort_by(clinical_events.date).first_for_patient().date
 
-dataset.weeks_between_diagnosis_and_review = (first_asthma_review - first_asthma_diagnosis).weeks
+dataset.weeks_between_diagnosis_and_review = (first_asthma_review_date - first_asthma_diagnosis_date).weeks
 ```
