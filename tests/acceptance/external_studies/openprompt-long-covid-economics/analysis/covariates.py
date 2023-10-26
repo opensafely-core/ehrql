@@ -38,6 +38,24 @@ registrations_number = practice_registrations \
     .sort_by(practice_registrations.start_date) \
     .count_for_patient()
 
+# Registration more than a year 
+registration_1y = practice_registrations \
+    .where(practice_registrations.start_date <= study_start_date - days(365))\
+    .except_where(practice_registrations.end_date <= study_start_date) \
+    .sort_by(practice_registrations.start_date).last_for_patient()
+
+registrations_number_1y = practice_registrations \
+    .where(practice_registrations.start_date <= study_start_date - days(365))\
+    .except_where(practice_registrations.end_date <= study_start_date) \
+    .sort_by(practice_registrations.start_date) \
+    .count_for_patient()
+
+# Had non zero GP visits in previous year:
+ever_visit_gp_1y = clinical_events.where(clinical_events.date >= (study_start_date - days(365))) \
+    .where(clinical_events.date <= study_start_date) \
+    .sort_by(clinical_events.date) \
+    .last_for_patient()# had ever visited a GP in the previous year 
+
 # long covid diagnoses
 lc_dx = clinical_events.where(clinical_events.snomedct_code.is_in(lc_codelists_combined)) \
     .where(clinical_events.date >= study_start_date) \
@@ -179,6 +197,7 @@ temporary_immune_suppress = clinical_ctv3_matches(clinical_events, codelists.tem
 
 # dataset = Dataset()
 # dataset.define_population((age>= 18) & (age <=100) & (registrations_number == 1))
+# dataset.reg_and_visit_gp_1y = registration_1y.exists_for_patient() & ever_visit_gp_1y.exists_for_patient() & (registrations_number_1y==1) 
 # dataset.ethnicity = ethnicity
 # dataset.imd = imd
 # dataset.bmi = bmi

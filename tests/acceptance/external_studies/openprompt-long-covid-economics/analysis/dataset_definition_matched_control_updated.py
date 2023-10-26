@@ -109,7 +109,7 @@ dataset.cov_hiv = hiv.exists_for_patient()
 dataset.cov_aplastic_anemia = aplastic_anemia.exists_for_patient()
 dataset.cov_permanent_immune_suppress = permanent_immune_suppress.exists_for_patient()
 dataset.cov_temporary_immune_suppress = temporary_immune_suppress.exists_for_patient()
-
+dataset.reg_and_visit_gp_1y = registration_1y.exists_for_patient() & ever_visit_gp_1y.exists_for_patient() & (registrations_number_1y==1)  
 
 # Add outcomes: healthcare utilisation by months
 # GP visit
