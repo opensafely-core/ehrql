@@ -174,7 +174,7 @@ dataset.latest_ethnicity_code = (
     .last_for_patient()
     .snomedct_code
 )
-latest_ethnicity_group = dataset.latest_ethnicity_code.to_category(
+dataset.latest_ethnicity_group = dataset.latest_ethnicity_code.to_category(
     ethnicity_codelist
 )
 ```
