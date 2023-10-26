@@ -8,6 +8,18 @@ to see a list of the examples,
 and then jump to a specific example of interest.
 
 
+## Understanding these examples
+
+### The populations defined with `define_population()`
+
+In each of these examples,
+we specify that the population is **all patients**
+via `dataset.define_population(patients.exists_for_patient())`.
+
+In practice,
+you will likely want to adapt an example to filter to a specific population of interest.
+Refer to the [`define_population()` documentation](https://docs.opensafely.org/ehrql/reference/language/#Dataset.define_population).
+
 ### Some examples using `codelist_from_csv()`
 
 :warning: Some examples refer to CSV codelists using the
