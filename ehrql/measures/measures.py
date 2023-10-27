@@ -31,7 +31,7 @@ columns in a measure. This allows these definitions to be written once and then 
 automatically evaluated over multiple different intervals. It can be used just like any
 pair of dates in ehrQL e.g.
 ```py
-clincial_events.date.is_during(INTERVAL)
+clinical_events.date.is_during(INTERVAL)
 ```
 """
 
