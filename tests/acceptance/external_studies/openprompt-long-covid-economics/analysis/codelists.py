@@ -176,65 +176,65 @@ vac_adm_combine_code = (
 
 drug_bnf_ch1_gi_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-1-gastro-intestinal-system-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch2_cv_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-2-cardiovascular-system-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch3_chest_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-3-respiratory-system-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch4_cns_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-4-central-nervous-system-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch5_inf_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-5-infections-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch6_meta_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-6-endocrine-system-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch7_gyn = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-7-obstetrics-gynaecology-and-urinary-tract-disorders-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch8_cancer_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-8-malignant-disease-and-immunosuppression-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch9_diet_blood_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-9-nutrition-and-blood-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch10_muscle_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-10-musculoskeletal-and-joint-diseases-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch11_eye_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-11-eye-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch12_ent_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-12-ear-nose-and-oropharynx-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
 
 drug_bnf_ch13_skin_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-13-skin-dmd.csv",
-    column="dmd_id"
+    column="code"
 )
