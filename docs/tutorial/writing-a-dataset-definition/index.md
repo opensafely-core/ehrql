@@ -1,8 +1,3 @@
-!!! info
-    If this is your second time through the tutorial,
-    then skip this section.
-    The next section has a more complex dataset definition.
-
 In this section, you will write the following dataset definition.
 It selects the date and the code of each patient's most recent asthma medication,
 for all patients born on or before 31 December 1999.
@@ -28,15 +23,15 @@ dataset.asthma_med_code = latest_asthma_med.dmd_code
 
 ## Open the dataset definition
 
-1. Click *dataset_definition.py* in the **Explorer** towards the top left of the codespace
+1. Click `dataset_definition.py` in the Explorer towards the top left of the codespace
 
 ![A screenshot of VS Code, showing an empty dataset definition](empty_dataset_definition.png)
 
 For the remainder of this section,
-you should type the code into *dataset_definition.py*.
+you should type the code into `dataset_definition.py`.
 
 ??? tip "Interact with the code in the sandbox"
-    As well as typing the code into *dataset_definition.py*,
+    As well as typing the code into `dataset_definition.py`,
     you can interact with the code in the sandbox.
     Remember, when you see `>>>`,
     you should type the code that follows into the sandbox and press ++enter++.
@@ -48,6 +43,8 @@ from ehrql import create_dataset
 ```
 
 ??? tip "Import the `create_dataset` function"
+    Importing a function into the sandbox doesn't display any output.
+
     ```pycon
     >>> from ehrql import create_dataset
     ```
@@ -62,6 +59,8 @@ from ehrql.tables.beta.core import patients, medications
 ```
 
 ??? tip "Import the tables"
+    Importing tables into the sandbox doesn't display any output.
+
     ```pycon
     >>> from ehrql.tables.beta.core import patients, medications
     ```

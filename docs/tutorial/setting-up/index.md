@@ -3,7 +3,7 @@ In this section, you will set up everything you need to complete the tutorial.
 ## Prerequisites
 
 You should have a GitHub personal account.
-See the [*Signing up for a new GitHub account*][1] page in the GitHub docs.
+See the "[Signing up for a new GitHub account][1]" page in the GitHub docs.
 
 ## Create a new repository
 
@@ -62,13 +62,13 @@ Towards the bottom of the codespace, you will see the terminal.
     so if you've used Git Bash before,
     then you'll find the codespace's default shell familiar.
 
-In the terminal, type:
+In the terminal, type
 
 ```
 opensafely exec ehrql:v0 --version
 ```
 
-And press ++enter++.
+and press ++enter++.
 
 ![A screenshot of VS Code, showing the terminal](the_terminal.png)
 
