@@ -322,9 +322,9 @@ def cost_apc_fn(dataset, from_date, num_months, end_date):
 # A&E monthly costs
 def cost_er_fn(dataset, from_date, num_months, end_date):
     mon_cost = ec_cost \
-        .where((ec_cost.ec_decision_to_admit_date >= from_date + days((num_months-1)*30)) &
-              (ec_cost.ec_decision_to_admit_date <  from_date + days(num_months*30)) &
-              (ec_cost.ec_decision_to_admit_date <=  end_date)).grand_total_payment_mff.sum_for_patient() 
+        .where((ec_cost.arrival_date  >= from_date + days((num_months-1)*30)) &
+              (ec_cost.arrival_date  <  from_date + days(num_months*30)) &
+              (ec_cost.arrival_date  <=  end_date)).grand_total_payment_mff.sum_for_patient() 
     setattr(dataset, f"er_cost_m{num_months}", mon_cost)    
 
 # outpatient hospital costs
