@@ -1,6 +1,4 @@
 import contextlib
-import sys
-import warnings
 from pathlib import Path
 
 import pytest
@@ -104,21 +102,6 @@ EXTERNAL_STUDIES = {
 STUDY_DIR = Path(__file__).parent / "external_studies"
 
 
-@contextlib.contextmanager
-def reset_module_namespace():
-    """
-    Studies often use the same names for modules (e.g. codelists.py, variables_lib.py)
-    Ensure that we clean up the module namespace after each external study test.
-    """
-    original_modules = set(sys.modules.keys())
-    try:
-        yield
-    finally:
-        new_modules = set(sys.modules.keys()) - original_modules
-        for key in new_modules:
-            del sys.modules[key]
-
-
 @pytest.mark.parametrize(
     "study_name,definition_file,load_function",
     [
@@ -139,19 +122,11 @@ def test_external_study(study_name, definition_file, load_function):
         user_args = []
     study_path = STUDY_DIR / study_name
     definition_path = study_path / definition_file
-    with contextlib.ExitStack() as stack:
-        # Studies often use project-relative paths so ensure these resolve correctly
-        stack.enter_context(contextlib.chdir(study_path))
-        # Studies often use the same names for modules (e.g. codelists.py,
-        # variables_lib.py) Ensure that we clean up the module namespace after each
-        # external study test.
-        stack.enter_context(reset_module_namespace())
-        # Usually we treat warnings as errors, but we want to ignore them in user code
-        stack.enter_context(warnings.catch_warnings())
-        warnings.simplefilter("ignore")
-        # Import the dataset or measure definition. This tests that we can construct a
+    # Studies often use project-relative paths so ensure these resolve correctly
+    with contextlib.chdir(study_path):
+        # Load the dataset or measure definition. This tests that we can construct a
         # valid query model graph from the definition. I think this is sufficient for
         # these tests which are intended to ensure we don't accidentally break the API.
         # If we're unable to execute a valid query, that's a separate class of problem
         # for which we need separate tests.
-        assert load_function(definition_path, user_args=user_args)
+        assert load_function(definition_path, user_args=user_args, environ={})

@@ -5,16 +5,10 @@ from unittest import mock
 import pytest
 
 from ehrql.main import (
-    CommandError,
     generate_dataset,
     get_query_engine,
-    load_dataset_definition,
-    load_measure_definitions,
     open_output_file,
 )
-
-
-FIXTURES = Path(__file__).parents[1] / "fixtures" / "bad_dataset_definitions"
 
 
 @dataclasses.dataclass
@@ -40,7 +34,7 @@ class DummyBackend:
 @pytest.fixture
 def mock_load_and_compile():
     m = "ehrql.main"
-    with mock.patch(f"{m}.load_dataset_definition"), mock.patch(f"{m}.compile"):
+    with mock.patch(f"{m}.load_dataset_definition", return_value=(None, None)):
         yield
 
 
@@ -49,10 +43,15 @@ def test_generate_dataset_dsn_arg(mock_load_and_compile):
         generate_dataset(
             Path("dataset_definition.py"),
             Path("results.csv"),
+            # Interesting argument
             dsn="sqlite://:memory:",
-            backend_class=DummyBackend,
-            query_engine_class=DummyQueryEngine,
-            environ={"FOO": "bar"},
+            # Defaults
+            backend_class=None,
+            query_engine_class=None,
+            dummy_tables_path=None,
+            dummy_data_file=None,
+            environ={},
+            user_args=(),
         )
         p.assert_called_once()
 
@@ -62,14 +61,33 @@ def test_generate_dataset_dummy_data_file_arg(mock_load_and_compile):
         generate_dataset(
             Path("dataset_definition.py"),
             Path("results.csv"),
+            # Interesting argument
             dummy_data_file="dummy-data.csv",
+            # Defaults
+            dsn=None,
+            backend_class=None,
+            query_engine_class=None,
+            dummy_tables_path=None,
+            environ={},
+            user_args=(),
         )
         p.assert_called_once()
 
 
 def test_generate_dataset_no_data_args(mock_load_and_compile):
     with mock.patch("ehrql.main.generate_dataset_with_dummy_data") as p:
-        generate_dataset(Path("dataset_definition.py"), Path("results.csv"))
+        generate_dataset(
+            Path("dataset_definition.py"),
+            Path("results.csv"),
+            # Defaults
+            dsn=None,
+            backend_class=None,
+            query_engine_class=None,
+            dummy_tables_path=None,
+            dummy_data_file=None,
+            environ={},
+            user_args=(),
+        )
         p.assert_called_once()
 
 
@@ -135,43 +153,3 @@ def test_open_output_file_with_stdout(capsys):
     with open_output_file(None) as f:
         f.write("hello")
     assert capsys.readouterr().out == "hello"
-
-
-def test_load_dataset_definition_no_dataset():
-    filename = FIXTURES / "no_dataset.py"
-    with pytest.raises(CommandError, match="Did not find a variable called 'dataset'"):
-        load_dataset_definition(filename, user_args=())
-
-
-def test_load_dataset_definition_not_a_dataset():
-    filename = FIXTURES / "not_a_dataset.py"
-    with pytest.raises(
-        CommandError, match=r"'dataset' must be an instance of .*\.Dataset"
-    ):
-        load_dataset_definition(filename, user_args=())
-
-
-def test_load_dataset_definition_no_population():
-    filename = FIXTURES / "no_population.py"
-    with pytest.raises(CommandError, match="A population has not been defined"):
-        load_dataset_definition(filename, user_args=())
-
-
-def test_load_measure_definitions_no_measures():
-    filename = FIXTURES / "no_measures.py"
-    with pytest.raises(CommandError, match="Did not find a variable called 'measures'"):
-        load_measure_definitions(filename, user_args=())
-
-
-def test_load_measure_definitions_not_measures_instance():
-    filename = FIXTURES / "not_measures_instance.py"
-    with pytest.raises(
-        CommandError, match=r"'measures' must be an instance of .*\.Measures"
-    ):
-        load_measure_definitions(filename, user_args=())
-
-
-def test_load_measure_definitions_empty_measures():
-    filename = FIXTURES / "empty_measures.py"
-    with pytest.raises(CommandError, match="No measures defined"):
-        load_measure_definitions(filename, user_args=())

@@ -64,7 +64,7 @@ omit = [
 name = "ehrql"
 
 [tool.black]
-extend-exclude = "(tests/acceptance/external_studies/.*|tests/fixtures/bad_dataset_definitions/.*|docs/tutorial/example-study/.*)"
+extend-exclude = "(tests/acceptance/external_studies/.*|tests/fixtures/bad_definition_files/.*|docs/tutorial/example-study/.*)"
 
 [tool.pydocstyle]
 convention = "google"
@@ -103,7 +103,7 @@ exclude = [
   "docs/",
   "htmlcov/",
   "tests/acceptance/external_studies/",
-  "tests/fixtures/bad_dataset_definitions",
+  "tests/fixtures/bad_definition_files",
   "venv/",
 ]
 extend-select = [

@@ -1,5 +1,6 @@
 import csv
 import gzip
+import os
 from pathlib import Path
 
 from pyarrow.feather import read_table
@@ -26,6 +27,11 @@ class Study:
             "DATABASE_URL": database.host_url() if database else "",
             "OPENSAFELY_BACKEND": backend,
         }
+        # Needed for running tests locally on non-Linux
+        pass_through_vars = ["EHRQL_ISOLATE_USER_CODE"]
+        for name in pass_through_vars:
+            if name in os.environ:  # pragma: no cover
+                env[name] = os.environ[name]
 
         main(
             self._generate_command(

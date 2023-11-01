@@ -8,17 +8,19 @@ from pathlib import Path
 
 from ehrql import __version__
 from ehrql.file_formats import FILE_FORMATS, get_file_extension
+from ehrql.loaders import DEFINITION_LOADERS, DefinitionError
 from ehrql.utils.string_utils import strip_indent
 
 from .main import (
-    CommandError,
     assure,
     create_dummy_tables,
     dump_dataset_sql,
     dump_example_data,
     generate_dataset,
     generate_measures,
+    run_isolation_report,
     run_sandbox,
+    serialize_definition,
     test_connection,
 )
 
@@ -88,7 +90,7 @@ def main(args, environ=None):
 
     try:
         function(**kwargs)
-    except CommandError as e:
+    except DefinitionError as e:
         print(str(e), file=sys.stderr)
         sys.exit(1)
     finally:
@@ -128,6 +130,8 @@ def create_parser(user_args, environ):
     add_create_dummy_tables(subparsers, environ, user_args)
     add_assure(subparsers, environ, user_args)
     add_test_connection(subparsers, environ, user_args)
+    add_serialize_definition(subparsers, environ, user_args)
+    add_isolation_report(subparsers, environ, user_args)
 
     return parser
 
@@ -226,6 +230,7 @@ def add_create_dummy_tables(subparsers, environ, user_args):
     )
     parser.set_defaults(function=create_dummy_tables)
     parser.set_defaults(user_args=user_args)
+    parser.set_defaults(environ=environ)
     add_dataset_definition_file_argument(parser, environ)
     parser.add_argument(
         "dummy_tables_path",
@@ -346,6 +351,60 @@ def add_dump_example_data(subparsers, environ, user_args):
     )
     parser.set_defaults(function=dump_example_data)
     parser.set_defaults(environ=environ)
+
+
+def add_serialize_definition(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "serialize-definition",
+        help=strip_indent(
+            """
+            Internal command for serializing a definition file to a JSON representation.
+
+            Note that **this in an internal command** and not intended for end users.
+            """
+        ),
+        formatter_class=RawTextHelpFormatter,
+    )
+    parser.set_defaults(function=serialize_definition)
+    parser.set_defaults(environ=environ)
+    parser.set_defaults(user_args=user_args)
+
+    parser.add_argument(
+        "-t",
+        "--definition-type",
+        type=str,
+        choices=DEFINITION_LOADERS.keys(),
+        default="dataset",
+        help=f"Options: {backtick_join(DEFINITION_LOADERS.keys())}",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        help=strip_indent("Output file path (stdout by default)"),
+        type=Path,
+        dest="output_file",
+    )
+    parser.add_argument(
+        "definition_file",
+        help="Definition file path",
+        type=existing_python_file,
+        metavar="definition_file",
+    )
+
+
+def add_isolation_report(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "isolation-report",
+        help=strip_indent(
+            """
+            Internal command for testing code isolation support.
+
+            Note that **this in an internal command** and not intended for end users.
+            """
+        ),
+        formatter_class=RawTextHelpFormatter,
+    )
+    parser.set_defaults(function=run_isolation_report)
 
 
 def create_internal_argument_group(parser, environ):

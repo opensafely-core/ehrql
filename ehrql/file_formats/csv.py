@@ -58,12 +58,7 @@ def format_bool(value):
     return "T" if value else "F"
 
 
-class CSVStreamDatasetReader(BaseDatasetReader):
-    def _open(self):
-        # Support supplying the file object directly as the first argument for testing
-        # purposes
-        self.fileobj = self.filename
-
+class BaseCSVDatasetReader(BaseDatasetReader):
     def _validate_basic(self):
         # CSV being what it is we can't properly validate the types it contains without
         # reading the entire thing, which we don't want do. So we read the first 10 rows
@@ -72,8 +67,8 @@ class CSVStreamDatasetReader(BaseDatasetReader):
             pass
 
     def __iter__(self):
-        self.fileobj.seek(0)
-        reader = csv.reader(self.fileobj)
+        self._fileobj.seek(0)
+        reader = csv.reader(self._fileobj)
         headers = next(reader)
         validate_columns(headers, self.column_specs.keys())
         row_parser = create_row_parser(headers, self.column_specs)
@@ -84,17 +79,17 @@ class CSVStreamDatasetReader(BaseDatasetReader):
                 raise ValidationError(f"row {n}: {e}")
 
     def close(self):
-        self.fileobj.close()
+        self._fileobj.close()
 
 
-class CSVDatasetReader(CSVStreamDatasetReader):
+class CSVDatasetReader(BaseCSVDatasetReader):
     def _open(self):
-        self.fileobj = open(self.filename, newline="")
+        self._fileobj = open(self.filename, newline="")
 
 
-class CSVGZDatasetReader(CSVStreamDatasetReader):
+class CSVGZDatasetReader(BaseCSVDatasetReader):
     def _open(self):
-        self.fileobj = gzip.open(self.filename, "rt", newline="")
+        self._fileobj = gzip.open(self.filename, "rt", newline="")
 
 
 def create_row_parser(headers, column_specs):

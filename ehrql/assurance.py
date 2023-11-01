@@ -1,6 +1,5 @@
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
-from ehrql.query_language import compile
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.utils.orm_utils import orm_classes_from_tables
 
@@ -10,8 +9,8 @@ UNEXPECTED_NOT_IN_POPULATION = "unexpected-not-in-population"
 UNEXPECTED_VALUE = "unexpected-value"
 
 
-def validate(dataset, test_data):
-    """Given some input data, validates that a dataset definition produces the given
+def validate(variable_definitions, test_data):
+    """Given some input data, validates that the given variables produce the given
     expected output.
 
     test_data contains two parts: data for each patient to be inserted into the
@@ -47,7 +46,6 @@ def validate(dataset, test_data):
     """
 
     # Create objects to insert into database
-    variable_definitions = compile(dataset)
     table_nodes = get_table_nodes(*variable_definitions.values())
     orm_classes = orm_classes_from_tables(table_nodes)
     input_data = []
