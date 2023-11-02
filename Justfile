@@ -264,3 +264,26 @@ docs-check-generated-docs-are-current: generate-docs
       git diff ./docs/includes/generated_docs/; git clean -n ./docs/includes/generated_docs/
       exit 1
     fi
+
+download-pledge:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    VERSION='3.0.1'
+    ZIP_URL="https://github.com/jart/cosmopolitan/releases/download/$VERSION/cosmos-$VERSION.zip"
+
+    if [[ "$(uname -s)" != "Linux" ]]; then
+      echo "This command can only be run on a Linux system because we need to"
+      echo " \"assimilate\" `pledge` to be a regular Linux executable"
+      exit 1
+    fi
+
+    TMP_FILE="$(mktemp)"
+    curl --location --output "$TMP_FILE" "$ZIP_URL"
+    unzip -j "$TMP_FILE" bin/pledge -d bin/
+    rm "$TMP_FILE"
+
+    # Rewrite the file header so it becomes a native Linux executable which we
+    # can run directly without needing a shell. See:
+    # https://justine.lol/apeloader/
+    bin/pledge --assimilate
