@@ -75,7 +75,6 @@ markdown_extensions:
       extend_pygments_lang:
         - name: ehrql
           lang: python
-  - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.keys
