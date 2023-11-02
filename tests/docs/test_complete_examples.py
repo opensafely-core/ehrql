@@ -1,9 +1,7 @@
 import csv
 import inspect
-import typing
 import unittest.mock
 import uuid
-from collections.abc import Generator, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -28,23 +26,18 @@ class MarkdownFenceExtractor:
     See https://facelessuser.github.io/pymdown-extensions/extensions/superfences/
     """
 
-    def __init__(self, content: str) -> None:
-        self.fences: list[MarkdownFence] = []
-        self.extension_configs: typing.Mapping[
-            str, typing.Any
-        ] = self._configure_superfences()
+    def __init__(self, content):
+        self.fences = []
+        self.extension_configs = self._configure_superfences()
         self._extract_fences(content)
 
     def _fence_null_format(
-        # Argument types are taken from mkdocs-code-validator,
-        # which has an MIT license,
-        # but they will be removed before merge.
         self,
-        src: str,
-        language: str,
-        css_class: str | None,
-        options: typing.Mapping[str, typing.Any],
-        md: markdown.Markdown,
+        src,
+        language,
+        css_class,
+        options,
+        md,
         **kwargs,
     ) -> str:
         """Extract the fences in the same way
@@ -80,7 +73,7 @@ class MarkdownFenceExtractor:
         ]
         return config["mdx_configs"]
 
-    def _extract_fences(self, content: str) -> None:
+    def _extract_fences(self, content):
         markdown.Markdown(
             extensions=["pymdownx.superfences"],
             extension_configs=self.extension_configs,
@@ -101,22 +94,20 @@ class DatasetDefinitionExample:
     fence_number: int | None
     source: str
 
-    def relative_path(self) -> Path:
+    def relative_path(self):
         """Return the relative path of the dataset definition source file
         to the source code root."""
         source_code_path = Path(__file__).parents[2]
         return self.path.relative_to(source_code_path)
 
 
-def discover_paths(glob_string: str) -> Generator[Path, None, None]:
+def discover_paths(glob_string):
     """Generate a list of matching files for a glob in the documentation source path."""
     docs_path = Path(__file__).parents[2] / "docs"
     return docs_path.glob(glob_string)
 
 
-def find_complete_ehrql_examples_in_markdown(
-    file: typing.TextIO,
-) -> Iterator[DatasetDefinitionExample]:
+def find_complete_ehrql_examples_in_markdown(file):
     """Yields extracted code blocks labelled as ```ehrql from a Markdown file.
 
     Incomplete ehrQL dataset definitions should be labelled as ```python,
@@ -133,9 +124,7 @@ def find_complete_ehrql_examples_in_markdown(
             yield example
 
 
-def generate_complete_ehrql_examples() -> (
-    Generator[DatasetDefinitionExample, None, None]
-):
+def generate_complete_ehrql_examples():
     """Yields all complete ehrQL DatasetDefinitionExamples from the Markdown documentation."""
     markdown_paths = list(discover_paths("**/*.md"))
     assert len(markdown_paths) > 0, "No Markdown files found"
@@ -158,7 +147,7 @@ def generate_complete_ehrql_examples() -> (
         )
 
 
-def create_example_test_case_id(example: DatasetDefinitionExample) -> str:
+def create_example_test_case_id(example):
     """Returns a test case ID for pytest from a specific DatasetDefinitionExample."""
     test_id = f"{example.relative_path()}"
     if example.fence_number is not None:
@@ -166,7 +155,7 @@ def create_example_test_case_id(example: DatasetDefinitionExample) -> str:
     return test_id
 
 
-def validate_dataset_output(dataset_path: Path) -> None:
+def validate_dataset_output(dataset_path):
     """Validates that an output dataset file is a CSV."""
     with open(dataset_path) as f:
         csv_content = f.readlines()
@@ -189,9 +178,7 @@ class DatasetDefinitionTestError(Exception):
     generate_complete_ehrql_examples(),
     ids=create_example_test_case_id,
 )
-def test_ehrql_generate_dataset_example(
-    tmp_path: Path, example: DatasetDefinitionExample
-) -> None:
+def test_ehrql_generate_dataset_example(tmp_path, example):
     tmp_filename_base = str(uuid.uuid4())
 
     tmp_dataset_definition_path = tmp_path / (tmp_filename_base + ".py")
