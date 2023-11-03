@@ -9,12 +9,12 @@ from ehrql.backends.tpp import TPPBackend
         (
             "mssql://user:pass@localhost:4321/db",
             "mssql://user:pass@localhost:4321/db",
-            True,
+            False,
         ),
         (
             "mssql://user:pass@localhost:4321/db?param1=one&param2&param1=three",
             "mssql://user:pass@localhost:4321/db?param1=one&param1=three&param2=",
-            True,
+            False,
         ),
         (
             "mssql://user:pass@localhost:4321/db?opensafely_include_t1oo&param2=two",
