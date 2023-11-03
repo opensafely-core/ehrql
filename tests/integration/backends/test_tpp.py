@@ -4,8 +4,9 @@ from datetime import date
 import pytest
 import sqlalchemy
 
+from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
-from ehrql.query_language import BaseFrame
+from ehrql.query_language import BaseFrame, compile
 from ehrql.tables.beta import tpp
 from tests.lib.tpp_schema import (
     APCS,
@@ -33,6 +34,7 @@ from tests.lib.tpp_schema import (
     Organisation,
     Patient,
     PatientAddress,
+    PatientsWithTypeOneDissent,
     PotentialCareHomeAddress,
     RegistrationHistory,
     SGSS_AllTests_Negative,
@@ -1438,3 +1440,48 @@ def test_registered_tests_are_exhaustive():
         if not isinstance(table, BaseFrame):
             continue
         assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"
+
+
+@pytest.mark.parametrize(
+    "suffix,expected",
+    [
+        (
+            "?opensafely_include_t1oo=false",
+            [
+                (1, 2001),
+                (4, 2004),
+            ],
+        ),
+        (
+            "?opensafely_include_t1oo=true",
+            [
+                (1, 2001),
+                (2, 2002),
+                (3, 2003),
+                (4, 2004),
+            ],
+        ),
+    ],
+)
+def test_t1oo_patients_excluded_as_specified(mssql_database, suffix, expected):
+    mssql_database.setup(
+        Patient(Patient_ID=1, DateOfBirth=date(2001, 1, 1)),
+        Patient(Patient_ID=2, DateOfBirth=date(2002, 1, 1)),
+        Patient(Patient_ID=3, DateOfBirth=date(2003, 1, 1)),
+        Patient(Patient_ID=4, DateOfBirth=date(2004, 1, 1)),
+        PatientsWithTypeOneDissent(Patient_ID=2),
+        PatientsWithTypeOneDissent(Patient_ID=3),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(tpp.patients.date_of_birth.is_not_null())
+    dataset.birth_year = tpp.patients.date_of_birth.year
+
+    backend = TPPBackend()
+    query_engine = backend.query_engine_class(
+        mssql_database.host_url() + suffix,
+        backend=backend,
+    )
+    results = query_engine.get_results(compile(dataset))
+
+    assert list(results) == expected
