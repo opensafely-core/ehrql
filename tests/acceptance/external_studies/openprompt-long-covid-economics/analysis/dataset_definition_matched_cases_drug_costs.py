@@ -47,6 +47,21 @@ dataset.end_lc_cure = matched_cases.end_lc_cure
 dataset.end_date = minimum_of(dataset.end_death, dataset.end_deregist, dataset.end_lc_cure, study_end_date)
 dataset.exposure = matched_cases.exposure
 
+# Add visits for any prescriptions:
+total_drug_visit(dataset, dataset.index_date, num_months=1, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=2, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=3, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=4, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=5, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=6, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=7, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=8, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=9, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=10, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=11, end_date=dataset.end_date)
+total_drug_visit(dataset, dataset.index_date, num_months=12, end_date=dataset.end_date)
+
+
 # Add drug prescription frequencies by BNF chapters 
 # drugs: bnf ch1 : gi drugs
 drug_1gi_number(dataset, dataset.index_date, num_months=1, end_date=dataset.end_date)

@@ -238,3 +238,19 @@ drug_bnf_ch13_skin_dmd = codelist_from_csv(
     "codelists/user-kate-mansfield-bnf-13-skin-dmd.csv",
     column="code"
 )
+
+total_drugs_dmd = (
+    drug_bnf_ch1_gi_dmd
+    + drug_bnf_ch2_cv_dmd
+    + drug_bnf_ch3_chest_dmd
+    + drug_bnf_ch4_cns_dmd
+    + drug_bnf_ch5_inf_dmd
+    + drug_bnf_ch6_meta_dmd
+    + drug_bnf_ch7_gyn
+    + drug_bnf_ch8_cancer_dmd
+    + drug_bnf_ch9_diet_blood_dmd
+    + drug_bnf_ch10_muscle_dmd
+    + drug_bnf_ch11_eye_dmd
+    + drug_bnf_ch12_ent_dmd
+    + drug_bnf_ch13_skin_dmd
+)
