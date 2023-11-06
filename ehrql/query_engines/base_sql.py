@@ -57,7 +57,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.backend:
-            self.backend = DefaultSQLBackend()
+            self.backend = DefaultSQLBackend(self.__class__)
         # Supporting generating globally unique names – the timestamp is not strictly
         # necessary but can help with debugging and manual cleanup
         self.global_unique_id = (
@@ -618,7 +618,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # included in the schema
         column_types = [("patient_id", int)] + node.schema.column_types
         columns = [
-            sqlalchemy.Column(name, type_from_python_type(col_type))
+            sqlalchemy.Column(name, **self.column_kwargs_for_type(col_type))
             for name, col_type in column_types
         ]
         return self.create_inline_table(columns, node.rows)
@@ -637,6 +637,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             sqlalchemy.schema.CreateIndex(sqlalchemy.Index(None, table.c[0])),
         ]
         return table
+
+    @classmethod
+    def column_kwargs_for_type(cls, type_):
+        """
+        Given a Python type return the arguments needed to configure the corresponding
+        SQLAlchemy `Column`
+
+        By default, this is just the `type_` argument but subclasses may need to do
+        something more sophisticated here.
+        """
+        return {"type_": type_from_python_type(type_)()}
 
     def reify_query(self, query):
         """

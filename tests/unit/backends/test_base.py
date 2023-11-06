@@ -104,7 +104,8 @@ def test_query_table_from_function_sql():
 
 
 def test_default_backend_sql():
-    table = DefaultSQLBackend().get_table_expression(
+    backend = DefaultSQLBackend(query_engine_class=BaseSQLQueryEngine)
+    table = backend.get_table_expression(
         "some_table", TableSchema(i=Column(int), b=Column(bool))
     )
     sql = str(sqlalchemy.select(table.c.patient_id, table.c.i, table.c.b))
