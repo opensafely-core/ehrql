@@ -139,13 +139,6 @@ def apply_schema_modifications(by_table):
         collation="Latin1_General_CI_AS",
     )
 
-    # TODO: We're waiting for the updated schema to be published which should include
-    # this table
-    assert "PatientsWithTypeOneDissent" not in by_table
-    by_table["PatientsWithTypeOneDissent"] = [
-        {"ColumnName": "Patient_ID", "ColumnType": "bigint"},
-    ]
-
 
 def write_schema(lines):
     lines[:0] = [HEADER.strip()]
