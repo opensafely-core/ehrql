@@ -204,7 +204,9 @@ coverage[toml]==7.3.2 \
     --hash=sha256:f94b734214ea6a36fe16e96a70d941af80ff3bfd716c141300d95ebc85339738 \
     --hash=sha256:fa28e909776dc69efb6ed975a63691bc8172b64ff357e663a1bb06ff3c9b589a \
     --hash=sha256:fe494faa90ce6381770746077243231e0b83ff3f17069d748f645617cefe19d4
-    # via pytest-cov
+    # via
+    #   coverage
+    #   pytest-cov
 distlib==0.3.7 \
     --hash=sha256:2e24928bc811348f0feb63014e97aaae3037f2cf48712d51ae61df7fd6075057 \
     --hash=sha256:9dafe54b34a028eafd95039d5e5d4851a13734540f1331060d31c9916e7147a8
@@ -330,9 +332,9 @@ mkdocs==1.5.3 \
     # via
     #   -r requirements.dev.in
     #   mkdocs-material
-mkdocs-material==9.4.7 \
-    --hash=sha256:4d698d52bb6a6a3c452ab854481c4cdb68453a0420956a6aee2de55fe15fe610 \
-    --hash=sha256:e704e001c9ef17291e1d3462c202425217601653e18f68f85d28eff4690e662b
+mkdocs-material==9.4.8 \
+    --hash=sha256:8b20f6851bddeef37dced903893cd176cf13a21a482e97705a103c45f06ce9b9 \
+    --hash=sha256:f0c101453e8bc12b040e8b64ca39a405d950d8402609b1378cc2b98976e74b5f
     # via -r requirements.dev.in
 mkdocs-material-extensions==1.3 \
     --hash=sha256:0297cc48ba68a9fdd1ef3780a3b41b534b0d0df1d1181a44676fda5f464eeadc \
