@@ -1,3 +1,4 @@
+import copy
 import csv
 import inspect
 import unittest.mock
@@ -10,6 +11,21 @@ import mkdocs.config
 import pytest
 
 import ehrql.main
+
+
+def get_markdown_extension_configuration():
+    """Returns a dictionary representing the mkdocs.yml Markdown extension
+    configuration.
+
+    It should only be required to run this function once,
+    at the start of these tests."""
+    config_path = Path(__file__).parents[2] / "mkdocs.yml"
+    config = mkdocs.config.load_config(config_file_path=str(config_path))
+    assert "pymdownx.superfences" in config["markdown_extensions"]
+    return config["mdx_configs"]
+
+
+MARKDOWN_EXTENSION_CONFIGURATION = get_markdown_extension_configuration()
 
 
 @dataclass
@@ -60,18 +76,18 @@ class MarkdownFenceExtractor:
         """Retrieves the existing extensions settings from the mkdocs.yml
         configuration, replacing any custom SuperFences fences with a special
         test custom fence to extract all fences."""
-        config_path = Path(__file__).parents[2] / "mkdocs.yml"
-        config = mkdocs.config.load_config(config_file_path=str(config_path))
-        assert "pymdownx.superfences" in config["markdown_extensions"]
-        config["mdx_configs"]["pymdownx.superfences"]["custom_fences"] = [
+        config = copy.deepcopy(MARKDOWN_EXTENSION_CONFIGURATION)
+        config["pymdownx.superfences"]["custom_fences"] = [
             {
                 # "name" specifies fences to extract.
+                # "*" indicates fences unhandled by other custom fences;
+                # as we have no other custom fences, "*" processes all fences.
                 "name": "*",
                 "class": "test",
                 "format": self._fence_null_format,
             },
         ]
-        return config["mdx_configs"]
+        return config
 
     def _extract_fences(self, content):
         markdown.Markdown(
