@@ -1,4 +1,5 @@
 import hashlib
+import itertools
 from datetime import date
 
 import pytest
@@ -8,6 +9,7 @@ from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
 from ehrql.query_language import BaseFrame, compile
 from ehrql.tables.beta import tpp
+from ehrql.tables.beta.raw import tpp as tpp_raw
 from tests.lib.tpp_schema import (
     APCS,
     EC,
@@ -1436,7 +1438,7 @@ def test_wl_openpathways(select_all):
 
 
 def test_registered_tests_are_exhaustive():
-    for name, table in vars(tpp).items():
+    for name, table in itertools.chain(vars(tpp).items(), vars(tpp_raw).items()):
         if not isinstance(table, BaseFrame):
             continue
         assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"
