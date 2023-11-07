@@ -6,7 +6,7 @@
 from datetime import date
 from databuilder.ehrql import Dataset, days, years,  case, when
 from databuilder.tables.beta.tpp import (
-    patients, addresses, appointments,
+    patients, addresses, appointments, medications,
     practice_registrations, clinical_events,
     sgss_covid_all_tests, ons_deaths, hospital_admissions,
 )
@@ -16,6 +16,7 @@ from codelists import lc_codelists_combined
 from variables import hospitalisation_diagnosis_matches
 
 hx_study_start_date = date(2019, 3, 1)
+hx_study_end_date = date(2020, 3, 1)
 
 # Function for extracting clinical factors
 def clinical_ctv3_matches(gpevent, codelist):
@@ -106,6 +107,12 @@ permanent_immune_suppress = clinical_ctv3_matches(clinical_events, codelists.per
 
 # # temporary immunosuppression
 temporary_immune_suppress = clinical_ctv3_matches(clinical_events, codelists.temporary_immune_suppress_code)
+
+# Add historical prescription visit counts:
+total_hx_drug_visit = medications \
+    .where((medications.date >= hx_study_start_date) &              
+           (medications.date  <= hx_study_end_date)) \
+    .date.count_distinct_for_patient()
 
 # The following codes will be removed later when the importing CSV file function is ready. 
 # Use these codes to test this is working. 

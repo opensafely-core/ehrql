@@ -57,9 +57,10 @@ def add_hx_gp_visits(dataset, num_months):
 def add_hos_visits(dataset, from_date, num_months, end_date):
     # Number of Hospitalisation within `num_months` of `from_date`
     num_visits = hospital_admissions \
-        .where((hospital_admissions.admission_date >= from_date + days((num_months-1)*30)) &
-              (hospital_admissions.admission_date  < from_date + days(num_months*30)) &
-              (hospital_admissions.admission_date  <= end_date)) \
+        .where((hospital_admissions.discharge_date >= (hospital_admissions.admission_date + days(1))) &
+               (hospital_admissions.admission_date >= from_date + days((num_months-1)*30)) &
+               (hospital_admissions.admission_date < from_date + days(num_months*30)) &
+               (hospital_admissions.admission_date <= end_date)) \
         .admission_date.count_distinct_for_patient()
     setattr(dataset, f"hos_visit_m{num_months}", num_visits)
 
@@ -68,7 +69,7 @@ def add_hx_hos_visits(dataset, num_months):
     # Number of Hospitalisation within `num_months` of `from_date`
     num_visits = hospital_admissions \
         .where((hospital_admissions.admission_date >= hx_study_start_date + days((num_months-1)*30)) &
-              (hospital_admissions.discharge_date  <  hx_study_start_date + days(num_months*30))) \
+               (hospital_admissions.discharge_date  <  hx_study_start_date + days(num_months*30))) \
         .admission_date.count_distinct_for_patient()
     setattr(dataset, f"hx_hos_visit_m{num_months}", num_visits)
 
@@ -78,8 +79,8 @@ def add_ae_visits(dataset, from_date, num_months, end_date):
     # Number of A&E visits within `num_months` of `from_date`
     num_visits = emergency_care_attendances \
         .where((emergency_care_attendances.arrival_date >= from_date + days((num_months-1)*30)) &
-              (emergency_care_attendances.arrival_date  <  from_date + days(num_months*30)) &
-              (emergency_care_attendances.arrival_date  <= end_date)) \
+               (emergency_care_attendances.arrival_date  <  from_date + days(num_months*30)) &
+               (emergency_care_attendances.arrival_date  <= end_date)) \
         .arrival_date.count_distinct_for_patient()
     setattr(dataset, f"ae_visit_m{num_months}", num_visits)
 
@@ -339,6 +340,7 @@ def cost_opa_fn(dataset, from_date, num_months, end_date):
 def hos_stay_long_fn(dataset, from_date, end_date):
     hos_stay_long = hospital_admissions \
         .where((hospital_admissions.admission_date >= from_date) &
+               (hospital_admissions.discharge_date >= (hospital_admissions.admission_date + days(1))) &
                ((hospital_admissions.discharge_date > (hospital_admissions.admission_date + days(14)))) &
                ((hospital_admissions.admission_date + days(14)) <= end_date)) \
         .count_for_patient()
@@ -348,6 +350,7 @@ def hos_stay_long_fn(dataset, from_date, end_date):
 def hos_stay_short_fn(dataset, from_date, end_date):
     hos_stay_short = hospital_admissions \
         .where((hospital_admissions.admission_date >= from_date) &
+               (hospital_admissions.discharge_date >= (hospital_admissions.admission_date + days(1))) &
                ((hospital_admissions.discharge_date <= (hospital_admissions.admission_date + days(14)))) &
                ((hospital_admissions.discharge_date <= end_date))) \
         .count_for_patient()
@@ -356,41 +359,28 @@ def hos_stay_short_fn(dataset, from_date, end_date):
 
 # Function for adding all visit for medications. 
 # Count visits on the same day once:
-def total_drug_visit(dataset, from_date, num_months, end_date):
+def total_drug_visit(dataset, from_date, end_date):
     # Same date visits for prescriptions within `num_months` of `from_date`
     num_pres = medications \
-        .where((medications.date >= from_date + days((num_months-1)*30)) &
-              (medications.date  <  (from_date + days(num_months*30))) &
-              (medications.date  <= end_date)) \
-        .where((medications.dmd_code.is_in(total_drugs_dmd))) \
+        .where((medications.date >= from_date) &              
+               (medications.date  <= end_date)) \
         .date.count_distinct_for_patient()
-    setattr(dataset, f"all_drug_visits_{num_months}", num_pres)
+    setattr(dataset, "total_drug_visit", num_pres)
 
 # Temp: test generate data
 dataset = Dataset()
 dataset.define_population(age >= 18)
-# month1 = lc_dx.date + days(0*30)
-# month2 = lc_dx.date + days(1*30)
-# month3 = lc_dx.date + days(2*30)
-# month4 = lc_dx.date + days(3*30)
-# month5 = lc_dx.date + days(4*30)
-# month6 = lc_dx.date + days(5*30)
-# month7 = lc_dx.date + days(6*30)
-# month8 = lc_dx.date + days(7*30)
-# month9 = lc_dx.date + days(8*30)
-# month10 = lc_dx.date + days(9*30)
-# month11 = lc_dx.date + days(10*30)
-# month12 = lc_dx.date + days(11*30)
+
 # hx_outpatient_visit(dataset, lc_dx.date, num_months=2)
 
-# total_drug_visit(dataset, from_date = lc_dx.date, end_date=study_end_date, num_months=6)
+# total_drug_visit(dataset, from_date = lc_dx.date, end_date=study_end_date)
 # drug_12ent_number(dataset, lc_dx.date, num_months=2)
-# add_visits(dataset, lc_dx.date, num_months=1)
-# add_visits(dataset, lc_dx.date, num_months=2)
-# add_hos_visits(dataset, lc_dx.date, num_months=3)
-# add_hos_visits(dataset, lc_dx.date, num_months=4)
-# add_ae_visits(dataset, lc_dx.date, num_months=5)
-# add_ae_visits(dataset, lc_dx.date, num_months=6)
+# add_visits(dataset, lc_dx.date, num_months=1,end_date=study_end_date)
+# add_visits(dataset, lc_dx.date, num_months=2,end_date=study_end_date)
+# add_hos_visits(dataset, lc_dx.date, num_months=3,end_date=study_end_date)
+# add_hos_visits(dataset, lc_dx.date, num_months=4, end_date=study_end_date)
+
+# add_ae_visits(dataset, lc_dx.date, num_months=6, end_date=study_end_date)
 
 # outpatient_visit(dataset, from_date=lc_dx.date, num_months=1, end_date=study_end_date)
 # outpatient_lc_dx_visit(dataset, from_date=lc_dx.date, num_months=4, end_date=study_end_date)
