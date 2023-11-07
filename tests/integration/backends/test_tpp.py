@@ -1277,7 +1277,7 @@ def to_hex(bytes_):
     return bytes_.hex().upper()
 
 
-@register_test_for(tpp.wl_clockstops_raw)
+@register_test_for(tpp_raw.wl_clockstops)
 def test_wl_clockstops_raw(select_all):
     results = select_all(
         Patient(Patient_ID=1),

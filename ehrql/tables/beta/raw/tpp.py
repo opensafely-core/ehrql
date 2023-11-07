@@ -14,6 +14,7 @@ from ehrql.tables import Constraint, EventFrame, Series, table
 
 __all__ = [
     "isaric",
+    "wl_clockstops",
 ]
 
 
@@ -261,3 +262,30 @@ class isaric_raw(EventFrame):
 
 
 isaric = table(isaric_raw)
+
+
+class wl_clockstops_raw(EventFrame):
+    """
+    National Waiting List Clock Stops
+
+    The columns in this table have the same data types as the columns in [the associated
+    database table][wl_clockstops_raw_1]. The three "pseudo" columns are small
+    exceptions, as they are converted from binary columns to string columns.
+
+    [wl_clockstops_raw_1]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#WL_ClockStops
+    """
+
+    activity_treatment_function_code = Series(str)
+    priority_type_code = Series(str)
+    pseudo_organisation_code_patient_pathway_identifier_issuer = Series(str)
+    pseudo_patient_pathway_identifier = Series(str)
+    pseudo_referral_identifier = Series(str)
+    referral_request_received_date = Series(str)
+    referral_to_treatment_period_end_date = Series(str)
+    referral_to_treatment_period_start_date = Series(str)
+    source_of_referral_for_outpatients = Series(str)
+    waiting_list_type = Series(str)
+    week_ending_date = Series(str)
+
+
+wl_clockstops = table(wl_clockstops_raw)
