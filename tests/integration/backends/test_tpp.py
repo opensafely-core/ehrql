@@ -431,9 +431,9 @@ def test_household_memberships_2020(select_all):
     ]
 
 
-@register_test_for(tpp.isaric_raw)
+@register_test_for(tpp_raw.isaric)
 def test_isaric_raw_dates(select_all):
-    isaric_patient_keys = frozenset(tpp.isaric_raw._qm_node.schema.column_names)
+    isaric_patient_keys = frozenset(tpp_raw.isaric._qm_node.schema.column_names)
 
     # Test date extraction with all valid date strings.
     patient_1 = dict.fromkeys(isaric_patient_keys, None)
@@ -514,9 +514,9 @@ def test_isaric_raw_dates(select_all):
     ]
 
 
-@register_test_for(tpp.isaric_raw)
+@register_test_for(tpp_raw.isaric)
 def test_isaric_raw_clinical_variables(select_all):
-    isaric_patient_keys = frozenset(tpp.isaric_raw._qm_node.schema.column_names)
+    isaric_patient_keys = frozenset(tpp_raw.isaric._qm_node.schema.column_names)
 
     patient_1 = dict.fromkeys(isaric_patient_keys, None)
     patient_1 |= {
