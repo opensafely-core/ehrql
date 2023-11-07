@@ -331,99 +331,195 @@ class emergency_care_attendances(EventFrame):
     # TODO: Revisit this when we have support for multi-valued fields
     diagnosis_01 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_02 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_03 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_04 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_05 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_06 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_07 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_08 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_09 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_10 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_11 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_12 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_13 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_14 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_15 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_16 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_17 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_18 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_19 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_20 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_21 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_22 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_23 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
     diagnosis_24 = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the patient diagnosis.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+            "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary:"
+            "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+        ),
     )
 
 
