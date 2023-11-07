@@ -100,7 +100,7 @@ class apcs(EventFrame):
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Unique identifier used across the APCS tables.",
+        description="Unique identifier for the spell used across the APCS tables.",
     )
     admission_date = Series(
         datetime.date,
@@ -112,7 +112,12 @@ class apcs(EventFrame):
     )
     spell_core_hrg_sus = Series(
         str,
-        description="The core Healthcare Resource Group (HRG) code for the spell according to the derivations made by NHS Digital prior to import to the National Commissioning Data Respository (NCDR).",
+        description=(
+            "The core Healthcare Resource Group (HRG) code for the spell "
+            "according to the derivations made by NHS Digital "
+            "prior to import to the National Commissioning Data Repository (NCDR). "
+            "HRGs are used to assign baseline tariff costs."
+        ),
     )
 
 
@@ -124,16 +129,24 @@ class apcs_cost(EventFrame):
     This table gives details of spell cost.
 
     Each row is an in-hospital spell: a period of continuous care within a single trust.
+
+    Note that data only goes back a couple of years.
     """
 
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Unique identifier used across the APCS tables.",
+        description="Unique identifier for the spell used across the APCS tables.",
     )
     grand_total_payment_mff = Series(
         float,
-        description="The total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`).",
+        description=(
+            "The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) "
+            "where SLA = service level agreement, "
+            "i.e. all contractual payments which is national tariff for the type of activity "
+            "**plus** any additional payments **minus** any applicable deductions. "
+            "MFF = Market Forces Factor, a geography-based cost adjustment)."
+        ),
     )
     tariff_initial_amount = Series(
         float,
@@ -252,15 +265,15 @@ class clinical_events(EventFrame):
 @table
 class ec(EventFrame):
     """
-    Emergency care admissions data is provided via the NHS Secondary Uses Service.
+    Emergency care attendances data is provided via the NHS Secondary Uses Service.
 
-    This table gives core details of admissions.
+    This table gives core details of attendances.
     """
 
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Unique identifier used across the EC tables.",
+        description="Unique identifier for the attendance used across the EC tables.",
     )
     arrival_date = Series(
         datetime.date,
@@ -268,26 +281,35 @@ class ec(EventFrame):
     )
     sus_hrg_code = Series(
         str,
-        description="The core Healthcare Resource Group (HRG) code derived by sus+, as a result of HRG grouping, and used for tariff application.",
+        description=(
+            "The core Healthcare Resource Group (HRG) code derived by sus+, "
+            "used for tariff application."
+        ),
     )
 
 
 @table
 class ec_cost(EventFrame):
     """
-    Emergency care admissions data is provided via the NHS Secondary Uses Service.
+    Emergency care attendances data is provided via the NHS Secondary Uses Service.
 
-    This table gives details of admission costs.
+    This table gives details of attendance costs.
     """
 
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Unique identifier used across the EC tables.",
+        description="Unique identifier for the attendance used across the EC tables.",
     )
     grand_total_payment_mff = Series(
         float,
-        description="The total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`).",
+        description=(
+            "The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) "
+            "where SLA = service level agreement, "
+            "i.e. all contractual payments which is national tariff for the type of activity "
+            "**plus** any additional payments **minus** any applicable deductions. "
+            "MFF = Market Forces Factor, a geography-based cost adjustment)."
+        ),
     )
     tariff_total_payment = Series(
         float,
@@ -299,26 +321,30 @@ class ec_cost(EventFrame):
     )
     ec_decision_to_admit_date = Series(
         datetime.date,
-        description="The date a decision to admit was made.",
+        description="The date a decision to admit was made (if applicable).",
     )
     ec_injury_date = Series(
         datetime.date,
-        description="The date the patient was injured.",
+        description="The date the patient was injured (if applicable).",
     )
 
 
 @table
 class emergency_care_attendances(EventFrame):
     """
-    Emergency care admissions data is provided via the NHS Secondary Uses Service.
+    Emergency care attendances data is provided via the NHS Secondary Uses Service.
 
-    This table gives details of admission attendances.
+    This table gives details of attendances.
+
+    Note that there is a limited number of diagnoses allowed within this dataset,
+    and so will not match with the range of diagnoses allowed in other datasets
+    such as the primary care record.
     """
 
     id = Series(  # noqa: A003
         int,
         constraints=[Constraint.NotNull()],
-        description="Unique identifier used across the EC tables.",
+        description="Unique identifier for the attendance used across the EC tables.",
     )
     arrival_date = Series(
         datetime.date,
@@ -627,7 +653,7 @@ class opa(EventFrame):
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Unique identifier used across the OPA tables.",
+        description="Unique identifier for the appointment used across the OPA tables.",
     )
     appointment_date = Series(
         datetime.date,
@@ -647,7 +673,10 @@ class opa(EventFrame):
     )
     hrg_code = Series(
         str,
-        description="The Healthcare Resource Group (HRG) code produced by the HRG grouper.",
+        description=(
+            "The Healthcare Resource Group (HRG) code assigned to the activity, "
+            "used to assign baseline tariff costs."
+        ),
     )
     treatment_function_code = Series(
         str,
@@ -661,12 +690,14 @@ class opa_cost(EventFrame):
     Outpatient appointments data is provided via the NHS Secondary Uses Service.
 
     This table gives details of outpatient appointment costs.
+
+    Note that data only goes back a couple of years.
     """
 
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Unique identifier used across the OPA tables.",
+        description="Unique identifier for the appointment used across the OPA tables.",
     )
     tariff_opp = Series(
         float,
@@ -696,28 +727,42 @@ class opa_diag(EventFrame):
     Outpatient appointments data is provided via the NHS Secondary Uses Service.
 
     This table gives details of outpatient appointment diagnoses.
+
+    Note that diagnoses are often absent from outpatient records.
     """
 
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Unique identifier used across the OPA tables.",
+        description="Unique identifier for the appointment used across the OPA tables.",
     )
     primary_diagnosis_code = Series(
         ICD10Code,
-        description="The international classification of diseases (ICD) code used to identify the primary diagnosis.",
+        description=(
+            "The international classification of diseases (ICD) code used to identify the primary patient diagnosis. "
+            "Note that this will typically not be completed."
+        ),
     )
     primary_diagnosis_code_read = Series(
         CTV3Code,
-        description="The read coded clinical terms code to identify the primary diagnosis.",
+        description=(
+            "The Read coded clinical terms code to identify the primary patient diagnosis. "
+            "Note that this will typically not be completed."
+        ),
     )
     secondary_diagnosis_code_1 = Series(
         ICD10Code,
-        description="The international classification of diseases (ICD) code used to identify the secondary patient diagnosis.",
+        description=(
+            "The international classification of diseases (ICD) code used to identify the secondary patient diagnosis. "
+            "Note that this will typically not be completed."
+        ),
     )
     secondary_diagnosis_code_1_read = Series(
         CTV3Code,
-        description="The read coded clinical terms used to identify the secondary patient diagnosis.",
+        description=(
+            "The Read coded clinical terms used to identify the secondary patient diagnosis. "
+            "Note that this will typically not be completed."
+        ),
     )
     appointment_date = Series(
         datetime.date,
@@ -734,13 +779,15 @@ class opa_proc(EventFrame):
     """
     Outpatient appointments data is provided via the NHS Secondary Uses Service.
 
-    This table gives details of outpatient appointment procedures.
+    This table gives details of outpatient procedures.
+    Typically, procedures will only be recorded where they attract a specified payment.
+    The majority of appointments will have no procedure recorded.
     """
 
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="Unique identifier used across the OPA tables.",
+        description="Unique identifier for the appointment used across the OPA tables.",
     )
     primary_procedure_code = Series(
         OPCS4Code,
@@ -748,7 +795,7 @@ class opa_proc(EventFrame):
     )
     primary_procedure_code_read = Series(
         CTV3Code,
-        description="The read coded clinical terms code which is used to identify the primary patient procedure carried out.",
+        description="The Read coded clinical terms code which is used to identify the primary patient procedure carried out.",
     )
     procedure_code_1 = Series(
         OPCS4Code,
@@ -756,7 +803,7 @@ class opa_proc(EventFrame):
     )
     procedure_code_2_read = Series(
         CTV3Code,
-        description="The read coded clinical terms for a procedure other than the primary procedure (read).",
+        description="The Read coded clinical terms for a procedure other than the primary procedure.",
     )
     appointment_date = Series(
         datetime.date,
