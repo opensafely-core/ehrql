@@ -1355,7 +1355,7 @@ def test_wl_clockstops(select_all):
     ]
 
 
-@register_test_for(tpp.wl_openpathways_raw)
+@register_test_for(tpp_raw.wl_openpathways)
 def test_wl_openpathways_raw(select_all):
     results = select_all(
         Patient(Patient_ID=1),
