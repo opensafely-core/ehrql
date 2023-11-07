@@ -180,6 +180,10 @@ test-backend-validation *ARGS: devenv
 test-docker *ARGS: devenv
     $BIN/python -m pytest tests/docker {{ ARGS }}
 
+# Run the docs examples tests only. Optional args are passed to pytest.
+test-docs-examples *ARGS: devenv
+    $BIN/python -m pytest tests/docs {{ ARGS }}
+
 # Run the integration tests only. Optional args are passed to pytest.
 test-integration *ARGS: devenv
     $BIN/python -m pytest tests/integration {{ ARGS }}

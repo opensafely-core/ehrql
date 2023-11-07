@@ -187,7 +187,7 @@ to produce an output file that you can inspect.
 into a new file called `dataset_definition.py`
 and save it in your `learning-ehrql` directory:
 
-```python
+```ehrql
 from ehrql import create_dataset
 from ehrql.tables.beta.core import patients, medications
 
