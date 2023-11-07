@@ -188,5 +188,40 @@ def test_minimum_maximum_of_single_series(engine, operation):
     ]
 
 
+def test_is_in_using_temporary_table(engine):
+    # Test an "is_in" query, but with the engine configured to break out even tiny lists
+    # of values into temporary tables so we can exercise that code path
+    engine.populate(
+        {
+            clinical_events: [
+                # Patient 1
+                dict(patient_id=1, snomedct_code="123000"),
+                dict(patient_id=1, snomedct_code="456000"),
+                # Patient 2
+                dict(patient_id=2, snomedct_code="123001"),
+                dict(patient_id=2, snomedct_code="456001"),
+                dict(patient_id=2, snomedct_code="123002"),
+            ]
+        }
+    )
+
+    dataset = Dataset()
+    dataset.define_population(clinical_events.exists_for_patient())
+    matching = clinical_events.snomedct_code.is_in(
+        ["123000", "123001", "123002", "123004"],
+    )
+    dataset.n = clinical_events.where(matching).count_for_patient()
+
+    results = engine.extract(
+        dataset,
+        config={"EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 1},
+    )
+
+    assert results == [
+        {"patient_id": 1, "n": 1},
+        {"patient_id": 2, "n": 2},
+    ]
+
+
 def as_query_model(query_lang_expr):
     return query_lang_expr._qm_node

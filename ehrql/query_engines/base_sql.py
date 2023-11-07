@@ -53,6 +53,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     global_unique_id: str
     counter = 0
     population_table = None
+    # The maximum length of a multi-valued parameter (as used in `x IN (y)` queries)
+    # before we restructure the query to use a temporary table to hold the parameters.
+    # The default is chosen pretty much arbitrarily: Cohort Extractor _always_ used
+    # temporary tables for these kinds of query but that seems a bit unncessary for
+    # small lists.
+    max_multivalue_param_length = 32
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -63,6 +69,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         self.global_unique_id = (
             f"{datetime.datetime.utcnow():%Y%m%d_%H%M}_{secrets.token_hex(6)}"
         )
+        if max_length := self.config.get("EHRQL_MAX_MULTIVALUE_PARAM_LENGTH"):
+            self.max_multivalue_param_length = int(max_length)
 
     def get_next_id(self):
         # Support generating names unique within this session
@@ -208,8 +216,17 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql.register(Function.In)
     def get_sql_in(self, node):
         lhs = self.get_expr(node.lhs)
-        rhs = self.get_expr(node.rhs)
+        rhs = self.get_expr_for_multivalued_param(node.rhs)
         return lhs.in_(rhs)
+
+    def get_expr_for_multivalued_param(self, node):
+        assert isinstance(node, Value)
+        assert isinstance(node.value, frozenset)
+        if len(node.value) <= self.max_multivalue_param_length:
+            return self.get_expr(node)
+        else:
+            table = self.get_table(node.value)
+            return sqlalchemy.select(table.columns[0])
 
     @get_sql.register(Function.Not)
     def get_sql_not(self, node):
@@ -622,6 +639,30 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             for name, col_type in column_types
         ]
         return self.create_inline_table(columns, node.rows)
+
+    @get_table.register(frozenset)
+    def get_table_from_values(self, values):
+        assert values, "`values` should never be empty"
+        type_ = type(next(iter(values)))
+        rows = [(self.convert_value(value),) for value in values]
+        column_kwargs = self.backend.column_kwargs_for_type(type_)
+        column_type = column_kwargs.pop("type_")
+
+        # Set the appropriate maximum length for string types (which we know because we
+        # have all the values upfront). We have to do this for MSSQL because if we try
+        # to create an index on an unbounded VARCHAR we get the error:
+        #
+        #   Column 'X' in table 'Y' is of a type that is invalid for use as a key
+        #   column in an index
+        #   https://learn.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms191241(v=sql.105)
+        #
+        # But there doesn't seem much harm in doing for all databases.
+        if isinstance(column_type, sqlalchemy.String) and column_type.length is None:
+            max_length = max(len(row[0]) for row in rows)
+            column_type.length = max_length
+
+        column = sqlalchemy.Column("value", type_=column_type, **column_kwargs)
+        return self.create_inline_table([column], rows)
 
     def create_inline_table(self, columns, rows):
         table_name = f"inline_data_{self.get_next_id()}"
