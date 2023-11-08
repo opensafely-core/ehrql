@@ -430,6 +430,18 @@ The date the appointment was due to start
 </div>
 
 <div markdown="block">
+  <dt id="appointments.seen_date">
+    <strong>seen_date</strong>
+    <a class="headerlink" href="#appointments.seen_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+The date the patient was seen
+
+  </dd>
+</div>
+
+<div markdown="block">
   <dt id="appointments.status">
     <strong>status</strong>
     <a class="headerlink" href="#appointments.status" title="Permanent link">🔗</a>
