@@ -710,7 +710,7 @@ class opa(EventFrame):
         description=(
             "Identifies the communication mechanism used to relay information "
             "between the care professional and the person who is the subject of the consultation, "
-            "during a care activity."
+            "during a care activity. "
             "Refer to the [NHS Data Model and Dictionary entry for consultation medium used]"
             "(https://www.datadictionary.nhs.uk/data_elements/consultation_medium_used.html) "
             "for details on code meanings."
@@ -726,7 +726,7 @@ class opa(EventFrame):
         description=(
             "An indication of whether a patient is making a first attendance or contact; "
             "or a follow-up attendance or contact and whether the consultation medium used national code "
-            "was face to face communication or telephone or telemedicine web camera."
+            "was face to face communication or telephone or telemedicine web camera. "
             "Refer to the [NHS Data Model and Dictionary entry for first attendance]"
             "(https://www.datadictionary.nhs.uk/attributes/first_attendance.html) "
             "for details on code meanings."
