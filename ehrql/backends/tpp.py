@@ -530,9 +530,7 @@ class TPPBackend(SQLBackend):
                     WHEN Sex = 'I' THEN 'intersex'
                     ELSE 'unknown'
                 END AS sex,
-                CASE
-                    WHEN DateOfDeath != '99991231' THEN DateOfDeath
-                END As date_of_death
+                NULLIF(DateOfDeath, '99991231') AS date_of_death
             FROM Patient
         """,
         implementation_notes=dict(
@@ -545,10 +543,7 @@ class TPPBackend(SQLBackend):
             SELECT
                 reg.Patient_ID AS patient_id,
                 CAST(reg.StartDate AS date) AS start_date,
-                CASE
-                    WHEN reg.EndDate = '9999-12-31' THEN NULL
-                    ELSE CAST(reg.EndDate AS date)
-                END AS end_date,
+                CAST(NULLIF(reg.EndDate, '9999-12-31T00:00:00') AS date) AS end_date,
                 org.Organisation_ID AS practice_pseudo_id,
                 NULLIF(org.STPCode, '') AS practice_stp,
                 NULLIF(org.Region, '') AS practice_nuts1_region_name
