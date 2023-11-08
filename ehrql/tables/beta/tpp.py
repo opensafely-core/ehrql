@@ -277,7 +277,10 @@ class ec(EventFrame):
     )
     arrival_date = Series(
         datetime.date,
-        description="The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.",
+        description=(
+            "The date the patient self presented at the accident & emergency department, "
+            "or arrived in an ambulance at the accident & emergency department."
+        ),
     )
     sus_hrg_code = Series(
         str,
@@ -317,7 +320,10 @@ class ec_cost(EventFrame):
     )
     arrival_date = Series(
         datetime.date,
-        description="The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.",
+        description=(
+            "The date the patient self presented at the accident & emergency department, "
+            "or arrived in an ambulance at the accident & emergency department."
+        ),
     )
     ec_decision_to_admit_date = Series(
         datetime.date,
@@ -348,11 +354,18 @@ class emergency_care_attendances(EventFrame):
     )
     arrival_date = Series(
         datetime.date,
-        description="The date the patient self presented at the accident & emergency department, or arrived in an ambulance at the accident & emergency department.",
+        description=(
+            "The date the patient self presented at the accident & emergency department, "
+            "or arrived in an ambulance at the accident & emergency department."
+        ),
     )
     discharge_destination = Series(
         SNOMEDCTCode,
-        description="The SNOMED CT concept ID which is used to identify the intended destination of the patient following discharge from the emergency care department.",
+        description=(
+            "The SNOMED CT concept ID which is used to identify "
+            "the intended destination of the patient following discharge "
+            "from the emergency care department."
+        ),
     )
     # TODO: Revisit this when we have support for multi-valued fields
     # The diagnosis columns are have identical descriptions
@@ -363,8 +376,8 @@ class emergency_care_attendances(EventFrame):
             SNOMEDCTCode,
             description=(
                 "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
-                "Only a limited subset of SNOMED CT codes are used; see the NHS Data Model and Dictionary: "
-                "https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html"
+                "Only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary]"
+                "(https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html) entry"
             ),
         )
 
@@ -661,15 +674,26 @@ class opa(EventFrame):
     )
     attendance_status = Series(
         str,
-        description="Indicates whether or not an appointment for a care contact took place. If the appointment did not take place it also indicates whether or not advanced warning was given.",
+        description=(
+            "Indicates whether or not an appointment for a care contact took place. "
+            "If the appointment did not take place it also indicates whether or not advanced warning was given."
+        ),
     )
     consultation_medium_used = Series(
         str,
-        description="Identifies the communication mechanism used to relay information between the care professional and the person who is the subject of the consultation, during a care activity.",
+        description=(
+            "Identifies the communication mechanism used to relay information "
+            "between the care professional and the person who is the subject of the consultation, "
+            "during a care activity."
+        ),
     )
     first_attendance = Series(
         str,
-        description="An indication of whether a patient is making a first attendance or contact; or a follow-up attendance or contact and whether the consultation medium used national code was face to face communication or telephone or telemedicine web camera.",
+        description=(
+            "An indication of whether a patient is making a first attendance or contact; "
+            "or a follow-up attendance or contact and whether the consultation medium used national code "
+            "was face to face communication or telephone or telemedicine web camera."
+        ),
     )
     hrg_code = Series(
         str,
@@ -680,7 +704,11 @@ class opa(EventFrame):
     )
     treatment_function_code = Series(
         str,
-        description="The treatment function under which the patient is treated. It may be the same as the main specialty code or a different treatment function which will be the care professional's treatment interest.",
+        description=(
+            "The treatment function under which the patient is treated. "
+            "It may be the same as the main specialty code "
+            "or a different treatment function which will be the care professional's treatment interest."
+        ),
     )
 
 
@@ -705,7 +733,13 @@ class opa_cost(EventFrame):
     )
     grand_total_payment_mff = Series(
         float,
-        description="The total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`).",
+        description=(
+            "The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) "
+            "where SLA = service level agreement, "
+            "i.e. all contractual payments which is national tariff for the type of activity "
+            "**plus** any additional payments **minus** any applicable deductions. "
+            "MFF = Market Forces Factor, a geography-based cost adjustment)."
+        ),
     )
     tariff_total_payment = Series(
         float,
@@ -791,11 +825,17 @@ class opa_proc(EventFrame):
     )
     primary_procedure_code = Series(
         OPCS4Code,
-        description="The OPCS classification of interventions and procedures code which is used to identify the primary patient procedure carried out.",
+        description=(
+            "The OPCS classification of interventions and procedures code "
+            "which is used to identify the primary patient procedure carried out."
+        ),
     )
     primary_procedure_code_read = Series(
         CTV3Code,
-        description="The Read coded clinical terms code which is used to identify the primary patient procedure carried out.",
+        description=(
+            "The Read coded clinical terms code which is used "
+            "to identify the primary patient procedure carried out."
+        ),
     )
     procedure_code_1 = Series(
         OPCS4Code,
