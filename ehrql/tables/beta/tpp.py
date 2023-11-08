@@ -139,7 +139,14 @@ class appointments(EventFrame):
     """
     Appointments in primary care.
 
-    You can find out more about this table in the [short data report][appointments_1].
+    You can find out more about [the associated database table][appointments_5] in the [short data report][appointments_1].
+    It shows:
+
+    * Date ranges for `booked_date`, `start_date`, and `seen_date`
+    * Row counts by month for `booked_date` and `start_date`
+    * The distribution of lead times (`start_date - booked_date`)
+    * Row counts for each value of `status`
+
     To view it, you will need a login for OpenSAFELY Jobs and the Project Collaborator
     or Project Developer role for the [project][appointments_4]. The
     [workspace][appointments_2] shows when the code that comprises the report was run;
@@ -168,6 +175,7 @@ class appointments(EventFrame):
     [appointments_2]: https://jobs.opensafely.org/curation-of-gp-appointments-data-short-data-report/appointments-short-data-report/
     [appointments_3]: https://github.com/opensafely/appointments-short-data-report
     [appointments_4]: https://jobs.opensafely.org/curation-of-gp-appointments-data-short-data-report/
+    [appointments_5]: https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#Appointment
     """
 
     booked_date = Series(
