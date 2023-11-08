@@ -81,8 +81,8 @@ class TPPBackend(SQLBackend):
             SELECT
                 addr.Patient_ID AS patient_id,
                 addr.PatientAddress_ID AS address_id,
-                CAST(addr.StartDate AS date) AS start_date,
-                CAST(addr.EndDate AS date) AS end_date,
+                CAST(NULLIF(addr.StartDate, '9999-12-31T00:00:00') AS date) AS start_date,
+                CAST(NULLIF(addr.EndDate, '9999-12-31T00:00:00') AS date) AS end_date,
                 addr.AddressType AS address_type,
                 addr.RuralUrbanClassificationCode AS rural_urban_classification,
                 NULLIF(addr.ImdRankRounded, -1) AS imd_rounded,

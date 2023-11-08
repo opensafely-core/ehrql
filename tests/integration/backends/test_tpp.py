@@ -133,6 +133,16 @@ def test_addresses(select_all):
             LocationRequiresNursing="Y",
             LocationDoesNotRequireNursing="N",
         ),
+        PatientAddress(
+            Patient_ID=1,
+            PatientAddress_ID=5,
+            StartDate="9999-12-31T00:00:00",
+            EndDate="9999-12-31T00:00:00",
+            AddressType=3,
+            RuralUrbanClassificationCode=4,
+            ImdRankRounded=1000,
+            MSOACode="NPC",
+        ),
     )
     assert results == [
         {
@@ -176,6 +186,20 @@ def test_addresses(select_all):
             "care_home_is_potential_match": True,
             "care_home_requires_nursing": True,
             "care_home_does_not_require_nursing": False,
+        },
+        {
+            "patient_id": 1,
+            "address_id": 5,
+            "start_date": None,
+            "end_date": None,
+            "address_type": 3,
+            "rural_urban_classification": 4,
+            "imd_rounded": 1000,
+            "msoa_code": None,
+            "has_postcode": False,
+            "care_home_is_potential_match": False,
+            "care_home_requires_nursing": None,
+            "care_home_does_not_require_nursing": None,
         },
     ]
 
