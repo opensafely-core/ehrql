@@ -147,6 +147,7 @@ class TPPBackend(SQLBackend):
                 Patient_ID AS patient_id,
                 CAST(BookedDate AS date) AS booked_date,
                 CAST(StartDate AS date) AS start_date,
+                CAST(NULLIF(SeenDate, '9999-12-31T00:00:00') AS date) AS seen_date,
                 CASE Status
                     WHEN 0 THEN 'Booked'
                     WHEN 1 THEN 'Arrived'
