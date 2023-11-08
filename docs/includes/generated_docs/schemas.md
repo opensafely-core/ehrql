@@ -5,9 +5,9 @@
 
 Available on backends: [**TPP**](../backends#tpp)
 
-This defines all the data (both primary care and externally linked) available in the
-OpenSAFELY-TPP backend. For more information about this backend, see the
-[*SystmOne Primary Care*](https://docs.opensafely.org/data-sources/systmone/) section.
+This schema defines the data (both primary care and externally linked) available in the
+OpenSAFELY-TPP backend. For more information about this backend, see
+"[SystmOne Primary Care](https://docs.opensafely.org/data-sources/systmone/)".
 
 ## [beta.core](./beta.core/)
 <small class="subtitle">
@@ -24,6 +24,21 @@ run across multiple backends.
     This schema is still a work-in-progress while the EMIS backend remains under
     development. Projects requiring EMIS data should continue to use the [Cohort
     Extractor](https://docs.opensafely.org/study-def/) tool.
+
+## [beta.raw.tpp](./beta.raw.tpp/)
+<small class="subtitle">
+  <a href="./beta.raw.tpp/"> view details → </a>
+</small>
+
+Available on backends: [**TPP**](../backends#tpp)
+
+This schema defines the data (both primary care and externally linked) available in the
+OpenSAFELY-TPP backend. For more information about this backend, see
+"[SystmOne Primary Care](https://docs.opensafely.org/data-sources/systmone/)".
+
+The data provided by this schema are minimally transformed. They are very close to the
+data provided by the underlying database tables. They are provided for data development
+and data curation purposes.
 
 ## [beta.smoketest](./beta.smoketest/)
 <small class="subtitle">

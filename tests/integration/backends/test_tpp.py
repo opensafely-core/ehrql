@@ -1,4 +1,5 @@
 import hashlib
+import itertools
 from datetime import date
 
 import pytest
@@ -8,6 +9,7 @@ from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
 from ehrql.query_language import BaseFrame, compile
 from ehrql.tables.beta import tpp
+from ehrql.tables.beta.raw import tpp as tpp_raw
 from tests.lib.tpp_schema import (
     APCS,
     EC,
@@ -429,9 +431,9 @@ def test_household_memberships_2020(select_all):
     ]
 
 
-@register_test_for(tpp.isaric_raw)
+@register_test_for(tpp_raw.isaric)
 def test_isaric_raw_dates(select_all):
-    isaric_patient_keys = frozenset(tpp.isaric_raw._qm_node.schema.column_names)
+    isaric_patient_keys = frozenset(tpp_raw.isaric._qm_node.schema.column_names)
 
     # Test date extraction with all valid date strings.
     patient_1 = dict.fromkeys(isaric_patient_keys, None)
@@ -512,9 +514,9 @@ def test_isaric_raw_dates(select_all):
     ]
 
 
-@register_test_for(tpp.isaric_raw)
+@register_test_for(tpp_raw.isaric)
 def test_isaric_raw_clinical_variables(select_all):
-    isaric_patient_keys = frozenset(tpp.isaric_raw._qm_node.schema.column_names)
+    isaric_patient_keys = frozenset(tpp_raw.isaric._qm_node.schema.column_names)
 
     patient_1 = dict.fromkeys(isaric_patient_keys, None)
     patient_1 |= {
@@ -1275,7 +1277,7 @@ def to_hex(bytes_):
     return bytes_.hex().upper()
 
 
-@register_test_for(tpp.wl_clockstops_raw)
+@register_test_for(tpp_raw.wl_clockstops)
 def test_wl_clockstops_raw(select_all):
     results = select_all(
         Patient(Patient_ID=1),
@@ -1353,7 +1355,7 @@ def test_wl_clockstops(select_all):
     ]
 
 
-@register_test_for(tpp.wl_openpathways_raw)
+@register_test_for(tpp_raw.wl_openpathways)
 def test_wl_openpathways_raw(select_all):
     results = select_all(
         Patient(Patient_ID=1),
@@ -1436,7 +1438,7 @@ def test_wl_openpathways(select_all):
 
 
 def test_registered_tests_are_exhaustive():
-    for name, table in vars(tpp).items():
+    for name, table in itertools.chain(vars(tpp).items(), vars(tpp_raw).items()):
         if not isinstance(table, BaseFrame):
             continue
         assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"

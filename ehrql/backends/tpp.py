@@ -1,6 +1,7 @@
 from urllib import parse
 
 import ehrql.tables.beta.core
+import ehrql.tables.beta.raw.tpp
 import ehrql.tables.beta.smoketest
 import ehrql.tables.beta.tpp
 from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
@@ -22,6 +23,7 @@ class TPPBackend(SQLBackend):
     implements = [
         ehrql.tables.beta.core,
         ehrql.tables.beta.tpp,
+        ehrql.tables.beta.raw.tpp,
         ehrql.tables.beta.smoketest,
     ]
 

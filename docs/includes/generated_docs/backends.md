@@ -14,6 +14,7 @@ This backend implements the following table schemas:
 
  * [beta.core](../schemas/beta.core/)
  * [beta.tpp](../schemas/beta.tpp/)
+ * [beta.raw.tpp](../schemas/beta.raw.tpp/)
  * [beta.smoketest](../schemas/beta.smoketest/)
 
 ## EMIS
