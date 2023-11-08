@@ -95,6 +95,12 @@ class apcs(EventFrame):
     This table gives core details of spells.
 
     Each row is an in-hospital spell: a period of continuous care within a single trust.
+
+    Refer to the [OpenSAFELY documentation on the APCS data source][apcs_data_source_docs]
+    and the [GitHub issue discussing more of the background context][apcs_context_issue].
+
+    [apcs_data_source_docs]: https://docs.opensafely.org/data-sources/apc/
+    [apcs_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/186
     """
 
     apcs_ident = Series(
@@ -265,9 +271,16 @@ class clinical_events(EventFrame):
 @table
 class ec(EventFrame):
     """
-    Emergency care attendances data is provided via the NHS Secondary Uses Service.
+    Emergency care attendances data — the Emergency Care Data Set (ECDS) —
+    is provided via the NHS Secondary Uses Service.
 
     This table gives core details of attendances.
+
+    Refer to the [OpenSAFELY documentation on the ECDS data source][ecds_data_source_docs]
+    and the GitHub issue that [discusses more of the background context][ecds_context_issue].
+
+    [ecds_data_source_docs]: https://docs.opensafely.org/data-sources/ecds/
+    [ecds_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/182
     """
 
     ec_ident = Series(
@@ -659,16 +672,16 @@ class occupation_on_covid_vaccine_record(EventFrame):
 @table
 class opa(EventFrame):
     """
-    Outpatient appointments data is provided via the NHS Secondary Uses Service.
+    Outpatient appointments data (OPA) is provided via the NHS Secondary Uses Service.
 
     This table gives core details of outpatient appointments.
 
-    Refer to the [GitHub issue describing limitations
-    of the outpatient appointments data][limitations_issue]
-    and the [GitHub issue discussing more of the context of this data][context_issue].
+    Refer to the GitHub issue that [describes limitations
+    of the outpatient appointments data][opa_limitations_issue]
+    and the GitHub issue that [discusses more of the background context][opa_context_issue].
 
-    [limitations_issue]: https://github.com/opensafely-core/cohort-extractor/issues/673
-    [context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/492
+    [opa_limitations_issue]: https://github.com/opensafely-core/cohort-extractor/issues/673
+    [opa_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/492
     """
 
     opa_ident = Series(
