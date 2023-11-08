@@ -676,8 +676,19 @@ class opa(EventFrame):
         str,
         description=(
             "Indicates whether or not an appointment for a care contact took place. "
-            "If the appointment did not take place it also indicates whether or not advanced warning was given."
+            "If the appointment did not take place it also indicates whether or not advanced warning was given. "
+            "Refer to the [NHS Data Model and Dictionary entry for attendance status]"
+            "(https://www.datadictionary.nhs.uk/data_elements/attendance_status.html).\n"
+            "Permitted codes:\n"
+            "* `5`: Attended on time or, if late, before the relevant care professional was ready to see the patient\n"
+            "* `6`: Arrived late, after the relevant care professional was ready to see the patient, but was seen\n"
+            "* `7`: Patient arrived late and could not be seen\n"
+            "* `2`: Appointment cancelled by, or on behalf of, the patient\n"
+            "* `3`: Did not attend - no advance warning given\n"
+            "* `4`: Appointment cancelled or postponed by the health care provider"
         ),
+        # This non-ascending order follows the NHS Data Model and Dictionary.
+        constraints=[Constraint.Categorical(["5", "6", "7", "2", "3", "4"])],
     )
     consultation_medium_used = Series(
         str,
@@ -685,7 +696,24 @@ class opa(EventFrame):
             "Identifies the communication mechanism used to relay information "
             "between the care professional and the person who is the subject of the consultation, "
             "during a care activity."
+            "Refer to the [NHS Data Model and Dictionary entry for consultation medium used]"
+            "(https://www.datadictionary.nhs.uk/data_elements/consultation_medium_used.html).\n"
+            "Permitted codes:\n"
+            "* `01`: Face to face communication\n"
+            "* `02`: Telephone\n"
+            "* `03`: Telemedicine\n"
+            "* `04`: Talk type for a person unable to speak\n"
+            "* `05`: Email\n"
+            "* `06`: Short Message Service (SMS) - Text Messaging\n"
+            "* `07`: On-line triage\n"
+            "* `08`: Online instant messaging\n"
+            "* `98`: Other (not listed)"
         ),
+        constraints=[
+            Constraint.Categorical(
+                ["01", "02", "03", "04", "05", "06", "07", "08", "98"]
+            )
+        ],
     )
     first_attendance = Series(
         str,
@@ -693,7 +721,16 @@ class opa(EventFrame):
             "An indication of whether a patient is making a first attendance or contact; "
             "or a follow-up attendance or contact and whether the consultation medium used national code "
             "was face to face communication or telephone or telemedicine web camera."
+            "Refer to the [NHS Data Model and Dictionary entry for first attendance]"
+            "(https://www.datadictionary.nhs.uk/attributes/first_attendance.html).\n"
+            "Permitted codes:\n"
+            "* `1`: First attendance face to face\n"
+            "* `2`: Follow-up attendance face to face\n"
+            "* `3`: First telephone or telemedicine consultation\n"
+            "* `4`: Follow-up telephone or telemedicine consultation\n"
+            "* `5`: Referral to treatment clock stop administrative event\n"
         ),
+        constraints=[Constraint.Categorical(["1", "2", "3", "4", "5"])],
     )
     hrg_code = Series(
         str,
