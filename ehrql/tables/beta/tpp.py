@@ -181,6 +181,10 @@ class appointments(EventFrame):
         datetime.date,
         description="The date the appointment was due to start",
     )
+    seen_date = Series(
+        datetime.date,
+        description="The date the patient was seen",
+    )
     status = Series(
         str,
         description="The status of the appointment",

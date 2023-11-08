@@ -237,6 +237,14 @@ def test_appointments(select_all):
             Patient_ID=1,
             BookedDate="2021-01-01T09:00:00",
             StartDate="2021-01-01T09:00:00",
+            SeenDate="2021-01-01T09:00:00",
+            Status=5,
+        ),
+        Appointment(
+            Patient_ID=1,
+            BookedDate="2021-01-02T09:00:00",
+            StartDate="2021-01-02T09:00:00",
+            SeenDate="9999-12-31T00:00:00",
             Status=5,
         ),
     )
@@ -245,6 +253,14 @@ def test_appointments(select_all):
             "patient_id": 1,
             "booked_date": date(2021, 1, 1),
             "start_date": date(2021, 1, 1),
+            "seen_date": date(2021, 1, 1),
+            "status": "Requested",
+        },
+        {
+            "patient_id": 1,
+            "booked_date": date(2021, 1, 2),
+            "start_date": date(2021, 1, 2),
+            "seen_date": None,
             "status": "Requested",
         },
     ]
