@@ -661,6 +661,13 @@ class opa(EventFrame):
     Outpatient appointments data is provided via the NHS Secondary Uses Service.
 
     This table gives core details of outpatient appointments.
+
+    Refer to the [GitHub issue describing limitations
+    of the outpatient appointments data][limitations_issue]
+    and the [GitHub issue discussing more of the context of this data][context_issue].
+
+    [limitations_issue]: https://github.com/opensafely-core/cohort-extractor/issues/673
+    [context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/492
     """
 
     opa_ident = Series(
