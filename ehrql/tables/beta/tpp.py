@@ -376,8 +376,9 @@ class emergency_care_attendances(EventFrame):
             SNOMEDCTCode,
             description=(
                 "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
-                "Only a limited subset of SNOMED CT codes are used; see the [NHS Data Model and Dictionary]"
-                "(https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html) entry"
+                "Note that only a limited subset of SNOMED CT codes are used; "
+                "see the [NHS Data Model and Dictionary entry for emergency care diagnosis]"
+                "(https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html)."
             ),
         )
 
