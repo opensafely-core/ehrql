@@ -255,7 +255,7 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
     def in_(draw, _type, frame):
         type_ = draw(any_type())
         values = Value(
-            frozenset(draw(st.sets(value_strategies[type_], min_size=1, max_size=3)))
+            frozenset(draw(st.sets(value_strategies[type_], min_size=1, max_size=5)))
         )
         return Function.In(draw(series(type_, frame)), values)
 

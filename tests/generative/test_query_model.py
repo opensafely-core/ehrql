@@ -183,7 +183,12 @@ def run_with(engine, instances, variables):
         engine.setup(instances, metadata=sqla_metadata)
         return engine.extract_qm(
             variables,
-            config=ENGINE_CONFIG.get(engine.name, {}),
+            config={
+                # In order to exercise the temporary table code path we set the limit
+                # here very low
+                "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 3,
+                **ENGINE_CONFIG.get(engine.name, {}),
+            },
         )
     except Exception as e:
         if error_type := get_ignored_error_type(e):

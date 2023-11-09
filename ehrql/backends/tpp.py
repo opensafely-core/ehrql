@@ -1,10 +1,13 @@
 from urllib import parse
 
+import sqlalchemy
+
 import ehrql.tables.beta.core
 import ehrql.tables.beta.raw.tpp
 import ehrql.tables.beta.smoketest
 import ehrql.tables.beta.tpp
 from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
+from ehrql.codes import CTV3Code, DMDCode, SNOMEDCTCode
 from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_model import nodes as qm
 
@@ -27,7 +30,25 @@ class TPPBackend(SQLBackend):
         ehrql.tables.beta.smoketest,
     ]
 
+    DEFAULT_COLLATION = "Latin1_General_CI_AS"
+
     include_t1oo = False
+
+    def column_kwargs_for_type(self, type_):
+        # For specific code types we need to set the collation to match what TPP use
+        if type_ is CTV3Code:
+            return {"type_": sqlalchemy.VARCHAR(50, collation="Latin1_General_BIN")}
+        elif type_ is SNOMEDCTCode:
+            return {"type_": sqlalchemy.VARCHAR(50, collation="Latin1_General_BIN")}
+        elif type_ is DMDCode:
+            return {"type_": sqlalchemy.VARCHAR(50, collation="Latin1_General_CI_AS")}
+        else:
+            kwargs = self.query_engine_class.column_kwargs_for_type(type_)
+            # For all string types we set the collation to match TPP's default
+            if isinstance(kwargs["type_"], sqlalchemy.String):
+                assert kwargs["type_"].collation is None
+                kwargs["type_"].collation = self.DEFAULT_COLLATION
+            return kwargs
 
     def modify_dsn(self, dsn):
         """

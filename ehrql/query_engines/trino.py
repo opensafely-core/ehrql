@@ -116,7 +116,7 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
         columns = get_cyclic_coalescence(columns)
         return aggregate_function(*columns)
 
-    def create_inline_patient_table(self, columns, rows):
+    def create_inline_table(self, columns, rows):
         # Trino doesn't support temporary tables, so we create
         # a new persistent table and drop it in the cleanup
         # queries

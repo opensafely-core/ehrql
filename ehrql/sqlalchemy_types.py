@@ -8,7 +8,7 @@ TYPE_MAP = {
     datetime.date: sqlalchemy.Date,
     float: sqlalchemy.Float,
     int: sqlalchemy.Integer,
-    str: sqlalchemy.Text,
+    str: sqlalchemy.String,
 }
 
 

@@ -14,8 +14,8 @@ from ehrql.sqlalchemy_types import type_from_python_type
         (datetime.date, types.Date),
         (float, types.Float),
         (int, types.Integer),
-        (str, types.Text),
-        (CTV3Code, types.Text),
+        (str, types.String),
+        (CTV3Code, types.String),
     ],
 )
 def test_type_from_python_type(type_, expected):

@@ -132,7 +132,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             index_col="patient_id",
         )
 
-    def create_inline_patient_table(self, columns, rows):
+    def create_inline_table(self, columns, rows):
         table_name = f"#inline_data_{self.get_next_id()}"
         table = GeneratedTable(
             table_name,

@@ -3,7 +3,6 @@ import re
 import sqlalchemy
 
 from ehrql.query_language import get_tables_from_namespace
-from ehrql.sqlalchemy_types import type_from_python_type
 
 
 class ValidationError(Exception):
@@ -97,6 +96,9 @@ class SQLBackend(BaseBackend):
             backend=self, table_name=table_name, schema=schema
         )
 
+    def column_kwargs_for_type(self, type_):
+        return self.query_engine_class.column_kwargs_for_type(type_)
+
 
 class SQLTable:
     def learn_patient_join(self, source):
@@ -125,7 +127,9 @@ class MappedTable(SQLTable):
             sqlalchemy.Column(patient_id_column, key="patient_id"),
             *[
                 sqlalchemy.Column(
-                    self.column_map[name], key=name, type_=type_from_python_type(type_)
+                    self.column_map[name],
+                    key=name,
+                    **backend.column_kwargs_for_type(type_),
                 )
                 for (name, type_) in schema.column_types
             ],
@@ -164,7 +168,7 @@ class QueryTable(SQLTable):
     def get_expression(self, backend, table_name, schema):
         columns = [sqlalchemy.Column("patient_id")]
         columns.extend(
-            sqlalchemy.Column(name, type_=type_from_python_type(type_))
+            sqlalchemy.Column(name, **backend.column_kwargs_for_type(type_))
             for (name, type_) in schema.column_types
         )
         query = sqlalchemy.text(self.get_query(backend)).columns(*columns)
@@ -172,6 +176,10 @@ class QueryTable(SQLTable):
 
 
 class DefaultSQLBackend(BaseBackend):
+    def __init__(self, query_engine_class):
+        self.query_engine_class = query_engine_class
+        super().__init__()
+
     def get_table_expression(self, table_name, schema):
         """
         Returns a SQLAlchemy Table object matching the supplied name and schema
@@ -180,7 +188,10 @@ class DefaultSQLBackend(BaseBackend):
             table_name,
             sqlalchemy.Column("patient_id"),
             *[
-                sqlalchemy.Column(name, type_=type_from_python_type(type_))
+                sqlalchemy.Column(name, **self.column_kwargs_for_type(type_))
                 for (name, type_) in schema.column_types
             ],
         )
+
+    def column_kwargs_for_type(self, type_):
+        return self.query_engine_class.column_kwargs_for_type(type_)
