@@ -5,6 +5,7 @@ from collections import namedtuple
 from ehrql.query_language import (
     VALID_VARIABLE_NAME_RE,
     BoolPatientSeries,
+    DummyDataConfig,
     Duration,
     IntPatientSeries,
     Parameter,
@@ -82,6 +83,7 @@ class Measures:
     def __init__(self):
         self._measures = {}
         self._defaults = {}
+        self.dummy_data_config = DummyDataConfig(population_size=None)
 
     def define_measure(
         self,
@@ -281,6 +283,16 @@ class Measures:
             raise ValidationError(
                 f"disallowed `group_by` column name: {', '.join(disallowed)}"
             )
+
+    def configure_dummy_data(self, *, population_size):
+        """
+        Configure the dummy data to be generated.
+
+        ```py
+        measures.configure_dummy_data(population_size=10000)
+        ```
+        """
+        self.dummy_data_config.population_size = population_size
 
     def __iter__(self):
         return iter(self._measures.values())
