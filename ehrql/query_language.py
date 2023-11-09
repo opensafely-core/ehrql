@@ -49,6 +49,9 @@ class Dataset:
     """
 
     def __init__(self):
+        # Set attributes with `object.__setattr__` to avoid using the
+        # `__setattr__` method on this class, which prohibits use of these
+        # attribute names
         object.__setattr__(self, "variables", {})
         object.__setattr__(self, "dummy_data_config", DummyDataConfig())
 
