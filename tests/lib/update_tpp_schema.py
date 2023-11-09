@@ -30,10 +30,11 @@ TYPE_MAP = {
     "datetime": lambda _: "t.DateTime",
     "char": lambda col: format_string_type("t.CHAR", col),
     "varchar": lambda col: format_string_type("t.VARCHAR", col),
-    "varbinary": lambda col: format_string_type("t.VARBINARY", col),
+    "varbinary": lambda col: format_binary_type("t.VARBINARY", col),
 }
 
-HEADER = """
+
+HEADER = """\
 # This file is auto-generated: DO NOT EDIT IT
 #
 # To rebuild run:
@@ -64,7 +65,7 @@ class CustomMedicationDictionary(Base):
     _pk = mapped_column(t.Integer, primary_key=True)
 
     DMD_ID = mapped_column(t.VARCHAR(50, collation="Latin1_General_CI_AS"))
-    MultilexDrug_ID = mapped_column(t.VARCHAR(767))
+    MultilexDrug_ID = mapped_column(t.VARCHAR(767, collation="Latin1_General_CI_AS"))
 """
 
 
@@ -123,25 +124,9 @@ def apply_schema_modifications(by_table):
     #     worry about.
     del by_table["OpenSAFELYSchemaInformation"]
 
-    # We don't get column collation information but we know this matters in some cases
-    # because you can't compare columns across tables unless the collations are
-    # compatible. We add collations here for the two critical columns whose collations
-    # we're aware of (because they caused us problems in the distant past).
-    # https://github.com/opensafely/tpp-database-schema/issues/50
-    add_to_column(
-        by_table["CodedEvent"],
-        "CTV3Code",
-        collation="Latin1_General_BIN",
-    )
-    add_to_column(
-        by_table["MedicationDictionary"],
-        "DMD_ID",
-        collation="Latin1_General_CI_AS",
-    )
-
 
 def write_schema(lines):
-    lines[:0] = [HEADER.strip()]
+    lines[:0] = [HEADER]
     code = "\n".join(lines)
     code = black.format_str(code, mode=black.Mode())
     SCHEMA_PYTHON.write_text(code)
@@ -155,14 +140,6 @@ def sort_columns(columns):
         columns,
         key=lambda c: (c["ColumnName"] != "Patient_ID", c["ColumnName"]),
     )
-
-
-def add_to_column(columns, name, **kwargs):
-    for column in columns:
-        if column["ColumnName"] == name:
-            column.update(kwargs)
-            return
-    assert False, f"Column '{name}' not found"
 
 
 def class_name_for_table(name):
@@ -190,10 +167,14 @@ def definition_for_column(column):
 
 
 def format_string_type(type_name, column):
-    args = column["MaxLength"]
-    if collation := column.get("collation"):
-        args += f", collation={collation!r}"
-    return f"{type_name}({args})"
+    length = column["MaxLength"]
+    collation = column["CollationName"]
+    return f"{type_name}({length}, collation={collation!r})"
+
+
+def format_binary_type(type_name, column):
+    length = column["MaxLength"]
+    return f"{type_name}({length})"
 
 
 def is_valid(name):
