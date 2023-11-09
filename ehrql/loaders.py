@@ -266,7 +266,7 @@ def load_measure_definitions_unsafe(definition_file, user_args):
         raise DefinitionError("'measures' must be an instance of ehrql.Measures")
     if len(measures) == 0:
         raise DefinitionError("No measures defined")
-    return list(measures)
+    return list(measures), measures.dummy_data_config
 
 
 DEFINITION_LOADERS = {
