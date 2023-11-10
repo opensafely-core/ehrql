@@ -151,6 +151,32 @@ def test_names_must_be_unique():
         measures.define_measure(name="test", numerator=patients.is_interesting)
 
 
+@pytest.mark.parametrize(
+    "name",
+    [
+        "",
+        "12346No Spaces",
+        "No-Dashes",
+    ],
+)
+def test_names_must_be_valid(name):
+    measures = Measures()
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "must start with a letter and contain only alphanumeric characters"
+            " and underscores"
+        ),
+    ):
+        measures.define_measure(
+            name=name,
+            numerator=patients.score,
+            denominator=patients.is_interesting,
+            intervals=[(date(2021, 1, 1), date(2021, 1, 31))],
+            group_by={"category": patients.category},
+        )
+
+
 def test_group_by_columns_must_be_consistent():
     measures = Measures()
 

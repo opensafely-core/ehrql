@@ -154,6 +154,12 @@ class Measures:
                     f"No value supplied for '{key}' and no default defined"
                 )
 
+        # Ensure measure names are valid
+        if not VALID_VARIABLE_NAME_RE.match(name):
+            raise ValidationError(
+                f"Measure names must start with a letter and contain only"
+                f" alphanumeric characters and underscores, got: {name!r}"
+            )
         # Ensure measure names are unique
         if name in self._measures:
             raise ValidationError(f"Measure already defined with name: {name}")
