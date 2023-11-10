@@ -66,8 +66,7 @@ lc_dx_date = lc_dx.date.if_null_then(study_end_date)
 
 # define end date: lc dx date +12 | death | derigistration | post COVID-19 syndrome resolved
 one_year_after_start = lc_dx.date + days(365) 
-death_date = ons_deaths.sort_by(ons_deaths.date) \
-    .last_for_patient().date.if_null_then(study_end_date)
+death_date = ons_deaths.date.if_null_then(study_end_date)
 end_reg_date = practice_registrations \
     .where(practice_registrations.start_date <= study_start_date - days(90))\
     .except_where(practice_registrations.end_date <= study_start_date) \
