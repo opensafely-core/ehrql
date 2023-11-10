@@ -922,8 +922,8 @@ def test_occupation_on_covid_vaccine_record(select_all):
     assert results == [{"patient_id": 1, "is_healthcare_worker": True}]
 
 
-@register_test_for(tpp.ons_deaths)
-def test_ons_deaths(select_all):
+@register_test_for(tpp_raw.ons_deaths)
+def test_ons_deaths_raw(select_all):
     results = select_all(
         Patient(Patient_ID=1),
         ONS_Deaths(

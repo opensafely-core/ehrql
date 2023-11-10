@@ -1,6 +1,7 @@
 from urllib import parse
 
 import ehrql.tables.beta.core
+import ehrql.tables.beta.raw.core
 import ehrql.tables.beta.raw.tpp
 import ehrql.tables.beta.smoketest
 import ehrql.tables.beta.tpp
@@ -22,6 +23,7 @@ class TPPBackend(SQLBackend):
     patient_join_column = "Patient_ID"
     implements = [
         ehrql.tables.beta.core,
+        ehrql.tables.beta.raw.core,
         ehrql.tables.beta.tpp,
         ehrql.tables.beta.raw.tpp,
         ehrql.tables.beta.smoketest,
@@ -429,7 +431,7 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    ons_deaths = MappedTable(
+    ons_deaths_raw = MappedTable(
         source="ONS_Deaths",
         columns=dict(
             date="dod",
