@@ -148,10 +148,9 @@ from ehrql import create_dataset
 from ehrql.tables.beta.core import ons_deaths, patients
 
 dataset = create_dataset()
-last_ons_death = ons_deaths.sort_by(ons_deaths.date).last_for_patient()
-dataset.date_of_death = last_ons_death.date
-dataset.place_of_death = last_ons_death.place
-dataset.cause_of_death = last_ons_death.cause_of_death_01
+dataset.date_of_death = ons_deaths.date
+dataset.place_of_death = ons_deaths.place
+dataset.cause_of_death = ons_deaths.cause_of_death_01
 dataset.define_population(patients.exists_for_patient())
 ```
 

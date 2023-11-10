@@ -25,6 +25,26 @@ run across multiple backends.
     development. Projects requiring EMIS data should continue to use the [Cohort
     Extractor](https://docs.opensafely.org/study-def/) tool.
 
+## [beta.raw.core](./beta.raw.core/)
+<small class="subtitle">
+  <a href="./beta.raw.core/"> view details → </a>
+</small>
+
+Available on backends: [**TPP**](../backends#tpp), [**EMIS**](../backends#emis)
+
+This schema defines the core tables and columns which should be available in any backend
+providing primary care data, allowing dataset definitions written using this schema to
+run across multiple backends.
+
+The data provided by this schema are minimally transformed. They are very close to the
+data provided by the underlying database tables. They are provided for data development
+and data curation purposes.
+
+!!! warning
+    This schema is still a work-in-progress while the EMIS backend remains under
+    development. Projects requiring EMIS data should continue to use the [Cohort
+    Extractor](https://docs.opensafely.org/study-def/) tool.
+
 ## [beta.raw.tpp](./beta.raw.tpp/)
 <small class="subtitle">
   <a href="./beta.raw.tpp/"> view details → </a>

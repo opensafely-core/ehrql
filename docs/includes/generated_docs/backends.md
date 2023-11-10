@@ -13,6 +13,7 @@ sources.
 This backend implements the following table schemas:
 
  * [beta.core](../schemas/beta.core/)
+ * [beta.raw.core](../schemas/beta.raw.core/)
  * [beta.tpp](../schemas/beta.tpp/)
  * [beta.raw.tpp](../schemas/beta.raw.tpp/)
  * [beta.smoketest](../schemas/beta.smoketest/)
@@ -38,4 +39,5 @@ from other sources.
 This backend implements the following table schemas:
 
  * [beta.core](../schemas/beta.core/)
+ * [beta.raw.core](../schemas/beta.raw.core/)
  * [beta.smoketest](../schemas/beta.smoketest/)
