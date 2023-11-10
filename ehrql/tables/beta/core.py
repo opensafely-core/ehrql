@@ -10,13 +10,14 @@ run across multiple backends.
 """
 import datetime
 
-from ehrql.codes import DMDCode, SNOMEDCTCode
+from ehrql.codes import DMDCode, ICD10Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 
 
 __all__ = [
     "clinical_events",
     "medications",
+    "ons_deaths",
     "patients",
 ]
 
@@ -78,6 +79,61 @@ class patients(PatientFrame):
         patient's date of birth.
         """
         return (date - self.date_of_birth).years
+
+
+@table
+class ons_deaths(PatientFrame):
+    """
+    Registered deaths
+
+    Date and cause of death based on information recorded when deaths are
+    certified and registered in England and Wales.
+
+    In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
+    a small number of patients have multiple registered deaths.
+    This table contains the earliest registered death.
+    The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
+    """
+
+    date = Series(
+        datetime.date,
+        description=(
+            "Patient's date of death. "
+            "Only deaths registered from February 2019 are recorded."
+        ),
+    )
+    place = Series(
+        str,
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Care Home",
+                    "Elsewhere",
+                    "Home",
+                    "Hospice",
+                    "Hospital",
+                    "Other communal establishment",
+                ]
+            ),
+        ],
+    )
+    underlying_cause_of_death = Series(ICD10Code)
+    # TODO: Revisit this when we have support for multi-valued fields
+    cause_of_death_01 = Series(ICD10Code)
+    cause_of_death_02 = Series(ICD10Code)
+    cause_of_death_03 = Series(ICD10Code)
+    cause_of_death_04 = Series(ICD10Code)
+    cause_of_death_05 = Series(ICD10Code)
+    cause_of_death_06 = Series(ICD10Code)
+    cause_of_death_07 = Series(ICD10Code)
+    cause_of_death_08 = Series(ICD10Code)
+    cause_of_death_09 = Series(ICD10Code)
+    cause_of_death_10 = Series(ICD10Code)
+    cause_of_death_11 = Series(ICD10Code)
+    cause_of_death_12 = Series(ICD10Code)
+    cause_of_death_13 = Series(ICD10Code)
+    cause_of_death_14 = Series(ICD10Code)
+    cause_of_death_15 = Series(ICD10Code)
 
 
 @table
