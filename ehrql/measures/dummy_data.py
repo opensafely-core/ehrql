@@ -14,12 +14,12 @@ from ehrql.query_model.nodes import Function
 
 
 class DummyMeasuresDataGenerator:
-    def __init__(self, measures):
+    def __init__(self, measures, dummy_data_config):
         self.measures = measures
         combined = CombinedMeasureComponents.from_measures(measures)
         self.generator = DummyDataGenerator(
             get_dataset_variables(combined),
-            population_size=get_population_size(combined),
+            population_size=get_population_size(dummy_data_config, combined),
         )
 
     def get_data(self):
@@ -78,12 +78,15 @@ def get_dataset_variables(combined):
     )
 
 
-def get_population_size(combined):
+def get_population_size(dummy_data_config, combined):
     """
-    Make a totally unscientific guess as to how many dummy patients to generate to
+    Return the configured population size, or if none is configured
+    make a totally unscientific guess as to how many dummy patients to generate to
     produce a "big enough" population to generate a "reasonable" amount of non-zero
     measure results
     """
+    if dummy_data_config.population_size is not None:
+        return dummy_data_config.population_size
     return (
         10
         * len(combined.denominators)

@@ -52,7 +52,9 @@ def test_dummy_measures_data_generator():
         intervals=intervals,
     )
 
-    results = DummyMeasuresDataGenerator(measures).get_results()
+    results = DummyMeasuresDataGenerator(
+        measures, measures.dummy_data_config
+    ).get_results()
     results = list(results)
 
     # Check we generated the right number of rows: 2 rows for each breakdown by sex, 3
@@ -81,5 +83,25 @@ def test_population_is_nonzero_when_no_groups():
         # Deliberately omiting any `group_by` columns
     )
 
-    generator = DummyMeasuresDataGenerator(measures)
+    generator = DummyMeasuresDataGenerator(measures, measures.dummy_data_config)
     assert generator.generator.population_size > 0
+
+
+def test_configured_population_size():
+    events_in_interval = events.where(events.date.is_during(INTERVAL))
+    had_event = events_in_interval.exists_for_patient()
+    intervals = years(2).starting_on("2020-01-01")
+    measures = Measures()
+
+    measures.define_measure(
+        "had_event_by_region",
+        numerator=had_event,
+        denominator=patients.exists_for_patient(),
+        group_by=dict(region=patients.region),
+        intervals=intervals,
+    )
+
+    measures.configure_dummy_data(population_size=10)
+
+    generator = DummyMeasuresDataGenerator(measures, measures.dummy_data_config)
+    assert generator.generator.population_size == 10

@@ -70,6 +70,18 @@ Note that you can only define a single set of defaults and attempting to call
 this method more than once is an error.
 </div>
 
+<div class="attr-heading" id="Measures.configure_dummy_data">
+  <tt><strong>configure_dummy_data</strong>(<em>population_size</em>)</tt>
+  <a class="headerlink" href="#Measures.configure_dummy_data" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Configure the dummy data to be generated.
+
+```py
+measures.configure_dummy_data(population_size=10000)
+```
+</div>
+
 </div>
 
 

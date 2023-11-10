@@ -230,7 +230,9 @@ def generate_measures(
     user_args,
 ):
     log.info(f"Compiling measure definitions from {str(definition_file)}")
-    measure_definitions = load_measure_definitions(definition_file, user_args, environ)
+    measure_definitions, dummy_data_config = load_measure_definitions(
+        definition_file, user_args, environ
+    )
 
     if dsn:
         generate_measures_with_dsn(
@@ -243,7 +245,11 @@ def generate_measures(
         )
     else:
         generate_measures_with_dummy_data(
-            measure_definitions, output_file, dummy_tables_path, dummy_data_file
+            measure_definitions,
+            dummy_data_config,
+            output_file,
+            dummy_tables_path,
+            dummy_data_file,
         )
 
 
@@ -266,7 +272,11 @@ def generate_measures_with_dsn(
 
 
 def generate_measures_with_dummy_data(
-    measure_definitions, output_file, dummy_tables_path=None, dummy_data_file=None
+    measure_definitions,
+    dummy_data_config,
+    output_file,
+    dummy_tables_path=None,
+    dummy_data_file=None,
 ):
     log.info("Generating dummy measures data")
     column_specs = get_column_specs_for_measures(measure_definitions)
@@ -280,7 +290,9 @@ def generate_measures_with_dummy_data(
         query_engine = CSVQueryEngine(dummy_tables_path)
         results = get_measure_results(query_engine, measure_definitions)
     else:
-        results = DummyMeasuresDataGenerator(measure_definitions).get_results()
+        results = DummyMeasuresDataGenerator(
+            measure_definitions, dummy_data_config
+        ).get_results()
 
     log.info("Calculating measures and writing results")
     results = eager_iterator(results)
