@@ -44,7 +44,7 @@ above.
 
 For example, take this simple measures definition:
 
-```ehrql
+```python
 from ehrql import create_measures, years
 from ehrql.measures import INTERVAL
 from ehrql.tables.beta.core import patients, clinical_events
