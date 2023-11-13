@@ -3,16 +3,16 @@
 Because OpenSAFELY doesn't allow direct access to individual patient records, ehrQL allows you
 to work with dummy data for developing analytic code on your own computer.
 
-There are 3 ways to use dummy data in ehrQL.
+There are three ways to use dummy data in ehrQL.
 
-1. Let ehrQL [generate your dummy dataset from your dataset definition](#generate-a-dummy-dataset-from-a-dataset-definition)
+1. [Let ehrQL generate a dummy dataset from your dataset definition](#let-ehrql-generate-a-dummy-dataset-from-your-dataset-definition)
 
-1. Supply a [dummy dataset file](#supply-your-own-dummy-dataset-file)
+1. [Supply your own dummy dataset](#supply-your-own-dummy-dataset)
 
-1. Supply a [set of dummy tables](#supply-your-own-dummy-tables)
+1. [Supply your own dummy tables](#supply-your-own-dummy-tables)
 
 
-## Generate a dummy dataset from a dataset definition
+## Let ehrQL generate a dummy dataset from your dataset definition
 
 ehrQL is designed so that the same command can be used to output a dummy dataset when run on your own computer and then output a real dataset when run inside the secure environment as part of an OpenSAFELY pipeline.
 
@@ -33,7 +33,7 @@ dataset.configure_dummy_data(population_size=1000)
 dataset.
 
 
-## Supply your own dummy dataset file
+## Supply your own dummy dataset
 
 You can provide a dummy dataset file in the following formats.
 
@@ -87,6 +87,11 @@ Now, instead of a generated dummy dataset, you'll see the data from the dummy da
 you provided.
 
 ![A screenshot of VS Code, showing the terminal after the `opensafely exec` command was run](opensafely_exec_dummy_data_file.png)
+
+### Dummy dataset errors
+
+ehrQL will check the column names, types and categorical values in your dummy dataset file. If
+errors are found, they will be shown in the terminal output.
 
 
 ### Using ehrQL to generate a base dummy dataset
