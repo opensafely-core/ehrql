@@ -88,6 +88,30 @@ you provided.
 
 ![A screenshot of VS Code, showing the terminal after the `opensafely exec` command was run](opensafely_exec_dummy_data_file.png)
 
+
+### Boolean values
+:warning:  Note that in CSV data, boolean values must be specified as "T" or "F".
+
+Add an extra `had_asthma_event` to the dataset above:
+
+```python
+dataset.had_asthma_event = (
+    medications.where(medications.dmd_code.is_in(asthma_codes))
+    .exists_for_patient()
+)
+```
+
+This is a boolean value and the updated dummy dataset would look like this:
+
+|patient_id|asthma_med_date|asthma_med_code  |had_asthma_event|
+|----------|---------------|-----------------|----------------|
+|1         |2021-01-01     |39113311000001107|T               |
+|2         |2020-03-10     |39113311000001107|T               |
+|3         |2022-11-22     |39113311000001107|T               |
+|4         |2021-06-07     |39113611000001102|T               |
+|5         |2023-10-17     |39113611000001102|T               |
+
+
 ### Dummy dataset errors
 
 ehrQL will check the column names, types and categorical values in your dummy dataset file. If
