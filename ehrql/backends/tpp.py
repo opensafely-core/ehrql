@@ -158,6 +158,32 @@ class TPPBackend(SQLBackend):
     """
     )
 
+    apcs_historical = MappedTable(
+        source="APCS_JRC20231009_LastFilesToContainAllHistoricalCostData",
+        columns={
+            "apcs_ident": "APCS_Ident",
+            "admission_date": "Admission_Date",
+            "discharge_date": "Discharge_Date",
+            "spell_core_hrg_sus": "Spell_Core_HRG_SUS",
+        },
+    )
+
+    apcs_cost_historical = QueryTable(
+        """
+        SELECT
+            cost.Patient_ID AS patient_id,
+            cost.APCS_Ident AS apcs_ident,
+            cost.Grand_Total_Payment_MFF AS grand_total_payment_mff,
+            cost.Tariff_Initial_Amount AS tariff_initial_amount,
+            cost.Tariff_Total_Payment AS tariff_total_payment,
+            apcs.Admission_Date AS admission_date,
+            apcs.Discharge_Date AS discharge_date
+        FROM APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData AS cost
+        LEFT JOIN APCS_JRC20231009_LastFilesToContainAllHistoricalCostData AS apcs
+        ON cost.APCS_Ident = apcs.APCS_Ident
+    """
+    )
+
     appointments = QueryTable(
         # WARNING: There are duplicate rows in the Appointment table, so we add DISTINCT
         # to remove them from this query. When they are removed from the Appointment

@@ -12,11 +12,161 @@ and data curation purposes.
 
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
 from ehrql.tables.beta.raw.tpp import (
+    apcs_cost_historical,
+    apcs_historical,
     isaric,
     wl_clockstops,
     wl_openpathways,
 )
 ```
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## apcs_cost_historical
+
+This table contains some historical APCS cost data.
+
+    It has been exposed to users for data exploration, and may be removed in future.
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="apcs_cost_historical.apcs_ident">
+    <strong>apcs_ident</strong>
+    <a class="headerlink" href="#apcs_cost_historical.apcs_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost_historical.grand_total_payment_mff">
+    <strong>grand_total_payment_mff</strong>
+    <a class="headerlink" href="#apcs_cost_historical.grand_total_payment_mff" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost_historical.tariff_initial_amount">
+    <strong>tariff_initial_amount</strong>
+    <a class="headerlink" href="#apcs_cost_historical.tariff_initial_amount" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost_historical.tariff_total_payment">
+    <strong>tariff_total_payment</strong>
+    <a class="headerlink" href="#apcs_cost_historical.tariff_total_payment" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost_historical.admission_date">
+    <strong>admission_date</strong>
+    <a class="headerlink" href="#apcs_cost_historical.admission_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_cost_historical.discharge_date">
+    <strong>discharge_date</strong>
+    <a class="headerlink" href="#apcs_cost_historical.discharge_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## apcs_historical
+
+This table contains some historical APCS data.
+
+    It has been exposed to users for data exploration, and may be removed in future.
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="apcs_historical.apcs_ident">
+    <strong>apcs_ident</strong>
+    <a class="headerlink" href="#apcs_historical.apcs_ident" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_historical.admission_date">
+    <strong>admission_date</strong>
+    <a class="headerlink" href="#apcs_historical.admission_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_historical.discharge_date">
+    <strong>discharge_date</strong>
+    <a class="headerlink" href="#apcs_historical.discharge_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs_historical.spell_core_hrg_sus">
+    <strong>spell_core_hrg_sus</strong>
+    <a class="headerlink" href="#apcs_historical.spell_core_hrg_sus" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
 
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## isaric

@@ -13,6 +13,8 @@ from ehrql.tables import Constraint, EventFrame, Series, table
 
 
 __all__ = [
+    "apcs_cost_historical",
+    "apcs_historical",
     "isaric",
     "wl_clockstops",
     "wl_openpathways",
@@ -318,3 +320,53 @@ class wl_openpathways_raw(EventFrame):
 
 
 wl_openpathways = table(wl_openpathways_raw)
+
+
+@table
+class apcs_historical(EventFrame):
+    """This table contains some historical APCS data.
+
+    It has been exposed to users for data exploration, and may be removed in future.
+    """
+
+    apcs_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+    )
+    admission_date = Series(
+        datetime.date,
+    )
+    discharge_date = Series(
+        datetime.date,
+    )
+    spell_core_hrg_sus = Series(
+        str,
+    )
+
+
+@table
+class apcs_cost_historical(EventFrame):
+    """This table contains some historical APCS cost data.
+
+    It has been exposed to users for data exploration, and may be removed in future.
+    """
+
+    apcs_ident = Series(
+        int,
+        constraints=[Constraint.NotNull()],
+    )
+    grand_total_payment_mff = Series(
+        float,
+    )
+    tariff_initial_amount = Series(
+        float,
+    )
+    tariff_total_payment = Series(
+        float,
+    )
+    admission_date = Series(
+        datetime.date,
+    )
+    discharge_date = Series(
+        datetime.date,
+    )
