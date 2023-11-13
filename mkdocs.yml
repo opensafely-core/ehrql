@@ -26,6 +26,7 @@ nav:
     - How-to guides: how-to/index.md
     - Using ehrQL to answer specific questions: how-to/examples.md
     - Resolving ehrQL errors: how-to/errors.md
+    - How to use dummy data in an ehrQL dataset definition: how-to/dummy-data.md
   - Reference:
     - Reference: reference/index.md
     - Language reference: reference/language.md
