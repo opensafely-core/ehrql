@@ -15,7 +15,9 @@ from tests.lib.tpp_schema import (
     EC,
     OPA,
     APCS_Cost,
+    APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData,
     APCS_Der,
+    APCS_JRC20231009_LastFilesToContainAllHistoricalCostData,
     Appointment,
     Base,
     CodedEvent,
@@ -236,6 +238,57 @@ def test_apcs_cost(select_all):
             Discharge_Date=date(2023, 2, 1),
         ),
         APCS_Cost(
+            Patient_ID=1,
+            APCS_Ident=1,
+            Grand_Total_Payment_MFF=1.1,
+            Tariff_Initial_Amount=2.2,
+            Tariff_Total_Payment=3.3,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "apcs_ident": 1,
+            "grand_total_payment_mff": pytest.approx(1.1, rel=1e-5),
+            "tariff_initial_amount": pytest.approx(2.2, rel=1e-5),
+            "tariff_total_payment": pytest.approx(3.3, rel=1e-5),
+            "admission_date": date(2023, 1, 1),
+            "discharge_date": date(2023, 2, 1),
+        },
+    ]
+
+
+@register_test_for(tpp_raw.apcs_historical)
+def test_apcs_historical(select_all):
+    results = select_all(
+        APCS_JRC20231009_LastFilesToContainAllHistoricalCostData(
+            Patient_ID=1,
+            APCS_Ident=1,
+            Admission_Date=date(2023, 1, 1),
+            Discharge_Date=date(2023, 2, 1),
+            Spell_Core_HRG_SUS="XXX",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "apcs_ident": 1,
+            "admission_date": date(2023, 1, 1),
+            "discharge_date": date(2023, 2, 1),
+            "spell_core_hrg_sus": "XXX",
+        },
+    ]
+
+
+@register_test_for(tpp_raw.apcs_cost_historical)
+def test_apcs_cost_historical(select_all):
+    results = select_all(
+        APCS_JRC20231009_LastFilesToContainAllHistoricalCostData(
+            APCS_Ident=1,
+            Admission_Date=date(2023, 1, 1),
+            Discharge_Date=date(2023, 2, 1),
+        ),
+        APCS_Cost_JRC20231009_LastFilesToContainAllHistoricalCostData(
             Patient_ID=1,
             APCS_Ident=1,
             Grand_Total_Payment_MFF=1.1,
