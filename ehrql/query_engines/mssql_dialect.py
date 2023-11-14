@@ -1,4 +1,5 @@
 import datetime
+from functools import cached_property
 
 import sqlalchemy.types
 from sqlalchemy.dialects.mssql.base import MS_2008_VERSION
@@ -129,3 +130,48 @@ def visit_select_star_into(element, compiler, **kw):
         compiler.process(element.table, asfrom=True, **kw),
         compiler.process(element.selectable, asfrom=True, **kw),
     )
+
+
+# Implement the "table value constructor trick" for applying an aggregation horizontally
+# across columns. See:
+# https://stackoverflow.com/questions/71022/sql-max-of-multiple-columns/6871572#6871572
+#
+# SQLAlchemy's ScalarSelect in combination with Values does almost exactly what we need
+# here but it was obviously designed with the idea that the inputs to the table value
+# constructor would be literal values rather than references to other columns. This
+# means that it "loses" the references to these columns so that when you ask it e.g.
+# what its children are or what tables it selects from, it gives the wrong answer. Here
+# we subclass it and override methods to make it do the right thing.
+class ScalarSelectAggregation(sqlalchemy.ScalarSelect):
+    @classmethod
+    def build(cls, aggregate_function, columns, **column_kwargs):
+        values = sqlalchemy.values(
+            sqlalchemy.Column("value", **column_kwargs), name="aggregate_values"
+        ).data(
+            [(column,) for column in columns],
+        )
+        aggregated = sqlalchemy.select(aggregate_function(values.columns[0]))
+        scalar_select = aggregated.scalar_subquery()
+
+        # Construct an instance of our own class which is an exact copy of the
+        # original ScalarSelect
+        new = cls.__new__(cls)
+        new.__dict__.update(scalar_select.__dict__)
+        # Store a reference to the original columns
+        new._orig_columns = columns
+        return new
+
+    def get_children(self, **kwargs):
+        yield from super().get_children(**kwargs)
+        # When we iterate the query graph we need to be sure we include the column
+        # references
+        yield from self._orig_columns
+
+    @cached_property
+    def _from_objects(self):
+        # Collect the "from" objects for every column
+        all_froms = [
+            obj for column in self._orig_columns for obj in column._from_objects
+        ]
+        # Return just the unique entries in their original order
+        return list(dict.fromkeys(all_froms).keys())

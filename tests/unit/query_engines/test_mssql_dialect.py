@@ -3,7 +3,11 @@ import datetime
 import sqlalchemy
 from sqlalchemy.sql.visitors import iterate
 
-from ehrql.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
+from ehrql.query_engines.mssql_dialect import (
+    MSSQLDialect,
+    ScalarSelectAggregation,
+    SelectStarInto,
+)
 
 
 def test_mssql_date_types():
@@ -80,3 +84,42 @@ def test_mssql_float_type():
         _str(sqlalchemy.sql.case((float_col > 0.5, 0.1), else_=0.75))
         == "CASE WHEN (float_col > CAST(0.5 AS FLOAT)) THEN CAST(0.1 AS FLOAT) ELSE CAST(0.75 AS FLOAT) END"
     )
+
+
+def test_scalar_select_aggregation():
+    table = sqlalchemy.table(
+        "t1",
+        sqlalchemy.Column("c1"),
+        sqlalchemy.Column("c2"),
+        sqlalchemy.Column("c3"),
+    )
+    maximum = ScalarSelectAggregation.build(
+        sqlalchemy.func.max, [table.columns.c1, table.columns.c2]
+    )
+    query = sqlalchemy.select(table.columns.c3).where(maximum == 1)
+    assert _str(query) == (
+        "SELECT t1.c3 \n"
+        "FROM t1 \n"
+        "WHERE ("
+        "SELECT max(aggregate_values.value) AS max_1 \n"
+        "FROM (VALUES (t1.c1), (t1.c2)) AS aggregate_values (value)"
+        ") = 1"
+    )
+
+
+def test_scalar_select_aggregation_can_be_iterated():
+    table = sqlalchemy.table(
+        "t1",
+        sqlalchemy.Column("c1"),
+        sqlalchemy.Column("c2"),
+        sqlalchemy.Column("c3"),
+    )
+    maximum = ScalarSelectAggregation.build(
+        sqlalchemy.func.max, [table.columns.c1, table.columns.c2]
+    )
+    query = sqlalchemy.select(table.columns.c3).where(maximum == 1)
+    # Check that iterating the resulting query gets us back to the original columns
+    iterator_elements = iterate(query)
+    expected = [table.columns.c1, table.columns.c2, table.columns.c3]
+    # We have to compare object IDs here because these objects overload `__eq__`
+    assert {id(el) for el in expected} <= {id(el) for el in iterator_elements}
