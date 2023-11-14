@@ -42,6 +42,7 @@ nav:
     - Using ehrQL in OpenSAFELY projects: explanation/using-ehrql-in-opensafely-projects.md
     - Running ehrQL: explanation/running-ehrql.md
     - Using the measures framework: explanation/measures.md
+    - Selecting populations for study: explanation/selecting-populations-for-study.md
 
 theme:
   name: material
