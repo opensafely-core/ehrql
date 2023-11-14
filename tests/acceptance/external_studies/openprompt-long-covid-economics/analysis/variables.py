@@ -12,8 +12,9 @@ from databuilder.tables.beta.tpp import (
 )
 
 from ehrql.tables.beta.tpp import (
-	opa_diag, opa_proc, opa_cost, ec_cost, apcs_cost,
+	opa_diag, opa_proc, opa_cost, ec_cost,
 )
+from ehrql.tables.beta.raw.tpp import apcs_cost_historical
 
 from ehrql.tables.beta.core import medications
 from databuilder.codes import ICD10Code
@@ -314,10 +315,10 @@ def hx_outpatient_visit(dataset, num_months):
 # Cost function
 # inpatient hospital costs
 def cost_apc_fn(dataset, from_date, num_months, end_date):
-    mon_cost = apcs_cost \
-        .where((apcs_cost.admission_date >= from_date + days((num_months-1)*30)) &
-              (apcs_cost.admission_date <  from_date + days(num_months*30)) &
-              (apcs_cost.admission_date <=  end_date)).grand_total_payment_mff.sum_for_patient() 
+    mon_cost = apcs_cost_historical \
+        .where((apcs_cost_historical.admission_date >= from_date + days((num_months-1)*30)) &
+              (apcs_cost_historical.admission_date <  from_date + days(num_months*30)) &
+              (apcs_cost_historical.admission_date <=  end_date)).grand_total_payment_mff.sum_for_patient()
     setattr(dataset, f"apc_cost_m{num_months}", mon_cost)    
 
 # A&E monthly costs

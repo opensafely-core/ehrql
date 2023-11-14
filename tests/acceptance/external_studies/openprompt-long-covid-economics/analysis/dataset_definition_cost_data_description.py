@@ -2,8 +2,9 @@ from datetime import date
 
 from databuilder.ehrql import Dataset, days, years
 from databuilder.tables.beta.tpp import (
-    patients, apcs_cost, ec_cost, opa_cost
+    patients, ec_cost, opa_cost
 )
+from ehrql.tables.beta.raw.tpp import apcs_cost_historical
 
 study_start_date = date(2020, 11, 1)
 study_one_year = date(2021, 11, 1)
@@ -13,17 +14,19 @@ study_end_date = date(2023, 1, 31)
 age = (study_start_date - patients.date_of_birth).years
 
 # Query total apc costs:
-apc_cost_1y = apcs_cost.where((apcs_cost.admission_date >= study_start_date) &
-                              (apcs_cost.admission_date < study_one_year)) \
-                        .grand_total_payment_mff.sum_for_patient()
+apc_cost_1y = apcs_cost_historical \
+    .where((apcs_cost_historical.admission_date >= study_start_date) &
+           (apcs_cost_historical.admission_date < study_one_year)) \
+    .grand_total_payment_mff.sum_for_patient()
 
-apc_cost_2y = apcs_cost.where((apcs_cost.admission_date >= study_one_year) &
-                              (apcs_cost.admission_date < study_two_year)) \
-                        .grand_total_payment_mff.sum_for_patient()
+apc_cost_2y = apcs_cost_historical \
+    .where((apcs_cost_historical.admission_date >= study_one_year) &
+           (apcs_cost_historical.admission_date < study_two_year)) \
+    .grand_total_payment_mff.sum_for_patient()
 
-apc_cost_total = apcs_cost \
-    .where((apcs_cost.admission_date >= study_start_date) &
-           (apcs_cost.admission_date < study_end_date)) \
+apc_cost_total = apcs_cost_historical \
+    .where((apcs_cost_historical.admission_date >= study_start_date) &
+           (apcs_cost_historical.admission_date < study_end_date)) \
     .grand_total_payment_mff.sum_for_patient()
 
 # Query total EC costs:
