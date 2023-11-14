@@ -250,6 +250,10 @@ class appointments(EventFrame):
     """
     Appointments in primary care.
 
+    !!! warning
+        When a patient moves practice,
+        their appointment history is deleted.
+
     You can find out more about [the associated database table][appointments_5] in the [short data report][appointments_1].
     It shows:
 
