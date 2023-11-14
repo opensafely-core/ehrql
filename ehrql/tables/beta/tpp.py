@@ -20,6 +20,7 @@ __all__ = [
     "ec",
     "ec_cost",
     "emergency_care_attendances",
+    "ethnicity_from_sus",
     "hospital_admissions",
     "household_memberships_2020",
     "medications",
@@ -780,4 +781,37 @@ class wl_openpathways(EventFrame):
     week_ending_date = Series(
         datetime.date,
         description="The Sunday of the week that the pathway relates to",
+    )
+
+
+@table
+class ethnicity_from_sus(PatientFrame):
+    """
+    This finds the most frequently used national ethnicity code for each patient from
+    the various SUS (Secondary Uses Service) tables.
+
+    Specifically it uses ethnicity codes from the following tables:
+
+        APCS (In-patient hospital admissions)
+        EC (A&E attendances)
+        OPA (Out-patient hospital appointments)
+
+    Codes are as defined by "Ethnic Category Code 2001" — the 16+1 ethnic data
+    categories used in the 2001 census:
+    https://www.datadictionary.nhs.uk/data_elements/ethnic_category.html
+
+    Codes beginning Z ("Not stated") and 99 ("Not known") are excluded.
+
+    Where there is a tie for the most common code the lexically greatest code is used.
+    """
+
+    code = Series(
+        str,
+        constraints=[
+            Constraint.Categorical(list("ABCDEFGHJKLMNPRS")),
+        ],
+        description=(
+            "First character of recorded ethncity code (national code):\n"
+            "https://www.datadictionary.nhs.uk/data_elements/ethnic_category.html"
+        ),
     )

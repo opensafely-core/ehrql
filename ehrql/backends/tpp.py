@@ -277,6 +277,49 @@ class TPPBackend(SQLBackend):
         """
     )
 
+    ethnicity_from_sus = QueryTable(
+        """
+            SELECT
+              Patient_ID AS patient_id,
+              code
+            FROM (
+              SELECT
+                Patient_ID,
+                code,
+                ROW_NUMBER() OVER (
+                    PARTITION BY Patient_ID
+                    ORDER BY COUNT(code) DESC, code DESC
+                ) AS row_num
+              FROM (
+                SELECT
+                  Patient_ID,
+                  SUBSTRING(Ethnic_Group, 1, 1) AS code
+                FROM
+                  APCS
+                UNION ALL
+                SELECT
+                  Patient_ID,
+                  Ethnic_Category AS code
+                FROM
+                  EC
+                UNION ALL
+                SELECT
+                  Patient_ID,
+                  SUBSTRING(Ethnic_Category, 1, 1) AS code
+                FROM
+                  OPA
+              ) t
+              WHERE
+                code IS NOT NULL
+                AND code != ''
+                AND code != '9'
+                AND code != 'Z'
+              GROUP BY Patient_ID, code
+            ) t
+            WHERE row_num = 1
+        """
+    )
+
     hospital_admissions = QueryTable(
         """
             SELECT
