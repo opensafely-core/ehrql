@@ -162,6 +162,7 @@ Note that the dummy dataset doesn't need to be of the same type as the
 real dataset (e.g. you can use a `.csv` file here to produce a `.arrow`
 file).
 
+
 This argument is ignored when running against real tables.
 
 </div>
@@ -283,15 +284,16 @@ This argument is ignored when running against real tables.
   <a class="headerlink" href="#generate-measures.dummy-data-file" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Path to a dummy dataset.
+Path to dummy measures output.
 
-This allows you to take complete control of the dummy dataset. ehrQL
+This allows you to take complete control of the dummy measures output. ehrQL
 will ensure that the column names, types and categorical values match what
-they will be in the real dataset, but does no further validation.
+they will be in the real measures output, but does no further validation.
 
-Note that the dummy dataset doesn't need to be of the same type as the
-real dataset (e.g. you can use a `.csv` file here to produce a `.arrow`
+Note that the dummy measures output doesn't need to be of the same type as the
+real measures output (e.g. you can use a `.csv` file here to produce a `.arrow`
 file).
+
 
 This argument is ignored when running against real tables.
 

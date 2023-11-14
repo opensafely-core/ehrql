@@ -443,10 +443,8 @@ def add_dsn_argument(parser, environ):
 
 
 def add_dummy_data_file_argument(parser, environ):
-    parser.add_argument(
-        "--dummy-data-file",
-        help=strip_indent(
-            """
+    if parser.get_default("function") == generate_dataset:
+        help_text = """
             Path to a dummy dataset.
 
             This allows you to take complete control of the dummy dataset. ehrQL
@@ -456,6 +454,25 @@ def add_dummy_data_file_argument(parser, environ):
             Note that the dummy dataset doesn't need to be of the same type as the
             real dataset (e.g. you can use a `.csv` file here to produce a `.arrow`
             file).
+        """
+    else:
+        help_text = """
+            Path to dummy measures output.
+
+            This allows you to take complete control of the dummy measures output. ehrQL
+            will ensure that the column names, types and categorical values match what
+            they will be in the real measures output, but does no further validation.
+
+            Note that the dummy measures output doesn't need to be of the same type as the
+            real measures output (e.g. you can use a `.csv` file here to produce a `.arrow`
+            file).
+        """
+
+    parser.add_argument(
+        "--dummy-data-file",
+        help=strip_indent(
+            f"""
+            {help_text}
 
             This argument is ignored when running against real tables.
             """
