@@ -1,11 +1,14 @@
 import sqlalchemy
 import structlog
-from sqlalchemy import column, values
 from sqlalchemy.schema import CreateIndex, DropTable
 from sqlalchemy.sql.functions import Function as SQLFunction
 
 from ehrql.query_engines.base_sql import BaseSQLQueryEngine, apply_patient_joins
-from ehrql.query_engines.mssql_dialect import MSSQLDialect, SelectStarInto
+from ehrql.query_engines.mssql_dialect import (
+    MSSQLDialect,
+    ScalarSelectAggregation,
+    SelectStarInto,
+)
 from ehrql.utils.mssql_log_utils import execute_with_log
 from ehrql.utils.sqlalchemy_exec_utils import (
     ReconnectableConnection,
@@ -246,22 +249,10 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
                 log.info(f"Running {query_id}")
                 execute_with_log(connection, cleanup_query, log.info, query_id=query_id)
 
-    # implement the "table value constructor trick"
-    # https://stackoverflow.com/questions/71022/sql-max-of-multiple-columns/6871572#6871572
     def get_aggregate_subquery(self, aggregate_function, columns, return_type):
-        v = values(column("aggregate", return_type), name="aggregate_values").data(
-            [(c,) for c in columns]
+        return ScalarSelectAggregation.build(
+            aggregate_function, columns, type_=return_type
         )
-        aggregated = sqlalchemy.select(
-            aggregate_function(v.c.aggregate)
-        ).scalar_subquery()
-
-        # sqlalchemy loses track of the from_objects in the .data() expression
-        # above, so we derive a unique list of them from the supplied columns
-        # and override the return subquery's from_objects
-        froms = set().union(*[c._from_objects for c in columns])
-        aggregated._from_objects = list(froms)
-        return aggregated
 
 
 def temporary_table_from_query(table_name, query, index_col=0, schema=None):
