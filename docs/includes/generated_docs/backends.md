@@ -10,6 +10,28 @@
 provides access to primary care data from SystmOne, plus data linked from other
 sources.
 
+### Patients included in the TPP backend
+
+SystmOne is a primary care clinical information system
+used by roughly one third of GP practices in England,
+with records for approximately 44% of the English population.
+
+Only patients with a full GMS (General Medical Services) registration are included.
+
+We have registration history for:
+
+* all patients currently registered at a TPP practice
+* all patients registered at a TPP practice any time from 1 Jan 2009 onwards:
+    * who have since de-registered
+    * who have since died
+
+A patient can be registered with zero, one, or more than one practices at a given
+time. For instance, students are often registered with a practice at home and a
+practice at university.
+
+!!! warning
+    Refer to the [discussion of selecting populations for studies](../../explanation/selecting-populations-for-study.md).
+
 This backend implements the following table schemas:
 
  * [beta.core](../schemas/beta.core/)
