@@ -15,6 +15,7 @@ from ehrql.tables.beta.raw.tpp import (
     apcs_cost_historical,
     apcs_historical,
     isaric,
+    ons_deaths,
     wl_clockstops,
     wl_openpathways,
 )
@@ -785,6 +786,250 @@ Date of enrolment.
   </dt>
   <dd markdown="block">
 Outcome date.
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## ons_deaths
+
+Registered deaths
+
+Date and cause of death based on information recorded when deaths are
+certified and registered in England and Wales.
+
+In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
+a small number of patients have multiple registered deaths.
+This table contains all registered deaths.
+The `ehrql.tables.beta.ons_deaths` table contains the earliest registered death.
+
+!!! tip
+    To return one row per patient from `ehrql.tables.beta.raw.ons_deaths`,
+    for example the latest registered death, you can use:
+
+    ```py
+    ons_deaths.sort_by(ons_deaths.date).last_for_patient()
+    ```
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ons_deaths.date">
+    <strong>date</strong>
+    <a class="headerlink" href="#ons_deaths.date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Patient's date of death. Only deaths registered from February 2019 are recorded.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.place">
+    <strong>place</strong>
+    <a class="headerlink" href="#ons_deaths.place" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+
+
+ * Possible values: `Care Home`, `Elsewhere`, `Home`, `Hospice`, `Hospital`, `Other communal establishment`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.underlying_cause_of_death">
+    <strong>underlying_cause_of_death</strong>
+    <a class="headerlink" href="#ons_deaths.underlying_cause_of_death" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_01">
+    <strong>cause_of_death_01</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_01" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_02">
+    <strong>cause_of_death_02</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_02" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_03">
+    <strong>cause_of_death_03</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_03" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_04">
+    <strong>cause_of_death_04</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_04" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_05">
+    <strong>cause_of_death_05</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_05" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_06">
+    <strong>cause_of_death_06</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_06" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_07">
+    <strong>cause_of_death_07</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_07" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_08">
+    <strong>cause_of_death_08</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_08" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_09">
+    <strong>cause_of_death_09</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_09" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_10">
+    <strong>cause_of_death_10</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_10" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_11">
+    <strong>cause_of_death_11</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_11" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_12">
+    <strong>cause_of_death_12</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_12" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_13">
+    <strong>cause_of_death_13</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_13" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_14">
+    <strong>cause_of_death_14</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_14" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_15">
+    <strong>cause_of_death_15</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_15" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+
 
   </dd>
 </div>

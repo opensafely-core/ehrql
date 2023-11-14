@@ -82,7 +82,19 @@ class patients(PatientFrame):
 
 
 @table
-class ons_deaths(EventFrame):
+class ons_deaths(PatientFrame):
+    """
+    Registered deaths
+
+    Date and cause of death based on information recorded when deaths are
+    certified and registered in England and Wales.
+
+    In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
+    a small number of patients have multiple registered deaths.
+    This table contains the earliest registered death.
+    The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
+    """
+
     date = Series(
         datetime.date,
         description=(

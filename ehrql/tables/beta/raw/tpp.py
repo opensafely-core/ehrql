@@ -10,12 +10,14 @@ and data curation purposes.
 import datetime
 
 from ehrql.tables import Constraint, EventFrame, Series, table
+from ehrql.tables.beta.raw.core import ons_deaths
 
 
 __all__ = [
     "apcs_cost_historical",
     "apcs_historical",
     "isaric",
+    "ons_deaths",
     "wl_clockstops",
     "wl_openpathways",
 ]

@@ -97,9 +97,7 @@ dataset.imd = address_as_of(study_start_date).imd_rounded
 
 # death ------------------------------------------------------------
 dataset.death_date = patients.date_of_death
-ons_deathdata = ons_deaths \
-    .sort_by(ons_deaths.date).last_for_patient()
-dataset.ons_death_date = ons_deathdata.date
+dataset.ons_death_date = ons_deaths.date
 
 # Ethnicity in 6 categories ------------------------------------------------------------
 dataset.ethnicity = clinical_events.where(clinical_events.ctv3_code.is_in(codelists.ethnicity)) \

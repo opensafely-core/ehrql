@@ -1016,8 +1016,8 @@ def test_occupation_on_covid_vaccine_record(select_all):
     assert results == [{"patient_id": 1, "is_healthcare_worker": True}]
 
 
-@register_test_for(tpp.ons_deaths)
-def test_ons_deaths(select_all):
+@register_test_for(tpp_raw.ons_deaths)
+def test_ons_deaths_raw(select_all):
     results = select_all(
         Patient(Patient_ID=1),
         ONS_Deaths(
@@ -1040,6 +1040,90 @@ def test_ons_deaths(select_all):
             "cause_of_death_03": None,
             **{f"cause_of_death_{i:02d}": None for i in range(4, 16)},
         }
+    ]
+
+
+@register_test_for(tpp.ons_deaths)
+def test_ons_deaths(select_all):
+    results = select_all(
+        Patient(Patient_ID=1),
+        Patient(Patient_ID=2),
+        Patient(Patient_ID=3),
+        ONS_Deaths(
+            Patient_ID=1,
+            dod="2022-01-01",
+            Place_of_occurrence="Care Home",
+            icd10u="xyz",
+            ICD10001="abc",
+            ICD10002="def",
+        ),
+        # Same patient, different date of death (dod) is being tested
+        ONS_Deaths(
+            Patient_ID=2,
+            dod="2022-01-01",
+            Place_of_occurrence="Care Home",
+            icd10u="xyz",
+            ICD10001="abc",
+            ICD10002="def",
+        ),
+        ONS_Deaths(
+            Patient_ID=2,
+            dod="2022-01-02",
+            Place_of_occurrence="Care Home",
+            icd10u="xyz",
+            ICD10001="abc",
+            ICD10002="def",
+        ),
+        # Same patient, same date of death (dod), different underlying
+        # cause of death (icd10u) is being tested
+        ONS_Deaths(
+            Patient_ID=3,
+            dod="2022-01-01",
+            Place_of_occurrence="Care Home",
+            icd10u="xyz",
+            ICD10001="abc",
+            ICD10002="def",
+        ),
+        ONS_Deaths(
+            Patient_ID=3,
+            dod="2022-01-01",
+            Place_of_occurrence="Care Home",
+            icd10u="abc",
+            ICD10001="abc",
+            ICD10002="def",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": 1,
+            "date": date(2022, 1, 1),
+            "place": "Care Home",
+            "underlying_cause_of_death": "xyz",
+            "cause_of_death_01": "abc",
+            "cause_of_death_02": "def",
+            "cause_of_death_03": None,
+            **{f"cause_of_death_{i:02d}": None for i in range(4, 16)},
+        },
+        {
+            "patient_id": 2,
+            "date": date(2022, 1, 1),
+            "place": "Care Home",
+            "underlying_cause_of_death": "xyz",
+            "cause_of_death_01": "abc",
+            "cause_of_death_02": "def",
+            "cause_of_death_03": None,
+            **{f"cause_of_death_{i:02d}": None for i in range(4, 16)},
+        },
+        {
+            "patient_id": 3,
+            "date": date(2022, 1, 1),
+            "place": "Care Home",
+            "underlying_cause_of_death": "abc",
+            "cause_of_death_01": "abc",
+            "cause_of_death_02": "def",
+            "cause_of_death_03": None,
+            **{f"cause_of_death_{i:02d}": None for i in range(4, 16)},
+        },
     ]
 
 

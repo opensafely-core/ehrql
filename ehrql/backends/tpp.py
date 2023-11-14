@@ -3,6 +3,7 @@ from urllib import parse
 import sqlalchemy
 
 import ehrql.tables.beta.core
+import ehrql.tables.beta.raw.core
 import ehrql.tables.beta.raw.tpp
 import ehrql.tables.beta.smoketest
 import ehrql.tables.beta.tpp
@@ -25,6 +26,7 @@ class TPPBackend(SQLBackend):
     patient_join_column = "Patient_ID"
     implements = [
         ehrql.tables.beta.core,
+        ehrql.tables.beta.raw.core,
         ehrql.tables.beta.tpp,
         ehrql.tables.beta.raw.tpp,
         ehrql.tables.beta.smoketest,
@@ -477,7 +479,7 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    ons_deaths = MappedTable(
+    ons_deaths_raw = MappedTable(
         source="ONS_Deaths",
         columns=dict(
             date="dod",
@@ -485,6 +487,59 @@ class TPPBackend(SQLBackend):
             underlying_cause_of_death="icd10u",
             **{f"cause_of_death_{i:02d}": f"ICD100{i:02d}" for i in range(1, 16)},
         ),
+    )
+
+    ons_deaths = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            dod AS date,
+            Place_of_occurrence AS place,
+            icd10u AS underlying_cause_of_death,
+            ICD10001 AS cause_of_death_01,
+            ICD10002 AS cause_of_death_02,
+            ICD10003 AS cause_of_death_03,
+            ICD10004 AS cause_of_death_04,
+            ICD10005 AS cause_of_death_05,
+            ICD10006 AS cause_of_death_06,
+            ICD10007 AS cause_of_death_07,
+            ICD10008 AS cause_of_death_08,
+            ICD10009 AS cause_of_death_09,
+            ICD10010 AS cause_of_death_10,
+            ICD10011 AS cause_of_death_11,
+            ICD10012 AS cause_of_death_12,
+            ICD10013 AS cause_of_death_13,
+            ICD10014 AS cause_of_death_14,
+            ICD10015 AS cause_of_death_15
+        FROM (
+            SELECT
+                Patient_ID,
+                dod,
+                Place_of_occurrence,
+                icd10u,
+                ICD10001,
+                ICD10002,
+                ICD10003,
+                ICD10004,
+                ICD10005,
+                ICD10006,
+                ICD10007,
+                ICD10008,
+                ICD10009,
+                ICD10010,
+                ICD10011,
+                ICD10012,
+                ICD10013,
+                ICD10014,
+                ICD10015,
+                ROW_NUMBER() OVER (
+                    PARTITION BY Patient_ID
+                    ORDER BY dod ASC, icd10u ASC
+                ) AS rownum
+            FROM ONS_Deaths
+        ) t
+        WHERE t.rownum = 1
+        """
     )
 
     opa = MappedTable(

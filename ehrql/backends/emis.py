@@ -1,4 +1,5 @@
 import ehrql.tables.beta.core
+import ehrql.tables.beta.raw.core
 import ehrql.tables.beta.smoketest
 from ehrql.backends.base import MappedTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
@@ -23,6 +24,7 @@ class EMISBackend(SQLBackend):
     patient_join_column = "patient_id"
     implements = [
         ehrql.tables.beta.core,
+        ehrql.tables.beta.raw.core,
         ehrql.tables.beta.smoketest,
     ]
 
@@ -52,6 +54,20 @@ class EMISBackend(SQLBackend):
         ),
     )
 
+    ons_deaths_raw = MappedTable(
+        source="ons_deaths_raw",
+        columns=dict(
+            date="date",
+            place="place",
+            underlying_cause_of_death="icd10u",
+            **{
+                f"cause_of_death_{i:02d}": f"cause_of_death_{i:02d}"
+                for i in range(1, 16)
+            },
+        ),
+    )
+
+    # This is just a placeholder for the EMIS backend
     ons_deaths = MappedTable(
         source="ons_deaths",
         columns=dict(

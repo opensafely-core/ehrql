@@ -1203,10 +1203,18 @@ undocumented algorithm.
 </div>
 
 
-<p class="dimension-indicator"><code>many rows per patient</code></p>
+<p class="dimension-indicator"><code>one row per patient</code></p>
 ## ons_deaths
 
+Registered deaths
 
+Date and cause of death based on information recorded when deaths are
+certified and registered in England and Wales.
+
+In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
+a small number of patients have multiple registered deaths.
+This table contains the earliest registered death.
+The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
