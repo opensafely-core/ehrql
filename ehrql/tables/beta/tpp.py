@@ -703,7 +703,7 @@ class opa(EventFrame):
             "for details on code meanings."
         ),
         # This non-ascending order follows the NHS Data Model and Dictionary.
-        constraints=[Constraint.Categorical(["5", "6", "7", "2", "3", "4"])],
+        constraints=[Constraint.Categorical(["5", "6", "7", "2", "3", "4", "0"])],
     )
     consultation_medium_used = Series(
         str,
@@ -717,7 +717,7 @@ class opa(EventFrame):
         ),
         constraints=[
             Constraint.Categorical(
-                ["01", "02", "03", "04", "05", "06", "07", "08", "98"]
+                ["01", "02", "03", "04", "05", "09", "10", "11", "98"]
             )
         ],
     )
@@ -731,7 +731,7 @@ class opa(EventFrame):
             "(https://www.datadictionary.nhs.uk/attributes/first_attendance.html) "
             "for details on code meanings."
         ),
-        constraints=[Constraint.Categorical(["1", "2", "3", "4", "5"])],
+        constraints=[Constraint.Categorical(["1", "2", "3", "4", "5", "9"])],
     )
     hrg_code = Series(
         str,
