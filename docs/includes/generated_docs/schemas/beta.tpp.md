@@ -1209,7 +1209,18 @@ undocumented algorithm.
 Registered deaths
 
 Date and cause of death based on information recorded when deaths are
-certified and registered in England and Wales.
+certified and registered in England and Wales from February 2019 onwards.
+The data provider is the Office for National Statistics (ONS).
+This table is updated approximately weekly in OpenSAFELY.
+
+This table includes the underlying cause of death and up to 15 medical conditions mentioned on the death certificate.
+These codes (`cause_of_death_01` to `cause_of_death_15`) are not ordered meaningfully.
+
+More information about this table can be found in following documents provided by the ONS:
+
+- [Information collected at death registration](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/methodologies/userguidetomortalitystatisticsjuly2017#information-collected-at-death-registration)
+- [User guide to mortality statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/methodologies/userguidetomortalitystatisticsjuly2017)
+- [How death registrations are recorded and stored by ONS](https://www.ons.gov.uk/aboutus/transparencyandgovernance/freedomofinformationfoi/howdeathregistrationsarerecordedandstoredbyons)
 
 In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
 a small number of patients have multiple registered deaths.
@@ -1225,7 +1236,7 @@ The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
     <code>date</code>
   </dt>
   <dd markdown="block">
-Patient's date of death. Only deaths registered from February 2019 are recorded.
+Patient's date of death.
 
   </dd>
 </div>
@@ -1237,7 +1248,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>string</code>
   </dt>
   <dd markdown="block">
-
+Patient's date of death.
 
  * Possible values: `Care Home`, `Elsewhere`, `Home`, `Hospice`, `Hospital`, `Other communal establishment`
   </dd>
@@ -1250,7 +1261,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Patient's underlying cause of death of death.
 
   </dd>
 </div>
@@ -1262,7 +1273,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1274,7 +1285,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1286,7 +1297,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1298,7 +1309,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1310,7 +1321,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1322,7 +1333,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1334,7 +1345,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1346,7 +1357,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1358,7 +1369,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1370,7 +1381,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1382,7 +1393,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1394,7 +1405,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1406,7 +1417,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1418,7 +1429,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
@@ -1430,7 +1441,7 @@ Patient's date of death. Only deaths registered from February 2019 are recorded.
     <code>ICD-10 code</code>
   </dt>
   <dd markdown="block">
-
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>
