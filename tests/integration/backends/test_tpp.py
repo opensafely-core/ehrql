@@ -469,6 +469,52 @@ def test_emergency_care_attendances(select_all):
     ]
 
 
+@register_test_for(tpp.ethnicity_from_sus)
+def test_ethnicity_from_sus(select_all):
+    results = select_all(
+        # patient 1; Z is ignored; A and B (ignoring the second (optional local code)
+        # characterare equally common; B is selected as it is lexically > A
+        # The EC table's Ethnic Category is national group only (1 character)
+        EC(Patient_ID=1, Ethnic_Category="A"),
+        EC(Patient_ID=1, Ethnic_Category="Z"),
+        EC(Patient_ID=1, Ethnic_Category="P"),
+        APCS(Patient_ID=1, Ethnic_Group="AA"),
+        APCS(Patient_ID=1, Ethnic_Group="BA"),
+        APCS(Patient_ID=1, Ethnic_Group="A1"),
+        OPA(Patient_ID=1, Ethnic_Category="B1"),
+        OPA(Patient_ID=1, Ethnic_Category="B"),
+        # patient 2; Z and 9 codes the most frequent, but are excluded
+        EC(
+            Patient_ID=2,
+            Ethnic_Category="Z",
+        ),
+        EC(
+            Patient_ID=2,
+            Ethnic_Category="9",
+        ),
+        APCS(Patient_ID=2, Ethnic_Group="99"),
+        APCS(Patient_ID=2, Ethnic_Group="ZA"),
+        OPA(Patient_ID=2, Ethnic_Category="G5"),
+        # patient 3; only first (national code) character counts; although D1 is the most frequent
+        # full code, E is the most frequent first character
+        EC(Patient_ID=3, Ethnic_Category="E"),
+        APCS(Patient_ID=3, Ethnic_Group="D1"),
+        APCS(Patient_ID=3, Ethnic_Group="D1"),
+        APCS(Patient_ID=3, Ethnic_Group="E1"),
+        APCS(Patient_ID=3, Ethnic_Group="E2"),
+        # patient 4; no valid codes
+        EC(Patient_ID=4, Ethnic_Category="Z"),
+        APCS(Patient_ID=4, Ethnic_Group="99"),
+        OPA(Patient_ID=4, Ethnic_Category=""),
+        OPA(Patient_ID=4, Ethnic_Category=None),
+    )
+    assert results == [
+        {"patient_id": 1, "code": "B"},
+        {"patient_id": 2, "code": "G"},
+        {"patient_id": 3, "code": "E"},
+    ]
+
+
 @register_test_for(tpp.hospital_admissions)
 def test_hospital_admissions(select_all):
     results = select_all(
