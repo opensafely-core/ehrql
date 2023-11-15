@@ -16,6 +16,7 @@ from ehrql.tables.beta.tpp import (
     ec,
     ec_cost,
     emergency_care_attendances,
+    ethnicity_from_sus,
     hospital_admissions,
     household_memberships_2020,
     medications,
@@ -995,6 +996,46 @@ TODO
   <dd markdown="block">
 
 
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>one row per patient</code></p>
+## ethnicity_from_sus
+
+This finds the most frequently used national ethnicity code for each patient from
+the various SUS (Secondary Uses Service) tables.
+
+Specifically it uses ethnicity codes from the following tables:
+
+    APCS (In-patient hospital admissions)
+    EC (A&E attendances)
+    OPA (Out-patient hospital appointments)
+
+Codes are as defined by "Ethnic Category Code 2001" — the 16+1 ethnic data
+categories used in the 2001 census:
+https://www.datadictionary.nhs.uk/data_elements/ethnic_category.html
+
+Codes beginning Z ("Not stated") and 99 ("Not known") are excluded.
+
+Where there is a tie for the most common code the lexically greatest code is used.
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ethnicity_from_sus.code">
+    <strong>code</strong>
+    <a class="headerlink" href="#ethnicity_from_sus.code" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+First character of recorded ethncity code (national code):
+https://www.datadictionary.nhs.uk/data_elements/ethnic_category.html
+
+ * Possible values: `A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `J`, `K`, `L`, `M`, `N`, `P`, `R`, `S`
   </dd>
 </div>
 
