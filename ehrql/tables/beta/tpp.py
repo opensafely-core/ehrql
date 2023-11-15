@@ -86,51 +86,86 @@ class addresses(EventFrame):
 
 @table
 class apcs(EventFrame):
+    """
+    Admitted Patient Care Spells (APCS) data is provided via the NHS Secondary Uses Service.
+
+    This table gives core details of spells.
+
+    Each row is an in-hospital spell: a period of continuous care within a single trust.
+
+    Refer to the [OpenSAFELY documentation on the APCS data source][apcs_data_source_docs]
+    and the [GitHub issue discussing more of the background context][apcs_context_issue].
+
+    [apcs_data_source_docs]: https://docs.opensafely.org/data-sources/apc/
+    [apcs_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/186
+    """
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Unique identifier for the spell used across the APCS tables.",
     )
     admission_date = Series(
         datetime.date,
-        description="TODO",
+        description="The admission date of the hospital provider spell.",
     )
     discharge_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of discharge from a hospital provider spell.",
     )
     spell_core_hrg_sus = Series(
         str,
-        description="TODO",
+        description=(
+            "The core Healthcare Resource Group (HRG) code for the spell "
+            "according to the derivations made by NHS Digital "
+            "prior to import to the National Commissioning Data Repository (NCDR). "
+            "HRGs are used to assign baseline tariff costs."
+        ),
     )
 
 
 @table
 class apcs_cost(EventFrame):
+    """
+    Admitted Patient Care Spells (APCS) data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of spell cost.
+
+    Each row is an in-hospital spell: a period of continuous care within a single trust.
+
+    Note that data only goes back a couple of years.
+    """
+
     apcs_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Unique identifier for the spell used across the APCS tables.",
     )
     grand_total_payment_mff = Series(
         float,
-        description="TODO",
+        description=(
+            "The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) "
+            "where SLA = service level agreement, "
+            "i.e. all contractual payments which is national tariff for the type of activity "
+            "**plus** any additional payments **minus** any applicable deductions. "
+            "MFF = Market Forces Factor, a geography-based cost adjustment)."
+        ),
     )
     tariff_initial_amount = Series(
         float,
-        description="TODO",
+        description="The base national tariff.",
     )
     tariff_total_payment = Series(
         float,
-        description="TODO",
+        description="The total payment according to the national tariff.",
     )
     admission_date = Series(
         datetime.date,
-        description="TODO",
+        description="The admission date of the hospital provider spell.",
     )
     discharge_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of discharge from a hospital provider spell.",
     )
 
 
@@ -244,80 +279,130 @@ class clinical_events(EventFrame):
 
 @table
 class ec(EventFrame):
+    """
+    Emergency care attendances data — the Emergency Care Data Set (ECDS) —
+    is provided via the NHS Secondary Uses Service.
+
+    This table gives core details of attendances.
+
+    Refer to the [OpenSAFELY documentation on the ECDS data source][ecds_data_source_docs]
+    and the GitHub issue that [discusses more of the background context][ecds_context_issue].
+
+    [ecds_data_source_docs]: https://docs.opensafely.org/data-sources/ecds/
+    [ecds_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/182
+    """
+
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Unique identifier for the attendance used across the EC tables.",
     )
     arrival_date = Series(
         datetime.date,
-        description="TODO",
+        description=(
+            "The date the patient self presented at the accident & emergency department, "
+            "or arrived in an ambulance at the accident & emergency department."
+        ),
     )
     sus_hrg_code = Series(
         str,
-        description="TODO",
+        description=(
+            "The core Healthcare Resource Group (HRG) code derived by sus+, "
+            "used for tariff application."
+        ),
     )
 
 
 @table
 class ec_cost(EventFrame):
+    """
+    Emergency care attendances data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of attendance costs.
+    """
+
     ec_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Unique identifier for the attendance used across the EC tables.",
     )
     grand_total_payment_mff = Series(
         float,
-        description="TODO",
+        description=(
+            "The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) "
+            "where SLA = service level agreement, "
+            "i.e. all contractual payments which is national tariff for the type of activity "
+            "**plus** any additional payments **minus** any applicable deductions. "
+            "MFF = Market Forces Factor, a geography-based cost adjustment)."
+        ),
     )
     tariff_total_payment = Series(
         float,
-        description="TODO",
+        description="The total payment according to the national tariff.",
     )
     arrival_date = Series(
         datetime.date,
-        description="TODO",
+        description=(
+            "The date the patient self presented at the accident & emergency department, "
+            "or arrived in an ambulance at the accident & emergency department."
+        ),
     )
     ec_decision_to_admit_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date a decision to admit was made (if applicable).",
     )
     ec_injury_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date the patient was injured (if applicable).",
     )
 
 
 @table
 class emergency_care_attendances(EventFrame):
-    id = Series(int)  # noqa: A003
-    arrival_date = Series(datetime.date)
-    discharge_destination = Series(SNOMEDCTCode)
+    """
+    Emergency care attendances data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of attendances.
+
+    Note that there is a limited number of diagnoses allowed within this dataset,
+    and so will not match with the range of diagnoses allowed in other datasets
+    such as the primary care record.
+    """
+
+    id = Series(  # noqa: A003
+        int,
+        constraints=[Constraint.NotNull()],
+        description="Unique identifier for the attendance used across the EC tables.",
+    )
+    arrival_date = Series(
+        datetime.date,
+        description=(
+            "The date the patient self presented at the accident & emergency department, "
+            "or arrived in an ambulance at the accident & emergency department."
+        ),
+    )
+    discharge_destination = Series(
+        SNOMEDCTCode,
+        description=(
+            "The SNOMED CT concept ID which is used to identify "
+            "the intended destination of the patient following discharge "
+            "from the emergency care department."
+        ),
+    )
     # TODO: Revisit this when we have support for multi-valued fields
-    diagnosis_01 = Series(SNOMEDCTCode)
-    diagnosis_02 = Series(SNOMEDCTCode)
-    diagnosis_03 = Series(SNOMEDCTCode)
-    diagnosis_04 = Series(SNOMEDCTCode)
-    diagnosis_05 = Series(SNOMEDCTCode)
-    diagnosis_06 = Series(SNOMEDCTCode)
-    diagnosis_07 = Series(SNOMEDCTCode)
-    diagnosis_08 = Series(SNOMEDCTCode)
-    diagnosis_09 = Series(SNOMEDCTCode)
-    diagnosis_10 = Series(SNOMEDCTCode)
-    diagnosis_11 = Series(SNOMEDCTCode)
-    diagnosis_12 = Series(SNOMEDCTCode)
-    diagnosis_13 = Series(SNOMEDCTCode)
-    diagnosis_14 = Series(SNOMEDCTCode)
-    diagnosis_15 = Series(SNOMEDCTCode)
-    diagnosis_16 = Series(SNOMEDCTCode)
-    diagnosis_17 = Series(SNOMEDCTCode)
-    diagnosis_18 = Series(SNOMEDCTCode)
-    diagnosis_19 = Series(SNOMEDCTCode)
-    diagnosis_20 = Series(SNOMEDCTCode)
-    diagnosis_21 = Series(SNOMEDCTCode)
-    diagnosis_22 = Series(SNOMEDCTCode)
-    diagnosis_23 = Series(SNOMEDCTCode)
-    diagnosis_24 = Series(SNOMEDCTCode)
+    # The diagnosis columns are have identical descriptions
+    # and there are many of them,
+    # so set them programmatically instead of by hand
+    for n in range(1, 25):
+        vars()[f"diagnosis_{n:02}"] = Series(
+            SNOMEDCTCode,
+            description=(
+                "The SNOMED CT concept ID which is used to identify the patient diagnosis. "
+                "Note that only a limited subset of SNOMED CT codes are used; "
+                "see the [NHS Data Model and Dictionary entry for emergency care diagnosis]"
+                "(https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html)."
+            ),
+        )
 
 
 @table
@@ -351,113 +436,213 @@ class occupation_on_covid_vaccine_record(EventFrame):
 
 @table
 class opa(EventFrame):
+    """
+    Outpatient appointments data (OPA) is provided via the NHS Secondary Uses Service.
+
+    This table gives core details of outpatient appointments.
+
+    Refer to the GitHub issue that [describes limitations
+    of the outpatient appointments data][opa_limitations_issue]
+    and the GitHub issue that [discusses more of the background context][opa_context_issue].
+
+    [opa_limitations_issue]: https://github.com/opensafely-core/cohort-extractor/issues/673
+    [opa_context_issue]: https://github.com/opensafely-core/cohort-extractor/issues/492
+    """
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Unique identifier for the appointment used across the OPA tables.",
     )
     appointment_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of an appointment.",
     )
     attendance_status = Series(
         str,
-        description="TODO",
+        description=(
+            "Indicates whether or not an appointment for a care contact took place. "
+            "If the appointment did not take place it also indicates whether or not advanced warning was given. "
+            'Refer to the [NHS Data Model and Dictionary entry for "attended or did not attend"]'
+            "(https://www.datadictionary.nhs.uk/data_elements/attended_or_did_not_attend_code.html) "
+            "for details on code meanings."
+        ),
+        # This non-ascending order follows the NHS Data Model and Dictionary.
+        constraints=[Constraint.Categorical(["5", "6", "7", "2", "3", "4", "0"])],
     )
     consultation_medium_used = Series(
         str,
-        description="TODO",
+        description=(
+            "Identifies the communication mechanism used to relay information "
+            "between the care professional and the person who is the subject of the consultation, "
+            "during a care activity. "
+            'Refer to the [NHS Data Model and Dictionary entry for "consultation mechanism"]'
+            "(https://www.datadictionary.nhs.uk/data_elements/consultation_mechanism.html) "
+            "for details on code meanings. "
+            "Note that the allowed codes as listed in TPP's data "
+            "appear to be a subset of the codes listed in the NHS Data Model and Dictionary."
+        ),
+        constraints=[
+            Constraint.Categorical(
+                ["01", "02", "03", "04", "05", "09", "10", "11", "98"]
+            )
+        ],
     )
     first_attendance = Series(
         str,
-        description="TODO",
+        description=(
+            "An indication of whether a patient is making a first attendance or contact; "
+            "or a follow-up attendance or contact and whether the consultation medium used national code "
+            "was face to face communication or telephone or telemedicine web camera. "
+            'Refer to the [NHS Data Model and Dictionary entry for "first attendance"]'
+            "(https://www.datadictionary.nhs.uk/attributes/first_attendance.html) "
+            "for details on code meanings. "
+            "Note that the allowed codes as listed in TPP's data "
+            "contain an additional `9` code over the NHS Data Model and Dictionary entry."
+        ),
+        constraints=[Constraint.Categorical(["1", "2", "3", "4", "5", "9"])],
     )
     hrg_code = Series(
         str,
-        description="TODO",
+        description=(
+            "The Healthcare Resource Group (HRG) code assigned to the activity, "
+            "used to assign baseline tariff costs."
+        ),
     )
     treatment_function_code = Series(
         str,
-        description="TODO",
+        description=(
+            "The treatment function under which the patient is treated. "
+            "It may be the same as the main specialty code "
+            "or a different treatment function which will be the care professional's treatment interest."
+        ),
     )
 
 
 @table
 class opa_cost(EventFrame):
+    """
+    Outpatient appointments data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of outpatient appointment costs.
+
+    Note that data only goes back a couple of years.
+    """
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Unique identifier for the appointment used across the OPA tables.",
     )
     tariff_opp = Series(
         float,
-        description="TODO",
+        description="The base national tariff where the procedure tariff is applicable.",
     )
     grand_total_payment_mff = Series(
         float,
-        description="TODO",
+        description=(
+            "The grand total payment for the activity (`Net_SLA_Payment + Tariff_MFF_Payment`) "
+            "where SLA = service level agreement, "
+            "i.e. all contractual payments which is national tariff for the type of activity "
+            "**plus** any additional payments **minus** any applicable deductions. "
+            "MFF = Market Forces Factor, a geography-based cost adjustment)."
+        ),
     )
     tariff_total_payment = Series(
         float,
-        description="TODO",
+        description="The total payment according to the national tariff.",
     )
     appointment_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of an appointment.",
     )
     referral_request_received_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date the referral request was received by the health care provider.",
     )
 
 
 @table
 class opa_diag(EventFrame):
+    """
+    Outpatient appointments data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of outpatient appointment diagnoses.
+
+    Note that diagnoses are often absent from outpatient records.
+    """
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Unique identifier for the appointment used across the OPA tables.",
     )
     primary_diagnosis_code = Series(
         ICD10Code,
-        description="TODO",
+        description=(
+            "The international classification of diseases (ICD) code used to identify the primary patient diagnosis. "
+            "Note that this will typically not be completed."
+        ),
     )
     primary_diagnosis_code_read = Series(
         CTV3Code,
-        description="TODO",
+        description=(
+            "The Read coded clinical terms code to identify the primary patient diagnosis. "
+            "Note that this will typically not be completed."
+        ),
     )
     secondary_diagnosis_code_1 = Series(
         ICD10Code,
-        description="TODO",
+        description=(
+            "The international classification of diseases (ICD) code used to identify the secondary patient diagnosis. "
+            "Note that this will typically not be completed."
+        ),
     )
     secondary_diagnosis_code_1_read = Series(
         CTV3Code,
-        description="TODO",
+        description=(
+            "The Read coded clinical terms used to identify the secondary patient diagnosis. "
+            "Note that this will typically not be completed."
+        ),
     )
     appointment_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of an appointment.",
     )
     referral_request_received_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date the referral request was received by the health care provider.",
     )
 
 
 @table
 class opa_proc(EventFrame):
+    """
+    Outpatient appointments data is provided via the NHS Secondary Uses Service.
+
+    This table gives details of outpatient procedures.
+    Typically, procedures will only be recorded where they attract a specified payment.
+    The majority of appointments will have no procedure recorded.
+    """
+
     opa_ident = Series(
         int,
         constraints=[Constraint.NotNull()],
-        description="TODO",
+        description="Unique identifier for the appointment used across the OPA tables.",
     )
     primary_procedure_code = Series(
         OPCS4Code,
-        description="TODO",
+        description=(
+            "The OPCS classification of interventions and procedures code "
+            "which is used to identify the primary patient procedure carried out."
+        ),
     )
     primary_procedure_code_read = Series(
         CTV3Code,
-        description="TODO",
+        description=(
+            "The Read coded clinical terms code which is used "
+            "to identify the primary patient procedure carried out."
+        ),
     )
     procedure_code_1 = Series(
         OPCS4Code,
@@ -465,15 +650,15 @@ class opa_proc(EventFrame):
     )
     procedure_code_2_read = Series(
         CTV3Code,
-        description="TODO",
+        description="The Read coded clinical terms for a procedure other than the primary procedure.",
     )
     appointment_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date of an appointment.",
     )
     referral_request_received_date = Series(
         datetime.date,
-        description="TODO",
+        description="The date the referral request was received by the health care provider.",
     )
 
 
