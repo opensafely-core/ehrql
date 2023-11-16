@@ -39,7 +39,29 @@ from ehrql.tables.beta.tpp import (
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## addresses
 
+Geographic characteristics of the home address a patient registers with a practice.
+Each row in this table is one registration period per patient.
+Occasionally, a patient has multiple active registrations on a given date.
+The postcode from the address is mapped to an Output Area,
+from which other larger geographic representations can be derived
+(see various [ONS publications][addresses_ukgeographies] for more detail).
 
+!!! tip
+    To group rounded IMD ranks by quintile:
+
+    ```py
+    imd = addresses.for_patient_on("2023-01-01").imd_rounded
+    dataset.imd_quintile = case(
+        when((imd >=0) & (imd < int(32844 * 1 / 5))).then("1 (most deprived)"),
+        when(imd < int(32844 * 2 / 5)).then("2"),
+        when(imd < int(32844 * 3 / 5)).then("3"),
+        when(imd < int(32844 * 4 / 5)).then("4"),
+        when(imd < int(32844 * 5 / 5)).then("5 (least deprived)"),
+        default="unknown"
+    )
+    ```
+
+[addresses_ukgeographies]: https://www.ons.gov.uk/methodology/geography/ukgeographies
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -50,7 +72,7 @@ from ehrql.tables.beta.tpp import (
     <code>integer</code>
   </dt>
   <dd markdown="block">
-
+Unique address identifier.
 
   </dd>
 </div>
@@ -62,7 +84,7 @@ from ehrql.tables.beta.tpp import (
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+Date patient moved to address.
 
   </dd>
 </div>
@@ -74,7 +96,7 @@ from ehrql.tables.beta.tpp import (
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+Date patient moved out of address.
 
   </dd>
 </div>
@@ -86,7 +108,7 @@ from ehrql.tables.beta.tpp import (
     <code>integer</code>
   </dt>
   <dd markdown="block">
-
+Type of address.
 
   </dd>
 </div>
@@ -98,8 +120,18 @@ from ehrql.tables.beta.tpp import (
     <code>integer</code>
   </dt>
   <dd markdown="block">
+Rural urban classification:
 
+* 1 - Urban major conurbation
+* 2 - Urban minor conurbation
+* 3 - Urban city and town
+* 4 - Urban city and town in a sparse setting
+* 5 - Rural town and fringe
+* 6 - Rural town and fringe in a sparse setting
+* 7 - Rural village and dispersed
+* 8 - Rural village and dispersed in a sparse setting
 
+ * Always >= 1 and <= 8
   </dd>
 </div>
 
@@ -110,7 +142,10 @@ from ehrql.tables.beta.tpp import (
     <code>integer</code>
   </dt>
   <dd markdown="block">
+[Index of Multiple Deprivation][addresses_imd] (IMD)
+rounded to the nearest 100, where lower values represent more deprived areas.
 
+[addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
 
  * Always >= 0, <= 32800, and a multiple of 100
   </dd>
@@ -123,7 +158,7 @@ from ehrql.tables.beta.tpp import (
     <code>string</code>
   </dt>
   <dd markdown="block">
-
+Middle Layer Super Output Areas (MSOA) code.
 
  * Matches regular expression: `E020[0-9]{5}`
   </dd>
@@ -136,7 +171,7 @@ from ehrql.tables.beta.tpp import (
     <code>boolean</code>
   </dt>
   <dd markdown="block">
-
+Indicating whether a valid postcode is recorded for the patient.
 
   </dd>
 </div>
@@ -148,7 +183,7 @@ from ehrql.tables.beta.tpp import (
     <code>boolean</code>
   </dt>
   <dd markdown="block">
-
+Indicating whether the patient's address matched with a care home, using TPP's algorithm.
 
   </dd>
 </div>
@@ -160,7 +195,7 @@ from ehrql.tables.beta.tpp import (
     <code>boolean</code>
   </dt>
   <dd markdown="block">
-
+Indicating whether the patient's address matched with a care home that required nursing.
 
   </dd>
 </div>
@@ -172,7 +207,7 @@ from ehrql.tables.beta.tpp import (
     <code>boolean</code>
   </dt>
   <dd markdown="block">
-
+Indicating whether the patient's address matched with a care home that did not require nursing.
 
   </dd>
 </div>
