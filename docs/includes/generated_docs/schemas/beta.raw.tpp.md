@@ -172,14 +172,29 @@ This table contains some historical APCS data.
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## isaric
 
-A subset of the ISARIC data.
+ISARIC is a dataset of COVID-19-related hospital admissions,
+with coverage across the majority of hospitals across the UK,
+including much richer clinical information
+than collected in national Hospital Episode Statistics datasets.
 
-These columns are deliberately all taken as strings while in a preliminary phase.
-They will later change to more appropriate data types.
+The data in this table covers a subset of the ISARIC data columns available in TPP,
+sourced from the [ISARIC COVID-19 Clinical Database][isaric_clinical_database].
 
-Descriptions taken from: [CCP_REDCap_ISARIC_data_dictionary_codebook.pdf][isaric_ddc_pdf]
+All columns included have deliberately been taken as strings while in a preliminary phase.
+
+Descriptions taken from [CCP_REDCap_ISARIC_data_dictionary_codebook.pdf][isaric_ddc_pdf]
+which also has information on the data expected for each column.
+
+!!! warning
+    ISARIC data can only be used in collaboration with ISARIC researchers
+    who must be involved in working on the study and writing it up.
+
+Refer to the [OpenSAFELY database build report][opensafely_database_build_report]
+to see when this data was last updated.
 
 [isaric_ddc_pdf]: https://github.com/isaric4c/wiki/blob/d6b87d59a277cf2f6deedeb5e8c1a970dbb970a3/ISARIC/CCP_REDCap_ISARIC_data_dictionary_codebook.pdf
+[isaric_clinical_database]: https://isaric.org/research/covid-19-clinical-research-resources/covid-19-data-management-hosting/
+[opensafely_database_build_report]: https://reports.opensafely.org/reports/opensafely-tpp-database-builds/
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
