@@ -112,6 +112,20 @@ dataset.cov_temporary_immune_suppress = temporary_immune_suppress.exists_for_pat
 dataset.reg_and_visit_gp_1y = registration_1y.exists_for_patient() & ever_visit_gp_1y.exists_for_patient() & (registrations_number_1y==1)  
 
 # Add outcomes: healthcare utilisation by months
+# GP prescription visits:
+monthly_drug_visit(dataset, dataset.index_date, num_months=1, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=2, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=3, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=4, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=5, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=6, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=7, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=8, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=9, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=10, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=11, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=12, end_date=study_end_date)
+
 # GP visit
 add_visits(dataset, dataset.index_date, num_months=1, end_date= dataset.end_date)
 add_visits(dataset, dataset.index_date, num_months=2, end_date= dataset.end_date)
