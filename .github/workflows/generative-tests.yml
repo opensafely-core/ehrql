@@ -16,6 +16,8 @@ jobs:
         with:
           install-just: true
           python-version: "3.11"
+      - name: Set up dev environment
+        run: just devenv
       # To work around memory leak issues in our database containers we run the
       # tests in multiple smaller batches, recreating the containers between
       # each batch
@@ -24,7 +26,6 @@ jobs:
           set -euo pipefail
           start_time=$(date +%s)
 
-          just devenv
           export \
             GENTEST_EXAMPLES=150 \
             GENTEST_RANDOMIZE=t \
