@@ -2172,7 +2172,16 @@ return ordered_regs.last_for_patient()
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## vaccinations
 
+This table contains information on administered vaccinations,
+identified using either the target disease (e.g., Influenza),
+or the vaccine product name (e.g., Optaflu).
+For more information about this table see the
+"[Vaccinaton names in the OpenSAFELY-TPP database][vaccinations_1]" report.
 
+Vaccinations that were administered at work or in a pharmacy might not be
+included in this table.
+
+[vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-vaccination-names/
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2183,7 +2192,7 @@ return ordered_regs.last_for_patient()
     <code>integer</code>
   </dt>
   <dd markdown="block">
-
+Vaccination identifier.
 
   </dd>
 </div>
@@ -2195,7 +2204,7 @@ return ordered_regs.last_for_patient()
     <code>date</code>
   </dt>
   <dd markdown="block">
-
+The date the vaccination was administered.
 
   </dd>
 </div>
@@ -2207,7 +2216,7 @@ return ordered_regs.last_for_patient()
     <code>string</code>
   </dt>
   <dd markdown="block">
-
+Vaccine's target disease.
 
   </dd>
 </div>
@@ -2219,7 +2228,7 @@ return ordered_regs.last_for_patient()
     <code>string</code>
   </dt>
   <dd markdown="block">
-
+Vaccine's product name.
 
   </dd>
 </div>
