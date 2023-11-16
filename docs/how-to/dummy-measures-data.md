@@ -1,9 +1,9 @@
 # How to use dummy data in an ehrQL measures definition
 
-Refer to the [Measures reference documentation](../../reference/language/#measures) for more
+Refer to the [Measures reference documentation](../reference/language.md#measures) for more
 information on how to use measures.
 
-Similarly to [dataset definitions](../dummy-data), there are also three ways to use dummy
+Similarly to [dataset definitions](dummy-data.md), there are also three ways to use dummy
 data with a measures definition in ehrQL.
 
 1. [Let ehrQL generate dummy measures from your measures definition](#let-ehrql-generate-dummy-measures-from-your-measures-definition)
@@ -91,4 +91,4 @@ ehrQL will check the column names, types and categorical values in your dummy me
 ## Supply your own dummy tables
 
 A measures definition uses the same underlying data tables as a dataset definition. As such,
-you can use [the same process](../dummy-data#supply-your-own-dummy-data) to supply dummy data tables for a measures definition.
+you can use [the same process](dummy-data.md#supply-your-own-dummy-data) to supply dummy data tables for a measures definition.
