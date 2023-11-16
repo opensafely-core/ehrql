@@ -56,8 +56,10 @@ class patients(PatientFrame):
 
     There is generally a lag between the death being recorded in ONS data and it
     appearing in the primary care record, but the coverage or recorded death is almost
-    complete and the date of death date is usually reliable when it appears. You can
-    find out more about the accuracy of date of death recording in primary care in:
+    complete and the date of death date is usually reliable when it appears. There is
+    also a lag in ONS death recording (see [below](https://docs.opensafely.org/ehrql/reference/schemas/beta.core/#ons_deaths)
+    for more detail). You can find out more about the accuracy of date of death
+    recording in primary care in:
 
     > Gallagher, A. M., Dedman, D., Padmanabhan, S., Leufkens, H. G. M. & de Vries, F 2019. The accuracy of date of death recording in the Clinical
     > Practice Research Datalink GOLD database in England compared with the Office for National Statistics death registrations.
@@ -124,6 +126,10 @@ class ons_deaths(PatientFrame):
     a small number of patients have multiple registered deaths.
     This table contains the earliest registered death.
     The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
+
+    !!! warning
+        There is also a in ONS death recording caused amongst other things by things like autopsies and inquests delaying
+        reporting on cause of death. This is evident in the [OpenSAFELY historical database coverage report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
     """
 
     date = Series(
