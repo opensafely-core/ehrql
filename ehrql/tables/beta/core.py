@@ -49,11 +49,23 @@ class patients(PatientFrame):
 
     ### Recording of death in primary care
 
-    There is generally a lag between the death being recorded in ONS data and appearing
-    in the primary care record, but the date itself is usually reliable when it appears. 
+    In England, it is the statutory duty of the doctor who had attended in the last
+    illness to complete a medical certificate of cause of death (MCCD). ONS death data
+    are considered the gold standard for identifying patient deaths because they are
+    based on these MCCDs.
+
+    There is generally a lag between the death being recorded in ONS data and it
+    appearing in the primary care record, but the coverage or recorded death is almost
+    complete and the date of death date is usually reliable when it appears. You can
+    find out more about the accuracy of date of death recording in primary care in:
+
+    > Gallagher, A. M., Dedman, D., Padmanabhan, S., Leufkens, H. G. M. & de Vries, F 2019. The accuracy of date of death recording in the Clinical
+    > Practice Research Datalink GOLD database in England compared with the Office for National Statistics death registrations.
+    > Pharmacoepidemiol. Drug Saf. 28, 563–569.
+    > <https://doi.org/10.1002/pds.4747>
+
     By contrast, cause of death is often not accurate in the primary care record so we
     don't make it available to query here.
-
     """
 
     date_of_birth = Series(
