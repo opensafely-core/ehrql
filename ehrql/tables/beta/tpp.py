@@ -42,23 +42,98 @@ __all__ = [
 
 @table
 class addresses(EventFrame):
-    address_id = Series(int)
-    start_date = Series(datetime.date)
-    end_date = Series(datetime.date)
-    address_type = Series(int)
-    rural_urban_classification = Series(int)
-    imd_rounded = Series(int, constraints=[Constraint.ClosedRange(0, 32_800, 100)])
+    """
+    Geographic characteristics of the home address a patient registers with a practice.
+    Each row in this table is one registration period per patient.
+    Occasionally, a patient has multiple active registrations on a given date.
+    The postcode from the address is mapped to an Output Area,
+    from which other larger geographic representations can be derived
+    (see various [ONS publications][addresses_ukgeographies] for more detail).
+
+    !!! tip
+        To group rounded IMD ranks by quintile:
+
+        ```py
+        imd = addresses.for_patient_on("2023-01-01").imd_rounded
+        dataset.imd_quintile = case(
+            when((imd >=0) & (imd < int(32844 * 1 / 5))).then("1 (most deprived)"),
+            when(imd < int(32844 * 2 / 5)).then("2"),
+            when(imd < int(32844 * 3 / 5)).then("3"),
+            when(imd < int(32844 * 4 / 5)).then("4"),
+            when(imd < int(32844 * 5 / 5)).then("5 (least deprived)"),
+            default="unknown"
+        )
+        ```
+
+    [addresses_ukgeographies]: https://www.ons.gov.uk/methodology/geography/ukgeographies
+    """
+
+    address_id = Series(
+        int,
+        description="Unique address identifier.",
+    )
+    start_date = Series(
+        datetime.date,
+        description="Date patient moved to address.",
+    )
+    end_date = Series(
+        datetime.date,
+        description="Date patient moved out of address.",
+    )
+    address_type = Series(
+        int,
+        description="Type of address.",
+    )
+    rural_urban_classification = Series(
+        int,
+        description="""
+            Rural urban classification:
+
+            * 1 - Urban major conurbation
+            * 2 - Urban minor conurbation
+            * 3 - Urban city and town
+            * 4 - Urban city and town in a sparse setting
+            * 5 - Rural town and fringe
+            * 6 - Rural town and fringe in a sparse setting
+            * 7 - Rural village and dispersed
+            * 8 - Rural village and dispersed in a sparse setting
+        """,
+        constraints=[Constraint.ClosedRange(1, 8)],
+    )
+    imd_rounded = Series(
+        int,
+        description="""
+            [Index of Multiple Deprivation][addresses_imd] (IMD)
+            rounded to the nearest 100, where lower values represent more deprived areas.
+
+            [addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+        """,
+        constraints=[Constraint.ClosedRange(0, 32_800, 100)],
+    )
     msoa_code = Series(
         str,
+        description="Middle Layer Super Output Areas (MSOA) code.",
         constraints=[Constraint.Regex("E020[0-9]{5}")],
     )
-    has_postcode = Series(bool)
+    has_postcode = Series(
+        bool,
+        description="Indicating whether a valid postcode is recorded for the patient.",
+    )
     # Is the address potentially a match for a care home? (Using TPP's algorithm)
-    care_home_is_potential_match = Series(bool)
+    care_home_is_potential_match = Series(
+        bool,
+        description="Indicating whether the patient's address matched with a care home, using TPP's algorithm.",
+    )
     # These two fields look like they should be a single boolean, but this is how
     # they're represented in the data
-    care_home_requires_nursing = Series(bool)
-    care_home_does_not_require_nursing = Series(bool)
+    care_home_requires_nursing = Series(
+        bool,
+        description="Indicating whether the patient's address matched with a care home that required nursing.",
+    )
+    care_home_does_not_require_nursing = Series(
+        bool,
+        description="Indicating whether the patient's address matched with a care home that did not require nursing.",
+    )
 
     def for_patient_on(self, date):
         """
