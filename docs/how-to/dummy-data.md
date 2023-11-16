@@ -16,7 +16,7 @@ There are three ways to use dummy data in ehrQL.
 
 ehrQL is designed so that the same command can be used to output a dummy dataset when run on your own computer and then output a real dataset when run inside the secure environment as part of an OpenSAFELY pipeline.
 
-Refer to the [documentation on generating a dummy dataset](../../tutorial/generating-a-dummy-dataset/#generate-a-dummy-dataset) to see how this works.
+Refer to the [documentation on generating a dummy dataset](../tutorial/generating-a-dummy-dataset/index.md) to see how this works.
 
 You do not need to add anything to the dataset definition itself in order to generate a dummy
 dataset in this way. ehrQL will use the dataset definition to set up dummy data and generate
@@ -142,11 +142,11 @@ opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-data-fil
 Instead of supplying a single dummy dataset file that contains the exact output data, you can
 provide ehrQL with a path to a folder of dummy data tables. Dummy data tables are supplied as
 CSV files, with one file per table, representing the data in the backend database. Refer to
-the [table schema reference](../../reference/schemas) for documentation on the available tables
+the [table schema reference](../reference/schemas.md) for documentation on the available tables
 and columns. ehrQL will use the dummy tables as the backend data from which to extract the dataset. This is a good way to test that your dataset
 definition is working as expected.
 
-The [running ehrQL as a standalone action](../../explanation/running-ehrql/#2-running-ehrql-as-a-standalone-action-via-opensafely-exec) documentation
+The [running ehrQL as a standalone action](../explanation/running-ehrql.md#2-running-ehrql-as-a-standalone-action-via-opensafely-exec) documentation
 demonstrates how to to run a dataset definition against the example dummy tables in the
 ehrQL tutorial.
 
