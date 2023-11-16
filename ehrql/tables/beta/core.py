@@ -51,9 +51,7 @@ class patients(PatientFrame):
 
     There is generally a lag between the death being recorded in ONS data and appearing
     in the primary care record, but the date itself is usually reliable when it appears. 
-    There may be multiple records of death for each patient within this table, so you
-    may wish to take the earliest or latest record available for each patient. By
-    contrast, cause of death is often not accurate in the primary care record so we
+    By contrast, cause of death is often not accurate in the primary care record so we
     don't make it available to query here.
 
     """
