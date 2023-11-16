@@ -195,6 +195,15 @@ class ons_deaths(PatientFrame):
 
 @table
 class clinical_events(EventFrame):
+    """
+    Each record corresponds to a single clinical or consultation event for a patient.
+
+    Note that event codes do not change in this table. If an event code in the coding
+    system becomes inactive, the event will still be coded to the inactive code.
+    As such, codelists should include all relevant inactive codes.
+
+    """
+
     date = Series(datetime.date)
     snomedct_code = Series(SNOMEDCTCode)
     numeric_value = Series(float)

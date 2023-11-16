@@ -23,7 +23,11 @@ from ehrql.tables.beta.core import (
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## clinical_events
 
+Each record corresponds to a single clinical or consultation event for a patient.
 
+Note that event codes do not change in this table. If an event code in the coding
+system becomes inactive, the event will still be coded to the inactive code.
+As such, codelists should include all relevant inactive codes.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
