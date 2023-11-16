@@ -51,8 +51,7 @@ These characteristics come from the `patients` and the `practice_registrations` 
 which we import now.
 
 ```python
-from ehrql.tables.beta.core import patients
-from ehrql.tables.beta.tpp import practice_registrations
+from ehrql.tables.beta.tpp import patients, practice_registrations
 ```
 
 ### Is a patient female or male?
@@ -378,7 +377,7 @@ shows only codes.
 Next, we import the `medications` table.
 
 ```python
-from ehrql.tables.beta.core import medications
+from ehrql.tables.beta.tpp import medications
 ```
 
 Finally, we query the table

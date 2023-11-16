@@ -5,11 +5,12 @@ from ehrql import (
     days,
     when,
 )
-from ehrql.tables.beta.core import medications, patients
 from ehrql.tables.beta.tpp import (
     addresses,
     clinical_events,
     hospital_admissions,
+    medications,
+    patients,
     practice_registrations,
 )
 
