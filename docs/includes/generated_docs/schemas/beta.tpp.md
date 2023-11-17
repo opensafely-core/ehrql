@@ -2294,7 +2294,13 @@ return ordered_regs.last_for_patient()
 <p class="dimension-indicator"><code>many rows per patient</code></p>
 ## sgss_covid_all_tests
 
+COVID-19 tests results from SGSS (the Second Generation Surveillance System).
 
+For background on this data see the NHS [DARS catalogue entry][DARS_SGSS].
+And for more detail on SGSS in general see [PHE_Laboratory_Reporting_Guidelines.pdf][PHE_LRG].
+
+[PHE_LRG]: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/739854/PHE_Laboratory_Reporting_Guidelines.pdf
+[DARS_SGSS]: https://digital.nhs.uk/services/data-access-request-service-dars/dars-products-and-services/data-set-catalogue/covid-19-second-generation-surveillance-system-sgss
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2305,8 +2311,9 @@ return ordered_regs.last_for_patient()
     <code>date</code>
   </dt>
   <dd markdown="block">
+Date on which specimen was collected.
 
-
+ * Never `NULL`
   </dd>
 </div>
 
@@ -2317,8 +2324,104 @@ return ordered_regs.last_for_patient()
     <code>boolean</code>
   </dt>
   <dd markdown="block">
+Whether the specimin tested positive for SARS-CoV-2.
 
+ * Never `NULL`
+  </dd>
+</div>
 
+<div markdown="block">
+  <dt id="sgss_covid_all_tests.lab_report_date">
+    <strong>lab_report_date</strong>
+    <a class="headerlink" href="#sgss_covid_all_tests.lab_report_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Date on which the labaratory reported the result.
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="sgss_covid_all_tests.was_symptomatic">
+    <strong>was_symptomatic</strong>
+    <a class="headerlink" href="#sgss_covid_all_tests.was_symptomatic" title="Permanent link">🔗</a>
+    <code>boolean</code>
+  </dt>
+  <dd markdown="block">
+Whether the patient reported symptoms of COVID-19 at the time the specimen
+was collected. May be NULL if unknown.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="sgss_covid_all_tests.sgtf_status">
+    <strong>sgtf_status</strong>
+    <a class="headerlink" href="#sgss_covid_all_tests.sgtf_status" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Provides information on whether a PCR test result exhibited "S-Gene Target
+Failure" which can be used as a proxy for the presence of certain Variants
+of Concern.
+
+Results are provided as number between 0 and 9. We know the meaning of
+_some_ of these numbers based on an email from PHE:
+
+> 0: S gene detected<br>
+> Detectable S gene (CH3>0)<br>
+> Detectable y ORF1ab CT value (CH1) <=30 and >0<br>
+> Detectable N gene CT value (CH2) <=30 and >0<br>
+>
+> 1: Isolate with confirmed SGTF<br>
+> Undetectable S gene; CT value (CH3) =0<br>
+> Detectable ORF1ab gene; CT value (CH2) <=30 and >0<br>
+> Detectable N gene; CT value (CH1) <=30 and >0<br>
+>
+> 9: Cannot be classified
+>
+> Null are where the target is not S Gene. I think LFTs are currently
+> also coming across as 9 so will need to review those to null as well as
+> clearly this is a PCR only variable.
+
+However the values 2, 4 and 8 also occur in this column and we don't
+currently have documentation on their meaning.
+
+ * Always >= 0 and <= 9
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="sgss_covid_all_tests.variant">
+    <strong>variant</strong>
+    <a class="headerlink" href="#sgss_covid_all_tests.variant" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Where a specific SARS-CoV-2 variant was identified this column provides the details.
+
+This appears to be effectively a free-text field with a large variety of
+possible values. Some have an obvious meaning e.g. `B.1.617.2`,
+`VOC-21JAN-02`, `VUI-21FEB-04`.
+
+Others less so e.g. `VOC-22JAN-O1_probable:V-21OCT-01_low-qc`.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="sgss_covid_all_tests.variant_detection_method">
+    <strong>variant_detection_method</strong>
+    <a class="headerlink" href="#sgss_covid_all_tests.variant_detection_method" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Where a specific SARS-CoV-2 variant was identified this provides the method
+used to do so.
+
+ * Possible values: `Private Lab Sequencing`, `Reflex Assay`, `Sanger Provisional Result`
   </dd>
 </div>
 

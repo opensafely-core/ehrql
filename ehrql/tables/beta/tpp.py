@@ -892,8 +892,103 @@ class practice_registrations(EventFrame):
 
 @table
 class sgss_covid_all_tests(EventFrame):
-    specimen_taken_date = Series(datetime.date)
-    is_positive = Series(bool)
+    """
+    COVID-19 tests results from SGSS (the Second Generation Surveillance System).
+
+    For background on this data see the NHS [DARS catalogue entry][DARS_SGSS].
+    And for more detail on SGSS in general see [PHE_Laboratory_Reporting_Guidelines.pdf][PHE_LRG].
+
+    [PHE_LRG]: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/739854/PHE_Laboratory_Reporting_Guidelines.pdf
+    [DARS_SGSS]: https://digital.nhs.uk/services/data-access-request-service-dars/dars-products-and-services/data-set-catalogue/covid-19-second-generation-surveillance-system-sgss
+    """
+
+    specimen_taken_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+        description="""
+            Date on which specimen was collected.
+        """,
+    )
+    is_positive = Series(
+        bool,
+        constraints=[Constraint.NotNull()],
+        description="""
+            Whether the specimin tested positive for SARS-CoV-2.
+        """,
+    )
+    lab_report_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+        description="""
+            Date on which the labaratory reported the result.
+        """,
+    )
+    was_symptomatic = Series(
+        bool,
+        description="""
+            Whether the patient reported symptoms of COVID-19 at the time the specimen
+            was collected. May be NULL if unknown.
+        """,
+    )
+    sgtf_status = Series(
+        int,
+        constraints=[Constraint.ClosedRange(0, 9)],
+        description="""
+            Provides information on whether a PCR test result exhibited "S-Gene Target
+            Failure" which can be used as a proxy for the presence of certain Variants
+            of Concern.
+
+            Results are provided as number between 0 and 9. We know the meaning of
+            _some_ of these numbers based on an email from PHE:
+
+            > 0: S gene detected<br>
+            > Detectable S gene (CH3>0)<br>
+            > Detectable y ORF1ab CT value (CH1) <=30 and >0<br>
+            > Detectable N gene CT value (CH2) <=30 and >0<br>
+            >
+            > 1: Isolate with confirmed SGTF<br>
+            > Undetectable S gene; CT value (CH3) =0<br>
+            > Detectable ORF1ab gene; CT value (CH2) <=30 and >0<br>
+            > Detectable N gene; CT value (CH1) <=30 and >0<br>
+            >
+            > 9: Cannot be classified
+            >
+            > Null are where the target is not S Gene. I think LFTs are currently
+            > also coming across as 9 so will need to review those to null as well as
+            > clearly this is a PCR only variable.
+
+            However the values 2, 4 and 8 also occur in this column and we don't
+            currently have documentation on their meaning.
+        """,
+    )
+    variant = Series(
+        str,
+        description="""
+            Where a specific SARS-CoV-2 variant was identified this column provides the details.
+
+            This appears to be effectively a free-text field with a large variety of
+            possible values. Some have an obvious meaning e.g. `B.1.617.2`,
+            `VOC-21JAN-02`, `VUI-21FEB-04`.
+
+            Others less so e.g. `VOC-22JAN-O1_probable:V-21OCT-01_low-qc`.
+        """,
+    )
+    variant_detection_method = Series(
+        str,
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Private Lab Sequencing",
+                    "Reflex Assay",
+                    "Sanger Provisional Result",
+                ]
+            )
+        ],
+        description="""
+            Where a specific SARS-CoV-2 variant was identified this provides the method
+            used to do so.
+        """,
+    )
 
 
 @table
