@@ -41,6 +41,7 @@ nav:
     - ehrQL output formats: explanation/output-formats.md
     - Using ehrQL in OpenSAFELY projects: explanation/using-ehrql-in-opensafely-projects.md
     - Running ehrQL: explanation/running-ehrql.md
+    - Using the measures framework: explanation/measures.md
 
 theme:
   name: material
