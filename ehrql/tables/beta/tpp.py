@@ -898,10 +898,35 @@ class sgss_covid_all_tests(EventFrame):
 
 @table
 class vaccinations(EventFrame):
-    vaccination_id = Series(int)
-    date = Series(datetime.date)
-    target_disease = Series(str)
-    product_name = Series(str)
+    """
+    This table contains information on administered vaccinations,
+    identified using either the target disease (e.g., Influenza),
+    or the vaccine product name (e.g., Optaflu).
+    For more information about this table see the
+    "[Vaccinaton names in the OpenSAFELY-TPP database][vaccinations_1]" report.
+
+    Vaccinations that were administered at work or in a pharmacy might not be
+    included in this table.
+
+    [vaccinations_1]: https://reports.opensafely.org/reports/opensafely-tpp-vaccination-names/
+    """
+
+    vaccination_id = Series(
+        int,
+        description="Vaccination identifier.",
+    )
+    date = Series(
+        datetime.date,
+        description="The date the vaccination was administered.",
+    )
+    target_disease = Series(
+        str,
+        description="Vaccine's target disease.",
+    )
+    product_name = Series(
+        str,
+        description="Vaccine's product name.",
+    )
 
 
 @table
