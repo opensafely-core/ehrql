@@ -892,8 +892,30 @@ class practice_registrations(EventFrame):
 
 @table
 class sgss_covid_all_tests(EventFrame):
-    specimen_taken_date = Series(datetime.date)
-    is_positive = Series(bool)
+    """
+    COVID-19 tests results from SGSS (the Second Generation Surveillance System).
+
+    For background on this data see the NHS [DARS catalogue entry][DARS_SGSS].
+    And for more detail on SGSS in general see [PHE_Laboratory_Reporting_Guidelines.pdf][PHE_LRG].
+
+    [PHE_LRG]: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/739854/PHE_Laboratory_Reporting_Guidelines.pdf
+    [DARS_SGSS]: https://digital.nhs.uk/services/data-access-request-service-dars/dars-products-and-services/data-set-catalogue/covid-19-second-generation-surveillance-system-sgss
+    """
+
+    specimen_taken_date = Series(
+        datetime.date,
+        constraints=[Constraint.NotNull()],
+        description="""
+            Date on which specimen was collected.
+        """,
+    )
+    is_positive = Series(
+        bool,
+        constraints=[Constraint.NotNull()],
+        description="""
+            Whether the specimin tested positive for SARS-CoV-2.
+        """
+    )
 
 
 @table
