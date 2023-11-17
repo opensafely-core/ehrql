@@ -829,3 +829,92 @@ first_asthma_review_date = clinical_events.where(
 dataset.weeks_between_diagnosis_and_review = (first_asthma_review_date - first_asthma_diagnosis_date).weeks
 dataset.define_population(patients.exists_for_patient())
 ```
+
+
+## Excluding medications for patients who have transferred between practices
+
+Note that in these examples, the periods defined are illustrative only.
+
+### Excluding patients based on prescription date
+
+```ehrql
+from ehrql import case, create_dataset, codelist_from_csv, when, weeks
+from ehrql.tables.beta.tpp import medications, patients, practice_registrations
+
+def meets_registrations_criteria(medication_date):
+    # For this medication date, find whether a registration exists where
+    # the start date and end dates are within a 12 weeks
+    # prior/after to the prescription
+
+    start_cutoff_date = medication_date - weeks(12)
+    end_cutoff_date = medication_date + weeks(12)
+    return (
+        practice_registrations.where(
+        practice_registrations.start_date.is_on_or_before(start_cutoff_date)
+        )
+        .except_where(
+        practice_registrations.end_date.is_on_or_before(end_cutoff_date)
+        )
+        .exists_for_patient()
+    )
+
+medication_codelist = codelist_from_csv("XXX", column="YYY")
+
+dataset = create_dataset()
+
+# First relevant prescription per patient
+first_prescription = (
+    medications.where(
+        medications.dmd_code.is_in(medication_codelist)
+    )
+    .sort_by(medications.date)
+    .first_for_patient()
+)
+
+# Include only prescriptions that fall within accepatable registration dates
+dataset.prescription_date = case(
+    when(meets_registrations_criteria(first_prescription.date))
+    .then(first_prescription.date)
+)
+dataset.define_population(patients.exists_for_patient())
+```
+
+### Excluding patients based on study dates
+
+The following example ensures that the dataset only includes patients registered at a
+single practice for the entire duration of the study, plus at least 3 months prior to the
+study start.
+
+```ehrql
+from ehrql import create_dataset, codelist_from_csv, months
+from ehrql.tables.beta.tpp import medications, patients, practice_registrations
+
+study_start_date = "2022-01-01"
+study_end_date = "2022-12-31"
+
+medication_codelist = codelist_from_csv("XXX", column="YYY")
+
+dataset = create_dataset()
+
+# First relevant prescription per patient
+first_prescription = (
+    medications.where(medications.dmd_code.is_in(medication_codelist))
+    .sort_by(medications.date)
+    .first_for_patient()
+)
+
+dataset.prescription_date = first_prescription.date
+
+# find registrations that exist for the full study period, and at least 3 months
+# prior
+registrations = (
+    practice_registrations.where(
+        practice_registrations.start_date.is_on_or_before(study_start_date - months(3))
+    )
+    .except_where(
+        practice_registrations.end_date.is_on_or_before(study_end_date)
+    )
+)
+
+dataset.define_population(registrations.exists_for_patient())
+```
