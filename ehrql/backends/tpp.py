@@ -703,17 +703,37 @@ class TPPBackend(SQLBackend):
     )
 
     sgss_covid_all_tests = QueryTable(
+        # Note that the `Symptomatic` column takes values "Y"/"N" in the positive data
+        # and "true"/"false" in the negative
         """
             SELECT
                 Patient_ID AS patient_id,
                 Specimen_Date AS specimen_taken_date,
-                1 AS is_positive
+                1 AS is_positive,
+                Lab_Report_Date AS lab_report_date,
+                CASE Symptomatic
+                    WHEN 'Y' THEN 1
+                    WHEN 'N' THEN 0
+                END AS was_symptomatic,
+                CAST(NULLIF(SGTF, '') AS int) AS sgtf_status,
+                NULLIF(Variant, '') AS variant,
+                NULLIF(VariantDetectionMethod, '') AS variant_detection_method
             FROM SGSS_AllTests_Positive
+
             UNION ALL
+
             SELECT
                 Patient_ID AS patient_id,
                 Specimen_Date AS specimen_taken_date,
-                0 AS is_positive
+                0 AS is_positive,
+                Lab_Report_Date AS lab_report_date,
+                CASE Symptomatic
+                    WHEN 'true' THEN 1
+                    WHEN 'false' THEN 0
+                END AS was_symptomatic,
+                NULL AS sgtf_status,
+                NULL AS variant,
+                NULL AS variant_detection_method
             FROM SGSS_AllTests_Negative
         """
     )
