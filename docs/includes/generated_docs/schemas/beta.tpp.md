@@ -1175,6 +1175,18 @@ https://www.datadictionary.nhs.uk/data_elements/ethnic_category.html
     <code>string</code>
   </dt>
   <dd markdown="block">
+Note that the underlying data only contains a single diagnosis code, despite the "diagnoses" name. primary_diagnoses is therefore deprecated and will be removed in future: use primary_diagnosis instead.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="hospital_admissions.primary_diagnosis">
+    <strong>primary_diagnosis</strong>
+    <a class="headerlink" href="#hospital_admissions.primary_diagnosis" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
 
 
   </dd>

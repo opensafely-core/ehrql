@@ -416,7 +416,16 @@ class hospital_admissions(EventFrame):
     all_diagnoses = Series(str)
     patient_classification = Series(str)
     days_in_critical_care = Series(int)
-    primary_diagnoses = Series(str)
+    primary_diagnoses = Series(
+        str,
+        description=(
+            "Note that the underlying data only contains a single diagnosis code, "
+            'despite the "diagnoses" name. '
+            "primary_diagnoses is therefore deprecated and will be removed in future: "
+            "use primary_diagnosis instead. "
+        ),
+    )
+    primary_diagnosis = Series(ICD10Code)
 
 
 @table

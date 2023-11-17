@@ -331,7 +331,8 @@ class TPPBackend(SQLBackend):
                 apcs.Der_Diagnosis_All AS all_diagnoses,
                 apcs.Patient_Classification AS patient_classification,
                 CAST(der.Spell_PbR_CC_Day AS INTEGER) AS days_in_critical_care,
-                der.Spell_Primary_Diagnosis as primary_diagnoses
+                der.Spell_Primary_Diagnosis as primary_diagnoses,
+                der.Spell_Primary_Diagnosis as primary_diagnosis
             FROM APCS AS apcs
             LEFT JOIN APCS_Der AS der
             ON apcs.APCS_Ident = der.APCS_Ident
