@@ -26,10 +26,10 @@ from .main import (
 
 
 QUERY_ENGINE_ALIASES = {
-    "mssql": "ehrql.query_engines.mssql.MSSQLQueryEngine",
-    "sqlite": "ehrql.query_engines.sqlite.SQLiteQueryEngine",
+    #"mssql": "ehrql.query_engines.mssql.MSSQLQueryEngine",
+    #"sqlite": "ehrql.query_engines.sqlite.SQLiteQueryEngine",
     "csv": "ehrql.query_engines.csv.CSVQueryEngine",
-    "trino": "ehrql.query_engines.trino.TrinoQueryEngine",
+    #"trino": "ehrql.query_engines.trino.TrinoQueryEngine",
 }
 
 

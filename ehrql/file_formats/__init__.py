@@ -1,9 +1,10 @@
 import os
-
-from ehrql.file_formats.arrow import (
-    ArrowDatasetReader,
-    write_dataset_arrow,
-)
+# XXX if arrow
+# from ehrql.file_formats.arrow import (
+#     ArrowDatasetReader,
+#     write_dataset_arrow,
+# )
+# XXX
 from ehrql.file_formats.base import ValidationError
 from ehrql.file_formats.csv import (
     CSVDatasetReader,
@@ -14,7 +15,7 @@ from ehrql.file_formats.csv import (
 
 
 FILE_FORMATS = {
-    ".arrow": (write_dataset_arrow, ArrowDatasetReader),
+#    ".arrow": (write_dataset_arrow, ArrowDatasetReader),
     ".csv": (write_dataset_csv, CSVDatasetReader),
     ".csv.gz": (write_dataset_csv_gz, CSVGZDatasetReader),
 }

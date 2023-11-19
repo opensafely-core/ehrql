@@ -23,7 +23,7 @@ from ehrql.measures import (
     get_measure_results,
 )
 from ehrql.query_engines.csv import CSVQueryEngine
-from ehrql.query_engines.sqlite import SQLiteQueryEngine
+#from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_model.column_specs import get_column_specs
 from ehrql.serializer import serialize
 from ehrql.utils.itertools_utils import eager_iterator
@@ -154,7 +154,7 @@ def dump_dataset_sql(
         backend_class,
         query_engine_class,
         environ,
-        default_query_engine_class=SQLiteQueryEngine,
+        default_query_engine_class=None,
     )
 
     all_query_strings = get_sql_strings(query_engine, variable_definitions)
