@@ -68,10 +68,6 @@ dataset.end_lc_cure = matched_hx_cases.end_lc_cure
 dataset.end_date = minimum_of(dataset.end_death, dataset.end_deregist, dataset.end_lc_cure, study_end_date)
 dataset.total_hx_drug_visit = total_hx_drug_visit # historical prescription visits
 
-# Add current prescription visits 
-total_drug_visit(dataset, dataset.index_date, end_date=dataset.end_date)
-
-
 # Outcome visit
 # Historical GP visits: 2019-3-1 to 2020-3-1
 add_hx_gp_visits(dataset, num_months=1)
@@ -193,5 +189,36 @@ outpatient_visit(dataset, from_date=lc_dx.date, num_months=9, end_date=dataset.e
 outpatient_visit(dataset, from_date=lc_dx.date, num_months=10, end_date=dataset.end_date)
 outpatient_visit(dataset, from_date=lc_dx.date, num_months=11, end_date=dataset.end_date)
 outpatient_visit(dataset, from_date=lc_dx.date, num_months=12, end_date=dataset.end_date)
+
+
+# Historical prescription visit
+hx_monthly_drug_visit(dataset, 1)
+hx_monthly_drug_visit(dataset, 2)
+hx_monthly_drug_visit(dataset, 3)
+hx_monthly_drug_visit(dataset, 4)
+hx_monthly_drug_visit(dataset, 5)
+hx_monthly_drug_visit(dataset, 6)
+hx_monthly_drug_visit(dataset, 7)
+hx_monthly_drug_visit(dataset, 8)
+hx_monthly_drug_visit(dataset, 9)
+hx_monthly_drug_visit(dataset, 10)
+hx_monthly_drug_visit(dataset, 11)
+hx_monthly_drug_visit(dataset, 12)
+
+
+# Current prescription visit:
+# GP prescription visits:
+monthly_drug_visit(dataset, dataset.index_date, num_months=1, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=2, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=3, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=4, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=5, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=6, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=7, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=8, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=9, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=10, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=11, end_date=study_end_date)
+monthly_drug_visit(dataset, dataset.index_date, num_months=12, end_date=study_end_date)
 
 dataset.configure_dummy_data(population_size=10000)

@@ -369,13 +369,23 @@ def monthly_drug_visit(dataset, from_date, num_months, end_date):
         .date.count_distinct_for_patient()
     setattr(dataset, f"drug_visit_m{num_months}", num_pres)
 
+
+def hx_monthly_drug_visit(dataset, num_months):
+    # Same date visits for prescriptions within `num_months` of `from_date`
+    num_pres = medications \
+        .where((medications.date >= hx_study_start_date + days((num_months-1)*30)) &
+               (medications.date < hx_study_start_date + days(num_months*30)))\
+        .date.count_distinct_for_patient()
+    setattr(dataset, f"drug_hx_visit_m{num_months}", num_pres)
+
+
 # Temp: test generate data
 dataset = Dataset()
 dataset.define_population(age >= 18)
 
 # hx_outpatient_visit(dataset, lc_dx.date, num_months=2)
 
-monthly_drug_visit(dataset, lc_dx.date, num_months=4, end_date=study_end_date)
+# monthly_drug_visit(dataset, lc_dx.date, num_months=4, end_date=study_end_date)
 # drug_12ent_number(dataset, lc_dx.date, num_months=2)
 # add_visits(dataset, lc_dx.date, num_months=1,end_date=study_end_date)
 # add_visits(dataset, lc_dx.date, num_months=2,end_date=study_end_date)
@@ -391,3 +401,5 @@ monthly_drug_visit(dataset, lc_dx.date, num_months=4, end_date=study_end_date)
 # cost_apc_fn(dataset, from_date=lc_dx.date, num_months=4, end_date=study_end_date)
 # hos_stay_long_fn(dataset, from_date=lc_dx.date, end_date=study_end_date)
 # hos_stay_short_fn(dataset, from_date=lc_dx.date, end_date=study_end_date)
+hx_monthly_drug_visit(dataset, 1)
+hx_monthly_drug_visit(dataset, 4)
