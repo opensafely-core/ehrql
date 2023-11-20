@@ -250,7 +250,7 @@ def test_variable_strategy_is_comprehensive():
     operations_seen = set()
 
     # This uses a fixed seed and no example database to make it deterministic
-    @hyp.settings(max_examples=150, database=None, deadline=None)
+    @hyp.settings(max_examples=200, database=None, deadline=None)
     @hyp.seed(123456)
     @hyp.given(variable=variable_strategy)
     def record_operations_seen(variable):
