@@ -847,7 +847,7 @@ Patient's date of death.
     <code>string</code>
   </dt>
   <dd markdown="block">
-
+Patient's place of death.
 
  * Possible values: `Care Home`, `Elsewhere`, `Home`, `Hospice`, `Hospital`, `Other communal establishment`
   </dd>
