@@ -25,7 +25,9 @@ Create a collection of measures with [`create_measures`](#create_measures).
 Add a measure to the list of measures to be generated.
 
 _name_<br>
-The name of the measure, as a string.
+The name of the measure, as a string. Only used to identify the measure in the
+output. Must start with a letter and contain only alphanumeric and underscore
+characters.
 
 _numerator_<br>
 The numerator definition, which must be a patient series but can be either
@@ -44,6 +46,13 @@ dictionary of the form:
     ...
 }
 ```
+
+ * each _group_name_ becomes a column in the output. It must contain only
+alphanumeric and underscore characters and must start with a letter. It also
+must not clash with any reserved column names like "numerator" or "ratio".
+
+ * each _group_definition_ must be a categorical patient series (i.e. a patient
+series which takes only a fixed set of values).
 
 _intervals_<br>
 A list of start/end date pairs over which to evaluate the measures. These can be
