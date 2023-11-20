@@ -61,6 +61,7 @@ class ons_deaths_raw(EventFrame):
     )
     place = Series(
         str,
+        description="Patient's place of death.",
         constraints=[
             Constraint.Categorical(
                 [
