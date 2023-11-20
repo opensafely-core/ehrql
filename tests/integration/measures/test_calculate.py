@@ -1,9 +1,13 @@
 import random
 from collections import defaultdict
 from datetime import date, timedelta
+from unittest import mock
 
-from ehrql import years
+import pytest
+
+from ehrql import months, years
 from ehrql.measures import INTERVAL, Measures, get_measure_results
+from ehrql.measures.calculate import MeasuresTimeout
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
@@ -93,9 +97,34 @@ def test_get_measure_results(engine):
         intervals, patient_data, address_data, event_data
     )
     expected = list(expected)
-
     # We don't care about the order of the results
     assert set(results) == set(expected)
+
+
+@mock.patch("ehrql.measures.calculate.time")
+def test_get_measure_results_with_timeout(patched_time, in_memory_engine):
+    events_in_interval = events.where(events.date.is_during(INTERVAL))
+    event_count = events_in_interval.count_for_patient()
+    foo_event_count = events_in_interval.where(events.code == "foo").count_for_patient()
+
+    intervals = months(60).starting_on("2000-01-01")
+    measures = Measures()
+
+    measures.define_measure(
+        "foo_events",
+        numerator=foo_event_count,
+        denominator=event_count,
+        intervals=intervals,
+    )
+
+    patient_data, _, event_data = generate_data(intervals)
+    in_memory_engine.populate({patients: patient_data, events: event_data})
+
+    mock_short_queries = [6500.0 + i * 500 for i in range(11)]
+    patched_time.time.side_effect = [0.0] + [6000.0] + mock_short_queries + [100000.0]
+    results = get_measure_results(in_memory_engine.query_engine(), measures)
+    with pytest.raises(MeasuresTimeout, match="time limit"):
+        results = list(results)
 
 
 def generate_data(intervals):
