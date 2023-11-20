@@ -227,9 +227,9 @@ ghp-import==2.1.0 \
     --hash=sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619 \
     --hash=sha256:9c535c4c61193c2df8871222567d7fd7e5014d835f97dc7b7439069e2413d343
     # via mkdocs
-hypothesis==6.88.3 \
-    --hash=sha256:5cfda253e34726c98ab04b9595fca15677ee9f4f6055146aea25a6278d71f6f1 \
-    --hash=sha256:781ce6fd35e11ca77ad132a20cebe66fd215f56678f8efd6b87013b14500151b
+hypothesis==6.90.0 \
+    --hash=sha256:0ab33900b9362318bd03d911a77a0dda8629c1877420074d87ae466919f6e4c0 \
+    --hash=sha256:4d7d3d3d5e4e4a9954b448fc8220cd73573e3e32adb00059f6907de6b55dcd5e
     # via -r requirements.dev.in
 identify==2.5.31 \
     --hash=sha256:7736b3c7a28233637e3c36550646fc6389bedd74ae84cb788200cc8e2dd60b75 \
@@ -613,9 +613,9 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via -r requirements.dev.in
-urllib3==2.0.7 \
-    --hash=sha256:c97dfde1f7bd43a71c8d2a58e369e9b2bf692d1334ea9f9cae55add7d0dd0f84 \
-    --hash=sha256:fdb6d215c776278489906c2f8916e6e7d4f5a9b602ccbcfdf7f016fc8da0596e
+urllib3==2.1.0 \
+    --hash=sha256:55901e917a5896a349ff771be919f8bd99aff50b79fe58fec595eb37bbc56bb3 \
+    --hash=sha256:df7aa8afb0148fa78488e7899b2c59b5f4ffcfa82e6c54ccb9dd37c1d7b52d54
     # via
     #   -c requirements.prod.txt
     #   docker
