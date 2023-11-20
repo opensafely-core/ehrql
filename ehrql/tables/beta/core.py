@@ -112,7 +112,7 @@ class ons_deaths(PatientFrame):
     )
     place = Series(
         str,
-        description="Patient's date of death.",
+        description="Patient's place of death.",
         constraints=[
             Constraint.Categorical(
                 [
