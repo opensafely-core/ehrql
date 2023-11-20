@@ -291,3 +291,29 @@ download-pledge:
     # can run directly without needing a shell. See:
     # https://justine.lol/apeloader/
     bin/pledge --assimilate
+
+build-cosmo: requirements-dev
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    
+
+    ZIP_URL="https://cosmo.zip/pub/cosmos/bin/python"
+    TMP_FILE="$(mktemp XXXXX.com)"
+    TMP_DIR="$(mktemp -d)"
+
+    # Get the latest cosmopolitan python
+    curl --location --output "$TMP_FILE" "$ZIP_URL"
+    # Build ehrql wheel
+    $BIN/python -m build --wheel -o ./dist
+    # Build all dependencies, using pure-python versions where necessary
+    export DISABLE_SQLALCHEMY_CEXT=1
+    $BIN/pip wheel -r requirements.prod.txt -w ./dist --no-binary charset-normalizer  --no-binary sqlalchemy
+
+    # Extract the wheel contents and append to the APE binary
+    ls dist/*.whl | grep none-any | xargs --replace=F -n 1 unzip F -d $TMP_DIR/Lib/
+    zip -r $TMP_FILE $TMP_DIR/Lib
+
+    # Prepare binary for use
+    mv $TMP_FILE python_ehrql
+    chmod a+x python_ehrql
