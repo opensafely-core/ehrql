@@ -125,6 +125,10 @@ In the associated database table [ONS_Deaths](https://reports.opensafely.org/rep
 a small number of patients have multiple registered deaths.
 This table contains the earliest registered death.
 The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
+
+!!! warning
+    There is also a in ONS death recording caused amongst other things by things like autopsies and inquests delaying
+    reporting on cause of death. This is evident in the [OpenSAFELY historical database coverage report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -373,6 +377,28 @@ If the patient doesn't register with a new practice within a given amount of tim
 (normally from four to eight weeks),
 then the patient's records are permanently deducted and are _orphan records_.
 There are roughly 1.6 million orphan records.
+
+### Recording of death in primary care
+
+In England, it is the statutory duty of the doctor who had attended in the last
+illness to complete a medical certificate of cause of death (MCCD). ONS death data
+are considered the gold standard for identifying patient deaths because they are
+based on these MCCDs.
+
+There is generally a lag between the death being recorded in ONS data and it
+appearing in the primary care record, but the coverage or recorded death is almost
+complete and the date of death date is usually reliable when it appears. There is
+also a lag in ONS death recording (see [below](https://docs.opensafely.org/ehrql/reference/schemas/beta.core/#ons_deaths)
+for more detail). You can find out more about the accuracy of date of death
+recording in primary care in:
+
+> Gallagher, A. M., Dedman, D., Padmanabhan, S., Leufkens, H. G. M. & de Vries, F 2019. The accuracy of date of death recording in the Clinical
+> Practice Research Datalink GOLD database in England compared with the Office for National Statistics death registrations.
+> Pharmacoepidemiol. Drug Saf. 28, 563–569.
+> <https://doi.org/10.1002/pds.4747>
+
+By contrast, cause of death is often not accurate in the primary care record so we
+don't make it available to query here.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
