@@ -9,6 +9,7 @@ from sqlalchemy import distinct
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
+from sqlalchemy.sql.visitors import replacement_traverse
 
 from ehrql.backends.base import DefaultSQLBackend
 from ehrql.query_model.nodes import (
@@ -45,6 +46,9 @@ from .base import BaseQueryEngine
 
 
 log = structlog.getLogger()
+
+
+PLACEHOLDER_PATIENT_ID = sqlalchemy.column("PLACEHOLDER_PATIENT_ID")
 
 
 class BaseSQLQueryEngine(BaseQueryEngine):
@@ -215,8 +219,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Function.In)
     def get_sql_in(self, node):
+        if isinstance(node.rhs, Value):
+            return self.get_sql_in_value(node)
+        elif isinstance(node.rhs, AggregateByPatient.CombineAsSet):
+            return self.get_sql_in_combine_as_set(node)
+        else:
+            assert False, f"Unhandled node type {type(node.rhs)}: {node.rhs}"
+
+    def get_sql_in_value(self, node):
         lhs = self.get_expr(node.lhs)
-        if isinstance(node.rhs, Value) and len(node.rhs.value) == 0:
+        if len(node.rhs.value) == 0:
             # Special case handling for when LHS is NULL and RHS is an empty list: ehrQL
             # evaluates this as NULL whereas SQL evaluates it as FALSE. (Of course, both
             # agree than when RHS is empty and LHS is non-NULL then the result is
@@ -228,13 +240,60 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             return lhs.in_(rhs)
 
     def get_expr_for_multivalued_param(self, node):
-        assert isinstance(node, Value)
         assert isinstance(node.value, frozenset)
         if len(node.value) <= self.max_multivalue_param_length:
             return self.get_expr(node)
         else:
             table = self.get_table(node.value)
             return sqlalchemy.select(table.columns[0])
+
+    def get_sql_in_combine_as_set(self, node):
+        # Start by constructing a query for the RHS series
+        query = self.get_select_query_for_node_domain(node.rhs.source)
+        value_expr = self.get_expr(node.rhs.source).label("value")
+        query = query.add_columns(value_expr)
+        # ehrQL's semantics require that we filter out any NULL values here
+        query = query.where(value_expr.is_not(None))
+        query = apply_patient_joins(query)
+        # TODO: This is the first time we're reifying a query which isn't one-row-per-
+        # patient and this means that our assumptions about the best indexing strategy here
+        # (e.g. creating an MSSQL clustered index on `patient_id`) no longer hold. This
+        # isn't a disaster performance-wise, but we should think about how to make
+        # things more efficient here.
+        table = self.reify_query(query)
+        # Create a correlated subquery which means that each patient's row is compared
+        # with just the values for that patient, not all the values in the table.  This
+        # requires referencing the patient_id column of the outer query, but we don't
+        # yet know what this is so we use a placeholder column reference which can get
+        # replaced later (see `replace_placeholder_references()`).
+        rhs = sqlalchemy.select(table.c.value).where(
+            table.c.patient_id == PLACEHOLDER_PATIENT_ID
+        )
+        lhs = self.get_expr(node.lhs)
+        # The strange expression below handles the difference between ehrQL's and SQL's
+        # semantics: SQL considers `NULL in ()` to be FALSE and ehrQL considers it to be
+        # NULL so we use the expression:
+        #
+        #     LHS != LHS OR LHS IN (RHS)
+        #
+        # Consider how this behaves when LHS is and isn't NULL.
+        #
+        # 1. When LHS is not NULL this evaluates to:
+        #
+        #      FALSE OR LHS IN (RHS)
+        #
+        #    which is identical with:
+        #
+        #      LHS IN (RHS)
+        #
+        # 2. When LHS is NULL it evaluates to:
+        #
+        #      NULL | NULL IN (RHS)
+        #
+        #    `NULL IN (RHS)` is never TRUE (it's FALSE if RHS is empty and NULL
+        #    otherwise) which means that the expression as a whole evaluates NULL, as
+        #    required.
+        return sqlalchemy.or_(operators.ne(lhs, lhs), lhs.in_(rhs))
 
     @get_sql.register(Function.Not)
     def get_sql_not(self, node):
@@ -818,6 +877,9 @@ def apply_patient_joins(query):
     from patient-level tables in a query because, in effect, there is always an implicit
     join on `patient_id`. This function makes those implicit joins explicit.
     """
+    # Now that we've assembled a complete query we can replace any "placeholder" column
+    # references with actual column references
+    query = replace_placeholder_references(query)
     # We use the convention that the column to be joined on is always the first selected
     # column. This avoids having to hardcode, or pass around, the name of the column.
     join_key = query.selected_columns[0]
@@ -832,6 +894,20 @@ def apply_patient_joins(query):
     for table in implicit_joins:
         query = query.join(table, table.c[join_key_name] == join_key, isouter=True)
     return query
+
+
+def replace_placeholder_references(query):
+    # We use the convention that the column to be joined on is always the first selected
+    # column. This avoids having to hardcode, or pass around, the name of the column.
+    patient_id_column = query.selected_columns[0]
+    # Replace any "placeholder" column references with the target column
+    return replacement_traverse(
+        query,
+        {},
+        replace=(
+            lambda obj: patient_id_column if obj is PLACEHOLDER_PATIENT_ID else None
+        ),
+    )
 
 
 def get_table_and_filter_conditions(frame):
