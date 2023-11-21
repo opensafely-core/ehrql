@@ -2,8 +2,9 @@ import dataclasses
 import datetime
 import functools
 import re
-from collections import ChainMap
+from collections import ChainMap, abc
 from pathlib import Path
+from typing import types
 
 from ehrql.codes import BaseCode
 from ehrql.file_formats import read_dataset
@@ -258,6 +259,7 @@ class PatientSeries(BaseSeries):
         super().__init_subclass__(**kwargs)
         # Register the series using its `_type` attribute
         REGISTERED_TYPES[cls._type, True] = cls
+        REGISTERED_TYPES[abc.Set[cls._type], True] = cls
 
 
 class EventSeries(BaseSeries):
@@ -985,9 +987,12 @@ def _wrap(qm_node):
     except KeyError:
         # If we don't have a match for exactly this type then we should have one for a
         # superclass
+        # Ignore any registered types that are not GenericAliases (e.g.
+        # Set[int]) becuase issubclass can't check those
         matches = [
             cls
             for ((target_type, target_dimension), cls) in REGISTERED_TYPES.items()
+            if not isinstance(target_type, types.GenericAlias)
             if issubclass(type_, target_type) and is_patient_level == target_dimension
         ]
         assert len(matches) == 1
