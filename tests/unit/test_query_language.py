@@ -49,7 +49,6 @@ from ehrql.query_model.nodes import (
     SelectPatientTable,
     SelectTable,
     TableSchema,
-    TypeValidationError,
     Value,
 )
 
@@ -270,17 +269,14 @@ def test_automatic_cast(lhs, op, rhs, expected_type):
     assert isinstance(result, expected_type)
 
 
-def test_is_in():
-    int_series = IntEventSeries(qm_int_series)
-    assert_produces(
-        int_series.is_in([1, 2]), Function.In(qm_int_series, Value(frozenset([1, 2])))
-    )
+def test_is_in_rejects_unknown_types():
+    with pytest.raises(TypeError, match="Invalid argument type"):
+        patients.i.is_in(1)
 
 
-def test_passing_a_single_value_to_is_in_raises_error():
-    int_series = IntEventSeries(qm_int_series)
-    with pytest.raises(TypeValidationError):
-        int_series.is_in(1)
+def test_is_in_rejects_patient_series():
+    with pytest.raises(TypeError, match="must be an EventSeries"):
+        events.f.is_in(patients.f)
 
 
 def test_series_are_not_hashable():
