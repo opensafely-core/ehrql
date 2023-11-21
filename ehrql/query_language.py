@@ -222,6 +222,8 @@ class BaseSeries:
         # potential for confusion amongst the less experienced of our users.
         if isinstance(other, tuple | list | set | frozenset | dict):
             other = frozenset(map(self._cast, other))
+        elif isinstance(other, BaseSeries):
+            other = _apply(qm.AggregateByPatient.CombineAsSet, other)
         return _apply(qm.Function.In, self, other)
 
     def is_not_in(self, other):

@@ -415,7 +415,7 @@ class Function:
     # use the `CombineAsSet` aggregation.
     class In(Series[bool]):
         lhs: Series[T]
-        rhs: Series[Set[T]]
+        rhs: Series[Set[T]] | AggregatedSeries[Set[T]]
 
     # Horizontal Aggregation
     class MinimumOf(Series[Comparable]):
