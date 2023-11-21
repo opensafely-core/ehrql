@@ -217,9 +217,21 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_in(self, node):
         lhs = self.get_expr(node.lhs)
         rhs = self.get_expr_for_multivalued_param(node.rhs)
-        return lhs.in_(rhs)
+
+        if hasattr(rhs, "value") and isinstance(rhs.value, tuple):
+            return lhs.in_(rhs)
+        else:
+            patient_id = lhs.table.c.patient_id
+            return (
+                sqlalchemy.select(None)
+                .select_from(rhs)
+                .where(rhs.c[0] == patient_id, rhs.c[1] == lhs)
+                .exists()
+            )
 
     def get_expr_for_multivalued_param(self, node):
+        if isinstance(node, AggregateByPatient.CombineAsSet):
+            return self.get_expr(node)
         assert isinstance(node, Value)
         assert isinstance(node.value, frozenset)
         if len(node.value) <= self.max_multivalue_param_length:
@@ -585,6 +597,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             table = self.get_table(node.source)
             has_row = table.c.patient_id.is_not(None)
             return sqlalchemy.case((has_row, 1), else_=0)
+
+    @get_sql.register(AggregateByPatient.CombineAsSet)
+    def get_sql_combine_as_set(self, node):
+        query = self.get_select_query_for_node_domain(node.source)
+        query = query.add_columns(self.get_sql(node.source))
+        table = self.reify_query(query)
+        return table
 
     def aggregate_series_by_patient(self, source_node, aggregation_func):
         query = self.get_select_query_for_node_domain(source_node)
