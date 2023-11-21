@@ -20,6 +20,7 @@ class IgnoredError(enum.Enum):
     TOO_COMPLEX = enum.auto()
     ARITHMETIC_OVERFLOW = enum.auto()
     DATE_OVERFLOW = enum.auto()
+    CONNECTION_ERROR = enum.auto()
 
 
 IGNORED_ERRORS = {
@@ -119,6 +120,15 @@ IGNORED_ERRORS = {
             # Invalid date errors
             sqlalchemy.exc.NotSupportedError,
             re.compile(r".+Could not convert '.+' into the associated python type"),
+        ),
+    ],
+    IgnoredError.CONNECTION_ERROR: [
+        # Sometimes we lose connection to the database server in a way that isn't
+        # important and does not warrant the noise of failing the generative tests.
+        # mssql
+        (
+            sqlalchemy.exc.OperationalError,
+            re.compile(r".+Unexpected EOF from the server.+", re.DOTALL),
         ),
     ],
 }
