@@ -142,6 +142,7 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
             date_difference_in_years: ({int}, DomainConstraint.ANY),
             date_difference_in_months: ({int}, DomainConstraint.ANY),
             date_difference_in_days: ({int}, DomainConstraint.ANY),
+            count_episodes: ({int}, DomainConstraint.PATIENT),
             case: ({int, float, bool, datetime.date}, DomainConstraint.ANY),
             maximum_of: (COMPARABLE_TYPES, DomainConstraint.ANY),
             minimum_of: (COMPARABLE_TYPES, DomainConstraint.ANY),
@@ -179,6 +180,13 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
         type_ = draw(any_type())
         frame = draw(many_rows_per_patient_frame())
         return AggregateByPatient.CountDistinct(draw(series(type_, frame)))
+
+    @st.composite
+    def count_episodes(draw, _type, _frame):
+        frame = draw(many_rows_per_patient_frame())
+        date_series = draw(series(datetime.date, frame))
+        maximum_gap_days = draw(st.integers(1, 5))
+        return AggregateByPatient.CountEpisodes(date_series, maximum_gap_days)
 
     def min_(type_, _frame):
         return aggregation_operation(type_, AggregateByPatient.Min)

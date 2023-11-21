@@ -49,7 +49,7 @@ class QueryGraphRewriter:
         elif isinstance(obj, frozenset | tuple):
             # As do frozensets and tuples
             return obj.__class__(self._rewrite(v, replacements) for v in obj)
-        elif isinstance(obj, NoneType | str | qm.Position | qm.TableSchema):
+        elif isinstance(obj, NoneType | int | str | qm.Position | qm.TableSchema):
             # Other expected types we return unchanged
             return obj
         else:

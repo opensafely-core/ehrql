@@ -738,3 +738,33 @@ def test_duration_generate_intervals_rejects_invalid_arguments(
 ):
     with pytest.raises((TypeError, ValueError), match=error):
         weeks(value).starting_on(start_date)
+
+
+@pytest.mark.parametrize(
+    "maximum_gap,error",
+    [
+        (10, r"must be supplied as `days\(\)` or `weeks\(\)`"),
+        (patients.i, r"must be supplied as `days\(\)` or `weeks\(\)`"),
+        (months(2), r"must be supplied as `days\(\)` or `weeks\(\)`"),
+        (years(2), r"must be supplied as `days\(\)` or `weeks\(\)`"),
+        (days(patients.i), "must be a single, fixed number of days"),
+        (weeks(patients.i), "must be a single, fixed number of weeks"),
+    ],
+)
+def test_count_episodes_for_patient_rejects_invalid_arguments(maximum_gap, error):
+    @table
+    class e(EventFrame):
+        d = Series(date)
+
+    with pytest.raises((TypeError, ValueError), match=error):
+        e.d.count_episodes_for_patient(maximum_gap)
+
+
+def test_count_episodes_for_patient_handles_weeks():
+    @table
+    class e(EventFrame):
+        d = Series(date)
+
+    using_days = e.d.count_episodes_for_patient(days(14))
+    using_weeks = e.d.count_episodes_for_patient(weeks(2))
+    assert using_days._qm_node == using_weeks._qm_node

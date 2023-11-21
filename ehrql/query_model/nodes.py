@@ -262,6 +262,11 @@ class AggregateByPatient:
     class CountDistinct(AggregatedSeries[int]):
         source: Series[Any]
 
+    class CountEpisodes(AggregatedSeries[int]):
+        source: Series[Any]
+        # Note this is `int` not `Series[int]`: we only accept a fixed value here
+        maximum_gap_days: int
+
     class Min(AggregatedSeries[Comparable]):
         source: Series[Comparable]
 

@@ -525,6 +525,37 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             0,
         )
 
+    @get_sql.register(AggregateByPatient.CountEpisodes)
+    def get_sql_count_episodes(self, node):
+        query = self.get_select_query_for_node_domain(node.source)
+        date_expr = self.get_expr(node.source)
+        query = query.where(date_expr.is_not(None))
+        # Use a LAG window function to get the previous date to the current one
+        previous_date_expr = sqlalchemy.func.lag(date_expr).over(
+            partition_by=query.selected_columns.patient_id,
+            order_by=date_expr,
+        )
+        # Get the difference between the two in days
+        query = query.add_columns(
+            self.date_difference_in_days(date_expr, previous_date_expr).label(
+                "date_delta_days"
+            )
+        )
+        query = apply_patient_joins(query)
+        subquery = query.alias()
+        # Filter the subquery to contain just those deltas which exceed the threshold
+        outer_query = sqlalchemy.select(subquery.c.patient_id).where(
+            (subquery.c.date_delta_days > node.maximum_gap_days)
+            # We also need to include the first row (which has no previous row and hence
+            # a delta of NULL) to avoid an off-by-one error
+            | subquery.c.date_delta_days.is_(None)
+        )
+        # Count the number of threshold-exceeding rows for each patient
+        return sqlalchemy.func.coalesce(
+            self.apply_sql_aggregation(outer_query, sqlalchemy.func.count("*")),
+            0,
+        )
+
     def count_distinct(self, sql_expr):
         return SQLFunction("COUNT", distinct(sql_expr), type_=sqlalchemy.Integer)
 
