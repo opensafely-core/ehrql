@@ -31,6 +31,7 @@ contents = {
     "series_ops": [
         "test_equality",
         "test_containment",
+        "test_containment_with_series",
         "test_map_values",
         "test_when_null_then",
         "test_maximum_of_and_minimum_of_patient_series",
