@@ -221,11 +221,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         if hasattr(rhs, "value") and isinstance(rhs.value, tuple):
             return lhs.in_(rhs)
         else:
-            patient_id = self.population_table.c.patient_id
-            query = sqlalchemy.exists(
-                sqlalchemy.select(None).where(
-                    rhs.c.patient_id == patient_id, rhs.c[1] == lhs
-                )
+            query = sqlalchemy.case(
+                (lhs.is_(None), None),
+                (lhs.in_(sqlalchemy.select(rhs.c[1])), True),
+                else_=False,
             )
             return query
 
