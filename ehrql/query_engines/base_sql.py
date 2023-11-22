@@ -221,13 +221,13 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         if hasattr(rhs, "value") and isinstance(rhs.value, tuple):
             return lhs.in_(rhs)
         else:
-            patient_id = lhs.table.c.patient_id
-            return (
-                sqlalchemy.select(None)
-                .select_from(rhs)
-                .where(rhs.c[0] == patient_id, rhs.c[1] == lhs)
-                .exists()
+            patient_id = self.population_table.c.patient_id
+            query = sqlalchemy.exists(
+                sqlalchemy.select(None).where(
+                    rhs.c.patient_id == patient_id, rhs.c[1] == lhs
+                )
             )
+            return query
 
     def get_expr_for_multivalued_param(self, node):
         if isinstance(node, AggregateByPatient.CombineAsSet):
