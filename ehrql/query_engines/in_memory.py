@@ -146,6 +146,19 @@ class InMemoryQueryEngine(BaseQueryEngine):
         col = self.visit(node.source)
         return col.aggregate_values(count_distinct, default=0)
 
+    def visit_CountEpisodes(self, node):
+        def count_episodes(dates):
+            # The `aggregate_values` method below filters out Nones and handles empty
+            # lists so we don't need to deal with those here
+            dates = sorted(dates)
+            return 1 + sum(
+                1 if (dates[i] - dates[i - 1]).days > node.maximum_gap_days else 0
+                for i in range(1, len(dates))
+            )
+
+        col = self.visit(node.source)
+        return col.aggregate_values(count_episodes, default=0)
+
     def visit_Min(self, node):
         col = self.visit(node.source)
         return col.aggregate_values(min, default=None)

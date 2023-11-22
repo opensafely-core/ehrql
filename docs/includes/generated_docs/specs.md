@@ -3630,6 +3630,41 @@ returns the following patient series:
 
 
 
+### 11.4 Aggregations which apply to all series containing dates
+
+
+#### 11.4.1 Count episodes
+
+This example makes use of an event-level table named `e` containing the following data:
+
+| patient|d1 |
+| - | - |
+| 1|2020-01-01 |
+| 1|2020-01-04 |
+| 1|2020-01-06 |
+| 1|2020-01-10 |
+| 1|2020-01-12 |
+| 2|2020-01-01 |
+| 3| |
+| 4|2020-01-10 |
+| 4| |
+| 4| |
+| 4|2020-01-01 |
+
+```python
+e.d1.count_episodes_for_patient(days(3))
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|2 |
+| 2|1 |
+| 3|0 |
+| 4|2 |
+
+
+
 ## 12 Operations on all series containing strings
 
 
