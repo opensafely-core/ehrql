@@ -2001,6 +2001,39 @@ Return the maximum value in the series for each patient (or NULL if the patient
 has no values).
 </div>
 
+<div class="attr-heading" id="DateEventSeries.count_episodes_for_patient">
+  <tt><strong>count_episodes_for_patient</strong>(<em>maximum_gap</em>)</tt>
+  <a class="headerlink" href="#DateEventSeries.count_episodes_for_patient" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Counts the number of "episodes" for each patient where dates which are no more
+than `maximum_gap` apart (specified in [`days()`](#days) or [`weeks()`](#weeks))
+are considered part of the same episode.
+
+For example, suppose a patient has the following sequence of events:
+
+Event ID | Date
+-- | --
+A | 2020-01-01
+B | 2020-01-04
+C | 2020-01-06
+D | 2020-01-10
+E | 2020-01-12
+
+And suppose we count the episodes here using a maximum gap of three days:
+```python
+.count_episodes_for_patient(days(3))
+```
+
+We will get an episode count of two: events A, B and C are considered as one
+episode and events D and E as another.
+
+Note that events A and C are considered part of the same episode even though
+they are more than three days apart because event B is no more than three days
+apart from both of them. That is, the clock restarts with each new event in an
+episode rather than running from the first event in an episode.
+</div>
+
 </div>
 
 
