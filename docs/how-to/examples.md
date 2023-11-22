@@ -134,7 +134,7 @@ dataset.date_of_death = patients.date_of_death
 dataset.define_population(patients.exists_for_patient())
 ```
 
-:notepad_spiral: This value comes from the patient's EHR record. You can find more information about the accuracy of this value in the [reference schema](https://docs.opensafely.org/ehrql/reference/schemas/beta.core/#recording-of-death-in-primary-care).
+:notepad_spiral: This value comes from the patient's EHR record. You can find more information about the accuracy of this value in the [reference schema](../reference/schemas/beta.core.md#recording-of-death-in-primary-care).
 
 
 ### Finding each patient's date, place, and cause of death from ONS records
