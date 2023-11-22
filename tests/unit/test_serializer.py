@@ -10,7 +10,7 @@ from ehrql.file_formats import (
     read_dataset,
     write_dataset,
 )
-from ehrql.query_language import BaseFrame, DummyDataConfig
+from ehrql.query_language import DummyDataConfig, get_tables_from_namespace
 from ehrql.query_model.column_specs import ColumnSpec
 from ehrql.serializer import SerializerError, deserialize, serialize
 from ehrql.tables.beta.core import clinical_events, patients
@@ -30,9 +30,7 @@ def define_measure(*args, **kwargs):
 def get_all_tables():
     for module in get_submodules(ehrql.tables):
         yield from (
-            as_query_model(frame)
-            for frame in vars(module).values()
-            if isinstance(frame, BaseFrame)
+            as_query_model(frame) for _, frame in get_tables_from_namespace(module)
         )
 
 

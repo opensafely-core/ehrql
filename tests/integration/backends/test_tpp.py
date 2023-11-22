@@ -7,7 +7,7 @@ import sqlalchemy
 
 from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
-from ehrql.query_language import BaseFrame, compile
+from ehrql.query_language import compile, get_tables_from_namespace
 from ehrql.tables.beta import tpp
 from ehrql.tables.beta.raw import tpp as tpp_raw
 from tests.lib.tpp_schema import (
@@ -1721,9 +1721,9 @@ def test_wl_openpathways(select_all):
 
 
 def test_registered_tests_are_exhaustive():
-    for name, table in itertools.chain(vars(tpp).items(), vars(tpp_raw).items()):
-        if not isinstance(table, BaseFrame):
-            continue
+    for name, table in itertools.chain(
+        get_tables_from_namespace(tpp), get_tables_from_namespace(tpp_raw)
+    ):
         assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"
 
 
