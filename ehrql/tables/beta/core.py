@@ -128,7 +128,7 @@ class ons_deaths(PatientFrame):
     The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
 
     !!! warning
-        There is also a in ONS death recording caused amongst other things by things like autopsies and inquests delaying
+        There is also a lag in ONS death recording caused amongst other things by things like autopsies and inquests delaying
         reporting on cause of death. This is evident in the [OpenSAFELY historical database coverage report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
     """
 
