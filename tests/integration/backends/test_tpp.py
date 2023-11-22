@@ -1,5 +1,4 @@
 import hashlib
-import itertools
 from datetime import date
 
 import pytest
@@ -1721,10 +1720,16 @@ def test_wl_openpathways(select_all):
 
 
 def test_registered_tests_are_exhaustive():
-    for name, table in itertools.chain(
-        get_tables_from_namespace(tpp), get_tables_from_namespace(tpp_raw)
-    ):
-        assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"
+    missing = [
+        name for name, table in get_all_tables() if table not in REGISTERED_TABLES
+    ]
+    assert not missing, f"No tests for tables: {', '.join(missing)}"
+
+
+def get_all_tables():
+    for module in [tpp, tpp_raw]:
+        for name, table in get_tables_from_namespace(module):
+            yield f"{module.__name__}.{name}", table
 
 
 # Where queries involve joins with temporary tables on string columns we need to ensure
