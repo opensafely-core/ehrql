@@ -898,6 +898,16 @@ class practice_registrations(EventFrame):
         )
         return ordered_regs.last_for_patient()
 
+    def has_a_continuous_practice_registration_spanning(self, start_date, end_date):
+        """
+        Return whether a patient has a continuous practice registration
+        between the inclusive start and end dates.
+        """
+        return self.where(
+            self.start_date.is_on_or_before(start_date)
+            & (self.end_date.is_after(end_date) | self.end_date.is_null())
+        ).exists_for_patient()
+
 
 @table
 class sgss_covid_all_tests(EventFrame):
