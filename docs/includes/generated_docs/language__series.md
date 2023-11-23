@@ -102,7 +102,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_not_in">
@@ -236,7 +236,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_not_in">
@@ -387,7 +387,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_not_in">
@@ -538,7 +538,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_not_in">
@@ -775,7 +775,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_not_in">
@@ -990,7 +990,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_not_in">
@@ -1250,7 +1250,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_not_in">
@@ -1465,7 +1465,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_not_in">
@@ -1701,7 +1701,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_not_in">
@@ -1961,7 +1961,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_not_in">
@@ -2208,7 +2208,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_not_in">
@@ -2318,7 +2318,7 @@ This will be removed in future versions of ehrQL and shoud not be used.
 <div markdown="block" class="indent">
 Return a boolean series which is True for each value in this series which is
 contained in `other`, where `other` can be any of the standard "container"
-types: tuple, list, set, frozenset, or dict.
+types (tuple, list, set, frozenset, or dict) or another event series.
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_not_in">
