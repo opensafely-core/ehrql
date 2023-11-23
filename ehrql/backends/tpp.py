@@ -269,8 +269,11 @@ class TPPBackend(SQLBackend):
                 EC.Patient_ID AS patient_id,
                 EC.EC_Ident AS id,
                 EC.Arrival_Date AS arrival_date,
-                EC.Discharge_Destination_SNOMED_CT AS discharge_destination,
-                {", ".join(f"diag.EC_Diagnosis_{i:02d} AS diagnosis_{i:02d}" for i in range(1, 25))}
+                EC.Discharge_Destination_SNOMED_CT COLLATE Latin1_General_BIN AS discharge_destination,
+                {", ".join(
+                    f"diag.EC_Diagnosis_{i:02d} COLLATE Latin1_General_BIN AS diagnosis_{i:02d}"
+                    for i in range(1, 25)
+                )}
             FROM EC
             LEFT JOIN EC_Diagnosis AS diag
             ON EC.EC_Ident = diag.EC_Ident
@@ -620,10 +623,10 @@ class TPPBackend(SQLBackend):
         SELECT
             diag.Patient_ID AS patient_id,
             diag.OPA_Ident AS opa_ident,
-            diag.Primary_Diagnosis_Code AS primary_diagnosis_code,
-            diag.Primary_Diagnosis_Code_Read AS primary_diagnosis_code_read,
-            diag.Secondary_Diagnosis_Code_1 AS secondary_diagnosis_code_1,
-            diag.Secondary_Diagnosis_Code_1_Read AS secondary_diagnosis_code_1_read,
+            diag.Primary_Diagnosis_Code COLLATE Latin1_General_CI_AS AS primary_diagnosis_code,
+            diag.Primary_Diagnosis_Code_Read COLLATE Latin1_General_BIN AS primary_diagnosis_code_read,
+            diag.Secondary_Diagnosis_Code_1 COLLATE Latin1_General_CI_AS AS secondary_diagnosis_code_1,
+            diag.Secondary_Diagnosis_Code_1_Read COLLATE Latin1_General_BIN AS secondary_diagnosis_code_1_read,
             opa.Appointment_Date AS appointment_date,
             opa.Referral_Request_Received_Date AS referral_request_received_date
         FROM OPA_Diag AS diag
@@ -638,10 +641,10 @@ class TPPBackend(SQLBackend):
         SELECT
             prc.Patient_ID AS patient_id,
             prc.OPA_Ident AS opa_ident,
-            prc.Primary_Procedure_Code AS primary_procedure_code,
-            prc.Primary_Procedure_Code_Read AS primary_procedure_code_read,
-            prc.Procedure_Code_2 AS procedure_code_2,
-            prc.Procedure_Code_2_Read AS procedure_code_2_read,
+            prc.Primary_Procedure_Code COLLATE Latin1_General_CI_AS AS primary_procedure_code,
+            prc.Primary_Procedure_Code_Read COLLATE Latin1_General_BIN AS primary_procedure_code_read,
+            prc.Procedure_Code_2 COLLATE Latin1_General_CI_AS AS procedure_code_2,
+            prc.Procedure_Code_2_Read COLLATE Latin1_General_BIN AS procedure_code_2_read,
             opa.Appointment_Date AS appointment_date,
             opa.Referral_Request_Received_Date AS referral_request_received_date
         FROM OPA_Proc AS prc
