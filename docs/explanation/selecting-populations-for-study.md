@@ -24,6 +24,5 @@ Specifically, note that:
   Researchers may wish to select patients with a continuous registration
   over the time period of interest.
 
-## Selecting patients with a continuous registration with ehrQL
-
-…
+!!! note
+    For TPP, there is a [method to select patients with a continuous registration](../reference/schemas/beta.tpp.md#practice_registrations.has_a_continuous_practice_registration_spanning)
