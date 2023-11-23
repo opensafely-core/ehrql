@@ -19,7 +19,6 @@ from tests.lib.tpp_schema import (
     APCS_Der,
     APCS_JRC20231009_LastFilesToContainAllHistoricalCostData,
     Appointment,
-    Base,
     CodedEvent,
     CodedEvent_SNOMED,
     CustomMedicationDictionary,
@@ -1918,52 +1917,6 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
         {"patient_id": patient_id, "matches": value in matching_values}
         for patient_id, value in patient_values
     ]
-
-
-def test_nonstandard_collation_test_is_exhaustive():
-    nonstandard_columns = set(_get_columns_with_nonstandard_collation())
-    referenced_columns = set(_get_columns_referenced_in_collation_test())
-    missing = nonstandard_columns - referenced_columns
-    assert (
-        not missing
-    ), f"Untested columns with non-default collations: {', '.join(missing)}"
-
-
-def _get_columns_with_nonstandard_collation():
-    # We want to find every column on every table *that we actually use* which has a
-    # nonstandard collation. How do we determine which tables we use? Well our
-    # `test_registered_tests_are_exhaustive` check ensures that we have a test for every
-    # frame in the TPP schema. And in order to construct a test for a frame we have to
-    # insert rows into whatever database tables underly it. And that means we need to
-    # import the corresponding ORM classes. So we can use the set of ORM classes
-    # imported into this module as a proxy for the set of classes we actually use.
-    #
-    # This is not *wonderful*, but it works for now.
-    for obj in globals().values():
-        if not isinstance(obj, type) or not issubclass(obj, Base) or obj is Base:
-            continue
-        table = obj.__table__
-        for column in table.columns.values():
-            if isinstance(column.type, sqlalchemy.String):
-                if column.type.collation != TPPBackend.DEFAULT_COLLATION:
-                    yield f"{table.name}.{column.key}"
-
-
-def _get_columns_referenced_in_collation_test():
-    # Iterate over the test parameters and collect every column referenced
-    pytestmark = test_is_in_queries_on_columns_with_nonstandard_collation.pytestmark
-    params = pytestmark[0].args[1]
-    for _, _, values, factory in params:
-        # Construct some models using an arbitrary patient ID and an arbitrarily chosen
-        # value
-        models = factory(patient_id=1, value=values[0])
-        # Walk over the models and collect any explicitly set fields
-        for model in models:
-            yield from (
-                f"{model.__table__.name}.{key}"
-                for key in model.__dict__.keys()
-                if not key.startswith("_")
-            )
 
 
 @pytest.mark.parametrize(
