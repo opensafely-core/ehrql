@@ -6,6 +6,7 @@ import sqlalchemy
 
 from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
+from ehrql.query_engines.mssql_dialect import SelectStarInto
 from ehrql.query_language import compile, get_tables_from_namespace
 from ehrql.tables.beta import tpp
 from ehrql.tables.beta.raw import tpp as tpp_raw
@@ -94,6 +95,110 @@ def select_all(request, mssql_database):
             return [row._asdict() for row in results]
 
     return _select_all
+
+
+def test_backend_columns_have_correct_types(mssql_database):
+    columns_with_types = get_all_backend_columns_with_types(mssql_database)
+    mismatched = [
+        f"{table}.{column} expects {column_type!r} but got {column_args!r}"
+        for table, column, column_type, column_args in columns_with_types
+        if not types_compatible(column_type, column_args)
+    ]
+    nl = "\n"
+    assert not mismatched, (
+        f"Mismatch between columns returned by backend queries"
+        f" queries and those expected:\n{nl.join(mismatched)}\n\n"
+    )
+
+
+def types_compatible(column_type, column_args):
+    """
+    Is this given SQLAlchemy type instance compatible with the supplied dictionary of
+    column arguments?
+    """
+    # It seems we use this sometimes for the patient ID column where we don't care what
+    # type it is
+    if isinstance(column_type, sqlalchemy.sql.sqltypes.NullType):
+        return True
+    elif isinstance(column_type, sqlalchemy.Boolean):
+        # MSSQL doesn't have a boolean type so we expect an int here
+        return column_args["type"] == "int"
+    elif isinstance(column_type, sqlalchemy.Integer):
+        return column_args["type"] in ("int", "bigint")
+    elif isinstance(column_type, sqlalchemy.Float):
+        return column_args["type"] == "real"
+    elif isinstance(column_type, sqlalchemy.Date):
+        return column_args["type"] == "date"
+    elif isinstance(column_type, sqlalchemy.String):
+        return (
+            column_args["type"] == "varchar"
+            and column_args["collation"] == column_type.collation
+        )
+    else:
+        assert False, f"Unhandled type: {column_type}"
+
+
+def get_all_backend_columns_with_types(mssql_database):
+    """
+    For every column on every table we expose in the backend, yield the SQLAlchemy type
+    instance we expect to use for that column together with the type information that
+    database has for that column so we can check they're compatible
+    """
+    table_names = set()
+    column_types = {}
+    queries = []
+    for table, columns in get_all_backend_columns():
+        table_names.add(table)
+        column_types.update({(table, c.key): c.type for c in columns})
+        # Construct a query which selects every column in the table
+        select_query = sqlalchemy.select(*[c.label(c.key) for c in columns])
+        # Write the results of that query into a temporary table (it will be empty but
+        # that's fine, we just want the types)
+        temp_table = sqlalchemy.table(f"#{table}")
+        queries.append(SelectStarInto(temp_table, select_query.alias()))
+    # Create all the underlying tables in the database without populating them
+    mssql_database.setup(metadata=Patient.metadata)
+    with mssql_database.engine().connect() as connection:
+        # Create our temporary tables
+        for query in queries:
+            connection.execute(query)
+        # Get the column names, types and collations for all columns in those tables
+        query = sqlalchemy.text(
+            """
+            SELECT
+                -- MSSQL does some nasty name mangling involving underscores to make
+                -- local temporary table names globally unique. We undo that here.
+                SUBSTRING(t.name, 2, CHARINDEX('__________', t.name) - 2) AS [table],
+                c.name AS [column],
+                y.name AS [type_name],
+                c.collation_name AS [collation]
+            FROM
+                tempdb.sys.columns c
+            JOIN
+                tempdb.sys.objects t ON t.object_id = c.object_id
+            JOIN
+                tempdb.sys.types y ON y.user_type_id = c.user_type_id
+            WHERE
+                t.type_desc = 'USER_TABLE'
+                AND CHARINDEX('__________', t.name) > 0
+            """
+        )
+        results = list(connection.execute(query))
+    for table, column, type_name, collation in results:
+        # Ignore any leftover cruft in the database
+        if table not in table_names:  # pragma: no cover
+            continue
+        column_type = column_types[table, column]
+        column_args = {"type": type_name, "collation": collation}
+        yield table, column, column_type, column_args
+
+
+def get_all_backend_columns():
+    backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
+    for _, table in get_all_tables():
+        qm_table = table._qm_node
+        table_expr = backend.get_table_expression(qm_table.name, qm_table.schema)
+        yield qm_table.name, table_expr.columns
 
 
 @register_test_for(tpp.addresses)
