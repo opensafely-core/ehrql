@@ -134,12 +134,8 @@ dataset.date_of_death = patients.date_of_death
 dataset.define_population(patients.exists_for_patient())
 ```
 
-:notepad_spiral: This value comes from the patient's EHR record.
+:notepad_spiral: This value comes from the patient's EHR record. You can find more information about the accuracy of this value in the [reference schema](../reference/schemas/beta.core.md#recording-of-death-in-primary-care).
 
-There is generally a lag between the death being recorded in ONS data and appearing in the primary care record,
-but the date itself is usually reliable when it appears. There may be multiple records of death for each patient
-within this table, so you may wish to take the earliest or latest record available for each patient.
-By contrast, cause of death is often not accurate in the primary care record so we don't make it available to query here.
 
 ### Finding each patient's date, place, and cause of death from ONS records
 
