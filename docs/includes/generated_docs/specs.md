@@ -1183,13 +1183,22 @@ returns the following patient series:
 
 #### 6.2.1 Is in
 
-This example makes use of a patient-level table named `p` containing the following data:
+This example makes use of a patient-level table named `p` and an event-level table named `e` containing the following data:
 
 | patient|i1 |
 | - | - |
 | 1|101 |
 | 2|201 |
 | 3|301 |
+| 4| |
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 2|203 |
+| 3|333 |
+| 3|334 |
 | 4| |
 
 ```python
@@ -1208,13 +1217,22 @@ returns the following patient series:
 
 #### 6.2.2 Is not in
 
-This example makes use of a patient-level table named `p` containing the following data:
+This example makes use of a patient-level table named `p` and an event-level table named `e` containing the following data:
 
 | patient|i1 |
 | - | - |
 | 1|101 |
 | 2|201 |
 | 3|301 |
+| 4| |
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 2|203 |
+| 3|333 |
+| 3|334 |
 | 4| |
 
 ```python
@@ -1227,6 +1245,74 @@ returns the following patient series:
 | 1|F |
 | 2|T |
 | 3|F |
+| 4| |
+
+
+
+#### 6.2.3 Is in series
+
+This example makes use of a patient-level table named `p` and an event-level table named `e` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 3|301 |
+| 4| |
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 2|203 |
+| 3|333 |
+| 3|334 |
+| 4| |
+
+```python
+p.i1.is_in(e.i1)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|T |
+| 3|F |
+| 4| |
+
+
+
+#### 6.2.4 Is not in series
+
+This example makes use of a patient-level table named `p` and an event-level table named `e` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 3|301 |
+| 4| |
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 2|203 |
+| 3|333 |
+| 3|334 |
+| 4| |
+
+```python
+p.i1.is_not_in(e.i1)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|F |
+| 2|F |
+| 3|T |
 | 4| |
 
 
