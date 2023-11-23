@@ -1921,9 +1921,9 @@ The Read coded clinical terms code which is used to identify the primary patient
 </div>
 
 <div markdown="block">
-  <dt id="opa_proc.procedure_code_1">
-    <strong>procedure_code_1</strong>
-    <a class="headerlink" href="#opa_proc.procedure_code_1" title="Permanent link">🔗</a>
+  <dt id="opa_proc.procedure_code_2">
+    <strong>procedure_code_2</strong>
+    <a class="headerlink" href="#opa_proc.procedure_code_2" title="Permanent link">🔗</a>
     <code>OPCS-4 code</code>
   </dt>
   <dd markdown="block">

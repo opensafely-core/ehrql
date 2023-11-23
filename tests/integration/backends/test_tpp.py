@@ -1285,7 +1285,7 @@ def test_opa_proc(select_all):
             "opa_ident": 1,
             "primary_procedure_code": "100000",
             "primary_procedure_code_read": "Y0000",
-            "procedure_code_1": "100000",
+            "procedure_code_2": "100000",
             "procedure_code_2_read": "Y0000",
             "appointment_date": date(2023, 2, 1),
             "referral_request_received_date": date(2023, 1, 1),

@@ -640,7 +640,7 @@ class TPPBackend(SQLBackend):
             prc.OPA_Ident AS opa_ident,
             prc.Primary_Procedure_Code AS primary_procedure_code,
             prc.Primary_Procedure_Code_Read AS primary_procedure_code_read,
-            prc.Procedure_Code_2 AS procedure_code_1,
+            prc.Procedure_Code_2 AS procedure_code_2,
             prc.Procedure_Code_2_Read AS procedure_code_2_read,
             opa.Appointment_Date AS appointment_date,
             opa.Referral_Request_Received_Date AS referral_request_received_date
