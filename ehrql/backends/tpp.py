@@ -198,21 +198,21 @@ class TPPBackend(SQLBackend):
                 CAST(StartDate AS date) AS start_date,
                 CAST(NULLIF(SeenDate, '9999-12-31T00:00:00') AS date) AS seen_date,
                 CASE Status
-                    WHEN 0 THEN 'Booked'
-                    WHEN 1 THEN 'Arrived'
-                    WHEN 2 THEN 'Did Not Attend'
-                    WHEN 3 THEN 'In Progress'
-                    WHEN 4 THEN 'Finished'
-                    WHEN 5 THEN 'Requested'
-                    WHEN 6 THEN 'Blocked'
-                    WHEN 7 THEN 'Visit'
-                    WHEN 8 THEN 'Waiting'
-                    WHEN 9 THEN 'Cancelled by Patient'
-                    WHEN 10 THEN 'Cancelled by Unit'
-                    WHEN 11 THEN 'Cancelled by Other Service'
-                    WHEN 12 THEN 'No Access Visit'
-                    WHEN 13 THEN 'Cancelled Due To Death'
-                    WHEN 14 THEN 'Patient Walked Out'
+                    WHEN 0 THEN 'Booked' COLLATE Latin1_General_CI_AS
+                    WHEN 1 THEN 'Arrived' COLLATE Latin1_General_CI_AS
+                    WHEN 2 THEN 'Did Not Attend' COLLATE Latin1_General_CI_AS
+                    WHEN 3 THEN 'In Progress' COLLATE Latin1_General_CI_AS
+                    WHEN 4 THEN 'Finished' COLLATE Latin1_General_CI_AS
+                    WHEN 5 THEN 'Requested' COLLATE Latin1_General_CI_AS
+                    WHEN 6 THEN 'Blocked' COLLATE Latin1_General_CI_AS
+                    WHEN 7 THEN 'Visit' COLLATE Latin1_General_CI_AS
+                    WHEN 8 THEN 'Waiting' COLLATE Latin1_General_CI_AS
+                    WHEN 9 THEN 'Cancelled by Patient' COLLATE Latin1_General_CI_AS
+                    WHEN 10 THEN 'Cancelled by Unit' COLLATE Latin1_General_CI_AS
+                    WHEN 11 THEN 'Cancelled by Other Service' COLLATE Latin1_General_CI_AS
+                    WHEN 12 THEN 'No Access Visit' COLLATE Latin1_General_CI_AS
+                    WHEN 13 THEN 'Cancelled Due To Death' COLLATE Latin1_General_CI_AS
+                    WHEN 14 THEN 'Patient Walked Out' COLLATE Latin1_General_CI_AS
                 END AS status
             FROM Appointment
         """
@@ -269,8 +269,11 @@ class TPPBackend(SQLBackend):
                 EC.Patient_ID AS patient_id,
                 EC.EC_Ident AS id,
                 EC.Arrival_Date AS arrival_date,
-                EC.Discharge_Destination_SNOMED_CT AS discharge_destination,
-                {", ".join(f"diag.EC_Diagnosis_{i:02d} AS diagnosis_{i:02d}" for i in range(1, 25))}
+                EC.Discharge_Destination_SNOMED_CT COLLATE Latin1_General_BIN AS discharge_destination,
+                {", ".join(
+                    f"diag.EC_Diagnosis_{i:02d} COLLATE Latin1_General_BIN AS diagnosis_{i:02d}"
+                    for i in range(1, 25)
+                )}
             FROM EC
             LEFT JOIN EC_Diagnosis AS diag
             ON EC.EC_Ident = diag.EC_Ident
@@ -620,10 +623,10 @@ class TPPBackend(SQLBackend):
         SELECT
             diag.Patient_ID AS patient_id,
             diag.OPA_Ident AS opa_ident,
-            diag.Primary_Diagnosis_Code AS primary_diagnosis_code,
-            diag.Primary_Diagnosis_Code_Read AS primary_diagnosis_code_read,
-            diag.Secondary_Diagnosis_Code_1 AS secondary_diagnosis_code_1,
-            diag.Secondary_Diagnosis_Code_1_Read AS secondary_diagnosis_code_1_read,
+            diag.Primary_Diagnosis_Code COLLATE Latin1_General_CI_AS AS primary_diagnosis_code,
+            diag.Primary_Diagnosis_Code_Read COLLATE Latin1_General_BIN AS primary_diagnosis_code_read,
+            diag.Secondary_Diagnosis_Code_1 COLLATE Latin1_General_CI_AS AS secondary_diagnosis_code_1,
+            diag.Secondary_Diagnosis_Code_1_Read COLLATE Latin1_General_BIN AS secondary_diagnosis_code_1_read,
             opa.Appointment_Date AS appointment_date,
             opa.Referral_Request_Received_Date AS referral_request_received_date
         FROM OPA_Diag AS diag
@@ -638,10 +641,10 @@ class TPPBackend(SQLBackend):
         SELECT
             prc.Patient_ID AS patient_id,
             prc.OPA_Ident AS opa_ident,
-            prc.Primary_Procedure_Code AS primary_procedure_code,
-            prc.Primary_Procedure_Code_Read AS primary_procedure_code_read,
-            prc.Procedure_Code_2 AS procedure_code_1,
-            prc.Procedure_Code_2_Read AS procedure_code_2_read,
+            prc.Primary_Procedure_Code COLLATE Latin1_General_CI_AS AS primary_procedure_code,
+            prc.Primary_Procedure_Code_Read COLLATE Latin1_General_BIN AS primary_procedure_code_read,
+            prc.Procedure_Code_2 COLLATE Latin1_General_CI_AS AS procedure_code_2,
+            prc.Procedure_Code_2_Read COLLATE Latin1_General_BIN AS procedure_code_2_read,
             opa.Appointment_Date AS appointment_date,
             opa.Referral_Request_Received_Date AS referral_request_received_date
         FROM OPA_Proc AS prc
@@ -674,10 +677,10 @@ class TPPBackend(SQLBackend):
                 Patient_ID as patient_id,
                 DateOfBirth as date_of_birth,
                 CASE
-                    WHEN Sex = 'M' THEN 'male'
-                    WHEN Sex = 'F' THEN 'female'
-                    WHEN Sex = 'I' THEN 'intersex'
-                    ELSE 'unknown'
+                    WHEN Sex = 'M' THEN 'male' COLLATE Latin1_General_CI_AS
+                    WHEN Sex = 'F' THEN 'female' COLLATE Latin1_General_CI_AS
+                    WHEN Sex = 'I' THEN 'intersex' COLLATE Latin1_General_CI_AS
+                    ELSE 'unknown' COLLATE Latin1_General_CI_AS
                 END AS sex,
                 NULLIF(DateOfDeath, '99991231') AS date_of_death
             FROM Patient
@@ -763,17 +766,17 @@ class TPPBackend(SQLBackend):
                     varchar(max),
                     PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER,
                     2
-                ) AS pseudo_organisation_code_patient_pathway_identifier_issuer,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_organisation_code_patient_pathway_identifier_issuer,
                 CONVERT(
                     varchar(max),
                     PSEUDO_PATIENT_PATHWAY_IDENTIFIER,
                     2
-                ) AS pseudo_patient_pathway_identifier,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_patient_pathway_identifier,
                 CONVERT(
                     varchar(max),
                     Pseudo_Referral_Identifier,
                     2
-                ) AS pseudo_referral_identifier,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_referral_identifier,
                 Referral_Request_Received_Date AS referral_request_received_date,
                 REFERRAL_TO_TREATMENT_PERIOD_END_DATE AS referral_to_treatment_period_end_date,
                 REFERRAL_TO_TREATMENT_PERIOD_START_DATE AS referral_to_treatment_period_start_date,
@@ -790,25 +793,25 @@ class TPPBackend(SQLBackend):
                 Patient_ID AS patient_id,
                 ACTIVITY_TREATMENT_FUNCTION_CODE AS activity_treatment_function_code,
                 CASE PRIORITY_TYPE_CODE
-                    WHEN '1' THEN 'routine'
-                    WHEN '2' THEN 'urgent'
-                    WHEN '3' THEN 'two week wait'
+                    WHEN '1' THEN 'routine' COLLATE Latin1_General_CI_AS
+                    WHEN '2' THEN 'urgent' COLLATE Latin1_General_CI_AS
+                    WHEN '3' THEN 'two week wait' COLLATE Latin1_General_CI_AS
                 END AS priority_type_code,
                 CONVERT(
                     varchar(max),
                     PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER,
                     2
-                ) AS pseudo_organisation_code_patient_pathway_identifier_issuer,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_organisation_code_patient_pathway_identifier_issuer,
                 CONVERT(
                     varchar(max),
                     PSEUDO_PATIENT_PATHWAY_IDENTIFIER,
                     2
-                ) AS pseudo_patient_pathway_identifier,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_patient_pathway_identifier,
                 CONVERT(
                     varchar(max),
                     Pseudo_Referral_Identifier,
                     2
-                ) AS pseudo_referral_identifier,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_referral_identifier,
                 CONVERT(DATE, Referral_Request_Received_Date, 23) AS referral_request_received_date,
                 CONVERT(DATE, REFERRAL_TO_TREATMENT_PERIOD_END_DATE, 23) AS referral_to_treatment_period_end_date,
                 CONVERT(DATE, REFERRAL_TO_TREATMENT_PERIOD_START_DATE, 23) AS referral_to_treatment_period_start_date,
@@ -831,17 +834,17 @@ class TPPBackend(SQLBackend):
                     varchar(max),
                     PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER,
                     2
-                ) AS pseudo_organisation_code_patient_pathway_identifier_issuer,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_organisation_code_patient_pathway_identifier_issuer,
                 CONVERT(
                     varchar(max),
                     PSEUDO_PATIENT_PATHWAY_IDENTIFIER,
                     2
-                ) AS pseudo_patient_pathway_identifier,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_patient_pathway_identifier,
                 CONVERT(
                     varchar(max),
                     Pseudo_Referral_Identifier,
                     2
-                ) AS pseudo_referral_identifier,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_referral_identifier,
                 REFERRAL_REQUEST_RECEIVED_DATE AS referral_request_received_date,
                 REFERRAL_TO_TREATMENT_PERIOD_END_DATE AS referral_to_treatment_period_end_date,
                 REFERRAL_TO_TREATMENT_PERIOD_START_DATE AS referral_to_treatment_period_start_date,
@@ -859,25 +862,25 @@ class TPPBackend(SQLBackend):
                 ACTIVITY_TREATMENT_FUNCTION_CODE AS activity_treatment_function_code,
                 CONVERT(DATE, Current_Pathway_Period_Start_Date, 23) AS current_pathway_period_start_date,
                 CASE PRIORITY_TYPE_CODE
-                    WHEN '1' THEN 'routine'
-                    WHEN '2' THEN 'urgent'
-                    WHEN '3' THEN 'two week wait'
+                    WHEN '1' THEN 'routine' COLLATE Latin1_General_CI_AS
+                    WHEN '2' THEN 'urgent' COLLATE Latin1_General_CI_AS
+                    WHEN '3' THEN 'two week wait' COLLATE Latin1_General_CI_AS
                 END AS priority_type_code,
                 CONVERT(
                     varchar(max),
                     PSEUDO_ORGANISATION_CODE_PATIENT_PATHWAY_IDENTIFIER_ISSUER,
                     2
-                ) AS pseudo_organisation_code_patient_pathway_identifier_issuer,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_organisation_code_patient_pathway_identifier_issuer,
                 CONVERT(
                     varchar(max),
                     PSEUDO_PATIENT_PATHWAY_IDENTIFIER,
                     2
-                ) AS pseudo_patient_pathway_identifier,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_patient_pathway_identifier,
                 CONVERT(
                     varchar(max),
                     Pseudo_Referral_Identifier,
                     2
-                ) AS pseudo_referral_identifier,
+                ) COLLATE Latin1_General_CI_AS AS pseudo_referral_identifier,
                 CONVERT(DATE, REFERRAL_REQUEST_RECEIVED_DATE, 23) AS referral_request_received_date,
                 CONVERT(
                     DATE,

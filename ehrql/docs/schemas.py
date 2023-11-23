@@ -4,10 +4,10 @@ from collections import defaultdict
 
 from ehrql import tables
 from ehrql.query_language import (
-    BaseFrame,
     EventFrame,
     PatientFrame,
     get_all_series_from_class,
+    get_tables_from_namespace,
 )
 from ehrql.utils.module_utils import get_submodules
 from ehrql.utils.string_utils import strip_indent
@@ -64,10 +64,8 @@ def build_module_name_to_backend_map(backends):
 
 
 def build_tables(module):
-    for name, obj in vars(module).items():
-        if not isinstance(obj, BaseFrame):
-            continue
-        cls = obj.__class__
+    for name, table in get_tables_from_namespace(module):
+        cls = table.__class__
         docstring = strip_indent(cls.__doc__ or "")
         columns = [
             build_column(name, series)

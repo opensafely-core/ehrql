@@ -729,7 +729,7 @@ class opa_proc(EventFrame):
             "to identify the primary patient procedure carried out."
         ),
     )
-    procedure_code_1 = Series(
+    procedure_code_2 = Series(
         OPCS4Code,
         description="TODO",
     )

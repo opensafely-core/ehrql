@@ -1,5 +1,4 @@
 import hashlib
-import itertools
 from datetime import date
 
 import pytest
@@ -7,7 +6,8 @@ import sqlalchemy
 
 from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
-from ehrql.query_language import BaseFrame, compile
+from ehrql.query_engines.mssql_dialect import SelectStarInto
+from ehrql.query_language import compile, get_tables_from_namespace
 from ehrql.tables.beta import tpp
 from ehrql.tables.beta.raw import tpp as tpp_raw
 from tests.lib.tpp_schema import (
@@ -19,7 +19,6 @@ from tests.lib.tpp_schema import (
     APCS_Der,
     APCS_JRC20231009_LastFilesToContainAllHistoricalCostData,
     Appointment,
-    Base,
     CodedEvent,
     CodedEvent_SNOMED,
     CustomMedicationDictionary,
@@ -95,6 +94,110 @@ def select_all(request, mssql_database):
             return [row._asdict() for row in results]
 
     return _select_all
+
+
+def test_backend_columns_have_correct_types(mssql_database):
+    columns_with_types = get_all_backend_columns_with_types(mssql_database)
+    mismatched = [
+        f"{table}.{column} expects {column_type!r} but got {column_args!r}"
+        for table, column, column_type, column_args in columns_with_types
+        if not types_compatible(column_type, column_args)
+    ]
+    nl = "\n"
+    assert not mismatched, (
+        f"Mismatch between columns returned by backend queries"
+        f" queries and those expected:\n{nl.join(mismatched)}\n\n"
+    )
+
+
+def types_compatible(column_type, column_args):
+    """
+    Is this given SQLAlchemy type instance compatible with the supplied dictionary of
+    column arguments?
+    """
+    # It seems we use this sometimes for the patient ID column where we don't care what
+    # type it is
+    if isinstance(column_type, sqlalchemy.sql.sqltypes.NullType):
+        return True
+    elif isinstance(column_type, sqlalchemy.Boolean):
+        # MSSQL doesn't have a boolean type so we expect an int here
+        return column_args["type"] == "int"
+    elif isinstance(column_type, sqlalchemy.Integer):
+        return column_args["type"] in ("int", "bigint")
+    elif isinstance(column_type, sqlalchemy.Float):
+        return column_args["type"] == "real"
+    elif isinstance(column_type, sqlalchemy.Date):
+        return column_args["type"] == "date"
+    elif isinstance(column_type, sqlalchemy.String):
+        return (
+            column_args["type"] == "varchar"
+            and column_args["collation"] == column_type.collation
+        )
+    else:
+        assert False, f"Unhandled type: {column_type}"
+
+
+def get_all_backend_columns_with_types(mssql_database):
+    """
+    For every column on every table we expose in the backend, yield the SQLAlchemy type
+    instance we expect to use for that column together with the type information that
+    database has for that column so we can check they're compatible
+    """
+    table_names = set()
+    column_types = {}
+    queries = []
+    for table, columns in get_all_backend_columns():
+        table_names.add(table)
+        column_types.update({(table, c.key): c.type for c in columns})
+        # Construct a query which selects every column in the table
+        select_query = sqlalchemy.select(*[c.label(c.key) for c in columns])
+        # Write the results of that query into a temporary table (it will be empty but
+        # that's fine, we just want the types)
+        temp_table = sqlalchemy.table(f"#{table}")
+        queries.append(SelectStarInto(temp_table, select_query.alias()))
+    # Create all the underlying tables in the database without populating them
+    mssql_database.setup(metadata=Patient.metadata)
+    with mssql_database.engine().connect() as connection:
+        # Create our temporary tables
+        for query in queries:
+            connection.execute(query)
+        # Get the column names, types and collations for all columns in those tables
+        query = sqlalchemy.text(
+            """
+            SELECT
+                -- MSSQL does some nasty name mangling involving underscores to make
+                -- local temporary table names globally unique. We undo that here.
+                SUBSTRING(t.name, 2, CHARINDEX('__________', t.name) - 2) AS [table],
+                c.name AS [column],
+                y.name AS [type_name],
+                c.collation_name AS [collation]
+            FROM
+                tempdb.sys.columns c
+            JOIN
+                tempdb.sys.objects t ON t.object_id = c.object_id
+            JOIN
+                tempdb.sys.types y ON y.user_type_id = c.user_type_id
+            WHERE
+                t.type_desc = 'USER_TABLE'
+                AND CHARINDEX('__________', t.name) > 0
+            """
+        )
+        results = list(connection.execute(query))
+    for table, column, type_name, collation in results:
+        # Ignore any leftover cruft in the database
+        if table not in table_names:  # pragma: no cover
+            continue
+        column_type = column_types[table, column]
+        column_args = {"type": type_name, "collation": collation}
+        yield table, column, column_type, column_args
+
+
+def get_all_backend_columns():
+    backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
+    for _, table in get_all_tables():
+        qm_table = table._qm_node
+        table_expr = backend.get_table_expression(qm_table.name, qm_table.schema)
+        yield qm_table.name, table_expr.columns
 
 
 @register_test_for(tpp.addresses)
@@ -1285,7 +1388,7 @@ def test_opa_proc(select_all):
             "opa_ident": 1,
             "primary_procedure_code": "100000",
             "primary_procedure_code_read": "Y0000",
-            "procedure_code_1": "100000",
+            "procedure_code_2": "100000",
             "procedure_code_2_read": "Y0000",
             "appointment_date": date(2023, 2, 1),
             "referral_request_received_date": date(2023, 1, 1),
@@ -1721,10 +1824,16 @@ def test_wl_openpathways(select_all):
 
 
 def test_registered_tests_are_exhaustive():
-    for name, table in itertools.chain(vars(tpp).items(), vars(tpp_raw).items()):
-        if not isinstance(table, BaseFrame):
-            continue
-        assert table in REGISTERED_TABLES, f"No test for {tpp.__name__}.{name}"
+    missing = [
+        name for name, table in get_all_tables() if table not in REGISTERED_TABLES
+    ]
+    assert not missing, f"No tests for tables: {', '.join(missing)}"
+
+
+def get_all_tables():
+    for module in [tpp, tpp_raw]:
+        for name, table in get_tables_from_namespace(module):
+            yield f"{module.__name__}.{name}", table
 
 
 # Where queries involve joins with temporary tables on string columns we need to ensure
@@ -1808,52 +1917,6 @@ def test_is_in_queries_on_columns_with_nonstandard_collation(
         {"patient_id": patient_id, "matches": value in matching_values}
         for patient_id, value in patient_values
     ]
-
-
-def test_nonstandard_collation_test_is_exhaustive():
-    nonstandard_columns = set(_get_columns_with_nonstandard_collation())
-    referenced_columns = set(_get_columns_referenced_in_collation_test())
-    missing = nonstandard_columns - referenced_columns
-    assert (
-        not missing
-    ), f"Untested columns with non-default collations: {', '.join(missing)}"
-
-
-def _get_columns_with_nonstandard_collation():
-    # We want to find every column on every table *that we actually use* which has a
-    # nonstandard collation. How do we determine which tables we use? Well our
-    # `test_registered_tests_are_exhaustive` check ensures that we have a test for every
-    # frame in the TPP schema. And in order to construct a test for a frame we have to
-    # insert rows into whatever database tables underly it. And that means we need to
-    # import the corresponding ORM classes. So we can use the set of ORM classes
-    # imported into this module as a proxy for the set of classes we actually use.
-    #
-    # This is not *wonderful*, but it works for now.
-    for obj in globals().values():
-        if not isinstance(obj, type) or not issubclass(obj, Base) or obj is Base:
-            continue
-        table = obj.__table__
-        for column in table.columns.values():
-            if isinstance(column.type, sqlalchemy.String):
-                if column.type.collation != TPPBackend.DEFAULT_COLLATION:
-                    yield f"{table.name}.{column.key}"
-
-
-def _get_columns_referenced_in_collation_test():
-    # Iterate over the test parameters and collect every column referenced
-    pytestmark = test_is_in_queries_on_columns_with_nonstandard_collation.pytestmark
-    params = pytestmark[0].args[1]
-    for _, _, values, factory in params:
-        # Construct some models using an arbitrary patient ID and an arbitrarily chosen
-        # value
-        models = factory(patient_id=1, value=values[0])
-        # Walk over the models and collect any explicitly set fields
-        for model in models:
-            yield from (
-                f"{model.__table__.name}.{key}"
-                for key in model.__dict__.keys()
-                if not key.startswith("_")
-            )
 
 
 @pytest.mark.parametrize(
