@@ -107,7 +107,7 @@ class TPPBackend(SQLBackend):
                 CAST(NULLIF(addr.StartDate, '9999-12-31T00:00:00') AS date) AS start_date,
                 CAST(NULLIF(addr.EndDate, '9999-12-31T00:00:00') AS date) AS end_date,
                 addr.AddressType AS address_type,
-                addr.RuralUrbanClassificationCode AS rural_urban_classification,
+                NULLIF(addr.RuralUrbanClassificationCode, -1) AS rural_urban_classification,
                 NULLIF(addr.ImdRankRounded, -1) AS imd_rounded,
                 CASE
                     WHEN addr.MSOACode NOT IN ('NPC', '') THEN addr.MSOACode
