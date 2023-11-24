@@ -5,7 +5,7 @@ import pathlib
 
 from ehrql.codes import BaseCode
 from ehrql.file_formats.base import BaseDatasetReader
-from ehrql.measures.measures import Measure
+from ehrql.measures.measures import DisclosureControlConfig, Measure
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.column_specs import ColumnSpec
 from ehrql.query_model.nodes import Node, Position, Value
@@ -36,6 +36,7 @@ TYPE_REGISTRY = {
         ColumnSpec,
         DummyDataConfig,
         Measure,
+        DisclosureControlConfig,
         *get_all_subclasses(Node),
         *get_all_subclasses(BaseCode),
         *get_all_subclasses(BaseConstraint),
@@ -156,6 +157,7 @@ class Marshaller:
     @marshal.register(ColumnSpec)
     @marshal.register(DummyDataConfig)
     @marshal.register(Measure)
+    @marshal.register(DisclosureControlConfig)
     def marshal_object(self, obj):
         return {
             type_name(obj): {
@@ -275,6 +277,7 @@ class Unmarshaller:
     @unmarshal_for.register(BaseDatasetReader)
     @unmarshal_for.register(DummyDataConfig)
     @unmarshal_for.register(Measure)
+    @unmarshal_for.register(DisclosureControlConfig)
     def unmarshal_for_object(self, type_, value):
         attrs = {key: self.unmarshal(v) for key, v in value.items()}
         return type_(**attrs)

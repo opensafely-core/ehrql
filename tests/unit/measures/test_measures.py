@@ -43,6 +43,8 @@ def test_define_measures():
         group_by={"style": patients.style},
     )
 
+    assert measures.disclosure_control_config.enabled
+
     assert len(measures) == 2
 
     assert list(measures) == [
@@ -90,6 +92,8 @@ def test_define_measures_with_default_group_by():
     measures.define_measure(
         name="test_2",
     )
+
+    assert measures.disclosure_control_config.enabled
 
     assert len(measures) == 2
 
@@ -285,3 +289,9 @@ def test_invalid_intervals_are_rejected(intervals, error):
             intervals=intervals,
             group_by={"category": patients.category},
         )
+
+
+def test_configure_disclosure_control():
+    measures = Measures()
+    measures.configure_disclosure_control(enabled=False)
+    assert not measures.disclosure_control_config.enabled
