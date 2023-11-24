@@ -95,7 +95,9 @@ def build_table_methods(table_name, cls):
     return [
         build_method(table_name, name, attr)
         for name, attr in get_class_attrs(cls).items()
-        if name not in base_attrs and inspect.isfunction(attr)
+        if name not in base_attrs
+        and not name.startswith("_")
+        and inspect.isfunction(attr)
     ]
 
 
