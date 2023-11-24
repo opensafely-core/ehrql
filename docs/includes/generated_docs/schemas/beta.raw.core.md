@@ -10,11 +10,6 @@ The data provided by this schema are minimally transformed. They are very close 
 data provided by the underlying database tables. They are provided for data development
 and data curation purposes.
 
-!!! warning
-    This schema is still a work-in-progress while the EMIS backend remains under
-    development. Projects requiring EMIS data should continue to use the [Cohort
-    Extractor](https://docs.opensafely.org/study-def/) tool.
-
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
 from ehrql.tables.beta.raw.core import (
     ons_deaths,
