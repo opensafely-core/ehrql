@@ -216,28 +216,31 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql.register(Function.In)
     def get_sql_in(self, node):
         lhs = self.get_expr(node.lhs)
-        rhs = self.get_expr_for_multivalued_param(node.rhs)
-
-        if hasattr(rhs, "value") and isinstance(rhs.value, tuple):
+        is_series, rhs = self.get_expr_for_multivalued_param(node.rhs)
+        if not is_series:
+            # This is a simple is_in, with either a set of Values, or a
+            # (large) set of values converted to a temporary table with
+            # a single column (i.e. a codelist)
             return lhs.in_(rhs)
         else:
             query = sqlalchemy.case(
                 (lhs.is_(None), None),
-                (lhs.in_(sqlalchemy.select(rhs.c[1])), True),
+                (lhs.in_(sqlalchemy.select(rhs.columns[1])), True),
                 else_=False,
             )
             return query
 
     def get_expr_for_multivalued_param(self, node):
-        if isinstance(node, AggregateByPatient.CombineAsSet):
-            return self.get_expr(node)
+        is_series = isinstance(node, AggregateByPatient.CombineAsSet)
+        if is_series:
+            return is_series, self.get_expr(node)
         assert isinstance(node, Value)
         assert isinstance(node.value, frozenset)
         if len(node.value) <= self.max_multivalue_param_length:
-            return self.get_expr(node)
+            return is_series, self.get_expr(node)
         else:
             table = self.get_table(node.value)
-            return sqlalchemy.select(table.columns[0])
+            return is_series, sqlalchemy.select(table.columns[0])
 
     @get_sql.register(Function.Not)
     def get_sql_not(self, node):
