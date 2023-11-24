@@ -126,6 +126,16 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             type_=sqlalchemy.Date,
         )
 
+    def in_series_exists_query(self, rhs, lhs):
+        patient_id = self.population_table.c.patient_id
+        query = sqlalchemy.select(1).where(
+            rhs.c.patient_id == patient_id, rhs.c[1] == lhs
+        )
+        return sqlalchemy.case(
+            (query.exists(), True),
+            else_=False,
+        )
+
     def reify_query(self, query):
         # The `#` prefix is an MSSQL-ism which automatically makes the tables
         # session-scoped temporary tables

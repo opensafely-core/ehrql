@@ -223,12 +223,15 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # a single column (i.e. a codelist)
             return lhs.in_(rhs)
         else:
-            query = sqlalchemy.case(
-                (lhs.is_(None), None),
-                (lhs.in_(sqlalchemy.select(rhs.columns[1])), True),
-                else_=False,
-            )
-            return query
+            return self.in_series_exists_query(rhs, lhs)
+
+    def in_series_exists_query(self, rhs, lhs):
+        patient_id = self.population_table.c.patient_id
+        return (
+            sqlalchemy.select(1)
+            .where(rhs.c.patient_id == patient_id, rhs.c[1] == lhs)
+            .exists()
+        )
 
     def get_expr_for_multivalued_param(self, node):
         is_series = isinstance(node, AggregateByPatient.CombineAsSet)
