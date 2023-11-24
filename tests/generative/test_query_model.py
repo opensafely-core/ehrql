@@ -24,6 +24,7 @@ from tests.lib.query_model_utils import get_all_operations
 
 from ..conftest import QUERY_ENGINE_NAMES, engine_factory
 from . import data_setup, data_strategies, variable_strategies
+from .conftest import BrokenDatabaseError
 from .ignored_errors import IgnoredError, get_ignored_error_type
 
 
@@ -192,6 +193,11 @@ def run_with(engine, instances, variables):
         )
     except Exception as e:
         if error_type := get_ignored_error_type(e):
+            # MS SQL Server has an unfortunate habit of hanging completely during generative
+            # testing, which presents as a connection error. There's no point in hypothesis
+            # continuing to try and run tests against a dead instance.
+            if error_type is IgnoredError.CONNECTION_ERROR:  # pragma: no cover
+                raise BrokenDatabaseError(engine.name).with_traceback(e.__traceback__)
             return error_type
         raise
     finally:

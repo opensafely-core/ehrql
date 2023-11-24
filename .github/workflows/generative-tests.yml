@@ -46,7 +46,15 @@ jobs:
             echo
 
             # Do the actual testing
-            just test tests/generative/test_query_model.py::test_query_model
+            set +e
+            just test tests/generative/test_query_model.py
+            rc=$?
+            set -e
+
+            # 6 == dead database error, continue to remove db containers and start new batch
+            if [ $rc -ne 0] && [ $rc -ne 6 ]; then
+              exit $rc
+            fi
 
             if [[ $(date +%s) -ge $end_time ]]; then
               break
