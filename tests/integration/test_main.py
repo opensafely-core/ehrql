@@ -1,6 +1,8 @@
 import textwrap
 from datetime import date
 
+import pytest
+
 from ehrql.main import generate_measures
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.tables.beta.core import patients
@@ -23,21 +25,36 @@ measures.define_measure(
 )
 """
 
+DISABLE_DISCLOSURE_CONTROL = "\n\nmeasures.configure_disclosure_control(enabled=False)"
 
-def test_generate_measures(in_memory_sqlite_database, tmp_path):
+
+@pytest.mark.parametrize("disclosure_control_enabled", [False, True])
+def test_generate_measures(
+    in_memory_sqlite_database, tmp_path, disclosure_control_enabled
+):
     in_memory_sqlite_database.setup(
         make_orm_models(
             {
                 patients: [
                     dict(patient_id=1, date_of_birth=date(2020, 6, 1), sex="male"),
                     dict(patient_id=2, date_of_birth=date(2021, 6, 1), sex="female"),
+                    dict(patient_id=3, date_of_birth=date(2021, 6, 1), sex="female"),
+                    dict(patient_id=4, date_of_birth=date(2021, 6, 1), sex="female"),
+                    dict(patient_id=5, date_of_birth=date(2021, 6, 1), sex="female"),
+                    dict(patient_id=6, date_of_birth=date(2021, 6, 1), sex="female"),
+                    dict(patient_id=7, date_of_birth=date(2021, 6, 1), sex="female"),
+                    dict(patient_id=8, date_of_birth=date(2021, 6, 1), sex="female"),
+                    dict(patient_id=9, date_of_birth=date(2021, 6, 1), sex="female"),
                 ]
             }
         )
     )
 
     measure_definitions = tmp_path / "measures.py"
-    measure_definitions.write_text(MEASURE_DEFINITIONS)
+    if disclosure_control_enabled:
+        measure_definitions.write_text(MEASURE_DEFINITIONS)
+    else:
+        measure_definitions.write_text(MEASURE_DEFINITIONS + DISABLE_DISCLOSURE_CONTROL)
     output_file = tmp_path / "output.csv"
 
     generate_measures(
@@ -52,18 +69,30 @@ def test_generate_measures(in_memory_sqlite_database, tmp_path):
         environ={},
         user_args=(),
     )
-    assert output_file.read_text() == textwrap.dedent(
-        """\
-        measure,interval_start,interval_end,ratio,numerator,denominator,sex
-        births,2020-01-01,2020-12-31,1.0,1,1,male
-        births,2020-01-01,2020-12-31,0.0,0,1,female
-        births,2021-01-01,2021-12-31,0.0,0,1,male
-        births,2021-01-01,2021-12-31,1.0,1,1,female
-        """
-    )
+    if disclosure_control_enabled:
+        assert output_file.read_text() == textwrap.dedent(
+            """\
+            measure,interval_start,interval_end,ratio,numerator,denominator,sex
+            births,2020-01-01,2020-12-31,,0,0,male
+            births,2020-01-01,2020-12-31,0.0,0,10,female
+            births,2021-01-01,2021-12-31,,0,0,male
+            births,2021-01-01,2021-12-31,1.0,10,10,female
+            """
+        )
+    else:
+        assert output_file.read_text() == textwrap.dedent(
+            """\
+            measure,interval_start,interval_end,ratio,numerator,denominator,sex
+            births,2020-01-01,2020-12-31,1.0,1,1,male
+            births,2020-01-01,2020-12-31,0.0,0,8,female
+            births,2021-01-01,2021-12-31,0.0,0,1,male
+            births,2021-01-01,2021-12-31,1.0,8,8,female
+            """
+        )
 
 
-def test_generate_measures_dummy_data_generated(tmp_path):
+@pytest.mark.parametrize("disclosure_control_enabled", [False, True])
+def test_generate_measures_dummy_data_generated(tmp_path, disclosure_control_enabled):
     measure_definitions = tmp_path / "measures.py"
     measure_definitions.write_text(MEASURE_DEFINITIONS)
     output_file = tmp_path / "output.csv"
@@ -85,9 +114,13 @@ def test_generate_measures_dummy_data_generated(tmp_path):
     )
 
 
-def test_generate_measures_dummy_data_supplied(tmp_path):
+@pytest.mark.parametrize("disclosure_control_enabled", [False, True])
+def test_generate_measures_dummy_data_supplied(tmp_path, disclosure_control_enabled):
     measure_definitions = tmp_path / "measures.py"
-    measure_definitions.write_text(MEASURE_DEFINITIONS)
+    if disclosure_control_enabled:
+        measure_definitions.write_text(MEASURE_DEFINITIONS)
+    else:
+        measure_definitions.write_text(MEASURE_DEFINITIONS + DISABLE_DISCLOSURE_CONTROL)
     output_file = tmp_path / "output.csv"
     DUMMY_DATA = textwrap.dedent(
         """\
@@ -113,12 +146,27 @@ def test_generate_measures_dummy_data_supplied(tmp_path):
         environ={},
         user_args=(),
     )
-    assert output_file.read_text() == DUMMY_DATA
+    if disclosure_control_enabled:
+        assert output_file.read_text() == textwrap.dedent(
+            """\
+            measure,interval_start,interval_end,ratio,numerator,denominator,sex
+            births,2020-01-01,2020-12-31,0.0,0,10,male
+            births,2020-01-01,2020-12-31,0.0,0,20,female
+            births,2021-01-01,2021-12-31,0.0,0,10,male
+            births,2021-01-01,2021-12-31,0.75,15,20,female
+            """
+        )
+    else:
+        assert output_file.read_text() == DUMMY_DATA
 
 
-def test_generate_measures_dummy_tables(tmp_path):
+@pytest.mark.parametrize("disclosure_control_enabled", [False, True])
+def test_generate_measures_dummy_tables(tmp_path, disclosure_control_enabled):
     measure_definitions = tmp_path / "measures.py"
-    measure_definitions.write_text(MEASURE_DEFINITIONS)
+    if disclosure_control_enabled:
+        measure_definitions.write_text(MEASURE_DEFINITIONS)
+    else:
+        measure_definitions.write_text(MEASURE_DEFINITIONS + DISABLE_DISCLOSURE_CONTROL)
     output_file = tmp_path / "output.csv"
     DUMMY_DATA = textwrap.dedent(
         """\
@@ -143,12 +191,23 @@ def test_generate_measures_dummy_tables(tmp_path):
         environ={},
         user_args=(),
     )
-    assert output_file.read_text() == textwrap.dedent(
-        """\
-        measure,interval_start,interval_end,ratio,numerator,denominator,sex
-        births,2020-01-01,2020-12-31,1.0,1,1,male
-        births,2020-01-01,2020-12-31,0.0,0,1,female
-        births,2021-01-01,2021-12-31,0.0,0,1,male
-        births,2021-01-01,2021-12-31,1.0,1,1,female
-        """
-    )
+    if disclosure_control_enabled:
+        assert output_file.read_text() == textwrap.dedent(
+            """\
+            measure,interval_start,interval_end,ratio,numerator,denominator,sex
+            births,2020-01-01,2020-12-31,,0,0,male
+            births,2020-01-01,2020-12-31,,0,0,female
+            births,2021-01-01,2021-12-31,,0,0,male
+            births,2021-01-01,2021-12-31,,0,0,female
+            """
+        )
+    else:
+        assert output_file.read_text() == textwrap.dedent(
+            """\
+            measure,interval_start,interval_end,ratio,numerator,denominator,sex
+            births,2020-01-01,2020-12-31,1.0,1,1,male
+            births,2020-01-01,2020-12-31,0.0,0,1,female
+            births,2021-01-01,2021-12-31,0.0,0,1,male
+            births,2021-01-01,2021-12-31,1.0,1,1,female
+            """
+        )

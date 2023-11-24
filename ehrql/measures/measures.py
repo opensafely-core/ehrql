@@ -62,6 +62,11 @@ class Measure:
     intervals: tuple[tuple[datetime.date, datetime.date]]
 
 
+@dataclasses.dataclass
+class DisclosureControlConfig:
+    enabled: bool = True
+
+
 # This provides an interface for construction a list of `Measure` instances (as above)
 # and consists almost entirely of validation logic
 class Measures:
@@ -84,6 +89,7 @@ class Measures:
         self._measures = {}
         self._defaults = {}
         self.dummy_data_config = DummyDataConfig(population_size=None)
+        self.disclosure_control_config = DisclosureControlConfig()
 
     def define_measure(
         self,
@@ -308,6 +314,26 @@ class Measures:
         ```
         """
         self.dummy_data_config.population_size = population_size
+
+    def configure_disclosure_control(self, *, enabled=True):
+        """
+        Configure disclosure control.
+
+        By default, numerators and denominators are subject to disclosure control.
+        First, values less than or equal to seven are replaced with zero (suppressed);
+        then, values are rounded to the nearest five.
+
+        To disable disclosure control:
+
+        ```py
+        measures.configure_disclosure_control(enabled=False)
+        ```
+
+        For more information about disclosure control in OpenSAFELY, please see the
+        "[Updated disclosure control
+        guidance](https://www.opensafely.org/updated-output-checking-processes/)" page.
+        """
+        self.disclosure_control_config.enabled = enabled
 
     def __iter__(self):
         return iter(self._measures.values())

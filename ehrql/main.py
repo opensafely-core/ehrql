@@ -19,6 +19,7 @@ from ehrql.loaders import (
 )
 from ehrql.measures import (
     DummyMeasuresDataGenerator,
+    apply_sdc_to_measure_results,
     get_column_specs_for_measures,
     get_measure_results,
 )
@@ -230,13 +231,16 @@ def generate_measures(
     user_args,
 ):
     log.info(f"Compiling measure definitions from {str(definition_file)}")
-    measure_definitions, dummy_data_config = load_measure_definitions(
-        definition_file, user_args, environ
-    )
+    (
+        measure_definitions,
+        dummy_data_config,
+        disclosure_control_config,
+    ) = load_measure_definitions(definition_file, user_args, environ)
 
     if dsn:
         generate_measures_with_dsn(
             measure_definitions,
+            disclosure_control_config,
             output_file,
             dsn,
             backend_class=backend_class,
@@ -247,6 +251,7 @@ def generate_measures(
         generate_measures_with_dummy_data(
             measure_definitions,
             dummy_data_config,
+            disclosure_control_config,
             output_file,
             dummy_tables_path,
             dummy_data_file,
@@ -254,7 +259,13 @@ def generate_measures(
 
 
 def generate_measures_with_dsn(
-    measure_definitions, output_file, dsn, backend_class, query_engine_class, environ
+    measure_definitions,
+    disclosure_control_config,
+    output_file,
+    dsn,
+    backend_class,
+    query_engine_class,
+    environ,
 ):
     log.info("Generating measures data")
     column_specs = get_column_specs_for_measures(measure_definitions)
@@ -267,6 +278,8 @@ def generate_measures_with_dsn(
         default_query_engine_class=CSVQueryEngine,
     )
     results = get_measure_results(query_engine, measure_definitions)
+    if disclosure_control_config.enabled:
+        results = apply_sdc_to_measure_results(results)
     results = eager_iterator(results)
     write_dataset(output_file, results, column_specs)
 
@@ -274,6 +287,7 @@ def generate_measures_with_dsn(
 def generate_measures_with_dummy_data(
     measure_definitions,
     dummy_data_config,
+    disclosure_control_config,
     output_file,
     dummy_tables_path=None,
     dummy_data_file=None,
@@ -295,6 +309,8 @@ def generate_measures_with_dummy_data(
         ).get_results()
 
     log.info("Calculating measures and writing results")
+    if disclosure_control_config.enabled:
+        results = apply_sdc_to_measure_results(results)
     results = eager_iterator(results)
     write_dataset(output_file, results, column_specs)
 
