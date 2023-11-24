@@ -42,28 +42,35 @@ def test_batch_and_transpose():
 
 
 @pytest.mark.parametrize(
-    "min_value,max_value,expected_width",
+    "min_value,max_value,expected_width,expected_signed",
     [
-        (1, 2**8 - 1, 8),
-        (1, 2**16 - 1, 16),
-        (1, 2**24 - 1, 32),
-        (1, 2**32 - 1, 32),
-        (1, 2**40 - 1, 64),
-        (1, 2**64 - 1, 64),
-        (-1, 2**7 - 1, 8),
-        (-1, 2**15 - 1, 16),
-        (-1, 2**24 - 1, 32),
-        (-1, 2**31 - 1, 32),
-        (-1, 2**40 - 1, 64),
-        (-1, 2**63 - 1, 64),
+        (1, 2**7 - 1, 8, True),
+        (1, 2**8 - 1, 8, False),
+        (1, 2**15 - 1, 16, True),
+        (1, 2**16 - 1, 16, False),
+        (1, 2**24 - 1, 32, True),
+        (1, 2**31 - 1, 32, True),
+        (1, 2**32 - 1, 32, False),
+        (1, 2**40 - 1, 64, True),
+        (1, 2**63 - 1, 64, True),
+        (1, 2**64 - 1, 64, False),
+        (-1, 2**7 - 1, 8, True),
+        (-1, 2**15 - 1, 16, True),
+        (-1, 2**24 - 1, 32, True),
+        (-1, 2**31 - 1, 32, True),
+        (-1, 2**40 - 1, 64, True),
+        (-1, 2**63 - 1, 64, True),
     ],
 )
-def test_smallest_int_type_for_range(min_value, max_value, expected_width):
+def test_smallest_int_type_for_range(
+    min_value, max_value, expected_width, expected_signed
+):
     type_ = smallest_int_type_for_range(min_value, max_value)
     roundtripped = pyarrow.array([min_value, max_value], type=type_).to_pylist()
 
     assert [min_value, max_value] == roundtripped
     assert type_.bit_width == expected_width
+    assert pyarrow.types.is_signed_integer(type_) == expected_signed
 
 
 def test_smallest_int_type_for_range_default():

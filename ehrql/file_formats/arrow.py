@@ -103,36 +103,31 @@ def smallest_int_type_for_range(minimum, maximum):
     Return smallest pyarrow integer type capable of representing all values in the
     supplied range
 
-    Note: this was cribbed from the OpenPrescribing codebase and handles a large range
-    of types than we need right now.
+    We prefer signed types unless using a unsigned type actually saves us space.
     """
     # If either bound is unknown return the default type
     if minimum is None or maximum is None:
         return pyarrow.int64()
-    signed = minimum < 0
+    unsigned = minimum >= 0
     abs_max = max(maximum, abs(minimum))
-    if signed:
-        if abs_max < 1 << 7:
-            return pyarrow.int8()
-        elif abs_max < 1 << 15:
-            return pyarrow.int16()
-        elif abs_max < 1 << 31:
-            return pyarrow.int32()
-        elif abs_max < 1 << 63:
-            return pyarrow.int64()
-        else:
-            assert False
+    if abs_max < 1 << 7:
+        return pyarrow.int8()
+    elif unsigned and abs_max < 1 << 8:
+        return pyarrow.uint8()
+    elif abs_max < 1 << 15:
+        return pyarrow.int16()
+    elif unsigned and abs_max < 1 << 16:
+        return pyarrow.uint16()
+    elif abs_max < 1 << 31:
+        return pyarrow.int32()
+    elif unsigned and abs_max < 1 << 32:
+        return pyarrow.uint32()
+    elif abs_max < 1 << 63:
+        return pyarrow.int64()
+    elif unsigned and abs_max < 1 << 64:
+        return pyarrow.uint64()
     else:
-        if abs_max < 1 << 8:
-            return pyarrow.uint8()
-        elif abs_max < 1 << 16:
-            return pyarrow.uint16()
-        elif abs_max < 1 << 32:
-            return pyarrow.uint32()
-        elif abs_max < 1 << 64:
-            return pyarrow.uint64()
-        else:
-            assert False
+        assert False
 
 
 def make_column_to_pyarrow_with_categories(index_type, value_type, categories):
