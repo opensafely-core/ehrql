@@ -1,6 +1,6 @@
 import pytest
 
-from ehrql.docs.common import get_function_body
+from ehrql.docs.common import get_docstring, get_function_body
 
 
 class ExampleClass:
@@ -48,3 +48,21 @@ return "foo"
 )
 def test_get_function_body(method, expected):
     assert get_function_body(method) == expected
+
+
+def test_get_docstring():
+    assert (
+        get_docstring(ExampleClass.example_method_with_docstring)
+        == "Docstring goes here"
+    )
+
+
+def test_get_docstring_with_default():
+    assert (
+        get_docstring(ExampleClass.example_method_no_docstring, default="foo") == "foo"
+    )
+
+
+def test_get_docstring_with_error():
+    with pytest.raises(ValueError, match="No docstring defined for public object"):
+        get_docstring(ExampleClass.example_method_no_docstring)
