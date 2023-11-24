@@ -82,6 +82,28 @@ measures.configure_dummy_data(population_size=10000)
 ```
 </div>
 
+<div class="attr-heading" id="Measures.configure_disclosure_control">
+  <tt><strong>configure_disclosure_control</strong>(<em>enabled=True</em>)</tt>
+  <a class="headerlink" href="#Measures.configure_disclosure_control" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Configure disclosure control.
+
+By default, numerators and denominators are subject to disclosure control.
+First, values less than or equal to seven are replaced with zero (suppressed);
+then, values are rounded to the nearest five.
+
+To disable disclosure control:
+
+```py
+measures.configure_disclosure_control(enabled=False)
+```
+
+For more information about disclosure control in OpenSAFELY, please see the
+"[Updated disclosure control
+guidance](https://www.opensafely.org/updated-output-checking-processes/)" page.
+</div>
+
 </div>
 
 
