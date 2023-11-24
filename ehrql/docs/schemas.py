@@ -10,11 +10,11 @@ from ehrql.query_language import (
     get_tables_from_namespace,
 )
 from ehrql.utils.module_utils import get_submodules
-from ehrql.utils.string_utils import strip_indent
 
 from .common import (
     get_arguments,
     get_class_attrs,
+    get_docstring,
     get_function_body,
     get_name_for_type,
 )
@@ -32,7 +32,7 @@ def build_schemas(backends=()):
         if not module_tables:
             continue
 
-        docstring = strip_indent(module.__doc__)
+        docstring = get_docstring(module)
         dotted_path = module.__name__
         hierarchy = dotted_path.removeprefix(f"{tables.__name__}.").split(".")
         name = ".".join(hierarchy)
@@ -66,7 +66,7 @@ def build_module_name_to_backend_map(backends):
 def build_tables(module):
     for name, table in get_tables_from_namespace(module):
         cls = table.__class__
-        docstring = strip_indent(cls.__doc__ or "")
+        docstring = get_docstring(cls, default="")
         columns = [
             build_column(name, series)
             for name, series in get_all_series_from_class(cls).items()
@@ -95,14 +95,16 @@ def build_table_methods(table_name, cls):
     return [
         build_method(table_name, name, attr)
         for name, attr in get_class_attrs(cls).items()
-        if name not in base_attrs and inspect.isfunction(attr)
+        if name not in base_attrs
+        and not name.startswith("_")
+        and inspect.isfunction(attr)
     ]
 
 
 def build_method(table_name, name, method):
     return {
         "name": name,
-        "docstring": strip_indent(method.__doc__),
+        "docstring": get_docstring(method),
         "arguments": get_arguments(method, ignore_self=True),
         # Replace the `self` argument with the table name so the resulting code makes
         # more sense in isolation

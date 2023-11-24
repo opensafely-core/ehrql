@@ -5,6 +5,7 @@ import textwrap
 from collections import ChainMap
 
 from ehrql.codes import BaseCode
+from ehrql.utils.string_utils import strip_indent
 
 
 def get_class_attrs(cls):
@@ -14,6 +15,16 @@ def get_class_attrs(cls):
     # `object` as we want methods in the order _we_ define them, not those in which they
     # happen to be defined on `object`.
     return dict(ChainMap(*[vars(base) for base in cls.__mro__ if base is not object]))
+
+
+def get_docstring(obj, default=None):
+    docstring = obj.__doc__
+    if not docstring:
+        if default is None:
+            raise ValueError(f"No docstring defined for public object {obj}")
+        else:
+            docstring = default
+    return strip_indent(docstring)
 
 
 def get_arguments(function, ignore_self=False):

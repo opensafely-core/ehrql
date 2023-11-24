@@ -5,9 +5,9 @@ from ehrql import query_language as ql
 from ehrql.docs.common import (
     get_arguments,
     get_class_attrs,
+    get_docstring,
     get_name_for_type,
 )
-from ehrql.utils.string_utils import strip_indent
 
 
 EXCLUDE_FROM_DOCS = {
@@ -154,7 +154,7 @@ def build_value_details(name, value):
 def build_class_details(name, cls):
     return {
         "name": name,
-        "docstring": require_docstring(cls),
+        "docstring": get_class_docstring(cls),
         "methods": sorted(
             [
                 build_method_details(attr_name, attr)
@@ -201,14 +201,14 @@ def build_method_details(name, method):
         "arguments": arguments,
         "operator": OPERATORS.get(name),
         "is_property": is_property,
-        "docstring": require_docstring(method),
+        "docstring": get_docstring(method),
     }
 
 
 def build_function_details(name, function):
     return {
         "name": name,
-        "docstring": require_docstring(function),
+        "docstring": get_docstring(function),
         "arguments": get_arguments(function),
     }
 
@@ -217,11 +217,11 @@ def build_namedtuple_details(name, value):
     cls = value.__class__
     return {
         "name": name,
-        "docstring": require_docstring(cls),
+        "docstring": get_docstring(cls),
         "fields": [
             {
                 "name": field,
-                "docstring": require_docstring(getattr(cls, field)),
+                "docstring": get_docstring(getattr(cls, field)),
             }
             for field in cls._fields
         ],
@@ -242,12 +242,13 @@ def get_missing_values(target_values, included_values):
     return [value for value in target_values if id(value) not in included_value_ids]
 
 
-def require_docstring(obj):
-    docstring = strip_indent(obj.__doc__ or "")
-    if not docstring and is_proper_subclass(obj, ql.BaseSeries):
-        docstring = generate_docstring_for_series(obj)
-    assert docstring.strip(), f"No docstring found for {obj}"
-    return docstring
+def get_class_docstring(cls):
+    default = (
+        generate_docstring_for_series(cls)
+        if is_proper_subclass(cls, ql.BaseSeries)
+        else None
+    )
+    return get_docstring(cls, default=default)
 
 
 def generate_docstring_for_series(series):
