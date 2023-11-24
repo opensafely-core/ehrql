@@ -2,11 +2,6 @@
 This schema defines the core tables and columns which should be available in any backend
 providing primary care data, allowing dataset definitions written using this schema to
 run across multiple backends.
-
-!!! warning
-    This schema is still a work-in-progress while the EMIS backend remains under
-    development. Projects requiring EMIS data should continue to use the [Cohort
-    Extractor](https://docs.opensafely.org/study-def/) tool.
 """
 import datetime
 
