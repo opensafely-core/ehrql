@@ -1,5 +1,5 @@
 from datetime import date
-from databuilder.ehrql import Dataset, days, case, when
+from databuilder.ehrql import Dataset, days, case, when, years
 from databuilder.tables.beta.tpp import (
     clinical_events,
     appointments,
@@ -129,9 +129,10 @@ def hospitalisation_diagnosis_matches(admissions, codelist):
 
 # Function for extracting clinical factors
 def clinical_ctv3_matches(gpevent, codelist):
-    gp_dx = (gpevent.where((gpevent.date < study_start_date) & gpevent.ctv3_code.is_in(codelist))
-      .sort_by(gpevent.date).last_for_patient()
-    )
+    gp_dx = (gpevent.where((gpevent.date < study_start_date) & 
+                           (gpevent.date > (study_start_date - years(5))) &
+                           gpevent.ctv3_code.is_in(codelist))
+                    .sort_by(gpevent.date).last_for_patient())
     return gp_dx
 
 
@@ -401,5 +402,5 @@ dataset.define_population(age >= 18)
 # cost_apc_fn(dataset, from_date=lc_dx.date, num_months=4, end_date=study_end_date)
 # hos_stay_long_fn(dataset, from_date=lc_dx.date, end_date=study_end_date)
 # hos_stay_short_fn(dataset, from_date=lc_dx.date, end_date=study_end_date)
-hx_monthly_drug_visit(dataset, 1)
-hx_monthly_drug_visit(dataset, 4)
+# hx_monthly_drug_visit(dataset, 1)
+# hx_monthly_drug_visit(dataset, 4)
