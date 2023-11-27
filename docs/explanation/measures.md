@@ -22,6 +22,10 @@ from ehrql.tables.beta.core import medications, patients
 # Every measure definitions file must include this line
 measures = create_measures()
 
+# Disable disclosure control for demonstration purposes.
+# Values will neither be suppressed nor rounded.
+measures.configure_disclosure_control(enabled=False)
+
 # Small codelist for demonstration purposes; the real list would be longer
 atorvastatin_tablets = [
     "39733211000001101",
@@ -185,6 +189,20 @@ rx_in_interval = medications.where(
 )
 ```
 
+### Disclosure control
+
+By default, numerators and denominators are subject to disclosure control.
+First, values less than or equal to seven are replaced with zero (suppressed);
+then, values are rounded to the nearest five.
+
+We disabled disclosure control with this line here:
+
+```python
+measures.configure_disclosure_control(enabled=False)
+```
+
+However, we should carefully consider whether we wish to disable disclosure control when
+running inside of the secure environment. If we don't, then we should remove that line.
 
 ## Additional notes
 
