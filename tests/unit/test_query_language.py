@@ -145,6 +145,13 @@ def test_dataset_rejects_invalid_variable_names(variable_name, error):
         setattr(Dataset(), variable_name, patients.i)
 
 
+def test_cannot_define_population_more_than_once():
+    dataset = Dataset()
+    dataset.define_population(patients.exists_for_patient())
+    with pytest.raises(AttributeError, match="no more than once"):
+        dataset.define_population(patients.exists_for_patient())
+
+
 def test_cannot_reassign_dataset_variable():
     dataset = Dataset()
     dataset.foo = patients.date_of_birth.year
