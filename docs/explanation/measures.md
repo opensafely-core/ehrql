@@ -22,6 +22,10 @@ from ehrql.tables.beta.core import medications, patients
 # Every measure definitions file must include this line
 measures = create_measures()
 
+# Disable disclosure control for demonstration purposes.
+# Values will neither be suppressed nor rounded.
+measures.configure_disclosure_control(enabled=False)
+
 # Small codelist for demonstration purposes; the real list would be longer
 atorvastatin_tablets = [
     "39733211000001101",
