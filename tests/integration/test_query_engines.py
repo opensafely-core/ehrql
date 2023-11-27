@@ -223,5 +223,44 @@ def test_is_in_using_temporary_table(engine):
     ]
 
 
+def test_is_in_population_query(engine):
+    engine.populate(
+        {
+            clinical_events: [
+                # Patient 1
+                dict(patient_id=1, snomedct_code="123000", date=date(2023, 1, 1)),
+                dict(patient_id=1, snomedct_code="456000", date=date(2023, 1, 1)),
+                # Patient 2
+                dict(patient_id=2, snomedct_code="123001", date=date(2023, 1, 1)),
+                dict(patient_id=2, snomedct_code="456001", date=date(2023, 1, 1)),
+                dict(patient_id=2, snomedct_code="123002", date=date(2023, 1, 1)),
+            ]
+        }
+    )
+
+    dataset = Dataset()
+    cdate = (
+        clinical_events.where(clinical_events.date.is_on_or_before("2023-01-01"))
+        .sort_by(clinical_events.date)
+        .first_for_patient()
+        .date
+    )
+
+    matching = clinical_events.snomedct_code.is_in(
+        ["123000", "123001", "123002", "123004"],
+    )
+    dataset.define_population(cdate.is_in(clinical_events.date))
+    dataset.n = clinical_events.where(matching).count_for_patient()
+
+    results = engine.extract(
+        dataset,
+    )
+
+    assert results == [
+        {"patient_id": 1, "n": 1},
+        {"patient_id": 2, "n": 2},
+    ]
+
+
 def as_query_model(query_lang_expr):
     return query_lang_expr._qm_node

@@ -126,8 +126,7 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
             type_=sqlalchemy.Date,
         )
 
-    def in_series_exists_query(self, rhs, lhs):
-        patient_id = self.population_table.c.patient_id
+    def in_series_exists_query(self, rhs, lhs, patient_id):
         query = sqlalchemy.select(1).where(
             rhs.c.patient_id == patient_id, rhs.c[1] == lhs
         )

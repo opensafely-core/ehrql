@@ -7,8 +7,9 @@ import sqlalchemy.engine.interfaces
 import structlog
 from sqlalchemy import distinct
 from sqlalchemy.sql import operators
-from sqlalchemy.sql.elements import BindParameter
+from sqlalchemy.sql.elements import BindParameter, ColumnClause
 from sqlalchemy.sql.functions import Function as SQLFunction
+from sqlalchemy.sql.visitors import replacement_traverse
 
 from ehrql.backends.base import DefaultSQLBackend
 from ehrql.query_model.nodes import (
@@ -105,6 +106,8 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             if name != "population"
         }
         query = sqlalchemy.select(population_table.c.patient_id)
+        # Replace any placeholder table references in the population query
+        query = self.replace_placeholder_table_references(query)
         query = query.add_columns(
             *[expr.label(name) for name, expr in variable_expressions.items()]
         )
@@ -223,12 +226,26 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             # a single column (i.e. a codelist)
             return lhs.in_(rhs)
         else:
-            return self.in_series_exists_query(rhs, lhs)
+            if self.population_table is not None:
+                patient_id = self.population_table.c.patient_id
+            else:
+                # if we don't know what the population table is, generate
+                # a placeholder table for it
+                placeholder_name = f"patients_{secrets.token_hex(6)}"
+                table = sqlalchemy.Table(
+                    placeholder_name,
+                    sqlalchemy.MetaData(),
+                    sqlalchemy.Column("patient_id"),
+                )
+                # Add a flag to the user metadata so we can identify these tables later
+                table.is_placeholder = True
+                table_query = sqlalchemy.select(table.c.patient_id.label("patient_id"))
+                patient_id = table_query.c.patient_id
+            return self.in_series_exists_query(rhs, lhs, patient_id)
 
-    def in_series_exists_query(self, rhs, lhs):
-        patient_id = self.population_table.c.patient_id
+    def in_series_exists_query(self, rhs, lhs, patient_id):
         return (
-            sqlalchemy.select(1)
+            sqlalchemy.select(None)
             .where(rhs.c.patient_id == patient_id, rhs.c[1] == lhs)
             .exists()
         )
@@ -823,6 +840,18 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # break in future — we want to know immediately if it does
         assert isinstance(engine.dialect, self.sqlalchemy_dialect)
         return engine
+
+    def replace_placeholder_table_references(self, query):
+        pop_table_id_column = self.population_table.c["patient_id"]
+        return replacement_traverse(
+            query,
+            {},
+            replace=lambda obj: pop_table_id_column
+            if isinstance(obj, ColumnClause)
+            and obj.name == "patient_id"
+            and getattr(obj.table, "is_placeholder", False)
+            else None,
+        )
 
 
 def apply_patient_joins(query):
