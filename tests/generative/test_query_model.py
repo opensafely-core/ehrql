@@ -180,6 +180,7 @@ def instantiate(data):
 
 
 def run_with(engine, instances, variables):
+    error_type = None
     try:
         engine.setup(instances, metadata=sqla_metadata)
         return engine.extract_qm(
@@ -201,7 +202,8 @@ def run_with(engine, instances, variables):
             return error_type
         raise
     finally:
-        engine.teardown()
+        if error_type is not IgnoredError.CONNECTION_ERROR:  # pragma: no cover
+            engine.teardown()
 
 
 def run_dummy_data_test(population, variable):
