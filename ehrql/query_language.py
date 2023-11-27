@@ -63,6 +63,10 @@ class Dataset:
         dataset.define_population(patients.date_of_birth < "1990-01-01")
         ```
         """
+        if "population" in self.variables:
+            raise AttributeError(
+                "define_population() should be called no more than once"
+            )
         validate_population_definition(population_condition._qm_node)
         self.variables["population"] = population_condition
 
