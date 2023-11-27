@@ -73,7 +73,9 @@ def get_field_and_convertor(name, spec):
     else:
         type_ = PYARROW_TYPE_MAP[spec.type]()
 
-    if spec.categories is not None:
+    # Arrow supports creating dictionaries of any type, but downstream software often
+    # only expects strings here so we restrict dictionaries to strings only
+    if spec.type is str and spec.categories is not None:
         # Although pyarrow.dictionary indices can obviously never be negative we use
         # `-1` as the minimum below so we always get a signed type; this is because
         # Pandas can't read dictionaries with unsigned index types. See:

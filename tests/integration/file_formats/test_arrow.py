@@ -10,11 +10,12 @@ def test_write_dataset_arrow(tmp_path):
         "patient_id": ColumnSpec(int),
         "year_of_birth": ColumnSpec(int, min_value=1900, max_value=2100),
         "sex": ColumnSpec(str, categories=("M", "F", "I")),
+        "risk_score": ColumnSpec(float, categories=(0.0, 0.5, 1.0)),
     }
     results = [
-        (123, 1980, "F"),
-        (456, None, None),
-        (789, 1999, "M"),
+        (123, 1980, "F", 0.0),
+        (456, None, None, 0.5),
+        (789, 1999, "M", 1.0),
     ]
     write_dataset(filename, results, column_specs)
 
@@ -30,3 +31,6 @@ def test_write_dataset_arrow(tmp_path):
     assert index_type == pyarrow.int8()
     assert table.column("patient_id").type == pyarrow.int64()
     assert table.column("year_of_birth").type == pyarrow.uint16()
+    # This column has categories, but it's not a string so we shouldn't encode it as a
+    # dictionary
+    assert not pyarrow.types.is_dictionary(table.column("risk_score").type)
