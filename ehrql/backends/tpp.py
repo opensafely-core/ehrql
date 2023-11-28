@@ -205,14 +205,14 @@ class TPPBackend(SQLBackend):
                     WHEN 4 THEN 'Finished' COLLATE Latin1_General_CI_AS
                     WHEN 5 THEN 'Requested' COLLATE Latin1_General_CI_AS
                     WHEN 6 THEN 'Blocked' COLLATE Latin1_General_CI_AS
-                    WHEN 7 THEN 'Visit' COLLATE Latin1_General_CI_AS
-                    WHEN 8 THEN 'Waiting' COLLATE Latin1_General_CI_AS
-                    WHEN 9 THEN 'Cancelled by Patient' COLLATE Latin1_General_CI_AS
-                    WHEN 10 THEN 'Cancelled by Unit' COLLATE Latin1_General_CI_AS
-                    WHEN 11 THEN 'Cancelled by Other Service' COLLATE Latin1_General_CI_AS
-                    WHEN 12 THEN 'No Access Visit' COLLATE Latin1_General_CI_AS
-                    WHEN 13 THEN 'Cancelled Due To Death' COLLATE Latin1_General_CI_AS
-                    WHEN 14 THEN 'Patient Walked Out' COLLATE Latin1_General_CI_AS
+                    WHEN 8 THEN 'Visit' COLLATE Latin1_General_CI_AS
+                    WHEN 9 THEN 'Waiting' COLLATE Latin1_General_CI_AS
+                    WHEN 10 THEN 'Cancelled by Patient' COLLATE Latin1_General_CI_AS
+                    WHEN 11 THEN 'Cancelled by Unit' COLLATE Latin1_General_CI_AS
+                    WHEN 12 THEN 'Cancelled by Other Service' COLLATE Latin1_General_CI_AS
+                    WHEN 14 THEN 'No Access Visit' COLLATE Latin1_General_CI_AS
+                    WHEN 15 THEN 'Cancelled Due To Death' COLLATE Latin1_General_CI_AS
+                    WHEN 16 THEN 'Patient Walked Out' COLLATE Latin1_General_CI_AS
                 END AS status
             FROM Appointment
         """
