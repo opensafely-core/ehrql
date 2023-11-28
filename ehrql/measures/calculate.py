@@ -1,4 +1,5 @@
 import datetime
+import time
 from collections import defaultdict
 
 from ehrql.measures.measures import get_all_group_by_columns
@@ -7,7 +8,11 @@ from ehrql.query_model.nodes import Case, Function, Value, get_series_type
 from ehrql.query_model.transforms import substitute_parameters
 
 
-def get_measure_results(query_engine, measures):
+class MeasuresTimeout(Exception):
+    pass
+
+
+def get_measure_results(query_engine, measures, timeout=259200.0):
     # Group measures by denominator and intervals as we'll handle them together
     grouped = defaultdict(list)
     for measure in measures:
@@ -16,6 +21,7 @@ def get_measure_results(query_engine, measures):
 
     all_group_by_columns = get_all_group_by_columns(measures).keys()
 
+    measure_timer = MeasureTimer.from_grouped(timeout, grouped)
     for measure_group in grouped.values():
         calculator = MeasureCalculator(measure_group)
         results = calculator.get_results(query_engine)
@@ -32,6 +38,7 @@ def get_measure_results(query_engine, measures):
                 # particular measure doesn't use that group
                 *(group_dict.get(name) for name in all_group_by_columns),
             )
+            measure_timer.check_timeout(interval)
 
 
 def get_column_specs_for_measures(measures):
@@ -51,6 +58,38 @@ def get_column_specs_for_measures(measures):
             for name, column in get_all_group_by_columns(measures).items()
         },
     }
+
+
+class MeasureTimer:
+    def __init__(self, timeout, num_iterations):
+        self.timeout = timeout
+        self.num_iterations = num_iterations
+        self.previous_interval = None
+        self.counter = 0
+
+    @classmethod
+    def from_grouped(csl, timeout, grouped):
+        num_iterations = sum(
+            [len(intervals) for denominator, intervals in grouped.keys()]
+        )
+        timer = MeasureTimer(timeout, num_iterations)
+        timer.start()
+        return timer
+
+    def start(self):
+        self.start_time = time.time()
+
+    def check_timeout(self, interval):
+        if interval != self.previous_interval:
+            elapsed_time = time.time() - self.start_time
+            self.counter += 1
+            self.previous_interval = interval
+        if self.counter >= 12:
+            projected_time = elapsed_time / self.counter * self.num_iterations
+            if projected_time > self.timeout:
+                raise MeasuresTimeout(
+                    f"Generating measures exceeded {self.timeout}s time limit."
+                )
 
 
 class MeasureCalculator:
