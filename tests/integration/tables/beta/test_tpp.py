@@ -236,7 +236,7 @@ def test_addresses_for_patient_on(in_memory_engine):
     ]
 
 
-def test_practice_registrations_has_a_continuous_practice_registration_spanning(
+def test_practice_registrations_spanning(
     in_memory_engine,
 ):
     in_memory_engine.populate(
@@ -328,18 +328,16 @@ def test_practice_registrations_has_a_continuous_practice_registration_spanning(
 
     dataset = Dataset()
     dataset.define_population(tpp.practice_registrations.exists_for_patient())
-    dataset.has_a_continuous_practice_registration = (
-        tpp.practice_registrations.has_a_continuous_practice_registration_spanning(
-            "2010-01-01", "2011-01-01"
-        )
-    )
+    dataset.has_spanning_practice_registration = (
+        tpp.practice_registrations.spanning("2010-01-01", "2011-01-01")
+    ).exists_for_patient()
     results = in_memory_engine.extract(dataset)
 
     assert results == [
-        {"patient_id": 1, "has_a_continuous_practice_registration": True},
-        {"patient_id": 2, "has_a_continuous_practice_registration": True},
-        {"patient_id": 3, "has_a_continuous_practice_registration": True},
-        {"patient_id": 4, "has_a_continuous_practice_registration": False},
-        {"patient_id": 5, "has_a_continuous_practice_registration": False},
-        {"patient_id": 6, "has_a_continuous_practice_registration": False},
+        {"patient_id": 1, "has_spanning_practice_registration": True},
+        {"patient_id": 2, "has_spanning_practice_registration": True},
+        {"patient_id": 3, "has_spanning_practice_registration": True},
+        {"patient_id": 4, "has_spanning_practice_registration": False},
+        {"patient_id": 5, "has_spanning_practice_registration": False},
+        {"patient_id": 6, "has_spanning_practice_registration": False},
     ]
