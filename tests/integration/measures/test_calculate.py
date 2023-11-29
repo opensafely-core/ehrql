@@ -115,13 +115,15 @@ def test_get_measure_results_with_timeout(patched_time, in_memory_engine):
         numerator=foo_event_count,
         denominator=event_count,
         intervals=intervals,
+        group_by=dict(
+            sex=patients.sex,
+        ),
     )
 
     patient_data, _, event_data = generate_data(intervals)
     in_memory_engine.populate({patients: patient_data, events: event_data})
 
-    mock_short_queries = [6500.0 + i * 500 for i in range(11)]
-    patched_time.time.side_effect = [0.0] + [6000.0] + mock_short_queries + [100000.0]
+    patched_time.time.side_effect = [0.0, 1000.0, 1000000.0]
     results = get_measure_results(in_memory_engine.query_engine(), measures)
     with pytest.raises(MeasuresTimeout, match="time limit"):
         results = list(results)
