@@ -203,7 +203,7 @@ class BaseSeries:
         """
         return self.is_null().__invert__()
 
-    def if_null_then(self, other):
+    def when_null_then(self, other):
         """
         Replace any NULL value in this series with the corresponding value in `other`.
 
@@ -213,6 +213,14 @@ class BaseSeries:
             when(self.is_not_null()).then(self),
             otherwise=self._cast(other),
         )
+
+    def if_null_then(self, other):
+        """
+        Deprecated alias for `when_null_then()`
+
+        This will be removed in future versions of ehrQL and shoud not be used.
+        """
+        return self.when_null_then(other)
 
     def is_in(self, other):
         """
