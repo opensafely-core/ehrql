@@ -61,7 +61,7 @@ class addresses(EventFrame):
             when(imd < int(32844 * 3 / 5)).then("3"),
             when(imd < int(32844 * 4 / 5)).then("4"),
             when(imd < int(32844 * 5 / 5)).then("5 (least deprived)"),
-            default="unknown"
+            otherwise="unknown"
         )
         ```
 
@@ -152,7 +152,7 @@ class addresses(EventFrame):
             self.end_date < date
         )
         ordered_addrs = spanning_addrs.sort_by(
-            case(when(self.has_postcode).then(1), default=0),
+            case(when(self.has_postcode).then(1), otherwise=0),
             self.start_date,
             self.end_date,
             self.address_id,
