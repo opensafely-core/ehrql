@@ -75,14 +75,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="BoolPatientSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#BoolPatientSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="BoolPatientSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#BoolPatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="BoolPatientSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#BoolPatientSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="BoolPatientSeries.is_in">
@@ -199,14 +209,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="BoolEventSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#BoolEventSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="BoolEventSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#BoolEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="BoolEventSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#BoolEventSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="BoolEventSeries.is_in">
@@ -340,14 +360,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="StrPatientSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#StrPatientSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="StrPatientSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#StrPatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="StrPatientSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#StrPatientSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="StrPatientSeries.is_in">
@@ -481,14 +511,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="StrEventSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#StrEventSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="StrEventSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#StrEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="StrEventSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#StrEventSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="StrEventSeries.is_in">
@@ -708,14 +748,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="IntPatientSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#IntPatientSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="IntPatientSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#IntPatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="IntPatientSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#IntPatientSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="IntPatientSeries.is_in">
@@ -913,14 +963,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="IntEventSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#IntEventSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="IntEventSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#IntEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="IntEventSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#IntEventSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="IntEventSeries.is_in">
@@ -1163,14 +1223,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="FloatPatientSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#FloatPatientSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="FloatPatientSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#FloatPatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="FloatPatientSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#FloatPatientSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="FloatPatientSeries.is_in">
@@ -1368,14 +1438,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="FloatEventSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#FloatEventSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="FloatEventSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#FloatEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="FloatEventSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#FloatEventSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="FloatEventSeries.is_in">
@@ -1594,14 +1674,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="DatePatientSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#DatePatientSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="DatePatientSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#DatePatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="DatePatientSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#DatePatientSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="DatePatientSeries.is_in">
@@ -1844,14 +1934,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="DateEventSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#DateEventSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="DateEventSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#DateEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="DateEventSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#DateEventSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="DateEventSeries.is_in">
@@ -2081,14 +2181,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="CodePatientSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#CodePatientSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="CodePatientSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#CodePatientSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="CodePatientSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#CodePatientSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="CodePatientSeries.is_in">
@@ -2181,14 +2291,24 @@ NULL, and False otherwise.
 Return the inverse of `is_null()` above.
 </div>
 
-<div class="attr-heading" id="CodeEventSeries.if_null_then">
-  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
-  <a class="headerlink" href="#CodeEventSeries.if_null_then" title="Permanent link">🔗</a>
+<div class="attr-heading" id="CodeEventSeries.when_null_then">
+  <tt><strong>when_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#CodeEventSeries.when_null_then" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
 Replace any NULL value in this series with the corresponding value in `other`.
 
 Note that `other` must be of the same type as this series.
+</div>
+
+<div class="attr-heading" id="CodeEventSeries.if_null_then">
+  <tt><strong>if_null_then</strong>(<em>other</em>)</tt>
+  <a class="headerlink" href="#CodeEventSeries.if_null_then" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Deprecated alias for `when_null_then()`
+
+This will be removed in future versions of ehrQL and shoud not be used.
 </div>
 
 <div class="attr-heading" id="CodeEventSeries.is_in">
