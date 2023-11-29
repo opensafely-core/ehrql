@@ -15,10 +15,10 @@ table_data = {
 }
 
 
-def test_if_null_then_integer_column(spec_test):
+def test_when_null_then_integer_column(spec_test):
     spec_test(
         table_data,
-        p.i1.if_null_then(0),
+        p.i1.when_null_then(0),
         {
             1: 101,
             2: 201,
@@ -28,10 +28,10 @@ def test_if_null_then_integer_column(spec_test):
     )
 
 
-def test_if_null_then_boolean_column(spec_test):
+def test_when_null_then_boolean_column(spec_test):
     spec_test(
         table_data,
-        p.i1.is_in([101, 201]).if_null_then(False),
+        p.i1.is_in([101, 201]).when_null_then(False),
         {
             1: True,
             2: True,
