@@ -759,19 +759,11 @@ def test_duration_generate_intervals_rejects_invalid_arguments(
     ],
 )
 def test_count_episodes_for_patient_rejects_invalid_arguments(maximum_gap, error):
-    @table
-    class e(EventFrame):
-        d = Series(date)
-
     with pytest.raises((TypeError, ValueError), match=error):
-        e.d.count_episodes_for_patient(maximum_gap)
+        events.event_date.count_episodes_for_patient(maximum_gap)
 
 
 def test_count_episodes_for_patient_handles_weeks():
-    @table
-    class e(EventFrame):
-        d = Series(date)
-
-    using_days = e.d.count_episodes_for_patient(days(14))
-    using_weeks = e.d.count_episodes_for_patient(weeks(2))
+    using_days = events.event_date.count_episodes_for_patient(days(14))
+    using_weeks = events.event_date.count_episodes_for_patient(weeks(2))
     assert using_days._qm_node == using_weeks._qm_node
