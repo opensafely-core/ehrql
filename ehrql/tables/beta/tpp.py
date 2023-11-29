@@ -516,6 +516,21 @@ class household_memberships_2020(PatientFrame):
 
 @table
 class occupation_on_covid_vaccine_record(EventFrame):
+    """
+    This data is from the NHS England COVID-19 data store,
+    and reflects information collected at the point of vaccination
+    where recipients are asked by vaccination staff
+    whether they are in the category of health and care worker.
+
+    Refer to the [OpenSAFELY database build report][opensafely_database_build_report]
+    to see when this data was last updated.
+
+    See the GitHub issue that [discusses more of the background context][vaccine_record_issue].
+
+    [opensafely_database_build_report]: https://reports.opensafely.org/reports/opensafely-tpp-database-builds
+    [vaccine_record_issue]: https://github.com/opensafely-core/cohort-extractor/issues/544
+    """
+
     is_healthcare_worker = Series(bool)
 
 
