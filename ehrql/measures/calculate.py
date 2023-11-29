@@ -68,7 +68,7 @@ class MeasureTimer:
         self.counter = 0
 
     @classmethod
-    def from_grouped(csl, timeout, grouped):
+    def from_grouped(cls, timeout, grouped):
         num_iterations = sum(
             [len(intervals) for denominator, intervals in grouped.keys()]
         )
@@ -81,15 +81,15 @@ class MeasureTimer:
 
     def check_timeout(self, interval):
         if interval != self.previous_interval:
-            elapsed_time = time.time() - self.start_time
             self.counter += 1
             self.previous_interval = interval
-        if self.counter >= 12:
-            projected_time = elapsed_time / self.counter * self.num_iterations
-            if projected_time > self.timeout:
-                raise MeasuresTimeout(
-                    f"Generating measures exceeded {self.timeout}s time limit."
-                )
+            if self.counter >= 12:
+                self.elapsed_time = time.time() - self.start_time
+                projected_time = self.elapsed_time / self.counter * self.num_iterations
+                if projected_time > self.timeout:
+                    raise MeasuresTimeout(
+                        f"Generating measures exceeded {self.timeout}s time limit."
+                    )
 
 
 class MeasureCalculator:
