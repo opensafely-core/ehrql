@@ -27,6 +27,7 @@ from ehrql.query_language import (
     Series,
     StrEventSeries,
     StrPatientSeries,
+    case,
     compile,
     create_dataset,
     days,
@@ -36,6 +37,7 @@ from ehrql.query_language import (
     table_from_file,
     table_from_rows,
     weeks,
+    when,
     years,
 )
 from ehrql.query_model.column_specs import ColumnSpec
@@ -759,19 +761,30 @@ def test_duration_generate_intervals_rejects_invalid_arguments(
     ],
 )
 def test_count_episodes_for_patient_rejects_invalid_arguments(maximum_gap, error):
-    @table
-    class e(EventFrame):
-        d = Series(date)
-
     with pytest.raises((TypeError, ValueError), match=error):
-        e.d.count_episodes_for_patient(maximum_gap)
+        events.event_date.count_episodes_for_patient(maximum_gap)
 
 
 def test_count_episodes_for_patient_handles_weeks():
-    @table
-    class e(EventFrame):
-        d = Series(date)
-
-    using_days = e.d.count_episodes_for_patient(days(14))
-    using_weeks = e.d.count_episodes_for_patient(weeks(2))
+    using_days = events.event_date.count_episodes_for_patient(days(14))
+    using_weeks = events.event_date.count_episodes_for_patient(weeks(2))
     assert using_days._qm_node == using_weeks._qm_node
+
+
+def test_case_accepts_default_as_alias_for_otherwise():
+    case_otherwise = case(when(events.f > 10).then("foo"), otherwise="bar")
+    case_default = case(when(events.f > 10).then("foo"), default="bar")
+
+    assert case_otherwise._qm_node == case_default._qm_node
+
+
+def test_case_rejects_default_and_otherwise_supplied_together():
+    with pytest.raises(ValueError, match="Use `otherwise` instead of `default`"):
+        case(when(events.f > 10).then("foo"), default="bar", otherwise="baz")
+
+
+def test_if_null_then_alias():
+    if_null = events.f.if_null_then(0.0)
+    when_null = events.f.when_null_then(0.0)
+
+    assert if_null._qm_node == when_null._qm_node

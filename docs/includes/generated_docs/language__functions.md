@@ -1,6 +1,6 @@
 
 <h4 class="attr-heading" id="case" data-toc-label="case" markdown>
-  <tt><strong>case</strong>(<em>*when_thens</em>, <em>default=None</em>)</tt>
+  <tt><strong>case</strong>(<em>*when_thens</em>, <em>otherwise=None</em>, <em>default=None</em>)</tt>
 </h4>
 <div markdown="block" class="indent">
 Take a sequence of condition-values of the form:
@@ -9,8 +9,8 @@ when(condition).then(value)
 ```
 
 And evaluate them in order, returning the value of the first condition which
-evaluates True. If no condition matches and a `default` is specified then return
-that, otherwise return NULL.
+evaluates True. If no condition matches, return the `otherwise` value; if no
+`otherwise` value is specified then return NULL.
 
 For example:
 ```py
@@ -18,7 +18,7 @@ category = case(
     when(size < 10).then("small"),
     when(size < 20).then("medium"),
     when(size >= 20).then("large"),
-    default="unknown",
+    otherwise="unknown",
 )
 ```
 
@@ -31,7 +31,7 @@ A simpler form is available when there is a single condition.  This example:
 ```py
 category = case(
     when(size < 15).then("small"),
-    default="large",
+    otherwise="large",
 )
 ```
 
@@ -39,6 +39,9 @@ can be rewritten as:
 ```py
 category = when(size < 15).then("small").otherwise("large")
 ```
+
+Note that the `default` argument is an older alias for `otherwise`: it will be
+removed in future versions of ehrQL and should not be used.
 </div>
 
 

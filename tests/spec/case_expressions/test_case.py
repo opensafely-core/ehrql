@@ -41,7 +41,7 @@ def test_case_with_default(spec_test):
         case(
             when(p.i1 < 8).then(p.i1),
             when(p.i1 > 8).then(100),
-            default=0,
+            otherwise=0,
         ),
         {
             1: 6,

@@ -107,7 +107,7 @@ dataset.age_band = case(
         when(age < 60).then("40-59"),
         when(age < 80).then("60-79"),
         when(age >= 80).then("80+"),
-        default="missing",
+        otherwise="missing",
 )
 dataset.define_population(patients.exists_for_patient())
 ```
@@ -227,7 +227,7 @@ dataset.imd_quintile = case(
     when(imd < int(32844 * 3 / 5)).then("3"),
     when(imd < int(32844 * 4 / 5)).then("4"),
     when(imd < int(32844 * 5 / 5)).then("5 (least deprived)"),
-    default="unknown"
+    otherwise="unknown"
 )
 dataset.define_population(patients.exists_for_patient())
 ```

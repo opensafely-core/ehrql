@@ -1262,7 +1262,7 @@ returns the following patient series:
 ### 6.4 Replace missing values
 
 
-#### 6.4.1 If null then integer column
+#### 6.4.1 When null then integer column
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1274,7 +1274,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4| |
 
 ```python
-p.i1.if_null_then(0)
+p.i1.when_null_then(0)
 ```
 returns the following patient series:
 
@@ -1287,7 +1287,7 @@ returns the following patient series:
 
 
 
-#### 6.4.2 If null then boolean column
+#### 6.4.2 When null then boolean column
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1299,7 +1299,7 @@ This example makes use of a patient-level table named `p` containing the followi
 | 4| |
 
 ```python
-p.i1.is_in([101, 201]).if_null_then(False)
+p.i1.is_in([101, 201]).when_null_then(False)
 ```
 returns the following patient series:
 
@@ -2760,7 +2760,7 @@ This example makes use of a patient-level table named `p` containing the followi
 case(
     when(p.i1 < 8).then(p.i1),
     when(p.i1 > 8).then(100),
-    default=0,
+    otherwise=0,
 )
 ```
 returns the following patient series:

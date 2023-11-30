@@ -816,7 +816,7 @@ age = patients.age_on("2023-01-01")
 dataset.age_group = case(
    when(age < 10).then(1),
    when(age > 80).then(2),
-   default="unknown",
+   otherwise="unknown",
 )
 ```
 
@@ -842,7 +842,7 @@ age = patients.age_on("2023-01-01")
 dataset.age_group = case(
    when(age < 10).then(1),
    when(age > 80).then(2),
-   default=0,
+   otherwise=0,
 )
 ```
 
