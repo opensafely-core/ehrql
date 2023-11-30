@@ -250,6 +250,10 @@ class appointments(EventFrame):
     """
     Appointments in primary care.
 
+    !!! warning
+        When a patient moves practice,
+        their appointment history is deleted.
+
     You can find out more about [the associated database table][appointments_5] in the [short data report][appointments_1].
     It shows:
 
@@ -825,18 +829,8 @@ class practice_registrations(EventFrame):
     """
     Each record corresponds to a patient's registration with a practice.
 
-    Only patients with a full GMS (General Medical Services) registration are included.
-
-    We have registration history for:
-
-    * all patients currently registered at a TPP practice
-    * all patients registered at a TPP practice any time from 1 Jan 2009 onwards:
-        * who have since de-registered
-        * who have since died
-
-    A patient can be registered with zero, one, or more than one practices at a given
-    time. For instance, students are often registered with a practice at home and a
-    practice at university.
+    See the [TPP backend information](../../backends.md#patients-included-in-the-tpp-backend)
+    for details of which patients are included.
     """
 
     start_date = Series(
@@ -903,6 +897,16 @@ class practice_registrations(EventFrame):
             self.practice_pseudo_id,
         )
         return ordered_regs.last_for_patient()
+
+    def spanning(self, start_date, end_date):
+        """
+        Filter registrations to just those spanning the entire period between
+        `start_date` and `end_date`.
+        """
+        return self.where(
+            self.start_date.is_on_or_before(start_date)
+            & (self.end_date.is_after(end_date) | self.end_date.is_null())
+        )
 
 
 @table

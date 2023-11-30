@@ -422,6 +422,10 @@ The date of discharge from a hospital provider spell.
 
 Appointments in primary care.
 
+!!! warning
+    When a patient moves practice,
+    their appointment history is deleted.
+
 You can find out more about [the associated database table][appointments_5] in the [short data report][appointments_1].
 It shows:
 
@@ -2235,18 +2239,8 @@ return (date - patients.date_of_birth).years
 
 Each record corresponds to a patient's registration with a practice.
 
-Only patients with a full GMS (General Medical Services) registration are included.
-
-We have registration history for:
-
-* all patients currently registered at a TPP practice
-* all patients registered at a TPP practice any time from 1 Jan 2009 onwards:
-    * who have since de-registered
-    * who have since died
-
-A patient can be registered with zero, one, or more than one practices at a given
-time. For instance, students are often registered with a practice at home and a
-practice at university.
+See the [TPP backend information](../../backends.md#patients-included-in-the-tpp-backend)
+for details of which patients are included.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2347,6 +2341,28 @@ ordered_regs = spanning_regs.sort_by(
     practice_registrations.practice_pseudo_id,
 )
 return ordered_regs.last_for_patient()
+
+```
+    </details>
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="practice_registrations.spanning">
+    <strong>spanning(</strong>start_date, end_date<strong>)</strong>
+    <a class="headerlink" href="#practice_registrations.spanning" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Filter registrations to just those spanning the entire period between
+`start_date` and `end_date`.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+return practice_registrations.where(
+    practice_registrations.start_date.is_on_or_before(start_date)
+    & (practice_registrations.end_date.is_after(end_date) | practice_registrations.end_date.is_null())
+)
 
 ```
     </details>

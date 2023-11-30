@@ -234,3 +234,110 @@ def test_addresses_for_patient_on(in_memory_engine):
         {"patient_id": 5, "address_id": 109},
         {"patient_id": 6, "address_id": 111},
     ]
+
+
+def test_practice_registrations_spanning(
+    in_memory_engine,
+):
+    in_memory_engine.populate(
+        # Successive registrations continuous in time period
+        {
+            tpp.practice_registrations: [
+                dict(
+                    patient_id=1,
+                    practice_pseudo_id=123,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2005, 1, 1),
+                ),
+                dict(
+                    patient_id=1,
+                    practice_pseudo_id=456,
+                    start_date=date(2005, 1, 1),
+                    end_date=date(2015, 1, 1),
+                ),
+                dict(
+                    patient_id=1,
+                    practice_pseudo_id=789,
+                    start_date=date(2015, 1, 1),
+                    end_date=date(2020, 1, 1),
+                ),
+            ]
+        },
+        # Registration with NULL end date
+        {
+            tpp.practice_registrations: [
+                dict(
+                    patient_id=2,
+                    practice_pseudo_id=123,
+                    start_date=date(2000, 1, 1),
+                    end_date=None,
+                ),
+            ]
+        },
+        # Registration with end date after time period ends
+        {
+            tpp.practice_registrations: [
+                dict(
+                    patient_id=3,
+                    practice_pseudo_id=123,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2020, 1, 1),
+                ),
+            ]
+        },
+        # Registration with start date after time period starts
+        {
+            tpp.practice_registrations: [
+                dict(
+                    patient_id=4,
+                    practice_pseudo_id=123,
+                    start_date=date(2010, 2, 1),
+                    end_date=date(2020, 1, 1),
+                ),
+            ]
+        },
+        # Registration with start date and end date inside time period
+        {
+            tpp.practice_registrations: [
+                dict(
+                    patient_id=5,
+                    practice_pseudo_id=123,
+                    start_date=date(2010, 2, 1),
+                    end_date=date(2010, 12, 1),
+                ),
+            ]
+        },
+        # Discontinuous registration in time period
+        {
+            tpp.practice_registrations: [
+                dict(
+                    patient_id=6,
+                    practice_pseudo_id=123,
+                    start_date=date(2000, 1, 1),
+                    end_date=date(2010, 6, 1),
+                ),
+                dict(
+                    patient_id=6,
+                    practice_pseudo_id=123,
+                    start_date=date(2010, 7, 1),
+                    end_date=date(2020, 1, 1),
+                ),
+            ]
+        },
+    )
+
+    dataset = Dataset()
+    dataset.define_population(tpp.practice_registrations.exists_for_patient())
+    dataset.has_spanning_practice_registration = (
+        tpp.practice_registrations.spanning("2010-01-01", "2011-01-01")
+    ).exists_for_patient()
+    results = in_memory_engine.extract(dataset)
+
+    assert results == [
+        {"patient_id": 1, "has_spanning_practice_registration": True},
+        {"patient_id": 2, "has_spanning_practice_registration": True},
+        {"patient_id": 3, "has_spanning_practice_registration": True},
+        {"patient_id": 4, "has_spanning_practice_registration": False},
+        {"patient_id": 5, "has_spanning_practice_registration": False},
+        {"patient_id": 6, "has_spanning_practice_registration": False},
+    ]
