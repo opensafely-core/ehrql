@@ -21,6 +21,13 @@ dataset.asthma_med_date = latest_asthma_med.date
 dataset.asthma_med_code = latest_asthma_med.dmd_code
 ```
 
+!!! tip "Importing tables"
+    The tables are imported from the `ehrql.tables.beta.core` schema in the above dataset definition.
+    Consequently, it can be run on any backend.
+    If you need a table that's only available in one backend,
+    then you should import the table from a non-core schema,
+    such as `ehrql.tables.beta.tpp` or `ehrql.tables.beta.emis`.
+
 ## Open the dataset definition
 
 1. Click `dataset_definition.py` in the Explorer towards the top left of the codespace
