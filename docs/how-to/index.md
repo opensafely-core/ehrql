@@ -4,3 +4,4 @@ The how-to guides provide practical steps for working with ehrQL in your project
 * [Resolving ehrQL errors](errors.md)
 * [How to use dummy data in an ehrQL dataset definition](dummy-data.md)
 * [How to use dummy data in an ehrQL measures definition](dummy-measures-data.md)
+* [How to assign multiple columns to a dataset programmatically](assign-multiple-columns.md)
