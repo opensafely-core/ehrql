@@ -216,8 +216,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql.register(Function.In)
     def get_sql_in(self, node):
         lhs = self.get_expr(node.lhs)
-        rhs = self.get_expr_for_multivalued_param(node.rhs)
-        return lhs.in_(rhs)
+        if isinstance(node.rhs, Value) and len(node.rhs.value) == 0:
+            # Special case handling for when LHS is NULL and RHS is an empty list: ehrQL
+            # evaluates this as NULL whereas SQL evaluates it as FALSE. (Of course, both
+            # agree than when RHS is empty and LHS is non-NULL then the result is
+            # FALSE.) So we want an expression which evaluates NULL when LHS is NULL,
+            # and FALSE otherwise. The expression `LHS != LHS` behaves as required.
+            return operators.ne(lhs, lhs)
+        else:
+            rhs = self.get_expr_for_multivalued_param(node.rhs)
+            return lhs.in_(rhs)
 
     def get_expr_for_multivalued_param(self, node):
         assert isinstance(node, Value)
