@@ -70,19 +70,18 @@ def get_all_backend_columns(backend):
         yield qm_table.name, table_expr.columns
 
 
-def get_all_tables(backend=None):
+def get_all_tables(backend):
     table_modules_by_backend = {"emis": [emis], "tpp": [tpp, tpp_raw]}
-    if backend is None:
-        modules = sum(table_modules_by_backend.values(), [])
-    else:
-        modules = table_modules_by_backend[backend.display_name.lower()]
+    modules = table_modules_by_backend[backend.display_name.lower()]
     for module in modules:
         for name, table in get_tables_from_namespace(module):
             yield f"{module.__name__}.{name}", table
 
 
-def test_registered_tests_are_exhaustive():
+def assert_tests_exhaustive(backend):
     missing = [
-        name for name, table in get_all_tables() if table not in REGISTERED_TABLES
+        name
+        for name, table in get_all_tables(backend)
+        if table not in REGISTERED_TABLES
     ]
     assert not missing, f"No tests for tables: {', '.join(missing)}"

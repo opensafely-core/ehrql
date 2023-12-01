@@ -10,7 +10,8 @@ from tests.lib.emis_schema import (
     PatientAllOrgsV2,
 )
 
-from .test_common import (
+from .helpers import (
+    assert_tests_exhaustive,
     assert_types_correct,
     get_all_backend_columns,
     register_test_for,
@@ -148,3 +149,7 @@ def test_patients(select_all_emis):
             "date_of_death": None,
         },
     ]
+
+
+def test_registered_tests_are_exhaustive():
+    assert_tests_exhaustive(EMISBackend())

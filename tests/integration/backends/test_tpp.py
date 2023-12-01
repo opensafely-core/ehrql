@@ -49,7 +49,8 @@ from tests.lib.tpp_schema import (
     WL_OpenPathways,
 )
 
-from .test_common import (
+from .helpers import (
+    assert_tests_exhaustive,
     assert_types_correct,
     get_all_backend_columns,
     register_test_for,
@@ -1794,6 +1795,10 @@ def test_wl_openpathways(select_all_tpp):
             "week_ending_date": date(2024, 3, 3),
         }
     ]
+
+
+def test_registered_tests_are_exhaustive():
+    assert_tests_exhaustive(TPPBackend())
 
 
 # Where queries involve joins with temporary tables on string columns we need to ensure
