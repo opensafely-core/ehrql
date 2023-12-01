@@ -10,6 +10,7 @@ OpenSAFELY-EMIS backend. For more information about this backend, see
 from ehrql.tables.beta.emis import (
     clinical_events,
     medications,
+    ons_deaths,
     patients,
 )
 ```
@@ -121,6 +122,239 @@ on how to
   </dt>
   <dd markdown="block">
 
+
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>one row per patient</code></p>
+## ons_deaths
+
+Registered deaths
+
+Date and cause of death based on information recorded when deaths are
+certified and registered in England and Wales from February 2019 onwards.
+The data provider is the Office for National Statistics (ONS).
+
+This table includes the underlying cause of death and up to 15 medical conditions mentioned on the death certificate.
+These codes (`cause_of_death_01` to `cause_of_death_15`) are not ordered meaningfully.
+
+More information about this table can be found in following documents provided by the ONS:
+
+- [Information collected at death registration](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/methodologies/userguidetomortalitystatisticsjuly2017#information-collected-at-death-registration)
+- [User guide to mortality statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/methodologies/userguidetomortalitystatisticsjuly2017)
+- [How death registrations are recorded and stored by ONS](https://www.ons.gov.uk/aboutus/transparencyandgovernance/freedomofinformationfoi/howdeathregistrationsarerecordedandstoredbyons)
+
+In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
+a small number of patients have multiple registered deaths.
+This table contains the earliest registered death.
+The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="ons_deaths.date">
+    <strong>date</strong>
+    <a class="headerlink" href="#ons_deaths.date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Patient's date of death.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.underlying_cause_of_death">
+    <strong>underlying_cause_of_death</strong>
+    <a class="headerlink" href="#ons_deaths.underlying_cause_of_death" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Patient's underlying cause of death of death.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_01">
+    <strong>cause_of_death_01</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_01" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_02">
+    <strong>cause_of_death_02</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_02" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_03">
+    <strong>cause_of_death_03</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_03" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_04">
+    <strong>cause_of_death_04</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_04" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_05">
+    <strong>cause_of_death_05</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_05" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_06">
+    <strong>cause_of_death_06</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_06" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_07">
+    <strong>cause_of_death_07</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_07" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_08">
+    <strong>cause_of_death_08</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_08" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_09">
+    <strong>cause_of_death_09</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_09" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_10">
+    <strong>cause_of_death_10</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_10" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_11">
+    <strong>cause_of_death_11</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_11" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_12">
+    <strong>cause_of_death_12</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_12" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_13">
+    <strong>cause_of_death_13</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_13" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_14">
+    <strong>cause_of_death_14</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_14" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="ons_deaths.cause_of_death_15">
+    <strong>cause_of_death_15</strong>
+    <a class="headerlink" href="#ons_deaths.cause_of_death_15" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Medical condition mentioned on the death certificate.
 
   </dd>
 </div>

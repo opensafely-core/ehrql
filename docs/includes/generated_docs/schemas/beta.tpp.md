@@ -1385,7 +1385,8 @@ certified and registered in England and Wales from February 2019 onwards.
 The data provider is the Office for National Statistics (ONS).
 This table is updated approximately weekly in OpenSAFELY.
 
-This table includes the underlying cause of death and up to 15 medical conditions mentioned on the death certificate.
+This table includes the underlying cause of death , place of death and up
+to 15 medical conditions mentioned on the death certificate.
 These codes (`cause_of_death_01` to `cause_of_death_15`) are not ordered meaningfully.
 
 More information about this table can be found in following documents provided by the ONS:
