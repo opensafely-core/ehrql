@@ -106,7 +106,6 @@ class ons_deaths(PatientFrame):
     Date and cause of death based on information recorded when deaths are
     certified and registered in England and Wales from February 2019 onwards.
     The data provider is the Office for National Statistics (ONS).
-    This table is updated approximately weekly in OpenSAFELY.
 
     This table includes the underlying cause of death and up to 15 medical conditions mentioned on the death certificate.
     These codes (`cause_of_death_01` to `cause_of_death_15`) are not ordered meaningfully.
@@ -121,31 +120,11 @@ class ons_deaths(PatientFrame):
     a small number of patients have multiple registered deaths.
     This table contains the earliest registered death.
     The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
-
-    !!! warning
-        There is also a lag in ONS death recording caused amongst other things by things like autopsies and inquests delaying
-        reporting on cause of death. This is evident in the [OpenSAFELY historical database coverage report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
     """
 
     date = Series(
         datetime.date,
         description=("Patient's date of death."),
-    )
-    place = Series(
-        str,
-        description="Patient's place of death.",
-        constraints=[
-            Constraint.Categorical(
-                [
-                    "Care Home",
-                    "Elsewhere",
-                    "Home",
-                    "Hospice",
-                    "Hospital",
-                    "Other communal establishment",
-                ]
-            ),
-        ],
     )
     underlying_cause_of_death = Series(
         ICD10Code,

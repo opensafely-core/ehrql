@@ -8,7 +8,7 @@ import datetime
 from ehrql import case, when
 from ehrql.codes import CTV3Code, ICD10Code, OPCS4Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
-from ehrql.tables.beta.core import medications, ons_deaths, patients
+from ehrql.tables.beta.core import medications, patients
 
 
 __all__ = [
@@ -546,6 +546,123 @@ class occupation_on_covid_vaccine_record(EventFrame):
     """
 
     is_healthcare_worker = Series(bool)
+
+
+@table
+class ons_deaths(PatientFrame):
+    """
+    Registered deaths
+
+    Date and cause of death based on information recorded when deaths are
+    certified and registered in England and Wales from February 2019 onwards.
+    The data provider is the Office for National Statistics (ONS).
+    This table is updated approximately weekly in OpenSAFELY.
+
+    This table includes the underlying cause of death , place of death and up
+    to 15 medical conditions mentioned on the death certificate.
+    These codes (`cause_of_death_01` to `cause_of_death_15`) are not ordered meaningfully.
+
+    More information about this table can be found in following documents provided by the ONS:
+
+    - [Information collected at death registration](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/methodologies/userguidetomortalitystatisticsjuly2017#information-collected-at-death-registration)
+    - [User guide to mortality statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/methodologies/userguidetomortalitystatisticsjuly2017)
+    - [How death registrations are recorded and stored by ONS](https://www.ons.gov.uk/aboutus/transparencyandgovernance/freedomofinformationfoi/howdeathregistrationsarerecordedandstoredbyons)
+
+    In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
+    a small number of patients have multiple registered deaths.
+    This table contains the earliest registered death.
+    The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
+
+    !!! warning
+        There is also a lag in ONS death recording caused amongst other things by things like autopsies and inquests delaying
+        reporting on cause of death. This is evident in the [OpenSAFELY historical database coverage report](https://reports.opensafely.org/reports/opensafely-tpp-database-history/#ons_deaths)
+    """
+
+    date = Series(
+        datetime.date,
+        description=("Patient's date of death."),
+    )
+    place = Series(
+        str,
+        description="Patient's place of death.",
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "Care Home",
+                    "Elsewhere",
+                    "Home",
+                    "Hospice",
+                    "Hospital",
+                    "Other communal establishment",
+                ]
+            ),
+        ],
+    )
+    underlying_cause_of_death = Series(
+        ICD10Code,
+        description="Patient's underlying cause of death of death.",
+    )
+    # TODO: Revisit this when we have support for multi-valued fields
+    cause_of_death_01 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_02 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_03 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_04 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_05 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_06 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_07 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_08 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_09 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_10 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_11 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_12 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_13 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_14 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
+    cause_of_death_15 = Series(
+        ICD10Code,
+        description="Medical condition mentioned on the death certificate.",
+    )
 
 
 @table

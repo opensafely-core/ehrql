@@ -10,7 +10,7 @@ and data curation purposes.
 import datetime
 
 from ehrql.codes import ICD10Code
-from ehrql.tables import Constraint, EventFrame, Series, table
+from ehrql.tables import EventFrame, Series, table
 
 
 __all__ = [
@@ -25,7 +25,6 @@ class ons_deaths_raw(EventFrame):
     Date and cause of death based on information recorded when deaths are
     certified and registered in England and Wales from February 2019 onwards.
     The data provider is the Office for National Statistics (ONS).
-    This table is updated approximately weekly in OpenSAFELY.
 
     This table includes the underlying cause of death and up to 15 medical conditions mentioned on the death certificate.
     These codes (`cause_of_death_01` to `cause_of_death_15`) are not ordered meaningfully.
@@ -36,8 +35,7 @@ class ons_deaths_raw(EventFrame):
     - [User guide to mortality statistics](https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/methodologies/userguidetomortalitystatisticsjuly2017)
     - [How death registrations are recorded and stored by ONS](https://www.ons.gov.uk/aboutus/transparencyandgovernance/freedomofinformationfoi/howdeathregistrationsarerecordedandstoredbyons)
 
-    In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
-    a small number of patients have multiple registered deaths.
+    In the associated database table a small number of patients have multiple registered deaths.
     This table contains all registered deaths.
     The `ehrql.tables.beta.ons_deaths` table contains the earliest registered death.
 
@@ -53,22 +51,6 @@ class ons_deaths_raw(EventFrame):
     date = Series(
         datetime.date,
         description=("Patient's date of death."),
-    )
-    place = Series(
-        str,
-        description="Patient's place of death.",
-        constraints=[
-            Constraint.Categorical(
-                [
-                    "Care Home",
-                    "Elsewhere",
-                    "Home",
-                    "Hospice",
-                    "Hospital",
-                    "Other communal establishment",
-                ]
-            ),
-        ],
     )
     underlying_cause_of_death = Series(ICD10Code)
     # TODO: Revisit this when we have support for multi-valued fields
