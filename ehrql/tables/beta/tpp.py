@@ -82,7 +82,14 @@ class addresses(EventFrame):
     )
     address_type = Series(
         int,
-        description="Type of address.",
+        description="""
+            Type of address:
+
+            * 0 - Permanent
+            * 1 - Temporary
+            * 3 - Correspondence only
+        """,
+        constraints=[Constraint.Categorical([0, 1, 3])],
     )
     rural_urban_classification = Series(
         int,
