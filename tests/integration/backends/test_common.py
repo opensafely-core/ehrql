@@ -46,7 +46,8 @@ def types_compatible(database, column_type, column_args):
         # MSSQL doesn't have a boolean type so we expect an int here
         if database.protocol == "mssql":
             return column_args["type"] == "int"
-        return column_args["type"] == "boolean"
+        # Current no non-mssql backends (i.e. emis) have boolean column types
+        return column_args["type"] == "boolean"  # pragma: no cover
     elif isinstance(column_type, sqlalchemy.Integer):
         return column_args["type"] in ("int", "bigint")
     elif isinstance(column_type, sqlalchemy.Float):
