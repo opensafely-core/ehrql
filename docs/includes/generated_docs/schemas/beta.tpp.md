@@ -108,8 +108,13 @@ Date patient moved out of address.
     <code>integer</code>
   </dt>
   <dd markdown="block">
-Type of address.
+Type of address:
 
+* 0 - Permanent
+* 1 - Temporary
+* 3 - Correspondence only
+
+ * Possible values: `0`, `1`, `3`
   </dd>
 </div>
 
@@ -641,6 +646,7 @@ The date the patient self presented at the accident & emergency department, or a
   <dd markdown="block">
 The core Healthcare Resource Group (HRG) code derived by sus+, used for tariff application.
 
+ * Matches regular expression: `[a-zA-Z]{2}[0-9]{2}[a-zA-Z]`
   </dd>
 </div>
 
@@ -1709,6 +1715,7 @@ An indication of whether a patient is making a first attendance or contact; or a
   <dd markdown="block">
 The Healthcare Resource Group (HRG) code assigned to the activity, used to assign baseline tariff costs.
 
+ * Matches regular expression: `[a-zA-Z]{2}[0-9]{2}[a-zA-Z]`
   </dd>
 </div>
 
