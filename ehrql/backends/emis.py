@@ -1,7 +1,8 @@
 import ehrql.tables.beta.core
+import ehrql.tables.beta.emis
 import ehrql.tables.beta.raw.core
 import ehrql.tables.beta.smoketest
-from ehrql.backends.base import MappedTable, SQLBackend
+from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
 
 
@@ -21,29 +22,50 @@ class EMISBackend(SQLBackend):
 
     display_name = "EMIS"
     query_engine_class = TrinoQueryEngine
-    patient_join_column = "patient_id"
+    patient_join_column = "registration_id"
     implements = [
         ehrql.tables.beta.core,
         ehrql.tables.beta.raw.core,
+        ehrql.tables.beta.emis,
         ehrql.tables.beta.smoketest,
     ]
 
-    patients = MappedTable(
-        source="patients",
-        columns=dict(
-            sex="sex",
-            date_of_birth="date_of_birth",
-            date_of_death="date_of_death",
+    patients = QueryTable(
+        """
+        SELECT
+            registration_id AS patient_id,
+            CASE
+                WHEN gender = 1 THEN 'male'
+                WHEN gender = 2 THEN 'female'
+                ELSE 'unknown'
+            END AS sex,
+            date_of_birth,
+            date_of_death
+        FROM patient_all_orgs_v2
+        WHERE registration_id NOT IN (
+            SELECT registration_id
+            FROM patient_all_orgs_v2
+            GROUP BY registration_id
+            HAVING COUNT(*) > 1
+        )
+        """,
+        implementation_notes=dict(
+            sex=(
+                "Sex as self-declared or observed. "
+                "See https://www.datadictionary.nhs.uk/attributes/person_gender_code.html"
+            ),
         ),
     )
 
-    clinical_events = MappedTable(
-        source="clinical_events",
-        columns=dict(
-            date="date",
-            snomedct_code="snomedct_code",
-            numeric_value="numeric_value",
-        ),
+    clinical_events = QueryTable(
+        """
+            SELECT
+                registration_id AS patient_id,
+                CAST(effective_date AS date) as date,
+                CAST(snomed_concept_id AS varchar) AS snomedct_code,
+                CAST(value_pq_1 AS real) AS numeric_value
+            FROM observation_all_orgs_v2
+        """
     )
 
     medications = MappedTable(

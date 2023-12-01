@@ -20,6 +20,17 @@ This schema defines the core tables and columns which should be available in any
 providing primary care data, allowing dataset definitions written using this schema to
 run across multiple backends.
 
+## [beta.emis](./beta.emis/)
+<small class="subtitle">
+  <a href="./beta.emis/"> view details → </a>
+</small>
+
+Available on backends: [**EMIS**](../backends#emis)
+
+This schema defines the data (both primary care and externally linked) available in the
+OpenSAFELY-EMIS backend. For more information about this backend, see
+"[EMIS Primary Care](https://docs.opensafely.org/data-sources/emis/)".
+
 ## [beta.raw.core](./beta.raw.core/)
 <small class="subtitle">
   <a href="./beta.raw.core/"> view details → </a>
