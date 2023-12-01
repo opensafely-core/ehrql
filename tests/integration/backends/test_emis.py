@@ -4,10 +4,12 @@ import sqlalchemy
 
 from ehrql.backends.emis import EMISBackend
 from ehrql.tables.beta import emis
+from ehrql.tables.beta.raw import emis as emis_raw
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
 from tests.lib.emis_schema import (
     MedicationAllOrgsV2,
     ObservationAllOrgsV2,
+    OnsView,
     PatientAllOrgsV2,
 )
 
@@ -133,6 +135,214 @@ def test_medications(select_all_emis):
             "date": date(2022, 1, 15),
             "dmd_code": "567",
         },
+    ]
+
+
+@register_test_for(emis.ons_deaths)
+def test_ons_deaths(select_all_emis):
+    results = select_all_emis(
+        PatientAllOrgsV2(registration_id="1", nhs_no="nhs1"),
+        PatientAllOrgsV2(registration_id="2", nhs_no="nhs2"),
+        PatientAllOrgsV2(registration_id="3", nhs_no="nhs3"),
+        # duplicate registration_id, patient omitted
+        PatientAllOrgsV2(registration_id="4", nhs_no="nhs4"),
+        PatientAllOrgsV2(registration_id="4", nhs_no="nhs4"),
+        OnsView(
+            pseudonhsnumber="nhs1",
+            upload_date="20230101",
+            reg_stat_dod="20220101",
+            icd10u="xyz",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        # older upload date, ignored
+        OnsView(
+            pseudonhsnumber="nhs1",
+            upload_date="20220101",
+            reg_stat_dod="20210101",
+            icd10u="wxy",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        # same patient, different date of death; earliest dod is selected
+        OnsView(
+            pseudonhsnumber="nhs2",
+            upload_date="20230101",
+            reg_stat_dod="20220101",
+            icd10u="xyz",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        OnsView(
+            pseudonhsnumber="nhs2",
+            upload_date="20230101",
+            reg_stat_dod="20220102",
+            icd10u="xyz",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        # same patient, same date of death; lexically smallest cause of death is selected
+        OnsView(
+            pseudonhsnumber="nhs3",
+            upload_date="20230101",
+            reg_stat_dod="20220101",
+            icd10u="abc",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        OnsView(
+            pseudonhsnumber="nhs3",
+            upload_date="20230101",
+            reg_stat_dod="20220101",
+            icd10u="xyz",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        # duplicate in patients table, excluded
+        OnsView(
+            pseudonhsnumber="nhs4",
+            upload_date="20230101",
+            reg_stat_dod="20220101",
+            icd10u="xyz",
+            icd10001="abc",
+            icd10002="def",
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": "1",
+            "date": date(2022, 1, 1),
+            "underlying_cause_of_death": "xyz",
+            "cause_of_death_01": "abc",
+            "cause_of_death_02": "def",
+            "cause_of_death_03": None,
+            "cause_of_death_04": None,
+            "cause_of_death_05": None,
+            "cause_of_death_06": None,
+            "cause_of_death_07": None,
+            "cause_of_death_08": None,
+            "cause_of_death_09": None,
+            "cause_of_death_10": None,
+            "cause_of_death_11": None,
+            "cause_of_death_12": None,
+            "cause_of_death_13": None,
+            "cause_of_death_14": None,
+            "cause_of_death_15": None,
+        },
+        {
+            "patient_id": "2",
+            "date": date(2022, 1, 1),
+            "underlying_cause_of_death": "xyz",
+            "cause_of_death_01": "abc",
+            "cause_of_death_02": "def",
+            "cause_of_death_03": None,
+            "cause_of_death_04": None,
+            "cause_of_death_05": None,
+            "cause_of_death_06": None,
+            "cause_of_death_07": None,
+            "cause_of_death_08": None,
+            "cause_of_death_09": None,
+            "cause_of_death_10": None,
+            "cause_of_death_11": None,
+            "cause_of_death_12": None,
+            "cause_of_death_13": None,
+            "cause_of_death_14": None,
+            "cause_of_death_15": None,
+        },
+        {
+            "patient_id": "3",
+            "date": date(2022, 1, 1),
+            "underlying_cause_of_death": "abc",
+            "cause_of_death_01": "abc",
+            "cause_of_death_02": "def",
+            "cause_of_death_03": None,
+            "cause_of_death_04": None,
+            "cause_of_death_05": None,
+            "cause_of_death_06": None,
+            "cause_of_death_07": None,
+            "cause_of_death_08": None,
+            "cause_of_death_09": None,
+            "cause_of_death_10": None,
+            "cause_of_death_11": None,
+            "cause_of_death_12": None,
+            "cause_of_death_13": None,
+            "cause_of_death_14": None,
+            "cause_of_death_15": None,
+        },
+    ]
+
+
+@register_test_for(emis_raw.ons_deaths)
+def test_ons_deaths_raw(select_all_emis):
+    results = select_all_emis(
+        PatientAllOrgsV2(registration_id="1", nhs_no="nhs1"),
+        PatientAllOrgsV2(registration_id="2", nhs_no="nhs2"),
+        PatientAllOrgsV2(registration_id="3", nhs_no="nhs3"),
+        # duplicate registration_id, patient omitted
+        PatientAllOrgsV2(registration_id="4", nhs_no="nhs4"),
+        PatientAllOrgsV2(registration_id="4", nhs_no="nhs4"),
+        OnsView(
+            pseudonhsnumber="nhs1",
+            upload_date="20230101",
+            reg_stat_dod="20220101",
+            icd10u="xyz",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        # older upload date, ignored
+        OnsView(
+            pseudonhsnumber="nhs1",
+            upload_date="20220101",
+            reg_stat_dod="20210101",
+            icd10u="wxy",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        # same patient, different date of death; earliest dod is selected
+        OnsView(
+            pseudonhsnumber="nhs2",
+            upload_date="20230101",
+            reg_stat_dod="20220101",
+            icd10u="xyz",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        OnsView(
+            pseudonhsnumber="nhs2",
+            upload_date="20230101",
+            reg_stat_dod="20220102",
+            icd10u="xyz",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        # same patient, same date of death; lexically smallest cause of death is selected
+        OnsView(
+            pseudonhsnumber="nhs3",
+            upload_date="20230101",
+            reg_stat_dod="20220101",
+            icd10u="abc",
+            icd10001="abc",
+            icd10002="def",
+        ),
+        OnsView(
+            pseudonhsnumber="nhs3",
+            upload_date="20230101",
+            reg_stat_dod="20220101",
+            icd10u="xyz",
+            icd10001="abc",
+            icd10002="def",
+        ),
+    )
+
+    # results include duplicates, but still omit earlier uploads and duplicate
+    # registrations
+    results_summary = [(result["patient_id"], result["date"]) for result in results]
+    assert results_summary == [
+        ("1", date(2022, 1, 1)),
+        ("2", date(2022, 1, 1)),
+        ("2", date(2022, 1, 2)),
+        ("3", date(2022, 1, 1)),
+        ("3", date(2022, 1, 1)),
     ]
 
 
