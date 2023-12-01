@@ -6,6 +6,7 @@ from ehrql.backends.emis import EMISBackend
 from ehrql.tables.beta import emis
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
 from tests.lib.emis_schema import (
+    MedicationAllOrgsV2,
     ObservationAllOrgsV2,
     PatientAllOrgsV2,
 )
@@ -101,6 +102,36 @@ def test_clinical_events(select_all_emis):
             "date": date(2022, 1, 15),
             "snomedct_code": "567",
             "numeric_value": None,
+        },
+    ]
+
+
+@register_test_for(emis.medications)
+def test_medications(select_all_emis):
+    results = select_all_emis(
+        PatientAllOrgsV2(registration_id="1"),
+        PatientAllOrgsV2(registration_id="2"),
+        MedicationAllOrgsV2(
+            registration_id="1",
+            effective_date=datetime(2020, 10, 20, 14, 30, 5),
+            snomed_concept_id=123,
+        ),
+        MedicationAllOrgsV2(
+            registration_id="2",
+            effective_date=datetime(2022, 1, 15, 12, 30, 5),
+            snomed_concept_id=567,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": "1",
+            "date": date(2020, 10, 20),
+            "dmd_code": "123",
+        },
+        {
+            "patient_id": "2",
+            "date": date(2022, 1, 15),
+            "dmd_code": "567",
         },
     ]
 

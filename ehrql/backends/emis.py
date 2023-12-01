@@ -59,21 +59,23 @@ class EMISBackend(SQLBackend):
 
     clinical_events = QueryTable(
         """
-            SELECT
-                registration_id AS patient_id,
-                CAST(effective_date AS date) as date,
-                CAST(snomed_concept_id AS varchar) AS snomedct_code,
-                CAST(value_pq_1 AS real) AS numeric_value
-            FROM observation_all_orgs_v2
+        SELECT
+            registration_id AS patient_id,
+            CAST(effective_date AS date) as date,
+            CAST(snomed_concept_id AS varchar) AS snomedct_code,
+            CAST(value_pq_1 AS real) AS numeric_value
+        FROM observation_all_orgs_v2
         """
     )
 
-    medications = MappedTable(
-        source="medications",
-        columns=dict(
-            date="date",
-            dmd_code="dmd_code",
-        ),
+    medications = QueryTable(
+        """
+        SELECT
+            registration_id AS patient_id,
+            CAST(effective_date AS date) as date,
+            CAST(snomed_concept_id AS varchar) AS dmd_code
+        FROM medication_all_orgs_v2
+        """
     )
 
     ons_deaths_raw = MappedTable(
