@@ -157,7 +157,7 @@ create-tpp-test-db: devenv
 connect-to-mssql:
     docker exec -i `[ -t 0 ] && echo '-t'` \
         ehrql-mssql \
-            /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!'
+            /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!' -d test
 
 # open an interactive trino shell
 connect-to-trino:
