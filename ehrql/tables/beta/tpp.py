@@ -615,6 +615,9 @@ class opa(EventFrame):
             "The Healthcare Resource Group (HRG) code assigned to the activity, "
             "used to assign baseline tariff costs."
         ),
+        # For the format of an HRG code, see:
+        # https://en.wikipedia.org/wiki/Healthcare_Resource_Group
+        constraints=[Constraint.Regex(r"[a-zA-Z]{2}[0-9]{2}[a-zA-Z]")],
     )
     treatment_function_code = Series(
         str,
