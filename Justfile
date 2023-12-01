@@ -151,9 +151,13 @@ remove-database-containers:
 create-tpp-test-db: devenv
     $BIN/python -m pytest -o python_functions=create tests/lib/create_tpp_test_db.py
 
-# open an interactive SQL Server shell running against MSSQL
+# Open an interactive SQL Server shell running against MSSQL.
+# Only pass '-t' argument to Docker if stdin is a TTY so you can pipe a SQL
+# file to this commmand as well as using it interactively.
 connect-to-mssql:
-    docker exec -it ehrql-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!'
+    docker exec -i `[ -t 0 ] && echo '-t'` \
+        ehrql-mssql \
+            /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_password123!' -d test
 
 # open an interactive trino shell
 connect-to-trino:
