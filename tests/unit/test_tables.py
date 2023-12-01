@@ -20,6 +20,7 @@ def test___all__(module):
 
 valid_examples_for_regex_constraints = [
     (tpp.addresses, "msoa_code", "E02012345"),
+    (tpp.ec, "sus_hrg_code", "AA00A"),
     (tpp.practice_registrations, "practice_stp", "E54000012"),
     (tpp.wl_clockstops, "activity_treatment_function_code", "AB1"),
     (tpp.wl_openpathways, "activity_treatment_function_code", "AB1"),
@@ -28,6 +29,7 @@ valid_examples_for_regex_constraints = [
 
 invalid_examples_for_regex_constraints = [
     (tpp.addresses, "msoa_code", "X02012345"),
+    (tpp.ec, "sus_hrg_code", "AA000A"),
     (tpp.practice_registrations, "practice_stp", "X54000012"),
     (tpp.wl_clockstops, "activity_treatment_function_code", "AB10"),
     (tpp.wl_openpathways, "activity_treatment_function_code", "AB10"),
