@@ -5,22 +5,25 @@ as provided by the OpenSAFELY backends.
 
 Within the NHS in England, it is usually assumed that
 a patient's current primary care record is complete:
-when a patient moves practice, their record moves with them.
+when a patient moves practice to another practice in England,
+their record moves with them.
+The electronic health records of patients transferring between practices in England
+should automatically get transferred via the GP2GP system.
 
-However, a given NHS data source may only cover a subset of patients in England:
-for example, only those included in a particular EHR vendor's database.
-Therefore, where a patient has moved to a practice outside the database,
-we may not be confident of any facts about the patient relating to that database:
+Known caveats are that:
 
-* Sometimes, patients will move practices within the same database.
-  For example, the new practice could use the same EHR software.
-  In that case, patient EHR data is completely transferred within the same database,
-  and we can still be confident about that information.
-* Researchers may wish to select patients
-  with a continuous registration over the time period of interest.
-  "Continuous registration" here means that
-  a patient did not change practices during the time period of interest.
+* not all data may be transferred; for example, appointment data
+* not all data may be available at once; for example, information on repeat prescriptions
+
+Refer to the [GP2GP site](https://digital.nhs.uk/services/gp2gp)
+and the [GP2GP Key Activities documentation (PDF)](https://digital.nhs.uk/binaries/content/assets/website-assets/services/gp2gp/gp2gp_key_activities_2017_v0_4.pdf)
+for further details of this transfer process.
 
 !!! note
+    Researchers using OpenSAFELY may wish to select patients
+    with a continuous registration.
+    "Continuous registration" here means that
+    a patient did not change practice during a time period of interest.
+
     For TPP,
     there is a [method to select patients with a continuous registration](../reference/schemas/beta.tpp.md#practice_registrations.has_a_continuous_practice_registration_spanning).
