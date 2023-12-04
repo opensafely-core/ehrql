@@ -5,9 +5,27 @@ import pytest
 import sqlalchemy
 
 from ehrql import Dataset
-from ehrql.query_language import PatientFrame, Series, table_from_file, table_from_rows
 from ehrql.query_model.nodes import Function, Value
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables import (
+    EventFrame,
+    PatientFrame,
+    Series,
+    table,
+    table_from_file,
+    table_from_rows,
+)
+
+
+@table
+class patients(PatientFrame):
+    date_of_birth = Series(date)
+    sex = Series(str)
+
+
+@table
+class events(EventFrame):
+    date = Series(date)
+    code = Series(str)
 
 
 def test_handles_degenerate_population(engine):
@@ -61,7 +79,7 @@ def test_handles_inline_patient_table(engine, tmp_path):
     )
 
     dataset.n = test_table.i + (test_table.i * 10)
-    dataset.age = patients.age_on(test_table.d)
+    dataset.age = (test_table.d - patients.date_of_birth).years
     dataset.s = test_table.s
 
     results = engine.extract(dataset)
@@ -115,7 +133,7 @@ def test_cleans_up_temporary_tables(engine):
 
     engine.populate(
         {
-            clinical_events: [
+            events: [
                 dict(patient_id=1, date=date(2000, 1, 1)),
                 dict(patient_id=1, date=date(2001, 1, 1)),
                 dict(patient_id=2, date=date(2002, 1, 1)),
@@ -134,8 +152,8 @@ def test_cleans_up_temporary_tables(engine):
         i = Series(int)
 
     dataset = Dataset()
-    dataset.define_population(clinical_events.exists_for_patient())
-    dataset.n = clinical_events.count_for_patient()
+    dataset.define_population(events.exists_for_patient())
+    dataset.n = events.count_for_patient()
     dataset.i = inline_table.i
 
     results = engine.extract(dataset)
@@ -193,24 +211,24 @@ def test_is_in_using_temporary_table(engine):
     # of values into temporary tables so we can exercise that code path
     engine.populate(
         {
-            clinical_events: [
+            events: [
                 # Patient 1
-                dict(patient_id=1, snomedct_code="123000"),
-                dict(patient_id=1, snomedct_code="456000"),
+                dict(patient_id=1, code="123000"),
+                dict(patient_id=1, code="456000"),
                 # Patient 2
-                dict(patient_id=2, snomedct_code="123001"),
-                dict(patient_id=2, snomedct_code="456001"),
-                dict(patient_id=2, snomedct_code="123002"),
+                dict(patient_id=2, code="123001"),
+                dict(patient_id=2, code="456001"),
+                dict(patient_id=2, code="123002"),
             ]
         }
     )
 
     dataset = Dataset()
-    dataset.define_population(clinical_events.exists_for_patient())
-    matching = clinical_events.snomedct_code.is_in(
+    dataset.define_population(events.exists_for_patient())
+    matching = events.code.is_in(
         ["123000", "123001", "123002", "123004"],
     )
-    dataset.n = clinical_events.where(matching).count_for_patient()
+    dataset.n = events.where(matching).count_for_patient()
 
     results = engine.extract(
         dataset,
