@@ -82,7 +82,14 @@ class addresses(EventFrame):
     )
     address_type = Series(
         int,
-        description="Type of address.",
+        description="""
+            Type of address:
+
+            * 0 - Permanent
+            * 1 - Temporary
+            * 3 - Correspondence only
+        """,
+        constraints=[Constraint.Categorical([0, 1, 3])],
     )
     rural_urban_classification = Series(
         int,
@@ -390,6 +397,9 @@ class ec(EventFrame):
             "The core Healthcare Resource Group (HRG) code derived by sus+, "
             "used for tariff application."
         ),
+        # For the format of an HRG code, see:
+        # https://en.wikipedia.org/wiki/Healthcare_Resource_Group
+        constraints=[Constraint.Regex(r"[a-zA-Z]{2}[0-9]{2}[a-zA-Z]")],
     )
 
 
@@ -612,6 +622,9 @@ class opa(EventFrame):
             "The Healthcare Resource Group (HRG) code assigned to the activity, "
             "used to assign baseline tariff costs."
         ),
+        # For the format of an HRG code, see:
+        # https://en.wikipedia.org/wiki/Healthcare_Resource_Group
+        constraints=[Constraint.Regex(r"[a-zA-Z]{2}[0-9]{2}[a-zA-Z]")],
     )
     treatment_function_code = Series(
         str,
