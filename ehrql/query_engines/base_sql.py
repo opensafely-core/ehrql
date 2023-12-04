@@ -40,6 +40,7 @@ from ehrql.utils.sqlalchemy_query_utils import (
     InsertMany,
     get_setup_and_cleanup_queries,
     is_predicate,
+    iterate_unique,
 )
 
 from .base import BaseQueryEngine
@@ -138,10 +139,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         TODO: Give backends a mechanism for marking certain tables as containing all
         available patient_ids. We could then use such tables if available rather than
-        messing aroud with UNIONS.
+        messing around with UNIONS.
         """
         # Get all the tables needed to evaluate the population expression
-        tables = sqlalchemy.select(population_expression).get_final_froms()
+        tables = get_patient_id_tables(population_expression)
         if len(tables) > 1:
             # Select all patient IDs from all tables referenced in the expression
             id_selects = [
@@ -970,3 +971,17 @@ def get_cyclic_coalescence(columns):
         return columns
     column_cycles = [[*columns[i:], *columns[:i]] for i in range(len_cols)]
     return [sqlalchemy.func.coalesce(*c) for c in column_cycles]
+
+
+def get_patient_id_tables(clause):
+    """
+    Return a list of all tables referenced in `clause` which have a `patient_id` column
+    """
+    tables = {}
+    for obj in iterate_unique(clause):
+        if isinstance(obj, sqlalchemy.ColumnClause):
+            if obj.table is not None and "patient_id" in obj.table.columns:
+                # Use a dict to collect only unique tables while retaining original
+                # order for consistent output
+                tables[obj.table] = None
+    return list(tables.keys())

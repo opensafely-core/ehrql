@@ -27,6 +27,7 @@ class patients(PatientFrame):
 class events(EventFrame):
     date = Series(date)
     code = Series(str)
+    i = Series(int)
 
 
 def test_handles_degenerate_population(engine):
@@ -273,3 +274,20 @@ def test_sqlalchemy_compilation_edge_case(engine):
         }
     )
     assert engine.extract(dataset) == []
+
+
+def test_population_is_correctly_evaluated_for_containment_queries(engine):
+    dataset = create_dataset()
+    # Patients which exist in the `events` table but not the `patients` table still need
+    # to be considered when evaluating the population condition
+    dataset.define_population(patients.count_for_patient().is_in(events.i))
+
+    engine.populate(
+        {
+            patients: [{"patient_id": 1}],
+            events: [{"patient_id": 2, "i": 0}],
+        }
+    )
+    assert engine.extract(dataset) == [
+        {"patient_id": 2},
+    ]
