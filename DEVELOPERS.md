@@ -119,11 +119,33 @@ You can get Hypothesis to dump statistics at the end of the run with `--hypothes
 or (more usefully) dump some of our own statistics about the generated data and queries by setting `GENTEST_DEBUG=t`.
 
 When debugging a failure you'll probably want to reproduce it.
+Hypothesis often struggles to shrink the examples it finds, and even
+small examples can appear overwhelmingly verbose due to the repetitive
+nature of query model reprs. To help with this there is some tooling,
+and a process to follow:
 
- * Hypothesis keeps some history and will _tend_ to re-run recent failure cases. So just re-running may be good enough.
- * The output from the failing test includes the examples in a form where they can be copy-pasted into the test code as arguments to a `@hyp.example()` decorator for the test.
-   (You'll need to add some imports to get it to run.) This allows you to get the failure case running in a debugger
-   (and also to get the example nicely formatted to help understand it).
+ * Copy the `population`, `variable` and `data` arguments from the
+   example that Hypothesis displays and paste them into a new file.
+   (Don't worry about stripping indentation or trailing commas here.)
+
+ * Run the command:
+   ```
+   just gentest-example-simplify PATH_TO_FILE.py
+   ```
+   This should transform the copied code into a valid test example and
+   pull out some of the repeated elements into variables.
+
+ * Run the command:
+   ```
+   just gentest-example-run PATH_TO_FILE.py
+   ```
+   This should execute the example and confirm that the test fails in
+   the expected way.
+
+ * To further simplify the example you can copy a repeated element,
+   assign it to a variable and then re-run `gentest-example-simplify` on
+   the file. This will replace occurances of that element with a
+   reference to the variable.
 
 Hypothesis can generate query graphs that are very deeply nested; after 100 draws in a test example, hypothesis will return the example as invalid.  In order to avoid this, the
 variable strategies check for a maximum depth and return a terminal node if the maximum depth is exceeded (A `SelectColumn` node for a series strategy, and a `SelectTable` or `SelectPatientTable` for a table strategy). The max depth defaults to 15 and can be overridden with environment variable `GENTEST_MAX_DEPTH`.

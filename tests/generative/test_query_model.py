@@ -1,4 +1,5 @@
 import datetime
+import importlib
 import os
 from pathlib import Path
 
@@ -250,6 +251,30 @@ def run_serializer_test(population, variable):
 # The below are all "meta tests" i.e. they are tests which check that our testing
 # machinery is doing what we think it's doing and covering all the things we want it to
 # cover
+
+
+def test_query_model_example_file(query_engines, recorder):
+    # This test exists so that we can run examples from arbitrary files (by setting the
+    # GENTEST_EXAMPLE_FILE env var) which is useful when digging into a new gentest
+    # failure. Just to make sure that the machinery keeps working we default to running
+    # the test against a tiny example file.
+    filename = os.environ.get(
+        "GENTEST_EXAMPLE_FILE", Path(__file__).parent / "example.py"
+    )
+    example = load_module(Path(filename))
+    test_func = test_query_model.hypothesis.inner_test
+    test_func(
+        query_engines, example.population, example.variable, example.data, recorder
+    )
+
+
+def load_module(module_path):
+    # Taken from the official recipe for importing a module from a file path:
+    # https://docs.python.org/3.9/library/importlib.html#importing-a-source-file-directly
+    spec = importlib.util.spec_from_file_location(module_path.stem, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 # Ensure that we don't add new query model nodes without adding an appropriate strategy
