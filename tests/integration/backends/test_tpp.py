@@ -7,7 +7,7 @@ import sqlalchemy
 from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
 from ehrql.query_engines.mssql_dialect import SelectStarInto
-from ehrql.query_language import compile, get_tables_from_namespace
+from ehrql.query_language import compile
 from ehrql.tables.beta import tpp
 from ehrql.tables.beta.raw import tpp as tpp_raw
 from tests.lib.tpp_schema import (
@@ -49,92 +49,17 @@ from tests.lib.tpp_schema import (
     WL_OpenPathways,
 )
 
-
-REGISTERED_TABLES = set()
-
-
-# This slightly odd way of supplying the table object to the test function makes the
-# tests introspectable in such a way that we can confirm that every table in the module
-# is covered by a test
-def register_test_for(table):
-    def annotate_test_function(fn):
-        REGISTERED_TABLES.add(table)
-        fn._table = table
-        return fn
-
-    return annotate_test_function
-
-
-@pytest.fixture
-def select_all(request, mssql_database):
-    try:
-        ql_table = request.function._table
-    except AttributeError:  # pragma: no cover
-        raise RuntimeError(
-            f"Function '{request.function.__name__}' needs the "
-            f"`@register_test_for(table)` decorator applied"
-        )
-
-    qm_table = ql_table._qm_node
-    backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
-    sql_table = backend.get_table_expression(qm_table.name, qm_table.schema)
-    columns = [
-        # Using `type_coerce(..., None)` like this strips the type information from the
-        # SQLAlchemy column meaning we get back the type that the column actually is in
-        # database, not the type we've told SQLAlchemy it is.
-        sqlalchemy.type_coerce(column, None).label(column.key)
-        for column in sql_table.columns
-    ]
-    select_all_query = sqlalchemy.select(*columns)
-
-    def _select_all(*input_data):
-        mssql_database.setup(*input_data)
-        with mssql_database.engine().connect() as connection:
-            results = connection.execute(select_all_query)
-            return [row._asdict() for row in results]
-
-    return _select_all
+from .helpers import (
+    assert_tests_exhaustive,
+    assert_types_correct,
+    get_all_backend_columns,
+    register_test_for,
+)
 
 
 def test_backend_columns_have_correct_types(mssql_database):
     columns_with_types = get_all_backend_columns_with_types(mssql_database)
-    mismatched = [
-        f"{table}.{column} expects {column_type!r} but got {column_args!r}"
-        for table, column, column_type, column_args in columns_with_types
-        if not types_compatible(column_type, column_args)
-    ]
-    nl = "\n"
-    assert not mismatched, (
-        f"Mismatch between columns returned by backend queries"
-        f" queries and those expected:\n{nl.join(mismatched)}\n\n"
-    )
-
-
-def types_compatible(column_type, column_args):
-    """
-    Is this given SQLAlchemy type instance compatible with the supplied dictionary of
-    column arguments?
-    """
-    # It seems we use this sometimes for the patient ID column where we don't care what
-    # type it is
-    if isinstance(column_type, sqlalchemy.sql.sqltypes.NullType):
-        return True
-    elif isinstance(column_type, sqlalchemy.Boolean):
-        # MSSQL doesn't have a boolean type so we expect an int here
-        return column_args["type"] == "int"
-    elif isinstance(column_type, sqlalchemy.Integer):
-        return column_args["type"] in ("int", "bigint")
-    elif isinstance(column_type, sqlalchemy.Float):
-        return column_args["type"] == "real"
-    elif isinstance(column_type, sqlalchemy.Date):
-        return column_args["type"] == "date"
-    elif isinstance(column_type, sqlalchemy.String):
-        return (
-            column_args["type"] == "varchar"
-            and column_args["collation"] == column_type.collation
-        )
-    else:
-        assert False, f"Unhandled type: {column_type}"
+    assert_types_correct(columns_with_types, mssql_database)
 
 
 def get_all_backend_columns_with_types(mssql_database):
@@ -146,7 +71,8 @@ def get_all_backend_columns_with_types(mssql_database):
     table_names = set()
     column_types = {}
     queries = []
-    for table, columns in get_all_backend_columns():
+    backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
+    for table, columns in get_all_backend_columns(backend):
         table_names.add(table)
         column_types.update({(table, c.key): c.type for c in columns})
         # Construct a query which selects every column in the table
@@ -192,17 +118,9 @@ def get_all_backend_columns_with_types(mssql_database):
         yield table, column, column_type, column_args
 
 
-def get_all_backend_columns():
-    backend = TPPBackend(config={"TEMP_DATABASE_NAME": "temp_tables"})
-    for _, table in get_all_tables():
-        qm_table = table._qm_node
-        table_expr = backend.get_table_expression(qm_table.name, qm_table.schema)
-        yield qm_table.name, table_expr.columns
-
-
 @register_test_for(tpp.addresses)
-def test_addresses(select_all):
-    results = select_all(
+def test_addresses(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         PatientAddress(
             Patient_ID=1,
@@ -311,8 +229,8 @@ def test_addresses(select_all):
 
 
 @register_test_for(tpp.apcs)
-def test_apcs(select_all):
-    results = select_all(
+def test_apcs(select_all_tpp):
+    results = select_all_tpp(
         APCS(
             Patient_ID=1,
             APCS_Ident=1,
@@ -333,8 +251,8 @@ def test_apcs(select_all):
 
 
 @register_test_for(tpp.apcs_cost)
-def test_apcs_cost(select_all):
-    results = select_all(
+def test_apcs_cost(select_all_tpp):
+    results = select_all_tpp(
         APCS(
             APCS_Ident=1,
             Admission_Date=date(2023, 1, 1),
@@ -362,8 +280,8 @@ def test_apcs_cost(select_all):
 
 
 @register_test_for(tpp_raw.apcs_historical)
-def test_apcs_historical(select_all):
-    results = select_all(
+def test_apcs_historical(select_all_tpp):
+    results = select_all_tpp(
         APCS_JRC20231009_LastFilesToContainAllHistoricalCostData(
             Patient_ID=1,
             APCS_Ident=1,
@@ -384,8 +302,8 @@ def test_apcs_historical(select_all):
 
 
 @register_test_for(tpp_raw.apcs_cost_historical)
-def test_apcs_cost_historical(select_all):
-    results = select_all(
+def test_apcs_cost_historical(select_all_tpp):
+    results = select_all_tpp(
         APCS_JRC20231009_LastFilesToContainAllHistoricalCostData(
             APCS_Ident=1,
             Admission_Date=date(2023, 1, 1),
@@ -413,8 +331,8 @@ def test_apcs_cost_historical(select_all):
 
 
 @register_test_for(tpp.appointments)
-def test_appointments(select_all):
-    results = select_all(
+def test_appointments(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         Appointment(
             Patient_ID=1,
@@ -506,8 +424,8 @@ def test_appointments(select_all):
 
 
 @register_test_for(tpp.clinical_events)
-def test_clinical_events(select_all):
-    results = select_all(
+def test_clinical_events(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         CodedEvent(
             Patient_ID=1,
@@ -554,8 +472,8 @@ def test_clinical_events(select_all):
 
 
 @register_test_for(tpp.ec)
-def test_ec(select_all):
-    results = select_all(
+def test_ec(select_all_tpp):
+    results = select_all_tpp(
         EC(
             Patient_ID=1,
             EC_Ident=1,
@@ -574,8 +492,8 @@ def test_ec(select_all):
 
 
 @register_test_for(tpp.ec_cost)
-def test_ec_cost(select_all):
-    results = select_all(
+def test_ec_cost(select_all_tpp):
+    results = select_all_tpp(
         EC(
             EC_Ident=1,
             Arrival_Date=date(2023, 1, 2),
@@ -603,8 +521,8 @@ def test_ec_cost(select_all):
 
 
 @register_test_for(tpp.emergency_care_attendances)
-def test_emergency_care_attendances(select_all):
-    results = select_all(
+def test_emergency_care_attendances(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         EC(
             Patient_ID=1,
@@ -629,8 +547,8 @@ def test_emergency_care_attendances(select_all):
 
 
 @register_test_for(tpp.ethnicity_from_sus)
-def test_ethnicity_from_sus(select_all):
-    results = select_all(
+def test_ethnicity_from_sus(select_all_tpp):
+    results = select_all_tpp(
         # patient 1; Z is ignored; A and B (ignoring the second (optional local code)
         # characterare equally common; B is selected as it is lexically > A
         # The EC table's Ethnic Category is national group only (1 character)
@@ -675,8 +593,8 @@ def test_ethnicity_from_sus(select_all):
 
 
 @register_test_for(tpp.hospital_admissions)
-def test_hospital_admissions(select_all):
-    results = select_all(
+def test_hospital_admissions(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         APCS(
             Patient_ID=1,
@@ -710,8 +628,8 @@ def test_hospital_admissions(select_all):
 
 
 @register_test_for(tpp.household_memberships_2020)
-def test_household_memberships_2020(select_all):
-    results = select_all(
+def test_household_memberships_2020(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         Household(
             Household_ID=123,
@@ -732,7 +650,7 @@ def test_household_memberships_2020(select_all):
 
 
 @register_test_for(tpp_raw.isaric)
-def test_isaric_raw_dates(select_all):
+def test_isaric_raw_dates(select_all_tpp):
     isaric_patient_keys = frozenset(tpp_raw.isaric._qm_node.schema.column_names)
 
     # Test date extraction with all valid date strings.
@@ -793,7 +711,7 @@ def test_isaric_raw_dates(select_all):
         "hostdat": date(2022, 1, 7),
         "dsstdat": date(2022, 1, 5),
     }
-    results = select_all(
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         Patient(Patient_ID=2),
         Patient(Patient_ID=3),
@@ -815,7 +733,7 @@ def test_isaric_raw_dates(select_all):
 
 
 @register_test_for(tpp_raw.isaric)
-def test_isaric_raw_clinical_variables(select_all):
+def test_isaric_raw_clinical_variables(select_all_tpp):
     isaric_patient_keys = frozenset(tpp_raw.isaric._qm_node.schema.column_names)
 
     patient_1 = dict.fromkeys(isaric_patient_keys, None)
@@ -1088,7 +1006,7 @@ def test_isaric_raw_clinical_variables(select_all):
         "diabetes_type_mhyn": "N/K",
         "smoking_mhyn": "N/K",
     }
-    results = select_all(
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         Patient(Patient_ID=2),
         Patient(Patient_ID=3),
@@ -1140,8 +1058,8 @@ def test_isaric_raw_clinical_variables(select_all):
 
 
 @register_test_for(tpp.medications)
-def test_medications(select_all):
-    results = select_all(
+def test_medications(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         # MedicationIssue.MultilexDrug_ID found in MedicationDictionary only
         MedicationDictionary(MultilexDrug_ID="0;0;0", DMD_ID="100000"),
@@ -1214,8 +1132,8 @@ def test_medications(select_all):
 
 
 @register_test_for(tpp.occupation_on_covid_vaccine_record)
-def test_occupation_on_covid_vaccine_record(select_all):
-    results = select_all(
+def test_occupation_on_covid_vaccine_record(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         HealthCareWorker(Patient_ID=1),
     )
@@ -1223,8 +1141,8 @@ def test_occupation_on_covid_vaccine_record(select_all):
 
 
 @register_test_for(tpp_raw.ons_deaths)
-def test_ons_deaths_raw(select_all):
-    results = select_all(
+def test_ons_deaths_raw(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         ONS_Deaths(
             Patient_ID=1,
@@ -1250,8 +1168,8 @@ def test_ons_deaths_raw(select_all):
 
 
 @register_test_for(tpp.ons_deaths)
-def test_ons_deaths(select_all):
-    results = select_all(
+def test_ons_deaths(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         Patient(Patient_ID=2),
         Patient(Patient_ID=3),
@@ -1334,8 +1252,8 @@ def test_ons_deaths(select_all):
 
 
 @register_test_for(tpp.opa)
-def test_opa(select_all):
-    results = select_all(
+def test_opa(select_all_tpp):
+    results = select_all_tpp(
         OPA(
             Patient_ID=1,
             OPA_Ident=1,
@@ -1362,8 +1280,8 @@ def test_opa(select_all):
 
 
 @register_test_for(tpp.opa_cost)
-def test_opa_cost(select_all):
-    results = select_all(
+def test_opa_cost(select_all_tpp):
+    results = select_all_tpp(
         OPA(
             OPA_Ident=1,
             Appointment_Date=date(2023, 2, 1),
@@ -1391,8 +1309,8 @@ def test_opa_cost(select_all):
 
 
 @register_test_for(tpp.opa_diag)
-def test_opa_diag(select_all):
-    results = select_all(
+def test_opa_diag(select_all_tpp):
+    results = select_all_tpp(
         OPA(
             OPA_Ident=1,
             Appointment_Date=date(2023, 2, 1),
@@ -1422,8 +1340,8 @@ def test_opa_diag(select_all):
 
 
 @register_test_for(tpp.opa_proc)
-def test_opa_proc(select_all):
-    results = select_all(
+def test_opa_proc(select_all_tpp):
+    results = select_all_tpp(
         OPA(
             OPA_Ident=1,
             Appointment_Date=date(2023, 2, 1),
@@ -1453,8 +1371,8 @@ def test_opa_proc(select_all):
 
 
 @register_test_for(tpp.open_prompt)
-def test_open_prompt(select_all):
-    results = select_all(
+def test_open_prompt(select_all_tpp):
+    results = select_all_tpp(
         OpenPROMPT(
             Patient_ID=1,
             CTV3Code="X0000",
@@ -1501,8 +1419,8 @@ def test_open_prompt(select_all):
 
 
 @register_test_for(tpp.patients)
-def test_patients(select_all):
-    results = select_all(
+def test_patients(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1, DateOfBirth="2020-01-01", Sex="M"),
         Patient(Patient_ID=2, DateOfBirth="2020-01-01", Sex="F"),
         Patient(Patient_ID=3, DateOfBirth="2020-01-01", Sex="I"),
@@ -1562,8 +1480,8 @@ def test_patients(select_all):
 
 
 @register_test_for(tpp.practice_registrations)
-def test_practice_registrations(select_all):
-    results = select_all(
+def test_practice_registrations(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         Organisation(Organisation_ID=2, STPCode="abc", Region="def"),
         Organisation(Organisation_ID=3, STPCode="", Region=""),
@@ -1601,8 +1519,8 @@ def test_practice_registrations(select_all):
 
 
 @register_test_for(tpp.sgss_covid_all_tests)
-def test_sgss_covid_all_tests(select_all):
-    results = select_all(
+def test_sgss_covid_all_tests(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         SGSS_AllTests_Positive(
             Patient_ID=1,
@@ -1680,8 +1598,8 @@ def test_sgss_covid_all_tests(select_all):
 
 
 @register_test_for(tpp.vaccinations)
-def test_vaccinations(select_all):
-    results = select_all(
+def test_vaccinations(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         VaccinationReference(VaccinationName_ID=10, VaccinationContent="foo"),
         VaccinationReference(VaccinationName_ID=10, VaccinationContent="bar"),
@@ -1720,8 +1638,8 @@ def to_hex(bytes_):
 
 
 @register_test_for(tpp_raw.wl_clockstops)
-def test_wl_clockstops_raw(select_all):
-    results = select_all(
+def test_wl_clockstops_raw(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         WL_ClockStops(
             Patient_ID=1,
@@ -1759,8 +1677,8 @@ def test_wl_clockstops_raw(select_all):
 
 
 @register_test_for(tpp.wl_clockstops)
-def test_wl_clockstops(select_all):
-    results = select_all(
+def test_wl_clockstops(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         WL_ClockStops(
             Patient_ID=1,
@@ -1798,8 +1716,8 @@ def test_wl_clockstops(select_all):
 
 
 @register_test_for(tpp_raw.wl_openpathways)
-def test_wl_openpathways_raw(select_all):
-    results = select_all(
+def test_wl_openpathways_raw(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         WL_OpenPathways(
             Patient_ID=1,
@@ -1839,8 +1757,8 @@ def test_wl_openpathways_raw(select_all):
 
 
 @register_test_for(tpp.wl_openpathways)
-def test_wl_openpathways(select_all):
-    results = select_all(
+def test_wl_openpathways(select_all_tpp):
+    results = select_all_tpp(
         Patient(Patient_ID=1),
         WL_OpenPathways(
             Patient_ID=1,
@@ -1880,16 +1798,7 @@ def test_wl_openpathways(select_all):
 
 
 def test_registered_tests_are_exhaustive():
-    missing = [
-        name for name, table in get_all_tables() if table not in REGISTERED_TABLES
-    ]
-    assert not missing, f"No tests for tables: {', '.join(missing)}"
-
-
-def get_all_tables():
-    for module in [tpp, tpp_raw]:
-        for name, table in get_tables_from_namespace(module):
-            yield f"{module.__name__}.{name}", table
+    assert_tests_exhaustive(TPPBackend())
 
 
 # Where queries involve joins with temporary tables on string columns we need to ensure
