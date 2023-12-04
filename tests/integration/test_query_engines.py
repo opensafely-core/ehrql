@@ -4,7 +4,7 @@ from datetime import date
 import pytest
 import sqlalchemy
 
-from ehrql import Dataset
+from ehrql import create_dataset
 from ehrql.query_model.nodes import Function, Value
 from ehrql.tables import (
     EventFrame,
@@ -73,7 +73,7 @@ def test_handles_inline_patient_table(engine, tmp_path):
         s = Series(str)
         d = Series(date)
 
-    dataset = Dataset()
+    dataset = create_dataset()
     dataset.define_population(
         patients.exists_for_patient() & test_table.exists_for_patient()
     )
@@ -112,7 +112,7 @@ def test_handles_inline_patient_table_with_different_patients(engine):
     class test_table(PatientFrame):
         i = Series(int)
 
-    dataset = Dataset()
+    dataset = create_dataset()
     dataset.define_population(test_table.exists_for_patient())
     dataset.n = test_table.i + 100
     dataset.sex = patients.sex
@@ -151,7 +151,7 @@ def test_cleans_up_temporary_tables(engine):
     class inline_table(PatientFrame):
         i = Series(int)
 
-    dataset = Dataset()
+    dataset = create_dataset()
     dataset.define_population(events.exists_for_patient())
     dataset.n = events.count_for_patient()
     dataset.i = inline_table.i
@@ -223,7 +223,7 @@ def test_is_in_using_temporary_table(engine):
         }
     )
 
-    dataset = Dataset()
+    dataset = create_dataset()
     dataset.define_population(events.exists_for_patient())
     matching = events.code.is_in(
         ["123000", "123001", "123002", "123004"],
