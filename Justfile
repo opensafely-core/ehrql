@@ -229,6 +229,11 @@ test-generative *ARGS: devenv
     $BIN/python -m pytest --doctest-modules ehrql
     [[ -v CI ]]  && echo "::endgroup::" || echo ""
 
+# Take a raw failing example from Hypothesis's output and transform it into
+# something valid and tractable
+gentest-example-simplify *ARGS: devenv
+    $BIN/python -m tests.lib.gentest_example_simplify {{ ARGS }}
+
 generate-docs OUTPUT_DIR="docs/includes/generated_docs": devenv
     $BIN/python -m ehrql.docs {{ OUTPUT_DIR }}
     echo "Generated data for documentation in {{ OUTPUT_DIR }}"
