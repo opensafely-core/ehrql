@@ -20,6 +20,7 @@ from ehrql.tables import (
 class patients(PatientFrame):
     date_of_birth = Series(date)
     sex = Series(str)
+    i = Series(int)
 
 
 @table
@@ -243,3 +244,32 @@ def test_is_in_using_temporary_table(engine):
 
 def as_query_model(query_lang_expr):
     return query_lang_expr._qm_node
+
+
+def test_sqlalchemy_compilation_edge_case(engine):
+    # This tests an edge case in the interaction of SQLAlchemy's `replacement_traverse`
+    # function and our approach to query building. By default, `replacement_traverse`
+    # clones the objects it walks over, unless they belong to the class of immutable
+    # objects such as Tables. CTEs act a bit like tables, but are not immutable. This
+    # means its possible to construct a sequence of queries at the end of which we have
+    # duplicated clones of the same CTE. When we attempt to execute the query we get an
+    # error like:
+    #
+    #     sqlalchemy.exc.CompileError: Multiple, unrelated CTEs found with the same name: 'cte_1'
+    #
+    # Naturally, this was discovered by the gentests. Below is the simplest example I
+    # can construct which triggers the bug.
+
+    dataset = create_dataset()
+    # Weird as it seems, we need at least three references below to create the
+    # problematic sort of object graph.
+    dataset.define_population(patients.i + patients.i + patients.i == 0)
+    dataset.has_event = events.exists_for_patient()
+
+    engine.populate(
+        {
+            patients: [{"patient_id": 1}],
+            events: [{"patient_id": 1}],
+        }
+    )
+    assert engine.extract(dataset) == []
