@@ -341,7 +341,8 @@ wl_openpathways = table(wl_openpathways_raw)
 
 @table
 class apcs_historical(EventFrame):
-    """This table contains some historical APCS data.
+    """
+    This table contains some historical APCS data.
 
     It has been exposed to users for data exploration, and may be removed in future.
     """
@@ -363,7 +364,8 @@ class apcs_historical(EventFrame):
 
 @table
 class apcs_cost_historical(EventFrame):
-    """This table contains some historical APCS cost data.
+    """
+    This table contains some historical APCS cost data.
 
     It has been exposed to users for data exploration, and may be removed in future.
     """
