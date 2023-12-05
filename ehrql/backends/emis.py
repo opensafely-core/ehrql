@@ -1,3 +1,5 @@
+import sqlalchemy
+
 import ehrql.tables.beta.core
 import ehrql.tables.beta.emis
 import ehrql.tables.beta.raw.core
@@ -29,6 +31,24 @@ class EMISBackend(SQLBackend):
         ehrql.tables.beta.emis,
         ehrql.tables.beta.smoketest,
     ]
+
+    def modify_inline_table_args(self, columns, rows):
+        emis_org_hash = self.config.get(
+            "EMIS_ORGANISATION_HASH", "emis_organisation_hash"
+        )
+        org_column = sqlalchemy.literal(emis_org_hash, type_=sqlalchemy.VARCHAR).label(
+            "hashed_organisation"
+        )
+
+        columns.append(
+            sqlalchemy.Column(
+                name=org_column.name,
+                type_=org_column.type,
+                key=org_column.key,
+            )
+        )
+        rows = tuple((*row, emis_org_hash) for row in rows)
+        return columns, rows
 
     patients = QueryTable(
         """

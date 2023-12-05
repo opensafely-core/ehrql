@@ -29,6 +29,12 @@ class BaseBackend:
         """
         return variables
 
+    def modify_inline_table_args(self, columns, rows):
+        """
+        This hook gives backends the option to modify inline table arguments
+        """
+        return columns, rows
+
 
 class SQLBackend(BaseBackend):
     query_engine_class = None

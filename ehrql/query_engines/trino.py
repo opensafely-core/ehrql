@@ -121,6 +121,7 @@ class TrinoQueryEngine(BaseSQLQueryEngine):
         # a new persistent table and drop it in the cleanup
         # queries
         table_name = f"ehrql_{self.global_unique_id}_inline_data_{self.get_next_id()}"
+        columns, rows = self.backend.modify_inline_table_args(columns, rows)
         table = GeneratedTable(
             table_name,
             sqlalchemy.MetaData(),
