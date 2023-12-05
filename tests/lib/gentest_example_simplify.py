@@ -44,10 +44,10 @@ TABLE_TYPES = SelectTable | SelectPatientTable | InlinePatientTable
 VARIABLE_NAMES = ["population", "variable", "data"]
 
 
-def main(filename, inplace=False):  # pragma: no cover
+def main(filename, output=False):  # pragma: no cover
     contents = filename.read_text()
     code = simplify(contents)
-    if inplace:
+    if not output:
         filename.write_text(code)
         return ""
     else:
@@ -221,10 +221,11 @@ if __name__ == "__main__":
         help="Path to a Python file containing a generative test example",
     )
     parser.add_argument(
-        "-i,--inplace",
-        dest="inplace",
+        "-o",
+        "--output",
+        dest="output",
         action="store_true",
-        help="Update the file in-place",
+        help="Write file to stdout instead of updating it in-place",
     )
     args = parser.parse_args()
     output = main(**vars(args))
