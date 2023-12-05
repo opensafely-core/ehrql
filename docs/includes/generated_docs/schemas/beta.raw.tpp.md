@@ -26,7 +26,7 @@ from ehrql.tables.beta.raw.tpp import (
 
 This table contains some historical APCS cost data.
 
-    It has been exposed to users for data exploration, and may be removed in future.
+It has been exposed to users for data exploration, and may be removed in future.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -112,7 +112,7 @@ This table contains some historical APCS cost data.
 
 This table contains some historical APCS data.
 
-    It has been exposed to users for data exploration, and may be removed in future.
+It has been exposed to users for data exploration, and may be removed in future.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
