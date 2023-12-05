@@ -127,6 +127,13 @@ def test_dataset_accepts_valid_variable_names(name):
     setattr(Dataset(), name, patients.i)
 
 
+def test_add_column():
+    dataset = Dataset()
+    dataset.add_column("foo", patients.i)
+    variables = list(compile(dataset).keys())
+    assert variables == ["foo"]
+
+
 @pytest.mark.parametrize(
     "variable_name,error",
     [
