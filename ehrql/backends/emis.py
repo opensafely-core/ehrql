@@ -25,6 +25,7 @@ class EMISBackend(SQLBackend):
     display_name = "EMIS"
     query_engine_class = TrinoQueryEngine
     patient_join_column = "registration_id"
+    patient_join_column_type = str
     implements = [
         ehrql.tables.beta.core,
         ehrql.tables.beta.raw.core,

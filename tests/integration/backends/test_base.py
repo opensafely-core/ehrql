@@ -28,6 +28,7 @@ class BackendFixture(SQLBackend):
     display_name = "Backend Fixture"
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "patient_id"
+    patient_join_column_type = int
 
     # Define a table whose name and column names don't match the user-facing schema
     patients = MappedTable(

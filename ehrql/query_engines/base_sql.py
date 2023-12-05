@@ -664,7 +664,9 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_table_inline_patient_table(self, node):
         # All tables have an implied `patient_id` column which is not explicitly
         # included in the schema
-        column_types = [("patient_id", int)] + node.schema.column_types
+        column_types = [
+            ("patient_id", self.backend.patient_join_column_type)
+        ] + node.schema.column_types
         columns = [
             sqlalchemy.Column(name, **self.column_kwargs_for_type(col_type))
             for name, col_type in column_types

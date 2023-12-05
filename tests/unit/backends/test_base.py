@@ -19,6 +19,7 @@ class BackendFixture(SQLBackend):
     display_name = "Backend Fixture"
     query_engine_class = BaseSQLQueryEngine
     patient_join_column = "PatientId"
+    patient_join_column_type = int
 
     patients = MappedTable(
         source="Patient",
@@ -126,6 +127,8 @@ def test_backend_definition_is_allowed_extra_tables_and_columns():
         display_name = "Backend Fixture"
         query_engine_class = BaseSQLQueryEngine
         patient_join_column = "patient_id"
+        patient_join_column_type = int
+
         implements = [Schema]
 
         patients = MappedTable(
@@ -145,6 +148,8 @@ def test_backend_definition_accepts_query_table():
         display_name = "Backend Fixture"
         query_engine_class = BaseSQLQueryEngine
         patient_join_column = "patient_id"
+        patient_join_column_type = int
+
         implements = [Schema]
 
         patients = QueryTable(
@@ -161,6 +166,8 @@ def test_backend_definition_fails_if_missing_tables():
             display_name = "Backend Fixture"
             query_engine_class = BaseSQLQueryEngine
             patient_join_column = "patient_id"
+            patient_join_column_type = int
+
             implements = [Schema]
 
             events = MappedTable(
@@ -176,6 +183,8 @@ def test_backend_definition_fails_if_missing_column():
             display_name = "Backend Fixture"
             query_engine_class = BaseSQLQueryEngine
             patient_join_column = "patient_id"
+            patient_join_column_type = int
+
             implements = [Schema]
 
             patients = MappedTable(
@@ -191,6 +200,8 @@ def test_backend_definition_fails_if_query_table_missing_columns():
             display_name = "Backend Fixture"
             query_engine_class = BaseSQLQueryEngine
             patient_join_column = "patient_id"
+            patient_join_column_type = int
+
             implements = [Schema]
 
             patients = QueryTable(

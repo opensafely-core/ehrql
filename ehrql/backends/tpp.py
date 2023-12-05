@@ -46,6 +46,7 @@ class TPPBackend(SQLBackend):
     display_name = "TPP"
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
+    patient_join_column_type = int
     implements = [
         ehrql.tables.beta.core,
         ehrql.tables.beta.raw.core,

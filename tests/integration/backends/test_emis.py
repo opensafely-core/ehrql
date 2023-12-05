@@ -164,8 +164,8 @@ def test_inline_table_includes_organisation_hash(trino_database):
     # "hashed_organisation", where every row values is the value of the
     # EMIS_ORGANISATION_HASH environment variable
     trino_database.setup(
-        PatientAllOrgsV2(registration_id="1", date_of_birth=date(2020, 1, 1)),
-        PatientAllOrgsV2(registration_id="2", date_of_birth=date(2020, 1, 1)),
+        PatientAllOrgsV2(registration_id="123abc", date_of_birth=date(2020, 1, 1)),
+        PatientAllOrgsV2(registration_id="234abc", date_of_birth=date(2020, 1, 1)),
     )
 
     # Note that currently inline data tables always make patient_id an integer
@@ -175,8 +175,8 @@ def test_inline_table_includes_organisation_hash(trino_database):
     # later
     # https://github.com/opensafely-core/ehrql/issues/743
     inline_data = [
-        (1, 100),
-        (2, 200),
+        ("123abc", 100),
+        ("234abc", 200),
     ]
 
     @table_from_rows(inline_data)
@@ -212,7 +212,7 @@ def test_inline_table_includes_organisation_hash(trino_database):
             sqlalchemy.text(f"SHOW COLUMNS FROM {inline_table.name}")
         ).fetchall()
         assert column_info == [
-            ("patient_id", "integer", "", ""),
+            ("patient_id", "varchar", "", ""),
             ("n", "integer", "", ""),
             ("hashed_organisation", "varchar", "", ""),
         ]
@@ -220,15 +220,15 @@ def test_inline_table_includes_organisation_hash(trino_database):
             sqlalchemy.text(f"select * from {inline_table.name}")
         ).fetchall()
         assert sorted(all_inline_results) == [
-            (1, 100, "emis_organisation_hash"),
-            (2, 200, "emis_organisation_hash"),
+            ("123abc", 100, "emis_organisation_hash"),
+            ("234abc", 200, "emis_organisation_hash"),
         ]
 
         for cleanup_query in cleanup_queries:
             connection.execute(cleanup_query)
 
     results = query_engine.get_results(variables)
-    assert sorted(results) == [(1, 100), (2, 200)]
+    assert sorted(results) == [("123abc", 100), ("234abc", 200)]
 
 
 def test_temp_table_includes_organisation_hash(trino_database):
