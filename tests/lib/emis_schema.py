@@ -26,3 +26,12 @@ class ObservationAllOrgsV2(Base):
     snomed_concept_id = mapped_column(t.Integer)
     effective_date = mapped_column(t.DateTime)
     value_pq_1 = mapped_column(t.DECIMAL(20, 2))
+
+
+class MedicationAllOrgsV2(Base):
+    __tablename__ = "medication_all_orgs_v2"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    registration_id = mapped_column(t.VARCHAR(128))
+    snomed_concept_id = mapped_column(t.Integer)
+    effective_date = mapped_column(t.DateTime)
