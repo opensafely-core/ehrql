@@ -49,7 +49,7 @@ def test_is_in_empty_list(spec_test):
             1: False,
             2: False,
             3: False,
-            4: None,
+            4: False,
         },
     )
 
@@ -62,6 +62,6 @@ def test_is_not_in_empty_list(spec_test):
             1: True,
             2: True,
             3: True,
-            4: None,
+            4: True,
         },
     )

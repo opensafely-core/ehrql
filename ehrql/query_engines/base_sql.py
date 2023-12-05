@@ -230,12 +230,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_sql_in_value(self, node):
         lhs = self.get_expr(node.lhs)
         if len(node.rhs.value) == 0:
-            # Special case handling for when LHS is NULL and RHS is an empty list: ehrQL
-            # evaluates this as NULL whereas SQL evaluates it as FALSE. (Of course, both
-            # agree than when RHS is empty and LHS is non-NULL then the result is
-            # FALSE.) So we want an expression which evaluates NULL when LHS is NULL,
-            # and FALSE otherwise. The expression `LHS != LHS` behaves as required.
-            return operators.ne(lhs, lhs)
+            # Special case handling for empty lists: ehrQL (like SQL) considers the
+            # expression `x IN (<empty list)` to be FALSE under all circumstances, even
+            # when `x` is NULL. Empty list expressions aren't valid in all databases and
+            # although SQLAlchemy works around this for us it's cleaner just to return
+            # constant FALSE here.
+            return sqlalchemy.literal(False)
         else:
             rhs = self.get_expr_for_multivalued_param(node.rhs)
             return lhs.in_(rhs)
@@ -271,30 +271,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             table.c.patient_id == PLACEHOLDER_PATIENT_ID
         )
         lhs = self.get_expr(node.lhs)
-        # The strange expression below handles the difference between ehrQL's and SQL's
-        # semantics: SQL considers `NULL in ()` to be FALSE and ehrQL considers it to be
-        # NULL so we use the expression:
-        #
-        #     LHS != LHS OR LHS IN (RHS)
-        #
-        # Consider how this behaves when LHS is and isn't NULL.
-        #
-        # 1. When LHS is not NULL this evaluates to:
-        #
-        #      FALSE OR LHS IN (RHS)
-        #
-        #    which is identical with:
-        #
-        #      LHS IN (RHS)
-        #
-        # 2. When LHS is NULL it evaluates to:
-        #
-        #      NULL | NULL IN (RHS)
-        #
-        #    `NULL IN (RHS)` is never TRUE (it's FALSE if RHS is empty and NULL
-        #    otherwise) which means that the expression as a whole evaluates NULL, as
-        #    required.
-        return sqlalchemy.or_(operators.ne(lhs, lhs), lhs.in_(rhs))
+        return lhs.in_(rhs)
 
     @get_sql.register(Function.Not)
     def get_sql_not(self, node):

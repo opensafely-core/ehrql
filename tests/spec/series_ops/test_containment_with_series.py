@@ -42,7 +42,7 @@ def test_is_in_series(spec_test):
             3: False,
             4: None,
             5: False,
-            6: None,
+            6: False,
         },
     )
 
@@ -57,6 +57,6 @@ def test_is_not_in_series(spec_test):
             3: True,
             4: None,
             5: True,
-            6: None,
+            6: True,
         },
     )
