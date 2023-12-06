@@ -8,7 +8,7 @@ data provided by the underlying database tables. They are provided for data deve
 and data curation purposes.
 """
 
-from .core import ons_deaths
+from ehrql.tables.beta.raw.core import ons_deaths
 
 
 __all__ = [
