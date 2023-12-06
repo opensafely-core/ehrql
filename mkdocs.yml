@@ -16,6 +16,9 @@ docs_dir: docs
 exclude_docs: |
   /includes/
 
+not_in_nav: |
+  /reference/schemas/
+
 nav:
   - ehrQL: index.md
   - Tutorial:
