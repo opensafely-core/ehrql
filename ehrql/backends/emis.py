@@ -33,6 +33,15 @@ class EMISBackend(SQLBackend):
     ]
 
     def get_emis_org_column(self):
+        # Every table in the EMIS database contains a column named `hashed_organisation`.
+        # This is used - somehow - by EMIS to ensure that queries only access data they
+        # are allowed to access. It is intended to limit practices to querying data for
+        # their practice only. We don't need to select it in our queries, but we do need to
+        # ensure that in any table we create during ehrql queries, a `hashed_organisation`
+        # is present, and contains a valid id for each row.  We have our own organisation ID,
+        # which we can retrieve from the `EMIS_ORGANISATION_HASH` environment variable and
+        # use for every row in new tables.
+        # See https://github.com/opensafely-core/ehrql/pull/1807
         emis_org_hash = self.config.get(
             "EMIS_ORGANISATION_HASH", "emis_organisation_hash"
         )
