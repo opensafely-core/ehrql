@@ -46,6 +46,21 @@ The data provided by this schema are minimally transformed. They are very close 
 data provided by the underlying database tables. They are provided for data development
 and data curation purposes.
 
+## [beta.raw.emis](./beta.raw.emis/)
+<small class="subtitle">
+  <a href="./beta.raw.emis/"> view details → </a>
+</small>
+
+Available on backends: [**EMIS**](../backends#emis)
+
+This schema defines the data (both primary care and externally linked) available in the
+OpenSAFELY-EMIS backend. For more information about this backend, see
+"[EMIS Primary Care](https://docs.opensafely.org/data-sources/emis/)".
+
+The data provided by this schema are minimally transformed. They are very close to the
+data provided by the underlying database tables. They are provided for data development
+and data curation purposes.
+
 ## [beta.raw.tpp](./beta.raw.tpp/)
 <small class="subtitle">
   <a href="./beta.raw.tpp/"> view details → </a>

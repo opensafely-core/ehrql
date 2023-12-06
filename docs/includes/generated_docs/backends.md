@@ -62,5 +62,6 @@ This backend implements the following table schemas:
 
  * [beta.core](../schemas/beta.core/)
  * [beta.raw.core](../schemas/beta.raw.core/)
+ * [beta.raw.emis](../schemas/beta.raw.emis/)
  * [beta.emis](../schemas/beta.emis/)
  * [beta.smoketest](../schemas/beta.smoketest/)

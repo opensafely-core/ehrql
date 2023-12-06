@@ -1,17 +1,17 @@
-# <strong>beta.raw.core</strong> schema
+# <strong>beta.raw.emis</strong> schema
 
-Available on backends: [**TPP**](../../backends#tpp), [**EMIS**](../../backends#emis)
+Available on backends: [**EMIS**](../../backends#emis)
 
-This schema defines the core tables and columns which should be available in any backend
-providing primary care data, allowing dataset definitions written using this schema to
-run across multiple backends.
+This schema defines the data (both primary care and externally linked) available in the
+OpenSAFELY-EMIS backend. For more information about this backend, see
+"[EMIS Primary Care](https://docs.opensafely.org/data-sources/emis/)".
 
 The data provided by this schema are minimally transformed. They are very close to the
 data provided by the underlying database tables. They are provided for data development
 and data curation purposes.
 
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
-from ehrql.tables.beta.raw.core import (
+from ehrql.tables.beta.raw.emis import (
     ons_deaths,
 )
 ```

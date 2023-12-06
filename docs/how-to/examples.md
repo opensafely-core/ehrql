@@ -137,7 +137,7 @@ dataset.define_population(patients.exists_for_patient())
 :notepad_spiral: This value comes from the patient's EHR record. You can find more information about the accuracy of this value in the [reference schema](../reference/schemas/beta.core.md#recording-of-death-in-primary-care).
 
 
-### Finding each patient's date, place, and cause of death from ONS records
+### Finding each patient's date, underlying_cause_of_death, and first noted additional medical condition noted on the death certificate from ONS records
 
 ```ehrql
 from ehrql import create_dataset
@@ -145,7 +145,7 @@ from ehrql.tables.beta.core import ons_deaths, patients
 
 dataset = create_dataset()
 dataset.date_of_death = ons_deaths.date
-dataset.place_of_death = ons_deaths.place
+dataset.underlying_cause_of_death = ons_deaths.underlying_cause_of_death
 dataset.cause_of_death = ons_deaths.cause_of_death_01
 dataset.define_population(patients.exists_for_patient())
 ```
