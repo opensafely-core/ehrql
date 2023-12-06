@@ -1,9 +1,9 @@
 import operator
 from functools import reduce
 
-from databuilder.codes import CTV3Code, ICD10Code
-from databuilder.ehrql import case, days, when
-from databuilder.tables.beta import tpp as schema
+from ehrql.codes import CTV3Code, ICD10Code
+from ehrql import case, days, when
+from ehrql.tables.beta import tpp as schema
 
 
 def any_of(conditions):

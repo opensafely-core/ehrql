@@ -4,14 +4,14 @@
 
 # local variables for defining covariates
 from datetime import date
-from databuilder.ehrql import Dataset, days, years,  case, when
-from databuilder.tables.beta.tpp import (
+from ehrql import Dataset, days, years,  case, when
+from ehrql.tables.beta.tpp import (
     patients, addresses, appointments, vaccinations,
     practice_registrations, clinical_events,
     sgss_covid_all_tests, ons_deaths, hospital_admissions,
 )
 
-from databuilder.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
+from ehrql.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
 import codelists
 from codelists import lc_codelists_combined
 from variables import (

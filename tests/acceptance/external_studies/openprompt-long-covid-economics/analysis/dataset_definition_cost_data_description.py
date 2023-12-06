@@ -1,7 +1,7 @@
 from datetime import date
 
-from databuilder.ehrql import Dataset, days, years
-from databuilder.tables.beta.tpp import (
+from ehrql import Dataset, days, years
+from ehrql.tables.beta.tpp import (
     patients, ec_cost, opa_cost
 )
 from ehrql.tables.beta.raw.tpp import apcs_cost_historical

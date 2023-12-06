@@ -1,11 +1,11 @@
 from datetime import date
 
-from databuilder.ehrql import Dataset, days, years
-from databuilder.tables.beta.tpp import (
+from ehrql import Dataset, days, years
+from ehrql.tables.beta.tpp import (
     patients, addresses, ons_deaths, sgss_covid_all_tests,
     practice_registrations, clinical_events,
 )
-from databuilder.codes import SNOMEDCTCode
+from ehrql.codes import SNOMEDCTCode
 from codelists import lc_codelists_combined
 from covariates import *
 

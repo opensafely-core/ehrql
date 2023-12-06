@@ -1,7 +1,7 @@
-from databuilder.ehrql import Dataset, when, case, days
+from ehrql import Dataset, when, case, days
 from datetime import date
 from variable_lib import long_covid_events_during, long_covid_dx_during
-from databuilder.tables.beta.tpp import (
+from ehrql.tables.beta.tpp import (
   patients,
   practice_registrations,
   clinical_events,
