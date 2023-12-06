@@ -7,8 +7,8 @@ from ehrql.backends.emis import EMISBackend
 from ehrql.query_engines.base_sql import get_setup_and_cleanup_queries
 from ehrql.query_language import compile
 from ehrql.tables import PatientFrame, Series, table_from_rows
-from ehrql.tables.beta import emis
-from ehrql.tables.beta.raw import emis as emis_raw
+from ehrql.tables import emis
+from ehrql.tables.raw import emis as emis_raw
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
 from tests.lib.emis_schema import (
     MedicationAllOrgsV2,

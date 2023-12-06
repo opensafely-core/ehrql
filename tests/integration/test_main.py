@@ -5,13 +5,13 @@ import pytest
 
 from ehrql.main import generate_measures
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 from ehrql.utils.orm_utils import make_orm_models
 
 
 MEASURE_DEFINITIONS = """
 from ehrql import INTERVAL, Measures, years
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 
 measures = Measures()

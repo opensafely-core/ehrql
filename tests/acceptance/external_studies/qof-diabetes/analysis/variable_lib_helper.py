@@ -3,7 +3,7 @@ from functools import reduce
 
 from ehrql.codes import ICD10Code
 from ehrql import case, when
-from ehrql.tables.beta import tpp as schema
+from ehrql.tables import tpp as schema
 
 
 def first_matching_event(events, codelist, where=True):

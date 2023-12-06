@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from ehrql import Dataset, case, days, when
-from ehrql.tables.beta import tpp as schema
+from ehrql.tables import tpp as schema
 from variables_lib import (
     address_as_of,
     age_as_of,

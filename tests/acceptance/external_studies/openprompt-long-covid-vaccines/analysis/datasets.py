@@ -2,7 +2,7 @@
 from ehrql import days, case, when
 
 # this is where we import the schema to run the study with
-from ehrql.tables.beta.tpp import (
+from ehrql.tables.tpp import (
   patients,
   practice_registrations,
   clinical_events,

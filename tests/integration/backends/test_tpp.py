@@ -8,8 +8,8 @@ from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
 from ehrql.query_engines.mssql_dialect import SelectStarInto
 from ehrql.query_language import compile
-from ehrql.tables.beta import tpp
-from ehrql.tables.beta.raw import tpp as tpp_raw
+from ehrql.tables import tpp
+from ehrql.tables.raw import tpp as tpp_raw
 from tests.lib.tpp_schema import (
     APCS,
     EC,

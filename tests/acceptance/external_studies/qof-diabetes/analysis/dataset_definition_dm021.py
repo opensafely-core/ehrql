@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from ehrql import INTERVAL, Measures, months
-from ehrql.tables.beta.tpp import patients
+from ehrql.tables.tpp import patients
 
 from dm_dataset import (
     make_dm_dataset,

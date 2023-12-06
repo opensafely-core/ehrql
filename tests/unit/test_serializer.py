@@ -13,7 +13,7 @@ from ehrql.file_formats import (
 from ehrql.query_language import DummyDataConfig, get_tables_from_namespace
 from ehrql.query_model.column_specs import ColumnSpec
 from ehrql.serializer import SerializerError, deserialize, serialize
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 from ehrql.utils.module_utils import get_submodules
 
 

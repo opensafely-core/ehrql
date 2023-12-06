@@ -1,10 +1,10 @@
 import sqlalchemy
 
-import ehrql.tables.beta.core
-import ehrql.tables.beta.emis
-import ehrql.tables.beta.raw.core
-import ehrql.tables.beta.raw.emis
-import ehrql.tables.beta.smoketest
+import ehrql.tables.core
+import ehrql.tables.emis
+import ehrql.tables.raw.core
+import ehrql.tables.raw.emis
+import ehrql.tables.smoketest
 from ehrql.backends.base import QueryTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
 
@@ -27,11 +27,11 @@ class EMISBackend(SQLBackend):
     query_engine_class = TrinoQueryEngine
     patient_join_column = "registration_id"
     implements = [
-        ehrql.tables.beta.core,
-        ehrql.tables.beta.raw.core,
-        ehrql.tables.beta.raw.emis,
-        ehrql.tables.beta.emis,
-        ehrql.tables.beta.smoketest,
+        ehrql.tables.core,
+        ehrql.tables.raw.core,
+        ehrql.tables.raw.emis,
+        ehrql.tables.emis,
+        ehrql.tables.smoketest,
     ]
 
     def get_emis_org_column(self):

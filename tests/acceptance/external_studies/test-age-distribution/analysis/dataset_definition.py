@@ -1,5 +1,5 @@
 from ehrql import Dataset
-from ehrql.tables.beta.smoketest import patients
+from ehrql.tables.smoketest import patients
 
 index_year = 2022
 min_age = 18

@@ -2,11 +2,11 @@ from urllib import parse
 
 import sqlalchemy
 
-import ehrql.tables.beta.core
-import ehrql.tables.beta.raw.core
-import ehrql.tables.beta.raw.tpp
-import ehrql.tables.beta.smoketest
-import ehrql.tables.beta.tpp
+import ehrql.tables.core
+import ehrql.tables.raw.core
+import ehrql.tables.raw.tpp
+import ehrql.tables.smoketest
+import ehrql.tables.tpp
 from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.codes import CTV3Code, DMDCode, SNOMEDCTCode
 from ehrql.query_engines.mssql import MSSQLQueryEngine
@@ -47,11 +47,11 @@ class TPPBackend(SQLBackend):
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
     implements = [
-        ehrql.tables.beta.core,
-        ehrql.tables.beta.raw.core,
-        ehrql.tables.beta.tpp,
-        ehrql.tables.beta.raw.tpp,
-        ehrql.tables.beta.smoketest,
+        ehrql.tables.core,
+        ehrql.tables.raw.core,
+        ehrql.tables.tpp,
+        ehrql.tables.raw.tpp,
+        ehrql.tables.smoketest,
     ]
 
     DEFAULT_COLLATION = "Latin1_General_CI_AS"

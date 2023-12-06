@@ -1,4 +1,4 @@
-# <strong>beta.smoketest</strong> schema
+# <strong>smoketest</strong> schema
 
 Available on backends: [**TPP**](../../backends#tpp), [**EMIS**](../../backends#emis)
 
@@ -9,7 +9,7 @@ across all available backends.
 [smoketest_repo]: https://github.com/opensafely/test-age-distribution
 
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
-from ehrql.tables.beta.smoketest import (
+from ehrql.tables.smoketest import (
     patients,
 )
 ```

@@ -50,7 +50,7 @@ For example, take this dataset definition from the tutorial:
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients, medications
+from ehrql.tables.core import patients, medications
 
 dataset = create_dataset()
 

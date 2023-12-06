@@ -34,7 +34,7 @@ This example adds two new columns to the dataset: `asthma_meds_count` and `other
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients, medications
+from ehrql.tables.core import patients, medications
 
 asthma_codelist = ["39113311000001107", "39113611000001102"]
 other_codelist = ["10000000000000001", "10000000000000002"]

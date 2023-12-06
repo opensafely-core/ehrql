@@ -28,10 +28,10 @@ Make the core tables available for use in a dataset definition
 with import statements like:
 
 ```python
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 ```
 
-where the `ehrql.tables.beta.core` specifies that we are using the core tables.
+where the `ehrql.tables.core` specifies that we are using the core tables.
 
 ## Backend-specific tables
 
@@ -54,7 +54,7 @@ For example, for TPP-specific tables,
 we use `tpp` in the import statement:
 
 ```python
-from ehrql.tables.beta.tpp import addresses, patients
+from ehrql.tables.tpp import addresses, patients
 ```
 
 :notepad_spiral: In this example,
@@ -73,10 +73,10 @@ in the [writing a dataset definition](../tutorial/writing-a-dataset-definition/i
 we used the interactive ehrQL sandbox with the following statement to start with:
 
 ```python
->>> from ehrql.tables.beta.core import patients, medications
+>>> from ehrql.tables.core import patients, medications
 ```
 
-* `beta.core` is the *table schema*
+* `core` is the *table schema*
 * `patients` and `medications` are the *table names*
 
 We also accessed *table columns*
@@ -99,6 +99,6 @@ The table schema reference explains:
 * whether table columns contain at most one row per patient,
   or may contain multiple rows per patient
 
-:grey_question: Consult the [`beta.core`](../reference/schemas/beta.core.md) schema.
+:grey_question: Consult the [`core`](../reference/schemas/core.md) schema.
 Choose any of the tables there
 and understand its structure from the schema.

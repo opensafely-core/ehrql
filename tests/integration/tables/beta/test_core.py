@@ -1,7 +1,7 @@
 from datetime import date
 
 from ehrql import Dataset
-from ehrql.tables.beta import core
+from ehrql.tables import core
 
 
 def test_patients_age_on(in_memory_engine):

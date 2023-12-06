@@ -8,7 +8,7 @@ from ehrql.sandbox import run
 
 user_input = """
 from ehrql import Dataset
-from ehrql.tables.beta.tpp import patients
+from ehrql.tables.tpp import patients
 patients.date_of_birth
 patients
 dataset = Dataset()
@@ -74,7 +74,7 @@ def test_traceback_trimmed(capsys, monkeypatch):
     monkeypatch.setattr(
         "sys.stdin",
         StringIO(
-            "from ehrql.tables.beta.tpp import patients\n"
+            "from ehrql.tables.tpp import patients\n"
             "patients.date_of_birth == patients.sex"
         ),
     )

@@ -2,7 +2,7 @@
 import sys
 
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 
 print("I am a bit chatty", file=sys.stderr)
