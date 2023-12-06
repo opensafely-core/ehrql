@@ -66,7 +66,7 @@ measures.define_measure(
 
 ### Running the example
 
-You can save this file as `measure_definition.py` and then run the [`generate-measures`](../../reference/cli/#generate-measures) command on it:
+You can save this file as `measure_definition.py` and then run the [`generate-measures`](../reference/cli.md#generate-measures) command on it:
 ```
 opensafely exec ehrql:v0 generate-measures measure_definition.py --output measures.csv
 ```
@@ -111,7 +111,7 @@ A measure definition always starts by creating a measures collection object:
 measures = create_measures()
 ```
 
-Each individual measure is then defined by calling [`measures.define_measure()`](../../reference/language/#Measures.define_measure):
+Each individual measure is then defined by calling [`measures.define_measure()`](../reference/language.md#Measures.define_measure):
 ```python
 measures.define_measure(
     name="atorva_80",
@@ -130,7 +130,7 @@ alphanumeric and underscore characters and starts with a letter.
 
 The **`denominator`** argument defines the condition that patients must
 match to be included in the denominator i.e. it is a [boolean patient
-series](../../reference/language/#BoolPatientSeries). (It is also possible
+series](../reference/language.md#BoolPatientSeries). (It is also possible
 to supply an integer here, but we'll cover this later.)
 
 The **`numerator`** arguments defines the _additional_ condition that
@@ -152,9 +152,9 @@ The **`interval`** argument defines the time periods over which the
 measure will be calculated. This is given as a list of start date/end
 date pairs but, as typing these all out by hand would be laborious, we
 provide several convenience functions for generating such lists:
-[`years`](../../reference/language/#years.starting_on),
-[`months`](../../reference/language/#months.starting_on) and
-[`weeks`](../../reference/language/#weeks.starting_on).
+[`years`](../reference/language.md#years.starting_on),
+[`months`](../reference/language.md#months.starting_on) and
+[`weeks`](../reference/language.md#weeks.starting_on).
 
 
 ### The `INTERVAL` placeholder
@@ -248,7 +248,7 @@ definitions we'd need to make the change in multiple places to keep them
 consistent.
 
 To avoid this we can use
-[`measures.define_defaults()`](../../reference/language/#Measures.define_defaults)
+[`measures.define_defaults()`](../reference/language.md#Measures.define_defaults)
 to set values which we know are going to be common between all the
 measures in our file:
 ```python
@@ -310,8 +310,8 @@ period and with many different groupings can require significantly more
 dummy data than would be needed for a dataset definition. The measures
 framework will make a crude attempt to guess how many dummy patients it
 should generate, but you may need to adjust this number using the
-[`measures.configure_dummy_data()`](../../reference/language/#Measures.configure_dummy_data)
+[`measures.configure_dummy_data()`](../reference/language.md#Measures.configure_dummy_data)
 method.
 
 For more information about using dummy data with measures please see our
-[how-to guide](../../how-to/dummy-measures-data/).
+[how-to guide](../how-to/dummy-measures-data.md).
