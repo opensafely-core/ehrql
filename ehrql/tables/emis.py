@@ -5,7 +5,8 @@ OpenSAFELY-EMIS backend. For more information about this backend, see
 """
 import datetime
 
-from ehrql.tables import Constraint, PatientFrame, Series, table
+from ehrql.codes import SNOMEDCTCode
+from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
 from ehrql.tables.core import clinical_events, medications, ons_deaths
 
 
@@ -14,6 +15,7 @@ __all__ = [
     "medications",
     "ons_deaths",
     "patients",
+    "vaccinations",
 ]
 
 
@@ -124,3 +126,24 @@ class patients(PatientFrame):
             self.registration_end_date.is_after(end_date)
             | self.registration_end_date.is_null()
         )
+
+
+@table
+class vaccinations(EventFrame):
+    """
+    This table contains information on administered vaccinations,
+    identified using SNOMED-CT codes for the vaccination procedure.
+
+    Vaccinations may also be queried by product code using the
+    [medications table](#medications).
+
+    Vaccinations that were administered at work or in a pharmacy might not be
+    included in this table.
+
+    """
+
+    date = Series(
+        datetime.date,
+        description="The date the vaccination was administered.",
+    )
+    procedure_code = Series(SNOMEDCTCode)

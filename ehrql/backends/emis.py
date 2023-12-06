@@ -240,3 +240,13 @@ class EMISBackend(SQLBackend):
             WHERE t.rownum = 1
         """
     )
+
+    vaccinations = QueryTable(
+        """
+        SELECT
+            registration_id AS patient_id,
+            CAST(effective_date AS date) as date,
+            CAST(snomed_concept_id AS varchar) AS procedure_code
+        FROM immunisation_all_orgs_v2
+        """
+    )
