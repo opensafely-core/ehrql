@@ -352,47 +352,101 @@ def test_ons_deaths_raw(select_all_emis):
 @register_test_for(emis.patients)
 def test_patients(select_all_emis):
     results = select_all_emis(
-        PatientAllOrgsV2(registration_id="1", date_of_birth=date(2020, 1, 1), gender=1),
+        PatientAllOrgsV2(
+            registration_id="1",
+            date_of_birth=date(2020, 1, 1),
+            gender=1,
+            hashed_organisation="1A2B3C",
+            registered_date=date(2021, 3, 1),
+            rural_urban=1,
+            imd_rank=500,
+        ),
         # duplicate registration ids are ignored
-        PatientAllOrgsV2(registration_id="2", date_of_birth=date(2020, 1, 1), gender=1),
-        PatientAllOrgsV2(registration_id="2", date_of_birth=date(2020, 1, 1), gender=1),
+        PatientAllOrgsV2(
+            registration_id="2",
+            date_of_birth=date(2020, 1, 1),
+            gender=1,
+            hashed_organisation="1A2B3C",
+            registered_date=date(2021, 3, 1),
+        ),
+        PatientAllOrgsV2(
+            registration_id="2",
+            date_of_birth=date(2020, 1, 1),
+            gender=1,
+            hashed_organisation="1A2B3C",
+            registered_date=date(2021, 3, 1),
+        ),
         PatientAllOrgsV2(
             registration_id="3",
             date_of_birth=date(1960, 1, 1),
             date_of_death=date(2020, 1, 1),
             gender=2,
+            hashed_organisation="1A2B3C",
+            registered_date=date(1960, 3, 1),
         ),
-        PatientAllOrgsV2(registration_id="4", date_of_birth=date(2020, 1, 1), gender=0),
         PatientAllOrgsV2(
-            registration_id="5", date_of_birth=date(1978, 10, 13), gender=9
+            registration_id="4",
+            date_of_birth=date(2020, 1, 1),
+            gender=0,
+            hashed_organisation="1A2B3C",
+            registered_date=date(2021, 3, 1),
+        ),
+        PatientAllOrgsV2(
+            registration_id="5",
+            date_of_birth=date(1978, 10, 13),
+            gender=9,
+            hashed_organisation="1A2B3C",
+            registered_date=date(2021, 3, 1),
         ),
     )
-    assert results == [
+
+    expected = [
         {
             "patient_id": "1",
             "date_of_birth": date(2020, 1, 1),
             "sex": "male",
             "date_of_death": None,
+            "registration_start_date": date(2021, 3, 1),
+            "registration_end_date": None,
+            "practice_pseudo_id": "1A2B3C",
+            "rural_urban_classification": 1,
+            "imd_rounded": 500,
         },
         {
             "patient_id": "3",
             "date_of_birth": date(1960, 1, 1),
             "sex": "female",
             "date_of_death": date(2020, 1, 1),
+            "registration_start_date": date(1960, 3, 1),
+            "registration_end_date": None,
+            "practice_pseudo_id": "1A2B3C",
+            "rural_urban_classification": None,
+            "imd_rounded": None,
         },
         {
             "patient_id": "4",
             "date_of_birth": date(2020, 1, 1),
             "sex": "unknown",
             "date_of_death": None,
+            "registration_start_date": date(2021, 3, 1),
+            "registration_end_date": None,
+            "practice_pseudo_id": "1A2B3C",
+            "rural_urban_classification": None,
+            "imd_rounded": None,
         },
         {
             "patient_id": "5",
             "date_of_birth": date(1978, 10, 13),
             "sex": "unknown",
             "date_of_death": None,
+            "registration_start_date": date(2021, 3, 1),
+            "registration_end_date": None,
+            "practice_pseudo_id": "1A2B3C",
+            "rural_urban_classification": None,
+            "imd_rounded": None,
         },
     ]
+    assert results == expected
 
 
 def test_registered_tests_are_exhaustive():
