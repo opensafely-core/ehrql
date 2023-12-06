@@ -28,6 +28,7 @@ nav:
     - Resolving ehrQL errors: how-to/errors.md
     - How to use dummy data in an ehrQL dataset definition: how-to/dummy-data.md
     - How to use dummy data in an ehrQL measures definition: how-to/dummy-measures-data.md
+    - How to assign multiple columns to a dataset programmatically: how-to/assign-multiple-columns.md
     - How to work with codelists: how-to/codelists.md
   - Reference:
     - Reference: reference/index.md
