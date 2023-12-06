@@ -246,7 +246,7 @@ class medications(EventFrame):
 
     Examples of using ehrQL to calculation such periods can be found in the documentation
     on how to
-    [use ehrQL to answer specifc questions](../../../how-to/examples#excluding-medications-for-patients-who-have-transferred-between-practices).
+    [use ehrQL to answer specifc questions](../../how-to/examples.md#excluding-medications-for-patients-who-have-transferred-between-practices).
     """
 
     date = Series(datetime.date)

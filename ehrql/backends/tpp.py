@@ -40,7 +40,7 @@ class TPPBackend(SQLBackend):
     practice at university.
 
     !!! warning
-        Refer to the [discussion of selecting populations for studies](../../explanation/selecting-populations-for-study.md).
+        Refer to the [discussion of selecting populations for studies](../explanation/selecting-populations-for-study.md).
     """
 
     display_name = "TPP"

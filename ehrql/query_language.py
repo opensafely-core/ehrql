@@ -82,7 +82,7 @@ class Dataset:
         Using `.add_column` is equivalent to `=` for adding a single column
         but can also be used to add multiple columns, for example by iterating
         over a dictionary. For more details see the guide on
-        "[How to assign multiple columns to a dataset programmatically](/how-to/assign-multiple-columns)".
+        "[How to assign multiple columns to a dataset programmatically](../how-to/assign-multiple-columns.md)".
         """
         setattr(self, column_name, ehrql_query)
 
