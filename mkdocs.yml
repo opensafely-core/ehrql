@@ -10,6 +10,12 @@ site_name: OpenSAFELY ehrQL documentation
 repo_url: https://github.com/opensafely-core/ehrql
 docs_dir: docs
 
+# Dotfiles/dotdirectories and the top-level templates directory
+# are implicit entries for exclude_docs.
+# https://www.mkdocs.org/user-guide/configuration/#exclude_docs
+exclude_docs: |
+  /includes/
+
 nav:
   - ehrQL: index.md
   - Tutorial:
