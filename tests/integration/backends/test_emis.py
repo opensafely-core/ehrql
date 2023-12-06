@@ -168,6 +168,12 @@ def test_inline_table_includes_organisation_hash(trino_database):
         PatientAllOrgsV2(registration_id="2", date_of_birth=date(2020, 1, 1)),
     )
 
+    # Note that currently inline data tables always make patient_id an integer
+    # so in this test, our patient ids from the backend DB are coerced to ints
+    # In reality, this means inline tables won't be able to handle real EMIS
+    # data (where patient ids are strings) but this will be dealt with
+    # later
+    # https://github.com/opensafely-core/ehrql/issues/743
     inline_data = [
         (1, 100),
         (2, 200),
@@ -190,11 +196,13 @@ def test_inline_table_includes_organisation_hash(trino_database):
     variables = compile(dataset)
 
     results_query = query_engine.get_query(variables)
-    inline_table = next(
+    inline_tables = [
         ch
         for ch in results_query.get_children()
         if isinstance(ch, GeneratedTable) and "inline_data" in ch.name
-    )
+    ]
+    assert len(set(inline_tables)) == 1
+    inline_table = inline_tables[0]
     setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
 
     with query_engine.engine.connect() as connection:
