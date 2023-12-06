@@ -76,7 +76,7 @@ And this dummy measures, in a CSV file named `dummy_measures.csv`:
 Run the measures definition with the dummy measures output file:
 
 ```
-opensafely exec ehrql:v0 generate-measres measures_definition.py --dummy-data-file dummy_measures.csv
+opensafely exec ehrql:v1 generate-measres measures_definition.py --dummy-data-file dummy_measures.csv
 ```
 
 Now, instead of generated dummy measures output, you'll see the data from the dummy data file that you provided.

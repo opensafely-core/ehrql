@@ -68,7 +68,7 @@ measures.define_measure(
 
 You can save this file as `measure_definition.py` and then run the [`generate-measures`](../reference/cli.md#generate-measures) command on it:
 ```
-opensafely exec ehrql:v0 generate-measures measure_definition.py --output measures.csv
+opensafely exec ehrql:v1 generate-measures measure_definition.py --output measures.csv
 ```
 
 ### Results
