@@ -176,7 +176,8 @@ class InMemoryQueryEngine(BaseQueryEngine):
         return col.aggregate_values(statistics.fmean, default=None)
 
     def visit_CombineAsSet(self, node):
-        assert False
+        col = self.visit(node.source)
+        return col.aggregate_values(frozenset, default=frozenset())
 
     def visit_unary_op(self, node, op):
         series = self.visit(node.source)
@@ -331,9 +332,14 @@ class InMemoryQueryEngine(BaseQueryEngine):
 
     def visit_In(self, node):
         def op(lhs, rhs):
-            return lhs in rhs
+            if len(rhs) == 0:
+                return False
+            elif lhs is None:
+                return None
+            else:
+                return lhs in rhs
 
-        return self.visit_binary_op_with_null(node, op)
+        return self.visit_binary_op(node, op)
 
     def visit_Case(self, node):
         cases = [

@@ -292,7 +292,6 @@ def test_variable_strategy_is_comprehensive():
     record_operations_seen()
 
     known_missing_operations = {
-        AggregateByPatient.CombineAsSet,
         # Parameters don't themselves form part of valid queries: they are placeholders
         # which must all be replaced with Values before the query can be executed.
         Parameter,

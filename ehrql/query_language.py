@@ -243,15 +243,29 @@ class BaseSeries:
         """
         Return a boolean series which is True for each value in this series which is
         contained in `other`, where `other` can be any of the standard "container"
-        types: tuple, list, set, frozenset, or dict.
+        types (tuple, list, set, frozenset, or dict) or another event series.
         """
-        # For iterable arguments, apply any necessary casting and convert to the
-        # immutable Set type required by the query model. We don't accept arbitrary
-        # iterables here because too many types in Python are iterable and there's the
-        # potential for confusion amongst the less experienced of our users.
         if isinstance(other, tuple | list | set | frozenset | dict):
+            # For iterable arguments, apply any necessary casting and convert to the
+            # immutable Set type required by the query model. We don't accept arbitrary
+            # iterables here because too many types in Python are iterable and there's
+            # the potential for confusion amongst the less experienced of our users.
             other = frozenset(map(self._cast, other))
-        return _apply(qm.Function.In, self, other)
+            return _apply(qm.Function.In, self, other)
+        elif isinstance(other, EventSeries):
+            # We have to use `_convert` and `_wrap` by hand here (rather than using
+            # `_apply` which does this all for us) because we're constructing a
+            # `CombineAsSet` query model object which doesn't have a representation in
+            # the query language.
+            other_as_set = qm.AggregateByPatient.CombineAsSet(_convert(other))
+            return _wrap(qm.Function.In(_convert(self), other_as_set))
+        elif isinstance(other, PatientSeries):
+            raise TypeError(
+                "Argument must be an EventSeries (i.e. have many values per patient); "
+                "you supplied a PatientSeries with only one value per patient"
+            )
+        else:
+            raise TypeError(f"Invalid argument type: {type(other)}")
 
     def is_not_in(self, other):
         """

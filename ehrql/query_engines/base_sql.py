@@ -9,6 +9,7 @@ from sqlalchemy import distinct
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import BindParameter
 from sqlalchemy.sql.functions import Function as SQLFunction
+from sqlalchemy.sql.visitors import replacement_traverse
 
 from ehrql.backends.base import DefaultSQLBackend
 from ehrql.query_model.nodes import (
@@ -39,12 +40,16 @@ from ehrql.utils.sqlalchemy_query_utils import (
     InsertMany,
     get_setup_and_cleanup_queries,
     is_predicate,
+    iterate_unique,
 )
 
 from .base import BaseQueryEngine
 
 
 log = structlog.getLogger()
+
+
+PLACEHOLDER_PATIENT_ID = sqlalchemy.column("PLACEHOLDER_PATIENT_ID")
 
 
 class BaseSQLQueryEngine(BaseQueryEngine):
@@ -134,10 +139,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
         TODO: Give backends a mechanism for marking certain tables as containing all
         available patient_ids. We could then use such tables if available rather than
-        messing aroud with UNIONS.
+        messing around with UNIONS.
         """
         # Get all the tables needed to evaluate the population expression
-        tables = sqlalchemy.select(population_expression).get_final_froms()
+        tables = get_patient_id_tables(population_expression)
         if len(tables) > 1:
             # Select all patient IDs from all tables referenced in the expression
             id_selects = [
@@ -215,18 +220,58 @@ class BaseSQLQueryEngine(BaseQueryEngine):
 
     @get_sql.register(Function.In)
     def get_sql_in(self, node):
+        if isinstance(node.rhs, Value):
+            return self.get_sql_in_value(node)
+        elif isinstance(node.rhs, AggregateByPatient.CombineAsSet):
+            return self.get_sql_in_combine_as_set(node)
+        else:
+            assert False, f"Unhandled node type {type(node.rhs)}: {node.rhs}"
+
+    def get_sql_in_value(self, node):
         lhs = self.get_expr(node.lhs)
-        rhs = self.get_expr_for_multivalued_param(node.rhs)
-        return lhs.in_(rhs)
+        if len(node.rhs.value) == 0:
+            # Special case handling for empty lists: ehrQL (like SQL) considers the
+            # expression `x IN (<empty list)` to be FALSE under all circumstances, even
+            # when `x` is NULL. Empty list expressions aren't valid in all databases and
+            # although SQLAlchemy works around this for us it's cleaner just to return
+            # constant FALSE here.
+            return sqlalchemy.literal(False)
+        else:
+            rhs = self.get_expr_for_multivalued_param(node.rhs)
+            return lhs.in_(rhs)
 
     def get_expr_for_multivalued_param(self, node):
-        assert isinstance(node, Value)
         assert isinstance(node.value, frozenset)
         if len(node.value) <= self.max_multivalue_param_length:
             return self.get_expr(node)
         else:
             table = self.get_table(node.value)
             return sqlalchemy.select(table.columns[0])
+
+    def get_sql_in_combine_as_set(self, node):
+        # Start by constructing a query for the RHS series
+        query = self.get_select_query_for_node_domain(node.rhs.source)
+        value_expr = self.get_expr(node.rhs.source).label("value")
+        query = query.add_columns(value_expr)
+        # ehrQL's semantics require that we filter out any NULL values here
+        query = query.where(value_expr.is_not(None))
+        query = apply_patient_joins(query)
+        # TODO: This is the first time we're reifying a query which isn't one-row-per-
+        # patient and this means that our assumptions about the best indexing strategy here
+        # (e.g. creating an MSSQL clustered index on `patient_id`) no longer hold. This
+        # isn't a disaster performance-wise, but we should think about how to make
+        # things more efficient here.
+        table = self.reify_query(query)
+        # Create a correlated subquery which means that each patient's row is compared
+        # with just the values for that patient, not all the values in the table.  This
+        # requires referencing the patient_id column of the outer query, but we don't
+        # yet know what this is so we use a placeholder column reference which can get
+        # replaced later (see `replace_placeholder_references()`).
+        rhs = sqlalchemy.select(table.c.value).where(
+            table.c.patient_id == PLACEHOLDER_PATIENT_ID
+        )
+        lhs = self.get_expr(node.lhs)
+        return lhs.in_(rhs)
 
     @get_sql.register(Function.Not)
     def get_sql_not(self, node):
@@ -728,7 +773,16 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         e.g. using `.alias()` to make a sub-query, using `.cte()` to make a Common Table
         Expression, or writing the results of the query to a temporary table.
         """
-        return query.cte(name=f"cte_{self.get_next_id()}")
+        cte = query.cte(name=f"cte_{self.get_next_id()}")
+        # We mark these CTEs as being non-traversible by our
+        # `replace_placeholder_references()` function. There's never a need to traverse
+        # them (reified queries are already processes and in their final form) and it
+        # can create problems with cloned, duplicate CTEs. See:
+        #
+        #   tests/integration/test_query_engines.py::test_sqlalchemy_compilation_edge_case
+        #
+        cte._no_replacement_traverse = True
+        return cte
 
     def get_select_query_for_node_domain(self, node):
         """
@@ -810,6 +864,9 @@ def apply_patient_joins(query):
     from patient-level tables in a query because, in effect, there is always an implicit
     join on `patient_id`. This function makes those implicit joins explicit.
     """
+    # Now that we've assembled a complete query we can replace any "placeholder" column
+    # references with actual column references
+    query = replace_placeholder_references(query)
     # We use the convention that the column to be joined on is always the first selected
     # column. This avoids having to hardcode, or pass around, the name of the column.
     join_key = query.selected_columns[0]
@@ -824,6 +881,24 @@ def apply_patient_joins(query):
     for table in implicit_joins:
         query = query.join(table, table.c[join_key_name] == join_key, isouter=True)
     return query
+
+
+def replace_placeholder_references(query):
+    # We use the convention that the column to be joined on is always the first selected
+    # column. This avoids having to hardcode, or pass around, the name of the column.
+    patient_id_column = query.selected_columns[0]
+
+    # Replace any "placeholder" column references with the target column
+    def replace(obj):
+        if obj is PLACEHOLDER_PATIENT_ID:
+            return patient_id_column
+        # Avoid cloning objects which aren't safe to be cloned
+        if getattr(obj, "_no_replacement_traverse", False):
+            return obj
+        else:
+            return None
+
+    return replacement_traverse(query, {}, replace=replace)
 
 
 def get_table_and_filter_conditions(frame):
@@ -873,3 +948,17 @@ def get_cyclic_coalescence(columns):
         return columns
     column_cycles = [[*columns[i:], *columns[:i]] for i in range(len_cols)]
     return [sqlalchemy.func.coalesce(*c) for c in column_cycles]
+
+
+def get_patient_id_tables(clause):
+    """
+    Return a list of all tables referenced in `clause` which have a `patient_id` column
+    """
+    tables = {}
+    for obj in iterate_unique(clause):
+        if isinstance(obj, sqlalchemy.ColumnClause):
+            if obj.table is not None and "patient_id" in obj.table.columns:
+                # Use a dict to collect only unique tables while retaining original
+                # order for consistent output
+                tables[obj.table] = None
+    return list(tables.keys())

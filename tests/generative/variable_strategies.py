@@ -197,6 +197,9 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
     def sum_(type_, _frame):
         return aggregation_operation(type_, AggregateByPatient.Sum)
 
+    def combine_as_set(type_, _frame):
+        return aggregation_operation(type_, AggregateByPatient.CombineAsSet)
+
     @st.composite
     def mean(draw, _type, _frame):
         type_ = draw(any_numeric_type())
@@ -262,10 +265,15 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
     @st.composite
     def in_(draw, _type, frame):
         type_ = draw(any_type())
-        values = Value(
-            frozenset(draw(st.sets(value_strategies[type_], min_size=1, max_size=5)))
-        )
-        return Function.In(draw(series(type_, frame)), values)
+        if not draw(st.booleans()):
+            rhs = Value(
+                frozenset(
+                    draw(st.sets(value_strategies[type_], min_size=0, max_size=5))
+                )
+            )
+        else:
+            rhs = draw(combine_as_set(type_, frame))
+        return Function.In(draw(series(type_, frame)), rhs)
 
     def and_(type_, frame):
         return binary_operation(type_, frame, Function.And, allow_value=False)

@@ -39,3 +39,29 @@ def test_is_not_in(spec_test):
             4: None,
         },
     )
+
+
+def test_is_in_empty_list(spec_test):
+    spec_test(
+        table_data,
+        p.i1.is_in([]),
+        {
+            1: False,
+            2: False,
+            3: False,
+            4: False,
+        },
+    )
+
+
+def test_is_not_in_empty_list(spec_test):
+    spec_test(
+        table_data,
+        p.i1.is_not_in([]),
+        {
+            1: True,
+            2: True,
+            3: True,
+            4: True,
+        },
+    )

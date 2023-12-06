@@ -4,10 +4,30 @@ from datetime import date
 import pytest
 import sqlalchemy
 
-from ehrql import Dataset
-from ehrql.query_language import PatientFrame, Series, table_from_file, table_from_rows
+from ehrql import create_dataset
 from ehrql.query_model.nodes import Function, Value
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables import (
+    EventFrame,
+    PatientFrame,
+    Series,
+    table,
+    table_from_file,
+    table_from_rows,
+)
+
+
+@table
+class patients(PatientFrame):
+    date_of_birth = Series(date)
+    sex = Series(str)
+    i = Series(int)
+
+
+@table
+class events(EventFrame):
+    date = Series(date)
+    code = Series(str)
+    i = Series(int)
 
 
 def test_handles_degenerate_population(engine):
@@ -55,13 +75,13 @@ def test_handles_inline_patient_table(engine, tmp_path):
         s = Series(str)
         d = Series(date)
 
-    dataset = Dataset()
+    dataset = create_dataset()
     dataset.define_population(
         patients.exists_for_patient() & test_table.exists_for_patient()
     )
 
     dataset.n = test_table.i + (test_table.i * 10)
-    dataset.age = patients.age_on(test_table.d)
+    dataset.age = (test_table.d - patients.date_of_birth).years
     dataset.s = test_table.s
 
     results = engine.extract(dataset)
@@ -94,7 +114,7 @@ def test_handles_inline_patient_table_with_different_patients(engine):
     class test_table(PatientFrame):
         i = Series(int)
 
-    dataset = Dataset()
+    dataset = create_dataset()
     dataset.define_population(test_table.exists_for_patient())
     dataset.n = test_table.i + 100
     dataset.sex = patients.sex
@@ -115,7 +135,7 @@ def test_cleans_up_temporary_tables(engine):
 
     engine.populate(
         {
-            clinical_events: [
+            events: [
                 dict(patient_id=1, date=date(2000, 1, 1)),
                 dict(patient_id=1, date=date(2001, 1, 1)),
                 dict(patient_id=2, date=date(2002, 1, 1)),
@@ -133,9 +153,9 @@ def test_cleans_up_temporary_tables(engine):
     class inline_table(PatientFrame):
         i = Series(int)
 
-    dataset = Dataset()
-    dataset.define_population(clinical_events.exists_for_patient())
-    dataset.n = clinical_events.count_for_patient()
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    dataset.n = events.count_for_patient()
     dataset.i = inline_table.i
 
     results = engine.extract(dataset)
@@ -193,24 +213,24 @@ def test_is_in_using_temporary_table(engine):
     # of values into temporary tables so we can exercise that code path
     engine.populate(
         {
-            clinical_events: [
+            events: [
                 # Patient 1
-                dict(patient_id=1, snomedct_code="123000"),
-                dict(patient_id=1, snomedct_code="456000"),
+                dict(patient_id=1, code="123000"),
+                dict(patient_id=1, code="456000"),
                 # Patient 2
-                dict(patient_id=2, snomedct_code="123001"),
-                dict(patient_id=2, snomedct_code="456001"),
-                dict(patient_id=2, snomedct_code="123002"),
+                dict(patient_id=2, code="123001"),
+                dict(patient_id=2, code="456001"),
+                dict(patient_id=2, code="123002"),
             ]
         }
     )
 
-    dataset = Dataset()
-    dataset.define_population(clinical_events.exists_for_patient())
-    matching = clinical_events.snomedct_code.is_in(
+    dataset = create_dataset()
+    dataset.define_population(events.exists_for_patient())
+    matching = events.code.is_in(
         ["123000", "123001", "123002", "123004"],
     )
-    dataset.n = clinical_events.where(matching).count_for_patient()
+    dataset.n = events.where(matching).count_for_patient()
 
     results = engine.extract(
         dataset,
@@ -225,3 +245,49 @@ def test_is_in_using_temporary_table(engine):
 
 def as_query_model(query_lang_expr):
     return query_lang_expr._qm_node
+
+
+def test_sqlalchemy_compilation_edge_case(engine):
+    # This tests an edge case in the interaction of SQLAlchemy's `replacement_traverse`
+    # function and our approach to query building. By default, `replacement_traverse`
+    # clones the objects it walks over, unless they belong to the class of immutable
+    # objects such as Tables. CTEs act a bit like tables, but are not immutable. This
+    # means its possible to construct a sequence of queries at the end of which we have
+    # duplicated clones of the same CTE. When we attempt to execute the query we get an
+    # error like:
+    #
+    #     sqlalchemy.exc.CompileError: Multiple, unrelated CTEs found with the same name: 'cte_1'
+    #
+    # Naturally, this was discovered by the gentests. Below is the simplest example I
+    # can construct which triggers the bug.
+
+    dataset = create_dataset()
+    # Weird as it seems, we need at least three references below to create the
+    # problematic sort of object graph.
+    dataset.define_population(patients.i + patients.i + patients.i == 0)
+    dataset.has_event = events.exists_for_patient()
+
+    engine.populate(
+        {
+            patients: [{"patient_id": 1}],
+            events: [{"patient_id": 1}],
+        }
+    )
+    assert engine.extract(dataset) == []
+
+
+def test_population_is_correctly_evaluated_for_containment_queries(engine):
+    dataset = create_dataset()
+    # Patients which exist in the `events` table but not the `patients` table still need
+    # to be considered when evaluating the population condition
+    dataset.define_population(patients.count_for_patient().is_in(events.i))
+
+    engine.populate(
+        {
+            patients: [{"patient_id": 1}],
+            events: [{"patient_id": 2, "i": 0}],
+        }
+    )
+    assert engine.extract(dataset) == [
+        {"patient_id": 2},
+    ]

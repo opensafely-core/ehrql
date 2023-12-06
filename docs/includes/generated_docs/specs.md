@@ -1231,10 +1231,147 @@ returns the following patient series:
 
 
 
-### 6.3 Map from one set of values to another
+#### 6.2.3 Is in empty list
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 3|301 |
+| 4| |
+
+```python
+p.i1.is_in([])
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|F |
+| 2|F |
+| 3|F |
+| 4|F |
 
 
-#### 6.3.1 Map values
+
+#### 6.2.4 Is not in empty list
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 3|301 |
+| 4| |
+
+```python
+p.i1.is_not_in([])
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|T |
+| 3|T |
+| 4|T |
+
+
+
+### 6.3 Testing for containment in another series
+
+
+#### 6.3.1 Is in series
+
+This example makes use of a patient-level table named `p` and an event-level table named `e` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 3|301 |
+| 4| |
+| 5|501 |
+| 6| |
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 2|203 |
+| 2|301 |
+| 3|333 |
+| 3|334 |
+| 4| |
+| 4|401 |
+| 5| |
+| 5|101 |
+
+```python
+p.i1.is_in(e.i1)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|T |
+| 2|T |
+| 3|F |
+| 4| |
+| 5|F |
+| 6|F |
+
+
+
+#### 6.3.2 Is not in series
+
+This example makes use of a patient-level table named `p` and an event-level table named `e` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 3|301 |
+| 4| |
+| 5|501 |
+| 6| |
+
+| patient|i1 |
+| - | - |
+| 1|101 |
+| 2|201 |
+| 2|203 |
+| 2|301 |
+| 3|333 |
+| 3|334 |
+| 4| |
+| 4|401 |
+| 5| |
+| 5|101 |
+
+```python
+p.i1.is_not_in(e.i1)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1|F |
+| 2|F |
+| 3|T |
+| 4| |
+| 5|T |
+| 6|T |
+
+
+
+### 6.4 Map from one set of values to another
+
+
+#### 6.4.1 Map values
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1259,10 +1396,10 @@ returns the following patient series:
 
 
 
-### 6.4 Replace missing values
+### 6.5 Replace missing values
 
 
-#### 6.4.1 When null then integer column
+#### 6.5.1 When null then integer column
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1287,7 +1424,7 @@ returns the following patient series:
 
 
 
-#### 6.4.2 When null then boolean column
+#### 6.5.2 When null then boolean column
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1312,10 +1449,10 @@ returns the following patient series:
 
 
 
-### 6.5 Minimum and maximum aggregations across Patient series
+### 6.6 Minimum and maximum aggregations across Patient series
 
 
-#### 6.5.1 Maximum of two integer patient series
+#### 6.6.1 Maximum of two integer patient series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1338,7 +1475,7 @@ returns the following patient series:
 
 
 
-#### 6.5.2 Minimum of two integer patient series
+#### 6.6.2 Minimum of two integer patient series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1361,7 +1498,7 @@ returns the following patient series:
 
 
 
-#### 6.5.3 Minimum of two integer patient series and a value
+#### 6.6.3 Minimum of two integer patient series and a value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1384,7 +1521,7 @@ returns the following patient series:
 
 
 
-#### 6.5.4 Maximum of two integer patient series and a value
+#### 6.6.4 Maximum of two integer patient series and a value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1407,7 +1544,7 @@ returns the following patient series:
 
 
 
-#### 6.5.5 Minimum of two date patient series
+#### 6.6.5 Minimum of two date patient series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1430,7 +1567,7 @@ returns the following patient series:
 
 
 
-#### 6.5.6 Maximum of two date patient series
+#### 6.6.6 Maximum of two date patient series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1453,7 +1590,7 @@ returns the following patient series:
 
 
 
-#### 6.5.7 Minimum of two date patient series and datetime a value
+#### 6.6.7 Minimum of two date patient series and datetime a value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1476,7 +1613,7 @@ returns the following patient series:
 
 
 
-#### 6.5.8 Maximum of two date patient series and datetime a value
+#### 6.6.8 Maximum of two date patient series and datetime a value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1499,7 +1636,7 @@ returns the following patient series:
 
 
 
-#### 6.5.9 Minimum of two date patient series and string a value
+#### 6.6.9 Minimum of two date patient series and string a value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1522,7 +1659,7 @@ returns the following patient series:
 
 
 
-#### 6.5.10 Maximum of two date patient series and string a value
+#### 6.6.10 Maximum of two date patient series and string a value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1545,7 +1682,7 @@ returns the following patient series:
 
 
 
-#### 6.5.11 Maximum of two float patient series
+#### 6.6.11 Maximum of two float patient series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1568,7 +1705,7 @@ returns the following patient series:
 
 
 
-#### 6.5.12 Minimum of two float patient series
+#### 6.6.12 Minimum of two float patient series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1591,7 +1728,7 @@ returns the following patient series:
 
 
 
-#### 6.5.13 Minimum of two float patient series and a value
+#### 6.6.13 Minimum of two float patient series and a value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1614,7 +1751,7 @@ returns the following patient series:
 
 
 
-#### 6.5.14 Maximum of two float patient series and a value
+#### 6.6.14 Maximum of two float patient series and a value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1637,7 +1774,7 @@ returns the following patient series:
 
 
 
-#### 6.5.15 Maximum of two string patient series
+#### 6.6.15 Maximum of two string patient series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1660,7 +1797,7 @@ returns the following patient series:
 
 
 
-#### 6.5.16 Minimum of two string patient series
+#### 6.6.16 Minimum of two string patient series
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1683,7 +1820,7 @@ returns the following patient series:
 
 
 
-#### 6.5.17 Minimum of two string patient series and a value
+#### 6.6.17 Minimum of two string patient series and a value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1706,7 +1843,7 @@ returns the following patient series:
 
 
 
-#### 6.5.18 Maximum of two string patient series and a value
+#### 6.6.18 Maximum of two string patient series and a value
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1729,7 +1866,7 @@ returns the following patient series:
 
 
 
-#### 6.5.19 Maximum of two integers all a values
+#### 6.6.19 Maximum of two integers all a values
 
 This example makes use of a patient-level table named `p` containing the following data:
 
@@ -1752,10 +1889,10 @@ returns the following patient series:
 
 
 
-### 6.6 Minimum and maximum aggregations across Event series
+### 6.7 Minimum and maximum aggregations across Event series
 
 
-#### 6.6.1 Maximum of two integer event series
+#### 6.7.1 Maximum of two integer event series
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -1779,7 +1916,7 @@ returns the following patient series:
 
 
 
-#### 6.6.2 Minimum of two integer event series
+#### 6.7.2 Minimum of two integer event series
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -1803,7 +1940,7 @@ returns the following patient series:
 
 
 
-#### 6.6.3 Minimum of two integer event series and a value
+#### 6.7.3 Minimum of two integer event series and a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -1827,7 +1964,7 @@ returns the following patient series:
 
 
 
-#### 6.6.4 Maximum of two integer event series and a value
+#### 6.7.4 Maximum of two integer event series and a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -1851,7 +1988,7 @@ returns the following patient series:
 
 
 
-#### 6.6.5 Minimum of two date event series
+#### 6.7.5 Minimum of two date event series
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -1875,7 +2012,7 @@ returns the following patient series:
 
 
 
-#### 6.6.6 Maximum of two date event series
+#### 6.7.6 Maximum of two date event series
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -1899,7 +2036,7 @@ returns the following patient series:
 
 
 
-#### 6.6.7 Minimum of two date event series and datetime a value
+#### 6.7.7 Minimum of two date event series and datetime a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -1923,7 +2060,7 @@ returns the following patient series:
 
 
 
-#### 6.6.8 Maximum of two date event series and datetime a value
+#### 6.7.8 Maximum of two date event series and datetime a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -1947,7 +2084,7 @@ returns the following patient series:
 
 
 
-#### 6.6.9 Minimum of two date event series and string a value
+#### 6.7.9 Minimum of two date event series and string a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -1971,7 +2108,7 @@ returns the following patient series:
 
 
 
-#### 6.6.10 Maximum of two date event series and string a value
+#### 6.7.10 Maximum of two date event series and string a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -1995,7 +2132,7 @@ returns the following patient series:
 
 
 
-#### 6.6.11 Maximum of two float event series
+#### 6.7.11 Maximum of two float event series
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2019,7 +2156,7 @@ returns the following patient series:
 
 
 
-#### 6.6.12 Minimum of two float event series
+#### 6.7.12 Minimum of two float event series
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2043,7 +2180,7 @@ returns the following patient series:
 
 
 
-#### 6.6.13 Minimum of two float event series and float a value
+#### 6.7.13 Minimum of two float event series and float a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2067,7 +2204,7 @@ returns the following patient series:
 
 
 
-#### 6.6.14 Maximum of two float event series and float a value
+#### 6.7.14 Maximum of two float event series and float a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2091,7 +2228,7 @@ returns the following patient series:
 
 
 
-#### 6.6.15 Minimum of two float event series and integer a value
+#### 6.7.15 Minimum of two float event series and integer a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2115,7 +2252,7 @@ returns the following patient series:
 
 
 
-#### 6.6.16 Maximum of two float event series and integer a value
+#### 6.7.16 Maximum of two float event series and integer a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2139,7 +2276,7 @@ returns the following patient series:
 
 
 
-#### 6.6.17 Maximum of two string event series
+#### 6.7.17 Maximum of two string event series
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2163,7 +2300,7 @@ returns the following patient series:
 
 
 
-#### 6.6.18 Minimum of two string event series
+#### 6.7.18 Minimum of two string event series
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2187,7 +2324,7 @@ returns the following patient series:
 
 
 
-#### 6.6.19 Minimum of two string event series and a value
+#### 6.7.19 Minimum of two string event series and a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2211,7 +2348,7 @@ returns the following patient series:
 
 
 
-#### 6.6.20 Maximum of two string event series and a value
+#### 6.7.20 Maximum of two string event series and a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2235,7 +2372,7 @@ returns the following patient series:
 
 
 
-#### 6.6.21 Maximum of nested aggregate
+#### 6.7.21 Maximum of nested aggregate
 
 This example makes use of an event-level table named `e` containing the following data:
 
@@ -2262,7 +2399,7 @@ returns the following patient series:
 
 
 
-#### 6.6.22 Maximum of nested aggregate and column and a value
+#### 6.7.22 Maximum of nested aggregate and column and a value
 
 This example makes use of an event-level table named `e` containing the following data:
 
