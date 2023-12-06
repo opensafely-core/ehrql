@@ -2,7 +2,11 @@ from datetime import date, datetime
 
 import sqlalchemy
 
+from ehrql import create_dataset
 from ehrql.backends.emis import EMISBackend
+from ehrql.query_engines.base_sql import get_setup_and_cleanup_queries
+from ehrql.query_language import compile
+from ehrql.tables import PatientFrame, Series, table_from_rows
 from ehrql.tables.beta import emis
 from ehrql.tables.beta.raw import emis as emis_raw
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
@@ -394,3 +398,129 @@ def test_patients(select_all_emis):
 
 def test_registered_tests_are_exhaustive():
     assert_tests_exhaustive(EMISBackend())
+
+
+def test_inline_table_includes_organisation_hash(trino_database):
+    # This tests that EMIS's generated inline tables include a column
+    # "hashed_organisation", where every row values is the value of the
+    # EMIS_ORGANISATION_HASH environment variable
+    trino_database.setup(
+        PatientAllOrgsV2(registration_id="1", date_of_birth=date(2020, 1, 1)),
+        PatientAllOrgsV2(registration_id="2", date_of_birth=date(2020, 1, 1)),
+    )
+
+    # Note that currently inline data tables always make patient_id an integer
+    # so in this test, our patient ids from the backend DB are coerced to ints
+    # In reality, this means inline tables won't be able to handle real EMIS
+    # data (where patient ids are strings) but this will be dealt with
+    # later
+    # https://github.com/opensafely-core/ehrql/issues/743
+    inline_data = [
+        (1, 100),
+        (2, 200),
+    ]
+
+    @table_from_rows(inline_data)
+    class t(PatientFrame):
+        n = Series(int)
+
+    dataset = create_dataset()
+    dataset.define_population(t.exists_for_patient())
+    dataset.v = t.n
+
+    backend = EMISBackend()
+    query_engine = backend.query_engine_class(
+        trino_database.host_url(),
+        backend=backend,
+    )
+
+    variables = compile(dataset)
+
+    results_query = query_engine.get_query(variables)
+    inline_tables = [
+        ch
+        for ch in results_query.get_children()
+        if isinstance(ch, GeneratedTable) and "inline_data" in ch.name
+    ]
+    assert len(set(inline_tables)) == 1
+    inline_table = inline_tables[0]
+    setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
+
+    with query_engine.engine.connect() as connection:
+        for setup_query in setup_queries:
+            connection.execute(setup_query)
+        column_info = connection.execute(
+            sqlalchemy.text(f"SHOW COLUMNS FROM {inline_table.name}")
+        ).fetchall()
+        assert column_info == [
+            ("patient_id", "integer", "", ""),
+            ("n", "integer", "", ""),
+            ("hashed_organisation", "varchar", "", ""),
+        ]
+        all_inline_results = connection.execute(
+            sqlalchemy.text(f"select * from {inline_table.name}")
+        ).fetchall()
+        assert sorted(all_inline_results) == [
+            (1, 100, "emis_organisation_hash"),
+            (2, 200, "emis_organisation_hash"),
+        ]
+
+        for cleanup_query in cleanup_queries:
+            connection.execute(cleanup_query)
+
+    results = query_engine.get_results(variables)
+    assert sorted(results) == [(1, 100), (2, 200)]
+
+
+def test_temp_table_includes_organisation_hash(trino_database):
+    # This tests that EMIS's generated tables (created in `reify_query`)
+    # include a column "hashed_organisation", where every row values is the
+    # value of the EMIS_ORGANISATION_HASH environment variable
+    trino_database.setup(
+        PatientAllOrgsV2(registration_id="1", date_of_birth=date(2020, 1, 1)),
+        PatientAllOrgsV2(registration_id="2", date_of_birth=date(2020, 1, 1)),
+    )
+
+    dataset = create_dataset()
+    dataset.define_population(emis.patients.date_of_birth.is_not_null())
+
+    backend = EMISBackend()
+    query_engine = backend.query_engine_class(
+        trino_database.host_url(),
+        backend=backend,
+    )
+
+    variables = compile(dataset)
+    results_query = query_engine.get_query(variables)
+    temp_tables = [
+        ch
+        for ch in results_query.get_children()
+        if isinstance(ch, GeneratedTable) and "tmp" in ch.name
+    ]
+    assert len(set(temp_tables)) == 1
+    temp_table = temp_tables[0]
+    setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
+
+    with query_engine.engine.connect() as connection:
+        for setup_query in setup_queries:
+            connection.execute(setup_query)
+        column_info = connection.execute(
+            sqlalchemy.text(f"SHOW COLUMNS FROM {temp_table.name}")
+        ).fetchall()
+        assert column_info == [
+            ("patient_id", "varchar(128)", "", ""),
+            ("hashed_organisation", "varchar(22)", "", ""),
+        ]
+        all_temp_table_results = connection.execute(
+            sqlalchemy.text(f"select * from {temp_table.name}")
+        ).fetchall()
+        assert sorted(all_temp_table_results) == [
+            ("1", "emis_organisation_hash"),
+            ("2", "emis_organisation_hash"),
+        ]
+
+        for cleanup_query in cleanup_queries:
+            connection.execute(cleanup_query)
+
+    results = query_engine.get_results(variables)
+    assert sorted(results) == [("1",), ("2",)]

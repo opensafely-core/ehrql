@@ -29,6 +29,19 @@ class BaseBackend:
         """
         return variables
 
+    def modify_inline_table_args(self, columns, rows):
+        """
+        This hook gives backends the option to modify inline table arguments
+        """
+        return columns, rows
+
+    def modify_query_pre_reify(self, query):
+        """
+        This hook gives backends the option to modify queries before they are
+        passed to `reify_query`
+        """
+        return query
+
 
 class SQLBackend(BaseBackend):
     query_engine_class = None
