@@ -372,25 +372,9 @@ Medical condition mentioned on the death certificate.
 
 Patients in primary care.
 
-### Representativeness
-
-You can find out more about the representativeness of these data in the
-OpenSAFELY-TPP backend in:
-
-> The OpenSAFELY Collaborative, Colm D. Andrews, Anna Schultze, Helen J. Curtis, William J. Hulme, John Tazare, Stephen J. W. Evans, _et al._ 2022.
-> "OpenSAFELY: Representativeness of Electronic Health Record Platform OpenSAFELY-TPP Data Compared to the Population of England."
-> Wellcome Open Res 2022, 7:191.
-> <https://doi.org/10.12688/wellcomeopenres.18010.1>
-
-
-### Orphan records
-
-If a practice becomes aware that a patient has moved house,
-then the practice _deducts_, or removes, the patient's records from their register.
-If the patient doesn't register with a new practice within a given amount of time
-(normally from four to eight weeks),
-then the patient's records are permanently deducted and are _orphan records_.
-There are roughly 1.6 million orphan records.
+In the EMIS backend, this table also includes information about the patient's
+current practice registration. Historical practice registration data is not
+currently available.
 
 ### Recording of death in primary care
 
@@ -402,7 +386,7 @@ based on these MCCDs.
 There is generally a lag between the death being recorded in ONS data and it
 appearing in the primary care record, but the coverage or recorded death is almost
 complete and the date of death is usually reliable when it appears. There is
-also a lag in ONS death recording (see [`ons_deaths`](/reference/schemas/core/#ons_deaths) below
+also a lag in ONS death recording (see [`ons_deaths`](/reference/schemas/core/#ons_deaths)
 for more detail). You can find out more about the accuracy of date of death
 recording in primary care in:
 
@@ -410,9 +394,6 @@ recording in primary care in:
 > Practice Research Datalink GOLD database in England compared with the Office for National Statistics death registrations.
 > Pharmacoepidemiol. Drug Saf. 28, 563–569.
 > <https://doi.org/10.1002/pds.4747>
-
-By contrast, cause of death is often not accurate in the primary care record so we
-don't make it available to query here.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -439,7 +420,7 @@ Patient's date of birth.
   <dd markdown="block">
 Patient's sex.
 
- * Possible values: `female`, `male`, `intersex`, `unknown`
+ * Possible values: `female`, `male`, `unknown`
  * Never `NULL`
   </dd>
 </div>
@@ -453,6 +434,82 @@ Patient's sex.
   <dd markdown="block">
 Patient's date of death.
 
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="patients.registration_start_date">
+    <strong>registration_start_date</strong>
+    <a class="headerlink" href="#patients.registration_start_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Date patient joined practice.
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="patients.registration_end_date">
+    <strong>registration_end_date</strong>
+    <a class="headerlink" href="#patients.registration_end_date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+Date patient left practice.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="patients.practice_pseudo_id">
+    <strong>practice_pseudo_id</strong>
+    <a class="headerlink" href="#patients.practice_pseudo_id" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Pseudonymised practice identifier.
+
+ * Never `NULL`
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="patients.rural_urban_classification">
+    <strong>rural_urban_classification</strong>
+    <a class="headerlink" href="#patients.rural_urban_classification" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Rural urban classification:
+
+* 1 - Urban major conurbation
+* 2 - Urban minor conurbation
+* 3 - Urban city and town
+* 4 - Urban city and town in a sparse setting
+* 5 - Rural town and fringe
+* 6 - Rural town and fringe in a sparse setting
+* 7 - Rural village and dispersed
+* 8 - Rural village and dispersed in a sparse setting
+
+ * Always >= 1 and <= 8
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="patients.imd_rounded">
+    <strong>imd_rounded</strong>
+    <a class="headerlink" href="#patients.imd_rounded" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+[Index of Multiple Deprivation][addresses_imd] (IMD)
+rounded to the nearest 100, where lower values represent more deprived areas.
+
+[addresses_imd]: https://www.gov.uk/government/statistics/english-indices-of-deprivation-2019
+
+ * Always >= 0, <= 32800, and a multiple of 100
   </dd>
 </div>
 
@@ -478,6 +535,28 @@ patient's date of birth.
     <summary>View method definition</summary>
 ```py
 return (date - patients.date_of_birth).years
+
+```
+    </details>
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="patients.has_practice_registration_spanning">
+    <strong>has_practice_registration_spanning(</strong>start_date, end_date<strong>)</strong>
+    <a class="headerlink" href="#patients.has_practice_registration_spanning" title="Permanent link">🔗</a>
+    <code></code>
+  </dt>
+  <dd markdown="block">
+Whether a patient's registration spans the entire period between
+`start_date` and `end_date`.
+    <details markdown="block">
+    <summary>View method definition</summary>
+```py
+return patients.registration_start_date.is_on_or_before(start_date) & (
+    patients.registration_end_date.is_after(end_date)
+    | patients.registration_end_date.is_null()
+)
 
 ```
     </details>
