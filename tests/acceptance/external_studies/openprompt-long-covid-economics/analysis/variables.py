@@ -4,7 +4,7 @@ from ehrql.tables.tpp import (
     clinical_events,
     appointments,
     emergency_care_attendances,
-    hospital_admissions,
+    apcs,
     patients,
     practice_registrations,
     sgss_covid_all_tests,
@@ -57,20 +57,20 @@ def add_hx_gp_visits(dataset, num_months):
 # # Function codes for hospitalisation visit counts：
 def add_hos_visits(dataset, from_date, num_months, end_date):
     # Number of Hospitalisation within `num_months` of `from_date`
-    num_visits = hospital_admissions \
-        .where((hospital_admissions.discharge_date >= (hospital_admissions.admission_date + days(1))) &
-               (hospital_admissions.admission_date >= from_date + days((num_months-1)*30)) &
-               (hospital_admissions.admission_date < from_date + days(num_months*30)) &
-               (hospital_admissions.admission_date <= end_date)) \
+    num_visits = apcs \
+        .where((apcs.discharge_date >= (hospital_admissions.admission_date + days(1))) &
+               (apcs.admission_date >= from_date + days((num_months-1)*30)) &
+               (apcs.admission_date < from_date + days(num_months*30)) &
+               (apcs.admission_date <= end_date)) \
         .admission_date.count_distinct_for_patient()
     setattr(dataset, f"hos_visit_m{num_months}", num_visits)
 
 # Historical hospital visit
 def add_hx_hos_visits(dataset, num_months):
     # Number of Hospitalisation within `num_months` of `from_date`
-    num_visits = hospital_admissions \
-        .where((hospital_admissions.admission_date >= hx_study_start_date + days((num_months-1)*30)) &
-               (hospital_admissions.discharge_date  <  hx_study_start_date + days(num_months*30))) \
+    num_visits = apcs \
+        .where((apcs.admission_date >= hx_study_start_date + days((num_months-1)*30)) &
+               (apcs.discharge_date  <  hx_study_start_date + days(num_months*30))) \
         .admission_date.count_distinct_for_patient()
     setattr(dataset, f"hx_hos_visit_m{num_months}", num_visits)
 
@@ -340,21 +340,21 @@ def cost_opa_fn(dataset, from_date, num_months, end_date):
 
 
 def hos_stay_long_fn(dataset, from_date, end_date):
-    hos_stay_long = hospital_admissions \
-        .where((hospital_admissions.admission_date >= from_date) &
-               (hospital_admissions.discharge_date >= (hospital_admissions.admission_date + days(1))) &
-               ((hospital_admissions.discharge_date > (hospital_admissions.admission_date + days(14)))) &
-               ((hospital_admissions.admission_date + days(14)) <= end_date)) \
+    hos_stay_long = apcs \
+        .where((apcs.admission_date >= from_date) &
+               (apcs.discharge_date >= (hospital_admissions.admission_date + days(1))) &
+               ((apcs.discharge_date > (hospital_admissions.admission_date + days(14)))) &
+               ((apcs.admission_date + days(14)) <= end_date)) \
         .count_for_patient()
     setattr(dataset, "hos_stay_long_count", hos_stay_long)
 
 
 def hos_stay_short_fn(dataset, from_date, end_date):
-    hos_stay_short = hospital_admissions \
-        .where((hospital_admissions.admission_date >= from_date) &
-               (hospital_admissions.discharge_date >= (hospital_admissions.admission_date + days(1))) &
-               ((hospital_admissions.discharge_date <= (hospital_admissions.admission_date + days(14)))) &
-               ((hospital_admissions.discharge_date <= end_date))) \
+    hos_stay_short = apcs \
+        .where((apcs.admission_date >= from_date) &
+               (apcs.discharge_date >= (hospital_admissions.admission_date + days(1))) &
+               ((apcs.discharge_date <= (hospital_admissions.admission_date + days(14)))) &
+               ((apcs.discharge_date <= end_date))) \
         .count_for_patient()
     setattr(dataset, "hos_stay_short_count", hos_stay_short)
 

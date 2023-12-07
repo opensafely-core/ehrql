@@ -287,7 +287,7 @@ dataset.covidemergency_0_date = (
 
 
 # Positive covid admission prior to study start date
-hosp = schema.hospital_admissions
+hosp = schema.apcs
 
 dataset.covidadmitted_0_date = (
     hospitalisation_diagnosis_matches(hosp, codelists.covid_icd10)

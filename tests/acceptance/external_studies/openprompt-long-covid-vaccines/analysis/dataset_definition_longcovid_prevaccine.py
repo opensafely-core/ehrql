@@ -8,7 +8,7 @@ from ehrql.tables.tpp import (
   vaccinations,
   ons_deaths,
   sgss_covid_all_tests,
-  hospital_admissions
+  apcs
 )
 from variable_lib import (
   age_as_of,
