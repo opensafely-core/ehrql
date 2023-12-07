@@ -4,6 +4,7 @@ import inspect
 import unittest.mock
 import uuid
 from dataclasses import dataclass
+from enum import Enum, auto
 from pathlib import Path
 
 import markdown
@@ -96,12 +97,25 @@ class MarkdownFenceExtractor:
         ).convert(content)
 
 
+class EhrqlExampleDefinitionType(Enum):
+    """Identifies the different kinds of ehrQL definitions."""
+
+    DATASET = auto()
+    MEASURE = auto()
+
+
 @dataclass
-class DatasetDefinitionExample:
-    """Stores details of a complete ehrQL dataset definition example.
+class EhrqlExample:
+    """Stores details of an ehrQL definition example.
 
     The origin of such an example may be a Markdown fence,
-    or a standalone Python module."""
+    or a standalone Python module.
+
+    Such examples to be tested should be complete examples,
+    not partial snippets of examples.
+
+    An EhrqlExample itself is not validated as a correct ehrQL definition example at creation,
+    but used as part of the tests to validate the ehrQL."""
 
     path: Path
     # This fence number count includes all fences,
@@ -115,6 +129,11 @@ class DatasetDefinitionExample:
         to the source code root."""
         source_code_path = Path(__file__).parents[2]
         return self.path.relative_to(source_code_path)
+
+    def get_definition_type(self):
+        # TODO: actually check what we have
+        # Look for create_measures() or create_dataset()
+        return EhrqlExampleDefinitionType.DATASET
 
 
 def discover_paths(glob_string):
@@ -132,7 +151,7 @@ def find_complete_ehrql_examples_in_markdown(file):
 
     for fence_number, fence in enumerate(f.fences, start=1):
         if fence.language == "ehrql":
-            example = DatasetDefinitionExample(
+            example = EhrqlExample(
                 path=Path(file.name),
                 fence_number=fence_number,
                 source=fence.source,
@@ -141,7 +160,7 @@ def find_complete_ehrql_examples_in_markdown(file):
 
 
 def generate_complete_ehrql_examples():
-    """Yields all complete ehrQL DatasetDefinitionExamples from the Markdown documentation."""
+    """Yields all complete EhrqlExamples from the Markdown documentation."""
     markdown_paths = list(discover_paths("**/*.md"))
     assert len(markdown_paths) > 0, "No Markdown files found"
 
@@ -149,14 +168,14 @@ def generate_complete_ehrql_examples():
         with open(p) as f:
             yield from find_complete_ehrql_examples_in_markdown(f)
 
-    dataset_definition_source_paths = list(discover_paths("**/*.py"))
-    assert len(dataset_definition_source_paths) > 0, "No .py files found"
+    python_source_paths = list(discover_paths("**/*.py"))
+    assert len(python_source_paths) > 0, "No .py files found"
 
-    for p in dataset_definition_source_paths:
+    for p in python_source_paths:
         with open(p) as f:
             content = f.read()
         assert len(content) > 0
-        yield DatasetDefinitionExample(
+        yield EhrqlExample(
             path=Path(f.name),
             fence_number=None,
             source=content,
@@ -164,7 +183,7 @@ def generate_complete_ehrql_examples():
 
 
 def create_example_test_case_id(example):
-    """Returns a test case ID for pytest from a specific DatasetDefinitionExample."""
+    """Returns a test case ID for pytest from a specific EhrqlExample."""
     test_id = f"{example.relative_path()}"
     if example.fence_number is not None:
         test_id += f"; fence {example.fence_number}"
@@ -185,7 +204,7 @@ def validate_dataset_output(dataset_path):
         pass
 
 
-class DatasetDefinitionTestError(Exception):
+class EhrqlExampleTestError(Exception):
     pass
 
 
@@ -194,13 +213,13 @@ class DatasetDefinitionTestError(Exception):
     generate_complete_ehrql_examples(),
     ids=create_example_test_case_id,
 )
-def test_ehrql_generate_dataset_example(tmp_path, example):
+def test_ehrql_example(tmp_path, example):
     tmp_filename_base = str(uuid.uuid4())
 
-    tmp_dataset_definition_path = tmp_path / (tmp_filename_base + ".py")
-    tmp_dataset_definition_path.write_text(example.source)
+    tmp_example_path = tmp_path / (tmp_filename_base + ".py")
+    tmp_example_path.write_text(example.source)
 
-    tmp_dataset_path = tmp_path / (tmp_filename_base + ".csv")
+    tmp_output_path = tmp_path / (tmp_filename_base + ".csv")
 
     code_column_name = "code"
     category_column_name = "category"
@@ -272,8 +291,8 @@ def test_ehrql_generate_dataset_example(tmp_path, example):
             # No name needed to store a value:
             # the output CSV gets written to a temporary file.
             ehrql.main.generate_dataset(
-                tmp_dataset_definition_path,
-                tmp_dataset_path,
+                tmp_example_path,
+                tmp_output_path,
                 dsn=None,
                 backend_class=None,
                 query_engine_class=None,
@@ -283,13 +302,13 @@ def test_ehrql_generate_dataset_example(tmp_path, example):
                 user_args=(),
             )
         except Exception as e:
-            raise DatasetDefinitionTestError(
+            raise EhrqlExampleTestError(
                 f"generate_dataset failed for example: {formatted_example}"
             ) from e
 
     try:
-        validate_dataset_output(tmp_dataset_path)
+        validate_dataset_output(tmp_output_path)
     except Exception as e:
-        raise DatasetDefinitionTestError(
+        raise EhrqlExampleTestError(
             f"Check of output dataset CSV failed for example: \n{formatted_example}"
         ) from e

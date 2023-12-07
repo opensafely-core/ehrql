@@ -12,7 +12,7 @@ from . import test_complete_examples
 # and are to help document and catch changes in behaviour
 # that we may be interested in.
 @pytest.mark.parametrize(
-    "fence,expected_dataset_definition_example",
+    "fence,expected_example",
     [
         pytest.param(
             textwrap.dedent(
@@ -22,7 +22,7 @@ from . import test_complete_examples
                 """
             ),
             [
-                test_complete_examples.DatasetDefinitionExample(
+                test_complete_examples.EhrqlExample(
                     path=Path("test"),
                     fence_number=1,
                     source="",
@@ -39,7 +39,7 @@ from . import test_complete_examples
                 """
             ),
             [
-                test_complete_examples.DatasetDefinitionExample(
+                test_complete_examples.EhrqlExample(
                     path=Path("test"),
                     fence_number=1,
                     source="some code",
@@ -57,7 +57,7 @@ from . import test_complete_examples
                 """
             ),
             [
-                test_complete_examples.DatasetDefinitionExample(
+                test_complete_examples.EhrqlExample(
                     path=Path("test"),
                     fence_number=1,
                     source="some code\nmore code",
@@ -76,7 +76,7 @@ from . import test_complete_examples
                 """
             ),
             [
-                test_complete_examples.DatasetDefinitionExample(
+                test_complete_examples.EhrqlExample(
                     path=Path("test"),
                     fence_number=1,
                     source="some code\n```ehrql\nmore code",
@@ -95,7 +95,7 @@ from . import test_complete_examples
                 """
             ),
             [
-                test_complete_examples.DatasetDefinitionExample(
+                test_complete_examples.EhrqlExample(
                     path=Path("test"),
                     fence_number=1,
                     source="some code",
@@ -116,10 +116,10 @@ from . import test_complete_examples
                 """
             ),
             [
-                test_complete_examples.DatasetDefinitionExample(
+                test_complete_examples.EhrqlExample(
                     path=Path("test"), fence_number=1, source="some code"
                 ),
-                test_complete_examples.DatasetDefinitionExample(
+                test_complete_examples.EhrqlExample(
                     path=Path("test"), fence_number=2, source="more code"
                 ),
             ],
@@ -134,7 +134,7 @@ from . import test_complete_examples
                 """
             ),
             [
-                test_complete_examples.DatasetDefinitionExample(
+                test_complete_examples.EhrqlExample(
                     path=Path("test"), fence_number=1, source="some code"
                 ),
             ],
@@ -155,7 +155,7 @@ from . import test_complete_examples
                 """
             ),
             [
-                test_complete_examples.DatasetDefinitionExample(
+                test_complete_examples.EhrqlExample(
                     path=Path("test"), fence_number=1, source="some code"
                 ),
             ],
@@ -184,7 +184,7 @@ from . import test_complete_examples
         ),
     ],
 )
-def test_find_docs_examples(fence, expected_dataset_definition_example):
+def test_find_docs_examples(fence, expected_example):
     example = StringIO(fence)
     # Unlike file objects, StringIO objects do not have a name.
     # In the relevant code being tested,
@@ -194,4 +194,4 @@ def test_find_docs_examples(fence, expected_dataset_definition_example):
     result = list(
         test_complete_examples.find_complete_ehrql_examples_in_markdown(example)
     )
-    assert result == expected_dataset_definition_example
+    assert result == expected_example
