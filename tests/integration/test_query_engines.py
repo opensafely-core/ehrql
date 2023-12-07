@@ -4,7 +4,7 @@ from datetime import date
 import pytest
 import sqlalchemy
 
-from ehrql import create_dataset
+from ehrql import create_dataset, minimum_of, when
 from ehrql.query_model.nodes import Function, Value
 from ehrql.tables import (
     EventFrame,
@@ -290,4 +290,25 @@ def test_population_is_correctly_evaluated_for_containment_queries(engine):
     )
     assert engine.extract(dataset) == [
         {"patient_id": 2},
+    ]
+
+
+def test_horizontal_aggregation_wrapping_a_series_containment_query_works(engine):
+    # Horizontal aggregations in the MSSQL engine are a little odd, and the gentests
+    # exposed a bug here which we don't want to reoccur
+    dataset = create_dataset()
+    dataset.define_population(patients.exists_for_patient())
+    dataset.value = minimum_of(
+        when(patients.i.is_in(events.i)).then(0).otherwise(1),
+        2,
+    )
+
+    engine.populate(
+        {
+            patients: [{"patient_id": 1}],
+            events: [{"patient_id": 1}],
+        }
+    )
+    assert engine.extract(dataset) == [
+        {"patient_id": 1, "value": 1},
     ]
