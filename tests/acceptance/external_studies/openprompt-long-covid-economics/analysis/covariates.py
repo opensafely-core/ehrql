@@ -62,22 +62,22 @@ lc_dx = clinical_events.where(clinical_events.snomedct_code.is_in(lc_codelists_c
     .where(clinical_events.date <= study_end_date) \
     .sort_by(clinical_events.date) \
     .first_for_patient()# had lc dx and dx dates
-lc_dx_date = lc_dx.date.if_null_then(study_end_date)
+lc_dx_date = lc_dx.date.when_null_then(study_end_date)
 
 # define end date: lc dx date +12 | death | derigistration | post COVID-19 syndrome resolved
 one_year_after_start = lc_dx.date + days(365) 
-death_date = ons_deaths.date.if_null_then(study_end_date)
+death_date = ons_deaths.date.when_null_then(study_end_date)
 end_reg_date = practice_registrations \
     .where(practice_registrations.start_date <= study_start_date - days(90))\
     .except_where(practice_registrations.end_date <= study_start_date) \
     .sort_by(practice_registrations.start_date) \
-    .last_for_patient().end_date.if_null_then(study_end_date)
+    .last_for_patient().end_date.when_null_then(study_end_date)
 
 # The first recorded lc cure date
 lc_cure = clinical_events.where(clinical_events.snomedct_code ==  SNOMEDCTCode("1326351000000108")) \
     .sort_by(clinical_events.date) \
     .first_for_patient()
-lc_cure_date = lc_cure.date.if_null_then(study_end_date)
+lc_cure_date = lc_cure.date.when_null_then(study_end_date)
 
 
 # covid tests

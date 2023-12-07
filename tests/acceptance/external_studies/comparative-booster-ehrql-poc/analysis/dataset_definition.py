@@ -238,7 +238,7 @@ vaxx_job = schema.occupation_on_covid_vaccine_record
 dataset.hscworker = vaxx_job.where(vaxx_job.is_healthcare_worker).exists_for_patient()
 
 # TPP care home flag
-dataset.care_home_tpp = address.care_home_is_potential_match.if_null_then(False)
+dataset.care_home_tpp = address.care_home_is_potential_match.when_null_then(False)
 
 # Patients in long-stay nursing and residential care
 dataset.care_home_code = has_prior_event(codelists.carehome)

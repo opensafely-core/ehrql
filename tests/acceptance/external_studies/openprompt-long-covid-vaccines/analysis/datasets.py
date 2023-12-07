@@ -278,10 +278,10 @@ def add_common_variables(dataset, study_start_date, end_date, population):
 
     # care home flag ------------------------------------------------------------
     dataset.care_home = address_as_of(dataset.pt_start_date) \
-        .care_home_is_potential_match.if_null_then(False)
+        .care_home_is_potential_match.when_null_then(False)
 
     dataset.care_home_nursing = address_as_of(dataset.pt_start_date) \
-        .care_home_requires_nursing.if_null_then(False)
+        .care_home_requires_nursing.when_null_then(False)
 
     dataset.care_home_code = has_prior_event_snomed(codelists.care_home_flag)
 
