@@ -99,7 +99,7 @@ registered at the same practice for the duration of the study period.
 
 Examples of using ehrQL to calculation such periods can be found in the documentation
 on how to
-[use ehrQL to answer specifc questions](../../../how-to/examples#excluding-medications-for-patients-who-have-transferred-between-practices).
+[use ehrQL to answer specific questions](../../how-to/examples.md#excluding-medications-for-patients-who-have-transferred-between-practices).
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -156,7 +156,7 @@ The `ehrql.tables.raw.ons_deaths` table contains all registered deaths.
 
 !!! tip
     If you need to query for place of death, please note that
-    this is only available in the tpp backend"
+    this is only available in the `tpp` backend
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">

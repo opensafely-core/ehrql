@@ -1358,7 +1358,7 @@ registered at the same practice for the duration of the study period.
 
 Examples of using ehrQL to calculation such periods can be found in the documentation
 on how to
-[use ehrQL to answer specifc questions](../../../how-to/examples#excluding-medications-for-patients-who-have-transferred-between-practices).
+[use ehrQL to answer specific questions](../../how-to/examples.md#excluding-medications-for-patients-who-have-transferred-between-practices).
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
   <dl markdown="block">
@@ -2205,7 +2205,7 @@ based on these MCCDs.
 There is generally a lag between the death being recorded in ONS data and it
 appearing in the primary care record, but the coverage or recorded death is almost
 complete and the date of death is usually reliable when it appears. There is
-also a lag in ONS death recording (see [`ons_deaths`](/reference/schemas/core/#ons_deaths) below
+also a lag in ONS death recording (see [`ons_deaths`](#ons_deaths) below
 for more detail). You can find out more about the accuracy of date of death
 recording in primary care in:
 
@@ -2296,7 +2296,7 @@ return (date - patients.date_of_birth).years
 
 Each record corresponds to a patient's registration with a practice.
 
-See the [TPP backend information](../../backends.md#patients-included-in-the-tpp-backend)
+See the [TPP backend information](../backends.md#patients-included-in-the-tpp-backend)
 for details of which patients are included.
 <div markdown="block" class="definition-list-wrapper">
   <div class="title">Columns</div>
