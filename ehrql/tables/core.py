@@ -123,7 +123,7 @@ class ons_deaths(PatientFrame):
 
     !!! tip
         If you need to query for place of death, please note that
-        this is only available in the tpp backend"
+        this is only available in the `tpp` backend
 
     """
 
