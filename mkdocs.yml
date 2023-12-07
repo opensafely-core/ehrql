@@ -36,6 +36,7 @@ nav:
     - Backends: reference/backends.md
     - Table schemas: reference/schemas.md
     - Command line interface: reference/cli.md
+    - Upgrading ehrQL from v0 to v1: reference/upgrading-ehrql-from-v0-to-v1.md
   - Explanation:
     - Explanation: explanation/index.md
     - ehrQL backend tables: explanation/backend-tables.md
