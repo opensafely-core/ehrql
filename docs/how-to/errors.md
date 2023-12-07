@@ -124,7 +124,7 @@ dataset.age = patients.age_on("2023-01-01")
 
 Run the dataset definition with:
 ```
-opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
+opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py
 ```
 
 #### Error
@@ -168,7 +168,7 @@ dataset.age! = patients.age_on("2023-01-01") # age! is an invalid feature name.
 
 Run the dataset definition with:
 ```
-opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
+opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py
 ```
 
 #### Error
@@ -211,7 +211,7 @@ dataset.age = patients.age_on("2023-01-01")
 
 Run the dataset definition with:
 ```
-opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
+opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py
 ```
 
 #### Error
@@ -247,7 +247,7 @@ dataset.population = patients.age_on("2023-01-01") > 16
 
 Run the dataset definition with:
 ```
-opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
+opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py
 ```
 
 #### Error
@@ -297,7 +297,7 @@ dataset.variables = patients.age_on("2023-01-01") > 16
 
 Run the dataset definition with:
 ```
-opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
+opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py
 ```
 
 #### Error
@@ -338,7 +338,7 @@ dataset._age = age
 
 Run the dataset definition with:
 ```
-opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
+opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py
 ```
 
 #### Error
@@ -384,7 +384,7 @@ dataset.age = age1
 
 Run the dataset definition with:
 ```
-opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
+opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py
 ```
 
 #### Error
@@ -430,7 +430,7 @@ dataset.age
 
 Run the dataset definition with:
 ```
-opensafely exec ehrql:v0 generate-dataset analysis/dataset_definition.py
+opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py
 ```
 
 #### Error

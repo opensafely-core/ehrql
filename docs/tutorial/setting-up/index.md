@@ -65,7 +65,7 @@ Towards the bottom of the codespace, you will see the terminal.
 In the terminal, type
 
 ```
-opensafely exec ehrql:v0 --version
+opensafely exec ehrql:v1 --version
 ```
 
 and press ++enter++.
@@ -76,12 +76,12 @@ The codespace is working correctly.
 
 ??? tip "The anatomy of an OpenSAFELY command"
     What do the parts of the OpenSAFELY command
-    `opensafely exec ehrql:v0 --version`
+    `opensafely exec ehrql:v1 --version`
     do?
 
     * `opensafely exec` executes an OpenSAFELY action independently of other OpenSAFELY actions
     * `ehrql` is the OpenSAFELY action to execute
-    * `v0` is the major version of the ehrQL action
+    * `v1` is the major version of the ehrQL action
     * `--version` instructs the ehrQL action to display its full version
 
 [1]: https://docs.github.com/en/get-started/signing-up-for-github/signing-up-for-a-new-github-account

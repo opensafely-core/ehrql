@@ -7,7 +7,7 @@ that contains a small amount of dummy data.
 In the terminal, type
 
 ```
-opensafely exec ehrql:v0 sandbox example-data
+opensafely exec ehrql:v1 sandbox example-data
 ```
 
 and press ++enter++.
