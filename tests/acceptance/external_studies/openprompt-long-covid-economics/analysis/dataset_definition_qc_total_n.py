@@ -1,7 +1,7 @@
 from datetime import date
 
-from databuilder.ehrql import Dataset, days, years, months
-from databuilder.tables.beta.tpp import (
+from ehrql import Dataset, days, years, months
+from ehrql.tables.beta.tpp import (
     patients, addresses, appointments,
     practice_registrations, clinical_events, ons_deaths, 
 )

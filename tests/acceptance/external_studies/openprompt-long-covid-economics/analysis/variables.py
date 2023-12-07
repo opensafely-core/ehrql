@@ -1,6 +1,6 @@
 from datetime import date
-from databuilder.ehrql import Dataset, days, case, when, years
-from databuilder.tables.beta.tpp import (
+from ehrql import Dataset, days, case, when, years
+from ehrql.tables.beta.tpp import (
     clinical_events,
     appointments,
     emergency_care_attendances,
@@ -17,7 +17,7 @@ from ehrql.tables.beta.tpp import (
 from ehrql.tables.beta.raw.tpp import apcs_cost_historical
 
 from ehrql.tables.beta.core import medications
-from databuilder.codes import ICD10Code
+from ehrql.codes import ICD10Code
 from codelists import *
 import operator
 from functools import reduce

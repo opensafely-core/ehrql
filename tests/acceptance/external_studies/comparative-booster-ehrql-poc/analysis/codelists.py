@@ -1,4 +1,4 @@
-from databuilder.ehrql import codelist_from_csv
+from ehrql import codelist_from_csv
 
 covid_icd10 = codelist_from_csv(
     "codelists/opensafely-covid-identification.csv",

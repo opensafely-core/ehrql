@@ -1,4 +1,4 @@
-from databuilder.ehrql import Dataset, case, when, days
+from ehrql import Dataset, case, when, days
 import codelists
 
 from variable_lib import long_covid_events_during, long_covid_dx_during

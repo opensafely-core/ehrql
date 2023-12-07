@@ -1,4 +1,4 @@
-from databuilder.ehrql import codelist_from_csv
+from ehrql import codelist_from_csv
 
 # 1. Long COVID
 # # import different long COVID codelists:
