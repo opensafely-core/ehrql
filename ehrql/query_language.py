@@ -223,14 +223,6 @@ class BaseSeries:
             otherwise=self._cast(other),
         )
 
-    def if_null_then(self, other):
-        """
-        Deprecated alias for `when_null_then()`
-
-        This will be removed in future versions of ehrQL and shoud not be used.
-        """
-        return self.when_null_then(other)
-
     def is_in(self, other):
         """
         Return a boolean series which is True for each value in this series which is

@@ -784,10 +784,3 @@ def test_case_accepts_default_as_alias_for_otherwise():
 def test_case_rejects_default_and_otherwise_supplied_together():
     with pytest.raises(ValueError, match="Use `otherwise` instead of `default`"):
         case(when(events.f > 10).then("foo"), default="bar", otherwise="baz")
-
-
-def test_if_null_then_alias():
-    if_null = events.f.if_null_then(0.0)
-    when_null = events.f.when_null_then(0.0)
-
-    assert if_null._qm_node == when_null._qm_node
