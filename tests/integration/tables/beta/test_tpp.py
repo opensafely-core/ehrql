@@ -1,7 +1,7 @@
 from datetime import date
 
 from ehrql import Dataset
-from ehrql.tables.beta import tpp
+from ehrql.tables import tpp
 
 
 def test_practice_registrations_for_patient_on(in_memory_engine):

@@ -1,6 +1,6 @@
-## [beta.tpp](./beta.tpp/)
+## [tpp](./tpp/)
 <small class="subtitle">
-  <a href="./beta.tpp/"> view details → </a>
+  <a href="./tpp/"> view details → </a>
 </small>
 
 Available on backends: [**TPP**](../backends#tpp)
@@ -9,9 +9,9 @@ This schema defines the data (both primary care and externally linked) available
 OpenSAFELY-TPP backend. For more information about this backend, see
 "[SystmOne Primary Care](https://docs.opensafely.org/data-sources/systmone/)".
 
-## [beta.core](./beta.core/)
+## [core](./core/)
 <small class="subtitle">
-  <a href="./beta.core/"> view details → </a>
+  <a href="./core/"> view details → </a>
 </small>
 
 Available on backends: [**TPP**](../backends#tpp), [**EMIS**](../backends#emis)
@@ -20,9 +20,9 @@ This schema defines the core tables and columns which should be available in any
 providing primary care data, allowing dataset definitions written using this schema to
 run across multiple backends.
 
-## [beta.emis](./beta.emis/)
+## [emis](./emis/)
 <small class="subtitle">
-  <a href="./beta.emis/"> view details → </a>
+  <a href="./emis/"> view details → </a>
 </small>
 
 Available on backends: [**EMIS**](../backends#emis)
@@ -31,9 +31,9 @@ This schema defines the data (both primary care and externally linked) available
 OpenSAFELY-EMIS backend. For more information about this backend, see
 "[EMIS Primary Care](https://docs.opensafely.org/data-sources/emis/)".
 
-## [beta.raw.core](./beta.raw.core/)
+## [raw.core](./raw.core/)
 <small class="subtitle">
-  <a href="./beta.raw.core/"> view details → </a>
+  <a href="./raw.core/"> view details → </a>
 </small>
 
 Available on backends: [**TPP**](../backends#tpp), [**EMIS**](../backends#emis)
@@ -46,9 +46,9 @@ The data provided by this schema are minimally transformed. They are very close 
 data provided by the underlying database tables. They are provided for data development
 and data curation purposes.
 
-## [beta.raw.emis](./beta.raw.emis/)
+## [raw.emis](./raw.emis/)
 <small class="subtitle">
-  <a href="./beta.raw.emis/"> view details → </a>
+  <a href="./raw.emis/"> view details → </a>
 </small>
 
 Available on backends: [**EMIS**](../backends#emis)
@@ -61,9 +61,9 @@ The data provided by this schema are minimally transformed. They are very close 
 data provided by the underlying database tables. They are provided for data development
 and data curation purposes.
 
-## [beta.raw.tpp](./beta.raw.tpp/)
+## [raw.tpp](./raw.tpp/)
 <small class="subtitle">
-  <a href="./beta.raw.tpp/"> view details → </a>
+  <a href="./raw.tpp/"> view details → </a>
 </small>
 
 Available on backends: [**TPP**](../backends#tpp)
@@ -76,9 +76,9 @@ The data provided by this schema are minimally transformed. They are very close 
 data provided by the underlying database tables. They are provided for data development
 and data curation purposes.
 
-## [beta.smoketest](./beta.smoketest/)
+## [smoketest](./smoketest/)
 <small class="subtitle">
-  <a href="./beta.smoketest/"> view details → </a>
+  <a href="./smoketest/"> view details → </a>
 </small>
 
 Available on backends: [**TPP**](../backends#tpp), [**EMIS**](../backends#emis)

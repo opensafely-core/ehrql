@@ -58,7 +58,7 @@ For example if you type `1 + 1` and press the return key, you should see:
 To use ehrQL, you'll first need to import the tables that you want to interact with:
 
 ```pycon
->>> from ehrql.tables.beta.core import patients, medications
+>>> from ehrql.tables.core import patients, medications
 ```
 
 Now, you can inspect the contents of these tables, by entering the names of the tables:
@@ -189,7 +189,7 @@ and save it in your `learning-ehrql` directory:
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients, medications
+from ehrql.tables.core import patients, medications
 
 dataset = create_dataset()
 

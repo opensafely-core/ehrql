@@ -1,9 +1,9 @@
 import sqlalchemy
 
 from ehrql.query_language import get_tables_from_namespace
-from ehrql.tables.beta import emis, tpp
-from ehrql.tables.beta.raw import emis as emis_raw
-from ehrql.tables.beta.raw import tpp as tpp_raw
+from ehrql.tables import emis, tpp
+from ehrql.tables.raw import emis as emis_raw
+from ehrql.tables.raw import tpp as tpp_raw
 
 
 REGISTERED_TABLES = set()

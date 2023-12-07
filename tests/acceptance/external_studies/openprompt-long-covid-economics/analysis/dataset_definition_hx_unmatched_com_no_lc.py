@@ -1,7 +1,7 @@
 from datetime import date
 
 from ehrql import Dataset, days, years, months
-from ehrql.tables.beta.tpp import (
+from ehrql.tables.tpp import (
     patients, addresses, appointments,
     practice_registrations, clinical_events,
     sgss_covid_all_tests, ons_deaths, 

@@ -1,7 +1,7 @@
 from ehrql import Dataset, when, case, days
 from datetime import date
 from variable_lib import long_covid_events_during, long_covid_dx_during
-from ehrql.tables.beta.tpp import (
+from ehrql.tables.tpp import (
   patients,
   practice_registrations,
   clinical_events,

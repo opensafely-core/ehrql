@@ -52,7 +52,7 @@ for all patients born on or before 31 December 1999.
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients, medications
+from ehrql.tables.core import patients, medications
 
 dataset = create_dataset()
 

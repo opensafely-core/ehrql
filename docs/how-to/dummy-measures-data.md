@@ -47,7 +47,7 @@ For example, take this simple measures definition:
 ```python
 from ehrql import create_measures, years
 from ehrql.measures import INTERVAL
-from ehrql.tables.beta.core import patients, clinical_events
+from ehrql.tables.core import patients, clinical_events
 
 events_in_interval = clinical_events.where(clinical_events.date.is_during(INTERVAL))
 had_event = events_in_interval.exists_for_patient()

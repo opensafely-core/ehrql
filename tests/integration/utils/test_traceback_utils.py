@@ -5,7 +5,7 @@ import pytest
 
 import ehrql
 from ehrql.loaders import DefinitionError, load_module
-from ehrql.tables.beta import smoketest
+from ehrql.tables import smoketest
 
 
 FIXTURES = Path(__file__).parents[2] / "fixtures" / "bad_definition_files"

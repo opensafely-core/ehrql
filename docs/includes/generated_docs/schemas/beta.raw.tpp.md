@@ -1,4 +1,4 @@
-# <strong>beta.raw.tpp</strong> schema
+# <strong>raw.tpp</strong> schema
 
 Available on backends: [**TPP**](../../backends#tpp)
 
@@ -11,7 +11,7 @@ data provided by the underlying database tables. They are provided for data deve
 and data curation purposes.
 
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
-from ehrql.tables.beta.raw.tpp import (
+from ehrql.tables.raw.tpp import (
     apcs_cost_historical,
     apcs_historical,
     isaric,
@@ -832,10 +832,10 @@ More information about this table can be found in following documents provided b
 In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
 a small number of patients have multiple registered deaths.
 This table contains all registered deaths.
-The `ehrql.tables.beta.ons_deaths` table contains the earliest registered death.
+The `ehrql.tables.ons_deaths` table contains the earliest registered death.
 
 !!! tip
-    To return one row per patient from `ehrql.tables.beta.raw.ons_deaths`,
+    To return one row per patient from `ehrql.tables.raw.ons_deaths`,
     for example the latest registered death, you can use:
 
     ```py

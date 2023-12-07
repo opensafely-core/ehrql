@@ -17,7 +17,7 @@ Suppose we want to know what proportion of the patients prescribed atorvastatin 
 
 ```python
 from ehrql import INTERVAL, case, create_measures, months, when
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 
 # Every measure definitions file must include this line
 measures = create_measures()

@@ -4,8 +4,7 @@ import pytest
 
 import ehrql.tables
 from ehrql.query_language import get_tables_from_namespace
-from ehrql.tables import Constraint
-from ehrql.tables.beta import tpp
+from ehrql.tables import Constraint, tpp
 from ehrql.utils.module_utils import get_submodules
 
 

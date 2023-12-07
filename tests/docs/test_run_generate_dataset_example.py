@@ -13,7 +13,7 @@ def test_run_generate_dataset_example(tmp_path):
         source=textwrap.dedent(
             """\
             from ehrql import create_dataset
-            from ehrql.tables.beta.tpp import patients
+            from ehrql.tables.tpp import patients
 
             dataset = create_dataset()
             dataset.define_population(patients.exists_for_patient())
@@ -48,7 +48,7 @@ def test_run_generate_dataset_example_failing_codelist_from_csv_call(tmp_path):
         source=textwrap.dedent(
             """\
             from ehrql import codelist_from_csv, create_dataset
-            from ehrql.tables.beta.tpp import patients
+            from ehrql.tables.tpp import patients
 
             codes = codelist_from_csv()
 
@@ -73,7 +73,7 @@ def test_run_generate_dataset_example_gives_unreadable_csv(tmp_path):
         source=textwrap.dedent(
             """\
             from ehrql import create_dataset
-            from ehrql.tables.beta.tpp import patients
+            from ehrql.tables.tpp import patients
 
             dataset = create_dataset()
             dataset.define_population(patients.exists_for_patient())

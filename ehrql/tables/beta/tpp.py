@@ -8,7 +8,7 @@ import datetime
 from ehrql import case, when
 from ehrql.codes import CTV3Code, ICD10Code, OPCS4Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 
 
 __all__ = [
@@ -571,7 +571,7 @@ class ons_deaths(PatientFrame):
     In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
     a small number of patients have multiple registered deaths.
     This table contains the earliest registered death.
-    The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
+    The `ehrql.tables.raw.ons_deaths` table contains all registered deaths.
 
     !!! warning
         There is also a lag in ONS death recording caused amongst other things by things like autopsies and inquests delaying

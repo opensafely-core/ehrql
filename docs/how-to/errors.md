@@ -115,7 +115,7 @@ For example, there is an indentation error in the following dataset definition.
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -144,7 +144,7 @@ the error occurred on.
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -160,7 +160,7 @@ For example, a name — `age!` — with a non-alphanumeric character is invalid:
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age! = patients.age_on("2023-01-01") # age! is an invalid feature name.
@@ -186,7 +186,7 @@ SyntaxError: invalid syntax
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age = patients.age_on("2023-01-01") # We have changed the invalid feature name, "age!", to a valid one, "age".
@@ -203,7 +203,7 @@ rather than Python.
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -224,7 +224,7 @@ A population has not been defined; define one with define_population()
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -239,7 +239,7 @@ There are a few constraints on feature names in ehrQL.
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.population = patients.age_on("2023-01-01") > 16
@@ -266,7 +266,7 @@ Define population with the `define_population` syntax:
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.define_population(patients.age_on("2023-01-01") > 16)
@@ -276,7 +276,7 @@ Or rename the feature, if it is required as a separate output:
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.over_16 = patients.age_on("2023-01-01") > 16
@@ -288,7 +288,7 @@ dataset.over_16 = patients.age_on("2023-01-01") > 16
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.variables = patients.age_on("2023-01-01") > 16
@@ -315,7 +315,7 @@ Rename the feature to something other than `variables`.
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age_greater_than_16 = patients.age_on("2023-01-01") > 16
@@ -328,7 +328,7 @@ dataset.age_greater_than_16 = patients.age_on("2023-01-01") > 16
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -356,7 +356,7 @@ AttributeError: Variable names must start with a letter, and contain only alphan
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -372,7 +372,7 @@ In the following dataset definition, `dataset.age` is first defined as `age` and
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2000-01-01")
@@ -401,7 +401,7 @@ AttributeError: 'age' is already set and cannot be reassigned
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2000-01-01")
@@ -420,7 +420,7 @@ defined on its own, but has not been defined when set on the dataset:
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2000-01-01")
@@ -446,7 +446,7 @@ AttributeError: Variable 'age' has not been defined
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2000-01-01")
@@ -460,7 +460,7 @@ dataset.age = age # dataset.age is now defined
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import practice_registrations
+from ehrql.tables.tpp import practice_registrations
 
 dataset = create_dataset()
 dataset.registered_on = practice_registrations.start_date
@@ -485,7 +485,7 @@ last registration for each patient, and *then* get the start date.
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import practice_registrations
+from ehrql.tables.tpp import practice_registrations
 
 dataset = create_dataset()
 latest_registration_per_patient = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
@@ -501,7 +501,7 @@ we have not selected a value as the feature:
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import practice_registrations
+from ehrql.tables.tpp import practice_registrations
 
 dataset = create_dataset()
 dataset.registered_on = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
@@ -523,7 +523,7 @@ Fix the dataset definition by setting the feature to a single value, in this cas
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import practice_registrations
+from ehrql.tables.tpp import practice_registrations
 
 dataset = create_dataset()
 latest_registration_per_patient = practice_registrations.sort_by(practice_registrations.start_date).last_for_patient()
@@ -541,7 +541,7 @@ try to define the population by comparing age to the string `"10"`
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -562,7 +562,7 @@ ehrql.query_model.nodes.TypeValidationError: GE.rhs requires 'ehrql.query_model.
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -578,7 +578,7 @@ these are prohibited and will raise an error.
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -602,7 +602,7 @@ As described in the error message, use the operator `&` instead:
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -617,7 +617,7 @@ Chained comparisons are not allowed in ehrQL.
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -639,7 +639,7 @@ TypeError: The keywords 'and', 'or', and 'not' cannot be used with ehrQL, please
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -654,7 +654,7 @@ In the following dataset, `age` is an integer. We cannot subtract a float from i
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -675,7 +675,7 @@ ehrql.query_model.nodes.TypeValidationError: Subtract.rhs requires 'ehrql.query_
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -688,7 +688,7 @@ dataset.age_minus_5 = age - 5
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age_in_may = "2023-05-01" - patients.date_of_birth
@@ -710,7 +710,7 @@ To fix this error, specify the units of the date difference that you want in the
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age_in_may = ("2023-05-01" - patients.date_of_birth).years
@@ -722,7 +722,7 @@ dataset.age_in_may = ("2023-05-01" - patients.date_of_birth).years
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.date_at_age_16 = patients.date_of_birth + 16
@@ -745,7 +745,7 @@ we are adding (days, months, years).
 
 ```python
 from ehrql import create_dataset, years
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.date_at_age_16 = patients.date_of_birth + years(16)
@@ -757,7 +757,7 @@ dataset.date_at_age_16 = patients.date_of_birth + years(16)
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import clinical_events
+from ehrql.tables.core import clinical_events
 
 dataset = create_dataset()
 first_event = clinical_events.sort_by(date).first_for_patient()
@@ -780,7 +780,7 @@ Columns can be specified as the table attribute:
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import clinical_events
+from ehrql.tables.core import clinical_events
 
 dataset = create_dataset()
 first_event = clinical_events.sort_by(clinical_events.date).first_for_patient()
@@ -791,7 +791,7 @@ They can also be specified as a name string:
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import clinical_events
+from ehrql.tables.core import clinical_events
 
 dataset = create_dataset()
 first_event = clinical_events.sort_by("date").first_for_patient()
@@ -808,7 +808,7 @@ an error - any default value given for a case statement must be of the same type
 
 ```python
 from ehrql import create_dataset, case, when
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 
@@ -834,7 +834,7 @@ ehrql.query_model.nodes.TypeValidationError: Case.default requires 'ehrql.query_
 
 ```python
 from ehrql import create_dataset, case, when
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 
@@ -852,7 +852,7 @@ dataset.age_group = case(
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 
@@ -883,7 +883,7 @@ All of the following features defined with `is_in` are valid.
 
 ```python
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 

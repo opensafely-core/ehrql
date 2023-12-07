@@ -3,7 +3,7 @@ from functools import reduce
 
 from ehrql.codes import CTV3Code, ICD10Code
 from ehrql import case, days, when
-from ehrql.tables.beta import tpp as schema
+from ehrql.tables import tpp as schema
 
 
 def any_of(conditions):

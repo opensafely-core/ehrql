@@ -5,7 +5,7 @@ from ehrql import (
     days,
     when,
 )
-from ehrql.tables.beta.tpp import (
+from ehrql.tables.tpp import (
     addresses,
     clinical_events,
     hospital_admissions,

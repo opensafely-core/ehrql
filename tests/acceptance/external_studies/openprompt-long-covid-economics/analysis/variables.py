@@ -1,6 +1,6 @@
 from datetime import date
 from ehrql import Dataset, days, case, when, years
-from ehrql.tables.beta.tpp import (
+from ehrql.tables.tpp import (
     clinical_events,
     appointments,
     emergency_care_attendances,
@@ -11,12 +11,12 @@ from ehrql.tables.beta.tpp import (
     ons_deaths,
 )
 
-from ehrql.tables.beta.tpp import (
+from ehrql.tables.tpp import (
 	opa_diag, opa_proc, opa_cost, ec_cost,
 )
-from ehrql.tables.beta.raw.tpp import apcs_cost_historical
+from ehrql.tables.raw.tpp import apcs_cost_historical
 
-from ehrql.tables.beta.core import medications
+from ehrql.tables.core import medications
 from ehrql.codes import ICD10Code
 from codelists import *
 import operator

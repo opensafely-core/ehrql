@@ -5,7 +5,7 @@
 # local variables for defining covariates
 from datetime import date
 from ehrql import Dataset, days, years,  case, when
-from ehrql.tables.beta.tpp import (
+from ehrql.tables.tpp import (
     patients, addresses, appointments, vaccinations,
     practice_registrations, clinical_events,
     sgss_covid_all_tests, ons_deaths, hospital_admissions,

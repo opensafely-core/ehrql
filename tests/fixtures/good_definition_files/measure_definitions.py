@@ -1,6 +1,6 @@
 # noqa: INP001
 from ehrql import INTERVAL, Measures, years
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 
 measures = Measures()
