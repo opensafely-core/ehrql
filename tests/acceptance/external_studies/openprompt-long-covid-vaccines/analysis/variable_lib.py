@@ -40,7 +40,7 @@ def address_as_of(date):
     # Prefer the address registered for longest
     addr.end_date,
     # Prefer addresses with a postcode
-    case(when(addr.has_postcode).then(1), default=0),
+    case(when(addr.has_postcode).then(1), otherwise=0),
     # Use the opaque ID as a tie-breaker for sort stability
     addr.address_id,
   )

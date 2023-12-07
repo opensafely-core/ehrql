@@ -165,7 +165,7 @@ dataset.bmi = case(
     when((bmi_value >= 35.0) & (bmi_value < 40.0)).then("Obese II (35-39.9)"),
     # Set maximum to avoid any impossibly extreme values being classified as obese
     when((bmi_value >= 40.0) & (bmi_value < 100.0)).then("Obese III (40+)"),
-    default="Not obese",
+    otherwise="Not obese",
 )
 
 # Ethnicity in 6 categories
@@ -225,7 +225,7 @@ dataset.imd_Q5 = case(
     when((imd >= 32844 * 2 // 5) & (imd < 32844 * 3 // 5)).then("3"),
     when((imd >= 32844 * 3 // 5) & (imd < 32844 * 4 // 5)).then("4"),
     when((imd >= 32844 * 4 // 5) & (imd <= 32844)).then("5 (least deprived)"),
-    default="Unknown",
+    otherwise="Unknown",
 )
 
 
