@@ -11,8 +11,10 @@ def test_gentest_example_simplify():
           population=AggregateByPatient.Exists(
               SelectPatientTable("p0", TableSchema(i1=Column(int)))
           ),
-          variable=SelectColumn(
-              SelectPatientTable("p0", TableSchema(i1=Column(int))), "i1"
+          variable=Negate(
+              SelectColumn(
+                  SelectPatientTable("p0", TableSchema(i1=Column(int))), "i1"
+              )
           )
           data=[
               {"type": data_setup.P0, "patient_id": 1},
@@ -20,4 +22,4 @@ def test_gentest_example_simplify():
         """
     )
     result = simplify(example)
-    assert "variable = p0_i1" in result
+    assert "variable = Function.Negate(p0_i1)" in result
