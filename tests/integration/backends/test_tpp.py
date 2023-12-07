@@ -631,6 +631,7 @@ def test_hospital_admissions(select_all_tpp):
 def test_household_memberships_2020(select_all_tpp):
     results = select_all_tpp(
         Patient(Patient_ID=1),
+        Patient(Patient_ID=2),
         Household(
             Household_ID=123,
             HouseholdSize=5,
@@ -639,12 +640,25 @@ def test_household_memberships_2020(select_all_tpp):
             Patient_ID=1,
             Household_ID=123,
         ),
+        Household(
+            Household_ID=0,
+            HouseholdSize=0,
+        ),
+        HouseholdMember(
+            Patient_ID=2,
+            Household_ID=0,
+        ),
     )
     assert results == [
         {
             "patient_id": 1,
             "household_pseudo_id": 123,
             "household_size": 5,
+        },
+        {
+            "patient_id": 2,
+            "household_pseudo_id": None,
+            "household_size": None,
         },
     ]
 

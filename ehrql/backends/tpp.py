@@ -368,8 +368,8 @@ class TPPBackend(SQLBackend):
         """
             SELECT
                 mb.Patient_ID AS patient_id,
-                hh.Household_ID AS household_pseudo_id,
-                hh.HouseholdSize AS household_size
+                NULLIF(hh.Household_ID, 0) AS household_pseudo_id,
+                NULLIF(hh.HouseholdSize, 0) AS household_size
             FROM HouseholdMember AS mb
             LEFT JOIN Household AS hh
             ON mb.Household_ID = hh.Household_ID
