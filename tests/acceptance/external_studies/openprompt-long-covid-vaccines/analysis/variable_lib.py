@@ -105,7 +105,7 @@ def hospitalisation_primary_diagnosis_matches(admissions, codelist):
     code_string = ICD10Code(code)._to_primitive_type()
     code_strings.add(code_string)
   conditions = [
-    admissions.primary_diagnoses.contains(code_string)
+    admissions.primary_diagnosis.contains(code_string)
     for code_string in code_strings
   ]
   return admissions.where(any_of(conditions))
@@ -137,7 +137,7 @@ def long_covid_dx_during(start, end):
 
 
 def long_covid_inhosp(start, end):
-    in_study_admissions = schema.hospital_admissions \
-      .where(schema.hospital_admissions.admission_date.is_between_but_not_on(start, end))
+    in_study_admissions = schema.apcs \
+      .where(schema.apcs.admission_date.is_between_but_not_on(start, end))
 
     return hospitalisation_diagnosis_matches(admissions=in_study_admissions, codelist=codelists.long_covid_hosp)

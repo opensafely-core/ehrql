@@ -8,7 +8,7 @@ from ehrql import Dataset, days, years,  case, when
 from ehrql.tables.tpp import (
     patients, addresses, appointments, medications,
     practice_registrations, clinical_events,
-    sgss_covid_all_tests, ons_deaths, hospital_admissions,
+    sgss_covid_all_tests, ons_deaths, apcs,
 )
 from ehrql.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
 import codelists

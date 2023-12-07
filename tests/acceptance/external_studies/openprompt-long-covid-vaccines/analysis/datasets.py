@@ -9,7 +9,7 @@ from ehrql.tables.tpp import (
   vaccinations,
   ons_deaths,
   sgss_covid_all_tests,
-  hospital_admissions
+  apcs
 )
 import datetime
 
@@ -93,7 +93,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
         .count_for_patient()
 
     # covid hospitalisation ------------------------------------------------------------
-    covid_hospitalisations = hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_covid)
+    covid_hospitalisations = hospitalisation_diagnosis_matches(apcs, codelists.hosp_covid)
     
     all_covid_hosp = covid_hospitalisations \
         .except_where(covid_hospitalisations.admission_date >= dataset.pt_end_date - days(covid_to_longcovid_lag))
@@ -108,7 +108,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     dataset.first_covid_hosp = first_covid_hosp.admission_date
     dataset.first_covid_discharge = first_covid_hosp.discharge_date
     dataset.first_covid_critical = first_covid_hosp.days_in_critical_care > 0
-    dataset.first_covid_hosp_primary_dx = first_covid_hosp.primary_diagnoses.is_in(codelists.hosp_covid)
+    dataset.first_covid_hosp_primary_dx = first_covid_hosp.primary_diagnosis.is_in(codelists.hosp_covid)
 
     # Any covid identification ------------------------------------------------------------
     primarycare_covid = clinical_events \
@@ -269,7 +269,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
         dataset.temp_immune_codes
 
     # negative control outcome - hospital fractures -------------------------------
-    fracture_hospitalisations = hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_fractures)
+    fracture_hospitalisations = hospitalisation_diagnosis_matches(apcs, codelists.hosp_fractures)
 
     dataset.first_fracture_hosp = fracture_hospitalisations \
         .where(fracture_hospitalisations.admission_date.is_between_but_not_on(dataset.pt_start_date, dataset.pt_end_date)) \

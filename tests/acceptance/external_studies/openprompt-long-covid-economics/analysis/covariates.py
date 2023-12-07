@@ -8,7 +8,7 @@ from ehrql import Dataset, days, years,  case, when
 from ehrql.tables.tpp import (
     patients, addresses, appointments, vaccinations,
     practice_registrations, clinical_events,
-    sgss_covid_all_tests, ons_deaths, hospital_admissions,
+    sgss_covid_all_tests, ons_deaths, apcs,
 )
 
 from ehrql.codes import CTV3Code, DMDCode, ICD10Code, SNOMEDCTCode
@@ -122,9 +122,9 @@ bmi_date = bmi_record.date
 
 # Clinical factors:
 # 1. Previous hospitalized due to COVID (only look at hospitalisation before the index date)
-# previous_covid_hos = (hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_covid)
-#     .where(hospital_admissions.admission_date < index_date)
-#     .sort_by(hospital_admissions.admission_date)
+# previous_covid_hos = (hospitalisation_diagnosis_matches(apcs, codelists.hosp_covid)
+#     .where(apcs.admission_date < index_date)
+#     .sort_by(apcs.admission_date)
 #     .first_for_patient()
 # )
 # Mental issues:
