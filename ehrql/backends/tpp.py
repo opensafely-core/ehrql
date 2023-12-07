@@ -156,14 +156,24 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    apcs = MappedTable(
-        source="APCS",
-        columns={
-            "apcs_ident": "APCS_Ident",
-            "admission_date": "Admission_Date",
-            "discharge_date": "Discharge_Date",
-            "spell_core_hrg_sus": "Spell_Core_HRG_SUS",
-        },
+    apcs = QueryTable(
+        # There is a 1-1 relationship between APCS and APCS_Der
+        """
+            SELECT
+                apcs.Patient_ID AS patient_id,
+                apcs.APCS_Ident AS apcs_ident,
+                apcs.Admission_Date AS admission_date,
+                apcs.Discharge_Date AS discharge_date,
+                apcs.Spell_Core_HRG_SUS AS spell_core_hrg_sus,
+                apcs.Admission_Method AS admission_method,
+                apcs.Der_Diagnosis_All AS all_diagnoses,
+                apcs.Patient_Classification AS patient_classification,
+                CAST(der.Spell_PbR_CC_Day AS INTEGER) AS days_in_critical_care,
+                der.Spell_Primary_Diagnosis as primary_diagnosis
+            FROM APCS AS apcs
+            LEFT JOIN APCS_Der AS der
+            ON apcs.APCS_Ident = der.APCS_Ident
+        """
     )
 
     apcs_cost = QueryTable(
@@ -342,25 +352,6 @@ class TPPBackend(SQLBackend):
               GROUP BY Patient_ID, code
             ) t
             WHERE row_num = 1
-        """
-    )
-
-    hospital_admissions = QueryTable(
-        """
-            SELECT
-                apcs.Patient_ID AS patient_id,
-                apcs.APCS_Ident AS id,
-                apcs.Admission_Date AS admission_date,
-                apcs.Discharge_Date AS discharge_date,
-                apcs.Admission_Method AS admission_method,
-                apcs.Der_Diagnosis_All AS all_diagnoses,
-                apcs.Patient_Classification AS patient_classification,
-                CAST(der.Spell_PbR_CC_Day AS INTEGER) AS days_in_critical_care,
-                der.Spell_Primary_Diagnosis as primary_diagnoses,
-                der.Spell_Primary_Diagnosis as primary_diagnosis
-            FROM APCS AS apcs
-            LEFT JOIN APCS_Der AS der
-            ON apcs.APCS_Ident = der.APCS_Ident
         """
     )
 
