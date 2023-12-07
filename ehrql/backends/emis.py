@@ -80,7 +80,12 @@ class EMISBackend(SQLBackend):
                 ELSE 'unknown'
             END AS sex,
             date_of_birth,
-            date_of_death
+            date_of_death,
+            registered_date AS registration_start_date,
+            registration_end_date as registration_end_date,
+            hashed_organisation AS practice_pseudo_id,
+            imd_rank AS imd_rounded,
+            rural_urban AS rural_urban_classification
         FROM patient_all_orgs_v2
         WHERE registration_id NOT IN (
             SELECT registration_id

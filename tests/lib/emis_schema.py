@@ -17,6 +17,11 @@ class PatientAllOrgsV2(Base):
     gender = mapped_column(t.Integer)
     date_of_birth = mapped_column(t.Date)
     date_of_death = mapped_column(t.Date)
+    hashed_organisation = mapped_column(t.VARCHAR)
+    registered_date = mapped_column(t.Date)
+    registration_end_date = mapped_column(t.Date)
+    rural_urban = mapped_column(t.Integer)
+    imd_rank = mapped_column(t.BigInteger)
 
 
 class ObservationAllOrgsV2(Base):
