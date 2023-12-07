@@ -237,6 +237,14 @@ def test_apcs(select_all_tpp):
             Admission_Date=date(2023, 1, 1),
             Discharge_Date=date(2023, 2, 1),
             Spell_Core_HRG_SUS="XXX",
+            Der_Diagnosis_All="123;456;789",
+            Admission_Method="1A",
+            Patient_Classification="X",
+        ),
+        APCS_Der(
+            APCS_Ident=1,
+            Spell_PbR_CC_Day="5",
+            Spell_Primary_Diagnosis="A1",
         ),
     )
     assert results == [
@@ -246,6 +254,11 @@ def test_apcs(select_all_tpp):
             "admission_date": date(2023, 1, 1),
             "discharge_date": date(2023, 2, 1),
             "spell_core_hrg_sus": "XXX",
+            "all_diagnoses": "123;456;789",
+            "admission_method": "1A",
+            "patient_classification": "X",
+            "days_in_critical_care": 5,
+            "primary_diagnosis": "A1",
         },
     ]
 
@@ -589,41 +602,6 @@ def test_ethnicity_from_sus(select_all_tpp):
         {"patient_id": 1, "code": "B"},
         {"patient_id": 2, "code": "G"},
         {"patient_id": 3, "code": "E"},
-    ]
-
-
-@register_test_for(tpp.hospital_admissions)
-def test_hospital_admissions(select_all_tpp):
-    results = select_all_tpp(
-        Patient(Patient_ID=1),
-        APCS(
-            Patient_ID=1,
-            APCS_Ident=2,
-            Admission_Date="2021-01-01",
-            Discharge_Date="2021-01-10",
-            Admission_Method="1A",
-            Der_Diagnosis_All="123;456;789",
-            Patient_Classification="X",
-        ),
-        APCS_Der(
-            APCS_Ident=2,
-            Spell_PbR_CC_Day="5",
-            Spell_Primary_Diagnosis="A1",
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "id": 2,
-            "admission_date": date(2021, 1, 1),
-            "discharge_date": date(2021, 1, 10),
-            "admission_method": "1A",
-            "all_diagnoses": "123;456;789",
-            "patient_classification": "X",
-            "days_in_critical_care": 5,
-            "primary_diagnoses": "A1",
-            "primary_diagnosis": "A1",
-        }
     ]
 
 

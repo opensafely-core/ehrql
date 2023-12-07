@@ -21,7 +21,6 @@ __all__ = [
     "ec_cost",
     "emergency_care_attendances",
     "ethnicity_from_sus",
-    "hospital_admissions",
     "household_memberships_2020",
     "medications",
     "occupation_on_covid_vaccine_record",
@@ -203,6 +202,42 @@ class apcs(EventFrame):
             "according to the derivations made by NHS Digital "
             "prior to import to the National Commissioning Data Repository (NCDR). "
             "HRGs are used to assign baseline tariff costs."
+        ),
+    )
+    admission_method = Series(
+        str,
+        description=(
+            "Code identifying admission method. "
+            "Refer to [APCS data source documentation](https://docs.opensafely.org/data-sources/apc/) "
+            "for details of codes."
+        ),
+    )
+    primary_diagnosis = Series(
+        ICD10Code,
+        description=(
+            "Code indicating primary diagnosis. "
+            "This is not necessarily the primary reason for admission, "
+            "and could represent an escalation/complication of initial reason for admission."
+        ),
+    )
+    all_diagnoses = Series(
+        str,
+        description="Semicolon-separated list of all diagnosis codes.",
+    )
+    days_in_critical_care = Series(
+        int,
+        description=(
+            "Number of days spent in critical care. "
+            "This is counted in number of days (or part-days) "
+            'not the number of nights as per normal "length of stay" calculations. '
+            "Note the definition of critical care may vary between trusts. "
+        ),
+    )
+    patient_classification = Series(
+        str,
+        description=(
+            "Refer to [APCS data source documentation](https://docs.opensafely.org/data-sources/apc/) "
+            "for details."
         ),
     )
 
@@ -493,28 +528,6 @@ class emergency_care_attendances(EventFrame):
                 "(https://www.datadictionary.nhs.uk/data_elements/emergency_care_diagnosis__snomed_ct_.html)."
             ),
         )
-
-
-@table
-class hospital_admissions(EventFrame):
-    id = Series(int)  # noqa: A003
-    admission_date = Series(datetime.date)
-    discharge_date = Series(datetime.date)
-    admission_method = Series(str)
-    # TODO: Revisit this when we have support for multi-valued fields
-    all_diagnoses = Series(str)
-    patient_classification = Series(str)
-    days_in_critical_care = Series(int)
-    primary_diagnoses = Series(
-        str,
-        description=(
-            "Note that the underlying data only contains a single diagnosis code, "
-            'despite the "diagnoses" name. '
-            "primary_diagnoses is therefore deprecated and will be removed in future: "
-            "use primary_diagnosis instead. "
-        ),
-    )
-    primary_diagnosis = Series(ICD10Code)
 
 
 @table
