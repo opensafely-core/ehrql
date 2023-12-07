@@ -19,7 +19,7 @@ You do not need to add anything to the measures definition itself in order to ge
 dataset in this way. ehrQL will use the measures definition to set up dummy data and generate
 matching patients.
 
-By default, 500 patients will be generated in a dummy measures output. If you need to increase this number, you can configure it in the measures definition with:
+By default, ten patients will be generated in a dummy measures output. If you need to increase this number, you can configure it in the measures definition with:
 
 ```
 measures.configure_dummy_data(population_size=1000)

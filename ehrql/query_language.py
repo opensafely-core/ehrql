@@ -32,7 +32,7 @@ REGISTERED_TYPES = {}
 
 @dataclasses.dataclass
 class DummyDataConfig:
-    population_size: int = 500
+    population_size: int = 10
 
 
 # Because ehrQL classes override `__eq__` we can't use them as dictionary keys. So where

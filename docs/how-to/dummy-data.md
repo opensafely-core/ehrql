@@ -22,7 +22,7 @@ You do not need to add anything to the dataset definition itself in order to gen
 dataset in this way. ehrQL will use the dataset definition to set up dummy data and generate
 matching patients.
 
-By default, 500 patients will be generated in a dummy dataset. If you need to increase this
+By default, ten patients will be generated in a dummy dataset. If you need to increase this
 number, you can configure it in the dataset definition with:
 
 ```
