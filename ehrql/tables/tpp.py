@@ -17,6 +17,7 @@ __all__ = [
     "apcs_cost",
     "appointments",
     "clinical_events",
+    "clinical_events_ranges",
     "ec",
     "ec_cost",
     "emergency_care_attendances",
@@ -397,6 +398,58 @@ class clinical_events(EventFrame):
     snomedct_code = Series(SNOMEDCTCode)
     ctv3_code = Series(CTV3Code)
     numeric_value = Series(float)
+
+
+@table
+class clinical_events_ranges(EventFrame):
+    """
+    Each record corresponds to a single clinical or consultation event for a patient,
+    as presented in `clinical_events`, but with additional fields regarding the event's
+    `numeric_value`.
+
+    !!! warning
+        Use of this table carries a severe performance penalty and should only be
+        done so if the additional fields it provides are neccesary for a study.
+
+    These additional fields are:
+
+    * any comparators (if present) recorded with an event's `numeric_value` (e.g. '<9.5')
+    * the lower bound of the reference range associated with an event's `numeric_value`
+    * the upper bound of the reference range associated with an event's `numeric_value`
+
+    """
+
+    date = Series(datetime.date)
+    snomedct_code = Series(SNOMEDCTCode)
+    ctv3_code = Series(CTV3Code)
+    numeric_value = Series(float)
+    lower_bound = Series(
+        float,
+        "The lower bound of the reference range associated with an event's numeric_value",
+    )
+    upper_bound = Series(
+        float,
+        "The upper bound of the reference range associated with an event's numeric_value",
+    )
+    comparator = Series(
+        str,
+        description=(
+            "If an event's numeric_value is returned with a comparator, "
+            "e.g. as '<9.5', then this column contains that comparator"
+        ),
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "~",
+                    "=",
+                    ">=",
+                    ">",
+                    "<",
+                    "<=",
+                ]
+            )
+        ],
+    )
 
 
 @table

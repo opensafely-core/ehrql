@@ -21,6 +21,7 @@ from tests.lib.tpp_schema import (
     Appointment,
     CodedEvent,
     CodedEvent_SNOMED,
+    CodedEventRange,
     CustomMedicationDictionary,
     EC_Cost,
     EC_Diagnosis,
@@ -482,6 +483,161 @@ def test_clinical_events(select_all_tpp):
             "numeric_value": None,
         },
     ]
+
+
+@register_test_for(tpp.clinical_events_ranges)
+def test_clinical_events_ranges(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        CodedEvent(
+            Patient_ID=1,
+            CodedEvent_ID=1,
+            ConsultationDate="2020-10-20T14:30:05",
+            CTV3Code="xyz",
+            NumericValue=None,
+        ),
+        CodedEvent_SNOMED(
+            Patient_ID=1,
+            CodedEvent_ID=2,
+            ConsultationDate="2020-11-21T09:30:00",
+            ConceptId="ijk",
+            NumericValue=1.5,
+        ),
+        CodedEvent(
+            Patient_ID=1,
+            CodedEvent_ID=3,
+            ConsultationDate="2020-12-20T14:30:05",
+            CTV3Code="xyz",
+            NumericValue=None,
+        ),
+        CodedEvent_SNOMED(
+            Patient_ID=1,
+            CodedEvent_ID=4,
+            ConsultationDate="2021-01-21T09:30:00",
+            ConceptId="ijk",
+            NumericValue=1.5,
+        ),
+        CodedEvent(
+            Patient_ID=1,
+            CodedEvent_ID=5,
+            ConsultationDate="2021-02-20T14:30:05",
+            CTV3Code="xyz",
+            NumericValue=None,
+        ),
+        CodedEvent_SNOMED(
+            Patient_ID=1,
+            CodedEvent_ID=6,
+            ConsultationDate="2021-03-21T09:30:00",
+            ConceptId="ijk",
+            NumericValue=1.5,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=1,
+            Comparator=3,
+            LowerBound=1,
+            UpperBound=2,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=2,
+            Comparator=4,
+            LowerBound=2,
+            UpperBound=3,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=3,
+            Comparator=5,
+            LowerBound=3,
+            UpperBound=4,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=4,
+            Comparator=6,
+            LowerBound=4,
+            UpperBound=5,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=5,
+            Comparator=7,
+            LowerBound=5,
+            UpperBound=6,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=6,
+            Comparator=8,
+            LowerBound=6,
+            UpperBound=7,
+        ),
+    )
+    expected = [
+        {
+            "patient_id": 1,
+            "date": date(2020, 10, 20),
+            "snomedct_code": None,
+            "ctv3_code": "xyz",
+            "numeric_value": None,
+            "comparator": "~",
+            "lower_bound": 1.0,
+            "upper_bound": 2.0,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 12, 20),
+            "snomedct_code": None,
+            "ctv3_code": "xyz",
+            "numeric_value": None,
+            "comparator": ">=",
+            "lower_bound": 3.0,
+            "upper_bound": 4.0,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2021, 2, 20),
+            "snomedct_code": None,
+            "ctv3_code": "xyz",
+            "numeric_value": None,
+            "comparator": "<",
+            "lower_bound": 5.0,
+            "upper_bound": 6.0,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 11, 21),
+            "snomedct_code": "ijk",
+            "ctv3_code": None,
+            "numeric_value": 1.5,
+            "comparator": "=",
+            "lower_bound": 2.0,
+            "upper_bound": 3.0,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2021, 1, 21),
+            "snomedct_code": "ijk",
+            "ctv3_code": None,
+            "numeric_value": 1.5,
+            "comparator": ">",
+            "lower_bound": 4.0,
+            "upper_bound": 5.0,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2021, 3, 21),
+            "snomedct_code": "ijk",
+            "ctv3_code": None,
+            "numeric_value": 1.5,
+            "comparator": "<=",
+            "lower_bound": 6.0,
+            "upper_bound": 7.0,
+        },
+    ]
+
+    assert results == expected
 
 
 @register_test_for(tpp.ec)

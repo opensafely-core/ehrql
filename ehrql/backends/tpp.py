@@ -257,7 +257,8 @@ class TPPBackend(SQLBackend):
                 CAST(NULLIF(ConsultationDate, '9999-12-31T00:00:00') AS date) AS date,
                 NULL AS snomedct_code,
                 CTV3Code AS ctv3_code,
-                NumericValue AS numeric_value
+                NumericValue AS numeric_value,
+                CodedEvent_ID
             FROM CodedEvent
             UNION ALL
             SELECT
@@ -265,8 +266,29 @@ class TPPBackend(SQLBackend):
                 CAST(NULLIF(ConsultationDate, '9999-12-31T00:00:00') AS date) AS date,
                 ConceptId AS snomedct_code,
                 NULL AS ctv3_code,
-                NumericValue AS numeric_value
+                NumericValue AS numeric_value,
+                CodedEvent_ID
             FROM CodedEvent_SNOMED
+        """
+    )
+
+    clinical_events_ranges = QueryTable(
+        f"""
+            SELECT
+                ce.*,
+                cer.LowerBound AS lower_bound,
+                cer.UpperBound AS upper_bound,
+                CASE cer.Comparator
+                    WHEN 3 THEN '~'
+                    WHEN 4 THEN '='
+                    WHEN 5 THEN '>='
+                    WHEN 6 THEN '>'
+                    WHEN 7 THEN '<'
+                    WHEN 8 THEN '<='
+                END COLLATE Latin1_General_CI_AS AS comparator
+            FROM ({clinical_events.query}) ce
+            LEFT JOIN CodedEventRange cer
+                ON ce.CodedEvent_ID = cer.CodedEvent_ID
         """
     )
 

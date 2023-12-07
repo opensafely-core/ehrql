@@ -13,6 +13,7 @@ from ehrql.tables.tpp import (
     apcs_cost,
     appointments,
     clinical_events,
+    clinical_events_ranges,
     ec,
     ec_cost,
     emergency_care_attendances,
@@ -648,6 +649,114 @@ referrals are recorded in the clinical events table but this data will be incomp
   <dd markdown="block">
 
 
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## clinical_events_ranges
+
+Each record corresponds to a single clinical or consultation event for a patient,
+as presented in `clinical_events`, but with additional fields regarding the event's
+`numeric_value`.
+
+!!! warning
+    Use of this table carries a severe performance penalty and should only be
+    done so if the additional fields it provides are neccesary for a study.
+
+These additional fields are:
+
+* any comparators (if present) recorded with an event's `numeric_value` (e.g. '<9.5')
+* the lower bound of the reference range associated with an event's `numeric_value`
+* the upper bound of the reference range associated with an event's `numeric_value`
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="clinical_events_ranges.date">
+    <strong>date</strong>
+    <a class="headerlink" href="#clinical_events_ranges.date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.snomedct_code">
+    <strong>snomedct_code</strong>
+    <a class="headerlink" href="#clinical_events_ranges.snomedct_code" title="Permanent link">🔗</a>
+    <code>SNOMED-CT code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.ctv3_code">
+    <strong>ctv3_code</strong>
+    <a class="headerlink" href="#clinical_events_ranges.ctv3_code" title="Permanent link">🔗</a>
+    <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.numeric_value">
+    <strong>numeric_value</strong>
+    <a class="headerlink" href="#clinical_events_ranges.numeric_value" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.lower_bound">
+    <strong>lower_bound</strong>
+    <a class="headerlink" href="#clinical_events_ranges.lower_bound" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+The lower bound of the reference range associated with an event's numeric_value
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.upper_bound">
+    <strong>upper_bound</strong>
+    <a class="headerlink" href="#clinical_events_ranges.upper_bound" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+The upper bound of the reference range associated with an event's numeric_value
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.comparator">
+    <strong>comparator</strong>
+    <a class="headerlink" href="#clinical_events_ranges.comparator" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+If an event's numeric_value is returned with a comparator, e.g. as '<9.5', then this column contains that comparator
+
+ * Possible values: `~`, `=`, `>=`, `>`, `<`, `<=`
   </dd>
 </div>
 
