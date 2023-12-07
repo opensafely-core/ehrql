@@ -383,15 +383,15 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.tpp import hospital_admissions, patients
+from ehrql.tables.tpp import apcs, patients
 
 cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
-dataset.has_recent_cardiac_admission = hospital_admissions.where(
-        hospital_admissions.primary_diagnoses.is_in(cardiac_diagnosis_codes)
+dataset.has_recent_cardiac_admission = apcs.where(
+        apcs.primary_diagnosis.is_in(cardiac_diagnosis_codes)
 ).where(
-        hospital_admissions.admission_date.is_on_or_between("2022-07-01", "2023-01-01")
+        apcs.admission_date.is_on_or_between("2022-07-01", "2023-01-01")
 ).exists_for_patient()
 dataset.define_population(patients.exists_for_patient())
 ```
@@ -494,17 +494,17 @@ dataset.define_population(patients.exists_for_patient())
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.tpp import hospital_admissions, patients
+from ehrql.tables.tpp import apcs, patients
 
 cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
-dataset.first_cardiac_hospitalisation_date = hospital_admissions.where(
-        hospital_admissions.snomedct_code.is_in(cardiac_diagnosis_codes)
+dataset.first_cardiac_hospitalisation_date = apcs.where(
+        apcs.snomedct_code.is_in(cardiac_diagnosis_codes)
 ).where(
-        hospital_admissions.date.is_on_or_after("2022-07-01")
+        apcs.date.is_on_or_after("2022-07-01")
 ).sort_by(
-        hospital_admissions.date
+        apcs.date
 ).first_for_patient().date
 dataset.define_population(patients.exists_for_patient())
 ```
