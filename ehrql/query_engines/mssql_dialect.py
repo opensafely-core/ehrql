@@ -145,6 +145,19 @@ def visit_select_star_into(element, compiler, **kw):
 class ScalarSelectAggregation(sqlalchemy.ScalarSelect):
     @classmethod
     def build(cls, aggregate_function, columns, **column_kwargs):
+        new = cls.__new__(cls)
+        new._orig_aggregate_function = aggregate_function
+        new._orig_columns = columns
+        new._orig_column_kwargs = column_kwargs
+        new._init_scalar_select()
+        return new
+
+    def _init_scalar_select(self):
+        # Set up `self` as if it were a properly constructed ScalarSelect object
+        aggregate_function = self._orig_aggregate_function
+        columns = self._orig_columns
+        column_kwargs = self._orig_column_kwargs
+        # We do this by constructing an appropriate ScalarSelect object ...
         values = sqlalchemy.values(
             sqlalchemy.Column("value", **column_kwargs), name="aggregate_values"
         ).data(
@@ -152,14 +165,8 @@ class ScalarSelectAggregation(sqlalchemy.ScalarSelect):
         )
         aggregated = sqlalchemy.select(aggregate_function(values.columns[0]))
         scalar_select = aggregated.scalar_subquery()
-
-        # Construct an instance of our own class which is an exact copy of the
-        # original ScalarSelect
-        new = cls.__new__(cls)
-        new.__dict__.update(scalar_select.__dict__)
-        # Store a reference to the original columns
-        new._orig_columns = columns
-        return new
+        # ... and then copying its attributes across
+        self.__dict__.update(scalar_select.__dict__)
 
     def get_children(self, **kwargs):
         yield from super().get_children(**kwargs)
@@ -175,3 +182,8 @@ class ScalarSelectAggregation(sqlalchemy.ScalarSelect):
         ]
         # Return just the unique entries in their original order
         return list(dict.fromkeys(all_froms).keys())
+
+    def _copy_internals(self, *, clone, **kwargs):
+        # Ensure that this class can clone itself correctly
+        self._orig_columns = [clone(column, **kwargs) for column in self._orig_columns]
+        self._init_scalar_select()

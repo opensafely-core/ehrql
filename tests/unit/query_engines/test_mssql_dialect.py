@@ -1,7 +1,7 @@
 import datetime
 
 import sqlalchemy
-from sqlalchemy.sql.visitors import iterate
+from sqlalchemy.sql.visitors import iterate, replacement_traverse
 
 from ehrql.query_engines.mssql_dialect import (
     MSSQLDialect,
@@ -123,3 +123,28 @@ def test_scalar_select_aggregation_can_be_iterated():
     expected = [table.columns.c1, table.columns.c2, table.columns.c3]
     # We have to compare object IDs here because these objects overload `__eq__`
     assert {id(el) for el in expected} <= {id(el) for el in iterator_elements}
+
+
+def test_scalar_select_aggregation_supports_replacement_traverse():
+    table = sqlalchemy.table(
+        "t1",
+        sqlalchemy.Column("c1"),
+        sqlalchemy.Column("c2"),
+        sqlalchemy.Column("c3"),
+    )
+    query = ScalarSelectAggregation.build(
+        sqlalchemy.func.max, [table.columns.c1, table.columns.c2]
+    )
+    new_query = replacement_traverse(
+        query,
+        {},
+        lambda obj: table.columns.c3 if obj is table.columns.c2 else None,
+    )
+    assert _str(query) == (
+        "(SELECT max(aggregate_values.value) AS max_1 \n"
+        "FROM (VALUES (t1.c1), (t1.c2)) AS aggregate_values (value))"
+    )
+    assert _str(new_query) == (
+        "(SELECT max(aggregate_values.value) AS max_1 \n"
+        "FROM (VALUES (t1.c1), (t1.c3)) AS aggregate_values (value))"
+    )
