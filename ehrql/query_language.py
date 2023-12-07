@@ -1374,7 +1374,7 @@ class WhenThen:
         return case(self, otherwise=value)
 
 
-def case(*when_thens, otherwise=None, default=None):
+def case(*when_thens, otherwise=None):
     """
     Take a sequence of condition-values of the form:
     ```py
@@ -1412,14 +1412,7 @@ def case(*when_thens, otherwise=None, default=None):
     ```py
     category = when(size < 15).then("small").otherwise("large")
     ```
-
-    Note that the `default` argument is an older alias for `otherwise`: it will be
-    removed in future versions of ehrQL and should not be used.
     """
-    if default is not None:
-        if otherwise is not None:
-            raise ValueError("Use `otherwise` instead of `default`")
-        otherwise = default
     cases = _DictArg((case._condition, case._value) for case in when_thens)
     # If we don't want an `otherwise` value then we shouldn't supply an argument, or
     # else it will get converted into `Value(None)` which is not what we want
