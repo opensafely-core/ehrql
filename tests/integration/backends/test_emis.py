@@ -10,6 +10,7 @@ from ehrql.tables import PatientFrame, Series, emis, table_from_rows
 from ehrql.tables.raw import emis as emis_raw
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
 from tests.lib.emis_schema import (
+    ImmunisationAllOrgsV2,
     MedicationAllOrgsV2,
     ObservationAllOrgsV2,
     OnsView,
@@ -447,6 +448,47 @@ def test_patients(select_all_emis):
         },
     ]
     assert results == expected
+
+
+@register_test_for(emis.vaccinations)
+def test_vaccinations(select_all_emis):
+    results = select_all_emis(
+        PatientAllOrgsV2(registration_id="1"),
+        PatientAllOrgsV2(registration_id="2"),
+        PatientAllOrgsV2(registration_id="3"),
+        ImmunisationAllOrgsV2(
+            registration_id="1",
+            effective_date=datetime(2020, 10, 20, 14, 30, 5),
+            snomed_concept_id=123,
+        ),
+        ImmunisationAllOrgsV2(
+            registration_id="2",
+            effective_date=datetime(2021, 3, 23, 23, 30, 5),
+            snomed_concept_id=456,
+        ),
+        ImmunisationAllOrgsV2(
+            registration_id="2",
+            effective_date=datetime(2022, 1, 15, 12, 30, 5),
+            snomed_concept_id=567,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": "1",
+            "date": date(2020, 10, 20),
+            "procedure_code": "123",
+        },
+        {
+            "patient_id": "2",
+            "date": date(2021, 3, 23),
+            "procedure_code": "456",
+        },
+        {
+            "patient_id": "2",
+            "date": date(2022, 1, 15),
+            "procedure_code": "567",
+        },
+    ]
 
 
 def test_registered_tests_are_exhaustive():

@@ -12,6 +12,7 @@ from ehrql.tables.emis import (
     medications,
     ons_deaths,
     patients,
+    vaccinations,
 )
 ```
 
@@ -560,6 +561,48 @@ return patients.registration_start_date.is_on_or_before(start_date) & (
 
 ```
     </details>
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## vaccinations
+
+This table contains information on administered vaccinations,
+identified using SNOMED-CT codes for the vaccination procedure.
+
+Vaccinations may also be queried by product code using the
+[medications table](#medications).
+
+Vaccinations that were administered at work or in a pharmacy might not be
+included in this table.
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="vaccinations.date">
+    <strong>date</strong>
+    <a class="headerlink" href="#vaccinations.date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+The date the vaccination was administered.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="vaccinations.procedure_code">
+    <strong>procedure_code</strong>
+    <a class="headerlink" href="#vaccinations.procedure_code" title="Permanent link">🔗</a>
+    <code>SNOMED-CT code</code>
+  </dt>
+  <dd markdown="block">
+
+
   </dd>
 </div>
 
