@@ -17,7 +17,6 @@ from ehrql.tables.tpp import (
     ec_cost,
     emergency_care_attendances,
     ethnicity_from_sus,
-    hospital_admissions,
     household_memberships_2020,
     medications,
     occupation_on_covid_vaccine_record,
@@ -324,6 +323,66 @@ The date of discharge from a hospital provider spell.
   </dt>
   <dd markdown="block">
 The core Healthcare Resource Group (HRG) code for the spell according to the derivations made by NHS Digital prior to import to the National Commissioning Data Repository (NCDR). HRGs are used to assign baseline tariff costs.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.admission_method">
+    <strong>admission_method</strong>
+    <a class="headerlink" href="#apcs.admission_method" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Code identifying admission method. Refer to [APCS data source documentation](https://docs.opensafely.org/data-sources/apc/) for details of codes.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.primary_diagnosis">
+    <strong>primary_diagnosis</strong>
+    <a class="headerlink" href="#apcs.primary_diagnosis" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Code indicating primary diagnosis. This is not necessarily the primary reason for admission, and could represent an escalation/complication of initial reason for admission.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.all_diagnoses">
+    <strong>all_diagnoses</strong>
+    <a class="headerlink" href="#apcs.all_diagnoses" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Semicolon-separated list of all diagnosis codes.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.days_in_critical_care">
+    <strong>days_in_critical_care</strong>
+    <a class="headerlink" href="#apcs.days_in_critical_care" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Number of days spent in critical care. This is counted in number of days (or part-days) not the number of nights as per normal "length of stay" calculations. Note the definition of critical care may vary between trusts.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.patient_classification">
+    <strong>patient_classification</strong>
+    <a class="headerlink" href="#apcs.patient_classification" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Refer to [APCS data source documentation](https://docs.opensafely.org/data-sources/apc/) for details.
 
   </dd>
 </div>
@@ -1115,125 +1174,6 @@ First character of recorded ethncity code (national code):
 https://www.datadictionary.nhs.uk/data_elements/ethnic_category.html
 
  * Possible values: `A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `J`, `K`, `L`, `M`, `N`, `P`, `R`, `S`
-  </dd>
-</div>
-
-  </dl>
-</div>
-
-
-<p class="dimension-indicator"><code>many rows per patient</code></p>
-## hospital_admissions
-
-
-<div markdown="block" class="definition-list-wrapper">
-  <div class="title">Columns</div>
-  <dl markdown="block">
-<div markdown="block">
-  <dt id="hospital_admissions.id">
-    <strong>id</strong>
-    <a class="headerlink" href="#hospital_admissions.id" title="Permanent link">🔗</a>
-    <code>integer</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.admission_date">
-    <strong>admission_date</strong>
-    <a class="headerlink" href="#hospital_admissions.admission_date" title="Permanent link">🔗</a>
-    <code>date</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.discharge_date">
-    <strong>discharge_date</strong>
-    <a class="headerlink" href="#hospital_admissions.discharge_date" title="Permanent link">🔗</a>
-    <code>date</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.admission_method">
-    <strong>admission_method</strong>
-    <a class="headerlink" href="#hospital_admissions.admission_method" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.all_diagnoses">
-    <strong>all_diagnoses</strong>
-    <a class="headerlink" href="#hospital_admissions.all_diagnoses" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.patient_classification">
-    <strong>patient_classification</strong>
-    <a class="headerlink" href="#hospital_admissions.patient_classification" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.days_in_critical_care">
-    <strong>days_in_critical_care</strong>
-    <a class="headerlink" href="#hospital_admissions.days_in_critical_care" title="Permanent link">🔗</a>
-    <code>integer</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.primary_diagnoses">
-    <strong>primary_diagnoses</strong>
-    <a class="headerlink" href="#hospital_admissions.primary_diagnoses" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Note that the underlying data only contains a single diagnosis code, despite the "diagnoses" name. primary_diagnoses is therefore deprecated and will be removed in future: use primary_diagnosis instead.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.primary_diagnosis">
-    <strong>primary_diagnosis</strong>
-    <a class="headerlink" href="#hospital_admissions.primary_diagnosis" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
-  </dt>
-  <dd markdown="block">
-
-
   </dd>
 </div>
 

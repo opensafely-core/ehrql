@@ -31,6 +31,15 @@ This schema defines the data (both primary care and externally linked) available
 OpenSAFELY-EMIS backend. For more information about this backend, see
 "[EMIS Primary Care](https://docs.opensafely.org/data-sources/emis/)".
 
+## [examples.tutorial](./examples.tutorial/)
+<small class="subtitle">
+  <a href="./examples.tutorial/"> view details → </a>
+</small>
+
+_This schema is for development or testing purposes and is not available on any backend._
+
+This example schema is for use in the ehrQL tutorial.
+
 ## [raw.core](./raw.core/)
 <small class="subtitle">
   <a href="./raw.core/"> view details → </a>
@@ -88,12 +97,3 @@ can function as a basic end-to-end test (or "smoke test") of the OpenSAFELY plat
 across all available backends.
 
 [smoketest_repo]: https://github.com/opensafely/test-age-distribution
-
-## [examples.tutorial](./examples.tutorial/)
-<small class="subtitle">
-  <a href="./examples.tutorial/"> view details → </a>
-</small>
-
-_This schema is for development or testing purposes and is not available on any backend._
-
-This example schema is for use in the ehrQL tutorial.

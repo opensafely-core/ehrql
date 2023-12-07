@@ -1,6 +1,6 @@
 
 <h4 class="attr-heading" id="case" data-toc-label="case" markdown>
-  <tt><strong>case</strong>(<em>*when_thens</em>, <em>otherwise=None</em>, <em>default=None</em>)</tt>
+  <tt><strong>case</strong>(<em>*when_thens</em>, <em>otherwise=None</em>)</tt>
 </h4>
 <div markdown="block" class="indent">
 Take a sequence of condition-values of the form:
@@ -39,9 +39,6 @@ can be rewritten as:
 ```py
 category = when(size < 15).then("small").otherwise("large")
 ```
-
-Note that the `default` argument is an older alias for `otherwise`: it will be
-removed in future versions of ehrQL and should not be used.
 </div>
 
 
