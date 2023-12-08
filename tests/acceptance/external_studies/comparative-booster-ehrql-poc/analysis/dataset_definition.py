@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from databuilder.ehrql import Dataset, case, days, when
-from databuilder.tables.beta import tpp as schema
+from ehrql import Dataset, case, days, when
+from ehrql.tables import tpp as schema
 from variables_lib import (
     address_as_of,
     age_as_of,
@@ -165,7 +165,7 @@ dataset.bmi = case(
     when((bmi_value >= 35.0) & (bmi_value < 40.0)).then("Obese II (35-39.9)"),
     # Set maximum to avoid any impossibly extreme values being classified as obese
     when((bmi_value >= 40.0) & (bmi_value < 100.0)).then("Obese III (40+)"),
-    default="Not obese",
+    otherwise="Not obese",
 )
 
 # Ethnicity in 6 categories
@@ -225,7 +225,7 @@ dataset.imd_Q5 = case(
     when((imd >= 32844 * 2 // 5) & (imd < 32844 * 3 // 5)).then("3"),
     when((imd >= 32844 * 3 // 5) & (imd < 32844 * 4 // 5)).then("4"),
     when((imd >= 32844 * 4 // 5) & (imd <= 32844)).then("5 (least deprived)"),
-    default="Unknown",
+    otherwise="Unknown",
 )
 
 
@@ -238,7 +238,7 @@ vaxx_job = schema.occupation_on_covid_vaccine_record
 dataset.hscworker = vaxx_job.where(vaxx_job.is_healthcare_worker).exists_for_patient()
 
 # TPP care home flag
-dataset.care_home_tpp = address.care_home_is_potential_match.if_null_then(False)
+dataset.care_home_tpp = address.care_home_is_potential_match.when_null_then(False)
 
 # Patients in long-stay nursing and residential care
 dataset.care_home_code = has_prior_event(codelists.carehome)
@@ -287,7 +287,7 @@ dataset.covidemergency_0_date = (
 
 
 # Positive covid admission prior to study start date
-hosp = schema.hospital_admissions
+hosp = schema.apcs
 
 dataset.covidadmitted_0_date = (
     hospitalisation_diagnosis_matches(hosp, codelists.covid_icd10)

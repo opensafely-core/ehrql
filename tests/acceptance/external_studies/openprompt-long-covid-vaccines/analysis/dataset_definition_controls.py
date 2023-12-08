@@ -1,4 +1,4 @@
-from databuilder.ehrql import Dataset
+from ehrql import Dataset
 
 from variable_lib import long_covid_events_during
 from datasets import add_common_variables, study_start_date, study_end_date

@@ -12,7 +12,6 @@ from ehrql.query_model.column_specs import get_column_specs_from_schema
 from ehrql.query_model.nodes import get_series_type, has_one_row_per_patient
 from ehrql.query_model.population_validation import validate_population_definition
 from ehrql.utils import date_utils
-from ehrql.utils.docs_utils import exclude_from_docs
 from ehrql.utils.string_utils import strip_indent
 
 
@@ -33,7 +32,7 @@ REGISTERED_TYPES = {}
 
 @dataclasses.dataclass
 class DummyDataConfig:
-    population_size: int = 500
+    population_size: int = 10
 
 
 # Because ehrQL classes override `__eq__` we can't use them as dictionary keys. So where
@@ -96,13 +95,6 @@ class Dataset:
         ```
         """
         self.dummy_data_config.population_size = population_size
-
-    @exclude_from_docs
-    def configure_dummy_dataset(self, **kwargs):  # pragma: no cover
-        """
-        Deprecated alias from `configure_dummy_data`
-        """
-        return self.configure_dummy_data(**kwargs)
 
     def __setattr__(self, name, value):
         if name == "population":
@@ -230,14 +222,6 @@ class BaseSeries:
             when(self.is_not_null()).then(self),
             otherwise=self._cast(other),
         )
-
-    def if_null_then(self, other):
-        """
-        Deprecated alias for `when_null_then()`
-
-        This will be removed in future versions of ehrQL and shoud not be used.
-        """
-        return self.when_null_then(other)
 
     def is_in(self, other):
         """
@@ -1390,7 +1374,7 @@ class WhenThen:
         return case(self, otherwise=value)
 
 
-def case(*when_thens, otherwise=None, default=None):
+def case(*when_thens, otherwise=None):
     """
     Take a sequence of condition-values of the form:
     ```py
@@ -1428,14 +1412,7 @@ def case(*when_thens, otherwise=None, default=None):
     ```py
     category = when(size < 15).then("small").otherwise("large")
     ```
-
-    Note that the `default` argument is an older alias for `otherwise`: it will be
-    removed in future versions of ehrQL and should not be used.
     """
-    if default is not None:
-        if otherwise is not None:
-            raise ValueError("Use `otherwise` instead of `default`")
-        otherwise = default
     cases = _DictArg((case._condition, case._value) for case in when_thens)
     # If we don't want an `otherwise` value then we shouldn't supply an argument, or
     # else it will get converted into `Value(None)` which is not what we want

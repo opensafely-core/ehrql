@@ -62,7 +62,7 @@ You can see an example of [how to access these categories within your dataset de
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age = patients.age_on("2023-01-01")
@@ -74,7 +74,7 @@ Alternatively, using a native Python `date`:
 ```ehrql
 from datetime import date
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.age = patients.age_on(date(2023, 1, 1))
@@ -85,7 +85,7 @@ Or using an `index_date` variable:
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 index_date = "2023-01-01"
 dataset = create_dataset()
@@ -97,7 +97,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, case, when
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 age = patients.age_on("2023-01-01")
@@ -116,7 +116,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.date_of_birth = patients.date_of_birth
@@ -127,21 +127,21 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.date_of_death = patients.date_of_death
 dataset.define_population(patients.exists_for_patient())
 ```
 
-:notepad_spiral: This value comes from the patient's EHR record. You can find more information about the accuracy of this value in the [reference schema](../reference/schemas/beta.core.md#recording-of-death-in-primary-care).
+:notepad_spiral: This value comes from the patient's EHR record. You can find more information about the accuracy of this value in the [reference schema](../reference/schemas/core.md#recording-of-death-in-primary-care).
 
 
 ### Finding each patient's date, underlying_cause_of_death, and first noted additional medical condition noted on the death certificate from ONS records
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import ons_deaths, patients
+from ehrql.tables.core import ons_deaths, patients
 
 dataset = create_dataset()
 dataset.date_of_death = ons_deaths.date
@@ -156,7 +156,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 dataset = create_dataset()
 dataset.sex = patients.sex
@@ -171,7 +171,7 @@ Ethnicity can be defined using a codelist. There are a lot of individual codes t
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 from ehrql import codelist_from_csv
 
 dataset = create_dataset()
@@ -201,7 +201,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import addresses, patients
+from ehrql.tables.tpp import addresses, patients
 
 dataset = create_dataset()
 dataset.imd = addresses.for_patient_on("2023-01-01").imd_rounded
@@ -217,7 +217,7 @@ See [this code comment](https://github.com/opensafely-core/ehrql/blob/d29ff8ab2c
 
 ```ehrql
 from ehrql import create_dataset, case, when
-from ehrql.tables.beta.tpp import addresses, patients
+from ehrql.tables.tpp import addresses, patients
 
 dataset = create_dataset()
 imd = addresses.for_patient_on("2023-01-01").imd_rounded
@@ -236,7 +236,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import addresses, patients
+from ehrql.tables.tpp import addresses, patients
 
 dataset = create_dataset()
 dataset.rural_urban = addresses.for_patient_on("2023-01-01").rural_urban_classification
@@ -258,7 +258,7 @@ The meaning of this value is as follows:
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import addresses, patients
+from ehrql.tables.tpp import addresses, patients
 
 dataset = create_dataset()
 dataset.msoa_code = addresses.for_patient_on("2023-01-01").msoa_code
@@ -269,7 +269,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import addresses, patients
+from ehrql.tables.tpp import addresses, patients
 
 dataset = create_dataset()
 address = addresses.for_patient_on("2023-01-01")
@@ -285,7 +285,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import practice_registrations, patients
+from ehrql.tables.tpp import practice_registrations, patients
 
 dataset = create_dataset()
 dataset.practice = practice_registrations.for_patient_on("2023-01-01").practice_pseudo_id
@@ -296,7 +296,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import practice_registrations, patients
+from ehrql.tables.tpp import practice_registrations, patients
 
 dataset = create_dataset()
 dataset.stp = practice_registrations.for_patient_on("2023-01-01").practice_stp
@@ -307,7 +307,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import practice_registrations, patients
+from ehrql.tables.tpp import practice_registrations, patients
 
 dataset = create_dataset()
 dataset.region = practice_registrations.for_patient_on("2023-01-01").practice_nuts1_region_name
@@ -318,7 +318,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.tpp import practice_registrations, patients
+from ehrql.tables.tpp import practice_registrations, patients
 
 dataset = create_dataset()
 registration = practice_registrations.for_patient_on("2023-01-01")
@@ -334,7 +334,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -349,7 +349,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -366,7 +366,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 
 statin_medications = codelist_from_csv("XXX", column="YYY")
 
@@ -383,15 +383,15 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import hospital_admissions, patients
+from ehrql.tables.tpp import apcs, patients
 
 cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
-dataset.has_recent_cardiac_admission = hospital_admissions.where(
-        hospital_admissions.primary_diagnoses.is_in(cardiac_diagnosis_codes)
+dataset.has_recent_cardiac_admission = apcs.where(
+        apcs.primary_diagnosis.is_in(cardiac_diagnosis_codes)
 ).where(
-        hospital_admissions.admission_date.is_on_or_between("2022-07-01", "2023-01-01")
+        apcs.admission_date.is_on_or_between("2022-07-01", "2023-01-01")
 ).exists_for_patient()
 dataset.define_population(patients.exists_for_patient())
 ```
@@ -400,7 +400,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 
 statin_medications = codelist_from_csv("XXX", column="YYY")
 
@@ -422,7 +422,7 @@ Frames can be sorted by calling the `sort_by()` method with the column to sort t
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -439,7 +439,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -458,7 +458,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 
 statin_medications = codelist_from_csv("XXX", column="YYY")
 
@@ -475,7 +475,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 
 statin_medications = codelist_from_csv("XXX", column="YYY")
 
@@ -494,24 +494,24 @@ dataset.define_population(patients.exists_for_patient())
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.tpp import hospital_admissions, patients
+from ehrql.tables.tpp import apcs, patients
 
 cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
 
 dataset = create_dataset()
-dataset.first_cardiac_hospitalisation_date = hospital_admissions.where(
-        hospital_admissions.snomedct_code.is_in(cardiac_diagnosis_codes)
+dataset.first_cardiac_hospitalisation_date = apcs.where(
+        apcs.snomedct_code.is_in(cardiac_diagnosis_codes)
 ).where(
-        hospital_admissions.date.is_on_or_after("2022-07-01")
+        apcs.date.is_on_or_after("2022-07-01")
 ).sort_by(
-        hospital_admissions.date
+        apcs.date
 ).first_for_patient().date
 dataset.define_population(patients.exists_for_patient())
 ```
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 
 cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
 
@@ -530,7 +530,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 hba1c_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -556,7 +556,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -575,7 +575,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -594,7 +594,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -617,7 +617,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv, weeks
-from ehrql.tables.beta.core import clinical_events, medications, patients
+from ehrql.tables.core import clinical_events, medications, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 inhaled_corticosteroid_codelist = codelist_from_csv("XXX", column="YYY")
@@ -645,7 +645,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 hba1c_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -662,7 +662,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```python
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 hba1c_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -689,7 +689,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -706,7 +706,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv, weeks
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -725,7 +725,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv, months
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 diabetes_codelist = codelist_from_csv("XXX", column="YYY")
 hba1c_codelist = codelist_from_csv("XXX", column="YYY")
@@ -752,7 +752,7 @@ Data quality issues with many sources may result in events apparently happening 
 ```ehrql
 from datetime import date
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -774,7 +774,7 @@ dataset.define_population(patients.exists_for_patient())
 ```ehrql
 from datetime import date
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -791,7 +791,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 
 amoxicillin_codelist = codelist_from_csv("XXX", column="YYY")
 
@@ -810,7 +810,7 @@ dataset.define_population(patients.exists_for_patient())
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.beta.core import clinical_events, patients
+from ehrql.tables.core import clinical_events, patients
 
 asthma_codelist = codelist_from_csv("XXX", column="YYY")
 asthma_review_codelist = codelist_from_csv("XXX", column="YYY")
@@ -839,7 +839,7 @@ Note that in these examples, the periods defined are illustrative only.
 
 ```ehrql
 from ehrql import case, create_dataset, codelist_from_csv, when, weeks
-from ehrql.tables.beta.tpp import medications, patients, practice_registrations
+from ehrql.tables.tpp import medications, patients, practice_registrations
 
 def meets_registrations_criteria(medication_date):
     # For this medication date, find whether a registration exists where
@@ -887,7 +887,7 @@ study start.
 
 ```ehrql
 from ehrql import create_dataset, codelist_from_csv, months
-from ehrql.tables.beta.tpp import medications, patients, practice_registrations
+from ehrql.tables.tpp import medications, patients, practice_registrations
 
 study_start_date = "2022-01-01"
 study_end_date = "2022-12-31"

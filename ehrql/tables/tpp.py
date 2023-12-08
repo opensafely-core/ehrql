@@ -8,7 +8,7 @@ import datetime
 from ehrql import case, when
 from ehrql.codes import CTV3Code, ICD10Code, OPCS4Code, SNOMEDCTCode
 from ehrql.tables import Constraint, EventFrame, PatientFrame, Series, table
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 
 
 __all__ = [
@@ -17,11 +17,11 @@ __all__ = [
     "apcs_cost",
     "appointments",
     "clinical_events",
+    "clinical_events_ranges",
     "ec",
     "ec_cost",
     "emergency_care_attendances",
     "ethnicity_from_sus",
-    "hospital_admissions",
     "household_memberships_2020",
     "medications",
     "occupation_on_covid_vaccine_record",
@@ -205,6 +205,42 @@ class apcs(EventFrame):
             "HRGs are used to assign baseline tariff costs."
         ),
     )
+    admission_method = Series(
+        str,
+        description=(
+            "Code identifying admission method. "
+            "Refer to [APCS data source documentation](https://docs.opensafely.org/data-sources/apc/) "
+            "for details of codes."
+        ),
+    )
+    primary_diagnosis = Series(
+        ICD10Code,
+        description=(
+            "Code indicating primary diagnosis. "
+            "This is not necessarily the primary reason for admission, "
+            "and could represent an escalation/complication of initial reason for admission."
+        ),
+    )
+    all_diagnoses = Series(
+        str,
+        description="Semicolon-separated list of all diagnosis codes.",
+    )
+    days_in_critical_care = Series(
+        int,
+        description=(
+            "Number of days spent in critical care. "
+            "This is counted in number of days (or part-days) "
+            'not the number of nights as per normal "length of stay" calculations. '
+            "Note the definition of critical care may vary between trusts. "
+        ),
+    )
+    patient_classification = Series(
+        str,
+        description=(
+            "Refer to [APCS data source documentation](https://docs.opensafely.org/data-sources/apc/) "
+            "for details."
+        ),
+    )
 
 
 @table
@@ -365,6 +401,58 @@ class clinical_events(EventFrame):
 
 
 @table
+class clinical_events_ranges(EventFrame):
+    """
+    Each record corresponds to a single clinical or consultation event for a patient,
+    as presented in `clinical_events`, but with additional fields regarding the event's
+    `numeric_value`.
+
+    !!! warning
+        Use of this table carries a severe performance penalty and should only be
+        done so if the additional fields it provides are neccesary for a study.
+
+    These additional fields are:
+
+    * any comparators (if present) recorded with an event's `numeric_value` (e.g. '<9.5')
+    * the lower bound of the reference range associated with an event's `numeric_value`
+    * the upper bound of the reference range associated with an event's `numeric_value`
+
+    """
+
+    date = Series(datetime.date)
+    snomedct_code = Series(SNOMEDCTCode)
+    ctv3_code = Series(CTV3Code)
+    numeric_value = Series(float)
+    lower_bound = Series(
+        float,
+        "The lower bound of the reference range associated with an event's numeric_value",
+    )
+    upper_bound = Series(
+        float,
+        "The upper bound of the reference range associated with an event's numeric_value",
+    )
+    comparator = Series(
+        str,
+        description=(
+            "If an event's numeric_value is returned with a comparator, "
+            "e.g. as '<9.5', then this column contains that comparator"
+        ),
+        constraints=[
+            Constraint.Categorical(
+                [
+                    "~",
+                    "=",
+                    ">=",
+                    ">",
+                    "<",
+                    "<=",
+                ]
+            )
+        ],
+    )
+
+
+@table
 class ec(EventFrame):
     """
     Emergency care attendances data — the Emergency Care Data Set (ECDS) —
@@ -496,28 +584,6 @@ class emergency_care_attendances(EventFrame):
 
 
 @table
-class hospital_admissions(EventFrame):
-    id = Series(int)  # noqa: A003
-    admission_date = Series(datetime.date)
-    discharge_date = Series(datetime.date)
-    admission_method = Series(str)
-    # TODO: Revisit this when we have support for multi-valued fields
-    all_diagnoses = Series(str)
-    patient_classification = Series(str)
-    days_in_critical_care = Series(int)
-    primary_diagnoses = Series(
-        str,
-        description=(
-            "Note that the underlying data only contains a single diagnosis code, "
-            'despite the "diagnoses" name. '
-            "primary_diagnoses is therefore deprecated and will be removed in future: "
-            "use primary_diagnosis instead. "
-        ),
-    )
-    primary_diagnosis = Series(ICD10Code)
-
-
-@table
 class household_memberships_2020(PatientFrame):
     """
     Inferred household membership as of 2020-02-01, as determined by TPP using an as yet
@@ -571,7 +637,7 @@ class ons_deaths(PatientFrame):
     In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
     a small number of patients have multiple registered deaths.
     This table contains the earliest registered death.
-    The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
+    The `ehrql.tables.raw.ons_deaths` table contains all registered deaths.
 
     !!! warning
         There is also a lag in ONS death recording caused amongst other things by things like autopsies and inquests delaying

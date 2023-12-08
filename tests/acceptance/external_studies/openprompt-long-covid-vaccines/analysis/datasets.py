@@ -1,15 +1,15 @@
 # where EHRQl is defined. Only really need Dastaset, tehe others are specific
-from databuilder.ehrql import days, case, when
+from ehrql import days, case, when
 
 # this is where we import the schema to run the study with
-from databuilder.tables.beta.tpp import (
+from ehrql.tables.tpp import (
   patients,
   practice_registrations,
   clinical_events,
   vaccinations,
   ons_deaths,
   sgss_covid_all_tests,
-  hospital_admissions
+  apcs
 )
 import datetime
 
@@ -46,13 +46,13 @@ def add_common_variables(dataset, study_start_date, end_date, population):
 
     dataset.pt_start_date = case(
         when(registration.start_date + days(minimum_registration) > study_start_date).then(registration.start_date + days(minimum_registration)),
-        default=study_start_date,
+        otherwise=study_start_date,
     )
 
     dataset.pt_end_date = case(
         when(registration.end_date.is_null()).then(end_date),
         when(registration.end_date > end_date).then(end_date),
-        default=registration.end_date,
+        otherwise=registration.end_date,
     )
 
     # Demographic variables ------------------------------------------------------------
@@ -93,7 +93,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
         .count_for_patient()
 
     # covid hospitalisation ------------------------------------------------------------
-    covid_hospitalisations = hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_covid)
+    covid_hospitalisations = hospitalisation_diagnosis_matches(apcs, codelists.hosp_covid)
     
     all_covid_hosp = covid_hospitalisations \
         .except_where(covid_hospitalisations.admission_date >= dataset.pt_end_date - days(covid_to_longcovid_lag))
@@ -108,7 +108,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
     dataset.first_covid_hosp = first_covid_hosp.admission_date
     dataset.first_covid_discharge = first_covid_hosp.discharge_date
     dataset.first_covid_critical = first_covid_hosp.days_in_critical_care > 0
-    dataset.first_covid_hosp_primary_dx = first_covid_hosp.primary_diagnoses.is_in(codelists.hosp_covid)
+    dataset.first_covid_hosp_primary_dx = first_covid_hosp.primary_diagnosis.is_in(codelists.hosp_covid)
 
     # Any covid identification ------------------------------------------------------------
     primarycare_covid = clinical_events \
@@ -269,7 +269,7 @@ def add_common_variables(dataset, study_start_date, end_date, population):
         dataset.temp_immune_codes
 
     # negative control outcome - hospital fractures -------------------------------
-    fracture_hospitalisations = hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_fractures)
+    fracture_hospitalisations = hospitalisation_diagnosis_matches(apcs, codelists.hosp_fractures)
 
     dataset.first_fracture_hosp = fracture_hospitalisations \
         .where(fracture_hospitalisations.admission_date.is_between_but_not_on(dataset.pt_start_date, dataset.pt_end_date)) \
@@ -278,10 +278,10 @@ def add_common_variables(dataset, study_start_date, end_date, population):
 
     # care home flag ------------------------------------------------------------
     dataset.care_home = address_as_of(dataset.pt_start_date) \
-        .care_home_is_potential_match.if_null_then(False)
+        .care_home_is_potential_match.when_null_then(False)
 
     dataset.care_home_nursing = address_as_of(dataset.pt_start_date) \
-        .care_home_requires_nursing.if_null_then(False)
+        .care_home_requires_nursing.when_null_then(False)
 
     dataset.care_home_code = has_prior_event_snomed(codelists.care_home_flag)
 

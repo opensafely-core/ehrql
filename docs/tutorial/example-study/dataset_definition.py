@@ -5,10 +5,10 @@ from ehrql import (
     days,
     when,
 )
-from ehrql.tables.beta.tpp import (
+from ehrql.tables.tpp import (
     addresses,
     clinical_events,
-    hospital_admissions,
+    apcs,
     medications,
     patients,
     practice_registrations,
@@ -96,12 +96,12 @@ dataset.num_asthma_inhaler_medications = medications.where(
 # outcome variables
 
 dataset.date_of_first_admission = (
-    hospital_admissions.where(
-        hospital_admissions.admission_date.is_after(
+    apcs.where(
+        apcs.admission_date.is_after(
             index_date
         )
     )
-    .sort_by(hospital_admissions.admission_date)
+    .sort_by(apcs.admission_date)
     .first_for_patient()
     .admission_date
 )

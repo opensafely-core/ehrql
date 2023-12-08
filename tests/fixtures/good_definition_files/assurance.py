@@ -2,7 +2,7 @@
 from datetime import date
 
 from ehrql import Dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 
 dataset = Dataset()

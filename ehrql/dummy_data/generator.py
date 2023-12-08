@@ -29,7 +29,7 @@ class DummyDataGenerator:
     def __init__(
         self,
         variable_definitions,
-        population_size=500,
+        population_size=10,
         batch_size=5000,
         random_seed="BwRV3spP",
         timeout=60,

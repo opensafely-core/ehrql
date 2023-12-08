@@ -30,7 +30,7 @@ by allowing you to interactively query some dummy tables.
 :computer:
 To start the sandbox, from the `learning-ehrql` directory, run:
 
-    opensafely exec ehrql:v0 sandbox example-data
+    opensafely exec ehrql:v1 sandbox example-data
 
 You will now be in a session with an interactive Python console,
 and you should see something like this:
@@ -58,7 +58,7 @@ For example if you type `1 + 1` and press the return key, you should see:
 To use ehrQL, you'll first need to import the tables that you want to interact with:
 
 ```pycon
->>> from ehrql.tables.beta.core import patients, medications
+>>> from ehrql.tables.core import patients, medications
 ```
 
 Now, you can inspect the contents of these tables, by entering the names of the tables:
@@ -189,7 +189,7 @@ and save it in your `learning-ehrql` directory:
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients, medications
+from ehrql.tables.core import patients, medications
 
 dataset = create_dataset()
 
@@ -214,7 +214,7 @@ Make sure you save the file!
 use the command below to run your dataset definition with ehrQL.
 
 ```
-opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv
+opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv
 ```
 
 :notepad_spiral: ehrQL dataset definitions are written in Python.
@@ -225,8 +225,8 @@ to run the dataset definition.
 
 #### What each part of this command does
 
-* `opensafely exec ehrql:v0` uses the OpenSAFELY CLI to run ehrQL.
-  The `v0` after the `:` refers to the version of ehrQL being used.
+* `opensafely exec ehrql:v1` uses the OpenSAFELY CLI to run ehrQL.
+  The `v1` after the `:` refers to the version of ehrQL being used.
 * `generate-dataset` instructs ehrQL to generate a dataset from the dataset definition.
 * `dataset_definition.py` specifies the filename of the dataset definition to use.
     * The dataset definition file is in the directory that we are running `opensafely exec`
@@ -276,7 +276,7 @@ patient_id,med_date,med_code
 without the `--dummy-tables` and `--output` options:
 
 ```
-opensafely exec ehrql:v0 generate-dataset dataset_definition.py
+opensafely exec ehrql:v1 generate-dataset dataset_definition.py
 ```
 
 By not specifying the dummy tables to use,
@@ -299,7 +299,7 @@ an error message will be displayed on the screen.
 This is one example:
 
 ```
-$ opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv
+$ opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv
 2023-04-21 17:53:42 [info     ] Compiling dataset definition from dataset_definition.py [ehrql.main]
 Failed to import 'dataset_definition.py':
 ```
@@ -331,7 +331,7 @@ expectations:
 
 actions:
   generate_dataset:
-    run: ehrql:v0 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv.gz
+    run: ehrql:v1 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv.gz
     outputs:
       highly_sensitive:
         cohort: output/dataset.csv.gz

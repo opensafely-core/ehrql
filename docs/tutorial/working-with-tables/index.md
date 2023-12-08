@@ -7,7 +7,7 @@ that contains a small amount of dummy data.
 In the terminal, type
 
 ```
-opensafely exec ehrql:v0 sandbox example-data
+opensafely exec ehrql:v1 sandbox example-data
 ```
 
 and press ++enter++.
@@ -28,7 +28,7 @@ To work with the `patients` table,
 first import it into the sandbox.
 
 ```pycon
->>> from ehrql.tables.beta.core import patients
+>>> from ehrql.tables.core import patients
 ```
 
 ??? tip "Importing tables into the sandbox"
@@ -36,7 +36,7 @@ first import it into the sandbox.
     In other words, typing
 
     ```pycon
-    >>> from ehrql.tables.beta.core import patients
+    >>> from ehrql.tables.core import patients
     ```
 
     into the sandbox and pressing ++enter++ displays
@@ -90,7 +90,7 @@ To work with the `medications` table,
 first import it into the sandbox.
 
 ```pycon
->>> from ehrql.tables.beta.core import medications
+>>> from ehrql.tables.core import medications
 ```
 
 The `medications` table has many rows per patient.

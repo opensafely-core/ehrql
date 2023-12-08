@@ -19,7 +19,7 @@ You do not need to add anything to the measures definition itself in order to ge
 dataset in this way. ehrQL will use the measures definition to set up dummy data and generate
 matching patients.
 
-By default, 500 patients will be generated in a dummy measures output. If you need to increase this number, you can configure it in the measures definition with:
+By default, ten patients will be generated in a dummy measures output. If you need to increase this number, you can configure it in the measures definition with:
 
 ```
 measures.configure_dummy_data(population_size=1000)
@@ -47,7 +47,7 @@ For example, take this simple measures definition:
 ```python
 from ehrql import create_measures, years
 from ehrql.measures import INTERVAL
-from ehrql.tables.beta.core import patients, clinical_events
+from ehrql.tables.core import patients, clinical_events
 
 events_in_interval = clinical_events.where(clinical_events.date.is_during(INTERVAL))
 had_event = events_in_interval.exists_for_patient()
@@ -76,7 +76,7 @@ And this dummy measures, in a CSV file named `dummy_measures.csv`:
 Run the measures definition with the dummy measures output file:
 
 ```
-opensafely exec ehrql:v0 generate-measres measures_definition.py --dummy-data-file dummy_measures.csv
+opensafely exec ehrql:v1 generate-measres measures_definition.py --dummy-data-file dummy_measures.csv
 ```
 
 Now, instead of generated dummy measures output, you'll see the data from the dummy data file that you provided.

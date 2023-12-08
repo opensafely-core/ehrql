@@ -1,4 +1,4 @@
-from databuilder.ehrql import codelist_from_csv
+from ehrql import codelist_from_csv
 
 # A variety of plausible long covid codelists:
 long_covid_nice_dx = codelist_from_csv(

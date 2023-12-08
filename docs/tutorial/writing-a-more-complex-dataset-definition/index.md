@@ -51,7 +51,7 @@ These characteristics come from the `patients` and the `practice_registrations` 
 which we import now.
 
 ```python
-from ehrql.tables.beta.tpp import patients, practice_registrations
+from ehrql.tables.tpp import patients, practice_registrations
 ```
 
 ### Is a patient female or male?
@@ -301,7 +301,7 @@ shows pairs of codes and groups.
 Next, we import the `clinical_events` table.
 
 ```python
-from ehrql.tables.beta.tpp import clinical_events
+from ehrql.tables.tpp import clinical_events
 ```
 
 Finally, we query the table
@@ -328,7 +328,7 @@ Notice that we:
 
 ```python
 from ehrql import case, when
-from ehrql.tables.beta.tpp import addresses
+from ehrql.tables.tpp import addresses
 ```
 
 ```python
@@ -377,7 +377,7 @@ shows only codes.
 Next, we import the `medications` table.
 
 ```python
-from ehrql.tables.beta.tpp import medications
+from ehrql.tables.tpp import medications
 ```
 
 Finally, we query the table
@@ -401,10 +401,10 @@ Notice that we:
 
 #### Date of first admission
 
-First, we import the `hospital_admissions` table.
+First, we import the `apcs` table.
 
 ```python
-from ehrql.tables.beta.tpp import hospital_admissions
+from ehrql.tables.tpp import apcs
 ```
 
 Finally, we query the table
@@ -412,12 +412,12 @@ and assign the result column to `dataset.date_of_first_admission`.
 
 ```python
 dataset.date_of_first_admission = (
-    hospital_admissions.where(
-        hospital_admissions.admission_date.is_after(
+    apcs.where(
+        apcs.admission_date.is_after(
             index_date
         )
     )
-    .sort_by(hospital_admissions.admission_date)
+    .sort_by(apcs.admission_date)
     .first_for_patient()
     .admission_date
 )

@@ -1,13 +1,13 @@
-# <strong>beta.emis</strong> schema
+# <strong>core</strong> schema
 
-Available on backends: [**EMIS**](../../backends#emis)
+Available on backends: [**TPP**](../../backends#tpp), [**EMIS**](../../backends#emis)
 
-This schema defines the data (both primary care and externally linked) available in the
-OpenSAFELY-EMIS backend. For more information about this backend, see
-"[EMIS Primary Care](https://docs.opensafely.org/data-sources/emis/)".
+This schema defines the core tables and columns which should be available in any backend
+providing primary care data, allowing dataset definitions written using this schema to
+run across multiple backends.
 
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
-from ehrql.tables.beta.emis import (
+from ehrql.tables.core import (
     clinical_events,
     medications,
     ons_deaths,
@@ -151,7 +151,7 @@ More information about this table can be found in following documents provided b
 In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
 a small number of patients have multiple registered deaths.
 This table contains the earliest registered death.
-The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
+The `ehrql.tables.raw.ons_deaths` table contains all registered deaths.
 
 !!! tip
     If you need to query for place of death, please note that
@@ -402,7 +402,7 @@ based on these MCCDs.
 There is generally a lag between the death being recorded in ONS data and it
 appearing in the primary care record, but the coverage or recorded death is almost
 complete and the date of death is usually reliable when it appears. There is
-also a lag in ONS death recording (see [`ons_deaths`](/reference/schemas/beta.core/#ons_deaths) below
+also a lag in ONS death recording (see [`ons_deaths`](/reference/schemas/core/#ons_deaths) below
 for more detail). You can find out more about the accuracy of date of death
 recording in primary care in:
 

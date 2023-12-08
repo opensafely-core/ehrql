@@ -8,7 +8,7 @@ across all available backends.
 
 import datetime
 
-from .. import Constraint, PatientFrame, Series, table
+from ehrql.tables import Constraint, PatientFrame, Series, table
 
 
 __all__ = [

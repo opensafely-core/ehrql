@@ -1,14 +1,14 @@
-from databuilder.ehrql import Dataset, when, case, days
+from ehrql import Dataset, when, case, days
 from datetime import date
 from variable_lib import long_covid_events_during, long_covid_dx_during
-from databuilder.tables.beta.tpp import (
+from ehrql.tables.tpp import (
   patients,
   practice_registrations,
   clinical_events,
   vaccinations,
   ons_deaths,
   sgss_covid_all_tests,
-  hospital_admissions
+  apcs
 )
 from variable_lib import (
   age_as_of,
@@ -78,13 +78,13 @@ registration = registrations \
 
 dataset.pt_start_date = case(
     when(registration.start_date + days(minimum_registration) > study_start_date).then(registration.start_date + days(minimum_registration)),
-    default=study_start_date,
+    otherwise=study_start_date,
 )
 
 dataset.pt_end_date = case(
     when(registration.end_date.is_null()).then(lc_prevaccine_end_date),
     when(registration.end_date > lc_prevaccine_end_date).then(lc_prevaccine_end_date),
-    default=registration.end_date,
+    otherwise=registration.end_date,
 )
 
 # Demographic variables ------------------------------------------------------------

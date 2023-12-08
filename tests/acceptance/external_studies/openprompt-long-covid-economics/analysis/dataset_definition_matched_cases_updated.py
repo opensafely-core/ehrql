@@ -1,6 +1,6 @@
 import datetime
-from databuilder.ehrql import Dataset, days, years
-from databuilder.tables.beta.tpp import (
+from ehrql import Dataset, days, years
+from ehrql.tables.tpp import (
     patients, addresses, 
     ons_deaths, 
     sgss_covid_all_tests,
@@ -55,9 +55,9 @@ dataset.match_counts = matched_cases.match_counts
 
 # Add previous covid hospitalisation
 # 1. Previous hospitalized due to COVID (only look at hospitalisation before the index date)
-previous_covid_hos = (hospitalisation_diagnosis_matches(hospital_admissions, codelists.hosp_covid)
-    .where(hospital_admissions.admission_date < matched_cases.index_date)
-    .sort_by(hospital_admissions.admission_date)
+previous_covid_hos = (hospitalisation_diagnosis_matches(apcs, codelists.hosp_covid)
+    .where(apcs.admission_date < matched_cases.index_date)
+    .sort_by(apcs.admission_date)
     .first_for_patient()
 )
 
@@ -79,11 +79,11 @@ create_sequential_variables(
 )
 
 # Calculate how many times does a person admit for more than a month
-hospital_stay_more_30 = hospital_admissions \
-    .where(hospital_admissions.admission_date >= matched_cases.index_date) \
-    .where(hospital_admissions.admission_date <= study_end_date) \
-    .where(hospital_admissions.discharge_date.is_on_or_after(hospital_admissions.discharge_date)) \
-    .where(hospital_admissions.discharge_date.is_after(hospital_admissions.admission_date + days(30))) \
+hospital_stay_more_30 = apcs \
+    .where(apcs.admission_date >= matched_cases.index_date) \
+    .where(apcs.admission_date <= study_end_date) \
+    .where(apcs.discharge_date.is_on_or_after(hospital_admissions.discharge_date)) \
+    .where(apcs.discharge_date.is_after(hospital_admissions.admission_date + days(30))) \
     .count_for_patient()
 
 dataset.covid_positive = latest_test_before_diagnosis.exists_for_patient()

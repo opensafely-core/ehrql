@@ -6,11 +6,11 @@ from ehrql import create_dataset
 from ehrql.backends.emis import EMISBackend
 from ehrql.query_engines.base_sql import get_setup_and_cleanup_queries
 from ehrql.query_language import compile
-from ehrql.tables import PatientFrame, Series, table_from_rows
-from ehrql.tables.beta import emis
-from ehrql.tables.beta.raw import emis as emis_raw
+from ehrql.tables import PatientFrame, Series, emis, table_from_rows
+from ehrql.tables.raw import emis as emis_raw
 from ehrql.utils.sqlalchemy_query_utils import CreateTableAs, GeneratedTable
 from tests.lib.emis_schema import (
+    ImmunisationAllOrgsV2,
     MedicationAllOrgsV2,
     ObservationAllOrgsV2,
     OnsView,
@@ -353,45 +353,140 @@ def test_ons_deaths_raw(select_all_emis):
 @register_test_for(emis.patients)
 def test_patients(select_all_emis):
     results = select_all_emis(
-        PatientAllOrgsV2(registration_id="1", date_of_birth=date(2020, 1, 1), gender=1),
+        PatientAllOrgsV2(
+            registration_id="1",
+            date_of_birth=date(2020, 1, 1),
+            gender=1,
+            hashed_organisation="1A2B3C",
+            registered_date=date(2021, 3, 1),
+            rural_urban=1,
+            imd_rank=500,
+        ),
         # duplicate registration ids are ignored
-        PatientAllOrgsV2(registration_id="2", date_of_birth=date(2020, 1, 1), gender=1),
-        PatientAllOrgsV2(registration_id="2", date_of_birth=date(2020, 1, 1), gender=1),
+        PatientAllOrgsV2(
+            registration_id="2",
+            date_of_birth=date(2020, 1, 1),
+            gender=1,
+            hashed_organisation="1A2B3C",
+            registered_date=date(2021, 3, 1),
+        ),
+        PatientAllOrgsV2(
+            registration_id="2",
+            date_of_birth=date(2020, 1, 1),
+            gender=1,
+            hashed_organisation="1A2B3C",
+            registered_date=date(2021, 3, 1),
+        ),
         PatientAllOrgsV2(
             registration_id="3",
             date_of_birth=date(1960, 1, 1),
             date_of_death=date(2020, 1, 1),
             gender=2,
+            hashed_organisation="1A2B3C",
+            registered_date=date(1960, 3, 1),
         ),
-        PatientAllOrgsV2(registration_id="4", date_of_birth=date(2020, 1, 1), gender=0),
         PatientAllOrgsV2(
-            registration_id="5", date_of_birth=date(1978, 10, 13), gender=9
+            registration_id="4",
+            date_of_birth=date(2020, 1, 1),
+            gender=0,
+            hashed_organisation="1A2B3C",
+            registered_date=date(2021, 3, 1),
+        ),
+        PatientAllOrgsV2(
+            registration_id="5",
+            date_of_birth=date(1978, 10, 13),
+            gender=9,
+            hashed_organisation="1A2B3C",
+            registered_date=date(2021, 3, 1),
         ),
     )
-    assert results == [
+
+    expected = [
         {
             "patient_id": "1",
             "date_of_birth": date(2020, 1, 1),
             "sex": "male",
             "date_of_death": None,
+            "registration_start_date": date(2021, 3, 1),
+            "registration_end_date": None,
+            "practice_pseudo_id": "1A2B3C",
+            "rural_urban_classification": 1,
+            "imd_rounded": 500,
         },
         {
             "patient_id": "3",
             "date_of_birth": date(1960, 1, 1),
             "sex": "female",
             "date_of_death": date(2020, 1, 1),
+            "registration_start_date": date(1960, 3, 1),
+            "registration_end_date": None,
+            "practice_pseudo_id": "1A2B3C",
+            "rural_urban_classification": None,
+            "imd_rounded": None,
         },
         {
             "patient_id": "4",
             "date_of_birth": date(2020, 1, 1),
             "sex": "unknown",
             "date_of_death": None,
+            "registration_start_date": date(2021, 3, 1),
+            "registration_end_date": None,
+            "practice_pseudo_id": "1A2B3C",
+            "rural_urban_classification": None,
+            "imd_rounded": None,
         },
         {
             "patient_id": "5",
             "date_of_birth": date(1978, 10, 13),
             "sex": "unknown",
             "date_of_death": None,
+            "registration_start_date": date(2021, 3, 1),
+            "registration_end_date": None,
+            "practice_pseudo_id": "1A2B3C",
+            "rural_urban_classification": None,
+            "imd_rounded": None,
+        },
+    ]
+    assert results == expected
+
+
+@register_test_for(emis.vaccinations)
+def test_vaccinations(select_all_emis):
+    results = select_all_emis(
+        PatientAllOrgsV2(registration_id="1"),
+        PatientAllOrgsV2(registration_id="2"),
+        PatientAllOrgsV2(registration_id="3"),
+        ImmunisationAllOrgsV2(
+            registration_id="1",
+            effective_date=datetime(2020, 10, 20, 14, 30, 5),
+            snomed_concept_id=123,
+        ),
+        ImmunisationAllOrgsV2(
+            registration_id="2",
+            effective_date=datetime(2021, 3, 23, 23, 30, 5),
+            snomed_concept_id=456,
+        ),
+        ImmunisationAllOrgsV2(
+            registration_id="2",
+            effective_date=datetime(2022, 1, 15, 12, 30, 5),
+            snomed_concept_id=567,
+        ),
+    )
+    assert results == [
+        {
+            "patient_id": "1",
+            "date": date(2020, 10, 20),
+            "procedure_code": "123",
+        },
+        {
+            "patient_id": "2",
+            "date": date(2021, 3, 23),
+            "procedure_code": "456",
+        },
+        {
+            "patient_id": "2",
+            "date": date(2022, 1, 15),
+            "procedure_code": "567",
         },
     ]
 

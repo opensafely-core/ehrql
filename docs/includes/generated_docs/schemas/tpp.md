@@ -1,4 +1,4 @@
-# <strong>beta.tpp</strong> schema
+# <strong>tpp</strong> schema
 
 Available on backends: [**TPP**](../../backends#tpp)
 
@@ -7,17 +7,17 @@ OpenSAFELY-TPP backend. For more information about this backend, see
 "[SystmOne Primary Care](https://docs.opensafely.org/data-sources/systmone/)".
 
 ``` {.python .copy title='To use this schema in an ehrQL file:'}
-from ehrql.tables.beta.tpp import (
+from ehrql.tables.tpp import (
     addresses,
     apcs,
     apcs_cost,
     appointments,
     clinical_events,
+    clinical_events_ranges,
     ec,
     ec_cost,
     emergency_care_attendances,
     ethnicity_from_sus,
-    hospital_admissions,
     household_memberships_2020,
     medications,
     occupation_on_covid_vaccine_record,
@@ -328,6 +328,66 @@ The core Healthcare Resource Group (HRG) code for the spell according to the der
   </dd>
 </div>
 
+<div markdown="block">
+  <dt id="apcs.admission_method">
+    <strong>admission_method</strong>
+    <a class="headerlink" href="#apcs.admission_method" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Code identifying admission method. Refer to [APCS data source documentation](https://docs.opensafely.org/data-sources/apc/) for details of codes.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.primary_diagnosis">
+    <strong>primary_diagnosis</strong>
+    <a class="headerlink" href="#apcs.primary_diagnosis" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Code indicating primary diagnosis. This is not necessarily the primary reason for admission, and could represent an escalation/complication of initial reason for admission.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.all_diagnoses">
+    <strong>all_diagnoses</strong>
+    <a class="headerlink" href="#apcs.all_diagnoses" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Semicolon-separated list of all diagnosis codes.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.days_in_critical_care">
+    <strong>days_in_critical_care</strong>
+    <a class="headerlink" href="#apcs.days_in_critical_care" title="Permanent link">🔗</a>
+    <code>integer</code>
+  </dt>
+  <dd markdown="block">
+Number of days spent in critical care. This is counted in number of days (or part-days) not the number of nights as per normal "length of stay" calculations. Note the definition of critical care may vary between trusts.
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="apcs.patient_classification">
+    <strong>patient_classification</strong>
+    <a class="headerlink" href="#apcs.patient_classification" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+Refer to [APCS data source documentation](https://docs.opensafely.org/data-sources/apc/) for details.
+
+  </dd>
+</div>
+
   </dl>
 </div>
 
@@ -589,6 +649,114 @@ referrals are recorded in the clinical events table but this data will be incomp
   <dd markdown="block">
 
 
+  </dd>
+</div>
+
+  </dl>
+</div>
+
+
+<p class="dimension-indicator"><code>many rows per patient</code></p>
+## clinical_events_ranges
+
+Each record corresponds to a single clinical or consultation event for a patient,
+as presented in `clinical_events`, but with additional fields regarding the event's
+`numeric_value`.
+
+!!! warning
+    Use of this table carries a severe performance penalty and should only be
+    done so if the additional fields it provides are neccesary for a study.
+
+These additional fields are:
+
+* any comparators (if present) recorded with an event's `numeric_value` (e.g. '<9.5')
+* the lower bound of the reference range associated with an event's `numeric_value`
+* the upper bound of the reference range associated with an event's `numeric_value`
+<div markdown="block" class="definition-list-wrapper">
+  <div class="title">Columns</div>
+  <dl markdown="block">
+<div markdown="block">
+  <dt id="clinical_events_ranges.date">
+    <strong>date</strong>
+    <a class="headerlink" href="#clinical_events_ranges.date" title="Permanent link">🔗</a>
+    <code>date</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.snomedct_code">
+    <strong>snomedct_code</strong>
+    <a class="headerlink" href="#clinical_events_ranges.snomedct_code" title="Permanent link">🔗</a>
+    <code>SNOMED-CT code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.ctv3_code">
+    <strong>ctv3_code</strong>
+    <a class="headerlink" href="#clinical_events_ranges.ctv3_code" title="Permanent link">🔗</a>
+    <code>CTV3 (Read v3) code</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.numeric_value">
+    <strong>numeric_value</strong>
+    <a class="headerlink" href="#clinical_events_ranges.numeric_value" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.lower_bound">
+    <strong>lower_bound</strong>
+    <a class="headerlink" href="#clinical_events_ranges.lower_bound" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+The lower bound of the reference range associated with an event's numeric_value
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.upper_bound">
+    <strong>upper_bound</strong>
+    <a class="headerlink" href="#clinical_events_ranges.upper_bound" title="Permanent link">🔗</a>
+    <code>float</code>
+  </dt>
+  <dd markdown="block">
+The upper bound of the reference range associated with an event's numeric_value
+
+  </dd>
+</div>
+
+<div markdown="block">
+  <dt id="clinical_events_ranges.comparator">
+    <strong>comparator</strong>
+    <a class="headerlink" href="#clinical_events_ranges.comparator" title="Permanent link">🔗</a>
+    <code>string</code>
+  </dt>
+  <dd markdown="block">
+If an event's numeric_value is returned with a comparator, e.g. as '<9.5', then this column contains that comparator
+
+ * Possible values: `~`, `=`, `>=`, `>`, `<`, `<=`
   </dd>
 </div>
 
@@ -1122,125 +1290,6 @@ https://www.datadictionary.nhs.uk/data_elements/ethnic_category.html
 </div>
 
 
-<p class="dimension-indicator"><code>many rows per patient</code></p>
-## hospital_admissions
-
-
-<div markdown="block" class="definition-list-wrapper">
-  <div class="title">Columns</div>
-  <dl markdown="block">
-<div markdown="block">
-  <dt id="hospital_admissions.id">
-    <strong>id</strong>
-    <a class="headerlink" href="#hospital_admissions.id" title="Permanent link">🔗</a>
-    <code>integer</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.admission_date">
-    <strong>admission_date</strong>
-    <a class="headerlink" href="#hospital_admissions.admission_date" title="Permanent link">🔗</a>
-    <code>date</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.discharge_date">
-    <strong>discharge_date</strong>
-    <a class="headerlink" href="#hospital_admissions.discharge_date" title="Permanent link">🔗</a>
-    <code>date</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.admission_method">
-    <strong>admission_method</strong>
-    <a class="headerlink" href="#hospital_admissions.admission_method" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.all_diagnoses">
-    <strong>all_diagnoses</strong>
-    <a class="headerlink" href="#hospital_admissions.all_diagnoses" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.patient_classification">
-    <strong>patient_classification</strong>
-    <a class="headerlink" href="#hospital_admissions.patient_classification" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.days_in_critical_care">
-    <strong>days_in_critical_care</strong>
-    <a class="headerlink" href="#hospital_admissions.days_in_critical_care" title="Permanent link">🔗</a>
-    <code>integer</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.primary_diagnoses">
-    <strong>primary_diagnoses</strong>
-    <a class="headerlink" href="#hospital_admissions.primary_diagnoses" title="Permanent link">🔗</a>
-    <code>string</code>
-  </dt>
-  <dd markdown="block">
-Note that the underlying data only contains a single diagnosis code, despite the "diagnoses" name. primary_diagnoses is therefore deprecated and will be removed in future: use primary_diagnosis instead.
-
-  </dd>
-</div>
-
-<div markdown="block">
-  <dt id="hospital_admissions.primary_diagnosis">
-    <strong>primary_diagnosis</strong>
-    <a class="headerlink" href="#hospital_admissions.primary_diagnosis" title="Permanent link">🔗</a>
-    <code>ICD-10 code</code>
-  </dt>
-  <dd markdown="block">
-
-
-  </dd>
-</div>
-
-  </dl>
-</div>
-
-
 <p class="dimension-indicator"><code>one row per patient</code></p>
 ## household_memberships_2020
 
@@ -1398,7 +1447,7 @@ More information about this table can be found in following documents provided b
 In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
 a small number of patients have multiple registered deaths.
 This table contains the earliest registered death.
-The `ehrql.tables.beta.raw.ons_deaths` table contains all registered deaths.
+The `ehrql.tables.raw.ons_deaths` table contains all registered deaths.
 
 !!! warning
     There is also a lag in ONS death recording caused amongst other things by things like autopsies and inquests delaying
@@ -2156,7 +2205,7 @@ based on these MCCDs.
 There is generally a lag between the death being recorded in ONS data and it
 appearing in the primary care record, but the coverage or recorded death is almost
 complete and the date of death is usually reliable when it appears. There is
-also a lag in ONS death recording (see [`ons_deaths`](/reference/schemas/beta.core/#ons_deaths) below
+also a lag in ONS death recording (see [`ons_deaths`](/reference/schemas/core/#ons_deaths) below
 for more detail). You can find out more about the accuracy of date of death
 recording in primary care in:
 

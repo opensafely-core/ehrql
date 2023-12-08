@@ -5,7 +5,7 @@ expectations:
 
 actions:
   generate_dataset:
-    run: ehrql:v0 generate-dataset --output dataset.csv.gz dataset_definition.py
+    run: ehrql:v1 generate-dataset --output dataset.csv.gz dataset_definition.py
     outputs:
       highly_sensitive:
         dataset: dataset.csv.gz

@@ -1,9 +1,9 @@
 import sqlalchemy
 
 from ehrql.query_language import get_tables_from_namespace
-from ehrql.tables.beta import emis, tpp
-from ehrql.tables.beta.raw import emis as emis_raw
-from ehrql.tables.beta.raw import tpp as tpp_raw
+from ehrql.tables import emis, tpp
+from ehrql.tables.raw import emis as emis_raw
+from ehrql.tables.raw import tpp as tpp_raw
 
 
 REGISTERED_TABLES = set()
@@ -50,7 +50,7 @@ def types_compatible(database, column_type, column_args):
         # Current no non-mssql backends (i.e. emis) have boolean column types
         return column_args["type"] == "boolean"  # pragma: no cover
     elif isinstance(column_type, sqlalchemy.Integer):
-        return column_args["type"] in ("int", "bigint")
+        return column_args["type"] in ("int", "integer", "bigint")
     elif isinstance(column_type, sqlalchemy.Float):
         return column_args["type"] == "real"
     elif isinstance(column_type, sqlalchemy.Date):

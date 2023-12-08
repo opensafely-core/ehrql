@@ -2,11 +2,11 @@ from urllib import parse
 
 import sqlalchemy
 
-import ehrql.tables.beta.core
-import ehrql.tables.beta.raw.core
-import ehrql.tables.beta.raw.tpp
-import ehrql.tables.beta.smoketest
-import ehrql.tables.beta.tpp
+import ehrql.tables.core
+import ehrql.tables.raw.core
+import ehrql.tables.raw.tpp
+import ehrql.tables.smoketest
+import ehrql.tables.tpp
 from ehrql.backends.base import MappedTable, QueryTable, SQLBackend
 from ehrql.codes import CTV3Code, DMDCode, SNOMEDCTCode
 from ehrql.query_engines.mssql import MSSQLQueryEngine
@@ -47,11 +47,11 @@ class TPPBackend(SQLBackend):
     query_engine_class = MSSQLQueryEngine
     patient_join_column = "Patient_ID"
     implements = [
-        ehrql.tables.beta.core,
-        ehrql.tables.beta.raw.core,
-        ehrql.tables.beta.tpp,
-        ehrql.tables.beta.raw.tpp,
-        ehrql.tables.beta.smoketest,
+        ehrql.tables.core,
+        ehrql.tables.raw.core,
+        ehrql.tables.tpp,
+        ehrql.tables.raw.tpp,
+        ehrql.tables.smoketest,
     ]
 
     DEFAULT_COLLATION = "Latin1_General_CI_AS"
@@ -156,14 +156,24 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    apcs = MappedTable(
-        source="APCS",
-        columns={
-            "apcs_ident": "APCS_Ident",
-            "admission_date": "Admission_Date",
-            "discharge_date": "Discharge_Date",
-            "spell_core_hrg_sus": "Spell_Core_HRG_SUS",
-        },
+    apcs = QueryTable(
+        # There is a 1-1 relationship between APCS and APCS_Der
+        """
+            SELECT
+                apcs.Patient_ID AS patient_id,
+                apcs.APCS_Ident AS apcs_ident,
+                apcs.Admission_Date AS admission_date,
+                apcs.Discharge_Date AS discharge_date,
+                apcs.Spell_Core_HRG_SUS AS spell_core_hrg_sus,
+                apcs.Admission_Method AS admission_method,
+                apcs.Der_Diagnosis_All AS all_diagnoses,
+                apcs.Patient_Classification AS patient_classification,
+                CAST(der.Spell_PbR_CC_Day AS INTEGER) AS days_in_critical_care,
+                der.Spell_Primary_Diagnosis as primary_diagnosis
+            FROM APCS AS apcs
+            LEFT JOIN APCS_Der AS der
+            ON apcs.APCS_Ident = der.APCS_Ident
+        """
     )
 
     apcs_cost = QueryTable(
@@ -247,7 +257,8 @@ class TPPBackend(SQLBackend):
                 CAST(NULLIF(ConsultationDate, '9999-12-31T00:00:00') AS date) AS date,
                 NULL AS snomedct_code,
                 CTV3Code AS ctv3_code,
-                NumericValue AS numeric_value
+                NumericValue AS numeric_value,
+                CodedEvent_ID
             FROM CodedEvent
             UNION ALL
             SELECT
@@ -255,8 +266,29 @@ class TPPBackend(SQLBackend):
                 CAST(NULLIF(ConsultationDate, '9999-12-31T00:00:00') AS date) AS date,
                 ConceptId AS snomedct_code,
                 NULL AS ctv3_code,
-                NumericValue AS numeric_value
+                NumericValue AS numeric_value,
+                CodedEvent_ID
             FROM CodedEvent_SNOMED
+        """
+    )
+
+    clinical_events_ranges = QueryTable(
+        f"""
+            SELECT
+                ce.*,
+                cer.LowerBound AS lower_bound,
+                cer.UpperBound AS upper_bound,
+                CASE cer.Comparator
+                    WHEN 3 THEN '~'
+                    WHEN 4 THEN '='
+                    WHEN 5 THEN '>='
+                    WHEN 6 THEN '>'
+                    WHEN 7 THEN '<'
+                    WHEN 8 THEN '<='
+                END COLLATE Latin1_General_CI_AS AS comparator
+            FROM ({clinical_events.query}) ce
+            LEFT JOIN CodedEventRange cer
+                ON ce.CodedEvent_ID = cer.CodedEvent_ID
         """
     )
 
@@ -345,31 +377,12 @@ class TPPBackend(SQLBackend):
         """
     )
 
-    hospital_admissions = QueryTable(
-        """
-            SELECT
-                apcs.Patient_ID AS patient_id,
-                apcs.APCS_Ident AS id,
-                apcs.Admission_Date AS admission_date,
-                apcs.Discharge_Date AS discharge_date,
-                apcs.Admission_Method AS admission_method,
-                apcs.Der_Diagnosis_All AS all_diagnoses,
-                apcs.Patient_Classification AS patient_classification,
-                CAST(der.Spell_PbR_CC_Day AS INTEGER) AS days_in_critical_care,
-                der.Spell_Primary_Diagnosis as primary_diagnoses,
-                der.Spell_Primary_Diagnosis as primary_diagnosis
-            FROM APCS AS apcs
-            LEFT JOIN APCS_Der AS der
-            ON apcs.APCS_Ident = der.APCS_Ident
-        """
-    )
-
     household_memberships_2020 = QueryTable(
         """
             SELECT
                 mb.Patient_ID AS patient_id,
-                hh.Household_ID AS household_pseudo_id,
-                hh.HouseholdSize AS household_size
+                NULLIF(hh.Household_ID, 0) AS household_pseudo_id,
+                NULLIF(hh.HouseholdSize, 0) AS household_size
             FROM HouseholdMember AS mb
             LEFT JOIN Household AS hh
             ON mb.Household_ID = hh.Household_ID

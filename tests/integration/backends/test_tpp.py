@@ -8,8 +8,8 @@ from ehrql import create_dataset
 from ehrql.backends.tpp import TPPBackend
 from ehrql.query_engines.mssql_dialect import SelectStarInto
 from ehrql.query_language import compile
-from ehrql.tables.beta import tpp
-from ehrql.tables.beta.raw import tpp as tpp_raw
+from ehrql.tables import tpp
+from ehrql.tables.raw import tpp as tpp_raw
 from tests.lib.tpp_schema import (
     APCS,
     EC,
@@ -21,6 +21,7 @@ from tests.lib.tpp_schema import (
     Appointment,
     CodedEvent,
     CodedEvent_SNOMED,
+    CodedEventRange,
     CustomMedicationDictionary,
     EC_Cost,
     EC_Diagnosis,
@@ -237,6 +238,14 @@ def test_apcs(select_all_tpp):
             Admission_Date=date(2023, 1, 1),
             Discharge_Date=date(2023, 2, 1),
             Spell_Core_HRG_SUS="XXX",
+            Der_Diagnosis_All="123;456;789",
+            Admission_Method="1A",
+            Patient_Classification="X",
+        ),
+        APCS_Der(
+            APCS_Ident=1,
+            Spell_PbR_CC_Day="5",
+            Spell_Primary_Diagnosis="A1",
         ),
     )
     assert results == [
@@ -246,6 +255,11 @@ def test_apcs(select_all_tpp):
             "admission_date": date(2023, 1, 1),
             "discharge_date": date(2023, 2, 1),
             "spell_core_hrg_sus": "XXX",
+            "all_diagnoses": "123;456;789",
+            "admission_method": "1A",
+            "patient_classification": "X",
+            "days_in_critical_care": 5,
+            "primary_diagnosis": "A1",
         },
     ]
 
@@ -471,6 +485,161 @@ def test_clinical_events(select_all_tpp):
     ]
 
 
+@register_test_for(tpp.clinical_events_ranges)
+def test_clinical_events_ranges(select_all_tpp):
+    results = select_all_tpp(
+        Patient(Patient_ID=1),
+        CodedEvent(
+            Patient_ID=1,
+            CodedEvent_ID=1,
+            ConsultationDate="2020-10-20T14:30:05",
+            CTV3Code="xyz",
+            NumericValue=None,
+        ),
+        CodedEvent_SNOMED(
+            Patient_ID=1,
+            CodedEvent_ID=2,
+            ConsultationDate="2020-11-21T09:30:00",
+            ConceptId="ijk",
+            NumericValue=1.5,
+        ),
+        CodedEvent(
+            Patient_ID=1,
+            CodedEvent_ID=3,
+            ConsultationDate="2020-12-20T14:30:05",
+            CTV3Code="xyz",
+            NumericValue=None,
+        ),
+        CodedEvent_SNOMED(
+            Patient_ID=1,
+            CodedEvent_ID=4,
+            ConsultationDate="2021-01-21T09:30:00",
+            ConceptId="ijk",
+            NumericValue=1.5,
+        ),
+        CodedEvent(
+            Patient_ID=1,
+            CodedEvent_ID=5,
+            ConsultationDate="2021-02-20T14:30:05",
+            CTV3Code="xyz",
+            NumericValue=None,
+        ),
+        CodedEvent_SNOMED(
+            Patient_ID=1,
+            CodedEvent_ID=6,
+            ConsultationDate="2021-03-21T09:30:00",
+            ConceptId="ijk",
+            NumericValue=1.5,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=1,
+            Comparator=3,
+            LowerBound=1,
+            UpperBound=2,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=2,
+            Comparator=4,
+            LowerBound=2,
+            UpperBound=3,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=3,
+            Comparator=5,
+            LowerBound=3,
+            UpperBound=4,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=4,
+            Comparator=6,
+            LowerBound=4,
+            UpperBound=5,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=5,
+            Comparator=7,
+            LowerBound=5,
+            UpperBound=6,
+        ),
+        CodedEventRange(
+            Patient_ID=1,
+            CodedEvent_ID=6,
+            Comparator=8,
+            LowerBound=6,
+            UpperBound=7,
+        ),
+    )
+    expected = [
+        {
+            "patient_id": 1,
+            "date": date(2020, 10, 20),
+            "snomedct_code": None,
+            "ctv3_code": "xyz",
+            "numeric_value": None,
+            "comparator": "~",
+            "lower_bound": 1.0,
+            "upper_bound": 2.0,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 12, 20),
+            "snomedct_code": None,
+            "ctv3_code": "xyz",
+            "numeric_value": None,
+            "comparator": ">=",
+            "lower_bound": 3.0,
+            "upper_bound": 4.0,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2021, 2, 20),
+            "snomedct_code": None,
+            "ctv3_code": "xyz",
+            "numeric_value": None,
+            "comparator": "<",
+            "lower_bound": 5.0,
+            "upper_bound": 6.0,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 11, 21),
+            "snomedct_code": "ijk",
+            "ctv3_code": None,
+            "numeric_value": 1.5,
+            "comparator": "=",
+            "lower_bound": 2.0,
+            "upper_bound": 3.0,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2021, 1, 21),
+            "snomedct_code": "ijk",
+            "ctv3_code": None,
+            "numeric_value": 1.5,
+            "comparator": ">",
+            "lower_bound": 4.0,
+            "upper_bound": 5.0,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2021, 3, 21),
+            "snomedct_code": "ijk",
+            "ctv3_code": None,
+            "numeric_value": 1.5,
+            "comparator": "<=",
+            "lower_bound": 6.0,
+            "upper_bound": 7.0,
+        },
+    ]
+
+    assert results == expected
+
+
 @register_test_for(tpp.ec)
 def test_ec(select_all_tpp):
     results = select_all_tpp(
@@ -592,45 +761,11 @@ def test_ethnicity_from_sus(select_all_tpp):
     ]
 
 
-@register_test_for(tpp.hospital_admissions)
-def test_hospital_admissions(select_all_tpp):
-    results = select_all_tpp(
-        Patient(Patient_ID=1),
-        APCS(
-            Patient_ID=1,
-            APCS_Ident=2,
-            Admission_Date="2021-01-01",
-            Discharge_Date="2021-01-10",
-            Admission_Method="1A",
-            Der_Diagnosis_All="123;456;789",
-            Patient_Classification="X",
-        ),
-        APCS_Der(
-            APCS_Ident=2,
-            Spell_PbR_CC_Day="5",
-            Spell_Primary_Diagnosis="A1",
-        ),
-    )
-    assert results == [
-        {
-            "patient_id": 1,
-            "id": 2,
-            "admission_date": date(2021, 1, 1),
-            "discharge_date": date(2021, 1, 10),
-            "admission_method": "1A",
-            "all_diagnoses": "123;456;789",
-            "patient_classification": "X",
-            "days_in_critical_care": 5,
-            "primary_diagnoses": "A1",
-            "primary_diagnosis": "A1",
-        }
-    ]
-
-
 @register_test_for(tpp.household_memberships_2020)
 def test_household_memberships_2020(select_all_tpp):
     results = select_all_tpp(
         Patient(Patient_ID=1),
+        Patient(Patient_ID=2),
         Household(
             Household_ID=123,
             HouseholdSize=5,
@@ -639,12 +774,25 @@ def test_household_memberships_2020(select_all_tpp):
             Patient_ID=1,
             Household_ID=123,
         ),
+        Household(
+            Household_ID=0,
+            HouseholdSize=0,
+        ),
+        HouseholdMember(
+            Patient_ID=2,
+            Household_ID=0,
+        ),
     )
     assert results == [
         {
             "patient_id": 1,
             "household_pseudo_id": 123,
             "household_size": 5,
+        },
+        {
+            "patient_id": 2,
+            "household_pseudo_id": None,
+            "household_size": None,
         },
     ]
 

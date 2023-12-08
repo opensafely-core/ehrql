@@ -8,6 +8,15 @@ class Base(DeclarativeBase):
     "Common base class to signal that models below belong to the same database"
 
 
+class ImmunisationAllOrgsV2(Base):
+    __tablename__ = "immunisation_all_orgs_v2"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    registration_id = mapped_column(t.VARCHAR(128))
+    snomed_concept_id = mapped_column(t.BigInteger)
+    effective_date = mapped_column(t.DateTime)
+
+
 class PatientAllOrgsV2(Base):
     __tablename__ = "patient_all_orgs_v2"
     _pk = mapped_column(t.Integer, primary_key=True)
@@ -17,6 +26,11 @@ class PatientAllOrgsV2(Base):
     gender = mapped_column(t.Integer)
     date_of_birth = mapped_column(t.Date)
     date_of_death = mapped_column(t.Date)
+    hashed_organisation = mapped_column(t.VARCHAR)
+    registered_date = mapped_column(t.Date)
+    registration_end_date = mapped_column(t.Date)
+    rural_urban = mapped_column(t.Integer)
+    imd_rank = mapped_column(t.BigInteger)
 
 
 class ObservationAllOrgsV2(Base):
@@ -34,7 +48,7 @@ class MedicationAllOrgsV2(Base):
     _pk = mapped_column(t.Integer, primary_key=True)
 
     registration_id = mapped_column(t.VARCHAR(128))
-    snomed_concept_id = mapped_column(t.Integer)
+    snomed_concept_id = mapped_column(t.BigInteger)
     effective_date = mapped_column(t.DateTime)
 
 

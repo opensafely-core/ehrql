@@ -34,11 +34,11 @@ practice at university.
 
 This backend implements the following table schemas:
 
- * [beta.core](../schemas/beta.core/)
- * [beta.raw.core](../schemas/beta.raw.core/)
- * [beta.tpp](../schemas/beta.tpp/)
- * [beta.raw.tpp](../schemas/beta.raw.tpp/)
- * [beta.smoketest](../schemas/beta.smoketest/)
+ * [core](../schemas/core/)
+ * [raw.core](../schemas/raw.core/)
+ * [tpp](../schemas/tpp/)
+ * [raw.tpp](../schemas/raw.tpp/)
+ * [smoketest](../schemas/smoketest/)
 
 ## EMIS
 <small class="subtitle">
@@ -60,8 +60,8 @@ from other sources.
 
 This backend implements the following table schemas:
 
- * [beta.core](../schemas/beta.core/)
- * [beta.raw.core](../schemas/beta.raw.core/)
- * [beta.raw.emis](../schemas/beta.raw.emis/)
- * [beta.emis](../schemas/beta.emis/)
- * [beta.smoketest](../schemas/beta.smoketest/)
+ * [core](../schemas/core/)
+ * [raw.core](../schemas/raw.core/)
+ * [raw.emis](../schemas/raw.emis/)
+ * [emis](../schemas/emis/)
+ * [smoketest](../schemas/smoketest/)

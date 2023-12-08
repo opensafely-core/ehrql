@@ -22,7 +22,7 @@ You do not need to add anything to the dataset definition itself in order to gen
 dataset in this way. ehrQL will use the dataset definition to set up dummy data and generate
 matching patients.
 
-By default, 500 patients will be generated in a dummy dataset. If you need to increase this
+By default, ten patients will be generated in a dummy dataset. If you need to increase this
 number, you can configure it in the dataset definition with:
 
 ```
@@ -50,7 +50,7 @@ For example, take this dataset definition from the tutorial:
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients, medications
+from ehrql.tables.core import patients, medications
 
 dataset = create_dataset()
 
@@ -80,7 +80,7 @@ And this dummy dataset, in a CSV file named `dummy.csv`:
 Run the dataset definition with the dummy dataset file:
 
 ```
-opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-data-file dummy.csv
+opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-data-file dummy.csv
 ```
 
 Now, instead of a generated dummy dataset, you'll see the data from the dummy data file that
@@ -127,14 +127,14 @@ to generate an initial dataset, and then modify it as you need.
 Run the dataset definition with an output path:
 
 ```
-opensafely exec ehrql:v0 generate-dataset dataset_definition.py --output dataset.csv
+opensafely exec ehrql:v1 generate-dataset dataset_definition.py --output dataset.csv
 ```
 
 Now you can edit `dataset.csv` as you want, and rerun the dataset definition, using it as the
 dummy data file:
 
 ```
-opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-data-file dataset.csv
+opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-data-file dataset.csv
 ```
 
 ## Supply your own dummy tables
@@ -158,7 +158,7 @@ specific tables that are required.
 Try this out by running the following command against the simple dataset definition above:
 
 ```
-opensafely exec ehrql:v0 create-dummy-tables dataset_definition.py dummy-folder
+opensafely exec ehrql:v1 create-dummy-tables dataset_definition.py dummy-folder
 ```
 
 ![A screenshot of VS Code, showing the terminal after the `create-dummy-tables` command was run](opensafely_exec_create_dummy_tables.png)
@@ -169,5 +169,5 @@ dataset definition requires - `patients.csv` and `medications.csv`.
 Now you can run ehrQl with these generated tables instead:
 
 ```
-opensafely exec ehrql:v0 generate-dataset dataset_definition.py --dummy-tables dummy-folder
+opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables dummy-folder
 ```

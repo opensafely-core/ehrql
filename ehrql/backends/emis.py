@@ -1,10 +1,10 @@
 import sqlalchemy
 
-import ehrql.tables.beta.core
-import ehrql.tables.beta.emis
-import ehrql.tables.beta.raw.core
-import ehrql.tables.beta.raw.emis
-import ehrql.tables.beta.smoketest
+import ehrql.tables.core
+import ehrql.tables.emis
+import ehrql.tables.raw.core
+import ehrql.tables.raw.emis
+import ehrql.tables.smoketest
 from ehrql.backends.base import QueryTable, SQLBackend
 from ehrql.query_engines.trino import TrinoQueryEngine
 
@@ -27,11 +27,11 @@ class EMISBackend(SQLBackend):
     query_engine_class = TrinoQueryEngine
     patient_join_column = "registration_id"
     implements = [
-        ehrql.tables.beta.core,
-        ehrql.tables.beta.raw.core,
-        ehrql.tables.beta.raw.emis,
-        ehrql.tables.beta.emis,
-        ehrql.tables.beta.smoketest,
+        ehrql.tables.core,
+        ehrql.tables.raw.core,
+        ehrql.tables.raw.emis,
+        ehrql.tables.emis,
+        ehrql.tables.smoketest,
     ]
 
     def get_emis_org_column(self):
@@ -80,7 +80,12 @@ class EMISBackend(SQLBackend):
                 ELSE 'unknown'
             END AS sex,
             date_of_birth,
-            date_of_death
+            date_of_death,
+            registered_date AS registration_start_date,
+            registration_end_date as registration_end_date,
+            hashed_organisation AS practice_pseudo_id,
+            imd_rank AS imd_rounded,
+            rural_urban AS rural_urban_classification
         FROM patient_all_orgs_v2
         WHERE registration_id NOT IN (
             SELECT registration_id
@@ -233,5 +238,15 @@ class EMISBackend(SQLBackend):
                 FROM ({ons_table_query})
             ) t
             WHERE t.rownum = 1
+        """
+    )
+
+    vaccinations = QueryTable(
+        """
+        SELECT
+            registration_id AS patient_id,
+            CAST(effective_date AS date) as date,
+            CAST(snomed_concept_id AS varchar) AS procedure_code
+        FROM immunisation_all_orgs_v2
         """
     )

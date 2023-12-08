@@ -1,6 +1,6 @@
 # noqa: INP001
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients
+from ehrql.tables.core import patients
 
 
 dataset = create_dataset()

@@ -1,10 +1,10 @@
 from datetime import date
 
-from databuilder.ehrql import Dataset, days, years
-from databuilder.tables.beta.tpp import (
+from ehrql import Dataset, days, years
+from ehrql.tables.tpp import (
     patients, ec_cost, opa_cost
 )
-from ehrql.tables.beta.raw.tpp import apcs_cost_historical
+from ehrql.tables.raw.tpp import apcs_cost_historical
 
 study_start_date = date(2020, 11, 1)
 study_one_year = date(2021, 11, 1)

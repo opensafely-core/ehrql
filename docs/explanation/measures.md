@@ -17,7 +17,7 @@ Suppose we want to know what proportion of the patients prescribed atorvastatin 
 
 ```python
 from ehrql import INTERVAL, case, create_measures, months, when
-from ehrql.tables.beta.core import medications, patients
+from ehrql.tables.core import medications, patients
 
 # Every measure definitions file must include this line
 measures = create_measures()
@@ -68,7 +68,7 @@ measures.define_measure(
 
 You can save this file as `measure_definition.py` and then run the [`generate-measures`](../reference/cli.md#generate-measures) command on it:
 ```
-opensafely exec ehrql:v0 generate-measures measure_definition.py --output measures.csv
+opensafely exec ehrql:v1 generate-measures measure_definition.py --output measures.csv
 ```
 
 ### Results

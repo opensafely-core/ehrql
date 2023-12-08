@@ -20,7 +20,7 @@ from .common import (
 )
 
 
-SORT_ORDER = {k: i for i, k in enumerate(["beta.tpp", "beta.core"])}
+SORT_ORDER = {k: i for i, k in enumerate(["tpp", "core"])}
 
 
 def build_schemas(backends=()):

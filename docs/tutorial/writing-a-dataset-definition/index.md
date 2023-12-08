@@ -4,7 +4,7 @@ for all patients born on or before 31 December 1999.
 
 ```ehrql
 from ehrql import create_dataset
-from ehrql.tables.beta.core import patients, medications
+from ehrql.tables.core import patients, medications
 
 dataset = create_dataset()
 
@@ -22,11 +22,11 @@ dataset.asthma_med_code = latest_asthma_med.dmd_code
 ```
 
 !!! tip "Importing tables"
-    The tables are imported from the `ehrql.tables.beta.core` schema in the above dataset definition.
+    The tables are imported from the `ehrql.tables.core` schema in the above dataset definition.
     Consequently, it can be run on any backend.
     If you need a table that's only available in one backend,
     then you should import the table from a non-core schema,
-    such as `ehrql.tables.beta.tpp` or `ehrql.tables.beta.emis`.
+    such as `ehrql.tables.tpp` or `ehrql.tables.emis`.
 
 ## Open the dataset definition
 
@@ -62,14 +62,14 @@ The `patients` table has one row per patient.
 The `medications` table has many rows per patient.
 
 ```python
-from ehrql.tables.beta.core import patients, medications
+from ehrql.tables.core import patients, medications
 ```
 
 ??? tip "Import the tables"
     Importing tables into the sandbox doesn't display any output.
 
     ```pycon
-    >>> from ehrql.tables.beta.core import patients, medications
+    >>> from ehrql.tables.core import patients, medications
     ```
 
 ## Create the dataset
