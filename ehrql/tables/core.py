@@ -52,7 +52,7 @@ class patients(PatientFrame):
     There is generally a lag between the death being recorded in ONS data and it
     appearing in the primary care record, but the coverage or recorded death is almost
     complete and the date of death is usually reliable when it appears. There is
-    also a lag in ONS death recording (see [`ons_deaths`](/reference/schemas/core/#ons_deaths) below
+    also a lag in ONS death recording (see [`ons_deaths`](#ons_deaths) below
     for more detail). You can find out more about the accuracy of date of death
     recording in primary care in:
 
@@ -123,7 +123,7 @@ class ons_deaths(PatientFrame):
 
     !!! tip
         If you need to query for place of death, please note that
-        this is only available in the tpp backend"
+        this is only available in the `tpp` backend
 
     """
 
@@ -246,7 +246,7 @@ class medications(EventFrame):
 
     Examples of using ehrQL to calculation such periods can be found in the documentation
     on how to
-    [use ehrQL to answer specifc questions](../../../how-to/examples#excluding-medications-for-patients-who-have-transferred-between-practices).
+    [use ehrQL to answer specific questions](../../how-to/examples.md#excluding-medications-for-patients-who-have-transferred-between-practices).
     """
 
     date = Series(datetime.date)

@@ -30,15 +30,15 @@ time. For instance, students are often registered with a practice at home and a
 practice at university.
 
 !!! warning
-    Refer to the [discussion of selecting populations for studies](../../explanation/selecting-populations-for-study.md).
+    Refer to the [discussion of selecting populations for studies](../explanation/selecting-populations-for-study.md).
 
 This backend implements the following table schemas:
 
- * [core](../schemas/core/)
- * [raw.core](../schemas/raw.core/)
- * [tpp](../schemas/tpp/)
- * [raw.tpp](../schemas/raw.tpp/)
- * [smoketest](../schemas/smoketest/)
+ * [core](schemas/core.md)
+ * [raw.core](schemas/raw.core.md)
+ * [tpp](schemas/tpp.md)
+ * [raw.tpp](schemas/raw.tpp.md)
+ * [smoketest](schemas/smoketest.md)
 
 ## EMIS
 <small class="subtitle">
@@ -60,8 +60,8 @@ from other sources.
 
 This backend implements the following table schemas:
 
- * [core](../schemas/core/)
- * [raw.core](../schemas/raw.core/)
- * [raw.emis](../schemas/raw.emis/)
- * [emis](../schemas/emis/)
- * [smoketest](../schemas/smoketest/)
+ * [core](schemas/core.md)
+ * [raw.core](schemas/raw.core.md)
+ * [raw.emis](schemas/raw.emis.md)
+ * [emis](schemas/emis.md)
+ * [smoketest](schemas/smoketest.md)

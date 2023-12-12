@@ -1025,7 +1025,7 @@ class practice_registrations(EventFrame):
     """
     Each record corresponds to a patient's registration with a practice.
 
-    See the [TPP backend information](../../backends.md#patients-included-in-the-tpp-backend)
+    See the [TPP backend information](../backends.md#patients-included-in-the-tpp-backend)
     for details of which patients are included.
     """
 

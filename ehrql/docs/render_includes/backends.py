@@ -19,7 +19,7 @@ def render_backends(backend_data):
         BACKEND_TEMPLATE.format(
             **backend,
             schema_list="\n".join(
-                f" * [{schema}](../schemas/{schema}/)"
+                f" * [{schema}](schemas/{schema}.md)"
                 for schema in backend["implements"]
             ),
         )
