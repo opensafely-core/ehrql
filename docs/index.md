@@ -6,8 +6,11 @@ and execute them with the command line interface to generate **datasets with one
 ehrQL allows researchers to access data sources from primary and secondary care,
 as well as from organisations such as the Office for National Statistics (ONS).
 
-Why did we create a new query language?
-You can find out about ehrQL's [philosophy and design goals](https://www.bennett.ox.ac.uk/blog/2023/09/why-ehrql/) on the Bennett Institute blog.
+Fundamentally, ehrQL standardises data management tasks to maximise efficiency and privacy benefits
+(you can find out more about ehrQL's [philosophy and design goals](https://www.bennett.ox.ac.uk/blog/2023/09/why-ehrql/) on the Bennett Institute blog).
+If you encounter data management tasks that you find cumbersome,
+and which are not currently supported by ehrQL,
+then please email us at <bennett@phc.ox.ac.uk> so we can evaluate your needs and consider how we might extend ehrQL to meet them.
 
 ## ehrQL's documentation
 
