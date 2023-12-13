@@ -490,42 +490,6 @@ dataset.last_statin_prescription_date = medications.where(
 dataset.define_population(patients.exists_for_patient())
 ```
 
-### What is the earliest/latest hospitalisation event matching some criteria?
-
-```python
-from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.tpp import apcs, patients
-
-cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
-
-dataset = create_dataset()
-dataset.first_cardiac_hospitalisation_date = apcs.where(
-        apcs.snomedct_code.is_in(cardiac_diagnosis_codes)
-).where(
-        apcs.date.is_on_or_after("2022-07-01")
-).sort_by(
-        apcs.date
-).first_for_patient().date
-dataset.define_population(patients.exists_for_patient())
-```
-
-```ehrql
-from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.core import medications, patients
-
-cardiac_diagnosis_codes = codelist_from_csv("XXX", column="YYY")
-
-dataset = create_dataset()
-dataset.last_cardiac_hospitalisation_date = medications.where(
-        medications.dmd_code.is_in(cardiac_diagnosis_codes)
-).where(
-        medications.date.is_on_or_after("2022-07-01")
-).sort_by(
-        medications.date
-).last_for_patient().date
-dataset.define_population(patients.exists_for_patient())
-```
-
 ### What is the clinical event, matching some criteria, with the least/greatest value?
 
 ```ehrql
@@ -655,31 +619,6 @@ dataset.mean_hba1c = clinical_events.where(
 ).where(
         clinical_events.date.is_on_or_after("2022-07-01")
 ).numeric_value.mean_for_patient()
-dataset.define_population(patients.exists_for_patient())
-```
-
-### Finding the observed value of clinical events matching some criteria expressed relative to another value
-
-```python
-from ehrql import create_dataset, codelist_from_csv
-from ehrql.tables.core import clinical_events, patients
-
-hba1c_codelist = codelist_from_csv("XXX", column="YYY")
-
-dataset = create_dataset()
-mean_hba1c = clinical_events.where(
-        clinical_events.snomedct_code.is_in(hba1c_codelist)
-).where(
-        clinical_events.date.is_on_or_after("2022-07-01")
-).numeric_value.maximum_for_patient()
-
-dataset.mean_max_hbac_difference = max_hba1c - (
-clinical_events.where(clinical_events.snomedct_code.is_in(hba1c_codelist)
-).where(
-        clinical_events.numeric_value == max_hba1c
-).sort_by(
-        clinical_events.date
-).numeric_value.mean_for_patient())
 dataset.define_population(patients.exists_for_patient())
 ```
 
