@@ -117,10 +117,14 @@ from . import test_complete_examples
             ),
             [
                 test_complete_examples.EhrqlExample(
-                    path=Path("test"), fence_number=1, source="some code"
+                    path=Path("test"),
+                    fence_number=1,
+                    source="some code",
                 ),
                 test_complete_examples.EhrqlExample(
-                    path=Path("test"), fence_number=2, source="more code"
+                    path=Path("test"),
+                    fence_number=2,
+                    source="more code",
                 ),
             ],
             id="multiple fences",
@@ -135,7 +139,9 @@ from . import test_complete_examples
             ),
             [
                 test_complete_examples.EhrqlExample(
-                    path=Path("test"), fence_number=1, source="some code"
+                    path=Path("test"),
+                    fence_number=1,
+                    source="some code",
                 ),
             ],
             id="fence in quote",
@@ -156,7 +162,9 @@ from . import test_complete_examples
             ),
             [
                 test_complete_examples.EhrqlExample(
-                    path=Path("test"), fence_number=1, source="some code"
+                    path=Path("test"),
+                    fence_number=1,
+                    source="some code",
                 ),
             ],
             id="fence in list",

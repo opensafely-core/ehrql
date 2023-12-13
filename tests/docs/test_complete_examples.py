@@ -3,7 +3,7 @@ import csv
 import inspect
 import unittest.mock
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
 
@@ -123,6 +123,10 @@ class EhrqlExample:
     # Standalone Python modules are not given a fence number.
     fence_number: int | None
     source: str
+    definition_type: EhrqlExampleDefinitionType | None = field(init=False)
+
+    def __post_init__(self):
+        self.definition_type = self._get_definition_type()
 
     def relative_path(self):
         """Return the relative path of the dataset definition source file
@@ -130,10 +134,14 @@ class EhrqlExample:
         source_code_path = Path(__file__).parents[2]
         return self.path.relative_to(source_code_path)
 
-    def get_definition_type(self):
-        # TODO: actually check what we have
-        # Look for create_measures() or create_dataset()
-        return EhrqlExampleDefinitionType.DATASET
+    def _get_definition_type(self):
+        """Return the type of ehrQL definition or None if no match."""
+        if "create_dataset()" in self.source:
+            assert "create_measures()" not in self.source
+            return EhrqlExampleDefinitionType.DATASET
+        if "create_measures()" in self.source:
+            return EhrqlExampleDefinitionType.MEASURE
+        return None
 
 
 def discover_paths(glob_string):
@@ -265,7 +273,30 @@ def test_ehrql_example(tmp_path, example):
         load_dataset_definition_unsafe."""
         return ehrql.loaders.load_dataset_definition_unsafe(definition_file, user_args)
 
+    def wrapped_load_measure_definitions(definition_file, user_args, _):
+        """Wraps ehrql.load_measure_definitions to use the unsafe version
+        that runs the dataset definition in the same process,
+        without sandboxing.
+
+        This is to remove the additional environ argument that is not used in
+        load_measure_definitions_unsafe."""
+        return ehrql.loaders.load_measure_definitions_unsafe(definition_file, user_args)
+
     formatted_example = f"\nEXAMPLE FILENAME {example.path}\nEXAMPLE START\n{example.source}\nEXAMPLE END"
+
+    match example.definition_type:
+        case EhrqlExampleDefinitionType.DATASET:
+            definition_fn = ehrql.main.generate_dataset
+            wrapped_fn = wrapped_load_dataset_definition
+            ehrql_fn_name_to_patch = "ehrql.main.load_dataset_definition"
+        case EhrqlExampleDefinitionType.MEASURE:
+            definition_fn = ehrql.main.generate_measures
+            wrapped_fn = wrapped_load_measure_definitions
+            ehrql_fn_name_to_patch = "ehrql.main.load_measure_definitions"
+        case _:
+            raise EhrqlExampleTestError(
+                f"example did not contain create_dataset() or create_measures(): {formatted_example}"
+            )
 
     with (
         # Patch out the sandbox for now to use the unsafe loader.
@@ -273,8 +304,8 @@ def test_ehrql_example(tmp_path, example):
         # By patching load_dataset_definition,
         # we can still use the existing ehrql.main.generate_dataset function.
         unittest.mock.patch(
-            "ehrql.main.load_dataset_definition",
-            wraps=wrapped_load_dataset_definition,
+            ehrql_fn_name_to_patch,
+            wraps=wrapped_fn,
         ),
         unittest.mock.patch(
             "ehrql.codelist_from_csv",
@@ -290,7 +321,7 @@ def test_ehrql_example(tmp_path, example):
         try:
             # No name needed to store a value:
             # the output CSV gets written to a temporary file.
-            ehrql.main.generate_dataset(
+            definition_fn(
                 tmp_example_path,
                 tmp_output_path,
                 dsn=None,
@@ -302,13 +333,14 @@ def test_ehrql_example(tmp_path, example):
                 user_args=(),
             )
         except Exception as e:
+            definition_fn_name = definition_fn.__name__.rpartition(".")[-1]
             raise EhrqlExampleTestError(
-                f"generate_dataset failed for example: {formatted_example}"
+                f"{definition_fn_name} failed for example: {formatted_example}"
             ) from e
 
     try:
         validate_dataset_output(tmp_output_path)
     except Exception as e:
         raise EhrqlExampleTestError(
-            f"Check of output dataset CSV failed for example: \n{formatted_example}"
+            f"Check of CSV output failed for example: \n{formatted_example}"
         ) from e
