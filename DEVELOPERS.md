@@ -322,16 +322,16 @@ generated markdown files. It is a developer's responsibility to update the gener
 their PR if required. There is also a CI step that will check that the documentation is up to
 date.
 
-### Testing dataset definitions included in the documentation
+### Testing ehrQL definitions included in the documentation
 
 All of the example tests can be run with:
 
     just test-docs-examples
 
-* Examples to be tested run with `generate_dataset()`.
-* Dataset definitions may be included inline in Markdown files in `docs/`,
+Dataset and measures definitions may be included:
+* inline in Markdown files in `docs/`,
   labelled as code blocks with the `ehrql` syntax,
-  or as Python `.py` files in `docs/`.
+* or as Python `.py` files in `docs/`.
 
 #### Examples using `codelist_from_csv()`
 
@@ -356,9 +356,9 @@ This will still highlight the code as if it were Python.
 We use the SuperFences extension for extracting Markdown fences.
 Refer to the [SuperFences documentation](https://facelessuser.github.io/pymdown-extensions/extensions/superfences/#nested-fence-format) for more details of the fence format.
 
-#### Dataset definitions as included Python files
+#### ehrQL definitions as included Python files
 
-Python files in the `docs/` directory are assumed to be working dataset definitions.
+Python files in the `docs/` directory are assumed to be working ehrQL dataset or measures definitions.
 
 They are also tested in the test suite.
 
