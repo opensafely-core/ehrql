@@ -134,8 +134,8 @@ def find_complete_ehrql_examples_in_markdown(file):
         if fence.language == "ehrql":
             example = DatasetDefinitionExample(
                 path=Path(file.name),
-                source=fence.source,
                 fence_number=fence_number,
+                source=fence.source,
             )
             yield example
 
