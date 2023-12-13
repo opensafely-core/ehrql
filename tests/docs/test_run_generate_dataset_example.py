@@ -191,3 +191,20 @@ def test_run_ehrql_measures_example_gives_unreadable_csv(tmp_path):
         ) as exc_info:
             test_complete_examples.test_ehrql_example(tmp_path, example)
     assert type(exc_info.value) is test_complete_examples.EhrqlExampleTestError
+
+
+def test_run_ehrql_non_matching_example(tmp_path):
+    example = test_complete_examples.EhrqlExample(
+        path="test",
+        fence_number=1,
+        source=textwrap.dedent(
+            """\
+            from ehrql import months
+            """
+        ),
+    )
+    with pytest.raises(
+        test_complete_examples.EhrqlExampleTestError,
+    ) as exc_info:
+        test_complete_examples.test_ehrql_example(tmp_path, example)
+    assert type(exc_info.value) is test_complete_examples.EhrqlExampleTestError
