@@ -37,10 +37,10 @@ class ons_deaths_raw(EventFrame):
 
     In the associated database table a small number of patients have multiple registered deaths.
     This table contains all registered deaths.
-    The `ehrql.tables.ons_deaths` table contains the earliest registered death.
+    The `ehrql.tables.core.ons_deaths` table contains the earliest registered death.
 
     !!! tip
-        To return one row per patient from `ehrql.tables.raw.ons_deaths`,
+        To return one row per patient from `ehrql.tables.raw.core.ons_deaths`,
         for example the latest registered death, you can use:
 
         ```py

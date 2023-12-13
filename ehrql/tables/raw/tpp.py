@@ -309,7 +309,7 @@ class ons_deaths_raw(EventFrame):
     The `ehrql.tables.ons_deaths` table contains the earliest registered death.
 
     !!! tip
-        To return one row per patient from `ehrql.tables.raw.ons_deaths`,
+        To return one row per patient from `ehrql.tables.raw.tpp.ons_deaths`,
         for example the latest registered death, you can use:
 
         ```py

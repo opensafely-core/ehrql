@@ -1447,7 +1447,7 @@ More information about this table can be found in following documents provided b
 In the associated database table [ONS_Deaths](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/#ONS_Deaths),
 a small number of patients have multiple registered deaths.
 This table contains the earliest registered death.
-The `ehrql.tables.raw.ons_deaths` table contains all registered deaths.
+The `ehrql.tables.raw.tpp.ons_deaths` table contains all registered deaths.
 
 !!! warning
     There is also a lag in ONS death recording caused amongst other things by things like autopsies and inquests delaying
