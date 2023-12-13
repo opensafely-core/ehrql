@@ -1,6 +1,7 @@
 import copy
 import csv
 import inspect
+import re
 import unittest.mock
 import uuid
 from dataclasses import dataclass, field
@@ -136,12 +137,26 @@ class EhrqlExample:
 
     def _get_definition_type(self):
         """Return the type of ehrQL definition or None if no match."""
-        if "create_dataset()" in self.source:
-            assert "create_measures()" not in self.source
-            return EhrqlExampleDefinitionType.DATASET
-        if "create_measures()" in self.source:
-            return EhrqlExampleDefinitionType.MEASURE
-        return None
+        definition_types = {
+            "create_dataset()": EhrqlExampleDefinitionType.DATASET,
+            "create_measures()": EhrqlExampleDefinitionType.MEASURE,
+        }
+
+        definition_function_call_matches = set(
+            re.findall(
+                r"(?:create_dataset\(\))|(?:create_measures\(\))",
+                self.source,
+            )
+        )
+        if len(definition_function_call_matches) != 1:
+            # Either no match,
+            # or we have both create_dataset() and create_measures().
+            # Both of these cases are invalid.
+            return None
+
+        (definition_function_call_string,) = definition_function_call_matches
+        assert definition_function_call_string in definition_types
+        return definition_types[definition_function_call_string]
 
 
 def discover_paths(glob_string):
