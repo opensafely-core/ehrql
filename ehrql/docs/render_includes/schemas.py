@@ -1,5 +1,5 @@
 SCHEMA_INDEX_TEMPLATE = """\
-## [{name}](./{name}/)
+## [{name}](schemas/{name}.md)
 <small class="subtitle">
   <a href="./{name}/"> view details → </a>
 </small>
@@ -26,9 +26,12 @@ def implemented_by_list(backends, depth=1):
             "_This schema is for development or testing purposes and is not"
             " available on any backend._"
         )
-    url_prefix = "/".join([".."] * depth)
+    if depth > 1:
+        url_prefix = "/".join([".."] * (depth - 1)) + "/"
+    else:
+        url_prefix = ""
     backend_links = [
-        f"[**{backend}**]({url_prefix}/backends#{backend.lower()})"
+        f"[**{backend}**]({url_prefix}backends.md#{backend.lower()})"
         for backend in backends
     ]
     return f"Available on backends: {', '.join(backend_links)}"
