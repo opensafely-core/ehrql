@@ -1,6 +1,6 @@
 # <strong>raw.emis</strong> schema
 
-Available on backends: [**EMIS**](../../backends#emis)
+Available on backends: [**EMIS**](../backends.md#emis)
 
 This schema defines the data (both primary care and externally linked) available in the
 OpenSAFELY-EMIS backend. For more information about this backend, see

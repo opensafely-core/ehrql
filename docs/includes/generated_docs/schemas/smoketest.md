@@ -1,6 +1,6 @@
 # <strong>smoketest</strong> schema
 
-Available on backends: [**TPP**](../../backends#tpp), [**EMIS**](../../backends#emis)
+Available on backends: [**TPP**](../backends.md#tpp), [**EMIS**](../backends.md#emis)
 
 This tiny schema is used to write a [minimal dataset definition][smoketest_repo] that
 can function as a basic end-to-end test (or "smoke test") of the OpenSAFELY platform
