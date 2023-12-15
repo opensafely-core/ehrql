@@ -218,9 +218,10 @@ test-generative *ARGS: devenv
     #!/usr/bin/env bash
     set -euo pipefail
 
-    examples=${GENTEST_EXAMPLES:-100}
     [[ -v CI ]] && echo "::group::Run tests (click to view)" || echo "Run tests"
-    GENTEST_EXAMPLES=$examples $BIN/python -m pytest \
+    GENTEST_EXAMPLES=${GENTEST_EXAMPLES:-100} \
+    GENTEST_CHECK_IGNORED_ERRORS=t \
+      $BIN/python -m pytest \
         --cov=ehrql \
         --cov=tests \
         --cov-report=html \
