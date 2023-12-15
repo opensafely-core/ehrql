@@ -2,11 +2,9 @@ from unittest import mock
 
 import pytest
 import sqlalchemy
-from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 
 from ehrql.utils.sqlalchemy_exec_utils import (
-    ReconnectableConnection,
     execute_with_retry_factory,
     fetch_table_in_batches,
 )
@@ -85,60 +83,3 @@ def test_execute_with_retry_exhausted(sleep):
         execute_with_retry()
     assert execute.call_count == 4
     assert sleep.mock_calls == [mock.call(t) for t in [10, 20, 40]]
-
-
-def test_reconnectable_connection():
-    engine = mock.Mock(
-        spec=Engine,
-        **{"connect.return_value.execute.side_effect": [ERROR, "OK1", "OK2"]},
-    )
-    with ReconnectableConnection(engine) as conn:
-        # We connect as soon as the context is entered
-        assert engine.connect.call_count == 1
-
-        with pytest.raises(OperationalError):
-            conn.execute_disconnect_on_error()
-
-        # After the error the connection should be detached and closed
-        assert engine.connect.return_value.detach.call_count == 1
-        assert engine.connect.return_value.close.call_count == 1
-
-        result1 = conn.execute_disconnect_on_error()
-        assert result1 == "OK1"
-
-        # The second query should have automatically opened a new connection
-        assert engine.connect.call_count == 2
-
-        result2 = conn.execute_disconnect_on_error()
-        assert result2 == "OK2"
-
-        # But the third query should reuse the same connection as there was no error
-        assert engine.connect.call_count == 2
-
-    # On exiting the context we should call `close()` again
-    assert engine.connect.return_value.close.call_count == 2
-    # But not `detach()` as that should only be done on error
-    assert engine.connect.return_value.detach.call_count == 1
-
-
-def test_reconnectable_connection_explicit_disconnect():
-    engine = mock.Mock(spec=Engine)
-    with ReconnectableConnection(engine) as conn:
-        # Disconnecting calls `detach()` and `close()`
-        conn.disconnect()
-        assert engine.connect.return_value.detach.call_count == 1
-        assert engine.connect.return_value.close.call_count == 1
-
-        # Calling `disconnect()` on a closed connection is a no-op
-        conn.disconnect()
-        assert engine.connect.return_value.detach.call_count == 1
-        assert engine.connect.return_value.close.call_count == 1
-
-    # Exiting the context does not call `close()` either
-    assert engine.connect.return_value.close.call_count == 1
-
-
-def test_reconnectable_connection_proxies_connection_attr():
-    engine = mock.Mock(spec=Engine)
-    with ReconnectableConnection(engine) as conn:
-        assert conn.connection is conn._get_connection().connection

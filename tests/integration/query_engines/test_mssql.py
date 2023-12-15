@@ -15,8 +15,7 @@ from ehrql.query_model.nodes import (
 )
 
 
-@pytest.mark.parametrize("temp_database_name", ["temp_tables", None])
-def test_get_results_using_temporary_database(mssql_engine, temp_database_name):
+def test_get_results_with_retries(mssql_engine):
     # Define a simple query and load some test data
     patient_table = SelectPatientTable("patients", TableSchema(i=Column(int)))
     variable_definitions = dict(
@@ -40,13 +39,7 @@ def test_get_results_using_temporary_database(mssql_engine, temp_database_name):
             None,
         ]
 
-        results = mssql_engine.extract_qm(
-            variable_definitions,
-            config=dict(
-                TEMP_DATABASE_NAME=temp_database_name,
-                PERSIST_RESULTS_TABLE="t",
-            ),
-        )
+        results = mssql_engine.extract_qm(variable_definitions)
 
         assert results == [
             {"patient_id": 1, "i": 10},
@@ -57,10 +50,6 @@ def test_get_results_using_temporary_database(mssql_engine, temp_database_name):
         assert sleep.call_count == 2
         # Grab a reference to the SELECT query so we can use it later
         query = select.call_args[0][0]
-
-    # Check that we were actually using the temporary database
-    if temp_database_name is not None:
-        assert temp_database_name in str(query)
 
     # Check that the table we were querying has now been cleaned up
     with mssql_engine.sqlalchemy_engine().connect() as conn:

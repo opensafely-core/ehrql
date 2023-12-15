@@ -78,12 +78,6 @@ settings = dict(
     derandomize=not os.environ.get("GENTEST_RANDOMIZE"),
 )
 
-ENGINE_CONFIG = {
-    # Exercise the codepath which writes to the temporary database as this is more
-    # convoluted and thus, presumably, more prone to bugs
-    "mssql": {"TEMP_DATABASE_NAME": "temp_tables"},
-}
-
 
 SELECTED_QUERY_ENGINES = (
     os.environ.get("GENTEST_QUERY_ENGINES", "").split() or QUERY_ENGINE_NAMES
@@ -190,7 +184,6 @@ def run_with(engine, instances, variables):
                 # In order to exercise the temporary table code path we set the limit
                 # here very low
                 "EHRQL_MAX_MULTIVALUE_PARAM_LENGTH": 3,
-                **ENGINE_CONFIG.get(engine.name, {}),
             },
         )
     except Exception as e:

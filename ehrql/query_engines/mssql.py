@@ -11,7 +11,6 @@ from ehrql.query_engines.mssql_dialect import (
 )
 from ehrql.utils.mssql_log_utils import execute_with_log
 from ehrql.utils.sqlalchemy_exec_utils import (
-    ReconnectableConnection,
     execute_with_retry_factory,
     fetch_table_in_batches,
 )
@@ -155,44 +154,10 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         results_query = super().get_query(variable_definitions)
         # Write results to a temporary table and select them from there. This allows us
         # to use more efficient/robust mechanisms to retrieve the results.
-        table_name, schema = self.get_results_table_name_and_schema(
-            # This is a minimally invasive way to disable the persistent results table
-            # in case we want to re-enable it in a hurry. We need the toggle so that
-            # tests can use it to retain coverage.
-            self.config.get("TEMP_DATABASE_NAME")
-            if self.config.get("PERSIST_RESULTS_TABLE")
-            else None
-        )
         results_table = temporary_table_from_query(
-            table_name, results_query, index_col="patient_id", schema=schema
+            "#results", results_query, index_col="patient_id"
         )
         return sqlalchemy.select(results_table)
-
-    def get_results_table_name_and_schema(self, temp_database_name):
-        # If we have a temporary database we can write results there which enables
-        # us to continue retrieving results after an interrupted connection
-        if temp_database_name:
-            # As the table is not session-scoped it needs a unique name
-            table_name = f"results_{self.global_unique_id}"
-            # The `schema` variable below is actually a multi-part identifier of the
-            # form `<database-name>.<schema>`. We don't really care about the schema
-            # here, we just want to use whatever is the default schema for the database.
-            # MSSQL allows you to do this by specifying "." as the schema name. However
-            # I can't find a way of supplying this without SQLAlchemy's quoting
-            # algorithm either mangling it or blowing up. We could work around this by
-            # attaching our own Identifier Preparer to our MSSQL dialect, but that
-            # sounds a lot like hard work. So we use the default value for the default
-            # schema, which is "dbo" (Database Owner), on the assumption that this will
-            # generally work and we can revisit if we have to. Relevant URLs are:
-            # https://docs.sqlalchemy.org/en/14/dialects/mssql.html#multipart-schema-names
-            # https://github.com/sqlalchemy/sqlalchemy/blob/8c07c68c/lib/sqlalchemy/dialects/mssql/base.py#L2799
-            schema = f"{temp_database_name}.dbo"
-        else:
-            # Otherwise we use a session-scoped temporary table which requires a
-            # continuous connnection
-            table_name = "#results"
-            schema = None
-        return table_name, schema
 
     def get_results(self, variable_definitions):
         results_query = self.get_query(variable_definitions)
@@ -205,32 +170,23 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
 
         setup_queries, cleanup_queries = get_setup_and_cleanup_queries(results_query)
 
-        # Because we may be disconnecting and reconnecting to the database part way
-        # through downloading results we need to make sure that the temporary tables we
-        # create, and the commands which delete them, get committed. There's no need for
-        # careful transaction management here: we just want them committed immediately.
-        autocommit_engine = self.engine.execution_options(isolation_level="AUTOCOMMIT")
+        with self.engine.connect() as connection:
+            # Previously, when using the temporary database to store results, it was
+            # important to use AUTOCOMMIT. Possibly we don't need this anymore, but in
+            # the spirit of not changing too much at once I'm leaving it in place.
+            connection.execution_options(isolation_level="AUTOCOMMIT")
 
-        with ReconnectableConnection(autocommit_engine) as connection:
             for i, setup_query in enumerate(setup_queries, start=1):
                 query_id = f"setup query {i:03} / {len(setup_queries):03}"
                 log.info(f"Running {query_id}")
                 execute_with_log(connection, setup_query, log.info, query_id=query_id)
 
-            # Re-establishing the database connection after an error allows us to
-            # recover from a wider range of failure modes. But we can only do this if
-            # the table we're reading from persists across connections.
-            if results_table.is_persistent:
-                conn_execute = connection.execute_disconnect_on_error
-            else:
-                conn_execute = connection.execute
-
-            # Retry 6 times over ~90m
+            # Retry 4 times over the course of 1 minute
             execute_with_retry = execute_with_retry_factory(
-                conn_execute,
-                max_retries=6,
+                connection.execute,
+                max_retries=4,
                 retry_sleep=4.0,
-                backoff_factor=4,
+                backoff_factor=2,
                 log=log.info,
             )
 
@@ -255,9 +211,9 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         )
 
 
-def temporary_table_from_query(table_name, query, index_col=0, schema=None):
+def temporary_table_from_query(table_name, query, index_col=0):
     # Define a table object with the same columns as the query
-    table = GeneratedTable.from_query(table_name, query, schema=schema)
+    table = GeneratedTable.from_query(table_name, query)
     table.setup_queries = [
         # Use the MSSQL `SELECT * INTO ...` construct to create and populate this
         # table
@@ -268,7 +224,4 @@ def temporary_table_from_query(table_name, query, index_col=0, schema=None):
         CreateIndex(sqlalchemy.Index(None, table.c[index_col], mssql_clustered=True)),
     ]
     table.cleanup_queries = [DropTable(table, if_exists=True)]
-    # The "#" prefix indicates a session-scoped temporary table which won't persist if
-    # we open a new connection to the database
-    table.is_persistent = not table_name.startswith("#")
     return table
