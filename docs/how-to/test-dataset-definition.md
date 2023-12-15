@@ -1,0 +1,187 @@
+# How to test your dataset definition
+
+This guide shows you how to evaluate and validate the behaviour of your ehrQL query.
+The [assure](../../reference/cli/#assure) command works like a suite of unit tests for your ehrQL queries.
+
+You can write assurance tests that help you and others to understand and review the expected behaviour of your dataset definition.
+Assurance tests also provide confidence that existing functionality remains unchanged when reworking your dataset definition.
+
+In this guide we first set up an example dataset definition and then demonstrate the steps needed to test the behaviour of the ehrQL queries in the dataset definition.
+
+## Example dataset definition
+
+First, we're creating a dataset definition with the following specifications:
+
+- The population includes everyone above the age of 18 on the `index_date` (31st March 2023).
+- The dataset has the following three columns:
+    - `age`: Patient's age on the `index_date`.
+    - `has_asthma_med`: Boolean value specifying whether a patient has received an asthma medication before the `index_date`.
+    - `latest_asthma_med_date`: Date of the most recent prescription of an asthma medication before the `index_date`.
+
+```ehrql
+from ehrql import create_dataset
+from ehrql.tables.core import patients, medications
+
+asthma_codes = ["39113311000001107", "39113611000001102"]
+
+dataset = create_dataset()
+
+index_date = "2023-03-31"
+
+dataset.age = patients.age_on(index_date)
+dataset.define_population(dataset.age > 18)
+
+latest_asthma_med = (
+    medications.where(medications.dmd_code.is_in(asthma_codes))
+    .where(medications.date <= index_date)
+    .sort_by(medications.date)
+    .last_for_patient()
+)
+
+dataset.has_asthma_med = latest_asthma_med.exists_for_patient()
+dataset.latest_asthma_med_date = latest_asthma_med.date
+```
+
+## Specifying data and expectations
+
+Next, you need to provide (1) data for test patients and (2) specify the data that you expect to see in the dataset for each patient after applying your ehrQL queries.
+Test data and expectations are defined in a nested dictionary called `patient_data`.
+The key in the outermost dictionary specifies the patient id.
+
+### Data for test patients
+
+In the example below we have created one test patient with the patient id `1` and specified more data for this patient in two lists called `patient` and `medications`.
+The names of the inner lists match the names of the tables you are using in your dataset definition.
+To explore how these tables are structured you can look at the column names in the [core schema](../../reference/schemas/core) documentation.
+
+The `patients` list contains one dictionary with two keys, one key for each column (`date_of_birth` and `sex`) that we want to populate.
+Note that you don't have to specify a value for each column in the underlying table.
+For example we did not specify `date_of_death` in the dictionary inside the `patients` list so the column will be missing with the value `None`.
+
+The `medications` list contains two dictionaries (one for each row we add to the table) with two keys (one for each column: `date` and `dmd_code`).
+Note that you have to specify a list for each table you use in your dataset definition, but this could also be an empty list.
+
+```py
+patient_data = {
+    1: {
+        "patients": [{
+            "date_of_birth": date(2020, 1, 1),
+            "sex": "female"},
+            ],
+        "medications": [
+            {
+                # First prescription of asthma medication
+                "date": date(2010, 1, 1),
+                "dmd_code": "39113311000001107",
+            },
+            {
+                # Second prescription of asthma medication
+                "date": date(2020, 1, 1),
+                "dmd_code": "39113311000001107",
+            },
+        ],
+        # Add expectations for patient 1 here
+        # See next section of this guide
+    },
+}
+```
+
+### Expectations for test patients
+
+Once you have created data for your test patients you need to specify your expectations after applying the ehrQL in your dataset definition to the test patients.
+First you need to indicate whether you expect the test patient to be in your defined population by providing `True` or `False` to the `expected_in_population` key.
+If you are expecting a patient in your population you also need to specify the values for the columns you added to your dataset in the `expected_columns` dictionary.
+Each key in the `expected_columns` dictionary represents one column you added to your dataset.
+
+In the example below we created three test patients in a separate file (e.g., `analysis/test_dataset_definition.py`), each testing a different element of our dataset definition (e.g., `analysis/dataset_definition.py`):
+
+* **Patient 1**: Expected in our population because the patient is older than 18 years on the `index_date`.
+  The three entries in the medications table tests the ehrQL logic that selects the latest medication before the `index_date`.
+* **Patient 2**: Expected in our population because the patient is older than 18 years on the `index_date`.
+  However the patient does not have any entries in their `medications` table.
+  Here we are testing the behaviour of our ehrQL query when a patient was never prescribed a code from the `asthma_codes` codelist
+* **Patient 3**: Not expected in our population because the patient is younger than 18 years on the `index_date`.
+
+At the top of your test script you need to import the `date` function and the `dataset` from your dataset definition that you want to test.
+
+```py
+from datetime import date
+from dataset_definition import dataset
+
+patient_data = {
+    # Expected in population with matching medication
+    1: {
+        "patients": [{"date_of_birth": date(1950, 1, 1)}],
+        "medications": [
+            {
+                # First matching medication
+                "date": date(2010, 1, 1),
+                "dmd_code": "39113311000001107",
+            },
+            {
+                # Latest matching medication before index_date
+                "date": date(2020, 1, 1),
+                "dmd_code": "39113311000001107",
+            },
+            {
+                # Most recent matching medication, but after index_date
+                "date": date(2023, 6, 1),
+                "dmd_code": "39113311000001107",
+            },
+        ],
+        "expected_in_population": True,
+        "expected_columns": {
+            "age": 73,
+            "has_asthma_med": True,
+            "latest_asthma_med_date": date(2020, 1, 1),
+        },
+    },
+    # Expected in population without matching medication
+    2: {
+        "patients": [{"date_of_birth": date(1950, 1, 1)}],
+        "medications": [],
+        "expected_in_population": True,
+        "expected_columns": {
+            "age": 73,
+            "has_asthma_med": False,
+            "latest_asthma_med_date": None,
+        },
+    },
+    # Not expected in population
+    3: {
+        "patients": [{"date_of_birth": date(2010, 1, 1)}],
+        "medications": [],
+        "expected_in_population": False,
+    },
+}
+```
+
+## Running the tests
+
+Finally, you can run your assurance tests through the terminal using the command below to verify if your expectations were successful or failed.
+The results of your tests will be displayed in your terminal.
+
+```
+opensafely exec ehrql:v1 assure analysis/test_dataset_definition.py
+```
+
+### Successful expectations
+
+If the expected results match the results after applying the ehrQL logic you will see the following short message in your terminal:
+
+```
+All OK!
+```
+
+### Failed expectations
+
+You will see an error message that helps you to diagnose and fix the problem if your expectations do not match the results.
+The error message is structured by patient and contains one line for each column with a failed expectation.
+Each line starts with the column name followed by the value that was specified in the test and the last value shows the result that was obtained after applying the ehrQL logic:
+
+```
+Found errors with 1 patient(s)
+ * Patient 1 had unexpected value(s)
+   * for column age, expected 72, got 73
+   * for column latest_asthma_med_date, expected 2020-01-01, got 2021-01-01
+```
