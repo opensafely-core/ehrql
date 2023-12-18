@@ -45,7 +45,7 @@ dataset.latest_asthma_med_date = latest_asthma_med.date
 ## Specifying data and expectations
 
 Next, you need to provide (1) data for test patients and (2) specify the data that you expect to see in the dataset for each patient after applying your ehrQL queries.
-Test data and expectations are defined in a nested dictionary called `patient_data`.
+Test data and expectations are defined in a nested dictionary called `test_data`.
 The key in the outermost dictionary specifies the patient id.
 
 ### Data for test patients
@@ -62,7 +62,7 @@ The `medications` list contains two dictionaries (one for each row we add to the
 Note that you have to specify a list for each table you use in your dataset definition, but this could also be an empty list.
 
 ```py
-patient_data = {
+test_data = {
     1: {
         "patients": [{
             "date_of_birth": date(2020, 1, 1),
