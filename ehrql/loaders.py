@@ -235,7 +235,7 @@ def load_dataset_definition_unsafe(definition_file, user_args):
 def load_test_definition_unsafe(definition_file, user_args):
     module = load_module(definition_file, user_args)
     variable_definitions = get_variable_definitions_from_module(module)
-    return variable_definitions, module.patient_data
+    return variable_definitions, module.test_data
 
 
 def get_variable_definitions_from_module(module):
