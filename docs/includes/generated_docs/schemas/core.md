@@ -1,6 +1,6 @@
 # <strong>core</strong> schema
 
-Available on backends: [**TPP**](../../backends#tpp), [**EMIS**](../../backends#emis)
+Available on backends: [**TPP**](../backends.md#tpp), [**EMIS**](../backends.md#emis)
 
 This schema defines the core tables and columns which should be available in any backend
 providing primary care data, allowing dataset definitions written using this schema to

@@ -1,6 +1,6 @@
 # <strong>raw.tpp</strong> schema
 
-Available on backends: [**TPP**](../../backends#tpp)
+Available on backends: [**TPP**](../backends.md#tpp)
 
 This schema defines the data (both primary care and externally linked) available in the
 OpenSAFELY-TPP backend. For more information about this backend, see

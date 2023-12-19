@@ -38,7 +38,7 @@ class patients(PatientFrame):
     There is generally a lag between the death being recorded in ONS data and it
     appearing in the primary care record, but the coverage or recorded death is almost
     complete and the date of death is usually reliable when it appears. There is
-    also a lag in ONS death recording (see [`ons_deaths`](/reference/schemas/core/#ons_deaths)
+    also a lag in ONS death recording (see [`ons_deaths`](core.md#ons_deaths)
     for more detail). You can find out more about the accuracy of date of death
     recording in primary care in:
 
