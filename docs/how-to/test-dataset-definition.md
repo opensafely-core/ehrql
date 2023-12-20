@@ -6,7 +6,11 @@ The [assure](../../reference/cli/#assure) command works like a suite of unit tes
 You can write assurance tests that help you and others to understand and review the expected behaviour of your dataset definition.
 Assurance tests also provide confidence that existing functionality remains unchanged when reworking your dataset definition.
 
-In this guide we first set up an example dataset definition and then demonstrate the steps needed to test the behaviour of the ehrQL queries in the dataset definition.
+In this guide we will demonstrate how to test ehrQL queries:
+
+1. Create dataset definition
+2. Specify test data and expectations
+3. Run tests
 
 ## Example dataset definition
 
@@ -42,32 +46,27 @@ dataset.has_asthma_med = latest_asthma_med.exists_for_patient()
 dataset.latest_asthma_med_date = latest_asthma_med.date
 ```
 
-## Specifying data and expectations
+## Specifying test data and expectations
 
 Next, you need to provide (1) data for test patients and (2) specify the data that you expect to see in the dataset for each patient after applying your ehrQL queries.
-Test data and expectations are defined in a nested dictionary called `test_data`.
-The key in the outermost dictionary specifies the patient id.
+Test data and expectations are both defined in a nested dictionary called `test_data`.
 
 ### Data for test patients
 
-In the example below we have created one test patient with the patient id `1` and specified more data for this patient in two lists called `patient` and `medications`.
-The names of the inner lists match the names of the tables you are using in your dataset definition.
-To explore how these tables are structured you can look at the column names in the [core schema](../../reference/schemas/core) documentation.
+To set up test patients and their data you need to use the following structure:
 
-The `patients` list contains one dictionary with two keys, one key for each column (`date_of_birth` and `sex`) that we want to populate.
-Note that you don't have to specify a value for each column in the underlying table.
-For example we did not specify `date_of_death` in the dictionary inside the `patients` list so the column will be missing with the value `None`.
-
-The `medications` list contains two dictionaries (one for each row we add to the table) with two keys (one for each column: `date` and `dmd_code`).
-Note that you have to specify a list for each table you use in your dataset definition, but this could also be an empty list.
+* **Patient ID**: Outermost dictionary keys represent patient IDs.
+* **Table names**: Second-level dictionary keys denote table names from OpenSAFELY backends.
+    * *One-row-per-patient* tables (e.g., [patients](../../reference/schemas/core/#patients)) are specified in a single dictionary
+    * *Many-rows-per-patient* tables (e.g., [medications](../../reference/schemas/core/#medications)) are specified in a list that can contain multiple dictionaries, where each dictionary adds one row for the patient to the `medications` table.
+* **Column names**: Third-level dictionary keys indicate column names in the tables.
 
 ```py
 test_data = {
     1: {
-        "patients": [{
+        "patients": {
             "date_of_birth": date(2020, 1, 1),
             "sex": "female"},
-            ],
         "medications": [
             {
                 # First prescription of asthma medication
@@ -86,9 +85,20 @@ test_data = {
 }
 ```
 
+In the example above we have created one test patient with the patient ID `1` and added test data for two tables: `patients` and `medications`.
+The keys of the second-level dictionary match the names of the tables in the dataset definition.
+To explore how these tables are structured you can look at the column names in the [table schemas](../../reference/schemas) documentation.
+As mentioned above, adding data is different for *one-row-* and *many-rows-per-patient* tables:
+
+* `patients` is a *one-row-per-patient* table, so you can only define one dictionary with one key for each column (`date_of_birth` and `sex`) that you want to populate.
+    Note that you don't have to specify a value for each column in the underlying table.
+    For example we did not specify `date_of_death` in the dictionary so the column will be missing with the value `None`.
+* `medications` is a *many-rows-per-patient* table, so you can define a list containing multiple dictionaries (one for each row you want to add to the table) with one key for each column (`date` and `dmd_code`).
+
 ### Expectations for test patients
 
 Once you have created data for your test patients you need to specify your expectations after applying the ehrQL in your dataset definition to the test patients.
+Note that you have to specify a list for each table you use in your dataset definition, but this could also be an empty list.
 First you need to indicate whether you expect the test patient to be in your defined population by providing `True` or `False` to the `expected_in_population` key.
 If you are expecting a patient in your population you also need to specify the values for the columns you added to your dataset in the `expected_columns` dictionary.
 Each key in the `expected_columns` dictionary represents one column you added to your dataset.
@@ -108,10 +118,10 @@ At the top of your test script you need to import the `date` function and the `d
 from datetime import date
 from dataset_definition import dataset
 
-patient_data = {
+test_data = {
     # Expected in population with matching medication
     1: {
-        "patients": [{"date_of_birth": date(1950, 1, 1)}],
+        "patients": {"date_of_birth": date(1950, 1, 1)},
         "medications": [
             {
                 # First matching medication

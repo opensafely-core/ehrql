@@ -33,19 +33,19 @@ dataset.has_matching_event = events.where(
 test_data = {
     # Correctly not expected in population
     1: {
-        "patients": [{"date_of_birth": date(1999, 12, 31)}],
+        "patients": {"date_of_birth": date(1999, 12, 31)},
         "events": [],
         "expected_in_population": False,
     },
     # Incorrectly not expected in population
     2: {
-        "patients": [{"date_of_birth": date(2000, 1, 1)}],
+        "patients": {"date_of_birth": date(2000, 1, 1)},
         "events": [],
         "expected_in_population": False,
     },
     # Incorrectly expected in population
     3: {
-        "patients": [{"date_of_birth": date(1999, 12, 31)}],
+        "patients": {"date_of_birth": date(1999, 12, 31)},
         "events": [{"date": date(2020, 1, 1), "code": "11111111"}],
         "expected_columns": {
             "has_matching_event": True,
@@ -53,7 +53,7 @@ test_data = {
     },
     # Has correct expected_columns
     4: {
-        "patients": [{"date_of_birth": date(2010, 1, 1)}],
+        "patients": {"date_of_birth": date(2010, 1, 1)},
         "events": [{"date": date(2020, 1, 1), "code": "11111111"}],
         "expected_columns": {
             "has_matching_event": True,
@@ -61,7 +61,7 @@ test_data = {
     },
     # Has incorrect expected_columns
     5: {
-        "patients": [{"date_of_birth": date(2010, 1, 1)}],
+        "patients": {"date_of_birth": date(2010, 1, 1)},
         "events": [{"date": date(2020, 1, 1), "code": "22222222"}],
         "expected_columns": {
             "has_matching_event": True,
