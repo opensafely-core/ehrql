@@ -5298,6 +5298,19 @@ class RegistrationHistory(Base):
     StartDate = mapped_column(t.DateTime)
 
 
+class Relationship(Base):
+    __tablename__ = "Relationship"
+    _pk = mapped_column(t.Integer, primary_key=True)
+
+    Patient_ID = mapped_column(t.Integer)
+    EventDate = mapped_column(t.Date)
+    Patient_ID_Relationship_With = mapped_column(t.Integer)
+    RelationshipEndDate = mapped_column(t.Date)
+    Type_of_Relationship = mapped_column(
+        t.VARCHAR(255, collation="Latin1_General_CI_AS")
+    )
+
+
 class SGSS_AllTests_Negative(Base):
     __tablename__ = "SGSS_AllTests_Negative"
     _pk = mapped_column(t.Integer, primary_key=True)
