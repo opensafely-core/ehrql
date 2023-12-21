@@ -26,6 +26,7 @@ from ehrql.measures import (
 from ehrql.query_engines.csv import CSVQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_model.column_specs import get_column_specs
+from ehrql.query_model.graphs import graph_to_svg
 from ehrql.serializer import serialize
 from ehrql.utils.itertools_utils import eager_iterator
 from ehrql.utils.orm_utils import write_orm_models_to_csv_directory
@@ -355,3 +356,11 @@ def serialize_definition(
 
 def run_isolation_report():
     print(json.dumps(isolation_report(Path.cwd()), indent=4))
+
+
+def graph_query(definition_file, output_file, environ, user_args):  # pragma: no cover
+    log.info(f"Graphing query for {str(definition_file)}")
+    variable_definitions, _ = load_dataset_definition(
+        definition_file, user_args, environ
+    )
+    graph_to_svg(variable_definitions, output_file)

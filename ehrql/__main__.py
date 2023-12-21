@@ -18,6 +18,7 @@ from .main import (
     dump_example_data,
     generate_dataset,
     generate_measures,
+    graph_query,
     run_isolation_report,
     run_sandbox,
     serialize_definition,
@@ -132,6 +133,7 @@ def create_parser(user_args, environ):
     add_test_connection(subparsers, environ, user_args)
     add_serialize_definition(subparsers, environ, user_args)
     add_isolation_report(subparsers, environ, user_args)
+    add_graph_query(subparsers, environ, user_args)
 
     return parser
 
@@ -405,6 +407,24 @@ def add_isolation_report(subparsers, environ, user_args):
         formatter_class=RawTextHelpFormatter,
     )
     parser.set_defaults(function=run_isolation_report)
+
+
+def add_graph_query(subparsers, environ, user_args):
+    parser = subparsers.add_parser(
+        "graph-query",
+        help="Output the dataset definition's query graph",
+    )
+    parser.set_defaults(function=graph_query)
+    parser.set_defaults(environ=environ)
+    parser.set_defaults(user_args=user_args)
+    parser.add_argument(
+        "--output",
+        help="SVG output file.",
+        type=Path,
+        dest="output_file",
+        required=True,
+    )
+    add_dataset_definition_file_argument(parser, environ)
 
 
 def create_internal_argument_group(parser, environ):
