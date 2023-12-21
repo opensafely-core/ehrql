@@ -1,7 +1,7 @@
 from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_model.introspection import get_table_nodes
-from ehrql.utils.orm_utils import orm_classes_from_tables
+from ehrql.utils.orm_utils import orm_classes_from_tables, table_has_one_row_per_patient
 
 
 UNEXPECTED_IN_POPULATION = "unexpected-in-population"
@@ -20,12 +20,12 @@ def validate(variable_definitions, test_data):
 
         test_data = {
             1: {
-                "patients": [{"date_of_birth": date(1999, 12, 31)}],
+                "patients": {"date_of_birth": date(1999, 12, 31)},
                 "events": [],
                 "expected_in_population": False,
             },
             2: {
-                "patients": [{"date_of_birth": date(2010, 1, 1)}],
+                "patients": {"date_of_birth": date(2010, 1, 1)},
                 "events": [{"date": date(2020, 1, 1), "code": "11111111"}],
                 "expected_columns": {
                     "has_matching_event": True,
@@ -51,8 +51,11 @@ def validate(variable_definitions, test_data):
     input_data = []
     for patient_id, patient in test_data.items():
         for orm_class in orm_classes.values():
-            for record in patient[orm_class.__tablename__]:
-                input_data.append(orm_class(patient_id=patient_id, **record))
+            if table_has_one_row_per_patient(orm_class.__table__):
+                records = [patient[orm_class.__tablename__]]
+            else:
+                records = patient[orm_class.__tablename__]
+            input_data.extend([orm_class(patient_id=patient_id, **r) for r in records])
 
     # Insert test objects into database
     database = InMemoryDatabase()
