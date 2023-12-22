@@ -295,20 +295,29 @@ def test_population_is_correctly_evaluated_for_containment_queries(engine):
 
 def test_horizontal_aggregation_wrapping_a_series_containment_query_works(engine):
     # Horizontal aggregations in the MSSQL engine are a little odd, and the gentests
-    # exposed a bug here which we don't want to reoccur
+    # exposed a couple of bugs here which we don't want to reoccur
     dataset = create_dataset()
-    dataset.define_population(patients.exists_for_patient())
-    dataset.value = minimum_of(
-        when(patients.i.is_in(events.i)).then(0).otherwise(1),
-        2,
+    dataset.define_population(events.exists_for_patient())
+    dataset.match = minimum_of(
+        when(patients.i.is_in(events.i)).then("T").otherwise("F"), "X"
     )
 
     engine.populate(
         {
-            patients: [{"patient_id": 1}],
-            events: [{"patient_id": 1}],
+            patients: [
+                # This patient should match because i=3 occurs in their events
+                {"patient_id": 1, "i": 3},
+                # This patient should not match
+                {"patient_id": 2, "i": 3},
+            ],
+            events: [
+                {"patient_id": 1, "i": 3},
+                {"patient_id": 2, "i": 0},
+            ],
         }
     )
+
     assert engine.extract(dataset) == [
-        {"patient_id": 1, "value": 1},
+        {"patient_id": 1, "match": "T"},
+        {"patient_id": 2, "match": "F"},
     ]

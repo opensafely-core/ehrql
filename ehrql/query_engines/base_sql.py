@@ -267,8 +267,14 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         # requires referencing the patient_id column of the outer query, but we don't
         # yet know what this is so we use a placeholder column reference which can get
         # replaced later (see `replace_placeholder_references()`).
-        rhs = sqlalchemy.select(table.c.value).where(
-            table.c.patient_id == PLACEHOLDER_PATIENT_ID
+        rhs = (
+            sqlalchemy.select(table.c.value).where(
+                table.c.patient_id == PLACEHOLDER_PATIENT_ID
+            )
+            # Tell SQLAlchemy that the patient ID table should be correlated (because we
+            # don't yet have a reference to this table we have to do this backwards by
+            # telling to correlate everything _except_ the other table).
+            .correlate_except(table)
         )
         lhs = self.get_expr(node.lhs)
         return lhs.in_(rhs)
