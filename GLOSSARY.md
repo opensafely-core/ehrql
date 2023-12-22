@@ -52,7 +52,7 @@ Consequently, there is a clear boundary between ehrQL, where expressiveness and 
 
 **ehrQL Table**
 The table structure we present to the user.
-User's can write queries against this table structure using ehrQL.
+Users can write queries against this table structure using ehrQL.
 
 **Database Table**
 The table structure in an EHR provider's database.
