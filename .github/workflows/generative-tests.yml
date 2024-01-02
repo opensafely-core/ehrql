@@ -29,8 +29,7 @@ jobs:
           export \
             GENTEST_EXAMPLES=150 \
             GENTEST_RANDOMIZE=t \
-            GENTEST_MAX_DEPTH=25 \
-            GENTEST_DEBUG=t
+            GENTEST_MAX_DEPTH=25
 
           # We get a maximum of 6 hours runtime with Github Actions so breaking
           # the loop after 4 hours feels like a reasonably balance of getting a
