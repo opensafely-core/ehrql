@@ -1,7 +1,7 @@
 # How to test your dataset definition
 
 This guide shows you how to evaluate and validate the behaviour of your ehrQL query.
-The [assure](../../reference/cli/#assure) command works like a suite of unit tests for your ehrQL queries.
+The [assure](../reference/cli.md#assure) command works like a suite of unit tests for your ehrQL queries.
 
 You can write assurance tests that help you and others to understand and review the expected behaviour of your dataset definition.
 Assurance tests also provide confidence that existing functionality remains unchanged when reworking your dataset definition.
@@ -57,8 +57,8 @@ To set up test patients and their data you need to use the following structure:
 
 * **Patient ID**: Outermost dictionary keys represent patient IDs.
 * **Table names**: Second-level dictionary keys denote table names from OpenSAFELY backends.
-    * *One-row-per-patient* tables (e.g., [patients](../../reference/schemas/core/#patients)) are specified in a single dictionary
-    * *Many-rows-per-patient* tables (e.g., [medications](../../reference/schemas/core/#medications)) are specified in a list that can contain multiple dictionaries, where each dictionary adds one row for the patient to the `medications` table.
+    * *One-row-per-patient* tables (e.g., [patients](../reference/schemas/core.md#patients)) are specified in a single dictionary
+    * *Many-rows-per-patient* tables (e.g., [medications](../reference/schemas/core.md#medications)) are specified in a list that can contain multiple dictionaries, where each dictionary adds one row for the patient to the `medications` table.
 * **Column names**: Third-level dictionary keys indicate column names in the tables.
 
 ```py
@@ -87,7 +87,7 @@ test_data = {
 
 In the example above we have created one test patient with the patient ID `1` and added test data for two tables: `patients` and `medications`.
 The keys of the second-level dictionary match the names of the tables in the dataset definition.
-To explore how these tables are structured you can look at the column names in the [table schemas](../../reference/schemas) documentation.
+To explore how these tables are structured you can look at the column names in the [table schemas](../reference/schemas.md) documentation.
 As mentioned above, adding data is different for *one-row-* and *many-rows-per-patient* tables:
 
 * `patients` is a *one-row-per-patient* table, so you can only define one dictionary with one key for each column (`date_of_birth` and `sex`) that you want to populate.
