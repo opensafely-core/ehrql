@@ -28,6 +28,7 @@ from ehrql.query_model.nodes import (
     get_input_nodes,
     get_series_type,
     get_sorts,
+    has_one_row_per_patient,
 )
 from ehrql.query_model.query_graph_rewriter import QueryGraphRewriter
 
@@ -157,7 +158,12 @@ def add_extra_sorts(rewriter, node, selected_column_names):
 def calculate_sorts_to_add(all_sorts, selected_column_names):
     # Don't duplicate existing direct sorts
     direct_sorts = [
-        sort for sort in all_sorts if isinstance(sort.sort_by, SelectColumn)
+        sort
+        for sort in all_sorts
+        if isinstance(sort.sort_by, SelectColumn)
+        # SelectColumn operations only count as direct sorts if they're selected from
+        # the frame we're sorting, not from some other patient frame
+        and not has_one_row_per_patient(sort.sort_by.source)
     ]
     existing_sorted_column_names = {sort.sort_by.name for sort in direct_sorts}
     sorts_to_add = selected_column_names - existing_sorted_column_names
