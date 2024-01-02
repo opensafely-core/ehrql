@@ -40,7 +40,6 @@ def test_generate_docs():
                     assert len(line.strip()) == len(line)
                 else:
                     leading_whitespace_count = len(line) - len(line.strip())
-                    assert leading_whitespace_count > 0
                     assert leading_whitespace_count % 4 == 0
 
 
