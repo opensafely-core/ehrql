@@ -81,6 +81,13 @@ Internal command for serializing a definition file to a JSON representation.
 Internal command for testing code isolation support.
 </p>
 
+<div class="attr-heading">
+  <a href="#graph-query"><tt>graph-query</tt></a>
+</div>
+<p class="indent">
+Output the dataset definition's query graph
+</p>
+
 </div>
 
 <div class="attr-heading" id="ehrql.help">
@@ -686,5 +693,53 @@ Note that **this in an internal command** and not intended for end users.
 </div>
 <div markdown="block" class="indent">
 show this help message and exit
+
+</div>
+
+
+<h2 id="graph-query" data-toc-label="graph-query" markdown>
+  graph-query
+</h2>
+```
+ehrql graph-query DEFINITION_FILE [--help] OUTPUT_FILE [ -- ... PARAMETERS ...]
+```
+Output the dataset definition's query graph
+
+<div class="attr-heading" id="graph-query.definition_file">
+  <tt>DEFINITION_FILE</tt>
+  <a class="headerlink" href="#graph-query.definition_file" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Path of the Python file where the dataset is defined.
+
+</div>
+
+<div class="attr-heading" id="graph-query.help">
+  <tt>-h, --help</tt>
+  <a class="headerlink" href="#graph-query.help" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+show this help message and exit
+
+</div>
+
+<div class="attr-heading" id="graph-query.output_file">
+  <tt>OUTPUT_FILE</tt>
+  <a class="headerlink" href="#graph-query.output_file" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+SVG output file.
+
+</div>
+
+<div class="attr-heading" id="graph-query.user_args">
+  <tt>PARAMETERS</tt>
+  <a class="headerlink" href="#graph-query.user_args" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Parameters are extra arguments you can pass to your Python definition file. They must be
+supplied after all ehrQL arguments and separated from the ehrQL arguments with a
+double-dash ` -- `.
+
 
 </div>

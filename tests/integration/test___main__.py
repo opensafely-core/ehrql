@@ -1,5 +1,6 @@
 import contextlib
 import json
+import shutil
 import sys
 import textwrap
 from pathlib import Path
@@ -111,6 +112,23 @@ def test_generate_dataset_disallows_reading_file_outside_working_directory(
 def test_isolation_report(capsys):
     main(["isolation-report"])
     assert json.loads(capsys.readouterr().out)
+
+
+@pytest.mark.skipif(
+    shutil.which("dot") is None,
+    reason="Graphing requires Graphviz library",
+)
+def test_graph_query(tmpdir):  # pragma: no cover
+    output_file = tmpdir / "query.svg"
+    main(
+        [
+            "graph-query",
+            str(FIXTURES_PATH / "dataset_definition.py"),
+            "--output",
+            str(output_file),
+        ]
+    )
+    assert output_file.exists()
 
 
 def test_all_query_engine_aliases_are_importable():
