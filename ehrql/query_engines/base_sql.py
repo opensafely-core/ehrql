@@ -672,18 +672,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     def get_table_sort_and_filter(self, node):
         return self.get_table(node.source)
 
-    def apply_order_clauses_modifications(self, node, order_clauses):
-        # Hook for subclasses to apply additional modifications to the
-        # order clauses if required
-        return order_clauses
-
     @get_table.register(PickOneRowPerPatientWithColumns)
     def get_table_pick_one_row_per_patient(self, node):
         selected_columns = [self.get_expr(c) for c in node.selected_columns]
-        order_clauses = [self.get_expr(c) for c in get_sort_conditions(node.source)]
-        if node.position == Position.LAST:
-            order_clauses = [c.desc() for c in order_clauses]
-        order_clauses = self.apply_order_clauses_modifications(node, order_clauses)
+        order_clauses = self.get_order_clauses(
+            get_sort_conditions(node.source), node.position
+        )
 
         query = self.get_select_query_for_node_domain(node.source)
         query = query.add_columns(*selected_columns)
@@ -710,6 +704,12 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         partitioned_query = sqlalchemy.select(*output_columns).where(row_number == 1)
 
         return self.reify_query(partitioned_query)
+
+    def get_order_clauses(self, sort_conditions, position):
+        order_clauses = [self.get_expr(c) for c in sort_conditions]
+        if position == Position.LAST:
+            order_clauses = [c.desc() for c in order_clauses]
+        return order_clauses
 
     @get_table.register(InlinePatientTable)
     def get_table_inline_patient_table(self, node):
