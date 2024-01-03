@@ -4,9 +4,10 @@ complete in that there are large areas of Python's type system which it doesn't 
 to handle. Its aim is to implement just enough behaviour to provide the validation
 needed by the Query Model.
 """
+import operator
 import typing
 from collections.abc import Mapping, Set
-from functools import singledispatch
+from functools import reduce, singledispatch
 
 
 def get_typevars(typespec):
@@ -143,36 +144,21 @@ def get_typespec(value):
 @get_typespec.register(tuple)
 @get_typespec.register(Set)
 def get_typespec_for_collection(value):
-    member_types = {get_typespec(i) for i in value}
-    # We enforce this constraint because it works for our current use case and is
-    # simple. In theory we could find the common base class here and use that.
-    if len(member_types) > 1:
-        raise TypeError(
-            f"{type(value).__name__}s must be of homogeneous type: {value!r}"
-        )
-    elif member_types:
-        member_type = list(member_types)[0]
-    else:
-        # Allow empty collections
-        member_type = typing.Any
-    return type(value)[member_type]
+    return type(value)[get_typespec_for_members(value)]
 
 
 @get_typespec.register(Mapping)
 def get_typespec_for_mapping(value):
-    key_types = {get_typespec(i) for i in value.keys()}
-    value_types = {get_typespec(i) for i in value.values()}
-    # We enforce these constraints because they work for our current use case and are
-    # simple. In theory we could find the common base class here and use that.
-    if len(key_types) > 1:
-        raise TypeError(f"Mappings must be of homogeneous key type: {value!r}")
-    elif len(value_types) > 1:
-        raise TypeError(f"Mappings must be of homogeneous value type: {value!r}")
-    elif key_types and value_types:
-        key_type = list(key_types)[0]
-        value_type = list(value_types)[0]
-    else:
-        # Allow empty mappings
-        key_type = typing.Any
-        value_type = typing.Any
+    key_type = get_typespec_for_members(value.keys())
+    value_type = get_typespec_for_members(value.values())
     return type(value)[key_type, value_type]
+
+
+def get_typespec_for_members(members):
+    member_types = [get_typespec(i) for i in members]
+    if not member_types:
+        # Allow empty collections
+        return typing.Any
+    else:
+        # Otherwise the typespec is the union of member types
+        return reduce(operator.or_, member_types)

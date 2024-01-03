@@ -27,8 +27,10 @@ def test_get_typevars(typespec, typevars):
     [
         ("hello", str),
         ({"hello", "there"}, set[str]),
+        ({"hello", 1}, set[str | int]),
         ({1: "one", 2: "two"}, dict[int, str]),
         ({1: {0.1, 0.2}, 2: {0.3, 0.4}}, dict[int, set[float]]),
+        ({1: "one", "two": 2.0}, dict[int | str, str | float]),
         ({}, dict[Any, Any]),
         (frozenset(), frozenset[Any]),
         (int, type[int]),
@@ -36,15 +38,6 @@ def test_get_typevars(typespec, typevars):
 )
 def test_get_typespec(value, typespec):
     assert get_typespec(value) == typespec
-
-
-def test_get_typespec_errors():
-    with pytest.raises(TypeError, match="homogeneous"):
-        get_typespec({1, "two"})
-    with pytest.raises(TypeError, match="homogeneous"):
-        get_typespec({1: "one", "two": "two"})
-    with pytest.raises(TypeError, match="homogeneous"):
-        get_typespec({1: "one", 2: 2.0})
 
 
 def test_get_typespec_errors_on_unhandled_container_type():
