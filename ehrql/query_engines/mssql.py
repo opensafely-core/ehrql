@@ -9,6 +9,7 @@ from ehrql.query_engines.mssql_dialect import (
     ScalarSelectAggregation,
     SelectStarInto,
 )
+from ehrql.query_model.nodes import has_one_row_per_patient
 from ehrql.utils.mssql_log_utils import execute_with_log
 from ehrql.utils.sqlalchemy_exec_utils import (
     execute_with_retry_factory,
@@ -209,6 +210,14 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         return ScalarSelectAggregation.build(
             aggregate_function, columns, type_=return_type
         )
+
+    def get_order_clauses(self, sort_conditions, position):
+        # Sorting by a one-row-per-patient series is a no-op and can result in SQL which
+        # causes MSSQL to choke
+        sort_conditions = [
+            node for node in sort_conditions if not has_one_row_per_patient(node)
+        ]
+        return super().get_order_clauses(sort_conditions, position)
 
 
 def temporary_table_from_query(table_name, query, index_col=0):

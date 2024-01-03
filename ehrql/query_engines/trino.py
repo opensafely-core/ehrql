@@ -18,10 +18,11 @@ log = structlog.getLogger()
 class TrinoQueryEngine(BaseSQLQueryEngine):
     sqlalchemy_dialect = TrinoDialect
 
-    def apply_order_clauses_modifications(self, node, order_clauses):
+    def get_order_clauses(self, sort_conditions, position):
+        order_clauses = super().get_order_clauses(sort_conditions, position)
         # Trino always sorts with nulls last by default. We need ascending sorts to
         # sort with nulls first
-        if node.position == Position.FIRST:
+        if position == Position.FIRST:
             order_clauses = [sqlalchemy.nullsfirst(c) for c in order_clauses]
         return order_clauses
 
