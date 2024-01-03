@@ -700,26 +700,8 @@ def validate_types(node):
     typevar_context = {}
     for field in dataclasses.fields(node):
         target_typespec = field.type
-        # Bail out early if there's no type-checking to be done; this allows us to work
-        # with values that `get_typespec` cant' handle in cases where we don't actually
-        # care about the type.
-        if target_typespec is Any:
-            continue
         value = getattr(node, field.name)
-        # This might look a bit backward: instead of checking whether the value is of
-        # the expected type, we convert the value to a type specification and check that
-        # it matches the required specification. We do this because although Series
-        # objects are parameterized with the type of thing they represent (e.g.
-        # Series[int]) they don't actually contain any instances of these values (there
-        # are no ints sitting around to be checked). So the standard, "isinstance()",
-        # approach to type checking doesn't work. There may well be a more elegant
-        # alternative approach here, but this works for now.
-        try:
-            # sets and mappings require that their items are of homogenous types, and
-            # raise a TypeError during the conversion to type specification.
-            typespec = get_typespec(value)
-        except TypeError as e:
-            raise TypeValidationError(str(e)) from e
+        typespec = get_typespec(value)
         if not type_matches(typespec, target_typespec, typevar_context):
             # Try to make errors a bit more helpful by resolving TypeVars if we can.
             # This means that if validation fails because e.g. `T` has been bound to
