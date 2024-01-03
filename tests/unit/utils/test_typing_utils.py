@@ -51,6 +51,10 @@ def test_get_typespec_errors_on_unhandled_container_type():
     [
         (True, list[str], list[int | str]),
         (True, dict[str, FileNotFoundError], dict[Any, OSError]),
+        (True, int | str, str | int),
+        (True, int | str, int | float | str),
+        (True, FileNotFoundError | FileExistsError, OSError),
+        (True, FileNotFoundError | UnicodeError, OSError | ValueError),
         (False, list[str], list[int]),
         (False, tuple[int], list[int]),
         (False, list[str], list[Numeric]),

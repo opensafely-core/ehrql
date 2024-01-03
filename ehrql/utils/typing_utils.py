@@ -88,7 +88,14 @@ def type_matches(spec, target_spec, typevar_context):
     target_spec_origin = typing.get_origin(target_spec)
     target_spec_args = typing.get_args(target_spec)
 
-    if target_spec_origin is None:
+    if spec_origin is typing.types.UnionType:
+        # If `spec` is a union type then we consider it to match if all of its members
+        # match
+        return all(
+            type_matches(spec_arg, target_spec, typevar_context)
+            for spec_arg in spec_args
+        )
+    elif target_spec_origin is None:
         # If there's no origin type that means `target_spec` is an ordinary class
         if spec == bool and target_spec == int:
             # This is inconsistent with Python's type hierarchy, but considering bool to be
