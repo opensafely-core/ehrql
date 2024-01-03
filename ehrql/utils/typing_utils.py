@@ -23,6 +23,9 @@ def type_matches(spec, target_spec, typevar_context):
     Checks that the type specification given by `spec` matches the specification given
     by `target_spec`
 
+    By "matches" we mean that any value which has the type given by `spec` will also
+    have the type given by `target_spec`.
+
     For example:
 
         `dict[str, FileNotFoundError]` matches `dict[Any, OSError]`
@@ -80,29 +83,29 @@ def type_matches(spec, target_spec, typevar_context):
     if spec is typing.Any or target_spec is typing.Any:
         return True
 
+    spec_origin = typing.get_origin(spec)
+    spec_args = typing.get_args(spec)
     target_spec_origin = typing.get_origin(target_spec)
+    target_spec_args = typing.get_args(target_spec)
 
-    # If there's no origin type that means `target_spec` is an ordinary class
     if target_spec_origin is None:
+        # If there's no origin type that means `target_spec` is an ordinary class
         if spec == bool and target_spec == int:
-            # This is inconsistent with Python's type hierarchy, but considering bool to be an int makes typing our
-            # operations very much harder since it allows operations like True + True => 2.
+            # This is inconsistent with Python's type hierarchy, but considering bool to be
+            # an int makes typing our operations very much harder since it allows operations
+            # like True + True => 2.
             return False
         return spec is not None and issubclass(spec, target_spec)
     elif target_spec_origin is typing.types.UnionType:
         # For union types we just need to match one of the arguments
         return any(
-            type_matches(spec, arg, typevar_context)
-            for arg in typing.get_args(target_spec)
+            type_matches(spec, target_spec_arg, typevar_context)
+            for target_spec_arg in target_spec_args
         )
     else:
-        # Otherwise we get origin and args for `spec` and check that each element
-        # matches
-        spec_origin = typing.get_origin(spec)
+        # Otherwise we check that the origin type and all the arguments match
         if not type_matches(spec_origin, target_spec_origin, typevar_context):
             return False
-        target_spec_args = typing.get_args(target_spec)
-        spec_args = typing.get_args(spec)
         for spec_arg, target_spec_arg in zip(spec_args, target_spec_args):
             if not type_matches(spec_arg, target_spec_arg, typevar_context):
                 return False
