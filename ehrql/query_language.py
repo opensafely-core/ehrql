@@ -242,7 +242,7 @@ class BaseSeries:
             # `CombineAsSet` query model object which doesn't have a representation in
             # the query language.
             other_as_set = qm.AggregateByPatient.CombineAsSet(_convert(other))
-            return _wrap(qm.Function.In(_convert(self), other_as_set))
+            return _wrap(qm.Function.In, _convert(self), other_as_set)
         elif isinstance(other, PatientSeries):
             raise TypeError(
                 "Argument must be an EventSeries (i.e. have many values per patient); "
@@ -737,10 +737,9 @@ class DateAggregations(ComparableAggregations):
                 f"{type(maximum_gap).__name__}"
             )
         return _wrap(
-            qm.AggregateByPatient.CountEpisodes(
-                source=self._qm_node,
-                maximum_gap_days=maximum_gap_days,
-            )
+            qm.AggregateByPatient.CountEpisodes,
+            source=self._qm_node,
+            maximum_gap_days=maximum_gap_days,
         )
 
 
@@ -997,11 +996,12 @@ class CodeEventSeries(CodeFunctions, EventSeries):
 #
 
 
-def _wrap(qm_node):
+def _wrap(qm_cls, *args, **kwargs):
     """
-    Wrap a query model series in the ehrQL series class appropriate for its type and
-    dimension
+    Construct a query model series and wrap it in the ehrQL series class appropriate for
+    its type and dimension
     """
+    qm_node = qm_cls(*args, **kwargs)
     type_ = get_series_type(qm_node)
     is_patient_level = has_one_row_per_patient(qm_node)
     try:
@@ -1029,9 +1029,8 @@ def _apply(qm_cls, *args):
     """
     # Convert all arguments into query model nodes
     qm_args = map(_convert, args)
-    qm_node = qm_cls(*qm_args)
-    # Wrap the resulting node back up in an ehrQL series
-    return _wrap(qm_node)
+    # Construct the query model node and wrap it back up in an ehrQL series
+    return _wrap(qm_cls, *qm_args)
 
 
 def _convert(arg):
@@ -1055,10 +1054,10 @@ def _convert(arg):
 def Parameter(name, type_):
     """
     Return a parameter or placeholder series which can be used to construct a query
-    "template": a structure which can be turned into a query by substituing in concrete
+    "template": a structure which can be turned into a query by substituting in concrete
     values for any parameters it contains
     """
-    return _wrap(qm.Parameter(name, type_))
+    return _wrap(qm.Parameter, name, type_)
 
 
 # FRAME TYPES
@@ -1070,14 +1069,14 @@ class BaseFrame:
         self._qm_node = qm_node
 
     def _select_column(self, name):
-        return _wrap(qm.SelectColumn(source=self._qm_node, name=name))
+        return _wrap(qm.SelectColumn, source=self._qm_node, name=name)
 
     def exists_for_patient(self):
         """
         Return a [boolean patient series](#BoolPatientSeries) which is True for each
         patient that has a row in this frame and False otherwise.
         """
-        return _wrap(qm.AggregateByPatient.Exists(source=self._qm_node))
+        return _wrap(qm.AggregateByPatient.Exists, source=self._qm_node)
 
     def count_for_patient(self):
         """
@@ -1086,7 +1085,7 @@ class BaseFrame:
 
         Note this will be 0 rather than NULL if the patient has no rows at all in the frame.
         """
-        return _wrap(qm.AggregateByPatient.Count(source=self._qm_node))
+        return _wrap(qm.AggregateByPatient.Count, source=self._qm_node)
 
 
 class PatientFrame(BaseFrame):
