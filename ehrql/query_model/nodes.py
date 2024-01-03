@@ -426,7 +426,7 @@ class Function:
 
 
 class Case(Series[T]):
-    cases: Mapping[Series[bool], Series[T]]
+    cases: Mapping[Series[bool], Series[T] | None]
     default: Series[T] | None = None
 
     def __hash__(self):
@@ -649,10 +649,8 @@ def get_input_nodes(node):
 # nested inside a dict object
 @get_input_nodes.register(Case)
 def get_input_nodes_for_case(node):
-    inputs = [*node.cases.keys(), *node.cases.values()]
-    if node.default is not None:
-        inputs.append(node.default)
-    return inputs
+    inputs = [*node.cases.keys(), *node.cases.values(), node.default]
+    return [i for i in inputs if i is not None]
 
 
 # Minimum/Maximum of functions contain their inputs inside a tuple

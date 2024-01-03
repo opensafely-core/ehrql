@@ -58,6 +58,7 @@ def queries():
     q.first_vaccination = PickOneRowPerPatient(Sort(vaccinations, date), Position.FIRST)
     q.vaccination_status = Case(
         {
+            Function.LT(q.vaccination_count, Value(0)): None,
             Function.EQ(q.vaccination_count, Value(1)): Value("partial"),
             Function.EQ(q.vaccination_count, Value(2)): Value("full"),
             Function.GE(q.vaccination_count, Value(3)): Value("boosted"),

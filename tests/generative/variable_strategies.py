@@ -338,12 +338,17 @@ def population_and_variable(patient_tables, event_tables, schema, value_strategi
     def case(draw, type_, frame):
         # case takes a mapping argument which is a dict where:
         #   - keys are a bool series
-        #   - values are either a series or Value of `type_`
+        #   - values are either a series or Value of `type_` or None
         # It also takes a default, which can be None or a Value or series of `type_`
-        values = st.one_of(value(type_, frame), series(type_, frame))
-        mapping = st.dictionaries(series(bool, frame), values, min_size=1, max_size=3)
-        default = st.one_of(st.none(), value(type_, frame), series(type_, frame))
-        return Case(draw(mapping), draw(default))
+        key_st = series(bool, frame)
+        value_st = st.one_of(st.none(), value(type_, frame), series(type_, frame))
+        mapping_st = st.dictionaries(key_st, value_st, min_size=1, max_size=3)
+        default_st = st.one_of(st.none(), value(type_, frame), series(type_, frame))
+        mapping = draw(mapping_st)
+        default = draw(default_st)
+        # A valid Case needs at least one non-NULL value or a default
+        hyp.assume(not all(v is None for v in [default, *mapping.values()]))
+        return Case(mapping, default)
 
     def binary_operation(type_, frame, operator_func, allow_value=True):
         # A strategy for operations that take lhs and rhs arguments of the

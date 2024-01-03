@@ -100,6 +100,9 @@ class InMemoryQueryEngine(BaseQueryEngine):
             default=value,
         )
 
+    def visit_NoneType(self, node):
+        return PatientColumn({}, None)
+
     def convert_value(self, value):
         if hasattr(value, "_to_primitive_type"):
             return value._to_primitive_type()
@@ -351,10 +354,7 @@ class InMemoryQueryEngine(BaseQueryEngine):
             (self.visit(condition), self.visit(value))
             for condition, value in node.cases.items()
         ]
-        if node.default is None:
-            default = PatientColumn({}, None)
-        else:
-            default = self.visit(node.default)
+        default = self.visit(node.default)
         # Flatten arguments into a single list for easier handling
         arguments = [default, *[i for pair in cases for i in pair]]
         return apply_function(case_flattened, *arguments)
