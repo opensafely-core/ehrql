@@ -41,6 +41,7 @@ __all__ = [
     "get_domain",
     "get_input_nodes",
     "get_root_frame",
+    "is_constant",
 ]
 
 
@@ -684,6 +685,40 @@ def is_sorted_sort(frame):
 @is_sorted.register(Filter)
 def is_sorted_filter(frame):
     return is_sorted(frame.source)
+
+
+# CONSTANTS
+#
+# It's expected that these functions will have some false negatives i.e. nodes that in
+# fact take a constant value although we can't (yet) determine that they do; but they
+# should not have false positives. The impetus for this code is handling some cases
+# where MSSQL refuses to accept a constant value, so we just to need to reliably
+# identify those cases.
+
+
+@singledispatch
+def is_constant(node):
+    return all(is_constant(subnode) for subnode in get_input_nodes(node))
+
+
+@is_constant.register(SelectColumn)
+@is_constant.register(SelectTable)
+@is_constant.register(SelectPatientTable)
+def is_constant_select(_):
+    return False
+
+
+@is_constant.register(Value)
+def is_constant_value(_):
+    return True
+
+
+@is_constant.register(Function.In)
+def is_constant_in(node):
+    # Membership of the empty set is always False
+    if isinstance(node.rhs, Value) and len(node.rhs.value) == 0:
+        return True
+    return is_constant(node.lhs) and is_constant(node.rhs)
 
 
 # TYPE VALIDATION
