@@ -30,6 +30,13 @@ VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
 REGISTERED_TYPES = {}
 
 
+class InvalidOperationError(Exception):
+    """
+    Used to translate errors from the query model into something more
+    ehrQL-appropriate
+    """
+
+
 @dataclasses.dataclass
 class DummyDataConfig:
     population_size: int = 10
@@ -1001,7 +1008,7 @@ def _wrap(qm_cls, *args, **kwargs):
     Construct a query model series and wrap it in the ehrQL series class appropriate for
     its type and dimension
     """
-    qm_node = qm_cls(*args, **kwargs)
+    qm_node = _build(qm_cls, *args, **kwargs)
     type_ = get_series_type(qm_node)
     is_patient_level = has_one_row_per_patient(qm_node)
     try:
@@ -1020,6 +1027,23 @@ def _wrap(qm_cls, *args, **kwargs):
         wrapped = cls(qm_node)
         wrapped._type = type_
         return wrapped
+
+
+def _build(qm_cls, *args, **kwargs):
+    "Construct a query model node, translating any errors as appropriate"
+    try:
+        return qm_cls(*args, **kwargs)
+    except qm.DomainMismatchError:
+        raise InvalidOperationError(
+            "\n"
+            "Cannot combine series which are drawn from different tables and both\n"
+            "have more than one value per patient.\n"
+            "\n"
+            "Hint: try reducing one series to have only one value per patient by\n"
+            "using an aggregation like `maximum_for_patient()` or pick a single\n"
+            "row for each patient from the table using `first_for_patient()`."
+            # Use `from None` to hide the chained exception
+        ) from None
 
 
 def _apply(qm_cls, *args):

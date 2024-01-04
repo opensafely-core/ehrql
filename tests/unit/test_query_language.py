@@ -1,4 +1,5 @@
 import operator
+import traceback
 from datetime import date
 from inspect import signature
 
@@ -21,6 +22,7 @@ from ehrql.query_language import (
     FloatPatientSeries,
     IntEventSeries,
     IntPatientSeries,
+    InvalidOperationError,
     Parameter,
     PatientFrame,
     SchemaError,
@@ -770,3 +772,18 @@ def test_count_episodes_for_patient_handles_weeks():
     using_days = events.event_date.count_episodes_for_patient(days(14))
     using_weeks = events.event_date.count_episodes_for_patient(weeks(2))
     assert using_days._qm_node == using_weeks._qm_node
+
+
+def test_domain_mismatch_errors_are_wrapped():
+    @table
+    class other_events(EventFrame):
+        f = Series(float)
+
+    with pytest.raises(
+        InvalidOperationError,
+        match="Cannot combine series which are drawn from different tables",
+    ) as exc:
+        events.f + other_events.f
+    # Check original error is excluded from traceback
+    traceback_str = "\n".join(traceback.format_exception(exc.value))
+    assert "DomainMismatchError" not in traceback_str
