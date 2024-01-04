@@ -59,6 +59,7 @@ def queries():
     q.first_vaccination = PickOneRowPerPatient(Sort(vaccinations, date), Position.FIRST)
     q.vaccination_status = Case(
         {
+            Function.LT(q.vaccination_count, Value(0)): None,
             Function.EQ(q.vaccination_count, Value(1)): Value("partial"),
             Function.EQ(q.vaccination_count, Value(2)): Value("full"),
             Function.GE(q.vaccination_count, Value(3)): Value("boosted"),
@@ -426,32 +427,6 @@ def test_cannot_define_operation_returning_any_type(queries):
 
     with pytest.raises(AssertionError, match=r"never return Series\[Any\]"):
         get_series_type(BadOperation(queries.vaccination_count))
-
-
-def test_any_type_acts_as_an_escape_hatch():
-    # In the `query_model_transforms` module we define new node types which are purely
-    # for internal use by the query engines and don't form part of the public query
-    # model API. We sometimes want to use types here without having to add support for
-    # them in the type checking system, which is already "cleverer" than anyone would
-    # like. This test ensures that `Any` can be used as an escape hatch.
-
-    mixed_set = frozenset({1, 2.0, "three"})
-
-    # Confirm that we can't validate heterogeneous sets
-    class SomePublicOperation(Series):
-        value: set[Any]
-
-    with pytest.raises(
-        TypeValidationError, match=r"frozensets must be of homogeneous type"
-    ):
-        SomePublicOperation(value=mixed_set)
-
-    # Confirm that we can nevertheless use such a value as long as we don't care what
-    # type it is
-    class SomeInternalOperation(Series):
-        value: Any
-
-    assert SomeInternalOperation(value=mixed_set)
 
 
 @pytest.mark.parametrize(

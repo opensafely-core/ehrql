@@ -78,3 +78,21 @@ def test_case_with_boolean_column(spec_test):
             4: None,
         },
     )
+
+
+def test_case_with_explicit_null(spec_test):
+    spec_test(
+        table_data,
+        case(
+            when(p.i1 < 8).then(None),
+            when(p.i1 > 8).then(100),
+            otherwise=200,
+        ),
+        {
+            1: None,
+            2: None,
+            3: 200,
+            4: 100,
+            5: 200,
+        },
+    )

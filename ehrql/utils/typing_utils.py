@@ -4,9 +4,10 @@ complete in that there are large areas of Python's type system which it doesn't 
 to handle. Its aim is to implement just enough behaviour to provide the validation
 needed by the Query Model.
 """
+import operator
 import typing
 from collections.abc import Mapping, Set
-from functools import singledispatch
+from functools import reduce, singledispatch
 
 
 def get_typevars(typespec):
@@ -21,6 +22,9 @@ def type_matches(spec, target_spec, typevar_context):
     """
     Checks that the type specification given by `spec` matches the specification given
     by `target_spec`
+
+    By "matches" we mean that any value which has the type given by `spec` will also
+    have the type given by `target_spec`.
 
     For example:
 
@@ -79,29 +83,36 @@ def type_matches(spec, target_spec, typevar_context):
     if spec is typing.Any or target_spec is typing.Any:
         return True
 
+    spec_origin = typing.get_origin(spec)
+    spec_args = typing.get_args(spec)
     target_spec_origin = typing.get_origin(target_spec)
+    target_spec_args = typing.get_args(target_spec)
 
-    # If there's no origin type that means `target_spec` is an ordinary class
-    if target_spec_origin is None:
+    if spec_origin is typing.types.UnionType:
+        # If `spec` is a union type then we consider it to match if all of its members
+        # match
+        return all(
+            type_matches(spec_arg, target_spec, typevar_context)
+            for spec_arg in spec_args
+        )
+    elif target_spec_origin is None:
+        # If there's no origin type that means `target_spec` is an ordinary class
         if spec == bool and target_spec == int:
-            # This is inconsistent with Python's type hierarchy, but considering bool to be an int makes typing our
-            # operations very much harder since it allows operations like True + True => 2.
+            # This is inconsistent with Python's type hierarchy, but considering bool to be
+            # an int makes typing our operations very much harder since it allows operations
+            # like True + True => 2.
             return False
         return spec is not None and issubclass(spec, target_spec)
     elif target_spec_origin is typing.types.UnionType:
         # For union types we just need to match one of the arguments
         return any(
-            type_matches(spec, arg, typevar_context)
-            for arg in typing.get_args(target_spec)
+            type_matches(spec, target_spec_arg, typevar_context)
+            for target_spec_arg in target_spec_args
         )
     else:
-        # Otherwise we get origin and args for `spec` and check that each element
-        # matches
-        spec_origin = typing.get_origin(spec)
+        # Otherwise we check that the origin type and all the arguments match
         if not type_matches(spec_origin, target_spec_origin, typevar_context):
             return False
-        target_spec_args = typing.get_args(target_spec)
-        spec_args = typing.get_args(spec)
         for spec_arg, target_spec_arg in zip(spec_args, target_spec_args):
             if not type_matches(spec_arg, target_spec_arg, typevar_context):
                 return False
@@ -143,36 +154,21 @@ def get_typespec(value):
 @get_typespec.register(tuple)
 @get_typespec.register(Set)
 def get_typespec_for_collection(value):
-    member_types = {get_typespec(i) for i in value}
-    # We enforce this constraint because it works for our current use case and is
-    # simple. In theory we could find the common base class here and use that.
-    if len(member_types) > 1:
-        raise TypeError(
-            f"{type(value).__name__}s must be of homogeneous type: {value!r}"
-        )
-    elif member_types:
-        member_type = list(member_types)[0]
-    else:
-        # Allow empty collections
-        member_type = typing.Any
-    return type(value)[member_type]
+    return type(value)[get_typespec_for_members(value)]
 
 
 @get_typespec.register(Mapping)
 def get_typespec_for_mapping(value):
-    key_types = {get_typespec(i) for i in value.keys()}
-    value_types = {get_typespec(i) for i in value.values()}
-    # We enforce these constraints because they work for our current use case and are
-    # simple. In theory we could find the common base class here and use that.
-    if len(key_types) > 1:
-        raise TypeError(f"Mappings must be of homogeneous key type: {value!r}")
-    elif len(value_types) > 1:
-        raise TypeError(f"Mappings must be of homogeneous value type: {value!r}")
-    elif key_types and value_types:
-        key_type = list(key_types)[0]
-        value_type = list(value_types)[0]
-    else:
-        # Allow empty mappings
-        key_type = typing.Any
-        value_type = typing.Any
+    key_type = get_typespec_for_members(value.keys())
+    value_type = get_typespec_for_members(value.values())
     return type(value)[key_type, value_type]
+
+
+def get_typespec_for_members(members):
+    member_types = [get_typespec(i) for i in members]
+    if not member_types:
+        # Allow empty collections
+        return typing.Any
+    else:
+        # Otherwise the typespec is the union of member types
+        return reduce(operator.or_, member_types)

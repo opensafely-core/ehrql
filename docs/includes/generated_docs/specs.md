@@ -2979,6 +2979,37 @@ returns the following patient series:
 
 
 
+#### 10.1.4 Case with explicit null
+
+This example makes use of a patient-level table named `p` containing the following data:
+
+| patient|i1 |
+| - | - |
+| 1|6 |
+| 2|7 |
+| 3|8 |
+| 4|9 |
+| 5| |
+
+```python
+case(
+    when(p.i1 < 8).then(None),
+    when(p.i1 > 8).then(100),
+    otherwise=200,
+)
+```
+returns the following patient series:
+
+| patient | value |
+| - | - |
+| 1| |
+| 2| |
+| 3|200 |
+| 4|100 |
+| 5|200 |
+
+
+
 ### 10.2 Case expressions with single condition
 
 

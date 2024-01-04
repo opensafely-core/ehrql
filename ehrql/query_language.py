@@ -1035,8 +1035,11 @@ def _apply(qm_cls, *args):
 
 
 def _convert(arg):
+    # Pass null values through unchanged
+    if arg is None:
+        return None
     # Unpack tuple arguments
-    if isinstance(arg, tuple):
+    elif isinstance(arg, tuple):
         return tuple(_convert(a) for a in arg)
     # Unpack dictionary arguments
     if isinstance(arg, _DictArg):
@@ -1414,12 +1417,7 @@ def case(*when_thens, otherwise=None):
     ```
     """
     cases = _DictArg((case._condition, case._value) for case in when_thens)
-    # If we don't want an `otherwise` value then we shouldn't supply an argument, or
-    # else it will get converted into `Value(None)` which is not what we want
-    if otherwise is None:
-        return _apply(qm.Case, cases)
-    else:
-        return _apply(qm.Case, cases, otherwise)
+    return _apply(qm.Case, cases, otherwise)
 
 
 # HORIZONTAL AGGREGATION FUNCTIONS

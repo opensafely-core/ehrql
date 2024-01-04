@@ -541,7 +541,10 @@ class BaseSQLQueryEngine(BaseQueryEngine):
     @get_sql.register(Case)
     def get_sql_case(self, node):
         cases = [
-            (self.get_predicate(condition), self.get_expr(value))
+            (
+                self.get_predicate(condition),
+                self.get_expr(value) if value is not None else None,
+            )
             for (condition, value) in node.cases.items()
         ]
         if node.default is not None:
