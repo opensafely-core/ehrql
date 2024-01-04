@@ -9,7 +9,7 @@ from ehrql.query_engines.mssql_dialect import (
     ScalarSelectAggregation,
     SelectStarInto,
 )
-from ehrql.query_model.nodes import has_one_row_per_patient
+from ehrql.query_model.nodes import is_constant
 from ehrql.utils.mssql_log_utils import execute_with_log
 from ehrql.utils.sqlalchemy_exec_utils import (
     execute_with_retry_factory,
@@ -212,11 +212,9 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         )
 
     def get_order_clauses(self, sort_conditions, position):
-        # Sorting by a one-row-per-patient series is a no-op and can result in SQL which
-        # causes MSSQL to choke
-        sort_conditions = [
-            node for node in sort_conditions if not has_one_row_per_patient(node)
-        ]
+        # Sorting by a constant is obviously a no-op and causes MSSQL to choke, so we
+        # exclude such clauses
+        sort_conditions = [node for node in sort_conditions if not is_constant(node)]
         return super().get_order_clauses(sort_conditions, position)
 
 

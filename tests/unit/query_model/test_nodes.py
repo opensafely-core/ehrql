@@ -28,6 +28,7 @@ from ehrql.query_model.nodes import (
     get_domain,
     get_series_type,
     has_one_row_per_patient,
+    is_constant,
 )
 
 
@@ -519,3 +520,51 @@ def test_can_pick_row_from_sorted_and_filtered_table():
     sorted_by_date = Sort(events, date)
     filtered_by_code = Filter(sorted_by_date, Function.EQ(code, Value("abc123")))
     assert PickOneRowPerPatient(filtered_by_code, Position.FIRST)
+
+
+# TEST IS_CONSTANT
+#
+
+
+@pytest.mark.parametrize(
+    "expected,node",
+    [
+        (
+            True,
+            Function.EQ(
+                Value("a"),
+                Value("b"),
+            ),
+        ),
+        (
+            False,
+            Function.EQ(
+                Value("a"),
+                SelectColumn(SelectTable("events", EVENTS_SCHEMA), "code"),
+            ),
+        ),
+        (
+            True,
+            Function.In(
+                Value("a"),
+                Value(frozenset({"a", "b"})),
+            ),
+        ),
+        (
+            False,
+            Function.In(
+                SelectColumn(SelectTable("events", EVENTS_SCHEMA), "code"),
+                Value(frozenset({"a", "b"})),
+            ),
+        ),
+        (
+            True,
+            Function.In(
+                SelectColumn(SelectTable("events", EVENTS_SCHEMA), "code"),
+                Value(frozenset()),
+            ),
+        ),
+    ],
+)
+def test_is_constant(expected, node):
+    assert is_constant(node) == expected
