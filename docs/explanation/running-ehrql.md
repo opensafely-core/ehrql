@@ -301,7 +301,7 @@ This is one example:
 ```
 $ opensafely exec ehrql:v1 generate-dataset dataset_definition.py --dummy-tables example-data --output output/dataset.csv
 2023-04-21 17:53:42 [info     ] Compiling dataset definition from dataset_definition.py [ehrql.main]
-Failed to import 'dataset_definition.py':
+Error loading file 'dataset_definition.py':
 ```
 ```pycon
 Traceback (most recent call last):

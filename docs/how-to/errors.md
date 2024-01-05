@@ -130,7 +130,7 @@ opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py
 #### Error
 
 ```pytb
-Failed to import 'analysis/dataset_definition.py':
+Error loading file 'analysis/dataset_definition.py':
 
   File "/workspace/analysis/dataset_definition.py", line 6
     dataset.define_population(dataset.age > 16)
@@ -174,7 +174,7 @@ opensafely exec ehrql:v1 generate-dataset analysis/dataset_definition.py
 #### Error
 
 ```pytb
-Failed to import 'analysis/dataset_definition.py':
+Error loading file 'analysis/dataset_definition.py':
 
   File "/workspace/analysis/dataset_definition.py", line 5
     dataset.age! = patients.age_on("2023-01-01") # age! is an invalid feature name.
