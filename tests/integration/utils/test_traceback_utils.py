@@ -47,7 +47,7 @@ def test_traceback_filtering_handles_syntax_errors():
     filename = FIXTURES / "bad_syntax.py"
     message = (
         r"^"
-        f"Failed to import '{filename}':"
+        f"Error loading file '{filename}':"
         r"\s+"
         f'File "{filename}", line 1'
         r"\s+"

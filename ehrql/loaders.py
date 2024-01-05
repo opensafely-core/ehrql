@@ -308,7 +308,7 @@ def load_module(module_path, user_args=()):
         return module
     except Exception as exc:
         traceback = get_trimmed_traceback(exc, module.__file__)
-        raise DefinitionError(f"Failed to import '{module_path}':\n\n{traceback}")
+        raise DefinitionError(f"Error loading file '{module_path}':\n\n{traceback}")
     finally:
         sys.path = original_sys_path
         sys.argv = original_sys_argv
