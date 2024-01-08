@@ -464,9 +464,6 @@ e.sort_by(
     p.i1,
     # Literal constant
     0,
-    # Compound expression which we can statically determine to evaluate to a
-    # constant
-    when(e.i1.is_in([])).then(1).otherwise(0),
 )
 .first_for_patient()
 .i1

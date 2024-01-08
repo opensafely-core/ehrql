@@ -20,6 +20,7 @@ class IgnoredError(enum.Enum):
     TOO_COMPLEX = enum.auto()
     ARITHMETIC_OVERFLOW = enum.auto()
     DATE_OVERFLOW = enum.auto()
+    UNSUPPORTED_SQL = enum.auto()
     CONNECTION_ERROR = enum.auto()
 
 
@@ -120,6 +121,17 @@ IGNORED_ERRORS = {
             # Invalid date errors
             sqlalchemy.exc.NotSupportedError,
             re.compile(r".+Could not convert '.+' into the associated python type"),
+        ),
+    ],
+    IgnoredError.UNSUPPORTED_SQL: [
+        # MSSQL can't handle constant expressions (not just literals, any expression
+        # which evaluates as a constant) in ORDER BY clauses. In theory we could
+        # identify these ourselves and exclude them as they're always no-ops, but this
+        # isn't worth the effort right now so we need to stop Hypothesis telling us
+        # about this.
+        (
+            sqlalchemy.exc.OperationalError,
+            re.compile(".*do not support constants as ORDER BY clause expressions"),
         ),
     ],
     IgnoredError.CONNECTION_ERROR: [

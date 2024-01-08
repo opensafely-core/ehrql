@@ -9,7 +9,7 @@ from ehrql.query_engines.mssql_dialect import (
     ScalarSelectAggregation,
     SelectStarInto,
 )
-from ehrql.query_model.nodes import is_constant
+from ehrql.query_model.nodes import Value
 from ehrql.utils.mssql_log_utils import execute_with_log
 from ehrql.utils.sqlalchemy_exec_utils import (
     execute_with_retry_factory,
@@ -212,9 +212,17 @@ class MSSQLQueryEngine(BaseSQLQueryEngine):
         )
 
     def get_order_clauses(self, sort_conditions, position):
-        # Sorting by a constant is obviously a no-op and causes MSSQL to choke, so we
-        # exclude such clauses
-        sort_conditions = [node for node in sort_conditions if not is_constant(node)]
+        # MSSQL throws an error when attempting to sort by a constant expression. Here
+        # we exclude the simplest form of constant expression while not attempting to
+        # deal with more complex examples constructed using CASE expressions. This means
+        # there are valid query model constructions which we can't execute on MSSQL, but
+        # I think that's OK. None of them are meaningful queries, and handling explicit
+        # constants covers the one plausible use case where a user might want to "no-op
+        # out" a sort condition by replacing it with a constant without having to change
+        # the query structure.
+        sort_conditions = [
+            node for node in sort_conditions if not isinstance(node, Value)
+        ]
         return super().get_order_clauses(sort_conditions, position)
 
 
