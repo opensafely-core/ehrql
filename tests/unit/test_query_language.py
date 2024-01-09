@@ -1,4 +1,5 @@
 import operator
+import re
 import traceback
 from datetime import date
 from inspect import signature
@@ -37,6 +38,7 @@ from ehrql.query_language import (
     table_from_file,
     table_from_rows,
     weeks,
+    when,
     years,
 )
 from ehrql.query_model.column_specs import ColumnSpec
@@ -799,3 +801,27 @@ def test_domain_mismatch_errors_are_wrapped():
     ) as exc:
         events.f + other_events.f
     assert_not_chained_exception(exc)
+
+
+@pytest.mark.parametrize(
+    "value,error",
+    [
+        (
+            patients,
+            "Expecting a series but got a frame (`patients`): "
+            "are you missing a column name?",
+        ),
+        (
+            patients.i.is_null,
+            "Function referenced but not called: "
+            "are you missing parentheses on `is_null()`?",
+        ),
+        (
+            object(),
+            "Not a valid ehrQL type: <object object",
+        ),
+    ],
+)
+def test_type_errors(value, error):
+    with pytest.raises(TypeError, match=re.escape(error)):
+        when(patients.exists_for_patient()).then(value).otherwise(None)

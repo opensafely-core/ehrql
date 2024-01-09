@@ -1079,9 +1079,26 @@ def _convert(arg):
     # If it's an ehrQL series then get the wrapped query model node
     elif isinstance(arg, BaseSeries):
         return arg._qm_node
-    # Otherwise it's a static value and needs to be put in a query model Value wrapper
-    else:
+    # If it's a static value then we need to be put in a query model Value wrapper
+    elif isinstance(
+        arg, bool | int | float | datetime.date | str | BaseCode | frozenset
+    ):
         return qm.Value(arg)
+    #
+    # Handle various kinds of user error
+    #
+    elif isinstance(arg, BaseFrame):
+        raise TypeError(
+            f"Expecting a series but got a frame (`{arg.__class__.__name__}`): "
+            f"are you missing a column name?"
+        )
+    elif callable(arg):
+        raise TypeError(
+            f"Function referenced but not called: are you missing parentheses on "
+            f"`{arg.__name__}()`?"
+        )
+    else:
+        raise TypeError(f"Not a valid ehrQL type: {arg!r}")
 
 
 def Parameter(name, type_):
