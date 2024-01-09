@@ -483,7 +483,13 @@ def test_value_nodes_reject_unhandled_container_types():
 
 def test_cannot_pick_row_from_unsorted_table():
     events = SelectTable("events", EVENTS_SCHEMA)
-    with pytest.raises(TypeValidationError):
+    with pytest.raises(
+        TypeValidationError,
+        match=(
+            "PickOneRowPerPatient.source requires 'SortedFrame' "
+            "but received 'UnsortedFrame'"
+        ),
+    ):
         PickOneRowPerPatient(events, Position.FIRST)
 
 

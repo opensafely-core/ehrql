@@ -1053,6 +1053,22 @@ def _build(qm_cls, *args, **kwargs):
             "row for each patient from the table using `first_for_patient()`."
             # Use `from None` to hide the chained exception
         ) from None
+    except qm.TypeValidationError as exc:
+        # We deliberately omit information about the query model operation and field
+        # name here because these often don't match what's used in ehrQL and are liable
+        # to cause confusion
+        raise TypeError(
+            f"Expected type '{_format_typespec(exc.expected)}' "
+            f"but got '{_format_typespec(exc.received)}'"
+            # Use `from None` to hide the chained exception
+        ) from None
+
+
+def _format_typespec(typespec):
+    # At present we don't do anything beyond formatting as a string and then removing
+    # the module name prefix from "Series". It might be nice to remove mention of
+    # "Series" entirely here, but that's a task for another day.
+    return str(typespec).replace(f"{qm.__name__}.{qm.Series.__qualname__}", "Series")
 
 
 def _apply(qm_cls, *args):

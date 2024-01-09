@@ -825,3 +825,12 @@ def test_domain_mismatch_errors_are_wrapped():
 def test_type_errors(value, error):
     with pytest.raises(TypeError, match=re.escape(error)):
         when(patients.exists_for_patient()).then(value).otherwise(None)
+
+
+def test_query_model_type_errors():
+    with pytest.raises(
+        TypeError,
+        match=re.escape("Expected type 'Series[int] | None' but got 'Series[str]'"),
+    ) as exc:
+        patients.i.when_null_then("empty")
+    assert_not_chained_exception(exc)
