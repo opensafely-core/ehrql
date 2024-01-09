@@ -1,0 +1,50 @@
+---
+name: "Create PR to update `bin/pledge`"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  "33 2 * * *"
+
+jobs:
+  create_pr_to_update_pledge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+          python-version: "3.11"
+
+      - name: "Ensure `bin/pledge` is at latest version"
+        run: just update-pledge
+
+      - name: "Create a Pull Request if there are any changes"
+        id: create_pr
+        uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38 # v5.0.2
+        with:
+          add-paths: bin/.*
+          branch: bot/update-pledge
+          base: main
+          author: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
+          committer: "opensafely-github-bot <opensafely-github-bot@users.noreply.github.com>"
+          commit-message: "Update `bin/pledge`"
+          title: "Update `bin/pledge`"
+          body: |
+            To get tests to run on this PR there's an odd workflow:
+             - Approve it
+             - Close it
+             - Re-open it
+             - Re-enable automerge
+
+            You can read more on why this is needed in the `create-pull-request` [docs][1].
+
+            [1]: https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
+
+      # The PR will still require manual approval, this just reduces it to a one-click process
+      - name: Enable automerge
+        if: steps.create_pr.outputs.pull-request-operation == 'created'
+        run: gh pr merge --auto --squash ${{ steps.create_pr.outputs.pull-request-number }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
