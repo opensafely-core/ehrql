@@ -93,7 +93,10 @@ class Dataset:
                 f"Expecting a boolean series but got series of type "
                 f"'{population_condition._type.__qualname__}'"
             )
-        validate_population_definition(population_condition._qm_node)
+        try:
+            validate_population_definition(population_condition._qm_node)
+        except qm.ValidationError as exc:
+            raise Error(str(exc)) from None
         self.variables["population"] = population_condition
 
     def add_column(self, column_name: str, ehrql_query):

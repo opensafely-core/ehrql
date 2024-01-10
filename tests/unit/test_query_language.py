@@ -204,6 +204,15 @@ def test_define_population_rejects_invalid_arguments(population, error):
         Dataset().define_population(population)
 
 
+def test_define_population_rejects_invalid_population():
+    with pytest.raises(
+        Error,
+        match="population definition must not evaluate as True for NULL inputs",
+    ) as exc:
+        Dataset().define_population(~events.exists_for_patient())
+    assert_not_chained_exception(exc)
+
+
 def test_cannot_reassign_dataset_variable():
     dataset = Dataset()
     dataset.foo = patients.date_of_birth.year
