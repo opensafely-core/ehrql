@@ -74,6 +74,17 @@ class events(EventFrame):
 events_schema = TableSchema(event_date=Column(date), f=Column(float))
 
 
+def assert_not_chained_exception(excinfo):
+    # Including chained exception details in the traceback is the default Python
+    # behaviour but we often want to hide internal details from the user where these are
+    # not helpful
+    traceback_str = "\n".join(traceback.format_exception(excinfo.value))
+    assert (
+        "During handling of the above exception, another exception occurred"
+        not in traceback_str
+    )
+
+
 def test_create_dataset():
     assert isinstance(create_dataset(), Dataset)
 
@@ -784,6 +795,4 @@ def test_domain_mismatch_errors_are_wrapped():
         match="Cannot combine series which are drawn from different tables",
     ) as exc:
         events.f + other_events.f
-    # Check original error is excluded from traceback
-    traceback_str = "\n".join(traceback.format_exception(exc.value))
-    assert "DomainMismatchError" not in traceback_str
+    assert_not_chained_exception(exc)
