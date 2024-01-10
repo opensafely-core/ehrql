@@ -17,6 +17,7 @@ EXCLUDE_FROM_DOCS = {
     ql.WhenThen,
     ql.when,
     ql.DummyDataConfig,
+    ql.Error,
 }
 
 

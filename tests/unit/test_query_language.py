@@ -17,12 +17,12 @@ from ehrql.query_language import (
     DateEventSeries,
     DateFunctions,
     DatePatientSeries,
+    Error,
     EventFrame,
     FloatEventSeries,
     FloatPatientSeries,
     IntEventSeries,
     IntPatientSeries,
-    InvalidOperationError,
     Parameter,
     PatientFrame,
     SchemaError,
@@ -795,7 +795,7 @@ def test_domain_mismatch_errors_are_wrapped():
         f = Series(float)
 
     with pytest.raises(
-        InvalidOperationError,
+        Error,
         match="Cannot combine series which are drawn from different tables",
     ) as exc:
         events.f + other_events.f

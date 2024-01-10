@@ -30,11 +30,16 @@ VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
 REGISTERED_TYPES = {}
 
 
-class InvalidOperationError(Exception):
+class Error(Exception):
     """
     Used to translate errors from the query model into something more
     ehrQL-appropriate
     """
+
+    # Pretend this exception is defined in the top-level `ehrql` module: this allows us
+    # to avoid leaking the internal `query_language` module into the error messages
+    # without creating circular import problems.
+    __module__ = "ehrql"
 
 
 @dataclasses.dataclass
@@ -1038,7 +1043,7 @@ def _build(qm_cls, *args, **kwargs):
     try:
         return qm_cls(*args, **kwargs)
     except qm.DomainMismatchError:
-        raise InvalidOperationError(
+        raise Error(
             "\n"
             "Cannot combine series which are drawn from different tables and both\n"
             "have more than one value per patient.\n"

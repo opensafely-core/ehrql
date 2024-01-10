@@ -4,6 +4,7 @@ from ehrql.codes import codelist_from_csv
 from ehrql.measures import INTERVAL, Measures, create_measures
 from ehrql.query_language import (
     Dataset,
+    Error,
     case,
     create_dataset,
     days,
@@ -25,6 +26,7 @@ __all__ = [
     "INTERVAL",
     "Measures",
     "Dataset",
+    "Error",
     "case",
     "create_dataset",
     "create_measures",
