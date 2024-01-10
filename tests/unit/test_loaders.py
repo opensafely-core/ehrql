@@ -130,6 +130,18 @@ def test_load_dataset_definition_bad_syntax(funcs):
         funcs.load_dataset_definition(filename)
 
 
+def test_load_dataset_definition_operator_error(funcs):
+    filename = FIXTURES_BAD / "operator_error.py"
+    with pytest.raises(
+        DefinitionError,
+        match=(
+            "WARNING: The `|` operator has different precedence rules from the "
+            "normal `or` operator"
+        ),
+    ):
+        funcs.load_dataset_definition(filename)
+
+
 def test_load_measure_definitions_no_measures(funcs):
     filename = FIXTURES_BAD / "no_measures.py"
     with pytest.raises(

@@ -32,6 +32,7 @@ from ehrql.query_language import (
     compile,
     create_dataset,
     days,
+    modify_exception,
     months,
     parse_date_if_str,
     table,
@@ -893,3 +894,42 @@ def test_query_model_type_errors():
     ) as exc:
         patients.i.when_null_then("empty")
     assert_not_chained_exception(exc)
+
+
+@pytest.mark.parametrize(
+    "code,exc_class,expected_note",
+    [
+        (
+            "patients.no_such_column",
+            AttributeError,
+            "",
+        ),
+        (
+            "patients.i + 'foo'",
+            TypeError,
+            "",
+        ),
+        (
+            "patients.i == 1 | patients.i == 2",
+            TypeError,
+            "WARNING: The `|` operator has surprising precedence rules",
+        ),
+        (
+            "patients.i == 1 & patients.i == 2",
+            TypeError,
+            "WARNING: The `&` operator has surprising precedence rules",
+        ),
+        (
+            "~ patients.i == 1",
+            TypeError,
+            "WARNING: The `~` operator has surprising precedence rules",
+        ),
+    ],
+)
+def test_modify_exception(code, exc_class, expected_note):
+    with pytest.raises(exc_class) as exc:
+        eval(code)
+    exception = modify_exception(exc.value)
+    notes = "\n".join(getattr(exception, "__notes__", []))
+    assert isinstance(exception, exc_class)
+    assert expected_note in notes
