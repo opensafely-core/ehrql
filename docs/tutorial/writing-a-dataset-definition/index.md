@@ -49,7 +49,7 @@ you should type the code into `dataset_definition.py`.
 from ehrql import create_dataset
 ```
 
-??? tip "Import the `create_dataset` function"
+??? tip "Import the `create_dataset` function into the sandbox"
     Importing a function into the sandbox doesn't display any output.
 
     ```pycon
@@ -65,7 +65,7 @@ The `medications` table has many rows per patient.
 from ehrql.tables.core import patients, medications
 ```
 
-??? tip "Import the tables"
+??? tip "Import the tables into the sandbox"
     Importing tables into the sandbox doesn't display any output.
 
     ```pycon
@@ -78,9 +78,13 @@ from ehrql.tables.core import patients, medications
 dataset = create_dataset()
 ```
 
-??? tip "Create the dataset"
+??? tip "Create the dataset in the sandbox"
+    Creating the empty dataset doesn't display any output.
     ```pycon
     >>> dataset = create_dataset()
+    ```
+    However you can verify the presence of the empty dataset like this:
+    ```pycon
     >>> dataset
     Dataset()
     ```
@@ -93,7 +97,7 @@ Define the population as all patients born on or before 31 December 1999.
 dataset.define_population(patients.date_of_birth.is_on_or_before("1999-12-31"))
 ```
 
-??? tip "Define the population"
+??? tip "Breaking down defining the population in the sandbox"
     `.define_population` takes a population condition in the form of a boolean column.
     However, `patients.date_of_birth` is a date column.
 
@@ -169,7 +173,7 @@ latest_asthma_med = (
 )
 ```
 
-??? tip "Unpack the filter, the sort, and the select"
+??? tip "Unpack the filter, the sort, and the select in the sandbox"
     Define a list of asthma codes.
 
     ```pycon
@@ -257,7 +261,7 @@ Select the date column and add it to the dataset.
 dataset.asthma_med_date = latest_asthma_med.date
 ```
 
-??? tip "Add the date column to the dataset"
+??? tip "Add the date column to the dataset in the sandbox"
     ```pycon
     >>> dataset.asthma_med_date = latest_asthma_med.date
     >>> dataset
@@ -281,7 +285,7 @@ Select the code column and add it to the dataset.
 dataset.asthma_med_code = latest_asthma_med.dmd_code
 ```
 
-??? tip "Add the code column to the dataset"
+??? tip "Add the code column to the dataset in the sandbox"
     ```pycon
     >>> dataset.asthma_med_code = latest_asthma_med.dmd_code
     >>> dataset
