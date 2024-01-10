@@ -295,7 +295,7 @@ shows pairs of codes and groups.
     In this case, the keys are strings that represent codes and the values are strings that represent groups.
     We separate keys from values with colons,
     and enclose key-value pairs  in curly brackets to create dictionaries,
-    meaning that `{"my_key": "my_value}` is a dictionary of one key-value pair,
+    meaning that `{"my_key": "my_value"}` is a dictionary of one key-value pair,
     where the key and the value are strings.
 
 Next, we import the `clinical_events` table.
