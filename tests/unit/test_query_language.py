@@ -220,14 +220,32 @@ def test_cannot_reassign_dataset_variable():
         dataset.foo = patients.date_of_birth.year + 100
 
 
-def test_cannot_assign_frame_to_variable():
-    with pytest.raises(TypeError, match="Invalid variable 'patient'"):
-        Dataset().patient = patients
-
-
-def test_cannot_assign_event_series_to_variable():
-    with pytest.raises(TypeError, match="Invalid variable 'event_date'"):
-        Dataset().event_date = events.event_date
+@pytest.mark.parametrize(
+    "variable,error",
+    [
+        (
+            object(),
+            "Expecting an ehrQL series, got type 'object'",
+        ),
+        (
+            patients,
+            "Expecting a series but got a frame (`patients`): "
+            "are you missing a column name?",
+        ),
+        (
+            patients.date_of_birth.is_null,
+            "Function referenced but not called: "
+            "are you missing parentheses on `is_null()`?",
+        ),
+        (
+            events.event_date,
+            "Expecting a series with only one value per patient",
+        ),
+    ],
+)
+def test_dataset_setattr_rejects_invalid_variables(variable, error):
+    with pytest.raises(TypeError, match=re.escape(error)):
+        Dataset().v = variable
 
 
 def test_accessing_unassigned_variable_gives_helpful_error():

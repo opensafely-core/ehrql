@@ -141,13 +141,14 @@ class Dataset:
                 f"alphanumeric characters and underscores (you defined a "
                 f"variable '{name}')"
             )
+        _raise_helpful_error_if_possible(value)
         if not isinstance(value, BaseSeries):
             raise TypeError(
-                f"Invalid variable '{name}'. Dataset variables must be values not whole rows"
+                f"Expecting an ehrQL series, got type '{type(value).__qualname__}'"
             )
-        if not qm.has_one_row_per_patient(value._qm_node):
+        if not isinstance(value, PatientSeries):
             raise TypeError(
-                f"Invalid variable '{name}'. Dataset variables must return one row per patient"
+                "Expecting a series with only one value per patient",
             )
         self.variables[name] = value
 
