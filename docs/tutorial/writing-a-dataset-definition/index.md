@@ -83,7 +83,7 @@ dataset = create_dataset()
     ```pycon
     >>> dataset = create_dataset()
     ```
-    However you can verify the presence of the empty dataset like this:
+    However, you can verify the presence of the empty dataset like this:
     ```pycon
     >>> dataset
     Dataset()
