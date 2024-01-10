@@ -288,12 +288,23 @@ docs-check-generated-docs-are-current: generate-docs
       exit 1
     fi
 
-download-pledge:
+update-pledge:
     #!/usr/bin/env bash
     set -euo pipefail
-
-    VERSION='3.0.1'
-    ZIP_URL="https://github.com/jart/cosmopolitan/releases/download/$VERSION/cosmos-$VERSION.zip"
+    URL_RECORD_FILE="bin/cosmopolitan-release-url.txt"
+    ZIP_URL="$(
+      python -c \
+        'import requests; print([
+            i["browser_download_url"]
+            for i in requests.get("https://api.github.com/repos/jart/cosmopolitan/releases/latest").json()["assets"]
+            if i["name"].startswith("cosmos-") and i["name"].endswith(".zip")
+        ][0])'
+    )"
+    echo "Latest Cosmopolitation release: $ZIP_URL"
+    if grep -Fxqs "$ZIP_URL" "$URL_RECORD_FILE"; then
+       echo "Already up to date."
+       exit 0
+    fi
 
     if [[ "$(uname -s)" != "Linux" ]]; then
       echo "This command can only be run on a Linux system because we need to"
@@ -301,12 +312,17 @@ download-pledge:
       exit 1
     fi
 
+    echo "Downloading ..."
     TMP_FILE="$(mktemp)"
     curl --location --output "$TMP_FILE" "$ZIP_URL"
-    unzip -j "$TMP_FILE" bin/pledge -d bin/
+    unzip -o -j "$TMP_FILE" bin/pledge -d bin/
     rm "$TMP_FILE"
 
     # Rewrite the file header so it becomes a native Linux executable which we
     # can run directly without needing a shell. See:
     # https://justine.lol/apeloader/
+    echo "Assimilating ..."
     bin/pledge --assimilate
+
+    echo "Complete."
+    echo "$ZIP_URL" > "$URL_RECORD_FILE"
