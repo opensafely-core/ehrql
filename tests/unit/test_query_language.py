@@ -172,6 +172,38 @@ def test_cannot_define_population_more_than_once():
         dataset.define_population(patients.exists_for_patient())
 
 
+@pytest.mark.parametrize(
+    "population,error",
+    [
+        (
+            False,
+            "Expecting an ehrQL series, got type 'bool'",
+        ),
+        (
+            patients,
+            "Expecting a series but got a frame (`patients`): "
+            "are you missing a column name?",
+        ),
+        (
+            patients.exists_for_patient,
+            "Function referenced but not called: "
+            "are you missing parentheses on `exists_for_patient()`?",
+        ),
+        (
+            events.event_date.is_not_null(),
+            "Expecting a series with only one value per patient",
+        ),
+        (
+            patients.date_of_birth,
+            "Expecting a boolean series but got series of type 'date'",
+        ),
+    ],
+)
+def test_define_population_rejects_invalid_arguments(population, error):
+    with pytest.raises(TypeError, match=re.escape(error)):
+        Dataset().define_population(population)
+
+
 def test_cannot_reassign_dataset_variable():
     dataset = Dataset()
     dataset.foo = patients.date_of_birth.year

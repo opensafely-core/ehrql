@@ -78,6 +78,21 @@ class Dataset:
             raise AttributeError(
                 "define_population() should be called no more than once"
             )
+        _raise_helpful_error_if_possible(population_condition)
+        if not isinstance(population_condition, BaseSeries):
+            raise TypeError(
+                f"Expecting an ehrQL series, got type "
+                f"'{type(population_condition).__qualname__}'"
+            )
+        if not isinstance(population_condition, PatientSeries):
+            raise TypeError(
+                "Expecting a series with only one value per patient",
+            )
+        if not isinstance(population_condition, BoolPatientSeries):
+            raise TypeError(
+                f"Expecting a boolean series but got series of type "
+                f"'{population_condition._type.__qualname__}'"
+            )
         validate_population_definition(population_condition._qm_node)
         self.variables["population"] = population_condition
 
@@ -1100,21 +1115,22 @@ def _convert(arg):
         arg, bool | int | float | datetime.date | str | BaseCode | frozenset
     ):
         return qm.Value(arg)
-    #
-    # Handle various kinds of user error
-    #
-    elif isinstance(arg, BaseFrame):
+    else:
+        _raise_helpful_error_if_possible(arg)
+        raise TypeError(f"Not a valid ehrQL type: {arg!r}")
+
+
+def _raise_helpful_error_if_possible(arg):
+    if isinstance(arg, BaseFrame):
         raise TypeError(
             f"Expecting a series but got a frame (`{arg.__class__.__name__}`): "
             f"are you missing a column name?"
         )
-    elif callable(arg):
+    if callable(arg):
         raise TypeError(
             f"Function referenced but not called: are you missing parentheses on "
             f"`{arg.__name__}()`?"
         )
-    else:
-        raise TypeError(f"Not a valid ehrQL type: {arg!r}")
 
 
 def Parameter(name, type_):
