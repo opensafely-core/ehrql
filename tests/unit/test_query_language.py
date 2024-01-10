@@ -25,7 +25,6 @@ from ehrql.query_language import (
     IntPatientSeries,
     Parameter,
     PatientFrame,
-    SchemaError,
     Series,
     StrEventSeries,
     StrPatientSeries,
@@ -327,7 +326,7 @@ def test_construct_constructs_event_frame():
 
 
 def test_construct_enforces_correct_base_class():
-    with pytest.raises(SchemaError, match="Schema class must subclass"):
+    with pytest.raises(Error, match="Schema class must subclass"):
 
         @table
         class some_table(Dataset):
@@ -335,7 +334,7 @@ def test_construct_enforces_correct_base_class():
 
 
 def test_construct_enforces_exactly_one_base_class():
-    with pytest.raises(SchemaError, match="Schema class must subclass"):
+    with pytest.raises(Error, match="Schema class must subclass"):
 
         @table
         class some_table(PatientFrame, Dataset):
@@ -353,7 +352,7 @@ def test_table_from_rows():
 
 def test_table_from_rows_only_accepts_patient_frame():
     with pytest.raises(
-        SchemaError, match="`@table_from_rows` can only be used with `PatientFrame`"
+        Error, match="`@table_from_rows` can only be used with `PatientFrame`"
     ):
 
         @table_from_rows([])
@@ -395,7 +394,7 @@ def test_table_from_file(file_extension, tmp_path):
 
 def test_table_from_file_only_accepts_patient_frame():
     with pytest.raises(
-        SchemaError,
+        Error,
         match="`@table_from_file` can only be used with `PatientFrame`",
     ):
 

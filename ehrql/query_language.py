@@ -1261,10 +1261,6 @@ def get_all_series_from_class(cls):
 #
 
 
-class SchemaError(Exception):
-    ...
-
-
 # A class decorator which replaces the class definition with an appropriately configured
 # instance of the class. Obviously this is a _bit_ odd, but I think worth it overall.
 # Using classes to define tables is (as far as I can tell) the only way to get nice
@@ -1279,9 +1275,7 @@ def table(cls):
             (EventFrame,): qm.SelectTable,
         }[cls.__bases__]
     except KeyError:
-        raise SchemaError(
-            "Schema class must subclass either `PatientFrame` or `EventFrame`"
-        )
+        raise Error("Schema class must subclass either `PatientFrame` or `EventFrame`")
 
     qm_node = qm_class(
         name=cls.__name__,
@@ -1307,7 +1301,7 @@ def get_table_schema_from_class(cls):
 def table_from_rows(rows):
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
-            raise SchemaError("`@table_from_rows` can only be used with `PatientFrame`")
+            raise Error("`@table_from_rows` can only be used with `PatientFrame`")
         qm_node = qm.InlinePatientTable(
             rows=tuple(rows),
             schema=get_table_schema_from_class(cls),
@@ -1327,7 +1321,7 @@ def table_from_file(path):
 
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
-            raise SchemaError("`@table_from_file` can only be used with `PatientFrame`")
+            raise Error("`@table_from_file` can only be used with `PatientFrame`")
 
         schema = get_table_schema_from_class(cls)
         column_specs = get_column_specs_from_schema(schema)
