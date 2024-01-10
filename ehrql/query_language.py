@@ -567,10 +567,14 @@ class FloatEventSeries(FloatFunctions, NumericAggregations, EventSeries):
 
 def parse_date_if_str(value):
     if isinstance(value, str):
+        # By default, `fromisoformat()` accepts the alternative YYYYMMDD format. We only
+        # want to allow the hyphenated version so we pre-validate it.
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", value):
+            raise ValueError(f"Dates must be in YYYY-MM-DD format: {value!r}")
         try:
             return datetime.date.fromisoformat(value)
         except ValueError as e:
-            raise ValueError(f"{e} in {value!r}")
+            raise ValueError(f"{e} in {value!r}") from None
     else:
         return value
 
