@@ -288,12 +288,12 @@ docs-check-generated-docs-are-current: generate-docs
       exit 1
     fi
 
-update-pledge:
+update-pledge: devenv
     #!/usr/bin/env bash
     set -euo pipefail
     URL_RECORD_FILE="bin/cosmopolitan-release-url.txt"
     ZIP_URL="$(
-      python -c \
+      $BIN/python -c \
         'import requests; print([
             i["browser_download_url"]
             for i in requests.get("https://api.github.com/repos/jart/cosmopolitan/releases/latest").json()["assets"]
