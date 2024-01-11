@@ -1525,3 +1525,61 @@ def minimum_of(value, other_value, *other_values):
     """
     args = cast_all_arguments((value, other_value, *other_values))
     return _apply(qm.Function.MinimumOf, args)
+
+
+# ERROR HANDLING
+#
+
+
+def modify_exception(exc):
+    # This is our chance to modify exceptions which we didn't raise ourselves to make
+    # them more helpful or add additional context
+    if operator := _get_operator_error(exc):
+        exc.add_note(
+            _format_operator_error_note(operator),
+        )
+    return exc
+
+
+def _get_operator_error(exc):
+    # Because `and`, `or` and `not` are control-flow primitives in Python they are not
+    # overridable and so we're forced to use the bitwise operators for logical
+    # operations. However these have different precedence rules from those governing the
+    # standard operators and so it's easy to accidentally do the wrong thing. Here we
+    # identify errors associated with the logical operators so we can add a note trying
+    # to explain what might have happened.
+    if not isinstance(exc, TypeError):
+        return
+    # Sadly we have to do this via string matching on the exception text
+    if match := re.match(
+        r"(unsupported operand type\(s\) for|bad operand type for unary) ([|&~]):",
+        str(exc),
+    ):
+        return match.group(2)
+
+
+def _format_operator_error_note(operator):
+    if operator == "|":
+        example_bad = "a == b | x == y"
+        example_good = "(a == b) | (x == y)"
+    elif operator == "&":
+        example_bad = "a == b & x == y"
+        example_good = "(a == b) & (x == y)"
+    elif operator == "~":
+        example_bad = "~ a == b"
+        example_good = "~ (a == b)"
+    else:
+        assert False
+    return (
+        f"\n"
+        f"WARNING: The `{operator}` operator has surprising precedence rules, meaning\n"
+        "you may need to add more parentheses to get the correct behaviour.\n"
+        f"\n"
+        f"For example, instead of writing:\n"
+        f"\n"
+        f"    {example_bad}\n"
+        f"\n"
+        f"You should write:\n"
+        f"\n"
+        f"    {example_good}"
+    )
