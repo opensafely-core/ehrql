@@ -30,11 +30,16 @@ VALID_VARIABLE_NAME_RE = re.compile(r"^[A-Za-z]+[A-Za-z0-9_]*$")
 REGISTERED_TYPES = {}
 
 
-class InvalidOperationError(Exception):
+class Error(Exception):
     """
     Used to translate errors from the query model into something more
     ehrQL-appropriate
     """
+
+    # Pretend this exception is defined in the top-level `ehrql` module: this allows us
+    # to avoid leaking the internal `query_language` module into the error messages
+    # without creating circular import problems.
+    __module__ = "ehrql"
 
 
 @dataclasses.dataclass
@@ -73,7 +78,25 @@ class Dataset:
             raise AttributeError(
                 "define_population() should be called no more than once"
             )
-        validate_population_definition(population_condition._qm_node)
+        _raise_helpful_error_if_possible(population_condition)
+        if not isinstance(population_condition, BaseSeries):
+            raise TypeError(
+                f"Expecting an ehrQL series, got type "
+                f"'{type(population_condition).__qualname__}'"
+            )
+        if not isinstance(population_condition, PatientSeries):
+            raise TypeError(
+                "Expecting a series with only one value per patient",
+            )
+        if not isinstance(population_condition, BoolPatientSeries):
+            raise TypeError(
+                f"Expecting a boolean series but got series of type "
+                f"'{population_condition._type.__qualname__}'"
+            )
+        try:
+            validate_population_definition(population_condition._qm_node)
+        except qm.ValidationError as exc:
+            raise Error(str(exc)) from None
         self.variables["population"] = population_condition
 
     def add_column(self, column_name: str, ehrql_query):
@@ -118,13 +141,14 @@ class Dataset:
                 f"alphanumeric characters and underscores (you defined a "
                 f"variable '{name}')"
             )
+        _raise_helpful_error_if_possible(value)
         if not isinstance(value, BaseSeries):
             raise TypeError(
-                f"Invalid variable '{name}'. Dataset variables must be values not whole rows"
+                f"Expecting an ehrQL series, got type '{type(value).__qualname__}'"
             )
-        if not qm.has_one_row_per_patient(value._qm_node):
+        if not isinstance(value, PatientSeries):
             raise TypeError(
-                f"Invalid variable '{name}'. Dataset variables must return one row per patient"
+                "Expecting a series with only one value per patient",
             )
         self.variables[name] = value
 
@@ -567,10 +591,14 @@ class FloatEventSeries(FloatFunctions, NumericAggregations, EventSeries):
 
 def parse_date_if_str(value):
     if isinstance(value, str):
+        # By default, `fromisoformat()` accepts the alternative YYYYMMDD format. We only
+        # want to allow the hyphenated version so we pre-validate it.
+        if not re.match(r"^\d{4}-\d{2}-\d{2}$", value):
+            raise ValueError(f"Dates must be in YYYY-MM-DD format: {value!r}")
         try:
             return datetime.date.fromisoformat(value)
         except ValueError as e:
-            raise ValueError(f"{e} in {value!r}")
+            raise ValueError(f"{e} in {value!r}") from None
     else:
         return value
 
@@ -1034,7 +1062,7 @@ def _build(qm_cls, *args, **kwargs):
     try:
         return qm_cls(*args, **kwargs)
     except qm.DomainMismatchError:
-        raise InvalidOperationError(
+        raise Error(
             "\n"
             "Cannot combine series which are drawn from different tables and both\n"
             "have more than one value per patient.\n"
@@ -1044,6 +1072,22 @@ def _build(qm_cls, *args, **kwargs):
             "row for each patient from the table using `first_for_patient()`."
             # Use `from None` to hide the chained exception
         ) from None
+    except qm.TypeValidationError as exc:
+        # We deliberately omit information about the query model operation and field
+        # name here because these often don't match what's used in ehrQL and are liable
+        # to cause confusion
+        raise TypeError(
+            f"Expected type '{_format_typespec(exc.expected)}' "
+            f"but got '{_format_typespec(exc.received)}'"
+            # Use `from None` to hide the chained exception
+        ) from None
+
+
+def _format_typespec(typespec):
+    # At present we don't do anything beyond formatting as a string and then removing
+    # the module name prefix from "Series". It might be nice to remove mention of
+    # "Series" entirely here, but that's a task for another day.
+    return str(typespec).replace(f"{qm.__name__}.{qm.Series.__qualname__}", "Series")
 
 
 def _apply(qm_cls, *args):
@@ -1070,9 +1114,27 @@ def _convert(arg):
     # If it's an ehrQL series then get the wrapped query model node
     elif isinstance(arg, BaseSeries):
         return arg._qm_node
-    # Otherwise it's a static value and needs to be put in a query model Value wrapper
-    else:
+    # If it's a static value then we need to be put in a query model Value wrapper
+    elif isinstance(
+        arg, bool | int | float | datetime.date | str | BaseCode | frozenset
+    ):
         return qm.Value(arg)
+    else:
+        _raise_helpful_error_if_possible(arg)
+        raise TypeError(f"Not a valid ehrQL type: {arg!r}")
+
+
+def _raise_helpful_error_if_possible(arg):
+    if isinstance(arg, BaseFrame):
+        raise TypeError(
+            f"Expecting a series but got a frame (`{arg.__class__.__name__}`): "
+            f"are you missing a column name?"
+        )
+    if callable(arg):
+        raise TypeError(
+            f"Function referenced but not called: are you missing parentheses on "
+            f"`{arg.__name__}()`?"
+        )
 
 
 def Parameter(name, type_):
@@ -1252,10 +1314,6 @@ def get_all_series_from_class(cls):
 #
 
 
-class SchemaError(Exception):
-    ...
-
-
 # A class decorator which replaces the class definition with an appropriately configured
 # instance of the class. Obviously this is a _bit_ odd, but I think worth it overall.
 # Using classes to define tables is (as far as I can tell) the only way to get nice
@@ -1270,9 +1328,7 @@ def table(cls):
             (EventFrame,): qm.SelectTable,
         }[cls.__bases__]
     except KeyError:
-        raise SchemaError(
-            "Schema class must subclass either `PatientFrame` or `EventFrame`"
-        )
+        raise Error("Schema class must subclass either `PatientFrame` or `EventFrame`")
 
     qm_node = qm_class(
         name=cls.__name__,
@@ -1298,7 +1354,7 @@ def get_table_schema_from_class(cls):
 def table_from_rows(rows):
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
-            raise SchemaError("`@table_from_rows` can only be used with `PatientFrame`")
+            raise Error("`@table_from_rows` can only be used with `PatientFrame`")
         qm_node = qm.InlinePatientTable(
             rows=tuple(rows),
             schema=get_table_schema_from_class(cls),
@@ -1318,7 +1374,7 @@ def table_from_file(path):
 
     def decorator(cls):
         if cls.__bases__ != (PatientFrame,):
-            raise SchemaError("`@table_from_file` can only be used with `PatientFrame`")
+            raise Error("`@table_from_file` can only be used with `PatientFrame`")
 
         schema = get_table_schema_from_class(cls)
         column_specs = get_column_specs_from_schema(schema)

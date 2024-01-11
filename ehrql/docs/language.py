@@ -17,6 +17,7 @@ EXCLUDE_FROM_DOCS = {
     ql.WhenThen,
     ql.when,
     ql.DummyDataConfig,
+    ql.Error,
 }
 
 
@@ -126,8 +127,6 @@ def is_included_class(cls):
     if not cls.__module__.startswith("ehrql."):
         return False
     if cls.__name__.startswith("_"):
-        return False
-    if issubclass(cls, Exception):
         return False
     if cls in EXCLUDE_FROM_DOCS:
         return False

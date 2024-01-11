@@ -35,6 +35,7 @@ __all__ = [
     "TableSchema",
     "ValidationError",
     "DomainMismatchError",
+    "TypeValidationError",
     "has_one_row_per_patient",
     "has_many_rows_per_patient",
     "get_series_type",
@@ -490,7 +491,12 @@ def validate_node(node):
     # PickOneRowPerPatient can only be used on sorted frames
     if isinstance(node, PickOneRowPerPatient):
         if not is_sorted(node.source):
-            raise TypeValidationError("PickOneRowPerPatient.source must be sorted")
+            raise TypeValidationError(
+                node=node,
+                field_name="source",
+                expected="SortedFrame",
+                received="UnsortedFrame",
+            )
 
 
 class ValidationError(Exception):
@@ -689,7 +695,17 @@ def is_sorted_filter(frame):
 
 
 class TypeValidationError(ValidationError):
-    ...
+    def __init__(self, node, field_name, expected, received):
+        self.node = node
+        self.field_name = field_name
+        self.expected = expected
+        self.received = received
+
+    def __str__(self):
+        return (
+            f"{self.node.__class__.__name__}.{self.field_name} requires "
+            f"'{self.expected}' but received '{self.received}'"
+        )
 
 
 def validate_types(node):
@@ -712,8 +728,10 @@ def validate_types(node):
             else:
                 resolved_typespec = target_typespec
             raise TypeValidationError(
-                f"{node.__class__.__name__}.{field.name} requires '{resolved_typespec}'"
-                f" but got '{typespec}'"
+                node=node,
+                field_name=field.name,
+                expected=resolved_typespec,
+                received=typespec,
             )
 
 

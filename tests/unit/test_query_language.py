@@ -1,4 +1,5 @@
 import operator
+import re
 import traceback
 from datetime import date
 from inspect import signature
@@ -17,15 +18,14 @@ from ehrql.query_language import (
     DateEventSeries,
     DateFunctions,
     DatePatientSeries,
+    Error,
     EventFrame,
     FloatEventSeries,
     FloatPatientSeries,
     IntEventSeries,
     IntPatientSeries,
-    InvalidOperationError,
     Parameter,
     PatientFrame,
-    SchemaError,
     Series,
     StrEventSeries,
     StrPatientSeries,
@@ -38,6 +38,7 @@ from ehrql.query_language import (
     table_from_file,
     table_from_rows,
     weeks,
+    when,
     years,
 )
 from ehrql.query_model.column_specs import ColumnSpec
@@ -72,6 +73,17 @@ class events(EventFrame):
 
 
 events_schema = TableSchema(event_date=Column(date), f=Column(float))
+
+
+def assert_not_chained_exception(excinfo):
+    # Including chained exception details in the traceback is the default Python
+    # behaviour but we often want to hide internal details from the user where these are
+    # not helpful
+    traceback_str = "\n".join(traceback.format_exception(excinfo.value))
+    assert (
+        "During handling of the above exception, another exception occurred"
+        not in traceback_str
+    )
 
 
 def test_create_dataset():
@@ -160,6 +172,47 @@ def test_cannot_define_population_more_than_once():
         dataset.define_population(patients.exists_for_patient())
 
 
+@pytest.mark.parametrize(
+    "population,error",
+    [
+        (
+            False,
+            "Expecting an ehrQL series, got type 'bool'",
+        ),
+        (
+            patients,
+            "Expecting a series but got a frame (`patients`): "
+            "are you missing a column name?",
+        ),
+        (
+            patients.exists_for_patient,
+            "Function referenced but not called: "
+            "are you missing parentheses on `exists_for_patient()`?",
+        ),
+        (
+            events.event_date.is_not_null(),
+            "Expecting a series with only one value per patient",
+        ),
+        (
+            patients.date_of_birth,
+            "Expecting a boolean series but got series of type 'date'",
+        ),
+    ],
+)
+def test_define_population_rejects_invalid_arguments(population, error):
+    with pytest.raises(TypeError, match=re.escape(error)):
+        Dataset().define_population(population)
+
+
+def test_define_population_rejects_invalid_population():
+    with pytest.raises(
+        Error,
+        match="population definition must not evaluate as True for NULL inputs",
+    ) as exc:
+        Dataset().define_population(~events.exists_for_patient())
+    assert_not_chained_exception(exc)
+
+
 def test_cannot_reassign_dataset_variable():
     dataset = Dataset()
     dataset.foo = patients.date_of_birth.year
@@ -167,14 +220,32 @@ def test_cannot_reassign_dataset_variable():
         dataset.foo = patients.date_of_birth.year + 100
 
 
-def test_cannot_assign_frame_to_variable():
-    with pytest.raises(TypeError, match="Invalid variable 'patient'"):
-        Dataset().patient = patients
-
-
-def test_cannot_assign_event_series_to_variable():
-    with pytest.raises(TypeError, match="Invalid variable 'event_date'"):
-        Dataset().event_date = events.event_date
+@pytest.mark.parametrize(
+    "variable,error",
+    [
+        (
+            object(),
+            "Expecting an ehrQL series, got type 'object'",
+        ),
+        (
+            patients,
+            "Expecting a series but got a frame (`patients`): "
+            "are you missing a column name?",
+        ),
+        (
+            patients.date_of_birth.is_null,
+            "Function referenced but not called: "
+            "are you missing parentheses on `is_null()`?",
+        ),
+        (
+            events.event_date,
+            "Expecting a series with only one value per patient",
+        ),
+    ],
+)
+def test_dataset_setattr_rejects_invalid_variables(variable, error):
+    with pytest.raises(TypeError, match=re.escape(error)):
+        Dataset().v = variable
 
 
 def test_accessing_unassigned_variable_gives_helpful_error():
@@ -316,7 +387,7 @@ def test_construct_constructs_event_frame():
 
 
 def test_construct_enforces_correct_base_class():
-    with pytest.raises(SchemaError, match="Schema class must subclass"):
+    with pytest.raises(Error, match="Schema class must subclass"):
 
         @table
         class some_table(Dataset):
@@ -324,7 +395,7 @@ def test_construct_enforces_correct_base_class():
 
 
 def test_construct_enforces_exactly_one_base_class():
-    with pytest.raises(SchemaError, match="Schema class must subclass"):
+    with pytest.raises(Error, match="Schema class must subclass"):
 
         @table
         class some_table(PatientFrame, Dataset):
@@ -342,7 +413,7 @@ def test_table_from_rows():
 
 def test_table_from_rows_only_accepts_patient_frame():
     with pytest.raises(
-        SchemaError, match="`@table_from_rows` can only be used with `PatientFrame`"
+        Error, match="`@table_from_rows` can only be used with `PatientFrame`"
     ):
 
         @table_from_rows([])
@@ -384,7 +455,7 @@ def test_table_from_file(file_extension, tmp_path):
 
 def test_table_from_file_only_accepts_patient_frame():
     with pytest.raises(
-        SchemaError,
+        Error,
         match="`@table_from_file` can only be used with `PatientFrame`",
     ):
 
@@ -672,13 +743,17 @@ def test_parse_date_if_str(value, expected):
 @pytest.mark.parametrize(
     "value,error",
     [
-        ("1st March 2020", "Invalid isoformat string: '1st March 2020'"),
+        ("1st March 2020", "Dates must be in YYYY-MM-DD format: '1st March 2020'"),
+        ("20201231", "Dates must be in YYYY-MM-DD format: '20201231'"),
         ("2021-02-29", "day is out of range for month in '2021-02-29'"),
+        ("2020-01-01  ", "Dates must be in YYYY-MM-DD format: '2020-01-01  '"),
+        ("2021-14-01", "month must be in 1..12 in '2021-14-01'"),
     ],
 )
 def test_parse_date_if_str_errors(value, error):
-    with pytest.raises(ValueError, match=error):
+    with pytest.raises(ValueError, match=error) as exc:
         parse_date_if_str(value)
+    assert_not_chained_exception(exc)
 
 
 def test_parameter():
@@ -780,10 +855,41 @@ def test_domain_mismatch_errors_are_wrapped():
         f = Series(float)
 
     with pytest.raises(
-        InvalidOperationError,
+        Error,
         match="Cannot combine series which are drawn from different tables",
     ) as exc:
         events.f + other_events.f
-    # Check original error is excluded from traceback
-    traceback_str = "\n".join(traceback.format_exception(exc.value))
-    assert "DomainMismatchError" not in traceback_str
+    assert_not_chained_exception(exc)
+
+
+@pytest.mark.parametrize(
+    "value,error",
+    [
+        (
+            patients,
+            "Expecting a series but got a frame (`patients`): "
+            "are you missing a column name?",
+        ),
+        (
+            patients.i.is_null,
+            "Function referenced but not called: "
+            "are you missing parentheses on `is_null()`?",
+        ),
+        (
+            object(),
+            "Not a valid ehrQL type: <object object",
+        ),
+    ],
+)
+def test_type_errors(value, error):
+    with pytest.raises(TypeError, match=re.escape(error)):
+        when(patients.exists_for_patient()).then(value).otherwise(None)
+
+
+def test_query_model_type_errors():
+    with pytest.raises(
+        TypeError,
+        match=re.escape("Expected type 'Series[int] | None' but got 'Series[str]'"),
+    ) as exc:
+        patients.i.when_null_then("empty")
+    assert_not_chained_exception(exc)
