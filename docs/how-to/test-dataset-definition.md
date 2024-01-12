@@ -88,11 +88,15 @@ test_data = {
 In the example above we have created one test patient with the patient ID `1` and added test data for two tables: `patients` and `medications`.
 The keys of the second-level dictionary match the names of the tables in the dataset definition.
 To explore how these tables are structured you can look at the column names in the [table schemas](../reference/schemas.md) documentation.
+Also note that some columns have constraints that need to be specified correctly in your test data.
+For example, the `date_of_birth` column in the [patients table](../reference/schemas/core.md#patients.date_of_birth) has the following constraints: '*Always the first day of a month*' and '*Never `NULL`*'.
+
 As mentioned above, adding data is different for *one-row-* and *many-rows-per-patient* tables:
 
 * `patients` is a *one-row-per-patient* table, so you can only define one dictionary with one key for each column (`date_of_birth` and `sex`) that you want to populate.
     Note that you don't have to specify a value for each column in the underlying table.
     For example we did not specify `date_of_death` in the dictionary so the column will be missing with the value `None`.
+    This only works because the `date_of_death` column does not have a '*Never `NULL`*' constraint.
 * `medications` is a *many-rows-per-patient* table, so you can define a list containing multiple dictionaries (one for each row you want to add to the table) with one key for each column (`date` and `dmd_code`).
 
 ### Expectations for test patients
@@ -177,21 +181,38 @@ opensafely exec ehrql:v1 assure analysis/test_dataset_definition.py
 
 ### Successful expectations
 
-If the expected results match the results after applying the ehrQL logic you will see the following short message in your terminal:
+If the expected results match the results after applying the ehrQL logic and the test data meets all constraints you will see the following short message in your terminal:
 
 ```
-All OK!
+Validate test data: All OK!
+Validate results: All OK!
 ```
 
 ### Failed expectations
 
-You will see an error message that helps you to diagnose and fix the problem if your expectations do not match the results.
+#### Failed constraint validations
+
+If the test data you provided does not meet constraints you will see a message with more information.
+We recommend that you fix the errors so that the test data meets the constraints and is identical to the production data.
+However, if you are sure that you want to test your ehrQL query with values that do not to the constraints, you can ignore the '*Validate test data*' section of the message.
+
+```
+Validate test data: Found errors with 1 patient(s)
+ * Patient 1 had 1 test data value(s) that did not meet the constraint(s)
+   * for column 'date_of_birth' with 'Constraint.NotNull()', got 'None'
+Validate results: All OK!
+```
+
+#### Failed result expectations
+
+You will see a message that helps you to diagnose and fix the problem if your expectations do not match the results.
 The error message is structured by patient and contains one line for each column with a failed expectation.
 Each line starts with the column name followed by the value that was specified in the test and the last value shows the result that was obtained after applying the ehrQL logic:
 
 ```
-Found errors with 1 patient(s)
+Validate test data: All OK!
+Validate results: Found errors with 1 patient(s)
  * Patient 1 had unexpected value(s)
-   * for column age, expected 72, got 73
-   * for column latest_asthma_med_date, expected 2020-01-01, got 2021-01-01
+   * for column 'age', expected '72', got '73'
+   * for column 'latest_asthma_med_date', expected '2020-01-01', got '2021-01-01'
 ```

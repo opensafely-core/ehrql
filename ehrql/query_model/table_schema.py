@@ -1,4 +1,5 @@
 import dataclasses
+from re import match
 
 from ehrql.utils.regex_utils import validate_regex
 
@@ -22,14 +23,27 @@ class Constraint:
         def description(self):
             return f"Possible values: {', '.join(f'`{v}`' for v in self.values)}"
 
+        def validate(self, value):
+            return value in self.values if value is not None else True
+
     class NotNull(BaseConstraint):
         description = "Never `NULL`"
+
+        def validate(self, value):
+            return value is not None
 
     class Unique(BaseConstraint):
         description = "Always unique"
 
+        def validate(self, value):
+            # We cant validate a single value
+            return True
+
     class FirstOfMonth(BaseConstraint):
         description = "Always the first day of a month"
+
+        def validate(self, value):
+            return value.day == 1 if value else True
 
     class Regex(BaseConstraint):
         regex: str
@@ -41,6 +55,9 @@ class Constraint:
         def description(self):
             return f"Matches regular expression: `{self.regex}`"
 
+        def validate(self, value):
+            return bool(match(self.regex, value)) if value is not None else True
+
     class ClosedRange(BaseConstraint):
         minimum: int
         maximum: int
@@ -51,6 +68,9 @@ class Constraint:
             if self.step == 1:
                 return f"Always >= {self.minimum} and <= {self.maximum}"
             return f"Always >= {self.minimum}, <= {self.maximum}, and a multiple of {self.step}"
+
+        def validate(self, value):
+            return self.minimum <= value <= self.maximum if value is not None else True
 
 
 @dataclasses.dataclass(frozen=True)
