@@ -94,6 +94,28 @@ def test_generate_dataset_no_data_args(mock_load_and_compile):
         p.assert_called_once()
 
 
+def test_generate_dataset_with_test_data_file(mock_load_and_compile):
+    with (
+        mock.patch("ehrql.main.assure") as p,
+        mock.patch("ehrql.main.generate_dataset_with_dummy_data"),
+    ):
+        generate_dataset(
+            Path("dataset_definition.py"),
+            Path("results.csv"),
+            # Interesting argument
+            test_data_file=Path("test_data.py"),
+            # Defaults
+            dsn=None,
+            backend_class=None,
+            query_engine_class=None,
+            dummy_tables_path=None,
+            dummy_data_file=None,
+            environ={},
+            user_args=(),
+        )
+        p.assert_called_once()
+
+
 def test_get_query_engine_defaults():
     query_engine = get_query_engine(
         dsn=None,
