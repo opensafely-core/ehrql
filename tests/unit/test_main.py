@@ -50,6 +50,7 @@ def test_generate_dataset_dsn_arg(mock_load_and_compile):
             query_engine_class=None,
             dummy_tables_path=None,
             dummy_data_file=None,
+            test_data_file=None,
             environ={},
             user_args=(),
         )
@@ -68,6 +69,7 @@ def test_generate_dataset_dummy_data_file_arg(mock_load_and_compile):
             backend_class=None,
             query_engine_class=None,
             dummy_tables_path=None,
+            test_data_file=None,
             environ={},
             user_args=(),
         )
@@ -85,6 +87,7 @@ def test_generate_dataset_no_data_args(mock_load_and_compile):
             query_engine_class=None,
             dummy_tables_path=None,
             dummy_data_file=None,
+            test_data_file=None,
             environ={},
             user_args=(),
         )
