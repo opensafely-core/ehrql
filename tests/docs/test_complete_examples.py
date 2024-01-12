@@ -301,11 +301,11 @@ def test_ehrql_example(tmp_path, example):
 
     match example.definition_type:
         case EhrqlExampleDefinitionType.DATASET:
-            definition_fn = ehrql.main.generate_dataset
+            generate_fn = ehrql.main.generate_dataset
             wrapped_fn = wrapped_load_dataset_definition
             ehrql_fn_name_to_patch = "ehrql.main.load_dataset_definition"
         case EhrqlExampleDefinitionType.MEASURE:
-            definition_fn = ehrql.main.generate_measures
+            generate_fn = ehrql.main.generate_measures
             wrapped_fn = wrapped_load_measure_definitions
             ehrql_fn_name_to_patch = "ehrql.main.load_measure_definitions"
         case _:
@@ -336,16 +336,16 @@ def test_ehrql_example(tmp_path, example):
         args = [tmp_example_path, tmp_output_path]
         kwargs = {
             name: None
-            for name, param in inspect.signature(definition_fn).parameters.items()
+            for name, param in inspect.signature(generate_fn).parameters.items()
             if param.kind == param.KEYWORD_ONLY
         }
         kwargs.update({"environ": {}, "user_args": ()})
         try:
-            definition_fn(*args, **kwargs)
+            generate_fn(*args, **kwargs)
         except Exception as e:
-            definition_fn_name = definition_fn.__name__.rpartition(".")[-1]
+            generate_fn_name = generate_fn.__name__.rpartition(".")[-1]
             raise EhrqlExampleTestError(
-                f"{definition_fn_name} failed for example: {formatted_example}"
+                f"{generate_fn_name} failed for example: {formatted_example}"
             ) from e
 
     try:
