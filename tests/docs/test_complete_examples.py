@@ -333,20 +333,15 @@ def test_ehrql_example(tmp_path, example):
             return_value=None,
         ),
     ):
+        args = [tmp_example_path, tmp_output_path]
+        kwargs = {
+            name: None
+            for name, param in inspect.signature(definition_fn).parameters.items()
+            if param.kind == param.KEYWORD_ONLY
+        }
+        kwargs.update({"environ": {}, "user_args": ()})
         try:
-            # No name needed to store a value:
-            # the output CSV gets written to a temporary file.
-            definition_fn(
-                tmp_example_path,
-                tmp_output_path,
-                dsn=None,
-                backend_class=None,
-                query_engine_class=None,
-                dummy_tables_path=None,
-                dummy_data_file=None,
-                environ={},
-                user_args=(),
-            )
+            definition_fn(*args, **kwargs)
         except Exception as e:
             definition_fn_name = definition_fn.__name__.rpartition(".")[-1]
             raise EhrqlExampleTestError(
