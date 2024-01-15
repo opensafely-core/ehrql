@@ -11,6 +11,8 @@ from ehrql.query_language import (
     IntPatientSeries,
     Parameter,
     PatientSeries,
+    validate_patient_series,
+    validate_patient_series_type,
 )
 from ehrql.query_model.nodes import Series
 
@@ -233,15 +235,7 @@ class Measures:
     def _validate_num_denom(self, value, name):
         if value is None:
             return
-        if not isinstance(value, PatientSeries):
-            raise Error(
-                f"`{name}` must be a one row per patient series,"
-                f" got '{type(value)}': {value!r}"
-            )
-        if value._type not in (bool, int):
-            raise Error(
-                f"`{name}` must be a boolean or integer series, got '{value._type}'"
-            )
+        validate_patient_series_type(value, types=(bool, int), context=name)
 
     def _validate_intervals(self, intervals):
         if intervals is None:
@@ -287,11 +281,7 @@ class Measures:
                     f"`group_by` names must start with a letter and contain only"
                     f" alphanumeric characters and underscores, got: {key!r}"
                 )
-            if not isinstance(value, PatientSeries):
-                raise Error(
-                    f"`group_by` values must be one row per patient series,"
-                    f"  at '{key}' got '{type(value)}': {value!r}"
-                )
+            validate_patient_series(value, context=f"`group_by` value for '{key}'")
         disallowed = self.RESERVED_NAMES.intersection(group_by)
         if disallowed:
             raise Error(f"disallowed `group_by` column name: {', '.join(disallowed)}")

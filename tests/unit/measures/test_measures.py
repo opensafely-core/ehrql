@@ -210,7 +210,10 @@ def test_group_by_columns_must_be_consistent():
 def test_numerator_must_be_patient_series():
     measures = Measures()
 
-    with pytest.raises(Error, match="`numerator` must be a one row per patient series"):
+    with pytest.raises(
+        TypeError,
+        match="invalid numerator:\nExpecting an ehrQL series, got type 'object'",
+    ):
         measures.define_measure(
             name="test",
             numerator=object(),
@@ -224,7 +227,11 @@ def test_denominator_must_be_int_or_bool_series():
     measures = Measures()
 
     with pytest.raises(
-        Error, match="`denominator` must be a boolean or integer series"
+        TypeError,
+        match=(
+            "invalid denominator:\n"
+            "Expecting a boolean or integer series, got series of type 'str'"
+        ),
     ):
         measures.define_measure(
             name="test",
@@ -241,14 +248,18 @@ def test_denominator_must_be_int_or_bool_series():
         (1234, "`group_by` must be a dictionary"),
         ({1234: patients.category}, "group_by` names must be strings"),
         ({"My Group": patients.category}, "alphanumeric characters and underscores"),
-        ({"my_group": 1234}, "group_by` values must be one row per patient series"),
         ({"measure": patients.category}, "disallowed `group_by` column name: measure"),
+        (
+            {"my_group": 1234},
+            "invalid `group_by` value for 'my_group':\n"
+            "Expecting an ehrQL series, got type 'int'",
+        ),
     ],
 )
 def test_invalid_group_by_is_rejected(group_by, error):
     measures = Measures()
 
-    with pytest.raises(Error, match=error):
+    with pytest.raises((TypeError, Error), match=error):
         measures.define_measure(
             name="test",
             numerator=patients.score,
