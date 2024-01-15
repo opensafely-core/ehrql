@@ -3,8 +3,8 @@ from datetime import date
 
 import pytest
 
-from ehrql import Measures, months
-from ehrql.measures.measures import Measure, ValidationError, create_measures
+from ehrql import Error, Measures, months
+from ehrql.measures.measures import Measure, create_measures
 from ehrql.tables import PatientFrame, Series, table
 
 
@@ -122,7 +122,7 @@ def test_define_measures_with_default_group_by():
 def test_cannot_redefine_defaults():
     measures = Measures()
     measures.define_defaults(numerator=patients.score)
-    with pytest.raises(ValidationError, match="Defaults already set"):
+    with pytest.raises(Error, match="Defaults already set"):
         measures.define_defaults(numerator=patients.is_interesting)
 
 
@@ -130,7 +130,7 @@ def test_must_define_all_attributes():
     measures = Measures()
     measures.define_defaults(numerator=patients.score)
     with pytest.raises(
-        ValidationError,
+        Error,
         match="No value supplied for 'intervals' and no default defined",
     ):
         measures.define_measure(
@@ -149,9 +149,7 @@ def test_names_must_be_unique():
     )
 
     measures.define_measure(name="test", numerator=patients.score)
-    with pytest.raises(
-        ValidationError, match="Measure already defined with name: test"
-    ):
+    with pytest.raises(Error, match="Measure already defined with name: test"):
         measures.define_measure(name="test", numerator=patients.is_interesting)
 
 
@@ -166,7 +164,7 @@ def test_names_must_be_unique():
 def test_names_must_be_valid(name):
     measures = Measures()
     with pytest.raises(
-        ValidationError,
+        Error,
         match=(
             "must start with a letter and contain only alphanumeric characters"
             " and underscores"
@@ -198,7 +196,7 @@ def test_group_by_columns_must_be_consistent():
         },
     )
     with pytest.raises(
-        ValidationError, match="Inconsistent definition for `group_by` column: category"
+        Error, match="Inconsistent definition for `group_by` column: category"
     ):
         measures.define_measure(
             name="test_2",
@@ -212,9 +210,7 @@ def test_group_by_columns_must_be_consistent():
 def test_numerator_must_be_patient_series():
     measures = Measures()
 
-    with pytest.raises(
-        ValidationError, match="`numerator` must be a one row per patient series"
-    ):
+    with pytest.raises(Error, match="`numerator` must be a one row per patient series"):
         measures.define_measure(
             name="test",
             numerator=object(),
@@ -228,7 +224,7 @@ def test_denominator_must_be_int_or_bool_series():
     measures = Measures()
 
     with pytest.raises(
-        ValidationError, match="`denominator` must be a boolean or integer series"
+        Error, match="`denominator` must be a boolean or integer series"
     ):
         measures.define_measure(
             name="test",
@@ -252,7 +248,7 @@ def test_denominator_must_be_int_or_bool_series():
 def test_invalid_group_by_is_rejected(group_by, error):
     measures = Measures()
 
-    with pytest.raises(ValidationError, match=error):
+    with pytest.raises(Error, match=error):
         measures.define_measure(
             name="test",
             numerator=patients.score,
@@ -281,7 +277,7 @@ def test_invalid_group_by_is_rejected(group_by, error):
 def test_invalid_intervals_are_rejected(intervals, error):
     measures = Measures()
 
-    with pytest.raises(ValidationError, match=error):
+    with pytest.raises(Error, match=error):
         measures.define_measure(
             name="test",
             numerator=patients.score,
