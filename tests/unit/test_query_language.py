@@ -38,6 +38,7 @@ from ehrql.query_language import (
     table,
     table_from_file,
     table_from_rows,
+    validate_patient_series_type,
     weeks,
     when,
     years,
@@ -196,7 +197,7 @@ def test_cannot_define_population_more_than_once():
         ),
         (
             patients.date_of_birth,
-            "Expecting a boolean series but got series of type 'date'",
+            "Expecting a boolean series, got series of type 'date'",
         ),
     ],
 )
@@ -933,3 +934,38 @@ def test_modify_exception(code, exc_class, expected_note):
     notes = "\n".join(getattr(exception, "__notes__", []))
     assert isinstance(exception, exc_class)
     assert expected_note in notes
+
+
+@pytest.mark.parametrize(
+    "type_,required_types,expected_error",
+    [
+        (
+            bool,
+            [int],
+            "Expecting an integer series, got series of type 'bool'",
+        ),
+        (
+            int,
+            [bool],
+            "Expecting a boolean series, got series of type 'int'",
+        ),
+        (
+            str,
+            [bool, int],
+            "Expecting a boolean or integer series, got series of type 'str'",
+        ),
+        (
+            str,
+            [int, bool, float],
+            "Expecting an integer, boolean or float series, got series of type 'str'",
+        ),
+    ],
+)
+def test_validate_patient_series_type(type_, required_types, expected_error):
+    series = Parameter("param", type_)
+    with pytest.raises(TypeError, match=re.escape(expected_error)):
+        validate_patient_series_type(
+            series,
+            types=required_types,
+            context="value",
+        )
