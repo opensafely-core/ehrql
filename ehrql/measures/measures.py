@@ -7,15 +7,14 @@ from ehrql.query_language import (
     BoolPatientSeries,
     DummyDataConfig,
     Duration,
+    Error,
     IntPatientSeries,
     Parameter,
     PatientSeries,
+    validate_patient_series,
+    validate_patient_series_type,
 )
 from ehrql.query_model.nodes import Series
-
-
-class ValidationError(Exception):
-    pass
 
 
 # Parameters to be used in place of date values when constructing the ehrQL queries
@@ -165,19 +164,17 @@ class Measures:
         # Ensure all required arguments are provided (either directly or by defaults)
         for key, value in kwargs.items():
             if value is None:
-                raise ValidationError(
-                    f"No value supplied for '{key}' and no default defined"
-                )
+                raise Error(f"No value supplied for '{key}' and no default defined")
 
         # Ensure measure names are valid
         if not VALID_VARIABLE_NAME_RE.match(name):
-            raise ValidationError(
+            raise Error(
                 f"Measure names must start with a letter and contain only"
                 f" alphanumeric characters and underscores, got: {name!r}"
             )
         # Ensure measure names are unique
         if name in self._measures:
-            raise ValidationError(f"Measure already defined with name: {name}")
+            raise Error(f"Measure already defined with name: {name}")
 
         # Ensure group_by column definitions are consistent across measures
         for group_name, definition in get_all_group_by_columns(
@@ -186,7 +183,7 @@ class Measures:
             if group_name not in kwargs["group_by"]:
                 continue
             if kwargs["group_by"][group_name]._qm_node != definition:
-                raise ValidationError(
+                raise Error(
                     f"Inconsistent definition for `group_by` column: {group_name}"
                 )
 
@@ -223,7 +220,7 @@ class Measures:
             "intervals": intervals,
         }
         if self._defaults:
-            raise ValidationError(
+            raise Error(
                 "Defaults already set; cannot call `define_defaults()` more than once"
             )
         self._validate_kwargs(kwargs)
@@ -238,26 +235,18 @@ class Measures:
     def _validate_num_denom(self, value, name):
         if value is None:
             return
-        if not isinstance(value, PatientSeries):
-            raise ValidationError(
-                f"`{name}` must be a one row per patient series,"
-                f" got '{type(value)}': {value!r}"
-            )
-        if value._type not in (bool, int):
-            raise ValidationError(
-                f"`{name}` must be a boolean or integer series, got '{value._type}'"
-            )
+        validate_patient_series_type(value, types=(bool, int), context=name)
 
     def _validate_intervals(self, intervals):
         if intervals is None:
             return
         if isinstance(intervals, Duration):
-            raise ValidationError(
+            raise Error(
                 f"You must supply a date using `{intervals!r}.starting_on('<DATE>')`"
                 f" or `{intervals!r}.ending_on('<DATE>')`"
             )
         if not isinstance(intervals, list):
-            raise ValidationError(
+            raise Error(
                 f"`intervals` must be a list, got '{type(intervals)}': {intervals!r}"
             )
         for interval in intervals:
@@ -269,11 +258,9 @@ class Measures:
             or len(interval) != 2
             or not all(isinstance(i, datetime.date) for i in interval)
         ):
-            raise ValidationError(
-                f"`intervals` must contain pairs of dates, got: {interval!r}"
-            )
+            raise Error(f"`intervals` must contain pairs of dates, got: {interval!r}")
         if interval[0] > interval[1]:
-            raise ValidationError(
+            raise Error(
                 f"Interval start date must be before end date, got: {interval!r}"
             )
 
@@ -281,29 +268,23 @@ class Measures:
         if group_by is None:
             return
         if not isinstance(group_by, dict):
-            raise ValidationError(
+            raise Error(
                 f"`group_by` must be a dictionary, got '{type(group_by)}': {group_by!r}"
             )
         for key, value in group_by.items():
             if not isinstance(key, str):
-                raise ValidationError(
+                raise Error(
                     f"`group_by` names must be strings, got '{type(key)}': {key!r}"
                 )
             if not VALID_VARIABLE_NAME_RE.match(key):
-                raise ValidationError(
+                raise Error(
                     f"`group_by` names must start with a letter and contain only"
                     f" alphanumeric characters and underscores, got: {key!r}"
                 )
-            if not isinstance(value, PatientSeries):
-                raise ValidationError(
-                    f"`group_by` values must be one row per patient series,"
-                    f"  at '{key}' got '{type(value)}': {value!r}"
-                )
+            validate_patient_series(value, context=f"`group_by` value for '{key}'")
         disallowed = self.RESERVED_NAMES.intersection(group_by)
         if disallowed:
-            raise ValidationError(
-                f"disallowed `group_by` column name: {', '.join(disallowed)}"
-            )
+            raise Error(f"disallowed `group_by` column name: {', '.join(disallowed)}")
 
     def configure_dummy_data(self, *, population_size):
         """

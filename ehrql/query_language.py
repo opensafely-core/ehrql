@@ -78,21 +78,11 @@ class Dataset:
             raise AttributeError(
                 "define_population() should be called no more than once"
             )
-        _raise_helpful_error_if_possible(population_condition)
-        if not isinstance(population_condition, BaseSeries):
-            raise TypeError(
-                f"Expecting an ehrQL series, got type "
-                f"'{type(population_condition).__qualname__}'"
-            )
-        if not isinstance(population_condition, PatientSeries):
-            raise TypeError(
-                "Expecting a series with only one value per patient",
-            )
-        if not isinstance(population_condition, BoolPatientSeries):
-            raise TypeError(
-                f"Expecting a boolean series but got series of type "
-                f"'{population_condition._type.__qualname__}'"
-            )
+        validate_patient_series_type(
+            population_condition,
+            types=[bool],
+            context="population definition",
+        )
         try:
             validate_population_definition(population_condition._qm_node)
         except qm.ValidationError as exc:
@@ -141,15 +131,7 @@ class Dataset:
                 f"alphanumeric characters and underscores (you defined a "
                 f"variable '{name}')"
             )
-        _raise_helpful_error_if_possible(value)
-        if not isinstance(value, BaseSeries):
-            raise TypeError(
-                f"Expecting an ehrQL series, got type '{type(value).__qualname__}'"
-            )
-        if not isinstance(value, PatientSeries):
-            raise TypeError(
-                "Expecting a series with only one value per patient",
-            )
+        validate_patient_series(value, context=f"variable '{name}'")
         self.variables[name] = value
 
     def __getattr__(self, name):
@@ -1120,21 +1102,8 @@ def _convert(arg):
     ):
         return qm.Value(arg)
     else:
-        _raise_helpful_error_if_possible(arg)
+        raise_helpful_error_if_possible(arg)
         raise TypeError(f"Not a valid ehrQL type: {arg!r}")
-
-
-def _raise_helpful_error_if_possible(arg):
-    if isinstance(arg, BaseFrame):
-        raise TypeError(
-            f"Expecting a series but got a frame (`{arg.__class__.__name__}`): "
-            f"are you missing a column name?"
-        )
-    if callable(arg):
-        raise TypeError(
-            f"Function referenced but not called: are you missing parentheses on "
-            f"`{arg.__name__}()`?"
-        )
 
 
 def Parameter(name, type_):
@@ -1529,6 +1498,63 @@ def minimum_of(value, other_value, *other_values):
 
 # ERROR HANDLING
 #
+
+
+def raise_helpful_error_if_possible(arg):
+    if isinstance(arg, BaseFrame):
+        raise TypeError(
+            f"Expecting a series but got a frame (`{arg.__class__.__name__}`): "
+            f"are you missing a column name?"
+        )
+    if callable(arg):
+        raise TypeError(
+            f"Function referenced but not called: are you missing parentheses on "
+            f"`{arg.__name__}()`?"
+        )
+
+
+def validate_ehrql_series(arg, context):
+    try:
+        raise_helpful_error_if_possible(arg)
+    except TypeError as e:
+        raise TypeError(f"invalid {context}:\n{e})") from None
+    if not isinstance(arg, BaseSeries):
+        raise TypeError(
+            f"invalid {context}:\n"
+            f"Expecting an ehrQL series, got type '{type(arg).__qualname__}'"
+        )
+
+
+def validate_patient_series(arg, context):
+    validate_ehrql_series(arg, context)
+    if not isinstance(arg, PatientSeries):
+        raise TypeError(
+            f"invalid {context}:\nExpecting a series with only one value per patient"
+        )
+
+
+def validate_patient_series_type(arg, types, context):
+    validate_patient_series(arg, context)
+    if arg._type not in types:
+        types_desc = humanize_list_of_types(types)
+        article = "an" if types_desc[0] in "aeiou" else "a"
+        raise TypeError(
+            f"invalid {context}:\n"
+            f"Expecting {article} {types_desc} series, got series of type"
+            f" '{arg._type.__qualname__}'",
+        )
+
+
+HUMAN_TYPES = {
+    bool: "boolean",
+    int: "integer",
+}
+
+
+def humanize_list_of_types(types):
+    type_names = [HUMAN_TYPES.get(type_, type_.__qualname__) for type_ in types]
+    initial = ", ".join(type_names[:-1])
+    return f"{initial} or {type_names[-1]}" if initial else type_names[-1]
 
 
 def modify_exception(exc):
