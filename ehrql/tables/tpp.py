@@ -221,6 +221,15 @@ class apcs(EventFrame):
             "and could represent an escalation/complication of initial reason for admission."
         ),
     )
+    secondary_diagnosis = Series(
+        ICD10Code,
+        description=(
+            "Code indicating secondary diagnosis. "
+            "This is a single code giving the first listed secondary diagnosis, "
+            "but there may other secondary diagnoses listed in the `all_diagnoses` "
+            "field below."
+        ),
+    )
     all_diagnoses = Series(
         str,
         description="Semicolon-separated list of all diagnosis codes.",

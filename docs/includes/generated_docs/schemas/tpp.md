@@ -353,6 +353,18 @@ Code indicating primary diagnosis. This is not necessarily the primary reason fo
 </div>
 
 <div markdown="block">
+  <dt id="apcs.secondary_diagnosis">
+    <strong>secondary_diagnosis</strong>
+    <a class="headerlink" href="#apcs.secondary_diagnosis" title="Permanent link">🔗</a>
+    <code>ICD-10 code</code>
+  </dt>
+  <dd markdown="block">
+Code indicating secondary diagnosis. This is a single code giving the first listed secondary diagnosis, but there may other secondary diagnoses listed in the `all_diagnoses` field below.
+
+  </dd>
+</div>
+
+<div markdown="block">
   <dt id="apcs.all_diagnoses">
     <strong>all_diagnoses</strong>
     <a class="headerlink" href="#apcs.all_diagnoses" title="Permanent link">🔗</a>
