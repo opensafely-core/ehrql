@@ -246,6 +246,7 @@ def test_apcs(select_all_tpp):
             APCS_Ident=1,
             Spell_PbR_CC_Day="5",
             Spell_Primary_Diagnosis="A1",
+            Spell_Secondary_Diagnosis="B1",
         ),
     )
     assert results == [
@@ -260,6 +261,7 @@ def test_apcs(select_all_tpp):
             "patient_classification": "X",
             "days_in_critical_care": 5,
             "primary_diagnosis": "A1",
+            "secondary_diagnosis": "B1",
         },
     ]
 
