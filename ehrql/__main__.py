@@ -303,10 +303,7 @@ def add_assure(subparsers, environ, user_args):
         "assure",
         help=strip_indent(
             """
-            Experimental command for running assurance tests.
-
-            Note that **this command is experimental** and not yet intended for widespread
-            use.
+            Command for running assurance tests.
             """
         ),
         formatter_class=RawTextHelpFormatter,
