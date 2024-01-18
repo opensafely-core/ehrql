@@ -57,7 +57,7 @@ Generate dummy tables and write them out as CSV files (one per table).
   <a href="#assure"><tt>assure</tt></a>
 </div>
 <p class="indent">
-Experimental command for running assurance tests.
+Command for running assurance tests.
 </p>
 
 <div class="attr-heading">
@@ -114,8 +114,9 @@ Show the exact version of ehrQL in use and then exit.
 </h2>
 ```
 ehrql generate-dataset DEFINITION_FILE [--help] [--output DATASET_FILE]
-      [--dummy-data-file DUMMY_DATA_FILE] [--dummy-tables DUMMY_TABLES_PATH]
-      [--dsn DSN] [--query-engine QUERY_ENGINE_CLASS] [--backend BACKEND_CLASS]
+      [--test-data-file TEST_DATA_FILE] [--dummy-data-file DUMMY_DATA_FILE]
+      [--dummy-tables DUMMY_TABLES_PATH] [--dsn DSN]
+      [--query-engine QUERY_ENGINE_CLASS] [--backend BACKEND_CLASS]
       [ -- ... PARAMETERS ...]
 ```
 Take a dataset definition file and output a dataset.
@@ -151,6 +152,15 @@ Path of the file where the dataset will be written (console by default).
 
 The file extension determines the file format used. Supported formats are:
 `.arrow`, `.csv`, `.csv.gz`
+
+</div>
+
+<div class="attr-heading" id="generate-dataset.test-data-file">
+  <tt>--test-data-file TEST_DATA_FILE</tt>
+  <a class="headerlink" href="#generate-dataset.test-data-file" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Takes a test dataset definition file.
 
 </div>
 
@@ -542,10 +552,7 @@ double-dash ` -- `.
 ```
 ehrql assure TEST_DATA_FILE [--help] [ -- ... PARAMETERS ...]
 ```
-Experimental command for running assurance tests.
-
-Note that **this command is experimental** and not yet intended for widespread
-use.
+Command for running assurance tests.
 
 <div class="attr-heading" id="assure.test_data_file">
   <tt>TEST_DATA_FILE</tt>

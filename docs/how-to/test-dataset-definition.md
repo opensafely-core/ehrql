@@ -172,12 +172,35 @@ test_data = {
 
 ## Running the tests
 
-Finally, you can run your assurance tests through the terminal using the command below to verify if your expectations were successful or failed.
-The results of your tests will be displayed in your terminal.
+Finally you can run your assurance tests to verify if your expectations were successful or failed.
+
+### Option 1: Running tests through the terminal
+
+To run your tests through the terminal, use the following command:
 
 ```
 opensafely exec ehrql:v1 assure analysis/test_dataset_definition.py
 ```
+
+### Option 2: Integrating tests into your `generate-dataset` action
+
+You can also run your tests every time you execute a `generate-dataset` action by providing your test file using the `--test-data-file` flag in the `project.yaml` file:
+
+```
+actions:
+  generate_dataset:
+    run: >
+        ehrql:v1 generate-dataset
+        analysis/dataset_definition.py
+        --test-data-file analysis/test_dataset_definition.py
+        --output outputs/dataset.arrow
+    outputs:
+      highly_sensitive:
+        population: outputs/dataset.arrow
+
+```
+
+## Interpreting the results
 
 ### Successful expectations
 
@@ -192,7 +215,7 @@ Validate results: All OK!
 
 #### Failed constraint validations
 
-If the test data you provided does not meet constraints you will see a message with more information.
+If the test data you provided does not meet the constraints you will see a message with more information.
 We recommend that you fix the errors so that the test data meets the constraints and is identical to the production data.
 However, if you are sure that you want to test your ehrQL query with values that do not to the constraints, you can ignore the '*Validate test data*' section of the message.
 

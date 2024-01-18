@@ -48,6 +48,7 @@ def generate_dataset(
     query_engine_class,
     dummy_tables_path,
     dummy_data_file,
+    test_data_file,
     environ,
     user_args,
 ):
@@ -55,6 +56,10 @@ def generate_dataset(
     variable_definitions, dummy_data_config = load_dataset_definition(
         definition_file, user_args, environ
     )
+
+    if test_data_file:
+        log.info(f"Testing dataset definition with tests in {str(definition_file)}")
+        assure(test_data_file, environ=environ, user_args=user_args)
 
     if dsn:
         generate_dataset_with_dsn(

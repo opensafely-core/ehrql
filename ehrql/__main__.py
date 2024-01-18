@@ -168,6 +168,15 @@ def add_generate_dataset(subparsers, environ, user_args):
         type=valid_output_path,
         dest="dataset_file",
     )
+    parser.add_argument(
+        "--test-data-file",
+        help=strip_indent(
+            """
+            Takes a test dataset definition file.
+            """
+        ),
+        type=existing_file,
+    )
     add_dummy_data_file_argument(parser, environ)
     add_dummy_tables_argument(parser, environ)
     add_dataset_definition_file_argument(parser, environ)
@@ -294,10 +303,7 @@ def add_assure(subparsers, environ, user_args):
         "assure",
         help=strip_indent(
             """
-            Experimental command for running assurance tests.
-
-            Note that **this command is experimental** and not yet intended for widespread
-            use.
+            Command for running assurance tests.
             """
         ),
         formatter_class=RawTextHelpFormatter,
