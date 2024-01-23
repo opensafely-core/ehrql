@@ -231,9 +231,9 @@ ghp-import==2.1.0 \
     --hash=sha256:8337dd7b50877f163d4c0289bc1f1c7f127550241988d568c1db512c4324a619 \
     --hash=sha256:9c535c4c61193c2df8871222567d7fd7e5014d835f97dc7b7439069e2413d343
     # via mkdocs
-hypothesis==6.92.3 \
-    --hash=sha256:5dc1949e0d070b19ffd54430eaaf51ca7cc5d8ee5e6e919eecdcfb50ffceb52d \
-    --hash=sha256:c719fe8f17e9d739b119484c03598d3cf7201a4df24df74619f092021edd3df6
+hypothesis==6.96.2 \
+    --hash=sha256:34b5fb4c487f159083fa5db186b4357b42a27e597795e9cbccead8cde0242060 \
+    --hash=sha256:524a0ac22c8dfff640f21f496b85ee193a470e8570ab7707b8e3bfccd7da34a6
     # via -r requirements.dev.in
 identify==2.5.31 \
     --hash=sha256:7736b3c7a28233637e3c36550646fc6389bedd74ae84cb788200cc8e2dd60b75 \
