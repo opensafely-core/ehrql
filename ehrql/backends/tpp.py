@@ -519,17 +519,18 @@ class TPPBackend(SQLBackend):
         )
 
         # We construct a medication dictionary table which combines the table provided
-        # by TPP (removing blank entries) with a custom dictionary we supply, taking
-        # care to remove any entries in our custom dictionary which are already defined
-        # in the TPP dictionary. If we didn't do this then duplicate entries would
-        # result in duplicate MedicationIssue rows when we do the join later.
+        # by TPP (removing entries with no dm+d mapping and entries with multiple dm+d
+        # mappings) with a custom dictionary we supply, taking care to remove any
+        # entries in our custom dictionary which are already defined in the TPP
+        # dictionary. If we didn't do this then duplicate entries would result in
+        # duplicate MedicationIssue rows when we do the join later.
         #
         # This query looks a bit gnarly, but MSSQL is sensible enough to just execute it
         # once and it performs significantly better than other approaches we've tried.
         medication_dictionary_query = f"""
             SELECT meds_dict.MultilexDrug_ID, meds_dict.DMD_ID
             FROM MedicationDictionary AS meds_dict
-            WHERE meds_dict.DMD_ID != ''
+            WHERE meds_dict.DMD_ID NOT IN ('', 'MULTIPLE_DMD_MAPPING')
 
             UNION ALL
 
@@ -539,7 +540,7 @@ class TPPBackend(SQLBackend):
               SELECT 1 FROM MedicationDictionary AS meds_dict
               WHERE
                 meds_dict.MultilexDrug_ID = cust_dict.MultilexDrug_ID
-                AND meds_dict.DMD_ID != ''
+                AND meds_dict.DMD_ID NOT IN ('', 'MULTIPLE_DMD_MAPPING')
             )
         """
 
