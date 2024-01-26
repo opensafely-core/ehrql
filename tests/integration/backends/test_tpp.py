@@ -1251,6 +1251,15 @@ def test_medications(select_all_tpp):
             ConsultationDate="2020-05-19T10:10:10",
             MultilexDrug_ID="6;0;0",
         ),
+        # MedicationIssue.MultilexDrug_ID found in both, but MedicationDictionary.DMD_ID
+        # is "MULTIPLE_DMD_MAPPING"; CustomMedicationDictionary.DMD_ID preferred
+        MedicationDictionary(MultilexDrug_ID="7;0;0", DMD_ID="MULTIPLE_DMD_MAPPING"),
+        CustomMedicationDictionary(MultilexDrug_ID="7;0;0", DMD_ID="700000"),
+        MedicationIssue(
+            Patient_ID=1,
+            ConsultationDate="2020-05-20T10:10:10",
+            MultilexDrug_ID="7;0;0",
+        ),
     )
     assert results == [
         {
@@ -1277,6 +1286,11 @@ def test_medications(select_all_tpp):
             "patient_id": 1,
             "date": date(2020, 5, 19),
             "dmd_code": None,
+        },
+        {
+            "patient_id": 1,
+            "date": date(2020, 5, 20),
+            "dmd_code": "700000",
         },
     ]
 
