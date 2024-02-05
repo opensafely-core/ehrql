@@ -293,6 +293,31 @@ class TPPBackend(SQLBackend):
         """
     )
 
+    covid_therapeutics_raw = QueryTable(
+        """
+        SELECT
+            Patient_ID AS patient_id,
+            COVID_indication AS covid_indication,
+            Count AS count,
+            CurrentStatus AS current_status,
+            Diagnosis AS diagnosis,
+            FormName AS form_name,
+            Intervention AS intervention,
+            CASIM05_date_of_symptom_onset,
+            CASIM05_risk_cohort,
+            MOL1_onset_of_symptoms,
+            MOL1_high_risk_cohort,
+            SOT02_onset_of_symptoms,
+            SOT02_risk_cohorts,
+            CAST(Received AS date) AS received,
+            CAST(TreatmentStartDate AS date) AS treatment_start_date,
+            AgeAtReceivedDate AS age_at_received_date,
+            Region AS region,
+            CONVERT(DATE, Der_LoadDate, 23) AS load_date
+        FROM Therapeutics
+        """
+    )
+
     ec = MappedTable(
         source="EC",
         columns={
