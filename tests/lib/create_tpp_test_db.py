@@ -6,6 +6,7 @@ Run this using:
 It will start an MSSQL Docker container, create all the tables in the TPP schema, and
 output the connection string needed to talk to this database.
 """
+
 from .tpp_schema import Base  # pragma: no cover
 
 

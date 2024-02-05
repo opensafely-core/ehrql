@@ -5,8 +5,7 @@ import sqlalchemy
 from ehrql.query_language import get_tables_from_namespace
 
 
-class ValidationError(Exception):
-    ...
+class ValidationError(Exception): ...
 
 
 class BaseBackend:

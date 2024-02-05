@@ -7,8 +7,7 @@ from ehrql.query_engines.mssql_dialect import SelectStarInto
 from ehrql.utils.mssql_log_utils import execute_with_log
 
 
-class Base(DeclarativeBase):
-    ...
+class Base(DeclarativeBase): ...
 
 
 class TableA(Base):

@@ -4,6 +4,7 @@ complete in that there are large areas of Python's type system which it doesn't 
 to handle. Its aim is to implement just enough behaviour to provide the validation
 needed by the Query Model.
 """
+
 import operator
 import typing
 from collections.abc import Mapping, Set

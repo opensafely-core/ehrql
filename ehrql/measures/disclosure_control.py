@@ -3,6 +3,7 @@
 For more information, see:
 https://docs.opensafely.org/releasing-files/
 """
+
 SUPPRESSION_THRESHOLD = 7
 ROUNDING_MULTIPLE = 5
 

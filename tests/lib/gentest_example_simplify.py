@@ -17,6 +17,7 @@ Usage looks like:
       repeated structure will need to be extracted by hand. To do this: copy the
       structure, assign it to a variable, and re-run the above command.
 """
+
 import argparse
 import ast
 import dataclasses

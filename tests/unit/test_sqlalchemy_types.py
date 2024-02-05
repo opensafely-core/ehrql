@@ -22,8 +22,7 @@ def test_type_from_python_type(type_, expected):
     assert type_from_python_type(type_) == expected
 
 
-class UnknownType:
-    ...
+class UnknownType: ...
 
 
 def test_type_from_python_type_raises_error_on_unknown_type():

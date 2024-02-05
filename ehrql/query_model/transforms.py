@@ -13,6 +13,7 @@ maintain separation of three types of concern:
 The transformations applied here are all about efficient execution, and therefore we
 want to keep them separate from the core query model classes.
 """
+
 from collections import defaultdict
 from collections.abc import Set
 from typing import Any
