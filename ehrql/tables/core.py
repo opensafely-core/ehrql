@@ -3,6 +3,7 @@ This schema defines the core tables and columns which should be available in any
 providing primary care data, allowing dataset definitions written using this schema to
 run across multiple backends.
 """
+
 import datetime
 
 from ehrql.codes import DMDCode, ICD10Code, SNOMEDCTCode

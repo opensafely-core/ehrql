@@ -3,6 +3,7 @@ This schema defines the data (both primary care and externally linked) available
 OpenSAFELY-TPP backend. For more information about this backend, see
 "[SystmOne Primary Care](https://docs.opensafely.org/data-sources/systmone/)".
 """
+
 import datetime
 
 from ehrql import case, when

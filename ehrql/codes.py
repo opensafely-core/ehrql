@@ -2,14 +2,14 @@
 We make each coding system a distinct type. The query model's type checking will then
 enforce that queries use the appropriate coding system for a given column.
 """
+
 import csv
 import dataclasses
 import re
 from pathlib import Path
 
 
-class CodelistError(ValueError):
-    ...
+class CodelistError(ValueError): ...
 
 
 @dataclasses.dataclass(frozen=True)

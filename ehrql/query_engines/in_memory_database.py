@@ -3,6 +3,7 @@ the in-memory engine.
 
 See tests in test_database.py for comprehensive examples of how this all works.
 """
+
 from collections import UserDict, defaultdict
 from dataclasses import dataclass
 

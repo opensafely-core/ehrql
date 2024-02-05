@@ -2,6 +2,7 @@
 This is a utility script which it's convenient to have sitting alongside the test it
 supports but which isn't actually executed by the test suite — hence the "no covers"
 """
+
 import shutil  # pragma: no cover
 import tarfile  # pragma: no cover
 from fnmatch import fnmatch  # pragma: no cover

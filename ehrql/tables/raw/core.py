@@ -7,6 +7,7 @@ The data provided by this schema are minimally transformed. They are very close 
 data provided by the underlying database tables. They are provided for data development
 and data curation purposes.
 """
+
 import datetime
 
 from ehrql.codes import ICD10Code

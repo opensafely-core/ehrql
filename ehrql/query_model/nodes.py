@@ -98,8 +98,7 @@ class Node:
         validate_node(self)
 
 
-class Frame(Node):
-    ...
+class Frame(Node): ...
 
 
 class Series(Node):
@@ -113,26 +112,21 @@ class Series(Node):
         return GenericAlias(cls, (type_,))
 
 
-class OneRowPerPatientFrame(Frame):
-    ...
+class OneRowPerPatientFrame(Frame): ...
 
 
-class ManyRowsPerPatientFrame(Frame):
-    ...
+class ManyRowsPerPatientFrame(Frame): ...
 
 
-class OneRowPerPatientSeries(Series):
-    ...
+class OneRowPerPatientSeries(Series): ...
 
 
-class ManyRowsPerPatientSeries(Series):
-    ...
+class ManyRowsPerPatientSeries(Series): ...
 
 
 # A OneRowPerPatientSeries which is the result of aggregating one or more
 # ManyRowsPerPatientSeries
-class AggregatedSeries(OneRowPerPatientSeries):
-    ...
+class AggregatedSeries(OneRowPerPatientSeries): ...
 
 
 # OPERATIONS
@@ -499,16 +493,14 @@ def validate_node(node):
             )
 
 
-class ValidationError(Exception):
-    ...
+class ValidationError(Exception): ...
 
 
 # DOMAIN VALIDATION
 #
 
 
-class DomainMismatchError(ValidationError):
-    ...
+class DomainMismatchError(ValidationError): ...
 
 
 def validate_input_domains(node):
