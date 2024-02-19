@@ -206,8 +206,13 @@ class ArrowDatasetReader(BaseDatasetReader):
                 f"Type mismatch in column '{name}': "
                 f"expected {spec.type}, got {column.type}"
             )
-        if pyarrow.types.is_dictionary(column.type) and spec.categories is not None:
-            column_categories = column.dictionary.to_pylist()
+        if spec.categories is not None:
+            if pyarrow.types.is_dictionary(column.type):
+                column_categories = column.dictionary.to_pylist()
+            else:
+                column_categories = sorted(
+                    {v for v in column.to_pylist() if v is not None}
+                )
             unexpected_categories = set(column_categories) - set(spec.categories)
             if unexpected_categories:
                 return (
