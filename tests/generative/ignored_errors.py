@@ -134,6 +134,12 @@ IGNORED_ERRORS = {
             sqlalchemy.exc.OperationalError,
             re.compile(".*do not support constants as ORDER BY clause expressions"),
         ),
+        (
+            sqlalchemy.exc.OperationalError,
+            re.compile(
+                ".*do not support integer indices as ORDER BY clause expressions"
+            ),
+        ),
     ],
     IgnoredError.CONNECTION_ERROR: [
         # Sometimes we lose connection to the database server in a way that isn't
