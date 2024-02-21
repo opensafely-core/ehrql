@@ -1,4 +1,5 @@
 import pyarrow.feather
+import pytest
 
 from ehrql.file_formats import write_dataset
 from ehrql.query_model.column_specs import ColumnSpec
@@ -34,3 +35,14 @@ def test_write_dataset_arrow(tmp_path):
     # This column has categories, but it's not a string so we shouldn't encode it as a
     # dictionary
     assert not pyarrow.types.is_dictionary(table.column("risk_score").type)
+
+
+def test_write_dataset_arrow_annotates_errors_with_column(tmp_path):
+    filename = tmp_path / "file.arrow"
+    column_specs = {
+        "value": ColumnSpec(int, min_value=0, max_value=100),
+    }
+    results = [(-1,)]
+    with pytest.raises(OverflowError) as exc:
+        write_dataset(filename, results, column_specs)
+    assert "Error when writing column 'value'" in exc.value.__notes__

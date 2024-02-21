@@ -87,15 +87,19 @@ def get_field_and_convertor(name, spec):
             index_type, value_type, spec.categories
         )
     else:
-        column_to_pyarrow = make_column_to_pyarrow(type_)
+        column_to_pyarrow = make_column_to_pyarrow(name, type_)
 
     field = pyarrow.field(name, type_, nullable=spec.nullable)
     return field, column_to_pyarrow
 
 
-def make_column_to_pyarrow(type_):
+def make_column_to_pyarrow(name, type_):
     def column_to_pyarrow(column):
-        return pyarrow.array(column, type=type_, size=len(column))
+        try:
+            return pyarrow.array(column, type=type_, size=len(column))
+        except Exception as exc:
+            exc.add_note(f"Error when writing column '{name}'")
+            raise exc
 
     return column_to_pyarrow
 
