@@ -46,3 +46,16 @@ def test_write_dataset_arrow_annotates_errors_with_column(tmp_path):
     with pytest.raises(OverflowError) as exc:
         write_dataset(filename, results, column_specs)
     assert "Error when writing column 'value'" in exc.value.__notes__
+
+
+def test_write_dataset_arrow_raises_helpful_dictionary_errors(tmp_path):
+    filename = tmp_path / "file.arrow"
+    column_specs = {
+        "category": ColumnSpec(str, categories=("A", "B", "C")),
+    }
+    results = [("D",)]
+    with pytest.raises(
+        ValueError,
+        match="Invalid value 'D' for column 'category'\nAllowed are: 'A', 'B', 'C'",
+    ):
+        write_dataset(filename, results, column_specs)

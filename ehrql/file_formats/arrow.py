@@ -84,7 +84,7 @@ def get_field_and_convertor(name, spec):
         value_type = type_
         type_ = pyarrow.dictionary(index_type, value_type, ordered=True)
         column_to_pyarrow = make_column_to_pyarrow_with_categories(
-            index_type, value_type, spec.categories
+            name, index_type, value_type, spec.categories
         )
     else:
         column_to_pyarrow = make_column_to_pyarrow(name, type_)
@@ -141,7 +141,7 @@ def smallest_int_type_for_range(minimum, maximum):
             assert False
 
 
-def make_column_to_pyarrow_with_categories(index_type, value_type, categories):
+def make_column_to_pyarrow_with_categories(name, index_type, value_type, categories):
     value_array = pyarrow.array(categories, type=value_type)
     # NULL values should remain NULL
     mapping = {None: None}
@@ -149,8 +149,14 @@ def make_column_to_pyarrow_with_categories(index_type, value_type, categories):
         mapping[category] = index
 
     def column_to_pyarrow(column):
-        indices = map(mapping.__getitem__, column)
-        index_array = pyarrow.array(indices, type=index_type, size=len(column))
+        try:
+            indices = map(mapping.__getitem__, column)
+            index_array = pyarrow.array(indices, type=index_type, size=len(column))
+        except KeyError as exc:
+            raise ValueError(
+                f"Invalid value {exc.args[0]!r} for column '{name}'\n"
+                f"Allowed are: {', '.join(map(repr, categories))}"
+            )
         # This looks a bit like we're including another copy of the `value_array` along
         # with each batch of results. However, Arrow only stores a single copy of this
         # and enforces that subsequent batches use the same set of values.
