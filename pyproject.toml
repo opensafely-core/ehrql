@@ -46,9 +46,7 @@ branch = true
 [tool.coverage.report]
 fail_under = 100
 skip_covered = true
-exclude_lines = [
-    # this is the default, but has to be included explicitly now we specify exclude_lines
-    "pragma: no cover",
+exclude_also = [
     # this indicates that the line should never be hit
     "assert False",
     # this condition is only true when a module is run as a script
@@ -112,6 +110,8 @@ exclude = [
   "tests/fixtures/bad_definition_files",
   "venv/",
 ]
+
+[tool.ruff.lint]
 extend-select = [
   "A", # flake8-builtins
   "I",  # isort
@@ -123,6 +123,4 @@ extend-select = [
 extend-ignore = [
   "E501"
 ]
-
-[tool.ruff.isort]
-lines-after-imports = 2
+isort.lines-after-imports = 2
