@@ -850,7 +850,7 @@ class TPPBackend(SQLBackend):
     )
 
     wl_clockstops = QueryTable(
-        """
+        f"""
             SELECT
                 Patient_ID AS patient_id,
                 ACTIVITY_TREATMENT_FUNCTION_CODE AS activity_treatment_function_code,
@@ -878,7 +878,9 @@ class TPPBackend(SQLBackend):
                 CONVERT(DATE, REFERRAL_TO_TREATMENT_PERIOD_END_DATE, 23) AS referral_to_treatment_period_end_date,
                 CONVERT(DATE, REFERRAL_TO_TREATMENT_PERIOD_START_DATE, 23) AS referral_to_treatment_period_start_date,
                 SOURCE_OF_REFERRAL_FOR_OUTPATIENTS AS source_of_referral_for_outpatients,
-                NULLIF(Waiting_List_Type, 'NULL') AS waiting_list_type,
+                CASE WHEN Waiting_List_Type IN
+                    {ehrql.tables.tpp.wl_clockstops._qm_node.schema.get_column_categories("waiting_list_type")}
+                    THEN Waiting_List_Type END AS waiting_list_type,
                 CONVERT(DATE, Week_Ending_Date, 23) AS week_ending_date
             FROM WL_ClockStops
         """
@@ -918,7 +920,7 @@ class TPPBackend(SQLBackend):
     )
 
     wl_openpathways = QueryTable(
-        """
+        f"""
             SELECT
                 Patient_ID AS patient_id,
                 ACTIVITY_TREATMENT_FUNCTION_CODE AS activity_treatment_function_code,
@@ -951,7 +953,9 @@ class TPPBackend(SQLBackend):
                 ) AS referral_to_treatment_period_end_date,
                 CONVERT(DATE, REFERRAL_TO_TREATMENT_PERIOD_START_DATE, 23) AS referral_to_treatment_period_start_date,
                 SOURCE_OF_REFERRAL AS source_of_referral,
-                NULLIF(Waiting_List_Type, 'NULL') AS waiting_list_type,
+                CASE WHEN Waiting_List_Type IN
+                    {ehrql.tables.tpp.wl_openpathways._qm_node.schema.get_column_categories("waiting_list_type")}
+                    THEN Waiting_List_Type END AS waiting_list_type,
                 CONVERT(DATE, Week_Ending_Date, 23) AS week_ending_date
             FROM WL_OpenPathways
         """

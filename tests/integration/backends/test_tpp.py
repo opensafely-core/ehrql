@@ -1907,6 +1907,14 @@ def test_wl_clockstops(select_all_tpp):
             Waiting_List_Type="ORTT",
             Week_Ending_Date="2024-03-03",
         ),
+        # Test that unrecognised priority type codes and waiting list types are treated
+        # as NULL
+        WL_ClockStops(
+            Patient_ID=1,
+            PRIORITY_TYPE_CODE="10",
+            Referral_Request_Received_Date="2024-02-01",
+            Waiting_List_Type="Unrecognised",
+        ),
     )
     assert results == [
         {
@@ -1924,7 +1932,21 @@ def test_wl_clockstops(select_all_tpp):
             "source_of_referral_for_outpatients": "",
             "waiting_list_type": "ORTT",
             "week_ending_date": date(2024, 3, 3),
-        }
+        },
+        {
+            "patient_id": 1,
+            "activity_treatment_function_code": None,
+            "priority_type_code": None,
+            "pseudo_organisation_code_patient_pathway_identifier_issuer": None,
+            "pseudo_patient_pathway_identifier": None,
+            "pseudo_referral_identifier": None,
+            "referral_request_received_date": date(2024, 2, 1),
+            "referral_to_treatment_period_end_date": None,
+            "referral_to_treatment_period_start_date": None,
+            "source_of_referral_for_outpatients": None,
+            "waiting_list_type": None,
+            "week_ending_date": None,
+        },
     ]
 
 
@@ -1985,8 +2007,16 @@ def test_wl_openpathways(select_all_tpp):
             REFERRAL_TO_TREATMENT_PERIOD_END_DATE="9999-12-31",
             REFERRAL_TO_TREATMENT_PERIOD_START_DATE="2024-03-02",
             SOURCE_OF_REFERRAL="",
-            Waiting_List_Type="IRTT",
+            Waiting_List_Type="ONON",
             Week_Ending_Date="2024-03-03",
+        ),
+        # Test that unrecognised priority type codes and waiting list types are treated
+        # as NULL
+        WL_OpenPathways(
+            Patient_ID=1,
+            PRIORITY_TYPE_CODE="10",
+            REFERRAL_REQUEST_RECEIVED_DATE="2024-02-01",
+            Waiting_List_Type="Unrecognised",
         ),
     )
     assert results == [
@@ -2004,9 +2034,24 @@ def test_wl_openpathways(select_all_tpp):
             "referral_to_treatment_period_end_date": None,
             "referral_to_treatment_period_start_date": date(2024, 3, 2),
             "source_of_referral": "",
-            "waiting_list_type": "IRTT",
+            "waiting_list_type": "ONON",
             "week_ending_date": date(2024, 3, 3),
-        }
+        },
+        {
+            "patient_id": 1,
+            "activity_treatment_function_code": None,
+            "current_pathway_period_start_date": None,
+            "priority_type_code": None,
+            "pseudo_organisation_code_patient_pathway_identifier_issuer": None,
+            "pseudo_patient_pathway_identifier": None,
+            "pseudo_referral_identifier": None,
+            "referral_request_received_date": date(2024, 2, 1),
+            "referral_to_treatment_period_end_date": None,
+            "referral_to_treatment_period_start_date": None,
+            "source_of_referral": None,
+            "waiting_list_type": None,
+            "week_ending_date": None,
+        },
     ]
 
 

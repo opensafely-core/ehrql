@@ -1287,7 +1287,14 @@ class wl_clockstops(EventFrame):
     )
     priority_type_code = Series(
         str,
-        description="The priority type",
+        description="""
+            The priority type.
+
+            Note that a small number of rows contain values which are not in the list
+            below. These are converted to NULL in this representation of the data. If
+            you need to access the original values, please see the corresponding [raw
+            table](../raw.tpp/#wl_clockstops).
+        """,
         constraints=[Constraint.Categorical(["routine", "urgent", "two week wait"])],
     )
     pseudo_organisation_code_patient_pathway_identifier_issuer = Series(str)
@@ -1311,8 +1318,19 @@ class wl_clockstops(EventFrame):
     source_of_referral_for_outpatients = Series(str)
     waiting_list_type = Series(
         str,
-        description="The waiting list type on completion of the pathway",
-        constraints=[Constraint.Categorical(["ORTT", "IRTT"])],
+        description="""
+            The waiting list type on completion of the pathway.
+
+            Note that a small number of rows contain values which are not in the list
+            below. These are converted to NULL in this representation of the data. If
+            you need to access the original values, please see the corresponding [raw
+            table](../raw.tpp/#wl_clockstops).
+        """,
+        constraints=[
+            Constraint.Categorical(
+                ["ORTT", "IRTT", "PTLO", "PTLI", "RTTO", "RTTI"],
+            )
+        ],
     )
     week_ending_date = Series(
         datetime.date,
@@ -1356,7 +1374,14 @@ class wl_openpathways(EventFrame):
     )
     priority_type_code = Series(
         str,
-        description="The priority type",
+        description="""
+            The priority type.
+
+            Note that a small number of rows contain values which are not in the list
+            below. These are converted to NULL in this representation of the data. If
+            you need to access the original values, please see the corresponding [raw
+            table](../raw.tpp/#wl_openpathways).
+        """,
         constraints=[Constraint.Categorical(["routine", "urgent", "two week wait"])],
     )
     pseudo_organisation_code_patient_pathway_identifier_issuer = Series(str)
@@ -1390,7 +1415,19 @@ class wl_openpathways(EventFrame):
     )
     waiting_list_type = Series(
         str,
-        constraints=[Constraint.Categorical(["ORTT", "IRTT", "ONON", "INON"])],
+        description="""
+            The waiting list type.
+
+            Note that a small number of rows contain values which are not in the list
+            below. These are converted to NULL in this representation of the data. If
+            you need to access the original values, please see the corresponding [raw
+            table](../raw.tpp/#wl_openpathways).
+        """,
+        constraints=[
+            Constraint.Categorical(
+                ["ORTT", "IRTT", "ONON", "INON", "PTLO", "PTLI", "RTTO", "RTTI"]
+            )
+        ],
     )
     week_ending_date = Series(
         datetime.date,

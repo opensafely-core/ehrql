@@ -2700,7 +2700,12 @@ The treatment function
     <code>string</code>
   </dt>
   <dd markdown="block">
-The priority type
+The priority type.
+
+Note that a small number of rows contain values which are not in the list
+below. These are converted to NULL in this representation of the data. If
+you need to access the original values, please see the corresponding [raw
+table](../raw.tpp/#wl_clockstops).
 
  * Possible values: `routine`, `urgent`, `two week wait`
   </dd>
@@ -2797,9 +2802,14 @@ Clock start for the completed pathway
     <code>string</code>
   </dt>
   <dd markdown="block">
-The waiting list type on completion of the pathway
+The waiting list type on completion of the pathway.
 
- * Possible values: `ORTT`, `IRTT`
+Note that a small number of rows contain values which are not in the list
+below. These are converted to NULL in this representation of the data. If
+you need to access the original values, please see the corresponding [raw
+table](../raw.tpp/#wl_clockstops).
+
+ * Possible values: `ORTT`, `IRTT`, `PTLO`, `PTLI`, `RTTO`, `RTTI`
   </dd>
 </div>
 
@@ -2877,7 +2887,12 @@ Latest clock start for this pathway period
     <code>string</code>
   </dt>
   <dd markdown="block">
-The priority type
+The priority type.
+
+Note that a small number of rows contain values which are not in the list
+below. These are converted to NULL in this representation of the data. If
+you need to access the original values, please see the corresponding [raw
+table](../raw.tpp/#wl_openpathways).
 
  * Possible values: `routine`, `urgent`, `two week wait`
   </dd>
@@ -2975,9 +2990,14 @@ National referral source code for the referral that created the original pathway
     <code>string</code>
   </dt>
   <dd markdown="block">
+The waiting list type.
 
+Note that a small number of rows contain values which are not in the list
+below. These are converted to NULL in this representation of the data. If
+you need to access the original values, please see the corresponding [raw
+table](../raw.tpp/#wl_openpathways).
 
- * Possible values: `ORTT`, `IRTT`, `ONON`, `INON`
+ * Possible values: `ORTT`, `IRTT`, `ONON`, `INON`, `PTLO`, `PTLI`, `RTTO`, `RTTI`
   </dd>
 </div>
 
