@@ -1312,7 +1312,11 @@ class wl_clockstops(EventFrame):
     waiting_list_type = Series(
         str,
         description="The waiting list type on completion of the pathway",
-        constraints=[Constraint.Categorical(["ORTT", "IRTT"])],
+        constraints=[
+            Constraint.Categorical(
+                ["ORTT", "IRTT", "PTLO", "PTLI", "RTTO", "RTTI"],
+            )
+        ],
     )
     week_ending_date = Series(
         datetime.date,
@@ -1390,7 +1394,11 @@ class wl_openpathways(EventFrame):
     )
     waiting_list_type = Series(
         str,
-        constraints=[Constraint.Categorical(["ORTT", "IRTT", "ONON", "INON"])],
+        constraints=[
+            Constraint.Categorical(
+                ["ORTT", "IRTT", "ONON", "INON", "PTLO", "PTLI", "RTTO", "RTTI"]
+            )
+        ],
     )
     week_ending_date = Series(
         datetime.date,
