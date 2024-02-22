@@ -1,0 +1,21 @@
+code,term
+C18,Malignant neoplasm of colon
+C180,Malignant neoplasm: Caecum
+C181,Malignant neoplasm: Appendix
+C182,Malignant neoplasm: Ascending colon
+C183,Malignant neoplasm: Hepatic flexure
+C184,Malignant neoplasm: Transverse colon
+C185,Malignant neoplasm: Splenic flexure
+C186,Malignant neoplasm: Descending colon
+C187,Malignant neoplasm: Sigmoid colon
+C188,Malignant neoplasm: Overlapping lesion of colon
+C189,"Malignant neoplasm: Colon, unspecified"
+C19,Malignant neoplasm of rectosigmoid junction
+C20,Malignant neoplasm of rectum
+C21,Malignant neoplasm of anus and anal canal
+C210,"Malignant neoplasm: Anus, unspecified"
+C211,Malignant neoplasm: Anal canal
+C212,Malignant neoplasm: Cloacogenic zone
+C218,"Malignant neoplasm: Overlapping lesion of rectum, anus and anal canal"
+C785,Secondary malignant neoplasm of large intestine and rectum
+D374,Neoplasm of uncertain or unknown behaviour: Colon

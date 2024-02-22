@@ -1,0 +1,208 @@
+code,term
+102613000,Localized abdominal pain
+102614006,Generalized abdominal pain
+102615007,Ulcer-type pain
+102627005,Liver tender
+1119211005,Tenderness of left abdominal lumbar region
+1119212003,Tenderness of right abdominal lumbar region
+111985007,Chronic abdominal pain
+116290004,Acute abdominal pain
+139307001,Non-colicky abdominal pain
+139308006,Shoulder pain from abdomen
+139313005,Abdominal pain
+139316002,Pain: [site of GIT] or [abdominal site symptom] or [flank] or [subcostal] or [iliac fossa]
+139326009,Generalised abdominal pain
+140477009,O/E - liver tender
+158498003,[D]Abdominal pain
+158499006,[D]Acute abdomen
+158504006,[D]Abdominal cramps
+158512003,[D]Abdominal pain NOS
+162038003,Non-colicky abdominal pain
+162039006,Referred pain in shoulder from abdomen
+162042000,Abdominal wall pain
+162045003,Pain: [GIT site] or [abdominal] or [flank] or [subcostal] or [iliac fossa]
+162046002,Central abdominal pain
+162047006,Left subcostal pain
+162048001,Right subcostal pain
+162049009,Left flank pain
+162050009,Right flank pain
+162051008,Right iliac fossa pain
+162052001,Left iliac fossa pain
+162053006,Suprapubic pain
+163214004,On examination - abdominal pain - right hypochondrium
+163215003,On examination - abdominal pain - epigastrium
+163216002,On examination - abdominal pain - left hypochondrium
+163217006,On examination - abdominal pain - right lumbar
+163218001,On examination - abdominal pain - umbilical
+163219009,On examination - abdominal pain - left lumbar
+163220003,On examination - abdominal pain - right iliac
+163221004,On examination - abdominal pain - hypogastrium
+163222006,On examination - abdominal pain - left iliac
+163224007,On examination - guarding on palpation
+163226009,On examination - guarding - right hypochondrium
+163227000,On examination - guarding - epigastrium
+163228005,On examination - guarding - left hypochondrium
+163229002,On examination - guarding - right lumbar
+163230007,On examination - guarding - umbilical
+163231006,On examination - guarding - left lumbar
+163232004,On examination - guarding - right iliac
+163233009,On examination - guarding - hypogastrium
+163234003,On examination - guarding - left iliac
+163236001,On examination - rebound tenderness
+163238000,On examination - rebound - right hypochondrium
+163239008,On examination - rebound - epigastrium
+163240005,On examination - rebound-left hypochondrium
+163241009,On examination - rebound - right lumbar
+163242002,On examination - rebound - umbilical
+163243007,On examination - rebound - left lumbar
+163244001,On examination - rebound - right iliac
+163245000,On examination - rebound - hypogastrium
+163246004,On examination - rebound - left iliac
+163247008,On examination - rebound tenderness NOS
+163248003,On examination - abdominal rigidity
+163250006,O/E abdomen: [board like rigidity] or [acute]
+163251005,On examination - abdominal rigidity NOS
+163267004,On examination - liver tender
+164167004,On examination - painful splenomegaly
+196791007,Appendicular colic
+199150000,Abdominal pain in pregnancy
+207127000,[D]Gas pain (abdominal)
+207205003,[D]Abdominal pain
+207206002,[D]Abdominal tenderness
+207207006,[D]Abdominal colic
+207210004,[D]Abdominal cramps
+207211000,[D]Epigastric pain
+207212007,[D]Umbilical pain
+207213002,[D]Hypochondrial pain
+207214008,[D]Suprapubic pain
+207215009,[D]Pain in right iliac fossa
+207216005,[D]Pain in left iliac fossa
+207218006,[D]Loin pain
+207220009,[D]Recurrent acute abdominal pain
+207221008,[D]Acute abdomen
+207228002,[D]Nonspecific abdominal pain
+207229005,[D]Other specified abdominal pain
+207230000,[D]Abdominal pain NOS
+207251002,[D]Abdominal rigidity
+207255006,[D]Acute abdomen
+207588000,[X]Pain localized to other parts of lower abdomen
+21005005,Burning epigastric pain
+21522001,Abdominal pain
+235841007,Chronic nonspecific abdominal pain
+247351001,Generalised abdominal pain
+247352008,Subcostal pain
+247353003,Site of abdominal pain
+247354009,Iliac fossa pain
+247355005,Flank pain
+247361008,Evening colic
+247362001,Pain on abdominal wall movement
+25451005,Board-like abdominal rigidity
+267050002,Site of gastrointestinal tract pain
+268941000,On examination - abdominal pain on palpation
+268942007,On examination - board-like abdominal rigidity
+269021002,Abdomen: [O/E - board like rigidity] or [acute]
+271852000,Stomach cramps
+271853005,Hypochondrial pain
+271857006,Loin pain
+271858001,Recurrent acute abdominal pain
+271859009,Other specified abdominal pain
+272047006,Complaining of loin pain
+274256007,[D]Colic
+274277005,Complaining of right iliac fossa pain
+274278000,Complaining of left iliac fossa pain
+274287009,On examination - abdominal pain
+274288004,On examination - epigastric pain
+274289007,On examination - iliac pain - abdominal
+274290003,On examination - lumbar pain abdominal
+274291004,On examination - umbilical pain - abdominal
+274670001,Pain localized to other parts of lower abdomen
+275315004,On examination - iliac pain on palpation
+275316003,On examination - lumbar pain on palpation
+285387005,Left sided abdominal pain
+285388000,Right sided abdominal pain
+289842007,Ovary tender
+297123002,Adnexal tenderness
+300348008,Gallbladder tender
+300446008,Kidney tender
+300459000,Bladder tender
+300566002,Spleen tender
+301367001,Right hypochondrial pain
+301368006,Left hypochondrial pain
+301403003,Tenderness of epigastrium
+301404009,Tenderness of right hypochondrium
+301405005,Tenderness of left hypochondrium
+301406006,Tenderness of central region
+301407002,Tenderness of right lumbar
+301408007,Tenderness of left lumbar
+301409004,Tenderness of hypogastrium
+301410009,Tenderness of right iliac fossa
+301411008,Tenderness of left iliac fossa
+301412001,Rebound tenderness of epigastrium
+301413006,Rebound tenderness of right hypochondrium
+301414000,Rebound tenderness of left hypochondrium
+301415004,Rebound tenderness of central region
+301416003,Rebound tenderness of right lumbar
+301417007,Rebound tenderness of left lumbar
+301418002,Rebound tenderness of hypogastrium
+301419005,Rebound tenderness of right iliac fossa
+301420004,Rebound tenderness of left iliac fossa
+301715003,Left upper quadrant pain
+301716002,Left lower quadrant pain
+301717006,Right upper quadrant pain
+301754002,Right lower quadrant pain
+304542004,Nonspecific abdominal pain
+307722004,[D] Right upper quadrant pain
+307724003,[D] Left upper quadrant pain
+307725002,[D] Upper abdominal pain
+308903002,On examination - epigastric pain on palpation
+309737007,Abdominal pain in pregnancy
+311811005,[D]Left lower quadrant pain
+311812003,[D]Right lower quadrant pain
+311813008,[D]Nonspecific abdominal pain
+314041007,Abdominal pain in early pregnancy
+314212008,Abdominal pain - cause unknown
+35611005,Rebound tenderness
+364761006,Finding of site of gastrointestinal tract pain
+371094000,Colicky hypogastric pain
+371102005,Generalized colicky abdominal pain
+37389005,Biliary colic
+38654001,Recurrent biliary colic
+425834005,Pain radiating to right flank
+425860006,Pain radiating to lower abdomen
+426466001,Pain radiating to left flank
+427075000,Pain radiating to upper abdomen
+427668002,Pain radiating to middle abdomen
+43478001,Abdominal tenderness
+438506002,Visceral abdominal pain
+438509009,Abdominal rigidity of right lower quadrant
+438512007,Abdominal rigidity of periumbilical region
+438774001,Abdominal rigidity of epigastrium
+439469002,Recurrent abdominal pain
+439582007,Abdominal rigidity of left upper quadrant
+439593009,Abdominal rigidity of left lower quadrant
+439774009,Tenderness of left lower quadrant of abdomen
+440122009,Generalized abdominal rigidity
+440220007,Generalized abdominal tenderness
+443503005,Periumbilical pain
+444746004,Acute exacerbation of chronic abdominal pain
+445386003,Tenderness of periumbilical region
+448265002,Tenderness of right upper quadrant of abdomen
+448660000,Tenderness of left upper quadrant of abdomen
+448661001,Tenderness of right lower quadrant of abdomen
+449092006,Abdominal rigidity of right upper quadrant
+45979003,Abdominal wind pain
+51197009,Stomach cramps
+54586004,Lower abdominal pain
+60043000,Midabdominal crampy pain
+707597009,Continuous abdominal pain of left lower quadrant
+71850005,Abdominal pain worse on motion
+72300008,Abdominal rigidity
+74704000,Abdominal pain through to back
+79922009,Epigastric pain
+83132003,Upper abdominal pain
+833290005,Rebound tenderness of umbilical region
+838410008,Pain in epigastric region on palpation
+86208007,Loin pain-hematuria syndrome
+88522004,Umbilical pain
+9209005,Acute abdomen
+9991008,Abdominal colic

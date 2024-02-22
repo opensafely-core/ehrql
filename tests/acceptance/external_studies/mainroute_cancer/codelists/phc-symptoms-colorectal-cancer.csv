@@ -1,0 +1,494 @@
+code,term
+102613000,Localized abdominal pain
+102614006,Generalized abdominal pain
+102615007,Ulcer-type pain
+102627005,Liver tender
+1085891000119100,Rectal hemorrhage due to Crohn's disease of small intestine
+11003002,Nervous diarrhea
+111360009,Obstipation
+1119211005,Tenderness of left abdominal lumbar region
+1119212003,Tenderness of right abdominal lumbar region
+111985007,Chronic abdominal pain
+116289008,Abdominal bloating
+116290004,Acute abdominal pain
+12063002,Rectal hemorrhage
+125661000119107,Biliary colic with obstruction
+128333008,Diarrheal disorder
+129585003,Perceived constipation
+1339004,Removal of impacted feces
+136571000119109,Adult colic
+136801000119102,Therapeutic opioid induced constipation
+137891000119105,Abdominal colic in adult or child greater than 12 months
+139089007,Weight decreasing
+139091004,Weight loss (& abnormal)
+139307001,Non-colicky abdominal pain
+139308006,Shoulder pain from abdomen
+139313005,Abdominal pain
+139316002,Pain: [site of GIT] or [abdominal site symptom] or [flank] or [subcostal] or [iliac fossa]
+139326009,Generalised abdominal pain
+139330007,Nausea
+139332004,Nausea present
+139334003,Nausea NOS
+139343007,Abdominal distension symptom
+139345000,Abdomen feels bloated
+139347008,Abdomen feels swollen
+139348003,Abd. distension symptom NOS
+139374009,Altered bowel function
+140477009,O/E - liver tender
+140488003,O/E abdominal mass: [palpated] or [size]
+140498009,Epigastric mass
+140500005,O/E - abd. mass palpated NOS
+140501009,O/E-abdominal mass consistency
+140506004,O/E - abd.mass consistency NOS
+140507008,O/E - abdominal mass shape
+140510001,O/E - abd. mass shape NOS
+140546005,O/E - dullness over abd. mass
+14384003,Postprandial diarrhea
+144842009,Faeces consistency:semi-fluid
+14760008,Constipation
+15699003,Secretory diarrhea
+158271000,[D]Abnormal loss of weight
+158421000,[D]Nausea
+158436002,[D]Bloating
+158498003,[D]Abdominal pain
+158499006,[D]Acute abdomen
+158504006,[D]Abdominal cramps
+158512003,[D]Abdominal pain NOS
+158519007,"[D]Swelling, mass or lump within abdomen or pelvis"
+158520001,[D]Abdominal mass
+158521002,[D]Abdominal lump
+158526007,[D]Umbilical mass
+158527003,[D]Umbilical lump
+161832001,Weight decreasing
+161834000,Abnormal weight loss (& [symptom])
+162038003,Non-colicky abdominal pain
+162039006,Shoulder pain from abdomen
+162042000,Abdominal wall pain
+162045003,Pain: [GIT site] or [abdominal] or [flank] or [subcostal] or [iliac fossa]
+162046002,Central abdominal pain
+162047006,Left subcostal pain
+162048001,Right subcostal pain
+162049009,Left flank pain
+162050009,Right flank pain
+162051008,Right iliac fossa pain
+162052001,Left iliac fossa pain
+162053006,Suprapubic pain
+162055004,Nausea
+162057007,Nausea present
+162060000,Nausea NOS
+162068007,Abdominal distension symptom
+162070003,Abdomen feels bloated
+162072006,Abdomen feels swollen
+162073001,Abdominal distension symptom NOS
+162074007,Flatulence &/or wind (& [symptom: [belching] or [bloating] or [eructation] or [flatulence] or [wind]])
+162103003,Diarrhoea (& symptoms) or loose stools
+163203002,On examination - uniform abdominal swelling
+163214004,On examination - abdominal pain - right hypochondrium
+163215003,On examination - abdominal pain - epigastrium
+163216002,On examination - abdominal pain - left hypochondrium
+163217006,On examination - abdominal pain - right lumbar
+163218001,On examination - abdominal pain - umbilical
+163219009,On examination - abdominal pain - left lumbar
+163220003,On examination - abdominal pain - right iliac
+163221004,On examination - abdominal pain - hypogastrium
+163222006,On examination - abdominal pain - left iliac
+163224007,On examination - guarding on palpation
+163226009,On examination - guarding - right hypochondrium
+163227000,On examination - guarding - epigastrium
+163228005,On examination - guarding - left hypochondrium
+163229002,On examination - guarding - right lumbar
+163230007,On examination - guarding - umbilical
+163231006,On examination - guarding - left lumbar
+163232004,On examination - guarding - right iliac
+163233009,On examination - guarding - hypogastrium
+163234003,On examination - guarding - left iliac
+163236001,On examination - rebound tenderness
+163238000,On examination - rebound - right hypochondrium
+163239008,On examination - rebound - epigastrium
+163240005,On examination - rebound-left hypochondrium
+163241009,On examination - rebound - right lumbar
+163242002,On examination - rebound - umbilical
+163243007,On examination - rebound - left lumbar
+163244001,On examination - rebound - right iliac
+163245000,On examination - rebound - hypogastrium
+163246004,On examination - rebound - left iliac
+163247008,On examination - rebound tenderness NOS
+163248003,On examination - abdominal rigidity
+163250006,O/E abdomen: [board like rigidity] or [acute]
+163251005,On examination - abdominal rigidity NOS
+163267004,On examination - liver tender
+163278007,On examination - abdominal mass palpated
+163280001,On examination - abdominal mass less than 1 quadrant
+163283004,On examination - abdominal mass fills abdomen
+163285006,Right iliac fossa mass
+163287003,Epigastric mass
+163289000,On examination - abdominal mass palpated NOS
+163290009,On examination - abdominal mass consistency
+163292001,On examination - abdominal mass - hard
+163293006,On examination - abdominal mass-very hard
+163295004,On examination - abdominal mass consistency NOS
+163296003,On examination - abdominal mass shape
+163297007,On examination - abdominal mass - regular shape
+163299005,On examination - abdominal mass shape NOS
+163302005,On examination - abdominal mass movement with respiration
+163303000,On examination - abdominal mass still with respiration
+163305007,On examination - abdominal mass -border defined
+163306008,On examination - abdominal mass - upper border defined
+163307004,On examination - abdominal mass - lower border defined
+163329000,On examination - Per rectum - rectum full of feces
+163335000,On examination - tympany over abdominal mass
+163336004,On examination - dullness over abdominal mass
+163890000,On examination - defecation reflex abnormal - constipated
+164167004,On examination - painful splenomegaly
+164451000000109,Painful rectal bleeding
+164461000000107,Painless rectal bleeding
+167616008,Feces consistency:semi-fluid
+16932000,Nausea and vomiting
+171731000000100,Painful rectal bleeding
+171741000000109,Painless rectal bleeding
+174297001,Manual removal of impacted feces from rectum
+187284001,[X]Diarrhea and gastroenteritis of presumed infectious origin
+191127009,Anaemia due to chronic blood loss: [iron deficiency] or [normocytic]
+191128004,Iron deficiency anemia due to dietary causes
+191135007,Chlorotic anemia
+191408005,[X]Other iron deficiency anemias
+191971009,(Psychogenic diarrhoea) or (spurious diarrhoea)
+196791007,Appendicular colic
+197119006,Acute constipation
+197120000,Chronic constipation without overflow
+197125005,Irritable bowel syndrome with diarrhea
+198511000000103,Complaining of weight loss
+199150000,Abdominal pain in pregnancy
+206915006,[D]Anorexia
+206916007,[D]Appetite loss
+206917003,[D]Anorexia NOS
+206919000,[D]Abnormal loss of weight
+207110008,[D]Nausea and vomiting
+207111007,[D]Nausea
+207116002,[D]Nausea and vomiting NOS
+207127000,[D]Gas pain (abdominal)
+207129002,[D]Bloating
+207145000,[D] Stools loose
+207147008,[D]Change in bowel habit
+207205003,[D]Abdominal pain
+207206002,[D]Abdominal tenderness
+207207006,[D]Abdominal colic
+207210004,[D]Abdominal cramps
+207211000,[D]Epigastric pain
+207212007,[D]Umbilical pain
+207213002,[D]Hypochondrial pain
+207214008,[D]Suprapubic pain
+207215009,[D]Pain in right iliac fossa
+207216005,[D]Pain in left iliac fossa
+207218006,[D]Loin pain
+207220009,[D]Recurrent acute abdominal pain
+207221008,[D]Acute abdomen
+207228002,[D]Nonspecific abdominal pain
+207229005,[D]Other specified abdominal pain
+207230000,[D]Abdominal pain NOS
+207237002,"[D]Swelling, mass or lump within abdomen or pelvis"
+207239004,([D]Abdominal mass) or (lump stomach)
+207240002,[D]Abdominal lump
+207245007,[D]Umbilical mass
+207246008,[D]Umbilical lump
+207251002,[D]Abdominal rigidity
+207255006,[D]Acute abdomen
+207588000,[X]Pain localized to other parts of lower abdomen
+21005005,Burning epigastric pain
+213791000000109,Complaining of weight loss
+213801000000108,Complaining of weight loss
+21522001,Abdominal pain
+21782001,Drug-induced constipation
+234351006,Iron deficiency anaemia due to chronic blood loss
+235841007,Chronic nonspecific abdominal pain
+236069009,Chronic constipation
+236070005,Simple constipation
+236077008,Protracted diarrhea
+23712001,Abnormal decrease in weight
+239231000000106,Pain radiating to left flank
+239271000000108,Pain radiating to lower abdomen
+239291000000107,Pain radiating to middle abdomen
+239321000000102,Pain radiating to right flank
+239381000000101,Pain radiating to upper abdomen
+247351001,Generalised abdominal pain
+247352008,Subcostal pain
+247353003,Site of abdominal pain
+247354009,Iliac fossa pain
+247355005,Flank pain
+247361008,Evening colic
+247362001,Pain on abdominal wall movement
+248490000,Bloating symptom
+249468005,Anorexia symptom
+249469002,No interest in food
+249470001,Cannot face food
+249471002,Loss of appetite - symptom
+249517009,Constipation alternates with diarrhea
+249519007,Diarrhea and vomiting
+249619001,Loose stool
+25451005,Board-like abdominal rigidity
+266464001,Hemorrhage of rectum and anus
+267024001,Abnormal weight loss
+267050002,Site of gastrointestinal tract pain
+267060006,Diarrhea symptom
+267158006,Weight loss (& abnormal)
+268651002,Psychogenic diarrhea
+268941000,On examination - abdominal pain on palpation
+268942007,On examination - board-like abdominal rigidity
+269021002,Abdomen: [O/E - board like rigidity] or [acute]
+269023004,O/E abdominal mass: [palpated] or [size]
+269813009,Appetite loss - anorexia
+271103001,[D]Abdominal mass
+271852000,Stomach cramps
+271853005,Hypochondrial pain
+271857006,Loin pain
+271858001,Recurrent acute abdominal pain
+271859009,Other specified abdominal pain
+271860004,Abdominal mass
+272043005,Nausea
+272047006,Complaining of loin pain
+274256007,[D]Colic
+274277005,Complaining of right iliac fossa pain
+274278000,Complaining of left iliac fossa pain
+274287009,On examination - abdominal pain
+274288004,On examination - epigastric pain
+274289007,On examination - iliac pain - abdominal
+274290003,On examination - lumbar pain abdominal
+274291004,On examination - umbilical pain - abdominal
+274293001,On examination - abdominal mass - size
+274294007,On examination - abdominal mass movement
+274670001,Pain localized to other parts of lower abdomen
+274719002,"Intra-abdominal and pelvic swelling, mass and lump"
+274757002,Umbilical lump
+274758007,Umbilical mass
+275297005,"Diarrhea and vomiting, symptom"
+275315004,On examination - iliac pain on palpation
+275316003,On examination - lumbar pain on palpation
+28221000119103,Abdominal muscle pain
+285387005,Left sided abdominal pain
+285388000,Right sided abdominal pain
+289842007,Ovary tender
+29162007,Fecal impaction of colon
+2919008,"Nausea, vomiting and diarrhea"
+296871000000108,Tenderness of abdomen on percussion
+297123002,Adnexal tenderness
+2981001,Pulsatile mass of abdomen
+300348008,Gallbladder tender
+300402000,Uniform abdominal distention
+300404004,Visible abdominal mass
+300446008,Kidney tender
+300459000,Bladder tender
+300566002,Spleen tender
+300576004,Finding of nausea
+301367001,Right hypochondrial pain
+301368006,Left hypochondrial pain
+301403003,Tenderness of epigastrium
+301404009,Tenderness of right hypochondrium
+301405005,Tenderness of left hypochondrium
+301406006,Tenderness of central region
+301407002,Tenderness of right lumbar
+301408007,Tenderness of left lumbar
+301409004,Tenderness of hypogastrium
+301410009,Tenderness of right iliac fossa
+301411008,Tenderness of left iliac fossa
+301412001,Rebound tenderness of epigastrium
+301413006,Rebound tenderness of right hypochondrium
+301414000,Rebound tenderness of left hypochondrium
+301415004,Rebound tenderness of central region
+301416003,Rebound tenderness of right lumbar
+301417007,Rebound tenderness of left lumbar
+301418002,Rebound tenderness of hypogastrium
+301419005,Rebound tenderness of right iliac fossa
+301420004,Rebound tenderness of left iliac fossa
+301715003,Left upper quadrant pain
+301716002,Left lower quadrant pain
+301717006,Right upper quadrant pain
+301754002,Right lower quadrant pain
+304542004,Nonspecific abdominal pain
+307134002,Iliac fossa abdominal mass
+307135001,Left iliac fossa mass
+307722004,[D] Right upper quadrant pain
+307724003,[D] Left upper quadrant pain
+307725002,[D] Upper abdominal pain
+308903002,On examination - epigastric pain on palpation
+309082002,Epigastric mass
+309737007,Abdominal pain in pregnancy
+311811005,[D]Left lower quadrant pain
+311812003,[D]Right lower quadrant pain
+311813008,[D]Nonspecific abdominal pain
+312355005,On examination - left lower abdominal mass
+313280002,Manual evacuation of feces from rectum
+314041007,Abdominal pain in early pregnancy
+314212008,Abdominal pain - cause unknown
+314603004,Anterior abdominal wall mass
+31499008,Chronic constipation with overflow
+34167008,Loose stool
+35298007,Slow transit constipation
+35611005,Rebound tenderness
+364761006,Finding of site of gastrointestinal tract pain
+371094000,Colicky hypogastric pain
+371102005,Generalized colicky abdominal pain
+371315009,Iron deficiency anemia secondary to inadequate dietary iron intake
+37389005,Biliary colic
+38654001,Recurrent biliary colic
+390251000000109,[D]Abdominal pain NOS
+39161000000101,Decrease in appetite
+39261000119104,"Left lower quadrant abdominal swelling, mass, or lump"
+397761000000103,[X]Other iron deficiency anaemias
+398032003,Loose stool
+400471000000109,[D]Nausea and vomiting NOS
+404200001,Central abdominal mass
+407373009,Bovine coronoviral diarrhea
+409587002,Severe diarrhea
+413533008,Anemia due to chronic blood loss
+41421000000102,Decrease in appetite
+414991007,Painful rectal bleeding
+414992000,Painless rectal bleeding
+418013002,Defecation reflex abnormal - constipated
+422587007,Nausea
+422868009,Unexplained weight loss
+425721000000101,[D]Nausea and vomiting NOS
+425834005,Pain radiating to right flank
+425860006,Pain radiating to lower abdomen
+42626004,Iron deficiency anemia secondary to chronic blood loss
+426466001,Pain radiating to left flank
+427075000,Pain radiating to upper abdomen
+427668002,Pain radiating to middle abdomen
+430097009,Constipation due to spasm of colon
+43240000,Diarrhea of presumed infectious origin
+432414001,Constipation due to atony of colon
+432541000000106,[D]Anorexia NOS
+432994008,Constipation due to neurogenic bowel
+43478001,Abdominal tenderness
+438506002,Visceral abdominal pain
+438509009,Abdominal rigidity of right lower quadrant
+438512007,Abdominal rigidity of periumbilical region
+438774001,Abdominal rigidity of epigastrium
+439469002,Recurrent abdominal pain
+439582007,Abdominal rigidity of left upper quadrant
+439593009,Abdominal rigidity of left lower quadrant
+439774009,Tenderness of left lower quadrant of abdomen
+440122009,Generalized abdominal rigidity
+440220007,Generalized abdominal tenderness
+44252001,Blood loss anemia
+443503005,Periumbilical pain
+444651000000101,[D]Abdominal pain NOS
+444746004,Acute exacerbation of chronic abdominal pain
+445386003,Tenderness of periumbilical region
+44635007,Fecal impaction
+448265002,Tenderness of right upper quadrant of abdomen
+448660000,Tenderness of left upper quadrant of abdomen
+448661001,Tenderness of right lower quadrant of abdomen
+448765001,Unintentional weight loss
+448772000,Mass of abdominal cavity structure
+449092006,Abdominal rigidity of right upper quadrant
+451151000000109,[D]Anorexia NOS
+45925007,Enema for removal of impacted feces
+45979003,Abdominal wind pain
+462851000000101,[X]Pain localised to other parts of lower abdomen
+46641000000101,Decrease in appetite
+468471000000105,[X]Diarrhea and gastroenteritis of presumed infectious origin
+496871000000107,[D]Anorexia
+496881000000109,[D]Appetite loss
+496901000000107,[D]Abnormal loss of weight
+498391000000103,[D]Nausea and vomiting
+498401000000100,[D]Nausea
+498521000000105,[D]Gas pain (abdominal)
+498651000000101,[D]Stools loose
+498661000000103,[D]Change in bowel habit
+499111000000101,[D]Abdominal pain
+499121000000107,[D]Abdominal tenderness
+499131000000109,[D]Abdominal colic
+499151000000102,[D]Abdominal cramps
+499161000000104,[D]Epigastric pain
+499171000000106,[D]Umbilical pain
+499181000000108,[D]Hypochondrial pain
+499191000000105,[D]Suprapubic pain
+499201000000107,[D]Pain in right iliac fossa
+499211000000109,[D]Pain in left iliac fossa
+499231000000101,[D]Loin pain
+499251000000108,[D]Recurrent acute abdominal pain
+499261000000106,[D]Acute abdomen
+499281000000102,[D]Other specified abdominal pain
+499351000000100,[D]Abdominal lump
+499401000000106,[D]Umbilical mass
+499411000000108,[D]Umbilical lump
+499451000000107,[D]Abdominal rigidity
+502101000000100,[D]Abdominal mass
+502571000000104,[D]Right upper quadrant pain
+502581000000102,[D]Left upper quadrant pain
+502591000000100,[D]Upper abdominal pain
+502821000000101,[D]Left lower quadrant pain
+502831000000104,[D]Right lower quadrant pain
+502841000000108,[D]Nonspecific abdominal pain
+511461000000103,Unexplained weight loss
+51197009,Stomach cramps
+54586004,Lower abdominal pain
+564321000000100,On examination - abdominal rigidity NOS
+564361000000108,On examination - abdominal mass palpated NOS
+564371000000101,On examination - abdominal mass consistency NOS
+568991000000107,On examination - abdominal mass shape NOS
+571611000000105,Hemorrhage of rectum and anus NOS
+58230007,Alteration in bowel elimination: constipation
+582731000000109,Site of gastrointestinal tract pain NOS
+582741000000100,Nausea NOS
+583831000000109,Abdominal distension symptom NOS
+598461000000107,Iron deficiency anemia NOS
+60043000,Midabdominal crampy pain
+610661000000100,Other specified iron deficiency anemia NOS
+610671000000107,Unspecified iron deficiency anemia
+612951000000108,On examination - rebound tenderness NOS
+62315008,Diarrhea
+64379006,Decrease in appetite
+64679001,Coronaviral calf diarrhea
+660811000000104,Other specified constipation
+661301000000100,Other specified iron deficiency anemia
+667301000000109,Pain localized to other parts of lower abdomen
+685501000000109,Diarrhea symptom NOS
+695831000000102,Other specified abdominal pain
+698861005,Intractable nausea and vomiting
+699205002,Involuntary weight loss
+69980003,Non-infective diarrhea
+70506007,Neonatal calf diarrhea
+707597009,Continuous abdominal pain of left lower quadrant
+707831000000103,Chronic constipation
+717948004,Acquired iron deficiency anemia due to increased iron requirement
+71850005,Abdominal pain worse on motion
+721690003,Acute hemorrhagic ulcer of rectum
+722005000,Iron-refractory iron deficiency anemia
+72300008,Abdominal rigidity
+724388006,Mass of abdominal wall
+724556004,Iron deficiency anemia due to blood loss
+724557008,Acquired iron deficiency anemia due to decreased absorption
+73149003,Encopresis with constipation AND overflow incontinence
+73335002,Increased nausea and vomiting
+73879007,Nausea
+74704000,Abdominal pain through to back
+768571000000103,Unintentional weight loss
+768581000000101,Unintentional weight loss 
+778641000000100,Adnexal tenderness
+78901000000106,Decrease in appetite
+79800001,Epidemic diarrheal disease of infant mouse
+79890006,Loss of appetite
+79922009,Epigastric pain
+80126007,Plummer-Vinson syndrome
+827110005,Soft mass of abdomen
+827116004,Mass fills one quadrant of abdomen
+827118003,Mass fills two quadrants of abdomen
+827121001,Mass of left lower quadrant of abdomen
+827123003,Irregular shape of mass of abdomen
+82934008,Chronic idiopathic constipation
+83132003,Upper abdominal pain
+833290005,Rebound tenderness of umbilical region
+838410008,Pain in epigastric region on palpation
+840332001,Dullness over mass of abdomen
+84454003,Abdominal mass
+85920003,Constipation due to outlet obstruction
+86208007,Loin pain-hematuria syndrome
+87522002,Iron deficiency anemia
+88111009,Altered bowel function
+88522004,Umbilical pain
+9209005,Acute abdomen
+95544006,Inflammatory diarrhea
+95545007,Hemorrhagic diarrhea
+981008,Hemorrhagic proctitis
+9991008,Abdominal colic
