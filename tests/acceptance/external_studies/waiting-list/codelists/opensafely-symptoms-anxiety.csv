@@ -1,0 +1,671 @@
+code,term
+1004004007,Primary tocophobia
+1004005008,Secondary tocophobia
+1010649005,Acute vestibular syndrome due to anxiety and fear
+102497008,Symptoms of stress
+102912007,Fear of death
+102913002,Taphophobia
+102914008,Fear of transport
+102915009,Nosophobia
+102916005,Arachnophobia
+102917001,Fear of blood
+102918006,Microphobia
+102919003,Fear of infection
+102920009,Fear of contracting human immunodeficiency virus infection
+102921008,Toxicophobia
+102922001,Tocophobia
+102923006,Teratophobia
+102924000,Pyrophobia
+102925004,Astrapophobia
+102926003,Brontophobia
+102927007,Nyctophobia
+102928002,Theophobia
+102929005,Androphobia
+102930000,Gynephobia
+102931001,Fear of heart attack
+102932008,Fear of hypertension
+1037451000000103,Referral for psychological management of anxiety
+1037461000000100,Referral for psychological management of anxiety 
+1037471000000107,Referral for psychological management of anxiety declined
+1037481000000109,Referral for psychological management of anxiety declined 
+105485001,Family tension
+10586006,Occupation-related stress disorder
+1069071000000102,Does not manage stress
+1075351000000100,Unable to manage stress
+109006,Anxiety disorder of childhood OR adolescence
+11003002,Nervous diarrhea
+110357006,Unrealistic dental phobia
+110358001,Heightened global phobia
+111475002,Neurosis
+111487009,Dream anxiety disorder
+111511000000106,Fear of getting cancer
+112079000,Adjustment reaction of late life
+11458009,"Anticipatory anxiety, mild"
+117961000000109,Fear of getting cancer
+11806006,Separation anxiety disorder of childhood
+126943008,Separation anxiety
+129605006,Postgastrectomy neurosis
+129632001,General adaptation syndrome
+129869000,Death anxiety
+1325321000000108,Anxiety related to clinical environment
+13438001,Overanxious disorder of childhood
+13448004,Nervousness
+1380006,Agoraphobia without history of panic disorder with limited symptom attacks
+138233000,At work: [problems] or [sexual problems] or [bullied] or [stress] or [worries]
+139475009,Nervousness
+139476005,Anxiousness (& symptom)
+139491007,Fear
+139495003,Stress-related problem
+139598003,Anxious cognitions
+139945005,O/E - afraid
+139948007,O/E - anxious
+139949004,O/E - nervous
+1402001,Fear
+151811000119109,Health condition feared but not present
+154881002,Neurotic disorder
+154882009,(Anxiety state (& [states] or [panic attack])) or (pseudocyesis)
+154884005,Phobic anxiety disorder
+154885006,Agoraphobia
+154886007,Claustrophobia
+154887003,Other phobias
+154888008,Obsessional neurosis
+154889000,Depression: [reactive (neurotic)] or [postnatal]
+154890009,(Nervous debility - neurasthenia) or (nervous exhaustion) or (TATT - tired all the time)
+154893006,(Writer's cramp - psych) or (other neurotic disorders)
+154922007,Cardiac neurosis
+154928006,Night terrors
+154942003,Adjustment disorder
+154959008,Acute reaction to stress (& [post-traumatic] or [shell-shock])
+154964007,Mixed anxiety and depressive disorder
+155252003,Phonophobia
+158735002,[D]Nervousness
+15936461000119100,Stressful work schedule
+15977008,Adjustment disorder with academic inhibition
+16039007,Hysterical amnesia
+160834007,(Domestic: [stress] or [problems] or [unsettled]) or (tower block syndrome) or (wife unable to cope)
+160913004,At work: [problems] or [sexual problems] or [bullied] or [stress] or [worries]
+162191009,"[""Nerves""] or [nervousness] or [nervous tension]"
+162192002,Anxiousness (& symptom)
+162212008,(Fear) or (frightened) or (apprehension)
+162218007,Stress-related problem
+162326001,Worried
+16264621000119109,Recurrent mild major depressive disorder co-occurrent with anxiety
+16264821000119108,Recurrent severe major depressive disorder co-occurrent with anxiety
+16264901000119109,Recurrent moderate major depressive disorder co-occurrent with anxiety
+16265701000119107,Illness anxiety disorder
+16265951000119109,Mild major depressive disorder co-occurrent with anxiety single episode
+16266831000119100,Moderate major depressive disorder co-occurrent with anxiety single episode
+16266991000119108,Severe major depressive disorder co-occurrent with anxiety single episode
+162720009,On examination - afraid
+162723006,On examination - anxious
+162724000,On examination - nervous
+163610003,"Condition, insight present: [neurotic] or [psychotic]"
+163611004,Poor insight into condition: [neurotic] or [psychotic]
+165601000000107,Needle phobia
+17226007,Adjustment disorder
+17402007,Pavor diurnus
+1816003,"Panic disorder with agoraphobia, severe agoraphobic avoidance AND mild panic attacks"
+18193002,Hypochondriasis
+18478005,Adjustment disorder with physical complaints
+186751000000109,O/E - panic attack
+186761000000107,O/E - fearful mood
+186841000000104,O/E - hypervigilance
+190191000000103,O/E - panic attack
+190201000000101,O/E - fearful mood
+190281000000106,O/E - hypervigilance
+191703000,Anxiety disorder
+191704006,Anxiety state unspecified
+191705007,(Panic disorder) or (panic attack)
+191706008,Generalised anxiety disorder
+191707004,Mixed anxiety and depressive disorder
+191708009,Chronic anxiety
+191709001,Recurrent anxiety
+191711005,Anxiety state NOS
+191712003,Hysteria unspecified
+191713008,Dissociative tremor
+191714002,Dissociative convulsions
+191715001,(Hysterical astasia) or (hysterical abasia) or (globus hystericus) or (other conversion disorder)
+191719007,(Hysterical aphonia) or (hysterical ataxia) or (Ganser's syndrome) or (hysteria NOS)
+191720001,Phobic disorders (& [social] or [phobic anxiety])
+191721002,Phobia unspecified
+191722009,Agoraphobia with panic attacks
+191723004,Agoraphobia without mention of panic attacks
+191724005,"Social phobia, fear of eating in public"
+191725006,"Social phobia, fear of public speaking"
+191726007,"Social phobia, fear of public washing"
+191728008,Fear of crowds
+191729000,Fear of flying
+191730005,Cancer phobia
+191731009,Dental phobia
+191732002,Fear of death
+191733007,Fear of pregnancy
+191736004,Obsessive-compulsive disorder
+191737008,Compulsive neurosis
+191738003,Obsessional neurosis
+191740008,(Neurotic depression reactive type) or (postnatal depression)
+191741007,(Neurasthenia - nervous debility) or (nervous exhaustion) or
+191742000,Other neurotic disorders
+191745003,Other occupational neurosis
+191746002,Psychasthenic neurosis
+191747006,Other neurotic disorder NOS
+191748001,(Neurotic disorder NOS) or (nervous breakdown)
+191960008,Cardiac neurosis
+191961007,Cardiac neurosis
+191963005,Cardiac neurosis
+191972002,Psychogenic dyspepsia
+192002003,Night terrors
+192036009,Acute reaction to stress (& [combat fatigue])
+192037000,Acute panic state due to acute stress reaction
+192038005,Acute fugue state due to acute stress reaction
+192039002,Acute stupor state due to acute stress reaction
+192040000,Other acute stress reactions
+192043003,Other acute stress reaction NOS
+192045005,(Examination fear) or (flying phobia) or (stage fright) or (acute stress reaction NOS)
+192046006,Brief depressive adjustment reaction
+192049004,Prolonged depressive adjustment reaction
+192050004,Adjustment reaction with predominant disturbance of other emotions
+192055009,Adjustment reaction with disturbance of other emotion NOS
+192056005,Adjustment reaction with aggression
+192057001,Adjustment reaction with antisocial behavior
+192058006,Adjustment reaction with destructiveness
+192059003,Adjustment reaction with predominant disturbance of conduct NOS
+192060008,Other adjustment reactions
+192063005,Adjustment reaction with physical symptoms
+192064004,Elective mutism due to an adjustment reaction
+192067006,Other adjustment reactions NOS
+192068001,Adjustment reaction NOS
+192108001,Disturbance of anxiety and fearfulness in childhood and adolescence
+192109009,Childhood overanxious disorder
+192110004,Childhood and adolescent fearfulness disturbance
+192111000,Disturbance of anxiety and fearfulness in childhood and adolescence NOS
+192392004,"[X]Neurotic, stress-related and somatoform disorders"
+192393009,[X]Phobic anxiety disorders
+192394003,[X] Agoraphobia (& [without history of panic disorder] or [with panic disorder])
+192395002,Social phobia
+192396001,[X] Specific (isolated) phobias (& [acrophobia] or [animal] or [claustrophobia] or [simple phobia])
+192397005,[X]Other phobic anxiety disorders
+192398000,"[X]Phobic anxiety disorder, unspecified"
+192399008,[X]Other anxiety disorders
+192400001,[X]Panic disorder [episodic paroxysmal anxiety]
+192401002,Generalised anxiety disorder
+192402009,[X]Mixed anxiety and depressive disorder (& mild anxiety depression)
+192403004,[X]Other mixed anxiety disorders
+192404005,[X] Anxiety disorders: [other specified] or [anxiety hysteria]
+192405006,"[X]Anxiety disorder, unspecified"
+192412002,Stress and adjustment reaction
+192414001,[X] Acute stress reaction (& [crisis reaction] or [crisis state] or [psychic shock] or [combat fatigue])
+192416004,[X] Adjustment disorders (& [culture shock] or [grief reaction] or [hospitalism in children])
+192417008,[X]Other reactions to severe stress
+192418003,"[X]Reaction to severe stress, unspecified"
+192434000,[X] Somatoform autonomic dysfunction (& named variants)
+192438002,[X]Other neurotic disorders
+192441006,[X]Neurotic disorders: [Briquet's disorder] or [Dhat syndrome] or [occupational neurosis including writer's cramp] or [psychasthenia] or [psychogenic syncope]
+192442004,"[X]Neurotic disorder, unspecified"
+192458001,Night terrors
+192459009,[X] Nightmares or dream anxiety disorder
+192494002,"[X]Personality disorder, unspecified"
+192606001,[X] Mixed disorders of conduct and emotions: [other] or [associated with neurotic disorder]
+192610003,[X]Separation anxiety disorder of childhood
+192611004,Childhood phobic anxiety disorder
+192612006,[X] Social anxiety disorder of childhood (avoidant disorder)
+192614007,[X] Childhood emotional disorder: [other] or [identity disorder] or [overanxious disorder]
+19512009,Fear of insects
+197480006,Anxiety disorder
+19766004,"Panic disorder with agoraphobia, mild agoraphobic avoidance AND severe panic attacks"
+198280005,Parasitophobia
+198288003,Anxiety state
+19887002,Claustrophobia
+199101000000102,Referral for guided self-help for anxiety
+206773000,[D]Malaise and fatigue NOS
+206798004,"[X]State of emotional shock and stress, unspecified"
+207363009,Anxiety neurosis
+207556008,[D]Nervousness
+207572000,[D]Undue concern and preoccupation with stressful events
+207614000,"[X]State of emotional shock and stress, unspecified"
+214311000000102,Referral for guided self-help for anxiety
+214321000000108,Referral for guided self-help for anxiety
+21897009,Generalized anxiety disorder
+224974006,Feeling stressed
+225216003,Acknowledging anxiety
+225624000,Panic attack
+225625004,Fear of walking
+225626003,Fear of mobilizing
+225627007,Fear of disconnection from ventilator
+225629005,Fear of being left alone
+225630000,Fear of dentist
+225631001,Fear of not coping with treatment
+225632008,Fear of lifts
+225633003,Fear of thunderstorm
+225634009,Terrified
+225635005,Anxiety about treatment
+225637002,Anxiety about loss of control
+225638007,Anxiety about resuming sexual relations
+225639004,Worried about not coping with baby
+225640002,Worried about being a bad father
+225641003,Worried about being a bad mother
+225642005,Anxiety about not coping with parenthood
+225643000,Anxiety about making mistakes
+225644006,Anxiety about altered body image
+225645007,Fear of wetting self in public
+225646008,Fear of losing control of bowels in public
+225977007,Alleviating anxiety
+228364009,Feels afraid of being an alcoholic
+23085004,Increased stress
+231501003,Needle phobia
+231502005,Situational panic attack
+231503000,Non-situational panic attack
+231504006,Mixed anxiety and depressive disorder
+231506008,Anxiety hysteria
+231508009,Examination fear
+231509001,Dissociative astasia-abasia
+232143002,Functional paralysis of accommodation
+235657005,Sepsis-related gastritis
+23871000119106,Somnambulism co-occurrent with sleep terror disorder
+238961003,Trichophobia
+238962005,Parasitophobia
+238963000,Parasitophobia
+238965007,Venereophobia
+238966008,Syphilophobia
+238976006,Bromisodrophobia
+24109003,Bromhidrosiphobia
+246494000,Physiological stress used
+247649009,Anxious cognitions
+247805009,Anxiety and fear
+247808006,Anxiety about body function or health
+247809003,Fear of losing control of bowels
+247810008,Fear of wetting self
+247811007,Fear of vomiting in public
+247812000,Fear of having a fit
+247813005,Fear of choking
+247814004,Anxiety about blushing
+247815003,Fear of swallowing
+247816002,Fear of collapsing
+247817006,Fear of fainting
+247818001,Fear of having a heart attack
+247819009,Fear of shaking
+247820003,Fear of sweating
+247821004,Fear of dying
+247822006,Fear of going crazy
+247823001,Fear of losing emotional control
+247824007,Fear of becoming fat
+247825008,Anxiety about behavior or performance
+247826009,Fear of appearing ridiculous
+247827000,Fear of saying the wrong thing
+247828005,Fear of going out
+247829002,Fear of empty streets
+247830007,Fear of open spaces
+247831006,Fear of crossing streets
+247832004,Social fear
+247833009,Fear of activities in public
+247834003,Fear of eating in public
+247835002,Fear of public speaking
+247836001,Fear of using public toilets
+247837005,Fear of writing in public
+247838000,Fear of social group activities
+247839008,Fear of being in a small group
+247840005,Fear of social gatherings
+247841009,Fear of speaking on the phone
+247842002,Fear of speaking to people in authority
+247843007,Fear of being laughed at
+247844001,Fear of being watched
+247845000,Specific fear
+247846004,Fear of natural phenomena
+247847008,Fear of the dark
+247848003,Fear of animals
+247849006,Fear of feathers
+247850006,Fear of enclosed spaces
+247851005,Fear of tunnels
+247852003,Fear of phone boxes
+247853008,Fear of flying
+247854002,Flying phobia
+247855001,Fear associated with illness and body function
+247856000,Fear of anesthetic
+247857009,Fear of general anesthetic
+247858004,Fear of awareness under general anesthetic
+247859007,Fear of not waking from general anesthetic
+247861003,Fear of local anesthetic
+247862005,Fear of problem after anesthetic
+247863000,Fear of needles
+247864006,Fear of surgical masks
+247865007,Fear of hospitals
+247866008,Fear of contracting disease
+247868009,Fear of contracting venereal disease
+247869001,Fear of contracting radiation sickness
+247870000,Fear of the bogey man
+247871001,Fear of ghosts
+248023002,Histrionic behavior
+248265004,Work stress
+25501002,Social phobia
+260759008,Physiological stress
+262188008,Stress
+266950007,Stress at home
+267074004,Fear
+268627007,Panic disorder
+268629005,Hysteria NOS
+268632008,Neurotic disorder NOS
+268657003,Acute stress reaction NOS
+268714001,[X]Other specified anxiety disorders
+268720000,[X]Other specified neurotic disorders
+268752000,(Anxiety state (& [states] or [panic attack])) or (pseudocyesis)
+268753005,Depression: [reactive (neurotic)] or [postnatal]
+268754004,(Nervous debility - neurasthenia) or (nervous exhaustion) or (TATT - tired all the time)
+268755003,(Writer's cramp - psych) or (other neurotic disorders)
+268781004,(Homesickness) or (adjustment reaction NOS)
+268791005,Acute reaction to stress (& [post-traumatic] or [shell-shock])
+268957000,"Neurotic condition, insight present"
+268958005,Poor insight into neurotic condition
+269034001,Insight present: [neurotic cond.] or [psychotic cond.]
+269035000,Poor insight: [neurotic con] or [psychosis]
+271947006,School phobia
+271952001,Stress and adjustment reaction
+274653009,Undue concern and preoccupation with stressful events
+275370001,Hydrophobia
+276074009,Stress at work
+276241001,Fear of heights
+276242008,Fear of water
+27720003,Dermatitis factitia
+277816006,Fear relating to body function
+277818007,Anxiety about losing control of bowels
+277819004,Anxiety about wetting self
+277820005,Anxiety about vomiting in public
+277821009,Anxiety about having a fit
+277822002,Anxiety about choking
+277823007,Anxiety about swallowing
+277824001,Anxiety about collapsing
+277825000,Anxiety about shaking
+277826004,Anxiety about sweating
+277827008,Anxiety about dying
+277828003,Anxiety about going crazy
+277829006,Anxiety about losing emotional control
+277831002,Anxiety about becoming fat
+277833004,Anxiety about fainting
+277834005,Anxiety about having a heart attack
+277838008,Anxiety about appearing ridiculous
+277839000,Anxiety about saying the wrong thing
+277840003,Fear of crowds
+27816006,Hysterical trance
+279119006,Fearful
+279622009,Performance anxiety
+279926005,Fear of needles
+280946004,Occupational neurosis
+280947008,Examination phobia
+286544004,Panic
+286545003,Fear of birds
+286568007,Fear associated with healthcare
+286696007,High level of neuroticism
+286697003,Moderate level of neuroticism
+286710008,Anxious character
+286711007,Over-anxious character
+286712000,Fearful character
+288241000119105,Fear of bridges
+288251000119107,Fear of injury
+30059008,"Panic disorder with agoraphobia, severe agoraphobic avoidance AND moderate panic attacks"
+300895004,Anxiety attack
+300930008,Cancer phobia
+301376008,Fearful with pain
+30319004,Gross stress reaction
+304871006,Anxious avoidant attachment
+304896009,Castration anxiety complex
+307526003,Other phobias
+313224008,Dysmorphophobia
+313387002,Phonophobia
+31492004,Fear of school
+316156004,[V]Stressful work schedule
+316428004,"[V]Person with feared complaint, no diagnosis made"
+316808008,[X]Other stressful life events affecting family and household
+323331000000106,Anxiety about loss of memory
+323341000000102,Anxiety about lethargy
+323351000000104,Anxiety about mood
+32880007,Adjustment disorder with work inhibition
+34563004,Fear of getting cancer
+34631000,Administration of vaccine product containing only Rabies lyssavirus antigen
+34652008,Xenophobia
+348651000000104,Flooding - agoraphobia
+34938008,Anxiety disorder caused by alcohol
+351861000000106,Stranger anxiety
+35429005,Anticipatory anxiety
+35607004,Panic disorder with agoraphobia
+3586005,Psychogenic fugue
+36646009,"Anticipatory anxiety, moderate"
+367104001,Fear of flying
+367487002,Transient situational disturbance
+367545001,Fearful mood
+370565006,Fear-related aggression
+370567003,Noise phobia
+371631005,Panic disorder
+37746008,Avoidant personality disorder
+37868008,Anxiety disorder of adolescence
+38237000,Feeling anxious
+38617005,Dental phobia
+386808001,Phobia
+386810004,Phobic disorder
+386821008,Adjustment reaction in infancy
+386822001,Adjustment reaction of adolescence
+386823006,Adjustment reaction of adult life
+386824000,Adjustment reaction of childhood
+386825004,Adjustment reaction of late life
+389332001,Feeling stressed
+389383001,Worried well
+389988004,School phobia
+390065007,Feeling stressed
+390114002,Worried well
+390939005,Worried well
+392722005,C/O - panic attack
+393574003,Needle phobia
+393677002,C/O - panic attack
+39471000000100,Specific fear
+39481000000103,Fear of falling
+395017009,Complaining of panic attack
+39638009,Perception hysteria
+397775001,Fear of transport
+398304003,Fear of traveling in vehicles
+398391000000107,[X]Other neurotic disorders
+399341000000107,"[X]State of emotional shock and stress, unspecified"
+399651000000100,[X]Separation anxiety disorder of childhood
+400161000000108,"[V]Person with feared complaint, no diagnosis made"
+401269004,Fear of falling
+402191000000101,[X] Anxiety disorders: [other specified] or [anxiety hysteria]
+402941000000109,"[X]Neurotic, stress-related and somatoform disorders"
+402951000000107,[X]Other phobic anxiety disorders
+403592009,Acarophobia
+403593004,Phobic fear of skin cancer
+404910002,Fear of falling while mobilizing
+405050007,Level of fear
+405051006,Level of anxiety
+405053009,Level of fear: child
+405064007,Self-control behavior: anxiety
+405066009,Self-control behavior: fear
+40544009,Increased stress tolerance
+406180005,Relocation stress reduction
+41191000000105,Panic attack
+41201000000107,Chronic anxiety
+41211000000109,Recurrent anxiety
+413981000000109,[X] Mixed disorders of conduct and emotions: [other] or [associated with neurotic disorder]
+415011000000100,[X]Other reactions to severe stress
+415136009,Ponophobia
+416621000000108,[X]Panic disorder [episodic paroxysmal anxiety]
+417007008,On examination - hypervigilance
+41731000000108,Specific fear
+41741000000104,Fear of falling
+417620007,On examination - fearful mood
+417676004,On examination - panic attack
+41897001,Psychic shock
+422761005,Difficulty managing stress
+423752000,Hypervigilant behavior
+424009001,Fears delivery procedure
+424196004,Feeling nervous
+424271007,Hysterical cataplexy
+424958004,Fear of reaction regarding family planning choices
+425131000,Nervous tension
+42543008,Decreased stress tolerance
+425914008,Adjustment reaction to medical therapy
+426174008,Chronic stress disorder
+429791000000100,[X]Other stressful life events affecting family and household
+431432003,Anxiety about loss of memory
+43150009,Panic disorder without agoraphobia with severe panic attacks
+439576009,Fear of drinking liquids due to dysphagia
+440575001,Aerophobia
+442347009,Emotional stress
+443381000000103,"[X]Neurotic disorder, unspecified"
+44376007,Dissociative disorder
+450751000000102,"[X]Anxiety disorder, unspecified"
+452141000000102,[X]Other specified neurotic disorders
+45471000000101,Fear of falling
+455231000000107,[V]Stressful work schedule
+456571000000100,"[X]State of emotional shock and stress, unspecified"
+46219009,Neurocirculatory asthenia
+463761000000103,[D]Malaise and fatigue NOS
+464911000000101,"[X]Phobic anxiety disorder, unspecified"
+466091000000103,"[X]Reaction to severe stress, unspecified"
+466871000000109,[X]Neurotic disorders: [Briquet's disorder] or [Dhat syndrome] or [occupational neurosis including writer's cramp] or [psychasthenia] or [psychogenic syncope]
+467131000000103,"[X]Personality disorder, unspecified"
+46721000000102,Specific fear
+467231000000106,[X] Childhood emotional disorder: [other] or [identity disorder] or [overanxious disorder]
+468761000000105,[X]Other anxiety disorders
+469151000000104,[X]Other specified anxiety disorders
+472131000000109,[X]Phobic anxiety disorders
+472819006,Adjustment insomnia
+47372000,Adjustment disorder with anxious mood
+47501000000101,Panic attack
+47651000000101,Specific fear
+478661000000105,[X]Other mixed anxiety disorders
+48694002,Anxiety
+4932002,"Panic disorder with agoraphobia, moderate agoraphobic avoidance AND mild panic attacks"
+49564006,"Panic disorder with agoraphobia, mild agoraphobic avoidance AND moderate panic attacks"
+501891000000105,[D]Nervousness
+502011000000104,[D]Undue concern and preoccupation with stressful events
+515501000000100,Feeling low or worried
+515511000000103,Feeling low or worried 
+52039009,Phobia
+52417003,Pavor nocturnus
+52910006,Anxiety disorder due to a general medical condition
+53467004,Anxiety disorder of childhood
+54307006,Zoophobia
+54380006,Translocation syndrome
+54587008,Simple phobia
+54746005,Erotophobia
+5509004,Panic disorder with agoraphobia AND severe panic attacks
+55668003,Adjustment disorder with mixed emotional features
+563191000000103,Hysteria NOS
+563211000000104,Neurotic disorder NOS
+56492005,Fear of oncoming retirement
+56576003,Panic disorder without agoraphobia
+571221000000102,Acute stress reaction NOS
+57194009,Adjustment disorder with depressed mood
+5874002,"Anticipatory anxiety, severe"
+58963008,Acrophobia
+60259009,Onychotillomania
+609251000000109,Adjustment reaction with predominant disturbance of other emotions
+609261000000107,Adjustment reaction with disturbance of other emotion NOS
+609271000000100,Other adjustment reactions NOS
+609281000000103,Adjustment reaction NOS
+61212007,"Panic disorder with agoraphobia, severe agoraphobic avoidance AND severe panic attacks"
+61387006,Moderate anxiety
+61569007,Agoraphobia without history of panic disorder
+621271000000109,Anxiety state unspecified
+621291000000108,Phobia unspecified
+62351001,Generalized social phobia
+62448009,Hysteria
+628581000000101,Other occupational neurosis
+628591000000104,Other neurotic disorder NOS
+633361000000109,Anxiety state NOS
+633371000000102,Hysteria unspecified
+633421000000109,Other neurotic disorders
+63608001,Transient situational disturbance
+63701002,"Panic disorder with agoraphobia, mild agoraphobic avoidance AND mild panic attacks"
+64165008,Avoidant disorder of childhood
+647691000000102,Adjustment reaction with predominant disturbance of conduct NOS
+65064003,Panic disorder without agoraphobia with moderate panic attacks
+65231005,Adjustment reaction of childhood
+653961000000109,Other adjustment reactions
+65673007,Anxiety disorder
+657791000000107,Disturbance of anxiety and fearfulness in childhood and adolescence NOS
+66381006,Adjustment disorder with mixed disturbance of emotions AND conduct
+665971000000105,Other acute stress reactions
+665981000000107,Other acute stress reaction NOS
+67195008,Acute stress disorder
+6823001,Adjustment reaction of adult life
+69479009,Anxiety hyperventilation
+699389008,Fear of medical treatment
+699391000,Fear of deafness
+702261000000109,Other phobias
+702535006,Anxiety about breathlessness
+7031000119100,Psychogenic fugue co-occurrent and due to stress reaction
+704423008,Fear of abandonment
+704424002,Fear of being a burden to others
+704501007,Generalized Anxiety Disorder 7 item scale
+705047004,Fear of contagion
+70655008,Caffeine-induced anxiety disorder
+70691001,Agoraphobia
+70764005,Depersonalization disorder
+70967007,Hysterical deafness
+70997004,Mild anxiety
+714667008,Fear about medication side effects
+71478004,Obsessive compulsive disorder
+717696001,Fear of complications of pregnancy
+71802006,Astasia-abasia
+722842006,Fear of having digestive disease
+722843001,Fear of having cancer of digestive system
+723086009,Fear of heart disease
+723112000,Fear of endocrine disease
+723113005,Fear of metabolic disease
+723115003,Fear of cancer of endocrine system
+723119009,Fear of ear disease
+723120003,Fear of hematological disease
+723121004,Fear of hematological cancer
+723916001,Bodily distress disorder
+724448000,Fear of genital disease
+724449008,Fear of breast disease
+724450008,Fear of genital cancer
+724451007,Fear of breast cancer
+724452000,Fear of sexual dysfunction
+724824002,Fear of neurological disease
+724879005,Fear of skin disease
+726403001,Fear of eye disease
+72861004,Panic disorder without agoraphobia with mild panic attacks
+72994002,Cerebrocardiac neurosis
+73327000,Adjustment reaction of adolescence
+73595000,Stress
+74941000000103,Fear of falling
+75007009,Algophobia
+762349007,Fear of mental disorder
+764783004,Mild bodily distress disorder
+764784005,Moderate bodily distress disorder
+764785006,Severe bodily distress disorder
+782501005,Adjustment disorder with mixed anxiety and depressed mood
+78541000000103,Chronic anxiety
+78551000000100,Recurrent anxiety
+78667006,Dysthymia
+788866004,Anxiety due to dementia
+789399002,Persistent adjustment disorder
+79015004,Worried
+79181000000108,Fear of falling
+79823003,Panic
+80583007,Severe anxiety (panic)
+81147004,Fear of coitus
+81302005,Worried well
+81350009,Free-floating anxiety
+8185002,Panic disorder with agoraphobia AND moderate panic attacks
+82415003,Agoraphobia without history of panic disorder without limited symptom attacks
+82738004,"Panic disorder with agoraphobia, moderate agoraphobic avoidance AND moderate panic attacks"
+83221007,Cyesiophobia
+83482000,Body dysmorphic disorder
+83631006,"Panic disorder with agoraphobia, moderate agoraphobic avoidance AND severe panic attacks"
+84209002,Psychogenic amnesia
+84984002,Adjustment disorder with disturbance of conduct
+85061001,"Separation anxiety disorder of childhood, early onset"
+871745001,Postprandial distress syndrome
+887741000000102,Anxiety about breathlessness
+887751000000104,Anxiety about breathlessness 
+88902008,Hysterical blindness
+88933005,Adjustment reaction in infancy
+88984006,Hysterical paralysis
+89225005,Anxiety about blushing
+89239005,Conversion disorder
+89675003,Sleep terror disorder
+89948007,Panic disorder with agoraphobia AND mild panic attacks
+933461000000100,Referral for guided self-help for anxiety declined
+933471000000107,Referral for guided self-help for anxiety declined 
+937261000000109,Fearful with pain
+94641000119109,Anxiety in pregnancy
+9956000,Fearful mood

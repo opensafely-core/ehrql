@@ -29,34 +29,6 @@ EXTERNAL_STUDIES = {
         ],
         dataset_definitions=["analysis/dataset_definition.py"],
     ),
-    "comparative-booster-ehrql-poc": dict(
-        repo="opensafely/comparative-booster-ehrql-poc",
-        branch="main",
-        file_globs=[
-            "analysis/codelists.py",
-            "analysis/dataset_definition.py",
-            "analysis/study-dates.json",
-            "analysis/variables_lib.py",
-            "codelists/*.csv",
-        ],
-        dataset_definitions=["analysis/dataset_definition.py"],
-    ),
-    "openprompt-long-covid-vaccines": dict(
-        repo="opensafely/openprompt-vaccine-long-covid",
-        branch="main",
-        file_globs=[
-            "analysis/dataset_definition*.py",
-            "analysis/datasets.py",
-            "analysis/codelists.py",
-            "codelists/*.csv",
-            "analysis/variable_lib.py",
-        ],
-        dataset_definitions=[
-            "analysis/dataset_definition_cases.py",
-            "analysis/dataset_definition_controls.py",
-            "analysis/dataset_definition_longcovid_prevaccine.py",
-        ],
-    ),
     "qof-diabetes": dict(
         repo="opensafely/qof-diabetes",
         branch="main",
@@ -74,27 +46,42 @@ EXTERNAL_STUDIES = {
             ("analysis/dataset_definition_dm021.py", ["--ifcchba-cutoff-val", "75"]),
         ],
     ),
-    "openprompt-long-covid-economics": dict(
-        repo="opensafely/openprompt_health_utilisation",
+    "waiting-list": dict(
+        repo="opensafely/waiting-list",
         branch="main",
         file_globs=[
-            "analysis/dataset_definition_*.py",
             "analysis/codelists.py",
-            "analysis/covariates.py",
-            "analysis/hx_covariates.py",
-            "analysis/outcomes_health_use.py",
-            "analysis/variables.py",
+            "analysis/dataset_definition_clockstops.py",
+            "analysis/measures_checks.py",
+            "analysis/measures_opioid.py",
             "codelists/*.csv",
         ],
-        dummy_files=[
-            "output/dataset_lc_gp_list.csv",
+        dataset_definitions=[
+            "analysis/dataset_definition_clockstops.py",
+        ],
+        measure_definitions=[
+            "analysis/measures_checks.py",
+            ("analysis/measures_opioid.py", ["--codelist", "opioid_codes"]),
+        ],
+    ),
+    "mainroute_cancer": dict(
+        repo="opensafely/mainroute_cancer",
+        branch="main",
+        file_globs=[
+            "analysis/codelists.py",
+            "analysis/dataset_definition.py",
+            "analysis/define_static_dataset.py",
+            "analysis/measures_demo.py",
+            "codelists/*.csv",
         ],
         dataset_definitions=[
-            "analysis/dataset_definition_lc_gp_list.py",
-            "analysis/dataset_definition_unmatched_exp_lc.py",
-            "analysis/dataset_definition_unmatched_comparator.py",
-            "analysis/dataset_definition_hx_unmatched_com_no_lc.py",
-            "analysis/dataset_definition_hx_unmatched_exp_lc.py",
+            "analysis/define_static_dataset.py",
+        ],
+        measure_definitions=[
+            (
+                "analysis/measures_demo.py",
+                ["--start-date", "2018-03-23", "--intervals", "67"],
+            ),
         ],
     ),
 }

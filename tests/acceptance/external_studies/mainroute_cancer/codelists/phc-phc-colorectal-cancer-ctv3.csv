@@ -1,0 +1,63 @@
+code,term
+B13..,Malignant tumour of colon
+B130.,Malignant tumour of hepatic flexure
+B131.,Malignant tumour of transverse colon
+B132.,Malignant tumour of descending colon
+B133.,Malignant tumour of sigmoid colon
+B136.,Malignant tumour of ascending colon
+B137.,Malignant tumour of splenic flexure
+B138.,"Malignant neoplasm, overlapping lesion of colon"
+B13y.,Malignant neoplasm of other specified sites of colon
+B13z.,Malignant neoplasm of colon (& NOS)
+B18y0,Malignant neoplasm of mesocolon
+B575.,Sec malignant neoplasm of large intestine(AND/OR?[rectum])
+B5750,Secondary malignant neoplasm of colon
+B575z,Secondary malig neop of large intestine or rectum NOS
+B713.,Benign neopl colon: [polyp][ileocaecal valv][polyposis coli]
+B7130,Benign tumour of hepatic flexure
+B7131,Benign tumour of transverse colon
+B7132,Benign tumour of descending colon
+B7133,Benign tumour of sigmoid colon
+B7136,Benign tumour of ascending colon
+B7137,Benign tumour of splenic flexure
+B7138,Benign neoplasm of colostomy site
+B713z,Benign neoplasm of colon NOS
+B803.,Carcinoma in situ of colon
+B8030,Carcinoma in situ of hepatic flexure
+B8031,Carcinoma in situ of transverse colon
+B8032,Carcinoma in situ of descending colon
+B8033,Carcinoma in situ of sigmoid colon
+B8036,Carcinoma in situ of ascending colon
+B8037,Carcinoma in situ of splenic flexure
+B803z,Carcinoma in situ of colon NOS
+B9024,Neoplasm of uncertain behaviour of colon
+X78Np,Tumour of colon
+X78Nq,Tumour of ascending colon
+X78Nu,Tumour of hepatic flexure
+X78Ny,Tumour of transverse colon
+X78O2,Tumour of splenic flexure
+X78O6,Tumour of descending colon
+X78OA,Tumour of sigmoid colon
+X78gO,Adenocarcinoma of colon
+XE1vV,Malignant neoplasm of colon NOS
+XE1vx,Benign tumour of colon
+XE1xL,Carcinoma of colon
+XE1xN,Ca hepatic flexure - colon
+XE1xP,Ca transverse colon
+XE1xR,Ca descending colon
+XE1xT,Ca sigmoid colon
+XE1xX,Ca ascending colon
+XE1xZ,Ca splenic flexure - colon
+XE1xd,Ca colon NOS
+Xa34H,Carcinoma of sigmoid colon
+Xa3AC,Metastasis to colon of unknown primary
+Xa84V,Adenocarcinoma of sigmoid colon
+XaDc5,Carcinoma of ascending colon
+XaDc6,Carcinoma of transverse colon
+XaDc7,Carcinoma of descending colon
+XaDc8,Carcinoma of hepatic flexure
+XaDc9,Carcinoma of splenic flexure
+XaFrI,Local recurrence of malignant tumour of colon
+XaFsw,Hereditary nonpolyposis colon cancer
+XaXQk,Secondary malignant neoplasm of large intestine and rectum
+Y5827,Carcinoma colon
