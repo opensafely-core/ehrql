@@ -58,6 +58,13 @@ def read_tables(filename, table_specs, allow_missing_columns=False):
         ]
 
 
+def write_tables(filename, tables, table_specs):
+    filename, extension = split_directory_and_extension(filename)
+    for rows, (table_name, column_specs) in zip(tables, table_specs.items()):
+        table_filename = get_table_filename(filename, table_name, extension)
+        write_rows(table_filename, rows, column_specs)
+
+
 def get_file_extension(filename):
     if filename is None:
         # If we have no filename we're writing to stdout, so default to CSV
@@ -89,6 +96,22 @@ def get_extension_from_directory(filename):
         )
     else:
         return list(matching)[0]
+
+
+def split_directory_and_extension(filename):
+    # This is slightly unpleasant in that we've invented our own syntax for saying "I
+    # want a directory here with files of this type in it" e.g.
+    #
+    #     path/to/my/directory:csv
+    #
+    # But I don't seen an obvious alternative and I hope it's reasonably natural.
+    name, separator, extension = filename.name.rpartition(":")
+    if not separator:
+        return filename, ""
+    elif not name:
+        return filename.parent, f".{extension}"
+    else:
+        return filename.with_name(name), f".{extension}"
 
 
 def get_table_filename(base_filename, table_name, extension):

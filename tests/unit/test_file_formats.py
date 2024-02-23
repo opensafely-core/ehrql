@@ -8,6 +8,7 @@ from ehrql.file_formats import (
     get_file_extension,
     get_table_filename,
     read_rows,
+    split_directory_and_extension,
 )
 from ehrql.file_formats.arrow import ArrowRowsReader
 from ehrql.file_formats.csv import CSVGZRowsReader, CSVRowsReader
@@ -100,3 +101,17 @@ def test_get_table_filename_escapes_problematic_characters():
         ".csv",
     )
     assert filename == Path("parent/bad%2F%20table%20%2Fname%2F.csv")
+
+
+@pytest.mark.parametrize(
+    "filename,expected_dir,expected_ext",
+    [
+        ("some/dir:csv", "some/dir", ".csv"),
+        ("some/dir", "some/dir", ""),
+        ("some/dir/:csv", "some/dir", ".csv"),
+    ],
+)
+def test_split_directory_and_extension(filename, expected_dir, expected_ext):
+    directory, extension = split_directory_and_extension(Path(filename))
+    assert directory == Path(expected_dir)
+    assert extension == expected_ext
