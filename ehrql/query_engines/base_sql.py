@@ -141,21 +141,23 @@ class BaseSQLQueryEngine(BaseQueryEngine):
         available patient_ids. We could then use such tables if available rather than
         messing around with UNIONS.
         """
-        # Get all the tables needed to evaluate the population expression
+        # Get all the tables needed to evaluate the population expression and select
+        # patients IDs from each one
         tables = get_patient_id_tables(population_expression)
-        if len(tables) > 1:
-            # Select all patient IDs from all tables referenced in the expression
-            id_selects = [
-                sqlalchemy.select(table.c.patient_id.label("patient_id"))
-                for table in tables
-            ]
+        id_selects = [
+            sqlalchemy.select(table.c.patient_id.label("patient_id"))
+            for table in tables
+        ]
+        if len(id_selects) > 1:
             # Create a table which contains the union of all these IDs. (Note UNION
             # rather than UNION ALL so we don't get duplicates.)
             all_ids_table = self.reify_query(sqlalchemy.union(*id_selects))
             return sqlalchemy.select(all_ids_table.c.patient_id)
-        elif len(tables) == 1:
-            # If there's only one table then use the IDs from that
-            return sqlalchemy.select(tables[0].c.patient_id.label("patient_id"))
+        elif len(id_selects) == 1:
+            # If there's only one table then we have to use DISTINCT rather than UNION
+            # to remove duplicates
+            distinct_ids_table = self.reify_query(id_selects[0].distinct())
+            return sqlalchemy.select(distinct_ids_table.c.patient_id)
         else:
             # Gracefully handle the degenerate case where the population expression
             # doesn't reference any tables at all. Our validation rules ensure that such

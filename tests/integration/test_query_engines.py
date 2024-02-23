@@ -5,7 +5,7 @@ import pytest
 import sqlalchemy
 
 from ehrql import create_dataset, minimum_of, when
-from ehrql.query_model.nodes import Function, Value
+from ehrql.query_model.nodes import AggregateByPatient, Function, Value
 from ehrql.tables import (
     EventFrame,
     PatientFrame,
@@ -320,4 +320,33 @@ def test_horizontal_aggregation_wrapping_a_series_containment_query_works(engine
     assert engine.extract(dataset) == [
         {"patient_id": 1, "match": "T"},
         {"patient_id": 2, "match": "F"},
+    ]
+
+
+def test_population_which_uses_combine_as_set_and_no_patient_frame(engine):
+    # A population definition must be patient-level and therefore, if it only references
+    # event frames, it must involve an aggregation somewhere. Most aggregations result
+    # in a new patient-level SQL table being created but CombineAsSet is unusual here and
+    # so it's possible to use it to create a population SQL expression which references
+    # just a single event-level SQL table. This falsifies a previous assumption we made
+    # and so we need to test that we handle it correctly.
+    variables = dict(
+        population=Function.In(
+            Value(1),
+            AggregateByPatient.CombineAsSet(as_query_model(events.i)),
+        ),
+        v=Value(True),
+    )
+
+    engine.populate(
+        {
+            events: [
+                {"patient_id": 1, "i": 1},
+                {"patient_id": 1, "i": 1},
+            ],
+        }
+    )
+
+    assert engine.extract_qm(variables) == [
+        {"patient_id": 1, "v": True},
     ]
