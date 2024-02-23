@@ -1,3 +1,6 @@
+import contextlib
+import urllib.parse
+
 from ehrql.file_formats.arrow import (
     ArrowRowsReader,
     write_rows_arrow,
@@ -37,6 +40,24 @@ def read_rows(filename, column_specs, allow_missing_columns=False):
     return reader(filename, column_specs, allow_missing_columns=allow_missing_columns)
 
 
+def read_tables(filename, table_specs, allow_missing_columns=False):
+    extension = get_extension_from_directory(filename)
+    # Using ExitStack here allows us to open and validate all files before emiting any
+    # rows while still correctly closing all open files if we raise an error part way
+    # through
+    with contextlib.ExitStack() as stack:
+        yield from [
+            stack.enter_context(
+                read_rows(
+                    get_table_filename(filename, table_name, extension),
+                    column_specs,
+                    allow_missing_columns=allow_missing_columns,
+                )
+            )
+            for table_name, column_specs in table_specs.items()
+        ]
+
+
 def get_file_extension(filename):
     if filename is None:
         # If we have no filename we're writing to stdout, so default to CSV
@@ -45,3 +66,33 @@ def get_file_extension(filename):
         return "".join(filename.suffixes[-2:])
     else:
         return filename.suffix
+
+
+def get_extension_from_directory(filename):
+    if not filename.exists():
+        raise ValidationError(f"Missing directory: {filename}")
+    if not filename.is_dir():
+        raise ValidationError(f"Not a directory: {filename}")
+
+    # We could enforce that data directories only contain a single type of file, but
+    # that seems unnecessarily strict (you might want a README, or have temporary editor
+    # backup files in there) so instead we only enforce that there's a single type of
+    # _data_ file.
+    extensions = {get_file_extension(f) for f in filename.iterdir()}
+    matching = extensions.intersection(FILE_FORMATS.keys())
+    if not matching:
+        raise ValidationError(f"No supported file formats found in: {filename}")
+    elif len(matching) > 1:
+        raise ValidationError(
+            f"Found multiple file formats ({', '.join(sorted(matching))}) "
+            f"in: {filename}"
+        )
+    else:
+        return list(matching)[0]
+
+
+def get_table_filename(base_filename, table_name, extension):
+    # Use URL quoting as an easy way of escaping any potentially problematic characters
+    # in filenames
+    safe_name = urllib.parse.quote(table_name, safe="")
+    return base_filename / f"{safe_name}{extension}"
