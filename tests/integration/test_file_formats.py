@@ -143,12 +143,12 @@ def test_read_dataset_validates_categories(test_file):
 
 
 def test_read_dataset_validates_categories_on_non_categorical_column(test_file):
-    # This tests that categories are validated even if an arrow column is not
-    # categorical. This is relevant if a user provides their own dummy dataset without
-    # making the columns categorical.
-
-    if test_file.suffix != ".arrow":
-        pytest.skip("only relevant for arrow files")
+    # This tests that categories are validated even if an original column was not
+    # written as categorical. This is relevant if a user provides their own dummy
+    # dataset without making the columns categorical. It does not apply to CSV files
+    # which have no types at all, let alone categorical types.
+    if test_file.name.endswith((".csv", ".csv.gz")):
+        pytest.skip("not relevant for CSV files")
 
     # Create a copy of the column specs with modified column categories
     column_specs = TEST_FILE_SPECS.copy()
