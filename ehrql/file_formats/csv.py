@@ -4,10 +4,10 @@ import gzip
 import sys
 from contextlib import nullcontext
 
-from ehrql.file_formats.base import BaseDatasetReader, ValidationError, validate_columns
+from ehrql.file_formats.base import BaseRowsReader, ValidationError, validate_columns
 
 
-def write_dataset_csv(filename, results, column_specs):
+def write_rows_csv(filename, results, column_specs):
     if filename is None:
         context = nullcontext(sys.stdout)
     else:
@@ -15,16 +15,16 @@ def write_dataset_csv(filename, results, column_specs):
         # https://docs.python.org/3/library/csv.html#id3
         context = filename.open(mode="w", newline="")
     with context as f:
-        write_dataset_csv_lines(f, results, column_specs)
+        write_rows_csv_lines(f, results, column_specs)
 
 
-def write_dataset_csv_gz(filename, results, column_specs):
+def write_rows_csv_gz(filename, results, column_specs):
     # Set `newline` as per Python docs: https://docs.python.org/3/library/csv.html#id3
     with gzip.open(filename, "wt", newline="", compresslevel=6) as f:
-        write_dataset_csv_lines(f, results, column_specs)
+        write_rows_csv_lines(f, results, column_specs)
 
 
-def write_dataset_csv_lines(fileobj, results, column_specs):
+def write_rows_csv_lines(fileobj, results, column_specs):
     headers = list(column_specs.keys())
     format_row = create_row_formatter(column_specs.values())
     writer = csv.writer(fileobj)
@@ -58,7 +58,7 @@ def format_bool(value):
     return "T" if value else "F"
 
 
-class BaseCSVDatasetReader(BaseDatasetReader):
+class BaseCSVRowsReader(BaseRowsReader):
     def _validate_basic(self):
         # CSV being what it is we can't properly validate the types it contains without
         # reading the entire thing, which we don't want do. So we read the first 10 rows
@@ -82,12 +82,12 @@ class BaseCSVDatasetReader(BaseDatasetReader):
         self._fileobj.close()
 
 
-class CSVDatasetReader(BaseCSVDatasetReader):
+class CSVRowsReader(BaseCSVRowsReader):
     def _open(self):
         self._fileobj = open(self.filename, newline="")
 
 
-class CSVGZDatasetReader(BaseCSVDatasetReader):
+class CSVGZRowsReader(BaseCSVRowsReader):
     def _open(self):
         self._fileobj = gzip.open(self.filename, "rt", newline="")
 

@@ -3,7 +3,7 @@ from itertools import islice
 
 import pyarrow
 
-from ehrql.file_formats.base import BaseDatasetReader, ValidationError, validate_columns
+from ehrql.file_formats.base import BaseRowsReader, ValidationError, validate_columns
 
 
 PYARROW_TYPE_MAP = {
@@ -40,7 +40,7 @@ PYARROW_TYPE_TEST_MAP = {
 ROWS_PER_BATCH = 64000
 
 
-def write_dataset_arrow(filename, results, column_specs):
+def write_rows_arrow(filename, results, column_specs):
     schema, batch_to_pyarrow = get_schema_and_convertor(column_specs)
     options = pyarrow.ipc.IpcWriteOptions(compression="zstd", use_threads=True)
 
@@ -187,7 +187,7 @@ def batch_and_transpose(iterable, batch_size):
     return iter(next_transposed_batch, [])
 
 
-class ArrowDatasetReader(BaseDatasetReader):
+class ArrowRowsReader(BaseRowsReader):
     def _open(self):
         self._fileobj = pyarrow.memory_map(str(self.filename), "rb")
         self._reader = pyarrow.ipc.open_file(self._fileobj)

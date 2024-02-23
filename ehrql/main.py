@@ -9,7 +9,7 @@ import structlog
 
 from ehrql import assurance, sandbox
 from ehrql.dummy_data import DummyDataGenerator
-from ehrql.file_formats import read_dataset, write_dataset
+from ehrql.file_formats import read_rows, write_rows
 from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
@@ -99,7 +99,7 @@ def generate_dataset_with_dsn(
     # log output) before we create the output file. Wrapping the generator in
     # `eager_iterator` ensures this happens by consuming the first item upfront.
     results = eager_iterator(results)
-    write_dataset(dataset_file, results, column_specs)
+    write_rows(dataset_file, results, column_specs)
 
 
 def generate_dataset_with_dummy_data(
@@ -115,7 +115,7 @@ def generate_dataset_with_dummy_data(
 
     if dummy_data_file:
         log.info(f"Reading dummy data from {dummy_data_file}")
-        reader = read_dataset(dummy_data_file, column_specs)
+        reader = read_rows(dummy_data_file, column_specs)
         results = iter(reader)
     elif dummy_tables_path:
         log.info(f"Reading CSV data from {dummy_tables_path}")
@@ -130,7 +130,7 @@ def generate_dataset_with_dummy_data(
 
     log.info("Building dataset and writing results")
     results = eager_iterator(results)
-    write_dataset(dataset_file, results, column_specs)
+    write_rows(dataset_file, results, column_specs)
 
 
 def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
@@ -287,7 +287,7 @@ def generate_measures_with_dsn(
     if disclosure_control_config.enabled:
         results = apply_sdc_to_measure_results(results)
     results = eager_iterator(results)
-    write_dataset(output_file, results, column_specs)
+    write_rows(output_file, results, column_specs)
 
 
 def generate_measures_with_dummy_data(
@@ -303,7 +303,7 @@ def generate_measures_with_dummy_data(
 
     if dummy_data_file:
         log.info(f"Reading dummy data from {dummy_data_file}")
-        reader = read_dataset(dummy_data_file, column_specs)
+        reader = read_rows(dummy_data_file, column_specs)
         results = iter(reader)
     elif dummy_tables_path:
         log.info(f"Reading CSV data from {dummy_tables_path}")
@@ -318,7 +318,7 @@ def generate_measures_with_dummy_data(
     if disclosure_control_config.enabled:
         results = apply_sdc_to_measure_results(results)
     results = eager_iterator(results)
-    write_dataset(output_file, results, column_specs)
+    write_rows(output_file, results, column_specs)
 
 
 def run_sandbox(dummy_tables_path, environ):

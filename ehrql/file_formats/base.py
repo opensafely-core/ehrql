@@ -5,7 +5,7 @@ class ValidationError(Exception):
     pass
 
 
-class BaseDatasetReader:
+class BaseRowsReader:
     def __init__(self, filename, column_specs):
         if not isinstance(filename, pathlib.Path):
             raise ValidationError(
@@ -53,8 +53,8 @@ class BaseDatasetReader:
     def __hash__(self):
         # The hash doesn't need to be unique, just cheap to compute and reasonably well
         # distributed across objects. In the event that we have a very large number of
-        # DatasetReader objects with the same file path and different columns our dicts
-        # may underperform: I think we can live with this risk.
+        # RowsReader objects with the same file path and different columns our dicts may
+        # underperform: I think we can live with this risk.
         return hash(self.filename)
 
     def __repr__(self):

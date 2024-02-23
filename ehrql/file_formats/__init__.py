@@ -1,24 +1,24 @@
 from ehrql.file_formats.arrow import (
-    ArrowDatasetReader,
-    write_dataset_arrow,
+    ArrowRowsReader,
+    write_rows_arrow,
 )
 from ehrql.file_formats.base import ValidationError
 from ehrql.file_formats.csv import (
-    CSVDatasetReader,
-    CSVGZDatasetReader,
-    write_dataset_csv,
-    write_dataset_csv_gz,
+    CSVGZRowsReader,
+    CSVRowsReader,
+    write_rows_csv,
+    write_rows_csv_gz,
 )
 
 
 FILE_FORMATS = {
-    ".arrow": (write_dataset_arrow, ArrowDatasetReader),
-    ".csv": (write_dataset_csv, CSVDatasetReader),
-    ".csv.gz": (write_dataset_csv_gz, CSVGZDatasetReader),
+    ".arrow": (write_rows_arrow, ArrowRowsReader),
+    ".csv": (write_rows_csv, CSVRowsReader),
+    ".csv.gz": (write_rows_csv_gz, CSVGZRowsReader),
 }
 
 
-def write_dataset(filename, results, column_specs):
+def write_rows(filename, results, column_specs):
     extension = get_file_extension(filename)
     writer = FILE_FORMATS[extension][0]
     # We use None for stdout
@@ -27,7 +27,7 @@ def write_dataset(filename, results, column_specs):
     writer(filename, results, column_specs)
 
 
-def read_dataset(filename, column_specs):
+def read_rows(filename, column_specs):
     extension = get_file_extension(filename)
     if extension not in FILE_FORMATS:
         raise ValidationError(f"Unsupported file type: {extension}")

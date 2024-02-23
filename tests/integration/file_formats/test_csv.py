@@ -2,12 +2,12 @@ import gzip
 
 import pytest
 
-from ehrql.file_formats import write_dataset
+from ehrql.file_formats import write_rows
 from ehrql.query_model.column_specs import ColumnSpec
 
 
 @pytest.mark.parametrize("basename", [None, "file.csv", "file.csv.gz"])
-def test_write_dataset_csv(tmp_path, capsys, basename):
+def test_write_rows_csv(tmp_path, capsys, basename):
     if basename is None:
         filename = None
     else:
@@ -24,7 +24,7 @@ def test_write_dataset_csv(tmp_path, capsys, basename):
         (789, 1999, "M"),
     ]
 
-    write_dataset(filename, results, column_specs)
+    write_rows(filename, results, column_specs)
 
     if basename is None:
         output = capsys.readouterr().out

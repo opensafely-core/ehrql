@@ -7,7 +7,7 @@ from inspect import signature
 import pytest
 
 from ehrql.codes import SNOMEDCTCode
-from ehrql.file_formats import FILE_FORMATS, write_dataset
+from ehrql.file_formats import FILE_FORMATS, write_rows
 from ehrql.query_language import (
     BaseSeries,
     BoolEventSeries,
@@ -437,7 +437,7 @@ def test_table_from_file(file_extension, tmp_path):
         "s": ColumnSpec(str),
         "d": ColumnSpec(date),
     }
-    write_dataset(filename, file_data, column_specs)
+    write_rows(filename, file_data, column_specs)
 
     @table_from_file(filename)
     class some_table(PatientFrame):

@@ -7,8 +7,8 @@ import ehrql.tables
 from ehrql import INTERVAL, create_measures, years
 from ehrql.file_formats import (
     FILE_FORMATS,
-    read_dataset,
-    write_dataset,
+    read_rows,
+    write_rows,
 )
 from ehrql.query_language import DummyDataConfig, get_tables_from_namespace
 from ehrql.query_model.column_specs import ColumnSpec
@@ -82,9 +82,9 @@ def test_roundtrip(value):
     assert value == deserialize(serialize(value), root_dir=Path.cwd())
 
 
-# Fixture which generates a dataset reader instance for every format we support
+# Fixture which generates a rows reader instance for every format we support
 @pytest.fixture(params=list(FILE_FORMATS.keys()))
-def dataset_reader(request, tmp_path):
+def rows_reader(request, tmp_path):
     specs = {
         "patient_id": ColumnSpec(int, nullable=False),
         "b": ColumnSpec(bool),
@@ -98,20 +98,20 @@ def dataset_reader(request, tmp_path):
         (789, False, 20, "A"),
     ]
     extension = request.param
-    filename = tmp_path / f"dataset{extension}"
-    write_dataset(filename, data, specs)
-    yield read_dataset(filename, specs)
+    filename = tmp_path / f"some_file{extension}"
+    write_rows(filename, data, specs)
+    yield read_rows(filename, specs)
 
 
-def test_roundtrip_dataset_readers(dataset_reader):
-    parent_dir = dataset_reader.filename.parent
-    roundtripped = deserialize(serialize(dataset_reader), root_dir=parent_dir)
-    assert roundtripped is not dataset_reader
-    assert roundtripped == dataset_reader
-    assert list(roundtripped) == list(dataset_reader)
+def test_roundtrip_rows_reader(rows_reader):
+    parent_dir = rows_reader.filename.parent
+    roundtripped = deserialize(serialize(rows_reader), root_dir=parent_dir)
+    assert roundtripped is not rows_reader
+    assert roundtripped == rows_reader
+    assert list(roundtripped) == list(rows_reader)
 
 
-def test_dataset_readers_cannot_be_deserialized_outside_of_root_dir(dataset_reader):
-    serialized = serialize(dataset_reader)
+def test_rows_reader_cannot_be_deserialized_outside_of_root_dir(rows_reader):
+    serialized = serialize(rows_reader)
     with pytest.raises(SerializerError, match="is not contained within the directory"):
         deserialize(serialized, root_dir=Path("/some/path"))

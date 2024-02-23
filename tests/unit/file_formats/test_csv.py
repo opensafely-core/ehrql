@@ -5,10 +5,10 @@ from pathlib import Path
 import pytest
 
 from ehrql.file_formats.csv import (
-    BaseCSVDatasetReader,
+    BaseCSVRowsReader,
     ValidationError,
     create_column_parser,
-    write_dataset_csv_lines,
+    write_rows_csv_lines,
 )
 from ehrql.query_model.column_specs import ColumnSpec
 from ehrql.sqlalchemy_types import TYPE_MAP
@@ -30,27 +30,27 @@ from ehrql.sqlalchemy_types import TYPE_MAP
         (datetime.date, datetime.date(2020, 10, 20), "2020-10-20"),
     ],
 )
-def test_write_dataset_csv_lines(type_, value, expected):
+def test_write_rows_csv_lines(type_, value, expected):
     column_specs = {
         "patient_id": ColumnSpec(int),
         "value": ColumnSpec(type_),
     }
     results = [(123, value)]
     output = StringIO()
-    write_dataset_csv_lines(output, results, column_specs)
+    write_rows_csv_lines(output, results, column_specs)
     assert output.getvalue() == f"patient_id,value\r\n123,{expected}\r\n"
 
 
-def test_write_dataset_csv_lines_params_are_exhaustive():
+def test_write_rows_csv_lines_params_are_exhaustive():
     # This is dirty but useful, I think. It checks that the parameters to the test
     # include at least one of every type in `sqlalchemy_types`.
-    params = test_write_dataset_csv_lines.pytestmark[0].args[1]
+    params = test_write_rows_csv_lines.pytestmark[0].args[1]
     types = [arg[0] for arg in params]
     assert set(types) == set(TYPE_MAP)
 
 
 # Allow testing CSV reader without needing a file on disk
-class StringIOCSVDatasetReader(BaseCSVDatasetReader):
+class StringIOCSVRowsReader(BaseCSVRowsReader):
     def __init__(self, csv_data, column_specs):
         self.csv_data = csv_data
         super().__init__(Path("/dev/null"), column_specs)
@@ -94,17 +94,17 @@ class StringIOCSVDatasetReader(BaseCSVDatasetReader):
         ),
     ],
 )
-def test_read_dataset_csv_lines(csv, error):
+def test_read_rows_csv_lines(csv, error):
     specs = {
         "patient_id": ColumnSpec(int, nullable=False),
         "age": ColumnSpec(int, nullable=True),
     }
 
     if error is None:
-        StringIOCSVDatasetReader(csv, specs).close()
+        StringIOCSVRowsReader(csv, specs).close()
     else:
         with pytest.raises(ValidationError, match=error):
-            StringIOCSVDatasetReader(csv, specs)
+            StringIOCSVRowsReader(csv, specs)
 
 
 @pytest.mark.parametrize(
