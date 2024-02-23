@@ -40,15 +40,15 @@ PYARROW_TYPE_TEST_MAP = {
 ROWS_PER_BATCH = 64000
 
 
-def write_rows_arrow(filename, results, column_specs):
+def write_rows_arrow(filename, rows, column_specs):
     schema, batch_to_pyarrow = get_schema_and_convertor(column_specs)
     options = pyarrow.ipc.IpcWriteOptions(compression="zstd", use_threads=True)
 
     with pyarrow.OSFile(str(filename), "wb") as sink:
         with pyarrow.ipc.new_file(sink, schema, options=options) as writer:
-            for results_batch in batch_and_transpose(results, ROWS_PER_BATCH):
+            for row_batch in batch_and_transpose(rows, ROWS_PER_BATCH):
                 record_batch = pyarrow.record_batch(
-                    batch_to_pyarrow(results_batch), schema=schema
+                    batch_to_pyarrow(row_batch), schema=schema
                 )
                 writer.write(record_batch)
 

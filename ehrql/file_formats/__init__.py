@@ -18,13 +18,13 @@ FILE_FORMATS = {
 }
 
 
-def write_rows(filename, results, column_specs):
+def write_rows(filename, rows, column_specs):
     extension = get_file_extension(filename)
     writer = FILE_FORMATS[extension][0]
     # We use None for stdout
     if filename is not None:
         filename.parent.mkdir(parents=True, exist_ok=True)
-    writer(filename, results, column_specs)
+    writer(filename, rows, column_specs)
 
 
 def read_rows(filename, column_specs):
