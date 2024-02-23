@@ -329,7 +329,12 @@ def add_run_sandbox(subparsers, environ, user_args):
     parser.set_defaults(environ=environ)
     parser.add_argument(
         "dummy_tables_path",
-        help="Path to directory of CSV files (one per table).",
+        help=strip_indent(
+            f"""
+            Path to directory of data files (one per table), supported formats are:
+            {backtick_join(FILE_FORMATS)}
+            """
+        ),
         type=existing_directory,
     )
 
@@ -508,9 +513,11 @@ def add_dummy_tables_argument(parser, environ):
     parser.add_argument(
         "--dummy-tables",
         help=strip_indent(
-            """
-            Path to directory of CSV files (one per table) to use as dummy tables
+            f"""
+            Path to directory of files (one per table) to use as dummy tables
             (see [`create-dummy-tables`](#create-dummy-tables)).
+
+            Files may be in any supported format: {backtick_join(FILE_FORMATS)}
 
             This argument is ignored when running against real tables.
             """

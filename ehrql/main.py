@@ -118,7 +118,7 @@ def generate_dataset_with_dummy_data(
         reader = read_rows(dummy_data_file, column_specs)
         results = iter(reader)
     elif dummy_tables_path:
-        log.info(f"Reading CSV data from {dummy_tables_path}")
+        log.info(f"Reading table data from {dummy_tables_path}")
         query_engine = CSVQueryEngine(dummy_tables_path)
         results = query_engine.get_results(variable_definitions)
     else:
@@ -306,7 +306,7 @@ def generate_measures_with_dummy_data(
         reader = read_rows(dummy_data_file, column_specs)
         results = iter(reader)
     elif dummy_tables_path:
-        log.info(f"Reading CSV data from {dummy_tables_path}")
+        log.info(f"Reading data from {dummy_tables_path}")
         query_engine = CSVQueryEngine(dummy_tables_path)
         results = get_measure_results(query_engine, measure_definitions)
     else:
