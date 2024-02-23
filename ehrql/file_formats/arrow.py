@@ -191,18 +191,29 @@ class ArrowRowsReader(BaseRowsReader):
     def _open(self):
         self._fileobj = pyarrow.memory_map(str(self.filename), "rb")
         self._reader = pyarrow.ipc.open_file(self._fileobj)
+        self._column_fetchers = []
 
     def _validate_basic(self):
         # Arrow enforces that all record batches have a consistent schema and that any
         # categorical columns use the same dictionary, so we only need to get the first
         # batch in order to validate
         batch = self._reader.get_record_batch(0)
-        validate_columns(batch.schema.names, self.column_specs)
+        validate_columns(
+            batch.schema.names, self.column_specs, self.allow_missing_columns
+        )
+
         errors = []
         for name, spec in self.column_specs.items():
+            if name not in batch.schema.names:
+                self._column_fetchers.append(self._null_fetcher)
+                continue
+
             column = batch.column(name)
             if error := self._validate_column(name, column, spec):
                 errors.append(error)
+            else:
+                self._column_fetchers.append(self._create_fetcher(name))
+
         if errors:
             raise ValidationError("\n".join(errors))
 
@@ -235,9 +246,18 @@ class ArrowRowsReader(BaseRowsReader):
         for i in range(self._reader.num_record_batches):
             batch = self._reader.get_record_batch(i)
             # Use `zip(*...)` to transpose from column-wise to row-wise
-            yield from zip(
-                *(batch.column(name).to_pylist() for name in self.column_specs)
-            )
+            yield from zip(*(fetcher(batch) for fetcher in self._column_fetchers))
+
+    @staticmethod
+    def _create_fetcher(column_name):
+        def fetcher(batch):
+            return batch.column(column_name).to_pylist()
+
+        return fetcher
+
+    @staticmethod
+    def _null_fetcher(batch):
+        return [None] * batch.num_rows
 
     def close(self):
         # `self._reader` does not need closing: it acts as a contextmanager, but its exit

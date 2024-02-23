@@ -62,7 +62,7 @@ class BaseCSVRowsReader(BaseRowsReader):
     def _validate_basic(self):
         # CSV being what it is we can't properly validate the types it contains without
         # reading the entire thing, which we don't want do. So we read the first 10 rows
-        # in the hope that if there's a type mistmach it will show up here.
+        # in the hope that if there's a type mismatch it will show up here.
         for _ in zip(self, range(10)):
             pass
 
@@ -70,7 +70,9 @@ class BaseCSVRowsReader(BaseRowsReader):
         self._fileobj.seek(0)
         reader = csv.reader(self._fileobj)
         headers = next(reader)
-        validate_columns(headers, self.column_specs.keys())
+        validate_columns(
+            headers, self.column_specs, allow_missing_columns=self.allow_missing_columns
+        )
         row_parser = create_row_parser(headers, self.column_specs)
         for n, row in enumerate(reader, start=1):
             try:
@@ -107,6 +109,10 @@ def create_row_parser(headers, column_specs):
 
 
 def create_column_parser(headers, name, spec):
+    # Missing columns always return a NULL value
+    if name not in headers:
+        return lambda _: None
+
     if spec.type in (int, float, str):
         convertor = spec.type
     elif spec.type is datetime.date:

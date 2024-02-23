@@ -175,6 +175,16 @@ def test_read_rows_accepts_subset_of_expected_categories(test_file):
     assert list(reader) == TEST_FILE_DATA
 
 
+def test_read_rows_can_allow_missing_columns(test_file):
+    # Create a copy of the column specs with extra columns
+    column_specs = TEST_FILE_SPECS.copy()
+    column_specs["extra_column_1"] = ColumnSpec(int)
+
+    reader = read_rows(test_file, column_specs, allow_missing_columns=True)
+    # Check that there is an extra NULL column in the results
+    assert list(reader) == [(*row, None) for row in TEST_FILE_DATA]
+
+
 def test_rows_reader_identity(test_file):
     reader_1 = read_rows(test_file, TEST_FILE_SPECS)
     reader_2 = read_rows(test_file, TEST_FILE_SPECS)

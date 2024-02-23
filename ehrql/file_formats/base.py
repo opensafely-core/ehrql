@@ -6,13 +6,14 @@ class ValidationError(Exception):
 
 
 class BaseRowsReader:
-    def __init__(self, filename, column_specs):
+    def __init__(self, filename, column_specs, allow_missing_columns=False):
         if not isinstance(filename, pathlib.Path):
             raise ValidationError(
                 f"`filename` must be a pathlib.Path instance got: {filename!r}"
             )
         self.filename = filename
         self.column_specs = column_specs
+        self.allow_missing_columns = allow_missing_columns
         self._open()
         try:
             self._validate_basic()
@@ -47,6 +48,7 @@ class BaseRowsReader:
             return (
                 self.filename == other.filename
                 and self.column_specs == other.column_specs
+                and self.allow_missing_columns == other.allow_missing_columns
             )
         return NotImplemented
 
@@ -58,10 +60,22 @@ class BaseRowsReader:
         return hash(self.filename)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.filename!r}, {self.column_specs!r})"
+        return (
+            f"{self.__class__.__name__}("
+            f"{self.filename!r}, "
+            f"{self.column_specs!r}, "
+            f"allow_missing_columns={self.allow_missing_columns!r}"
+            f")"
+        )
 
 
-def validate_columns(columns, required_columns):
+def validate_columns(columns, column_specs, allow_missing_columns=False):
+    if allow_missing_columns:
+        required_columns = [
+            name for name, spec in column_specs.items() if not spec.nullable
+        ]
+    else:
+        required_columns = column_specs.keys()
     missing = [c for c in required_columns if c not in columns]
     if missing:
         raise ValidationError(f"Missing columns: {', '.join(missing)}")

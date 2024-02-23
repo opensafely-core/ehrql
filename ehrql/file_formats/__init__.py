@@ -27,14 +27,14 @@ def write_rows(filename, rows, column_specs):
     writer(filename, rows, column_specs)
 
 
-def read_rows(filename, column_specs):
+def read_rows(filename, column_specs, allow_missing_columns=False):
     extension = get_file_extension(filename)
     if extension not in FILE_FORMATS:
         raise ValidationError(f"Unsupported file type: {extension}")
     if not filename.is_file():
         raise ValidationError(f"Missing file: {filename}")
     reader = FILE_FORMATS[extension][1]
-    return reader(filename, column_specs)
+    return reader(filename, column_specs, allow_missing_columns=allow_missing_columns)
 
 
 def get_file_extension(filename):
