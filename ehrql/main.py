@@ -9,7 +9,12 @@ import structlog
 
 from ehrql import assurance, sandbox
 from ehrql.dummy_data import DummyDataGenerator
-from ehrql.file_formats import read_rows, write_rows
+from ehrql.file_formats import (
+    read_rows,
+    split_directory_and_extension,
+    write_rows,
+    write_tables,
+)
 from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
@@ -25,11 +30,13 @@ from ehrql.measures import (
 )
 from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
-from ehrql.query_model.column_specs import get_column_specs
+from ehrql.query_model.column_specs import (
+    get_column_specs,
+    get_column_specs_from_schema,
+)
 from ehrql.query_model.graphs import graph_to_svg
 from ehrql.serializer import serialize
 from ehrql.utils.itertools_utils import eager_iterator
-from ehrql.utils.orm_utils import write_orm_models_to_csv_directory
 from ehrql.utils.sqlalchemy_query_utils import (
     clause_as_str,
     get_setup_and_cleanup_queries,
@@ -142,10 +149,25 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
         variable_definitions,
         population_size=dummy_data_config.population_size,
     )
-    dummy_tables = generator.get_data()
-    dummy_tables_path.parent.mkdir(parents=True, exist_ok=True)
-    log.info(f"Writing CSV files to {dummy_tables_path}")
-    write_orm_models_to_csv_directory(dummy_tables_path, dummy_tables)
+    # Get the specifications for all the tables we're going to need to write
+    table_specs = {
+        table.name: get_column_specs_from_schema(table.schema)
+        for table in generator.get_tables()
+    }
+    # Group dummy data items by table, in the appropriate format
+    table_data = {table_name: [] for table_name in table_specs.keys()}
+    for item in generator.get_data():
+        table_name = item.__table__.name
+        columns = table_specs[table_name]
+        table_data[table_name].append(
+            # Transform each item into a list of column values in the expected order
+            [getattr(item, column, None) for column in columns]
+        )
+    # TODO: Allow file extensions other than CSV to be passed through
+    dummy_tables_path = dummy_tables_path + ":csv"
+    directory, extension = split_directory_and_extension(dummy_tables_path)
+    log.info(f"Writing tables as '{extension}' files to '{directory}'")
+    write_tables(dummy_tables_path, table_data.values(), table_specs)
 
 
 def dump_dataset_sql(
