@@ -177,7 +177,25 @@ def add_generate_dataset(subparsers, environ, user_args):
         ),
         type=existing_file,
     )
-    add_dummy_data_file_argument(parser, environ)
+    parser.add_argument(
+        "--dummy-data-file",
+        help=strip_indent(
+            """
+            Path to a dummy dataset.
+
+            This allows you to take complete control of the dummy dataset. ehrQL
+            will ensure that the column names, types and categorical values match what
+            they will be in the real dataset, but does no further validation.
+
+            Note that the dummy dataset doesn't need to be of the same type as the
+            real dataset (e.g. you can use a `.csv` file here to produce a `.arrow`
+            file).
+
+            This argument is ignored when running against real tables.
+            """
+        ),
+        type=existing_file,
+    )
     add_dummy_tables_argument(parser, environ)
     add_dataset_definition_file_argument(parser, environ)
     internal_args = create_internal_argument_group(parser, environ)
@@ -270,8 +288,26 @@ def add_generate_measures(subparsers, environ, user_args):
         type=valid_output_path,
         dest="output_file",
     )
+    parser.add_argument(
+        "--dummy-data-file",
+        help=strip_indent(
+            """
+            Path to dummy measures output.
+
+            This allows you to take complete control of the dummy measures output. ehrQL
+            will ensure that the column names, types and categorical values match what
+            they will be in the real measures output, but does no further validation.
+
+            Note that the dummy measures output doesn't need to be of the same type as the
+            real measures output (e.g. you can use a `.csv` file here to produce a `.arrow`
+            file).
+
+            This argument is ignored when running against real tables.
+            """
+        ),
+        type=existing_file,
+    )
     add_dummy_tables_argument(parser, environ)
-    add_dummy_data_file_argument(parser, environ)
     parser.add_argument(
         "definition_file",
         help="Path of the Python file where measures are defined.",
@@ -465,45 +501,6 @@ def add_dsn_argument(parser, environ):
         ),
         type=str,
         default=environ.get("DATABASE_URL"),
-    )
-
-
-def add_dummy_data_file_argument(parser, environ):
-    if parser.get_default("function") == generate_dataset:
-        help_text = """
-            Path to a dummy dataset.
-
-            This allows you to take complete control of the dummy dataset. ehrQL
-            will ensure that the column names, types and categorical values match what
-            they will be in the real dataset, but does no further validation.
-
-            Note that the dummy dataset doesn't need to be of the same type as the
-            real dataset (e.g. you can use a `.csv` file here to produce a `.arrow`
-            file).
-        """
-    else:
-        help_text = """
-            Path to dummy measures output.
-
-            This allows you to take complete control of the dummy measures output. ehrQL
-            will ensure that the column names, types and categorical values match what
-            they will be in the real measures output, but does no further validation.
-
-            Note that the dummy measures output doesn't need to be of the same type as the
-            real measures output (e.g. you can use a `.csv` file here to produce a `.arrow`
-            file).
-        """
-
-    parser.add_argument(
-        "--dummy-data-file",
-        help=strip_indent(
-            f"""
-            {help_text}
-
-            This argument is ignored when running against real tables.
-            """
-        ),
-        type=existing_file,
     )
 
 
