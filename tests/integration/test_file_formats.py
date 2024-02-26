@@ -6,7 +6,9 @@ from ehrql.file_formats import (
     FILE_FORMATS,
     ValidationError,
     read_rows,
+    read_tables,
     write_rows,
+    write_tables,
 )
 from ehrql.query_model.column_specs import ColumnSpec
 from ehrql.sqlalchemy_types import TYPE_MAP
@@ -199,3 +201,27 @@ def test_rows_reader_identity(test_file):
 def test_rows_reader_repr(test_file):
     reader = read_rows(test_file, TEST_FILE_SPECS)
     assert repr(test_file) in repr(reader)
+
+
+@pytest.mark.parametrize("extension", FILE_FORMATS.keys())
+def test_read_and_write_tables_roundtrip(tmp_path, extension):
+    table_specs = {
+        "table_1": TEST_FILE_SPECS,
+        "table_2": {
+            "patient_id": ColumnSpec(int),
+            "s": ColumnSpec(str),
+        },
+    }
+    tables = [
+        TEST_FILE_DATA,
+        [
+            (1, "a"),
+            (2, "b"),
+            (3, "c"),
+        ],
+    ]
+
+    write_tables(tmp_path / f"output:{extension[1:]}", tables, table_specs)
+    results = read_tables(tmp_path / "output", table_specs)
+
+    assert [list(rows) for rows in results] == tables
