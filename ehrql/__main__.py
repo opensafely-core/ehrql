@@ -7,7 +7,11 @@ from argparse import ArgumentParser, ArgumentTypeError, RawTextHelpFormatter
 from pathlib import Path
 
 from ehrql import __version__
-from ehrql.file_formats import FILE_FORMATS, get_file_extension
+from ehrql.file_formats import (
+    FILE_FORMATS,
+    get_file_extension,
+    split_directory_and_extension,
+)
 from ehrql.loaders import DEFINITION_LOADERS, DefinitionError
 from ehrql.utils.string_utils import strip_indent
 
@@ -243,18 +247,19 @@ def add_create_dummy_tables(subparsers, environ, user_args):
         "create-dummy-tables",
         help=strip_indent(
             """
-            Generate dummy tables and write them out as CSV files (one per table).
+            Generate dummy tables and write them out as files – one per table, CSV by
+            default.
 
             This command generates the same dummy tables that the `generate-dataset`
             command would generate, but instead of using them to produce a dummy
-            dataset, it writes them out as CSV files.
+            dataset, it writes them out as individual files.
 
-            The directory containing the CSV files can then be used as the
+            The directory containing these files can then be used as the
             [`--dummy-tables`](#generate-dataset.dummy-tables) argument to
             `generate-dataset` to produce the dummy dataset.
 
-            The CSV files can be edited in any way you wish, giving you full control
-            over the dummy tables.
+            The files can be edited in any way you wish, giving you full control over
+            the dummy tables.
             """
         ),
         formatter_class=RawTextHelpFormatter,
@@ -265,8 +270,16 @@ def add_create_dummy_tables(subparsers, environ, user_args):
     add_dataset_definition_file_argument(parser, environ)
     parser.add_argument(
         "dummy_tables_path",
-        help="Path to directory where CSV files (one per table) will be written.",
-        type=Path,
+        help=strip_indent(
+            f"""
+            Path to directory where files (one per table) will be written.
+
+            By default these will be CSV files. To generate files in other formats add
+            `:<format>` to the directory name e.g.
+            {backtick_join('my_outputs' + format_directory_extension(e) for e in FILE_FORMATS)}
+            """
+        ),
+        type=valid_output_directory_with_csv_default,
     )
 
 
@@ -591,6 +604,25 @@ def valid_output_path(value):
             f"{backtick_join(FILE_FORMATS)}"
         )
     return path
+
+
+def valid_output_directory_with_csv_default(value):
+    path = Path(value)
+    extension = split_directory_and_extension(path)[1]
+    if not extension:
+        return Path(value + ":csv")
+    elif extension not in FILE_FORMATS:
+        raise ArgumentTypeError(
+            f"'{format_directory_extension(extension)}' is not a supported format, "
+            f"must be one of: "
+            f"{backtick_join(format_directory_extension(e) for e in FILE_FORMATS)}"
+        )
+    else:
+        return path
+
+
+def format_directory_extension(extension):
+    return ":" + extension.removeprefix(".")
 
 
 def query_engine_from_id(str_id):

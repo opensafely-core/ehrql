@@ -163,8 +163,6 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
             # Transform each item into a list of column values in the expected order
             [getattr(item, column, None) for column in columns]
         )
-    # TODO: Allow file extensions other than CSV to be passed through
-    dummy_tables_path = dummy_tables_path + ":csv"
     directory, extension = split_directory_and_extension(dummy_tables_path)
     log.info(f"Writing tables as '{extension}' files to '{directory}'")
     write_tables(dummy_tables_path, table_data.values(), table_specs)
