@@ -1,5 +1,3 @@
-import os
-
 from ehrql.file_formats.arrow import (
     ArrowDatasetReader,
     write_dataset_arrow,
@@ -33,7 +31,7 @@ def read_dataset(filename, column_specs):
     extension = get_file_extension(filename)
     if extension not in FILE_FORMATS:
         raise ValidationError(f"Unsupported file type: {extension}")
-    if not os.path.isfile(filename):
+    if not filename.is_file():
         raise ValidationError(f"Missing file: {filename}")
     reader = FILE_FORMATS[extension][1]
     return reader(filename, column_specs)
