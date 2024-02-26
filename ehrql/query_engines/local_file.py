@@ -8,7 +8,7 @@ from ehrql.query_model.introspection import get_table_nodes
 from ehrql.utils.orm_utils import orm_classes_from_tables
 
 
-class CSVQueryEngine(InMemoryQueryEngine):
+class LocalFileQueryEngine(InMemoryQueryEngine):
     """
     Subclass of the in-memory engine which loads its data from files
     """

@@ -23,7 +23,7 @@ from ehrql.measures import (
     get_column_specs_for_measures,
     get_measure_results,
 )
-from ehrql.query_engines.csv import CSVQueryEngine
+from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_model.column_specs import get_column_specs
 from ehrql.query_model.graphs import graph_to_svg
@@ -91,7 +91,7 @@ def generate_dataset_with_dsn(
         backend_class,
         query_engine_class,
         environ,
-        default_query_engine_class=CSVQueryEngine,
+        default_query_engine_class=LocalFileQueryEngine,
     )
     results = query_engine.get_results(variable_definitions)
     # Because `results` is a generator we won't actually execute any queries until we
@@ -119,7 +119,7 @@ def generate_dataset_with_dummy_data(
         results = iter(reader)
     elif dummy_tables_path:
         log.info(f"Reading table data from {dummy_tables_path}")
-        query_engine = CSVQueryEngine(dummy_tables_path)
+        query_engine = LocalFileQueryEngine(dummy_tables_path)
         results = query_engine.get_results(variable_definitions)
     else:
         generator = DummyDataGenerator(
@@ -281,7 +281,7 @@ def generate_measures_with_dsn(
         backend_class,
         query_engine_class,
         environ,
-        default_query_engine_class=CSVQueryEngine,
+        default_query_engine_class=LocalFileQueryEngine,
     )
     results = get_measure_results(query_engine, measure_definitions)
     if disclosure_control_config.enabled:
@@ -307,7 +307,7 @@ def generate_measures_with_dummy_data(
         results = iter(reader)
     elif dummy_tables_path:
         log.info(f"Reading data from {dummy_tables_path}")
-        query_engine = CSVQueryEngine(dummy_tables_path)
+        query_engine = LocalFileQueryEngine(dummy_tables_path)
         results = get_measure_results(query_engine, measure_definitions)
     else:
         results = DummyMeasuresDataGenerator(

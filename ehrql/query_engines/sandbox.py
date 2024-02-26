@@ -1,12 +1,12 @@
 from functools import reduce
 
-from ehrql.query_engines.csv import CSVQueryEngine
+from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_language import compile
 from ehrql.query_model.introspection import get_table_nodes
 from ehrql.query_model.nodes import AggregateByPatient, Function
 
 
-class SandboxQueryEngine(CSVQueryEngine):
+class SandboxQueryEngine(LocalFileQueryEngine):
     def evaluate_dataset(self, dataset_definition):
         variable_definitions = compile(dataset_definition)
         if not variable_definitions:

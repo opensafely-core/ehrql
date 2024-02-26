@@ -29,8 +29,10 @@ from .main import (
 QUERY_ENGINE_ALIASES = {
     "mssql": "ehrql.query_engines.mssql.MSSQLQueryEngine",
     "sqlite": "ehrql.query_engines.sqlite.SQLiteQueryEngine",
-    "csv": "ehrql.query_engines.csv.CSVQueryEngine",
+    "localfile": "ehrql.query_engines.local_file.LocalFileQueryEngine",
     "trino": "ehrql.query_engines.trino.TrinoQueryEngine",
+    # Kept as an alias for backwards compatibility
+    "csv": "ehrql.query_engines.local_file.LocalFileQueryEngine",
 }
 
 
