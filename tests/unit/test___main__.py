@@ -2,6 +2,8 @@ import pytest
 
 from ehrql.__main__ import (
     ArgumentTypeError,
+    DefinitionError,
+    ValidationError,
     backend_from_id,
     import_string,
     main,
@@ -44,6 +46,36 @@ def test_generate_dataset_rejects_unknown_extension(capsys):
         main(argv)
     captured = capsys.readouterr()
     assert ".badformat' is not a supported format" in captured.err
+
+
+def test_generate_dataset_with_definition_error(capsys, mocker):
+    # Verify that the generate_dataset subcommand can be invoked.
+    patched = mocker.patch("ehrql.__main__.generate_dataset")
+    patched.side_effect = DefinitionError("Not a good dataset definition")
+    argv = [
+        "generate-dataset",
+        DATASET_DEFINITON_PATH,
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "Not a good dataset definition" in captured.err
+    assert "Traceback" not in captured.err
+
+
+def test_generate_dataset_with_validation_error(capsys, mocker):
+    # Verify that the generate_dataset subcommand can be invoked.
+    patched = mocker.patch("ehrql.__main__.generate_dataset")
+    patched.side_effect = ValidationError("Your file was bad")
+    argv = [
+        "generate-dataset",
+        DATASET_DEFINITON_PATH,
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "Your file was bad" in captured.err
+    assert "Traceback" not in captured.err
 
 
 def test_dump_dataset_sql(mocker):

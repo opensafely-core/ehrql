@@ -9,6 +9,7 @@ from pathlib import Path
 from ehrql import __version__
 from ehrql.file_formats import (
     FILE_FORMATS,
+    ValidationError,
     get_file_extension,
     split_directory_and_extension,
 )
@@ -95,10 +96,18 @@ def main(args, environ=None):
     orig_log_level = root_logger.level
     root_logger.setLevel(min(orig_log_level, logging.INFO))
 
+    # We try to catch as many errors as possible during argument parsing but there are
+    # certain classes of error that will only occur at runtime
     try:
         function(**kwargs)
-    except DefinitionError as e:
-        print(str(e), file=sys.stderr)
+    except DefinitionError as exc:
+        # Errors from definition files are already pre-formatted so we just write them
+        # directly to stderr and exit
+        print(str(exc), file=sys.stderr)
+        sys.exit(1)
+    except ValidationError as exc:
+        # Handle errors encountered while reading user-supplied data
+        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
         sys.exit(1)
     finally:
         root_logger.setLevel(orig_log_level)

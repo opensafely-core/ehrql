@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from ehrql.file_formats import FILE_FORMATS, ValidationError
+from ehrql.file_formats import FILE_FORMATS
 from tests.lib.fixtures import (
     invalid_dataset_attribute_dataset_definition,
     invalid_dataset_query_model_error_definition,
@@ -116,17 +116,19 @@ def test_validate_dummy_data_happy_path(study, tmp_path):
     ]
 
 
-def test_validate_dummy_data_error_path(study, tmp_path):
+def test_validate_dummy_data_error_path(study, tmp_path, capsys):
     dummy_data_file = tmp_path / "dummy.csv"
     dummy_data = "patient_id,year\n1,1971\n2,foo"
     dummy_data_file.write_text(dummy_data)
     study.setup_from_string(trivial_dataset_definition)
-    with pytest.raises(ValidationError, match="invalid literal for int"):
+    with pytest.raises(SystemExit):
         study.generate(
             database=None,
             backend="expectations",
             dummy_data_file=str(dummy_data_file),
         )
+    captured = capsys.readouterr()
+    assert "invalid literal for int" in captured.err
 
 
 def test_generate_dummy_data(study):
