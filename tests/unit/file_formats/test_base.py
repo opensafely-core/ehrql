@@ -1,6 +1,6 @@
 import pytest
 
-from ehrql.file_formats.base import ValidationError, validate_columns
+from ehrql.file_formats.base import FileValidationError, validate_columns
 from ehrql.query_model.column_specs import ColumnSpec
 
 
@@ -18,7 +18,7 @@ def test_validate_columns():
 
 
 def test_validate_columns_fails_on_missing_columns_by_default():
-    with pytest.raises(ValidationError, match="Missing columns: b, d"):
+    with pytest.raises(FileValidationError, match="Missing columns: b, d"):
         validate_columns(
             ["c", "a"],
             {
@@ -43,7 +43,7 @@ def test_validate_columns_allows_missing_columns():
 
 
 def test_validate_columns_does_not_allow_missing_nonnullable_columns():
-    with pytest.raises(ValidationError, match="Missing columns: b"):
+    with pytest.raises(FileValidationError, match="Missing columns: b"):
         validate_columns(
             ["c", "a"],
             {

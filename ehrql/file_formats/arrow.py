@@ -3,7 +3,11 @@ from itertools import islice
 
 import pyarrow
 
-from ehrql.file_formats.base import BaseRowsReader, ValidationError, validate_columns
+from ehrql.file_formats.base import (
+    BaseRowsReader,
+    FileValidationError,
+    validate_columns,
+)
 
 
 PYARROW_TYPE_MAP = {
@@ -215,7 +219,7 @@ class ArrowRowsReader(BaseRowsReader):
                 self._column_fetchers.append(self._create_fetcher(name))
 
         if errors:
-            raise ValidationError("\n".join(errors))
+            raise FileValidationError("\n".join(errors))
 
     def _validate_column(self, name, column, spec):
         type_test = PYARROW_TYPE_TEST_MAP[spec.type]

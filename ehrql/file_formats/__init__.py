@@ -5,7 +5,7 @@ from ehrql.file_formats.arrow import (
     ArrowRowsReader,
     write_rows_arrow,
 )
-from ehrql.file_formats.base import ValidationError
+from ehrql.file_formats.base import FileValidationError
 from ehrql.file_formats.csv import (
     CSVGZRowsReader,
     CSVRowsReader,
@@ -33,9 +33,9 @@ def write_rows(filename, rows, column_specs):
 def read_rows(filename, column_specs, allow_missing_columns=False):
     extension = get_file_extension(filename)
     if extension not in FILE_FORMATS:
-        raise ValidationError(f"Unsupported file type: {extension}")
+        raise FileValidationError(f"Unsupported file type: {extension}")
     if not filename.is_file():
-        raise ValidationError(f"Missing file: {filename}")
+        raise FileValidationError(f"Missing file: {filename}")
     reader = FILE_FORMATS[extension][1]
     return reader(filename, column_specs, allow_missing_columns=allow_missing_columns)
 
@@ -77,9 +77,9 @@ def get_file_extension(filename):
 
 def get_extension_from_directory(filename):
     if not filename.exists():
-        raise ValidationError(f"Missing directory: {filename}")
+        raise FileValidationError(f"Missing directory: {filename}")
     if not filename.is_dir():
-        raise ValidationError(f"Not a directory: {filename}")
+        raise FileValidationError(f"Not a directory: {filename}")
 
     # We could enforce that data directories only contain a single type of file, but
     # that seems unnecessarily strict (you might want a README, or have temporary editor
@@ -88,9 +88,9 @@ def get_extension_from_directory(filename):
     extensions = {get_file_extension(f) for f in filename.iterdir()}
     matching = extensions.intersection(FILE_FORMATS.keys())
     if not matching:
-        raise ValidationError(f"No supported file formats found in: {filename}")
+        raise FileValidationError(f"No supported file formats found in: {filename}")
     elif len(matching) > 1:
-        raise ValidationError(
+        raise FileValidationError(
             f"Found multiple file formats ({', '.join(sorted(matching))}) "
             f"in: {filename}"
         )

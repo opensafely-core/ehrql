@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from ehrql.file_formats import (
-    ValidationError,
+    FileValidationError,
     get_extension_from_directory,
     get_file_extension,
     get_table_filename,
@@ -29,13 +29,13 @@ def test_get_file_extension(filename, extension):
 
 
 def test_read_rows_rejects_unsupported_file_types():
-    with pytest.raises(ValidationError, match="Unsupported file type: .xyz"):
+    with pytest.raises(FileValidationError, match="Unsupported file type: .xyz"):
         read_rows(Path("some_file.xyz"), {})
 
 
 def test_read_rows_raises_error_for_missing_files():
     missing_file = Path(__file__).parent / "no_such_file.csv"
-    with pytest.raises(ValidationError, match=f"Missing file: {missing_file}"):
+    with pytest.raises(FileValidationError, match=f"Missing file: {missing_file}"):
         read_rows(missing_file, {})
 
 
@@ -48,7 +48,7 @@ def test_read_rows_raises_error_for_missing_files():
     ],
 )
 def test_rows_reader_constructor_rejects_non_path(reader_class):
-    with pytest.raises(ValidationError, match="must be a pathlib.Path instance"):
+    with pytest.raises(FileValidationError, match="must be a pathlib.Path instance"):
         reader_class("some/string/path", {})
 
 
@@ -62,14 +62,14 @@ def test_get_extension_from_directory(tmp_path):
 
 
 def test_get_extension_from_directory_missing(tmp_path):
-    with pytest.raises(ValidationError, match="Missing directory"):
+    with pytest.raises(FileValidationError, match="Missing directory"):
         get_extension_from_directory(tmp_path / "no_such_dir")
 
 
 def test_get_extension_from_directory_with_wrong_type(tmp_path):
     directory = tmp_path / "not_a_dir"
     directory.touch()
-    with pytest.raises(ValidationError, match="Not a directory"):
+    with pytest.raises(FileValidationError, match="Not a directory"):
         get_extension_from_directory(directory)
 
 
@@ -78,7 +78,7 @@ def test_get_extension_from_directory_without_supported_extensions(tmp_path):
     directory.mkdir()
     (directory / "file_a.jpg").touch()
     (directory / "file_b.docx").touch()
-    with pytest.raises(ValidationError, match="No supported file formats found"):
+    with pytest.raises(FileValidationError, match="No supported file formats found"):
         get_extension_from_directory(directory)
 
 
@@ -88,7 +88,7 @@ def test_get_extension_from_directory_with_ambiguous_extensions(tmp_path):
     (directory / "file_a.csv").touch()
     (directory / "file_b.arrow").touch()
     with pytest.raises(
-        ValidationError,
+        FileValidationError,
         match=r"Found multiple file formats \(\.arrow, \.csv\)",
     ):
         get_extension_from_directory(directory)

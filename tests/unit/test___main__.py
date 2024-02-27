@@ -3,7 +3,7 @@ import pytest
 from ehrql.__main__ import (
     ArgumentTypeError,
     DefinitionError,
-    ValidationError,
+    FileValidationError,
     backend_from_id,
     import_string,
     main,
@@ -66,7 +66,7 @@ def test_generate_dataset_with_definition_error(capsys, mocker):
 def test_generate_dataset_with_validation_error(capsys, mocker):
     # Verify that the generate_dataset subcommand can be invoked.
     patched = mocker.patch("ehrql.__main__.generate_dataset")
-    patched.side_effect = ValidationError("Your file was bad")
+    patched.side_effect = FileValidationError("Your file was bad")
     argv = [
         "generate-dataset",
         DATASET_DEFINITON_PATH,

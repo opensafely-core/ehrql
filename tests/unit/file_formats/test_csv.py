@@ -6,7 +6,7 @@ import pytest
 
 from ehrql.file_formats.csv import (
     BaseCSVRowsReader,
-    ValidationError,
+    FileValidationError,
     create_column_parser,
     write_rows_csv_lines,
 )
@@ -103,7 +103,7 @@ def test_read_rows_csv_lines(csv, error):
     if error is None:
         StringIOCSVRowsReader(csv, specs).close()
     else:
-        with pytest.raises(ValidationError, match=error):
+        with pytest.raises(FileValidationError, match=error):
             StringIOCSVRowsReader(csv, specs)
 
 

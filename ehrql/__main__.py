@@ -9,7 +9,7 @@ from pathlib import Path
 from ehrql import __version__
 from ehrql.file_formats import (
     FILE_FORMATS,
-    ValidationError,
+    FileValidationError,
     get_file_extension,
     split_directory_and_extension,
 )
@@ -105,7 +105,7 @@ def main(args, environ=None):
         # directly to stderr and exit
         print(str(exc), file=sys.stderr)
         sys.exit(1)
-    except ValidationError as exc:
+    except FileValidationError as exc:
         # Handle errors encountered while reading user-supplied data
         print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
         sys.exit(1)

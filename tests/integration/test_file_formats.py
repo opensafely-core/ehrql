@@ -4,7 +4,7 @@ import pytest
 
 from ehrql.file_formats import (
     FILE_FORMATS,
-    ValidationError,
+    FileValidationError,
     read_rows,
     read_tables,
     write_rows,
@@ -87,9 +87,9 @@ def test_read_rows_can_be_iterated_multiple_times(test_file):
 
 
 def test_read_rows_validates_on_open(test_file):
-    # We should get a ValidationError (because the columns don't match) immediately on
-    # opening the file, even if we don't try to read any rows from it
-    with pytest.raises(ValidationError):
+    # We should get a FileValidationError (because the columns don't match) immediately
+    # on opening the file, even if we don't try to read any rows from it
+    with pytest.raises(FileValidationError):
         read_rows(test_file, {"wrong_column": ColumnSpec(int)})
 
 
@@ -100,7 +100,7 @@ def test_read_rows_validates_columns(test_file):
     column_specs["extra_column_2"] = ColumnSpec(int)
 
     with pytest.raises(
-        ValidationError,
+        FileValidationError,
         match=("Missing columns: extra_column_1, extra_column_2"),
     ):
         read_rows(test_file, column_specs)
@@ -119,7 +119,7 @@ def test_read_rows_validates_types(test_file):
         "dataset.csv.gz": "invalid literal for int",
     }
 
-    with pytest.raises(ValidationError, match=errors[test_file.name]):
+    with pytest.raises(FileValidationError, match=errors[test_file.name]):
         read_rows(test_file, column_specs)
 
 
@@ -140,7 +140,7 @@ def test_read_rows_validates_categories(test_file):
         "dataset.csv.gz": "'A' not in valid categories: 'X', 'Y'",
     }
 
-    with pytest.raises(ValidationError, match=errors[test_file.name]):
+    with pytest.raises(FileValidationError, match=errors[test_file.name]):
         read_rows(test_file, column_specs)
 
 
@@ -162,7 +162,7 @@ def test_read_rows_validates_categories_on_non_categorical_column(test_file):
         "  Expected: X, Y"
     )
 
-    with pytest.raises(ValidationError, match=error):
+    with pytest.raises(FileValidationError, match=error):
         read_rows(test_file, column_specs)
 
 

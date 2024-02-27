@@ -4,7 +4,11 @@ import gzip
 import sys
 from contextlib import nullcontext
 
-from ehrql.file_formats.base import BaseRowsReader, ValidationError, validate_columns
+from ehrql.file_formats.base import (
+    BaseRowsReader,
+    FileValidationError,
+    validate_columns,
+)
 
 
 def write_rows_csv(filename, rows, column_specs):
@@ -78,7 +82,7 @@ class BaseCSVRowsReader(BaseRowsReader):
             try:
                 yield row_parser(row)
             except ValueError as e:
-                raise ValidationError(f"row {n}: {e}")
+                raise FileValidationError(f"row {n}: {e}")
 
     def close(self):
         self._fileobj.close()

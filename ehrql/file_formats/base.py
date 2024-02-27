@@ -1,14 +1,14 @@
 import pathlib
 
 
-class ValidationError(Exception):
+class FileValidationError(Exception):
     pass
 
 
 class BaseRowsReader:
     def __init__(self, filename, column_specs, allow_missing_columns=False):
         if not isinstance(filename, pathlib.Path):
-            raise ValidationError(
+            raise FileValidationError(
                 f"`filename` must be a pathlib.Path instance got: {filename!r}"
             )
         self.filename = filename
@@ -17,7 +17,7 @@ class BaseRowsReader:
         self._open()
         try:
             self._validate_basic()
-        except ValidationError:
+        except FileValidationError:
             self.close()
             raise
 
@@ -78,4 +78,4 @@ def validate_columns(columns, column_specs, allow_missing_columns=False):
         required_columns = column_specs.keys()
     missing = [c for c in required_columns if c not in columns]
     if missing:
-        raise ValidationError(f"Missing columns: {', '.join(missing)}")
+        raise FileValidationError(f"Missing columns: {', '.join(missing)}")
