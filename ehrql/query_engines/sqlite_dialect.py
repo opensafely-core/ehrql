@@ -3,7 +3,7 @@ from sqlalchemy.dialects.sqlite.pysqlite import SQLiteDialect_pysqlite
 
 
 class SQLiteDialect(SQLiteDialect_pysqlite):
-    supports_statement_cache = True
+    supports_statement_cache = False
 
     @classmethod
     def import_dbapi(cls):
