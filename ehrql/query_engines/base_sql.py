@@ -553,21 +553,7 @@ class BaseSQLQueryEngine(BaseQueryEngine):
             default = self.get_expr(node.default)
         else:
             default = None
-        expr = sqlalchemy.case(*cases, else_=default)
-        # Temporary workaround for bug in SQLAlchemy. This can be removed when this PR
-        # is merged and released:
-        # https://github.com/sqlalchemy/sqlalchemy/pull/10847
-        expr.type = next(
-            # Find the type of the first non-null case value
-            (
-                value.type
-                for condition, value in expr.whens
-                if not isinstance(value.type, sqlalchemy.types.NullType)
-            ),
-            # Use the type of the `else` clause if there are no matches above
-            expr.else_.type if expr.else_ is not None else sqlalchemy.types.NullType(),
-        )
-        return expr
+        return sqlalchemy.case(*cases, else_=default)
 
     @get_sql.register(AggregateByPatient.Sum)
     def get_sql_sum(self, node):
