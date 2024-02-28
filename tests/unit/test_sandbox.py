@@ -8,7 +8,7 @@ from ehrql.sandbox import run
 
 user_input = """
 from ehrql import Dataset
-from ehrql.tables.tpp import patients
+from ehrql.tables.core import patients
 patients.date_of_birth
 patients
 dataset = Dataset()
@@ -28,26 +28,26 @@ expected_series_output = """
 expected_frame_output = """
 patient_id        | date_of_birth     | sex               | date_of_death
 ------------------+-------------------+-------------------+------------------
-1                 | 1980-01-01        | F                 | None
-2                 | 1990-02-01        | M                 | None
-3                 | 2000-03-01        | F                 | None
-4                 | 2010-04-01        | M                 | None
+1                 | 1980-01-01        | female            | None
+2                 | 1990-02-01        | male              | None
+3                 | 2000-03-01        | female            | None
+4                 | 2010-04-01        | male              | None
 """.strip()
 
 expected_dataset_output_1 = """
 patient_id        | sex
 ------------------+------------------
-1                 | F
-2                 | M
-3                 | F
-4                 | M
+1                 | female
+2                 | male
+3                 | female
+4                 | male
 """.strip()
 
 expected_dataset_output_2 = """
 patient_id        | sex
 ------------------+------------------
-3                 | F
-4                 | M
+3                 | female
+4                 | male
 """.strip()
 
 
@@ -74,7 +74,7 @@ def test_traceback_trimmed(capsys, monkeypatch):
     monkeypatch.setattr(
         "sys.stdin",
         StringIO(
-            "from ehrql.tables.tpp import patients\n"
+            "from ehrql.tables.core import patients\n"
             "patients.date_of_birth == patients.sex"
         ),
     )

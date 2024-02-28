@@ -2,6 +2,8 @@ import pytest
 
 from ehrql.__main__ import (
     ArgumentTypeError,
+    DefinitionError,
+    FileValidationError,
     backend_from_id,
     import_string,
     main,
@@ -46,6 +48,36 @@ def test_generate_dataset_rejects_unknown_extension(capsys):
     assert ".badformat' is not a supported format" in captured.err
 
 
+def test_generate_dataset_with_definition_error(capsys, mocker):
+    # Verify that the generate_dataset subcommand can be invoked.
+    patched = mocker.patch("ehrql.__main__.generate_dataset")
+    patched.side_effect = DefinitionError("Not a good dataset definition")
+    argv = [
+        "generate-dataset",
+        DATASET_DEFINITON_PATH,
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "Not a good dataset definition" in captured.err
+    assert "Traceback" not in captured.err
+
+
+def test_generate_dataset_with_validation_error(capsys, mocker):
+    # Verify that the generate_dataset subcommand can be invoked.
+    patched = mocker.patch("ehrql.__main__.generate_dataset")
+    patched.side_effect = FileValidationError("Your file was bad")
+    argv = [
+        "generate-dataset",
+        DATASET_DEFINITON_PATH,
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "Your file was bad" in captured.err
+    assert "Traceback" not in captured.err
+
+
 def test_dump_dataset_sql(mocker):
     # Verify that the dump_dataset_sql subcommand can be invoked.
     patched = mocker.patch("ehrql.__main__.dump_dataset_sql")
@@ -59,16 +91,29 @@ def test_dump_dataset_sql(mocker):
     patched.assert_called_once()
 
 
-def test_create_dummy_tables(mocker):
+@pytest.mark.parametrize("output_path", ["dummy_data_path", "dummy_data_path:arrow"])
+def test_create_dummy_tables(mocker, output_path):
     # Verify that the create_dummy_tables subcommand can be invoked.
     patched = mocker.patch("ehrql.__main__.create_dummy_tables")
     argv = [
         "create-dummy-tables",
         DATASET_DEFINITON_PATH,
-        "dummy_data_path",
+        output_path,
     ]
     main(argv)
     patched.assert_called_once()
+
+
+def test_create_dummy_tables_rejects_unsupported_format(capsys):
+    argv = [
+        "create-dummy-tables",
+        DATASET_DEFINITON_PATH,
+        "dummy_data_path:invalid",
+    ]
+    with pytest.raises(SystemExit):
+        main(argv)
+    captured = capsys.readouterr()
+    assert "':invalid' is not a supported format" in captured.err
 
 
 def test_generate_measures(mocker):

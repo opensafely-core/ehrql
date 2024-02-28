@@ -3,7 +3,11 @@ from itertools import islice
 
 import pyarrow
 
-from ehrql.file_formats.base import BaseDatasetReader, ValidationError, validate_columns
+from ehrql.file_formats.base import (
+    BaseRowsReader,
+    FileValidationError,
+    validate_columns,
+)
 
 
 PYARROW_TYPE_MAP = {
@@ -40,15 +44,15 @@ PYARROW_TYPE_TEST_MAP = {
 ROWS_PER_BATCH = 64000
 
 
-def write_dataset_arrow(filename, results, column_specs):
+def write_rows_arrow(filename, rows, column_specs):
     schema, batch_to_pyarrow = get_schema_and_convertor(column_specs)
     options = pyarrow.ipc.IpcWriteOptions(compression="zstd", use_threads=True)
 
     with pyarrow.OSFile(str(filename), "wb") as sink:
         with pyarrow.ipc.new_file(sink, schema, options=options) as writer:
-            for results_batch in batch_and_transpose(results, ROWS_PER_BATCH):
+            for row_batch in batch_and_transpose(rows, ROWS_PER_BATCH):
                 record_batch = pyarrow.record_batch(
-                    batch_to_pyarrow(results_batch), schema=schema
+                    batch_to_pyarrow(row_batch), schema=schema
                 )
                 writer.write(record_batch)
 
@@ -187,24 +191,35 @@ def batch_and_transpose(iterable, batch_size):
     return iter(next_transposed_batch, [])
 
 
-class ArrowDatasetReader(BaseDatasetReader):
+class ArrowRowsReader(BaseRowsReader):
     def _open(self):
         self._fileobj = pyarrow.memory_map(str(self.filename), "rb")
         self._reader = pyarrow.ipc.open_file(self._fileobj)
+        self._column_fetchers = []
 
     def _validate_basic(self):
         # Arrow enforces that all record batches have a consistent schema and that any
         # categorical columns use the same dictionary, so we only need to get the first
         # batch in order to validate
         batch = self._reader.get_record_batch(0)
-        validate_columns(batch.schema.names, self.column_specs)
+        validate_columns(
+            batch.schema.names, self.column_specs, self.allow_missing_columns
+        )
+
         errors = []
         for name, spec in self.column_specs.items():
+            if name not in batch.schema.names:
+                self._column_fetchers.append(self._null_fetcher)
+                continue
+
             column = batch.column(name)
             if error := self._validate_column(name, column, spec):
                 errors.append(error)
+            else:
+                self._column_fetchers.append(self._create_fetcher(name))
+
         if errors:
-            raise ValidationError("\n".join(errors))
+            raise FileValidationError("\n".join(errors))
 
     def _validate_column(self, name, column, spec):
         type_test = PYARROW_TYPE_TEST_MAP[spec.type]
@@ -235,9 +250,18 @@ class ArrowDatasetReader(BaseDatasetReader):
         for i in range(self._reader.num_record_batches):
             batch = self._reader.get_record_batch(i)
             # Use `zip(*...)` to transpose from column-wise to row-wise
-            yield from zip(
-                *(batch.column(name).to_pylist() for name in self.column_specs)
-            )
+            yield from zip(*(fetcher(batch) for fetcher in self._column_fetchers))
+
+    @staticmethod
+    def _create_fetcher(column_name):
+        def fetcher(batch):
+            return batch.column(column_name).to_pylist()
+
+        return fetcher
+
+    @staticmethod
+    def _null_fetcher(batch):
+        return [None] * batch.num_rows
 
     def close(self):
         # `self._reader` does not need closing: it acts as a contextmanager, but its exit

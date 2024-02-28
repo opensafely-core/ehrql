@@ -43,6 +43,9 @@ class DummyDataGenerator:
             self.variable_definitions, self.random_seed
         )
 
+    def get_tables(self):
+        return self.patient_generator.get_tables()
+
     def get_data(self):
         generator = self.patient_generator
         data = []
@@ -160,6 +163,12 @@ class DummyPatientGenerator:
             # to inline tables. That's not particularly realistic, but if we don't
             # handle it gracefully Hypothesis will keep nagging us about it.
             self.orm_metadata = None
+
+    def get_tables(self):
+        return [
+            table_info.get_table_node()
+            for table_info in self.query_info.tables.values()
+        ]
 
     def get_patient_data_for_population_condition(self, patient_id):
         # Generate data for just those tables needed for determining whether the patient

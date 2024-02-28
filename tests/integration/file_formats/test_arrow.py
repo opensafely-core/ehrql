@@ -1,11 +1,11 @@
 import pyarrow.feather
 import pytest
 
-from ehrql.file_formats import write_dataset
+from ehrql.file_formats import write_rows
 from ehrql.query_model.column_specs import ColumnSpec
 
 
-def test_write_dataset_arrow(tmp_path):
+def test_write_rows_arrow(tmp_path):
     filename = tmp_path / "somedir" / "file.arrow"
     column_specs = {
         "patient_id": ColumnSpec(int),
@@ -18,7 +18,7 @@ def test_write_dataset_arrow(tmp_path):
         (456, None, None, 0.5),
         (789, 1999, "M", 1.0),
     ]
-    write_dataset(filename, results, column_specs)
+    write_rows(filename, results, column_specs)
 
     table = pyarrow.feather.read_table(filename)
     output_columns = table.column_names
@@ -37,18 +37,18 @@ def test_write_dataset_arrow(tmp_path):
     assert not pyarrow.types.is_dictionary(table.column("risk_score").type)
 
 
-def test_write_dataset_arrow_annotates_errors_with_column(tmp_path):
+def test_write_rows_arrow_annotates_errors_with_column(tmp_path):
     filename = tmp_path / "file.arrow"
     column_specs = {
         "value": ColumnSpec(int, min_value=0, max_value=100),
     }
     results = [(-1,)]
     with pytest.raises(OverflowError) as exc:
-        write_dataset(filename, results, column_specs)
+        write_rows(filename, results, column_specs)
     assert "Error when writing column 'value'" in exc.value.__notes__
 
 
-def test_write_dataset_arrow_raises_helpful_dictionary_errors(tmp_path):
+def test_write_rows_arrow_raises_helpful_dictionary_errors(tmp_path):
     filename = tmp_path / "file.arrow"
     column_specs = {
         "category": ColumnSpec(str, categories=("A", "B", "C")),
@@ -58,4 +58,4 @@ def test_write_dataset_arrow_raises_helpful_dictionary_errors(tmp_path):
         ValueError,
         match="Invalid value 'D' for column 'category'\nAllowed are: 'A', 'B', 'C'",
     ):
-        write_dataset(filename, results, column_specs)
+        write_rows(filename, results, column_specs)

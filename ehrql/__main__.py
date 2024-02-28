@@ -7,7 +7,12 @@ from argparse import ArgumentParser, ArgumentTypeError, RawTextHelpFormatter
 from pathlib import Path
 
 from ehrql import __version__
-from ehrql.file_formats import FILE_FORMATS, get_file_extension
+from ehrql.file_formats import (
+    FILE_FORMATS,
+    FileValidationError,
+    get_file_extension,
+    split_directory_and_extension,
+)
 from ehrql.loaders import DEFINITION_LOADERS, DefinitionError
 from ehrql.utils.string_utils import strip_indent
 
@@ -29,8 +34,10 @@ from .main import (
 QUERY_ENGINE_ALIASES = {
     "mssql": "ehrql.query_engines.mssql.MSSQLQueryEngine",
     "sqlite": "ehrql.query_engines.sqlite.SQLiteQueryEngine",
-    "csv": "ehrql.query_engines.csv.CSVQueryEngine",
+    "localfile": "ehrql.query_engines.local_file.LocalFileQueryEngine",
     "trino": "ehrql.query_engines.trino.TrinoQueryEngine",
+    # Kept as an alias for backwards compatibility
+    "csv": "ehrql.query_engines.local_file.LocalFileQueryEngine",
 }
 
 
@@ -89,10 +96,18 @@ def main(args, environ=None):
     orig_log_level = root_logger.level
     root_logger.setLevel(min(orig_log_level, logging.INFO))
 
+    # We try to catch as many errors as possible during argument parsing but there are
+    # certain classes of error that will only occur at runtime
     try:
         function(**kwargs)
-    except DefinitionError as e:
-        print(str(e), file=sys.stderr)
+    except DefinitionError as exc:
+        # Errors from definition files are already pre-formatted so we just write them
+        # directly to stderr and exit
+        print(str(exc), file=sys.stderr)
+        sys.exit(1)
+    except FileValidationError as exc:
+        # Handle errors encountered while reading user-supplied data
+        print(f"{exc.__class__.__name__}: {exc}", file=sys.stderr)
         sys.exit(1)
     finally:
         root_logger.setLevel(orig_log_level)
@@ -177,7 +192,25 @@ def add_generate_dataset(subparsers, environ, user_args):
         ),
         type=existing_file,
     )
-    add_dummy_data_file_argument(parser, environ)
+    parser.add_argument(
+        "--dummy-data-file",
+        help=strip_indent(
+            """
+            Path to a dummy dataset.
+
+            This allows you to take complete control of the dummy dataset. ehrQL
+            will ensure that the column names, types and categorical values match what
+            they will be in the real dataset, but does no further validation.
+
+            Note that the dummy dataset doesn't need to be of the same type as the
+            real dataset (e.g. you can use a `.csv` file here to produce a `.arrow`
+            file).
+
+            This argument is ignored when running against real tables.
+            """
+        ),
+        type=existing_file,
+    )
     add_dummy_tables_argument(parser, environ)
     add_dataset_definition_file_argument(parser, environ)
     internal_args = create_internal_argument_group(parser, environ)
@@ -223,18 +256,19 @@ def add_create_dummy_tables(subparsers, environ, user_args):
         "create-dummy-tables",
         help=strip_indent(
             """
-            Generate dummy tables and write them out as CSV files (one per table).
+            Generate dummy tables and write them out as files – one per table, CSV by
+            default.
 
             This command generates the same dummy tables that the `generate-dataset`
             command would generate, but instead of using them to produce a dummy
-            dataset, it writes them out as CSV files.
+            dataset, it writes them out as individual files.
 
-            The directory containing the CSV files can then be used as the
+            The directory containing these files can then be used as the
             [`--dummy-tables`](#generate-dataset.dummy-tables) argument to
             `generate-dataset` to produce the dummy dataset.
 
-            The CSV files can be edited in any way you wish, giving you full control
-            over the dummy tables.
+            The files can be edited in any way you wish, giving you full control over
+            the dummy tables.
             """
         ),
         formatter_class=RawTextHelpFormatter,
@@ -245,8 +279,16 @@ def add_create_dummy_tables(subparsers, environ, user_args):
     add_dataset_definition_file_argument(parser, environ)
     parser.add_argument(
         "dummy_tables_path",
-        help="Path to directory where CSV files (one per table) will be written.",
-        type=Path,
+        help=strip_indent(
+            f"""
+            Path to directory where files (one per table) will be written.
+
+            By default these will be CSV files. To generate files in other formats add
+            `:<format>` to the directory name e.g.
+            {backtick_join('my_outputs' + format_directory_extension(e) for e in FILE_FORMATS)}
+            """
+        ),
+        type=valid_output_directory_with_csv_default,
     )
 
 
@@ -270,8 +312,26 @@ def add_generate_measures(subparsers, environ, user_args):
         type=valid_output_path,
         dest="output_file",
     )
+    parser.add_argument(
+        "--dummy-data-file",
+        help=strip_indent(
+            """
+            Path to dummy measures output.
+
+            This allows you to take complete control of the dummy measures output. ehrQL
+            will ensure that the column names, types and categorical values match what
+            they will be in the real measures output, but does no further validation.
+
+            Note that the dummy measures output doesn't need to be of the same type as the
+            real measures output (e.g. you can use a `.csv` file here to produce a `.arrow`
+            file).
+
+            This argument is ignored when running against real tables.
+            """
+        ),
+        type=existing_file,
+    )
     add_dummy_tables_argument(parser, environ)
-    add_dummy_data_file_argument(parser, environ)
     parser.add_argument(
         "definition_file",
         help="Path of the Python file where measures are defined.",
@@ -293,7 +353,12 @@ def add_run_sandbox(subparsers, environ, user_args):
     parser.set_defaults(environ=environ)
     parser.add_argument(
         "dummy_tables_path",
-        help="Path to directory of CSV files (one per table).",
+        help=strip_indent(
+            f"""
+            Path to directory of data files (one per table), supported formats are:
+            {backtick_join(FILE_FORMATS)}
+            """
+        ),
         type=existing_directory,
     )
 
@@ -468,52 +533,15 @@ def add_dsn_argument(parser, environ):
     )
 
 
-def add_dummy_data_file_argument(parser, environ):
-    if parser.get_default("function") == generate_dataset:
-        help_text = """
-            Path to a dummy dataset.
-
-            This allows you to take complete control of the dummy dataset. ehrQL
-            will ensure that the column names, types and categorical values match what
-            they will be in the real dataset, but does no further validation.
-
-            Note that the dummy dataset doesn't need to be of the same type as the
-            real dataset (e.g. you can use a `.csv` file here to produce a `.arrow`
-            file).
-        """
-    else:
-        help_text = """
-            Path to dummy measures output.
-
-            This allows you to take complete control of the dummy measures output. ehrQL
-            will ensure that the column names, types and categorical values match what
-            they will be in the real measures output, but does no further validation.
-
-            Note that the dummy measures output doesn't need to be of the same type as the
-            real measures output (e.g. you can use a `.csv` file here to produce a `.arrow`
-            file).
-        """
-
-    parser.add_argument(
-        "--dummy-data-file",
-        help=strip_indent(
-            f"""
-            {help_text}
-
-            This argument is ignored when running against real tables.
-            """
-        ),
-        type=existing_file,
-    )
-
-
 def add_dummy_tables_argument(parser, environ):
     parser.add_argument(
         "--dummy-tables",
         help=strip_indent(
-            """
-            Path to directory of CSV files (one per table) to use as dummy tables
+            f"""
+            Path to directory of files (one per table) to use as dummy tables
             (see [`create-dummy-tables`](#create-dummy-tables)).
+
+            Files may be in any supported format: {backtick_join(FILE_FORMATS)}
 
             This argument is ignored when running against real tables.
             """
@@ -585,6 +613,25 @@ def valid_output_path(value):
             f"{backtick_join(FILE_FORMATS)}"
         )
     return path
+
+
+def valid_output_directory_with_csv_default(value):
+    path = Path(value)
+    extension = split_directory_and_extension(path)[1]
+    if not extension:
+        return Path(value + ":csv")
+    elif extension not in FILE_FORMATS:
+        raise ArgumentTypeError(
+            f"'{format_directory_extension(extension)}' is not a supported format, "
+            f"must be one of: "
+            f"{backtick_join(format_directory_extension(e) for e in FILE_FORMATS)}"
+        )
+    else:
+        return path
+
+
+def format_directory_extension(extension):
+    return ":" + extension.removeprefix(".")
 
 
 def query_engine_from_id(str_id):

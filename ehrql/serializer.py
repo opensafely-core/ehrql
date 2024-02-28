@@ -4,7 +4,7 @@ import json
 import pathlib
 
 from ehrql.codes import BaseCode
-from ehrql.file_formats.base import BaseDatasetReader
+from ehrql.file_formats.base import BaseRowsReader
 from ehrql.measures.measures import DisclosureControlConfig, Measure
 from ehrql.query_language import DummyDataConfig
 from ehrql.query_model.column_specs import ColumnSpec
@@ -40,7 +40,7 @@ TYPE_REGISTRY = {
         *get_all_subclasses(Node),
         *get_all_subclasses(BaseCode),
         *get_all_subclasses(BaseConstraint),
-        *get_all_subclasses(BaseDatasetReader),
+        *get_all_subclasses(BaseRowsReader),
     ]
 }
 
@@ -153,7 +153,7 @@ class Marshaller:
 
     @marshal.register(Column)
     @marshal.register(BaseConstraint)
-    @marshal.register(BaseDatasetReader)
+    @marshal.register(BaseRowsReader)
     @marshal.register(ColumnSpec)
     @marshal.register(DummyDataConfig)
     @marshal.register(Measure)
@@ -274,7 +274,7 @@ class Unmarshaller:
     @unmarshal_for.register(Column)
     @unmarshal_for.register(BaseConstraint)
     @unmarshal_for.register(ColumnSpec)
-    @unmarshal_for.register(BaseDatasetReader)
+    @unmarshal_for.register(BaseRowsReader)
     @unmarshal_for.register(DummyDataConfig)
     @unmarshal_for.register(Measure)
     @unmarshal_for.register(DisclosureControlConfig)

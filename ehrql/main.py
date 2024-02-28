@@ -9,7 +9,12 @@ import structlog
 
 from ehrql import assurance, sandbox
 from ehrql.dummy_data import DummyDataGenerator
-from ehrql.file_formats import read_dataset, write_dataset
+from ehrql.file_formats import (
+    read_rows,
+    split_directory_and_extension,
+    write_rows,
+    write_tables,
+)
 from ehrql.loaders import (
     isolation_report,
     load_dataset_definition,
@@ -23,13 +28,15 @@ from ehrql.measures import (
     get_column_specs_for_measures,
     get_measure_results,
 )
-from ehrql.query_engines.csv import CSVQueryEngine
+from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
-from ehrql.query_model.column_specs import get_column_specs
+from ehrql.query_model.column_specs import (
+    get_column_specs,
+    get_column_specs_from_schema,
+)
 from ehrql.query_model.graphs import graph_to_svg
 from ehrql.serializer import serialize
 from ehrql.utils.itertools_utils import eager_iterator
-from ehrql.utils.orm_utils import write_orm_models_to_csv_directory
 from ehrql.utils.sqlalchemy_query_utils import (
     clause_as_str,
     get_setup_and_cleanup_queries,
@@ -91,7 +98,7 @@ def generate_dataset_with_dsn(
         backend_class,
         query_engine_class,
         environ,
-        default_query_engine_class=CSVQueryEngine,
+        default_query_engine_class=LocalFileQueryEngine,
     )
     results = query_engine.get_results(variable_definitions)
     # Because `results` is a generator we won't actually execute any queries until we
@@ -99,7 +106,7 @@ def generate_dataset_with_dsn(
     # log output) before we create the output file. Wrapping the generator in
     # `eager_iterator` ensures this happens by consuming the first item upfront.
     results = eager_iterator(results)
-    write_dataset(dataset_file, results, column_specs)
+    write_rows(dataset_file, results, column_specs)
 
 
 def generate_dataset_with_dummy_data(
@@ -115,11 +122,11 @@ def generate_dataset_with_dummy_data(
 
     if dummy_data_file:
         log.info(f"Reading dummy data from {dummy_data_file}")
-        reader = read_dataset(dummy_data_file, column_specs)
+        reader = read_rows(dummy_data_file, column_specs)
         results = iter(reader)
     elif dummy_tables_path:
-        log.info(f"Reading CSV data from {dummy_tables_path}")
-        query_engine = CSVQueryEngine(dummy_tables_path)
+        log.info(f"Reading table data from {dummy_tables_path}")
+        query_engine = LocalFileQueryEngine(dummy_tables_path)
         results = query_engine.get_results(variable_definitions)
     else:
         generator = DummyDataGenerator(
@@ -130,7 +137,7 @@ def generate_dataset_with_dummy_data(
 
     log.info("Building dataset and writing results")
     results = eager_iterator(results)
-    write_dataset(dataset_file, results, column_specs)
+    write_rows(dataset_file, results, column_specs)
 
 
 def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
@@ -142,10 +149,23 @@ def create_dummy_tables(definition_file, dummy_tables_path, user_args, environ):
         variable_definitions,
         population_size=dummy_data_config.population_size,
     )
-    dummy_tables = generator.get_data()
-    dummy_tables_path.parent.mkdir(parents=True, exist_ok=True)
-    log.info(f"Writing CSV files to {dummy_tables_path}")
-    write_orm_models_to_csv_directory(dummy_tables_path, dummy_tables)
+    # Get the specifications for all the tables we're going to need to write
+    table_specs = {
+        table.name: get_column_specs_from_schema(table.schema)
+        for table in generator.get_tables()
+    }
+    # Group dummy data items by table, in the appropriate format
+    table_data = {table_name: [] for table_name in table_specs.keys()}
+    for item in generator.get_data():
+        table_name = item.__table__.name
+        columns = table_specs[table_name]
+        table_data[table_name].append(
+            # Transform each item into a list of column values in the expected order
+            [getattr(item, column, None) for column in columns]
+        )
+    directory, extension = split_directory_and_extension(dummy_tables_path)
+    log.info(f"Writing tables as '{extension}' files to '{directory}'")
+    write_tables(dummy_tables_path, table_data.values(), table_specs)
 
 
 def dump_dataset_sql(
@@ -281,13 +301,13 @@ def generate_measures_with_dsn(
         backend_class,
         query_engine_class,
         environ,
-        default_query_engine_class=CSVQueryEngine,
+        default_query_engine_class=LocalFileQueryEngine,
     )
     results = get_measure_results(query_engine, measure_definitions)
     if disclosure_control_config.enabled:
         results = apply_sdc_to_measure_results(results)
     results = eager_iterator(results)
-    write_dataset(output_file, results, column_specs)
+    write_rows(output_file, results, column_specs)
 
 
 def generate_measures_with_dummy_data(
@@ -303,11 +323,11 @@ def generate_measures_with_dummy_data(
 
     if dummy_data_file:
         log.info(f"Reading dummy data from {dummy_data_file}")
-        reader = read_dataset(dummy_data_file, column_specs)
+        reader = read_rows(dummy_data_file, column_specs)
         results = iter(reader)
     elif dummy_tables_path:
-        log.info(f"Reading CSV data from {dummy_tables_path}")
-        query_engine = CSVQueryEngine(dummy_tables_path)
+        log.info(f"Reading data from {dummy_tables_path}")
+        query_engine = LocalFileQueryEngine(dummy_tables_path)
         results = get_measure_results(query_engine, measure_definitions)
     else:
         results = DummyMeasuresDataGenerator(
@@ -318,7 +338,7 @@ def generate_measures_with_dummy_data(
     if disclosure_control_config.enabled:
         results = apply_sdc_to_measure_results(results)
     results = eager_iterator(results)
-    write_dataset(output_file, results, column_specs)
+    write_rows(output_file, results, column_specs)
 
 
 def run_sandbox(dummy_tables_path, environ):

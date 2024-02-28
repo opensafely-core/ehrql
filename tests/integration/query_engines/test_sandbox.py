@@ -5,7 +5,7 @@ from ehrql.query_engines.sandbox import SandboxQueryEngine
 from ehrql.tables import PatientFrame, Series, table
 
 
-FIXTURES = Path(__file__).parents[2] / "fixtures" / "csv_engine"
+FIXTURES = Path(__file__).parents[2] / "fixtures" / "local_file_engine"
 
 
 @table

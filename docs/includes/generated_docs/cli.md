@@ -50,7 +50,8 @@ definition.
   <a href="#create-dummy-tables"><tt>create-dummy-tables</tt></a>
 </div>
 <p class="indent">
-Generate dummy tables and write them out as CSV files (one per table).
+Generate dummy tables and write them out as files – one per table, CSV by
+default.
 </p>
 
 <div class="attr-heading">
@@ -179,7 +180,6 @@ Note that the dummy dataset doesn't need to be of the same type as the
 real dataset (e.g. you can use a `.csv` file here to produce a `.arrow`
 file).
 
-
 This argument is ignored when running against real tables.
 
 </div>
@@ -189,8 +189,10 @@ This argument is ignored when running against real tables.
   <a class="headerlink" href="#generate-dataset.dummy-tables" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Path to directory of CSV files (one per table) to use as dummy tables
+Path to directory of files (one per table) to use as dummy tables
 (see [`create-dummy-tables`](#create-dummy-tables)).
+
+Files may be in any supported format: `.arrow`, `.csv`, `.csv.gz`
 
 This argument is ignored when running against real tables.
 
@@ -229,7 +231,7 @@ Data Source Name: URL of remote database, or path to data on disk
   <a class="headerlink" href="#generate-dataset.query-engine" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `csv`, `trino`
+Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `localfile`, `trino`, `csv`
 
 </div>
 
@@ -250,7 +252,7 @@ Dotted import path to Backend class, or one of: `emis`, `tpp`
 </h2>
 ```
 ehrql generate-measures DEFINITION_FILE [--help] [--output OUTPUT_FILE]
-      [--dummy-tables DUMMY_TABLES_PATH] [--dummy-data-file DUMMY_DATA_FILE]
+      [--dummy-data-file DUMMY_DATA_FILE] [--dummy-tables DUMMY_TABLES_PATH]
       [--dsn DSN] [--query-engine QUERY_ENGINE_CLASS] [--backend BACKEND_CLASS]
       [ -- ... PARAMETERS ...]
 ```
@@ -284,18 +286,6 @@ supported formats: `.arrow`, `.csv`, `.csv.gz`
 
 </div>
 
-<div class="attr-heading" id="generate-measures.dummy-tables">
-  <tt>--dummy-tables DUMMY_TABLES_PATH</tt>
-  <a class="headerlink" href="#generate-measures.dummy-tables" title="Permanent link">🔗</a>
-</div>
-<div markdown="block" class="indent">
-Path to directory of CSV files (one per table) to use as dummy tables
-(see [`create-dummy-tables`](#create-dummy-tables)).
-
-This argument is ignored when running against real tables.
-
-</div>
-
 <div class="attr-heading" id="generate-measures.dummy-data-file">
   <tt>--dummy-data-file DUMMY_DATA_FILE</tt>
   <a class="headerlink" href="#generate-measures.dummy-data-file" title="Permanent link">🔗</a>
@@ -311,6 +301,19 @@ Note that the dummy measures output doesn't need to be of the same type as the
 real measures output (e.g. you can use a `.csv` file here to produce a `.arrow`
 file).
 
+This argument is ignored when running against real tables.
+
+</div>
+
+<div class="attr-heading" id="generate-measures.dummy-tables">
+  <tt>--dummy-tables DUMMY_TABLES_PATH</tt>
+  <a class="headerlink" href="#generate-measures.dummy-tables" title="Permanent link">🔗</a>
+</div>
+<div markdown="block" class="indent">
+Path to directory of files (one per table) to use as dummy tables
+(see [`create-dummy-tables`](#create-dummy-tables)).
+
+Files may be in any supported format: `.arrow`, `.csv`, `.csv.gz`
 
 This argument is ignored when running against real tables.
 
@@ -349,7 +352,7 @@ Data Source Name: URL of remote database, or path to data on disk
   <a class="headerlink" href="#generate-measures.query-engine" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `csv`, `trino`
+Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `localfile`, `trino`, `csv`
 
 </div>
 
@@ -378,7 +381,8 @@ Start the ehrQL sandbox environment.
   <a class="headerlink" href="#sandbox.dummy_tables_path" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Path to directory of CSV files (one per table).
+Path to directory of data files (one per table), supported formats are:
+`.arrow`, `.csv`, `.csv.gz`
 
 </div>
 
@@ -460,7 +464,7 @@ SQL output file (outputs to console by default).
   <a class="headerlink" href="#dump-dataset-sql.query-engine" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `csv`, `trino`
+Dotted import path to Query Engine class, or one of: `mssql`, `sqlite`, `localfile`, `trino`, `csv`
 
 </div>
 
@@ -493,18 +497,19 @@ double-dash ` -- `.
 ehrql create-dummy-tables DEFINITION_FILE DUMMY_TABLES_PATH [--help]
       [ -- ... PARAMETERS ...]
 ```
-Generate dummy tables and write them out as CSV files (one per table).
+Generate dummy tables and write them out as files – one per table, CSV by
+default.
 
 This command generates the same dummy tables that the `generate-dataset`
 command would generate, but instead of using them to produce a dummy
-dataset, it writes them out as CSV files.
+dataset, it writes them out as individual files.
 
-The directory containing the CSV files can then be used as the
+The directory containing these files can then be used as the
 [`--dummy-tables`](#generate-dataset.dummy-tables) argument to
 `generate-dataset` to produce the dummy dataset.
 
-The CSV files can be edited in any way you wish, giving you full control
-over the dummy tables.
+The files can be edited in any way you wish, giving you full control over
+the dummy tables.
 
 <div class="attr-heading" id="create-dummy-tables.definition_file">
   <tt>DEFINITION_FILE</tt>
@@ -520,7 +525,11 @@ Path of the Python file where the dataset is defined.
   <a class="headerlink" href="#create-dummy-tables.dummy_tables_path" title="Permanent link">🔗</a>
 </div>
 <div markdown="block" class="indent">
-Path to directory where CSV files (one per table) will be written.
+Path to directory where files (one per table) will be written.
+
+By default these will be CSV files. To generate files in other formats add
+`:<format>` to the directory name e.g.
+`my_outputs:arrow`, `my_outputs:csv`, `my_outputs:csv.gz`
 
 </div>
 

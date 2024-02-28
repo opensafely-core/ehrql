@@ -7,6 +7,7 @@ from ehrql.query_model.nodes import (
     Case,
     Constraint,
     SelectColumn,
+    SelectPatientTable,
     Value,
     get_root_frame,
     get_series_type,
@@ -42,14 +43,15 @@ def get_column_specs(variable_definitions):
 
 
 def get_column_specs_from_schema(schema):
-    column_specs = {"patient_id": ColumnSpec(type=int)} | {
-        name: ColumnSpec(
-            type=col_type,
-            categories=schema.get_column_categories(name),
-        )
-        for name, col_type in dict(schema.column_types).items()
+    # This is a little bit convoluted, but allows us to get consistent behaviour by
+    # reusing all the logic above: we create a table node and then create some variables
+    # by selecting each column in the schema from it.
+    table = SelectPatientTable(name="table", schema=schema)
+    variables = {
+        column_name: SelectColumn(source=table, name=column_name)
+        for column_name in schema.column_names
     }
-    return column_specs
+    return get_column_specs(variables)
 
 
 def get_column_spec_from_series(series):

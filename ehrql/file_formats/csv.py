@@ -4,10 +4,14 @@ import gzip
 import sys
 from contextlib import nullcontext
 
-from ehrql.file_formats.base import BaseDatasetReader, ValidationError, validate_columns
+from ehrql.file_formats.base import (
+    BaseRowsReader,
+    FileValidationError,
+    validate_columns,
+)
 
 
-def write_dataset_csv(filename, results, column_specs):
+def write_rows_csv(filename, rows, column_specs):
     if filename is None:
         context = nullcontext(sys.stdout)
     else:
@@ -15,21 +19,21 @@ def write_dataset_csv(filename, results, column_specs):
         # https://docs.python.org/3/library/csv.html#id3
         context = filename.open(mode="w", newline="")
     with context as f:
-        write_dataset_csv_lines(f, results, column_specs)
+        write_rows_csv_lines(f, rows, column_specs)
 
 
-def write_dataset_csv_gz(filename, results, column_specs):
+def write_rows_csv_gz(filename, rows, column_specs):
     # Set `newline` as per Python docs: https://docs.python.org/3/library/csv.html#id3
     with gzip.open(filename, "wt", newline="", compresslevel=6) as f:
-        write_dataset_csv_lines(f, results, column_specs)
+        write_rows_csv_lines(f, rows, column_specs)
 
 
-def write_dataset_csv_lines(fileobj, results, column_specs):
+def write_rows_csv_lines(fileobj, rows, column_specs):
     headers = list(column_specs.keys())
     format_row = create_row_formatter(column_specs.values())
     writer = csv.writer(fileobj)
     writer.writerow(headers)
-    writer.writerows(map(format_row, results))
+    writer.writerows(map(format_row, rows))
 
 
 def create_row_formatter(column_specs):
@@ -58,11 +62,11 @@ def format_bool(value):
     return "T" if value else "F"
 
 
-class BaseCSVDatasetReader(BaseDatasetReader):
+class BaseCSVRowsReader(BaseRowsReader):
     def _validate_basic(self):
         # CSV being what it is we can't properly validate the types it contains without
         # reading the entire thing, which we don't want do. So we read the first 10 rows
-        # in the hope that if there's a type mistmach it will show up here.
+        # in the hope that if there's a type mismatch it will show up here.
         for _ in zip(self, range(10)):
             pass
 
@@ -70,24 +74,26 @@ class BaseCSVDatasetReader(BaseDatasetReader):
         self._fileobj.seek(0)
         reader = csv.reader(self._fileobj)
         headers = next(reader)
-        validate_columns(headers, self.column_specs.keys())
+        validate_columns(
+            headers, self.column_specs, allow_missing_columns=self.allow_missing_columns
+        )
         row_parser = create_row_parser(headers, self.column_specs)
         for n, row in enumerate(reader, start=1):
             try:
                 yield row_parser(row)
             except ValueError as e:
-                raise ValidationError(f"row {n}: {e}")
+                raise FileValidationError(f"row {n}: {e}")
 
     def close(self):
         self._fileobj.close()
 
 
-class CSVDatasetReader(BaseCSVDatasetReader):
+class CSVRowsReader(BaseCSVRowsReader):
     def _open(self):
         self._fileobj = open(self.filename, newline="")
 
 
-class CSVGZDatasetReader(BaseCSVDatasetReader):
+class CSVGZRowsReader(BaseCSVRowsReader):
     def _open(self):
         self._fileobj = gzip.open(self.filename, "rt", newline="")
 
@@ -107,6 +113,10 @@ def create_row_parser(headers, column_specs):
 
 
 def create_column_parser(headers, name, spec):
+    # Missing columns always return a NULL value
+    if name not in headers:
+        return lambda _: None
+
     if spec.type in (int, float, str):
         convertor = spec.type
     elif spec.type is datetime.date:

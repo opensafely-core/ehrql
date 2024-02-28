@@ -1,12 +1,12 @@
 from pathlib import Path
 
 from ehrql import Dataset
-from ehrql.query_engines.csv import CSVQueryEngine
+from ehrql.query_engines.local_file import LocalFileQueryEngine
 from ehrql.query_language import compile
 from ehrql.tables import EventFrame, PatientFrame, Series, table
 
 
-FIXTURES = Path(__file__).parents[2] / "fixtures" / "csv_engine"
+FIXTURES = Path(__file__).parents[2] / "fixtures" / "local_file_engine"
 
 
 @table
@@ -17,11 +17,11 @@ class patients(PatientFrame):
 @table
 class events(EventFrame):
     score = Series(int)
-    # Columns in the schema which aren't in the CSV should just end up NULL
+    # Columns in the schema which aren't in the data files should just end up NULL
     expected_missing = Series(bool)
 
 
-def test_csv_query_engine():
+def test_local_file_query_engine():
     dataset = Dataset()
     dataset.sex = patients.sex
     dataset.total_score = events.score.sum_for_patient()
@@ -33,7 +33,7 @@ def test_csv_query_engine():
     dataset.define_population(patients.exists_for_patient())
     variable_definitions = compile(dataset)
 
-    query_engine = CSVQueryEngine(FIXTURES)
+    query_engine = LocalFileQueryEngine(FIXTURES)
     results = query_engine.get_results(variable_definitions)
 
     assert list(results) == [
