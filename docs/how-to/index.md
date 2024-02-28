@@ -1,6 +1,7 @@
 The how-to guides provide practical steps for working with ehrQL in your project.
 
 * [Using ehrQL to answer specific questions](examples.md)
+* [How to include and exclude patients from your study population](define-population.md)
 * [Resolving ehrQL errors](errors.md)
 * [How to use dummy data in an ehrQL dataset definition](dummy-data.md)
 * [How to use dummy data in an ehrQL measures definition](dummy-measures-data.md)
