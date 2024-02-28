@@ -34,6 +34,7 @@ nav:
   - How-to guides:
     - How-to guides: how-to/index.md
     - Using ehrQL to answer specific questions: how-to/examples.md
+    - How to include and exclude patients from your study population: how-to/define-population.md
     - Resolving ehrQL errors: how-to/errors.md
     - How to use dummy data in an ehrQL dataset definition: how-to/dummy-data.md
     - How to use dummy data in an ehrQL measures definition: how-to/dummy-measures-data.md
