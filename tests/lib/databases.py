@@ -10,7 +10,9 @@ from sqlalchemy.dialects import registry
 from sqlalchemy.orm import sessionmaker
 from trino.exceptions import TrinoQueryError
 
+from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.utils.itertools_utils import iter_flatten
+from ehrql.utils.orm_utils import SYNTHETIC_PRIMARY_KEY, table_has_one_row_per_patient
 
 
 MSSQL_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/mssql"
@@ -223,6 +225,50 @@ class InMemorySQLiteDatabase(DbDetails):
         # https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#uri-connections
         # https://sqlite.org/inmemorydb.html
         return f"{protocol}:///file:{self.db_name}?mode=memory&cache=shared&uri=true"
+
+
+class InMemoryPythonDatabase:
+
+    def __init__(self):
+        self.database = InMemoryDatabase()
+
+    def setup(self, *input_data, metadata=None):
+        """
+        Behaves like `DbDetails.setup` in taking a iterator of ORM instances but
+        translates these into the sort of objects needed by the `InMemoryDatabase`
+        """
+        input_data = list(iter_flatten(input_data))
+
+        if metadata:
+            pass
+        elif input_data:
+            metadata = input_data[0].metadata
+        else:
+            assert False, "No source of metadata"
+        assert all(item.metadata is metadata for item in input_data)
+
+        sqla_table_to_items = {table: [] for table in metadata.sorted_tables}
+        for item in input_data:
+            sqla_table_to_items[item.__table__].append(item)
+
+        for sqla_table, items in sqla_table_to_items.items():
+            columns = [
+                c.name for c in sqla_table.columns if c.name != SYNTHETIC_PRIMARY_KEY
+            ]
+            self.database.add_table(
+                name=sqla_table.name,
+                one_row_per_patient=table_has_one_row_per_patient(sqla_table),
+                columns=columns,
+                rows=[[getattr(item, c) for c in columns] for item in items],
+            )
+
+    def teardown(self):
+        self.database.populate({})
+
+    def host_url(self):
+        # Where other query engines expect a DSN string to connect to the database the
+        # InMemoryQueryEngine expects a reference to the database object itself
+        return self.database
 
 
 def make_trino_database(containers):
