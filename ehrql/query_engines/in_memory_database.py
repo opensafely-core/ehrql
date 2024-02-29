@@ -9,11 +9,40 @@ from dataclasses import dataclass
 
 import sqlalchemy
 
+from ehrql.query_model.nodes import has_one_row_per_patient
 from ehrql.utils.itertools_utils import iter_flatten
 from ehrql.utils.orm_utils import table_has_one_row_per_patient
 
 
 class InMemoryDatabase:
+
+    def __init__(self, table_data=None):
+        self.populate(table_data or {})
+
+    def populate(self, table_data):
+        self.all_patients = set()
+        self.tables = {}
+        for qm_table, rows in table_data.items():
+            self.add_table(
+                name=qm_table.name,
+                one_row_per_patient=has_one_row_per_patient(qm_table),
+                columns=["patient_id", *qm_table.schema.column_names],
+                rows=rows,
+            )
+
+    def add_table(self, name, one_row_per_patient, columns, rows):
+        if one_row_per_patient:
+            table_cls = PatientTable
+        else:
+            table_cls = EventTable
+            # Insert the synthetic "row_id" column after the patient_id
+            columns = [columns[0], "row_id", *columns[1:]]
+            rows = ((row[0], ix, *row[1:]) for ix, row in enumerate(rows, start=1))
+
+        table = table_cls.from_records(columns, rows)
+        self.tables[name] = table
+        self.all_patients |= table.patients()
+
     def setup(self, *input_data, metadata=None):
         self.all_patients = set()
 
