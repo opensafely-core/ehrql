@@ -155,12 +155,12 @@ class EventTable:
 
     @classmethod
     def from_records(cls, col_names, row_records):
-        if row_records:
-            col_records = list(zip(*row_records))
-        else:
-            col_records = [[]] * len(col_names)
         assert col_names[0] == "patient_id"
         assert col_names[1] == "row_id"
+        col_records = list(zip(*row_records))
+        # For empty tables we need to create the empty column objects explicitly
+        if not col_records:
+            col_records = [[]] * len(col_names)
         patients = col_records[0]
         rows = col_records[1]
         name_to_col = {}
