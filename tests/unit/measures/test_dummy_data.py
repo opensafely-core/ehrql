@@ -52,7 +52,9 @@ def test_dummy_measures_data_generator():
         intervals=intervals,
     )
 
-    generator = DummyMeasuresDataGenerator(measures, measures.dummy_data_config)
+    generator = DummyMeasuresDataGenerator(
+        measures, measures.dummy_data_config, today=date(2024, 1, 1)
+    )
     results = list(generator.get_results())
 
     # Check we generated the right number of rows: 2 rows for each breakdown by sex, 3
