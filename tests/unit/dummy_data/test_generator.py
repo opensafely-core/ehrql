@@ -272,7 +272,11 @@ def dummy_patient_generator():
     dataset = Dataset()
     dataset.define_population(patients.exists_for_patient())
     variable_definitions = compile(dataset)
-    generator = DummyPatientGenerator(variable_definitions, random_seed="abc")
+    generator = DummyPatientGenerator(
+        variable_definitions,
+        random_seed="abc",
+        today=datetime.date(2024, 1, 1),
+    )
     generator.generate_patient_facts(patient_id=1)
     # Ensure that this patient has a long enough history that we get a sensible
     # distribution of event dates (the fixed random seed above should ensure that the
