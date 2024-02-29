@@ -12,7 +12,7 @@ from ehrql.query_engines.mssql import MSSQLQueryEngine
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.query_engines.trino import TrinoQueryEngine
 from ehrql.query_language import compile
-from ehrql.utils.orm_utils import make_orm_models
+from tests.lib.orm_utils import make_orm_models
 
 from .lib.databases import (
     InMemoryPythonDatabase,

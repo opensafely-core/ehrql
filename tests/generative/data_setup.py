@@ -4,7 +4,7 @@ from ehrql.query_model.nodes import (
     SelectPatientTable,
     SelectTable,
 )
-from ehrql.utils.orm_utils import orm_classes_from_tables
+from tests.lib.orm_utils import orm_classes_from_tables
 
 
 def setup(schema, num_patient_tables, num_event_tables):

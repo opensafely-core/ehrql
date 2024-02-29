@@ -12,7 +12,7 @@ from trino.exceptions import TrinoQueryError
 
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.utils.itertools_utils import iter_flatten
-from ehrql.utils.orm_utils import SYNTHETIC_PRIMARY_KEY, table_has_one_row_per_patient
+from tests.lib.orm_utils import SYNTHETIC_PRIMARY_KEY, table_has_one_row_per_patient
 
 
 MSSQL_SETUP_DIR = Path(__file__).parents[1].absolute() / "support/mssql"

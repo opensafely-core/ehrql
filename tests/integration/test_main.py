@@ -6,7 +6,7 @@ import pytest
 from ehrql.main import generate_measures
 from ehrql.query_engines.sqlite import SQLiteQueryEngine
 from ehrql.tables.core import patients
-from ehrql.utils.orm_utils import make_orm_models
+from tests.lib.orm_utils import make_orm_models
 
 
 MEASURE_DEFINITIONS = """
