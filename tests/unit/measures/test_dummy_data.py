@@ -69,8 +69,8 @@ def test_dummy_measures_data_generator():
     numerators = [row[4] for row in results]
     denominators = [row[5] for row in results]
 
-    assert all(v > 0 for v in numerators)
-    assert all(v > 0 for v in denominators)
+    assert all([v > 0 for v in numerators])
+    assert all([v > 0 for v in denominators])
 
 
 def test_population_is_nonzero_when_no_groups():
