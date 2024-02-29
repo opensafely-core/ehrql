@@ -12,7 +12,6 @@ from ehrql.query_engines.in_memory import InMemoryQueryEngine
 from ehrql.query_engines.in_memory_database import InMemoryDatabase
 from ehrql.query_model.introspection import all_inline_patient_ids
 from ehrql.tables import Constraint
-from ehrql.utils.orm_utils import orm_classes_from_tables
 from ehrql.utils.regex_utils import create_regex_generator
 
 
@@ -47,9 +46,6 @@ class DummyDataGenerator:
         self.patient_generator = DummyPatientGenerator(
             self.variable_definitions, self.random_seed, self.today
         )
-
-    def get_tables(self):
-        return self.patient_generator.get_tables()
 
     def get_data(self):
         generator = self.patient_generator
@@ -147,27 +143,7 @@ class DummyPatientGenerator:
         self.rnd = random.Random()
         self.random_seed = random_seed
         self.today = today
-
         self.query_info = QueryInfo.from_variable_definitions(variable_definitions)
-        # Create ORM classes for each of the tables used in the dataset definition
-        self.orm_classes = orm_classes_from_tables(
-            table_info.get_table_node()
-            for table_info in self.query_info.tables.values()
-        )
-        if self.orm_classes:
-            # Grab the ORM metadata from (arbitrarily) the first ORM class
-            self.orm_metadata = list(self.orm_classes.values())[0].metadata
-        else:
-            # This is an edge case encountered when a query contains _only_ references
-            # to inline tables. That's not particularly realistic, but if we don't
-            # handle it gracefully Hypothesis will keep nagging us about it.
-            self.orm_metadata = None
-
-    def get_tables(self):
-        return [
-            table_info.get_table_node()
-            for table_info in self.query_info.tables.values()
-        ]
 
     def get_patient_data_for_population_condition(self, patient_id):
         # Generate data for just those tables needed for determining whether the patient
@@ -302,11 +278,6 @@ class DummyPatientGenerator:
             return event_date
         else:
             assert False, f"Unhandled type: {column_info.type}"
-
-    def get_one_empty_row_for_each_table(self):
-        # Useful if we can't generate any matching patients at all but we want to be
-        # able to at least show the structure of each table
-        return [orm_class(patient_id=1) for orm_class in self.orm_classes.values()]
 
     def get_empty_data(self):
         return {

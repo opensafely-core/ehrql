@@ -7,11 +7,7 @@ See tests in test_database.py for comprehensive examples of how this all works.
 from collections import UserDict, defaultdict
 from dataclasses import dataclass
 
-import sqlalchemy
-
 from ehrql.query_model.nodes import has_one_row_per_patient
-from ehrql.utils.itertools_utils import iter_flatten
-from ehrql.utils.orm_utils import table_has_one_row_per_patient
 
 
 class InMemoryDatabase:
@@ -42,54 +38,6 @@ class InMemoryDatabase:
         table = table_cls.from_records(columns, rows)
         self.tables[name] = table
         self.all_patients |= table.patients()
-
-    def setup(self, *input_data, metadata=None):
-        self.all_patients = set()
-
-        input_data = list(iter_flatten(input_data))
-
-        if metadata:
-            pass
-        elif input_data:
-            metadata = input_data[0].metadata
-        else:
-            metadata = sqlalchemy.MetaData()
-
-        assert all(item.metadata is metadata for item in input_data)
-
-        sqla_table_to_items = {table: [] for table in metadata.sorted_tables}
-        for item in input_data:
-            sqla_table_to_items[item.__table__].append(item)
-
-        self.tables = {}
-        for sqla_table, items in sqla_table_to_items.items():
-            self.tables[sqla_table.name] = self.build_table(sqla_table, items)
-
-    def teardown(self):
-        # no-op
-        pass
-
-    def build_table(self, sqla_table, items):
-        col_names = [col.name for col in sqla_table.columns]
-        if table_has_one_row_per_patient(sqla_table):
-            table_cls = PatientTable
-        else:
-            table_cls = EventTable
-            # starting at 1 is more like the real data
-            for ix, item in enumerate(items, start=1):
-                item.row_id = ix
-        row_records = [
-            [getattr(item, col_name) for col_name in col_names] for item in items
-        ]
-        table = table_cls.from_records(col_names, row_records)
-        self.all_patients |= table.patients()
-        return table
-
-    def host_url(self):
-        # Hack!  Other test database classes deriving from tests.lib.databases.DbDetails
-        # return a URL that can be used to connect to the database.  See
-        # InMemoryQueryEngine.database.
-        return self
 
 
 @dataclass
