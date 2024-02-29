@@ -88,17 +88,12 @@ def test_population_is_nonzero_when_no_groups():
 
 
 def test_configured_population_size():
-    events_in_interval = events.where(events.date.is_during(INTERVAL))
-    had_event = events_in_interval.exists_for_patient()
-    intervals = years(2).starting_on("2020-01-01")
     measures = Measures()
-
     measures.define_measure(
-        "had_event_by_region",
-        numerator=had_event,
+        "had_event",
+        numerator=events.exists_for_patient(),
         denominator=patients.exists_for_patient(),
-        group_by=dict(region=patients.region),
-        intervals=intervals,
+        intervals=years(1).starting_on("2020-01-01"),
     )
 
     measures.configure_dummy_data(population_size=10)
